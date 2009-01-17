@@ -22,6 +22,7 @@
  */
 
 package com.sun.javafx.runtime.location;
+import com.sun.javafx.runtime.TypeInfo;
 
 /*
  * WARNING: Automatically generated from the template $TEMPLATE_NAME$; do not edit!
@@ -46,11 +47,7 @@ abstract class $T.IndirectExpression$ extends $T.Variable$ implements IndirectLo
     public $T.IndirectExpression$(boolean lazy, Location... dependencies) {
         super();
         helper = IndirectLocationHelper.make(this, lazy, dependencies);
-        bind(lazy, new $T.BindingExpression$() {
-            public $T.prim$ computeValue() {
-                return helper.get().getAs$PREFIX$();
-            }
-        });
+        bind(lazy, IndirectLocationHelper.makeBindingExpression($T.TypeInfo$, helper));
     }
 
     public abstract $T.Location$ computeLocation();

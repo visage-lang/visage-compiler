@@ -443,13 +443,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
         }
 
-        Type unboxedTargetType = targetType.isPrimitive() ? targetType :
-            types.unboxedType(targetType);
-        if (unboxedTargetType != Type.noType) {
-            Type unboxedSourceType = sourceType.isPrimitive() ? sourceType
-                    : types.unboxedType(sourceType);
-            if (unboxedSourceType != Type.noType &&
-                    unboxedSourceType != unboxedTargetType) {
+        Type unboxedTargetType = targetType.isPrimitive() ? targetType : types.unboxedType(targetType);
+        Type unboxedSourceType = sourceType.isPrimitive() ? sourceType : types.unboxedType(sourceType);
+        if (unboxedTargetType != Type.noType && unboxedSourceType != Type.noType) {
+            if (unboxedSourceType != unboxedTargetType || (targetType.isPrimitive() != sourceType.isPrimitive())) {
                  translated = make.at(diagPos).TypeCast(unboxedTargetType, translated);
             }
         }

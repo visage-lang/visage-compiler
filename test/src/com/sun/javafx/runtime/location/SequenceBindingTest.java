@@ -276,13 +276,13 @@ public class SequenceBindingTest extends JavaFXTestCase {
         final IntLocation n = IntVariable.make(0);
         final SequenceLocation<Integer> oneToN = SequenceVariable.make(TypeInfo.Integer, false,
                                                                        new SequenceBindingExpression<Integer>() {
-                                                                           public Sequence<? extends Integer> computeValue() {
+                                                                           public Sequence<Integer> computeValue() {
                                                                                return Sequences.range(1, n.getAsInt());
                                                                            }
                                                                        }, n);
         final SequenceLocation<Integer> evenN =SequenceVariable.make(TypeInfo.Integer, false,
                                                                      new SequenceBindingExpression<Integer>() {
-                                                                         public Sequence<? extends Integer> computeValue() {
+                                                                         public Sequence<Integer> computeValue() {
                                                                              return oneToN.getAsSequence().get(new SequencePredicate<Integer>() {
                                                                                  public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
                                                                                      return value % 2 == 0;

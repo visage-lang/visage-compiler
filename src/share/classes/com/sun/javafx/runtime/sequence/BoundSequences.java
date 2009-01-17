@@ -110,17 +110,17 @@ public class BoundSequences {
     }
 
     public static<T> IntLocation sizeof(final SequenceLocation<T> sequence) {
-        return IntVariable.make(new IntBindingExpression() {
-            public int computeValue() {
-                return Sequences.size(sequence.get());
+        return IntVariable.make(new BindingExpression() {
+            public void compute() {
+                pushValue(Sequences.size(sequence.get()));
             }
         }, sequence);
     }
 
     public static<T> IntLocation sizeof(final ObjectLocation<T> item) {
-        return IntVariable.make(new IntBindingExpression() {
-            public int computeValue() {
-                return item.get() == null ? 0 : 1;
+        return IntVariable.make(new BindingExpression() {
+            public void compute() {
+                pushValue(item.get() == null ? 0 : 1);
             }
         }, item);
     }

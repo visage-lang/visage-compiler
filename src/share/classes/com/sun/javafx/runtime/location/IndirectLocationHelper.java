@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.TypeInfo;
+
 /**
  * Helper classes for indirect locations; maintains separate dependency paths for the static dependencies (passed into
  * the constructor) and the dynamic dependencies (embodied in the returned location from computeLocation()).  All
@@ -32,9 +34,9 @@ package com.sun.javafx.runtime.location;
  */
 public class IndirectLocationHelper {
     public static<T extends Location> ObjectLocation<T> make(final IndirectLocation<T> helped, boolean lazy, Location... dependencies) {
-        final ObjectVariable<T> ov = ObjectVariable.make(lazy, new ObjectBindingExpression<T>() {
-            public T computeValue() {
-                return helped.computeLocation();
+        final ObjectVariable<T> ov = ObjectVariable.make(lazy, new BindingExpression() {
+            public void compute() {
+                pushValue(helped.computeLocation());
             }
         }, dependencies);
         helped.addDependency(ov);
@@ -46,5 +48,23 @@ public class IndirectLocationHelper {
             }
         });
         return ov;
+    }
+
+    public static<T extends Location> BindingExpression makeBindingExpression(final TypeInfo ti, final ObjectLocation<T> helper) {
+        return new BindingExpression() {
+            public void compute() {
+                switch (ti.type) {
+                    case INT: pushValue(((IntLocation) helper.get()).getAsInt()); break;
+                    case FLOAT: pushValue(((FloatLocation) helper.get()).getAsFloat()); break;
+                    case DOUBLE: pushValue(((DoubleLocation) helper.get()).getAsDouble()); break;
+                    case LONG: pushValue(((LongLocation) helper.get()).getAsLong()); break;
+                    case BYTE: pushValue(((ByteLocation) helper.get()).getAsByte()); break;
+                    case SHORT: pushValue(((ShortLocation) helper.get()).getAsShort()); break;
+                    case BOOLEAN: pushValue(((BooleanLocation) helper.get()).getAsBoolean()); break;
+                    case CHAR: pushValue(((CharLocation) helper.get()).getAsChar()); break;
+                    default: throw new UnsupportedOperationException(ti.type.toString());
+                }
+            }
+        };
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,6 +23,9 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
+
 /**
  * Common base class for all binding expressions, regardless of type.  Binding expressions override compute(), and
  * must call one of the pushValue() methods as its last operation.  It must call the appropriate pushValue method for
@@ -30,42 +33,29 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class AbstractBindingExpression extends AbstractLocationDependency {
-    protected Location location;
+public abstract class BindingExpression extends AbstractBindingExpression {
 
-    public int getDependencyKind() {
-        return AbstractLocation.CHILD_KIND_BINDING_EXPRESSION;
-    }
+    // These unsafe casts are done to avoid the need to have a separate class for each return type.  Ugly, but reduces footprint.
 
-    public void setLocation(Location location) {
-        if (this.location != null)
-            throw new IllegalStateException("Cannot reuse binding expressions");
-        this.location = location;
-        Location[] fixedDependents = getStaticDependents();
-        if (fixedDependents != null) {
-            location.addDependency(fixedDependents);
-        }
-    }
+    public void pushValue(int x) { ((IntVariable) location).replaceValue(x); }
 
-    /**
-     * Override to provide an array of static dependents
-     * @return an array of static dependents, or null
-     */
-    protected Location[] getStaticDependents() {
-        return null;
-    }
+    public void pushValue(long x) { ((LongVariable) location).replaceValue(x); }
 
-    protected <T extends Location> T addDynamicDependent(T dep) {
-        location.addDynamicDependency(dep);
-        return dep;
-    }
+    public void pushValue(short x) { ((ShortVariable) location).replaceValue(x); }
 
-    protected <T extends Location> T addStaticDependent(T dep) {
-        location.addDependency(dep);
-        return dep;
-    }
+    public void pushValue(byte x) { ((ByteVariable) location).replaceValue(x); }
 
-    protected void clearDynamicDependencies() {
-        location.clearDynamicDependencies();
-    }
+    public void pushValue(char x) { ((CharVariable) location).replaceValue(x); }
+
+    public void pushValue(boolean x) { ((BooleanVariable) location).replaceValue(x); }
+
+    public void pushValue(float x) { ((FloatVariable) location).replaceValue(x); }
+
+    public void pushValue(double x) { ((DoubleVariable) location).replaceValue(x); }
+
+    public<V> void pushValue(Sequence<? extends V> x) { ((SequenceVariable<V>) location).replaceValue(Sequences.upcast(x)); }
+
+    public<V> void pushValue(V x) { ((ObjectVariable<V>) location).replaceValue(x); }
+
+    public abstract void compute();
 }

@@ -35,7 +35,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.BindingExpression$, $T.ChangeListener$> implements $T.Location$ {
+public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.ChangeListener$> implements $T.Location$ {
     public static final $T.prim$ DEFAULT = $V.default$;
 
     protected $T.prim$ \$value = DEFAULT;
@@ -48,11 +48,11 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.B
         return new $T.Variable$(value);
     }
 
-    public static $T.Variable$ make(boolean lazy, $T.BindingExpression$ binding, Location... dependencies) {
+    public static $T.Variable$ make(boolean lazy, BindingExpression binding, Location... dependencies) {
         return new $T.Variable$(lazy, binding, dependencies);
     }
 
-    public static $T.Variable$ make($T.BindingExpression$ binding, Location... dependencies) {
+    public static $T.Variable$ make(BindingExpression binding, Location... dependencies) {
         return new $T.Variable$(false, binding, dependencies);
     }
 
@@ -71,7 +71,7 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.B
         setValid();
     }
 
-    protected $T.Variable$(boolean lazy, $T.BindingExpression$ binding, Location... dependencies) {
+    protected $T.Variable$(boolean lazy, BindingExpression binding, Location... dependencies) {
         this();
         bind(lazy, binding);
         addDependency(dependencies);
@@ -98,10 +98,10 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.B
         return newValue;
     }
 
-    protected $T.BindingExpression$ makeBindingExpression(final $T.Location$ otherLocation) {
-        return new $T.BindingExpression$() {
-            public $T.prim$ computeValue() {
-                return otherLocation.getAs$PREFIX$();
+    protected BindingExpression makeBindingExpression(final $T.Location$ otherLocation) {
+        return new BindingExpression() {
+            public void compute() {
+                pushValue(otherLocation.getAs$PREFIX$());
             }
         };
     }
@@ -142,18 +142,7 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.B
         return value;
     }
 
-    @Override
-    public void update() {
-        try {
-            if (isUnidirectionallyBound() && !isValid())
-                replaceValue(getBindingExpression().computeValue());
-        }
-        catch (RuntimeException e) {
-            ErrorHandler.bindException(e);
-            if (isInitialized())
-                replaceValue(DEFAULT);
-        }
-    }
+    protected void replaceWithDefault() { replaceValue(DEFAULT); }
 
     public void addChangeListener(final ObjectChangeListener<$T.boxed$> listener) {
         addChangeListener(new $T.ChangeListener$() {

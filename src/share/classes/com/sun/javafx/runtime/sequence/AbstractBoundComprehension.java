@@ -106,6 +106,8 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     protected abstract SequenceLocation<V> computeElements$(L elementLocation, IntLocation indexLocation);
 
+    // This ugly and not typesafe construct eliminates ~10 classes, which add a lot to our static footprint.
+    // Such optimizations are ugly but needed for smaller-memory platforms.
     @SuppressWarnings("unchecked")
     protected L makeInductionLocation(T value) {
             switch (inType.type) {

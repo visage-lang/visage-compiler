@@ -23,13 +23,18 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.sequence.Sequence;
+/*
+ * WARNING: Automatically generated from the template XxxBindingExpression; do not edit!
+ */
 
 /**
- * SequenceBindingExpression
+ * BooleanBindingExpression
+ *
  *
  * @author Brian Goetz
  */
-public abstract class SequenceBindingExpression<T> extends AbstractBindingExpression {
-    public abstract Sequence<? extends T> computeValue();
+public abstract class BooleanBindingExpression extends BindingExpression {
+    public abstract boolean computeValue();
+
+    public void compute() { pushValue(computeValue()); }
 }

@@ -42,7 +42,7 @@ public class BijectiveBindTest extends JavaFXTestCase {
             }
         });
         final ObjectLocation<String> s = ObjectVariable.make("");
-        final ObjectLocation<String> se = ObjectVariable.make(new ObjectBindingExpression<String>() {
+        final ObjectLocation<String> se = ObjectVariable.make(false, new ObjectBindingExpression<String>() {
             public String computeValue() {
                 return "";
             }

@@ -42,9 +42,9 @@ public abstract class IndirectObjectExpression<T> extends ObjectVariable<T> impl
     public IndirectObjectExpression(boolean lazy, Location... dependencies) {
         super();
         helper = IndirectLocationHelper.make(this, lazy, dependencies);
-        bind(lazy, new ObjectBindingExpression<T>() {
-            public T computeValue() {
-                return helper.get().get();
+        bind(lazy, new BindingExpression() {
+            public void compute() {
+                pushValue(helper.get().get());
             }
         });
     }

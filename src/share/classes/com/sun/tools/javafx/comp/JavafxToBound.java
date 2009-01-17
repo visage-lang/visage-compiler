@@ -366,7 +366,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     List.<JCTypeParameter>nil(),
                     params==null? List.<JCVariableDecl>nil() : params,
                     List.<JCExpression>nil(),
-                    m().Block(0L, List.<JCStatement>of(m().Return(expr))),
+                    m().Block(0L, List.<JCStatement>of((returnType == syms.voidType) ? m().Exec(expr) : m().Return(expr))),
                     null);
         }
 
@@ -1118,6 +1118,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             JCExpression resultVal = tmiTarget==null?
                 resultValue():
                 toJava.convertTranslated(resultValue(), diagPos, actualTranslatedType, tmiTarget.getRealType());
+            JCExpression wrapped = callExpression(diagPos, null, "pushValue", resultVal);
 
             // create a getStaticDependents method to set the args as static dependents
             Type locationType = typeMorpher.baseLocation.type;
@@ -1125,13 +1126,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             Type depsReturnType = new Type.ArrayType(locationType, syms.arrayClass);
             members.append(makeClosureMethod("getStaticDependents", depsArray, null, depsReturnType, Flags.PROTECTED));
 
-            members.append(makeClosureMethod("computeValue", resultVal, null, tmiResult.getRealFXType(), Flags.PUBLIC));
+            members.append(makeClosureMethod("compute", wrapped, null, syms.voidType, Flags.PUBLIC));
             return completeMembers();
         }
 
         protected JCExpression makeBaseClass() {
-            Type clazzType = typeMorpher.bindingExpressionType(typeKindResult);
-            return makeBaseClass(clazzType, null);
+            Type clazzType = typeMorpher.bindingExpression.type;
+            return makeExpression(types.erasure(clazzType));
         }
 
         protected List<JCExpression> makeConstructorArgs() {

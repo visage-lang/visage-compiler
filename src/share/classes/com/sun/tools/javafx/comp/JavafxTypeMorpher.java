@@ -57,11 +57,11 @@ public class JavafxTypeMorpher {
     private final JavafxToJava toJava;  //TODO: this dependency should go away
     private final JavafxTypes types;
 
-    public final LocationNameSymType[] bindingNCT;
     public final LocationNameSymType[] locationNCT;
     public final LocationNameSymType[] variableNCT;
     public final LocationNameSymType[] constantLocationNCT;
     public final LocationNameSymType   baseLocation;
+    public final LocationNameSymType   bindingExpression;
     public final LocationNameSymType abstractBoundComprehension;
 
     private final Object[] defaultValueByKind;
@@ -211,14 +211,13 @@ public class JavafxTypeMorpher {
 
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
-        bindingNCT = new LocationNameSymType[TYPE_KIND_COUNT];  
         constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         abstractBoundComprehension = new LocationNameSymType(sequencePackageNameString, "AbstractBoundComprehension");
+        bindingExpression = new LocationNameSymType(locationPackageNameString, "BindingExpression");
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(defs.locationVariableName[kind]);
             locationNCT[kind] = new LocationNameSymType(defs.locationInterfaceName[kind]);
-            bindingNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "BindingExpression");
             constantLocationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Constant");
         }
 
@@ -359,10 +358,6 @@ public class JavafxTypeMorpher {
 
     Type locationType(int typeKind) {
         return locationNCT[typeKind].type;
-    }
-
-    Type bindingExpressionType(int typeKind) {
-        return bindingNCT[typeKind].type;
     }
 
     /** Add type parameters.

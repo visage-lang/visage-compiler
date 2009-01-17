@@ -163,7 +163,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
     public void testString() {
         final ObjectLocation<String> a = ObjectVariable.make("foo");
         final ObjectLocation<String> b = ObjectVariable.make(" bar");
-        final ObjectLocation<String> c = ObjectVariable.make(new ObjectBindingExpression<String>() {
+        final ObjectLocation<String> c = ObjectVariable.make(false, new ObjectBindingExpression<String>() {
             public String computeValue() {
                 return a.get() + b.get();
             }

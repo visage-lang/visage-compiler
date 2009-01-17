@@ -24,15 +24,18 @@
 package com.sun.javafx.runtime.location;
 
 /*
- * WARNING: Automatically generated from the template $TEMPLATE_NAME$; do not edit!
+ * WARNING: Automatically generated from the template XxxBindingExpression; do not edit!
+ * Kept around only for test compatibility.
  */
 
 /**
- * $T.BindingExpression$
+ * IntBindingExpression
  *
  *
  * @author Brian Goetz
  */
-public abstract class $T.BindingExpression$ extends AbstractBindingExpression {
-    public abstract $T.prim$ computeValue();
+public abstract class IntBindingExpression extends BindingExpression {
+    public abstract int computeValue();
+
+    public void compute() { pushValue(computeValue()); }
 }

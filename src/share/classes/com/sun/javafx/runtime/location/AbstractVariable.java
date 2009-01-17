@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.BindingException;
+import com.sun.javafx.runtime.ErrorHandler;
 
 /**
  * AbstractVariable
@@ -33,11 +34,10 @@ import com.sun.javafx.runtime.BindingException;
 public abstract class AbstractVariable<
         T_VALUE,
         T_LOCATION extends ObjectLocation<T_VALUE>,
-        T_BINDING extends AbstractBindingExpression,
         T_LISTENER extends LocationDependency
         >
         extends AbstractLocation
-        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_BINDING, T_LISTENER> {
+        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_LISTENER> {
 
     protected static final byte STATE_INITIAL = 0;
     protected static final byte STATE_UNBOUND_DEFAULT = 1;
@@ -89,11 +89,11 @@ public abstract class AbstractVariable<
         });
     }
 
-    protected abstract T_BINDING makeBindingExpression(T_LOCATION location);
+    protected abstract BindingExpression makeBindingExpression(T_LOCATION location);
 
     @SuppressWarnings("unchecked")
-    protected T_BINDING getBindingExpression() {
-        return (T_BINDING) findChildByKind(CHILD_KIND_BINDING_EXPRESSION);
+    protected BindingExpression getBindingExpression() {
+        return (BindingExpression) findChildByKind(CHILD_KIND_BINDING_EXPRESSION);
     }
 
     public void bind(boolean lazy, T_LOCATION otherLocation) {
@@ -108,7 +108,7 @@ public abstract class AbstractVariable<
         });
     }
 
-    public void bind(boolean lazy, T_BINDING binding, Location... dependencies) {
+    public void bind(boolean lazy, BindingExpression binding, Location... dependencies) {
         ensureBindable();
         resetState(lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND);
         enqueueChild(binding);
@@ -118,7 +118,7 @@ public abstract class AbstractVariable<
             update();
     }
 
-    public void bindFromLiteral(final boolean lazy, final T_BINDING binding, final Location... dependencies) {
+    public void bindFromLiteral(final boolean lazy, final BindingExpression binding, final Location... dependencies) {
         setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 bind(lazy, binding, dependencies);
@@ -160,6 +160,21 @@ public abstract class AbstractVariable<
         // This is where we used to do fireInitialTriggers when we were deferring triggers
         if (isUnidirectionallyBound() && !isLazilyBound())
             update();
+    }
+
+    protected abstract void replaceWithDefault();
+
+    @Override
+    public void update() {
+        try {
+            if (isUnidirectionallyBound() && !isValid())
+                getBindingExpression().compute();
+        }
+        catch (RuntimeException e) {
+            ErrorHandler.bindException(e);
+            if (isInitialized())
+                replaceWithDefault();
+        }
     }
 
     @Override

@@ -30,6 +30,16 @@ DEFAULT_MAP ::= [
     "Boolean":"false",
     "Byte":"0"
 ]
+TYPEINFO_MAP ::= [
+    "Int":"TypeInfo.Integer",
+    "Double":"TypeInfo.Double",
+    "Float":"TypeInfo.Float",
+    "Short":"TypeInfo.Short",
+    "Char":"TypeInfo.Character",
+    "Long":"TypeInfo.Long",
+    "Boolean":"TypeInfo.Boolean",
+    "Byte":"TypeInfo.Byte"
+]
 
 T ::= [
     "prim":"<PRIM_MAP.(PREFIX)>",
@@ -38,6 +48,7 @@ T ::= [
     "Variable":"<PREFIX>Variable",
     "ChangeListener":"<PREFIX>ChangeListener",
     "Constant":"<PREFIX>Constant",
+    "TypeInfo":"<TYPEINFO_MAP.(PREFIX)>",
     "BindingExpression":"<PREFIX>BindingExpression",
     "IndirectExpression":"Indirect<PREFIX>Expression"
 ]

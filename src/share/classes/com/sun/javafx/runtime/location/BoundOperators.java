@@ -48,152 +48,186 @@ public class BoundOperators {
         AND, OR, NOT
     }
 
-    public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
-        return IntVariable.make(lazy, new IntBindingExpression() {
-            public int computeValue() {
-                switch (op) {
-                    case PLUS: return a.getAsInt() + b.getAsInt();
-                    case MINUS: return a.getAsInt() - b.getAsInt();
-                    case TIMES: return a.getAsInt() * b.getAsInt();
-                    case DIVIDE: return a.getAsInt() / b.getAsInt();
-                    case MODULO: return a.getAsInt() % b.getAsInt();
-                    case NEGATE: return -a.getAsInt();
-                    default: throw new UnsupportedOperationException(op.toString());
+    private static final int CASE_OP_INT = 0;
+    private static final int CASE_OP_DOUBLE = 1;
+    private static final int CASE_OP_FLOAT = 2;
+    private static final int CASE_OP_LONG = 3;
+    private static final int CASE_CMP_INT = 4;
+    private static final int CASE_CMP_DOUBLE = 5;
+    private static final int CASE_CMP_FLOAT = 6;
+    private static final int CASE_CMP_LONG = 7;
+
+    private static class NumericBindingExpression extends BindingExpression {
+        private final Operator op;
+        private final int arm;
+        private final NumericLocation a, b;
+
+        private NumericBindingExpression(Operator op, int arm, NumericLocation a, NumericLocation b) {
+            this.op = op;
+            this.arm = arm;
+            this.a = a;
+            this.b = b;
+        }
+
+        public void compute() {
+            switch (arm) {
+                case CASE_OP_INT:
+                    switch (op) {
+                        case PLUS: pushValue(a.getAsInt() + b.getAsInt()); break;
+                        case MINUS: pushValue(a.getAsInt() - b.getAsInt()); break;
+                        case TIMES: pushValue(a.getAsInt() * b.getAsInt()); break;
+                        case DIVIDE: pushValue(a.getAsInt() / b.getAsInt()); break;
+                        case MODULO: pushValue(a.getAsInt() % b.getAsInt()); break;
+                        case NEGATE: pushValue(-a.getAsInt()); break;
+                        default: throw new UnsupportedOperationException(op.toString());
+                    }
+                    break;
+
+                case CASE_OP_DOUBLE:
+                    switch (op) {
+                        case PLUS: pushValue(a.getAsDouble() + b.getAsDouble()); break;
+                        case MINUS:  pushValue(a.getAsDouble() - b.getAsDouble()); break;
+                        case TIMES: pushValue(a.getAsDouble() * b.getAsDouble()); break;
+                        case DIVIDE: pushValue(a.getAsDouble() / b.getAsDouble()); break;
+                        case MODULO: pushValue(a.getAsDouble() % b.getAsDouble()); break;
+                        case NEGATE: pushValue(-a.getAsDouble()); break;
+                        default: throw new UnsupportedOperationException(op.toString());
+                    }
+                    break;
+
+                case CASE_OP_FLOAT:
+                    switch (op) {
+                        case PLUS: pushValue((a.getAsFloat() + b.getAsFloat())); break;
+                        case MINUS: pushValue((a.getAsFloat() - b.getAsFloat())); break;
+                        case TIMES: pushValue((a.getAsFloat() * b.getAsFloat())); break;
+                        case DIVIDE: pushValue((a.getAsFloat() / b.getAsFloat())); break;
+                        case MODULO: pushValue((a.getAsFloat() % b.getAsFloat())); break;
+                        case NEGATE: pushValue((-a.getAsFloat())); break;
+                        default: throw new UnsupportedOperationException(op.toString());
+                    }
+                    break;
+
+                case CASE_OP_LONG:
+                    switch (op) {
+                        case PLUS: pushValue((a.getAsLong() + b.getAsLong())); break;
+                        case MINUS: pushValue((a.getAsLong() - b.getAsLong())); break;
+                        case TIMES: pushValue((a.getAsLong() * b.getAsLong())); break;
+                        case DIVIDE: pushValue((a.getAsLong() / b.getAsLong())); break;
+                        case MODULO: pushValue((a.getAsLong() % b.getAsLong())); break;
+                        case NEGATE: pushValue((-a.getAsLong())); break;
+                        default: throw new UnsupportedOperationException(op.toString());
+                    }
+                    break;
+
+                case CASE_CMP_INT:
+                {
+                    int left = a.getAsInt();
+                    int right = b.getAsInt();
+                    switch (op) {
+                        case CMP_EQ: pushValue((left == right)); break;
+                        case CMP_NE: pushValue((left != right)); break;
+                        case CMP_LT: pushValue((left < right)); break;
+                        case CMP_LE: pushValue((left <= right)); break;
+                        case CMP_GT: pushValue((left > right)); break;
+                        case CMP_GE: pushValue((left >= right)); break;
+                        default: throw new UnsupportedOperationException(op.toString());
+                    }
                 }
+                break;
+
+                case CASE_CMP_DOUBLE:
+                {
+                    double left = a.getAsDouble();
+                    double right = b.getAsDouble();
+                    switch (op) {
+                        case CMP_EQ: pushValue((left == right)); break;
+                        case CMP_NE: pushValue((left != right)); break;
+                        case CMP_LT: pushValue((left < right)); break;
+                        case CMP_LE: pushValue((left <= right)); break;
+                        case CMP_GT: pushValue((left > right)); break;
+                        case CMP_GE: pushValue((left >= right)); break;
+                        default: throw new UnsupportedOperationException(op.toString());
+                    }
+                }
+                break;
+
+                case CASE_CMP_FLOAT:
+                {
+                    float left = a.getAsFloat();
+                    float right = b.getAsFloat();
+                    switch (op) {
+                        case CMP_EQ: pushValue((left == right)); break;
+                        case CMP_NE: pushValue((left != right)); break;
+                        case CMP_LT: pushValue((left < right)); break;
+                        case CMP_LE: pushValue((left <= right)); break;
+                        case CMP_GT: pushValue((left > right)); break;
+                        case CMP_GE: pushValue((left >= right)); break;
+                        default: throw new UnsupportedOperationException(op.toString());
+                    }
+                }
+                break;
+
+                case CASE_CMP_LONG:
+                {
+                    long left = a.getAsLong();
+                    long right = b.getAsLong();
+                    switch (op) {
+                        case CMP_EQ: pushValue((left == right)); break;
+                        case CMP_NE: pushValue((left != right)); break;
+                        case CMP_LT: pushValue((left < right)); break;
+                        case CMP_LE: pushValue((left <= right)); break;
+                        case CMP_GT: pushValue((left > right)); break;
+                        case CMP_GE: pushValue((left >= right)); break;
+                        default: throw new UnsupportedOperationException(op.toString());
+                    }
+                }
+                break;
             }
-        }, a, b);
+        }
+    }
+
+    public static IntLocation op_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
+        return IntVariable.make(lazy, new NumericBindingExpression(op, CASE_OP_INT, a, b), a, b);
     }
 
     public static DoubleLocation op_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
-        return DoubleVariable.make(lazy, new DoubleBindingExpression() {
-            public double computeValue() {
-                switch (op) {
-                    case PLUS: return a.getAsDouble() + b.getAsDouble();
-                    case MINUS: return a.getAsDouble() - b.getAsDouble();
-                    case TIMES: return a.getAsDouble() * b.getAsDouble();
-                    case DIVIDE: return a.getAsDouble() / b.getAsDouble();
-                    case MODULO: return a.getAsDouble() % b.getAsDouble();
-                    case NEGATE: return -a.getAsDouble();
-                    default: throw new UnsupportedOperationException(op.toString());
-                }
-            }
-        }, a, b);
+        return DoubleVariable.make(lazy, new NumericBindingExpression(op, CASE_OP_DOUBLE, a, b), a, b);
     }
 
     public static FloatLocation op_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
-        return FloatVariable.make(lazy, new FloatBindingExpression() {
-            public float computeValue() {
-                switch (op) {
-                    case PLUS: return a.getAsFloat() + b.getAsFloat();
-                    case MINUS: return a.getAsFloat() - b.getAsFloat();
-                    case TIMES: return a.getAsFloat() * b.getAsFloat();
-                    case DIVIDE: return a.getAsFloat() / b.getAsFloat();
-                    case MODULO: return a.getAsFloat() % b.getAsFloat();
-                    case NEGATE: return -a.getAsFloat();
-                    default: throw new UnsupportedOperationException(op.toString());
-                }
-            }
-        }, a, b);
+        return FloatVariable.make(lazy, new NumericBindingExpression(op, CASE_OP_FLOAT, a, b), a, b);
     }
 
     public static LongLocation op_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
-        return LongVariable.make(lazy, new LongBindingExpression() {
-            public long computeValue() {
-                switch (op) {
-                    case PLUS: return a.getAsLong() + b.getAsLong();
-                    case MINUS: return a.getAsLong() - b.getAsLong();
-                    case TIMES: return a.getAsLong() * b.getAsLong();
-                    case DIVIDE: return a.getAsLong() / b.getAsLong();
-                    case MODULO: return a.getAsLong() % b.getAsLong();
-                    case NEGATE: return -a.getAsLong();
-                    default: throw new UnsupportedOperationException(op.toString());
-                }
-            }
-        }, a, b);
+        return LongVariable.make(lazy, new NumericBindingExpression(op, CASE_OP_LONG, a, b), a, b);
     }
 
     public static BooleanLocation cmp_int(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                int left = a.getAsInt();
-                int right = b.getAsInt();
-                switch (op) {
-                    case CMP_EQ: return left == right;
-                    case CMP_NE: return left != right;
-                    case CMP_LT: return left < right;
-                    case CMP_LE: return left <= right;
-                    case CMP_GT: return left > right;
-                    case CMP_GE: return left >= right;
-                    default: throw new UnsupportedOperationException(op.toString());
-                }
-            }
-        }, a, b);
+        return BooleanVariable.make(lazy, new NumericBindingExpression(op, CASE_CMP_INT, a, b), a, b);
     }
 
     public static BooleanLocation cmp_long(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                long left = a.getAsLong();
-                long right = b.getAsLong();
-                switch (op) {
-                    case CMP_EQ: return left == right;
-                    case CMP_NE: return left != right;
-                    case CMP_LT: return left < right;
-                    case CMP_LE: return left <= right;
-                    case CMP_GT: return left > right;
-                    case CMP_GE: return left >= right;
-                    default: throw new UnsupportedOperationException(op.toString());
-                }
-            }
-        }, a, b);
+        return BooleanVariable.make(lazy, new NumericBindingExpression(op, CASE_CMP_LONG, a, b), a, b);
     }
 
     public static BooleanLocation cmp_float(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                float left = a.getAsFloat();
-                float right = b.getAsFloat();
-                switch (op) {
-                    case CMP_EQ: return left == right;
-                    case CMP_NE: return left != right;
-                    case CMP_LT: return left < right;
-                    case CMP_LE: return left <= right;
-                    case CMP_GT: return left > right;
-                    case CMP_GE: return left >= right;
-                    default: throw new UnsupportedOperationException(op.toString());
-                }
-            }
-        }, a, b);
+        return BooleanVariable.make(lazy, new NumericBindingExpression(op, CASE_CMP_FLOAT, a, b), a, b);
     }
 
     public static BooleanLocation cmp_double(final boolean lazy, final NumericLocation a, final NumericLocation b, final Operator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
-                double left = a.getAsDouble();
-                double right = b.getAsDouble();
-                switch (op) {
-                    case CMP_EQ: return left == right;
-                    case CMP_NE: return left != right;
-                    case CMP_LT: return left < right;
-                    case CMP_LE: return left <= right;
-                    case CMP_GT: return left > right;
-                    case CMP_GE: return left >= right;
-                    default: throw new UnsupportedOperationException(op.toString());
-                }
-            }
-        }, a, b);
+        return BooleanVariable.make(lazy, new NumericBindingExpression(op, CASE_CMP_DOUBLE, a, b), a, b);
     }
 
 
     public static BooleanLocation op_boolean(final boolean lazy, final BooleanLocation a, final BooleanLocation b, final Operator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
+        return BooleanVariable.make(lazy, new BindingExpression() {
+            public void compute() {
                 switch (op) {
-                    case AND: return a.getAsBoolean() && b.getAsBoolean();
-                    case OR: return a.getAsBoolean() || b.getAsBoolean();
-                    case CMP_EQ: return a.getAsBoolean() == b.getAsBoolean();
-                    case CMP_NE: return a.getAsBoolean() != b.getAsBoolean();
-                    case NOT: return !a.getAsBoolean();
+                    case AND: pushValue((a.getAsBoolean() && b.getAsBoolean())); break;
+                    case OR: pushValue((a.getAsBoolean() || b.getAsBoolean())); break;
+                    case CMP_EQ: pushValue((a.getAsBoolean() == b.getAsBoolean())); break;
+                    case CMP_NE: pushValue((a.getAsBoolean() != b.getAsBoolean())); break;
+                    case NOT: pushValue((!a.getAsBoolean())); break;
                     default: throw new UnsupportedOperationException(op.toString());
                 }
             }
@@ -201,13 +235,13 @@ public class BoundOperators {
     }
 
     public static<T, V> BooleanLocation cmp_other(final boolean lazy, final ObjectLocation<T> a, final ObjectLocation<V> b, final Operator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
+        return BooleanVariable.make(lazy, new BindingExpression() {
+            public void compute() {
                 T aVal = a.get();
                 V bVal = b.get();
                 switch (op) {
-                    case CMP_EQ: return aVal == null ? bVal == null : aVal.equals(bVal);
-                    case CMP_NE: return aVal == null ? bVal != null : !aVal.equals(bVal);
+                    case CMP_EQ: pushValue((aVal == null ? bVal == null : aVal.equals(bVal))); break;
+                    case CMP_NE: pushValue((aVal == null ? bVal != null : !aVal.equals(bVal))); break;
                     default: throw new UnsupportedOperationException(op.toString());
                 }
             }
@@ -215,16 +249,16 @@ public class BoundOperators {
     }
 
     public static<T, V> BooleanLocation cmp_other(final boolean lazy, final ObjectLocation<T> a, final SequenceLocation<V> b, final Operator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
+        return BooleanVariable.make(lazy, new BindingExpression() {
+            public void compute() {
                 T aVal = a.get();
                 Sequence<V> bVal = b.getAsSequence();
                 switch (op) {
                     case CMP_EQ:
-                        return aVal == null ? (Sequences.size(bVal) == 0) : bVal.size() == 1 && bVal.get(0).equals(aVal);
+                        pushValue((aVal == null ? (Sequences.size(bVal) == 0) : bVal.size() == 1 && bVal.get(0).equals(aVal))); break;
 
                     case CMP_NE:
-                        return aVal == null ? (Sequences.size(bVal) != 0) : bVal.size() != 1 || !bVal.get(0).equals(aVal);
+                        pushValue((aVal == null ? (Sequences.size(bVal) != 0) : bVal.size() != 1 || !bVal.get(0).equals(aVal))); break;
 
                     default: throw new UnsupportedOperationException(op.toString());
                 }
@@ -242,13 +276,13 @@ public class BoundOperators {
     }
 
     public static<T, V> BooleanLocation cmp_other(final boolean lazy, final SequenceLocation<T> a, final SequenceLocation<V> b, final Operator op) {
-        return BooleanVariable.make(lazy, new BooleanBindingExpression() {
-            public boolean computeValue() {
+        return BooleanVariable.make(lazy, new BindingExpression() {
+            public void compute() {
                 Sequence<T> aVal = a.getAsSequence();
                 Sequence<V> bVal = b.getAsSequence();
                 switch (op) {
-                    case CMP_EQ: return aVal == null ? (Sequences.size(bVal) == 0) : aVal.equals(bVal);
-                    case CMP_NE: return aVal == null ? (Sequences.size(bVal) != 0) : !aVal.equals(bVal);
+                    case CMP_EQ: pushValue((aVal == null ? (Sequences.size(bVal) == 0) : aVal.equals(bVal))); break;
+                    case CMP_NE: pushValue((aVal == null ? (Sequences.size(bVal) != 0) : !aVal.equals(bVal))); break;
                     default: throw new UnsupportedOperationException(op.toString());
                 }
             }

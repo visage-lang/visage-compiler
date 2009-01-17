@@ -39,7 +39,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Brian Goetz
  */
 public class SequenceVariable<T>
-        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceBindingExpression<T>, SequenceChangeListener<T>>
+        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceChangeListener<T>>
         implements SequenceLocation<T> {
 
     private final TypeInfo<T> typeInfo;
@@ -56,11 +56,11 @@ public class SequenceVariable<T>
         return new SequenceVariable<T>(typeInfo, value);
     }
 
-    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
+    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, boolean lazy, BindingExpression binding, Location... dependencies) {
         return new SequenceVariable<T>(typeInfo, lazy, binding, dependencies);
     }
 
-    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, SequenceBindingExpression<T> binding, Location... dependencies) {
+    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, BindingExpression binding, Location... dependencies) {
         return new SequenceVariable<T>(typeInfo, false, binding, dependencies);
     }
 
@@ -94,7 +94,7 @@ public class SequenceVariable<T>
         replaceValue(Sequences.<T>upcast(value));
     }
 
-    protected SequenceVariable(TypeInfo<T> typeInfo, boolean lazy, SequenceBindingExpression<T> binding, Location... dependencies) {
+    protected SequenceVariable(TypeInfo<T> typeInfo, boolean lazy, BindingExpression binding, Location... dependencies) {
         this(typeInfo);
         bind(lazy, binding);
         addDependency(dependencies);
@@ -103,7 +103,7 @@ public class SequenceVariable<T>
     /**
      * Update the held value, notifying change listeners
      */
-    private Sequence<T> replaceValue(Sequence<T> newValue) {
+    protected Sequence<T> replaceValue(Sequence<T> newValue) {
         assert (boundLocation == null);
         if (newValue == null)
             newValue = typeInfo.emptySequence;
@@ -190,11 +190,11 @@ public class SequenceVariable<T>
         return Sequences.size(getAsSequence()) == 0;
     }
 
-    protected SequenceBindingExpression<T> makeBindingExpression(final SequenceLocation<T> otherLocation) {
-        return new SequenceBindingExpression<T>() {
-            public Sequence<T> computeValue() {
-                return otherLocation.getAsSequence();
-            }
+    protected BindingExpression makeBindingExpression(final SequenceLocation<T> otherLocation) {
+        return new BindingExpression() {
+            public void compute() {
+                pushValue(otherLocation.getAsSequence());
+           }
         };
     }
 
@@ -254,17 +254,19 @@ public class SequenceVariable<T>
         return getAsSequenceRaw().iterator();
     }
 
-    @Override
+    public void replaceWithDefault() {
+        replaceValue(typeInfo.emptySequence);
+    }
+
     public void update() {
         try {
-            if (isUnidirectionallyBound() && !isValid() && boundLocation == null) {
-                replaceValue(Sequences.upcast(getBindingExpression().computeValue()));
-            }
+            if (isUnidirectionallyBound() && !isValid() && boundLocation == null)
+                getBindingExpression().compute();
         }
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
             if (isInitialized())
-                replaceValue(typeInfo.emptySequence);
+                replaceWithDefault();
         }
     }
 
