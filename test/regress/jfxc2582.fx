@@ -5,7 +5,7 @@
  *                                            ToLong.fx,ToShort.fx}
  * when this issue is resolved.
  *
- * @test/fail
+ * @test
  */
 
 def iSeq : Integer[] = [ 100..200 ];

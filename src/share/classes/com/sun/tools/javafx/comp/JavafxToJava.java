@@ -364,6 +364,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     JCExpression convertTranslated(JCExpression translated, DiagnosticPosition diagPos,
             Type sourceType, Type targetType) {
+        if (targetType.tag == TypeTags.UNKNOWN) {
+            //TODO: this is bad attribution
+            return translated;
+        }
+        if (types.isSameType(targetType, sourceType)) {
+            return translated;
+        }
         boolean sourceIsSequence = types.isSequence(sourceType);
         boolean targetIsSequence = types.isSequence(targetType);
         boolean sourceIsArray = sourceType==null? false : types.isArray(sourceType);
@@ -443,11 +450,21 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
         }
 
+        // Convert primitive types
         Type unboxedTargetType = targetType.isPrimitive() ? targetType : types.unboxedType(targetType);
         Type unboxedSourceType = sourceType.isPrimitive() ? sourceType : types.unboxedType(sourceType);
         if (unboxedTargetType != Type.noType && unboxedSourceType != Type.noType) {
-            if (unboxedSourceType != unboxedTargetType || (targetType.isPrimitive() != sourceType.isPrimitive())) {
-                 translated = make.at(diagPos).TypeCast(unboxedTargetType, translated);
+            if (!sourceType.isPrimitive()) {
+                // unboxed source if sourceboxed
+                translated = make.at(diagPos).TypeCast(unboxedSourceType, translated);
+            }
+            if (unboxedSourceType != unboxedTargetType) {
+                // convert as primitive types
+                translated = make.at(diagPos).TypeCast(unboxedTargetType, translated);
+            }
+            if (!targetType.isPrimitive()) {
+                // box target if target boxed
+                translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, targetType, false), translated);
             }
         }
 
@@ -2120,9 +2137,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             result = make.at(diagPos).Indexed(tseq, index);
         }
         else {
-            JCFieldAccess select = make.at(diagPos).Select(tseq, defs.getMethodName);
-            List<JCExpression> args = List.of(index);
-            result = make.at(diagPos).Apply(null, select, args);
+            JCExpression trans = callExpression(diagPos, tseq, defs.getMethodName, index);
+            result = tree.type.isPrimitive()? convertTranslated(trans, diagPos, types.boxedClass(tree.type).type, tree.type) : trans;
         }
     }
 

@@ -78,7 +78,6 @@ public class ToByte extends FXTestCase {
         b = 127 as Short;
         assertEquals127();
 
-        /* Uncomment this block when JFXC-2582 is fixed
         var seq1 = [ 125..3240 ];
         b = seq1[2];
         assertEquals127();
@@ -86,7 +85,6 @@ public class ToByte extends FXTestCase {
         var seq2 = [ 121.11, 1750.35, 127.0, 1434.9 ];
         b = seq2[2];
         assertEquals127();
-        */
     }
 
     function assertEquals127() {

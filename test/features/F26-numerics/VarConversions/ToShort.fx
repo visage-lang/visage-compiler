@@ -89,7 +89,6 @@ public class ToShort extends FXTestCase {
         s = fSeq;
         */
 
-        /* Uncomment this block when JFXC-2582 is fixed
         var seq1 = [ 32765..33000 ];
         s = seq1[2];
         assertEquals32767();
@@ -97,7 +96,6 @@ public class ToShort extends FXTestCase {
         var seq2 = [ 121.11, 1750.35, 32767.0, 1434.9 ];
         s = seq2[2];
         assertEquals32767();
-        */
     }
 
     function assertEquals32767() {

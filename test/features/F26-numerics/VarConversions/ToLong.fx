@@ -87,11 +87,9 @@ public class ToLong extends FXTestCase {
         l = seq1[2];
         assertEquals127();
 
-        /* Uncomment this block when JFXC-2582 is fixed
         var seq2 = [ 121.11, 1750.35, 127.0, 1434.9 ];
         l = seq2[2];
         assertEquals127();
-        */
     }
 
     function assertEquals127() {

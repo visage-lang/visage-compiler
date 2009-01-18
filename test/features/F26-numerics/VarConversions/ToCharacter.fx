@@ -90,7 +90,6 @@ public class ToCharacter extends FXTestCase {
         c = fSeq;
         */
 
-        /* Uncomment this block when JFXC-2582 is fixed
         var seq1 = [ 65533..65535 ];
         c = seq1[2];
         assertEquals65535();
@@ -98,7 +97,6 @@ public class ToCharacter extends FXTestCase {
         var seq2 = [ 121.11, 1750.35, 65535.0, 1434.9 ];
         c = seq2[2];
         assertEquals65535();
-        */
     }
 
     function assertEquals65535() {
