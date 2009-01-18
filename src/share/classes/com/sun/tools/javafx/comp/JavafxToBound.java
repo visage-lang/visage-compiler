@@ -33,6 +33,7 @@ import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
+import com.sun.tools.javafx.comp.JavafxToJava.DurationOperationTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.UseSequenceBuilder;
 import com.sun.tools.javafx.comp.JavafxToJava.Translator;
 import com.sun.tools.javafx.comp.JavafxToJava.FunctionCallTranslator;
@@ -1362,6 +1363,19 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }
 
         JCExpression doit() {
+            if ((types.isSameType(lType, syms.javafx_DurationType) ||
+                    types.isSameType(rType, syms.javafx_DurationType)) &&
+                    (tree.getFXTag() != JavafxTag.EQ && tree.getFXTag() != JavafxTag.NE)) {
+                // This is a Duration operation (other than equality).  Use the Duration translator
+                return new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
+
+                    protected JCExpression resultValue() {
+                        return new DurationOperationTranslator(diagPos, tree.getFXTag(),
+                                buildArgField(translate(l), lType), buildArgField(translate(r), rType),
+                                lType, rType, toJava).doit();
+                    }
+                }.doit();
+            }
             switch (tree.getFXTag()) {
                 case PLUS:
                     return makeBinaryArithmeticOperator(opPLUS);

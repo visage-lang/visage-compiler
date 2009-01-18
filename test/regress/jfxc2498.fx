@@ -1,7 +1,8 @@
 /**
  * JFXC-2498 : Duration arithmetic bugs
  *
- * @test/fail
+ * @test
+ * @run
  */
 
 var d1 : Duration = 200ms;

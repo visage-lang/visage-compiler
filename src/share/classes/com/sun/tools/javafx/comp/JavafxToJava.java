@@ -125,6 +125,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         protected final JavafxDefs defs;
         protected final JavafxTypes types;
         protected final JavafxSymtab syms;
+        protected final Name.Table names;;
 
         Translator(DiagnosticPosition diagPos, JavafxToJava toJava) {
             this.diagPos = diagPos;
@@ -132,6 +133,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             this.defs = toJava.defs;
             this.types = toJava.types;
             this.syms = toJava.syms;
+            this.names = toJava.names;
         }
 
         protected abstract JCTree doit();
@@ -2446,9 +2448,77 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
          return make.TypeCast(makeTypeTree( arg.pos(),castType), arg);
     }
 
-    /**
-     * JCTrees which can just be copied and trees which sjould not occur
-     * */
+    static class DurationOperationTranslator extends Translator {
+         private final JavafxTag tag;
+         private final JCExpression lhsExpr;
+         private final JCExpression rhsExpr;
+         private final Type rhsType;
+         private final Type lhsType;
+
+        DurationOperationTranslator(DiagnosticPosition diagPos, JavafxTag tag,
+                JCExpression lhsExpr, JCExpression rhsExpr,
+                Type lhsType, Type rhsType,
+                JavafxToJava toJava) {
+            super(diagPos, toJava);
+            this.tag = tag;
+            this.lhsExpr = lhsExpr;
+            this.rhsExpr = rhsExpr;
+            this.lhsType = lhsType;
+            this.rhsType = rhsType;
+        }
+
+        protected JCExpression doit() {
+            switch (tag) {
+                case PLUS:
+                    return m().Apply(null,
+                            m().Select(lhsExpr, names.fromString("add")), List.<JCExpression>of(rhsExpr));
+                // lhs.add(rhs);
+                case MINUS:
+                    // lhs.sub(rhs);
+                    return m().Apply(null,
+                            m().Select(lhsExpr, names.fromString("sub")), List.<JCExpression>of(rhsExpr));
+                case DIV:
+                    // lhs.div(rhs);
+                    return m().Apply(null,
+                            m().Select(lhsExpr, names.fromString("div")),
+                            List.<JCExpression>of(toJava.convertTranslated(rhsExpr, diagPos, rhsType, syms.javafx_NumberType)));
+                case MUL: {
+                    // lhs.mul(rhs);
+                    JCExpression rcvr;
+                    JCExpression arg;
+                    Type argType;
+                    if (!types.isSameType(lhsType, syms.javafx_DurationType)) {
+                        // FIXME This may get side-effects out-of-order.
+                        // A simple fix is to use a static Duration.mul(double,Duration).
+                        // Another is to use a Block and a temporary.
+                        rcvr = rhsExpr;
+                        arg = lhsExpr;
+                        argType = lhsType;
+                    } else {
+                        rcvr = lhsExpr;
+                        arg = rhsExpr;
+                        argType = rhsType;
+                    }
+                    return m().Apply(null,
+                            m().Select(rcvr, names.fromString("mul")),
+                            List.<JCExpression>of(toJava.convertTranslated(arg, diagPos, argType, syms.javafx_NumberType)));
+                }
+                case LT:
+                    return m().Apply(null,
+                            m().Select(lhsExpr, names.fromString("lt")), List.<JCExpression>of(rhsExpr));
+                case LE:
+                    return m().Apply(null,
+                            m().Select(lhsExpr, names.fromString("le")), List.<JCExpression>of(rhsExpr));
+                case GT:
+                    return m().Apply(null,
+                            m().Select(lhsExpr, names.fromString("gt")), List.<JCExpression>of(rhsExpr));
+                case GE:
+                    return m().Apply(null,
+                            m().Select(lhsExpr, names.fromString("ge")), List.<JCExpression>of(rhsExpr));
+            }
+            throw new RuntimeException("Internal Error: bad Duration operation");
+        }
+    }
 
     @Override
     public void visitBinary(final JFXBinary tree) {
@@ -2582,51 +2652,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     // anything other than == or <>
 
                     // Duration type operator overloading
+                    final JCExpression lhs = translateAsUnconvertedValue(tree.lhs);
+                    final JCExpression rhs = translateAsUnconvertedValue(tree.rhs);
                     if ((types.isSameType(tree.lhs.type, syms.javafx_DurationType) ||
                          types.isSameType(tree.rhs.type, syms.javafx_DurationType)) &&
                         tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Duration method isn't matched
-                        JFXExpression l = tree.lhs;
-                        JFXExpression r = tree.rhs;
-                        switch (tree.getFXTag()) {
-                        case PLUS:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translateAsUnconvertedValue(l), names.fromString("add")), List.<JCExpression>of(translateAsUnconvertedValue(r)));
-                            // lhs.add(rhs);
-                        case MINUS:
-                            // lhs.sub(rhs);
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translateAsUnconvertedValue(l), names.fromString("sub")), List.<JCExpression>of(translateAsUnconvertedValue(r)));
-                        case DIV:
-                            // lhs.div(rhs);
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translateAsUnconvertedValue(l), names.fromString("div")), List.<JCExpression>of(translateAsValue(r, syms.javafx_NumberType)));
-                        case MUL:
-                            // lhs.mul(rhs);
-                            if (!types.isSameType(l.type, syms.javafx_DurationType)) {
-                                // FIXME This may get side-effects out-of-order.
-                                // A simple fix is to use a static Duration.mul(double,Duration).
-                                // Another is to use a Block and a temporary.
-                                r = l;
-                                l = tree.rhs;
-                            }
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translateAsUnconvertedValue(l), names.fromString("mul")), List.<JCExpression>of(translateAsValue(r, syms.javafx_NumberType)));
-                        case LT:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translateAsUnconvertedValue(l), names.fromString("lt")), List.<JCExpression>of(translateAsUnconvertedValue(r)));
-                        case LE:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translateAsUnconvertedValue(l), names.fromString("le")), List.<JCExpression>of(translateAsUnconvertedValue(r)));
-                        case GT:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translateAsUnconvertedValue(l), names.fromString("gt")), List.<JCExpression>of(translateAsUnconvertedValue(r)));
-                        case GE:
-                            return make.at(diagPos).Apply(null,
-                                                          make.at(diagPos).Select(translateAsUnconvertedValue(l), names.fromString("ge")), List.<JCExpression>of(translateAsUnconvertedValue(r)));
-                        }
+                        return new DurationOperationTranslator(diagPos, tree.getFXTag(), lhs, rhs, tree.lhs.type, tree.rhs.type, JavafxToJava.this).doit();
                     }
-                    final JCExpression lhs = translateAsUnconvertedValue(tree.lhs);
-                    final JCExpression rhs = translateAsUnconvertedValue(tree.rhs);
                     return makeBinary(tree.getOperatorTag(), lhs, rhs);
                 }
             }
