@@ -1,6 +1,6 @@
 Building the JavaFX Script Compiler
 
-The JavaFX Script compiler requires Java 5 or 6 and Apache Ant 1.7.  
+Building the JavaFX Script compiler requires Java 5 or 6 and Apache Ant 1.7.  
 
 The "ant -projecthelp" command displays the various build targets available.
 Here are some of the more commonly used ones:
