@@ -7,6 +7,7 @@ Here are some of the more commonly used ones:
 
 Build the compiler:           ant
 Build the runtime library:    ant runtime  OR  cd runtime; ant
+Populate 'dist' directory:    ant dist
 Build and test everything:    ant all
 Delete build artifacts:       ant clean
 Run test/regress/jfxc2347.fx: ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
