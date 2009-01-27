@@ -1,6 +1,6 @@
 Building the JavaFX Script Compiler
 
-Building the JavaFX Script compiler requires Java 5 or 6 and Apache Ant 1.7.  
+Building the JavaFX Script compiler Java 5 or 6 and Apache Ant 1.7.  
 
 The "ant -projecthelp" command displays the various build targets available.
 Here are some of the more commonly used ones:
@@ -14,7 +14,7 @@ Run test/regress/jfxc2347.fx: ant test-single -Dtest.fx.includes='**/jfxc2347.fx
 
 Please file any bugs using our JIRA issue tracking system:
 
-http://openjfx.java.sun.com/jira/secure/Dashboard.jspa
+    http://openjfx.java.sun.com/jira/secure/Dashboard.jspa
 
 NOTE:  when the project is first checked-out, the NetBeans IDE will report 
 "unresolved library" warnings.  These warnings are resolved when building
