@@ -2,6 +2,7 @@
 ^build
 ^tools
 ^dist
+^nbproject/private
 ^javafxdoc/build
 doc/langspec/langref.xsl
 doc/reference/langref.xsl
