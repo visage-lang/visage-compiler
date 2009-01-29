@@ -83,22 +83,22 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
      */
     private boolean shared = disableInplaceArrayUpdates;
 
-    public ArraySequence(int initialSize, TypeInfo<T> ti) {
+    public ArraySequence(int initialSize, TypeInfo<T, ?> ti) {
         super(ti);
         this.array =  Util.<T>newObjectArray(initialSize);
         gapStart = 0;
         gapEnd = initialSize;
     }
 
-    public ArraySequence(TypeInfo<T> ti) {
+    public ArraySequence(TypeInfo<T, ?> ti) {
         this(DEFAULT_SIZE, ti);
     }
 
-    public ArraySequence(TypeInfo<T> ti, T... values) {
+    public ArraySequence(TypeInfo<T, ?> ti, T... values) {
         this(ti, values, false);
     }
 
-    public ArraySequence(TypeInfo<T> ti, T[] values, boolean handoff) {
+    public ArraySequence(TypeInfo<T, ?> ti, T[] values, boolean handoff) {
         super(ti);
         if (handoff) {
             this.array = values;
@@ -111,7 +111,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
         checkForNulls();
     }
 
-    public ArraySequence(TypeInfo<T> ti, T[] values, int size) {
+    public ArraySequence(TypeInfo<T, ?> ti, T[] values, int size) {
         super(ti);
         this.array =  Util.<T>newObjectArray(size);
         System.arraycopy(values, 0, array, 0, size);
@@ -120,14 +120,14 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
     }
 
     @SuppressWarnings("unchecked")
-    public ArraySequence(TypeInfo<T> ti, List<? extends T> values) {
+    public ArraySequence(TypeInfo<T, ?> ti, List<? extends T> values) {
         super(ti);
         this.array = (T[]) values.toArray();
         gapStart = gapEnd = array.length;
         checkForNulls();
     }
 
-    public ArraySequence(TypeInfo<T> ti, Sequence<? extends T>... sequences) {
+    public ArraySequence(TypeInfo<T, ?> ti, Sequence<? extends T>... sequences) {
         super(ti);
         int size = 0;
         for (Sequence<? extends T> seq : sequences)

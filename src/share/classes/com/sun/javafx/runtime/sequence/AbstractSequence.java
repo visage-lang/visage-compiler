@@ -35,9 +35,9 @@ import com.sun.javafx.runtime.TypeInfo;
  * @author Brian Goetz
  */
 public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
-    protected final TypeInfo<T> ti;
+    protected final TypeInfo<T, ?> ti;
 
-    protected AbstractSequence(TypeInfo<T> ti) {
+    protected AbstractSequence(TypeInfo<T, ?> ti) {
         this.ti = ti;
     }
 
@@ -62,7 +62,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return bits;
     }
 
-    public TypeInfo<T> getElementType() {
+    public TypeInfo<T, ?> getElementType() {
         return ti;
     }
 

@@ -67,7 +67,7 @@ public class SequenceMutator {
     public static <T> Sequence<T> replaceSlice(Sequence<T> target, Listener<T> listener,
                                                int startPos, int endPos, Sequence<? extends T> newValues) {
         Sequence<T> result;
-        TypeInfo<T> elementType = target.getElementType();
+        TypeInfo<T, ?> elementType = target.getElementType();
         final int size = Sequences.size(target);
 
         if (startPos > size || startPos < 0)

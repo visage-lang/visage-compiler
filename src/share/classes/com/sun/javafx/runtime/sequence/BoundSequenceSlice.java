@@ -43,7 +43,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     private int lower, upper;
     private int size;
 
-    BoundSequenceSlice(TypeInfo<T> typeInfo, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc, boolean isExclusive) {
+    BoundSequenceSlice(TypeInfo<T, ?> typeInfo, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc, boolean isExclusive) {
         super(typeInfo);
         this.sequenceLoc = sequenceLoc;
         this.lowerLoc = lowerLoc;

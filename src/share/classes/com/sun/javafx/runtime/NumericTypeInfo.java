@@ -1,11 +1,13 @@
 package com.sun.javafx.runtime;
 
+import com.sun.javafx.runtime.location.*;
+
 /**
  * NumericTypeInfo
  *
  * @author Brian Goetz
  */
-public abstract class NumericTypeInfo<T extends Number> extends TypeInfo<T> {
+public class NumericTypeInfo<T extends Number, L extends ObjectLocation<T>> extends TypeInfo<T, L> {
     public NumericTypeInfo(T defaultValue, TypeInfo.Types type) {
         super(defaultValue, type);
     }
@@ -42,5 +44,49 @@ public abstract class NumericTypeInfo<T extends Number> extends TypeInfo<T> {
         return Util.newNumberArray(size);
     }
 
-    public abstract<V extends Number> T asPreferred(NumericTypeInfo<V> otherType, V otherValue);
+    // This ugly and not typesafe construct eliminates lots of small classes, which add a lot to our static footprint.
+    // Such optimizations are ugly but needed for smaller-memory platforms.
+    @SuppressWarnings("unchecked")
+    public L makeLocation() {
+        switch (type) {
+            case INT: return (L) IntVariable.make();
+            case SHORT: return (L) ShortVariable.make();
+            case BYTE: return (L) ByteVariable.make();
+            case LONG: return (L) LongVariable.make();
+            case FLOAT: return (L) FloatVariable.make();
+            case DOUBLE: return (L) DoubleVariable.make();
+            default: return super.makeLocation();
+
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public L makeDefaultConstant() {
+        switch (type) {
+            case INT: return (L) IntConstant.make(IntVariable.DEFAULT);
+            case SHORT: return (L) ShortConstant.make(ShortVariable.DEFAULT);
+            case BYTE: return (L) ByteConstant.make(ByteVariable.DEFAULT);
+            case LONG: return (L) LongConstant.make(LongVariable.DEFAULT);
+            case FLOAT: return (L) FloatConstant.make(FloatVariable.DEFAULT);
+            case DOUBLE: return (L) DoubleConstant.make(DoubleVariable.DEFAULT);
+            default: return super.makeLocation();
+
+        }
+    }
+
+    // This ugly and not typesafe construct eliminates lots of small classes, which add a lot to our static footprint.
+    // Such optimizations are ugly but needed for smaller-memory platforms.
+    @SuppressWarnings("unchecked")
+    public<V extends Number> T asPreferred(NumericTypeInfo<V, ?> otherType, V otherValue) {
+        switch (type) {
+            case INT: return (T) (Integer) otherType.intValue(otherValue);
+            case SHORT: return (T) (Short) otherType.shortValue(otherValue);
+            case BYTE: return (T) (Byte) otherType.byteValue(otherValue);
+            case LONG: return (T) (Long) otherType.longValue(otherValue);
+            case FLOAT: return (T) (Float) otherType.floatValue(otherValue);
+            case DOUBLE: return (T) (Double) otherType.doubleValue(otherValue);
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
 }

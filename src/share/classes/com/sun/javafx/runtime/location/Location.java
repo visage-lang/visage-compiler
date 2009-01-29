@@ -81,4 +81,10 @@ public interface Location {
 
     /** Remove this location as a dynamic dependency of any Location it was previously registered with */
     public void clearDynamicDependencies();
+
+    /** Does this location represent a "view" of another location? */
+    public boolean isViewLocation();
+
+    /** Get the location for which this location represents a view */
+    public Location getUnderlyingLocation();
 }

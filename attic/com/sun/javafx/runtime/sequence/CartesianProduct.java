@@ -44,7 +44,7 @@ public class CartesianProduct<T> extends AbstractSequence<T> implements Sequence
     private final int depth;
     private final int[] sizes;
 
-    public CartesianProduct(TypeInfo<T> ti, Mapper<T> mapper, Sequence<?>... sequences) {
+    public CartesianProduct(TypeInfo<T, ?> ti, Mapper<T> mapper, Sequence<?>... sequences) {
         super(ti);
         this.sequences = sequences;
         this.mapper = mapper;

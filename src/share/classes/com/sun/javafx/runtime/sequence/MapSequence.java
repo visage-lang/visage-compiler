@@ -38,7 +38,7 @@ class MapSequence<T, U> extends AbstractSequence<U> implements Sequence<U> {
     private final Sequence<T> sequence;
     private final SequenceMapper<T, U> mapper;
 
-    public MapSequence(TypeInfo<U> ti, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
+    public MapSequence(TypeInfo<U, ?> ti, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
         super(ti);
         this.sequence = sequence;
         this.mapper = mapper;

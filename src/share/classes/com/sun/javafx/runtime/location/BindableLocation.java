@@ -30,8 +30,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface BindableLocation<T_VALUE, T_LISTENER>
-        extends Location {
+public interface BindableLocation<T_VALUE, T_LISTENER> extends ObjectLocation<T_VALUE> {
 
     public void bind(boolean lazy, BindingExpression binding, Location... dependencies);
 

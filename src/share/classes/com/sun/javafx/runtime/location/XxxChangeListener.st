@@ -40,7 +40,7 @@ $if(NUMERIC)$
         return asObjectListener(TypeInfo.$T.boxed$);
     }
 
-    public<T extends Number> ObjectChangeListener<T> asObjectListener(final NumericTypeInfo<T> typeInfo) {
+    public<T extends Number> ObjectChangeListener<T> asObjectListener(final NumericTypeInfo<T, ?> typeInfo) {
         return new ObjectChangeListener<T>() {
             public void onChange(T oldValue, T newValue) {
                 $T.ChangeListener$.this.onChange(typeInfo.$T.prim$Value(oldValue), typeInfo.$T.prim$Value(newValue));

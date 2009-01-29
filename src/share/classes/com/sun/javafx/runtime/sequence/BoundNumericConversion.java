@@ -10,10 +10,10 @@ import com.sun.javafx.runtime.NumericTypeInfo;
  * @author Brian Goetz
  */
 class BoundNumericConversion<T extends Number, V extends Number> extends AbstractBoundSequence<T> {
-    private final NumericTypeInfo<T> toType;
-    private final NumericTypeInfo<V> fromType;
+    private final NumericTypeInfo<T, ?> toType;
+    private final NumericTypeInfo<V, ?> fromType;
 
-    public BoundNumericConversion(NumericTypeInfo<T> toType, NumericTypeInfo<V> fromType, SequenceLocation<V> sequence) {
+    public BoundNumericConversion(NumericTypeInfo<T, ?> toType, NumericTypeInfo<V, ?> fromType, SequenceLocation<V> sequence) {
         super(toType);
         this.toType = toType;
         this.fromType = fromType;

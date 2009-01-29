@@ -53,7 +53,7 @@ public interface Sequence<T> extends Iterable<T> {
     public boolean isEmpty();
 
     /** What is the element type? */
-    public TypeInfo<T> getElementType();
+    public TypeInfo<T, ?> getElementType();
 
     /** Copy the contents of this sequence to an array, at a specified offset within the destination array */
     public void toArray(Object[] array, int destOffset);

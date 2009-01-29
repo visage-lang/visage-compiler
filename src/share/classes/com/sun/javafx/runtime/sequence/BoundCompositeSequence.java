@@ -56,11 +56,11 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         }
     }
 
-    public BoundCompositeSequence(TypeInfo<T> typeInfo, SequenceLocation<? extends T>... locations) {
+    public BoundCompositeSequence(TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>... locations) {
         this(typeInfo, locations, locations.length);
     }
 
-    public BoundCompositeSequence(TypeInfo<T> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
+    public BoundCompositeSequence(TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
         super(typeInfo);
         this.infos = newInfoArray(size);
         for (int i = 0; i < size; i++)

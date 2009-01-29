@@ -33,21 +33,21 @@ import com.sun.javafx.runtime.TypeInfo;
  * @author Brian Goetz
  */
 public class IndirectLocationHelper {
-    public static<T extends Location> ObjectLocation<T> make(final IndirectLocation<T> helped, boolean lazy, Location... dependencies) {
-        final ObjectVariable<T> ov = ObjectVariable.make(lazy, new BindingExpression() {
-            public void compute() {
-                pushValue(helped.computeLocation());
-            }
-        }, dependencies);
-        helped.addDependency(ov);
-        helped.addDynamicDependency(ov.get());
-        ov.addChangeListener(new ObjectChangeListener<T>() {
-            public void onChange(T oldValue, T newValue) {
-                helped.clearDynamicDependencies();
-                helped.addDynamicDependency(newValue);
+    public static<T, L extends ObjectLocation<T>>
+    ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
+        final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
+        helpedLocation.addDependency(helper);
+        L initialValue = helper.get();
+        helpedLocation.addDynamicDependency(initialValue);
+        ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
+        helper.addChangeListener(new ObjectChangeListener<L>() {
+            public void onChange(L oldLoc, L newLoc) {
+                helpedLocation.clearDynamicDependencies();
+                helpedLocation.addDynamicDependency(newLoc);
+                ((AbstractLocation) helpedLocation).setUnderlyingLocation(newLoc);
             }
         });
-        return ov;
+        return helper;
     }
 
     public static<T extends Location> BindingExpression makeBindingExpression(final TypeInfo ti, final ObjectLocation<T> helper) {
@@ -62,6 +62,9 @@ public class IndirectLocationHelper {
                     case SHORT: pushValue(((ShortLocation) helper.get()).getAsShort()); break;
                     case BOOLEAN: pushValue(((BooleanLocation) helper.get()).getAsBoolean()); break;
                     case CHAR: pushValue(((CharLocation) helper.get()).getAsChar()); break;
+                    case OBJECT:
+                    case OTHER:
+                        pushValue(((ObjectLocation<?>) helper.get()).get()); break;
                     default: throw new UnsupportedOperationException(ti.type.toString());
                 }
             }

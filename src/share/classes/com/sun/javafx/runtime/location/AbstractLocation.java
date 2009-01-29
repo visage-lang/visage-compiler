@@ -50,6 +50,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     static final int CHILD_KIND_BINDING_EXPRESSION = 8;
     static final int CHILD_KIND_LITERAL_INITIALIZER = 16;
     static final int CHILD_KIND_WEAK_ME_HOLDER = 32;
+    static final int CHILD_KIND_VIEW_LOCATION = 64;
 
     // Space is at a premium; FX classes use a *lot* of locations.
     // We've currently got fewer than four byte-size fields here already; we rely on the VM packing byte-size fields
@@ -337,6 +338,30 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     public void update() {
     }
 
+    public boolean isViewLocation() {
+        return hasChildren(CHILD_KIND_VIEW_LOCATION);
+    }
+
+    public Location getUnderlyingLocation() {
+        if (isViewLocation()) {
+            ViewLocationHolder vlh = (ViewLocationHolder) findChildByKind(CHILD_KIND_VIEW_LOCATION);
+            return vlh.underlyingLocation;
+        }
+        else
+            return this;
+    }
+
+    protected void setUnderlyingLocation(Location loc) {
+        if (isViewLocation()) {
+            ViewLocationHolder vlh = (ViewLocationHolder) findChildByKind(CHILD_KIND_VIEW_LOCATION);
+            vlh.underlyingLocation = loc;
+        }
+        else {
+            ViewLocationHolder vlh = new ViewLocationHolder(loc);
+            enqueueChild(vlh);
+        }
+    }
+
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
         return countChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_CHANGE_LISTENER | CHILD_KIND_TRIGGER);
@@ -463,6 +488,18 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
 
         public int getDependencyKind() {
             return CHILD_KIND_WEAK_ME_HOLDER;
+        }
+    }
+
+    private static class ViewLocationHolder extends AbstractLocationDependency {
+        Location underlyingLocation;
+
+        private ViewLocationHolder(Location underlyingLocation) {
+            this.underlyingLocation = underlyingLocation;
+        }
+
+        public int getDependencyKind() {
+            return CHILD_KIND_VIEW_LOCATION;
         }
     }
 }

@@ -247,7 +247,7 @@ public class NumberSequenceTest extends JavaFXTestCase {
     }
 
     public void testMixedConcat () {
-        TypeInfo<Number> NumberTypeInfo = TypeInfo.<Number>makeTypeInfo(0);
+        TypeInfo<Number, ?> NumberTypeInfo = TypeInfo.<Number>makeTypeInfo(0);
 
         Sequence<Integer> sI1 = new ArraySequence<Integer>(TypeInfo.Integer, 1, 2).noteShared();
         Sequence<Double> sD1 = new ArraySequence<Double>(TypeInfo.Double, 1.5, 2.5).noteShared();
