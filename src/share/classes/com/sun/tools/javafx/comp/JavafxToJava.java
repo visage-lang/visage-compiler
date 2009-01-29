@@ -697,7 +697,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         prependToStatements = prependToDefinitions = null; // shouldn't be used again until the next top level
 
- 	JCExpression pid = straightConvert(tree.pid);
+        JCExpression pid = straightConvert(tree.pid);
         JCCompilationUnit translated = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, translatedDefinitions.toList());
         translated.sourcefile = tree.sourcefile;
         translated.docComments = null;
@@ -711,6 +711,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         JFXClassDeclaration prevClass = currentClass;
         JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
         currentClass = tree;
+        if (tree.isScriptClass) {
+            toBound.scriptBegin();
+        }
 
         try {
             DiagnosticPosition diagPos = tree.pos();
@@ -742,10 +745,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                            JCStatement init =
+                            JCStatement init = (!isStatic || attrEnv.toplevel.isLibrary)?
                                 translateDefinitionalAssignmentToSet(attrDef.pos(),
                                 attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
-                                isStatic? null : defs.receiverName, FROM_DEFAULT_MILIEU);
+                                isStatic? null : defs.receiverName, FROM_DEFAULT_MILIEU)
+                                : null;
                             attrInfo.append(new TranslatedVarInfo(
                                     attrDef,
                                     typeMorpher.varMorphInfo(attrDef.sym),
@@ -898,9 +902,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         null));
             }
 
-            if (tree.isModuleClass) {
+            if (tree.isScriptClass) {
                 // Add main method...
                 translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                
+                // Add binding support
+                translatedDefs.appendList(toBound.scriptComplete(tree.pos()));
             }
 
             // build the list of implemented interfaces
@@ -2986,6 +2993,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
         protected final JFXExpression meth;
         protected final JFXExpression selector;
+        private final Name selectorIdName;
+        protected final boolean thisCall;
+        protected final boolean superCall;
         protected final MethodSymbol msym;
         protected final boolean renameToSuper;
         protected final boolean superToStatic;
@@ -3005,9 +3015,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
             Symbol sym = toJava.expressionSymbol(meth);
             msym = (sym instanceof MethodSymbol) ? (MethodSymbol) sym : null;
-            Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
-            boolean thisCall = selectorIdName == toJava.names._this;
-            boolean superCall = selectorIdName == toJava.names._super;
+            selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
+            thisCall = selectorIdName == toJava.names._this;
+            superCall = selectorIdName == toJava.names._super;
             ClassSymbol csym = toJava.attrEnv.enclClass.sym;
 
             useInvoke = meth.type instanceof FunctionType;
@@ -3481,7 +3491,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
      * Build the AST for accessing the outer member.
      * The accessors might be chained if the member accessed is more than one level up in the outer chain.
      * */
-    private JCExpression makeReceiver(DiagnosticPosition pos, Symbol treeSym, Symbol siteOwner) {
+    JCExpression makeReceiver(DiagnosticPosition pos, Symbol treeSym, Symbol siteOwner) {
         JCExpression ret = null;
         if (treeSym != null && siteOwner != null) {
 

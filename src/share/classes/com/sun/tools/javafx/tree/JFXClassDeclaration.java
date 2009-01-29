@@ -47,7 +47,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     
     public JFXFunctionDefinition runMethod;
     public Scope runBodyScope;
-    public boolean isModuleClass = false;
+    public boolean isScriptClass = false;
 
     public boolean hasBeenTranslated = false; // prevent multiple translations
     

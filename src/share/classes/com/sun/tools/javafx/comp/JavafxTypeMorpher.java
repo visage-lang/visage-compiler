@@ -61,13 +61,9 @@ public class JavafxTypeMorpher {
     public final LocationNameSymType[] variableNCT;
     public final LocationNameSymType[] constantLocationNCT;
     public final LocationNameSymType   baseLocation;
-    public final LocationNameSymType   bindingExpression;
     public final LocationNameSymType abstractBoundComprehension;
 
     private final Object[] defaultValueByKind;
-
-    private boolean elideInternal = true;
-    private boolean elideExternal = false;
 
     public class LocationNameSymType {
         public final Name name;
@@ -213,7 +209,6 @@ public class JavafxTypeMorpher {
         locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         abstractBoundComprehension = new LocationNameSymType(sequencePackageNameString, "AbstractBoundComprehension");
-        bindingExpression = new LocationNameSymType(locationPackageNameString, "BindingExpression");
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(defs.locationVariableName[kind]);
@@ -234,25 +229,6 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_FLOAT] = (float)0.0;
         defaultValueByKind[TYPE_KIND_DOUBLE] = 0.0;
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; // Empty sequence done programatically
-
-        try {
-            String elide = System.getenv("FXELIDE");
-            if (elide == null) {
-                // no-op
-            } else if (elide.equals("all")) {
-                elideInternal = true;
-                elideExternal = true;
-            } else if (elide.equals("internal")) {
-                elideInternal = true;
-                elideExternal = false;
-            } else if (elide.equals("none")) {
-                elideInternal = false;
-                elideExternal = false;
-            } else {
-                System.err.println("Bad FXELIDE option: " + elide);
-            }
-        } catch (Throwable ex) {
-        }
     }
 
     private boolean computeRequiresLocation(Symbol sym) {

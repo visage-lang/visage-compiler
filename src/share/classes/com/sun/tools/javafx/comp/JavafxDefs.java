@@ -52,6 +52,7 @@ public class JavafxDefs {
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
+    public static final String scriptBindingExpressionsString = "com.sun.javafx.runtime.location.ScriptBindingExpressions";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfo";
@@ -74,6 +75,10 @@ public class JavafxDefs {
     public static final String lambdaNameString = "lambda";
     public static final String isInitializedNameString = "isInitialized";
     public static final String convertNumberSequence = "convertNumberSequence";
+    public static final String scriptBindingClassString = "_Bindings";
+    public static final String bindingIdString = "id";
+    public static final String getStaticDependentsMethodString = "getStaticDependents";
+    public static final String computeMethodString = "compute";
     
     public static final String javaLangPackageNameString = "java.lang";
     public static final String runtimePackageNameString = "com.sun.javafx.runtime";
@@ -125,8 +130,17 @@ public class JavafxDefs {
     final Name lambdaName;
     final Name emptySequenceFieldString;
     final Name isInitializedName;
-    final Name computeValueName;
-    final Name computeElementName;
+    final Name scriptBindingClassName;
+    final Name bindingIdName;
+    final Name getStaticDependentsMethodName;
+    final Name computeMethodName;
+    final Name toTestName;
+    final Name toBeCastName;
+    final Name idName;
+    final Name arg0Name;
+    final Name arg1Name;
+    final Name moreArgsName;
+    final Name dependentsName;
     final Name initDefName;
     final Name postInitDefName;
     final Name javalangThreadName;
@@ -218,8 +232,17 @@ public class JavafxDefs {
         lambdaName = names.fromString(lambdaNameString);
         emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
-        computeValueName = names.fromString("computeValue");
-        computeElementName = names.fromString("computeElement$");
+        scriptBindingClassName = names.fromString(scriptBindingClassString);
+        bindingIdName = names.fromString(bindingIdString);
+        getStaticDependentsMethodName = names.fromString(getStaticDependentsMethodString);
+        computeMethodName = names.fromString(computeMethodString);
+        toTestName = names.fromString("toTest");
+        toBeCastName = names.fromString("toBeCast");
+        idName = names.fromString("id");
+        arg0Name = names.fromString("arg$0");
+        arg1Name = names.fromString("arg$1");
+        moreArgsName = names.fromString("moreArgs");
+        dependentsName = names.fromString("dependents");
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
         timeName = names.fromString("time");

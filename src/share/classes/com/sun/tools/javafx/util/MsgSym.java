@@ -278,6 +278,7 @@ public class MsgSym {
     public static final String MESSAGE_FATAL_ERR_NO_JAVA_LANG = "fatal.err.no.java.lang";
     public static final String MESSAGE_NOT_ANNOTATION_TYPE = "not.annotation.type";
     public static final String MESSAGE_TOO_MANY_PARAMETERS = "javafx.too.many.parameters";
+    public static final String MESSAGE_BIND_TOO_COMPLEX = "javafx.bind.too.complex";
     public static final String MESSAGE_CATCH_WITHIN_EXPRESSION = "catch.within.expression";
     
     // kindname
