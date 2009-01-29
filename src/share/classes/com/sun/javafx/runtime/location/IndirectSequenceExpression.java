@@ -37,13 +37,18 @@ import com.sun.javafx.runtime.TypeInfo;
  *
  * @author Brian Goetz
  */
-public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> implements IndirectLocation<SequenceLocation<T>> {
+public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> {
 
     protected final ObjectLocation<SequenceLocation<T>> helper;
 
     public IndirectSequenceExpression(TypeInfo<T, ?> typeInfo, boolean lazy, Location... dependencies) {
         super(typeInfo);
-        helper = IndirectLocationHelper.make(this, lazy, dependencies);
+        BindingExpression binding = new BindingExpression() {
+            public void compute() {
+                pushValue(computeLocation());
+            }
+        };
+        helper = IndirectLocationHelper.makeIndirectHelper(lazy, (SequenceLocation<T>) this, binding, new SequenceConstant<T>(typeInfo, typeInfo.emptySequence), dependencies);
         bind(lazy, helper.get());
         // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
         // the rebinding happens.  
@@ -55,8 +60,4 @@ public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> 
     }
 
     public abstract SequenceLocation<T> computeLocation();
-
-    public SequenceLocation<T> getUnderlyingLocation() {
-        return computeLocation();
-    }
 }

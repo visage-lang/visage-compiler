@@ -288,8 +288,6 @@ public class BoundOperators {
         }, a, b);
     }
 
-    // @@@ Missing Byte, Short, Long for if and select
-
     private static BindingExpression wrap(final Function0<? extends Location> fun) {
         return new BindingExpression() {
             public void compute() {
@@ -313,7 +311,7 @@ public class BoundOperators {
                                                                 final BindingExpression thenBranch,
                                                                 final BindingExpression elseBranch) {
         final L loc = typeInfo.makeLocation();
-        final ObjectVariable<L> helper = IndirectLocationHelper.makeIndirectHelper(lazy, loc, new BindingExpression() {
+        final ObjectVariable<L> lastArm = IndirectLocationHelper.makeIndirectHelper(lazy, loc, new BindingExpression() {
             public void compute() {
                 if (thenBranch.location == null) {
                     // First-time setup
@@ -326,10 +324,12 @@ public class BoundOperators {
                 else
                     elseBranch.compute();
             }
-        }, conditional);
-        ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, helper));
+        }, typeInfo.makeDefaultConstant(), conditional);
+        ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, lastArm));
         return loc;
     }
+
+    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
 
     public static IntLocation makeBoundIf(boolean lazy,
                                           final BooleanLocation conditional,
@@ -366,6 +366,8 @@ public class BoundOperators {
         return makeBoundIf(TypeInfo.<T>getTypeInfo(), lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
+    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
+
     public static<T> SequenceLocation<T> makeBoundIf(TypeInfo<T, ?> typeInfo,
                                                      boolean lazy,
                                                      final BooleanLocation conditional,
@@ -385,7 +387,8 @@ public class BoundOperators {
                                                                     final ObjectLocation<?> receiver,
                                                                     final BindingExpression selector) {
         final L loc = typeInfo.makeLocation();
-        final ObjectVariable<L> helper = IndirectLocationHelper.makeIndirectHelper(lazy, loc, new BindingExpression() {
+        final L defaultConstant = typeInfo.makeDefaultConstant();
+        final ObjectVariable<L> lastADotB = IndirectLocationHelper.makeIndirectHelper(lazy, loc, new BindingExpression() {
             public void compute() {
                 if (selector.location == null) {
                     // First-time setup
@@ -394,17 +397,20 @@ public class BoundOperators {
 
                 if (receiver.get() != null)
                     selector.compute();
-                else
-                    pushValue(typeInfo.makeDefaultConstant());
+                else {
+                    pushValue(defaultConstant);
+                }
             }
-        }, receiver);
-        ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, helper));
+        }, defaultConstant, receiver);
+        ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, lastADotB));
         return loc;
     }
 
-    public static<X> IntLocation makeBoundSelect(boolean lazy,
-                                                 final ObjectLocation<X> receiver,
-                                                 final Function1<IntLocation, X> selector) {
+    // @@@ These can go away once we switch to the makeBoundSelect(TypeInfo, ...) version vvv
+
+    public static<T> IntLocation makeBoundSelect(boolean lazy,
+                                                 final ObjectLocation<T> receiver,
+                                                 final Function1<IntLocation, T> selector) {
         return makeBoundSelect(TypeInfo.Integer, lazy, receiver, wrap(selector, receiver));
     }
 
@@ -430,8 +436,10 @@ public class BoundOperators {
                                                           boolean lazy,
                                                           final ObjectLocation<T> receiver,
                                                           final Function1<ObjectLocation<U>, T> selector) {
-        return makeBoundSelect(TypeInfo.<U>getTypeInfo(), lazy, receiver, wrap(selector, receiver));
+        return makeBoundSelect(typeInfo, lazy, receiver, wrap(selector, receiver));
     }
+
+    // @@@ These can go away once we switch to the makeBoundSelect(TypeInfo, ...) version ^^^
 
     public static<T, U> SequenceLocation<U> makeBoundSelect(final TypeInfo<U, ?> typeInfo,
                                                             boolean lazy,

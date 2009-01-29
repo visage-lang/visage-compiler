@@ -57,6 +57,14 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
         throw new UnsupportedOperationException();
     }
 
+    public boolean isViewLocation() {
+        return false;
+    }
+
+    public Location getUnderlyingLocation() {
+        return this;
+    }
+
     public void update() { }
 
     public void addChangeListener(ChangeListener listener) { }

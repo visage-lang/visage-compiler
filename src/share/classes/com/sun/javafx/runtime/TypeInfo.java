@@ -88,7 +88,7 @@ public class TypeInfo<T, L extends ObjectLocation<T>> {
             case BOOLEAN: return (L) BooleanVariable.make();
             case OBJECT:
             case OTHER:
-                return (L) ObjectVariable.<T>make();
+                return (L) ObjectVariable.<T>make(defaultValue);
             default:
                 throw new IllegalArgumentException();
         }
@@ -101,7 +101,7 @@ public class TypeInfo<T, L extends ObjectLocation<T>> {
             case BOOLEAN: return (L) BooleanConstant.make(BooleanVariable.DEFAULT);
             case OBJECT:
             case OTHER:
-                return (L) ObjectConstant.<T>make(null);
+                return (L) ObjectConstant.<T>make(defaultValue);
             default:
                 throw new IllegalArgumentException();
         }

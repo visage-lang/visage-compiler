@@ -92,6 +92,8 @@ public class Pointer implements KeyValueTarget {
     }
 
     private Pointer(Location location, Type type) {
+        while (location.isViewLocation())
+            location = location.getUnderlyingLocation();
         this.location = location;
         this.type = type;
     }

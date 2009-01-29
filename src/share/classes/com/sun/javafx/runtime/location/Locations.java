@@ -39,8 +39,8 @@ public class Locations {
     }
 
     public static Location getUnderlyingLocation(Location loc) {
-        while (loc instanceof DynamicViewLocation)
-            loc = ((DynamicViewLocation) loc).getUnderlyingLocation();
+        while (loc.isViewLocation())
+            loc = loc.getUnderlyingLocation();
         return loc;
     }
 
@@ -161,9 +161,17 @@ public class Locations {
         public void addDependentLocation(WeakLocation weakLocation) {
             location.addDependentLocation(weakLocation);
         }
+
+        public boolean isViewLocation() {
+            return false;
+        }
+
+        public Location getUnderlyingLocation() {
+            return this;
+        }
     }
 
-    private static class ObjectNumericLocation extends LocationWrapper<ObjectLocation<? extends Number>> implements NumericLocation, StaticViewLocation {
+    private static class ObjectNumericLocation extends LocationWrapper<ObjectLocation<? extends Number>> implements NumericLocation {
         private ObjectNumericLocation(ObjectLocation<? extends Number> location) {
             super(location);
         }
@@ -195,13 +203,17 @@ public class Locations {
             return getAsInt();
         }
 
+        public boolean isViewLocation() {
+            return true;
+        }
+
         public Location getUnderlyingLocation() {
             return location;
         }
     }
 
     // @@@ May no longer be needed
-    private static class ObjectIntLocation extends LocationWrapper<ObjectLocation<Integer>> implements IntLocation, StaticViewLocation {
+    private static class ObjectIntLocation extends LocationWrapper<ObjectLocation<Integer>> implements IntLocation {
         private ObjectIntLocation(ObjectLocation<Integer> location) {
             super(location);
         }
@@ -267,13 +279,17 @@ public class Locations {
             location.addChangeListener(listener);
         }
 
+        public boolean isViewLocation() {
+            return true;
+        }
+
         public Location getUnderlyingLocation() {
             return location;
         }
     }
 
     // @@@ May no longer be needed  -- errr, well, it is used
-    private static class ObjectFloatLocation<T extends Number> extends LocationWrapper<ObjectLocation<T>> implements FloatLocation, StaticViewLocation {
+    private static class ObjectFloatLocation<T extends Number> extends LocationWrapper<ObjectLocation<T>> implements FloatLocation {
         private ObjectFloatLocation(ObjectLocation<T> location) {
             super(location);
         }
@@ -347,12 +363,16 @@ public class Locations {
             return getAsFloat();
         }
 
+        public boolean isViewLocation() {
+            return true;
+        }
+
         public Location getUnderlyingLocation() {
             return location;
         }
     }
 
-    private static class ObjectBooleanLocation extends LocationWrapper<ObjectLocation<Boolean>> implements BooleanLocation, StaticViewLocation {
+    private static class ObjectBooleanLocation extends LocationWrapper<ObjectLocation<Boolean>> implements BooleanLocation {
         private ObjectBooleanLocation(ObjectLocation<Boolean> location) {
             super(location);
         }
@@ -396,6 +416,10 @@ public class Locations {
 
         public void addChangeListener(ObjectChangeListener<Boolean> listener) {
             location.addChangeListener(listener);
+        }
+
+        public boolean isViewLocation() {
+            return true;
         }
 
         public Location getUnderlyingLocation() {
