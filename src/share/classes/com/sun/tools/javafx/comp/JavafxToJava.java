@@ -91,7 +91,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     public enum Locationness {
         // We need a Location
         AsLocation,
-        // We need a sequence element or size.
+        // We need a sequence element or size. 
         // Normally, when we access (read) a sequence variable, we need to call
         // Sequences.noteShared, which sets the shared bit on the sequence.
         // But for seq[index] or sizeof seq we don't need to do that.
