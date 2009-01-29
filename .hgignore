@@ -1,0 +1,8 @@
+^bootstrap
+^build
+^tools
+^dist
+^javafxdoc/build
+doc/langspec/langref.xsl
+doc/reference/langref.xsl
+~$
