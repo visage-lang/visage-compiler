@@ -92,6 +92,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         // We need a Location
         AsLocation,
         // We need a sequence element or size.
+        // Normally, when we access (read) a sequence variable, we need to call
+        // Sequences.noteShared, which sets the shared bit on the sequence.
+        // But for seq[index] or sizeof seq we don't need to do that.
+        // The AsShareSafeValue enum is used to supress the noteShared call.
         AsShareSafeValue,
         // We need a value
         AsValue
