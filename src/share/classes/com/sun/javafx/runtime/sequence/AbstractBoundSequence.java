@@ -41,13 +41,13 @@ import com.sun.javafx.runtime.TypeInfo;
  * @author Brian Goetz
  */
 public abstract class AbstractBoundSequence<T> extends AbstractLocation implements SequenceLocation<T> {
-    protected final TypeInfo<T> typeInfo;
+    protected final TypeInfo<T, ?> typeInfo;
     private List<SequenceChangeListener<T>> changeListeners;
     private Sequence<T> value;
 
     // Currently, no support for lazy binding.
 
-    protected AbstractBoundSequence(TypeInfo<T> typeInfo) {
+    protected AbstractBoundSequence(TypeInfo<T, ?> typeInfo) {
         this.typeInfo = typeInfo;
         this.value = typeInfo.emptySequence;
     }
@@ -103,7 +103,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return value;
     }
 
-    public TypeInfo<T> getElementType() {
+    public TypeInfo<T, ?> getElementType() {
         return typeInfo;
     }
 

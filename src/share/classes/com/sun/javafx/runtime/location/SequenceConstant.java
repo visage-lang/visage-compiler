@@ -35,14 +35,14 @@ import com.sun.javafx.runtime.TypeInfo;
  * @author Brian Goetz
  */
 public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> implements SequenceLocation<T> {
-    private final TypeInfo<T> typeInfo;
+    private final TypeInfo<T, ?> typeInfo;
     private Sequence<T> $value;
 
-    public static<T> SequenceLocation<T> make(TypeInfo<T> typeInfo, Sequence<T> value) {
+    public static<T> SequenceLocation<T> make(TypeInfo<T, ?> typeInfo, Sequence<T> value) {
         return new SequenceConstant<T>(typeInfo, value);
     }
 
-    protected SequenceConstant(TypeInfo<T> typeInfo, Sequence<T> value) {
+    protected SequenceConstant(TypeInfo<T, ?> typeInfo, Sequence<T> value) {
         this.typeInfo = typeInfo;
         this.$value = value;
     }
@@ -52,7 +52,7 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> i
         return $value;
     }
 
-    public TypeInfo<T> getElementType() {
+    public TypeInfo<T, ?> getElementType() {
         return typeInfo;
     }
 

@@ -325,7 +325,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testUpcast() {
-        TypeInfo<Number> Number = TypeInfo.<Number>makeTypeInfo(0L);
+        TypeInfo<Number, ?> Number = TypeInfo.<Number>makeTypeInfo(0L);
         final SequenceLocation<Integer> iloc = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         final SequenceLocation<Number> nloc = SequenceVariable.make(Number, Sequences.<Number>upcast(iloc.getAsSequence()));
         final SequenceLocation<Object> asObjects = SequenceVariable.make(TypeInfo.Object, Sequences.<Object>upcast(iloc.getAsSequence()));

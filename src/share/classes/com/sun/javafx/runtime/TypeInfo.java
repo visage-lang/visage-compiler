@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.AbstractSequence;
 import com.sun.javafx.runtime.sequence.Sequence;
 
@@ -36,7 +37,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  */
-public class TypeInfo<T> {
+public class TypeInfo<T, L extends ObjectLocation<T>> {
     public final T defaultValue;
     public final Types type;
     public final Sequence<T> emptySequence;
@@ -78,46 +79,50 @@ public class TypeInfo<T> {
         };
     }
 
+    // This ugly and not typesafe construct eliminates lots of small classes, which add a lot to our static footprint.
+    // Such optimizations are ugly but needed for smaller-memory platforms.
+    @SuppressWarnings("unchecked")
+    public L makeLocation() {
+        switch (type) {
+            case CHAR: return (L) CharVariable.make();
+            case BOOLEAN: return (L) BooleanVariable.make();
+            case OBJECT:
+            case OTHER:
+                return (L) ObjectVariable.<T>make();
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public L makeDefaultConstant() {
+        switch (type) {
+            case CHAR: return (L) CharConstant.make(CharVariable.DEFAULT);
+            case BOOLEAN: return (L) BooleanConstant.make(BooleanVariable.DEFAULT);
+            case OBJECT:
+            case OTHER:
+                return (L) ObjectConstant.<T>make(null);
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
     public boolean isNumeric() {
         return false;
     }
 
-    public static final TypeInfo<Object> Object = new TypeInfo<Object>(null, Types.OBJECT);
-    public static final TypeInfo<Boolean> Boolean = new TypeInfo<Boolean>(false, Types.BOOLEAN);
-    public static final TypeInfo<Character> Character = new TypeInfo<Character>('\0', Types.CHAR);
-    public static final TypeInfo<String> String = new TypeInfo<String>("", Types.OTHER);
-    public static final NumericTypeInfo<Byte> Byte = new NumericTypeInfo<Byte>((byte)0, Types.BYTE) {
-        public <V extends Number> Byte asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
-            return otherType.byteValue(otherValue);
-        }
-    };
-    public static final NumericTypeInfo<Short> Short = new NumericTypeInfo<Short>((short)0, Types.SHORT) {
-        public <V extends Number> Short asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
-            return otherType.shortValue(otherValue);
-        }
-    };
-    public static final NumericTypeInfo<Integer> Integer = new NumericTypeInfo<Integer>(0, Types.INT) {
-        public <V extends Number> Integer asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
-            return otherType.intValue(otherValue);
-        }
-    };
-    public static final NumericTypeInfo<Long> Long = new NumericTypeInfo<Long>(0L, Types.LONG) {
-        public <V extends Number> Long asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
-            return otherType.longValue(otherValue);
-        }
-    };
-    public static final NumericTypeInfo<Float> Float = new NumericTypeInfo<Float>(0.0f, Types.FLOAT) {
-        public <V extends Number> Float asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
-            return otherType.floatValue(otherValue);
-        }
-    };
-    public static final NumericTypeInfo<Double> Double = new NumericTypeInfo<Double>(0.0, Types.DOUBLE) {
-        public <V extends Number> Double asPreferred(NumericTypeInfo<V> otherType, V otherValue) {
-            return otherType.doubleValue(otherValue);
-        }
-    };
+    public static final TypeInfo<Object, ObjectLocation<Object>> Object = new TypeInfo<Object, ObjectLocation<Object>>(null, Types.OBJECT);
+    public static final TypeInfo<Boolean, BooleanLocation> Boolean = new TypeInfo<Boolean, BooleanLocation>(false, Types.BOOLEAN);
+    public static final TypeInfo<Character, CharLocation> Character = new TypeInfo<Character, CharLocation>('\0', Types.CHAR);
+    public static final TypeInfo<String, ObjectLocation<String>> String = new TypeInfo<String, ObjectLocation<String>>("", Types.OTHER);
+    public static final NumericTypeInfo<Byte, ByteLocation> Byte = new NumericTypeInfo<Byte, ByteLocation>((byte)0, Types.BYTE);
+    public static final NumericTypeInfo<Short, ShortLocation> Short = new NumericTypeInfo<Short, ShortLocation>((short)0, Types.SHORT);
+    public static final NumericTypeInfo<Integer, IntLocation> Integer = new NumericTypeInfo<Integer, IntLocation>(0, Types.INT);
+    public static final NumericTypeInfo<Long, LongLocation> Long = new NumericTypeInfo<Long, LongLocation>(0L, Types.LONG);
+    public static final NumericTypeInfo<Float, FloatLocation> Float = new NumericTypeInfo<Float, FloatLocation>(0.0f, Types.FLOAT);
+    public static final NumericTypeInfo<Double, DoubleLocation> Double = new NumericTypeInfo<Double, DoubleLocation>(0.0, Types.DOUBLE);
 
-    private static final Map<Class<?>, TypeInfo<?>> map = new HashMap<Class<?>, TypeInfo<?>>();
+    private static final Map<Class<?>, TypeInfo<?, ?>> map = new HashMap<Class<?>, TypeInfo<?, ?>>();
     static {
         // map.put(Number.class, Number);
         map.put(Byte.class, Byte);
@@ -131,30 +136,29 @@ public class TypeInfo<T> {
         map.put(String.class, String);
     }
 
-    @SuppressWarnings("unchecked")
-    public static<T> TypeInfo<T> getTypeInfo() {
-        return (TypeInfo<T>) Object;
+    public static<T> TypeInfo<T, ?> getTypeInfo() {
+        return (TypeInfo<T, ?>) (TypeInfo<?, ?>) Object;
     }
 
     @SuppressWarnings("unchecked")
-    public static<T> TypeInfo<T> getTypeInfo(Class<T> clazz) {
-        TypeInfo<T> ti = (TypeInfo<T>) map.get(clazz);
+    public static<T> TypeInfo<T, ?> getTypeInfo(Class<T> clazz) {
+        TypeInfo<T, ?> ti = (TypeInfo<T, ?>) map.get(clazz);
         if (ti == null)
             ti = TypeInfo.getTypeInfo();
         return ti;
     }
 
-    public static<T> TypeInfo<T> makeTypeInfo(T defaultValue) {
-        return new TypeInfo<T>(defaultValue, Types.OTHER);
+    public static<T> TypeInfo<T, ObjectLocation<T>> makeTypeInfo(T defaultValue) {
+        return new TypeInfo<T, ObjectLocation<T>>(defaultValue, Types.OTHER);
     }
 
-    public static<T> TypeInfo<T> makeAndRegisterTypeInfo(Class clazz, T defaultValue) {
-        TypeInfo<T> ti = new TypeInfo<T>(defaultValue, Types.OTHER);
+    public static<T> TypeInfo<T, ObjectLocation<T>> makeAndRegisterTypeInfo(Class clazz, T defaultValue) {
+        TypeInfo<T, ObjectLocation<T>> ti = new TypeInfo<T, ObjectLocation<T>>(defaultValue, Types.OTHER);
         map.put(clazz, ti);
         return ti;
     }
 
-    public static<T> TypeInfo<T> makeAndRegisterTypeInfo(T defaultValue) {
+    public static<T> TypeInfo<T, ?> makeAndRegisterTypeInfo(T defaultValue) {
         return makeAndRegisterTypeInfo(defaultValue.getClass(), defaultValue);
     }
 }

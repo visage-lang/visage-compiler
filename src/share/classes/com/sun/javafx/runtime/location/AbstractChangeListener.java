@@ -12,5 +12,5 @@ public abstract class AbstractChangeListener<T> extends AbstractLocationDependen
 }
 
 interface NumericChangeListener {
-    public<V extends Number> ObjectChangeListener<V> asObjectListener(NumericTypeInfo<V> type);
+    public<V extends Number> ObjectChangeListener<V> asObjectListener(NumericTypeInfo<V, ?> type);
 }

@@ -41,7 +41,7 @@ public abstract class IndirectSequenceExpression<T> extends SequenceVariable<T> 
 
     protected final ObjectLocation<SequenceLocation<T>> helper;
 
-    public IndirectSequenceExpression(TypeInfo<T> typeInfo, boolean lazy, Location... dependencies) {
+    public IndirectSequenceExpression(TypeInfo<T, ?> typeInfo, boolean lazy, Location... dependencies) {
         super(typeInfo);
         helper = IndirectLocationHelper.make(this, lazy, dependencies);
         bind(lazy, helper.get());

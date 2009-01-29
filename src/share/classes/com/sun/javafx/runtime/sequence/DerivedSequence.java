@@ -34,18 +34,18 @@ abstract class DerivedSequence<T> extends AbstractSequence<T> implements Sequenc
     protected final Sequence<? extends T> sequence;
     protected final int size, depth;
 
-    public DerivedSequence(TypeInfo<T> ti, Sequence<? extends T> sequence, int size, int depth) {
+    public DerivedSequence(TypeInfo<T, ?> ti, Sequence<? extends T> sequence, int size, int depth) {
         super(ti);
         this.sequence = sequence;
         this.size = size;
         this.depth = depth;
     }
 
-    protected DerivedSequence(TypeInfo<T> ti, Sequence<? extends T> sequence, int size) {
+    protected DerivedSequence(TypeInfo<T, ?> ti, Sequence<? extends T> sequence, int size) {
         this(ti, sequence, size, sequence.getDepth() + 1);
     }
 
-    protected DerivedSequence(TypeInfo<T> ti, Sequence<? extends T> sequence) {
+    protected DerivedSequence(TypeInfo<T, ?> ti, Sequence<? extends T> sequence) {
         this(ti, sequence, sequence.size(), sequence.getDepth() + 1);
     }
 

@@ -75,7 +75,7 @@ public final class Sequences extends SequenceConversions {
 
 
     /** Factory for simple sequence generation */
-    public static<T> Sequence<T> make(TypeInfo<T> ti, T... values) {
+    public static<T> Sequence<T> make(TypeInfo<T, ?> ti, T... values) {
         if (values == null || values.length == 0)
             return ti.emptySequence;
         else
@@ -83,19 +83,19 @@ public final class Sequences extends SequenceConversions {
     }
 
     /** Factory for simple sequence generation */
-    public static<T> Sequence<T> make(TypeInfo<T> ti, T[] values, int size) {
+    public static<T> Sequence<T> make(TypeInfo<T, ?> ti, T[] values, int size) {
         if (values == null || size <= 0)
             return ti.emptySequence;
         else
             return new ArraySequence<T>(ti, values, size);
     }
 
-    public static<T> Sequence<T> makeViaHandoff(TypeInfo<T> ti, T[] values) {
+    public static<T> Sequence<T> makeViaHandoff(TypeInfo<T, ?> ti, T[] values) {
         return new ArraySequence<T>(ti, values, true);
     }
 
     /** Factory for simple sequence generation */
-    public static<T> Sequence<T> make(TypeInfo<T> ti, List<? extends T> values) {
+    public static<T> Sequence<T> make(TypeInfo<T, ?> ti, List<? extends T> values) {
         if (values == null || values.size() == 0)
             return ti.emptySequence;
         else
@@ -125,7 +125,7 @@ public final class Sequences extends SequenceConversions {
 
     /** Concatenate two sequences into a new sequence.  */
     @SuppressWarnings("unchecked")
-    public static<T> Sequence<T> concatenate(TypeInfo<T> ti, Sequence<? extends T> first, Sequence<? extends T> second) {
+    public static<T> Sequence<T> concatenate(TypeInfo<T, ?> ti, Sequence<? extends T> first, Sequence<? extends T> second) {
         int size1 = Sequences.size(first);
         int size2 = Sequences.size(second);
         ArraySequence<T> arr;
@@ -157,7 +157,7 @@ public final class Sequences extends SequenceConversions {
     }
 
     /** Concatenate zero or more sequences into a new sequence.  */
-    public static<T> Sequence<T> concatenate(TypeInfo<T> ti, Sequence<? extends T>... seqs) {
+    public static<T> Sequence<T> concatenate(TypeInfo<T, ?> ti, Sequence<? extends T>... seqs) {
         int size = 0;
         for (Sequence i : seqs)
             size += Sequences.size(i);
@@ -243,7 +243,7 @@ public final class Sequences extends SequenceConversions {
     }
 
     /** Create a sequence containing a single element, the specified value */
-    public static<T> Sequence<T> singleton(TypeInfo<T> ti, T t) {
+    public static<T> Sequence<T> singleton(TypeInfo<T, ?> ti, T t) {
         if (t == null)
             return ti.emptySequence;
         else
@@ -261,14 +261,14 @@ public final class Sequences extends SequenceConversions {
     }
 
     /** Create a new sequence that is the result of applying a mapping function to each element */
-    public static<T,U> Sequence<U> map(TypeInfo<U> ti, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
+    public static<T,U> Sequence<U> map(TypeInfo<U, ?> ti, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
         // OPT: for small sequences, do the mapping eagerly
         return new MapSequence<T,U>(ti, sequence, mapper);
     }
 
     /** Convert a Collection<T> to a Sequence<T> */
     @SuppressWarnings("unchecked")
-    public static<T> Sequence<T> fromCollection(TypeInfo<T> ti, Collection<T> values) {
+    public static<T> Sequence<T> fromCollection(TypeInfo<T, ?> ti, Collection<T> values) {
         if (values == null)
             return ti.emptySequence;
         // OPT: Use handoff, pre-size array
@@ -326,7 +326,7 @@ public final class Sequences extends SequenceConversions {
 
     /** Convert any numeric sequence to any other numeric sequence */
     public static<T extends Number, V extends Number>
-    Sequence<T> convertNumberSequence(NumericTypeInfo<T> toType, NumericTypeInfo<V> fromType, Sequence<V> seq) {
+    Sequence<T> convertNumberSequence(NumericTypeInfo<T, ?> toType, NumericTypeInfo<V, ?> fromType, Sequence<V> seq) {
         if (Sequences.size(seq) == 0)
             return toType.emptySequence;
 
@@ -409,7 +409,7 @@ public final class Sequences extends SequenceConversions {
         return true;
     }     
 
-    public static<T> Sequence<? extends T> forceNonNull(TypeInfo<T> typeInfo, Sequence<? extends T> seq) {
+    public static<T> Sequence<? extends T> forceNonNull(TypeInfo<T, ?> typeInfo, Sequence<? extends T> seq) {
         return seq == null ? typeInfo.emptySequence : seq;
     }
     

@@ -37,7 +37,7 @@ public class SequenceConversions {
     /*******************************************/
 
     /** Convert a T[] to a Sequence<T> */
-    public static<T> Sequence<T> fromArray(TypeInfo<T> ti, T[] values) {
+    public static<T> Sequence<T> fromArray(TypeInfo<T, ?> ti, T[] values) {
         if (values == null)
             return ti.emptySequence;
         return new ArraySequence<T>(ti, values);

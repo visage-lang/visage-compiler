@@ -42,38 +42,38 @@ public class SequenceVariable<T>
         extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceChangeListener<T>>
         implements SequenceLocation<T> {
 
-    private final TypeInfo<T> typeInfo;
+    private final TypeInfo<T, ?> typeInfo;
     private final SequenceMutator.Listener<T> mutationListener;
     private Sequence<T> $value;
     private BoundLocationInfo boundLocation;
 
 
-    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo) {
+    public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo) {
         return new SequenceVariable<T>(typeInfo);
     }
 
-    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, Sequence<? extends T> value) {
+    public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo, Sequence<? extends T> value) {
         return new SequenceVariable<T>(typeInfo, value);
     }
 
-    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, boolean lazy, BindingExpression binding, Location... dependencies) {
+    public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo, boolean lazy, BindingExpression binding, Location... dependencies) {
         return new SequenceVariable<T>(typeInfo, lazy, binding, dependencies);
     }
 
-    public static <T> SequenceVariable<T> make(TypeInfo<T> typeInfo, BindingExpression binding, Location... dependencies) {
+    public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo, BindingExpression binding, Location... dependencies) {
         return new SequenceVariable<T>(typeInfo, false, binding, dependencies);
     }
 
     /**
      * Create a bijectively bound variable
      */
-    public static <T> SequenceVariable<T> makeBijective(TypeInfo<T> typeInfo, SequenceVariable<T> other) {
+    public static <T> SequenceVariable<T> makeBijective(TypeInfo<T, ?> typeInfo, SequenceVariable<T> other) {
         SequenceVariable<T> me = SequenceVariable.<T>make(typeInfo);
         me.bijectiveBind(other);
         return me;
     }
 
-    protected SequenceVariable(TypeInfo<T> typeInfo) {
+    protected SequenceVariable(TypeInfo<T, ?> typeInfo) {
         this.typeInfo = typeInfo;
         this.$value = typeInfo.emptySequence;
         this.mutationListener = new SequenceMutator.Listener<T>() {
@@ -87,14 +87,14 @@ public class SequenceVariable<T>
         };
     }
 
-    protected SequenceVariable(TypeInfo<T> typeInfo, Sequence<? extends T> value) {
+    protected SequenceVariable(TypeInfo<T, ?> typeInfo, Sequence<? extends T> value) {
         this(typeInfo);
         if (value == null)
             value = typeInfo.emptySequence;
         replaceValue(Sequences.<T>upcast(value));
     }
 
-    protected SequenceVariable(TypeInfo<T> typeInfo, boolean lazy, BindingExpression binding, Location... dependencies) {
+    protected SequenceVariable(TypeInfo<T, ?> typeInfo, boolean lazy, BindingExpression binding, Location... dependencies) {
         this(typeInfo);
         bind(lazy, binding);
         addDependency(dependencies);
@@ -158,7 +158,7 @@ public class SequenceVariable<T>
     }
 
 
-    public TypeInfo<T> getElementType() {
+    public TypeInfo<T, ?> getElementType() {
         return typeInfo;
     }
 

@@ -39,7 +39,7 @@ class CompositeSequence<T> extends AbstractSequence<T> implements Sequence<T> {
     private final int[] startPositions;
     private final int size, depth;
 
-    public CompositeSequence(TypeInfo<T> ti, Sequence<? extends T>... sequences) {
+    public CompositeSequence(TypeInfo<T, ?> ti, Sequence<? extends T>... sequences) {
         // @@@ TODO: Deal with nulls in sequences
         super(ti);
         this.sequences = Util.newSequenceArray(sequences.length);

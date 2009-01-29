@@ -33,6 +33,21 @@ import com.sun.javafx.runtime.TypeInfo;
  * @author Brian Goetz
  */
 public class IndirectLocationHelper {
+    public static<T, L extends ObjectLocation<T>>
+    ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, Location... dependencies) {
+        final ObjectVariable<L> helper = ObjectVariable.make();
+        helper.bind(lazy, binding, dependencies);
+        helpedLocation.addDependency(helper);
+        helpedLocation.addDynamicDependency(helper.get());
+        helper.addChangeListener(new ObjectChangeListener<L>() {
+            public void onChange(L oldLoc, L newLoc) {
+                helpedLocation.clearDynamicDependencies();
+                helpedLocation.addDynamicDependency(newLoc);
+            }
+        });
+        return helper;
+    }
+
     public static<T extends Location> ObjectLocation<T> make(final IndirectLocation<T> helped, boolean lazy, Location... dependencies) {
         final ObjectVariable<T> ov = ObjectVariable.make(lazy, new BindingExpression() {
             public void compute() {
@@ -62,6 +77,9 @@ public class IndirectLocationHelper {
                     case SHORT: pushValue(((ShortLocation) helper.get()).getAsShort()); break;
                     case BOOLEAN: pushValue(((BooleanLocation) helper.get()).getAsBoolean()); break;
                     case CHAR: pushValue(((CharLocation) helper.get()).getAsChar()); break;
+                    case OBJECT:
+                    case OTHER:
+                        pushValue(((ObjectLocation<?>) helper.get()).get()); break;
                     default: throw new UnsupportedOperationException(ti.type.toString());
                 }
             }

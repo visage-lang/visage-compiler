@@ -39,7 +39,7 @@ public class BoundSequences {
      * where a, b, ..., are sequence locations.
      *  
      */
-    public static <T> SequenceLocation<T> concatenate(TypeInfo<T> typeInfo, SequenceLocation<? extends T>... locations) {
+    public static <T> SequenceLocation<T> concatenate(TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>... locations) {
         return new BoundCompositeSequence<T>(typeInfo, locations);
     }
 
@@ -49,7 +49,7 @@ public class BoundSequences {
      * where a, b, ..., are sequence locations.
      *
      */
-    public static <T> SequenceLocation<T> concatenate(TypeInfo<T> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
+    public static <T> SequenceLocation<T> concatenate(TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
         return new BoundCompositeSequence<T>(typeInfo, locations, size);
     }
 
@@ -59,7 +59,7 @@ public class BoundSequences {
      * where a is a sequence location of a subtype of the desired element type
      *
      */
-    public static <T, V extends T> SequenceLocation<T> upcast(TypeInfo<T> typeInfo, SequenceLocation<V> location) {
+    public static <T, V extends T> SequenceLocation<T> upcast(TypeInfo<T, ?> typeInfo, SequenceLocation<V> location) {
         return new BoundUpcastSequence<T, V>(typeInfo, location);
     }
 
@@ -75,7 +75,7 @@ public class BoundSequences {
      *   bind [ x ]
      * where x is an instance.
      */
-    public static<T, V extends T> SequenceLocation<T> singleton(TypeInfo<T> typeInfo, ObjectLocation<V> location) {
+    public static<T, V extends T> SequenceLocation<T> singleton(TypeInfo<T, ?> typeInfo, ObjectLocation<V> location) {
         return new BoundSingletonSequence<T, V>(typeInfo, location);
     }
 
@@ -87,7 +87,7 @@ public class BoundSequences {
         return new BoundSingletonSequence<Integer, Integer>(TypeInfo.Integer, location);
     }
 
-    public static<T> SequenceLocation<T> empty(final TypeInfo<T> typeInfo) {
+    public static<T> SequenceLocation<T> empty(final TypeInfo<T, ?> typeInfo) {
         return new AbstractBoundSequence<T>(typeInfo) {
             { setInitialValue(typeInfo.emptySequence); }
         };
@@ -158,17 +158,17 @@ public class BoundSequences {
         return new BoundNumberRangeSequence(a, b, step, exclusive);
     }
     
-    public static<T> SequenceLocation<T> slice(TypeInfo<T> typeInfo, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
+    public static<T> SequenceLocation<T> slice(TypeInfo<T, ?> typeInfo, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
         return new BoundSequenceSlice<T>(typeInfo, sequence, a, b, false);
     }
     
-    public static<T> SequenceLocation<T> sliceExclusive(TypeInfo<T> typeInfo, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
+    public static<T> SequenceLocation<T> sliceExclusive(TypeInfo<T, ?> typeInfo, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {
         return new BoundSequenceSlice<T>(typeInfo, sequence, a, b, true);
     }
 
     /** Convert any numeric sequence location to any other numeric sequence */
     public static<T extends Number, V extends Number>
-    SequenceLocation<T> convertNumberSequence(final NumericTypeInfo<T> toType, final NumericTypeInfo<V> fromType, SequenceLocation<V> seq) {
+    SequenceLocation<T> convertNumberSequence(final NumericTypeInfo<T, ?> toType, final NumericTypeInfo<V, ?> fromType, SequenceLocation<V> seq) {
         return new BoundNumericConversion<T, V>(toType, fromType, seq);
     }
 
@@ -176,7 +176,7 @@ public class BoundSequences {
          V computeElement$(T element, int index);
     }
 
-    public static<T, V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V> typeInfo,
+    public static<T, V> SequenceLocation<V> makeSimpleBoundComprehension(TypeInfo<V, ?> typeInfo,
                                                                          SequenceLocation<T> seq,
                                                                          boolean useIndex,
                                                                          final SimpleBoundComprehensionCallback<T, V> callback) {
@@ -192,8 +192,8 @@ public class BoundSequences {
     }
 
     public static<T_IN, T_OUT, T_IN_LOCATION extends ObjectLocation<T_IN>> SequenceLocation<T_OUT>
-    makeBoundComprehension(final TypeInfo<T_OUT> outTypeInfo,
-                           final TypeInfo<T_IN> inTypeInfo,
+    makeBoundComprehension(final TypeInfo<T_OUT, ?> outTypeInfo,
+                           final TypeInfo<T_IN, T_IN_LOCATION> inTypeInfo,
                            SequenceLocation<T_IN> inSequence,
                            boolean useIndex,
                            final BoundComprehensionCallback<T_IN, T_OUT, T_IN_LOCATION> callback) {

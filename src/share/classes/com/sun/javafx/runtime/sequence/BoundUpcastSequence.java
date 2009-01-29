@@ -36,7 +36,7 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
 
     private final SequenceLocation<V> sequence;
 
-    public BoundUpcastSequence(TypeInfo<T> typeInfo, SequenceLocation<V> sequence) {
+    public BoundUpcastSequence(TypeInfo<T, ?> typeInfo, SequenceLocation<V> sequence) {
         super(typeInfo);
         this.sequence = sequence;
         setInitialValue(computeValue());

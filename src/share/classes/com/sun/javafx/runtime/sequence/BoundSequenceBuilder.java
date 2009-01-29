@@ -38,15 +38,15 @@ import com.sun.javafx.runtime.location.SequenceLocation;
 public class BoundSequenceBuilder<T> {
     private static final int DEFAULT_SIZE = 8;
 
-    private final TypeInfo<T> typeInfo;
+    private final TypeInfo<T, ?> typeInfo;
     private SequenceLocation<? extends T>[] array;
     private int size;
 
-    public BoundSequenceBuilder(TypeInfo<T> typeInfo) {
+    public BoundSequenceBuilder(TypeInfo<T, ?> typeInfo) {
         this(DEFAULT_SIZE, typeInfo);
     }
 
-    public BoundSequenceBuilder(int initialSize, TypeInfo<T> typeInfo) {
+    public BoundSequenceBuilder(int initialSize, TypeInfo<T, ?> typeInfo) {
         this.typeInfo = typeInfo;
         array = Util.newSequenceLocationArray(Util.powerOfTwo(1, initialSize));
     }

@@ -60,7 +60,7 @@ public class Locations {
         return ObjectConstant.make(value);
     }
 
-    public static<T> SequenceLocation<T> constant(TypeInfo<T> typeInfo, Sequence<T> value) {
+    public static<T> SequenceLocation<T> constant(TypeInfo<T, ?> typeInfo, Sequence<T> value) {
         return SequenceConstant.make(typeInfo, value);
     }
 
@@ -99,7 +99,7 @@ public class Locations {
      * @param loc Location to wrap
      * @return
      */
-    public static<T, V extends T> ObjectLocation<T> upcast(TypeInfo<V> typeInfo, ObjectLocation<V> loc) {
+    public static<T, V extends T> ObjectLocation<T> upcast(TypeInfo<V, ?> typeInfo, ObjectLocation<V> loc) {
         return new UpcastLocation<T, V>(typeInfo, loc);
     }
 
@@ -406,7 +406,7 @@ public class Locations {
     public static class NumericToByteLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ByteLocation, Byte, ByteChangeListener> implements ByteLocation {
 
-        public NumericToByteLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+        public NumericToByteLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Byte);
         }
 
@@ -426,7 +426,7 @@ public class Locations {
     public static class NumericToShortLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ShortLocation, Short, ShortChangeListener> implements ShortLocation {
 
-        public NumericToShortLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+        public NumericToShortLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Short);
         }
 
@@ -446,7 +446,7 @@ public class Locations {
     public static class NumericToIntLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, IntLocation, Integer, IntChangeListener> implements IntLocation {
 
-        public NumericToIntLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+        public NumericToIntLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Integer);
         }
 
@@ -466,7 +466,7 @@ public class Locations {
     public static class NumericToLongLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, LongLocation, Long, LongChangeListener> implements LongLocation {
 
-        public NumericToLongLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+        public NumericToLongLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Long);
         }
 
@@ -486,7 +486,7 @@ public class Locations {
     public static class NumericToFloatLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, FloatLocation, Float, FloatChangeListener> implements FloatLocation {
 
-        public NumericToFloatLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+        public NumericToFloatLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Float);
         }
 
@@ -506,7 +506,7 @@ public class Locations {
     public static class NumericToDoubleLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, DoubleLocation, Double, DoubleChangeListener> implements DoubleLocation {
 
-        public NumericToDoubleLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType) {
+        public NumericToDoubleLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Double);
         }
 
@@ -531,10 +531,10 @@ public class Locations {
             T_LISTENER_OUT extends AbstractChangeListener<T_VALUE_OUT> & NumericChangeListener>
                  extends LocationWrapper<T_LOC_IN> {
 
-        protected final NumericTypeInfo<T_VALUE_IN> inType;
-        protected final NumericTypeInfo<T_VALUE_OUT> outType;
+        protected final NumericTypeInfo<T_VALUE_IN, ?> inType;
+        protected final NumericTypeInfo<T_VALUE_OUT, ?> outType;
 
-        protected NumericLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN> inType, NumericTypeInfo<T_VALUE_OUT> outType) {
+        protected NumericLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType, NumericTypeInfo<T_VALUE_OUT, ?> outType) {
             super(location);
             this.inType = inType;
             this.outType = outType;
@@ -593,7 +593,7 @@ public class Locations {
 
     private static class UpcastLocation<T, V extends T> extends LocationWrapper<ObjectLocation<V>> implements ObjectLocation<T> {
 
-        public UpcastLocation(TypeInfo<V> typeInfo, ObjectLocation<V> location) {
+        public UpcastLocation(TypeInfo<V, ?> typeInfo, ObjectLocation<V> location) {
             super(location);
         }
 

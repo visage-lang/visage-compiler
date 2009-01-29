@@ -38,7 +38,7 @@ public class AbstractSequenceTest extends JavaFXTestCase {
 
         private final T[] array;
     
-        public MyAbstractSequence(TypeInfo<T> ti, T... values) {
+        public MyAbstractSequence(TypeInfo<T, ?> ti, T... values) {
             super(ti);
             this.array = values;
         }

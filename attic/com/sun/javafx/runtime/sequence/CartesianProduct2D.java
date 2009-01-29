@@ -42,7 +42,7 @@ public class CartesianProduct2D<T, U, V> extends AbstractSequence<T> implements 
     private final Sequence<V> seq2;
     private final Mapper<T, U, V> mapper;
 
-    public CartesianProduct2D(TypeInfo<T> ti, Sequence<U> seq1, Sequence<V> seq2, Mapper<T, U, V> mapper) {
+    public CartesianProduct2D(TypeInfo<T, ?> ti, Sequence<U> seq1, Sequence<V> seq2, Mapper<T, U, V> mapper) {
         super(ti);
         this.seq1 = seq1;
         this.seq2 = seq2;

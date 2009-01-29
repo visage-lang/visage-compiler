@@ -27,7 +27,6 @@ import com.sun.javafx.functions.Function0;
 import com.sun.javafx.functions.Function1;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.SequencePredicate;
 import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
@@ -291,62 +290,83 @@ public class BoundOperators {
 
     // @@@ Missing Byte, Short, Long for if and select
 
+    private static BindingExpression wrap(final Function0<? extends Location> fun) {
+        return new BindingExpression() {
+            public void compute() {
+                pushValue(fun.invoke());
+            }
+        };
+    }
+
+    private static<T> BindingExpression wrap(final Function1<? extends Location, T> fun, final ObjectLocation<T> receiver) {
+        return new BindingExpression() {
+            public void compute() {
+                pushValue(fun.invoke(receiver.get()));
+            }
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T, L extends ObjectLocation<T>> L makeBoundIf(TypeInfo<T, L> typeInfo,
+                                                                boolean lazy,
+                                                                final BooleanLocation conditional,
+                                                                final BindingExpression thenBranch,
+                                                                final BindingExpression elseBranch) {
+        final L loc = typeInfo.makeLocation();
+        final ObjectVariable<L> helper = IndirectLocationHelper.makeIndirectHelper(lazy, loc, new BindingExpression() {
+            public void compute() {
+                if (thenBranch.location == null) {
+                    // First-time setup
+                    thenBranch.setLocation(location);
+                    elseBranch.setLocation(location);
+                }
+
+                if (conditional.get())
+                    thenBranch.compute();
+                else
+                    elseBranch.compute();
+            }
+        }, conditional);
+        ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, helper));
+        return loc;
+    }
+
     public static IntLocation makeBoundIf(boolean lazy,
                                           final BooleanLocation conditional,
                                           final Function0<IntLocation> thenBranch,
                                           final Function0<IntLocation> elseBranch) {
-        return new IndirectIntExpression(lazy, conditional) {
-            public IntLocation computeLocation() {
-                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-            }
-        };
+        return makeBoundIf(TypeInfo.Integer, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
     public static FloatLocation makeBoundIf(boolean lazy,
                                             final BooleanLocation conditional,
                                             final Function0<FloatLocation> thenBranch,
                                             final Function0<FloatLocation> elseBranch) {
-        return new IndirectFloatExpression(lazy, conditional) {
-            public FloatLocation computeLocation() {
-                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-            }
-        };
+        return makeBoundIf(TypeInfo.Float, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
     public static DoubleLocation makeBoundIf(boolean lazy,
                                              final BooleanLocation conditional,
                                              final Function0<DoubleLocation> thenBranch,
                                              final Function0<DoubleLocation> elseBranch) {
-        return new IndirectDoubleExpression(lazy, conditional) {
-            public DoubleLocation computeLocation() {
-                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-            }
-        };
+        return makeBoundIf(TypeInfo.Double, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
     public static BooleanLocation makeBoundIf(boolean lazy,
                                               final BooleanLocation conditional,
                                               final Function0<BooleanLocation> thenBranch,
                                               final Function0<BooleanLocation> elseBranch) {
-        return new IndirectBooleanExpression(lazy, conditional) {
-            public BooleanLocation computeLocation() {
-                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-            }
-        };
+        return makeBoundIf(TypeInfo.Boolean, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
     public static<T> ObjectLocation<T> makeBoundIf(boolean lazy,
                                                    final BooleanLocation conditional,
                                                    final Function0<ObjectLocation<T>> thenBranch,
                                                    final Function0<ObjectLocation<T>> elseBranch) {
-        return new IndirectObjectExpression<T>(lazy, conditional) {
-            public ObjectLocation<T> computeLocation() {
-                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-            }
-        };
+        return makeBoundIf(TypeInfo.<T>getTypeInfo(), lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
-    public static<T> SequenceLocation<T> makeBoundIf(TypeInfo<T> typeInfo,
+    public static<T> SequenceLocation<T> makeBoundIf(TypeInfo<T, ?> typeInfo,
                                                      boolean lazy,
                                                      final BooleanLocation conditional,
                                                      final Function0<SequenceLocation<T>> thenBranch,
@@ -359,125 +379,61 @@ public class BoundOperators {
     }
 
 
-    public static<T> IntLocation makeBoundSelect(boolean lazy,
-                                                 final ObjectLocation<T> receiver,
-                                                 final Function1<IntLocation, T> selector) {
-        return new IndirectIntExpression(lazy, receiver) {
-            public IntLocation computeLocation() {
-                T selectorValue = receiver.get();
-                return selectorValue == null ? IntConstant.make(DEFAULT) : selector.invoke(selectorValue);
-            }
+    @SuppressWarnings("unchecked")
+    public static<T, L extends ObjectLocation<T>> L makeBoundSelect(final TypeInfo<T, L> typeInfo,
+                                                                    boolean lazy,
+                                                                    final ObjectLocation<?> receiver,
+                                                                    final BindingExpression selector) {
+        final L loc = typeInfo.makeLocation();
+        final ObjectVariable<L> helper = IndirectLocationHelper.makeIndirectHelper(lazy, loc, new BindingExpression() {
+            public void compute() {
+                if (selector.location == null) {
+                    // First-time setup
+                    selector.setLocation(location);
+                }
 
-            public int setAsInt(int value) {
-                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
-                return helper.get().setAsInt(value);
+                if (receiver.get() != null)
+                    selector.compute();
+                else
+                    pushValue(typeInfo.makeDefaultConstant());
             }
+        }, receiver);
+        ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, helper));
+        return loc;
+    }
 
-            public void setDefault() {
-                helper.get().setDefault();
-            }
-
-            public Integer set(Integer value) {
-                return helper.get().set(value);
-            }
-        };
+    public static<X> IntLocation makeBoundSelect(boolean lazy,
+                                                 final ObjectLocation<X> receiver,
+                                                 final Function1<IntLocation, X> selector) {
+        return makeBoundSelect(TypeInfo.Integer, lazy, receiver, wrap(selector, receiver));
     }
 
     public static<T> DoubleLocation makeBoundSelect(boolean lazy,
                                                     final ObjectLocation<T> receiver,
                                                     final Function1<DoubleLocation, T> selector) {
-        return new IndirectDoubleExpression(lazy, receiver) {
-            public DoubleLocation computeLocation() {
-                T selectorValue = receiver.get();
-                return selectorValue == null ? DoubleConstant.make(DEFAULT) : selector.invoke(selectorValue);
-            }
-
-            public double setAsDouble(double value) {
-                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
-                return helper.get().setAsDouble(value);
-            }
-
-            public void setDefault() {
-                helper.get().setDefault();
-            }
-
-            public Double set(Double value) {
-                return helper.get().set(value);
-            }
-        };
+        return makeBoundSelect(TypeInfo.Double, lazy, receiver, wrap(selector, receiver));
     }
 
     public static<T> FloatLocation makeBoundSelect(boolean lazy,
                                                    final ObjectLocation<T> receiver,
                                                    final Function1<FloatLocation, T> selector) {
-        return new IndirectFloatExpression(lazy, receiver) {
-            public FloatLocation computeLocation() {
-                T selectorValue = receiver.get();
-                return selectorValue == null ? FloatConstant.make(DEFAULT) : selector.invoke(selectorValue);
-            }
-
-            public float setAsFloat(float value) {
-                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
-                return helper.get().setAsFloat(value);
-            }
-
-            public void setDefault() {
-                helper.get().setDefault();
-            }
-
-            public Float set(Float value) {
-                return helper.get().set(value);
-            }
-        };
+        return makeBoundSelect(TypeInfo.Float, lazy, receiver, wrap(selector, receiver));
     }
 
     public static<T> BooleanLocation makeBoundSelect(boolean lazy,
                                                      final ObjectLocation<T> receiver,
                                                      final Function1<BooleanLocation, T> selector) {
-        return new IndirectBooleanExpression(lazy, receiver) {
-            public BooleanLocation computeLocation() {
-                T selectorValue = receiver.get();
-                return selectorValue == null ? BooleanConstant.make(DEFAULT) : selector.invoke(selectorValue);
-            }
-
-            public boolean setAsBoolean(boolean value) {
-                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
-                return helper.get().setAsBoolean(value);
-            }
-
-            public void setDefault() {
-                helper.get().setDefault();
-            }
-
-            public Boolean set(Boolean value) {
-                return helper.get().set(value);
-            }
-        };
+        return makeBoundSelect(TypeInfo.Boolean, lazy, receiver, wrap(selector, receiver));
     }
 
-    public static<T, U> ObjectLocation<U> makeBoundSelect(final TypeInfo<U> typeInfo,
+    public static<T, U> ObjectLocation<U> makeBoundSelect(final TypeInfo<U, ?> typeInfo,
                                                           boolean lazy,
                                                           final ObjectLocation<T> receiver,
                                                           final Function1<ObjectLocation<U>, T> selector) {
-        return new IndirectObjectExpression<U>(lazy, receiver) {
-
-            public ObjectLocation<U> computeLocation() {
-                T selectorValue = receiver.get();
-                return selectorValue == null ? ObjectConstant.make(typeInfo.defaultValue) : selector.invoke(selectorValue);
-            }
-
-            public void setDefault() {
-                helper.get().setDefault();
-            }
-
-            public U set(U value) {
-                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
-                return helper.get().set(value);
-            }
-        };
+        return makeBoundSelect(TypeInfo.<U>getTypeInfo(), lazy, receiver, wrap(selector, receiver));
     }
 
-    public static<T, U> SequenceLocation<U> makeBoundSelect(final TypeInfo<U> typeInfo,
+    public static<T, U> SequenceLocation<U> makeBoundSelect(final TypeInfo<U, ?> typeInfo,
                                                             boolean lazy,
                                                             final ObjectLocation<T> receiver,
                                                             final Function1<SequenceLocation<U>, T> selector) {
@@ -489,95 +445,6 @@ public class BoundOperators {
             public SequenceLocation<U> computeLocation() {
                 T selectorValue = receiver.get();
                 return selectorValue == null ? defaultValue : selector.invoke(selectorValue);
-            }
-
-            public void setDefault() {
-                helper.get().setDefault();
-            }
-
-            public Sequence<U> setAsSequence(Sequence<? extends U> value) {
-                // @@@ Shouldn't mutate unconditionally -- only if bound bidirectionally
-                return helper.get().setAsSequence(value);
-            }
-
-            public Sequence<U> set(Sequence<U> value) {
-                return helper.get().set(value);
-            }
-
-            public U set(int position, U newValue) {
-                return helper.get().set(position, newValue);
-            }
-
-            public Sequence<? extends U> replaceSlice(int startPos, int endPos, Sequence<? extends U> newValues) {
-                return helper.get().replaceSlice(startPos, endPos, newValues);
-            }
-
-            public void delete(int position) {
-                helper.get().delete(position);
-            }
-
-            public void deleteSlice(int startPos, int endPos) {
-                helper.get().deleteSlice(startPos, endPos);
-            }
-
-            public void delete(SequencePredicate<U> tSequencePredicate) {
-                helper.get().delete(tSequencePredicate);
-            }
-
-            public void deleteAll() {
-                helper.get().deleteAll();
-            }
-
-            public void deleteValue(U targetValue) {
-                helper.get().deleteValue(targetValue);
-            }
-
-            public void insert(U value) {
-                helper.get().insert(value);
-            }
-
-            public void insert(Sequence<? extends U> values) {
-                helper.get().insert(values);
-            }
-
-            public void insertFirst(U value) {
-                helper.get().insertFirst(value);
-            }
-
-            public void insertFirst(Sequence<? extends U> values) {
-                helper.get().insertFirst(values);
-            }
-
-            public void insertBefore(U value, int position) {
-                helper.get().insertBefore(value, position);
-            }
-
-            public void insertBefore(U value, SequencePredicate<U> tSequencePredicate) {
-                helper.get().insertBefore(value, tSequencePredicate);
-            }
-
-            public void insertBefore(Sequence<? extends U> values, int position) {
-                helper.get().insertBefore(values, position);
-            }
-
-            public void insertBefore(Sequence<? extends U> values, SequencePredicate<U> tSequencePredicate) {
-                helper.get().insertBefore(values, tSequencePredicate);
-            }
-
-            public void insertAfter(U value, int position) {
-                helper.get().insertAfter(value, position);
-            }
-
-            public void insertAfter(U value, SequencePredicate<U> tSequencePredicate) {
-                helper.get().insertAfter(value, tSequencePredicate);
-            }
-
-            public void insertAfter(Sequence<? extends U> values, int position) {
-                helper.get().insertAfter(values, position);
-            }
-
-            public void insertAfter(Sequence<? extends U> values, SequencePredicate<U> tSequencePredicate) {
-                helper.get().insertAfter(values, tSequencePredicate);
             }
         };
     }

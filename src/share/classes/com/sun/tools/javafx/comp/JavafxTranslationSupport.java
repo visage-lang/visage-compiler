@@ -23,37 +23,30 @@
 
 package com.sun.tools.javafx.comp;
 
+import java.io.OutputStreamWriter;
+
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import com.sun.tools.javac.code.BoundKind;
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.TypeTags;
+import com.sun.tools.javac.code.*;
+import static com.sun.tools.javac.code.Flags.STATIC;
+import com.sun.tools.javac.code.Type.CapturedType;
+import com.sun.tools.javac.code.Type.ForAll;
+import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeMaker;
+import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.util.Context;
-
-import com.sun.tools.javac.util.Position;
-import com.sun.tools.javafx.code.JavafxFlags;
-import java.io.OutputStreamWriter;
-import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import static com.sun.tools.javac.code.Flags.*;
 
 /**
  * Common support routines needed for translation
