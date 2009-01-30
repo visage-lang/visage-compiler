@@ -70,4 +70,22 @@ public class IndirectLocationHelper {
             }
         };
     }
+
+    public static<T> SequenceLocation<T> makeIndirectSequenceLocation(TypeInfo<T, ?> typeInfo,
+                                                                      boolean lazy,
+                                                                      BindingExpression binding,
+                                                                      Location... dependencies) {
+        final SequenceVariable<T> loc = SequenceVariable.make(typeInfo);
+        ObjectLocation<SequenceLocation<T>> helper
+                = IndirectLocationHelper.makeIndirectHelper(lazy, (SequenceLocation<T>) loc, binding, new SequenceConstant<T>(typeInfo, typeInfo.emptySequence), dependencies);
+        loc.bind(lazy, helper.get());
+        // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
+        // the rebinding happens.
+        helper.addChangeListener(new ObjectChangeListener<SequenceLocation<T>>() {
+            public void onChange(SequenceLocation<T> oldValue, SequenceLocation<T> newValue) {
+                loc.rebind(newValue);
+            }
+        });
+        return loc;
+    }
 }

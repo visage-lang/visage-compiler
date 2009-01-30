@@ -18,42 +18,42 @@ public class BoundOperatorsTest extends JavaFXTestCase {
     public void testIndirectIf() {
         BooleanLocation b = BooleanVariable.make(true);
         final IntVariable i = IntVariable.make(1);
-        IntLocation ifLoc = BoundOperators.makeBoundIf(false, b,
-                                                       new Function0<IntLocation>() {
-                                                           public IntLocation invoke() {
-                                                               return IntVariable.make(new IntBindingExpression() {
+        IntLocation ifLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, false, b,
+                                                       new BindingExpression() {
+                                                           public void compute() {
+                                                               pushValue(IntVariable.make(new IntBindingExpression() {
                                                                    public int computeValue() {
                                                                        return i.get();
                                                                    }
-                                                               }, i);
+                                                               }, i));
                                                            }
                                                        },
-                                                       new Function0<IntLocation>() {
-                                                           public IntLocation invoke() {
-                                                               return IntVariable.make(new IntBindingExpression() {
+                                                       new BindingExpression() {
+                                                           public void compute() {
+                                                               pushValue(IntVariable.make(new IntBindingExpression() {
                                                                    public int computeValue() {
                                                                        return -i.get();
                                                                    }
-                                                               }, i);
+                                                               }, i));
                                                            }
                                                        });
-        IntLocation lazyIfLoc = BoundOperators.makeBoundIf(true, b,
-                                                           new Function0<IntLocation>() {
-                                                               public IntLocation invoke() {
-                                                                   return IntVariable.make(new IntBindingExpression() {
+        IntLocation lazyIfLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, true, b,
+                                                           new BindingExpression() {
+                                                               public void compute() {
+                                                                   pushValue(IntVariable.make(new IntBindingExpression() {
                                                                        public int computeValue() {
                                                                            return i.get();
                                                                        }
-                                                                   }, i);
+                                                                   }, i));
                                                                }
                                                            },
-                                                           new Function0<IntLocation>() {
-                                                               public IntLocation invoke() {
-                                                                   return IntVariable.make(new IntBindingExpression() {
+                                                           new BindingExpression() {
+                                                               public void compute() {
+                                                                   pushValue(IntVariable.make(new IntBindingExpression() {
                                                                        public int computeValue() {
                                                                            return -i.get();
                                                                        }
-                                                                   }, i);
+                                                                   }, i));
                                                                }
                                                            });
         CountingListener cl = new CountingListener();

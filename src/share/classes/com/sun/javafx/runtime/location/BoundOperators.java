@@ -306,14 +306,8 @@ public class BoundOperators {
     }
     // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
 
-    @SuppressWarnings("unchecked")
-    public static<T, L extends ObjectLocation<T>> L makeBoundIf(TypeInfo<T, L> typeInfo,
-                                                                boolean lazy,
-                                                                final BooleanLocation conditional,
-                                                                final BindingExpression thenBranch,
-                                                                final BindingExpression elseBranch) {
-        final L loc = typeInfo.makeLocation();
-        final ObjectVariable<L> lastArm = IndirectLocationHelper.makeIndirectHelper(lazy, loc, new BindingExpression() {
+    private static BindingExpression makeIfBindingExpression(final BooleanLocation conditional, final BindingExpression thenBranch, final BindingExpression elseBranch) {
+        return new BindingExpression() {
             public void compute() {
                 if (thenBranch.location == null) {
                     // First-time setup
@@ -326,7 +320,19 @@ public class BoundOperators {
                 else
                     elseBranch.compute();
             }
-        }, typeInfo.makeDefaultConstant(), conditional);
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T, L extends ObjectLocation<T>> L makeBoundIf(TypeInfo<T, L> typeInfo,
+                                                                boolean lazy,
+                                                                final BooleanLocation conditional,
+                                                                final BindingExpression thenBranch,
+                                                                final BindingExpression elseBranch) {
+        final L loc = typeInfo.makeLocation();
+        final ObjectVariable<L> lastArm = IndirectLocationHelper.makeIndirectHelper(lazy, loc,
+                                                                                    makeIfBindingExpression(conditional, thenBranch, elseBranch),
+                                                                                    typeInfo.makeDefaultConstant(), conditional);
         ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, lastArm));
         return loc;
     }
@@ -368,29 +374,26 @@ public class BoundOperators {
         return makeBoundIf(TypeInfo.<T>getTypeInfo(), lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
-    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
-
     public static<T> SequenceLocation<T> makeBoundIf(TypeInfo<T, ?> typeInfo,
                                                      boolean lazy,
                                                      final BooleanLocation conditional,
                                                      final Function0<SequenceLocation<T>> thenBranch,
                                                      final Function0<SequenceLocation<T>> elseBranch) {
-        return new IndirectSequenceExpression<T>(typeInfo, lazy, conditional) {
-            public SequenceLocation<T> computeLocation() {
-                return (conditional.get()) ? thenBranch.invoke() : elseBranch.invoke();
-            }
-        };
+        return makeBoundSequenceIf(typeInfo, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
+    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
 
-    @SuppressWarnings("unchecked")
-    public static<T, L extends ObjectLocation<T>> L makeBoundSelect(final TypeInfo<T, L> typeInfo,
-                                                                    boolean lazy,
-                                                                    final ObjectLocation<?> receiver,
-                                                                    final BindingExpression selector) {
-        final L loc = typeInfo.makeLocation();
-        final L defaultConstant = typeInfo.makeDefaultConstant();
-        final ObjectVariable<L> lastADotB = IndirectLocationHelper.makeIndirectHelper(lazy, loc, new BindingExpression() {
+    public static<T> SequenceLocation<T> makeBoundSequenceIf(TypeInfo<T, ?> typeInfo,
+                                                             boolean lazy,
+                                                             final BooleanLocation conditional,
+                                                             final BindingExpression thenBranch,
+                                                             final BindingExpression elseBranch) {
+        return IndirectLocationHelper.makeIndirectSequenceLocation(typeInfo, lazy, makeIfBindingExpression(conditional, thenBranch, elseBranch), conditional);
+    }
+
+    private static <T, L extends ObjectLocation<T>> BindingExpression makeSelectBindingExpression(final ObjectLocation<?> receiver, final BindingExpression selector, final L defaultConstant) {
+        return new BindingExpression() {
             public void compute() {
                 if (selector.location == null) {
                     // First-time setup
@@ -403,7 +406,19 @@ public class BoundOperators {
                     pushValue(defaultConstant);
                 }
             }
-        }, defaultConstant, receiver);
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    public static<T, L extends ObjectLocation<T>> L makeBoundSelect(final TypeInfo<T, L> typeInfo,
+                                                                    boolean lazy,
+                                                                    final ObjectLocation<?> receiver,
+                                                                    final BindingExpression selector) {
+        final L loc = typeInfo.makeLocation();
+        final L defaultConstant = typeInfo.makeDefaultConstant();
+        final ObjectVariable<L> lastADotB = IndirectLocationHelper.makeIndirectHelper(lazy, loc,
+                                                                                      makeSelectBindingExpression(receiver, selector, defaultConstant),
+                                                                                      defaultConstant, receiver);
         ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, lastADotB));
         return loc;
     }
@@ -441,22 +456,21 @@ public class BoundOperators {
         return makeBoundSelect(typeInfo, lazy, receiver, wrap(selector, receiver));
     }
 
-    // @@@ These can go away once we switch to the makeBoundSelect(TypeInfo, ...) version ^^^
-
     public static<T, U> SequenceLocation<U> makeBoundSelect(final TypeInfo<U, ?> typeInfo,
                                                             boolean lazy,
                                                             final ObjectLocation<T> receiver,
                                                             final Function1<SequenceLocation<U>, T> selector) {
+        return makeBoundSequenceSelect(typeInfo, lazy, receiver, wrap(selector, receiver));
+    }
 
-        final SequenceLocation<U> defaultValue = SequenceConstant.<U>make(typeInfo, typeInfo.emptySequence);
+    // @@@ These can go away once we switch to the makeBoundSelect(TypeInfo, ...) version ^^^
 
-        return new IndirectSequenceExpression<U>(typeInfo, lazy, receiver) {
-
-            public SequenceLocation<U> computeLocation() {
-                T selectorValue = receiver.get();
-                return selectorValue == null ? defaultValue : selector.invoke(selectorValue);
-            }
-        };
+    public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
+                                                                    boolean lazy,
+                                                                    final ObjectLocation<T> receiver,
+                                                                    final BindingExpression selector) {
+        SequenceLocation<U> defaultValue = SequenceConstant.<U>make(typeInfo, typeInfo.emptySequence);
+        return IndirectLocationHelper.makeIndirectSequenceLocation(typeInfo, lazy, makeSelectBindingExpression(receiver, selector, defaultValue), receiver);
     }
 
 }
