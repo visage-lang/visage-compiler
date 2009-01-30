@@ -9,7 +9,7 @@ function foo(x : Long) {}
 
 public class jfxc2571 {
     function test() {
-        foo(2200000000 as Long);
+        foo(2200000000 as Long); // This now works - test added to jfxc2474.fx
         foo(2200000000);
     }
 }
