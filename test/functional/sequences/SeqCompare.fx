@@ -4,7 +4,7 @@
  * @run
  */
 
-public class SeqCompareb  {
+public class SeqCompare  {
   var pass = 0;
   var fail = 0;
   public var GFT = 0; //Golden_File_Tests; do not show up as pass or fail check
@@ -136,16 +136,16 @@ public class SeqCompareb  {
    }
 
    public function report() {
-	println("========= results ================");
+	println("========= results ===============");
 	println("Tests:      {pass+fail+GFT}");
 	println("Passed:     {pass}");
 	println("Failed:     {fail}");
-	println("==================================");
+	println("=================================");
     }
 }
 
 public function run() {
- var sc : SeqCompareb = new SeqCompareb();
+ var sc : SeqCompare = new SeqCompare();
  sc.itest0("i0");
  sc.itest1("i1");
  sc.itest2("i2");

@@ -7,8 +7,8 @@ PASS i2 Check equal sequences of 0..128
 PASS i2 Check equal sequences of -129..0
 PASS b1 Check boolean sequence true,false
 PASS n1 Check Num sequence 0.0, 128.0 step 1.0
-========= results ================
+========= results ===============
 Tests:      10
 Passed:     10
 Failed:     0
-==================================
+=================================
