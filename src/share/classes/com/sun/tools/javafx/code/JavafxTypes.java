@@ -63,7 +63,7 @@ public class JavafxTypes extends Types {
     }
 
    public boolean isSequence(Type type) {
-       return type != Type.noType && type != null 
+       return type != Type.noType && type != null
                 && type.tag != TypeTags.ERROR 
                 && type.tag != TypeTags.METHOD && type.tag != TypeTags.FORALL
                 && erasure(type) == syms.javafx_SequenceTypeErasure;
@@ -90,7 +90,7 @@ public class JavafxTypes extends Types {
         if (elemType instanceof WildcardType)
             elemType = ((WildcardType) elemType).type;
         if (elemType == null)
-            return syms.errType;
+            return syms.javafx_AnyType;
         Type unboxed = unboxedType(elemType);
         if (unboxed.tag != TypeTags.NONE)
             elemType = unboxed;

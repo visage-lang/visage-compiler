@@ -122,6 +122,8 @@ public abstract class JavafxTranslationSupport {
             elemType = ((CapturedType) elemType).wildcard;
         if (elemType instanceof WildcardType)
             elemType = ((WildcardType) elemType).type;
+        if (elemType == null)
+            return syms.javafx_AnyType;
         return elemType;
     }
 
