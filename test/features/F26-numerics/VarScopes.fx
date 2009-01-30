@@ -34,7 +34,9 @@ var bSeq1 : Byte[] = [ 10..13 ];
 var lSeq1 : Long[] = [ 2000000000..2000000003 ];
 var sSeq1 : Short[] = [ 30000..30003 ];
 var fSeq1 : Float[] = [ 4.111..7.111 ];
-var dSeq1 : Double[] = [ 5555.11..5558.11 ];
+// NOTE: Currently, this creates a Float range sequence (because we
+// don't have double range sequences), which then is converted to Double[].
+var dSeq1 : Double[] = [ 5555.125..5558.125 ];
 
 public class VarScopes extends FXTestCase {
     def c2 : Character = 10000;
@@ -48,7 +50,7 @@ public class VarScopes extends FXTestCase {
     def lSeq2 : Long[] = [ 2000000000, 2000000001, 2000000002, 2000000003 ];
     def sSeq2 : Short[] = [ 30000, 30001, 30002, 30003 ];
     def fSeq2 : Float[] = [ 4.111, 5.111, 6.111, 7.111 ];
-    def dSeq2 : Double[] = [ 5555.11, 5556.11, 5557.11, 5558.11 ];
+    def dSeq2 : Double[] = [ 5555.125, 5556.125, 5557.125, 5558.125 ];
 
     function testCharacterVariables() {
         var c3 : Character = 10000;
@@ -148,22 +150,25 @@ public class VarScopes extends FXTestCase {
     }
 
     function testDoubleSequence() {
-        def dSeq3 : Double[] = [ 5555.11..<5559.0 step 1 ];
+        // NOTE: Currently, this creates a Float range sequence
+	// (because we don't have double range sequences),
+	// which then is converted to Double[].
+        def dSeq3 : Double[] = [ 5555.25..<5559.0 step 1 ];
         /* Does not work: "expected:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>
          * but was:<[ 5555.10986328125, 5556.10986328125,
          *            5557.10986328125, 5558.10986328125 ]>"
          * See JFXC-2586 */
 //        assertEquals([5555.11, 5556.11, 5557.11, 5558.11], dSeq3);
-        assertEquals([5555.11 as Double, 5556.11, 5557.11, 5558.11], dSeq3);
+        assertEquals([5555.25 as Double, 5556.25, 5557.25, 5558.25], dSeq3);
 
         /* Does not work: "expected:<[ 5555.10986328125, 5556.10986328125,
          *                             5557.10986328125, 5558.10986328125 ]>
          * but was:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>" */
-//        assertEquals([5555.11 as Double, 5556.11, 5557.11, 5558.11], dSeq2);
+       assertEquals([5555.125 as Double, 5556.125, 5557.125, 5558.125], dSeq2);
 
         /* Does not work: "expected:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>
          * but was:<[ 5555.11, 5556.11, 5557.11, 5558.11 ]>" */
 //        assertEquals([5555.11, 5556.11, 5557.11, 5558.11], dSeq2);
-        assertEquals([5555.11 as Double, 5556.11, 5557.11, 5558.11], dSeq1);
+        assertEquals([5555.125 as Double, 5556.125, 5557.125, 5558.125], dSeq1);
     }
 }

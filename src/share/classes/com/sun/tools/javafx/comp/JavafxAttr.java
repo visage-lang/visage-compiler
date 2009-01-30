@@ -446,7 +446,8 @@ public class JavafxAttr implements JavafxVisitor {
     @Override
     public void visitTypeCast(JFXTypeCast tree) {
         Type clazztype = attribType(tree.clazz, env);
-        Type exprtype = attribExpr(tree.expr, env, Infer.anyPoly);
+        Type reqType = tree.expr instanceof JFXLiteral ? clazztype : Infer.anyPoly;
+        Type exprtype = attribExpr(tree.expr, env, reqType);
         if (clazztype.isPrimitive() && ! exprtype.isPrimitive())
             clazztype = types.boxedClass(clazztype).type;
         Type owntype = chk.checkCastable(tree.expr.pos(), exprtype, clazztype);

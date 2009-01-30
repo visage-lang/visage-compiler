@@ -69,7 +69,7 @@ public class VarBoundaryValues extends FXTestCase {
         assertEquals(1.7976931348623157E308 as Double, dLocal, 0);
         dLocal = 1.7976931348623157E308;
         assertEquals(1.7976931348623157E308 as Double, dLocal, 0);
-        dLocal = 1.7976931348623157E308 as Float;
+        dLocal = 1.7976931348623157E308 as Double;
         assertEquals(1.7976931348623157E308 as Double, dLocal, 0);
     }
 
