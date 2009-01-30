@@ -288,6 +288,7 @@ public class BoundOperators {
         }, a, b);
     }
 
+    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
     private static BindingExpression wrap(final Function0<? extends Location> fun) {
         return new BindingExpression() {
             public void compute() {
@@ -303,6 +304,7 @@ public class BoundOperators {
             }
         };
     }
+    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
 
     @SuppressWarnings("unchecked")
     public static<T, L extends ObjectLocation<T>> L makeBoundIf(TypeInfo<T, L> typeInfo,
