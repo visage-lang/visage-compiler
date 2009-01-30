@@ -260,6 +260,75 @@ println( greeting );</programlisting>
       </sect3>
 
       <sect3>
+        <title>Localization of String Literal</title>
+
+        <para>When an application displays some text to a user, you'd
+        like the text to be in the user's own language.  "Localization" is
+        a mechanism to be able to replace a string literal by a translation
+        selected at run-time.</para>
+        <para>If a double hash sign <code>##</code> is prefixed to a string literal,
+        JavaFX substitutes the string literal with a localized one at 
+        run-time, if JavaFX finds appropriate localization in JavaFX properties files
+        on the classpath.  A JavaFX properties file contains localized strings for a 
+        locale as <code>&quot;key&quot; = &quot;value&quot;</code> pairs.  
+        Localized strings are searched using the original string literals as keys.
+        If no localized string is found, the original string literal is used as a default.
+        Optionally, explicit keys can be specified with square brackets
+        (<code>[]</code>).  For example:</para>
+
+        <programlisting>def mon = ##&quot;Monday&quot;;
+def about = ##[ABOUT]&quot;JavaFX is a cool scripting language!&quot;;
+println( mon );
+println( about );</programlisting>
+
+        <para>Suppose this script is <code>Foo.fx</code>, and there is a JavaFX 
+        properties file for French <code>Foo_fr.fxproperties</code>, which contains the
+        following localization:</para>
+
+        <programlisting>&quot;Monday&quot; = &quot;Lundi&quot;
+&quot;ABOUT&quot; = &quot;JavaFX est un langage de script cool !&quot;</programlisting>
+
+        <para>The script will print:</para>
+
+        <screen>Lundi
+JavaFX est un langage de script cool !</screen>
+
+        <para>in French locale.  You can also provide layered properties files
+        for finer grained control.  For example, you can provide localized texts that 
+        are France specific in <code>Foo_fr_FR.fxproperties</code>, and keep 
+        other French localized texts that are country independent in 
+        <code>Foo_fr.fxproperties</code>.  Then the JavaFX searches the 
+        appropriate localized texts by attempting the following fallback
+        search in French France (<code>fr_FR</code>) locale:
+        <programlisting>Foo_fr_FR.fxproperties
+Foo_fr.fxproperties
+(original string)</programlisting>
+
+        For more information on the locale and how the JavaFX properties
+        file is located, refer to <code>java.util.Locale</code> and 
+        <code>java.util.ResourceBundle</code> classes of the Java platform.</para>
+
+        <para>The encoding of a JavaFX properties file is
+        <code>UTF-8</code>.  Other encodings can be specified with
+        the <code>@charset</code> directive.  For example:</para>
+
+        <programlisting>@charset &quot;ISO-8859-1&quot;;</programlisting>
+
+        <para>is specified in the first line of the JavaFX properties file, the
+        file is read in <code>ISO-8859-1</code> encoding.  If the string literal contains <link linkend="stringExpression">string-expressions</link>, corresponding properties
+        should only contain the <code>FORMAT_STRING_LITERAL</code> parts
+        of the string expressions, without curly braces and expression parts.  For
+        example:
+        <programlisting>def gCal = new GregorianCalendar(1995, Calendar.MAY, 23);
+def bday = ##&quot;The birthday of Duke is {%1$tB gCal} {%2$te gCal}, {%3$tY gCal}.&quot;;</programlisting>
+        Then a JavaFX properties file that contains the localized text for 
+        &quot;<code>bday</code>&quot; should look like (e.g., for French):
+        <programlisting>&quot;The birthday of Duke is %1$tB %2$te, %3$tY.&quot; = &quot;L'anniversaire du duc est le %2$te %1$tB %3$tY.&quot;</programlisting>
+        Note that the position of those <code>FORMAT_STRING_LITERAL</code> parts
+        (indicated by <code>[argument_index]$</code>) may change in localized texts.</para>
+      </sect3>
+
+      <sect3>
         <title>Operations over String</title>
 
         <para>String-expressions are of String type -- see the <link
