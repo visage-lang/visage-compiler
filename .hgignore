@@ -4,7 +4,6 @@
 ^dist
 ^nbproject/private
 ^javafxdoc/build
-^nbproject/private
 doc/langspec/langref.xsl
 doc/reference/langref.xsl
 ~$
