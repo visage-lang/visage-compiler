@@ -15,7 +15,7 @@ public class SeqCompare  {
   /**
    * Functions to compare sequences by indexing through them
    */
-  public function checkIs(i1s:Integer[], i2s:Integer[], msg:String):Boolean {
+ public function checkBys(i1s:Byte[], i2s:Byte[], msg:String):Boolean {
     if ( sizeof(i1s) != sizeof(i2s) ) {
       fail++;print("FAIL {msg} : sizeof  {i1s.getClass().getName()} != sizeof {i2s}");
     }
@@ -33,6 +33,23 @@ public class SeqCompare  {
     return true;
   }
 
+  public function checkIs(i1s:Integer[], i2s:Integer[], msg:String):Boolean {
+    if ( sizeof(i1s) != sizeof(i2s) ) {
+      fail++;print("FAIL {msg} : sizeof  {i1s.getClass().getName()} != sizeof {i2s}");
+    }
+    for ( i in [ 0..(sizeof i1s) ] )
+    {
+      if(i1s[i]==i2s[i]) {}
+      if(i1s[i]!=i2s[i]) {
+        fail++;
+        println("FAIL {msg}:  i1s[{i}] != i2s[{i}]; {i1s[i]} != {i2s[i]}");
+        return false;
+      }
+    }
+    println("PASS {msg}");
+    pass++;
+    return true;
+  }
 
   public function checkBs(b1s:Boolean[], b2s:Boolean[], msg:String) {
     if ( sizeof(b1s) != sizeof(b2s) ) {
@@ -70,6 +87,16 @@ public class SeqCompare  {
 /**
  * tests
  */
+ function byTest1(id:String) {
+	 var byteSeq1:Byte[] = [-1..1];
+	 var byteSeq2:Byte[] = [-1..1];
+	 checkBys(byteSeq1,byteSeq2,"{id} Check Byte sequence -1..1");
+	 var byteSeq3:Byte[] = [-128..128];
+	 var byteSeq4:Byte[] = [-128..128];
+	 checkBys(byteSeq3,byteSeq4,"{id} Check Byte sequence -128..128");
+
+ }
+
   function itest0(id:String) {
     var intSequence1:Integer[] = [ 0..1];
     var intSequence2:Integer[] = [ 0..1];
@@ -134,6 +161,12 @@ public class SeqCompare  {
    var NumSequence2:Number[] = [0.0..128.0 step 1.0];
    checkNs(NumSequence1,NumSequence2, "{id} Check Num sequence 0.0, 128.0 step 1.0");
    }
+   function testMisc(id:String) {
+	   checkIs( [5..100000 step 5], [5..100000 step 5],"5 to 100k by 5s");
+	   checkNs( [10.0 .. 1000000.0 step 100.0], [10.0 .. 1000000.0 step 100.0], "10 to a million by 100s");
+   }
+
+
 
    public function report() {
 	println("========= results ===============");
@@ -146,11 +179,13 @@ public class SeqCompare  {
 
 public function run() {
  var sc : SeqCompare = new SeqCompare();
+sc.byTest1("by1");
  sc.itest0("i0");
  sc.itest1("i1");
  sc.itest2("i2");
  sc.itest3("i2");
  sc.btest1("b1");
  sc.ntest1("n1");
+ sc.testMisc("misc literal sequences");
  sc.report();
 }
