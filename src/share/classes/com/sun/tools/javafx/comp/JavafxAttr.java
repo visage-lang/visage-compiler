@@ -1492,6 +1492,8 @@ public class JavafxAttr implements JavafxVisitor {
               owntype = clazz.type;  // this give declared type, where clazztype would give anon type
         }
 
+        Scope partsScope = new Scope(clazztype.tsym);
+
         for (JFXObjectLiteralPart localPt : tree.getParts()) {
             
             // Protect against erroneous nodes
@@ -1505,6 +1507,13 @@ public class JavafxAttr implements JavafxVisitor {
             Symbol memberSym = rs.findIdentInType(env, clazz.type, part.name, VAR);
             memberSym = rs.access(memberSym, localPt.pos(), clazz.type, part.name, true);
             memberSym.complete();
+
+            Scope.Entry oldEntry = partsScope.lookup(memberSym.name);
+            if (oldEntry.sym != null) {
+                log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_ALREAD_DEFINED_OBJECT_LITERAL, memberSym);
+            }
+            partsScope.enter(memberSym);
+
             Type memberType = memberSym.type;
             if (!(memberSym instanceof VarSymbol) ) {
                 log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
