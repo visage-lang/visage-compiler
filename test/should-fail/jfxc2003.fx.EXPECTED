@@ -1,0 +1,6 @@
+test/should-fail/jfxc2003.fx:7: cannot find symbol
+symbol  : variable print
+location: class jfxc2003
+print(s, s);
+^
+1 error
