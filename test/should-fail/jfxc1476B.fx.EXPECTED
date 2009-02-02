@@ -1,0 +1,9 @@
+test/should-fail/jfxc1476B.fx:4: cannot find symbol
+symbol  : class Nonexistent
+location: class jfxc1476B
+Nonexistent {};
+^
+test/should-fail/jfxc1476B.fx:5: package jfxc1476A does not exist
+jfxc1476A.Another{}.f(3);
+         ^
+2 errors
