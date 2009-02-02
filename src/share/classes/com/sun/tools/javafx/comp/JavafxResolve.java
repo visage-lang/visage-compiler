@@ -605,7 +605,11 @@ public class JavafxResolve {
             if ((sym.kind & (MTH|VAR)) != 0) {
                 if (e.sym.owner.type != origin)
                     sym = sym.clone(e.getOrigin().owner);
-                return selectBest(env, origin, mtype,
+                if (sym.kind == VAR)
+                    return isAccessible(env, origin, sym)
+                    ? sym : new AccessError(env, origin, sym);
+                else //method
+                    return selectBest(env, origin, mtype,
                                            e.sym, bestSoFar,
                                            true,
                                            false,
@@ -624,7 +628,11 @@ public class JavafxResolve {
                 return new AmbiguityError(bestSoFar, sym);
             else if (bestSoFar.kind >= VAR) {
                 origin = e.getOrigin().owner;
-                bestSoFar = selectBest(env, origin.type, mtype,
+                if (sym.kind == VAR)
+                    bestSoFar = isAccessible(env, origin.type, sym)
+                    ? sym : new AccessError(env, origin.type, sym);
+                else //method
+                    bestSoFar = selectBest(env, origin.type, mtype,
                                            e.sym, bestSoFar,
                                            true,
                                            false,
