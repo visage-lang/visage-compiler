@@ -1,7 +1,7 @@
 /*
- * @subtest
+ * @subtest jfxc1476B.fx
  */
 
-class Another {
+public class Another {
     public function f (d : Number) : Number { d }
 }
