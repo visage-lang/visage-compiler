@@ -10,7 +10,7 @@ var pass =0;
 var fail =0;
 
 function equal(x,y) {
-	if(x==y){ pass++;} 
+	if(x==y){ pass++;}
 	else { System.out.println("FAIL: found: {x}\n  expected: {y}"); fail++;};
 }
 

@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+    <title>Using kenai.com and Mercurial</title>
+    <STYLE TYPE="text/css">
+      <!--
+      .indented
+      {
+      padding-left: 20pt;
+      padding-right: 20pt;
+      }
+      -->
+    </STYLE>
+</head>
+<h2>Using kenai.com and Mercurial</h2>
+<body bgcolor="#ffffff" text="#000000">
+<br>
+Last Modified:  Feb 2, 2009<br>
+<p><br>
+We now have a compiler project on server kenai.com: <a href=http://kenai.com/projects/openjfx-compiler><b>JavaFX Script Compiler</b></a>
+<br>The marina master repository is available for browsing or cloning:
+<DIV CLASS="indented">
+<a class="moz-txt-link-freetext" href="http://kenai.com/hg/openjfx-compiler~marina-master">http://kenai.com/hg/openjfx-compiler~marina-master</a><br>
+</DIV>
+<br>
+
+The <a href=http://openjfx.java.sun.com/hudson/job/openjfx-compiler>Hudson builds</a> are also available.
+
+<b>'Developer' status in this new project will be by invitation from the compiler team, at least for the time being.</b>
+<br>
+<br>
+If you have any questions, please email <a class="moz-txt-link-abbreviated" href="mailto:jim.holmlund@sun.com">jim.holmlund@sun.com</a>
+or <a class="moz-txt-link-abbreviated" href="mailto:robert.field@sun.com">robert.field@sun.com</a><br>
+<br>
+</p>
+<p><b>Which Mercurial?</b><br>
+The kenai server does not support pushes using ssh which means that clones are done with http but pushes have to be done with https, E.G<br>
+</p>
+<DIV CLASS="indented">
+hg clone <a class="moz-txt-link-freetext"
+ href="http://kenai.com/hg/openjfx-compiler%7Emarina-master">http://kenai.com/hg/openjfx-compiler~marina-master</a>
+</DIV>
+<DIV CLASS="indented">
+hg push <a class="moz-txt-link-freetext"
+ href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a>
+</DIV>
+<p>Older versions of mercurial do not support https, at least not on Solaris. </p>
+
+<p><b>Solaris</b><br>
+Neither hg version .95  nor hg version 1.0.1 works on Solaris with https.  Instead use:<br>
+<DIV CLASS="indented">
+    Solaris 10:&nbsp; /pkg/local/bin/hg&nbsp;&nbsp;&nbsp; This is hg 1.1.2<br>
+    Solaris 11, Open Solaris:  /usr/bin/hg
+</DIV>
+<p><b>If you see this error:</b><br>
+</p>
+<DIV CLASS="indented">
+    hg push <a class="moz-txt-link-freetext"
+     href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a>
+  <br>
+    abort: Python support for SSL and HTTPS is not installed
+</DIV>
+
+you are using a too-old version of Mercurial, E.G .95.</b>
+
+<p>
+<b>Windows/ MacOS/Linux
+<br>
+</b>You can download from here:
+<DIV CLASS="indented">
+    <a class="moz-txt-link-freetext"
+     href="http://www.selenic.com/mercurial/wiki/index.cgi/BinaryPackages#head-adac70dc1664bb9eac334d5c8b57483d300254f3">http://www.selenic.com/mercurial/wiki/index.cgi/BinaryPackages#head-adac70dc1664bb9eac334d5c8b57483d300254f3</a><br>
+</DIV>
+
+<p><b>~/.hgrc</b><br>
+You also need a .hgrc file in your home directory containing at least:
+</p>
+
+<pre>[ui]<br>username = &lt;&lt;your hg user name&gt;&gt;</pre>
+<p>Your 'hg user name' is the name that will appear in the change logs for the project and should be personally identifiable.  For example
+<br>
+username = Fred C Dobbs &lt;freddy@sierramadre.com&gt;
+<br>or<br>
+username = fredcdobbs
+<br>
+instead of
+<br>
+username = BigAloha
+<p>
+You can search the internet and read the Mercurial documentation mentioned below to see more things you can put into your
+~/.hgrc.<br>
+</p>
+
+<b>Username/password on kenai<br>
+<br>
+</b>You have to create an account on kenai with a user name.
+Note that this kenai username is <b>not</b> the user name that will appear in hg changesets. That name comes
+from your .hgrc file.  As with the .hgrc user name, it would be nice if your kenai user name was personally identifiable,
+or maybe even the same as your .hgrc user name.
+<br>
+Also bear in mind how your kenai user name will be used:<br>
+ - to login to kenai<br>
+ - to 'join' a project, in kenai forums, etc.  It is your identity on kenai.<br>
+ - to do mercurial pushes.&nbsp; You have to enter your kenai user name (and your password) every time you do a push.<br>
+ - in the email sent out to announce a push. This email will be 'From'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; username@kenai.com<br>
+    People can reply to these email messages; kenai will forward replies to your registered email address.<br>
+<p>
+
+To get an account on kenai, browse to kenai.com and:
+
+<li> If you <b>do not </b>have a Sun Developer Connection account, click the Sign Up button and create a kenai account.
+It will ask you to create your kenai user name.  
+
+<br>
+<li> If you <b>do</b> have a Sun Developer Connection account 
+click on the login link and login with the email address connected to your SDN account, and your SDN
+password.  When you login the first time, kenai will ask you for a user name.  See info above
+about what user name to choose.
+
+
+<p>Since the kenai server does not support ssh, you have to enter your
+kenai username and password each time you do a push.<br>
+Here is how you enter your kenai username/password during an hg push:<br>
+</p>
+<p>&nbsp; hg push <a class="moz-txt-link-freetext"
+ href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a><br>
+</p>
+<blockquote>pushing to <a class="moz-txt-link-freetext"
+ href="https://kenai.com//hg/openjfx-compiler%7Etest-marina">https://kenai.com//hg/openjfx-compiler~test-marina</a><br>
+searching for changes<br>
+http authorization required<br>
+realm: Mercurial Repository<br>
+user: &lt;&lt; your kenai user name &gt;&gt;<br>
+password: &lt;&lt; your kenai password &gt;&gt;<br>
+adding changesets<br>
+adding manifests<br>
+adding file changes<br>
+added 1 changesets with 1 changes to 1 files<br>
+</blockquote>
+<p> </p>
+You can also embed your kenai username in the hg push command, for
+example:<br>
+&nbsp;&nbsp;&nbsp; hg push <a class="moz-txt-link-freetext"
+ href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://fredcdobbs@kenai.com/hg/openjfx-compiler~marina-master</a><br>
+<br>
+In fact, we have reports  of cases where on windows, if you <b>don't</b> embed your kenai user name in the URL, hg hangs and uses 100% of the CPU!
+<br>
+You can also embed your password:<br>
+&nbsp;&nbsp;&nbsp; hg push <a class="moz-txt-link-freetext"
+ href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://fredcdobbs:GiveMeTheGold@kenai.com/hg/openjfx-compiler~marina-master</a><br>
+<br>
+
+<br>NOTE:  I have not been able to do a push on Windows from an xemacs shell buffer running cygwin. It appears that hg or ??? can't read input in this
+case.  It works ok if I do the push in a cygwin command window.  If you know how to fix this, please let us know!
+<br>
+<br>
+<br>
+<br>
+<b>A Few Notes on Using Mercurial</b><br>
+<br>
+NOTE:  We have a test repository that you can use for testing without worrying about breaking something.
+It is here : 
+<a class="moz-txt-link-freetext"
+ href="http://kenai.com/hg/openjfx-compiler%7Etest-marina">http://kenai.com/hg/openjfx-compiler~test-marina</a><br>
+
+<b>If you push to it, be very sure that you are pushing to it and not to the marina-master!</b>
+<br><br>
+Following are a few notes about common Mercurial operations.  But you really should read the documentation referenced in the <b>Additional Information</b> section which follows.
+<p>
+Every Mercurial repository has a complete "clone" of the
+repository, with full history, which is stored in the .hg
+directory.  This clone is a full-fledged repository,
+which you can check your changes into, and use to create yet
+more repositories wherever you want.  Checking in a change is a two stage 
+process: You "commit" your changes from your
+working directory into a changeset in your private repository, and then you
+(optionally) "push" your changesets from your local repository to
+some other repository, usually the master repository on kenai.
+But there is nothing special about the master repository - you
+can create as many repositories as you want, and you can "push"
+your changes into as few or as many as you have write access to.
+(One advantage of this model is you can commit a lot of changes
+while off-line, and then "push" a whole batch later when you're
+online again.) 
+<p>You can get help from hg by doing <b>hg help [command]</b>
+<p>To get a clone of the compiler repository, do this:<br>
+&nbsp;&nbsp;&nbsp; <b>hg clone <a class="moz-txt-link-freetext"
+ href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">http://kenai.com/hg/openjfx-compiler~marina-master</a><br>
+</b><br>
+
+To make a change, just edit files. To see what changes have been made:<br>
+&nbsp;&nbsp; <b>hg status</b> <br>
+<br>
+To discard your edits in filename:<br>
+&nbsp;&nbsp;&nbsp; <b>hg revert filename</b><br>
+<br>
+To create a changeset of your changes, use <b>hg commit</b>.
+hg commit just creates a changeset in your local repo; it doesn't push
+the changeset to the 'parent':<br>
+&nbsp;&nbsp;&nbsp; <b>hg commit -m "your commit comment"</b> <br>
+<br>
+To actually push your new changesets to the master, you would then do<br>
+&nbsp;&nbsp; <b>hg push <a class="moz-txt-link-freetext"
+ href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a></b><br>
+<br>
+Sometimes this will fail because someone else pushed a change between your commit and
+your push. To avoid this, you should do these three commands as
+quickly as possible<br>
+&nbsp;&nbsp; <b>hg pull -u&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # to pull down
+any changes<br>
+&nbsp;&nbsp; hg commit -m "comment"&nbsp; <br>
+&nbsp;&nbsp; hg push <a class="moz-txt-link-freetext"
+ href="https://kenai.com/hg/openjfx-compiler%7Emarina-master">https://kenai.com/hg/openjfx-compiler~marina-master</a></b><br>
+<br>
+If the push fails, then do<br>
+&nbsp;&nbsp;&nbsp; <b>hg rollback</b><br>
+to undo your commit and try again by repeating the pull, commit, and
+push.<br><br>
+It is possible to do several commits before you do a push, but you can run
+into frequent merge situations.
+If you like to do this, consider use of the mq Mercurial extension
+which allows you to queue up commits without actually doing them.<br>
+<br>
+That <b>-u</b> in the hg pull is important.&nbsp; Without that, <b>hg pull</b> pulls
+down changes but doesn't update your working files.<br>
+<br>
+It is sometimes a good idea to include a -v on pulls and pushes to see
+just what is being done,<br>
+E.G.<br>
+&nbsp;&nbsp; <b>hg pull -v -u</b><br>
+<br>
+You can also see what has changed without actually pulling the changes:<br>
+&nbsp;&nbsp; <b>hg incoming -v</b><br>
+<br>
+And you can see what a push would do with<br>
+&nbsp;&nbsp; <b>hg outgoing -v</b><br>
+<br>
+<br>
+<br>
+<b>Additional info:</b><br>
+- Forest Extension.  The forest extension supports a 'forest' of mercurial repositories. It adds new commands to Mercurial that operate on an entire forest instead of a single repository, for example <b>hg fclone, hg fpull -u</b>. Forests are used by the JavaFX SDK and OpenJDK.
+They aren't used (yet) by the compiler project.  You can get the forest extension here:<br>
+<DIV CLASS="indented">
+    hg clone <a class="moz-txt-link-freetext"
+    href="http://bitbucket.org/pmezard/hgforest-crew">http://bitbucket.org/pmezard/hgforest-crew</a><br>
+</DIV>
+<p>This creates a repository called hgforest-crew containing among
+other things, file forest.py.  You would then put the pathname of this forest.py file into the extensions section of your .hgrc file, E.G.
+<br>
+[extensions]
+<br>
+forest=..../forest.py
+</p>
+
+<p>- <a class="moz-txt-link-freetext"
+ href="http://blog.medallia.com/2007/02/a_guided_tour_of_mercurial.html">http://blog.medallia.com/2007/02/a_guided_tour_of_mercurial.html</a><br>
+</p>
+
+<p>- <a class="moz-txt-link-freetext"
+ href="http://j2se.sfbay/web/bin/view/JavaSE/Mercurial">http://j2se.sfbay/web/bin/view/JavaSE/Mercurial</a><br>
+</p
+- <a class="moz-txt-link-freetext"
+ href="http://wiki.pylonshq.com/display/pylonscookbook/Mercurial+for+Subversion+Users">http://wiki.pylonshq.com/display/pylonscookbook/Mercurial+for+Subversion+Users</a><br>
+<p>- <a class="moz-txt-link-freetext" href="http://hgbook.red-bean.com/">http://hgbook.red-bean.com/</a>.
+The first five chapters are a must read.  Chapter 12 talks about using the Mercurial Queues
+extension (mq), which allows for management of patch queues in Mercurial.
+Developers may want to look closely at the mq extension.
+<p>
+- <a class="moz-txt-link-freetext"
+ href="http://www.selenic.com/mercurial/wiki/index.cgi/UsingExtensions">http://www.selenic.com/mercurial/wiki/index.cgi/UsingExtensions</a>
+<br>
+
+</body>
+</html>
