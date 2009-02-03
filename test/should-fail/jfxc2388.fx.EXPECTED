@@ -1,0 +1,11 @@
+test/should-fail/jfxc2388.fx:5: incompatible types
+found   : String
+required: Integer
+var x = '12' as Integer;
+        ^
+test/should-fail/jfxc2388.fx:6: incompatible types
+found   : String
+required: java.lang.Number
+var y = '12' as java.lang.Number
+        ^
+2 errors
