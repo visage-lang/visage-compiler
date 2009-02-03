@@ -53,9 +53,8 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     static final int CHILD_KIND_VIEW_LOCATION = 64;
 
     // Space is at a premium; FX classes use a *lot* of locations.
-    // We've currently got fewer than four byte-size fields here already; we rely on the VM packing byte-size fields
-    // together. If we need to add more, we could compress isValid into a bit in state, and/or haveClearedDependencies
-    // into inUse.
+    // We've currently got four byte-size fields here already; we rely on the VM packing byte-size fields
+    // together. If we need to add more, we could compress isValid into a bit in state.
 
     /** The isValid flag means that the location currently has an up-to-date value. This would be true if the value is
     already known, or if the location has a binding and the binding does not need recomputation. */

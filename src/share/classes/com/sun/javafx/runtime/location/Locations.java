@@ -44,6 +44,13 @@ public class Locations {
         return loc;
     }
 
+    public static boolean hasDependencies(Location loc) {
+        // May also want these lines, eventually:
+        // while (loc.isViewLocation())
+        //     loc = loc.getUnderlyingLocation();
+        return ((AbstractVariable) loc).hasDependencies();
+    }
+
     public static IntLocation constant(int value) {
         return IntConstant.make(value);
     }
