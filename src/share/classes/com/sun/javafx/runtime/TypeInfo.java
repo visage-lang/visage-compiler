@@ -136,8 +136,9 @@ public class TypeInfo<T, L extends ObjectLocation<T>> {
         map.put(String.class, String);
     }
 
-    public static<T> TypeInfo<T, ?> getTypeInfo() {
-        return (TypeInfo<T, ?>) (TypeInfo<?, ?>) Object;
+    @SuppressWarnings("unchecked")
+    public static<T> TypeInfo<T, ObjectLocation<T>> getTypeInfo() {
+        return (TypeInfo<T, ObjectLocation<T>>) (TypeInfo<T, ?>) (TypeInfo<?, ?>) Object;
     }
 
     @SuppressWarnings("unchecked")
