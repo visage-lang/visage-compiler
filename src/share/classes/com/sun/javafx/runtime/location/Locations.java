@@ -89,7 +89,7 @@ public class Locations {
     }
 
     public static <T extends Number> NumericLocation asNumericLocation(ObjectLocation<T> loc) {
-        return new ObjectNumericLocation(loc);
+        return new ObjectNumericLocation<T>(loc);
     }
 
     public static <T extends Number> FloatLocation asFloatLocation(ObjectLocation<T> loc) {
@@ -178,36 +178,39 @@ public class Locations {
         }
     }
 
-    private static class ObjectNumericLocation extends LocationWrapper<ObjectLocation<? extends Number>> implements NumericLocation {
-        private ObjectNumericLocation(ObjectLocation<? extends Number> location) {
+    private static class ObjectNumericLocation<T extends Number> extends LocationWrapper<ObjectLocation<T>> implements NumericLocation {
+        private ObjectNumericLocation(ObjectLocation<T> location) {
             super(location);
         }
 
         public int getAsInt() {
-            Integer val = location.get().intValue();
-            return val==null? 0 : val;
+            Number val = location.get();
+            return (val == null) ? 0 : val.intValue();
         }
 
         public byte getAsByte() {
-            return (byte) getAsInt();
+            Number val = location.get();
+            return (val == null) ? 0 : val.byteValue();
         }
 
         public short getAsShort() {
-            return (short) getAsInt();
+            Number val = location.get();
+            return (val == null) ? 0 : val.shortValue();
         }
 
         public long getAsLong() {
-            return getAsInt();
+            Number val = location.get();
+            return (val == null) ? 0 : val.longValue();
         }
 
         public float getAsFloat() {
-            Float val = location.get().floatValue();
-            return val==null ? 0.0f : val;
+            Number val = location.get();
+            return (val == null) ? 0 : val.floatValue();
         }
 
         public double getAsDouble() {
-            Double val = location.get().doubleValue();
-            return val==null ? 0.0 : val;
+            Number val = location.get();
+            return (val == null) ? 0 : val.doubleValue();
         }
 
         public boolean isViewLocation() {
@@ -220,14 +223,9 @@ public class Locations {
     }
 
     // @@@ May no longer be needed
-    private static class ObjectIntLocation extends LocationWrapper<ObjectLocation<Integer>> implements IntLocation {
+    private static class ObjectIntLocation extends ObjectNumericLocation<Integer> implements IntLocation {
         private ObjectIntLocation(ObjectLocation<Integer> location) {
             super(location);
-        }
-
-        public int getAsInt() {
-            Integer val = location.get();
-            return val==null? 0 : val;
         }
 
         public int setAsInt(int value) {
@@ -250,26 +248,6 @@ public class Locations {
             return location.get();
         }
 
-        public byte getAsByte() {
-            return (byte) getAsInt();
-        }
-
-        public short getAsShort() {
-            return (short) getAsInt();
-        }
-
-        public long getAsLong() {
-            return getAsInt();
-        }
-
-        public float getAsFloat() {
-            return getAsInt();
-        }
-
-        public double getAsDouble() {
-            return getAsInt();
-        }
-
         public Integer set(Integer value) {
             return location.set(value);
         }
@@ -281,25 +259,12 @@ public class Locations {
         public void addChangeListener(ObjectChangeListener<Integer> listener) {
             location.addChangeListener(listener);
         }
-
-        public boolean isViewLocation() {
-            return true;
-        }
-
-        public Location getUnderlyingLocation() {
-            return location;
-        }
     }
 
     // @@@ May no longer be needed  -- errr, well, it is used
-    private static class ObjectFloatLocation<T extends Number> extends LocationWrapper<ObjectLocation<T>> implements FloatLocation {
+    private static class ObjectFloatLocation<T extends Number> extends ObjectNumericLocation<T> implements FloatLocation {
         private ObjectFloatLocation(ObjectLocation<T> location) {
             super(location);
-        }
-
-        public float getAsFloat() {
-            T val = location.get();
-            return val==null? 0.0f : val.floatValue();
         }
 
         public float setAsFloat(float value) {
@@ -344,34 +309,6 @@ public class Locations {
                     listener.onChange(oldValue.floatValue(), newValue.floatValue());
                 }
             });
-        }
-
-        public byte getAsByte() {
-            return (byte) getAsFloat();
-        }
-
-        public short getAsShort() {
-            return (short) getAsFloat();
-        }
-
-        public int getAsInt() {
-            return (int) getAsFloat();
-        }
-
-        public long getAsLong() {
-            return (long) getAsFloat();
-        }
-
-        public double getAsDouble() {
-            return getAsFloat();
-        }
-
-        public boolean isViewLocation() {
-            return true;
-        }
-
-        public Location getUnderlyingLocation() {
-            return location;
         }
     }
 
