@@ -36,6 +36,7 @@ public final class JavafxBindStatus {
     public static final JavafxBindStatus BIDIBIND         = new JavafxBindStatus("bidirectional bind",        false, true,  false);
     public static final JavafxBindStatus LAZY_UNIDIBIND   = new JavafxBindStatus("lazy unidirectional bind",  true,  false, true);
     public static final JavafxBindStatus LAZY_BIDIBIND    = new JavafxBindStatus("lazy bidirectional bind",   false, true,  true);
+    public static final JavafxBindStatus LAZY_UNBOUND     = new JavafxBindStatus("lazy unbound",              false, false, true);
     
     private final String description;
     private final boolean isBound;

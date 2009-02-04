@@ -588,8 +588,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
                     @Override
                     void setInstanceVariable(Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
+                        // bind staus to use for translation needs to propagate laziness if this isn't a bound init
+                        JavafxBindStatus translationBindStatus = bindStatus.isBound()?
+                            bindStatus :
+                            JavafxToBound.this.bindStatus.isLazy()?
+                                JavafxBindStatus.LAZY_UNBOUND :
+                                JavafxBindStatus.UNBOUND;
                         JCExpression initRef = buildArgField(
-                                translate(init, bindStatus, vsym.type),
+                                translate(init, translationBindStatus, vsym.type),
                                 new FieldInfo(vsym.type),
                                 bindStatus.isBound());
                         setInstanceVariable(init.pos(), instName, bindStatus, vsym, initRef);
