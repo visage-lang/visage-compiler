@@ -201,13 +201,13 @@ public class Locations {
         }
 
         public float getAsFloat() {
-            // @@@ These are wrong
-            return getAsInt();
+            Float val = location.get().floatValue();
+            return val==null ? 0.0f : val;
         }
 
         public double getAsDouble() {
-            // @@@ These are wrong
-            return getAsInt();
+            Double val = location.get().doubleValue();
+            return val==null ? 0.0 : val;
         }
 
         public boolean isViewLocation() {
@@ -242,12 +242,8 @@ public class Locations {
             location.setDefault();
         }
 
-        public void addChangeListener(final IntChangeListener listener) {
-            location.addChangeListener(new ObjectChangeListener<Integer>() {
-                public void onChange(Integer oldValue, Integer newValue) {
-                    listener.onChange(oldValue, newValue);
-                }
-            });
+        public void addChangeListener(final PrimitiveChangeListener<Integer> listener) {
+            location.addChangeListener(listener.asObjectListener(TypeInfo.Integer));
         }
 
         public Integer get() {
@@ -320,7 +316,7 @@ public class Locations {
             location.setDefault();
         }
 
-        public void addChangeListener(final FloatChangeListener listener) {
+        public void addChangeListener(final PrimitiveChangeListener<Float> listener) {
             location.addChangeListener(new ObjectChangeListener<T>() {
                 public void onChange(T oldValue, T newValue) {
                     listener.onChange(oldValue.floatValue(), newValue.floatValue());
@@ -401,12 +397,8 @@ public class Locations {
             location.setDefault();
         }
 
-        public void addChangeListener(final BooleanChangeListener listener) {
-            location.addChangeListener(new ObjectChangeListener<Boolean>() {
-                public void onChange(Boolean oldValue, Boolean newValue) {
-                    listener.onChange(oldValue, newValue);
-                }
-            });
+        public void addChangeListener(final PrimitiveChangeListener<Boolean> listener) {
+            location.addChangeListener(listener.asObjectListener(TypeInfo.Boolean));
         }
 
         public Boolean get() {
@@ -435,7 +427,7 @@ public class Locations {
     }
 
     public static class NumericToByteLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ByteLocation, Byte, ByteChangeListener> implements ByteLocation {
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ByteLocation, Byte, PrimitiveChangeListener<Byte>> implements ByteLocation {
 
         public NumericToByteLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Byte);
@@ -455,7 +447,7 @@ public class Locations {
     }
 
     public static class NumericToShortLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ShortLocation, Short, ShortChangeListener> implements ShortLocation {
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ShortLocation, Short, PrimitiveChangeListener<Short>> implements ShortLocation {
 
         public NumericToShortLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Short);
@@ -475,7 +467,7 @@ public class Locations {
     }
 
     public static class NumericToIntLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, IntLocation, Integer, IntChangeListener> implements IntLocation {
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, IntLocation, Integer, PrimitiveChangeListener<Integer>> implements IntLocation {
 
         public NumericToIntLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Integer);
@@ -495,7 +487,7 @@ public class Locations {
     }
 
     public static class NumericToLongLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, LongLocation, Long, LongChangeListener> implements LongLocation {
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, LongLocation, Long, PrimitiveChangeListener<Long>> implements LongLocation {
 
         public NumericToLongLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Long);
@@ -515,7 +507,7 @@ public class Locations {
     }
 
     public static class NumericToFloatLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, FloatLocation, Float, FloatChangeListener> implements FloatLocation {
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, FloatLocation, Float, PrimitiveChangeListener<Float>> implements FloatLocation {
 
         public NumericToFloatLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Float);
@@ -535,7 +527,7 @@ public class Locations {
     }
 
     public static class NumericToDoubleLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
-            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, DoubleLocation, Double, DoubleChangeListener> implements DoubleLocation {
+            extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, DoubleLocation, Double, PrimitiveChangeListener<Double>> implements DoubleLocation {
 
         public NumericToDoubleLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
             super(location, inType, TypeInfo.Double);
@@ -559,7 +551,7 @@ public class Locations {
             T_VALUE_IN extends Number,
             T_LOC_OUT extends NumericLocation & ObjectLocation<T_VALUE_OUT>,
             T_VALUE_OUT extends Number,
-            T_LISTENER_OUT extends AbstractChangeListener<T_VALUE_OUT> & NumericChangeListener>
+            T_LISTENER_OUT extends PrimitiveChangeListener<T_VALUE_OUT>>
                  extends LocationWrapper<T_LOC_IN> {
 
         protected final NumericTypeInfo<T_VALUE_IN, ?> inType;
@@ -618,7 +610,7 @@ public class Locations {
         }
 
         public void addChangeListener(final T_LISTENER_OUT listener) {
-            location.addChangeListener(listener.asObjectListener(inType));
+            addChangeListener(listener.asObjectListener(outType));
         }
     }
 

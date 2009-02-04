@@ -220,7 +220,7 @@
         <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
             <arg value="${build.generated.dir}" />
             <arg value="com/sun/javafx/runtime/location" />
-            <arg line="XxxChangeListener XxxConstant XxxLocation XxxVariable" />
+            <arg line="XxxConstant XxxLocation XxxVariable" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
                 <path refid="antlr.class.path" />

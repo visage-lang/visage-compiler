@@ -23,10 +23,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
-import com.sun.javafx.runtime.location.IntChangeListener;
+import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.TypeInfo;
 
 /**
@@ -97,7 +94,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
                 updateSlice(0, size == 0 ? 0 : size - 1, newSeq, newSeq);
             }
         });
-        lowerLoc.addChangeListener(new IntChangeListener() {
+        lowerLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
 
             public void onChange(int oldValue, int newValue) {
                 assert oldValue != newValue;
@@ -120,7 +117,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
             }
         });
         if (upperLoc != null) {
-            upperLoc.addChangeListener(new IntChangeListener() {
+            upperLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
 
                 public void onChange(int oldValue, int newValue) {
                     assert oldValue != newValue;

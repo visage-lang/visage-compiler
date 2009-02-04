@@ -35,7 +35,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.ChangeListener$> implements $T.Location$ {
+public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, PrimitiveChangeListener<$T.boxed$>> implements $T.Location$ {
     public static final $T.prim$ DEFAULT = $V.default$;
 
     protected $T.prim$ \$value = DEFAULT;
@@ -145,19 +145,15 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, $T.C
     protected void replaceWithDefault() { replaceValue(DEFAULT); }
 
     public void addChangeListener(final ObjectChangeListener<$T.boxed$> listener) {
-        addChangeListener(new $T.ChangeListener$() {
-            public void onChange($T.prim$ oldValue, $T.prim$ newValue) {
-                listener.onChange(oldValue, newValue);
-            }
-        });
+        addChangeListener(PrimitiveChangeListener.make(listener));
     }
 
     private void notifyListeners(final $T.prim$ oldValue, final $T.prim$ newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
         if (hasChildren(CHILD_KIND_TRIGGER))
-            iterateChildren(new DependencyIterator<$T.ChangeListener$>(CHILD_KIND_TRIGGER) {
-                public void onAction($T.ChangeListener$ listener) {
+            iterateChildren(new DependencyIterator<PrimitiveChangeListener<$T.boxed$>>(CHILD_KIND_TRIGGER) {
+                public void onAction(PrimitiveChangeListener<$T.boxed$> listener) {
                     try {
                         listener.onChange(oldValue, newValue);
                     }

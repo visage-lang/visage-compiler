@@ -24,10 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.location.IntChangeListener;
-import com.sun.javafx.runtime.location.IntConstant;
-import com.sun.javafx.runtime.location.IntLocation;
-import com.sun.javafx.runtime.location.SequenceLocation;
+import com.sun.javafx.runtime.location.*;
 
 /**
  * BoundIntRangeSequence
@@ -96,7 +93,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
     }
 
     private void addTriggers() {
-        lowerLoc.addChangeListener(new IntChangeListener() {
+        lowerLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
             public void onChange(int oldValue, int newValue) {
                 
                 assert oldValue != newValue;
@@ -129,7 +126,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
                 }
             }
         });
-        upperLoc.addChangeListener(new IntChangeListener() {
+        upperLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
             public void onChange(int oldValue, int newValue) {
                 
                 assert oldValue != newValue;
@@ -153,7 +150,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
             }
         });
 
-        stepLoc.addChangeListener(new IntChangeListener() {
+        stepLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
             public void onChange(int oldValue, int newValue) {
                 
                 assert oldValue != newValue;

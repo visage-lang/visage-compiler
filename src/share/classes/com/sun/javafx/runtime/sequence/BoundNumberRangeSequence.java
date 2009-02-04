@@ -99,7 +99,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> imple
     }
 
     private void addTriggers() {
-        lowerLoc.addChangeListener(new FloatChangeListener() {
+        lowerLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;
@@ -132,7 +132,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> imple
                 }
             }
         });
-        upperLoc.addChangeListener(new FloatChangeListener() {
+        upperLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;         
@@ -154,7 +154,7 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> imple
             }
         });
 
-        stepLoc.addChangeListener(new FloatChangeListener() {
+        stepLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;                                  
