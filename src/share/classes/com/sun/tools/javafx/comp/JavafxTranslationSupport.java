@@ -456,12 +456,12 @@ public abstract class JavafxTranslationSupport {
         return makeLocationVariable(tmi, diagPos, makeArgs, makeMethod);
     }
 
-    JCExpression makeLocationVariable(TypeMorphInfo tmi,
+    JCExpression makeLocation(TypeMorphInfo tmi,
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
-                                  Name makeMethod) {
+                                  Name makeMethod,
+                                  JCExpression locationTypeExp) {
         Name locName = typeMorpher.variableNCT[tmi.getTypeKind()].name;
-        JCExpression locationTypeExp = makeIdentifier(diagPos, locName);
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethod);
         List<JCExpression> typeArgs = null;
         switch (tmi.getTypeKind()) {
@@ -475,18 +475,21 @@ public abstract class JavafxTranslationSupport {
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
     }
-    
+
+    JCExpression makeLocationVariable(TypeMorphInfo tmi,
+                                  DiagnosticPosition diagPos,
+                                  List<JCExpression> makeArgs,
+                                  Name makeMethod) {
+        Name locName = typeMorpher.variableNCT[tmi.getTypeKind()].name;
+        JCExpression locationTypeExp = makeIdentifier(diagPos, locName);
+        return makeLocation(tmi, diagPos, makeArgs, makeMethod, locationTypeExp);
+    }
+
     JCExpression makeConstantLocation(DiagnosticPosition diagPos, Type type, JCExpression expr) {
         TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
         List<JCExpression> makeArgs = List.of(expr);
         JCExpression locationTypeExp = makeTypeTree( diagPos,tmi.getConstantLocationType(), true);
-        JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, defs.makeMethodName);
-        List<JCExpression> typeArgs = null;
-        //TODO: hmmm, compare this to makeLocationVariable, seems for Object it should be tmi.getRealType()
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT || tmi.getTypeKind() == TYPE_KIND_SEQUENCE) {
-            typeArgs = List.of(makeTypeTree( diagPos,tmi.getElementType(), true));
-        }
-        return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
+        return makeLocation(tmi, diagPos, makeArgs, defs.makeMethodName, locationTypeExp);
     }
 
     JCExpression makeUnboundLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi, JCExpression expr) {

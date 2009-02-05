@@ -1,7 +1,8 @@
 /**
  * JFXC-2560 : Attribution does not propagate expected type in bound explicit sequence numeric conversion
  *
- * @test/fail
+ * @test
+ * @run
  */
 
 function run() {

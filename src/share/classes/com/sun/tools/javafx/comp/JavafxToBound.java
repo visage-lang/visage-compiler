@@ -1176,8 +1176,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             Type elemType = types.elementType(targetType(tree.type));
             result = runtime(diagPos, cBoundSequences, "empty", List.of(makeTypeInfo(diagPos, elemType)));
         } else {
-            JCExpression unbound = make.at(diagPos).Literal(tree.typetag, tree.value);
-            result = makeConstantLocation(diagPos, targetType(tree.type), unbound);
+            Type targetType = targetType(tree.type);
+            JCExpression unbound = toJava.convertTranslated(make.at(diagPos).Literal(tree.typetag, tree.value), diagPos, tree.type, targetType);
+            result = makeConstantLocation(diagPos, targetType, unbound);
         }
     }
 
