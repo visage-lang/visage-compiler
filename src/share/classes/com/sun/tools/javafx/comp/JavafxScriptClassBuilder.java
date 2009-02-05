@@ -55,6 +55,7 @@ public class JavafxScriptClassBuilder {
     private Log log;
     private JavafxSymtab syms;
     private Set<Name> reservedTopLevelNamesSet;
+    private Name pseudoSourceFile;
     private Name pseudoFile;
     private Name pseudoDir;
     private Name pseudoProfile;
@@ -75,6 +76,7 @@ public class JavafxScriptClassBuilder {
         fxmake = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
         log = Log.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        pseudoSourceFile = names.fromString("__SOURCE_FILE__");
         pseudoFile = names.fromString("__FILE__");
         pseudoDir = names.fromString("__DIR__");
         pseudoProfile = names.fromString("__PROFILE__");
@@ -158,37 +160,45 @@ public class JavafxScriptClassBuilder {
         }
 
         // check for references to pseudo variables and if found, declare them
-        final boolean[] usesFile = new boolean[1];
-        final boolean[] usesDir = new boolean[1];
-        final boolean[] usesProfile = new boolean[1];
-        final DiagnosticPosition[] diagPos = new DiagnosticPosition[1];
-        new JavafxTreeScanner() {
+        class PseudoIdentScanner extends JavafxTreeScanner {
+            public boolean usesSourceFile;
+            public boolean usesFile;
+            public boolean usesDir;
+            public boolean usesProfile;
+            public DiagnosticPosition diagPos;
             @Override
             public void visitIdent(JFXIdent id) {
                 super.visitIdent(id);
+                if (id.name.equals(pseudoSourceFile)) {
+                    usesSourceFile = true;
+                    markPosition(id);
+                }
                 if (id.name.equals(pseudoFile)) {
-                    usesFile[0] = true;
+                    usesFile = true;
                     markPosition(id);
                 }
                 if (id.name.equals(pseudoDir)) {
-                    usesDir[0] = true;
+                    usesDir = true;
                     markPosition(id);
                 }
                 if (id.name.equals(pseudoProfile)) {
-                    usesProfile[0] = true;
+                    usesProfile = true;
                     markPosition(id);
 		}
             }
             void markPosition(JFXTree tree) {
-                if (diagPos[0] == null) { // want the first only
-                    diagPos[0] = tree.pos();
+                if (diagPos == null) { // want the first only
+                    diagPos = tree.pos();
                 }
             }
-        }.scan(module.defs);
+        }
+        PseudoIdentScanner pseudoScanner = new PseudoIdentScanner();
+        pseudoScanner.scan(module.defs);
         //debugPositions(module);
 
         ListBuffer<JFXTree> scriptTops = ListBuffer.<JFXTree>lb();
-        scriptTops.appendList( pseudoVariables(diagPos[0], moduleClassName, module, usesFile[0], usesDir[0], usesProfile[0]) );
+        scriptTops.appendList( pseudoVariables(pseudoScanner.diagPos, moduleClassName, module,
+                pseudoScanner.usesSourceFile, pseudoScanner.usesFile, pseudoScanner.usesDir, pseudoScanner.usesProfile) );
         scriptTops.appendList(module.defs);
 
         // Determine if this is a library script
@@ -448,8 +458,16 @@ public class JavafxScriptClassBuilder {
     }
     
     private List<JFXTree> pseudoVariables(DiagnosticPosition diagPos, Name moduleClassName, JFXScript module,
-            boolean usesFile, boolean usesDir, boolean usesProfile) {
+            boolean usesSourceFile, boolean usesFile, boolean usesDir, boolean usesProfile) {
         ListBuffer<JFXTree> pseudoDefs = ListBuffer.<JFXTree>lb();
+        if (usesSourceFile) {
+            String sourceName = module.getSourceFile().toUri().toString();
+            JFXExpression sourceFileVar =
+                fxmake.at(diagPos).Var(pseudoSourceFile, getPseudoVarType(diagPos),
+                         fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
+                         fxmake.Literal(sourceName), JavafxBindStatus.UNBOUND, null);
+            pseudoDefs.append(sourceFileVar);
+        }
         if (usesFile || usesDir) {
             JFXExpression moduleClassFQN = module.pid != null ?
                 fxmake.at(diagPos).Select(module.pid, moduleClassName) : fxmake.at(diagPos).Ident(moduleClassName);

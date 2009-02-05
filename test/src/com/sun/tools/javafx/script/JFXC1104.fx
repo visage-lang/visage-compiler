@@ -1,1 +1,1 @@
-"{__FILE__}"
+"{__SOURCE_FILE__}"
