@@ -2862,7 +2862,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitIfExpression(JFXIfExpression tree) {
-        Type targetType = translationState.targetType;
         Yield yield = translationState.yield;
 
         final DiagnosticPosition diagPos = tree.pos();
@@ -2870,11 +2869,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         JFXExpression trueSide = tree.getTrueExpression();
         JFXExpression falseSide = tree.getFalseExpression();
         if (yield == ToExpression) {
+            Type targetType = tree.type;
             result = make.at(diagPos).Conditional(
                     cond,
                     translateAsValue(trueSide, targetType),
                     translateAsValue(falseSide, targetType));
         } else {
+            Type targetType = translationState.targetType;
             result = make.at(diagPos).If(
                     cond,
                     translateToStatement(trueSide, targetType),
