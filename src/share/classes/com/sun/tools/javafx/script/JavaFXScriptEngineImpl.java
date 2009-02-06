@@ -23,32 +23,15 @@
 
 package com.sun.tools.javafx.script;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import javax.script.*;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.DiagnosticListener;
-import javax.tools.JavaFileObject;
-
+import javax.tools.*;
+import com.sun.tools.javac.util.Name;
 import com.sun.javafx.api.JavaFXScriptEngine;
-import com.sun.javafx.api.JavafxcTask;
-import com.sun.javafx.api.tree.ExpressionTree;
-import com.sun.javafx.api.tree.SourcePositions;
-import com.sun.javafx.api.tree.UnitTree;
-import com.sun.javafx.runtime.Entry;
-import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.tools.javac.util.JCDiagnostic;
-import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.tools.javafx.api.JavafxcTrees;
-import com.sun.tools.javafx.tree.JFXScript;
-import com.sun.tools.javafx.tree.JFXTree;
+import com.sun.tools.javac.code.*;
 
 /**
  * This is script engine for the JavaFX Script language, based on
@@ -58,51 +41,96 @@ import com.sun.tools.javafx.tree.JFXTree;
 public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         implements JavaFXScriptEngine {
 
-    private static final String SCRIPT_CONTEXT_NAME = "javafx$ctx";
-    
-    // Java compiler
-    private JavaFXScriptCompiler compiler;
-
-    // Scripts parsed by this engine
-    private LinkedList<Class> scripts = new LinkedList<Class>();
-
     public JavaFXScriptEngineImpl() {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        if (cl != null) {
-            parentClassLoader = cl;
-        }
-        compiler = new JavaFXScriptCompiler(parentClassLoader);
     }
 
     // my factory, may be null
     private ScriptEngineFactory factory;
 
-    private DiagnosticCollector<JavaFileObject> diagnostics;
-    
-    private ClassLoader parentClassLoader = getClass().getClassLoader();
+    WeakHashMap<Bindings, JavaFXScriptContext> contextMap =
+            new WeakHashMap<Bindings, JavaFXScriptContext>();
 
-    public List<Diagnostic<? extends JavaFileObject>> getLastDiagnostics() {
-        return diagnostics == null ? null : diagnostics.getDiagnostics();
+    JavaFXScriptContext getJavaFXScriptContext(ScriptContext ctx) {
+        Bindings bindings = ctx.getBindings(ScriptContext.ENGINE_SCOPE);
+        return getJavaFXScriptContext(bindings);
+    }
+
+    JavaFXScriptContext getJavaFXScriptContext(Bindings bindings) {
+        JavaFXScriptContext scontext = contextMap.get(bindings);
+        if (scontext == null) {
+            scontext = new JavaFXScriptContext();
+            ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
+            JavaFXScriptCompiler compiler = new JavaFXScriptCompiler(parentClassLoader);
+            scontext.compiler = compiler;
+            scontext.loader = new MemoryClassLoader(compiler.clbuffers, parentClassLoader);
+            contextMap.put(bindings, scontext);
+        }
+        return scontext;
     }
 
     // my implementation for CompiledScript
     private class JavafxScriptCompiledScript extends CompiledScript {
-        private Class clazz;
+        JavaFXCompiledScript compiled;
 
-        JavafxScriptCompiledScript(Class clazz) {
-            this.clazz = clazz;
+        JavafxScriptCompiledScript(JavaFXCompiledScript compiled) {
+            this.compiled = compiled;
         }
 
-        public ScriptEngine getEngine() {
+        public JavaFXScriptEngineImpl getEngine() {
             return JavaFXScriptEngineImpl.this;
         }
 
         public Object eval(ScriptContext ctx) throws ScriptException {
-            return evalClass(clazz, ctx);
+            JavaFXScriptContext scontext = getJavaFXScriptContext(ctx);
+            try {
+                // FIXME - set to false if using (unimplemented) "synchronized"
+                // implementation of ScriptContext and ScriptBindings.
+                boolean copyVars = true;
+                if (copyVars) {
+                    for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.GLOBAL_SCOPE).entrySet()) {
+                        String key = entry.getKey();
+                        if (key.indexOf('.') >= 0)
+                            continue; // Kludge FIXME
+                        Symbol sym = compiled.lookup(key);
+                        if (compiled.scriptScope.lookup(sym.name).sym == sym)
+                            continue;
+                        scontext.setVarValue(sym, entry.getValue());
+                    }
+                    for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
+                        String key = entry.getKey();
+                        if (key.indexOf('.') >= 0)
+                            continue; // Kludge FIXME
+                        Symbol sym = compiled.lookup(key);
+                        if (compiled.scriptScope.lookup(sym.name).sym == sym)
+                            continue;
+                        scontext.setVarValue(sym, entry.getValue());
+                    }
+                }
+                Object result = compiled.eval(scontext);
+                if (copyVars) {
+                    for (Scope.Entry e = compiled.compiler.namedImportScope.elems;
+                        e != null; e = e.sibling) {
+                        if ((e.sym.flags() & Flags.SYNTHETIC) != 0)
+                        continue;
+                        String name = e.sym.toString();
+                        if (! (e.sym.owner instanceof Symbol.ClassSymbol))// FIXME - need flag for non-imports.
+                            continue;
+                        if (! (e.sym instanceof Symbol.VarSymbol))// FIXME - need flag for non-imports.
+                            continue;
+                        Object value = scontext.getVarValue(e.sym);
+                        ctx.setAttribute(name, value, ScriptContext.ENGINE_SCOPE);
+                    }
+                }
+                return result;
+            } catch (RuntimeException exp) {
+                throw exp;
+            } catch (Exception exp) {
+                throw new ScriptException(exp);
+            }
         }
 
         public String getName() {
-            return clazz.getName();
+            return compiled.clazzName;
         }
     }
 
@@ -116,9 +144,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     public CompiledScript compile(String script, DiagnosticListener<JavaFileObject> listener)
             throws ScriptException {
-        Class clazz = parse(script, context, listener, true);
-        scripts.addFirst(clazz);  // most recent scripts get referenced first
-        return new JavafxScriptCompiledScript(clazz);
+        return parse(script, context, listener);
     }
 
     public CompiledScript compile(Reader script, DiagnosticListener<JavaFileObject> listener)
@@ -146,9 +172,8 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     }
 
     public Object eval(String script, ScriptContext context, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
-        Class clazz = parse(script, context, listener, false);
-        scripts.addFirst(clazz);  // most recent scripts get referenced first
-        return evalClass(clazz, context);
+        JavafxScriptCompiledScript cscript = parse(script, context, listener);
+        return cscript.eval(context);
     }
 
     public Object eval(Reader reader, ScriptContext context, DiagnosticListener<JavaFileObject> listener) throws ScriptException {
@@ -184,156 +209,61 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     // Internals only below this point
 
-    private Class parse(String str, ScriptContext ctx, 
-            final DiagnosticListener<JavaFileObject> listener,
-            boolean inferBindings) throws ScriptException {
+    int counter;
+
+    private JavafxScriptCompiledScript parse(String str, ScriptContext ctx,
+            final DiagnosticListener<JavaFileObject> listener) throws ScriptException {
         String fileName = getFileName(ctx);
+        if ("<STDIN>".equals(fileName))
+            fileName = "stdin" + ++counter;
         String sourcePath = getSourcePath(ctx);
         String classPath = getClassPath(ctx);
         String script = str;
-        diagnostics = new DiagnosticCollector<JavaFileObject>();
-        DiagnosticListener<JavaFileObject> 
-            diagnosticListener = new DiagnosticListener<JavaFileObject>() {
-            public void report(Diagnostic<? extends JavaFileObject> rep) {
-                if (listener != null)
-                    listener.report(rep);
-                diagnostics.report(rep);
-            }
-        };
-        DiagnosticCollector<JavaFileObject> firstCollector = 
-                new DiagnosticCollector<JavaFileObject>();
+        JavaFXScriptContext scontext = getJavaFXScriptContext(ctx);
+        boolean copyVars = true;
+        // JSR-223 requirement
+        ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
 
-        Map<String, byte[]> classBytes = compiler.compile(fileName, script,
-                ctx.getErrorWriter(), sourcePath, classPath, firstCollector, false);
-
-        if (firstCollector.getDiagnostics().size() > 0) {
-            // check for unresolved variables, add to context, and retry
-            boolean recompile = false;
-            Set<String> attrs = new HashSet<String>();
-            for (Diagnostic d : firstCollector.getDiagnostics()) {
-                if (d.getCode().equals("compiler.err.cant.resolve.location")) {
-                    Object[] args = ((JCDiagnostic) d).getArgs();
-                    if (args.length >= 2 && args[1] instanceof String) {
-                        attrs.add((String) args[1]);
-                        recompile = true;
-                    }
+        if (copyVars) {
+            for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.GLOBAL_SCOPE).entrySet()) {
+                String key = entry.getKey();
+                if (key.indexOf('.') >= 0)
+                    continue; // Kludge FIXME
+                Symbol sym = scontext.compiler.names == null ? null : scontext.compiler.lookup(key);
+                if (sym == null) {
+                    scontext.compiler.compile(fileName+"_"+key, "public var <<"+key+">>;",
+                       ctx.getErrorWriter(), null, classPath, listener);
                 }
             }
-            if (recompile) {
-                String binding = makeBindingStatement(ctx, attrs, inferBindings);
-                int bindingInsert = 0;  // insert binding in front of script
-                try {
-                    // parse script to find any package statement
-                    JavafxcTool tool = JavafxcTool.create();
-                    MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), parentClassLoader,
-                            new HashMap<String, List<String>>());
-                    List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
-                    compUnits.add(manager.makeStringSource(fileName, script));
-                    JavafxcTask task = tool.getTask(null, manager, diagnostics, null, compUnits);
-                    Iterable<? extends UnitTree> units = task.parse();
-                    if (units.iterator().hasNext()) {
-                        UnitTree unit = units.iterator().next();
-                        ExpressionTree pkg = unit.getPackageName();
-                        if (pkg != null) {
-                            // insert bindings after package and before first unit member
-                            SourcePositions positions = JavafxcTrees.instance(task).getSourcePositions();
-                            JFXTree firstDef = ((JFXScript)unit).defs.head;
-                            bindingInsert = (int)positions.getStartPosition(unit, firstDef);
-                        }
-                    }
-                } catch (IOException e) {
-                    // should never happen with a MemoryFileManager file object
-                    throw new AssertionError(e);                            
+            for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
+                String key = entry.getKey();
+                if (key.indexOf('.') >= 0)
+                    continue; // Kludge FIXME
+                Symbol sym = scontext.compiler.names == null ? null : scontext.compiler.lookup(key);
+                if (sym == null) {
+                    scontext.compiler.compile(fileName+"_"+key, "public var <<"+key+">>;",
+                       ctx.getErrorWriter(), null, classPath, listener);
                 }
-                script = str.substring(0, bindingInsert) + binding + str.substring(bindingInsert);
-                classBytes = compiler.compile(fileName, script,
-                        ctx.getErrorWriter(), sourcePath, classPath,
-                        diagnosticListener, true);
-            } else {
-                for (Diagnostic<? extends JavaFileObject> d : firstCollector.getDiagnostics())
-                    diagnosticListener.report(d);
-                JavaFXScriptCompiler.printDiagnostics(diagnostics, ctx.getErrorWriter());
             }
         }
 
-        if (classBytes == null) {
+        JavaFXCompiledScript compiled = scontext.compiler.compile(fileName, script,
+                ctx.getErrorWriter(), sourcePath, classPath, listener);
+        if (compiled == null) {
             throw new ScriptException("compilation failed");
         }
-        URL sourceURL = null;
-        if (fileName != null) try {
-            sourceURL = new File(fileName).toURI().toURL();
-        } catch (MalformedURLException mue) {}
 
-        // create a ClassLoader to load classes from MemoryJavaFileManager
-        MemoryClassLoader loader = new MemoryClassLoader(sourceURL,
-                classBytes, classPath, parentClassLoader);
-
-        Iterable<Class> classes;
-        try {
-            classes = loader.loadAll();
-        } catch (ClassNotFoundException exp) {
-            throw new ScriptException(exp);
-        }
-
-        // search for class with main method
-        Class c = findMainClass(classes);
-        if (c == null) {
-            throw new ScriptException("no main class found");
-        }
-        return c;
+        return new JavafxScriptCompiledScript(compiled);
     }
 
-    private static Class findMainClass(Iterable<Class> classes) {
-        // find a public class with public static main method
-        for (Class clazz : classes) {
-            int modifiers = clazz.getModifiers();
-            if (Modifier.isPublic(modifiers)) {
-                Method mainMethod = findMainMethod(clazz);
-                if (mainMethod != null) {
-                    return clazz;
-                }
-            }
-        }
-
-        // okay, try to find package private class that
-        // has public static main method
-        for (Class clazz : classes) {
-            Method mainMethod = findMainMethod(clazz);
-            if (mainMethod != null) {
-                return clazz;
-            }
-        }
-
-        // no main class found!
-        return null;
-    }
-
-    // find public static void main(String[]) method, if any
-    private static Method findMainMethod(Class clazz) {
-        try {
-            Method mainMethod = clazz.getMethod(Entry.entryMethodName(), Sequence.class);
-            int modifiers = mainMethod.getModifiers();
-            if (Modifier.isPublic(modifiers) &&
-                    Modifier.isStatic(modifiers)) {
-                return mainMethod;
-            }
-        } catch (NoSuchMethodException nsme) {
-            assert false : nsme;
-        }
-        return null;
-    }
-    
     private static String getFileName(ScriptContext ctx) {
         int scope = ctx.getAttributesScope(ScriptEngine.FILENAME);
         if (scope != -1) {
-            return ctx.getAttribute(ScriptEngine.FILENAME, scope).toString();
+            Object fn = ctx.getAttribute(ScriptEngine.FILENAME, scope);
+            return fn.toString();
         } else {
             return "___FX_SCRIPT___.fx";
         }
-    }
-
-    private static String getScriptKey(ScriptContext ctx) {
-        return "script-context";
     }
 
     // for certain variables, we look for System properties. This is
@@ -366,46 +296,6 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         }
     }
 
-    private static Object evalClass(Class clazz, ScriptContext ctx)
-            throws ScriptException {
-        // JSR-223 requirement
-        ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
-        if (clazz == null) {
-            return null;
-        }
-        String scriptKey = getScriptKey(ctx);
-        try {
-            ScriptContextManager.putContext(scriptKey, ctx);
-            Object result = null;
-
-            // find the main method
-            Method mainMethod = findMainMethod(clazz);
-            if (mainMethod != null) {
-                boolean isPublicClazz = Modifier.isPublic(clazz.getModifiers());
-                if (!isPublicClazz) {
-                    // try to relax access
-                    mainMethod.setAccessible(true);
-                }
-
-                // call main method
-                Object args = TypeInfo.String.emptySequence;
-                result = mainMethod.invoke(null, args);
-            }
-
-            return result;
-        } catch (Exception exp) {
-            exp.printStackTrace();
-            Throwable cause = exp.getCause();
-            if (cause != null) {
-                System.err.println("Cause:");
-                cause.printStackTrace();
-            }
-            throw new ScriptException(exp);
-        } finally {
-            ScriptContextManager.removeContext(scriptKey);
-        }
-    }
-
     // read a Reader fully and return the content as string
     private String readFully(Reader reader) throws ScriptException {
         char[] arr = new char[8*1024]; // 8K at a time
@@ -421,57 +311,12 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         return buf.toString();
     }
 
-    private String makeBindingStatement(ScriptContext ctx, Set<String> attrs, boolean inferBindings) {
-        // Merge attribute names from all scopes in context into single set.
-        if (attrs.isEmpty()) {
-            return "";
-        }
-
-        // Define ScriptContext variable.
-        StringBuilder sb = new StringBuilder();
-        sb.append("var ");
-        sb.append(SCRIPT_CONTEXT_NAME);
-        sb.append(":javax.script.ScriptContext = ");
-        sb.append("com.sun.tools.javafx.script.ScriptContextManager.getContext(\"");
-        sb.append(getScriptKey(ctx));
-        sb.append("\"); ");
-
-        // Define attributes as module variables.
-        for (String attr : attrs) {
-            Object value = ctx.getAttribute(attr);
-            if (value != null || inferBindings) { // value==null when compiling scripts
-                sb.append("var ");
-                sb.append(attr);
-                String type = null;
-                if (value != null) {
-                    type = value.getClass().getCanonicalName();
-                    if (type != null) {
-                        sb.append(':');
-                        sb.append(type);
-                    }
-                }
-                sb.append(" = ");
-                sb.append(SCRIPT_CONTEXT_NAME);
-                sb.append(".getAttribute(\"");
-                sb.append(attr);
-                sb.append("\")");
-                if (value != null) {
-                    sb.append(" as ");
-                    sb.append(type);
-                }
-                sb.append("; ");
-            }
-        }
-
-        return sb.toString();
-    }
-
     public Object invokeMethod(Object thiz, String name, Object... args) throws ScriptException, NoSuchMethodException {
         if (thiz == null)
             throw new ScriptException("target object not specified");
         if (name == null)
             throw new ScriptException("method name not specified");
-        Method method = findMethod(thiz.getClass(), name, args);
+        Method method = JavaFXScriptContext.findMethod(thiz.getClass(), name, args);
         if (method == null)
             throw new ScriptException(new NoSuchMethodException());
         try {
@@ -485,47 +330,28 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     public Object invokeFunction(String name, Object... args) throws ScriptException, NoSuchMethodException {
         if (name == null)
             throw new ScriptException("method name not specified");
-        for (Class script : scripts) {
-            Method method = findMethod(script, name, args);
-            if (method != null) {
-                try {
-                    Constructor cons = findDefaultConstructor(script);
-                    cons.setAccessible(true);
-                    Object instance = cons.newInstance();
-                    method.setAccessible(true);
-                    return method.invoke(instance, args);
-                } catch (Exception e) {
-                    throw new ScriptException(e);
+        JavaFXScriptContext scontext = getJavaFXScriptContext(getContext());
+        Name nname = scontext.compiler.names.fromString(name);
+        for (Scope.Entry e = scontext.compiler.namedImportScope.lookup(nname);
+             e.sym != null; e = e.next()) {
+            // FIXME - should also handle VarSymbol whose type is a FunctionType.
+            if (e.sym instanceof Symbol.MethodSymbol) {
+                Class script = scontext.loadSymbolClass(e.sym);
+               Method method = JavaFXScriptContext.findMethod(script, name, args);
+               if (method != null) {
+                   try {
+                        Constructor cons = findDefaultConstructor(script);
+                        cons.setAccessible(true);
+                        Object instance = cons.newInstance();
+                        method.setAccessible(true);
+                        return method.invoke(instance, args);
+                    } catch (Exception ex) {
+                        throw new ScriptException(ex);
+                    }
                 }
-
             }
         }
         throw new ScriptException(new NoSuchMethodException(name));
-    }
-
-    private static Method findMethod(Class clazz, String name, Object[] args) {
-        Class[] argTypes = new Class[args.length];
-        for (int i = 0; i < args.length; i++)
-            argTypes[i] = args[i].getClass();
-
-        try {
-            return clazz.getMethod(name, argTypes);
-        } catch (NoSuchMethodException e) {
-        // fall-through
-        }
-
-        for (Method m : clazz.getMethods()) {
-            if (m.getName().equals(name)) {
-                if (m.isVarArgs())
-                    return m;
-                Class[] parameters = m.getParameterTypes();
-                if (args.length != parameters.length)
-                    continue;
-                if (argsMatch(argTypes, parameters))
-                    return m;
-                }
-            }
-        return null;
     }
 
     private Constructor findDefaultConstructor(Class script) throws NoSuchMethodException {
@@ -536,30 +362,6 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
             }
         }
         throw new NoSuchMethodException("default constructor");
-    }
-
-    private static boolean argsMatch(Class[] argTypes, Class[] parameterTypes) {
-        for (int i = 0; i < argTypes.length; i++) {
-            Class arg = argTypes[i];
-            Class param = parameterTypes[i];
-            if (param.isPrimitive())
-                param = wrappers.get(param);
-            if (param == null || !(param.isAssignableFrom(arg)))
-                return false;
-            }
-        return true;
-    }
-
-    private static Map<Class,Class> wrappers = new HashMap<Class,Class>();
-    static {
-        wrappers.put(boolean.class, Boolean.class);
-        wrappers.put(byte.class, Byte.class);
-        wrappers.put(char.class, Character.class);
-        wrappers.put(double.class, Double.class);
-        wrappers.put(float.class, Float.class);
-        wrappers.put(int.class, Integer.class);
-        wrappers.put(long.class, Long.class);
-        wrappers.put(short.class, Short.class);
     }
 
     public <T> T getInterface(Class<T> clazz) {
@@ -601,5 +403,4 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     public Object invoke(Object thiz, String name, Object...args) throws ScriptException, NoSuchMethodException {
 	return invokeMethod(thiz, name, args);
     }
-
 }

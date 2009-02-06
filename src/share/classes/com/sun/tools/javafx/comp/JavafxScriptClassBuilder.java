@@ -60,6 +60,8 @@ public class JavafxScriptClassBuilder {
     private Name pseudoDir;
     private Name pseudoProfile;
     private Name defaultRunArgName;
+
+    public boolean scriptingMode;
     
     private static final boolean debugBadPositions = Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
 
@@ -71,6 +73,7 @@ public class JavafxScriptClassBuilder {
     }
 
     protected JavafxScriptClassBuilder(Context context) {
+        context.put(javafxModuleBuilderKey, this);
         defs = JavafxDefs.instance(context);
         names = Table.instance(context);
         fxmake = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
@@ -152,12 +155,15 @@ public class JavafxScriptClassBuilder {
     }
 
 
-    public void preProcessJfxTopLevel(JFXScript module) {
+    public JFXClassDeclaration preProcessJfxTopLevel(JFXScript module) {
         Name moduleClassName = scriptName(module);
         
         if (debugBadPositions) {
             checkForBadPositions(module);
         }
+
+        if (scriptingMode && module.pid != null)
+            log.error(module.pos(), MsgSym.MESSAGE_JAVAFX_PACKAGE_IN_SCRIPT_EVAL_MODE);
 
         // check for references to pseudo variables and if found, declare them
         class PseudoIdentScanner extends JavafxTreeScanner {
@@ -422,6 +428,7 @@ public class JavafxScriptClassBuilder {
         convertAccessFlags(module);
 
         reservedTopLevelNamesSet = null;
+        return moduleClass;
     }
     
     /**

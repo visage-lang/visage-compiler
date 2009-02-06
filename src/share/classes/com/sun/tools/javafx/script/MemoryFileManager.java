@@ -27,7 +27,6 @@ import com.sun.tools.javafx.util.JavafxFileManager;
 import java.io.*;
 import java.nio.CharBuffer;
 import java.util.*;
-import java.util.HashMap;
 import java.util.Set;
 import javax.lang.model.element.NestingKind;
 import javax.tools.*;
@@ -44,31 +43,27 @@ import javax.lang.model.element.Modifier;
  */
 public final class MemoryFileManager extends ForwardingJavaFileManager {                 
     private ClassLoader parentClassLoader;
-    List<SimpleJavaFileObject> buffers = new ArrayList<SimpleJavaFileObject>();
-    // a map in which the key is package name and the value is list of
+
+    // A map in which the key is package name and the value is list of
     // classes in that package.
     Map<String, List<String>> packageMap;
+
+    Map<String,ClassOutputBuffer> emittedClasses;
 
     /** JavaFX Script source file extension. */
     private final static String EXT = ".fx";
 
-    private Map<String, byte[]> classBytes;
-    
     public MemoryFileManager(JavaFileManager fileManager, ClassLoader cl,
-            Map<String, List<String>> pkgMap) {
+            Map<String, List<String>> pkgMap,
+            Map<String, ClassOutputBuffer> clbuffers) {
         super(fileManager);
-        classBytes = new HashMap<String, byte[]>();
-	parentClassLoader = cl;
+        parentClassLoader = cl;
         packageMap = pkgMap;
+        this.emittedClasses = clbuffers;
     }
 
-    public Map<String, byte[]> getClassBytes() {
-        return classBytes;
-    }
-   
     @Override
     public void close() throws IOException {
-        classBytes = new HashMap<String, byte[]>();
     }
 
     @Override
@@ -96,7 +91,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
             this.url = url;
             this.binaryName = binaryName;
         }
-        
+
         @Override
         public Kind getKind() {
             return Kind.CLASS;
@@ -244,9 +239,9 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
     }
 
     /**
-     * A file object that stores Java bytecode into the classBytes map.
+     * A file object that stores Java bytecode into the emittedClasses map.
      */
-    private class ClassOutputBuffer extends SimpleJavaFileObject {
+    public class ClassOutputBuffer extends SimpleJavaFileObject {
         private String name;
 
         ClassOutputBuffer(String name) { 
@@ -258,6 +253,8 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 	    return name;
 	}
 
+        byte[] bytes;
+
         @Override
         public OutputStream openOutputStream() {
             return new FilterOutputStream(new ByteArrayOutputStream()) {
@@ -265,35 +262,26 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
                 public void close() throws IOException {
                     out.close();
                     ByteArrayOutputStream bos = (ByteArrayOutputStream)out;
-                    classBytes.put(name, bos.toByteArray());
+                    bytes = bos.toByteArray();
                 }
             };
         }
-    }
-    @Override
-    public FileObject getFileForInput(Location location,
-				      String packageName,
-				      String relativeName) throws IOException {
-	return super.getFileForInput(location, packageName, relativeName);
-    }
-
-    @Override
-    public FileObject getFileForOutput(Location location,
-				       String packageName,
-				       String relativeName,
-				       FileObject sibling) throws IOException {
-	
-	return super.getFileForOutput(location, packageName, relativeName, sibling);
+        @Override
+        public InputStream openInputStream() throws IOException {
+            if (bytes == null)
+                throw new UnsupportedOperationException("openInputStream");
+            return new ByteArrayInputStream(bytes);
+        }
     }
     
     @Override
     public JavaFileObject getJavaFileForInput(JavaFileManager.Location location,
 					      String className,
 					      Kind kind) throws IOException {
-	if (kind == Kind.CLASS) {
+        if (kind == Kind.CLASS) {
 	    URL res = 
 		parentClassLoader.getResource(className.replace('.', '/') + ".class");
-	    if (res != null) {
+            if (res != null) {
 		return new ClassResource(res, className);
 	    }
 	}
@@ -307,7 +295,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
                                     FileObject sibling) throws IOException {
         if (kind == Kind.CLASS) {
             ClassOutputBuffer buf = new ClassOutputBuffer(className);
-	    buffers.add(buf);
+	    emittedClasses.put(className, buf);
 	    return buf;
         } else {
             return super.getJavaFileForOutput(location, className, kind, sibling);
@@ -344,10 +332,10 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 	    results.add(o);
 	}
 	String prefix = packageName.equals("") ? "" : packageName + ".";
-	for (SimpleJavaFileObject b : buffers) {
+        for (ClassOutputBuffer b : emittedClasses.values()) {
 	    String name = b.getName().replace("/", ".");
-	    name = name.substring(1, name.length() - (name.endsWith(EXT) ? EXT.length() : 0));
-	    if (prefix.length() == 0) {
+            name = name.substring(1, name.length() - (name.endsWith(EXT) ? EXT.length() : 0));
+            if (prefix.length() == 0) {
 		if (!name.contains(".")) {
 		    results.add(b);
 		}
@@ -359,14 +347,12 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
 		    }
 		}
 	    }
-	}
+        }
 	return results;
     }
     
     JavaFileObject makeStringSource(String name, String code) {
-	StringInputBuffer buffer = new StringInputBuffer(name, code);
-	buffers.add(buffer);
-        return buffer;
+	return new StringInputBuffer(name, code);
     }
 
     @Override

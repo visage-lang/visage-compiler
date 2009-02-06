@@ -138,12 +138,11 @@ public class JavaFXScriptEngineTest {
     
     @Test
     public void compiledScript() throws Exception {
+        engine.put("who", "world");
         CompiledScript script = engine.compile(
                 "java.lang.System.out.print(\"Hello, {who}\");" +
                 "java.lang.System.out.flush();");
-        Bindings bindings = new SimpleBindings();
-        bindings.put("who", "world");
-        script.eval(bindings);
+        script.eval();
         assertEquals("Hello, world", getOutput());
     }
     

@@ -61,7 +61,7 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
  *  deletion without notice.</b>
  */
 public class JavafxClassReader extends ClassReader {
-     protected static final Context.Key<ClassReader> backendClassReaderKey =
+    protected static final Context.Key<ClassReader> backendClassReaderKey =
          new Context.Key<ClassReader>();
 
     private final JavafxDefs defs;
@@ -72,13 +72,13 @@ public class JavafxClassReader extends ClassReader {
     private final Name functionClassPrefixName;
     private Context ctx;
     
-    public static void registerBackendReader(final Context context, final ClassReader jreader) {
-        context.put(backendClassReaderKey, jreader);
-    }
-    
     public static void preRegister(final Context context, final ClassReader jreader) {
-        registerBackendReader(context, jreader);
-        preRegister(context);
+        context.put(backendClassReaderKey, jreader);
+        Object instance = context.get(classReaderKey);
+        if (instance instanceof JavafxClassReader)
+            ((JavafxClassReader) instance).jreader = jreader;
+        else
+            preRegister(context);
     }
     public static void preRegister(final Context context) {
         context.put(classReaderKey, new Context.Factory<ClassReader>() {

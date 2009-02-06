@@ -43,11 +43,16 @@ public class JavafxTypes extends Types {
     private HashMap<ClassSymbol, JFXClassDeclaration> fxClasses;
 
     public static void preRegister(final Context context) {
-        context.put(typesKey, new Context.Factory<Types>() {
-            public Types make() {
-                return new JavafxTypes(context);
-            }
-        });
+        if (context.get(typesKey) == null)
+            context.put(typesKey, new Context.Factory<Types>() {
+                public Types make() {
+                    return new JavafxTypes(context);
+                }
+            });
+    }
+
+    public static void preRegister(final Context context, JavafxTypes types) {
+        context.put(typesKey, types);
     }
 
     public static JavafxTypes instance(Context context) {

@@ -107,7 +107,17 @@ public final class JavafxcTool implements JavafxCompiler {
                              JavaFileManager fileManager,
                              DiagnosticListener<? super JavaFileObject> diagnosticListener,
                              Iterable<String> options,
+                             Iterable<? extends JavaFileObject> compilationUnits) {
+        return getTask(new Context(), out, fileManager, diagnosticListener, options, compilationUnits);
+    }
+
+   public JavafxcTaskImpl getTask(Context context,
+                             Writer out,
+                             JavaFileManager fileManager,
+                             DiagnosticListener<? super JavaFileObject> diagnosticListener,
+                             Iterable<String> options,
                              Iterable<? extends JavaFileObject> compilationUnits)
+    
     {
         final String kindMsg = "All compilation units must be of SOURCE kind";
         if (options != null)
@@ -119,22 +129,23 @@ public final class JavafxcTool implements JavafxCompiler {
                     throw new IllegalArgumentException(kindMsg);
             }
         }
-
-        Context context = new Context();
-
         if (diagnosticListener != null)
             context.put(DiagnosticListener.class, diagnosticListener);
 
-        if (out == null)
-            context.put(Log.outKey, new PrintWriter(System.err, true));
-        else
-            context.put(Log.outKey, new PrintWriter(out, true));
+        PrintWriter cout = context.get(Log.outKey);
+        if (cout == null) {
+            if (out == null)
+                cout = new PrintWriter(System.err, true);
+            else
+                cout = new PrintWriter(out, true);
+            context.put(Log.outKey, cout);
+        }
 
         if (fileManager == null)
             fileManager = getStandardFileManager(diagnosticListener, null, null);
         context.put(JavaFileManager.class, fileManager);
         processOptions(context, fileManager, options);
-        Main compiler = new Main("javacTask", context.get(Log.outKey));
+        Main compiler = new Main("javacTask", cout);
         return new JavafxcTaskImpl(this, compiler, options, context, compilationUnits);
     }
 

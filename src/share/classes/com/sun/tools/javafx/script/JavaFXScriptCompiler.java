@@ -24,9 +24,8 @@
 package com.sun.tools.javafx.script;
 
 import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.javafx.api.*;
+import com.sun.tools.javafx.api.JavafxcTaskImpl;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,17 +39,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.tools.*;
+import com.sun.tools.javafx.code.*;
+import com.sun.tools.javafx.comp.*;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.code.*;
+import com.sun.tools.javac.util.Name;
+
 /**
- * Simple interface to the JavaFX Script compiler using JSR 199 Compiler API, 
- * based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.
+ * Simple interface to the JavaFX Script compiler using JSR 199 Compiler API.
+ * This is "cumulative": Script-level declarations make by one script are
+ * visible to future scripts, so this represents a "compiler context".
+ * Based on https://scripting.dev.java.net's JavaCompiler by A. Sundararajan.
  */
-public class JavaFXScriptCompiler {    
-    private JavafxcTool tool;
-    private StandardJavaFileManager stdManager;
+public class JavaFXScriptCompiler {
+    public JavafxcTool tool;
     private ClassLoader parentClassLoader;
     // a map in which the key is package name and the value is list of
     // classes in that package.
-    private Map<String, List<String>> packageMap;
+    public Map<String, List<String>> packageMap;
+    
+    Scope namedImportScope;
+
+    Map<String,MemoryFileManager.ClassOutputBuffer> clbuffers =
+            new HashMap<String,MemoryFileManager.ClassOutputBuffer>();
+    MemoryFileManager manager;
+
+    Name.Table names;
+    JavafxDefs defs;
+    JavafxTypes types;
+    JavafxSymtab syms;
+    JavafxClassReader reader;
+    Name pseudoSourceFile;
+    Name pseudoFile;
+    Name pseudoDir;
+    Name pseudoProfile;
 
     public JavaFXScriptCompiler(ClassLoader parent) {
 	parentClassLoader = parent;
@@ -62,34 +84,41 @@ public class JavaFXScriptCompiler {
         } catch (IOException exp) {
             exp.printStackTrace();
         }
+        StandardJavaFileManager stdManager = tool.getStandardFileManager(null, null, null);
+	manager = new MemoryFileManager(stdManager,
+                 parentClassLoader, packageMap, clbuffers);
     }
 
-    public Map<String, byte[]> compile(String filename, String source) {
-        PrintWriter err = new PrintWriter(System.err);
-        return compile(filename, source, err, null, null);
-    }
-
-    public Map<String, byte[]> compile(String fileName, String source, 
-                                    Writer err) {
-        return compile(fileName, source, err, null, null);
-    }
-
-    public Map<String, byte[]> compile(String fileName, String source, 
-                                    Writer err, String sourcePath) {
-        return compile(fileName, source, err, sourcePath, null);
-    }
-
-    public Map<String, byte[]> compile(String fileName, String source, 
-                                    Writer err, String sourcePath, 
-                                    String classPath) {
-        return compile(fileName, source, err, sourcePath, classPath,
-                new DiagnosticCollector<JavaFileObject>(), true);
-    }
-
-    public Map<String, byte[]> compile(String filename) throws IOException {
-        String source = readFully(new FileReader(filename));
-        PrintWriter err = new PrintWriter(System.err);
-        return compile(filename, source, err, null, null);
+    void initCompilerContext (Context context, JavafxcTaskImpl task) {
+        if (names ==  null) {
+            // This is the first time initCompilerContext is called.
+            names = Name.Table.instance(context);
+            com.sun.tools.javafx.code.JavafxSymtab.preRegister(context);
+            com.sun.tools.javafx.code.JavafxTypes.preRegister(context);
+            com.sun.tools.javafx.comp.JavafxClassReader.preRegister(context);
+            pseudoFile = names.fromString("__FILE__");
+            pseudoSourceFile = names.fromString("__SOURCE_FILE__");
+            pseudoDir = names.fromString("__DIR__");
+            pseudoProfile = names.fromString("__PROFILE__");
+            defs = JavafxDefs.instance(context);
+            syms = (JavafxSymtab) JavafxSymtab.instance(context);
+            types = JavafxTypes.instance(context);
+        }
+        else {
+            // Re-use names etc from previous calls to initCompilerContext.
+            context.put(Name.Table.namesKey, names);
+            context.put(JavafxDefs.jfxDefsKey, defs);
+            JavafxSymtab.preRegister(context, syms);
+            JavafxTypes.preRegister(context, types);
+        }
+        reader = JavafxClassReader.instance(context);
+        JavafxScriptClassBuilder classBuilder = JavafxScriptClassBuilder.instance(context);
+        classBuilder.scriptingMode = true;
+        task.compilerMain.registerServices(context, new String[] {});
+        if (namedImportScope == null) {
+            namedImportScope = new Scope.ImportScope(syms.unnamedPackage);
+            JavafxMemberEnter.importPredefs(syms, namedImportScope);
+        }
     }
 
     /**
@@ -103,17 +132,12 @@ public class JavaFXScriptCompiler {
      * @param diagnostics error and warning collector
      * @param printDiagnostics true if diagnostics should be displayed
      */
-    public Map<String, byte[]> compile(String fileName, String source, 
+    public JavaFXCompiledScript compile(String fileName, String source,
                     Writer err, String sourcePath, String classPath,
-                    DiagnosticListener<JavaFileObject> diagnostics,
-                    boolean printDiagnostics) {
-
-        // create a new memory JavaFileManager
-	if (stdManager == null) {
-	    stdManager = tool.getStandardFileManager(diagnostics, null, null);
-	}
-        MemoryFileManager manager = new MemoryFileManager(stdManager, 
-                parentClassLoader, packageMap);
+                    DiagnosticListener<JavaFileObject> diagnostics) {
+        Context context = new Context();
+        context.put(DiagnosticListener.class, diagnostics);
+        context.put(JavaFileManager.class, manager);
 
         // prepare the compilation unit
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
@@ -138,55 +162,35 @@ public class JavaFXScriptCompiler {
         options.add("-XDdumpfx=" + System.getProperty("java.io.tmpdir"));
         
         // create a compilation task
-        JavafxcTask task = tool.getTask(err, manager, diagnostics, options, compUnits);
-
-        if (task.call() == false) {
-            if (printDiagnostics) {
-		if (diagnostics instanceof DiagnosticCollector) {
-		    printDiagnostics((DiagnosticCollector)diagnostics, err);
-		}
-            }
-            return null;
-        }
+        JavafxcTaskImpl task = tool.getTask(context, err, manager, null, options, compUnits);
+        initCompilerContext(context, task);
         
-        Map<String, byte[]> classBytes = manager.getClassBytes();
-        try {
-            manager.close();
-        } catch (IOException exp) {
-        }
+        task.setPreserveSymbols(namedImportScope, null, true);
 
-        return classBytes; 
-    }
-    
-    static void printDiagnostics(DiagnosticCollector<JavaFileObject> diagnostics, Writer err) {
-        // install customized diagnostic message formats, which don't print script name
-        com.sun.tools.javac.util.Context context = new com.sun.tools.javac.util.Context();
-        com.sun.tools.javac.util.Options options =
-                com.sun.tools.javac.util.Options.instance(context);
-        options.put("diags", "%l: %t%m|%p%m");
+        if (! task.call())
+            return null;
 
-        PrintWriter perr = new PrintWriter(err);
-        RedirectedLog log = new RedirectedLog(context, perr);
-        for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-            log.report((com.sun.tools.javac.util.JCDiagnostic)diagnostic);
-        }
-    }
+        JavafxEnter env = JavafxEnter.instance(context);
+        Scope scriptScope = env.scriptScopes.first();
 
-    // read a Reader fully and return the content as string
-    private String readFully(Reader reader) throws IOException {
-        char[] arr = new char[8*1024]; // 8K at a time
-        StringBuilder buf = new StringBuilder();
-        int numChars;
-        while ((numChars = reader.read(arr, 0, arr.length)) > 0) {
-            buf.append(arr, 0, numChars);
+        for (Scope.Entry e = scriptScope.elems; e != null; e = e.sibling) {
+            if ((e.sym.flags() & Flags.SYNTHETIC) != 0)
+                continue;
+            Name name = e.sym.name;
+            if (name == pseudoSourceFile || name == pseudoFile || name == pseudoDir || name == pseudoProfile)
+                continue;
+            Symbol old = namedImportScope.lookup(name).sym;
+            if (old != null)
+                namedImportScope.remove(old);
+            e.sym.flags_field |= Flags.PUBLIC;
+            namedImportScope.enter(e.sym, scriptScope);
         }
-        return buf.toString();
-    }
-    
-    private static class RedirectedLog extends com.sun.tools.javac.util.Log {
-        RedirectedLog(com.sun.tools.javac.util.Context context, PrintWriter writer) {
-            super(context, writer);
-        }
+        env.scriptScopes.clear(); // ???
+        JavaFXCompiledScript result = new JavaFXCompiledScript();
+        result.compiler = this;
+        result.scriptScope = scriptScope;
+        result.clazzName = ((JavafxClassSymbol) scriptScope.owner).flatname.toString();
+        return result;
     }
 
     /*
@@ -235,5 +239,14 @@ public class JavaFXScriptCompiler {
                 classList.add(file.substring(0, file.indexOf(".class")));
             }
         }
+    }
+
+    public Symbol lookup (Name name) {
+        Scope.Entry entry = namedImportScope.lookup(name);
+        return entry == null ? null : entry.sym;
+    }
+
+    public Symbol lookup (String name) {
+        return lookup(names.fromString(name));
     }
 }

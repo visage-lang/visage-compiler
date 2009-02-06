@@ -37,35 +37,24 @@ import java.util.StringTokenizer;
  *
  * @author A. Sundararajan
  */
-public final class MemoryClassLoader extends URLClassLoader {
-    private Map<String, byte[]> classBytes;
-    private URL source;
+public final class MemoryClassLoader extends ClassLoader {
+    Map<String,MemoryFileManager.ClassOutputBuffer> clbuffers;
 
-    public MemoryClassLoader(URL source, Map<String, 
-               byte[]> classBytes, String classPath, ClassLoader parent) {
-        super(toURLs(classPath), parent);
-        this.source = source;
-        this.classBytes = classBytes;
+    public MemoryClassLoader(Map<String,MemoryFileManager.ClassOutputBuffer> clbuffers,
+               ClassLoader parent) {
+        super(parent);
+        this.clbuffers = clbuffers;
     }
 
     public Class load(String className) throws ClassNotFoundException {
         return loadClass(className);
     }
 
-    public Iterable<Class> loadAll() throws ClassNotFoundException {
-        List<Class> classes = new ArrayList<Class>(classBytes.size());
-        for (String name : classBytes.keySet()) {
-            classes.add(loadClass(name));
-        }
-        return classes;
-    }
-
     @Override
     protected Class findClass(String className) throws ClassNotFoundException {
-        byte[] buf = classBytes.get(className);
-        if (buf != null) {
-            // clear the bytes in map -- we don't need it anymore
-            classBytes.put(className, null);
+        MemoryFileManager.ClassOutputBuffer clbuffer = clbuffers.get(className);
+        if (clbuffer != null && clbuffer.bytes != null) {
+            byte[] buf = clbuffer.bytes;
             return defineClass(className, buf, 0, buf.length);
         } else {
             return super.findClass(className);
@@ -76,34 +65,15 @@ public final class MemoryClassLoader extends URLClassLoader {
     public URL findResource(String name) {
         if (name.endsWith(".class")) {
             name = name.substring(0, name.length() - 6).replace('/', '.');
-            if (classBytes.containsKey(name))
-                return source;
-        }
-        return super.findResource(name);
-    }
-
-    private static URL[] toURLs(String classPath) {
-        if (classPath == null) {
-            return new URL[0];
-        }
-
-        List<URL> list = new ArrayList<URL>();
-        StringTokenizer st = new StringTokenizer(classPath, File.pathSeparator);
-        while (st.hasMoreTokens()) {
-            String token = st.nextToken();
-            File file = new File(token);
-            if (file.exists()) {
+            MemoryFileManager.ClassOutputBuffer clbuf = clbuffers.get(name);
+            if (clbuf != null) {
                 try {
-                    list.add(file.toURI().toURL());
-                } catch (MalformedURLException mue) {}
-            } else {
-                try {
-                    list.add(new URL(token));
-                } catch (MalformedURLException mue) {}
+                    return clbuf.toUri().toURL();
+                } catch (MalformedURLException ex) {
+                    // fall through
+                }
             }
         }
-        URL[] res = new URL[list.size()];
-        list.toArray(res);
-        return res;
+        return super.findResource(name);
     }
 }

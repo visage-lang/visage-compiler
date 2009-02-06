@@ -380,6 +380,26 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             chk.checkUniqueImport(pos, tsym, env.toplevel.namedImportScope))
             env.toplevel.namedImportScope.enter(tsym, tsym.owner.members());
     }
+    
+    private static void importNamed(Symbol tsym, Scope scope) {
+        scope.enter(tsym, tsym.owner.members());
+    }
+
+    public static void importPredefs(JavafxSymtab syms, Scope scope) {
+        // Import-on-demand the JavaFX types
+        importNamed(syms.objectType.tsym, scope);
+        importNamed(syms.javafx_BooleanType.tsym, scope);
+        importNamed(syms.javafx_CharacterType.tsym, scope);
+        importNamed(syms.javafx_ByteType.tsym, scope);
+        importNamed(syms.javafx_ShortType.tsym, scope);
+        importNamed(syms.javafx_IntegerType.tsym, scope);
+        importNamed(syms.javafx_LongType.tsym, scope);
+        importNamed(syms.javafx_FloatType.tsym, scope);
+        importNamed(syms.javafx_DoubleType.tsym, scope);
+        importNamed(syms.javafx_StringType.tsym, scope);
+        importNamed(syms.javafx_DurationType.tsym, scope);
+        importNamed(syms.javafx_FXRuntimeType.tsym, scope);
+    }
 
 /* ********************************************************************
  * Visitor methods for member enter
@@ -426,10 +446,11 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     
     @Override
     public void visitScript(JFXScript tree) {
-        if (tree.starImportScope.elems != null) {
+        if (tree.isEntered) {
             // we must have already processed this toplevel
             return;
         }
+        tree.isEntered = true;
 
         // check that no class exists with same fully qualified name as
         // toplevel package
@@ -446,21 +467,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             }
         }
 
-        // Import-on-demand the JavaFX types 
-        importNamed(tree.pos(), syms.objectType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_BooleanType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_CharacterType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_ByteType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_ShortType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_IntegerType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_LongType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_FloatType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_DoubleType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_StringType.tsym, env);
-        importNamed(tree.pos(), syms.javafx_DurationType.tsym, env);
-
-        importNamed(tree.pos(), syms.javafx_FXRuntimeType.tsym, env);
-        importStaticAll(tree.pos, syms.javafx_AutoImportRuntimeType.tsym, env);
+        importStaticAll(-1, syms.javafx_AutoImportRuntimeType.tsym, env);
 
         // Process all import clauses.
         memberEnter(tree.defs, env);

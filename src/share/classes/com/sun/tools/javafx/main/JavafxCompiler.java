@@ -644,7 +644,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     public void compile(List<JavaFileObject> sourceFileObject)
         throws Throwable {
-        compile(sourceFileObject, List.<String>nil());
+        compile(sourceFileObject, List.<String>nil(), null, null, false);
     }
 
     /**
@@ -656,7 +656,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * discovery, {@code null} means that no processors were provided
      */
     public void compile(List<JavaFileObject> sourceFileObjects,
-                        List<String> classnames)
+                        List<String> classnames,
+                        Scope namedImportScope,
+                        Scope starImportScope,
+                        boolean preserveSymbols)
         throws IOException // TODO: temp, from JavacProcessingEnvironment
     {
         // as a JavaCompiler can only be used once, throw an exception if
@@ -672,6 +675,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
 //             stopIfError(buildJavafxModule(cus, sourceFileObjects));
 
+            if (namedImportScope != null)
+                cus.head.namedImportScope = namedImportScope;
+            if (starImportScope != null)
+                cus.head.starImportScope = starImportScope;
             // These method calls must be chained to avoid memory leaks
             enterTrees(cus);
             
@@ -679,7 +686,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             if (attr != null) {
                 attr.clearCaches();
             }
-            close();
+            close(! preserveSymbols);
         } catch (Abort ex) {
             if (devVerbose)
                 ex.printStackTrace();

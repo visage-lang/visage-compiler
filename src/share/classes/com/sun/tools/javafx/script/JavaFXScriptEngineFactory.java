@@ -135,7 +135,6 @@ public class JavaFXScriptEngineFactory implements ScriptEngineFactory {
         return engine;
     }
 
-    private static long nextClassNum = 0L;
     private static List<String> names;
     private static List<String> extensions;
     private static List<String> mimeTypes;

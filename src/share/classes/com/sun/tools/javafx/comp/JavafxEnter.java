@@ -174,8 +174,12 @@ public class JavafxEnter extends JavafxTreeScanner {
 	JavafxEnv<JavafxAttrContext> localEnv = new JavafxEnv<JavafxAttrContext>(tree, new JavafxAttrContext());
 	localEnv.toplevel = tree;
 	localEnv.enclClass = predefClassDef;
-	tree.namedImportScope = new Scope.ImportScope(tree.packge);
-	tree.starImportScope = new Scope.ImportScope(tree.packge);
+        if (tree.namedImportScope == null) {
+	    tree.namedImportScope = new Scope.ImportScope(tree.packge);
+            JavafxMemberEnter.importPredefs(syms, tree.namedImportScope);
+        }
+        if (tree.starImportScope == null)
+	    tree.starImportScope = new Scope.ImportScope(tree.packge);
 	localEnv.info.scope = tree.namedImportScope;
 	localEnv.info.lint = lint;
 	return localEnv;
@@ -271,7 +275,8 @@ public class JavafxEnter extends JavafxTreeScanner {
 	tree.packge.complete(); // Find all classes in package.
         JavafxEnv<JavafxAttrContext> localEnv = topLevelEnv(tree);
         
-        javafxModuleBuilder.preProcessJfxTopLevel(tree);
+        JFXClassDeclaration moduleClass =
+                javafxModuleBuilder.preProcessJfxTopLevel(tree);
 
 	// Save environment of package-info.java file.
 	if (isPkgInfo) {
@@ -290,8 +295,12 @@ public class JavafxEnter extends JavafxTreeScanner {
 	}
 	classEnter(tree.defs, localEnv);
 	log.useSource(prev);
+        tree.scriptScope = moduleClass.sym.members_field;
+        scriptScopes.append(moduleClass.sym.members_field);
 	result = null;
     }
+
+    public ListBuffer<Scope> scriptScopes = new ListBuffer<Scope>();
 
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
@@ -398,7 +407,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 
 	try {
 	    // enter all classes, and construct uncompleted list
-	    classEnter(trees, null);
+            classEnter(trees, null);
 
 	    // complete all uncompleted classes in memberEnter
 	    if  (memberEnter.completionEnabled) {
@@ -414,7 +423,7 @@ public class JavafxEnter extends JavafxTreeScanner {
 		// if there remain any unimported toplevels (these must have
 		// no classes at all), process their import statements as well.
 		for (JFXScript tree : trees) {
-		    if (tree.starImportScope.elems == null) {
+		    if (! tree.isEntered) {
 			JavaFileObject prev = log.useSource(tree.sourcefile);
 			JavafxEnv<JavafxAttrContext> localEnv = typeEnvs.get(tree.packge);
 			if (localEnv == null)

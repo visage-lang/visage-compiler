@@ -188,7 +188,7 @@ public class JavafxDefs {
     /**
      * Context set-up
      */
-    protected static final Context.Key<JavafxDefs> jfxDefsKey = new Context.Key<JavafxDefs>();
+    public static final Context.Key<JavafxDefs> jfxDefsKey = new Context.Key<JavafxDefs>();
 
     private final Type[] realTypeByKind;
 

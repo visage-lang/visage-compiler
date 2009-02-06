@@ -30,6 +30,7 @@ import com.sun.javafx.api.tree.Tree;
 import com.sun.javafx.api.tree.UnitTree;
 import com.sun.tools.javac.model.JavacElements;
 import com.sun.tools.javac.model.JavacTypes;
+import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.util.ClientCodeException;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
@@ -59,7 +60,7 @@ import javax.tools.JavaFileObject;
  */
 public class JavafxcTaskImpl extends JavafxcTask {
 
-    private Main compilerMain;
+    public Main compilerMain;
     private com.sun.tools.javafx.main.JavafxCompiler compiler;
     private String[] args;
     private Context context;
@@ -70,6 +71,9 @@ public class JavafxcTaskImpl extends JavafxcTask {
     private AtomicBoolean used = new AtomicBoolean();
     private Integer result = null;
     private List<JavafxEnv<JavafxAttrContext>> genList;
+    boolean preserveSymbols;
+    Scope namedImportScope;
+    Scope starImportScope;
 
     JavafxcTaskImpl(JavafxcTool tool, Main compilerMain, String[] args, Context context, List<JavaFileObject> fileObjects) {
         this.compilerMain = compilerMain;
@@ -115,7 +119,9 @@ public class JavafxcTaskImpl extends JavafxcTask {
         if (!used.getAndSet(true)) {
             beginContext();
             try {
-                result = compilerMain.compile(args, context, fileObjects);
+                result = compilerMain.compile(args, context,
+                       namedImportScope, starImportScope, preserveSymbols, fileObjects);
+
             } finally {
                 endContext();
             }
@@ -301,5 +307,11 @@ public class JavafxcTaskImpl extends JavafxcTask {
      */
     public Context getContext() {
         return context;
+    }
+
+    public void setPreserveSymbols(Scope namedImportScope, Scope starImportScope, boolean preserve) {
+        this.preserveSymbols = preserve;
+        this.namedImportScope = namedImportScope;
+        this.starImportScope = starImportScope;
     }
 }

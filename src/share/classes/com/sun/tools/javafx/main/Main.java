@@ -35,6 +35,7 @@ import java.net.URLClassLoader;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 import com.sun.tools.javac.code.Source;
+import com.sun.tools.javac.code.Scope;
 import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javafx.main.JavafxOption.Option;
@@ -308,17 +309,28 @@ public class Main {
      */
     public int compile(String[] args) {
         Context context = new Context();
-        int result = compile(args, context, List.<JavaFileObject>nil());
+        int result = compile(args, context, null, null, false, List.<JavaFileObject>nil());
         if (fileManager instanceof JavacFileManager) {
             // A fresh context was created above, so jfm must be a JavacFileManager
             ((JavacFileManager)fileManager).close();
         }
         return result;
     }
+
+    static final Context.Key<Context> backendContextKey =
+         new Context.Key<Context>();
     
     public void registerServices(Context context, String[] args) {
-        Context backEndContext = new Context();
+        Context backEndContext = context.get(backendContextKey);
+        if (backEndContext != null)
+            return;
+        backEndContext = new Context();
+        context.put(backendContextKey, context);
+
+        // Tranfer the name table -- must be done before any initialization
+        backEndContext.put(Name.Table.namesKey, Name.Table.instance(context));
         backEndContext.put(DiagnosticListener.class, new DiagnosticForwarder(context));
+
         // add -target flag to backEndContext, if specified
         options = Options.instance(backEndContext);
         
@@ -341,6 +353,11 @@ public class Main {
         }
         options = null;
         filenames = null;
+        JavaFileManager currentFileManager = context.get(JavaFileManager.class);
+        if (currentFileManager == null)
+            JavafxFileManager.preRegister(backEndContext);
+        else
+            backEndContext.put(JavaFileManager.class, currentFileManager);
         
         com.sun.tools.javafx.util.JavafxBackendLog.preRegister(backEndContext, context);
         com.sun.tools.javafx.comp.JavafxFlow.preRegister(backEndContext);
@@ -353,20 +370,11 @@ public class Main {
         com.sun.tools.javafx.comp.BlockExprLower.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprGen.preRegister(backEndContext);
         
-        JavaFileManager currentFileManager = context.get(JavaFileManager.class);
-        if (currentFileManager == null)
-            JavafxFileManager.preRegister(backEndContext); 
-        else
-            backEndContext.put(JavaFileManager.class, currentFileManager);
-        
         // Sequencing requires that we get the name table from the fully initialized back-end
         // rather than send the completed one.
         JavafxJavaCompiler javafxJavaCompiler = JavafxJavaCompiler.instance(backEndContext);
         
-        context.put(JavafxJavaCompiler.javafxJavaCompilerKey, javafxJavaCompiler);
-        
-        // Tranfer the name table -- must be done before any initialization
-        context.put(Name.Table.namesKey, backEndContext.get(Name.Table.namesKey));
+        context.put(JavafxJavaCompiler.javafxJavaCompilerKey, javafxJavaCompiler);        
 
         // Tranfer the options -- must be done before any initialization
         context.put(Options.optionsKey, (Options)null);  // remove any old value
@@ -377,7 +385,6 @@ public class Main {
 
         if (currentFileManager == null)
             JavafxFileManager.preRegister(context); // can't create it until Log has been set up
-        com.sun.tools.javafx.code.JavafxLint.preRegister(context);
     }
 
     /** Load a plug-in corresponding to platform option. If platform option had 
@@ -542,9 +549,11 @@ public class Main {
      */
     public int compile(String[] args,
                        Context context,
+                       Scope namedImportScope, Scope starImportScope,
+                       boolean preserveSymbols,
                        List<JavaFileObject> fileObjects)
     {
-      registerServices(context, args);
+        registerServices(context, args);
         if (options == null)
             options = Options.instance(context); // creates a new one
 
@@ -610,8 +619,8 @@ public class Main {
                 for (JavaFileObject fo : otherFiles)
                     fileObjects = fileObjects.prepend(fo);
             }
-            comp.compile(fileObjects,
-                         classnames.toList());
+            comp.compile(fileObjects, classnames.toList(),
+                         namedImportScope, starImportScope, preserveSymbols);
 
             if (comp.errorCount() != 0 ||
                 options.get("-Werror") != null && comp.warningCount() != 0)

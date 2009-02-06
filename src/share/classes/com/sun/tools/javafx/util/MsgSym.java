@@ -280,7 +280,7 @@ public class MsgSym {
     public static final String MESSAGE_TOO_MANY_PARAMETERS = "javafx.too.many.parameters";
     public static final String MESSAGE_BIND_TOO_COMPLEX = "javafx.bind.too.complex";
     public static final String MESSAGE_CATCH_WITHIN_EXPRESSION = "catch.within.expression";
-    
+
     // kindname
     public static final String KINDNAME = "kindname";
     public static final String KINDNAME_KEY_VARIABLE = ".variable";
@@ -397,5 +397,6 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_EXPLICIT_THREAD = "javafx.explicit.thread";
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE = "javafx.cannot.override";
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF = "javafx.cannot.override.def";
+    public static final String MESSAGE_JAVAFX_PACKAGE_IN_SCRIPT_EVAL_MODE = "javafx.package.in.script.eval.mode";
     public static final String MESSAGE_JAVAFX_ALREAD_DEFINED_OBJECT_LITERAL = "javafx.already.defined.object.literal";
 }

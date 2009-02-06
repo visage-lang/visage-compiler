@@ -126,11 +126,16 @@ public class JavafxSymtab extends Symtab {
             "com.sun.javafx.functions.Function";
 
     public static void preRegister(final Context context) {
-        context.put(symtabKey, new Context.Factory<Symtab>() {
-            public Symtab make() {
-                return new JavafxSymtab(context);
-            }
-        });
+        if (context.get(symtabKey) == null)
+            context.put(symtabKey, new Context.Factory<Symtab>() {
+                public Symtab make() {
+                    return new JavafxSymtab(context);
+                }
+            });
+    }
+
+    public static void preRegister(final Context context, Symtab syms) {
+        context.put(symtabKey, syms);
     }
 
     /** Creates a new instance of JavafxSymtab */
