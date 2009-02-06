@@ -29,9 +29,12 @@
     <target name="dist-init" depends="init">
         <mkdir dir="${bundle.dir}"/>
     </target>
-    
+
+    <target name="hudson-dev" depends="all, findbugs, staticsizes, coverage-report, hudson-post-build"
+            description="Build and test all project artifacts for each developer push"/>
+
     <target name="hudson-all" depends="coverage, all, findbugs, staticsizes, coverage-report, hudson-post-build"
-            description="Build and test all project artifacts"/>
+            description="Build and test all project artifacts for nightly build"/>
 
     <target name="all-with-coverage" depends="coverage, all, findbugs, staticsizes, coverage-report"
             description="Build and test all project artifacts with coverage"/>
