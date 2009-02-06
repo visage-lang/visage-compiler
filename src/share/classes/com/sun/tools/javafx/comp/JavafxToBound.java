@@ -1263,7 +1263,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             }
             // arg: moreArgs
             if (argNum > 2) {
-                args.append(m().NewArray(makeExpression(typeMorpher.baseLocation.type), List.<JCExpression>nil(), inits));
+                args.append(m().NewArray(makeExpression(syms.objectType), List.<JCExpression>nil(), inits));
             } else {
                 args.append(m().Literal(TypeTags.BOT, null));
             }
