@@ -58,11 +58,7 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
     JavaFXScriptContext getJavaFXScriptContext(Bindings bindings) {
         JavaFXScriptContext scontext = contextMap.get(bindings);
         if (scontext == null) {
-            scontext = new JavaFXScriptContext();
-            ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
-            JavaFXScriptCompiler compiler = new JavaFXScriptCompiler(parentClassLoader);
-            scontext.compiler = compiler;
-            scontext.loader = new MemoryClassLoader(compiler.clbuffers, parentClassLoader);
+            scontext = new JavaFXScriptContext(Thread.currentThread().getContextClassLoader());
             contextMap.put(bindings, scontext);
         }
         return scontext;
@@ -124,8 +120,10 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 return result;
             } catch (RuntimeException exp) {
                 throw exp;
-            } catch (Exception exp) {
-                throw new ScriptException(exp);
+            } catch (Error exp) {
+                throw exp;
+             } catch (Throwable exp) {
+                throw new ScriptException((Exception) exp);
             }
         }
 
@@ -221,9 +219,8 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         String script = str;
         JavaFXScriptContext scontext = getJavaFXScriptContext(ctx);
         boolean copyVars = true;
-        // JSR-223 requirement
-        ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
-
+        // JSR-223 requirement - but unsure if it's a good idea.
+        // ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
         if (copyVars) {
             for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.GLOBAL_SCOPE).entrySet()) {
                 String key = entry.getKey();
@@ -298,17 +295,11 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
 
     // read a Reader fully and return the content as string
     private String readFully(Reader reader) throws ScriptException {
-        char[] arr = new char[8*1024]; // 8K at a time
-        StringBuilder buf = new StringBuilder();
-        int numChars;
         try {
-            while ((numChars = reader.read(arr, 0, arr.length)) > 0) {
-                buf.append(arr, 0, numChars);
-            }
+            return JavaFXScriptCompiler.readFully(reader);
         } catch (IOException exp) {
             throw new ScriptException(exp);
         }
-        return buf.toString();
     }
 
     public Object invokeMethod(Object thiz, String name, Object... args) throws ScriptException, NoSuchMethodException {

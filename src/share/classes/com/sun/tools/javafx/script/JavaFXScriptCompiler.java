@@ -193,6 +193,16 @@ public class JavaFXScriptCompiler {
         return result;
     }
 
+    static String readFully(Reader reader) throws java.io.IOException {
+        char[] arr = new char[8*1024]; // 8K at a time
+        StringBuilder buf = new StringBuilder();
+        int numChars;
+        while ((numChars = reader.read(arr, 0, arr.length)) > 0) {
+                buf.append(arr, 0, numChars);
+        }
+        return buf.toString();
+    }
+
     /*
      * javac needs list of classes of a given package to resolve imports.
      * Refer to JavacFileManager.list() method. We want to get list of classes

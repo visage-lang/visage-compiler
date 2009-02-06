@@ -38,6 +38,14 @@ public class JavaFXScriptContext {
     JavaFXScriptCompiler compiler;
     MemoryClassLoader loader;
 
+    protected JavaFXScriptContext() {
+    }
+
+    public JavaFXScriptContext(ClassLoader parentClassLoader) {
+        compiler = new JavaFXScriptCompiler(parentClassLoader);
+        loader = new MemoryClassLoader(compiler.clbuffers, parentClassLoader);
+    }
+
     public Symbol lookupSymbol (Name name) {
         return compiler.namedImportScope.lookup(name).sym;
     }

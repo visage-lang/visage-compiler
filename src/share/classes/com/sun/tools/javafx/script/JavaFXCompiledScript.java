@@ -40,7 +40,7 @@ public class JavaFXCompiledScript {
     Scope scriptScope;
     String clazzName;
 
-    public Object eval(JavaFXScriptContext ctx)  throws Exception {
+    public Object eval(JavaFXScriptContext ctx)  throws Throwable {
         Class clazz;
         try {
             clazz = ctx.loader.loadClass(clazzName);
@@ -55,7 +55,13 @@ public class JavaFXCompiledScript {
 
         // call main method
         Object args = TypeInfo.String.emptySequence;
-        return mainMethod.invoke(null, args);
+        try {
+            return mainMethod.invoke(null, args);
+        }
+        catch (InvocationTargetException ex) {
+            throw ex.getCause();
+        }
+
     }
 
     public Symbol lookup (Name name) {
