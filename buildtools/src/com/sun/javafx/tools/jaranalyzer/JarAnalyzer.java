@@ -51,7 +51,7 @@ public class JarAnalyzer {
         return out.replace("/", ".");
     }
 
-    static Hashtable<String, Long> readJarFile(URL url) {
+    static Hashtable<String, PkgEntry> readJarFile(URL url) {
         FileInputStream fis = null;
         try {
             HttpURLConnection conn =
@@ -73,7 +73,7 @@ public class JarAnalyzer {
         return null;
     }
 
-    static Hashtable<String, Long> readJarFile(File inFile) {
+    static Hashtable<String, PkgEntry> readJarFile(File inFile) {
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(inFile);
@@ -94,8 +94,8 @@ public class JarAnalyzer {
         return null;
     }
 
-    static Hashtable<String, Long> readJarFile(InputStream in) {
-        Hashtable<String, Long> tbl = new Hashtable<String, Long>();
+    static Hashtable<String, PkgEntry> readJarFile(InputStream in) {
+        Hashtable<String, PkgEntry> tbl = new Hashtable<String, PkgEntry>();
         try {
             ZipInputStream zis = new ZipInputStream(in);
             ZipEntry ze = zis.getNextEntry();
@@ -104,11 +104,11 @@ public class JarAnalyzer {
                 if (zname.endsWith(".class")) {
                     String pkgname = getPackageName(zname);
                     if (!tbl.containsKey(pkgname)) {
-                        tbl.put(pkgname, new Long(ze.getSize()));
+                        tbl.put(pkgname, new PkgEntry(ze.getSize()));
                     } else {
-                        Long value = tbl.get(pkgname);
-                        value += ze.getSize();
-                        tbl.put(pkgname, value);
+                        PkgEntry pe  = tbl.get(pkgname);
+                        pe.addSize(ze.getSize());
+                        tbl.put(pkgname, pe);
                     }
                 }
                 ze = zis.getNextEntry();
@@ -124,7 +124,7 @@ public class JarAnalyzer {
     }
 
     static void dumpToFile(String name1, String name2, OutputStream ostream,
-            Hashtable<String, Long> tbl1, Hashtable<String, Long> tbl2) {
+            Hashtable<String, PkgEntry> tbl1, Hashtable<String, PkgEntry> tbl2) {
 
         List<String> keyList = new ArrayList<String>();
         for (String x : Collections.list(tbl1.keys())) {
@@ -137,9 +137,9 @@ public class JarAnalyzer {
         long sum1 = 0L;
         long sum2 = 0L;
         for (String x : keyList) {
-            pw.printf("%s\t%s\t%s\n", x, tbl1.get(x) / 1024, tbl2.get(x) / 1024);
-            sum1 += tbl1.get(x);
-            sum2 += tbl2.get(x);
+            pw.printf("%s\t%s\t%s\n", x, tbl1.get(x).getSize() / 1024, tbl2.get(x).getSize() / 1024);
+            sum1 += tbl1.get(x).getSize();
+            sum2 += tbl2.get(x).getSize();
         }
         pw.printf("Total\t%s\t%s\n", sum1 / 1024, sum2 / 1024);
         pw.flush();
@@ -166,7 +166,7 @@ public class JarAnalyzer {
     }
 
     static void dumpToFileAllPackages(
-            Hashtable<String, Long> tbl, String outputRootDir, String urlDir)
+            Hashtable<String, PkgEntry> tbl, String outputRootDir, String urlDir)
             throws IOException {
 
         // report.properties file
@@ -181,61 +181,77 @@ public class JarAnalyzer {
         file2.createNewFile();
         OutputStream ostream2 = new FileOutputStream(file2);
 
+        File file3 = new File(outputRootDir + "/staticsizes.file-count");
+        file3.createNewFile();
+        OutputStream ostream3 = new FileOutputStream(file3);
+
         List<String> keyList = new ArrayList<String>();
         for (String x : Collections.list(tbl.keys())) {
             keyList.add(x);
         }
         Collections.sort(keyList);
-        PrintWriter pw1 = new PrintWriter(new OutputStreamWriter(ostream1));
+  
+
+        // Build the html table detailed packages informations
+        PrintWriter pw2 = new PrintWriter(new OutputStreamWriter(ostream2));
+        pw2.printf("<HTML>\n");
+        pw2.printf("<BODY LANG=\"en-US\" DIR=\"LTR\">\n");
+        pw2.printf("<CENTER>\n");
+        pw2.printf("\t<TABLE WIDTH=420 BORDER=1 CELLPADDING=4 CELLSPACING=0>\n");
+        pw2.printf("\t<TR VALIGN=TOP>\n");
+        pw2.printf("\t\t<TH WIDTH=308>");
+        pw2.printf("<P>Package</P>");
+        pw2.printf("</TH>\n");
+        pw2.printf("\t\t<TD WIDTH=95>");
+        pw2.printf("<P><B>Size in kbytes</B></P></TD>\n");
+        pw2.printf("\t\t<TD WIDTH=50>");
+        pw2.printf("<P><B>File Count</B></P></TD>\n");
+        pw2.printf("\t</TR>\n");
         long sum = 0L;
+        int fcount = 0;
         for (String x : keyList) {
-            sum += tbl.get(x);
+            long sz = tbl.get(x).getSize();
+            sum += sz;
+            int n = tbl.get(x).getCount();
+            fcount += n;
+            pw2.printf("\t<TR VALIGN=TOP>\n");
+            pw2.printf("\t\t<TD WIDTH=308>");
+            pw2.printf("<P>" + x + "</P></TD>\n");
+            pw2.printf("\t\t<TD WIDTH=95>");
+            pw2.printf("<P>" + sz / 1024 + "</P></TD>\n");
+            pw2.printf("\t\t<TD WIDTH=50>");
+            pw2.printf("<P>" + n + "</P></TD>\n");
+            pw2.printf("\t</TR>\n");
         }
+        pw2.printf("\t<TR VALIGN=TOP>\n");
+        pw2.printf("\t\t<TD WIDTH=308>");
+        pw2.printf("<P><B>Total</B></P></TD>\n");
+        pw2.printf("\t\t<TD WIDTH=95>");
+        pw2.printf("<P>" + sum / 1024 + "</P></TD>\n");
+        pw2.printf("\t\t<TD WIDTH=50>");
+        pw2.printf("<P>" + fcount + "</P></TD>\n");
+        pw2.printf("\t</TR>\n");
+
+        pw2.printf("\t</TABLE>\n");
+        pw2.printf("</CENTER>\n");
+        pw2.printf("</BODY>\n");
+        pw2.printf("</HTML>\n");
+
+        pw2.flush();
+        pw2.close();
+
+        PrintWriter pw1 = new PrintWriter(new OutputStreamWriter(ostream1));
         pw1.printf("YVALUE=%s\n", sum / 1024);
         pw1.printf("URL=%s\n", urlDir + "/staticsizes.html");
         pw1.flush();
         pw1.close();
 
-        // Build the html table detailed packages informations
-        PrintWriter pw2 = new PrintWriter(new OutputStreamWriter(ostream2));
-        pw2.printf("<HTML>");
-        pw2.printf("<BODY LANG=\"en-US\" DIR=\"LTR\">");
-        pw2.printf("<CENTER>");
-        pw2.printf("\t<TABLE WIDTH=420 BORDER=1 CELLPADDING=4 CELLSPACING=0>");
-        pw2.printf("\t<TR VALIGN=TOP>");
-        pw2.printf("\t<TH WIDTH=308>");
-        pw2.printf("\t<P>Package</P>");
-        pw2.printf("\t</TH>");
-        pw2.printf("\t<TD WIDTH=95>");
-        pw2.printf("\t<P><B>Size in kbytes</B></P>");
-        pw2.printf("\t</TD>");
-        pw2.printf("\t</TR>");
-        for (String x : keyList) {
-            pw2.printf("\t<TR VALIGN=TOP>");
-            pw2.printf("\t<TD WIDTH=308>");
-            pw2.printf("\t<P>" + x + "</P>");
-            pw2.printf("\t</TD>");
-            pw2.printf("\t<TD WIDTH=95>");
-            pw2.printf("\t<P>" + tbl.get(x) / 1024 + "</P>");
-            pw2.printf("\t</TD>");
-            pw2.printf("\t</TR>");
-        }
-        pw2.printf("\t<TR VALIGN=TOP>");
-        pw2.printf("\t<TD WIDTH=308>");
-        pw2.printf("\t<P><B>Total</B></P>");
-        pw2.printf("\t</TD>");
-        pw2.printf("\t<TD WIDTH=95>");
-        pw2.printf("\t<P>" + sum / 1024 + "</P>");
-        pw2.printf("\t</TD>");
-        pw2.printf("\t</TR>");
+        PrintWriter pw3 = new PrintWriter(new OutputStreamWriter(ostream3));
+        pw3.printf("YVALUE=%s\n", fcount);
+        pw3.printf("URL=%s\n", urlDir + "/staticsizes.html");
+        pw3.flush();
+        pw3.close();      
 
-        pw2.printf("\t</TABLE>");
-        pw2.printf("\t</CENTER>");
-        pw2.printf("\t</BODY>");
-        pw2.printf("\t</HTML>");
-
-        pw2.flush();
-        pw2.close();
     }
     private static final String BLDTAG = "BLDTAG";
     private static final String OPENJFX =
@@ -278,8 +294,8 @@ public class JarAnalyzer {
             try {
                 URL url1 = new URL(OPENJFX.replace(BLDTAG, args[1]));
                 URL url2 = new URL(OPENJFX.replace(BLDTAG, args[2]));
-                Hashtable<String, Long> tbl1 = readJarFile(url1);
-                Hashtable<String, Long> tbl2 = readJarFile(url2);
+                Hashtable<String, PkgEntry> tbl1 = readJarFile(url1);
+                Hashtable<String, PkgEntry> tbl2 = readJarFile(url2);
                 dumpToFile(args[1], args[2], System.out, tbl1, tbl2);
             } catch (MalformedURLException ex) {
                 Logger.getLogger(JarAnalyzer.class.getName()).log(Level.SEVERE,
@@ -290,7 +306,7 @@ public class JarAnalyzer {
                 String inputJarFile = args[0];
                 String outputRootDir = args[1];
                 String urlDir = args[2];
-                Hashtable<String, Long> tbl = readJarFile(new File(inputJarFile));
+                Hashtable<String, PkgEntry> tbl = readJarFile(new File(inputJarFile));
 
                 // Plot information for all packages
                 dumpToFileAllPackages(tbl, outputRootDir, urlDir);
@@ -307,7 +323,7 @@ public class JarAnalyzer {
                     outputFile.createNewFile();
                     FileOutputStream ostream = new FileOutputStream(outputFile);
                     PrintWriter pw = new PrintWriter(new OutputStreamWriter(ostream));
-                    pw.printf("YVALUE=%s\n", tbl.get(key) / 1024);
+                    pw.printf("YVALUE=%s\n", tbl.get(key).getSize() / 1024);
                     pw.flush();
                     pw.close();
                 }
@@ -318,6 +334,31 @@ public class JarAnalyzer {
             }
         }
         System.exit(0);
+    }
+}
+
+class PkgEntry {
+    private long size;
+    private int  count;
+
+    private PkgEntry() {}
+
+    PkgEntry(long sz) {
+        this.size = sz;
+        this.count = 1;
+    }
+    
+    void addSize(long sz) {
+        this.size += sz;
+        this.count++;
+    }
+
+    long getSize() {
+        return size;
+    }
+
+    int getCount() {
+        return count;
     }
 }
 
