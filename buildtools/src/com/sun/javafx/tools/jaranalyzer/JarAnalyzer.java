@@ -297,10 +297,10 @@ public class JarAnalyzer {
                 JarStat js = getTotals(new File(inputJarFile));
                 File outputFile = new File(outputRootDir + "/staticsizes." +
                         "jar-size-compressed");
-                js.printSize(outputFile, true);
+                js.printSize(outputFile, true, urlDir);
                 outputFile = new File(outputRootDir + "/staticsizes." +
                         "jar-size-uncompressed");
-                js.printSize(outputFile, false);
+                js.printSize(outputFile, false, urlDir);
                 // Plot information for single package
                 for (String key : tbl.keySet()) {
                     outputFile = new File(outputRootDir + "/staticsizes." + key);
@@ -368,12 +368,15 @@ class JarStat {
         }
     }
 
-    void printSize(File outFile, boolean reportCompressed) {
+    void printSize(File outFile, boolean reportCompressed, String urlDir) {
         try {
             outFile.createNewFile();
             OutputStream ostream = new FileOutputStream(outFile);
             PrintWriter pw = new PrintWriter(ostream);
             pw.println("YVALUE=" + ((reportCompressed) ? this.csize : this.size) / 1024);
+            if (urlDir != null) {
+                pw.println("URL=" + urlDir + "/staticsizes.html");
+            }
             pw.close();
         } catch (IOException ex) {
             Logger.getLogger(JarStat.class.getName()).log(Level.SEVERE, null, ex);
