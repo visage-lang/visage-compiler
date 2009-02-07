@@ -1,5 +1,6 @@
 package com.sun.javafx.tools.jaranalyzer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,8 +19,10 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -102,8 +105,7 @@ public class JarAnalyzer {
                     String pkgname = getPackageName(zname);
                     if (!tbl.containsKey(pkgname)) {
                         tbl.put(pkgname, new Long(ze.getSize()));
-                    }
-                    else {
+                    } else {
                         Long value = tbl.get(pkgname);
                         value += ze.getSize();
                         tbl.put(pkgname, value);
@@ -240,6 +242,29 @@ public class JarAnalyzer {
             "http://openjfx.java.sun.com/hudson/job/openjfx-compiler/" +
             BLDTAG + "/artifact/openjfx-compiler/dist/lib/shared/javafxrt.jar";
 
+    private static JarStat getTotals(File file) {
+        ZipFile zf = null;
+        JarStat js = null;
+        try {
+            js = new JarStat(file);
+            zf = new ZipFile(file);
+            for (ZipEntry ze : Collections.list(zf.entries())) {
+                js.addSizes(zf, ze);
+            }
+        } catch (ZipException ex) {
+            Logger.getLogger(JarAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(JarAnalyzer.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (zf != null) {
+                try {
+                    zf.close();
+                } catch (IOException ex) {
+                }
+            }
+        }
+        return js;
+    }
 
     /**
      * @param args the command line arguments
@@ -249,8 +274,7 @@ public class JarAnalyzer {
             System.err.println("Usage: input_jar_file output_root_dir url_dir");
             System.err.println("Usage: --compare bld# bld#");
             System.exit(1);
-        }
-        else if (args[0].endsWith("compare")) {
+        } else if (args[0].endsWith("compare")) {
             try {
                 URL url1 = new URL(OPENJFX.replace(BLDTAG, args[1]));
                 URL url2 = new URL(OPENJFX.replace(BLDTAG, args[2]));
@@ -261,26 +285,28 @@ public class JarAnalyzer {
                 Logger.getLogger(JarAnalyzer.class.getName()).log(Level.SEVERE,
                         null, ex);
             }
-        }
-        else {
+        } else {
             try {
                 String inputJarFile = args[0];
                 String outputRootDir = args[1];
                 String urlDir = args[2];
-                Hashtable<String, Long> tbl = readJarFile(
-                        new File(inputJarFile));
+                Hashtable<String, Long> tbl = readJarFile(new File(inputJarFile));
 
                 // Plot information for all packages
                 dumpToFileAllPackages(tbl, outputRootDir, urlDir);
-
+                JarStat js = getTotals(new File(inputJarFile));
+                File outputFile = new File(outputRootDir + "/staticsizes." +
+                        "jar-size-compressed");
+                js.printSize(outputFile, true);
+                outputFile = new File(outputRootDir + "/staticsizes." +
+                        "jar-size-uncompressed");
+                js.printSize(outputFile, false);
                 // Plot information for single package
                 for (String key : tbl.keySet()) {
-                    File outputFile =
-                            new File(outputRootDir + "/staticsizes." + key);
+                    outputFile = new File(outputRootDir + "/staticsizes." + key);
                     outputFile.createNewFile();
-                    OutputStream ostream = new FileOutputStream(outputFile);
-                    PrintWriter pw = new PrintWriter(
-                            new OutputStreamWriter(ostream));
+                    FileOutputStream ostream = new FileOutputStream(outputFile);
+                    PrintWriter pw = new PrintWriter(new OutputStreamWriter(ostream));
                     pw.printf("YVALUE=%s\n", tbl.get(key) / 1024);
                     pw.flush();
                     pw.close();
@@ -292,5 +318,65 @@ public class JarAnalyzer {
             }
         }
         System.exit(0);
+    }
+}
+
+class JarStat {
+
+    private File jarFile;
+    private long size;  // uncompressed sizes
+    private long csize; // compressed sizes
+
+    JarStat(File jarFile) {
+        this.jarFile = jarFile;
+        size = 0L;
+        csize = 0L;
+    }
+
+    void addSizes(ZipFile zf, ZipEntry ze) {
+        long sz = ze.getSize();
+        if (sz == 0) { // don't bother with 0 file size
+            return;
+        }
+        this.size += sz;
+
+        GZIPOutputStream gzos = null;
+        InputStream zis = null;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            gzos = new GZIPOutputStream(baos);
+            zis = zf.getInputStream(ze);
+            byte buf[] = new byte[8192];
+            int n = zis.read(buf);
+            while (n > 0) {
+                gzos.write(buf);
+                n = zis.read(buf);
+            }
+            gzos.finish();
+            gzos.flush();
+            this.csize += baos.size();
+        //System.out.println("entry: " + ze.getName() + " size:" + this.size + " csize:" + this.csize);
+        } catch (IOException ex) {
+            Logger.getLogger(JarStat.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                zis.close();
+                gzos.close();
+            } catch (IOException ex) {
+                Logger.getLogger(JarStat.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    void printSize(File outFile, boolean reportCompressed) {
+        try {
+            outFile.createNewFile();
+            OutputStream ostream = new FileOutputStream(outFile);
+            PrintWriter pw = new PrintWriter(ostream);
+            pw.println("YVALUE=" + ((reportCompressed) ? this.csize : this.size) / 1024);
+            pw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(JarStat.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
