@@ -499,14 +499,18 @@
         </exec>
     </target>
 
-    <target name="staticsizes" depends="jar">
+    <target name="staticsizes-clean">
+        <delete dir="${build.staticsizes.dir}" />
+    </target>
+
+    <target name="staticsizes" depends="jar, staticsizes-clean">
         <mkdir dir="${build.staticsizes.dir}"/>
         <property environment="env"/>
         <property name="label" value="env.BUILD_NUMBER"/>
         <java classname="com.sun.javafx.tools.jaranalyzer.JarAnalyzer">
             <arg value="${dist.javafxrt.jar}" />
             <arg value="${build.staticsizes.dir}" />
-            <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${env.BUILD_NUMBER}/artifact/openjfx-compiler/build/staticsizes" />
+            <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${env.BUILD_NUMBER}/artifact/build/staticsizes" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
             </classpath>

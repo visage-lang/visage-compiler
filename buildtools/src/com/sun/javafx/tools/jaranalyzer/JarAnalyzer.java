@@ -19,6 +19,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -104,10 +106,13 @@ public class JarAnalyzer {
                 if (zname.endsWith(".class")) {
                     String pkgname = getPackageName(zname);
                     if (!tbl.containsKey(pkgname)) {
-                        tbl.put(pkgname, new PkgEntry(ze.getSize()));
+                        long csize = getCompressedSize(zis);
+                        tbl.put(pkgname, new PkgEntry(ze.getSize(), csize));
                     } else {
                         PkgEntry pe  = tbl.get(pkgname);
-                        pe.addSize(ze.getSize());
+                        long csize = getCompressedSize(zis);
+                        pe.addSizes(ze.getSize(), csize);
+
                         tbl.put(pkgname, pe);
                     }
                 }
@@ -203,15 +208,20 @@ public class JarAnalyzer {
         pw2.printf("<P>Package</P>");
         pw2.printf("</TH>\n");
         pw2.printf("\t\t<TD WIDTH=95>");
-        pw2.printf("<P><B>Size in kbytes</B></P></TD>\n");
+        pw2.printf("<P><B>Size (uncompressed) in kbytes</B></P></TD>\n");
+        pw2.printf("\t\t<TD WIDTH=95>");
+        pw2.printf("<P><B>Size (compressed) in kbytes</B></P></TD>\n");
         pw2.printf("\t\t<TD WIDTH=50>");
         pw2.printf("<P><B>File Count</B></P></TD>\n");
         pw2.printf("\t</TR>\n");
-        long sum = 0L;
+        long sum  = 0L;
+        long csum = 0L;
         int fcount = 0;
         for (String x : keyList) {
             long sz = tbl.get(x).getSize();
             sum += sz;
+            long csz = tbl.get(x).getCompressedSize();
+            csum += csz;
             int n = tbl.get(x).getCount();
             fcount += n;
             pw2.printf("\t<TR VALIGN=TOP>\n");
@@ -219,6 +229,8 @@ public class JarAnalyzer {
             pw2.printf("<P>" + x + "</P></TD>\n");
             pw2.printf("\t\t<TD WIDTH=95>");
             pw2.printf("<P>" + sz / 1024 + "</P></TD>\n");
+            pw2.printf("\t\t<TD WIDTH=50>");
+            pw2.printf("<P>" + csz / 1024 + "</P></TD>\n");
             pw2.printf("\t\t<TD WIDTH=50>");
             pw2.printf("<P>" + n + "</P></TD>\n");
             pw2.printf("\t</TR>\n");
@@ -228,6 +240,8 @@ public class JarAnalyzer {
         pw2.printf("<P><B>Total</B></P></TD>\n");
         pw2.printf("\t\t<TD WIDTH=95>");
         pw2.printf("<P>" + sum / 1024 + "</P></TD>\n");
+        pw2.printf("\t\t<TD WIDTH=95>");
+        pw2.printf("<P>" + csum / 1024 + "</P></TD>\n");
         pw2.printf("\t\t<TD WIDTH=50>");
         pw2.printf("<P>" + fcount + "</P></TD>\n");
         pw2.printf("\t</TR>\n");
@@ -256,7 +270,7 @@ public class JarAnalyzer {
     private static final String BLDTAG = "BLDTAG";
     private static final String OPENJFX =
             "http://openjfx.java.sun.com/hudson/job/openjfx-compiler/" +
-            BLDTAG + "/artifact/openjfx-compiler/dist/lib/shared/javafxrt.jar";
+            BLDTAG + "/artifact/dist/lib/shared/javafxrt.jar";
 
     private static JarStat getTotals(File file) {
         ZipFile zf = null;
@@ -335,30 +349,66 @@ public class JarAnalyzer {
         }
         System.exit(0);
     }
+
+    static long getCompressedSize(InputStream is) {
+        DeflaterOutputStream dos = null;
+        long size = 0L;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Deflater def = new Deflater();
+            def.setLevel(Deflater.BEST_COMPRESSION);
+            dos = new DeflaterOutputStream(baos, def);
+            byte buf[] = new byte[8192];
+            int n = is.read(buf);
+            while (n > 0) {
+                dos.write(buf);
+                n = is.read(buf);
+            }
+            dos.flush();
+            dos.finish();
+            size = baos.size();
+        } catch (IOException ex) {
+            Logger.getLogger(JarStat.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                dos.close();
+            } catch (IOException ex) {
+                Logger.getLogger(JarStat.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return size;
+    }
 }
 
 class PkgEntry {
     private long size;
+    private long csize;
     private int  count;
 
     private PkgEntry() {}
 
-    PkgEntry(long sz) {
+    PkgEntry(long sz, long csz) {
         this.size = sz;
+        this.csize = csz;
         this.count = 1;
     }
     
-    void addSize(long sz) {
+    void addSizes(long sz, long csz) {
         this.size += sz;
+        this.csize += csz;
         this.count++;
     }
 
     long getSize() {
-        return size;
+        return this.size;
+    }
+
+    long getCompressedSize() {
+        return this.csize;
     }
 
     int getCount() {
-        return count;
+        return this.count;
     }
 }
 
@@ -382,30 +432,11 @@ class JarStat {
         this.size += sz;
 
         GZIPOutputStream gzos = null;
-        InputStream zis = null;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            gzos = new GZIPOutputStream(baos);
-            zis = zf.getInputStream(ze);
-            byte buf[] = new byte[8192];
-            int n = zis.read(buf);
-            while (n > 0) {
-                gzos.write(buf);
-                n = zis.read(buf);
-            }
-            gzos.finish();
-            gzos.flush();
-            this.csize += baos.size();
-        //System.out.println("entry: " + ze.getName() + " size:" + this.size + " csize:" + this.csize);
+            InputStream zis = zf.getInputStream(ze);
+            this.csize += JarAnalyzer.getCompressedSize(zis);
         } catch (IOException ex) {
             Logger.getLogger(JarStat.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                zis.close();
-                gzos.close();
-            } catch (IOException ex) {
-                Logger.getLogger(JarStat.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
     }
 
