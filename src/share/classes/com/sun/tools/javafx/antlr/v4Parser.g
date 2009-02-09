@@ -3848,6 +3848,13 @@ unaryExpression
 			endPos($value);
 		}
 		
+	| SUB        DECIMAL_LITERAL
+
+		{
+			$value = F.at(rPos).LiteralInteger('-' + $DECIMAL_LITERAL.text, 10);
+			endPos($value);
+		}
+
 	| unaryOps     	e=unaryExpression
 
 		{

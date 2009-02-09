@@ -282,34 +282,23 @@ public abstract class AbstractGeneratedLexerV4 extends org.antlr.runtime.Lexer {
     }
     
     protected boolean checkIntLiteralRange(String text, int pos, int radix, boolean negative) {
-
-        // Value in terms of a long
+        // Because Long.MIN_VALUE < -Long.MAX_VALUE we need to use the actual negative when present
         //
-        long value = 0;
- 
+        String checkText = negative? "-" + text : text;
+
         // Correct start position for error display
         //
-        pos = pos - text.length() - (negative ? 1 : 0);
+        pos = pos - checkText.length();
 
         try {
 
-            // Previously, see if we can make a value out of this, however if this is a HEX literal then
-            // we want to coerce the value int o a negative integer of the top bit is set. 
-            //
-            value = Convert.string2long(text, radix);
+            Convert.string2long(checkText, radix);
 
         } catch (Exception e) {
-
-                 
+       
             // Number form was too outrageous even for the converter
             //
-            if (negative) {
-
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Long", new String("-" + text));
-
-            } else {
-                log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Long", text);
-            }
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Long", checkText);
 
             return false;
         }

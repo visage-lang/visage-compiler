@@ -1,0 +1,10 @@
+/**
+ * JFXC-2758 : Bad test for alternate radix long literals
+ *
+ * @test
+ * @run
+ */
+
+println( 0xCFFFFFFFF );
+println( 0xAA00000000 );
+println( 070000000000 );

@@ -10,4 +10,7 @@ def k : Byte = 489;
 test\should-fail\jfxc2542.fx:11: Short out of range: 123000.
 def l : Short = 123000;
                 ^
-4 errors
+test\should-fail\jfxc2542.fx:12: Integer out of range: 8589934592.
+def m : Integer = 0x200000000;
+                  ^
+5 errors

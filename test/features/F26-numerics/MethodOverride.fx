@@ -134,9 +134,8 @@ class TesterOverride extends TesterInstance {
         assertEquals(testOverloadInstanceRetInt(10), isIntNew);
         assertEquals(testOverloadInstanceRetInt(3.1415926535), isFloatNew);
         
-        /**** Comppile-time error: Integer out of range, issue jfxc2571 ****/
-        // assertEquals(testOverloadInstanceRetInt(2200000000 as Long), isLongNew);
-        // assertEquals(testOverloadInstanceRetInt(2200000000), isLongNew);
+        assertEquals(testOverloadInstanceRetInt(2200000000 as Long), isLongNew);
+        assertEquals(testOverloadInstanceRetInt(2200000000), isLongNew);
     }
 
     function testOverrideRetVoid() {

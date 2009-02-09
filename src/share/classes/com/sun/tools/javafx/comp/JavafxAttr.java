@@ -2376,23 +2376,26 @@ public class JavafxAttr implements JavafxVisitor {
         }
         boolean isIncDec = tree.getFXTag().isIncDec();
 
-        if (isIncDec && this.inBindContext) {
-            switch (tree.getFXTag()) {
-                case PREINC:
-                case POSTINC:
-                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
-                    break;
-                case PREDEC:
-                case POSTDEC:
-                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
-                    break;
+        Type argtype;
+        if (isIncDec) {
+            if (this.inBindContext) {
+                switch (tree.getFXTag()) {
+                    case PREINC:
+                    case POSTINC:
+                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "++");
+                        break;
+                    case PREDEC:
+                    case POSTDEC:
+                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "--");
+                        break;
+                }
             }
+
+            // Attribute arguments.
+            argtype = attribTree(tree.arg, env, VAR, Type.noType);
+        } else {
+            argtype = chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
         }
-        
-        // Attribute arguments.
-        Type argtype = isIncDec
-            ? attribTree(tree.arg, env, VAR, Type.noType)
-            : chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
 
         //TODO: redundant now, but if we want to deferentiate error for increment/decremenet
         // from assignment, this code may be useful
@@ -2423,27 +2426,6 @@ public class JavafxAttr implements JavafxVisitor {
                 owntype = isIncDec
                     ? tree.arg.type
                     : operator.type.getReturnType();
-
-            /*** no constants or folding
-                int opc = ((OperatorSymbol)operator).opcode;
-
-                // If the argument is constant, fold it.
-                if (argtype.constValue() != null) {
-                    Type ctype = cfolder.fold1(opc, argtype);
-                    if (ctype != null) {
-                        owntype = cfolder.coerce(ctype, owntype);
-
-                        // Remove constant types from arguments to
-                        // conserve space. The parser will fold concatenations
-                        // of string literals; the code here also
-                        // gets rid of intermediate results when some of the
-                        // operands are constant identifiers.
-                        if (tree.arg.type.tsym == syms.stringType.tsym) {
-                            tree.arg.type = syms.stringType;
-                        }
-                    }
-                }
-            *****/
             }
         } else {
             owntype = sym.type.getReturnType();
@@ -2658,19 +2640,18 @@ public class JavafxAttr implements JavafxVisitor {
                     tree.typetag = TypeTags.DOUBLE;
                     tree.value = Double.valueOf(lvalue);
                 }
-                else if (isPrimitiveOrBoxed(expected, LONG) ||
-                         (expected.tag == UNKNOWN && lvalue != (long) (int) lvalue)) {
-                    tree.typetag = TypeTags.LONG;
-                    if (! (tree.value instanceof Long))
-                        tree.value = Long.valueOf(lvalue);
-                }
-                else {
-                    if (lvalue != (int) lvalue) {
+                else if (isPrimitiveOrBoxed(expected, INT) || tree.typetag == TypeTags.INT) {
+                    if (tree.typetag == TypeTags.LONG) {
                         log.error(tree, MsgSym.MESSAGE_JAVAFX_LITERAL_OUT_OF_RANGE, "Integer", tree.value.toString());
                     }
                     tree.typetag = TypeTags.INT;
                     if (! (tree.value instanceof Integer))
                         tree.value = Integer.valueOf((int) lvalue);
+                }
+                else {
+                    tree.typetag = TypeTags.LONG;
+                    if (! (tree.value instanceof Long))
+                        tree.value = Long.valueOf(lvalue);
                 }
             }
             result = check(

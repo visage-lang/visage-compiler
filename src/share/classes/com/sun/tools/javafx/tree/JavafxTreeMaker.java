@@ -399,7 +399,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     public JFXLiteral LiteralInteger(String text, int radix) {
         long longVal = Convert.string2long(text, radix);
-        if (radix == 10? (longVal == (long) (int) longVal) : ((longVal & ~0xFFFFFFFF) == 0L) )
+        // For decimal, allow Integer negative numbers
+        if ((radix==10)? (longVal <= Integer.MAX_VALUE && longVal >= Integer.MIN_VALUE) : ((longVal & ~0xFFFFFFFFL) == 0L))
             return Literal(TypeTags.INT, Integer.valueOf((int) longVal));
         else
             return Literal(TypeTags.LONG, Long.valueOf(longVal));
