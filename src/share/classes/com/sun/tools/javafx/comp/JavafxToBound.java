@@ -53,6 +53,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
         new Context.Key<JavafxToBound>();
 
+    enum ArgKind { BOUND, DEPENDENT, FREE };
+
     /*
      * modules imported by context
      */
@@ -477,40 +479,42 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }
 
         protected JCExpression buildArgField(JCExpression arg, Type type) {
-            return buildArgField(arg, type, false);
+            return buildArgField(arg, type, ArgKind.DEPENDENT);
         }
 
-        protected JCExpression buildArgField(JCExpression arg, Type type, boolean isBound) {
-            return buildArgField(arg, new FieldInfo(type), isBound);
+        protected JCExpression buildArgField(JCExpression arg, Type type, ArgKind kind) {
+            return buildArgField(arg, new FieldInfo(type), kind);
         }
 
         protected JCExpression buildArgField(JCExpression arg, FieldInfo fieldInfo) {
-            return buildArgField(arg, fieldInfo, false);
+            return buildArgField(arg, fieldInfo, ArgKind.DEPENDENT);
         }
 
-        protected JCExpression buildArgField(JCExpression arg, FieldInfo fieldInfo, boolean isBound) {
+        protected JCExpression buildArgField(JCExpression arg, FieldInfo fieldInfo, ArgKind kind) {
             // translate the method arg into a Location field of the BindingExpression
             // XxxLocation arg$0 = ...;
             makeLocationField(arg, fieldInfo);
 
             // build a list of these args, for use as dependents -- arg$0, arg$1, ...
-            if (isBound) {
+            if (kind == ArgKind.BOUND) {
                 return makeAccess(fieldInfo);
             } else {
                 if (fieldInfo.num > 32) {
                     log.error(diagPos, MsgSym.MESSAGE_BIND_TOO_COMPLEX);
                 }
-                dependents |= 1 << fieldInfo.num;
+                if (kind == ArgKind.DEPENDENT) {
+                    dependents |= 1 << fieldInfo.num;
+                }
 
                 // set up these arg for the call -- arg$0.getXxx()
                 return fieldInfo.makeGetField();
             }
          }
 
-        protected void buildArgFields(List<JCExpression> targs, boolean isBound) {
+        protected void buildArgFields(List<JCExpression> targs, ArgKind kind) {
             for (JCExpression targ : targs) {
                 assert targ.type != null : "caller is supposed to decorate the translated arg with its type";
-                callArgs.append( buildArgField(targ, targ.type, isBound) );
+                callArgs.append( buildArgField(targ, targ.type, kind) );
             }
         }
     }
@@ -579,7 +583,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         if (args != null && args.size() > 0) {
                             assert tree.constructor != null : "args passed on instanciation of class without constructor";
                             boolean usesVarArgs = (tree.constructor.flags() & Flags.VARARGS) != 0L;
-                            buildArgFields(translate(args, tree.constructor.type, usesVarArgs), false);
+                            buildArgFields(translate(args, tree.constructor.type, usesVarArgs), ArgKind.DEPENDENT);
                             return callArgs.toList();
                         } else {
                             return List.<JCExpression>nil();
@@ -597,7 +601,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         JCExpression initRef = buildArgField(
                                 translate(init, translationBindStatus, vsym.type),
                                 new FieldInfo(vsym.type),
-                                bindStatus.isBound());
+                                bindStatus.isBound()? ArgKind.BOUND : ArgKind.DEPENDENT);
                         setInstanceVariable(init.pos(), instName, bindStatus, vsym, initRef);
                     }
                 }.doit();
@@ -1130,6 +1134,42 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }).doit();
     }
 
+/*** New Version -- in process
+ *
+ *     private JCExpression makeBoundConditional(final DiagnosticPosition diagPos,
+            final Type resultType,
+            final JCExpression trueExpr,
+            final JCExpression falseExpr,
+            final JCExpression condExpr) {
+        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(resultType);
+        List<JCExpression> args = List.of(
+                makeTypeInfo(diagPos, tmi.isSequence()? tmi.getElementType() : resultType),
+                makeLaziness(diagPos),
+                condExpr,
+                makeClosure0(diagPos, trueExpr, resultType),
+                makeClosure0(diagPos, falseExpr, resultType));
+        String makeBoundIf = tmi.isSequence()? "makeBoundSequenceIf" : "makeBoundIf";
+        return runtime(diagPos, cBoundOperators, makeBoundIf, args);
+    }
+
+    private JCExpression makeClosure0(final DiagnosticPosition diagPos, final JCExpression expr, final Type resultType) {
+        final TypeMorphInfo tmiPrevTarget = tmiTarget;
+        tmiTarget = null;
+        try {
+            return new BindingExpressionClosureTranslator(diagPos, typeMorpher.baseLocation.type) {
+
+                protected JCExpression resultValue() {
+                    return buildArgField(expr, resultType, ArgKind.FREE);
+                }
+            }.buildClosure();
+        } finally {
+            tmiTarget = tmiPrevTarget;
+        }
+    }
+
+***/
+
+
     @Override
     public void visitIfExpression(final JFXIfExpression tree) {
         Type targetType = targetType(tree.type);
@@ -1152,7 +1192,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
             protected JCExpression resultValue() {
                 return m().TypeTest(
-                        buildArgField(translate(tree.expr), new FieldInfo(defs.toTestName, tree.expr.type)),
+                        buildArgField(translate(tree.expr),
+                        new FieldInfo(defs.toTestName, tree.expr.type)),
                         makeExpression(tree.clazz.type) );
             }
         }.doit();
@@ -1308,7 +1349,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
                                     protected JCExpression makeInvokeMethodBody() {
                                         // create a field in the closure for each argument
-                                        buildArgFields(targs, true);
+                                        buildArgFields(targs, ArgKind.BOUND);
 
                                         // translate the method name -- e.g., foo  to foo$bound
                                         Name name = functionName(msym, false, callBound);
@@ -1371,7 +1412,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 buildArgField(translate(check), selectorField);
 
                                 // create a field in the BindingExpression for each argument
-                                buildArgFields(targs, false);
+                                buildArgFields(targs, ArgKind.DEPENDENT);
                             }
                         }).doit();
                     } else {
@@ -1392,14 +1433,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                             @Override
                             protected void buildFields() {
                                 // create a field in the BindingExpression for each argument
-                                buildArgFields(targs, false);
+                                buildArgFields(targs, ArgKind.DEPENDENT);
                             }
 
                             JCExpression receiver() {
                                 if (rcvrField == null) {
                                     Type rcvrType = msym.owner.type;
                                     rcvrField = new FieldInfo(JavafxDefs.receiverNameString, typeMorpher.typeMorphInfo(rcvrType), false);
-                                    return buildArgField(toJava.makeReceiver(diagPos, msym, toJava.attrEnv.enclClass.sym), rcvrField, true);
+                                    return buildArgField(toJava.makeReceiver(diagPos, msym, toJava.attrEnv.enclClass.sym), rcvrField, ArgKind.BOUND);
                                 } else {
                                     return rcvrField.makeGetField();
                                 }
@@ -1655,7 +1696,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         JCExpression initRef = buildArgField(
                                 transInit,
                                 new FieldInfo(vsym.name, vsym.type),
-                                bindStatus.isBound());
+                                bindStatus.isBound()? ArgKind.BOUND : ArgKind.DEPENDENT);
                         super.setInstanceVariable(diagPos, instName, bindStatus, vsym, initRef);
                     }
 
