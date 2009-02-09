@@ -461,7 +461,6 @@ public abstract class JavafxTranslationSupport {
                                   List<JCExpression> makeArgs,
                                   Name makeMethod,
                                   JCExpression locationTypeExp) {
-        Name locName = typeMorpher.variableNCT[tmi.getTypeKind()].name;
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethod);
         List<JCExpression> typeArgs = null;
         switch (tmi.getTypeKind()) {

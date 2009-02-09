@@ -1855,9 +1855,6 @@ public class JavafxAttr implements JavafxVisitor {
 
         // Attribute catch clauses
         for (List<JFXCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
-
-            if (l == null )  continue;    // Don't try to handle erroneous catch blocks
-
             JFXCatch c = l.head;
 
             if (c == null) continue;    // Don't try to handle erroneous catch blocks
@@ -2128,8 +2125,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitThrow(JFXThrow tree) {
-
-        if  (tree != null && tree.expr != null && !(tree.expr instanceof JFXErroneous)) {
+        if  (tree.expr != null && !(tree.expr instanceof JFXErroneous)) {
             attribExpr(tree.expr, env, syms.throwableType);
         }
         result = tree.type = syms.unreachableType;
@@ -2848,7 +2844,7 @@ public class JavafxAttr implements JavafxVisitor {
                 !target.compilerBootstrap(c)) {
                 log.error(superClass.pos(), MsgSym.MESSAGE_ENUM_TYPES_NOT_EXTENSIBLE);
             }
-            if (supType != null && !supType.isInterface() &&
+            if (!supType.isInterface() &&
                     !types.isJFXClass(supType.tsym) &&
                     !supType.isPrimitive() &&
                     javafxClassSymbol.type instanceof ClassType) {

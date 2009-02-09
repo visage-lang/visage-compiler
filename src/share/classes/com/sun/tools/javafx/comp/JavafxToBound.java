@@ -1023,7 +1023,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 JFXExpression seq = clause.getSequenceExpression();
                 TypeMorphInfo tmiSeq = typeMorpher.typeMorphInfo(seq.type);
                 TypeMorphInfo tmiInduction = typeMorpher.typeMorphInfo(clause.getVar().type);
-                Type elementType = tmiSeq.getElementType();
                 JCClassDecl classDecl = m().AnonymousClassDef(
                         m().Modifiers(0L),
                         List.<JCTree>of(makeComputeElementsMethod(clause, inner, tmiInduction)));
@@ -1038,8 +1037,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         makeTypeInfo(diagPos, tmiInduction.getRealBoxedType()),
                         transSeq,
                         m().Literal(TypeTags.BOOLEAN, useIndex? 1 : 0) );
-                //JCExpression clazz = makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.BoundComprehension");
-                int typeKind = tmiInduction.getTypeKind();
                 Type bcType = typeMorpher.abstractBoundComprehension.type;
                 JCExpression clazz = makeExpression(types.erasure(bcType));  // type params added below, so erase formals
                 ListBuffer<JCExpression> typeParams = ListBuffer.lb();

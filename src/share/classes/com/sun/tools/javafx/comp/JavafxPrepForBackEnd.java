@@ -38,7 +38,8 @@ import java.util.Set;
  * @author Robert Field
  */
 public class JavafxPrepForBackEnd extends TreeScanner {
-    
+
+    private boolean checkForUniqueness = false;
     private Set<JCTree> seen = new HashSet<JCTree>();
     private String sourceName = "";
     
@@ -60,13 +61,13 @@ public class JavafxPrepForBackEnd extends TreeScanner {
     }
     
     private void assertUnique(JCTree that) {
-        /****
-        boolean added = seen.add(that);
-        if (!added) {
-            //System.err.println("Node " + that + " already encountered -- unclean " + that.getClass() + " tree in " + sourceName);
+        if (checkForUniqueness) {
+            boolean added = seen.add(that);
+            if (!added) {
+                //System.err.println("Node " + that + " already encountered -- unclean " + that.getClass() + " tree in " + sourceName);
+            }
+            assert added : "Node " + that + " already encountered -- unclean " + that.getClass() + " tree in " + sourceName;
         }
-        assert added : "Node " + that + " already encountered -- unclean " + that.getClass() + " tree in " + sourceName;
-        *****/
     }
 
     @Override

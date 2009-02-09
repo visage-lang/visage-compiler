@@ -1431,24 +1431,17 @@ public class JavafxCheck {
      *  @param t2           The second argument type.
      */
     private boolean checkCompatibleAbstracts(DiagnosticPosition pos,
-					    Type t1,
-					    Type t2) {
-        return checkCompatibleAbstracts(pos, t1, t2,
-                                        types.makeCompoundType(t1, t2));
-    }
-
-    private boolean checkCompatibleAbstracts(DiagnosticPosition pos,
-					    Type t1,
-					    Type t2,
-					    Type site) {
-	Symbol sym = firstIncompatibility(t1, t2, site);
-	if (sym != null) {
-	    log.error(pos, MsgSym.MESSAGE_TYPES_INCOMPATIBLE_DIFF_RET,
-		      t1, t2, sym.name +
-		      "(" + types.memberType(t2, sym).getParameterTypes() + ")");
-	    return false;
-	}
-	return true;
+            Type t1,
+            Type t2,
+            Type site) {
+        Symbol sym = firstIncompatibility(t1, t2, site);
+        if (sym != null) {
+            log.error(pos, MsgSym.MESSAGE_TYPES_INCOMPATIBLE_DIFF_RET,
+                    t1, t2, sym.name +
+                    "(" + types.memberType(t2, sym).getParameterTypes() + ")");
+            return false;
+        }
+        return true;
     }
 
     /** Return the first method which is defined with same args

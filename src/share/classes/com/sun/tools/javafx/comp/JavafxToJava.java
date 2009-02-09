@@ -370,6 +370,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     JCExpression convertTranslated(JCExpression translated, DiagnosticPosition diagPos,
             Type sourceType, Type targetType) {
+        assert sourceType != null;
+        assert targetType != null;
         if (targetType.tag == TypeTags.UNKNOWN) {
             //TODO: this is bad attribution
             return translated;
@@ -379,8 +381,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
         boolean sourceIsSequence = types.isSequence(sourceType);
         boolean targetIsSequence = types.isSequence(targetType);
-        boolean sourceIsArray = sourceType==null? false : types.isArray(sourceType);
-        boolean targetIsArray = targetType==null? false : types.isArray(targetType);
+        boolean sourceIsArray = types.isArray(sourceType);
+        boolean targetIsArray = types.isArray(targetType);
         if (targetIsArray) {
             Type elemType = types.elemtype(targetType);
             if (sourceIsSequence) {

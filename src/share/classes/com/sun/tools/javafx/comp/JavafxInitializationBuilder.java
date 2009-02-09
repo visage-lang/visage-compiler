@@ -915,7 +915,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         JCExpression changeListener;
         List<JCExpression> emptyTypeArgs = List.nil();
-        int attributeKind = typeMorpher.varMorphInfo(info.getSymbol()).getTypeKind();
         
         if (types.isSequence(info.getRealType())) {
             ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
