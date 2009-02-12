@@ -64,7 +64,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     /*
      * other instance information
      */
-    private final Name param1Name;
     private final Name computeElementsName;
 
     /*
@@ -117,7 +116,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         toJava = JavafxToJava.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
         
-        param1Name = names.fromString("x1$");
         computeElementsName = names.fromString("computeElements$");
     }
 
@@ -687,51 +685,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     private JCExpression makeBoundSelect(final DiagnosticPosition diagPos,
             final Type resultType,
-            final JCExpression receiverExpr,
-            final Function1ClosureTranslator translator) {
+            final BindingExpressionClosureTranslator translator) {
         TypeMorphInfo tmi = (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType);
+        JCExpression bindingExpression = translator.buildClosure();
         List<JCExpression> args = List.of(
+                makeTypeInfo(diagPos, tmi.isSequence()? tmi.getElementType() : tmi.getRealType()),
                 makeLaziness(diagPos),
-                receiverExpr,
-                translator.doit());
-        if (tmi.isSequence() || tmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            // prepend "Foo.class, "
-            args = args.prepend(makeTypeInfo(diagPos, tmi.getElementType()));
-        }
-        return runtime(diagPos, cBoundOperators, "makeBoundSelect", args);
-    }
-
-    abstract class Function1ClosureTranslator extends ClosureTranslator {
-
-        final Type param1Type;
-
-        Function1ClosureTranslator(DiagnosticPosition diagPos,
-                Type resultType,
-                final Type param1Type) {
-            super(diagPos, resultType);
-            this.param1Type = param1Type;
-        }
-
-        abstract protected JCExpression makeInvokeMethodBody();
-
-        protected List<JCTree> makeBody() {
-            List<JCVariableDecl> params = List.of(makeParam(param1Type, param1Name));
-            members.append(
-                    makeClosureMethod(defs.invokeName, makeInvokeMethodBody(), params, tmiResult.getLocationType(), Flags.PUBLIC));
-            return completeMembers();
-        }
-
-        protected JCExpression makeBaseClass() {
-            JCExpression objFactory = makeQualifiedTree(diagPos, cFunction1);
-            Type clazzType = tmiResult.getLocationType();
-            return m().TypeApply(objFactory, List.of(
-                    makeExpression(clazzType),
-                    makeExpression(param1Type)));
-        }
-
-        protected List<JCExpression> makeConstructorArgs() {
-            return List.<JCExpression>nil();
-        }
+                bindingExpression);
+        return runtime(diagPos, cBoundOperators, tmi.isSequence()? "makeBoundSequenceSelect" : "makeBoundSelect", args);
     }
 
     @Override
@@ -750,15 +711,18 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 result = convert(tree.type, make.at(diagPos).Select(classRef, attributeFieldName(tree.sym)));
             } else {
                 // this is a dynamic reference to an attribute
-                JFXExpression expr = tree.getExpression();
+                final JFXExpression expr = tree.getExpression();
                 result = makeBoundSelect(diagPos,
                         tree.type,
-                        translate(expr),
-                        new Function1ClosureTranslator(diagPos, tree.type, expr.type) {
+                        new BindingExpressionClosureTranslator(tree.pos(), typeMorpher.baseLocation.type) {
 
-                            protected JCExpression makeInvokeMethodBody() {
+                            protected JCExpression makePushExpression() {
                                 return convert(tree.type, toJava.convertVariableReference(diagPos,
-                                        make.at(diagPos).Select(make.at(diagPos).Ident(param1Name), tree.getIdentifier()),
+                                        m().Select(
+                                            buildArgField(
+                                                translate(expr),
+                                                new FieldInfo("selector", expr.type)),
+                                            tree.getIdentifier()),
                                         tree.sym,
                                         Locationness.AsLocation));
                             }
@@ -1302,9 +1266,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         protected List<JCTree> makeBody() {
             buildFields();
             // build first since this may add dependencies
-            JCExpression resultVal = tmiTarget==null?
-                makePushExpression():
-                toJava.convertTranslated(makePushExpression(), diagPos, actualTranslatedType, tmiTarget.getRealType());
+            JCExpression resultVal = makePushExpression();
+            if (tmiTarget != null && actualTranslatedType != typeMorpher.baseLocation.type) {
+                // If we have a target type and this isn't a Location yielding translation (which handles it's own), do any needed type conversion
+                resultVal = toJava.convertTranslated(resultVal, diagPos, actualTranslatedType, tmiTarget.getRealType());
+            }
             pushStatement = callStatement(diagPos, null, "pushValue", resultVal);
 
             return null;
@@ -1382,10 +1348,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     if (selectorMutable) {
                         return makeBoundSelect(diagPos,
                                 tree.type,
-                                translate(selector),
-                                new Function1ClosureTranslator(diagPos, tree.type, selector.type) {
+                                new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
-                                    protected JCExpression makeInvokeMethodBody() {
+                                    protected JCExpression makePushExpression() {
+                                        JCExpression transSelect = buildArgField(translate(selector), new FieldInfo("selector", selector.type));
                                         // create a field in the closure for each argument
                                         buildArgFields(targs, ArgKind.BOUND);
 
@@ -1393,7 +1359,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                         Name name = functionName(msym, false, callBound);
 
                                         // selectors are always Objects
-                                        JCExpression transSelect = makeLocationGet(translate(selector), TYPE_KIND_OBJECT);
                                         JCExpression expr = m().Apply(typeArgs,
                                                 m().Select(transSelect, name),
                                                 callArgs.toList());
