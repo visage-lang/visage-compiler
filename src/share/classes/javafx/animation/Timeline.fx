@@ -23,10 +23,12 @@
 
 package javafx.animation;
 
-import com.sun.scenario.animation.Clip;
-import com.sun.scenario.animation.Interpolators;
-import com.sun.scenario.animation.TimingTarget;
-import com.sun.scenario.animation.TimingTargetAdapter;
+import com.sun.javafx.animation.ClipFactory;
+import com.sun.javafx.animation.Clip;
+import com.sun.javafx.animation.InterpolatorFactory;
+import com.sun.javafx.animation.TimingTarget;
+import com.sun.javafx.animation.TimingTargetAdapter;
+import com.sun.javafx.runtime.Entry;
 import javafx.lang.Duration;
 import javafx.util.Sequences;
 import java.lang.Object;
@@ -35,9 +37,28 @@ import java.util.Map;
 import java.util.HashMap;
 import java.lang.Math;
 import java.lang.UnsupportedOperationException;
+import java.lang.RuntimeException;
 
 function makeDur(millis:Number):Duration {
     return 1ms * millis;
+}
+
+package function getClipFactory():ClipFactory {
+    var animationProvider = Entry.getAnimationProvider();
+    if (animationProvider == null) {
+        throw new RuntimeException("Unable to getClipFactory");
+    }
+
+    animationProvider.getClipFactory();
+}
+
+package function getInterpolatorFactory():InterpolatorFactory {
+    var animationProvider = Entry.getAnimationProvider();
+    if (animationProvider == null) {
+        throw new RuntimeException("Unable to getInterpolatorFactory");
+    }
+
+    animationProvider.getInterpolatorFactory();
 }
 
 class CurrentKeyValue extends KeyValue {
@@ -571,9 +592,9 @@ public class Timeline {
         if (clip != null and clip.isRunning()) {
             clip.stop();
         }
-        clip = Clip.create(Clip.INDEFINITE, adapter);
-        clip.setInterpolator(Interpolators.getLinearInstance());
-        clip.setResolution(1000 / framerate);
+        clip = getClipFactory().create(Clip.INDEFINITE, adapter);
+        clip.setInterpolator(getInterpolatorFactory().getLinearInstance());
+        clip.setResolution(1000 / framerate)
     }
 
     var clip: Clip;
