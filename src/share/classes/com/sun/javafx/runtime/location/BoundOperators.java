@@ -24,7 +24,6 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.functions.Function0;
-import com.sun.javafx.functions.Function1;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
@@ -297,13 +296,6 @@ public class BoundOperators {
         };
     }
 
-    private static<T> BindingExpression wrap(final Function1<? extends Location, T> fun, final ObjectLocation<T> receiver) {
-        return new BindingExpression() {
-            public void compute() {
-                pushValue(fun.invoke(receiver.get()));
-            }
-        };
-    }
     // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
 
     private static BindingExpression makeIfBindingExpression(final BooleanLocation conditional, final BindingExpression thenBranch, final BindingExpression elseBranch) {
@@ -412,63 +404,22 @@ public class BoundOperators {
     @SuppressWarnings("unchecked")
     public static<T, L extends ObjectLocation<T>> L makeBoundSelect(final TypeInfo<T, L> typeInfo,
                                                                     boolean lazy,
-                                                                    final ObjectLocation<?> receiver,
-                                                                    final BindingExpression selector) {
+                                                                    final ScriptBindingExpressions selector) {
+        final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
         final L loc = typeInfo.makeLocation();
         final L defaultConstant = typeInfo.makeDefaultConstant();
-        final ObjectVariable<L> lastADotB = IndirectLocationHelper.makeIndirectHelper(lazy, loc,
-                                                                                      makeSelectBindingExpression(receiver, selector, defaultConstant),
+        final ObjectVariable<L> lastADotB = IndirectLocationHelper.makeIndirectHelper(lazy, loc,                                                                                      makeSelectBindingExpression(receiver, selector, defaultConstant),
                                                                                       defaultConstant, receiver);
         ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, lastADotB));
         return loc;
-    }
-
-    // @@@ These can go away once we switch to the makeBoundSelect(TypeInfo, ...) version vvv
-
-    public static<T> IntLocation makeBoundSelect(boolean lazy,
-                                                 final ObjectLocation<T> receiver,
-                                                 final Function1<IntLocation, T> selector) {
-        return makeBoundSelect(TypeInfo.Integer, lazy, receiver, wrap(selector, receiver));
-    }
-
-    public static<T> DoubleLocation makeBoundSelect(boolean lazy,
-                                                    final ObjectLocation<T> receiver,
-                                                    final Function1<DoubleLocation, T> selector) {
-        return makeBoundSelect(TypeInfo.Double, lazy, receiver, wrap(selector, receiver));
-    }
-
-    public static<T> FloatLocation makeBoundSelect(boolean lazy,
-                                                   final ObjectLocation<T> receiver,
-                                                   final Function1<FloatLocation, T> selector) {
-        return makeBoundSelect(TypeInfo.Float, lazy, receiver, wrap(selector, receiver));
-    }
-
-    public static<T> BooleanLocation makeBoundSelect(boolean lazy,
-                                                     final ObjectLocation<T> receiver,
-                                                     final Function1<BooleanLocation, T> selector) {
-        return makeBoundSelect(TypeInfo.Boolean, lazy, receiver, wrap(selector, receiver));
-    }
-
-    public static<T, U> ObjectLocation<U> makeBoundSelect(final TypeInfo<U, ?> typeInfo,
-                                                          boolean lazy,
-                                                          final ObjectLocation<T> receiver,
-                                                          final Function1<ObjectLocation<U>, T> selector) {
-        return makeBoundSelect(typeInfo, lazy, receiver, wrap(selector, receiver));
-    }
-
-    public static<T, U> SequenceLocation<U> makeBoundSelect(final TypeInfo<U, ?> typeInfo,
-                                                            boolean lazy,
-                                                            final ObjectLocation<T> receiver,
-                                                            final Function1<SequenceLocation<U>, T> selector) {
-        return makeBoundSequenceSelect(typeInfo, lazy, receiver, wrap(selector, receiver));
     }
 
     // @@@ These can go away once we switch to the makeBoundSelect(TypeInfo, ...) version ^^^
 
     public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
                                                                     boolean lazy,
-                                                                    final ObjectLocation<T> receiver,
-                                                                    final BindingExpression selector) {
+                                                                    final ScriptBindingExpressions selector) {
+        final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
         SequenceLocation<U> defaultValue = SequenceConstant.<U>make(typeInfo, typeInfo.emptySequence);
         return IndirectLocationHelper.makeIndirectSequenceLocation(typeInfo, lazy, makeSelectBindingExpression(receiver, selector, defaultValue), receiver);
     }
