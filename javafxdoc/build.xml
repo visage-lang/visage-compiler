@@ -52,7 +52,6 @@
         <delete dir="${build.dir}"/>
         <delete dir="${dist.jar}"/>
         <delete dir="${build.test.dir}"/>
-        <delete dir="fxdocs"/>
     </target>
 
 </project>

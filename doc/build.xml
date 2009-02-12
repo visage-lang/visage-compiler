@@ -6,14 +6,16 @@
 
     <import file="../tools-defs.xml" />
 
+    <property name="import.docbook-xsl.dir" value="${import.docbook.dir}/docbook-xsl-${import.docbook.version}"/>
     <property name="doc.build.dir" value="${build.dir}/doc"/>
     <property name="doc.dest.dir" value="${doc.build.dir}/html/orig"/>
     <property name="doc.src.dir" value="${basedir}/doc/langspec"/>
-    <property name="html.style" value="${docbook.dir}/html/chunkfast.xsl"/>
-    <property name="xhtml.style" value="${docbook.dir}/xhtml/chunkfast.xsl"/>
-    <property name="manpages.path" value="${docbook.dir}/manpages/docbook.xsl"/>
+    <property name="html.style" value="${import.docbook-xsl.dir}/html/chunkfast.xsl"/>
+    <property name="xhtml.style" value="${import.docbook-xsl.dir}/xhtml/chunkfast.xsl"/>
+    <property name="manpages.path" value="${import.docbook-xsl.dir}/manpages/docbook.xsl"/>
     <property name="manpages.xsl.path" value="${doc.build.dir}/tmp/manpages.xsl"/>
     <property name="htmlpages.xsl.path" value="${doc.build.dir}/tmp/htmlpages.xsl"/>
+    <property name="langref.xsl.path" value="${doc.build.dir}/tmp/langref.xsl"/>
     <property name="doc.name" value="JavaFX-Language"/>
 
     <!-- Choose between HTML and XHTML -->
@@ -38,7 +40,7 @@
         <mkdir dir="${doc.build.dir}/man/man1"/>
 
         <propertyfile file="${doc.build.dir}/tmp/CatalogManager.properties">
-            <entry key="catalogs" value="${docbook-xml.dir}/catalog.xml"/>
+            <entry key="catalogs" value="${import.docbook-xml.dir}/catalog.xml"/>
             <entry key="relative-catalogs" value="false"/>
             <entry key="static-catalog" value="yes"/>
             <entry key="catalog-class-name" value="org.apache.xml.resolver.Resolver"/>
@@ -53,8 +55,6 @@
     </target>
 
     <target name="clean" description="Deletes all generated documentation.">
-        <delete file="doc/langspec/langref.xsl"/>
-        <delete file="langspec/langref.xsl"/>
         <delete dir="${doc.build.dir}"/>
     </target>
 
@@ -63,7 +63,7 @@
    <target name="langref.xsl">
      <makeurl property="chunk.url" file="${chunk.style}"/>
      <filter token="chunk-xsl" value="${chunk.url}"/>
-     <copy file="doc/langspec/langref-in.xsl" tofile="doc/langspec/langref.xsl" filtering="true"/>
+     <copy file="doc/langspec/langref-in.xsl" tofile="${langref.xsl.path}" filtering="true"/>
      </target>
      
    <target name="manpages.xsl">
@@ -96,7 +96,7 @@
             <arg line="-y org.apache.xml.resolver.tools.ResolvingXMLReader"/>
             <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
             <arg file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.xml"/>
-            <arg file="${doc.src.dir}/langref.xsl"/>
+            <arg file="${langref.xsl.path}"/>
             <arg value="use.id.as.filename=1"/>
             <arg value="root.filename=${doc.name}"/>
             <arg value="chunk.section.depth=1"/>
@@ -156,7 +156,7 @@
         </macrodef>
     </target>
     
-    <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
+    <available property="ant.jar" value="${import.ant.jar}" file="${import.ant.jar}"/>
     <pathconvert property="ant.jar">
         <mapper type="regexp" from="${path.separator}([^${path.separator}]*ant.jar)${path.separator}" to="\1"/>
         <path location="${path.separator}${java.class.path}${path.separator}"/>
@@ -166,7 +166,7 @@
         <mkdir dir="${doc.build.dir}/ant"/>
         <javac srcdir="doc/antsrc"
                destdir="${doc.build.dir}/ant"
-               classpath="${ant.home}/lib/ant.jar"/>
+               classpath="${import.ant.jar}"/>
         <taskdef name="tangle" classname="com.sun.javafx.ant.docbook.DocBookTangleTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>

@@ -1,48 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="JavaFX Compiler" default="default" basedir=".">
+<project name="JavaFX Compiler" default="binaries" basedir=".">
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
-    <property name="tools.dir" value="${basedir}/tools"/>
+    <import file="../build-defs.xml"/>
+
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
     <property environment="env" />
+    <property name="exe" value=""/>
+    <condition property="exe" value=".exe">
+      <isset property="isWindows"/>
+    </condition>
+
     <import file="tools-defs.xml"/>
     <property name="antlr.grammarv4p" value="v4Parser" />
     <property name="antlr.grammarv4l" value="v4Lexer" />
 
-    <target name="default" depends="jar,javafxdoc,launcher"
-            description="Build javafxc compiler and compiler runtime distribution"/>
-
-    <target name="all" depends="jar, javafxdoc, launcher, source-zip, test, langref, docs, pack-jars"
-            description="Build and test all project artifacts"/>
-            
-    <target name="dist" description="Build distribution bundles" depends="dist-init,dist-zip,dist-tgz"/>
-    
-    <target name="dist-zip" description="Build distribution zip file" depends="all">
-        <zip basedir="dist" compress="true" destfile="${zip.bundle}" includes="${dist.includes}"/>
-    </target>
-    
-    <target name="dist-tgz" description="Build distribution gzipped tar file" depends="all">
-        <tar basedir="dist" longfile="fail" compression="gzip" destfile="${tgz.bundle}" includes="${dist.includes}"/>
+    <target name="jj">
     </target>
 
-    <target name="dist-init" depends="init">
+    <!-- Here are targets required by the upper level build.xml.   -->
+
+    <target name="jfx-clean"     depends="clean"/>
+    <target name="jfx-clean-sdk" depends="init,-do-jfx-clean-sdk"/>
+    <target name="jfx-init"/>
+    <target name="jfx-sdk"       depends="init,-do-jfx-sdk"/>
+    <target name="jfx-test"      depends="test"/>
+    <target name="jfx-deploy"/>
+
+    <!-- Here are popular targets for building in this dir -->
+    <target name="aaahelp"    depends="-do-help" description="Show help on targets"/>
+    <target name="binaries"   depends="jar,javafxdoc,launcher" description="Build compiler and compiler runtime binaries"/>
+    <target name="test"       depends="binaries,-do-test" description="Build binaries and run tests"/>
+    <target name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"/>
+    <target name="all"        depends="docs,test,pack-jars" description="Build and test all project artifacts"/>
+    <target name="bundle"     depends="docs,pack-jars,-do-bundle" description="Build distribution bundle"/>
+    <target name="clean"      depends="-do-clean" description="Remove build products"/>
+
+    <!-- This can be called by the user, but it would be a NOP -->
+    <target name="init" depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-presetdef-jar"/>
+
+    <!-- Deprecated targets -->
+    <target name="default" depends="binaries"  description="Deprecated; use 'binaries' instead"/>
+    <target name="dist"    depends="bundle"  description="Deprecated; use 'bundle' instead"/>
+
+    <target name="-do-help">
+      <echo> 
+   Main developer targets:
+     name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
+     name="test"       depends="binaries,-do-test"            description="Build binaries and run tests"
+     name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"
+     name="all"        depends="docs,test,pack-jars"          description="Build and test all project artifacts"
+     name="bundle"     depends="docs,pack-jars,-do-bundle"    description="Build distribution bundle"
+     name="clean"      depends="-do-clean"                    description="Remove build products"
+     name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
+                              description="Build and test all project artifacts with coverage"
+     name="test-single" depends="init,-do-not-recompile,compile-test-single,-pre-test-run-single,-do-test-run-single,-post-test-run-single" 
+                              description="Run single unit test."
+           E.G.   ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
+
+   To prepare for building, you must do this one-time initialization
+     cd ..
+     ant import     # to populate ../import with needed external packages
+     ant dist-prep  # only if this is a partial forest; populates ../dist with needed build artifacts
+
+       </echo>
+     </target>
+
+
+    <target name="-do-test"  depends="init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse"/>
+
+    <target name="-do-jfx-sdk" depends="docs">
+        <copy todir="${jfx.dist.dir}">
+          <fileset dir="${dist.dir}" includes="${dist.contents}"/>
+        </copy>
+    </target>
+
+    <target name="-do-jfx-clean-sdk">
+         <delete includeemptydirs="true">
+            <fileset dir="${jfx.dist.dir}" includes="${dist.contents}"/>
+          </delete>
+    </target>
+
+    <target name="-bundle-init">
         <mkdir dir="${bundle.dir}"/>
     </target>
 
+    <target name="-bundle-zip">
+        <zip basedir="dist" compress="true" destfile="${zip.bundle}" includes="${bundle.includes}"/>
+    </target>
+    
+    <target name="-bundle-tgz">
+        <tar basedir="dist" longfile="fail" compression="gzip" destfile="${tgz.bundle}" includes="${bundle.includes}"/>
+    </target>
+
+    <target name="-do-bundle" depends="-bundle-init,-bundle-zip,-bundle-tgz"/>
+
+
     <target name="hudson-dev" depends="all, findbugs, staticsizes, coverage-report, hudson-post-build"
             description="Build and test all project artifacts for each developer push"/>
+    
+    <target name="hudson-all" depends="-init-coverage, all, findbugs, staticsizes, coverage-report, hudson-post-build"
+            description="Build and test with coverage all project artifacts for nightly build"/>
 
-    <target name="hudson-all" depends="coverage, all, findbugs, staticsizes, coverage-report, hudson-post-build"
-            description="Build and test all project artifacts for nightly build"/>
-
-    <target name="all-with-coverage" depends="coverage, all, findbugs, staticsizes, coverage-report"
+    <target name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
             description="Build and test all project artifacts with coverage"/>
 
     <target name="compiler-only" depends="jar"
             description="Build just the javafxc compiler (no bin scripts, javafxdoc, etc)"/>
 
-    <available property="ant.jar" value="${ant.home}/lib/ant.jar" file="${ant.home}/lib/ant.jar"/>
+    <available property="ant.jar" value="${import.ant.jar}" file="${import.ant.jar}"/>
     <!-- if the previous location is not correct than find the ant.jar from the java.class.path value -->
     <pathconvert property="ant.jar">
         <mapper type="regexp" from="${path.separator}([^${path.separator}]*ant.jar)${path.separator}" to="\1"/>
@@ -63,19 +130,6 @@
         <available property="has-jdk-1.5" classname="java.lang.Appendable"/>
     </target>
 
-    <target name="check-bootstrap">
-        <condition property="has-bootstrap-dirs">
-            <and>
-                <available file="${ant.dir}"/>
-                <available file="${junit.dir}"/>
-                <available file="${docbook.dir}"/>
-                <available file="${antlr.dir}"/>
-                <available file="${antlrworks.dir}/antlrworks-${antlrworks.ver}.jar"/>
-                <available file="${antlr.dir}/antlr-2.7.7.jar"/>
-            </and>
-        </condition>
-    </target>
-
     <target name="tool-paths">
         <!-- Define actual properties for the known paths so they can be used in the properties file -->
         <property name="ant.class.path" refid="ant.class.path"/>
@@ -90,14 +144,6 @@
         <property name="cobertura.class.path" refid="cobertura.class.path"/>
     </target>
 
-    <target name="do-bootstrap" depends="check-bootstrap" unless="has-bootstrap-dirs">
-        <ant antfile="bootstrap.xml" target="all"/>
-    </target>
-    
-    <target name="update-scenegraph" depends="do-bootstrap" unless="has-scenegraph-dir">
-        <ant antfile="bootstrap.xml" target="scenegraph"/>
-    </target>
-
     <target name="single-fx-test-check" if="test.fx.includes">
         <property name="test.class" value="framework.FXCompilerTest"/>
         <property name="test.includes" value="**/FXCompilerTest.java"/>
@@ -105,7 +151,8 @@
         <property name="test-sys-prop.test.fx.includes" value="${test.fx.includes}"/>
     </target>
 
-    <target name="-pre-init" depends="check-ant,check-jdk-1.5,do-bootstrap,update-scenegraph,tool-paths,single-fx-test-check">
+
+    <target name="-pre-init" depends="check-ant,check-jdk-1.5,tool-paths,single-fx-test-check">
         <fail unless="has-jdk-1.5">You need JDK 1.5 or higher to build JavaFX.</fail>
         <echo message="JDK version ${java.version}"/>
         <echo message="Ant version ${ant.version}"/>
@@ -127,11 +174,12 @@
             </manifest>
         </jar>
         <!-- make CLASS.LIST file using "jar tf" command -->
-        <exec executable="jar" 
+        <exec executable="jar" failonerror="true"
               output="${build.classes.dir}/META-INF/CLASS.LIST">
             <arg value="tf"/>
             <arg value="${dist.jar}"/>
         </exec>
+<!--
         <jar compress="${jar.compress}" destfile="${dist.jar}" manifest="${manifest.file}">
             <fileset dir="${build.classes.dir}"/>
             <zipfileset src="${file.reference.javac.jar}" excludes="META-INF/**/,javax/annotation/**/,com/sun/tools/javac/processing"/>
@@ -140,6 +188,7 @@
                 <attribute name="Main-Class" value="${main.class}"/>
             </manifest>
         </jar>
+-->
         <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
             <fileset dir="${build.classes.dir}" >
                 <include name="**/*.class" />
@@ -149,11 +198,12 @@
             </fileset>
         </jar>
         <!-- make CLASS.LIST file using "jar tf" command -->
-        <exec executable="jar" 
+        <exec executable="jar" failonerror="true"
               output="${build.classes.dir}/META-INF/CLASS.LIST">
             <arg value="tf"/>
             <arg value="${dist.javafxrt.jar}"/>
         </exec>
+<!--
         <jar compress="${jar.compress}" destfile="${dist.javafxrt.jar}" >
             <fileset dir="${build.classes.dir}"> 
                 <include name="**/*.class" />
@@ -163,6 +213,7 @@
                 <exclude name="com/sun/javafx/api/**"/>
             </fileset>
         </jar>
+-->
     </target>
 
     <target depends="-pre-compile" name="generate-lexerv4" unless="lexerv4.uptodate" >
@@ -224,7 +275,7 @@
             <arg value="${build.generated.dir}" />
             <arg value="com/sun/javafx/runtime/location" />
             <arg line="XxxConstant XxxLocation XxxVariable" />
-            <classpath>
+           <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
                 <path refid="antlr.class.path" />
                 <pathelement location="${src.classes.dir}" />
@@ -380,7 +431,7 @@
     
     <target name="-def-pcompile">
         <mkdir dir="${build.buildtools.dir}"/>
-        <javac srcdir="${src.buildtools.dir}" destdir="${build.buildtools.dir}" classpath="${ant.home}/lib/ant.jar">
+        <javac srcdir="${src.buildtools.dir}" destdir="${build.buildtools.dir}" classpath="${import.ant.jar}">
             <classpath>
                 <path refid="ant.class.path" />
                 <path refid="antlr.class.path" />
@@ -391,7 +442,7 @@
                  classpath="${build.buildtools.dir}/"/>
     </target>
     
-    <target name="docs" depends="init,javadoc,langref,man-pages">
+    <target name="-do-docs" depends="javadoc,langref,man-pages">
         <copy todir="dist/doc">
             <fileset dir="doc" includes="**/*.pdf"/>
         </copy>
@@ -406,7 +457,7 @@
 
     <!-- Stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="coverage" description="Enables coverage for junit test targets">
+    <target name="-init-coverage">
         <property name="do.coverage" value="true"/>
     </target>
 
@@ -460,18 +511,9 @@
 
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
-    <target name="-post-clean" depends="javafxdoc-clean,langref-clean,launcher-clean">
-        <!-- Delete ANTLR-generated files -->
-        <delete dir="src/share/classes/com/sun/tools/javafx" includes="**/v4*.*" excludes="**/v4Lexer.g **/v4Parser.g"/>
-        <delete dir="${syntax.diagrams.dir}" />
-        <delete dir="${build.instrumented.dir}"/>
-        <delete file="cobertura.ser" />
-        <delete dir="bundles"/>
-    </target>
-
     <target name="langref" description="Build JavaFX Script Language Reference.">
-        <ant antfile="doc/build.xml" target="spec" inheritAll="false"/>
-        <ant antfile="doc/refbuild.xml" target="ref" inheritAll="false"/>
+        <ant antfile="doc/build.xml" target="spec" inheritAll="true"/>
+        <ant antfile="doc/refbuild.xml" target="ref" inheritAll="true"/>
         <copy todir="dist/doc/reference">
             <fileset dir="build/doc/html"/>
         </copy>
@@ -484,16 +526,16 @@
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
                  classpathref="findbugs.class.path" />
         <mkdir dir="${dist.findbugs.dir}"/>
-        <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${findbugs.dir}" jvmargs="-Xmx512m"
+        <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${import.findbugs.dir}" jvmargs="-Xmx512m"
                   projectName="OpenJFX compiler ${full.version}" excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
-            <auxclasspath path="${javac.classpath}:${junit.class.path}"/>
+            <auxclasspath path="${javac.classpath}:${import.junit.jar}"/>
             <sourcepath path="${src.classes.dir}"/>
         </findbugs>
-        <exec executable="sh">
-            <arg value="${findbugs.dir}/bin/convertXmlToText"/>
+        <exec executable="sh" failonerror="true">
+            <arg value="${import.findbugs.dir}/bin/convertXmlToText"/>
             <arg value="-longBugCodes"/>
-            <arg value="-html:${findbugs.dir}/src/xsl/fancy.xsl"/>
+            <arg value="-html:${import.findbugs.dir}/src/xsl/fancy.xsl"/>
             <arg value="${build.dir}/findbugs.xml"/>
             <redirector output="${dist.findbugs.dir}/findbugs.html"/>
         </exec>
@@ -525,8 +567,8 @@
     <target name="hudson-post-build" depends="init" if="export.dir">
         <property environment="env"/>
         <mkdir dir="${export.dir}/findbugs"/>
-        <exec executable="sh">
-            <arg value="${findbugs.dir}/bin/setBugDatabaseInfo"/>
+        <exec executable="sh" failonerror="true">
+            <arg value="${import.findbugs.dir}/bin/setBugDatabaseInfo"/>
             <arg value="-name"/>
             <arg value="${env.JOB_NAME}-${env.SVN_REVISION}"/>
             <arg value="${build.dir}/findbugs.xml"/>
@@ -549,7 +591,7 @@
     </target>
     
     <target name="launcher" description="Copy command wrappers to dist/bin directory.">
-        <ant dir="${launcher.dir}" antfile="build.xml" target="all" inheritall="false">
+        <ant dir="${launcher.dir}" antfile="build.xml" target="all" inheritall="true">
             <property name="compiler.dist.dir" location="${basedir}/dist/bin" />
         </ant>
         <copy todir="dist/bin">
@@ -559,39 +601,36 @@
     </target>
     
     <target name="man-pages">
-        <ant antfile="doc/build.xml" target="man-pages" inheritAll="false"/>
+        <ant antfile="doc/build.xml" target="man-pages" inheritAll="true"/>
         <copy todir="dist/man/man1">
             <fileset dir="build/doc/man/man1"/>
         </copy>
     </target>
     
     <target name="javafxdoc-clean">
-        <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
+       <echo message="clean in javafxdoc/"/>
+       <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
     
     <target name="launcher-clean">
-        <ant dir="${launcher.dir}" antfile="build.xml" target="clean" inheritall="false" />
+       <echo message="clean in launcher/"/>
+       <ant dir="${launcher.dir}" antfile="build.xml" target="clean" inheritall="false" />
     </target>
 
     <target name="langref-clean">
-        <ant dir="doc" antfile="build.xml" target="clean" inheritall="false" />
+       <echo message="clean in doc/"/>
+       <ant dir="doc" antfile="build.xml" target="clean" inheritall="false" />
     </target>
 
+    <!-- Not part of the "clean" target processing.  Used by ?? -->
     <target name="real-clean">
-        <!-- suppress automatic bootstrapping -->
-        <property name="has-bootstrap-dirs" value="true"/>
-        <property name="has-scenegraph-dir" value="true"/>
-        <ant antfile="bootstrap.xml" target="prepare"/>
         <antcall target="clean"/>
-        <ant antfile="bootstrap.xml" target="clean"/>
-        <antcall target="javafxdoc-clean"/>
-        <antcall target="langref-clean"/>
-        <antcall target="launcher-clean"/>
-        <mkdir dir="dist/lib"/>
-        <delete dir="dist/lib"/>
+        <antcall target="javafxdoc-clean" inheritall="true"/>
+        <antcall target="langref-clean" inheritall="true"/>
+        <antcall target="launcher-clean" inheritall="true"/>
     </target>
-    
-    <available property="mail.jar" value="${ant.home}/lib/mail.jar" file="${ant.home}/lib/mail.jar"/>
+
+<!-- kelly? -->    <available property="mail.jar" value="${ant.home}/lib/mail.jar" file="${ant.home}/lib/mail.jar"/>
     
     <target name="weekly-build-check">
         <!-- weekly build parameters, normally set by Hudson -->
@@ -605,7 +644,7 @@
         <tstamp>
             <format property="date.stamp" pattern="yyyy-MM-dd"/>
         </tstamp>
-        <antcall target="-bundles-build">
+        <antcall target="-bundle-build">
             <param name="release" value="weekly-${date.stamp}"/>
         </antcall>
         <mail from="${weekly.buildmaster}" 
@@ -616,15 +655,15 @@
     </target>
     
     <target name="milestone-build" description="Milestone build target">
-        <antcall target="-bundles-build"/>
+        <antcall target="-bundle-build"/>
     </target>
     
-    <target name="-bundles-build" depends="init">
+    <target name="-bundle-build" depends="init">
         <fail unless="release" description="release tag not specified"/>
         <mkdir dir="${bundle.dir}"/>
         <zip destfile="${src.bundle}" basedir="${basedir}"
              excludes="${bundle.dir}/**, ${build.dir}/**, ${dist.dir}/** , **/.svn/**" level="9"/>
-        <antcall target="dist"/>
+        <antcall target="bundle"/>
         <!-- property set separately by Hudson build -->
         <property name="bundle.destdir" value="${env.WORKSPACE}"/>
         <mkdir dir="${bundle.destdir}/${release}"/>
@@ -640,7 +679,8 @@
     
     <target name="pack-jars" depends="jar">
         <taskdef name="pack200" classpath="${file.reference.pack200task.jar}"
-                 classname="com.sun.tools.apache.ant.pack200.Pack200Task"/>
+                     classname="org.jdesktop.deployment.ant.pack200.Pack200Task"/>
+
         <pack200 src="${dist.jar}" gzipoutput="true" destfile='${dist.jar}.pack.gz'/>
         <pack200 src="${dist.javafxrt.jar}" gzipoutput="true" destfile='${dist.javafxrt.jar}.pack.gz'/>
     </target>
@@ -772,7 +812,7 @@
         </presetdef>
     </target>
     
-    <target depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-presetdef-jar" name="init"/>
+
     <!--
                 ===================
                 COMPILATION SECTION
@@ -830,7 +870,8 @@
         </pathconvert>
         <echo>java -cp "${run.classpath.with.dist.jar}" ${main.class}</echo>
     </target>
-    <target depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries" description="Build JAR." name="jar">
+
+    <target name="jar" depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries" description="Build JAR.">
         <copy file="${file.reference.scenegraph.jar}" tofile="${dist.scenegraph.jar}" />
     </target>
     <!--
@@ -1017,7 +1058,6 @@
     </target>
     <target depends="init" if="have.tests" name="test-report"/>
     <target depends="init" if="netbeans.home+have.tests" name="-test-browse"/>
-    <target depends="init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse" description="Run unit tests." name="test"/>
     <target depends="init" if="have.tests" name="-pre-test-run-single">
         <mkdir dir="${build.test.results.dir}"/>
     </target>
@@ -1029,7 +1069,7 @@
         <java classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner" dir="${work.dir}" fork="true">
             <jvmarg line="${run.jvmargs}"/>
             <classpath>
-                <path path="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${run.test.classpath}"/>
+                <path path="${import.ant.jar}:${import.ant-junit.jar}:${run.test.classpath}"/>
             </classpath>
             <syspropertyset>
                 <propertyref prefix="test-sys-prop."/>
@@ -1073,7 +1113,7 @@
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
             <jvmarg line="${run.jvmargs}"/>
             <classpath>
-                <path path="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${debug.test.classpath}"/>
+                <path path="${import.ant.jar}:${import.ant-junit.jar}:${debug.test.classpath}"/>
             </classpath>
         </java>
     </target>
@@ -1089,15 +1129,23 @@
         <nbjpdareload dir="${build.test.classes.dir}"/>
     </target>
     <target depends="init,-pre-debug-fix,-do-debug-fix-test" if="netbeans.home" name="debug-fix-test"/>
+
     <!--
-                ===============
+                =======================
                 CLEANUP SECTION
-                ===============
+                =======================
             -->
-    <target depends="init" name="-do-clean">
+
+
+    <target name="-do-clean">
+        <property file="nbproject/configs/${config}.properties"/>
+        <property file="project.properties"/>
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
+        <delete file="cobertura.ser" />
+        <antcall target="javafxdoc-clean" inheritall="true"/>
+        <antcall target="langref-clean" inheritall="true"/>
+        <antcall target="launcher-clean" inheritall="true"/>
     </target>
-    
-    <target depends="init,-do-clean,-post-clean" description="Clean build products." name="clean"/>
+
 </project>
