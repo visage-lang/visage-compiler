@@ -74,6 +74,7 @@
         <copy todir="${jfx.dist.dir}">
           <fileset dir="${dist.dir}" includes="${dist.contents}"/>
         </copy>
+        <chmod dir="${jfx.dist.dir}" perm="a+x" type="both" includes="${dist.executables}"/>
     </target>
 
     <target name="-do-jfx-clean-sdk">
@@ -872,7 +873,6 @@
     </target>
 
     <target name="jar" depends="init,compile,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries" description="Build JAR.">
-        <copy file="${file.reference.scenegraph.jar}" tofile="${dist.scenegraph.jar}" />
     </target>
     <!--
                 =================
@@ -989,6 +989,7 @@
             -->
     <target depends="init,compile" if="have.tests" name="-pre-compile-test">
         <mkdir dir="${build.test.classes.dir}"/>
+        <copy file="${file.reference.scenegraph.jar}" tofile="${dist.scenegraph.jar}" />
     </target>
     <target depends="init,compile,-pre-compile-test" if="have.tests" name="-do-compile-test">
         <javac classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
