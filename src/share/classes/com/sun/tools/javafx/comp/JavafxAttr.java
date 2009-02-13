@@ -319,7 +319,7 @@ public class JavafxAttr implements JavafxVisitor {
     /** Derived visitor method: attribute a type tree.
      */
     Type attribType(JFXTree tree, JavafxEnv<JavafxAttrContext> env) {
-        Type localResult = attribTree(tree, env, TYP, Type.noType, Sequenceness.DISALLOWED);
+        Type localResult = attribTree(tree, env, TYP, Type.noType, Sequenceness.PERMITTED);
         return localResult;
     }
 
@@ -912,7 +912,8 @@ public class JavafxAttr implements JavafxVisitor {
                     // (The kludge won't be needed if we make Number->Integer and error.)
                 }
                 else
-                    chk.checkType(tree.pos(), initType, declType, Sequenceness.DISALLOWED);
+                    chk.checkType(tree.pos(), initType, declType,
+                            types.isSequence(declType) ? Sequenceness.REQUIRED : Sequenceness.DISALLOWED);
                 if (initType == syms.botType
                         || initType == syms.unreachableType)
                     initType = syms.objectType;
@@ -1796,7 +1797,7 @@ public class JavafxAttr implements JavafxVisitor {
                             // Temporary hack to suppress duplicate warning on Number->Integer.
                             // Hack can go away if/when we make it an error.  FIXME.
                             && ! (typeToCheck.tag <= LONG && bodyType.tag >= FLOAT && bodyType.tag <= DOUBLE))
-                        chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.DISALLOWED);
+                        chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.PERMITTED);
                 }
                 if (tree.isBound() && returnType == syms.javafx_VoidType) {
                     log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID);
@@ -1892,25 +1893,10 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitIfExpression(JFXIfExpression tree) {
         attribExpr(tree.cond, env, syms.booleanType);
         attribTree(tree.truepart, env, VAL, pt, pSequenceness);
-        Type falsepartType;
-        if (tree.falsepart == null) {
-            falsepartType = syms.voidType;
-        } else {
-            falsepartType = attribTree(tree.falsepart, env, VAL, pt, pSequenceness);
-            {   //TODO: ...
-                // A kludge, which can go away if we change things so that
-                // the compiler and runtime accepts null and [] equivalently.
-                // Well, actually, look at JFXC-925.
-                // Also, in a bind context, we need to know th etype of null
-                if (tree.truepart instanceof JFXSequenceEmpty
-                        || tree.truepart.type.tag == BOT)
-                    tree.truepart.type = falsepartType;
-                else if (tree.falsepart instanceof JFXSequenceEmpty
-                        || falsepartType.tag == BOT)
-                    falsepartType = tree.falsepart.type = tree.truepart.type;
-            }
-        }
-
+        Type falsepartType = tree.falsepart != null ?
+            attribTree(tree.falsepart, env, VAL, pt, pSequenceness) :
+            syms.voidType;
+        
         result = check(tree,
                        capture(condType(tree.pos(), tree.cond.type,
                                         tree.truepart.type, falsepartType)),
@@ -1970,9 +1956,9 @@ public class JavafxAttr implements JavafxVisitor {
                     return type2;
                 }
             } else  if (type2 == null) {
-                        return type1;
-                    }
-            
+                return type1;
+            }
+    
             if (type1.tag == VOID || type2.tag == VOID)
                 return syms.voidType;
 
@@ -2661,9 +2647,13 @@ public class JavafxAttr implements JavafxVisitor {
     /** Return the type of a literal with given type tag.
      */
     private Type litType(int tag, Type pt) {
-        return (tag == TypeTags.CLASS) ? syms.stringType : // a class literal can only be a String
-            (tag == TypeTags.BOT && pt.tag == TypeTags.CLASS) ? pt : // for null, make the type the expected type
-                syms.typeOfTag[tag];
+        switch (tag) {
+            case TypeTags.CLASS: return syms.stringType;
+            case TypeTags.BOT: return types.isSequence(pt) ?
+                syms.javafx_EmptySequenceType :
+                syms.botType;
+            default: return syms.typeOfTag[tag];
+        }
     }
 
     @Override
@@ -2929,19 +2919,10 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        boolean isSeq = false;
-        if (pt.tag != NONE && pt != syms.javafx_UnspecifiedType && !(isSeq = types.isSequence(pt)) && pSequenceness == Sequenceness.DISALLOWED) {
-
-            // Cannot use an empty sequence here
-            //
-            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_BAD_EMPTY_SEQUENCE, types.toJavaFXString(pt));
-            result = syms.errType;
-            
-        } else {
-            Type owntype = pt.tag == NONE || pt.tag == UNKNOWN ? syms.javafx_EmptySequenceType :
-                    isSeq ? pt : types.sequenceType(pt);
-            result = check(tree, owntype, VAL, pkind, Type.noType, pSequenceness);
-        }
+        boolean isSeq = types.isSequence(pt);
+        Type owntype = pt.tag == NONE || pt.tag == UNKNOWN ? syms.javafx_EmptySequenceType :
+                isSeq ? pt : types.sequenceType(pt);
+        result = check(tree, owntype, VAL, pkind, Type.noType, pSequenceness);
     }
 
     @Override
@@ -2973,15 +2954,13 @@ public class JavafxAttr implements JavafxVisitor {
             chk.warnEmptyRangeLiteral(tree.pos(), (JFXLiteral)tree.getLower(), (JFXLiteral)tree.getUpper(), (JFXLiteral)tree.getStepOrNull(), tree.isExclusive());
 		}
         Type owntype = types.sequenceType(allInt? syms.javafx_IntegerType : syms.javafx_FloatType);
-        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        result = tree.type = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         Type elemType = null;
         Type expected = pt;
-        if (types.isSequence(expected))
-            expected = types.elementType(expected);
         for (JFXExpression expr : tree.getItems()) {
                 Type itemType = attribTree(expr, env, VAL,
                         expected, Sequenceness.PERMITTED);
@@ -2996,11 +2975,9 @@ public class JavafxAttr implements JavafxVisitor {
             }
         Type owntype = elemType.tag == ERROR ? elemType : types.sequenceType(elemType);
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
-        if (owntype == result && pt.tag != NONE && pt != syms.javafx_UnspecifiedType) {
-            if (pSequenceness != Sequenceness.DISALLOWED)
-                expected = types.sequenceType(expected);
-            result = tree.type = expected;
-        }
+        if (owntype == result && pt.tag != NONE && pt != syms.javafx_UnspecifiedType && pt != syms.objectType) {
+             result = tree.type = expected;
+         }
     }
 
     @Override
