@@ -71,15 +71,15 @@
     <target name="-do-test"  depends="init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse"/>
 
     <target name="-do-jfx-sdk" depends="docs">
-        <copy todir="${jfx.dist.dir}">
+        <copy todir="${jfx.sdk.dir}">
           <fileset dir="${dist.dir}" includes="${dist.contents}"/>
         </copy>
-        <chmod dir="${jfx.dist.dir}" perm="a+x" type="both" includes="${dist.executables}"/>
+        <chmod dir="${jfx.sdk.dir}" perm="a+x" type="both" includes="${dist.executables}"/>
     </target>
 
     <target name="-do-jfx-clean-sdk">
          <delete includeemptydirs="true">
-            <fileset dir="${jfx.dist.dir}" includes="${dist.contents}"/>
+            <fileset dir="${jfx.sdk.dir}" includes="${dist.contents}"/>
           </delete>
     </target>
 
