@@ -50,8 +50,7 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
         for (Command cmd : shell.scripts) {
             cmd.run(scriptArgs);
         }
-
-        System.exit(EXIT_SUCCESS);
+        shell.close();
     }
 
     public ScriptShell(ClassLoader parentClassLoader) {
@@ -223,8 +222,7 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
     protected void processSource(String filename,
             String encoding) {
         if (filename.equals("-")) {
-            BufferedReader in = new BufferedReader
-                    (new InputStreamReader(getIn()));
+            BufferedReader in = getReader();
             boolean hitEOF = false;
             
             while (!hitEOF) {
@@ -381,7 +379,7 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
      * Prints usage message and exits
      * @param exitCode process exit code
      */
-    private static void usage(int exitCode) {
+    private void usage(int exitCode) {
         getError().println(getMessage("main.usage",
                 new Object[] { PROGRAM_NAME }));
                 System.exit(exitCode);
@@ -402,13 +400,26 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
         return MessageFormat.format(key, params);
     }
 
-    // input stream from where we will read
-    private static InputStream getIn() {
-        return System.in;
+    protected BufferedReader shellReader;
+    protected BufferedReader getReader() {
+        if (shellReader == null)
+            shellReader = new BufferedReader (new InputStreamReader(System.in));
+        return shellReader;
+    }
+
+    public void close() {
+        if (shellReader == null) {
+            try {
+                shellReader.close();
+            } catch (Throwable ex) {
+                // do nothing
+            }
+        }
+        shellReader = null;
     }
 
     // stream to print error messages
-    private static PrintStream getError() {
+    protected PrintStream getError() {
         return System.err;
     }
 
@@ -428,7 +439,7 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
      *
      * @param args command line argument array
      */
-    private static void checkClassPath(String[] args) {
+    private void checkClassPath(String[] args) {
         String classPath = null;
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-classpath") ||
@@ -546,14 +557,12 @@ public class ScriptShell implements DiagnosticListener<JavaFileObject> {
     private static final int EXIT_FILE_NOT_FOUND     = 11;
     private static final int EXIT_MULTIPLE_STDIN     = 12;
 
-    // default scripting language
-    private static final String DEFAULT_LANGUAGE = "javafx";
     // list of scripts to process
     private List<Command> scripts = new ArrayList<Command>();
     // error messages resource
     private static ResourceBundle msgRes;
     private static String BUNDLE_NAME = "com.sun.tools.script.shell.messages";
-    private static String PROGRAM_NAME = "jrunscript";
+    private static String PROGRAM_NAME = "jfxrunscript";
 
     static {
         //        msgRes = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault());
