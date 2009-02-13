@@ -459,8 +459,11 @@ public class JavafxAttr implements JavafxVisitor {
     @Override
     public void visitInstanceOf(JFXInstanceOf tree) {
         Type exprtype = attribExpr(tree.expr, env);
+        Type type = attribType(tree.clazz, env);
+        if (type.isPrimitive())
+            type = types.boxedClass(type).type;
         Type clazztype = chk.checkReifiableReferenceType(
-            tree.clazz.pos(), attribType(tree.clazz, env));
+            tree.clazz.pos(), type);
         chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
         result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
     }

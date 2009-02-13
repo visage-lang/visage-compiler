@@ -1187,10 +1187,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
             protected JCExpression makePushExpression() {
+                Type type = tree.clazz.type;
+                if (type.isPrimitive())
+                    type = types.boxedClass(type).type;
                 return m().TypeTest(
                         buildArgField(translate(tree.expr),
                         new FieldInfo(defs.toTestName, tree.expr.type)),
-                        makeExpression(tree.clazz.type) );
+                        makeExpression(type) );
             }
         }.doit();
     }
