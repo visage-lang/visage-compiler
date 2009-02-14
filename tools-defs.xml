@@ -9,7 +9,8 @@
     </path>
 
     <path id="scenegraph.class.path">
-        <fileset file="${jfx.sdk.scenario.jar}"/>
+<!--        <fileset file="${jfx.sdk.scenario.jar}"/>  disable until we find a way to move it to the public site. -->
+            <fileset file="${base.dir}/lib/Scenario.jar"/>
     </path>
 
     <path id="junit.class.path">
