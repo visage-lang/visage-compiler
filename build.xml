@@ -7,8 +7,7 @@
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
     <property environment="env" />
-    <property name="exe" value=""/>
-    <condition property="exe" value=".exe">
+    <condition property="exe" value=".exe" else="">
       <isset property="isWindows"/>
     </condition>
 
