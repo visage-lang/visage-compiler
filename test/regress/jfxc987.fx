@@ -1,6 +1,6 @@
 /**
  * Misleading error message in sequence declaration
- * @test/compile-error
+ * @test
  */
 
 import java.lang.Object;

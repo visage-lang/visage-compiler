@@ -2928,12 +2928,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitInstanceOf(JFXInstanceOf tree) {
-        JCTree clazz = this.makeTypeTree( tree,tree.clazz.type);
+        Type type = tree.clazz.type;
+        if (type.isPrimitive())
+            type = types.boxedClass(type).type;
+        JCTree clazz = this.makeTypeTree( tree, type);
         JCExpression expr = translateAsUnconvertedValue(tree.expr);
         if (tree.expr.type.isPrimitive()) {
             expr = this.makeBox(tree.expr.pos(), expr, tree.expr.type);
         }
-        if (types.isSequence(tree.expr.type) && ! types.isSequence(tree.clazz.type))
+        if (types.isSequence(tree.expr.type) && ! types.isSequence(type))
             expr = callExpression(tree.expr,
                     makeQualifiedTree(tree.expr, "com.sun.javafx.runtime.sequence.Sequences"),
                     "getSingleValue", expr);

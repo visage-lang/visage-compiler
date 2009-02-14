@@ -31,20 +31,6 @@ import com.sun.javafx.runtime.TypeInfo;
  * @author Brian Goetz
  */
 public class ComprehensionsTest extends JavaFXTestCase {
-
-    /**  foreach (i in sequence) { 2*i } */
-    public void testSimpleForeach() {
-        Sequence<Integer> five = Sequences.range(0, 5);
-        SequenceMapper<Integer, Integer> doubler = new SequenceMapper<Integer, Integer>() {
-            public Integer map(Sequence<Integer> sequence, int index, Integer value) {
-                return value*2;
-            }
-        };
-        Sequence<Integer> doubled = Sequences.map(TypeInfo.Integer, five, doubler);
-        assertEquals(doubled, 0, 2, 4, 6, 8, 10);
-        assertEquals(doubled, Sequences.flatten(doubled));
-    }
-
     /** select x from foo where x > 3
      *  select x from foo where indexof x % 2 != 0
      */

@@ -223,12 +223,18 @@ public class JavafxTypes extends Types {
             return isConvertible(elementType(t), elemtype(s), warn);
         if (isArray(t) && isSequence(s))
             return isConvertible(elemtype(t), elementType(s), warn);
-
+        if (isSequence(t) && isSequence(s))
+            return isConvertible(elementType(t), elementType(s), warn);
+        //sequence promotion conversion
+        if (isSequence(s) && !isSequence(t)) {
+            return isConvertible(sequenceType(t), s, warn);
+        }
         // Allow all numeric conversion, for now (some should warn)
         if (isNumeric(t) && isNumeric(s)) {
             return true;
         }
-
+        if (t == syms.intType && s == syms.charType)
+            return true;
         return false;
     }
 

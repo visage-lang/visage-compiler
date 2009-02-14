@@ -83,15 +83,53 @@ public class Checks {
             return i == 0;  // compare to default value
         } else if (obj instanceof Integer) {
             return ((Integer)obj).intValue() == i;
+        } else if (obj instanceof Float) {
+            return ((Float)obj).floatValue() == i;
         } else if (obj instanceof Double) {
             return ((Double)obj).doubleValue() == i;
+        } else if (obj instanceof Long) {
+            return ((Long)obj).longValue() == i;
+        } else if (obj instanceof Byte) {
+            return ((Byte)obj).byteValue() == i;
+        } else if (obj instanceof Short) {
+            return ((Short)obj).shortValue() == i;
+        } else if (obj instanceof Character) {
+            return ((Character)obj).charValue() == i;
         } else {
             return false;
         }
     }
 
     /**
-     * Compare an Object with a double
+     * Compare an Object with an float
+     * @param a Object
+     * @param b float
+     * @return true if they are equal
+     */
+    public static boolean equals(Object obj, float x) {
+        if (obj == null) {
+            return x == 0.0f;  // compare to default value
+        } else if (obj instanceof Float) {
+            return ((Float)obj).floatValue() == x;
+        } else if (obj instanceof Integer) {
+            return ((Integer)obj).intValue() == x;
+        } else if (obj instanceof Double) {
+            return ((Double)obj).doubleValue() == x;
+        } else if (obj instanceof Long) {
+            return ((Long)obj).longValue() == x;
+        } else if (obj instanceof Byte) {
+            return ((Byte)obj).byteValue() == x;
+        } else if (obj instanceof Short) {
+            return ((Short)obj).shortValue() == x;
+        } else if (obj instanceof Character) {
+            return ((Character)obj).charValue() == x;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Compare an Object with an double
      * @param a Object
      * @param b double
      * @return true if they are equal
@@ -99,10 +137,48 @@ public class Checks {
     public static boolean equals(Object obj, double x) {
         if (obj == null) {
             return x == 0.0;  // compare to default value
-        } else if (obj instanceof Integer) {
-            return ((Integer)obj).intValue() == x;
         } else if (obj instanceof Double) {
             return ((Double)obj).doubleValue() == x;
+        } else if (obj instanceof Integer) {
+            return ((Integer)obj).intValue() == x;
+        } else if (obj instanceof Float) {
+            return ((Float)obj).floatValue() == x;
+        } else if (obj instanceof Long) {
+            return ((Long)obj).longValue() == x;
+        } else if (obj instanceof Byte) {
+            return ((Byte)obj).byteValue() == x;
+        } else if (obj instanceof Short) {
+            return ((Short)obj).shortValue() == x;
+        } else if (obj instanceof Character) {
+            return ((Character)obj).charValue() == x;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Compare an Object with an long
+     * @param a Object
+     * @param b long
+     * @return true if they are equal
+     */
+    public static boolean equals(Object obj, long i) {
+        if (obj == null) {
+            return i == 0L;  // compare to default value
+        } else if (obj instanceof Long) {
+            return ((Long)obj).longValue() == i;
+        } else if (obj instanceof Integer) {
+            return ((Integer)obj).intValue() == i;
+        } else if (obj instanceof Float) {
+            return ((Float)obj).floatValue() == i;
+        } else if (obj instanceof Double) {
+            return ((Double)obj).doubleValue() == i;
+        } else if (obj instanceof Byte) {
+            return ((Byte)obj).byteValue() == i;
+        } else if (obj instanceof Short) {
+            return ((Short)obj).shortValue() == i;
+        } else if (obj instanceof Character) {
+            return ((Character)obj).charValue() == i;
         } else {
             return false;
         }

@@ -60,4 +60,8 @@ public abstract class ScriptBindingExpressions extends BindingExpression {
             }
         }
     }
+
+    public Object arg0() {
+        return arg$0;
+    }
 }

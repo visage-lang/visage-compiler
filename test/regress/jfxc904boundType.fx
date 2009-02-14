@@ -40,7 +40,7 @@ if (x instanceof A) {
    System.out.println("Yep, an A")
 }
 if (x instanceof B) {
-   System.out.println("Yep, a B -- {asB.b}")
+   System.out.println("Yep, a B -- {asB[0].b}")
 }
 if (x instanceof C) {
    System.out.println("FAIL, not a C")
@@ -54,7 +54,7 @@ if (x instanceof A) {
    System.out.println("Yep, an A")
 }
 if (x instanceof B) {
-   System.out.println("Yep, a B -- {asB.b}")
+   System.out.println("Yep, a B -- {asB[0].b}")
 }
 if (x instanceof C) {
    System.out.println("Yep, a C -- {asC.c}")

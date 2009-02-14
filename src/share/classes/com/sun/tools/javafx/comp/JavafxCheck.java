@@ -387,31 +387,29 @@ public class JavafxCheck {
         Type req = deLocationize(reqRaw);
         Type found = deLocationize(foundRaw);
         Type realFound = found;
-	if (req.tag == ERROR)
-	    return req;
-        if (found == syms.unreachableType)
-            return found;
-	if (found.tag == FORALL) {
+        if (req.tag == ERROR)
+            return req;
+            if (found == syms.unreachableType)
+                return found;
+        if (found.tag == FORALL) {
             if (req == syms.javafx_UnspecifiedType)
                 // Is this the right thing to do?  FIXME
                 return types.erasure(found);
             else
-	        return instantiatePoly(pos, (ForAll)found, req, convertWarner(pos, found, req));
+            return instantiatePoly(pos, (ForAll)found, req, convertWarner(pos, found, req));
         }
-	if (req.tag == NONE || req == syms.javafx_UnspecifiedType)
-	    return found;
-        if (types.isSequence(req)) {  
-            req = types.elementType(req);
+        if (req.tag == NONE || req == syms.javafx_UnspecifiedType)
+            return found;
+        if (types.isSequence(req)) {    
             pSequenceness = Sequenceness.REQUIRED;
         }
-        if (types.isSequence(found) || types.isArray(found)) {  
-            if (pSequenceness != Sequenceness.DISALLOWED) {
-                found = types.isSequence(found) ? types.elementType(found) : types.elemtype(found);
-            } else {
+        if (types.isSequence(found) || types.isArray(found)) {
+            if (pSequenceness == Sequenceness.DISALLOWED && req != syms.objectType) {
                 log.error(pos, MsgSym.MESSAGE_JAVAFX_BAD_SEQUENCE, types.toJavaFXString(req));
                 return syms.errType;
             }
         }
+
         Type reqUnboxed, foundUnboxed;
         if (req.tag == CLASS) {
             reqUnboxed = types.unboxedType(req);
@@ -427,15 +425,19 @@ public class JavafxCheck {
         }
         else
             foundUnboxed = found;
-	    if (types.isAssignable(foundUnboxed, reqUnboxed, convertWarner(pos, found, req))) {
+
+        if (types.isAssignable(foundUnboxed, reqUnboxed, convertWarner(pos, found, req))) {
             if (reqUnboxed.tag <= LONG && foundUnboxed.tag >= FLOAT && foundUnboxed.tag <= DOUBLE) {
                 // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
                 String foundAsJavaFXType = types.toJavaFXString(foundUnboxed);
                 String requiredAsJavaFXType = types.toJavaFXString(reqUnboxed);
-	        log.warning(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
-                        foundAsJavaFXType, requiredAsJavaFXType);
+                log.warning(pos,
+                        MsgSym.MESSAGE_PROB_FOUND_REQ,
+                        JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
+                        foundAsJavaFXType,
+                        requiredAsJavaFXType);
             }
-	        return realFound;
+            return realFound;
        }
 
         // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
@@ -444,22 +446,22 @@ public class JavafxCheck {
                 return realFound;
         }
 
-	if (found.tag <= DOUBLE && req.tag <= DOUBLE) {
+        if (found.tag <= DOUBLE && req.tag <= DOUBLE) {
             String foundAsJavaFXType = types.toJavaFXString(found);
             String requiredAsJavaFXType = types.toJavaFXString(req);
             log.warning(pos.getStartPosition(), MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
                     foundAsJavaFXType, requiredAsJavaFXType);
             return realFound;
         }
-	if (found.isSuperBound()) {
-	    log.error(pos, MsgSym.MESSAGE_ASSIGNMENT_FROM_SUPER_BOUND, found);
-	    return syms.errType;
-	}
-	if (req.isExtendsBound()) {
-	    log.error(pos, MsgSym.MESSAGE_ASSIGNMENT_TO_EXTENDS_BOUND, req);
-	    return syms.errType;
-	}
-	return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
+        if (found.isSuperBound()) {
+            log.error(pos, MsgSym.MESSAGE_ASSIGNMENT_FROM_SUPER_BOUND, found);
+            return syms.errType;
+        }
+        if (req.isExtendsBound()) {
+            log.error(pos, MsgSym.MESSAGE_ASSIGNMENT_TO_EXTENDS_BOUND, req);
+            return syms.errType;
+        }
+        return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
     }
 
     /** Instantiate polymorphic type to some prototype, unless
