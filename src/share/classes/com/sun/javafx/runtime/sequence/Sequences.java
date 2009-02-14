@@ -260,12 +260,6 @@ public final class Sequences extends SequenceConversions {
         return new ReverseSequence<T>(sequence);
     }
 
-    /** Create a new sequence that is the result of applying a mapping function to each element */
-    public static<T,U> Sequence<U> map(TypeInfo<U, ?> ti, Sequence<T> sequence, SequenceMapper<T, U> mapper) {
-        // OPT: for small sequences, do the mapping eagerly
-        return new MapSequence<T,U>(ti, sequence, mapper);
-    }
-
     /** Convert a Collection<T> to a Sequence<T> */
     @SuppressWarnings("unchecked")
     public static<T> Sequence<T> fromCollection(TypeInfo<T, ?> ti, Collection<T> values) {
