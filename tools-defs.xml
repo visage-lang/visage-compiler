@@ -4,15 +4,12 @@
 
     <property name="base.dir" value="${basedir}"/>
 
-    <property name="scenegraph.jar" value="${jfx.sdk.scenario.jar}"/>
-
-
     <path id="ant.class.path">
         <fileset dir="${import.ant.lib}" includes="**/ant.jar" />
     </path>
 
     <path id="scenegraph.class.path">
-        <fileset file="${scenegraph.jar}"/>
+        <fileset file="${jfx.sdk.scenario.jar}"/>
     </path>
 
     <path id="junit.class.path">

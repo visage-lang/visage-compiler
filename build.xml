@@ -847,8 +847,6 @@
     <target depends="init" name="-pre-jar">
         <dirname file="${dist.jar}" property="dist.jar.dir"/>
         <mkdir dir="${dist.jar.dir}"/>
-        <dirname file="${dist.scenegraph.jar}" property="dist.desktop.jar.dir"/>
-        <mkdir dir="${dist.desktop.jar.dir}"/>
     </target>
     <target depends="init,compile,-pre-jar" name="-do-jar-without-manifest" unless="manifest.available">
         <jar/>
@@ -989,7 +987,6 @@
             -->
     <target depends="init,compile" if="have.tests" name="-pre-compile-test">
         <mkdir dir="${build.test.classes.dir}"/>
-        <copy file="${file.reference.scenegraph.jar}" tofile="${dist.scenegraph.jar}" />
     </target>
     <target depends="init,compile,-pre-compile-test" if="have.tests" name="-do-compile-test">
         <javac classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
