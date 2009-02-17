@@ -1,3 +1,5 @@
+^launcher/dist
+^launcher/build
 ^bootstrap/
 ^build/
 ^tools/

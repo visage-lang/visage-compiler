@@ -1,4 +1,8 @@
-/*
+/**
+ * Regression test for JFXC-2771: Regression: tests KeyFrame_TS103_01.fx, and 104 and 105 fail using an uptodate Scenario.jar
+ *
+ * @test/fail
+ *
  * KeyFrame_TS105_01.fx
  * http://openjfx.java.sun.com/jira/browse/JFXC-1516 (manually verified for now.)
  *
