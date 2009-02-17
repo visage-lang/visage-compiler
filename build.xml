@@ -22,6 +22,7 @@
 
     <target name="jfx-clean"     depends="clean"/>
     <target name="jfx-clean-sdk" depends="init,-do-jfx-clean-sdk"/>
+    <target name="jfx-clean-deploy"/>
     <target name="jfx-init"/>
     <target name="jfx-sdk"       depends="init,-do-jfx-sdk"/>
     <target name="jfx-test"      depends="test"/>
