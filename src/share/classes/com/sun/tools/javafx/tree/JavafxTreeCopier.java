@@ -251,6 +251,12 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).TypeFunctional(params, restype, tree.getCardinality());
     }
 
+    @Override
+    public void visitTypeArray(JFXTypeArray tree) {
+        JFXType elementType = copy(tree.getElementType());
+        result = maker.at(tree.pos).TypeArray(elementType);
+    }
+
     public void visitTypeUnknown(JFXTypeUnknown tree) {
         result = maker.at(tree.pos).TypeUnknown();
     }

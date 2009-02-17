@@ -288,6 +288,11 @@ public class JavafxTreeScanner implements JavafxVisitor {
     }
     
     @Override
+    public void visitTypeArray(JFXTypeArray that) {
+        scan((JFXType)that.getElementType());
+    }
+
+    @Override
     public void visitTypeUnknown(JFXTypeUnknown that) {
     }
     

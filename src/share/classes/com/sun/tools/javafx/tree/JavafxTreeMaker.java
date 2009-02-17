@@ -733,6 +733,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXType TypeArray(JFXType elementType) {
+        JFXType tree = new JFXTypeArray(elementType);
+        tree.pos = pos;
+        return tree;
+    }
 
     public JFXOverrideClassVar TriggerWrapper(JFXIdent expr, JFXOnReplace onr) {
         JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, null, null, onr, null);

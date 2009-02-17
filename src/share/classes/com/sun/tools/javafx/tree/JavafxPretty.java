@@ -1094,6 +1094,16 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
+    @Override
+    public void visitTypeArray(JFXTypeArray tree) {
+        try {
+            print("nativearray of ");
+            printTypeSpecifier(tree.getElementType());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitTypeUnknown(JFXTypeUnknown tree) {
         try {
             print(ary(tree));

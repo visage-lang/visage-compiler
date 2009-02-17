@@ -135,6 +135,7 @@ LAST			: 'last';
 LAZY			: 'lazy';
 MIXIN			: 'mixin';
 MOD				: 'mod';
+NATIVEARRAY		: 'nativearray';
 NEW				: 'new';
 NOT				: 'not';
 NULL			: 'null';

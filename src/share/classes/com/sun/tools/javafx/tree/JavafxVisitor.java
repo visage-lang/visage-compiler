@@ -60,6 +60,7 @@ public interface JavafxVisitor {
     public void visitTypeAny(JFXTypeAny tree);
     public void visitTypeClass(JFXTypeClass tree);
     public void visitTypeFunctional(JFXTypeFunctional tree);
+    public void visitTypeArray(JFXTypeArray tree);
     public void visitTypeUnknown(JFXTypeUnknown tree);
     public void visitVar(JFXVar tree);
     public void visitVarScriptInit(JFXVarScriptInit tree);

@@ -1853,6 +1853,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     @Override
+    public void visitTypeArray(JFXTypeArray tree) {
+        assert false : "should not be processed as part of a binding";
+    }
+
+    @Override
     public void visitTypeUnknown(JFXTypeUnknown that) {
         assert false : "should not be processed as part of a binding";
     }

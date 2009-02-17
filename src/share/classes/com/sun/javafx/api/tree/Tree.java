@@ -482,7 +482,12 @@ public interface Tree {
          * Used for instances of {@link TypeFunctionalTree}.
          */
         TYPE_FUNCTIONAL(TypeFunctionalTree.class),
-        
+
+        /**
+         * Used for instances of {@link TypeArrayTree}.
+         */
+        TYPE_ARRAY(TypeArrayTree.class),
+
         /**
          * Used for sizeof unary operator.
          */

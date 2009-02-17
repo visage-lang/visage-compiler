@@ -3362,6 +3362,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         assert false : "should be processed by parent tree";
     }
 
+    @Override
+    public void visitTypeArray(JFXTypeArray tree) {
+        assert false : "should be processed by parent tree";
+    }
+
     public void visitTypeUnknown(JFXTypeUnknown that) {
         assert false : "should be processed by parent tree";
     }

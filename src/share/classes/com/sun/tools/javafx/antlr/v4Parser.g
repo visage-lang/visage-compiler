@@ -3848,7 +3848,7 @@ unaryExpression
 			endPos($value);
 		}
 		
-	| SUB        DECIMAL_LITERAL
+	| (SUB DECIMAL_LITERAL)=> SUB        DECIMAL_LITERAL
 
 		{
 			$value = F.at(rPos).LiteralInteger('-' + $DECIMAL_LITERAL.text, 10);
@@ -5459,6 +5459,7 @@ type
 		}
 		
 	| typeFunction	{ $rtype = $typeFunction.rtype; }
+	| typePrefixed	{ $rtype = $typePrefixed.rtype; }
 	| typeStar		{ $rtype = $typeStar.rtype;		}
 	;
 
@@ -5545,6 +5546,44 @@ catch [RecognitionException re] {
 	
 	$rtype = F.at(rPos).ErroneousType(errNodes.elems);
 	endPos($rtype);
+}
+
+typePrefixed
+
+	returns [JFXType rtype]
+
+@init
+{
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+	
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
+}
+ 	: NATIVEARRAY IDENTIFIER { "of".equals($IDENTIFIER.text) }?=>type
+ 	
+ 		{
+ 			$rtype = F.at(rPos).TypeArray($type.rtype);
+ 			endPos($rtype);
+ 		}
+ 	;
+ // Catch an error. We create an erroneous node for anything that was at the start 
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+  
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+	
 }
 
 typeStar

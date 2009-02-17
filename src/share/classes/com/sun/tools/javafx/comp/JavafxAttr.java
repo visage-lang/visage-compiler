@@ -3144,6 +3144,15 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     @Override
+    public void visitTypeArray(JFXTypeArray tree) {
+        //TODO: Do the right thing here
+        Type etype = attribType(tree.getElementType(), env);
+        Type type = new ArrayType(etype, syms.arrayClass);
+        tree.type = type;
+        result = type;
+    }
+
+    @Override
     public void visitTypeUnknown(JFXTypeUnknown tree) {
         result = tree.type = syms.javafx_UnspecifiedType;
     }

@@ -252,6 +252,10 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
         return defaultAction(node, p);
     }
 
+    public R visitTypeArray(TypeArrayTree node, P p) {
+        return defaultAction(node, p);
+    }
+
     public R visitTypeUnknown(TypeUnknownTree node, P p) {
         return defaultAction(node, p);
     }

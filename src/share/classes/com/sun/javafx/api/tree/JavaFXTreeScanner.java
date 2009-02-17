@@ -376,6 +376,10 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return scanAndReduce(node.getParameters(), p, r);
     }
 
+    public R visitTypeArray(TypeArrayTree node, P p) {
+        return scan(node.getElementType(), p);
+    }
+
     public R visitTypeUnknown(TypeUnknownTree node, P p) {
         return null;
     }

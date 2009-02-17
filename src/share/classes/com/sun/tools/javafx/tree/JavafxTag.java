@@ -248,6 +248,10 @@ public enum JavafxTag {
      */
     TYPEFUNC,
 
+    /** array type
+     */
+    TYPEARRAY,
+
     /** any type
      */
     TYPEANY,

@@ -251,6 +251,9 @@ sizeof seq;
 // REVERSE
 reverse seq;
 
+// TYPE_ARRAY
+var ax : nativearray of Integer;
+
 // ERRONEOUS
 // not needed here, the line above is just for completness
 
