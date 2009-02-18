@@ -1,5 +1,6 @@
 /*
-* @test
+* @test/fail
+* was @test
 */
 import java.io.File;
 import java.lang.System;

@@ -1,9 +1,9 @@
 import java.lang.System;
 import java.util.Date;
 /*
- * @test
- * @compilefirst ../TestUtils.fx
- * @run
+ * @test/fail
+ * was: compilefirst ../TestUtils.fx
+ * was: @run
  */
 
 var TU = new TestUtils;

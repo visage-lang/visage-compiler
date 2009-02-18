@@ -477,6 +477,11 @@ public class JavafxTypes extends Types {
             toJavaFXString(elementType(type), buffer);
         buffer.append("[]");
     }
+
+    private void arrayToJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
+        buffer.append("nativearray of ");
+        toJavaFXString(elemtype(type), buffer);
+    }
     
     private void methodToJavaFXString(MethodType type, Appendable buffer) throws java.io.IOException {
         if (type.getReturnType() == null) {
@@ -516,6 +521,8 @@ public class JavafxTypes extends Types {
             buffer.append("<unknown>");
         } else if (isJavaFXSequence(type)) {
             sequenceToJavaFXString(type, buffer);
+        } else if (type.tag == ARRAY) {
+            arrayToJavaFXString(type, buffer);
         } else if (isJavaFXMethod(type)) {
             MethodType methodType = type.asMethodType();
             methodToJavaFXString(methodType, buffer);
