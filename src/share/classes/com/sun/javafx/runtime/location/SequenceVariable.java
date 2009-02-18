@@ -459,8 +459,8 @@ public class SequenceVariable<T>
             sequenceChangeListener = new SequenceChangeListener<T>() {
                 public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                     $value = newValue;
-                    // @@@ Right value of notifyDependencies?
-                    notifyListeners(startPos, endPos, newElements, oldValue, newValue, false);
+                    // JFXC-2627 - changed updateDependencies to true
+                    notifyListeners(startPos, endPos, newElements, oldValue, newValue, true);
                 }
             };
             otherLocation.addChangeListener(changeListener);
