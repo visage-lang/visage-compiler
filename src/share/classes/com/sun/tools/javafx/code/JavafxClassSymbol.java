@@ -58,11 +58,15 @@ public class JavafxClassSymbol extends ClassSymbol {
     }
 
     public boolean isSubClass(Symbol base, Types types) {
-        if (! (types instanceof JavafxTypes) || ! ((JavafxTypes) types).isCompoundClass(this))
-            return super.isSubClass(base, types);
+        // Trivial case.
         if (this == base)
             return true;
+        // If a java class or type.
+        if (!(types instanceof JavafxTypes))
+            return super.isSubClass(base, types);
+        // Make sure the fx class is complete.
         complete();
+        // Search the fx MI hierarchy.
         List<Type> supers = getSuperTypes();
         for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
              if (l.head.tsym.isSubClass(base, types)) return true;
