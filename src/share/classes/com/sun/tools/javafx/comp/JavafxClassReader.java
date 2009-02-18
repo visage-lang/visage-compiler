@@ -126,13 +126,13 @@ public class JavafxClassReader extends ClassReader {
 
     public JavafxClassSymbol enterClass(ClassSymbol jsymbol) {
         Name className = jsymbol.flatname;
-        boolean compound = className.endsWith(defs.interfaceSuffixName);
-        if (compound)
+        boolean mixin = className.endsWith(defs.interfaceSuffixName);
+        if (mixin)
             className = className.subName(0, className.len - defs.interfaceSuffixName.len);
         JavafxClassSymbol cSym = (JavafxClassSymbol) enterClass(className);
         //cSym.flags_field |= jsymbol.flags_field;
-        if (compound)
-            cSym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+        if (mixin)
+            cSym.flags_field |= JavafxFlags.MIXIN;
         else {
             fixupFullname(cSym, jsymbol);
             cSym.jsymbol = jsymbol;
@@ -461,7 +461,7 @@ public class JavafxClassReader extends ClassReader {
                             itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
                         iface = itype;
                         iface.tsym.complete();
-                        csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+                        csym.flags_field |= JavafxFlags.MIXIN;
                     }
                     else {
                         itype = translateType(itype);
@@ -513,6 +513,8 @@ public class JavafxClassReader extends ClassReader {
                         flags |=  JavafxFlags.PUBLIC_INIT;
                     } else if (a.type.tsym.flatName() == javafxSyms.javafx_publicReadAnnotationType.tsym.flatName()) {
                         flags |=  JavafxFlags.PUBLIC_READ;
+                    } else if (a.type.tsym.flatName() == javafxSyms.javafx_mixinAnnotationType.tsym.flatName()) {
+                        flags |=  JavafxFlags.MIXIN;
                     } else if (a.type.tsym.flatName() == javafxSyms.javafx_inheritedAnnotationType.tsym.flatName()) {
                         continue handleSyms;
                     } else if (a.type.tsym.flatName() == javafxSyms.javafx_sourceNameAnnotationType.tsym.flatName()) {
