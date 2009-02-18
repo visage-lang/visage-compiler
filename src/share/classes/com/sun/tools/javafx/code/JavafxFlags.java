@@ -79,7 +79,6 @@ public class JavafxFlags {
 
     // Class flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
-    public static final long COMPOUND_CLASS          = FIRST_FX_CLASS_FLAG << 0;  // class that gets translated to a class and an inteface (MI)
     public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // JavaFX class
     public static final long CLASS_HAS_INIT_BLOCK    = FIRST_FX_CLASS_FLAG << 2;  // there is an init block on the class
 
