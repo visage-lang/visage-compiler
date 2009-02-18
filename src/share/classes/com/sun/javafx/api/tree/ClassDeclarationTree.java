@@ -43,6 +43,7 @@ public interface ClassDeclarationTree extends Tree {
     ModifiersTree getModifiers();
     List<ExpressionTree> getImplements();
     List<ExpressionTree> getSupertypeList();
+    List<ExpressionTree> getMixins();
     List<ExpressionTree> getExtends();
     List<Tree> getClassMembers();
 }
