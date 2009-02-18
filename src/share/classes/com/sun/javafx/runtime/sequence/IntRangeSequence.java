@@ -42,22 +42,7 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
         super(TypeInfo.Integer);
         this.start = start;
         this.step = step;
-        if (Math.abs((long) start - (long) bound) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)
-            throw new IllegalArgumentException("Range sequence too big");
-        if (bound == start) {
-            this.size = exclusive ? 0 : 1;
-        }
-        else {
-            int size = Math.max(0, ((bound - start) / step) + 1);
-            if (exclusive) {
-                boolean tooBig = (step > 0)
-                        ? (start + (size-1)*step >= bound)
-                        : (start + (size-1)*step <= bound);
-                if (tooBig && size > 0)
-                    --size;
-            }
-            this.size = (int) size;
-        }
+        this.size = Sequences.calculateSize(start, bound, step, exclusive);
     }
 
     public IntRangeSequence(int start, int bound, int step) {
