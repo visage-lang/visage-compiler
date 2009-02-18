@@ -35,7 +35,7 @@ public abstract class FXClassType extends FXType implements FXMember {
     String name;
     FXContext context;
     protected int modifiers;
-    protected static final int COMPOUND_CLASS = 1;
+    protected static final int FX_MIXIN = 1;
     protected static final int FX_CLASS = 2;
 
     public static final String SEQUENCE_CLASSNAME =
@@ -81,15 +81,15 @@ public abstract class FXClassType extends FXType implements FXMember {
      */
     public abstract List<FXClassType> getSuperClasses(boolean all);
     
-    public boolean isCompoundClass() {
-        return (modifiers & COMPOUND_CLASS) != 0;
+    public boolean isMixin() {
+        return (modifiers & FX_MIXIN) != 0;
     }
 
     public boolean isJfxType() {
         return (modifiers & FX_CLASS) != 0;
     }
 
-     public boolean isAssignableFrom(FXClassType cls) {
+    public boolean isAssignableFrom(FXClassType cls) {
         if (this.equals(cls))
             return true;
         List<FXClassType> supers = cls.getSuperClasses(false);
