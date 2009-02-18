@@ -503,30 +503,16 @@ public class JavafxCheck {
      *  @param req        The target type of the cast.
      */
     Type checkCastable(DiagnosticPosition pos, Type found, Type req) {
-	if (found.tag == FORALL && found instanceof ForAll) {
-	    instantiatePoly(pos, (ForAll) found, req, castWarner(pos, found, req));
-	    return req;
-	} else if (types.isCastable(found, req, castWarner(pos, found, req))) {
-	    return req;
+        if (found.tag == FORALL && found instanceof ForAll) {
+            instantiatePoly(pos, (ForAll) found, req, castWarner(pos, found, req));
+            return req;
+        } else if (types.isCastable(found, req, castWarner(pos, found, req))) {
+            return req;
+        } else {
+            return typeError(pos,
+                    JCDiagnostic.fragment(MsgSym.MESSAGE_INCONVERTIBLE_TYPES),
+                    found, req);
         }
-        // use the JavafxClassSymbol's supertypes to see if req is in the supertypes of found.
-        else if (found.tsym != null && found.tsym instanceof JavafxClassSymbol) {
-            for (Type baseType : types.supertypes(found.tsym, found)) {
-                if (types.isCastable(baseType, req, castWarner(pos, found, req)))
-                    return req;
-            }
-        }
-
-        if (req.tsym != null && req.tsym instanceof JavafxClassSymbol) {
-            for (Type baseType : types.supertypes(req.tsym, req)) {
-                if (types.isCastable(baseType, found, castWarner(pos, found, req)))
-                    return req;
-            }
-        }
-        
-        return typeError(pos,
-            JCDiagnostic.fragment(MsgSym.MESSAGE_INCONVERTIBLE_TYPES),
-	    found, req);
     }
 //where
         /** Is type a type variable, or a (possibly multi-dimensional) array of

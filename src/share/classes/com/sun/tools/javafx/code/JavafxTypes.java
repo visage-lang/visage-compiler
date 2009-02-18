@@ -240,6 +240,20 @@ public class JavafxTypes extends Types {
 
     @Override
     public boolean isCastable(Type t, Type s, Warner warn) {
+        //if source is a sequence and target is neither a sequence nor Object return false
+        if (isSequence(t) &&
+                !isSequence(s) &&
+                s != syms.objectType &&
+                s != syms.botType) {
+            return false;
+        }
+
+        //cannot cast from null to a value type (non-null by default) and vice-versa
+        if ((s == syms.botType && t.isPrimitive()) ||
+                (t == syms.botType && s.isPrimitive())) {
+            return false;
+        }
+
         Type target = isSequence(s) ? elementType(s) : s;
         Type source = isSequence(t) ? elementType(t) : t;
         if (target.isPrimitive() && ! source.isPrimitive())
@@ -459,7 +473,8 @@ public class JavafxTypes extends Types {
     }
     
     private void sequenceToJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
-        toJavaFXString(elementType(type), buffer);
+        if (type != syms.javafx_EmptySequenceType)
+            toJavaFXString(elementType(type), buffer);
         buffer.append("[]");
     }
     

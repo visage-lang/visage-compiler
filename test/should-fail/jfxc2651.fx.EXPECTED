@@ -55,4 +55,10 @@ System.out.println([false] == [1]);
 test/should-fail/jfxc2651.fx:44: incomparable types: Integer[] and Boolean[]
 System.out.println([1] == [false]);
                    ^
-19 errors
+test/should-fail/jfxc2651.fx:46: incomparable types: Integer and <nulltype>
+System.out.println(1 == null);
+                   ^
+test/should-fail/jfxc2651.fx:47: incomparable types: <nulltype> and Integer
+System.out.println(null == 1);
+                   ^
+21 errors

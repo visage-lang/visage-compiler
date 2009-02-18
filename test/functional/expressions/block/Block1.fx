@@ -11,8 +11,8 @@ import java.lang.Exception;
 var x = if(true) "String" else (for(i in [1..4]){i;});
 var x1 = if(false) "String" else (for(i in [1..4]){i;});
 var y = "Value of y = {if(false) sizeof (for(i in [1..100]){i;})  else 23.9}";
-if(not (x instanceof String)) { throw new Exception("Test failed");}
-if(x1 instanceof String) { throw new Exception("Test failed");}
+if(not (x[0] instanceof String)) { throw new Exception("Test failed");}
+if(x1[0] instanceof String) { throw new Exception("Test failed");}
 if(not (y instanceof String)) { throw new Exception("Test failed");}
 System.out.println("x={x} and y={y}");
 

@@ -445,11 +445,8 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitTypeCast(JFXTypeCast tree) {
-        Type clazztype = attribType(tree.clazz, env);
-        Type reqType = tree.expr instanceof JFXLiteral ? clazztype : Infer.anyPoly;
-        Type exprtype = attribExpr(tree.expr, env, reqType);
-        if (clazztype.isPrimitive() && ! exprtype.isPrimitive())
-            clazztype = types.boxedClass(clazztype).type;
+        Type clazztype = attribType(tree.clazz, env);  
+        Type exprtype = attribExpr(tree.expr, env);
         Type owntype = chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
         if (exprtype.constValue() != null)
             owntype = cfolder.coerce(exprtype, owntype);
@@ -460,12 +457,16 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitInstanceOf(JFXInstanceOf tree) {
         Type exprtype = attribExpr(tree.expr, env);
         Type type = attribType(tree.clazz, env);
-        if (type.isPrimitive())
-            type = types.boxedClass(type).type;
-        Type clazztype = chk.checkReifiableReferenceType(
-            tree.clazz.pos(), type);
-        chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
-        result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
+        //FIXME - check that the target type is not a generic type - this hack
+        //disables instanceof where target type is a sequence, currently
+        //not supported by translation
+        result = chk.checkReifiableReferenceType(
+                tree.clazz.pos(),
+                type.isPrimitive() ? types.boxedClass(type).type : type);
+        if (!result.isErroneous()) {
+            chk.checkCastable(tree.expr.pos(), exprtype, type);
+            result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
+        }
     }
 
     private void checkTypeCycle(JFXTree tree, Symbol sym) {
@@ -2540,10 +2541,12 @@ public class JavafxAttr implements JavafxVisitor {
                     }
                 }
 
-                // Check that argument types of a reference ==, != are
-                // castable to each other, (JLS???).
+                // Check that operands a, b of a binary reference comparison
+                // ==, != are castable to each other (either a castable to b
+                // or b castable to a)
                 if ((opc == ByteCodes.if_acmpeq || opc == ByteCodes.if_acmpne)) {
-                    if (!types.isCastable(left, right, Warner.noWarnings)) {
+                    if (!types.isCastable(left, right, Warner.noWarnings) &&
+                            !types.isCastable(right, left, Warner.noWarnings)) {
                         log.error(tree.pos(), MsgSym.MESSAGE_INCOMPARABLE_TYPES,
                             types.toJavaFXString(left),
                             types.toJavaFXString(right));

@@ -1,0 +1,105 @@
+test/should-fail/jfxc2387b.fx:18: inconvertible types
+found   : String
+required: jfxc2387b.A
+(x instanceof A);
+ ^
+test/should-fail/jfxc2387b.fx:19: inconvertible types
+found   : jfxc2387b.A
+required: String
+(a instanceof java.lang.String);
+ ^
+test/should-fail/jfxc2387b.fx:21: inconvertible types
+found   : String[]
+required: jfxc2387b.A
+([x] instanceof A);
+ ^
+test/should-fail/jfxc2387b.fx:22: illegal generic type for instanceof
+(a instanceof java.lang.String[]);
+              ^
+test/should-fail/jfxc2387b.fx:24: illegal generic type for instanceof
+(x instanceof A[]);
+              ^
+test/should-fail/jfxc2387b.fx:25: inconvertible types
+found   : jfxc2387b.A[]
+required: String
+([a] instanceof java.lang.String);
+ ^
+test/should-fail/jfxc2387b.fx:27: illegal generic type for instanceof
+([a] instanceof java.lang.String[]);
+                ^
+test/should-fail/jfxc2387b.fx:28: illegal generic type for instanceof
+([x] instanceof A[]);
+                ^
+test/should-fail/jfxc2387b.fx:32: inconvertible types
+found   : java.util.ArrayList
+required: java.util.HashSet
+(y instanceof HashSet);
+ ^
+test/should-fail/jfxc2387b.fx:33: illegal generic type for instanceof
+(y instanceof HashSet[]);
+              ^
+test/should-fail/jfxc2387b.fx:34: inconvertible types
+found   : java.util.ArrayList[]
+required: java.util.HashSet
+([y] instanceof HashSet);
+ ^
+test/should-fail/jfxc2387b.fx:35: illegal generic type for instanceof
+([y] instanceof HashSet[]);
+                ^
+test/should-fail/jfxc2387b.fx:39: inconvertible types
+found   : Integer
+required: Boolean
+(1 instanceof Boolean);
+ ^
+test/should-fail/jfxc2387b.fx:40: inconvertible types
+found   : Integer[]
+required: Boolean
+([1] instanceof Boolean);
+ ^
+test/should-fail/jfxc2387b.fx:41: illegal generic type for instanceof
+(1 instanceof Boolean[]);
+              ^
+test/should-fail/jfxc2387b.fx:42: illegal generic type for instanceof
+([1] instanceof Boolean[]);
+                ^
+test/should-fail/jfxc2387b.fx:45: inconvertible types
+found   : java.util.ArrayList[]
+required: java.util.ArrayList
+([y] instanceof ArrayList);
+ ^
+test/should-fail/jfxc2387b.fx:46: inconvertible types
+found   : java.util.ArrayList[]
+required: java.util.List
+([y] instanceof List);
+ ^
+test/should-fail/jfxc2387b.fx:47: inconvertible types
+found   : jfxc2387b.A[]
+required: jfxc2387b.B
+([a] instanceof B);
+ ^
+test/should-fail/jfxc2387b.fx:48: inconvertible types
+found   : jfxc2387b.B[]
+required: jfxc2387b.A
+([b] instanceof A);
+ ^
+test/should-fail/jfxc2387b.fx:49: inconvertible types
+found   : java.util.ArrayList[]
+required: java.util.Collection
+([y] instanceof Collection);
+ ^
+test/should-fail/jfxc2387b.fx:50: inconvertible types
+found   : []
+required: jfxc2387b.A
+([] instanceof A);
+ ^
+test/should-fail/jfxc2387b.fx:51: inconvertible types
+found   : Integer[]
+required: Number
+([1] instanceof Number);
+ ^
+test/should-fail/jfxc2387b.fx:52: inconvertible types
+found   : Number[]
+required: Integer
+([1.0] instanceof Integer);
+ ^
+24 errors

@@ -57,9 +57,6 @@ System.out.println([(x as ArrayList)] == [(x as Collection)]);
 System.out.println([1] == null);
 System.out.println(null == [1]);
 
-System.out.println(1 == null);
-System.out.println(null == 1);
-
 System.out.println([a] == null);
 System.out.println(null == [a]);
 
