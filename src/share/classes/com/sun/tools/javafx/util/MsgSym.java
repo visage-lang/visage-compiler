@@ -320,6 +320,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle";
     public static final String MESSAGE_JAVAFX_VOID_SEQUENCE_NOT_ALLOWED = "javafx.void.sequence.not.allowed";
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "javafx.only.one.base.java.class.allowed"; 
+    public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed"; 
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
     public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
     public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
@@ -396,7 +397,11 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_BAD_SEQUENCE = "javafx.bad.sequence";
     public static final String MESSAGE_JAVAFX_EXPLICIT_THREAD = "javafx.explicit.thread";
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE = "javafx.cannot.override";
+    public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN = "javafx.cannot.override.own";
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF = "javafx.cannot.override.def";
     public static final String MESSAGE_JAVAFX_PACKAGE_IN_SCRIPT_EVAL_MODE = "javafx.package.in.script.eval.mode";
     public static final String MESSAGE_JAVAFX_ALREAD_DEFINED_OBJECT_LITERAL = "javafx.already.defined.object.literal";
+    public static final String MESSAGE_JAVAFX_REPEATED_MIXIN = "javafx.repeated.mixin";
+    public static final String MESSAGE_JAVAFX_PURE_MIXIN = "javafx.pure.mixin";
+    public static final String MESSAGE_JAVAFX_ONLY_MIXINS_AND_INTERFACES = "javafx.only.mixins.and.interfaces";
 }
