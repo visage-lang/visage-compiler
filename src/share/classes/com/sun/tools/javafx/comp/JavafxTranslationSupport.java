@@ -325,12 +325,13 @@ public abstract class JavafxTranslationSupport {
         switch (t.tag) {
             case TypeTags.CLASS: {
                 JCExpression texp = null;
+                boolean isMixin = types.isMixin(t.tsym);
 
-                if (makeIntf && types.isCompoundClass(t.tsym)) {
+                if (makeIntf && isMixin) {
                     texp = makeAccessExpression(diagPos, t.tsym, true);
                 } else {
                     if (t.isCompound()) {
-                        t = syms.objectType;
+                        t = types.supertype(t);
                     }
                     texp = makeAccessExpression(diagPos, t.tsym, false);
                 }
@@ -610,7 +611,7 @@ public abstract class JavafxTranslationSupport {
         long privateAccess = sym.flags() & (Flags.PRIVATE | JavafxFlags.SCRIPT_PRIVATE);
         if ((sym.flags() & STATIC) == 0L
                 && privateAccess != 0L // private or script-private
-                && types.isCompoundClass(owner)) {
+                && types.isMixin(owner)) {
             // mangle name to hide it
             sname = owner.toString().replace('.', '$') + '$' + sname;
         }
@@ -802,6 +803,9 @@ public abstract class JavafxTranslationSupport {
         }
         if ((flags & JavafxFlags.PUBLIC_READ) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicReadAnnotationClassNameString), List.<JCExpression>nil()));
+        }
+        if ((flags & JavafxFlags.MIXIN) != 0) {
+            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.mixinAnnotationClassNameString), List.<JCExpression>nil()));
         }
 
         if ((flags & JavafxFlags.IS_DEF) != 0) {
