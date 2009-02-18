@@ -6,7 +6,7 @@ import java.lang.System;
  *                   -> expected output should be: count == sizeof slice slc:
  * 
  *  @test
- *  @run/fail
+ *  @run
  *   
  */
 function testSeqenceBind(): Void {
