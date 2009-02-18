@@ -2,7 +2,18 @@
 <project name="JavaFX Compiler" default="binaries" basedir=".">
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
-    <import file="../build-defs.xml"/>
+    <property name="build.defs" value="../build-defs.xml"/>
+
+    <available file="${build.defs}" type="file" property="build.defs.exists"/>
+
+    <fail unless="build.defs.exists">
+
+:
+      The build-defs.xml file: ${build.defs} does not exist.  This directory must be under a
+      clone of the top level repository which contains ${build.defs}.
+    </fail>
+
+    <import file="${build.defs}"/>
 
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
@@ -16,17 +27,19 @@
     <property name="antlr.grammarv4l" value="v4Lexer" />
 
     <target name="jj">
+    <echo>
+    </echo>
     </target>
 
     <!-- Here are targets required by the upper level build.xml.   -->
 
     <target name="jfx-clean"     depends="clean"/>
     <target name="jfx-clean-sdk" depends="init,-do-jfx-clean-sdk"/>
-    <target name="jfx-clean-deploy"/>
+    <target name="jfx-clean-deploy" depends="init,-do-jfx-clean-deploy"/>
     <target name="jfx-init"/>
     <target name="jfx-sdk"       depends="init,-do-jfx-sdk"/>
     <target name="jfx-test"      depends="test"/>
-    <target name="jfx-deploy"/>
+    <target name="jfx-deploy"    depends="init,-do-jfx-deploy"/>
 
     <!-- Here are popular targets for building in this dir -->
     <target name="aaahelp"    depends="-do-help" description="Show help on targets"/>
@@ -80,6 +93,18 @@
     <target name="-do-jfx-clean-sdk">
          <delete includeemptydirs="true">
             <fileset dir="${jfx.sdk.dir}" includes="${dist.contents}"/>
+          </delete>
+    </target>
+
+    <target name="-do-jfx-deploy" depends="binaries">
+        <copy todir="${jfx.deployed.dir}">
+          <fileset dir="${dist.dir}/lib" includes="${deployed.contents}"/>
+        </copy>
+    </target>
+
+    <target name="-do-jfx-clean-deploy">
+         <delete includeemptydirs="true">
+            <fileset dir="${jfx.deployed.dir}" includes="${deployed.contents}"/>
           </delete>
     </target>
 
@@ -385,7 +410,7 @@
 	    packagenames="javafx.animation,javafx.lang,javafx.reflect,javafx.util" 
 	    sourcepath="${src.classes.dir}">
             <doclet name="com.sun.tools.xmldoclet.XMLDoclet"
-                    path="${dist.javafxrdoc.jar}">
+                    path="${dist.javafxdoc.jar}">
                <param name="-o" value="${build.dir}/docs/javacode.xml"/>
                <param name="-nohtml"/>
             </doclet>
@@ -394,7 +419,7 @@
         <!-- generate fx class docs -->
         <echo message="generating fx docs for ${javafxdoc.packages}"/>
         <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
-            <classpath location="dist/lib/shared/javafxdoc.jar"/>
+            <classpath location="${dist.javafxdoc.jar}"/>
             <classpath>
                 <path path="${build.classes.dir}:${javac.test.classpath}"/>
             </classpath>
@@ -410,7 +435,7 @@
         
         
         <java  fork="true" failonerror="true" classname="com.sun.tools.javafxdoc.Main">
-            <classpath location="dist/lib/shared/javafxdoc.jar"/>
+            <classpath location="${dist.javafxdoc.jar}"/>
             <classpath refid="clspath"/>
             <arg value="-d"/>
             <arg value="${dist.javafxdoc.dir}"/>
