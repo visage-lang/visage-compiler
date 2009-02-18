@@ -238,9 +238,40 @@ public final class Sequences extends SequenceConversions {
         else {
             start = Math.max(start, 0);
             end = Math.min(end, seq.size());
-            return new SubSequence<T>(seq, start, end);
+            return SubSequence.make(seq, end-start, start, 1);
         }
     }
+
+    public static int calculateSize(int start, int bound, int step, boolean exclusive) {
+        if (Math.abs((long) start - (long) bound) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("Range sequence too big");
+        if (bound == start) {
+            return exclusive ? 0 : 1;
+        }
+        else {
+            int size = Math.max(0, ((bound - start) / step) + 1);
+            if (exclusive) {
+                boolean tooBig = (step > 0)
+                        ? (start + (size-1)*step >= bound)
+                        : (start + (size-1)*step <= bound);
+                if (tooBig && size > 0)
+                    --size;
+            }
+            return (int) size;
+        }
+    }
+
+    /* NOTE Possible future functionality, to allow a step in a slice expression.
+     * This is a sketch, which needs some tweaking to handle corner cases,
+     * plus some compiler work.
+     * NOTE The generalization to step!=1, except as used by the reverse
+     * function, is UNTESTED.
+    public static<T> Sequence<T> subsequence(Sequence<T> seq, int start, int bound, int step, boolean exclusive) {
+        // FIXME canonicalize start (if out of range)
+        int size = calculateSize(start, bound, step, exclusive);
+        return SubSequence.make(seq, start, size, step);
+    }
+    */
 
     /** Create a sequence containing a single element, the specified value */
     public static<T> Sequence<T> singleton(TypeInfo<T, ?> ti, T t) {
@@ -257,7 +288,8 @@ public final class Sequences extends SequenceConversions {
 
     /** Reverse an existing sequence */
     public static<T> Sequence<T> reverse(Sequence<T> sequence) {
-        return new ReverseSequence<T>(sequence);
+        int ssize = sequence.size();
+        return SubSequence.make(sequence, ssize, ssize-1, -1);
     }
 
     /** Convert a Collection<T> to a Sequence<T> */

@@ -7,6 +7,10 @@
 
 import java.lang.System;
 
+function put(test:String, x:Integer[]) {
+  print(test); print(": "); println(x);
+}
+
 var x = [ 1..4 ];
 System.out.println(x);    // 1, 2, 3, 4
 
@@ -56,7 +60,34 @@ var y = for (n in x) { n*n };
                           // 1, 4, 9, 16, 25, 100
 System.out.println(y);
 
+put("reverse y", reverse y);
+
+// Some slice tests:
+put("y[0..5]", y[0..5]); // 1, 4, 9, 16, 25, 100
+put("y[-1..6]", y[-1..6]); // 1, 4, 9, 16, 25, 100
+put("y[2..5]", y[2..5]); // 9, 16, 25, 100
+put("y[2..10]", y[2..10]); // 9, 16, 25, 100
+put("y[0..2]", y[0..2]); // 1, 4, 9
+put("y[-4..2]", y[-4..2]); // 1, 4, 9
+put("y[2..2]", y[2..2]); // 9
+put("y[2..1]", y[2..1]); // []
+
+// Check some combinations of slices and reverse:
+y = y[1..4];
+put("y", y);       // 4, 9, 16, 25
+put("y[-1..6]", y[-1..6]);// 4, 9, 16, 25
+put("y[2..5]", y[2..5]); // 16, 25
+put("y[0..1]", y[0..1]); // 4, 9
+put("y[2..1]", y[2..1]);     // []
+put("y[2..2]", y[2..2]); // 16
+put("reverse y", reverse y); // 25, 16, 9, 4
+put("(reverse y)[-1..6]", (reverse y)[-1..6]);
+put("(reverse y)[2..5]", (reverse y)[2..5]);
+put("(reverse y)[0..1]", (reverse y)[0..1]);
+put("(reverse y)[2..1]", (reverse y)[2..1]);
+put("(reverse y)[2..2]", (reverse y)[2..2]);
+
 y = for (n in x) { n + 1 };
                           // 2, 3, 4, 5, 6
-System.out.println(y);
+put("comprehension", y);
 
