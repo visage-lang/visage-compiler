@@ -38,8 +38,9 @@ import com.sun.tools.javac.code.Scope;
 public class JFXClassDeclaration extends JFXExpression implements ClassDeclarationTree {
     public final JFXModifiers mods;
     private final Name name;
-    private List<JFXExpression> extending = null;
+    private List<JFXExpression> extending    = null;
     private List<JFXExpression> implementing = null;
+    private List<JFXExpression> mixing       = null;
     private List<JFXTree> defs;
     private final List<JFXExpression> supertypes;
 
@@ -103,13 +104,20 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         return extending;
     }
 
-    public void setDifferentiatedExtendingImplementing(List<JFXExpression> extending, List<JFXExpression> implementing) {
-        this.extending = extending;
+    public List<JFXExpression> getMixing() {
+        return mixing;
+    }
+
+    public void setDifferentiatedExtendingImplementing(List<JFXExpression> extending,
+                                                       List<JFXExpression> implementing,
+                                                       List<JFXExpression> mixing) {
+        this.extending    = extending;
         this.implementing = implementing;
+        this.mixing       = mixing;
     }
     
     public boolean generateClassOnly () {
-        return (sym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0;
+        return (sym.flags_field & JavafxFlags.MIXIN) == 0;
     }
 
     @Override
@@ -143,5 +151,9 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
 
     public java.util.List<ExpressionTree> getExtends() {
         return convertList(ExpressionTree.class, extending);
+    }
+
+    public java.util.List<ExpressionTree> getMixins() {
+        return convertList(ExpressionTree.class, mixing);
     }
 }
