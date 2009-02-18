@@ -12,9 +12,12 @@ import javax.tools.DiagnosticListener;
  */
 class MockDiagnosticListener<T> implements DiagnosticListener<T> {
 
+    public boolean printErrors = true;
+
     public void report(Diagnostic<? extends T> d) {
         diagCodes.add(d.getCode());
-        System.err.println(d);
+        if (printErrors)
+            System.err.println(d);
     }
     public List<String> diagCodes = new ArrayList<String>();
 

@@ -79,6 +79,7 @@ public class JFXC2324Test {
     public void analyzeTest() throws Exception {
         JavafxcTool instance = new JavafxcTool();
         MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
+        dl.printErrors = false;
         StandardJavaFileManager fm = instance.getStandardFileManager(dl, null, null);
         List<String> options = 
                 Arrays.asList("-d", ".", "-sourcepath", testSrc, "-classpath", testClasses);
