@@ -6,11 +6,49 @@
 
     <available file="${build.defs}" type="file" property="build.defs.exists"/>
 
-    <fail unless="build.defs.exists">
+    <condition property="inSWAN">
+        <isreachable host="sfbay.sun.com"/>
+    </condition>
 
+    <condition property="top-repo" 
+              value="jfx"
+              else="openjfx-compiler~marina-setup">
+       <isset property="inSWAN"/>
+    </condition>
+
+    <condition property="top-url" 
+              value="ssh@//jfxsrc.sfbay.sun.com//javafx/marina-integration/${top-repo}"
+              else="http://kenai.com/hg/${top-repo}">
+       <isset property="inSWAN"/>
+    </condition>
+
+    <fail>
+      <condition>
+         <not>
+           <isset property="build.defs.exists"/>
+         </not>
+      </condition>
 :
-      The build-defs.xml file: ${build.defs} does not exist.  This directory must be under a
-      clone of the top level repository which contains ${build.defs}.
+    ${build.defs} does not exist.  
+
+    Your openjfx-compiler repo must be under the top level repository, ${top-repo}.
+    You should do this:
+      cd ..
+      hg clone ${top-url}
+      mv openjfx-compiler ${top-repo}
+
+    And then, you must create the ${top-repo}/import/ directory containing all the external
+    packages that are needed to build:
+      download file import.zip from
+        http://kenai.com/projects/openjfx-compiler/downloads
+      cp ...../import.zip .
+      cd ${top-repo}
+      ant import
+
+    You don't really have to download import.zip.  If it does not exist, then the 'ant import' command
+    will use http to fetch all the needed packages.  But, this is slow and prone to timeouts.
+
+    After doing the above, you can cd openjfx-compiler and do your build.
     </fail>
 
     <import file="${build.defs}"/>
@@ -42,7 +80,7 @@
     <target name="jfx-deploy"    depends="init,-do-jfx-deploy"/>
 
     <!-- Here are popular targets for building in this dir -->
-    <target name="aaahelp"    depends="-do-help" description="Show help on targets"/>
+    <target name="help"       depends="-do-help" description="Show help on targets"/>
     <target name="binaries"   depends="jar,javafxdoc,launcher" description="Build compiler and compiler runtime binaries"/>
     <target name="test"       depends="binaries,-do-test" description="Build binaries and run tests"/>
     <target name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"/>
@@ -59,23 +97,40 @@
 
     <target name="-do-help">
       <echo> 
-   Main developer targets:
-     name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
-     name="test"       depends="binaries,-do-test"            description="Build binaries and run tests"
-     name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"
-     name="all"        depends="docs,test,pack-jars"          description="Build and test all project artifacts"
-     name="bundle"     depends="docs,pack-jars,-do-bundle"    description="Build distribution bundle"
-     name="clean"      depends="-do-clean"                    description="Remove build products"
-     name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
-                              description="Build and test all project artifacts with coverage"
-     name="test-single" depends="init,-do-not-recompile,compile-test-single,-pre-test-run-single,-do-test-run-single,-post-test-run-single" 
-                              description="Run single unit test."
-           E.G.   ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
+    Main developer targets:
+      name="help"
+      name="jar"                                               description="Build compiler .jar files"
+      name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
+      name="test"       depends="binaries,-do-test"            description="Build binaries and run tests"
+      name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"
+      name="all"        depends="docs,test,pack-jars"          description="Build and test all project artifacts"
+      name="bundle"     depends="docs,pack-jars,-do-bundle"    description="Build distribution bundle"
+      name="clean"      depends="-do-clean"                    description="Remove build products"
+      name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
+                               description="Build and test all project artifacts with coverage"
+      name="test-single" depends="init,-do-not-recompile,compile-test-single,-pre-test-run-single,-do-test-run-single,-post-test-run-single" 
+                               description="Run single unit test."
+            E.G.   ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
 
-   To prepare for building, you must do this one-time initialization
-     cd ..
-     ant import     # to populate ../import with needed external packages
-     ant dist-prep  # only if this is a partial forest; populates ../dist with needed build artifacts
+
+    Your openjfx-compiler repo must be under the top level repository: ${top-repo}.
+    You should do this:
+      cd ..
+      hg clone ${top-url}
+      mv openjfx-compiler ${top-repo}
+
+    And then, you must create the ${top-repo}/import/ directory containing all the external
+    packages that are needed to build:
+      download file import.zip from
+        http://kenai.com/projects/openjfx-compiler/downloads
+      cp ...../import.zip .
+      cd ${top-repo}
+      ant import
+
+    You don't really have to download import.zip.  If it does not exist, then the 'ant import' command
+    will use http to fetch all the needed packages.  But, this is slow and prone to timeouts.
+
+    After doing the above, you can cd openjfx-compiler and do your build.
 
        </echo>
      </target>
