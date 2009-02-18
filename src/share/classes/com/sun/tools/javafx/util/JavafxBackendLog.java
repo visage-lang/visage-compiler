@@ -46,11 +46,13 @@ public class JavafxBackendLog extends Log {
     final Context context;
     final Context fxContext;
     public Env<AttrContext> env;
+    private boolean dumpOccurred;
 
     protected JavafxBackendLog(Context context, final Context fxContext) {
         super(context);
         this.context = context;
         this.fxContext = fxContext;
+        this.dumpOccurred = false; // Only once
     }
 
     public static void preRegister(final Context context, final Context fxContext) {
@@ -75,7 +77,7 @@ public class JavafxBackendLog extends Log {
             if (tree != null) {
                 Options options = Options.instance(context);
                 String dumpOnFail = options.get("DumpOnFail");
-                if (dumpOnFail == null || !dumpOnFail.toLowerCase().startsWith("n")) {
+                if (!dumpOccurred && (dumpOnFail == null || !dumpOnFail.toLowerCase().startsWith("n"))) {
                     try {
                         try {
                             new JavaPretty(sw, false, fxContext).printExpr(tree);
@@ -84,6 +86,7 @@ public class JavafxBackendLog extends Log {
                         }
                     } catch (Throwable ex) {
                     }
+                    dumpOccurred = true;
                 }
             }
 
