@@ -1,0 +1,4 @@
+test/should-fail/jfxc1258.fx:18: Cannot override 'myvar' -- overriden variable must be from a supertype.
+    override var myvar on replace {
+                 ^
+1 error

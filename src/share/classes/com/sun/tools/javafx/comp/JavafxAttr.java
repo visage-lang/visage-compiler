@@ -1014,6 +1014,10 @@ public class JavafxAttr implements JavafxVisitor {
         Type declType = tree.getId().type;
         result = tree.type = declType;
 
+        if (types.isSameType(env.enclClass.type, v.owner.type)) {
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN, tree.getId().name);
+        }
+
         // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
         // because the annotations were not available at the time the env was created. Therefore,
         // we look up the environment chain for the first enclosing environment for which the
