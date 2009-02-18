@@ -445,11 +445,8 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitTypeCast(JFXTypeCast tree) {
-        Type clazztype = attribType(tree.clazz, env);
-        Type reqType = tree.expr instanceof JFXLiteral ? clazztype : Infer.anyPoly;
-        Type exprtype = attribExpr(tree.expr, env, reqType);
-        if (clazztype.isPrimitive() && ! exprtype.isPrimitive())
-            clazztype = types.boxedClass(clazztype).type;
+        Type clazztype = attribType(tree.clazz, env);  
+        Type exprtype = attribExpr(tree.expr, env);
         Type owntype = chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
         if (exprtype.constValue() != null)
             owntype = cfolder.coerce(exprtype, owntype);
@@ -460,12 +457,16 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitInstanceOf(JFXInstanceOf tree) {
         Type exprtype = attribExpr(tree.expr, env);
         Type type = attribType(tree.clazz, env);
-        if (type.isPrimitive())
-            type = types.boxedClass(type).type;
-        Type clazztype = chk.checkReifiableReferenceType(
-            tree.clazz.pos(), type);
-        chk.checkCastable(tree.expr.pos(), exprtype, clazztype);
-        result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
+        //FIXME - check that the target type is not a generic type - this hack
+        //disables instanceof where target type is a sequence, currently
+        //not supported by translation
+        result = chk.checkReifiableReferenceType(
+                tree.clazz.pos(),
+                type.isPrimitive() ? types.boxedClass(type).type : type);
+        if (!result.isErroneous()) {
+            chk.checkCastable(tree.expr.pos(), exprtype, type);
+            result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
+        }
     }
 
     private void checkTypeCycle(JFXTree tree, Symbol sym) {
@@ -474,7 +475,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (var != null)
                 log.note(var, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL, sym.name);
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
-            sym.type = syms.objectType;
+            sym.type = syms.errType;
         }
         else if (sym.type instanceof MethodType &&
                 sym.type.getReturnType() == syms.unknownType) {
@@ -483,8 +484,8 @@ public class JavafxAttr implements JavafxVisitor {
                 log.note(fun, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, sym.name);
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, sym.name);
             if (pt instanceof MethodType)
-                ((MethodType)pt).restype = new ErrorType();
-            sym.type = syms.objectType;
+                ((MethodType)pt).restype = syms.errType;
+            sym.type = syms.errType;
         }
     }
 
@@ -919,10 +920,7 @@ public class JavafxAttr implements JavafxVisitor {
                     initType = syms.objectType;
                 else if (initType == syms.javafx_EmptySequenceType)
                     initType = types.sequenceType(syms.objectType);
-                else if (types.isArray(initType)) {
-                    Type elemType = types.elemtype(initType);
-                    initType = types.sequenceType(elemType);
-                }
+                //FIXME - following if should be remove now that we have arrays (see JFXC-2784)                
                 chk.checkBidiBind(tree.init, tree.getBindStatus(), initEnv, v.type);
             }
             else if (tree.type != null)
@@ -1013,6 +1011,10 @@ public class JavafxAttr implements JavafxVisitor {
         VarSymbol v = tree.sym;
         Type declType = tree.getId().type;
         result = tree.type = declType;
+
+        if (types.isSameType(env.enclClass.type, v.owner.type)) {
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN, tree.getId().name);
+        }
 
         // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
         // because the annotations were not available at the time the env was created. Therefore,
@@ -1169,14 +1171,13 @@ public class JavafxAttr implements JavafxVisitor {
             chk.checkNonVoid(((JFXTree)clause).pos(), exprType);
 
             Type elemtype;
-            // must implement Sequence<T>?
-            Type base = types.asSuper(exprType, syms.javafx_SequenceType.tsym);
-            if (base == null)
-                base = types.asSuper(exprType, syms.iterableType.tsym);
-            if (base == null) {
-                log.warning(expr, MsgSym.MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE);
-                elemtype = exprType;
-            } else {
+            // if exprtype is T[], T is the element type of the for-each
+            if (types.isSequence(exprType)) {
+                elemtype = types.elementType(exprType);
+            }
+            // if exprtype implements Iterable<T>, T is the element type of the for-each
+            else if (types.asSuper(exprType, syms.iterableType.tsym) != null) {
+                Type base = types.asSuper(exprType, syms.iterableType.tsym);
                 List<Type> iterableParams = base.allparams();
                 if (iterableParams.isEmpty()) {
                     elemtype = syms.objectType;
@@ -1184,6 +1185,15 @@ public class JavafxAttr implements JavafxVisitor {
                     elemtype = types.upperBound(iterableParams.last());
                 }
             }
+            //FIXME: if exprtype is nativearray of T, T is the element type of the for-each (see JFXC-2784)
+            else if (types.isArray(exprType)) {
+                elemtype = types.elemtype(exprType);
+            }
+            else {
+                log.warning(expr, MsgSym.MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE);
+                elemtype = exprType;
+            }
+
             if (elemtype == syms.errType) {
                 log.error(((JFXTree)(clause.getSequenceExpression())).pos(), MsgSym.MESSAGE_FOREACH_NOT_APPLICABLE_TO_TYPE);
             } else if (elemtype == syms.botType || elemtype == syms.unreachableType) {
@@ -2536,10 +2546,12 @@ public class JavafxAttr implements JavafxVisitor {
                     }
                 }
 
-                // Check that argument types of a reference ==, != are
-                // castable to each other, (JLS???).
+                // Check that operands a, b of a binary reference comparison
+                // ==, != are castable to each other (either a castable to b
+                // or b castable to a)
                 if ((opc == ByteCodes.if_acmpeq || opc == ByteCodes.if_acmpne)) {
-                    if (!types.isCastable(left, right, Warner.noWarnings)) {
+                    if (!types.isCastable(left, right, Warner.noWarnings) &&
+                            !types.isCastable(right, left, Warner.noWarnings)) {
                         log.error(tree.pos(), MsgSym.MESSAGE_INCOMPARABLE_TYPES,
                             types.toJavaFXString(left),
                             types.toJavaFXString(right));
@@ -3638,7 +3650,18 @@ public class JavafxAttr implements JavafxVisitor {
             if (!relax)
                 chk.checkAllDefined(tree.pos(), c);
         }
+            
+        // Make sure there is only one real base class.  Others may be mixins.
+        chk.checkOneBaseClass(tree);
 
+        // If the class is a mixin 
+        if ((c.flags() & (JavafxFlags.MIXIN)) != 0) {
+            // Check that the mixin is only a pure mixin class.
+            chk.checkPureMixinClass(tree.pos(), c);
+            // Check that only it only extends mixins and interfaces.
+            chk.checkOnlyMixinsAndInterfaces(tree);
+        }
+         
         // Check that all extended classes and interfaces
         // are compatible (i.e. no two define methods with same arguments
         // yet different return types).  (JLS 8.4.6.3)
