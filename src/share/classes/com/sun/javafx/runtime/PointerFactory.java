@@ -43,7 +43,23 @@ public class PointerFactory implements FXObject {
 
     public void initialize$() { }
 
+    public ObjectVariable<Pointer> make$$bound$byte(ByteLocation location) {
+        return ObjectVariable.make(Pointer.make(location));
+    }
+
+    public ObjectVariable<Pointer> make$$bound$short(ShortLocation location) {
+        return ObjectVariable.make(Pointer.make(location));
+    }
+
     public ObjectVariable<Pointer> make$$bound$int(IntLocation location) {
+        return ObjectVariable.make(Pointer.make(location));
+    }
+
+    public ObjectVariable<Pointer> make$$bound$long(LongLocation location) {
+        return ObjectVariable.make(Pointer.make(location));
+    }
+
+    public ObjectVariable<Pointer> make$$bound$float(FloatLocation location) {
         return ObjectVariable.make(Pointer.make(location));
     }
 
