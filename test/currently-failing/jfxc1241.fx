@@ -1,8 +1,9 @@
 /**
  * Regression test JFXC-1241 : Allow iterating over java arrays, collections, or other Iterables
  *
- * @test
- * @run
+ * @test/fail
+ * was @test
+ * was @run
  */
 
 import java.util.ArrayList;

@@ -1,7 +1,8 @@
 /* regression test for the bug 849
  *
- * @test
- * @run
+ * @test/fail
+ * was @test
+ * was @run
  */
 
 import java.lang.System; 

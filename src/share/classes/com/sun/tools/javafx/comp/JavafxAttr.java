@@ -920,10 +920,7 @@ public class JavafxAttr implements JavafxVisitor {
                     initType = syms.objectType;
                 else if (initType == syms.javafx_EmptySequenceType)
                     initType = types.sequenceType(syms.objectType);
-                else if (types.isArray(initType)) {
-                    Type elemType = types.elemtype(initType);
-                    initType = types.sequenceType(elemType);
-                }
+                //FIXME - following if should be remove now that we have arrays (see JFXC-2784)                
                 chk.checkBidiBind(tree.init, tree.getBindStatus(), initEnv, v.type);
             }
             else if (tree.type != null)
@@ -1174,14 +1171,13 @@ public class JavafxAttr implements JavafxVisitor {
             chk.checkNonVoid(((JFXTree)clause).pos(), exprType);
 
             Type elemtype;
-            // must implement Sequence<T>?
-            Type base = types.asSuper(exprType, syms.javafx_SequenceType.tsym);
-            if (base == null)
-                base = types.asSuper(exprType, syms.iterableType.tsym);
-            if (base == null) {
-                log.warning(expr, MsgSym.MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE);
-                elemtype = exprType;
-            } else {
+            // if exprtype is T[], T is the element type of the for-each
+            if (types.isSequence(exprType)) {
+                elemtype = types.elementType(exprType);
+            }
+            // if exprtype implements Iterable<T>, T is the element type of the for-each
+            else if (types.asSuper(exprType, syms.iterableType.tsym) != null) {
+                Type base = types.asSuper(exprType, syms.iterableType.tsym);
                 List<Type> iterableParams = base.allparams();
                 if (iterableParams.isEmpty()) {
                     elemtype = syms.objectType;
@@ -1189,6 +1185,15 @@ public class JavafxAttr implements JavafxVisitor {
                     elemtype = types.upperBound(iterableParams.last());
                 }
             }
+            //FIXME: if exprtype is nativearray of T, T is the element type of the for-each (see JFXC-2784)
+            else if (types.isArray(exprType)) {
+                elemtype = types.elemtype(exprType);
+            }
+            else {
+                log.warning(expr, MsgSym.MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE);
+                elemtype = exprType;
+            }
+
             if (elemtype == syms.errType) {
                 log.error(((JFXTree)(clause.getSequenceExpression())).pos(), MsgSym.MESSAGE_FOREACH_NOT_APPLICABLE_TO_TYPE);
             } else if (elemtype == syms.botType || elemtype == syms.unreachableType) {
