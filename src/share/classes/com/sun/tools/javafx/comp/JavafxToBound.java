@@ -527,7 +527,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         if (!bects.isEmpty()) {
             ListBuffer<JCCase> cases = ListBuffer.lb();
             for (BindingExpressionClosureTranslator b : bects) {
-                cases.append(b.makeBindingCase());
+                if (!b.generateInLine) {
+                    cases.append(b.makeBindingCase());
+                }
             }
 
             JCStatement swit = make.at(diagPos).Switch(make.at(diagPos).Ident(defs.bindingIdName), cases.toList());
@@ -1232,6 +1234,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         JCStatement pushStatement;
         final ListBuffer<JCExpression> argInits = ListBuffer.lb();
         final ListBuffer<JCStatement> preDecls = ListBuffer.lb();
+        boolean generateInLine = false;
 
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
             super(diagPos, resultType);
@@ -1276,7 +1279,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             }
             pushStatement = callStatement(diagPos, null, "pushValue", resultVal);
 
-            return null;
+            if (generateInLine) {
+                JCTree computeMethod = makeMethod(diagPos, defs.computeMethodName, List.of(pushStatement), null, syms.voidType, Flags.PUBLIC);
+                members.append(computeMethod);
+                return completeMembers();
+            } else {
+                return null;
+            }
         }
 
         protected JCExpression makeBaseClass() {
@@ -1432,6 +1441,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 if (superToStatic) {  //TODO: should this be higher?
                                     // This is a super call, add the receiver so that the impl is called directly
                                     callArgs.prepend( receiver() );
+                                } else if (renameToSuper || superCall) {
+                                    generateInLine = true;
                                 }
                                 // result is a block expression that has the definition of receiver$ at the beginning
                                 return m().Apply(null, translatedImmutableMethodReference(), callArgs.toList());
@@ -1458,10 +1469,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 JCExpression stor;
                                 
                                 // TODO - fix scope supers in binding expressions.
-                                if (renameToSuper || superCall) {
-                                    stor = m().Ident(names._super);
-                                } else if (superToStatic || msym.isStatic()) {
+                                if (superToStatic || msym.isStatic()) {
                                     stor = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
+                                } else if (renameToSuper || superCall) {
+                                    stor = m().Select(makeTypeTree(diagPos, toJava.currentClass.sym.type, false), names._super);
                                 } else if (selector == null || thisCall) {
                                     stor = receiver();
                                 } else {

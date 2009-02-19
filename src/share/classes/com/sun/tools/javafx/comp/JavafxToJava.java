@@ -168,7 +168,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
-    private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
+    JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
 
     /** Class symbols for classes that need a reference to the outer class. */
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
