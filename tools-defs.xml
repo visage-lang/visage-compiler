@@ -2,90 +2,50 @@
 
 <project name="JavaFX Compiler Tools Definitions" basedir=".">
 
-    <!-- relies on ${tools.dir} being defined -->
-
-    <property name="ant.ver" value="1.7.0"/>
-    <property name="ant.dir" value="${tools.dir}/ant-${ant.ver}"/>
-    
-    <property name="scenegraph.dir" value="${tools.dir}/Scenario/dist"/>
-    <property name="scenegraph.jar.file" value="Scenario.jar"/>
-    <property name="scenegraph.jar" value="${scenegraph.dir}/${scenegraph.jar.file}"/>
-
-    <property name="junit.ver" value="4.4"/>
-    <property name="junit.dir" value="${tools.dir}/junit-${junit.ver}"/>
-
-    <property name="docbook.ver" value="1.73.1"/>
-    <property name="docbook.dir" value="${tools.dir}/docbook-xsl-${docbook.ver}"/>
-
-    <property name="docbook-xml.ver" value="4.5"/>
-    <property name="docbook-xml.dir" value="${tools.dir}/docbook-xml-${docbook-xml.ver}"/>
-
-    <property name="wysiwygdocbook.ver" value="1.02"/>
-    <property name="wysiwygdocbook.reldir" value="wysiwygdocbook-${wysiwygdocbook.ver}"/>
-    <property name="wysiwygdocbook.dir" value="${tools.dir}/${wysiwygdocbook.reldir}"/>
-
-    <property name="findbugs.ver" value="1.3.3"/>
-    <property name="findbugs.dir" value="${tools.dir}/findbugs-${findbugs.ver}"/>
-
-    <property name="saxon.ver" value="6.5.5"/>
-    <property name="saxon.dir" value="${tools.dir}/saxon-${saxon.ver}"/>
-
-    <property name="xincluder.ver" value="1.0d11"/>
-    <property name="xincluder.dir" value="${tools.dir}/xincluder-${xincluder.ver}"/>
-
-    <property name="antlr.ver" value="3.1.1"/>
-    <property name="antlr.dir" value="${tools.dir}/antlr-${antlr.ver}"/>
-
-    <property name="antlrworks.ver" value="1.2.2"/>
-    <property name="antlrworks.dir" value="${tools.dir}/antlrworks-${antlrworks.ver}"/>
-
-    <property name="cobertura.ver" value="1.9" />
-    <property name="cobertura.dir" value="${tools.dir}/cobertura-${cobertura.ver}" />
-
-    <property name="resolver.ver" value="1.2" />
-    <property name="resolver.dir" value="${tools.dir}/resolver-${resolver.ver}" />
+    <property name="base.dir" value="${basedir}"/>
 
     <path id="ant.class.path">
-        <fileset dir="${ant.dir}" includes="**/*.jar" />
+        <fileset dir="${import.ant.lib}" includes="**/ant.jar" />
     </path>
 
     <path id="scenegraph.class.path">
-        <fileset file="${scenegraph.jar}"/>
+<!--        <fileset file="${jfx.sdk.scenario.jar}"/>  disable until we find a way to move it to the public site. -->
+            <fileset file="${base.dir}/lib/Scenario.jar"/>
     </path>
 
     <path id="junit.class.path">
-        <fileset dir="${junit.dir}" includes="**/*.jar" />
+        <fileset file="${import.junit.jar}"/>
     </path>
 
     <path id="findbugs.class.path">
-        <fileset dir="${findbugs.dir}" includes="**/*.jar" />
+        <fileset dir="${import.findbugs.dir}" includes="**/*.jar" />
     </path>
 
     <path id="saxon.class.path">
-        <fileset dir="${saxon.dir}" includes="**/*.jar" />
+        <fileset dir="${import.saxon.dir}" includes="**/*.jar" />
     </path>
 
     <path id="xincluder.class.path">
-        <fileset dir="${xincluder.dir}" includes="**/*.jar" />
+        <fileset dir="${import.xincluder.dir}" includes="**/*.jar" />
     </path>
 
     <path id="antlr.class.path">
-        <fileset dir="${antlr.dir}" includes="**/*.jar" />
+        <fileset dir="${import.antlr.lib}" includes="**/*.jar" />
     </path>
 
     <path id="antlr-runtime.class.path">
-        <fileset dir="${antlr.dir}" includes="**/antlr-${antlr.ver}-runtime.jar" />
+        <file file="${import.antlr-runtime.jar}" />
     </path>
 
     <path id="antlrworks.class.path">
-        <fileset dir="${antlrworks.dir}" includes="**/*.jar" />
+        <fileset dir="${import.antlrworks.dir}" includes="**/*.jar" />
     </path>
 
     <path id="cobertura.class.path">
-        <fileset dir="${cobertura.dir}" includes="**/*.jar" />
+        <fileset dir="${import.cobertura.dir}" includes="**/*.jar" />
     </path>
 
     <path id="resolver.class.path">
-        <fileset dir="${resolver.dir}" includes="**/*.jar" />
+        <fileset dir="${import.resolver.dir}" includes="**/*.jar" />
     </path>
 </project>

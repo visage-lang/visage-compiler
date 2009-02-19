@@ -563,7 +563,7 @@ is divided into following sections:
         <property location="${build.test.results.dir}/TEST-${test.class}.xml" name="test.report.file"/>
         <delete file="${test.report.file}"/>
         <mkdir dir="${build.test.results.dir}"/>
-        <j2seproject3:debug classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner" classpath="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${debug.test.classpath}">
+        <j2seproject3:debug classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner" classpath="${import.ant.jar}:${import.ant-junit.jar}:${debug.test.classpath}">
             <customize>
                 <syspropertyset>
                     <propertyref prefix="test-sys-prop."/>

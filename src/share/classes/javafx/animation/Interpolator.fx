@@ -24,7 +24,7 @@
 package javafx.animation;
 
 import java.lang.Object;
-import com.sun.scenario.animation.Interpolators;
+import  com.sun.javafx.animation.InterpolatorFactory;
 
 /**
  * Built-in interpolator that provides discrete time interpolation. 
@@ -34,7 +34,9 @@ import com.sun.scenario.animation.Interpolators;
  * @profile common
  */
 public def DISCRETE:Interpolator =
-        CoreInterpolator { i: Interpolators.getDiscreteInstance(); };
+         CoreInterpolator {
+             i: Timeline.getInterpolatorFactory().getDiscreteInstance();
+         };
 
 /**
  * Built-in interpolator that provides linear time interpolation.
@@ -44,7 +46,9 @@ public def DISCRETE:Interpolator =
  * @profile common
  */
 public def LINEAR:Interpolator =
-        CoreInterpolator { i: Interpolators.getLinearInstance(); };
+        CoreInterpolator { 
+            i: Timeline.getInterpolatorFactory().getLinearInstance();
+        };
 
 /**
  * Built-in interpolator instance that provides ease in/out behavior. It uses
@@ -54,7 +58,9 @@ public def LINEAR:Interpolator =
  * @profile common
  */
 public def EASEBOTH:Interpolator =
-        CoreInterpolator { i: Interpolators.getEasingInstance(); };
+        CoreInterpolator { 
+            i: Timeline.getInterpolatorFactory().getEasingInstance();
+        };
 
 /**
  * Built-in interpolator instance that provides ease in behavior. It uses value of 0.2
@@ -63,7 +69,10 @@ public def EASEBOTH:Interpolator =
  * @profile common
  */
 public def EASEIN:Interpolator =
-        CoreInterpolator { i: Interpolators.getEasingInstance(0.2 as Float, 0.0 as Float); };
+        CoreInterpolator {
+            i: Timeline.getInterpolatorFactory().getEasingInstance(0.2 as Float,
+                0.0 as Float);
+        };
 
 /**
  * Built-in interpolator instance that provides ease out behavior. It uses value of 0.2
@@ -72,7 +81,10 @@ public def EASEIN:Interpolator =
  * @profile common
  */
 public def EASEOUT:Interpolator =
-        CoreInterpolator { i: Interpolators.getEasingInstance(0.0 as Float, 0.2 as Float); };
+        CoreInterpolator {
+            i: Timeline.getInterpolatorFactory().getEasingInstance(0.0 as Float,
+                0.2 as Float);
+        };
 
 /**
  * Built-in interpolator instance that is shaped using the spline control points defined 
@@ -88,8 +100,10 @@ public def EASEOUT:Interpolator =
  * @profile common
  */
 public function SPLINE(x1: Number, y1: Number, x2: Number, y2: Number):Interpolator {
-        CoreInterpolator { i: Interpolators.getSplineInstance(x1.floatValue(), y1.floatValue(),
-                                                              x2.floatValue(), y2.floatValue()); }
+        CoreInterpolator { 
+            i: Timeline.getInterpolatorFactory().getSplineInstance(x1.floatValue(),
+                y1.floatValue(), x2.floatValue(), y2.floatValue());
+        }
     }
 
 
@@ -121,7 +135,7 @@ public abstract class Interpolator {
 }
 
 class CoreInterpolator extends SimpleInterpolator {
-    var i:com.sun.scenario.animation.Interpolator;
+    var i:com.sun.javafx.animation.Interpolator;
 
     override function curve(t: Number) : Number {
         i.interpolate(t.floatValue())

@@ -32,11 +32,11 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
 import java.util.Properties;
-import java.lang.Thread;
 
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.animation.AnimationProvider;
 
 /**
  * First code that is run to start a JavaFX Script application.
@@ -45,7 +45,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 public class Entry {
     private static RuntimeProvider provider;
-    
+    private static AnimationProvider animationProvider;
+
     // FIXME: we really should avoid having this state be static, but
     // right now there is no effective way of virtualizing it.
     // Problems will occur with applets that are loaded by the same
@@ -69,6 +70,7 @@ public class Entry {
                     public Void run() {
                         main.setAccessible(true);
                         provider = runtimeProviderLocator();
+                        animationProvider = animationProviderLocator();
                         return null;
                     }
                 }
@@ -132,10 +134,10 @@ public class Entry {
     }
 
     public static Object getArgument(String key) {
-        NamedArgumentProvider provider = namedArgProvider;
+        NamedArgumentProvider naProvider = namedArgProvider;
         Object val = null;
-        if (provider != null)
-            val = provider.get(key);
+        if (naProvider != null)
+            val = naProvider.get(key);
         if (val == null) {
             // Try the command line arguments
             try {
@@ -144,6 +146,62 @@ public class Entry {
             }
         }
         return val;
+    }
+
+    public static AnimationProvider getAnimationProvider() {
+        return animationProvider;
+    }
+
+    private static AnimationProvider animationProviderLocator() {
+
+        Iterator<?> iterator;
+        Class<?> loaderClass;
+        String loadMethodName;
+        boolean usingServiceLoader;
+
+        try {
+            // Lookup Java 6 public API first
+            loaderClass = Class.forName("java.util.ServiceLoader");
+            loadMethodName = "load";
+            usingServiceLoader = true;
+        } catch (ClassNotFoundException cnfe) {
+            try {
+                // Lookup Java 5 Sun-private API
+                loaderClass = Class.forName("sun.misc.Service");
+                loadMethodName = "providers";
+                usingServiceLoader = false;
+            } catch (ClassNotFoundException cnfe2) {
+                throw new AssertionError("Failed discovering ServiceLoader");
+            }
+        }
+
+        try {
+            // java.util.ServiceLoader.load or sun.misc.Service.providers
+            Method loadMethod = loaderClass.getMethod(loadMethodName,
+                    Class.class,
+                    ClassLoader.class);
+            ClassLoader cl = Entry.class.getClassLoader();
+            Object result = loadMethod.invoke(null, AnimationProvider.class, cl);
+
+            // For java.util.ServiceLoader, we have to call another
+            // method to get the iterator.
+            if (usingServiceLoader) {
+                Method m = loaderClass.getMethod("iterator");
+                result = m.invoke(result); // serviceLoader.iterator();
+            }
+
+            iterator = (Iterator<?>) result;
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+        if (iterator.hasNext()) {
+            AnimationProvider result = (AnimationProvider) iterator.next();
+            return result;
+        }
+
+        // If no provider, return null.
+        return null;
+
     }
 
     private static RuntimeProvider runtimeProviderLocator() {
@@ -238,18 +296,21 @@ public class Entry {
             return null;
         }
 
+        private boolean hasActiveAnimation() {
+
+            if (animationProvider == null) {
+                return false;
+            }
+
+            return animationProvider.hasActiveAnimation();
+        }
+
+        @Override
         public void run() {
             Runnable task;
-            /*
-             * Replace this with something that looks at the timeline
-             * code directly so we do not pull in all the junk
-             * The peekEvent will be replaced with 
-             * scenario.animation.Util.hasActiveAnimation() 
-             * when it is available
-             */
             try {
                 while ((task = taskQueue.poll()) != null ||
-                  com.sun.scenario.animation.Util.hasActiveAnimation()) {
+                        hasActiveAnimation()) {
                         if (task != null) {
                             task.run();
                         } else {

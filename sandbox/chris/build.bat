@@ -1,1 +1,0 @@
-ant.bat -f %~dp0build.xml

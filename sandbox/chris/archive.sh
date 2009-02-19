@@ -1,1 +1,0 @@
-jar cvf build/hellofx.jar -C build/classes hello

@@ -1,9 +1,0 @@
-/*
-Frame {
-	visible: true
-	content: ScrollPane {
-		view: Canvas {
-			background: white
-			content: [
-				Group {
-					content: [

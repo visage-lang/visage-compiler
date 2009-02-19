@@ -407,14 +407,14 @@ made subject to such option by the copyright holder.
     <!-- Running/Debugging -->
     
     <target name="jws-run" depends="jar,-verify-jnlp-enabled,-verify-codebase" description="Start javaws execution">
-        <exec executable="${java.home}/bin/javaws">
+        <exec executable="${java.home}/bin/javaws" failonerror="true">
             <arg file="${jnlp.dest.dir}/${launch.jnlp.file}"/>
         </exec>
     </target>
     <target name="jws-debug" if="netbeans.home" depends="jar,-verify-jnlp-enabled,-verify-codebase,-debug-start-debugger,-debug-javaws-debuggee" 
         description="Debug javaws project in IDE"/>
     <target name="-debug-javaws-debuggee">
-        <exec executable="${java.home}/bin/javaws">
+        <exec executable="${java.home}/bin/javaws" failonerror="true">
             <env key="JAVAWS_VM_ARGS" value="-Xdebug -Xnoagent -Djava.compiler=none -Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
             <arg file="${jnlp.dest.dir}/${launch.jnlp.file}"/>
         </exec>
