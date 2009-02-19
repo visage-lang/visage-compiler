@@ -707,7 +707,6 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertDepth(0, Sequences.filter(TWO_SEQUENCE, TWO_SEQUENCE.getBits(allMatcher)));
         assertDepth(0, Sequences.filter(TWO_SEQUENCE, TWO_SEQUENCE.getBits(firstMatcher)));
 
-        assertDepth(1, new SubSequence<Integer>(TWO_SEQUENCE, 0, 2));
         assertDepth(1, new SubSequence<Integer>(TWO_SEQUENCE, 0, 0));
         assertDepth(0, Sequences.subsequence(TWO_SEQUENCE, 0, 2));
         assertDepth(1, Sequences.subsequence(TWO_SEQUENCE, 1, 2));

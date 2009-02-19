@@ -5,11 +5,11 @@
 class Widget {
 }
 
-class CanvasElement {
+mixin class CanvasElement {
 	public var parentCanvasElement: CanvasElement;
 }
 
-class Node extends CanvasElement {
+mixin class Node extends CanvasElement {
     var cachedCanvas: Canvas;
     public function getCanvas(): Canvas {
         var n = this.parentCanvasElement;

@@ -7,7 +7,7 @@
 import java.lang.System;
 import java.util.BitSet;
 
-class A {
+class A extends BitSet {
    var ai = 1;
    function afi() : Integer { 3 }
 }
@@ -25,7 +25,7 @@ abstract class C extends B {
 
 var x = C {
    function dfi() : Integer { 3 }
-   function show() : Void {
+   override function show() : Void {
 	System.out.println( dfi() );
    }
 };
@@ -37,10 +37,10 @@ System.out.println( x.ci );
 System.out.println( x.cfi() );
 x.show();
 
-class E extends BitSet, C {
+class E extends C {
    var ei = 1;
    function efi() : Integer { 3 }
-   function show() : Void {System.out.println( cardinality() );} 
+   override function show() : Void {System.out.println( cardinality() );} 
 }
 var y = new E;
 System.out.println( y.ai );

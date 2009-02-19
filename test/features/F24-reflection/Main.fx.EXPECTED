@@ -1,7 +1,7 @@
-clsSquare=class Main.Square jfx-class:true compound:true
+clsSquare=class Main.Square jfx-class:true mixin:false
 Sq.super: [class MyRect]
-clsSimple=class Main.Simple jfx-class:true  compound:false
-Simpl.super: [class Main.Square, class java.lang.Object]
+clsSimple=class Main.Simple jfx-class:true mixin:false
+Simpl.super: [class Main.Square]
 Simpl.super (inherited also):
   class Main.Simple
   class Main.Square
@@ -9,7 +9,7 @@ Simpl.super (inherited also):
   class MyRect
   class MyShape
   class java.lang.Object
-clsString=class java.lang.String jfx-class:false compound:false
+clsString=class java.lang.String jfx-class:false mixin:false
 String .super (direct only):
   class java.io.Serializable
   class java.lang.CharSequence
@@ -48,7 +48,6 @@ String methods (inherited also):
   function java.lang.String.getBytes():JavaArray<Byte>
   function java.lang.String.getBytes(Integer,Integer,JavaArray<Byte>,Integer):Void
   function java.lang.String.getBytes(java.lang.String):JavaArray<Byte>
-  function java.lang.String.getBytes(java.nio.charset.Charset):JavaArray<Byte>
   function java.lang.String.getChars(Integer,Integer,JavaArray<Character>,Integer):Void
   function java.lang.String.getChars(JavaArray<Character>,Integer):Void
   function java.lang.Object.getClass():java.lang.Class
@@ -60,7 +59,6 @@ String methods (inherited also):
   function java.lang.String.indexOf(java.lang.String,Integer):Integer
   function java.lang.String.indexOf(JavaArray<Character>,Integer,Integer,JavaArray<Character>,Integer,Integer,Integer):Integer
   function java.lang.String.intern():java.lang.String
-  function java.lang.String.isEmpty():Boolean
   function java.lang.String.lastIndexOf(Integer):Integer
   function java.lang.String.lastIndexOf(Integer,Integer):Integer
   function java.lang.String.lastIndexOf(java.lang.String):Integer
@@ -109,13 +107,25 @@ String methods (inherited also):
   function java.lang.Object.wait(Long):Void
   function java.lang.Object.wait(Long,Integer):Void
 Square methods (inherited also):
+  function java.lang.Object.clone():java.lang.Object
   function MyRect.corners():java.awt.geom.Point2D[]
+  function java.lang.Object.equals(java.lang.Object):Boolean
+  function java.lang.Object.finalize():Void
+  function java.lang.Object.getClass():java.lang.Class
+  function java.lang.Object.hashCode():Integer
   function MyCanvasItem.main(JavaArray<java.lang.String>):Void
   function MyShape.main(JavaArray<java.lang.String>):Void
   function MyRect.main(JavaArray<java.lang.String>):Void
+  function java.lang.Object.notify():Void
+  function java.lang.Object.notifyAll():Void
+  function java.lang.Object.registerNatives():Void
   function MyShape.times1(Float):Float
+  function java.lang.Object.toString():java.lang.String
   function MyShape.transformed(java.awt.geom.AffineTransform):MyShape
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
+  function java.lang.Object.wait():Void
+  function java.lang.Object.wait(Long):Void
+  function java.lang.Object.wait(Long,Integer):Void
 MyRect.methods: 
   function MyRect.corners():java.awt.geom.Point2D[]
   function MyRect.main(JavaArray<java.lang.String>):Void
@@ -137,13 +147,25 @@ Simple attributes (only):
   at1 : class java.lang.Object
   func : function(java.lang.String):function():Void
 MyRect methods:
+  function java.lang.Object.clone():java.lang.Object
   function MyRect.corners():java.awt.geom.Point2D[]
+  function java.lang.Object.equals(java.lang.Object):Boolean
+  function java.lang.Object.finalize():Void
+  function java.lang.Object.getClass():java.lang.Class
+  function java.lang.Object.hashCode():Integer
   function MyCanvasItem.main(JavaArray<java.lang.String>):Void
   function MyShape.main(JavaArray<java.lang.String>):Void
   function MyRect.main(JavaArray<java.lang.String>):Void
+  function java.lang.Object.notify():Void
+  function java.lang.Object.notifyAll():Void
+  function java.lang.Object.registerNatives():Void
   function MyShape.times1(Float):Float
+  function java.lang.Object.toString():java.lang.String
   function MyShape.transformed(java.awt.geom.AffineTransform):MyShape
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
+  function java.lang.Object.wait():Void
+  function java.lang.Object.wait(Long):Void
+  function java.lang.Object.wait(Long,Integer):Void
 MyRect.times1(Number): function MyRect.times1(Float):Float
 call times1(2.5): FloatValue(45.0)
 MyRect.shapeFun1 variable: var MyShape.shapeFun1:function(Integer,java.lang.String):java.lang.String

@@ -42,3 +42,6 @@ System.out.println(1 == [false]);
 
 System.out.println([false] == [1]);
 System.out.println([1] == [false]);
+
+System.out.println(1 == null);
+System.out.println(null == 1);

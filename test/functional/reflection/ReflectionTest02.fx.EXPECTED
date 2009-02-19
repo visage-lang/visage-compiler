@@ -1,8 +1,8 @@
 About class ReflectionTest02
 class ReflectionTest02
   Super classes of ReflectionTest02:[class ReflectionTest02]
-  Compound class: true
-  JavaFX Type   : true
+  Mixin class: false
+  JavaFX Type: true
 MEMBERS of class ReflectionTest02
    _clzStrings  isStatic=true; Declaring class: ReflectionTest02 
    _context  isStatic=true; Declaring class: ReflectionTest02 

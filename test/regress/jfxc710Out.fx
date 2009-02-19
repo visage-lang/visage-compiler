@@ -10,7 +10,7 @@ package class jfxc710Out extends jfxc710WayOut {
    package var outi = 'Outi'
        on replace { System.out.println('trig: outi {outi}') }
    package function outfi() : String { 'Outfi' }
-   package function show() : Void {
+   override package function show() : Void {
 	super.show();
 	System.out.println( outi );
 	System.out.println( outfi() );

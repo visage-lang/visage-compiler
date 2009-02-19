@@ -44,10 +44,10 @@ public class SubSequenceTest extends JavaFXTestCase {
     protected void setUp() {
         Sequence<Integer> baseSequence = Sequences.make(TypeInfo.Integer, 1, 2, 3);
 
-        SUBSEQUENCE_FROM_EMPTY_SEQUENCE = new SubSequence<Integer>(TypeInfo.Integer.emptySequence, 1, 0);
+        SUBSEQUENCE_FROM_EMPTY_SEQUENCE = new SubSequence<Integer>(TypeInfo.Integer.emptySequence, 1, 1);
         SUBSEQUENCE_FROM_SINGLETON_SEQUENCE = new SubSequence<Integer>(Sequences.singleton(TypeInfo.Integer, 1), 0, 1);
 
-        EMPTY_SUBSEQUENCE = new SubSequence<Integer>(baseSequence, 1, 0);
+        EMPTY_SUBSEQUENCE = new SubSequence<Integer>(baseSequence, 1, 1);
         SUBSEQUENCE_AT_START = new SubSequence<Integer>(baseSequence, 0, 2);
         SUBSEQUENCE_AT_END = new SubSequence<Integer>(baseSequence, 1, 3);
         SUBSEQUENCE_IN_MIDDLE = new SubSequence<Integer>(baseSequence, 1, 2);

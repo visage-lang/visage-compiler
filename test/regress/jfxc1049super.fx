@@ -14,19 +14,19 @@ class One {
 
 class Two extends One {}
 
-class Alpha {
+mixin class Alpha {
     public function foo() {"Alpha"}
     public bound function boo() {"Balpha"}
 }
 
-class Beta extends Alpha {}
+mixin class Beta extends Alpha {}
 
 class ThreeGamma extends Two, Beta {
     override function foo() {
-        "One: {Two.foo()} Alpha: {Beta.foo()}";
+        "One: {Two.foo()} Super: {super.foo()}";
     }
     override bound function boo() {
-        "Bone: {Two.boo()} Balpha: {Beta.boo()}";
+        "Bone: {Two.boo()} Buper: {super.boo()}";
     }
 }
 

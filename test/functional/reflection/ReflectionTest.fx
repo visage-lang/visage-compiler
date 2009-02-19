@@ -45,11 +45,11 @@ class TypeInference  {
    }	
 };
 
-abstract class  TypeInference2 extends ReflectionTest.TypeInference {
+class TypeInference2 extends ReflectionTest.TypeInference {
     var myAttr=func8(); //Type inferred to String
-    abstract function func8():String;
+    function func8():String {"func8"};
 }
-class TypeInference3 extends TypeInference,TypeInference2 {
+class TypeInference3 extends TypeInference2 {
     override function func8(){ myAttr};
     override var intAttr1 = 20;
     override var myAttr = "t3";

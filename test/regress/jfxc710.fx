@@ -17,7 +17,7 @@ class A extends jfxc710Out {
    var ai = 'ai'
        on replace { System.out.println('trig: a1 {ai}') }
    function afi() : String { 'afi' }
-   function show() : Void {
+   override function show() : Void {
 	super.show();
 	System.out.println( ai );
 	System.out.println( afi() );
@@ -29,7 +29,7 @@ class B extends A {
        on replace { System.out.println('trig: override B a1 {ai}') }
    var bi = 'bi';
    function bfi() : String { 'bfi' }
-   function show() : Void {
+   override function show() : Void {
 	super.show();
 	System.out.println( bi );
 	System.out.println( bfi() );
@@ -40,7 +40,7 @@ abstract class C extends B {
    var ci = 'ci';
    function cfi() : String { 'cfi' }
    abstract function cshow() : Void;
-   function show() : Void {
+   override function show() : Void {
 	super.show();
 	System.out.println( ci );
 	System.out.println( cfi() );
@@ -116,7 +116,7 @@ var xd = C {
    override var ci = 'ovCAnon-ci'
        on replace { System.out.println('trig: override CAnon ci {ci}') }
    function dfi() : String { 'Anonfi' }
-   function cshow() : Void {
+   override function cshow() : Void {
 	show();
 	System.out.println( 'Anoni' ); // can be removed
 	System.out.println( dfi() );
@@ -126,13 +126,12 @@ var xd = C {
 xd.cshow();
 
 
-System.out.println("------- E-BitSet\{\}");
-class E extends C, BitSet {
+System.out.println("------- E-C\{\}");
+class E extends C {
    var ei = 'ei';
    function efi() : String { 'efi' }
-   function cshow() : Void {
+   override function cshow() : Void {
 	show();
-	System.out.println( cardinality() );
 	System.out.println( ei );
 	System.out.println( efi() );
    }
