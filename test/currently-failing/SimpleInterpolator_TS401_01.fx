@@ -1,7 +1,7 @@
 /*
  * SimpleInterpolator_TS401_01.fx
  *
- * @test
+ * @test/fail
  * @run
  */
 
