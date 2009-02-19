@@ -18,7 +18,7 @@
     </path>
 
     <path id="findbugs.class.path">
-        <fileset dir="${import.findbugs.dir}" includes="**/*.jar" />
+        <fileset dir="${import.findbugs.home}" includes="**/*.jar" />
     </path>
 
     <path id="saxon.class.path">

@@ -607,18 +607,18 @@
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
                  classpathref="findbugs.class.path" />
         <mkdir dir="${dist.findbugs.dir}"/>
-        <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${import.findbugs.dir}" jvmargs="-Xmx512m"
+        <findbugs output="xml" outputFile="${build.dir}/findbugs.xml" home="${import.findbugs.home}" jvmargs="-Xmx512m"
                   projectName="OpenJFX compiler ${full.version}" excludeFilter="findbugs-exclude.xml">
             <class location="${build.classes.dir}"/>
             <auxclasspath path="${javac.classpath}:${import.junit.jar}"/>
             <sourcepath path="${src.classes.dir}"/>
         </findbugs>
         <exec executable="sh" failonerror="true">
-            <arg value="${import.findbugs.dir}/bin/convertXmlToText"/>
+            <arg value="${import.findbugs.home}/bin/convertXmlToText"/>
             <arg value="-longBugCodes"/>
-            <arg value="-html:${import.findbugs.dir}/src/xsl/fancy.xsl"/>
+            <arg value="-html:${import.findbugs.home}/src/xsl/fancy.xsl"/>
             <arg value="${build.dir}/findbugs.xml"/>
-            <redirector output="${dist.findbugs.dir}/findbugs.html"/>
+            <redirector output="${dist.findbugs.home}/findbugs.html"/>
         </exec>
     </target>
 
@@ -649,7 +649,7 @@
         <property environment="env"/>
         <mkdir dir="${export.dir}/findbugs"/>
         <exec executable="sh" failonerror="true">
-            <arg value="${import.findbugs.dir}/bin/setBugDatabaseInfo"/>
+            <arg value="${import.findbugs.home}/bin/setBugDatabaseInfo"/>
             <arg value="-name"/>
             <arg value="${env.JOB_NAME}-${env.SVN_REVISION}"/>
             <arg value="${build.dir}/findbugs.xml"/>
