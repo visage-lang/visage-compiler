@@ -1215,15 +1215,10 @@
             -->
 
 
-    <target name="-do-clean">
-        <property file="nbproject/configs/${config}.properties"/>
-        <property file="project.properties"/>
+    <target name="-do-clean" depends="init,javafxdoc-clean,langref-clean,launcher-clean">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
         <delete file="cobertura.ser" />
-        <antcall target="javafxdoc-clean" inheritall="true"/>
-        <antcall target="langref-clean" inheritall="true"/>
-        <antcall target="launcher-clean" inheritall="true"/>
     </target>
 
 </project>
