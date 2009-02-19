@@ -4,30 +4,32 @@
 
     <property name="build.defs" value="../build-defs.xml"/>
 
-    <available file="${build.defs}" type="file" property="build.defs.exists"/>
-
-    <condition property="inSWAN">
-        <isreachable host="sfbay.sun.com"/>
+    <condition propety="build.defs.missing">
+       <not>
+         <available file="${build.defs}" type="file" property="ignored"/>
+       </not>
     </condition>
 
-    <condition property="top-repo" 
-              value="jfx"
-              else="openjfx-compiler~marina-setup">
-       <isset property="inSWAN"/>
-    </condition>
-
-    <condition property="top-url" 
-              value="ssh@//jfxsrc.sfbay.sun.com//javafx/marina-integration/${top-repo}"
-              else="http://kenai.com/hg/${top-repo}">
-       <isset property="inSWAN"/>
-    </condition>
-
-    <fail>
-      <condition>
-         <not>
-           <isset property="build.defs.exists"/>
-         </not>
+    <target name="set-help-info">
+      <condition property="inSWAN">
+          <isreachable host="sfbay.sun.com"/>
       </condition>
+  
+      <condition property="top-repo" 
+                value="jfx"
+                else="openjfx-compiler~marina-setup">
+         <isset property="inSWAN"/>
+      </condition>
+  
+      <condition property="top-url" 
+                value="ssh@//jfxsrc.sfbay.sun.com//javafx/marina-integration/${top-repo}"
+                else="http://kenai.com/hg/${top-repo}">
+         <isset property="inSWAN"/>
+      </condition>
+    </target>
+
+    <target name="check-fail" depends="set-help-info" if="build.defs.missing">
+      <fail>
 :
     ${build.defs} does not exist.  
 
@@ -49,7 +51,10 @@
     will use http to fetch all the needed packages.  But, this is slow and prone to timeouts.
 
     After doing the above, you can cd openjfx-compiler and do your build.
-    </fail>
+      </fail>
+    </target>
+
+    <check-fail>
 
     <import file="${build.defs}"/>
 
