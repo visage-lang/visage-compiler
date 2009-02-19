@@ -123,7 +123,7 @@ public class StringLocalizer {
     }
 
     function getDefaultPropertiesName() : String {
-        var elements  = Thread.currentThread().getStackTrace();
+        var elements : StackTraceElement[] = Thread.currentThread().getStackTrace();
         var elem: StackTraceElement;
         var className: String;
         var foundMe: Boolean = false;
