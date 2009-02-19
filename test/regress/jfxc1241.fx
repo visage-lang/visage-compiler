@@ -1,9 +1,8 @@
 /**
  * Regression test JFXC-1241 : Allow iterating over java arrays, collections, or other Iterables
  *
- * @test/fail
- * was @test
- * was @run
+ * @test
+ * @run
  */
 
 import java.util.ArrayList;
@@ -14,7 +13,7 @@ list.add("from");
 list.add("the");
 list.add("River");
 var book = for (w in list) "_{w}_";
-var arr = list.toArray();
+var arr : Object[] = list.toArray(); // remove type declaratioin when JFXC-2785 is fixed
 for (v in arr) {
   println(v);
 }
