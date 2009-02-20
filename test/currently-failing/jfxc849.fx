@@ -1,8 +1,10 @@
 /* regression test for the bug 849
  *
- * @test/fail
+ * @test
+ * @run/fail
  * was @test
  * was @run
+ * NOTE this test is BOGUS - it assumes null is converted to an empty array.
  */
 
 import java.lang.System; 

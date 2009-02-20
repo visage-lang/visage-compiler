@@ -2809,7 +2809,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         null),
                     seq,
                     stmt);
-            } else if (types.asSuper(clause.seqExpr.type, syms.iterableType.tsym) != null) {
+            } else if (clause.seqExpr.type.tag == TypeTags.ARRAY ||
+                    types.asSuper(clause.seqExpr.type, syms.iterableType.tsym) != null) {
                 stmt = make.at(clause).ForeachLoop(
                     // loop variable is synthetic should not be bound
                     // even if we are in a bind context
