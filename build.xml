@@ -3,31 +3,16 @@
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
 
     <property name="build.defs" value="../build-defs.xml"/>
-
-    <available file="${build.defs}" type="file" property="build.defs.exists"/>
-
-    <condition property="inSWAN">
-        <isreachable host="sfbay.sun.com"/>
+    <condition property="build.defs.missing">
+       <not>
+         <available file="${build.defs}" type="file" property="ignored"/>
+       </not>
     </condition>
+    <property name="top-repo" value="openjfx-compiler~marina-setup"/>
+    <property name="top-url" value="http://kenai.com/hg/${top-repo}"/>
 
-    <condition property="top-repo" 
-              value="jfx"
-              else="openjfx-compiler~marina-setup">
-       <isset property="inSWAN"/>
-    </condition>
-
-    <condition property="top-url" 
-              value="ssh@//jfxsrc.sfbay.sun.com//javafx/marina-integration/${top-repo}"
-              else="http://kenai.com/hg/${top-repo}">
-       <isset property="inSWAN"/>
-    </condition>
-
-    <fail>
-      <condition>
-         <not>
-           <isset property="build.defs.exists"/>
-         </not>
-      </condition>
+    <!-- there must be a way to not duplicate this message -->
+    <fail if="build.defs.missing">
 :
     ${build.defs} does not exist.  
 
@@ -113,7 +98,7 @@
             E.G.   ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
 
 
-    Your openjfx-compiler repo must be under the top level repository: ${top-repo}.
+    Your openjfx-compiler repo must be under the top level repository, ${top-repo}.
     You should do this:
       cd ..
       hg clone ${top-url}
