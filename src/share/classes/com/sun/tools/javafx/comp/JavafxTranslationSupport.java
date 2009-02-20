@@ -804,9 +804,6 @@ public abstract class JavafxTranslationSupport {
         if ((flags & JavafxFlags.PUBLIC_READ) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicReadAnnotationClassNameString), List.<JCExpression>nil()));
         }
-        if ((flags & JavafxFlags.MIXIN) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.mixinAnnotationClassNameString), List.<JCExpression>nil()));
-        }
 
         if ((flags & JavafxFlags.IS_DEF) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.defAnnotationClassNameString), List.<JCExpression>nil()));

@@ -48,7 +48,6 @@ public class JavafxSymtab extends Symtab {
     public static final String scriptPrivateAnnotationClassNameString = anno + ".ScriptPrivate";
     public static final String publicInitAnnotationClassNameString = anno + ".PublicInitable";
     public static final String publicReadAnnotationClassNameString = anno + ".PublicReadable";
-    public static final String mixinAnnotationClassNameString = anno + ".Mixin";
     public static final String defAnnotationClassNameString = anno + ".Def";
     public static final String staticAnnotationClassNameString = anno + ".Static";
     public static final String inheritedAnnotationClassNameString = anno + ".Inherited";
@@ -95,7 +94,6 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_scriptPrivateAnnotationType;
     public final Type javafx_publicInitAnnotationType;
     public final Type javafx_publicReadAnnotationType;
-    public final Type javafx_mixinAnnotationType;
     public final Type javafx_defAnnotationType;
     public final Type javafx_staticAnnotationType;
     public final Type javafx_inheritedAnnotationType;
@@ -198,7 +196,6 @@ public class JavafxSymtab extends Symtab {
         javafx_scriptPrivateAnnotationType = enterClass(scriptPrivateAnnotationClassNameString);
         javafx_publicInitAnnotationType = enterClass(publicInitAnnotationClassNameString);
         javafx_publicReadAnnotationType = enterClass(publicReadAnnotationClassNameString);
-        javafx_mixinAnnotationType = enterClass(mixinAnnotationClassNameString);
         javafx_defAnnotationType = enterClass(defAnnotationClassNameString);
         javafx_staticAnnotationType = enterClass(staticAnnotationClassNameString);
         javafx_inheritedAnnotationType = enterClass(inheritedAnnotationClassNameString);

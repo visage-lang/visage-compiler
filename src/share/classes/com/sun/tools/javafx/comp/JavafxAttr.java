@@ -2851,6 +2851,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
             if (!supType.isInterface() &&
                     !types.isJFXClass(supType.tsym) &&
+                    !types.isMixin(supType.tsym) &&
                     !supType.isPrimitive() &&
                     javafxClassSymbol.type instanceof ClassType) {
                 if (javaSupertypeSymbol == null) {

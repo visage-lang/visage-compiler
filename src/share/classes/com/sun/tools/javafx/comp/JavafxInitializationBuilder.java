@@ -314,14 +314,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             List<ClassSymbol> baseInterfaces) {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
         
-        implementing.append(makeIdentifier(diagPos, fxObjectString));
+        if (cDecl.generateClassOnly()) {
+            implementing.append(makeIdentifier(diagPos, fxObjectString));
+        } else {
+            implementing.append(makeIdentifier(diagPos, fxMixinString));
+        }
         
         for (JFXExpression intf : cDecl.getImplementing()) {
             implementing.append(makeTypeTree(diagPos, intf.type, false));
         }
 
         for (ClassSymbol baseClass : baseInterfaces) {
-                implementing.append(makeTypeTree(diagPos, baseClass.type, true));
+            implementing.append(makeTypeTree(diagPos, baseClass.type, true));
         }
         return implementing.toList();
     }

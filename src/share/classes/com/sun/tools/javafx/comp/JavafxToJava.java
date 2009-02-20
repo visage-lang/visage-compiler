@@ -917,12 +917,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             // build the list of implemented interfaces
-            List<JCExpression> implementing;
-            if (classOnly) {
-                implementing = model.interfaces;
-            } else {
-                implementing = List.nil();
-            }
+            List<JCExpression> implementing = model.interfaces;
 
             long flags = tree.mods.flags & (Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.FINAL | Flags.ABSTRACT);
             if (tree.sym.owner.kind == Kinds.TYP) {

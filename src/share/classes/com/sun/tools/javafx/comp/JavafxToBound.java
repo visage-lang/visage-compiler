@@ -1468,8 +1468,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 Name name = functionName(msym, superToStatic, callBound);
                                 JCExpression stor;
                                 
-                                // TODO - fix scope supers in binding expressions.
-                                if (superToStatic || msym.isStatic()) {
+                                 if (superToStatic || msym.isStatic()) {
                                     stor = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
                                 } else if (renameToSuper || superCall) {
                                     stor = m().Select(makeTypeTree(diagPos, toJava.currentClass.sym.type, false), names._super);
@@ -1490,11 +1489,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 JCExpression transMeth = toJava.translateAsUnconvertedValue(meth);
                 JCExpression expr = null;
                 
-                // TODO - fix scope supers in binding expressions.
-                if (renameToSuper || superCall) {
-                    expr = m().Ident(names._super);
-                } else if (superToStatic) {
+                if (superToStatic || msym.isStatic()) {
                     expr = makeTypeTree(diagPos, msym.owner.type, false);
+                } else if (renameToSuper || superCall) {
+                    expr = m().Ident(names._super);
                 } else if (callBound) {
                     expr = ((JCFieldAccess) transMeth).getExpression();
                 }
