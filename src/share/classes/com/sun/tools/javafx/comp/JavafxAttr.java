@@ -2365,7 +2365,9 @@ public class JavafxAttr implements JavafxVisitor {
             }
             case REVERSE: {
                 Type argtype = chk.checkNonVoid(tree.arg.pos(), attribExpr(tree.arg, env));
-                result = check(tree, argtype, VAL, pkind, pt, pSequenceness);
+                // result type is argument type, unless this is a singleton, then convert to a sequence
+                Type owntype = (argtype.tag == ERROR || types.isSequence(argtype))? argtype : types.sequenceType(argtype);
+                result = check(tree, owntype, VAL, pkind, pt, Sequenceness.REQUIRED);
                 return;
             }
         }

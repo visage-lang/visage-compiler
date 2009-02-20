@@ -3315,9 +3315,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                 makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                                 defs.sizeMethodName, transExpr);
                     case REVERSE:
-                        return callExpression(diagPos,
-                                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
-                                "reverse", transExpr);
+                        if (types.isSequence(expr.type)) {
+                            // call runtime reverse of a sequence
+                            return callExpression(diagPos,
+                                    makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                                    "reverse", transExpr);
+                        } else {
+                            // this isn't a sequence, just make it a sequence
+                            return convertTranslated(transExpr, diagPos, expr.type, tree.type);
+                        }
                     case PREINC:
                         return doIncDec(JCTree.PLUS, false);
                     case PREDEC:

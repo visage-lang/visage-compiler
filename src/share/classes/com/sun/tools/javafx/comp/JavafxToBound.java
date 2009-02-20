@@ -1639,7 +1639,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 res = runtime(diagPos, cBoundSequences, "sizeof", List.of(transExpr) );
                 break;
             case REVERSE:
-                res = runtime(diagPos, cBoundSequences, "reverse", List.of(transExpr) );
+                if (types.isSequence(expr.type)) {
+                    // call runtime reverse of a sequence
+                    res = runtime(diagPos, cBoundSequences, "reverse", List.of(transExpr));
+                } else {
+                    // this isn't a sequence, just make it into a sequence
+                    res = convert(expr.type, transExpr, tree.type);
+                }
                 break;
             case NOT:
                 res = runtime(diagPos, cBoundOperators, "op_boolean", List.of(makeLaziness(diagPos), transExpr, make.Literal(TypeTags.BOT, null), makeQualifiedTree(diagPos, opNOT)));
