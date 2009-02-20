@@ -3,11 +3,11 @@
     <type>org.netbeans.modules.ant.freeform</type>
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
-            <name>JavaFX Compiler [Marina setup]</name>
+            <name>JavaFX Compiler</name>
         </general-data>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/2">
             <!-- Do not use Project Properties customizer when editing this file manually. -->
-            <name>JavaFX Compiler [Marina setup]</name>
+            <name>JavaFX Compiler</name>
             <properties>
                 <property name="ant.script">build.xml</property>
             </properties>
