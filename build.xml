@@ -163,18 +163,10 @@
     <target name="-do-bundle" depends="-bundle-init,-bundle-zip,-bundle-tgz"/>
 
 
-<!-- re-enable when findbugs is fixed
     <target name="hudson-dev" depends="all, findbugs, staticsizes, coverage-report, hudson-post-build"
             description="Build and test all project artifacts for each developer push"/>
--->
-    <target name="hudson-dev" depends="all, staticsizes, coverage-report, hudson-post-build"
-            description="Build and test all project artifacts for each developer push"/>
     
-<!-- re-enable when findbugs is fixed
     <target name="hudson-all" depends="-init-coverage, all, findbugs, staticsizes, coverage-report, hudson-post-build"
-            description="Build and test with coverage all project artifacts for nightly build"/>
--->
-    <target name="hudson-all" depends="-init-coverage, all, staticsizes, coverage-report, hudson-post-build"
             description="Build and test with coverage all project artifacts for nightly build"/>
 
     <target name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
@@ -611,7 +603,7 @@
             <arg value="-longBugCodes"/>
             <arg value="-html:${import.findbugs.home}/src/xsl/fancy.xsl"/>
             <arg value="${build.dir}/findbugs.xml"/>
-            <redirector output="${dist.findbugs.home}/findbugs.html"/>
+            <redirector output="${dist.findbugs.dir}/findbugs.html"/>
         </exec>
     </target>
 
