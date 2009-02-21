@@ -174,7 +174,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
             if (outerTypeSym == null) {
-                 cDefinitions.append(makeJavaEntryConstructor(diagPos));
+                cDefinitions.append(makeJavaEntryConstructor(diagPos));
             } else {
                 cDefinitions.append(makeOuterAccessorField(diagPos, cDecl, outerTypeSym));
                 cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
@@ -187,7 +187,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             iDefinitions.appendList(makeMemberVariableAccessorInterfaceMethods(diagPos, translatedAttrInfo));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-        }
+            
+            // TODO - remove when we can generate proxies from $impl declarations.
+            cDefinitions.appendList(makeFunctionProxyMethods(cDecl, analysis.needDispatch()));
+            // TODO - remove when we can generate proxies from simple declarations.
+            cDefinitions.appendList(makeMemberVariableAccessorMethods(cDecl, instanceAttributeInfos));
+         }
 
         Name interfaceName = classOnly ? null : interfaceName(cDecl);
 
@@ -568,35 +573,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
         
     /**
-     * Look for overrides of the instance var, otherwise\
-     * @param currentScript Script containing the class we are building
-     * @param csym class we are currently looking in
-     * @param attr instance var for which we are looking
-     * @return if found in class or subclasses
-     */
-    private boolean isAttributeOriginClass(Symbol currentScript, Symbol csym, Symbol attr) {
-        if (types.isJFXClass(csym)) {
-            ClassSymbol supertypeSym = (ClassSymbol) csym;
-            for (Entry e = supertypeSym.members().elems; e != null && e.sym != null; e = e.sibling) {
-                if (attr.owner == csym)
-                    return true;
-                if ( ((e.sym.flags() & JavafxFlags.SCRIPT_PRIVATE) == 0L || e.sym.outermostClass() == currentScript) &&
-                     ((e.sym.kind == Kinds.VAR && e.sym.name == attr.name)) ) {
-                    // Found a visible override
-                    return true;
-                }
-            }
-            // not directly in this class, try in the superclass
-            for (Type supertype : supertypeSym.getInterfaces()) {
-                if (isAttributeOriginClass(currentScript, supertype.tsym, attr) ) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * Construct the applyDefaults method
      */
     private List<JCTree> makeApplyDefaultsMethods(DiagnosticPosition diagPos,
@@ -612,16 +588,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // a default exists, either on the direct attribute or on an override
                     stmts.append(ai.getDefaultInitStatement());
                 } else {
-                    // No default, look for the supertype which directly or indirectly
-                    // defines it, and defer to it
-                    ClassSymbol attrParent = null;
-                    for (JFXExpression supertype : cDecl.getSupertypes()) {
-                        Symbol sym = supertype.type.tsym;
-                        if (isAttributeOriginClass(cDecl.sym.outermostClass(), sym, ai.getSymbol()) ) {
-                            attrParent = (ClassSymbol) sym;
-                            break;
-                        }
-                    }
+                    ClassSymbol attrParent = (ClassSymbol)ai.getSymbol().owner;
                     assert attrParent != null : "Parent supertype for attribute " + ai.getNameString() + " not found";
                     if (attrParent != null) {
                         stmts.append(makeSuperCall(diagPos, attrParent, methodName));
@@ -1091,19 +1058,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     /**
      * Make a method body which redirects to the actual implementation in a static method of the defining class.
      */
-    private JCBlock makeDispatchBody(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound, boolean isStatic) {
+    private JCBlock makeDispatchBody(JFXClassDeclaration cDecl, MethodSymbol mth, boolean isBound, boolean isStatic) {
         ListBuffer<JCExpression> args = ListBuffer.lb();
         if (!isStatic) {
             // Add the this argument, so the static implementation method is invoked
-            args.append(make.Ident(names._this));
+            args.append(make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this)));
         }
         for (VarSymbol var : mth.params) {
             args.append(make.Ident(var.name));
         }
-        JCExpression receiver = makeTypeTree( diagPos,mth.owner.type, false);
-        JCExpression expr = callExpression(diagPos, receiver, functionName(mth, !isStatic, isBound), args);
+        JCExpression receiver = mth.owner == cDecl.sym ? null : makeTypeTree(cDecl.pos(), mth.owner.type, false);
+        JCExpression expr = callExpression(cDecl.pos(), receiver, functionName(mth, !isStatic, isBound), args);
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
-        return make.at(diagPos).Block(0L, List.<JCStatement>of(statement));
+        return make.at(cDecl.pos()).Block(0L, List.<JCStatement>of(statement));
     }
 
     private boolean requiresLocation(VarInfo ai) {

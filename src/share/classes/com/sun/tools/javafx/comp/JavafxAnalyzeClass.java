@@ -282,6 +282,7 @@ class JavafxAnalyzeClass {
                     ClassSymbol iSym = (ClassSymbol) supertype.tsym;
                     process(iSym, cloneVisible);
                 }
+            
                 if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
                     /***
                     for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
@@ -355,7 +356,6 @@ class JavafxAnalyzeClass {
         if ((meth.flags() & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0) {
             String nameSig = methodSignature(meth);
             boolean isMixin = (meth.owner.flags() & JavafxFlags.MIXIN) != 0;
-            System.out.println("processMethod: " + meth + ", " + isMixin);
             // Filter out non mixins and duplicates.
             if (!(isMixin && needDispatchMethods.containsKey(nameSig))) {
                 // because we traverse super-to-sub class, last one wins
