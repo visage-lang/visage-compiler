@@ -116,8 +116,8 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         this.mixing       = mixing;
     }
     
-    public boolean generateClassOnly () {
-        return (sym.flags_field & JavafxFlags.MIXIN) == 0;
+    public boolean isMixinClass() {
+        return (sym.flags_field & JavafxFlags.MIXIN) != 0;
     }
 
     @Override

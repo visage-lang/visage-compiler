@@ -808,7 +808,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
-            boolean classOnly = tree.generateClassOnly();
+            boolean isMixinClass = tree.isMixinClass();
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList());
             additionalImports.appendList(model.additionalImports);
 
@@ -816,7 +816,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             // include the interface only once
             if (!tree.hasBeenTranslated) {
-                if (! classOnly) {
+                if (isMixinClass) {
                     JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.INTERFACE);
                     mods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, mods);
 
@@ -831,7 +831,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             translatedDefs.appendList(model.additionalClassMembers);
             
-            if (classOnly) {
+            if (!isMixinClass) {
                 // Add the userInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
@@ -869,7 +869,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         userInitBlock,
                         null));
             }
-            if (classOnly) {
+            if (!isMixinClass) {
                 // Add the userPostInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
@@ -1596,7 +1596,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         translationState = null; //should be explicitly set
 
         try {
-            boolean classOnly = currentClass.generateClassOnly();
+            boolean isMixinClass = currentClass.isMixinClass();
             // Made all the operations public. Per Brian's spec.
             // If they are left package level it interfere with Multiple Inheritance
             // The interface methods cannot be package level and an error is reported.
@@ -1605,13 +1605,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             flags &= ~Flags.PROTECTED;
             if ((tree.mods.flags & Flags.PRIVATE) == 0)
                 flags |=  Flags.PUBLIC;
-            if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classOnly) {
+            if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && isMixinClass) {
                 flags |= Flags.STATIC;
             }
             flags &= ~Flags.SYNTHETIC;
             JCModifiers mods = make.Modifiers(flags);
             final boolean isRunMethod = syms.isRunMethod(tree.sym);
-            final boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0L && !isRunMethod && !classOnly;
+            final boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0L && !isRunMethod && isMixinClass;
 
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType)tree.type;
@@ -1636,7 +1636,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
             if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
-                if (classOnly) {
+                if (!isMixinClass) {
                     // all implementation code is generated assuming a receiver parameter.
                     // in the final class case, there is no receiver param, so allow generated code
                     // to function by adding:   var receiver = this;

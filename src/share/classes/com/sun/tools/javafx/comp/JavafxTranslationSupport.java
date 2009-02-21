@@ -174,7 +174,7 @@ public abstract class JavafxTranslationSupport {
      * */
     protected Name interfaceName(JFXClassDeclaration cDecl) {
         Name name = cDecl.getName();
-        if (cDecl.generateClassOnly())
+        if (!cDecl.isMixinClass())
             return name;
         return names.fromString(name.toString() + interfaceSuffix);
     }

@@ -261,13 +261,13 @@ class JavafxAnalyzeClass {
     private void process(Symbol sym, boolean cloneVisible) {
         if (!addedBaseClasses.contains(sym) && types.isJFXClass(sym)) {
             ClassSymbol cSym = (ClassSymbol) sym;
-            addedBaseClasses.add(cSym);
             JFXClassDeclaration cDecl = types.getFxClass(cSym);
             long flags = cSym.flags();
             boolean isMixin = (flags & JavafxFlags.MIXIN) != 0;
-            boolean isInterface = (flags & Flags.INTERFACE) != 0;
             boolean isCurrent = cSym == currentClassSym;
             
+            addedBaseClasses.add(cSym);
+           
             if (isCurrent) {
                 // Process the base class first.
                 process(types.superType(cDecl).tsym, false);

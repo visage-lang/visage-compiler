@@ -149,7 +149,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, 
            List<TranslatedVarInfo> translatedAttrInfo,
            List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo) {
-        boolean classOnly = cDecl.generateClassOnly();
+        boolean isMixinClass = cDecl.isMixinClass();
         DiagnosticPosition diagPos = cDecl.pos();
         Type superType = types.superType(cDecl);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl); // null unless inner class with outer reference
@@ -168,7 +168,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
          
-        if (classOnly) {
+        if (!isMixinClass) {
             cDefinitions.appendList(makeMemberVariableAccessorMethods(cDecl, instanceAttributeInfos));
             cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
             cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
@@ -194,7 +194,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(makeMemberVariableAccessorMethods(cDecl, instanceAttributeInfos));
          }
 
-        Name interfaceName = classOnly ? null : interfaceName(cDecl);
+        Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
 
         return new JavafxClassModel(
                 interfaceName,
@@ -319,10 +319,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             List<ClassSymbol> baseInterfaces) {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
         
-        if (cDecl.generateClassOnly()) {
-            implementing.append(makeIdentifier(diagPos, fxObjectString));
-        } else {
+        if (cDecl.isMixinClass()) {
             implementing.append(makeIdentifier(diagPos, fxMixinString));
+        } else {
+            implementing.append(makeIdentifier(diagPos, fxObjectString));
         }
         
         for (JFXExpression intf : cDecl.getImplementing()) {
@@ -597,7 +597,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
 
                 // Add the method for this class' attributes
-                JCModifiers mods = make.Modifiers(Flags.PUBLIC | (cDecl.generateClassOnly()? 0L : Flags.STATIC) );
+                JCModifiers mods = make.Modifiers(Flags.PUBLIC | (cDecl.isMixinClass()? Flags.STATIC : 0L) );
                 methods.append(make.at(diagPos).MethodDef(
                         mods,
                         methodName,
@@ -806,7 +806,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         return make.at(diagPos).MethodDef(
-                make.Modifiers(Flags.PUBLIC | (cDecl.generateClassOnly()? 0L : Flags.STATIC) ),
+                make.Modifiers(Flags.PUBLIC | (cDecl.isMixinClass()? Flags.STATIC : 0L) ),
                 defs.addTriggersName,
                 makeTypeTree( null,syms.voidType),
                 List.<JCTypeParameter>nil(),
