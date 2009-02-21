@@ -910,7 +910,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             if (tree.isScriptClass) {
                 // Add main method...
-                translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                if (!isMixinClass) {
+                    translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                }
                 
                 // Add binding support
                 translatedDefs.appendList(toBound.scriptComplete(tree.pos()));
