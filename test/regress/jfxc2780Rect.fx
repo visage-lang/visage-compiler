@@ -4,8 +4,8 @@
  * @subtest
  */
 
-public class Jfxc2780Rect {
-  public var boundsInLocal : Rect;
+public class jfxc2780Rect {
+  public var boundsInLocal : jfxc2780Rect;
   public var x : Number;
   public def minX : Number = 3.0;
 }

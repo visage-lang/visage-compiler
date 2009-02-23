@@ -3,12 +3,12 @@
  *
  * approx original test case
  *
- * @compilerfirst jfxc2780Rect.fx
+ * @compilefirst jfxc2780Rect.fx
  * @test
  */
 
-public function test(rect : Jfxc2780Rect) : Jfxc2780Rect {
-    Jfxc2780Rect {
+public function test(rect : jfxc2780Rect) : jfxc2780Rect {
+    jfxc2780Rect {
 	x:  bind rect.boundsInLocal.minX;
     }
 }
