@@ -1782,7 +1782,7 @@ public class JavafxCheck {
      *  @param c            The class whose modifiers are checked.
      **/
     void checkPureMixinClass(DiagnosticPosition pos, ClassSymbol c) {
-        if ((c.flags() & (ABSTRACT | INTERFACE)) != 0) {
+        if ((c.flags() & ABSTRACT) != 0) {
             log.error(pos, MsgSym.MESSAGE_JAVAFX_PURE_MIXIN);
         }
     }

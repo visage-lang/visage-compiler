@@ -237,7 +237,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return javaInterfacesBuff.toList();
     }
     
-     private List<JCTree> makeFunctionInterfaceMethods(JFXClassDeclaration cDecl) {
+    private List<JCTree> makeFunctionInterfaceMethods(JFXClassDeclaration cDecl) {
         ListBuffer<JCTree> methods = ListBuffer.lb();
         for (JFXTree def : cDecl.getMembers()) {
             if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
