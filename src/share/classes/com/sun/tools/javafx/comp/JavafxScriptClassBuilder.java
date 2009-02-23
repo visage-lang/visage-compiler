@@ -280,7 +280,6 @@ public class JavafxScriptClassBuilder {
                     Name name = decl.getName();
                     checkName(tree.pos, name);
                     if (name == moduleClassName) {
-                        // If not a library then expose names for reflection.
                         moduleClass = decl;
                         // script-class added to topLevelDefs below
                     } else {
