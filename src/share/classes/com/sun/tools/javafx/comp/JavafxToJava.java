@@ -921,13 +921,15 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             // build the list of implemented interfaces
             List<JCExpression> implementing = model.interfaces;
 
-            long flags = tree.mods.flags & (Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.FINAL | Flags.ABSTRACT);
+            // Class must be visible for reflection.
+            long flags = tree.mods.flags & (Flags.FINAL | Flags.ABSTRACT | Flags.SYNTHETIC);
+            if ((flags & Flags.SYNTHETIC) == 0) {
+                flags |= Flags.PUBLIC;
+            }
             if (tree.sym.owner.kind == Kinds.TYP) {
                 flags |= Flags.STATIC;
-                // Expose class to reflection.
-                if ((flags & Flags.PROTECTED) == 0)
-                    flags |= Flags.PUBLIC;
             }
+
             JCModifiers classMods = make.at(diagPos).Modifiers(flags);
             classMods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, classMods);
 
