@@ -13,7 +13,7 @@ class Base1 {
     function moo() { a } 
 } 
 
-class Base2 { 
+mixin class Base2 { 
     var c : Integer; 
 
     function bark() { c } 

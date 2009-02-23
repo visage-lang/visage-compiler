@@ -55,6 +55,7 @@ public class JavafxDefs {
     public static final String scriptBindingExpressionsString = "com.sun.javafx.runtime.location.ScriptBindingExpressions";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
+    public static final String fxMixinString = "com.sun.javafx.runtime.FXMixin";
     public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfo";
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
@@ -105,6 +106,7 @@ public class JavafxDefs {
      * Name definitions
      */
     public final Name fxObjectName;
+    public final Name fxMixinName;
     public final Name interfaceSuffixName;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
@@ -206,6 +208,7 @@ public class JavafxDefs {
         final JavafxSymtab syms = (JavafxSymtab)(JavafxSymtab.instance(context));
 
         fxObjectName = names.fromString(fxObjectString);
+        fxMixinName = names.fromString(fxMixinString);
         interfaceSuffixName = names.fromString(interfaceSuffix);
         userRunFunctionName = names.fromString("run");
         internalRunFunctionName = names.fromString(internalRunFunctionNameString);

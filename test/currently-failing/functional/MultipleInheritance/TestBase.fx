@@ -1,7 +1,7 @@
 /*
  * @subtest
  */
-public class TestBase {
+mixin public class TestBase {
  var failures = 0;
  var passcount = 0;
  public function check(i1:Integer, i2:Integer):Boolean { i1 == i2 }

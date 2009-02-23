@@ -126,13 +126,13 @@ public class JavafxClassReader extends ClassReader {
 
     public JavafxClassSymbol enterClass(ClassSymbol jsymbol) {
         Name className = jsymbol.flatname;
-        boolean compound = className.endsWith(defs.interfaceSuffixName);
-        if (compound)
+        boolean mixin = className.endsWith(defs.interfaceSuffixName);
+        if (mixin)
             className = className.subName(0, className.len - defs.interfaceSuffixName.len);
         JavafxClassSymbol cSym = (JavafxClassSymbol) enterClass(className);
         //cSym.flags_field |= jsymbol.flags_field;
-        if (compound)
-            cSym.flags_field |= JavafxFlags.COMPOUND_CLASS;
+        if (mixin)
+            cSym.flags_field |= JavafxFlags.MIXIN;
         else {
             fixupFullname(cSym, jsymbol);
             cSym.jsymbol = jsymbol;
@@ -453,17 +453,18 @@ public class JavafxClassReader extends ClassReader {
                      it.tail != null;
                      it = it.tail) {
                     Type itype = it.head;
-                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName)
+                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName) {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
-                    else if ((csym.fullname.len + defs.interfaceSuffixName.len ==
+                    } else if (((ClassSymbol) itype.tsym).flatname == defs.fxMixinName) {
+                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
+                    } else if ((csym.fullname.len + defs.interfaceSuffixName.len ==
                              ((ClassSymbol) itype.tsym).fullname.len) &&
                             ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname) &&
                             itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
                         iface = itype;
                         iface.tsym.complete();
-                        csym.flags_field |= JavafxFlags.COMPOUND_CLASS;
-                    }
-                    else {
+                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
+                    } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
                     }
@@ -475,9 +476,11 @@ public class JavafxClassReader extends ClassReader {
                  it.tail != null;
                  it = it.tail) {
                     Type itype = it.head;
-                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName)
+                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName) {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
-                    else {
+                    } else if (((ClassSymbol) itype.tsym).flatname == defs.fxMixinName) {
+                        csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
+                    } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
                         csym.addSuperType(itype);

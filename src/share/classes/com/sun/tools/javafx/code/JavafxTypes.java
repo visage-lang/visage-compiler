@@ -175,7 +175,7 @@ public class JavafxTypes extends Types {
 
     @Override
     public Type asSuper(Type t, Symbol sym) {
-        if (isCompoundClass(t.tsym)) {
+        if (isMixin(t.tsym)) {
             JavafxClassSymbol tsym = (JavafxClassSymbol) t.tsym;
             List<Type> supers = tsym.getSuperTypes();
             for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
@@ -195,20 +195,21 @@ public class JavafxTypes extends Types {
         Type superType = cType.supertype_field;
         if (superType != null &&
             superType.tsym instanceof ClassSymbol &&
-            (superType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
+            (superType.tsym.flags_field & JavafxFlags.MIXIN) == 0) {
             if (superType == syms.objectType &&
-                    (cType.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
+                    (cType.tsym.flags_field & JavafxFlags.MIXIN) != 0) {
                 // Pick first inherited compound class.
                 for (Type iface : cType.interfaces_field) {
-                    if ((iface.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0) {
-                        return iface;
+                    if ((iface.tsym.flags_field & JavafxFlags.MIXIN) != 0) {
+                        superType = iface;
+                        break;
                     }
                 }
             }
         } else if ((cDecl.mods.flags & Flags.FINAL) != 0L && cDecl.getExtending().nonEmpty()) {
             Symbol sym1 = JavafxTreeInfo.symbol(cDecl.getExtending().head);
             if (sym1 != null &&
-                    (sym1.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
+                    (sym1.flags_field & JavafxFlags.MIXIN) == 0) {
                 superType = cDecl.getExtending().head.type;
             }
         }
@@ -281,11 +282,11 @@ public class JavafxTypes extends Types {
             return super.isCastable(source, target, warn);
     }
     
-    public boolean isCompoundClass(Symbol sym) {
+    public boolean isMixin(Symbol sym) {
         if (! (sym instanceof JavafxClassSymbol))
             return false;
         sym.complete();
-        return (sym.flags_field & JavafxFlags.COMPOUND_CLASS) != 0;
+        return (sym.flags_field & JavafxFlags.MIXIN) != 0;
     }
 
     public boolean isJFXClass(Symbol sym) {
@@ -315,7 +316,7 @@ public class JavafxTypes extends Types {
      */
     public MethodSymbol implementation(MethodSymbol msym, TypeSymbol origin, boolean checkResult) {
         msym.complete();
-        if (origin instanceof JavafxClassSymbol && isCompoundClass(origin)) {
+        if (origin instanceof JavafxClassSymbol) {
             JavafxClassSymbol c = (JavafxClassSymbol) origin;
             for (Scope.Entry e = c.members().lookup(msym.name);
                      e.scope != null;

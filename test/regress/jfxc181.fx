@@ -6,7 +6,7 @@ class Bar {
     var a : Integer;
 }
 
-class Bar1 {
+mixin class Bar1 {
     var aa : Number;
     function fun() : Void {
     }

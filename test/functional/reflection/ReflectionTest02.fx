@@ -88,8 +88,8 @@ function inspectClass( context: FXLocal.Context, clzName:String, fxov: FXObjectV
 		var cname = clsTestClass.toString();
 		println("{cname}");
 		print("  Super classes of {clsTestClass.getName()}:"); println( clsTestClass.getSuperClasses(true) );
-		println("  Compound class: { clsTestClass.isCompoundClass() }");
-		println("  JavaFX Type   : {clsTestClass.isJfxType()}");
+		println("  Mixin class: {clsTestClass.isMixin() }");
+		println("  JavaFX Type: {clsTestClass.isJfxType()}");
 		for( clz in clsTestClass.getSuperClasses(true) )
 		  if( not clz.equals( clsTestClass )) {
 			 if(clz.isAssignableFrom( clsTestClass )){ println("  {clz.toString()} is assignable from {cname}")

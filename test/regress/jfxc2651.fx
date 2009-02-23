@@ -11,7 +11,7 @@ import java.lang.System;
 //reference types
 
 class A {}
-class B {}
+mixin class B {}
 class C extends A,B {}
 var c = C{};
 var b:B = c;

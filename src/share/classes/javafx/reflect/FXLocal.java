@@ -236,18 +236,20 @@ public class FXLocal {
                     clsInterface = cls;
                     cname = cname.substring(0, cname.length()-INTERFACE_SUFFIX.length());
                     cls = Class.forName(cname, false, cls.getClassLoader());
-                    modifiers = FXClassType.COMPOUND_CLASS|FXClassType.FX_CLASS;
+                    modifiers = FXClassType.FX_MIXIN | FXClassType.FX_CLASS;
                     return new ClassType(this, modifiers, cls, clsInterface);
                 }
                 Class[] interfaces = cls.getInterfaces();
                 String intfName = cname + INTERFACE_SUFFIX;
                 for (int i = 0;  i < interfaces.length;  i++ ) {
                     String iname = interfaces[i].getName();
-                    if (iname.equals(FXOBJECT_NAME))
+                    if (iname.equals(FXOBJECT_NAME)) {
                         modifiers |= FXClassType.FX_CLASS;
-                    else if (iname.equals(intfName)) {
+                    } else if (iname.equals(FXMIXIN_NAME)) {
+                        modifiers |= FXClassType.FX_MIXIN;
+                    } else if (iname.equals(intfName)) {
                         clsInterface = interfaces[i];
-                        modifiers |= FXClassType.COMPOUND_CLASS;
+                        modifiers |= FXClassType.FX_MIXIN | FXClassType.FX_CLASS;
                     }
                 }
                 return new ClassType(this, modifiers, cls, clsInterface);
@@ -267,7 +269,7 @@ public class FXLocal {
                 return ((JavaArrayType) type).getJavaClass();
             else { // FIXME - handle other cases
                 ClassType ctyp = (ClassType) type;
-                return ctyp.isCompoundClass() ? ctyp.refInterface : ctyp.refClass;
+                return ctyp.isMixin() ? ctyp.refInterface : ctyp.refClass;
             }
         }
 
@@ -322,11 +324,11 @@ public class FXLocal {
         }
 
         void getSuperClasses(boolean all, SortedClassArray result) {
-            boolean isCompound = isCompoundClass();
-            Class cls = isCompound ? refInterface : refClass;
+            boolean isMixin = this.isMixin();
+            Class cls = isMixin ? refInterface : refClass;
             Class[] interfaces = cls.getInterfaces();
             Context context = getReflectionContext();
-            if (! isCompound) {
+            if (! isMixin) {
                 Class s = cls.getSuperclass();
                 if (s != null) {
                     ClassType cl = (ClassType) context.makeClassRef(s);
@@ -336,7 +338,8 @@ public class FXLocal {
             }
             for (int i = 0;  i < interfaces.length;  i++) {
                 Class iface = interfaces[i];
-                if (iface.getName().equals(Context.FXOBJECT_NAME))
+                String iname = iface.getName();
+                if (iname.equals(Context.FXOBJECT_NAME) || iname.equals(Context.FXMIXIN_NAME))
                     continue;
                 ClassType cl = (ClassType) context.makeClassRef(iface);
                 if (result.insert(cl) && all)
@@ -363,12 +366,12 @@ public class FXLocal {
                 try {
                     meth = refClass.getMethod(name, ctypes);
                 } catch (NoSuchMethodException ex) {
-                    if (isCompoundClass())
+                    if (isMixin())
                         meth = null;
                     else
                         throw ex;
                 }
-                if (isCompoundClass())
+                if (isMixin())
                     if (meth == null ||
                             (meth.getModifiers() &  Modifier.STATIC) == 0) {
                     meth = refInterface.getMethod(name, ctypes);
@@ -394,8 +397,7 @@ public class FXLocal {
         }
 
         protected void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result) {
-            boolean isCompound = isCompoundClass();
-            Class cls = /*isCompound ? refInterface :*/ refClass;
+            Class cls = refClass;
             Context context = getReflectionContext();
             Method[] methods;
             try {
@@ -422,7 +424,7 @@ public class FXLocal {
                         mname.startsWith("applyDefaults$")) {
                     continue;
                 }
-                if (isCompoundClass()) {
+                if (isMixin()) {
                     try {
                         m = refInterface.getDeclaredMethod(m.getName(), m.getParameterTypes());
                     }
@@ -433,7 +435,7 @@ public class FXLocal {
                 FXFunctionMember mref = asFunctionMember(m, context);
                 if (filter != null && filter.accept(mref))
                     result.insert(mref);
-            }
+           }
         }
     
         FXFunctionMember asFunctionMember(Method m, Context context) {
@@ -492,17 +494,17 @@ public class FXLocal {
                 FXType tr = context.makeTypeRef(gtype);
                 VarMember ref = new VarMember(name, this, tr);
                 ref.fld = fld;
-                if (isCompoundClass()) {
+                if (!isMixin()) {
                     String getterName = FXClassType.GETTER_PREFIX + name;
                     Method getter = null;
                     try {
-                      getter = refInterface.getMethod(getterName, noClasses);
+                      getter = refClass.getMethod(getterName, noClasses);
                       ref.fld = null;
                       ref.getter = getter;
                     } catch (NoSuchMethodException ex) {
                         try {
                             getterName = "get" + fld.getName();
-                            getter = refInterface.getMethod(getterName, noClasses);
+                            getter = refClass.getMethod(getterName, noClasses);
                             ref.fld = null;
                             ref.getter = getter;
                         } catch (NoSuchMethodException ex2) {
@@ -512,13 +514,13 @@ public class FXLocal {
                         Class type = getter.getReturnType();
                         String setName = FXClassType.SETTER_PREFIX + name;
                         try {
-                            Method setter = refInterface.getMethod(setName, type);
+                            Method setter = refClass.getMethod(setName, type);
                             ref.fld = null;
                             ref.setter = setter;
                         } catch (NoSuchMethodException ex) {
                             try {
                                 setName = "set" + fld.getName();
-                                Method setter = refInterface.getMethod(setName, type);
+                                Method setter = refClass.getMethod(setName, type);
                                 ref.fld = null;
                                 ref.setter = setter;
                             } catch (NoSuchMethodException ex2) {
@@ -645,7 +647,10 @@ public class FXLocal {
                 throw ex;
             }
             catch (Exception ex) {
-                throw new RuntimeException(ex);
+                if (fld != null)
+                    throw new RuntimeException("Illegal access of field " + fld);
+                else
+                    throw new RuntimeException("Illegal access of field getter " + getter);
             }
             throw new UnsupportedOperationException("Not supported yet - "+type+"["+type.getClass().getName()+"]");
         }

@@ -6,16 +6,16 @@
 import java.awt.*; 
 import java.lang.System; 
 
-public abstract class Node { 
+public mixin class Node { 
     public var opacity: Number = 1; 
 } 
 
-public class AbstractVisualNode extends Node { 
+public mixin class AbstractVisualNode extends Node { 
     public var fill: Paint = null; 
     public var stroke: Paint = null; 
 } 
 
-public class VisualNode extends Node { 
+public mixin class VisualNode extends Node { 
 } 
 
 //TODO: extends order should be VisualNode first (JFXC-675)

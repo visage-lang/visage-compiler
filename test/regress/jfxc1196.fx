@@ -16,11 +16,11 @@ class Foo {
 }
 
 class Moo extends Foo {
-    function getString(): String {
+    override function getString(): String {
         var s = bind Foo.getString();
         return "Moo.{s}";
     }
-    bound function getBoundString(): String {
+    override bound function getBoundString(): String {
         var s = bind Foo.getBoundString();
         return "Moo.{s}";
     }

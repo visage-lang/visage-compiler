@@ -1759,6 +1759,49 @@ public class JavafxCheck {
 		}
 	    }
 	}
+    
+
+    /** Check that only one extend class is a java or javafx base class.
+     *  @param tree         The class definition whose extends are checked.
+     **/
+     void checkOneBaseClass(JFXClassDeclaration tree) {
+        // Get the list of non-mixin extends.
+        List<JFXExpression> extending = tree.getExtending();
+        
+        // If there is more than one then we have too many.
+        if (extending.size() > 1) {
+            // Get the first extra for error position.
+            JFXExpression extra = extending.get(1);
+            log.error(extra.pos(),
+                MsgSym.MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED);
+        }
+    }
+    
+    /** Check that a mixin class is pure of other modifiers.
+     *  @param pos          Position to be used for error reporting.
+     *  @param c            The class whose modifiers are checked.
+     **/
+    void checkPureMixinClass(DiagnosticPosition pos, ClassSymbol c) {
+        if ((c.flags() & ABSTRACT) != 0) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_PURE_MIXIN);
+        }
+    }
+
+    /** Check that a mixin class has only mixin extends.
+     *  @param tree         The class definition whose extends are checked.
+     **/
+    void checkOnlyMixinsAndInterfaces(JFXClassDeclaration tree) {
+        // Get the list of non-mixin extends.
+        List<JFXExpression> extending = tree.getExtending();
+        
+        // Any is too many.
+        if (extending.size() > 0) {
+            // Get the first extra for error position.
+            JFXExpression extra = extending.get(0);
+            log.error(extra.pos(),
+                MsgSym.MESSAGE_JAVAFX_ONLY_MIXINS_AND_INTERFACES);
+        }
+    }
 
     /** Check that all abstract methods implemented by a class are
      *  mutually compatible.
@@ -1820,15 +1863,20 @@ public class JavafxCheck {
 	    if (st != null) checkClassBounds(pos, seensofar, st);
 	}
 
-    /** Enter interface into into set.
-     *  If it existed already, issue a "repeated interface" error.
+    /** Enter interface or mixin into into set.
+     *  If the class is a duplicate, issue a "repeated interface/mixin" error.
      */
     void checkNotRepeated(DiagnosticPosition pos, Type it, Set<Type> its) {
-	if (its.contains(it))
-	    log.error(pos, MsgSym.MESSAGE_REPEATED_INTERFACE);
-	else {
-	    its.add(it);
-	}
+        // if class is already in the set.
+        if (its.contains(it)) {
+            // If class is a mixin.
+            if ((it.tsym.flags_field & JavafxFlags.MIXIN) != 0)
+	              log.error(pos, MsgSym.MESSAGE_JAVAFX_REPEATED_MIXIN);
+            else
+	              log.error(pos, MsgSym.MESSAGE_REPEATED_INTERFACE);
+        } else {
+        	  its.add(it);
+        }
     }
 	
 /* *************************************************************************

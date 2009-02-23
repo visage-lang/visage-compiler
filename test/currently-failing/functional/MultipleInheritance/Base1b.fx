@@ -1,7 +1,7 @@
 /*
  * @subtest
  */
-public class bc1b {
+public mixin class bc1b {
   public var bc1b_ival  : Integer = 10;
   public var bc1b_nval  : Number  = 10.0;
   public var bc1b_name : String  = "a baseclass";

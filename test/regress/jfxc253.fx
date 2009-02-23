@@ -4,6 +4,7 @@
  */
 import javax.swing.Action;
 import javax.swing.JButton;
+import java.beans.PropertyChangeListener;
 
 class Bar {
     var jbr : javax.swing.JButton = new javax.swing.JButton;
@@ -11,12 +12,24 @@ class Bar {
     var i : javax.swing.Action;
     function bar() : Void {
         actionMap.put(i, javax.swing.AbstractAction { 
-                            public function isEnabled():Boolean { 
+                            override public function isEnabled():Boolean { 
                                 return true; 
                             } 
                             public function actionPerformed(e:java.awt.event.ActionEvent):Void { 
                                 
-                            } 
+                            }
+                            override public function removePropertyChangeListener(l:java.beans.PropertyChangeListener):Void {
+                            
+                            }
+                            override public function addPropertyChangeListener(l:java.beans.PropertyChangeListener):Void {
+                            }
+                            override public function setEnabled(f:Boolean):Void {
+                            }
+                            override public function getValue(s:String) {
+                                return null;
+                            }
+                            override public function putValue(s:String, o:Object):Void {
+                            }
                         } as javax.swing.Action); 
     }
 }

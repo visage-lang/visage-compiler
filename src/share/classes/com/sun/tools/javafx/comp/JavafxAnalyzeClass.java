@@ -226,7 +226,6 @@ class JavafxAnalyzeClass {
 
         // do the analysis
         process(currentClassSym, true);
-        types.isCompoundClass(currentClassSym);
     }
 
     public List<VarInfo> instanceAttributeInfos() {
@@ -244,23 +243,36 @@ class JavafxAnalyzeClass {
     }
 
     public List<MethodSymbol> needDispatch() {
+        long flags = currentClassSym.flags();
+        boolean isMixin = (flags & JavafxFlags.MIXIN) != 0;
+        
         ListBuffer<MethodSymbol> meths = ListBuffer.lb();
         for (MethodSymbol mSym : needDispatchMethods.values()) {
-            meths.append( mSym );
+            // Process only methods that are being mixed in or members
+            // of a superclass.
+            if (isMixin || mSym.owner != currentClassSym) {
+                meths.append( mSym );
+            }
         }
+        
         return meths.toList();
     }
 
     private void process(Symbol sym, boolean cloneVisible) {
         if (!addedBaseClasses.contains(sym) && types.isJFXClass(sym)) {
             ClassSymbol cSym = (ClassSymbol) sym;
-            addedBaseClasses.add(cSym);
             JFXClassDeclaration cDecl = types.getFxClass(cSym);
-            if (cSym == currentClassSym)
+            long flags = cSym.flags();
+            boolean isMixin = (flags & JavafxFlags.MIXIN) != 0;
+            boolean isCurrent = cSym == currentClassSym;
+            
+            addedBaseClasses.add(cSym);
+           
+            if (isCurrent) {
+                // Process the base class first.
                 process(types.superType(cDecl).tsym, false);
-            else if ((cSym.flags() & (JavafxFlags.COMPOUND_CLASS|Flags.INTERFACE)) == 0) {
-                // this class is non-compound AND not the current class
-                // needs to be recursively applied, non-compound in the chain blocks clonability
+            } else if (!isMixin) {
+                // Don't clone members of base classes or interfaces.
                 cloneVisible = false; 
             }
 
@@ -270,6 +282,7 @@ class JavafxAnalyzeClass {
                     ClassSymbol iSym = (ClassSymbol) supertype.tsym;
                     process(iSym, cloneVisible);
                 }
+            
                 if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
                     /***
                     for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
@@ -307,13 +320,26 @@ class JavafxAnalyzeClass {
 
     private VarInfo addAttribute(Name attrName, VarSymbol sym, boolean needsCloning) {
         VarInfo attrInfo = translatedAttributes.get(attrName);
+        
+        // If attribute is a duplicate then select mixins with caution.
+        boolean oldIsMixin = attrInfo != null && (attrInfo.sym.owner.flags() & JavafxFlags.MIXIN) != 0;
+        boolean newIsMixin = (sym.owner.flags() & JavafxFlags.MIXIN) != 0;
+        
+        // normal override 
         if (attrInfo == null || attrInfo.getSymbol() != sym) {
             attrInfo = new VarInfo(diagPos,
                     attrName,
                     sym, typeMorpher.varMorphInfo(sym), null, sym.owner == currentClassSym);
         }
+        
         attrInfo.setNeedsCloning(needsCloning || attrInfo.isDirectOwner());
-        attributeInfos.append(attrInfo);
+        
+        if (attrInfo == null && !oldIsMixin && newIsMixin) {
+            attributeInfos.prepend(attrInfo);
+        } else {
+            attributeInfos.append(attrInfo);
+        }
+        
         return attrInfo;
     }
 
@@ -324,13 +350,17 @@ class JavafxAnalyzeClass {
     }
 
      private void processMethod(MethodSymbol meth) {
-        // no dispatch methods for abstract or static functions,
-        // and none for methods from non-compound classes (this test is not redundant 
-        // since the current class is allowed through if non-compound
-        if ((meth.flags() & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0  &&
-                (meth.owner.flags() & JavafxFlags.COMPOUND_CLASS) != 0) {
+        // No dispatch methods for abstract or static functions,
+        // and for methods from non-mixin classes (this test is not redundant 
+        // since the current class is allowed through if non-mixin)
+        if ((meth.flags() & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0) {
             String nameSig = methodSignature(meth);
-            needDispatchMethods.put(nameSig, meth);  // because we traverse super-to-sub class, last one wins
+            boolean isMixin = (meth.owner.flags() & JavafxFlags.MIXIN) != 0;
+            // Filter out non mixins and duplicates.
+            if (!(isMixin && needDispatchMethods.containsKey(nameSig))) {
+                // because we traverse super-to-sub class, last one wins
+                needDispatchMethods.put(nameSig, meth);
+            }
         }
     }
 

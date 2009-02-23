@@ -527,7 +527,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         if (!bects.isEmpty()) {
             ListBuffer<JCCase> cases = ListBuffer.lb();
             for (BindingExpressionClosureTranslator b : bects) {
-                cases.append(b.makeBindingCase());
+                if (!b.generateInLine) {
+                    cases.append(b.makeBindingCase());
+                }
             }
 
             JCStatement swit = make.at(diagPos).Switch(make.at(diagPos).Ident(defs.bindingIdName), cases.toList());
@@ -1232,6 +1234,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         JCStatement pushStatement;
         final ListBuffer<JCExpression> argInits = ListBuffer.lb();
         final ListBuffer<JCStatement> preDecls = ListBuffer.lb();
+        boolean generateInLine = false;
 
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
             super(diagPos, resultType);
@@ -1276,7 +1279,13 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             }
             pushStatement = callStatement(diagPos, null, "pushValue", resultVal);
 
-            return null;
+            if (generateInLine) {
+                JCTree computeMethod = makeMethod(diagPos, defs.computeMethodName, List.of(pushStatement), null, syms.voidType, Flags.PUBLIC);
+                members.append(computeMethod);
+                return completeMembers();
+            } else {
+                return null;
+            }
         }
 
         protected JCExpression makeBaseClass() {
@@ -1374,6 +1383,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                             // This is a super call, add the receiver so that the impl is called directly
                             callArgs = callArgs.prepend(make.Ident(defs.receiverName));
                         }
+                        
                         return convert(tree.type, m().Apply(typeArgs, transMeth(), callArgs));
                     }
                 } else {
@@ -1431,6 +1441,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 if (superToStatic) {  //TODO: should this be higher?
                                     // This is a super call, add the receiver so that the impl is called directly
                                     callArgs.prepend( receiver() );
+                                } else if (renameToSuper || superCall) {
+                                    generateInLine = true;
                                 }
                                 // result is a block expression that has the definition of receiver$ at the beginning
                                 return m().Apply(null, translatedImmutableMethodReference(), callArgs.toList());
@@ -1444,7 +1456,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
                             JCExpression receiver() {
                                 if (rcvrField == null) {
-                                    Type rcvrType = msym.owner.type;
+                                    Type rcvrType = toJava.attrEnv.enclClass.sym.type;
                                     rcvrField = new FieldInfo(JavafxDefs.receiverNameString, typeMorpher.typeMorphInfo(rcvrType), false);
                                     return buildArgField(toJava.makeReceiver(diagPos, msym, toJava.attrEnv.enclClass.sym), rcvrField, ArgKind.BOUND);
                                 } else {
@@ -1455,12 +1467,11 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                             JCExpression translatedImmutableMethodReference() {
                                 Name name = functionName(msym, superToStatic, callBound);
                                 JCExpression stor;
-                                if (renameToSuper) {
-                                    stor = m().Select(makeTypeTree(diagPos, toJava.attrEnv.enclClass.sym.type, false), names._super);
-                                } else if (superCall) {
-                                    stor = m().Ident(names._super);
-                                } else if (superToStatic || msym.isStatic()) {
+                                
+                                 if (superToStatic || msym.isStatic()) {
                                     stor = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
+                                } else if (renameToSuper || superCall) {
+                                    stor = m().Select(makeTypeTree(diagPos, toJava.currentClass.sym.type, false), names._super);
                                 } else if (selector == null || thisCall) {
                                     stor = receiver();
                                 } else {
@@ -1476,13 +1487,18 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             public JCExpression transMeth() {
                 assert !useInvoke;
                 JCExpression transMeth = toJava.translateAsUnconvertedValue(meth);
-                if (superToStatic || callBound) {
-                    // translate the method name -- e.g., foo  to foo$bound or foo$impl
-                    Name name = functionName(msym, superToStatic, callBound);
-                    JCExpression expr = superToStatic ? makeTypeTree(diagPos, msym.owner.type, false) : ((JCFieldAccess) transMeth).getExpression();
-                    transMeth = m().Select(expr, name);
+                JCExpression expr = null;
+                
+                if (superToStatic || msym.isStatic()) {
+                    expr = makeTypeTree(diagPos, msym.owner.type, false);
+                } else if (renameToSuper || superCall) {
+                    expr = m().Ident(names._super);
+                } else if (callBound) {
+                    expr = ((JCFieldAccess) transMeth).getExpression();
                 }
-                return transMeth;
+                
+                Name name = functionName(msym, superToStatic, callBound);
+                return expr == null ? transMeth : m().Select(expr, name);
             }
 
         }).doit();

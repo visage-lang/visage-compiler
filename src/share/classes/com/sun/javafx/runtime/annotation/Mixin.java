@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,29 +21,19 @@
  * have any questions.
  */
 
-package com.sun.javafx.api.tree;
+package com.sun.javafx.runtime.annotation;
 
-import java.util.List;
-import javax.lang.model.element.Name;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Target;
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Common interface for class declaration nodes in an abstract syntax tree for the 
- * JavaFX Script language.
- *
- * <p><b>WARNING:</b> This interface and its sub-interfaces are 
- * subject to change as the JavaFX Script programming language evolves.
- * These interfaces are implemented by Sun's JavaFX Script compiler (javafxc) 
- * and should not be implemented either directly or indirectly by 
- * other applications.
- *
- * @author Tom Ball
+ * Mixin is used to mark a compiler-generated class as mixin ready.
  */
-public interface ClassDeclarationTree extends Tree {
-    Name getSimpleName();
-    ModifiersTree getModifiers();
-    List<ExpressionTree> getImplements();
-    List<ExpressionTree> getSupertypeList();
-    List<ExpressionTree> getMixins();
-    List<ExpressionTree> getExtends();
-    List<Tree> getClassMembers();
+@Retention(RUNTIME)
+@Documented
+@Target({METHOD, FIELD, TYPE})
+public @interface Mixin {
 }

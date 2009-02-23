@@ -179,31 +179,31 @@ function test4() {
  * instanceof, as 
  */
  class A { function fooA():Integer{ return 1; } }
- class B { function fooB():Integer{ return 2; } }
+ mixin class B { function fooB():Integer{ return 11; } }
  class AA extends A { function fooAA():Integer{ return 101; } }
  class BA extends B,A { function fooAB():Integer{ return 102; } }
  function callFoo( obj:java.lang.Object ) {
    if( obj instanceof BA ) { return (obj as BA).fooAB(); }
    else if(obj instanceof AA) { return (obj as AA).fooAA(); }
+   else if(obj instanceof B) { return (obj as BA).fooB(); }
    else if(obj instanceof A) { return (obj as A).fooA(); }
-   else if(obj instanceof B) { return (obj as B).fooB(); }
 	return 0;
  }
 
  function test5() {
  var a:A = new A;
  var aa:AA = new AA;
- var b:B = new B;
+ var b:B = new BA;
  var ba:BA = new BA;
   TA.checkB( a instanceof A, "instanceof");
   TA.checkB( aa instanceof A, "instanceof superclass"); //check subclass instance is instance of super class
   TA.checknotB( a instanceof AA, "super not instanceof subclass"); //check subclass instance is instance of super class
-  TA.checknotB( b instanceof A, "not instanceof");
+  TA.checkB( b instanceof A, "instanceof");
 
 	TA.checkB( ba instanceof B, "ba instanceof B");
 	TA.checkB( ba instanceof A, "ba instanceof A");
 	TA.checkI( callFoo(a),1,"a.foo");
-	TA.checkI( callFoo(b),2,"b.foo");
+  TA.checkI( callFoo(b),11,"b.foo");
 	TA.checkI( callFoo(aa),101,"aa.foo");
 	TA.checkI( callFoo(ba),102,"ba.foo");
 }
