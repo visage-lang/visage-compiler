@@ -17,7 +17,8 @@
             <compilerarg value="-J-Xbootclasspath/p:${file.reference.javac.jar}${path.separator}${file.reference.javadoc.jar}"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
-        <copy todir="${build.classes.dir}">
+	<filter token="javafxversion" value="${javafx.version}"/>
+        <copy todir="${build.classes.dir}" filtering="true">
             <fileset dir="${src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
     </target>
