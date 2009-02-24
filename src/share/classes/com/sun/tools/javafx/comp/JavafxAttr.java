@@ -926,7 +926,7 @@ public class JavafxAttr implements JavafxVisitor {
             else if (tree.type != null)
                 initType = tree.type;
             else
-                initType = syms.objectType;  // nothing to go on, so we assume Object
+                initType = syms.objectType;  // nothing to go on, so we assume Object            
             if (declType == syms.javafx_UnspecifiedType && v.type == null)
                 result = tree.type = v.type = types.upperBound(initType);
             //chk.validateAnnotations(tree.mods.annotations, v);
@@ -1101,7 +1101,8 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
-        JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);
+        Scope localScope = new Scope(new MethodSymbol(BLOCK, defs.lambdaName, null, env.enclClass.sym));
+        JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(localScope));        
         localEnv.outer = env;
         JFXVar lastIndex = tree.getLastIndex();
         if (lastIndex != null) {
@@ -3364,10 +3365,10 @@ public class JavafxAttr implements JavafxVisitor {
             return (v.flags() & JavafxFlags.OBJ_LIT_INIT) != 0;         
         }
         //where
-        public boolean inSameEnclosingScope(VarSymbol v, JavafxEnv<JavafxAttrContext> env) {
+        public boolean inSameEnclosingScope(Symbol s, JavafxEnv<JavafxAttrContext> env) {
             while (env != null) {
-                Symbol s = env.info.scope.owner;
-                if (v.owner == s) return true;
+                Symbol s2 = env.info.scope.owner;
+                if (s.owner == s2) return true;
                 if (isBound(env) || isClassOrFuncDef(env))                    
                     return false;
                 env = env.outer;

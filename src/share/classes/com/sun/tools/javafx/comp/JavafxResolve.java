@@ -61,6 +61,7 @@ public class JavafxResolve {
     JavafxCheck chk;
     Infer infer;
     JavafxClassReader reader;
+    JavafxAttr attr;
     JavafxTreeInfo treeinfo;
     JavafxTypes types;
     public final boolean boxingEnabled; // = source.allowBoxing();
@@ -101,6 +102,7 @@ public class JavafxResolve {
         varargsEnabled = source.allowVarargs();
         Options options = Options.instance(context);
         debugResolve = options.get("debugresolve") != null;
+        attr = JavafxAttr.instance(context);
     }
 
     /** error symbols, which are returned when resolution fails
@@ -581,7 +583,7 @@ public class JavafxResolve {
                     if ((e.sym.flags_field & SYNTHETIC) != 0)
                         continue;
                     if ((e.sym.kind & (MTH|VAR)) != 0) {
-                        if (innerAccess) {
+                        if (innerAccess || !attr.inSameEnclosingScope(e.sym, env)) {
                             e.sym.flags_field |= JavafxFlags.VARUSE_INNER_ACCESS;
                         }
                         if (checkArgs) {
