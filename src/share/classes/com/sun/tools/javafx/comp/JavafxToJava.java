@@ -909,8 +909,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             if (tree.isScriptClass) {
-                // Add main method...
-                translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                // JFXC-1888: Do *not* add main method! 
+                // com.sun.javafx.runtime.Main has the 
+                // "main" that will call Entry.start().
+                // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
                 
                 // Add binding support
                 translatedDefs.appendList(toBound.scriptComplete(tree.pos()));

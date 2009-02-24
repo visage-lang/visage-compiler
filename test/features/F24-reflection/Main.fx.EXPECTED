@@ -110,15 +110,11 @@ String methods (inherited also):
   function java.lang.Object.wait(Long,Integer):Void
 Square methods (inherited also):
   function MyRect.corners():java.awt.geom.Point2D[]
-  function MyCanvasItem.main(JavaArray<java.lang.String>):Void
-  function MyShape.main(JavaArray<java.lang.String>):Void
-  function MyRect.main(JavaArray<java.lang.String>):Void
   function MyShape.times1(Float):Float
   function MyShape.transformed(java.awt.geom.AffineTransform):MyShape
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect.methods: 
   function MyRect.corners():java.awt.geom.Point2D[]
-  function MyRect.main(JavaArray<java.lang.String>):Void
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect variables: 
   var MyRect.crners:java.awt.geom.Point2D[]
@@ -138,9 +134,6 @@ Simple attributes (only):
   func : function(java.lang.String):function():Void
 MyRect methods:
   function MyRect.corners():java.awt.geom.Point2D[]
-  function MyCanvasItem.main(JavaArray<java.lang.String>):Void
-  function MyShape.main(JavaArray<java.lang.String>):Void
-  function MyRect.main(JavaArray<java.lang.String>):Void
   function MyShape.times1(Float):Float
   function MyShape.transformed(java.awt.geom.AffineTransform):MyShape
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape

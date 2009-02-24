@@ -42,6 +42,8 @@ import org.apache.tools.ant.util.FileUtils;
  * @author tball
  */
 public class FXRunAndCompareWrapper extends TestCase {
+    private static final String JAVAFX_MAIN = "com.sun.javafx.runtime.Main";
+
     private final String name;
     private final File testFile;
     private final File buildDir;
@@ -154,14 +156,15 @@ public class FXRunAndCompareWrapper extends TestCase {
     private void execute(String outputFileName, String errorFileName, String expectedFileName) throws IOException {
         CommandlineJava commandLine = new CommandlineJava();
         String mainClass = className.substring(0, className.length() - ".fx".length());
-        commandLine.setClassname(mainClass);
+        commandLine.setClassname(JAVAFX_MAIN);
         Project project = new Project();
         Path p = commandLine.createClasspath(project);
         p.createPathElement().setPath(System.getProperty("java.class.path"));
         p.createPathElement().setPath(buildDir.getPath());
         // for possible .fxproperties files in the test source directory
         p.createPathElement().setPath(testFile.getParent());
-        
+       
+        commandLine.createArgument().setValue(mainClass);
         if (param != null)
             commandLine.createArgument().setLine(param);
 
