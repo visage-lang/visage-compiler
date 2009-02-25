@@ -188,6 +188,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
             
+            // TODO - remove when we can generate triggers from addTriggers$ declarations.
+            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, immediateFxSupertypeNames, translatedAttrInfo, translatedOverrideAttrInfo));
             // TODO - remove when we can generate proxies from $impl declarations.
             cDefinitions.appendList(makeFunctionProxyMethods(cDecl, analysis.needDispatch()));
             // TODO - remove when we can generate proxies from simple declarations.
@@ -767,7 +769,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         return null;
     }
-
+    
 
     /**
      * Construct the addTriggers method
@@ -783,6 +785,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         Symbol superClassSym = getSuperSymbol(cDecl);
         if (superClassSym != null) {
             stmts.append(makeSuperCall(diagPos, cDecl.sym, defs.addTriggersName));
+        }
+        
+        // JFXC-2822 - Triggers need to work from mixins.
+        List<ClassSymbol> javaInterfaces = immediateJavaInterfaceNames(cDecl);
+        for (ClassSymbol cSym : javaInterfaces) {
+            stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName));
         }
 
         // add change listeners for triggers on attribute definitions
