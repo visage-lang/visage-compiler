@@ -109,7 +109,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         c.set(11);
         assertEquals(stepRange, 11,  13,  15);
 //        assertEquals(0, stepRange.get().getDepth());
-        assertEqualsAndClear(hls, "[0, 2] => [ 11, 13, 15 ]");
+        assertEqualsAndClear(hls, "[0, 3] => [ 11, 13, 15 ]");
 
         
         d.set(17);
@@ -167,7 +167,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         e.set(16);
         assertEquals(exclusiveRange, 16, 13);
 //        assertEquals(0, exclusiveRange.get().getDepth());
-        assertEqualsAndClear(hle, "[0, 1] => [ 16, 13 ]");
+        assertEqualsAndClear(hle, "[0, 2] => [ 16, 13 ]");
         
         e.set(10);
         assertEquals(exclusiveRange);
@@ -245,12 +245,12 @@ public class BoundRangeTest extends JavaFXTestCase {
         a.set(11.88f);
         assertEquals(range, 11.88f, 12.88f, 13.88f, 14.88f);
 //        assertEquals(0, range.get().getDepth());
-        assertEqualsAndClear(hl, "[0, 3] => [ 11.88, 12.88, 13.88, 14.88 ]");
+        assertEqualsAndClear(hl, "[0, 4] => [ 11.88, 12.88, 13.88, 14.88 ]");
         
         a.set(9.22f);
         assertEquals(range, 9.22f, 10.22f, 11.22f, 12.22f, 13.22f, 14.22f, 15.22f);
 //        assertEquals(0, range.get().getDepth());
-        assertEqualsAndClear(hl, "[0, 6] => [ 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22 ]");
+        assertEqualsAndClear(hl, "[0, 3] => [ 9.22, 10.22, 11.22, 12.22, 13.22, 14.22, 15.22 ]");
         
         a.set(9.22f);
         assertEquals(range, 9.22f, 10.22f, 11.22f, 12.22f, 13.22f, 14.22f, 15.22f);
@@ -271,7 +271,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         a.set(19.0f);
         assertEquals(range);  // range becomes an empty sequence
 //        assertEquals(0, range.get().getDepth());
-        assertEqualsAndClear(hl, "[0, 0] => [ ]");
+        assertEqualsAndClear(hl, "[0, 5] => [ ]");
 
         a.set(11.0f);
         assertEquals(range, 11.0f, 12.0f, 13.0f, 14.0f);
@@ -353,7 +353,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         a.set(2.2f);
         assertEquals(range, 2.2f, 5.2f, 8.2f, 11.2f);
 //        assertEquals(0, range.get().getDepth());
-        assertEqualsAndClear(hl, "[0, 3] => [ 2.2, 5.2, 8.2, 11.2 ]");
+        assertEqualsAndClear(hl, "[0, 0] => [ 2.2, 5.2, 8.2, 11.2 ]");
         
         b.set(17.2f);
         assertEquals(range, 2.2f, 5.2f, 8.2f, 11.2f, 14.2f);
