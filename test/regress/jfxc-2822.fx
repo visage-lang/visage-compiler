@@ -1,4 +1,11 @@
-import java.lang.System;
+/**
+ * regression test:  abstract functions and abstract classes
+ *
+ * @test
+ * @run
+ */
+
+import java.lang.*;
 
 mixin class M {
   var c : Integer on replace oldValue {
