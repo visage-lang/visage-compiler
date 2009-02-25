@@ -112,7 +112,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
                     }
                     else {
                         newElements = computeFull(lower, upper, step);
-                        updateSlice(0, newElements.isEmpty() ? 0 : (size - 1), newElements, newElements);
+                        updateSlice(0, oldSize - 1, newElements, newElements);
                     }
                 }
                 else if (oldSize >= size) {
@@ -121,7 +121,7 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
                     }
                     else {
                         newElements = computeFull(lower, upper, step);
-                        updateSlice(0, newElements.isEmpty() ? 0 : (size - 1), newElements, newElements);
+                        updateSlice(0, oldSize - 1, newElements, newElements);
                     }
                 }
             }
