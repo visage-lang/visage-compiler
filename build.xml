@@ -10,6 +10,8 @@
     </condition>
     <property name="top-repo" value="openjfx-compiler~marina-setup"/>
     <property name="top-url" value="http://kenai.com/hg/${top-repo}"/>
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="dist.dir" value="${basedir}/dist"/>
 
     <!-- there must be a way to not duplicate this message -->
     <fail if="build.defs.missing">
@@ -46,6 +48,7 @@
     </condition>
 
     <import file="tools-defs.xml"/>
+
     <property name="antlr.grammarv4p" value="v4Parser" />
     <property name="antlr.grammarv4l" value="v4Lexer" />
 
@@ -777,6 +780,7 @@
         <property name="default.javac.source" value="1.4"/>
         <property name="default.javac.target" value="1.4"/>
     </target>
+
     <target depends="-pre-init,-init-private,-init-user" name="-init-project">
         <property file="nbproject/configs/${config}.properties"/>
         <property file="project.properties"/>
@@ -1202,10 +1206,10 @@
             -->
 
 
-    <target name="-do-clean" depends="init,javafxdoc-clean,langref-clean,launcher-clean">
-        <delete dir="${build.dir}"/>
-        <delete dir="${dist.dir}"/>
-        <delete file="cobertura.ser" />
+    <target name="-do-clean" depends="javafxdoc-clean,langref-clean,launcher-clean">
+        <delete quiet="true" dir="${build.dir}"/>
+        <delete quiet="true" dir="${dist.dir}"/>
+        <delete quiet="true" file="cobertura.ser" />
     </target>
 
 </project>
