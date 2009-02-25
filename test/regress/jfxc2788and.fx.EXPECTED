@@ -1,0 +1,29 @@
+  [or]
+  and: false,  or: true
+sw = true
+  [and]
+  and: true,  or: true
+tail = false
+  [and]
+  and: false,  or: true
+tail = true
+  [and]
+  and: true,  or: true
+sw = false
+  [or]
+  and: false,  or: true
+tail = false
+  [or]
+  and: false,  or: false
+tail = true
+  [or]
+  and: false,  or: true
+sw = true
+  [and]
+  and: true,  or: true
+tail = false
+  [and]
+  and: false,  or: true
+tail = true
+  [and]
+  and: true,  or: true

@@ -37,9 +37,11 @@ public class IndirectLocationHelper {
     ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
         final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
         helpedLocation.addDependency(helper);
-        L initialValue = helper.get();
-        helpedLocation.addDynamicDependency(initialValue);
-        ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
+        if (!lazy) {
+            L initialValue = helper.get();
+            helpedLocation.addDynamicDependency(initialValue);
+            ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
+        }
         helper.addChangeListener(new ObjectChangeListener<L>() {
             public void onChange(L oldLoc, L newLoc) {
                 helpedLocation.clearDynamicDependencies();
@@ -50,23 +52,10 @@ public class IndirectLocationHelper {
         return helper;
     }
 
-    public static<T extends Location> BindingExpression makeBindingExpression(final TypeInfo ti, final ObjectLocation<T> helper) {
+    public static<V, T extends ObjectLocation<V>> BindingExpression makeBindingExpression(final TypeInfo<V, ?> ti, final ObjectLocation<T> helper) {
         return new BindingExpression() {
             public void compute() {
-                switch (ti.type) {
-                    case INT: pushValue(((IntLocation) helper.get()).getAsInt()); break;
-                    case FLOAT: pushValue(((FloatLocation) helper.get()).getAsFloat()); break;
-                    case DOUBLE: pushValue(((DoubleLocation) helper.get()).getAsDouble()); break;
-                    case LONG: pushValue(((LongLocation) helper.get()).getAsLong()); break;
-                    case BYTE: pushValue(((ByteLocation) helper.get()).getAsByte()); break;
-                    case SHORT: pushValue(((ShortLocation) helper.get()).getAsShort()); break;
-                    case BOOLEAN: pushValue(((BooleanLocation) helper.get()).getAsBoolean()); break;
-                    case CHAR: pushValue(((CharLocation) helper.get()).getAsChar()); break;
-                    case OBJECT:
-                    case OTHER:
-                        pushValue(((ObjectLocation<?>) helper.get()).get()); break;
-                    default: throw new UnsupportedOperationException(ti.type.toString());
-                }
+                pushFrom(ti, helper.get());
             }
         };
     }
@@ -80,7 +69,7 @@ public class IndirectLocationHelper {
         return new SequenceVariable<T>(typeInfo) {
             ObjectLocation<SequenceLocation<T>> helper;
             {
-                helper = makeIndirectHelper(lazy, (SequenceLocation<T>) this, binding, new SequenceConstant<T>(typeInfo, typeInfo.emptySequence), dependencies);
+                helper = makeIndirectHelper(lazy, this, binding, new SequenceConstant<T>(typeInfo, typeInfo.emptySequence), dependencies);
                 bind(lazy, helper.get());
                 // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
                 // the rebinding happens.

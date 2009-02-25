@@ -53,6 +53,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
         new Context.Key<JavafxToBound>();
 
+    static final boolean SEQUENCE_CONDITIONAL_INLINE = true;
+
     enum ArgKind { BOUND, DEPENDENT, FREE };
 
     /*
@@ -135,6 +137,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         JCExpression res = translateGeneric(tree, type);
         this.bindStatus = prevBindStatus;
         return res;
+    }
+
+    JCExpression translateForConditional(JFXExpression tree, Type type) {
+        if (SEQUENCE_CONDITIONAL_INLINE && types.isSequence(type)) {
+            return translate(tree, type);
+        } else {
+            return translate(tree, JavafxBindStatus.LAZY_UNIDIBIND, type);
+        }
     }
 
     // only for re-entry use by SequenceBuilder
@@ -911,16 +921,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
              * Wrap in a conditional if there are where-clauses:   whereClause? body : []
              */
             private JCExpression makeCore() {
-                JCExpression body;
-                if (types.isSequence(tree.getBodyExpression().type)) {
-                    // the body is a sequence, desired type is the same as for the for-loop
-                    body = translate(tree.getBodyExpression(), tmiTarget);
-                } else {
-                    // the body is not a sequence, desired type is the element tpe need for for-loop
-                    JCExpression single = translate(tree.getBodyExpression(), types.unboxedTypeOrType(resultElementType));
-                    List<JCExpression> args = List.of(makeResultClass(), single);
-                    body = runtime(diagPos, cBoundSequences, "singleton", args);
-                }
+                JFXExpression body = tree.getBodyExpression();
+                JCExpression tbody;
                 JCExpression whereTest = null;
                 for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
                     JCExpression where = translate(clause.getWhereExpression());
@@ -932,14 +934,24 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         }
                     }
                 }
+                if (types.isSequence(body.type)) {
+                    // the body is a sequence, desired type is the same as for the for-loop
+                    tbody = whereTest!=null? translateForConditional(body, tmiTarget.getRealType()) : translate(body, tmiTarget);
+                } else {
+                    // the body is not a sequence, desired type is the element tpe need for for-loop
+                    Type elemType = types.unboxedTypeOrType(resultElementType);
+                    JCExpression single = whereTest!=null? translateForConditional(body, elemType) : translate(body, elemType);
+                    List<JCExpression> args = List.of(makeResultClass(), single);
+                    tbody = runtime(diagPos, cBoundSequences, "singleton", args);
+                }
                 if (whereTest != null) {
-                    body = makeBoundConditional(diagPos,
+                    tbody = makeBoundConditional(diagPos,
                             tree.type,
-                            body,
+                            tbody,
                             runtime(diagPos, cBoundSequences, "empty", List.of(makeTypeInfo(diagPos, resultElementType))),
                             whereTest);
                 }
-                return body;
+                return tbody;
             }
 
             /**
@@ -1045,6 +1057,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     /**
      * Build a tree for a conditional.
+     * This is the old syle approach, now used only for sequences
      * @param diagPos
      * @param resultType
      * @param trueExpr then branch, already translated
@@ -1052,21 +1065,18 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
      * @param condExpr conditional expression  branch, already translated
      * @return
      */
-    private JCExpression makeBoundConditional(final DiagnosticPosition diagPos,
+    private JCExpression makeBoundSequenceConditional(final DiagnosticPosition diagPos,
             final Type resultType,
+            final TypeMorphInfo tmiResult,
             final JCExpression trueExpr,
             final JCExpression falseExpr,
             final JCExpression condExpr) {
-        TypeMorphInfo tmi = (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType);
         List<JCExpression> args = List.of(
+                makeTypeInfo(diagPos, tmiResult.getElementType()),
                 makeLaziness(diagPos),
                 condExpr,
                 makeFunction0(resultType, trueExpr),
                 makeFunction0(resultType, falseExpr));
-        if (tmi.isSequence()) {
-            // prepend "Foo.class, "
-            args = args.prepend(makeTypeInfo(diagPos, tmi.getElementType()));
-        }
         return runtime(diagPos, cBoundOperators, "makeBoundIf", args);
     }
 
@@ -1093,86 +1103,38 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }).doit();
     }
 
-
-/*** New Version -- in process
- *
-     private JCExpression makeBoundConditional(final DiagnosticPosition diagPos,
+    private JCExpression makeBoundConditional(final DiagnosticPosition diagPos,
             final Type resultType,
             final JCExpression trueExpr,
             final JCExpression falseExpr,
             final JCExpression condExpr) {
-        return new BindingExpressionClosureTranslator(diagPos, resultType) {
-            final FieldInfo condField = new FieldInfo("condition", syms.booleanType);
-            final FieldInfo thenField = new FieldInfo("trueBranch", resultType);
-            final FieldInfo elseField = new FieldInfo("elseBranch", resultType);
-
-            JCStatement makeBranch(FieldInfo takenBranch, FieldInfo abandonedBranch) {
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
-//                stmts.append(callStatement(diagPos, makeAccess(abandonedBranch), "unbind"));
-//                stmts.append(callStatement(diagPos, makeAccess(takenBranch), "resetState", makeLaziness(diagPos)));
-                stmts.append(callStatement(diagPos, null, "pushValue", takenBranch.makeGetField()));
-                return m().Block(0L, stmts.toList());
-            }
-
-            protected JCExpression makePushExpression() {
-                throw new AssertionError("Should not reach here");
-            }
-
-            @Override
-            protected List<JCTree> makeBody() {
-                buildArgField(condExpr,  condField);
-                buildArgField(trueExpr,  thenField);
-                buildArgField(falseExpr, elseField);
-                pushStatement = m().If(
-                        condField.makeGetField(),
-                        makeBranch(thenField, elseField),
-                        makeBranch(elseField, thenField));
-                return null;
-            }
-        }.doit();
-    }
-
-    private JCExpression makeBoundConditionalTT(final DiagnosticPosition diagPos,
-            final Type resultType,
-            final JCExpression trueExpr,
-            final JCExpression falseExpr,
-            final JCExpression condExpr) {
-        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(resultType);
+        TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(resultType);
+        if (tmiResult.isSequence()) {
+            // the lazy approach won't work for sequences
+            return makeBoundSequenceConditional(diagPos,
+                    resultType,
+                    tmiResult,
+                    trueExpr,
+                    falseExpr,
+                    condExpr);
+        }
         List<JCExpression> args = List.of(
-                makeTypeInfo(diagPos, tmi.isSequence()? tmi.getElementType() : resultType),
+                makeTypeInfo(diagPos, resultType),
                 makeLaziness(diagPos),
                 condExpr,
-                makeClosure0(diagPos, trueExpr, resultType),
-                makeClosure0(diagPos, falseExpr, resultType));
-        String makeBoundIf = tmi.isSequence()? "makeBoundSequenceIf" : "makeBoundIf";
+                trueExpr,
+                falseExpr);
+        String makeBoundIf = "makeBoundIf";
         return runtime(diagPos, cBoundOperators, makeBoundIf, args);
     }
-
-    private JCExpression makeClosure0(final DiagnosticPosition diagPos, final JCExpression expr, final Type resultType) {
-        final TypeMorphInfo tmiPrevTarget = tmiTarget;
-        tmiTarget = null;
-        try {
-            return new BindingExpressionClosureTranslator(diagPos, typeMorpher.baseLocation.type) {
-
-                protected JCExpression makePushExpression() {
-                    return buildArgField(expr, resultType, ArgKind.FREE);
-                }
-            }.buildClosure();
-        } finally {
-            tmiTarget = tmiPrevTarget;
-        }
-    }
-
-/***/
-
 
     @Override
     public void visitIfExpression(final JFXIfExpression tree) {
         Type targetType = targetType(tree.type);
         result = makeBoundConditional(tree.pos(),
                 targetType,
-                translate(tree.getTrueExpression(), targetType),
-                translate(tree.getFalseExpression(), targetType),
+                translateForConditional(tree.getTrueExpression(), targetType),
+                translateForConditional(tree.getFalseExpression(), targetType),
                 translate(tree.getCondition()) );
     }
 
@@ -1606,14 +1568,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 case AND:
                     return makeBoundConditional(diagPos,
                             syms.booleanType,
-                            translate(r, syms.booleanType),
+                            translateForConditional(r, syms.booleanType),
                             makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)),
                             translate(l, syms.booleanType));
                 case OR:
                     return makeBoundConditional(diagPos,
                             syms.booleanType,
                             makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
-                            translate(r, syms.booleanType),
+                            translateForConditional(r, syms.booleanType),
                             translate(l, syms.booleanType));
                 default:
                     assert false : "unhandled binary operator";

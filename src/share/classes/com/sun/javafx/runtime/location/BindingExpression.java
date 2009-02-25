@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * Common base class for all binding expressions, regardless of type.  Binding expressions override compute(), and
@@ -58,4 +59,21 @@ public abstract class BindingExpression extends AbstractBindingExpression {
     public<V> void pushValue(V x) { ((ObjectVariable<V>) location).replaceValue(x); }
 
     public abstract void compute();
+
+    public<V> void pushFrom(TypeInfo<V, ?> ti, ObjectLocation<V> otherLocation) {
+        switch (ti.type) {
+            case INT: pushValue(((IntLocation) otherLocation).getAsInt()); break;
+            case FLOAT: pushValue(((FloatLocation) otherLocation).getAsFloat()); break;
+            case DOUBLE: pushValue(((DoubleLocation) otherLocation).getAsDouble()); break;
+            case LONG: pushValue(((LongLocation) otherLocation).getAsLong()); break;
+            case BYTE: pushValue(((ByteLocation) otherLocation).getAsByte()); break;
+            case SHORT: pushValue(((ShortLocation) otherLocation).getAsShort()); break;
+            case BOOLEAN: pushValue(((BooleanLocation) otherLocation).getAsBoolean()); break;
+            case CHAR: pushValue(((CharLocation) otherLocation).getAsChar()); break;
+            case OBJECT:
+            case OTHER:
+                pushValue(((ObjectLocation<?>) otherLocation).get()); break;
+            default: throw new UnsupportedOperationException(ti.type.toString());
+        }
+    }
 }

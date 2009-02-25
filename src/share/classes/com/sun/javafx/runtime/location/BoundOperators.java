@@ -287,83 +287,42 @@ public class BoundOperators {
         }, a, b);
     }
 
-    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
-    private static BindingExpression wrap(final Function0<? extends Location> fun) {
+    @SuppressWarnings("unchecked")
+    public static<T, L extends ObjectLocation<T>> L makeBoundIf(final TypeInfo<T, L> typeInfo,
+                                                                boolean lazy,
+                                                                final BooleanLocation conditional,
+                                                                final ObjectLocation<T> thenLoc,
+                                                                final ObjectLocation<T> elseLoc) {
+        final L loc = typeInfo.makeLocation();
+        PrimitiveChangeListener<Boolean> listener = new PrimitiveChangeListener<Boolean>() {
+            @Override
+            public void onChange(boolean oldValue, boolean newValue) {
+                loc.clearDynamicDependencies();
+                ObjectLocation<T> newLoc = conditional.getAsBoolean() ? thenLoc : elseLoc;
+                loc.addDynamicDependency(newLoc);
+                ((AbstractLocation) loc).setUnderlyingLocation(newLoc);
+            }
+        };
+        conditional.addChangeListener(listener);
+        listener.onChange(!conditional.getAsBoolean(), conditional.getAsBoolean());
+
+        BindingExpression bindingExpression = new BindingExpression() {
+            public void compute() {
+                pushFrom(typeInfo, conditional.getAsBoolean() ? thenLoc : elseLoc);
+            }
+        };
+        ((BindableLocation<T, ?>) loc).bind(lazy, bindingExpression, conditional);
+        return loc;
+    }
+
+    // @@@ This can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
+    private static<T> BindingExpression wrap(final Function0<SequenceLocation<T>> fun) {
         return new BindingExpression() {
+            @Override
             public void compute() {
                 pushValue(fun.invoke());
             }
         };
-    }
-
-    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
-
-    private static BindingExpression makeIfBindingExpression(final BooleanLocation conditional, final BindingExpression thenBranch, final BindingExpression elseBranch) {
-        return new BindingExpression() {
-            public void compute() {
-                if (thenBranch.location == null) {
-                    // First-time setup
-                    thenBranch.setLocation(location);
-                    elseBranch.setLocation(location);
-                }
-
-                if (conditional.get())
-                    thenBranch.compute();
-                else
-                    elseBranch.compute();
-            }
-        };
-    }
-
-    @SuppressWarnings("unchecked")
-    public static<T, L extends ObjectLocation<T>> L makeBoundIf(TypeInfo<T, L> typeInfo,
-                                                                boolean lazy,
-                                                                final BooleanLocation conditional,
-                                                                final BindingExpression thenBranch,
-                                                                final BindingExpression elseBranch) {
-        final L loc = typeInfo.makeLocation();
-        final ObjectVariable<L> lastArm = IndirectLocationHelper.makeIndirectHelper(lazy, loc,
-                                                                                    makeIfBindingExpression(conditional, thenBranch, elseBranch),
-                                                                                    typeInfo.makeDefaultConstant(), conditional);
-        ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, lastArm));
-        return loc;
-    }
-
-    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
-
-    public static IntLocation makeBoundIf(boolean lazy,
-                                          final BooleanLocation conditional,
-                                          final Function0<IntLocation> thenBranch,
-                                          final Function0<IntLocation> elseBranch) {
-        return makeBoundIf(TypeInfo.Integer, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
-    }
-
-    public static FloatLocation makeBoundIf(boolean lazy,
-                                            final BooleanLocation conditional,
-                                            final Function0<FloatLocation> thenBranch,
-                                            final Function0<FloatLocation> elseBranch) {
-        return makeBoundIf(TypeInfo.Float, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
-    }
-
-    public static DoubleLocation makeBoundIf(boolean lazy,
-                                             final BooleanLocation conditional,
-                                             final Function0<DoubleLocation> thenBranch,
-                                             final Function0<DoubleLocation> elseBranch) {
-        return makeBoundIf(TypeInfo.Double, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
-    }
-
-    public static BooleanLocation makeBoundIf(boolean lazy,
-                                              final BooleanLocation conditional,
-                                              final Function0<BooleanLocation> thenBranch,
-                                              final Function0<BooleanLocation> elseBranch) {
-        return makeBoundIf(TypeInfo.Boolean, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
-    }
-
-    public static<T> ObjectLocation<T> makeBoundIf(boolean lazy,
-                                                   final BooleanLocation conditional,
-                                                   final Function0<ObjectLocation<T>> thenBranch,
-                                                   final Function0<ObjectLocation<T>> elseBranch) {
-        return makeBoundIf(TypeInfo.<T>getTypeInfo(), lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
     public static<T> SequenceLocation<T> makeBoundIf(TypeInfo<T, ?> typeInfo,
@@ -374,14 +333,28 @@ public class BoundOperators {
         return makeBoundSequenceIf(typeInfo, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
     }
 
-    // @@@ These can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
-
+    // @@@ This can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
     public static<T> SequenceLocation<T> makeBoundSequenceIf(TypeInfo<T, ?> typeInfo,
                                                              boolean lazy,
                                                              final BooleanLocation conditional,
                                                              final BindingExpression thenBranch,
                                                              final BindingExpression elseBranch) {
-        return IndirectLocationHelper.makeIndirectSequenceLocation(typeInfo, lazy, makeIfBindingExpression(conditional, thenBranch, elseBranch), conditional);
+        BindingExpression bindingExpression = new BindingExpression() {
+            @Override
+            public void compute() {
+                if (thenBranch.location == null) {
+                    // First-time setup
+                    thenBranch.setLocation(location);
+                    elseBranch.setLocation(location);
+                }
+
+                if (conditional.getAsBoolean())
+                    thenBranch.compute();
+                else
+                    elseBranch.compute();
+            }
+        };
+        return IndirectLocationHelper.makeIndirectSequenceLocation(typeInfo, lazy, bindingExpression, conditional);
     }
 
     private static <T, L extends ObjectLocation<T>> BindingExpression makeSelectBindingExpression(final ObjectLocation<?> receiver, final BindingExpression selector, final L defaultConstant) {
@@ -413,8 +386,6 @@ public class BoundOperators {
         ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, lastADotB));
         return loc;
     }
-
-    // @@@ These can go away once we switch to the makeBoundSelect(TypeInfo, ...) version ^^^
 
     public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
                                                                     boolean lazy,
