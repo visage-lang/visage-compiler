@@ -19,43 +19,27 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         BooleanLocation b = BooleanVariable.make(true);
         final IntVariable i = IntVariable.make(1);
         IntLocation ifLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, false, b,
-                                                       new BindingExpression() {
+                                                       IntVariable.make(true, new BindingExpression() {
                                                            public void compute() {
-                                                               pushValue(IntVariable.make(new IntBindingExpression() {
-                                                                   public int computeValue() {
-                                                                       return i.get();
-                                                                   }
-                                                               }, i));
+                                                               pushValue(i.getAsInt());
                                                            }
-                                                       },
-                                                       new BindingExpression() {
+                                                       }, i),
+                                                       IntVariable.make(true, new BindingExpression() {
                                                            public void compute() {
-                                                               pushValue(IntVariable.make(new IntBindingExpression() {
-                                                                   public int computeValue() {
-                                                                       return -i.get();
-                                                                   }
-                                                               }, i));
+                                                               pushValue(-i.getAsInt());
                                                            }
-                                                       });
+                                                       }, i));
         IntLocation lazyIfLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, true, b,
-                                                           new BindingExpression() {
+                                                           IntVariable.make(true, new BindingExpression() {
                                                                public void compute() {
-                                                                   pushValue(IntVariable.make(new IntBindingExpression() {
-                                                                       public int computeValue() {
-                                                                           return i.get();
-                                                                       }
-                                                                   }, i));
+                                                                   pushValue(i.getAsInt());
                                                                }
-                                                           },
-                                                           new BindingExpression() {
+                                                           }, i),
+                                                           IntVariable.make(true, new BindingExpression() {
                                                                public void compute() {
-                                                                   pushValue(IntVariable.make(new IntBindingExpression() {
-                                                                       public int computeValue() {
-                                                                           return -i.get();
-                                                                       }
-                                                                   }, i));
+                                                                   pushValue(-i.getAsInt());
                                                                }
-                                                           });
+                                                           }, i));
         CountingListener cl = new CountingListener();
         ifLoc.addChangeListener(cl);
         assertEquals(1, ifLoc.getAsInt());

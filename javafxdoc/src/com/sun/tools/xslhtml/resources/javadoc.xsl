@@ -36,7 +36,7 @@
     <xsl:param name="inline-classlist">false</xsl:param>
     <xsl:param name="inline-descriptions">false</xsl:param>
     <xsl:param name="root-path">../</xsl:param>
-    <xsl:param name="std.doctitle.prefix">JavaFX 1.0 API | </xsl:param>
+    <xsl:param name="std.doctitle.prefix">JavaFX @javafxversion@ API | </xsl:param>
     <xsl:param name="std.doctitle.suffix"> | Java FX</xsl:param>
     
     <xsl:template name="add-meta-tags">

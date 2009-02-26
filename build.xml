@@ -10,6 +10,8 @@
     </condition>
     <property name="top-repo" value="openjfx-compiler~marina-setup"/>
     <property name="top-url" value="http://kenai.com/hg/${top-repo}"/>
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="dist.dir" value="${basedir}/dist"/>
 
     <!-- there must be a way to not duplicate this message -->
     <fail if="build.defs.missing">
@@ -46,6 +48,7 @@
     </condition>
 
     <import file="tools-defs.xml"/>
+
     <property name="antlr.grammarv4p" value="v4Parser" />
     <property name="antlr.grammarv4l" value="v4Lexer" />
 
@@ -123,7 +126,11 @@
 
     <target name="-do-test"  depends="init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse"/>
 
-    <target name="-do-jfx-sdk" depends="docs">
+    <!--
+       We don't build docs as part of the jfx-sdk target; the api docs that go into the SDK 
+       are built by a process outside this repo.
+    -->
+    <target name="-do-jfx-sdk" depends="binaries,source-zip">
         <copy todir="${jfx.sdk.dir}">
           <fileset dir="${dist.dir}" includes="${dist.contents}"/>
         </copy>
@@ -508,7 +515,7 @@
                  classpath="${build.buildtools.dir}/"/>
     </target>
     
-    <target name="-do-docs" depends="javadoc,langref,man-pages">
+    <target name="-do-docs" depends="javadoc,langref">
         <copy todir="dist/doc">
             <fileset dir="doc" includes="**/*.pdf"/>
         </copy>
@@ -652,7 +659,9 @@
     <target name="javafxdoc" depends="jar">
         <!-- javadoc.jar depends on doclets.jar but we don't have it. Create a temporary file here: -->
         <jar jarfile="lib/doclets.jar"/>
-        <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false"/>
+        <ant dir="${javafxdoc.dir}" antfile="build.xml" target="jar" inheritall="false">
+           <property name="javafx.version" value="${javafx.version}"/>
+        </ant>
         <delete file="lib/doclets.jar"/>
     </target>
     
@@ -666,6 +675,10 @@
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
     
+    <!-- 
+         man-pages are not built by the standard targets because the man pages in this
+         repo are no longer used.  The real man pages are .html files in the docs repo.
+    -->
     <target name="man-pages">
         <ant antfile="doc/build.xml" target="man-pages" inheritAll="true"/>
         <copy todir="dist/man/man1">
@@ -753,6 +766,7 @@
     
     <target name="source-zip" depends="init">
         <zip destfile="${dist.dir}/src.zip">
+            <zipfileset file="${basedir}/LICENSE"/>
             <zipfileset dir="${src.classes.dir}"/>
             <zipfileset dir="javafxdoc/src"/>
         </zip>
@@ -775,6 +789,7 @@
         <property name="default.javac.source" value="1.4"/>
         <property name="default.javac.target" value="1.4"/>
     </target>
+
     <target depends="-pre-init,-init-private,-init-user" name="-init-project">
         <property file="nbproject/configs/${config}.properties"/>
         <property file="project.properties"/>
@@ -1200,10 +1215,10 @@
             -->
 
 
-    <target name="-do-clean" depends="init,javafxdoc-clean,langref-clean,launcher-clean">
-        <delete dir="${build.dir}"/>
-        <delete dir="${dist.dir}"/>
-        <delete file="cobertura.ser" />
+    <target name="-do-clean" depends="javafxdoc-clean,langref-clean,launcher-clean">
+        <delete quiet="true" dir="${build.dir}"/>
+        <delete quiet="true" dir="${dist.dir}"/>
+        <delete quiet="true" file="cobertura.ser" />
     </target>
 
 </project>

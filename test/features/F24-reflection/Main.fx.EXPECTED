@@ -128,7 +128,6 @@ Square methods (inherited also):
   function java.lang.Object.wait(Long,Integer):Void
 MyRect.methods: 
   function MyRect.corners():java.awt.geom.Point2D[]
-  function MyRect.main(JavaArray<java.lang.String>):Void
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect variables: 
   var MyRect.crners:java.awt.geom.Point2D[]

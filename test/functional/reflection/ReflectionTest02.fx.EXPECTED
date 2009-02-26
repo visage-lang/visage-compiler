@@ -18,7 +18,6 @@ MEMBERS of class ReflectionTest02
    _func9  isStatic=true; Declaring class: ReflectionTest02 
    inspectClass  isStatic=true; Declaring class: ReflectionTest02 
    inspectMember  isStatic=true; Declaring class: ReflectionTest02 
-   main  isStatic=true; Declaring class: ReflectionTest02 
 VARIABLES of class ReflectionTest02
   _clzStrings type:null  static=true; Decl.class: ReflectionTest02 
   _context type:javafx.reflect.FXLocal.Context  static=true; Decl.class: ReflectionTest02 
@@ -35,7 +34,6 @@ FUNCTIONS of class ReflectionTest02
   Float _func9() min_args=1; var_args: false
   Void inspectClass() min_args=3; var_args: false
   Void inspectMember() min_args=1; var_args: false
-  Void main() min_args=1; var_args: false
 ___________________________________________________________
 About class ReflectionTest02.TestClass
 class ReflectionTest02.TestClass

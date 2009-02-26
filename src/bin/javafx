@@ -116,7 +116,7 @@ if [ -n "${execute_nativelibpath}" ]; then
     fi
     jargs="$jargs \"-Djava.library.path=${execute_nativelibpath}\""
 fi
-jargs="$jargs -classpath '"$classpath"'"
+jargs="$jargs -classpath '"$classpath"' com.sun.javafx.runtime.Main"
 if [ -n "$args" ]; then
     jargs="$jargs $args"
 fi

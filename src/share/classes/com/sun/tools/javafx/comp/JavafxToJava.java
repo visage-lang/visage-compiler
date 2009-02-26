@@ -909,9 +909,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             if (tree.isScriptClass) {
-                // Add main method...
                 if (!isMixinClass) {
-                    translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                   // JFXC-1888: Do *not* add main method! 
+                   // com.sun.javafx.runtime.Main has the 
+                   // "main" that will call Entry.start().
+                   // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
                 }
                 
                 // Add binding support
@@ -1436,7 +1438,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         final boolean requiresLocation = requiresLocation(vsym);
         final boolean isParameter = (flags & Flags.PARAMETER) != 0;
         final boolean hasInnerAccess = (flags & JavafxFlags.VARUSE_INNER_ACCESS) != 0;
-        final long modFlags = (mods.flags & ~Flags.FINAL) | ((hasInnerAccess | requiresLocation)? Flags.FINAL : 0L);
+        final long modFlags = (mods.flags & ~Flags.FINAL) | ((hasInnerAccess | requiresLocation | isParameter)? Flags.FINAL : 0L);
         final JCModifiers tmods = make.at(diagPos).Modifiers(modFlags);
         final Type type =
                 requiresLocation?

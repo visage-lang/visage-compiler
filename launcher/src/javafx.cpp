@@ -63,6 +63,8 @@ int main(int argc, char** argv) {
     } else if (! config.classpath.empty()) {
         cmd += "-classpath \"" + config.classpath + "\" ";
     }
+
+    cmd += "com.sun.javafx.runtime.Main ";
     cmd += config.fxargs;
     
     
