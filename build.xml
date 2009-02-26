@@ -126,7 +126,11 @@
 
     <target name="-do-test"  depends="init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse"/>
 
-    <target name="-do-jfx-sdk" depends="docs">
+    <!--
+       We don't build docs as part of the jfx-sdk target; the api docs that go into the SDK 
+       are built by a process outside this repo.
+    -->
+    <target name="-do-jfx-sdk" depends="binaries,source-zip">
         <copy todir="${jfx.sdk.dir}">
           <fileset dir="${dist.dir}" includes="${dist.contents}"/>
         </copy>
@@ -511,7 +515,7 @@
                  classpath="${build.buildtools.dir}/"/>
     </target>
     
-    <target name="-do-docs" depends="javadoc,langref,man-pages">
+    <target name="-do-docs" depends="javadoc,langref">
         <copy todir="dist/doc">
             <fileset dir="doc" includes="**/*.pdf"/>
         </copy>
@@ -671,6 +675,10 @@
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
     
+    <!-- 
+         man-pages are not built by the standard targets because the man pages in this
+         repo are no longer used.  The real man pages are .html files in the docs repo.
+    -->
     <target name="man-pages">
         <ant antfile="doc/build.xml" target="man-pages" inheritAll="true"/>
         <copy todir="dist/man/man1">
@@ -758,6 +766,7 @@
     
     <target name="source-zip" depends="init">
         <zip destfile="${dist.dir}/src.zip">
+            <zipfileset file="${basedir}/LICENSE"/>
             <zipfileset dir="${src.classes.dir}"/>
             <zipfileset dir="javafxdoc/src"/>
         </zip>
