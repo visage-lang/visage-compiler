@@ -158,7 +158,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo,
                 names, types, reader, typeMorpher);
         List<VarInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
-        List<ClassSymbol> javaInterfaces = immediateJavaInterfaceNames(cDecl);
+        List<ClassSymbol> mixinClasses = immediateMixinNames(cDecl);
         List<ClassSymbol> immediateFxSupertypeNames = immediateJavafxSupertypes(cDecl);
 
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
@@ -200,10 +200,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         return new JavafxClassModel(
                 interfaceName,
-                makeImplementingInterfaces(diagPos, cDecl, javaInterfaces),
+                makeImplementingInterfaces(diagPos, cDecl, mixinClasses),
                 iDefinitions.toList(),
                 cDefinitions.toList(),
-                makeAdditionalImports(diagPos, cDecl, javaInterfaces),
+                makeAdditionalImports(diagPos, cDecl, mixinClasses),
                 superType);
     }
 
@@ -220,7 +220,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
 
    
-    private List<ClassSymbol> immediateJavaInterfaceNames(JFXClassDeclaration cDecl) {
+    private List<ClassSymbol> immediateMixinNames(JFXClassDeclaration cDecl) {
         ListBuffer<ClassSymbol> javaInterfacesBuff = ListBuffer.lb();
         for (JFXExpression sup : cDecl.getSupertypes()) {
             ClassSymbol cSym = (ClassSymbol) expressionSymbol(sup);
@@ -788,8 +788,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         // JFXC-2822 - Triggers need to work from mixins.
-        List<ClassSymbol> javaInterfaces = immediateJavaInterfaceNames(cDecl);
-        for (ClassSymbol cSym : javaInterfaces) {
+        List<ClassSymbol> mixinClasses = immediateMixinNames(cDecl);
+        for (ClassSymbol cSym : mixinClasses) {
             stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName));
         }
 
