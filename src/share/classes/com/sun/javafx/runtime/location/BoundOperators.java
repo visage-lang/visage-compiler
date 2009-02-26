@@ -354,7 +354,7 @@ public class BoundOperators {
                     elseBranch.compute();
             }
         };
-        return IndirectLocationHelper.makeIndirectSequenceLocation(typeInfo, lazy, bindingExpression, conditional);
+        return makeIndirectSequenceLocation(typeInfo, lazy, bindingExpression, conditional);
     }
 
     private static <T, L extends ObjectLocation<T>> BindingExpression makeSelectBindingExpression(final ObjectLocation<?> receiver, final BindingExpression selector, final L defaultConstant) {
@@ -381,9 +381,9 @@ public class BoundOperators {
         final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
         final L loc = typeInfo.makeLocation();
         final L defaultConstant = typeInfo.makeDefaultConstant();
-        final ObjectVariable<L> lastADotB = IndirectLocationHelper.makeIndirectHelper(lazy, loc,                                                                                      makeSelectBindingExpression(receiver, selector, defaultConstant),
+        final ObjectVariable<L> lastADotB = makeIndirectHelper(lazy, loc,                                                                                      makeSelectBindingExpression(receiver, selector, defaultConstant),
                                                                                       defaultConstant, receiver);
-        ((BindableLocation<T, ?>) loc).bind(lazy, IndirectLocationHelper.makeBindingExpression(typeInfo, lastADotB));
+        ((BindableLocation<T, ?>) loc).bind(lazy, makeBindingExpression(typeInfo, lastADotB));
         return loc;
     }
 
@@ -392,7 +392,61 @@ public class BoundOperators {
                                                                     final ScriptBindingExpressions selector) {
         final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
         SequenceLocation<U> defaultValue = SequenceConstant.<U>make(typeInfo, typeInfo.emptySequence);
-        return IndirectLocationHelper.makeIndirectSequenceLocation(typeInfo, lazy, makeSelectBindingExpression(receiver, selector, defaultValue), receiver);
+        return makeIndirectSequenceLocation(typeInfo, lazy, makeSelectBindingExpression(receiver, selector, defaultValue), receiver);
     }
 
+    /**
+     * Helper methods for indirect locations; maintains separate dependency paths for the static dependencies (passed into
+     * the constructor) and the dynamic dependencies (embodied in the returned location from computeLocation()).  All
+     * subclasses need to do is provide the computeLocation() method.
+     */
+
+    private static<T, L extends ObjectLocation<T>>
+    ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
+        final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
+        helpedLocation.addDependency(helper);
+        if (!lazy) {
+            L initialValue = helper.get();
+            helpedLocation.addDynamicDependency(initialValue);
+            ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
+        }
+        helper.addChangeListener(new ObjectChangeListener<L>() {
+            public void onChange(L oldLoc, L newLoc) {
+                helpedLocation.clearDynamicDependencies();
+                helpedLocation.addDynamicDependency(newLoc);
+                ((AbstractLocation) helpedLocation).setUnderlyingLocation(newLoc);
+            }
+        });
+        return helper;
+    }
+
+    private static<V, T extends ObjectLocation<V>> BindingExpression makeBindingExpression(final TypeInfo<V, ?> ti, final ObjectLocation<T> helper) {
+        return new BindingExpression() {
+            public void compute() {
+                pushFrom(ti, helper.get());
+            }
+        };
+    }
+
+    private static<T> SequenceLocation<T> makeIndirectSequenceLocation(final TypeInfo<T, ?> typeInfo,
+                                                                      final boolean lazy,
+                                                                      final BindingExpression binding,
+                                                                      final Location... dependencies) {
+        // The approach for sequences is different because we need to use actual binding, not just triggers, otherwise
+        // the sequences triggers won't flow through the intermediate nodes correctly.
+        return new SequenceVariable<T>(typeInfo) {
+            ObjectLocation<SequenceLocation<T>> helper;
+            {
+                helper = makeIndirectHelper(lazy, this, binding, new SequenceConstant<T>(typeInfo, typeInfo.emptySequence), dependencies);
+                bind(lazy, helper.get());
+                // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
+                // the rebinding happens.
+                helper.addChangeListener(new ObjectChangeListener<SequenceLocation<T>>() {
+                    public void onChange(SequenceLocation<T> oldValue, SequenceLocation<T> newValue) {
+                        rebind(newValue);
+                    }
+                });
+            }
+        };
+    }
 }
