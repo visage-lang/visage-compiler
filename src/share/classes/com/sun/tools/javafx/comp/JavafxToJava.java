@@ -1366,6 +1366,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // It is a member variable
                 if (instanceName == null) {
                     varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
+                } else if (!types.isMixin(vsym.owner) && !requiresLocation(vsym) &&
+                // TODO JFXC-2836 - figure out why requiresLocation isn't sufficient for external setting.
+                           vsym.owner == currentClass.sym) { 
+                    // Direct access.
+                    JCExpression tc = make.at(diagPos).Ident(instanceName); 
+                    varRef = make.at(diagPos).Select(tc, attributeFieldName(vsym)); 
                 } else {
                     JCExpression tc = make.at(diagPos).Ident(instanceName);
                     final Name setter = attributeSetterName(vsym);
@@ -3462,6 +3468,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 if (staticReference) {
                     // a script-level (static) variable, direct access with prefix
                     expr = switchName(diagPos, varRef, attributeFieldName(vsym));
+                } else if (!types.isMixin(vsym.owner) && !requiresLocation(vsym)) {
+                    // Direct access.
+                    expr = switchName(diagPos, varRef, attributeFieldName(vsym)); 
                 } else {
                     // an instance variable, use get$
                     JCExpression accessFunc = switchName(diagPos, varRef, attributeGetterName(vsym));
