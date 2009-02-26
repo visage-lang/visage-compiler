@@ -13,7 +13,7 @@ list.add("from");
 list.add("the");
 list.add("River");
 var book = for (w in list) "_{w}_";
-var arr : Object[] = list.toArray(); // remove type declaratioin when JFXC-2785 is fixed
+var arr = list.toArray();
 for (v in arr) {
   println(v);
 }

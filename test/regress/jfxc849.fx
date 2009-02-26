@@ -1,10 +1,9 @@
 /* regression test for the bug 849
+ * (Sort-of: bug 849 was a run-time NPE, and we can't "run" tests
+ * that create Windows, so it's not clear what we can do, except
+ * make sure the code at least compiles.)
  *
  * @test
- * @run/fail
- * was @test
- * was @run
- * NOTE this test is BOGUS - it assumes null is converted to an empty array.
  */
 
 import java.lang.System; 
