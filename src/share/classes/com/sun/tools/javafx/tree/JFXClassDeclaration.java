@@ -28,7 +28,6 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Scope;
@@ -43,7 +42,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     private List<JFXExpression> implementing = null;
     private List<JFXExpression> mixing       = null;
     private List<JFXTree> defs;
-    private List<JFXExpression> supertypes;
+    private final List<JFXExpression> supertypes;
 
     public ClassSymbol sym;
     
@@ -115,17 +114,6 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         this.extending    = extending;
         this.implementing = implementing;
         this.mixing       = mixing;
-        
-        // JFXC-2663 - Implement mixin linerization.
-        ListBuffer<JFXExpression> orderedSuperTypes = new ListBuffer<JFXExpression>();
-        
-        // Add supers according to declaration and normal, mixin and interface constraints.
-        for (JFXExpression extend    : extending)    orderedSuperTypes.append(extend);
-        for (JFXExpression mixin     : mixing)       orderedSuperTypes.append(mixin);
-        for (JFXExpression implement : implementing) orderedSuperTypes.append(implement);
-        
-        // Replace supertypes so that all references use the correct ordering.
-        supertypes = orderedSuperTypes.toList();
     }
     
     public boolean isMixinClass() {
