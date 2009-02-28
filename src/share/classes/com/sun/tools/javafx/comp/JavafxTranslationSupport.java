@@ -608,10 +608,13 @@ public abstract class JavafxTranslationSupport {
             return sym.name;
         }
         String sname = sym.name.toString();
-        long privateAccess = sym.flags() & (Flags.PRIVATE | JavafxFlags.SCRIPT_PRIVATE);
-        if ((sym.flags() & STATIC) == 0L
-                && privateAccess != 0L // private or script-private
-                && types.isMixin(owner)) {
+        // JFXC-2837 - Mixins: script-private vars no longer hidden -- var with same name as
+        // var in subclass, but with different type fails
+        long flags = sym.flags();
+        boolean isStatic = (flags & STATIC) != 0;
+        boolean privateAccess = (flags & JavafxFlags.JavafxInstanceVarFlags &
+                                         ~(JavafxFlags.SCRIPT_PRIVATE | Flags.PRIVATE)) == 0L;
+        if (!isStatic && privateAccess && types.isJFXClass(owner)) {
             // mangle name to hide it
             sname = owner.toString().replace('.', '$') + '$' + sname;
         }
