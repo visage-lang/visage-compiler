@@ -242,7 +242,7 @@ public class JavafxTypes extends Types {
     public boolean isCastable(Type t, Type s, Warner warn) {
         //if source is a sequence and target is neither a sequence nor Object return false
         if (isSequence(t) &&
-                !isSequence(s) &&
+                !(isSequence(s) || s.tag == TypeTags.ARRAY) &&
                 s != syms.objectType &&
                 s != syms.botType) {
             return false;
@@ -254,8 +254,8 @@ public class JavafxTypes extends Types {
             return false;
         }
 
-        Type target = isSequence(s) ? elementType(s) : s;
-        Type source = isSequence(t) ? elementType(t) : t;
+        Type target = isSequence(s) ? elementType(s) : s.tag == TypeTags.ARRAY ? ((ArrayType) s).elemtype : s;
+        Type source = isSequence(t) ? elementType(t) : t.tag == TypeTags.ARRAY ? ((ArrayType) t).elemtype : t;
         if (target.isPrimitive() && ! source.isPrimitive())
             target = boxedClass(target).type;
         if (source.isPrimitive() && ! target.isPrimitive())

@@ -438,8 +438,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             //}
             Type targetElemType = types.elementType(targetType);
             JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
-            if (sourceType.isPrimitive())
-                translated = convertTranslated(translated, diagPos, sourceType, targetElemType);
+            translated = convertTranslated(translated, diagPos, sourceType, targetElemType);
+            // This would be redundant, if convertTranslated did a cast if needed.
+            translated = makeTypeCast(diagPos, targetElemType, sourceType, translated);
             return callExpression(diagPos,
                     cSequences,
                     "singleton",
@@ -465,20 +466,26 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (!sourceType.isPrimitive()) {
                 // unboxed source if sourceboxed
                 translated = make.at(diagPos).TypeCast(unboxedSourceType, translated);
+                sourceType = unboxedSourceType;
             }
             if (unboxedSourceType != unboxedTargetType) {
                 // convert as primitive types
                 translated = make.at(diagPos).TypeCast(unboxedTargetType, translated);
+                sourceType = unboxedTargetType;
             }
             if (!targetType.isPrimitive()) {
                 // box target if target boxed
                 translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, targetType, false), translated);
+                sourceType = targetType;
             }
         }
 
         if (sourceType.isCompound()) {
             translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, types.erasure(targetType), true), translated);
         }
+        // We should add a cast "when needed".  Then visitTypeCast would just
+        // call this function, and not need to call makeTypeCast on the result.
+        // However, getting that to work is a pain - giving up for now.  FIXME
         return translated;
     }
 
@@ -1190,6 +1197,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitInstanciate(JFXInstanciate tree) {
+        JFXExpression texp = tree.getIdentifier();
+        Type type = texp.type;
+        /* MAYBE FUTURE:
+        if (tree.getJavaFXKind() == JavaFXKind.INSTANTIATE_NEW &&
+                type.tag == TypeTags.ARRAY) {
+            JCExpression elemtype = makeTypeTree(texp, ((Type.ArrayType) type).getComponentType());
+            JCExpression len = translateAsValue(tree.getArgs().head, syms.intType);
+            result = make.at(tree).NewArray(elemtype, List.of(len), null);
+            return;
+        }
+        */
 
         ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
         prependToStatements = ListBuffer.lb();
@@ -1767,11 +1785,18 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
                 // set of a sequence element --  s[i]=8, call the sequence set method
                 JFXSequenceIndexed si = (JFXSequenceIndexed) lhs;
-                JCExpression seq = translateAsLocation(si.getSequence());
+                JFXExpression seq = si.getSequence();
                 JCExpression index = translateAsValue(si.getIndex(), syms.intType);
-                JCFieldAccess select = m().Select(seq, defs.setMethodName);
-                List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
-                return postProcess(m().Apply(null, select, args));
+                if (seq.type.tag == TypeTags.ARRAY) {
+                    JCExpression tseq = translateAsUnconvertedValue(seq);
+                    return postProcess(m().Assign(m().Indexed(tseq, index), buildRHS(rhsTranslated)));
+                }
+                else {
+                    JCExpression tseq = translateAsLocation(seq);
+                    JCFieldAccess select = m().Select(tseq, defs.setMethodName);
+                    List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
+                    return postProcess(m().Apply(null, select, args));
+                }
             } else if (requiresLocation(sym)) {
                 // we are setting a var Location, call the set method
                 JCExpression lhsTranslated = translateAsLocation(lhs);
@@ -2987,7 +3012,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 return;
             }
         }
-        JCExpression ret = makeTypeCast(diagPos, tree.clazz.type, tree.expr.type, translateAsUnconvertedValue(tree.expr));
+
+        JCExpression val = translateAsValue(tree.expr, tree.clazz.type);
+        // The makeTypeCast below is usually redundant, since translateAsValue
+        // takes care of most conversions - except in the case of a plain object cast.
+        // It would be cleaner to move the makeTypeCast to translateAsValue,
+        // but it's painful to get it right.  FIXME.
+        JCExpression ret = makeTypeCast(diagPos, tree.clazz.type, tree.expr.type, val);
         result = convertNullability(diagPos, ret, tree.expr, tree.clazz.type);
     }
 
@@ -3313,6 +3344,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             public JCTree doit() {
                 switch (tree.getFXTag()) {
                     case SIZEOF:
+                        if (expr.type.tag == TypeTags.ARRAY) {
+                            return m().Select(transExpr, defs.lengthName);
+                        }
                         return callExpression(diagPos,
                                 makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                                 defs.sizeMethodName, transExpr);
