@@ -40,7 +40,7 @@ import java.lang.UnsupportedOperationException;
 import java.lang.RuntimeException;
 
 function makeDur(millis:Number):Duration {
-    return 1ms * millis;
+    return Duration.valueOf(millis);
 }
 
 package function getClipFactory():ClipFactory {
@@ -863,7 +863,7 @@ public class Timeline {
     }
                 
     function doInterpolate(curT: Number) {        
-        if (interpolate) {
+        if (interpolate and not targets.isEmpty()) {
             // now handle the active interval for each target
             var iter = targets.values().iterator();
             while (iter.hasNext()) {
