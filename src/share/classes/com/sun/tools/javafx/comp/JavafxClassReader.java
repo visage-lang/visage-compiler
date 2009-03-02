@@ -38,8 +38,11 @@ import static com.sun.tools.javac.code.TypeTags.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.util.MsgSym;
+import com.sun.tools.javac.util.Log;
 
 import com.sun.tools.javafx.main.JavafxCompiler;
+import com.sun.tools.javafx.main.Main;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /** Provides operations to read a classfile into an internal
@@ -71,6 +74,8 @@ public class JavafxClassReader extends ClassReader {
 
     private final Name functionClassPrefixName;
     private Context ctx;
+    private Log log;
+    private Messages messages;
     
     public static void preRegister(final Context context, final ClassReader jreader) {
         context.put(backendClassReaderKey, jreader);
@@ -105,6 +110,8 @@ public class JavafxClassReader extends ClassReader {
         defs = JavafxDefs.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
         ctx = context;
+        log = Log.instance(context);
+        messages = Messages.instance(context);
     }
 
     public Name.Table getNames() {
@@ -126,9 +133,9 @@ public class JavafxClassReader extends ClassReader {
 
     public JavafxClassSymbol enterClass(ClassSymbol jsymbol) {
         Name className = jsymbol.flatname;
-        boolean mixin = className.endsWith(defs.interfaceSuffixName);
+        boolean mixin = className.endsWith(defs.mixinSuffixName);
         if (mixin)
-            className = className.subName(0, className.len - defs.interfaceSuffixName.len);
+            className = className.subName(0, className.len - defs.mixinSuffixName.len);
         JavafxClassSymbol cSym = (JavafxClassSymbol) enterClass(className);
         //cSym.flags_field |= jsymbol.flags_field;
         if (mixin)
@@ -271,7 +278,7 @@ public class JavafxClassReader extends ClassReader {
             case CLASS:
                 TypeSymbol tsym = type.tsym;
                 if (tsym instanceof ClassSymbol) {
-                    if (tsym.name.endsWith(defs.interfaceSuffixName)) {
+                    if (tsym.name.endsWith(defs.mixinSuffixName)) {
                         t = enterClass((ClassSymbol) tsym).type;
                         break;
                     }
@@ -390,9 +397,22 @@ public class JavafxClassReader extends ClassReader {
         typeMap.put(sym, s);
         return s;
     }
+    
+    // JFXC-2849 - Mixins: Change the on mixin interface from $Intf to $Mixin.
+    private void checkForIntfSymbol(Symbol sym) throws CompletionFailure {        
+        if (sym.name.endsWith(defs.deprecatedInterfaceSuffixName)) {
+            String fileString = ((ClassSymbol) sym).classfile.getName();
+            String message = messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
+                                                            MsgSym.MESSAGE_DEPRECATED_INTERFACE_CLASS,
+                                                         fileString);
+            log.rawError(Position.NOPOS, message);
+            throw new CompletionFailure(sym, message);
+        }
+    }
 
     @Override
     public void complete(Symbol sym) throws CompletionFailure {
+        checkForIntfSymbol(sym);
         if (jreader.sourceCompleter == null)
            jreader.sourceCompleter = JavafxCompiler.instance(ctx);
         if (sym instanceof PackageSymbol) {
@@ -408,7 +428,7 @@ public class JavafxClassReader extends ClassReader {
                  e != null;  e = e.sibling) {
                  if (e.sym instanceof ClassSymbol) {
                      ClassSymbol jsym = (ClassSymbol) e.sym;
-                     if (jsym.name.endsWith(defs.interfaceSuffixName))
+                     if (jsym.name.endsWith(defs.mixinSuffixName))
                          continue;
                      JavafxClassSymbol csym = enterClass(jsym);
                      psym.members_field.enter(csym);
@@ -453,14 +473,15 @@ public class JavafxClassReader extends ClassReader {
                      it.tail != null;
                      it = it.tail) {
                     Type itype = it.head;
+                    checkForIntfSymbol(itype.tsym);
                     if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName) {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
                     } else if (((ClassSymbol) itype.tsym).flatname == defs.fxMixinName) {
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
-                    } else if ((csym.fullname.len + defs.interfaceSuffixName.len ==
+                    } else if ((csym.fullname.len + defs.mixinSuffixName.len ==
                              ((ClassSymbol) itype.tsym).fullname.len) &&
                             ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname) &&
-                            itype.tsym.name.endsWith(defs.interfaceSuffixName)) {
+                            itype.tsym.name.endsWith(defs.mixinSuffixName)) {
                         iface = itype;
                         iface.tsym.complete();
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
@@ -476,6 +497,7 @@ public class JavafxClassReader extends ClassReader {
                  it.tail != null;
                  it = it.tail) {
                     Type itype = it.head;
+                    checkForIntfSymbol(itype.tsym);
                     if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName) {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
                     } else if (((ClassSymbol) itype.tsym).flatname == defs.fxMixinName) {

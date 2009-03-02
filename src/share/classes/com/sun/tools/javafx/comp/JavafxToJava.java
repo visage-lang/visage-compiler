@@ -844,8 +844,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     if (types.isJFXClass(symbol)) {
                         ClassSymbol cSym = (ClassSymbol) symbol;
                         String className = cSym.fullname.toString();
-                        if (className.endsWith(interfaceSuffix)) {
-                            className = className.substring(0, className.length() - interfaceSuffix.length());
+                        if (className.endsWith(mixinSuffix)) {
+                            className = className.substring(0, className.length() - mixinSuffix.length());
                         }
 
                         if (!dupSet.contains(className)) {
@@ -882,8 +882,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     if (types.isJFXClass(symbol)) {
                         ClassSymbol cSym = (ClassSymbol) symbol;
                         String className = cSym.fullname.toString();
-                        if (className.endsWith(interfaceSuffix)) {
-                            className = className.substring(0, className.length() - interfaceSuffix.length());
+                        if (className.endsWith(mixinSuffix)) {
+                            className = className.substring(0, className.length() - mixinSuffix.length());
                         }
 
                         if (!dupSet.contains(className)) {

@@ -176,7 +176,7 @@ public abstract class JavafxTranslationSupport {
         Name name = cDecl.getName();
         if (!cDecl.isMixinClass())
             return name;
-        return names.fromString(name.toString() + interfaceSuffix);
+        return names.fromString(name.toString() + mixinSuffix);
     }
 
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, Name aName) {
@@ -276,7 +276,7 @@ public abstract class JavafxTranslationSupport {
                     throw new RuntimeException("TYPEVAR: " + owner.type);
                 }
                 if (makeIntf) {
-                    name = names.fromString(name.toString() + interfaceSuffix);
+                    name = names.fromString(name.toString() + mixinSuffix);
                 }
                 break;
             default:

@@ -226,7 +226,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ClassSymbol cSym = (ClassSymbol) expressionSymbol(sup);
             if (cSym != null) {
                 String className = cSym.fullname.toString();
-                boolean isFXInterface = className.endsWith(interfaceSuffix);
+                boolean isFXInterface = className.endsWith(mixinSuffix);
 
                 if (!isFXInterface &&
                         cSym.fullname != defs.fxObjectName &&
@@ -338,7 +338,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
 
     private List<JCExpression> makeAdditionalImports(DiagnosticPosition diagPos, JFXClassDeclaration cDecl, List<ClassSymbol> baseInterfaces) {
-        // Add import statements for all the base classes and basClass $Intf(s).
+        // Add import statements for all the base classes and basClass $Mixin(s).
         // There might be references to them when the methods/attributes are rolled up.
         ListBuffer<JCExpression> additionalImports = new ListBuffer<JCExpression>();
         for (ClassSymbol baseClass : baseInterfaces) {
@@ -428,7 +428,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (typeOwner != null) {
                 // Only return an interface class if it's a mixin.
                 return (typeOwner.flags_field & JavafxFlags.MIXIN) == 0 ? (ClassSymbol)typeOwner.type.tsym :
-                        reader.jreader.enterClass(names.fromString(typeOwner.type.toString() + interfaceSuffix));
+                        reader.jreader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
             }
         }
         return null;
@@ -461,7 +461,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
 
             if (typeOwner != null) {
-                ClassSymbol returnSym = typeMorpher.reader.enterClass(names.fromString(typeOwner.type.toString() + interfaceSuffix));
+                ClassSymbol returnSym = typeMorpher.reader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
                 JCMethodDecl accessorMethod = make.MethodDef(
                         make.Modifiers(Flags.PUBLIC), 
                         outerAccessorName, 

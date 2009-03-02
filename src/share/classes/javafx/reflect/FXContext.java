@@ -48,7 +48,7 @@ public abstract class FXContext {
     protected FXContext() {
     }
 
-    public static final String INTERFACE_SUFFIX = "$Intf";
+    public static final String MIXIN_SUFFIX = "$Mixin";
     public static final String FXOBJECT_NAME =
             "com.sun.javafx.runtime.FXObject";
     public static final String FXMIXIN_NAME =

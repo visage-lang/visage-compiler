@@ -232,15 +232,15 @@ public class FXLocal {
             try {
                 String cname = cls.getName();
                 Class clsInterface = null;
-                if (cname.endsWith(INTERFACE_SUFFIX)) {
+                if (cname.endsWith(MIXIN_SUFFIX)) {
                     clsInterface = cls;
-                    cname = cname.substring(0, cname.length()-INTERFACE_SUFFIX.length());
+                    cname = cname.substring(0, cname.length()-MIXIN_SUFFIX.length());
                     cls = Class.forName(cname, false, cls.getClassLoader());
                     modifiers = FXClassType.FX_MIXIN | FXClassType.FX_CLASS;
                     return new ClassType(this, modifiers, cls, clsInterface);
                 }
                 Class[] interfaces = cls.getInterfaces();
-                String intfName = cname + INTERFACE_SUFFIX;
+                String intfName = cname + MIXIN_SUFFIX;
                 for (int i = 0;  i < interfaces.length;  i++ ) {
                     String iname = interfaces[i].getName();
                     if (iname.equals(FXOBJECT_NAME)) {

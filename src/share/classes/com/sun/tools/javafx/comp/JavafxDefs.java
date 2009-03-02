@@ -48,7 +48,8 @@ public class JavafxDefs {
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeSetMethodParamNameString = "value";
     public static final String needsDefaultSuffix = "$needs_default$";
-    public static final String interfaceSuffix = "$Intf";
+    public static final String mixinSuffix = "$Mixin";
+    public static final String deprecatedInterfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
@@ -107,7 +108,8 @@ public class JavafxDefs {
      */
     public final Name fxObjectName;
     public final Name fxMixinName;
-    public final Name interfaceSuffixName;
+    public final Name mixinSuffixName;
+    public final Name deprecatedInterfaceSuffixName;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
     final Name mainName;
@@ -209,7 +211,8 @@ public class JavafxDefs {
 
         fxObjectName = names.fromString(fxObjectString);
         fxMixinName = names.fromString(fxMixinString);
-        interfaceSuffixName = names.fromString(interfaceSuffix);
+        mixinSuffixName = names.fromString(mixinSuffix);
+        deprecatedInterfaceSuffixName = names.fromString(deprecatedInterfaceSuffix);
         userRunFunctionName = names.fromString("run");
         internalRunFunctionName = names.fromString(internalRunFunctionNameString);
         mainName = names.fromString("main");

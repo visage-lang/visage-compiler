@@ -117,6 +117,7 @@ public class MsgSym {
     public static final String MESSAGE_VERSION_UNKNOWN = "version.unknown";
     public static final String MESSAGE_CANNOT_ACCESS = "cant.access";
     public static final String MESSAGE_ERROR_READING_FILE = "error.reading.file";
+    public static final String MESSAGE_DEPRECATED_INTERFACE_CLASS = "deprecated.interface.class";
     public static final String MESSAGE_PARSING_STARTED = "parsing.started";
     public static final String MESSAGE_PARSING_DONE = "parsing.done";
     public static final String MESSAGE_TOTAL = "total";
