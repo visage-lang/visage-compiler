@@ -278,6 +278,15 @@ public class SequenceVariable<T>
 
     }
 
+    private void ensureNotBound(Sequence<? extends T> newValues) {
+        if (isUnidirectionallyBound())
+            throw new AssignToBoundException("Cannot mutate bound sequence");
+        if (hasDependencies()) {
+            Sequences.noteShared($value);
+            Sequences.noteShared(newValues);
+        }
+    }
+
     public Sequence<T> set(Sequence<T> value) {
         return setAsSequence(value);
     }
@@ -326,7 +335,7 @@ public class SequenceVariable<T>
 
     @Override
     public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
-        ensureNotBound();
+        ensureNotBound(newValues);
         SequenceMutator.replaceSlice($value, mutationListener, startPos, endPos, newValues);
         return newValues;
     }
@@ -374,7 +383,7 @@ public class SequenceVariable<T>
 
     @Override
     public void insert(Sequence<? extends T> values) {
-        ensureNotBound();
+        ensureNotBound(values);
         SequenceMutator.insert($value, mutationListener, values);
     }
 
@@ -385,7 +394,7 @@ public class SequenceVariable<T>
 
     @Override
     public void insertFirst(Sequence<? extends T> values) {
-        ensureNotBound();
+        ensureNotBound(values);
         SequenceMutator.insertFirst($value, mutationListener, values);
     }
 
@@ -403,13 +412,13 @@ public class SequenceVariable<T>
 
     @Override
     public void insertBefore(Sequence<? extends T> values, int position) {
-        ensureNotBound();
+        ensureNotBound(values);
         SequenceMutator.insertBefore($value, mutationListener, values, position);
     }
 
     @Override
     public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        ensureNotBound();
+        ensureNotBound(values);
         SequenceMutator.insertBefore($value, mutationListener, values, sequencePredicate);
     }
 
@@ -427,13 +436,13 @@ public class SequenceVariable<T>
 
     @Override
     public void insertAfter(Sequence<? extends T> values, int position) {
-        ensureNotBound();
+        ensureNotBound(values);
         SequenceMutator.insertAfter($value, mutationListener, values, position);
     }
 
     @Override
     public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        ensureNotBound();
+        ensureNotBound(values);
         SequenceMutator.insertAfter($value, mutationListener, values, sequencePredicate);
     }
 

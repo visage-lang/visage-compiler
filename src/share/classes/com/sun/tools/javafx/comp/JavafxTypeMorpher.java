@@ -243,8 +243,7 @@ public class JavafxTypeMorpher {
                 return false;
             }
             if (isClassVar && !types.isJFXClass(owner)) {
-                //TODO: should be handled by ClassReader setting *NEED_LOCATION* bits
-                assert false : "should be handled by ClassReader";
+                assert sym.name == defs.lengthName && owner == syms.arrayClass : "should be handled by ClassReader";
                 return false;
             }
             if (isAssignedTo && !isClassVar && (flags & VARUSE_INNER_ACCESS) != 0) {

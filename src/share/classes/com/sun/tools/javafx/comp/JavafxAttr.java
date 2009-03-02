@@ -1380,10 +1380,29 @@ public class JavafxAttr implements JavafxVisitor {
         // complete class name to be fully qualified
         JFXExpression clazz = tree.getIdentifier(); // Class field following new
 
-        // Attribute clazz expression and store
-        // symbol + type back into the attributed tree.
-        Type clazztype = chk.checkClassType(
-            clazz.pos(), attribType(clazz, env), true);
+        // Attribute clazz expression
+        Type clazztype = attribType(clazz, env);
+
+        /* MAYBE FUTURE, e.g. if we support the syntax 'new ARRAY_TYPE (COUNT)':
+        if (tree.getJavaFXKind() == JavaFXKind.INSTANTIATE_NEW &&
+                clazztype.tag == ARRAY) {
+            if (tree.getArgs().size() != 1)
+                log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NEW_ARRAY_MUST_HAVE_SINGLE_ARG);
+            else
+                attribExpr(tree.getArgs().head, env, syms.javafx_IntegerType);
+            result = check(tree, clazztype, VAL, pkind, pt, pSequenceness);
+            localEnv.info.scope.leave();
+            return;
+        }
+        If so, add to MsgSym.java this definition:
+        public static final String MESSAGE_JAVAFX_NEW_ARRAY_MUST_HAVE_SINGLE_ARG = "javafx.new.array.must.have.single.arg";
+        and in javafxcompiler.properties map that to:
+        Allocating a native array requires a single length parameter.
+        */
+
+        // Store symbol + type back into the attributed tree.
+        clazztype = chk.checkClassType(
+            clazz.pos(), clazztype, true);
         chk.validate(clazz);
         if (!clazztype.tsym.isInterface() &&
                    clazztype.getEnclosingType().tag == CLASS) {

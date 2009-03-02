@@ -70,7 +70,6 @@ public class Entry {
                     public Void run() {
                         main.setAccessible(true);
                         provider = runtimeProviderLocator();
-                        animationProvider = animationProviderLocator();
                         return null;
                     }
                 }
@@ -148,7 +147,21 @@ public class Entry {
         return val;
     }
 
+    private static boolean loadAnimationProviderFailed = false;
     public static AnimationProvider getAnimationProvider() {
+        if (!loadAnimationProviderFailed && (animationProvider == null)) {
+            AccessController.doPrivileged(
+                    new PrivilegedAction<Void>() {
+                        public Void run() {
+                            animationProvider = animationProviderLocator();
+                            return null;
+                        }
+                    });
+            if (animationProvider == null) {
+                loadAnimationProviderFailed = true;
+            }
+        }
+
         return animationProvider;
     }
 

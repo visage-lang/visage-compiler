@@ -132,6 +132,7 @@ public class JavafxDefs {
     final Name makeBijectiveMethodName;
     final Name invokeName;
     final Name lambdaName;
+    final Name lengthName;
     final Name emptySequenceFieldString;
     final Name isInitializedName;
     final Name scriptBindingClassName;
@@ -236,6 +237,7 @@ public class JavafxDefs {
         makeBijectiveMethodName = names.fromString(makeBijectiveMethodNameString);
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
+        lengthName = names.fromString("length");
         emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
         scriptBindingClassName = names.fromString(scriptBindingClassString);

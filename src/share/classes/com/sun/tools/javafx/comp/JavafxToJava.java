@@ -438,8 +438,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             //}
             Type targetElemType = types.elementType(targetType);
             JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
-            if (sourceType.isPrimitive())
-                translated = convertTranslated(translated, diagPos, sourceType, targetElemType);
+            translated = convertTranslated(translated, diagPos, sourceType, targetElemType);
+            // This would be redundant, if convertTranslated did a cast if needed.
+            translated = makeTypeCast(diagPos, targetElemType, sourceType, translated);
             return callExpression(diagPos,
                     cSequences,
                     "singleton",
@@ -465,20 +466,26 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (!sourceType.isPrimitive()) {
                 // unboxed source if sourceboxed
                 translated = make.at(diagPos).TypeCast(unboxedSourceType, translated);
+                sourceType = unboxedSourceType;
             }
             if (unboxedSourceType != unboxedTargetType) {
                 // convert as primitive types
                 translated = make.at(diagPos).TypeCast(unboxedTargetType, translated);
+                sourceType = unboxedTargetType;
             }
             if (!targetType.isPrimitive()) {
                 // box target if target boxed
                 translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, targetType, false), translated);
+                sourceType = targetType;
             }
         }
 
         if (sourceType.isCompound()) {
             translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, types.erasure(targetType), true), translated);
         }
+        // We should add a cast "when needed".  Then visitTypeCast would just
+        // call this function, and not need to call makeTypeCast on the result.
+        // However, getting that to work is a pain - giving up for now.  FIXME
         return translated;
     }
 
@@ -1195,6 +1202,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitInstanciate(JFXInstanciate tree) {
+        JFXExpression texp = tree.getIdentifier();
+        Type type = texp.type;
+        /* MAYBE FUTURE:
+        if (tree.getJavaFXKind() == JavaFXKind.INSTANTIATE_NEW &&
+                type.tag == TypeTags.ARRAY) {
+            JCExpression elemtype = makeTypeTree(texp, ((Type.ArrayType) type).getComponentType());
+            JCExpression len = translateAsValue(tree.getArgs().head, syms.intType);
+            result = make.at(tree).NewArray(elemtype, List.of(len), null);
+            return;
+        }
+        */
 
         ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
         prependToStatements = ListBuffer.lb();
@@ -1778,11 +1796,18 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
                 // set of a sequence element --  s[i]=8, call the sequence set method
                 JFXSequenceIndexed si = (JFXSequenceIndexed) lhs;
-                JCExpression seq = translateAsLocation(si.getSequence());
+                JFXExpression seq = si.getSequence();
                 JCExpression index = translateAsValue(si.getIndex(), syms.intType);
-                JCFieldAccess select = m().Select(seq, defs.setMethodName);
-                List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
-                return postProcess(m().Apply(null, select, args));
+                if (seq.type.tag == TypeTags.ARRAY) {
+                    JCExpression tseq = translateAsUnconvertedValue(seq);
+                    return postProcess(m().Assign(m().Indexed(tseq, index), buildRHS(rhsTranslated)));
+                }
+                else {
+                    JCExpression tseq = translateAsLocation(seq);
+                    JCFieldAccess select = m().Select(tseq, defs.setMethodName);
+                    List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
+                    return postProcess(m().Apply(null, select, args));
+                }
             } else if (requiresLocation(sym)) {
                 // we are setting a var Location, call the set method
                 JCExpression lhsTranslated = translateAsLocation(lhs);
@@ -2763,102 +2788,261 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         JCStatement stmt = coreStmt;
         for (int inx = tree.getInClauses().size() - 1; inx >= 0; --inx) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)tree.getInClauses().get(inx);
-            if (clause.getWhereExpression() != null) {
-                stmt = make.at(clause).If( translateAsUnconvertedValue( clause.getWhereExpression() ), stmt, null);
-            }
-
-            // Build the loop
-            //TODO:  below is the simpler version of the loop. Ideally, this should be used in
-            // cases where the loop variable does not need to be final.
-            /*
-            stmt = make.at(clause).ForeachLoop(
-                    // loop variable is synthetic should not be bound
-                    // even if we are in a bind context
-                    boundTranslate(clause.getVar(), JavafxBindStatus.UNBOUND),
-                    translate(clause.getSequenceExpression()),
-                    stmt);
-             */
-            JFXVar var = clause.getVar();
-            Name tmpVarName = getSyntheticName(var.getName().toString());
-            JCVariableDecl finalVar = make.VarDef(
-                    make.Modifiers(Flags.FINAL),
-                    var.getName(),
-                    makeTypeTree( var,var.type),
-                    make.Ident(tmpVarName));
-            Name tmpIndexVarName;
-            if (clause.getIndexUsed()) {
-                Name indexVarName = indexVarName(clause);
-                tmpIndexVarName = getSyntheticName(indexVarName.toString());
-                JCVariableDecl finalIndexVar = make.VarDef(
-                    make.Modifiers(Flags.FINAL),
-                    indexVarName,
-                    makeTypeTree( var,syms.javafx_IntegerType),
-                    make.Unary(JCTree.POSTINC, make.Ident(tmpIndexVarName)));
-                stmt = make.Block(0L, List.of(finalIndexVar, finalVar, stmt));
-            }
-            else {
-                tmpIndexVarName = null;
-                stmt = make.Block(0L, List.of(finalVar, stmt));
-            }
-
-            DiagnosticPosition diagPos = clause.seqExpr;
-            if (types.isSequence(clause.seqExpr.type)) {
-                // It would be more efficient to move the Iterable.iterator call
-                // to a static method, which can also check for null.
-                // But that requires expanding the ForeachLoop by hand.  Later.
-                JCExpression seq = callExpression(diagPos,
-                    makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
-                    "forceNonNull",
-                    List.of(makeTypeInfo(diagPos, var.type),
-                        translateAsUnconvertedValue(clause.seqExpr)));
-                stmt = make.at(clause).ForeachLoop(
-                    // loop variable is synthetic should not be bound
-                    // even if we are in a bind context
-                    make.VarDef(
-                        make.Modifiers(0L),
-                        tmpVarName,
-                        makeTypeTree( var,var.type, true),
-                        null),
-                    seq,
-                    stmt);
-            } else if (clause.seqExpr.type.tag == TypeTags.ARRAY ||
-                    types.asSuper(clause.seqExpr.type, syms.iterableType.tsym) != null) {
-                stmt = make.at(clause).ForeachLoop(
-                    // loop variable is synthetic should not be bound
-                    // even if we are in a bind context
-                    make.VarDef(
-                        make.Modifiers(0L),
-                        tmpVarName,
-                        makeTypeTree(var,var.type, true),
-                        null),
-                    translateAsUnconvertedValue(clause.seqExpr),
-                    stmt);
-            } else {
-                // The "sequence" isn't a Sequence.
-                // Compile: { var tmp = seq; if (tmp!=null) stmt; }
-                if (! var.type.isPrimitive())
-                    stmt = make.If(make.Binary(JCTree.NE, make.Ident(tmpVarName),
-                                make.Literal(TypeTags.BOT, null)),
-                            stmt, null);
-                stmt = make.at(diagPos).Block(0,
-                    List.of(make.at(diagPos).VarDef(
-                        make.Modifiers(0L),
-                        tmpVarName,
-                        makeTypeTree( var,var.type, true),
-                        translateAsUnconvertedValue(clause.seqExpr)),
-                        stmt));
-            }
-            if (clause.getIndexUsed()) {
-                JCVariableDecl tmpIndexVar =
-                        make.VarDef(
-                        make.Modifiers(0L),
-                        tmpIndexVarName,
-                        makeTypeTree( var,syms.javafx_IntegerType),
-                        make.Literal(Integer.valueOf(0)));
-                stmt = make.Block(0L, List.of(tmpIndexVar, stmt));
-            }
+            stmt = new InClauseTranslator(clause, stmt).doit();
         }
         return stmt;
+    }
+
+
+    /**
+     * Translator class for for-expression in/where clauses
+     */
+    private class InClauseTranslator extends Translator {
+        final JFXForExpressionInClause clause;      // in clause being translated
+        final JFXVar var;                           // user named JavaFX induction variable
+        final Type type;                            // type of the induction variable
+        final JCVariableDecl inductionVar;          // generated induction variable
+        JCStatement body;                           // statement being generated by wrapping
+
+        InClauseTranslator(JFXForExpressionInClause clause, JCStatement coreStmt) {
+            super(clause, JavafxToJava.this);
+            this.clause = clause;
+            this.var = clause.getVar();
+            this.type = var.type;
+            this.inductionVar = makeVar("ind", null);
+            this.body = coreStmt;
+        }
+
+        private JCVariableDecl makeVar(String id, JCExpression initialValue) {
+            return makeVar(id, type, initialValue);
+        }
+
+        private JCVariableDecl makeVar(String id, Type varType, JCExpression initialValue) {
+            return makeVar(0L, id, varType, initialValue);
+        }
+
+        private JCVariableDecl makeFinalVar(String id, JCExpression initialValue) {
+            return makeFinalVar(id, type, initialValue);
+        }
+
+        private JCVariableDecl makeFinalVar(String id, Type varType, JCExpression initialValue) {
+            return makeVar(Flags.FINAL, id, varType, initialValue);
+        }
+
+        private JCVariableDecl makeFinalVar(Name varName, JCExpression initialValue) {
+            return makeFinalVar(varName, type, initialValue);
+        }
+
+        private JCVariableDecl makeFinalVar(Name varName, Type varType, JCExpression initialValue) {
+            return makeVar(Flags.FINAL, varName, varType, initialValue);
+        }
+
+        private JCVariableDecl makeVar(long flags, String id, Type varType, JCExpression initialValue) {
+            Name varName = names.fromString(var.name.toString() + "$" + id);
+            return makeVar(flags, varName, varType, initialValue);
+        }
+
+        private JCVariableDecl makeVar(long flags, Name varName, Type varType, JCExpression initialValue) {
+            return m().VarDef(
+                    m().Modifiers(flags),
+                    varName,
+                    makeTypeTree(var, varType, true),
+                    initialValue);
+        }
+
+        /**
+         * Generate a range sequence conditional test.
+         * Result depends on if the range is ascending/descending and if the range is exclusive
+         */
+        private JCExpression condTest(JFXSequenceRange range, boolean stepNegative, JCVariableDecl upperVar) {
+            int op;
+            if (stepNegative) {
+                if (range.isExclusive()) {
+                    op = JCTree.GT;
+                } else {
+                    op = JCTree.GE;
+                }
+            } else {
+                if (range.isExclusive()) {
+                    op = JCTree.LT;
+                } else {
+                    op = JCTree.LE;
+                }
+            }
+            return m().Binary(op, ident(inductionVar), ident(upperVar));
+        }
+
+        /**
+         * Determine if a literal is negative
+         */
+        private boolean isNegative(JFXExpression expr) {
+            JFXLiteral lit = (JFXLiteral) expr;
+            Object val = lit.getValue();
+
+            switch (lit.typetag) {
+                case TypeTags.INT:
+                    return ((int) (Integer) val) < 0;
+                case TypeTags.SHORT:
+                    return ((short) (Short) val) < 0;
+                case TypeTags.BYTE:
+                    return ((byte) (Byte) val) < 0;
+                case TypeTags.CHAR:
+                    return ((char) (Character) val) < 0;
+                case TypeTags.LONG:
+                    return ((long) (Long) val) < 0L;
+                case TypeTags.FLOAT:
+                    return ((float) (Float) val) < 0.0f;
+                case TypeTags.DOUBLE:
+                    return ((double) (Double) val) < 0.0;
+                default:
+                    throw new AssertionError("unexpected literal kind " + this);
+            }
+        }
+
+        /**
+         * Generate the loop for a range sequence.  Loop wraps the current body.
+         * For the loop:
+         *    for (x in [lo..hi step st]) body
+         * Generate (assuming x is float):
+         *    for (float x = lo, final float x$upper = up, final float x$step = st;, final boolean x$negative = x$step < 0.0;
+         *        x$negative? x >= x$upper : x <= x$upper;
+         *        x += x$step)
+         *            body
+         * Without a step specified (or a literal step) the form reduces to:
+         *    for (float x = lo, final float x$upper = up;
+         *        x <= x$upper;
+         *        x += 1)
+         *            body
+         */
+        void translateRangeInClause() {
+            JFXSequenceRange range = (JFXSequenceRange) clause.seqExpr;
+            // Collect all the loop initializing statements (variable declarations)
+            ListBuffer<JCStatement> tinits = ListBuffer.lb();
+            // Set the initial value of the induction variable to be the low end of the range, and add it the the initializing statements
+            inductionVar.init = translateAsValue(range.getLower(), type);
+            tinits.append(inductionVar);
+            // Record the upper end of the range in a final variable, and add it the the initializing statements
+            JCVariableDecl upperVar = makeFinalVar("upper", translateAsValue(range.getUpper(), type));
+            tinits.append(upperVar);
+            // The expression which will be used in increment the induction variable
+            JCExpression tstepIncrExpr;
+            // The condition that will be tested each time through the loop
+            JCExpression tcond;
+            // The user's step expression, or null if none specified
+            JFXExpression step = range.getStepOrNull();
+            if (step != null) {
+                // There is a user specified step expression
+                JCExpression stepVal = translateAsValue(step, type);
+                if (step.getFXTag() == JavafxTag.LITERAL) {
+                    // The step expression is a literal, no need for a variable to hold it, and we can test if the range is scending at compile time
+                    tstepIncrExpr = stepVal;
+                    tcond = condTest(range, isNegative(step), upperVar);
+                } else {
+                    // Arbitrary step expression, do all the madness shown in the method comment
+                    JCVariableDecl stepVar = makeFinalVar("step", stepVal);
+                    tinits.append(stepVar);
+                    tstepIncrExpr = ident(stepVar);
+                    JCVariableDecl negativeVar = makeFinalVar("negative", syms.booleanType, m().Binary(JCTree.LT, ident(stepVar), m().Literal(type.tag, 0)));
+                    tinits.append(negativeVar);
+                    tcond = m().Conditional(ident(negativeVar), condTest(range, true, upperVar), condTest(range, false, upperVar));
+                }
+            } else {
+                // No step expression, use one as the increment
+                tstepIncrExpr = m().Literal(type.tag, 1);
+                tcond = condTest(range, false, upperVar);
+            }
+            // Generate the step statement as: x += x$step
+            List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, ident(inductionVar), tstepIncrExpr)));
+            // Finally, build the for loop
+            body = m().ForLoop(tinits.toList(), tcond, tstep, body);
+        }
+
+        /**
+         * Make an identifier which references the specified variable declaration
+         */
+        private JCIdent ident(JCVariableDecl aVar) {
+            return m().Ident(aVar.name);
+        }
+
+        /**
+         * Core of the in-clause translation.  Given an in-clause and the current body, build the for-loop
+         */
+        public JCStatement doit() {
+            // If there is a where expression, make the execution of the body conditional on the where condition
+            if (clause.getWhereExpression() != null) {
+                body = m().If(translateAsUnconvertedValue(clause.getWhereExpression()), body, null);
+            }
+
+            // Because the induction variable may be used in inner contexts, make a final
+            // variable inside the loop that holds the current iterations value.
+            // Same with the index if used.   That is:
+            //   for (x in seq) body
+            // Becomes (assume Number sequence):
+            //   x$incrindex = 0;
+            //   loop over x$ind {
+            //     final int x$index = x$incrindex++;
+            //     final float x = x$ind;
+            //     body;
+            //   }
+            JCVariableDecl incrementingIndexVar = null;
+            {
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                diagPos = var;
+                if (clause.getIndexUsed()) {
+                    incrementingIndexVar = makeVar("incrindex", syms.javafx_IntegerType, m().Literal(Integer.valueOf(0)));
+                    JCVariableDecl finalIndexVar = makeFinalVar(
+                            indexVarName(clause),
+                            syms.javafx_IntegerType,
+                            m().Unary(JCTree.POSTINC, ident(incrementingIndexVar)));
+                    stmts.append(finalIndexVar);
+                }
+                stmts.append(makeFinalVar(var.getName(), ident(inductionVar)));
+                stmts.append(body);
+                body = m().Block(0L, stmts.toList());
+            }
+
+            // Translate the sequence into the loop
+            JFXExpression seq = clause.seqExpr;
+            diagPos = seq;
+            if (seq.getFXTag() == JavafxTag.SEQUENCE_RANGE) {
+                // Iterating over a range sequence
+                translateRangeInClause();
+            } else {
+                // We will be using the sequence as a whole, so translate it
+                JCExpression tseq = translateAsUnconvertedValue(seq);
+                if (types.isSequence(seq.type)) {
+                    // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
+                    tseq = runtime(diagPos,
+                            cSequences,
+                            "forceNonNull",
+                            List.of(makeTypeInfo(diagPos, type), tseq));
+                    body = m().ForeachLoop(inductionVar, tseq, body);
+                } else if (seq.type.tag == TypeTags.ARRAY ||
+                             types.asSuper(seq.type, syms.iterableType.tsym) != null) {
+                    // Iterating over an array or iterable type, use a foreach loop
+                    body = m().ForeachLoop(inductionVar, tseq, body);
+                } else {
+                    // The "sequence" isn't aactually a sequence, treat it as a singleton.
+                    // Compile: { var tmp = seq; if (tmp!=null) body; }
+                    if (!type.isPrimitive()) {
+                        body = m().If(m().Binary(JCTree.NE, ident(inductionVar),
+                                m().Literal(TypeTags.BOT, null)),
+                                body, null);
+                    }
+                    // the "induction" variable will have only one value, set it to that
+                    inductionVar.init = tseq;
+                    // wrap the induction variable and the body in a block to protect scope
+                    body = m().Block(0L, List.of(inductionVar, body));
+                }
+            }
+
+            if (clause.getIndexUsed()) {
+                // indexof is used, define the index counter variable at the top of everything
+                body = m().Block(0L, List.of(incrementingIndexVar, body));
+            }
+            
+            return body;
+        }
     }
 
     public void visitIndexof(JFXIndexof tree) {
@@ -2997,7 +3181,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 return;
             }
         }
-        JCExpression ret = makeTypeCast(diagPos, tree.clazz.type, tree.expr.type, translateAsUnconvertedValue(tree.expr));
+
+        JCExpression val = translateAsValue(tree.expr, tree.clazz.type);
+        // The makeTypeCast below is usually redundant, since translateAsValue
+        // takes care of most conversions - except in the case of a plain object cast.
+        // It would be cleaner to move the makeTypeCast to translateAsValue,
+        // but it's painful to get it right.  FIXME.
+        JCExpression ret = makeTypeCast(diagPos, tree.clazz.type, tree.expr.type, val);
         result = convertNullability(diagPos, ret, tree.expr, tree.clazz.type);
     }
 
@@ -3324,6 +3514,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             public JCTree doit() {
                 switch (tree.getFXTag()) {
                     case SIZEOF:
+                        if (expr.type.tag == TypeTags.ARRAY) {
+                            return m().Select(transExpr, defs.lengthName);
+                        }
                         return callExpression(diagPos,
                                 makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                                 defs.sizeMethodName, transExpr);
