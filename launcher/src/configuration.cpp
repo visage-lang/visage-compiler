@@ -170,6 +170,7 @@ int Configuration::readConfigFile() {
 int Configuration::parseArgs(int argc, char** argv) {
     const char *arg;
     bool isjavafx = (javafxcmd == "javafx.exe");
+    bool seen_main = FALSE;
     while (argc-- > 0 && (arg = *argv++) != NULL) {
 
         if ((0 == strcmp("-cp", arg)) || (0 == strcmp("-classpath", arg))) {
@@ -198,8 +199,13 @@ int Configuration::parseArgs(int argc, char** argv) {
             return (EXIT_SUCCESS);
         } else if (isjavafx && 0 == strcmp("-fullversion", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -fullversion";
-            return (EXIT_SUCCESS);     
+            return (EXIT_SUCCESS);
+        } else if (isjavafx && !seen_main && 0 == strncmp("-", arg, 1)) {
+            vmargs += " \"";
+            vmargs += arg;
+            vmargs += "\"";
         } else {
+            seen_main = TRUE;
             fxargs += " \"";
             fxargs += arg;
             fxargs += "\"";
