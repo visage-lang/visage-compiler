@@ -66,6 +66,7 @@
     <target name="jfx-sdk"       depends="init,-do-jfx-sdk"/>
     <target name="jfx-test"      depends="test"/>
     <target name="jfx-deploy"    depends="init,-do-jfx-deploy"/>
+    <target name="jfx-sdk-docs"  depends="init,-do-jfx-sdk-docs"/>
 
     <!-- Here are popular targets for building in this dir -->
     <target name="help"       depends="-do-help" description="Show help on targets"/>
@@ -147,6 +148,22 @@
         <copy todir="${jfx.deployed.dir}">
           <fileset dir="${dist.dir}/lib" includes="${deployed.contents}"/>
         </copy>
+    </target>
+
+    <target name="-do-jfx-sdk-docs" depends="docs">
+        <copy todir="${jfx.sdk.api.docs.dir}">
+            <fileset dir="${basedir}/javadoc-files">
+                <include name="draft.*"/>
+                <include name="*.css"/>
+                <include name="*.js"/>
+                <include name="*.png"/>
+            </fileset>
+        </copy>
+        <mkdir dir="${jfx.xml.docs.dir}"/>
+        <copy file="${build.dir}/docs/javacode.xml"
+              tofile="${jfx.xml.docs.dir}/openjfx-compiler_javacode.xml"/>
+        <copy file="build/docs/fxcode.xml"
+              tofile="${jfx.xml.docs.dir}/openjfx-compiler_fxcode.xml"/>
     </target>
 
     <target name="-do-jfx-clean-deploy">

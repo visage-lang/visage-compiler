@@ -1,0 +1,303 @@
+/*
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ *
+ * This code is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 only, as
+ * published by the Free Software Foundation.
+ *
+ * This code is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * version 2 for more details (a copy is included in the LICENSE file that
+ * accompanied this code).
+ *
+ * You should have received a copy of the GNU General Public License version
+ * 2 along with this work; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+ * CA 95054 USA or visit www.sun.com if you need additional information or
+ * have any questions.
+ */
+package launchers;
+
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import com.sun.javafx.api.JavaFXScriptEngine;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
+
+/**
+ * This class primarily calls into javafxrt, javafxc and javafxdoc to ensure
+ * that a conformant version strings are returned for:
+ *   a. System properties.
+ *   b. tools javafx, javafxc, and javafxdoc.
+ */
+public class Utils  {
+
+    private static File distDir = null;
+    static File javaExe = null;
+    static File javafxExe = null;
+    static File javafxcExe = null;
+    static File javafxdocExe = null;
+
+
+
+    static boolean debug = false;
+    static File workingDir = null;
+
+   private static JavaFXScriptEngine engine = null;
+
+    static final boolean isWindows =
+           System.getProperty("os.name").startsWith("Windows");
+
+    static void init() throws IOException {
+        if (Utils.javaExe == null) {
+            Utils.javaExe = Utils.getJavaExe();
+        }
+        if (javafxExe == null) {
+            javafxExe = getJavaFxDistExe("javafx");
+        }
+        if (javafxcExe == null) {
+            javafxcExe = getJavaFxDistExe("javafxc");
+        }
+        if (javafxdocExe == null) {
+            javafxdocExe = getJavaFxDistExe("javafxdoc");
+        }
+        if (engine == null) {
+            ScriptEngineManager manager = new ScriptEngineManager();
+            ScriptEngine scrEng = manager.getEngineByName("javafx");
+            if (scrEng instanceof JavaFXScriptEngine) {
+               engine = (JavaFXScriptEngine) scrEng;
+            } else {
+                throw new AssertionError("scrEng not instance of JavaFXSciptEngine");
+            }
+
+        }
+        if (workingDir == null) {
+            workingDir = Utils.getTempDirectory();
+        }
+        if (!workingDir.exists()) {
+            workingDir.mkdirs();
+        }
+    }
+
+    static void reset() {
+           if (!debug) {
+            if (workingDir != null && workingDir.exists()) {
+                try {
+                    Utils.recursiveDelete(workingDir);
+                } catch (IOException ioe) { /*oh well!*/ }
+            }
+        }
+    }
+    /*
+     * get the path to where the dist directory lives, we use javac.jar
+     * and script-api.jar to get the lib path, the parent of which is the
+     * basedir.
+     */
+    static File getDistDir() throws FileNotFoundException, IOException {
+        if (distDir != null) {
+            return distDir;
+        }
+        String javaClasspaths[] =
+                System.getProperty("java.class.path", "").split(File.pathSeparator);
+        for (String x : javaClasspaths) {
+            if (x.endsWith("javac.jar")) {
+                String path = x.substring(0, x.indexOf("lib" +
+                        File.separator + "javac.jar"));
+                distDir = new File(path, "dist").getAbsoluteFile();
+                return distDir;
+            } else if (x.endsWith("script-api.jar")) {
+                String path = x.substring(0, x.indexOf("lib" +
+                        File.separator + "script-api.jar"));
+                distDir = new File(path, "dist").getAbsoluteFile();
+                return distDir;
+            }
+        }
+        throw new IOException("dist dir path could not be determined");
+    }
+
+    /**
+     * Recursively deletes everything under dir
+     */
+    static void recursiveDelete(File dir) throws IOException {
+        if (dir.isFile()) {
+            dir.delete();
+        } else if (dir.isDirectory()) {
+            File[] entries = dir.listFiles();
+            for (int i = 0; i < entries.length; i++) {
+                if (entries[i].isDirectory()) {
+                    recursiveDelete(entries[i]);
+                }
+                entries[i].delete();
+            }
+            dir.delete();
+        }
+    }
+
+    /*
+     * Gets a temporary clean directory for use
+     */
+    static File getTempDirectory() throws IOException {
+        File tmpDir = File.createTempFile("versionTest", ".tmp");
+        if (tmpDir.exists()) {
+            recursiveDelete(tmpDir);
+        }
+        tmpDir.mkdirs();
+        return tmpDir;
+    }
+
+    /*
+     * gets the path to the java.exe
+     */
+    static File getJavaExe() {
+        String javaHome = System.getProperty("java.home");
+
+        File jFile = new File(new File(javaHome, "bin"), "java");
+        if (isWindows) {
+            jFile = new File(jFile.toString() + ".exe");
+        }
+        return jFile;
+    }
+
+    /*
+     * returns the path to a javafx executable, do not
+     * use .exe extension the method will take care of
+     * it.
+     */
+    static File getJavaFxDistExe(String exename) throws IOException {
+        File exe = new File(new File(getDistDir(), "bin"),
+                (isWindows) ? exename + ".exe" : exename);
+        if (!exe.exists()) {
+            return null;
+        }
+        return exe;
+    }
+
+    /*
+     *  Check to see if the expected pattern was obtained, if the expectedString
+     *  is null, simply check if something was returned.
+     */
+    static boolean checkExec(List<String> cmds, String expectedString, boolean match) {
+        List<String> outputList = doExec(cmds);
+        if (expectedString == null) {
+            if (outputList != null) {
+                return true;
+            }
+        } else if (match) {
+            if (outputList.get(0).matches(expectedString)) {
+                return true;
+            }
+        } else {
+            if (outputList.get(0).equals(expectedString)) {
+                return true;
+            }
+        }
+
+        // oh oh, something went wrong, print diagnostics to aid debugging
+        System.err.println("Command line:");
+        for (String x : cmds) {
+            System.err.print(" " + x);
+        }
+        System.err.println("");
+        System.err.println("Process output:");
+        for (String x : outputList) {
+            System.err.println(" " + x);
+        }
+        System.err.println("Expected string " + (match ? "match:" : "equals:") +
+                ": " + expectedString);
+        return false;
+    }
+
+    /*
+     * execs a cmd and returns a List representation of the output
+     */
+    static  List<String> doExec(List<String> cmds) {
+        if (debug) {
+            for (String x : cmds) {
+                System.out.println(x);
+            }
+        }
+        List<String> outputList = new ArrayList<String>();
+        ProcessBuilder pb = new ProcessBuilder(cmds);
+        pb = pb.directory(workingDir);
+        BufferedReader rdr = null;
+        try {
+            pb.redirectErrorStream(true);
+            Process p = pb.start();
+            rdr = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            // note: its a good idea to read the whole stream, half baked
+            // reads can cause undesired side-effects.
+            String in = rdr.readLine();
+            while (in != null) {
+                if (debug) {
+                    System.out.println(in);
+                }
+                outputList.add(in);
+                in = rdr.readLine();
+            }
+            p.waitFor();
+            p.destroy();
+            if (p.exitValue() != 0) {
+                System.out.println("Error: Unexpected exit value " +
+                        p.exitValue());
+                return null;
+            }
+            return outputList;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    /*
+     * emit our FX code
+     */
+    static String emitFx(boolean fullversion) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.print("java.lang.System.out.print(FX.getProperty(\"");
+        pw.print((fullversion) ? "javafx.runtime.version" : "javafx.version");
+        pw.println("\"));");
+        pw.println("java.lang.System.out.flush();");
+        return sw.toString();
+    }
+
+    /*
+     * Create and compile an FX file, to get the version string.
+     * Note: we could use the ScriptEngine, however we would like to make
+     * sure the launchers (javafx and javafxc) works!.
+     */
+    static String getVersionPropFromFX(boolean isFullVersion) throws IOException {
+        String filename = "Version";
+        FileWriter fw = new FileWriter(new File(workingDir, filename + ".fx"));
+        PrintWriter pw = new PrintWriter(fw);
+        try {
+            pw.println(emitFx(isFullVersion));
+        } finally {
+            if (pw != null) pw.close();
+            if (fw != null) fw.close();
+        }
+        ArrayList<String> cmdsList = new ArrayList<String>();
+        cmdsList.add(javafxcExe.toString());
+        cmdsList.add(filename + ".fx");
+        doExec(cmdsList);
+        cmdsList.clear();
+        cmdsList.add(javafxExe.toString());
+        cmdsList.add(filename);
+        List<String> output = doExec(cmdsList);
+        return output.get(0);
+    }
+}
