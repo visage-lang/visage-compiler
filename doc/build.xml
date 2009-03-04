@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project default="spec" name="javafx-docs" basedir="..">
+<project default="ref" name="javafx-docs" basedir="..">
     <property name="build.dir" value="${basedir}/build"/>
     <property name="tools.dir" value="${basedir}/tools"/>
 
@@ -8,13 +8,12 @@
 
     <property name="import.docbook-xsl.dir" value="${import.docbook.dir}/docbook-xsl-${import.docbook.version}"/>
     <property name="doc.build.dir" value="${build.dir}/doc"/>
-    <property name="doc.dest.dir" value="${doc.build.dir}/html/orig"/>
-    <property name="doc.src.dir" value="${basedir}/doc/langspec"/>
-    <property name="html.style" value="${import.docbook-xsl.dir}/html/chunkfast.xsl"/>
+    <property name="doc.dest.dir" value="${doc.build.dir}/html"/>
+    <property name="doc.src.dir" value="${basedir}/doc/reference"/>
+    <property name="html.style" value="${import.docbook-xsl.dir}/html/chunk.xsl"/>
     <property name="xhtml.style" value="${import.docbook-xsl.dir}/xhtml/chunkfast.xsl"/>
-    <property name="htmlpages.xsl.path" value="${doc.build.dir}/tmp/htmlpages.xsl"/>
     <property name="langref.xsl.path" value="${doc.build.dir}/tmp/langref.xsl"/>
-    <property name="doc.name" value="JavaFX-Language"/>
+    <property name="doc.name" value="JavaFXReference"/>
 
     <!-- Choose between HTML and XHTML -->
     <property name="chunk.style" value="${html.style}"/>
@@ -27,8 +26,8 @@
     </path>
 
     <target name="langspec"
-     description="Build language specification using make and xsltproc.">
-        <exec dir="doc/langspec" command="make langspec"/>
+     description="Build language reference using make and xsltproc.">
+        <exec dir="doc/reference" command="make langref"/>
     </target>
 
     <target name="prepare">
@@ -45,8 +44,8 @@
         </propertyfile>
     </target>
 
-    <target name="spec"
-     description="Build language specification using Ant">
+    <target name="ref"
+     description="Build language reference using Ant">
         <antcall target="chunk-html"/>
         <antcall target="copy-figures"/>
     </target>
@@ -60,10 +59,9 @@
    <target name="langref.xsl">
      <makeurl property="chunk.url" file="${chunk.style}"/>
      <filter token="chunk-xsl" value="${chunk.url}"/>
-     <copy file="doc/langspec/langref-in.xsl" tofile="${langref.xsl.path}" filtering="true"/>
+     <copy file="doc/reference/langref-in.xsl" tofile="${langref.xsl.path}" filtering="true"/>
      </target>
      
-
     <!-- arg: doc.name -->
     <target name="chunk-html" depends="prepare,langref.xsl">
         <makeurl property="doc.xml" file="${doc.src.dir}/${doc.name}.xml"/>
@@ -92,9 +90,9 @@
         </java>
 
         <delete file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.html" failonerror="no"/>
-        <copy file="doc/langspec/langref.css" tofile="${doc.dest.dir}/langref.css"/>
+        <copy file="doc/reference/langref.css" tofile="${doc.dest.dir}/langref.css"/>
     </target>
-    
+        
     <available property="ant.jar" value="${import.ant.jar}" file="${import.ant.jar}"/>
     <pathconvert property="ant.jar">
         <mapper type="regexp" from="${path.separator}([^${path.separator}]*ant.jar)${path.separator}" to="\1"/>

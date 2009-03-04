@@ -599,12 +599,7 @@
     <!-- End stuff dealing with adding coverage to JUnit execution -->
 
     <target name="langref" description="Build JavaFX Script Language Reference.">
-<!--
-        This is the old lang spec.  It has been replaced by doc/refbuild.xml.
-
-        <ant antfile="doc/build.xml" target="spec" inheritAll="true"/>
--->
-        <ant antfile="doc/refbuild.xml" target="ref" inheritAll="true"/>
+        <ant antfile="doc/build.xml" target="ref" inheritAll="true"/>
 
         <copy todir="dist/doc/reference">
             <fileset dir="build/doc/html"/>
