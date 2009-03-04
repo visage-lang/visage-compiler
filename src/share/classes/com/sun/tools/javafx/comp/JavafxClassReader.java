@@ -466,6 +466,14 @@ public class JavafxClassReader extends ClassReader {
             ct.setEnclosingType(translateType(jt.getEnclosingType()));
             
             ct.supertype_field = translateType(jt.supertype_field);
+            
+            // JFXC-2841 - Mixins: Cannot find firePropertyChange method in SwingComboBox.fx
+            if (ct.supertype_field != null && 
+                ct.supertype_field.tsym != null &&
+                ct.supertype_field.tsym.kind == TYP) {
+                csym.addSuperType(ct.supertype_field);
+            }
+            
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
             Type iface = null;
             if (jt.interfaces_field != null) { // true for ErrorType
