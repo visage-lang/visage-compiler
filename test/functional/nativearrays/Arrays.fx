@@ -29,3 +29,13 @@ System.out.print("ar1: "); printIntArr(ar1); System.out.println();
 System.out.println("ar1.length: {ar1.length}");
 System.out.println("sizeof ar1: {sizeof ar1}");
 
+var ar2 : nativearray of nativearray of Integer;
+ar2 = java.lang.reflect.Array.newInstance(java.lang.Integer.TYPE, 3, 4)
+  as nativearray of nativearray of Integer;
+for (i in [0..<3]) for (j in [0..<4]) ar2[i][j] = 100*i+10*j;
+println("ar2.length: {ar2.length}");
+for (i in [0..<3]) for (j in [0..<4]) println("ar2[{i}][{j}] = {ar2[i][j]}");
+var ar2_2 = ar2[2];
+println("ar2_2.length: {ar2_2.length}");
+for (x in ar2_2) println("ar2_2[{indexof x}]={x}");
+

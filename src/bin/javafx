@@ -65,7 +65,12 @@ while [ $# -gt 0 ] ; do
         -version) args="com.sun.javafx.runtime.LauncherHelper -version"; break;;
         -fullversion) args="com.sun.javafx.runtime.LauncherHelper -fullversion"; break;;
         -profile) shift; profile="$1";;
-        *) args="$args \"$1\"";;
+	-*) if [ "x$seen_main" = "x" ]; then 
+               jargs="$jargs \"$1\""
+            else 
+               args="$args \"$1\"" 
+            fi ;;
+        *) seen_main=true ; args="$args \"$1\"";;
     esac
     shift
 done
