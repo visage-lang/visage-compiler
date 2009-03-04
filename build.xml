@@ -694,17 +694,6 @@
         <chmod dir="dist/bin" perm="755" includes="**/javafx*"/>
     </target>
     
-    <!-- 
-         man-pages are not built by the standard targets because the man pages in this
-         repo are no longer used.  The real man pages are .html files in the docs repo.
-    -->
-    <target name="man-pages">
-        <ant antfile="doc/build.xml" target="man-pages" inheritAll="true"/>
-        <copy todir="dist/man/man1">
-            <fileset dir="build/doc/man/man1"/>
-        </copy>
-    </target>
-    
     <target name="javafxdoc-clean">
        <echo message="clean in javafxdoc/"/>
        <ant dir="${javafxdoc.dir}" antfile="build.xml" target="clean" inheritall="false" />

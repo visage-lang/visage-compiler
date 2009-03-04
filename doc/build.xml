@@ -12,8 +12,6 @@
     <property name="doc.src.dir" value="${basedir}/doc/langspec"/>
     <property name="html.style" value="${import.docbook-xsl.dir}/html/chunkfast.xsl"/>
     <property name="xhtml.style" value="${import.docbook-xsl.dir}/xhtml/chunkfast.xsl"/>
-    <property name="manpages.path" value="${import.docbook-xsl.dir}/manpages/docbook.xsl"/>
-    <property name="manpages.xsl.path" value="${doc.build.dir}/tmp/manpages.xsl"/>
     <property name="htmlpages.xsl.path" value="${doc.build.dir}/tmp/htmlpages.xsl"/>
     <property name="langref.xsl.path" value="${doc.build.dir}/tmp/langref.xsl"/>
     <property name="doc.name" value="JavaFX-Language"/>
@@ -33,11 +31,10 @@
         <exec dir="doc/langspec" command="make langspec"/>
     </target>
 
-    <target name="prepare" depends="-init-macrodef-manpage">
+    <target name="prepare">
         <mkdir dir="${doc.build.dir}"/>
         <mkdir dir="${doc.dest.dir}"/>
         <mkdir dir="${doc.build.dir}/tmp"/>
-        <mkdir dir="${doc.build.dir}/man/man1"/>
 
         <propertyfile file="${doc.build.dir}/tmp/CatalogManager.properties">
             <entry key="catalogs" value="${import.docbook-xml.dir}/catalog.xml"/>
@@ -66,17 +63,6 @@
      <copy file="doc/langspec/langref-in.xsl" tofile="${langref.xsl.path}" filtering="true"/>
      </target>
      
-   <target name="manpages.xsl">
-     <makeurl property="manpages.url" file="${manpages.path}"/>
-     <filter token="manpages-url" value="${manpages.url}"/>
-     <copy file="doc/man/manpages-in.xsl" tofile="${manpages.xsl.path}" filtering="true"/>
-   </target>
-     
-    <target name="htmlpages.xsl">
-        <makeurl property="chunk.url" file="${chunk.style}"/>
-        <filter token="chunk-xsl" value="${chunk.url}"/>
-        <copy file="doc/man/htmlpages-in.xsl" tofile="${htmlpages.xsl.path}" filtering="true"/>
-   </target>
 
     <!-- arg: doc.name -->
     <target name="chunk-html" depends="prepare,langref.xsl">
@@ -107,53 +93,6 @@
 
         <delete file="${doc.build.dir}/tmp/${doc.name}-xi-tmp.html" failonerror="no"/>
         <copy file="doc/langspec/langref.css" tofile="${doc.dest.dir}/langref.css"/>
-    </target>
-    
-    <target name="man-pages" depends="javafx-man-page,javafxc-man-page,javafxdoc-man-page"
-            description="generate Unix-style manual pages">
-	<copy file="doc/man/manpage.css" tofile="${doc.build.dir}/man/manpage.css"/>
-    </target>
-    
-    <target name="javafx-man-page" depends="prepare,htmlpages.xsl,manpages.xsl">
-        <manpage src="doc/man/javafx.xml" title="javafx"/>
-    </target>
-    
-    <target name="javafxc-man-page" depends="prepare,htmlpages.xsl,manpages.xsl">
-        <manpage src="doc/man/javafxc.xml" title="javafxc"/>
-    </target>
-    
-    <target name="javafxdoc-man-page" depends="prepare,htmlpages.xsl,manpages.xsl">
-        <manpage src="doc/man/javafxdoc.xml" title="javafxdoc"/>
-    </target>
-
-    <target name="-init-macrodef-manpage">
-        <macrodef name="manpage">
-            <attribute name="src"/>
-            <attribute name="title"/>
-            <sequential>
-                <java classname="com.icl.saxon.StyleSheet" fork="true"
-                      dir="${doc.build.dir}/man" failonerror="true">
-                    <classpath refid="doc.build.class.path"/>
-                    <arg line="-x org.apache.xml.resolver.tools.ResolvingXMLReader"/>
-                    <arg line="-y org.apache.xml.resolver.tools.ResolvingXMLReader"/>
-                    <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
-                    <arg file="@{src}"/>
-                    <arg value="${htmlpages.xsl.path}"/>
-                    <arg value="use.id.as.filename=1"/>
-                    <arg value="root.filename=@{title}"/>
-                    <arg value="draft.mode=yes"/>
-                </java>        
-                <java classname="com.icl.saxon.StyleSheet" fork="true"
-                      dir="${doc.build.dir}/man/man1" failonerror="true">
-                    <classpath refid="doc.build.class.path"/>
-                    <arg line="-x org.apache.xml.resolver.tools.ResolvingXMLReader"/>
-                    <arg line="-y org.apache.xml.resolver.tools.ResolvingXMLReader"/>
-                    <arg line="-r org.apache.xml.resolver.tools.CatalogResolver"/>
-                    <arg file="@{src}"/>
-                    <arg value="${manpages.xsl.path}"/>
-                </java>         
-            </sequential>
-        </macrodef>
     </target>
     
     <available property="ant.jar" value="${import.ant.jar}" file="${import.ant.jar}"/>
