@@ -268,12 +268,15 @@ class JavafxAnalyzeClass {
             
             addedBaseClasses.add(cSym);
            
-            if (isCurrent) {
-                // Process the base class first.
-                process(types.superType(cDecl).tsym, false);
-            } else if (!isMixin) {
+            if (!isMixin && !isCurrent) {
                 // Don't clone members of base classes or interfaces.
                 cloneVisible = false; 
+            }
+
+            // Process the base class first.
+            Type superType = cSym.getSuperclass();
+            if (superType != null && superType.tsym != null && superType.tsym.kind == Kinds.TYP) {
+                process(superType.tsym, cloneVisible);
             }
 
             // get the corresponding AST, null if from class file
@@ -284,13 +287,6 @@ class JavafxAnalyzeClass {
                 }
             
                 if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
-                    /***
-                    for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
-                        if (e.sym.kind == Kinds.MTH) {
-                            processMethodFromClassFile((MethodSymbol) e.sym, cSym, cloneVisible);
-                        }
-                    }
-                     * ***/
                     //TODO: fiz this hack back to the above. for some reason the order of symbols within a scope is inverted
                     ListBuffer<Symbol> reversed = ListBuffer.lb();
                     for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {

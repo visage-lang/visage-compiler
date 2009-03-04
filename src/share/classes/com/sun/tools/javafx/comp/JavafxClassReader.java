@@ -496,6 +496,7 @@ public class JavafxClassReader extends ClassReader {
                     } else {
                         itype = translateType(itype);
                         interfaces.append(itype);
+                        csym.addSuperType(ct.supertype_field);
                     }
                 }
             }
