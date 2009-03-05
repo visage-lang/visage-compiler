@@ -74,6 +74,7 @@ public class JavafxCheck {
     private final JavafxDefs defs;
     private final Name.Table names;
     private final Log log;
+    private final Messages messages;
     private final JavafxSymtab syms;
     private final Infer infer;
     private final Target target;
@@ -95,10 +96,10 @@ public class JavafxCheck {
     }
 
     public static JavafxCheck instance(Context context) {
-	JavafxCheck instance = context.get(javafxCheckKey);
-	if (instance == null)
-	    instance = new JavafxCheck(context);
-	return instance;
+        JavafxCheck instance = context.get(javafxCheckKey);
+        if (instance == null)
+            instance = new JavafxCheck(context);
+        return instance;
     }
 
     public static void preRegister(final Context context) {
@@ -110,29 +111,30 @@ public class JavafxCheck {
     }
 
     protected JavafxCheck(Context context) {
-	context.put(javafxCheckKey, this);
+        context.put(javafxCheckKey, this);
 
         defs = JavafxDefs.instance(context);
-	names = Name.Table.instance(context);
-	log = Log.instance(context);
-	syms = (JavafxSymtab) Symtab.instance(context);
-	infer = Infer.instance(context);
-	this.types = JavafxTypes.instance(context);
-	Options options = Options.instance(context);
-	target = Target.instance(context);
-        source = Source.instance(context);
-	lint = Lint.instance(context);
-        treeinfo = (JavafxTreeInfo)JavafxTreeInfo.instance(context);
+        names = Name.Table.instance(context);
+        log = Log.instance(context);
+        messages = Messages.instance(context);
+        syms = (JavafxSymtab) Symtab.instance(context);
+        infer = Infer.instance(context);
+        this.types = JavafxTypes.instance(context);
+        Options options = Options.instance(context);
+        target = Target.instance(context);
+            source = Source.instance(context);
+        lint = Lint.instance(context);
+            treeinfo = (JavafxTreeInfo)JavafxTreeInfo.instance(context);
 
-	allowGenerics = source.allowGenerics();
-	//allowAnnotations = source.allowAnnotations();
-	complexInference = options.get("-complexinference") != null;
+        allowGenerics = source.allowGenerics();
+        //allowAnnotations = source.allowAnnotations();
+        complexInference = options.get("-complexinference") != null;
 
-	boolean verboseDeprecated = lint.isEnabled(LintCategory.DEPRECATION);
-	boolean verboseUnchecked = lint.isEnabled(LintCategory.UNCHECKED);
+        boolean verboseDeprecated = lint.isEnabled(LintCategory.DEPRECATION);
+        boolean verboseUnchecked = lint.isEnabled(LintCategory.UNCHECKED);
 
-	deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, MsgSym.MESSAGEPREFIX_DEPRECATED);
-	uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, MsgSym.MESSAGEPREFIX_UNCHECKED);
+        deprecationHandler = new MandatoryWarningHandler(log,verboseDeprecated, MsgSym.MESSAGEPREFIX_DEPRECATED);
+        uncheckedHandler = new MandatoryWarningHandler(log, verboseUnchecked, MsgSym.MESSAGEPREFIX_UNCHECKED);
         rs = JavafxResolve.instance(context);
     }
 
@@ -698,6 +700,16 @@ public class JavafxCheck {
             return typeTagError(pos, types.sequenceType(syms.unknownType), t);
         }
         return syms.errType;
+    }
+
+    public Type checkSequenceOrArrayType (DiagnosticPosition pos, Type t) {
+        if (!types.isSequence(t) && t.tag != ARRAY && !t.isErroneous())
+            return typeTagError(pos,
+                        messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
+                        MsgSym.MESSAGE_JAVAFX_SEQ_OR_ARRAY),
+                        t);
+        else
+            return t;
     }
 
     /** Check that type is a class or interface type.

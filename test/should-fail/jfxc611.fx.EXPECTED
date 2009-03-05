@@ -1,6 +1,6 @@
 test/should-fail/jfxc611.fx:29: unexpected type
 found   : Object
-required: Object[]
+required: Sequence (or nativearray)
 function f(llist) {return llist[0];}
                           ^
 1 error

@@ -3017,7 +3017,7 @@ public class JavafxAttr implements JavafxVisitor {
     @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         JFXExpression seq = tree.getSequence();
-        Type seqType = attribExpr(seq, env);
+        Type seqType = attribExpr(seq, env, Type.noType, Sequenceness.REQUIRED);
 
         attribExpr(tree.getFirstIndex(), env, syms.javafx_IntegerType);
         if (tree.getLastIndex() != null) {
@@ -3036,13 +3036,11 @@ public class JavafxAttr implements JavafxVisitor {
         Type seqType = attribTree(seq, env, pkind, Type.noType, Sequenceness.PERMITTED);
         
         attribExpr(tree.getIndex(), env, syms.javafx_IntegerType);
-        Type owntype;
-        if (seqType.tag == TypeTags.ARRAY) {
-            owntype = ((ArrayType)seqType).elemtype;
-        }
-        else {
-            owntype = chk.checkSequenceElementType(seq, seqType);
-        }
+        chk.checkSequenceOrArrayType(seq.pos(), seqType);
+        Type owntype = seqType.tag == ARRAY ?
+            types.elemtype(seqType) :
+            types.elementType(seqType);
+        
         result = check(tree, owntype, VAR, pkind, pt, pSequenceness);
 
     }
