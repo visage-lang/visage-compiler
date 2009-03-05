@@ -175,7 +175,7 @@ public class JavafxTypes extends Types {
 
     @Override
     public Type asSuper(Type t, Symbol sym) {
-        if (isMixin(t.tsym)) {
+        if (isMixin(sym)) {
             JavafxClassSymbol tsym = (JavafxClassSymbol) t.tsym;
             List<Type> supers = tsym.getSuperTypes();
             for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
