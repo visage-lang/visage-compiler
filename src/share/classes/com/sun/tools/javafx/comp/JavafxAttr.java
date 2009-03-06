@@ -2163,7 +2163,7 @@ public class JavafxAttr implements JavafxVisitor {
         // The local environment of a method application is
         // a new environment nested in the current one.
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup());
-
+        localEnv.outer = env;
         // The types of the actual method type arguments.
         List<Type> typeargtypes;
 
