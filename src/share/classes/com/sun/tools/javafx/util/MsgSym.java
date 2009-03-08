@@ -401,4 +401,5 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF = "javafx.cannot.override.def";
     public static final String MESSAGE_JAVAFX_PACKAGE_IN_SCRIPT_EVAL_MODE = "javafx.package.in.script.eval.mode";
     public static final String MESSAGE_JAVAFX_ALREAD_DEFINED_OBJECT_LITERAL = "javafx.already.defined.object.literal";
+    public static final String MESSAGE_JAVAFX_FOR_OVER_ITERABLE_DISALLOWED_IN_BIND = "javafx.for.over.iterable.disallowed.in.bind";
 }

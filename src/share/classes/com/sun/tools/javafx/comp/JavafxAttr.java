@@ -1178,6 +1178,9 @@ public class JavafxAttr implements JavafxVisitor {
             }
             // if exprtype implements Iterable<T>, T is the element type of the for-each
             else if (types.asSuper(exprType, syms.iterableType.tsym) != null) {
+                if (inBindContext) {
+                    log.error(clause.getSequenceExpression().pos(), MsgSym.MESSAGE_JAVAFX_FOR_OVER_ITERABLE_DISALLOWED_IN_BIND);
+                }
                 Type base = types.asSuper(exprType, syms.iterableType.tsym);
                 List<Type> iterableParams = base.allparams();
                 if (iterableParams.isEmpty()) {
@@ -1196,7 +1199,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
 
             if (elemtype == syms.errType) {
-                log.error(((JFXTree)(clause.getSequenceExpression())).pos(), MsgSym.MESSAGE_FOREACH_NOT_APPLICABLE_TO_TYPE);
+                log.error(clause.getSequenceExpression().pos(), MsgSym.MESSAGE_FOREACH_NOT_APPLICABLE_TO_TYPE);
             } else if (elemtype == syms.botType || elemtype == syms.unreachableType) {
                 elemtype = syms.objectType;
             } else {
