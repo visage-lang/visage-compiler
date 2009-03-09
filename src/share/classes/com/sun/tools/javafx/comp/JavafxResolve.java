@@ -561,9 +561,15 @@ public class JavafxResolve {
             else
                 envClass = null;
             if (envClass != null) {
+                //first try resolution without boxing
                 sym = findMember(env1, envClass, name,
                         expected,
-                        true, false, false);
+                        false, false, false);
+                //if not resolved yet, retry with boxing enabled
+                if (sym.kind >= WRONG_MTHS)
+                    sym = findMember(env1, envClass, name,
+                            expected,
+                            true, false, false);
 
                 if (sym.exists()) {
                     if (staticOnly) {
@@ -938,9 +944,7 @@ public class JavafxResolve {
                     else if (e.sym != bestSoFar)
                         bestSoFar = new AmbiguityError(bestSoFar, e.sym);
                 }
-                else if (e.sym.kind == MTH) {
-                    if (isExactMatch(mtype, e.sym))
-                        return e.sym;
+                else if (e.sym.kind == MTH) {                    
                     bestSoFar = selectBest(env, site, mtype,
                                            e.sym, bestSoFar,
                                            allowBoxing,

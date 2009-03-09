@@ -2337,10 +2337,10 @@ public class JavafxAttr implements JavafxVisitor {
             operand = setBinaryTypes(tree.getFXTag(), tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
         }
 
-        // Find operator.
-        Symbol operator = tree.operator = rs.resolveBinaryOperator(
-            tree.pos(), tree.getNormalOperatorFXTag(), env,
-            owntype, operand);
+        // Find operator.        
+        Symbol operator = tree.operator = attribBinop(
+            tree.pos(), tree.getNormalOperatorFXTag(),
+            owntype, operand, env);
 
         if (operator.kind == MTH) {
             if (operator instanceof OperatorSymbol) {
@@ -2437,7 +2437,10 @@ public class JavafxAttr implements JavafxVisitor {
         }
         ***/
 
-        Symbol sym =  rs.resolveUnaryOperator(tree.pos(), tree.getFXTag(), env, argtype);
+        Symbol sym =  rs.resolveUnaryOperator(tree.pos(),
+                tree.getFXTag(),
+                env,
+                types.unboxedTypeOrType(argtype));
         Type owntype = syms.errType;
         if (sym instanceof OperatorSymbol) {
             // Find operator.
@@ -2501,6 +2504,19 @@ public class JavafxAttr implements JavafxVisitor {
         return newType;
     }
 
+    public Symbol attribBinop(DiagnosticPosition pos, JavafxTag tag, Type left, Type right, JavafxEnv<JavafxAttrContext> env) {
+        boolean isEq = tag == JavafxTag.EQ || tag == JavafxTag.NE;
+        //comparson operators == and != should work in the sequence vs. non-sequence
+        //case - resolution of comparison operators works over non-sequence types
+        Type leftUnboxed = (isEq && types.isSequence(left)) ?
+            types.elementType(left) :
+            types.unboxedTypeOrType(left);
+        Type rightUnboxed = (isEq && types.isSequence(right)) ?
+            types.elementType(right) :
+            types.unboxedTypeOrType(right);
+        return rs.resolveBinaryOperator(pos, tag, env, leftUnboxed, rightUnboxed);
+    }
+
     @Override
     public void visitBinary(JFXBinary tree) {
         // Attribute arguments.
@@ -2532,12 +2548,8 @@ public class JavafxAttr implements JavafxVisitor {
             JFXVar rhsVarTree = varSymToTree.get(rhsSym);
             right = setBinaryTypes(tree.getFXTag(), tree.rhs, rhsVarTree, rhsSym.type, rhsSym);
         }
-        boolean isEq = tree.getOperatorTag() == JFXTree.EQ || tree.getOperatorTag() == JFXTree.NE;
-        //comparson operators == and != should work in the sequence vs. non-sequence
-        //case - resolution of comparison operators works over non-sequence types
-        Symbol sym = rs.resolveBinaryOperator(tree.pos(), tree.getFXTag(), env,
-            (isEq && types.isSequence(left)) ? types.elementType(left) : left,
-            (isEq && types.isSequence(right)) ? types.elementType(right) : right);
+        
+        Symbol sym = attribBinop(tree.pos(), tree.getFXTag(), left, right, env);
         Type owntype = syms.errType;
         if (sym instanceof OperatorSymbol) {
             // Find operator.

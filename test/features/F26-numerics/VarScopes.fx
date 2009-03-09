@@ -89,9 +89,10 @@ public class VarScopes extends FXTestCase {
 
     function testDoubleVariables() {
         var d3 : Double = 2.71828183;
-        assertEquals(2.71828183 as Double, d3, 0);
-        assertEquals(2.71828183 as Double, d2, 0);
-        assertEquals(2.71828183 as Double, d1, 0);
+        var temp : Double;
+        assertEquals(temp = 2.71828183, d3, 0);
+        assertEquals(temp = 2.71828183, d2, 0);
+        assertEquals(temp = 2.71828183, d1, 0);
     }
 
     function testCharacterSequence() {

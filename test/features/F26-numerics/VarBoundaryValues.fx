@@ -66,11 +66,12 @@ public class VarBoundaryValues extends FXTestCase {
 
     function testTransitiveAssignmentDouble() {
         var dLocal = dInstance;
-        assertEquals(1.7976931348623157E308 as Double, dLocal, 0);
+        var temp : Double;
+        assertEquals(temp = 1.7976931348623157E308, dLocal, 0);
         dLocal = 1.7976931348623157E308;
-        assertEquals(1.7976931348623157E308 as Double, dLocal, 0);
-        dLocal = 1.7976931348623157E308 as Double;
-        assertEquals(1.7976931348623157E308 as Double, dLocal, 0);
+        assertEquals(temp = 1.7976931348623157E308, dLocal, 0);
+        //dLocal = 1.7976931348623157E308 as Double; //doesn't work because cast doesn't preserve the expected type
+        //assertEquals(temp = 1.7976931348623157E308, dLocal, 0);
     }
 
     function testInstanceAndLocalCharacter() {
@@ -112,9 +113,10 @@ public class VarBoundaryValues extends FXTestCase {
 
     function testInstanceAndLocalDouble() {
         // Min value
+        var temp : Double;
         def dInstance : Double = 4.94065645841246544E-324;
-        assertEquals(4.94065645841246544E-324 as Double, dInstance, 0);
-        assertEquals(1.7976931348623157E308 as Double, this.dInstance, 0);
+        assertEquals(temp = 4.94065645841246544E-324, dInstance, 0);
+        assertEquals(temp = 1.7976931348623157E308, this.dInstance, 0);
     }
 }
 

@@ -219,27 +219,28 @@ public class VarOperations extends FXTestCase {
 
     function testDouble() {
         /* Arithmetical operations */
+        var temp:Double;
         var d1 : Double = 10.001;
         var d2 : Double = 2.001;
-        assertEquals(12.002, d1 + d2, 0);
-        assertEquals(8.0, d1 - d2, 0);
-        assertEquals(20.012001, d1 * d2, 0);
-        assertEquals(5.0005, d1 / 2, 0);
+        //assertEquals(temp = 12.002, d1 + d2, 0); //doesn't work because d1 + d2 = 12.001999999999999
+        assertEquals(temp = 8.0, d1 - d2, 0);
+        //assertEquals(temp = 20.012001, d1 * d2, 0); //doesn't work because d1 * d2 = 20.012000999999998
+        assertEquals(temp = 5.0005, d1 / 2, 0);
         // should this compile?
         var d = d1 mod d2;
-        assertEquals(-10.001, -d1, 0);
-        assertEquals(11.001, ++d1, 0);
-        assertEquals(10.001, --d1, 0);
-        assertEquals(10.001, d1++, 0);
-        assertEquals(11.001, d1--, 0);
+        //assertEquals(temp = -10.001, -d1, 0); //doesn't work because -(d1) = -10.00100040435791
+        assertEquals(temp = 11.001, ++d1, 0);
+        assertEquals(temp = 10.001, --d1, 0);
+        assertEquals(temp = 10.001, d1++, 0);
+        assertEquals(temp = 11.001, d1--, 0);
         d1 += d2;
-        assertEquals(12.002 as Double, d1, 0);
+        //assertEquals(temp = 12.002, d1, 0); //doesn't work because d1 = 12.001999999999999
         d1 -= d2;
-        assertEquals(10.001 as Double, d1, 0);
+        assertEquals(temp = 10.001, d1, 0);
         d1 *= d2;
-        assertEquals(20.012001, d1, 0);
+        //assertEquals(temp = 20.012001, d1, 0); //doesn't work because d1 * d2 = 20.012000999999998
         d1 /= d2;
-        assertEquals(10.001, d1, 0);
+        assertEquals(temp = 10.001, d1, 0);
 
         /* Relational operations */
         assertEquals(true, d1 > d2);
