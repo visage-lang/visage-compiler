@@ -64,7 +64,7 @@
     <target name="jfx-clean-deploy" depends="init,-do-jfx-clean-deploy"/>
     <target name="jfx-init"/>
     <target name="jfx-sdk"       depends="init,-do-jfx-sdk"/>
-    <target name="jfx-test"      depends="test"/>
+    <target name="jfx-test"      depends="smoketest"/>
     <target name="jfx-deploy"    depends="init,-do-jfx-deploy"/>
     <target name="jfx-sdk-docs"  depends="init,-do-jfx-sdk-docs"/>
 
@@ -72,13 +72,19 @@
     <target name="help"       depends="-do-help" description="Show help on targets"/>
     <target name="binaries"   depends="jar,javafxdoc,launcher" description="Build compiler and compiler runtime binaries"/>
     <target name="test"       depends="binaries,-do-test" description="Build binaries and run tests"/>
+    <target name="smoketest"  depends="-init-smoke-test,binaries,-do-test" description="Build binaries and run smoke tests"/>
     <target name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"/>
     <target name="all"        depends="docs,test,pack-jars" description="Build and test all project artifacts"/>
     <target name="bundle"     depends="docs,pack-jars,-do-bundle" description="Build distribution bundle"/>
     <target name="clean"      depends="-do-clean" description="Remove build products"/>
 
     <!-- This can be called by the user, but it would be a NOP -->
-    <target name="init" depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-presetdef-jar"/>
+    <target name="init" depends="-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-presetdef-jar">
+        <!-- If we are building from hudson, we need to use the formatters in the junit tasks. -->
+        <condition property="use-formatters" value="true" else="false">
+            <isset property="hudson-build"/>
+        </condition>
+    </target>
 
     <!-- Deprecated targets -->
     <target name="default" depends="binaries"  description="Deprecated; use 'binaries' instead"/>
@@ -90,16 +96,27 @@
       name="help"
       name="jar"                                               description="Build compiler .jar files"
       name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
-      name="test"       depends="binaries,-do-test"            description="Build binaries and run tests"
+      name="test"       depends="binaries,-do-test"            description="Build binaries and run all tests"
+           To run a single framework/xxxTest.java, do
+               ant test -Dincludes=framework/xxxTest.java
+
+           To run a subset, say fxunit/ of the JFXCompilerTest tests, do
+               ant test -Dtest.fx.roots=test/fxunit -Dincludes=framework/FXCompilerTest.java
+
       name="docs"       depends="binaries,source-zip,-do-docs" description="Build binaries, docs, and src.zip"
       name="all"        depends="docs,test,pack-jars"          description="Build and test all project artifacts"
       name="bundle"     depends="docs,pack-jars,-do-bundle"    description="Build distribution bundle"
       name="clean"      depends="-do-clean"                    description="Remove build products"
       name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
                                description="Build and test all project artifacts with coverage"
-      name="test-single" depends="init,-do-not-recompile,compile-test-single,-pre-test-run-single,-do-test-run-single,-post-test-run-single" 
+
+      name="smoketest"         description="Run tests that interface to SDK code"
+
+      name="test-single" depends="init,-do-not-recompile,compile-test-single,-pre-test-run-single,
+                                  -do-test-run-single,-post-test-run-single" 
                                description="Run single unit test."
             E.G.   ant test-single -Dtest.fx.includes='**/jfxc2347.fx'
+            or     ant test-single -Dtest.fx.includes=jfxc2347.fx
 
 
     Your openjfx-compiler repo must be under the top level repository, ${top-repo}.
@@ -126,7 +143,6 @@
 
 
     <target name="-do-test"  depends="init,compile-test,-pre-test-run,-do-test-run,test-report,-post-test-run,-test-browse"/>
-
     <!--
        We don't build docs as part of the jfx-sdk target; the api docs that go into the SDK 
        are built by a process outside this repo.
@@ -187,14 +203,22 @@
     <target name="-do-bundle" depends="-bundle-init,-bundle-zip,-bundle-tgz"/>
 
 
-    <target name="hudson-dev" depends="all, findbugs, staticsizes, coverage-report, hudson-post-build"
+    <target name="hudson-dev" depends="-hudson-init, all, findbugs, staticsizes, coverage-report, hudson-post-build"
             description="Build and test all project artifacts for each developer push"/>
     
-    <target name="hudson-all" depends="-init-coverage, all, findbugs, staticsizes, coverage-report, hudson-post-build"
+    <target name="hudson-all" depends="-hudson-init, -init-coverage, all, findbugs, staticsizes, coverage-report, hudson-post-build"
             description="Build and test with coverage all project artifacts for nightly build"/>
 
     <target name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
             description="Build and test all project artifacts with coverage"/>
+
+    <target name="-hudson-init">
+        <!-- This must be done before init on a build done by hudson in order to tell the junit task to use 
+             the output formatters.  Hudson needs this to graph errors, but we don't want to use them from non
+             Hudson builds because they causes two copies of the result to be written to stdout.
+        -->
+        <property name="hudson-build" value="true"/>
+    </target>
 
     <target name="compiler-only" depends="jar"
             description="Build just the javafxc compiler (no bin scripts, javafxdoc, etc)"/>
@@ -578,7 +602,7 @@
         <mkdir dir="${build.test.results.dir}"/>
     </target>
 
-    <target depends="init,compile-test,-pre-test-run,-do-test-run,check-test-results" if="have.tests" name="-post-test-run">
+    <target if="have.tests" name="-post-test-run">
         <fail if="build.tests.failed">Some tests failed; see details above.</fail>
     </target>
     
@@ -1071,6 +1095,13 @@
     <target depends="init,compile" if="have.tests" name="-pre-compile-test">
         <mkdir dir="${build.test.classes.dir}"/>
     </target>
+<!--
+    The .java files in test/src/regress_java_src are used by the corresponding fx tests under test/regress/
+    These .java files are always compiled. They have no package so javac puts the .class files in
+    build/test/classes.  But when ant (I guess) is checking to see what needs to be compiled, it looks for the
+    .class files in build/test/classes/regress_java_src.  It doesn't find them there so it always recompiles them.
+-->
+
     <target depends="init,compile,-pre-compile-test" if="have.tests" name="-do-compile-test">
         <javac classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" srcdir="${test.src.dir}"/>
         <javac classpath="${javac.test.classpath}" debug="true" destdir="${build.test.classes.dir}" srcdir="${test.perf.src.dir}"/>
@@ -1116,12 +1147,53 @@
                 =======================
                 JUNIT EXECUTION SECTION
                 =======================
-            -->
+     -->
+<!--
+   Three settings control what tests are run:
+   - the filename used in the <batchtest.  (Well, the excludes and includes too, but
+     we don't really use them.)  
+     The default for this selector is "**/*Test.java" which means to run all
+     the *Test.java files.  Do 'find test -name \*Test.java to see them.
+
+   - One of these .java files is FXCompilerTest.java.  It runs all the fx tests
+     in the subdirs of test/ - features/, regress/. etc.  Which tests it runs are 
+     controlled by:
+     - test.fx.list:   A list of tests to run.  
+     - Or,
+       - test.fx.roots:  A list of root dirs containing tests to be run.
+         The default is set in project.properties.
+       - test.fx.includes:  A pattern selecting which tests under test.fx.roots to run.
+         The default is '**' which means all .fx files.
+-->
+
+    <target name="-init-smoke-test" depends="init">
+      <property name="test-sys-prop.test.fx.list" value="${test.smoke.tests}"/>
+      <property name="testFile" value="**/FXCompilerTest.java"/>
+    </target>
+
+
     <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
-        <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" showoutput="true">
+        <property name="test-sys-prop.test.fx.roots" value="${test.fx.roots}"/>
+        <condition property="testFile" value="**/*Test.java">
+           <not>
+                <isset property="testFile"/>
+           </not>
+        </condition>
+
+
+        <!-- outputtoformatters puts info into the build/test/results/TEST-*.xml files that
+             is needed by hudson jobs to track test failures.  But, it also causes the
+             results to be duplicated on stdout, so we set ${use-formatters} to false
+             on non-hudson jobs to avoid this dup.  But beware, that the output produced
+             by ant as tests are running does not include an indication of a failure 
+             causes by the OUTPUT differing from the EXPECTED.  Those failures notices
+             are produced at the end of the run.
+        -->
+        <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" 
+             fork="true" showoutput="true" outputtoformatters="${use-formatters}">
             <batchtest todir="${build.test.results.dir}">
                 <fileset dir="${test.src.dir}" excludes="${excludes}" includes="${includes}">
-                    <filename name="**/*Test.java"/>
+                    <filename name="${testFile}"/>
                 </fileset>
             </batchtest>
             <classpath>
@@ -1135,14 +1207,15 @@
             <formatter type="xml"/>
             <jvmarg line="${run.jvmargs}"/>
         </junit>
-
     </target>
+
     <target depends="init" if="have.tests" name="test-report"/>
     <target depends="init" if="netbeans.home+have.tests" name="-test-browse"/>
     <target depends="init" if="have.tests" name="-pre-test-run-single">
         <mkdir dir="${build.test.results.dir}"/>
     </target>
     <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-do-test-run-single">
+        <property name="test-sys-prop.test.fx.roots" value="${test.fx.roots}"/>
         <fail unless="test.class">Must select one file in the IDE or set test.class</fail>
         <property location="${build.test.results.dir}/TEST-${test.class}.xml" name="test.report.file"/>
         <delete file="${test.report.file}"/>
@@ -1158,6 +1231,7 @@
             </syspropertyset>
             <arg value="${test.class}"/>
             <arg value="showoutput=true"/>
+            <!--  This causes a useless dup of the result on stdout.  But without it, the OUTPUT isn't compared to EXPECTED :-( -->
             <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.BriefJUnitResultFormatter"/>
             <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,${test.report.file}"/>
         </java>
@@ -1188,8 +1262,10 @@
             </syspropertyset>
             <arg value="${test.class}"/>
             <arg value="showoutput=true"/>
+<!--  This causes a useless dup of the result on stdout.
             <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.BriefJUnitResultFormatter"/>
             <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,${test.report.file}"/>
+-->
             <jvmarg value="-Xdebug"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
             <jvmarg line="${run.jvmargs}"/>
