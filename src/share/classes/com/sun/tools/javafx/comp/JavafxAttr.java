@@ -3924,7 +3924,7 @@ public class JavafxAttr implements JavafxVisitor {
         attribExpr(tree.start, localEnv);
         for (JFXExpression e:tree.values) {
             Type keyValueType = attribExpr(e, localEnv);
-            if (keyValueType.isErroneous()  && !types.isSameType(keyValueType, syms.javafx_KeyValueType)) {
+            if (keyValueType.tag != ERROR && !types.isSameType(keyValueType, syms.javafx_KeyValueType)) {
                 log.error(e, MsgSym.MESSAGE_JAVAFX_KEYVALUE_REQUIRED);
             }
         }
