@@ -1,0 +1,4 @@
+test\should-fail\jfxc2889.fx:21: KeyFrame literals must only contain KeyValue expressions within the braces, for example: SomeVariable => SomeValue
+      at (0s) { timeline.play() }
+                ^
+1 error

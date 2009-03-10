@@ -3923,7 +3923,10 @@ public class JavafxAttr implements JavafxVisitor {
         localEnv.outer = env;
         attribExpr(tree.start, localEnv);
         for (JFXExpression e:tree.values) {
-            attribExpr(e, localEnv);
+            Type keyValueType = attribExpr(e, localEnv);
+            if (keyValueType.isErroneous()  && !types.isSameType(keyValueType, syms.javafx_KeyValueType)) {
+                log.error(e, MsgSym.MESSAGE_JAVAFX_KEYVALUE_REQUIRED);
+            }
         }
         result = check(tree, syms.javafx_KeyFrameType, VAL, pkind, pt, pSequenceness);
     }
