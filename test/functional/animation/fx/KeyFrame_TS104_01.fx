@@ -4,7 +4,7 @@
  * KeyFrame_TS104_01.fx
  * 
  * @test
- * @run/fail
+ * @run
  */
 
 /**

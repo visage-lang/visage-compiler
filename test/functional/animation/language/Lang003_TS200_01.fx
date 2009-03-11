@@ -83,11 +83,13 @@ t.play();
 
 // check after 1m
 var timer = new Timer(60000, ActionListener {
-    public function actionPerformed(e: ActionEvent) {
-		if(not (t0 < t1 and t1 < t2 and t2 < t3 and t3 < t4)) {
-			throw new AssertionError("keyFrames weren't evaluated in order");
-		}
-    }
+     public function actionPerformed(e: ActionEvent) {
+        FX.deferAction(function():Void {
+     		if(not (t0 < t1 and t1 < t2 and t2 < t3 and t3 < t4)) {
+        		throw new AssertionError("keyFrames weren't evaluated in order");
+            }
+        });
+     }
 });
 timer.setRepeats(false);
 timer.start();
