@@ -1,7 +1,7 @@
 /*
  * Timeline_TS012_02.fx
- * 
- * @test/fail
+ * @test
+ * @run/fail
  */
 
 /**
