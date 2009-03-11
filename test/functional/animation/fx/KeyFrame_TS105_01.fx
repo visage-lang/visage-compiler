@@ -5,7 +5,7 @@
  * http://openjfx.java.sun.com/jira/browse/JFXC-1516 (manually verified for now.)
  *
  * @test
- * @run/fail
+ * @run
  */
 
 /**

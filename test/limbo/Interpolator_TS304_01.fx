@@ -23,7 +23,7 @@ import com.sun.javafx.runtime.PointerFactory;
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
 		public function actionPerformed(e: ActionEvent) {
-			f();
+			FX.deferAction(f);
 		}
 	});
 	timer.setRepeats(false);

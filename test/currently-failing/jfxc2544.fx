@@ -1,8 +1,7 @@
 /**
  * Regression test JFXC-2544 : Animation: Zero frame not setup correctly
  *
- * @test
- * @run
+ * @test/fail
  */
 
 import javafx.animation.Interpolator;
