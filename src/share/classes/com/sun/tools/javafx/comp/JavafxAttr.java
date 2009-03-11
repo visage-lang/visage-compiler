@@ -2362,7 +2362,7 @@ public class JavafxAttr implements JavafxVisitor {
                                   owntype);
             }
         }
-        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        result = check(tree, operator.type.getReturnType(), VAL, pkind, owntype, pSequenceness);
 
         if (lhsSym != null && tree.rhs != null) {
             JFXVar lhsVar = varSymToTree.get(lhsSym);
