@@ -179,6 +179,10 @@ public abstract class JavafxTranslationSupport {
         return names.fromString(name.toString() + mixinSuffix);
     }
 
+    protected boolean isMixinClass(ClassSymbol sym) {
+        return (sym.flags_field & JavafxFlags.MIXIN) != 0;
+    }
+    
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, Name aName) {
         String str = aName.toString();
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {

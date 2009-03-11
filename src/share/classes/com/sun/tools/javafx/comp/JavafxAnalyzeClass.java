@@ -56,7 +56,6 @@ class JavafxAnalyzeClass {
     private final ClassSymbol currentClassSym;
     private final ListBuffer<VarInfo> attributeInfos = ListBuffer.lb();
     private final Map<String,MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
-    private final Map<Name, VarInfo> translatedAttributes = new HashMap<Name, VarInfo>();
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     private final Set<Symbol> addedBaseClasses = new HashSet<Symbol>();
     private final List<TranslatedVarInfo> translatedAttrInfo;
@@ -73,6 +72,7 @@ class JavafxAnalyzeClass {
         private final JCStatement initStmt;
         private final boolean isDirectOwner;
         private boolean needsCloning;
+        private VarInfo proxyVar;
         
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt, boolean isDirectOwner) {
@@ -128,12 +128,32 @@ class JavafxAnalyzeClass {
             return needsCloning;
         }
         
+        public VarInfo proxyVar() {
+            return proxyVar;
+        }
+
+        public boolean hasProxyVar() {
+            return proxyVar != null;
+        }
+        
+        public VarSymbol proxyVarSym() {
+            return hasProxyVar() ? proxyVar.sym : sym;
+        }
+
+        public void setProxyVar(VarInfo proxyVar) {
+            this.proxyVar = proxyVar;
+        }
+
         public boolean isStatic() {
             return (getFlags() & Flags.STATIC) != 0;
         }
 
         public boolean isDef() {
             return (getFlags() & JavafxFlags.IS_DEF) != 0;
+        }
+
+        public boolean isMixinVar() {
+            return (sym.owner.flags() & JavafxFlags.MIXIN) != 0;
         }
 
         public VarMorphInfo getVMI() {
@@ -181,8 +201,6 @@ class JavafxAnalyzeClass {
         JCBlock onReplaceTranslatedBody() { return onReplaceTranslatedBody; }       
     }  
     
-    
-    
   
     static class TranslatedOverrideClassVarInfo extends VarInfo {
         private final JFXOnReplace onReplace;
@@ -218,14 +236,59 @@ class JavafxAnalyzeClass {
         
         this.translatedAttrInfo = translatedAttrInfo;
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            translatedAttributes.put(tai.getName(), tai);
+            visitedAttributes.put(tai.getName(), tai);
         }
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
-            translatedAttributes.put(tai.getName(), tai);
+            visitedAttributes.put(tai.getName(), tai);
         }
 
         // do the analysis
         process(currentClassSym, true);
+        
+        if (false) {
+            System.out.println("process : " + currentClassSym);
+            
+            System.out.println("  translatedAttrInfo");
+            for (TranslatedVarInfo ai : translatedAttrInfo) {
+                System.out.println("    " + ai.getSymbol() +
+                                   ", owner=" + ai.getSymbol().owner +
+                                   ", static=" + ai.isStatic() +
+                                   ", needsCloning=" + ai.needsCloning() + 
+                                   ", isDef=" + ai.isDef() +
+                                   ", getDefaultInitStatement=" + (ai.getDefaultInitStatement() != null) +
+                                   ", isDirectOwner=" + ai.isDirectOwner());
+            }
+            
+            System.out.println("  translatedOverrideAttrInfo");
+            for (TranslatedOverrideClassVarInfo ai : translatedOverrideAttrInfo) {
+                System.out.println("    " + ai.getSymbol() +
+                                   ", owner=" + ai.getSymbol().owner +
+                                   ", static=" + ai.isStatic() +
+                                   ", needsCloning=" + ai.needsCloning() + 
+                                   ", isDef=" + ai.isDef() +
+                                   ", getDefaultInitStatement=" + (ai.getDefaultInitStatement() != null) +
+                                   ", isDirectOwner=" + ai.isDirectOwner());
+            }
+            
+            System.out.println("  attributeInfos");
+            for (VarInfo ai : attributeInfos) {
+                System.out.println("    " + ai.getSymbol() +
+                                   ", owner=" + ai.getSymbol().owner +
+                                   ", static=" + ai.isStatic() +
+                                   ", needsCloning=" + ai.needsCloning() + 
+                                   ", isDef=" + ai.isDef() +
+                                   ", getDefaultInitStatement=" + (ai.getDefaultInitStatement() != null) +
+                                   ", isDirectOwner=" + ai.isDirectOwner());
+            }
+            
+            System.out.println("  needDispatchMethods");
+            for (MethodSymbol m : needDispatch()) {
+                System.out.println("    " + m);
+            }
+             
+            System.out.println();
+            System.out.println();
+        }
     }
 
     public List<VarInfo> instanceAttributeInfos() {
@@ -281,11 +344,6 @@ class JavafxAnalyzeClass {
 
             // get the corresponding AST, null if from class file
             if (cDecl == null) {
-                for (Type supertype : cSym.getInterfaces()) {
-                    ClassSymbol iSym = (ClassSymbol) supertype.tsym;
-                    process(iSym, cloneVisible);
-                }
-            
                 if ((cSym.flags_field & Flags.INTERFACE) == 0 && cSym.members() != null) {
                     //TODO: fiz this hack back to the above. for some reason the order of symbols within a scope is inverted
                     ListBuffer<Symbol> reversed = ListBuffer.lb();
@@ -299,10 +357,12 @@ class JavafxAnalyzeClass {
                             processAttribute((VarSymbol) mem, cSym, cloneVisible);
                     }
                 }
-            } else {
-                for (JFXExpression supertype : cDecl.getSupertypes()) {
-                    process(supertype.type.tsym, cloneVisible);
+                
+                for (Type supertype : cSym.getInterfaces()) {
+                    ClassSymbol iSym = (ClassSymbol) supertype.tsym;
+                    process(iSym, cloneVisible);
                 }
+            } else {
                 for (JFXTree def : cDecl.getMembers()) {
                     if (def.getFXTag() == JavafxTag.VAR_DEF) {
                         processAttribute((VarSymbol)(((JFXVar) def).sym), cDecl.sym, cloneVisible);
@@ -310,33 +370,12 @@ class JavafxAnalyzeClass {
                         processMethod(((JFXFunctionDefinition) def).sym);
                     }
                 }
+                
+                for (JFXExpression supertype : cDecl.getSupertypes()) {
+                    process(supertype.type.tsym, cloneVisible);
             }
         }
     }
-
-    private VarInfo addAttribute(Name attrName, VarSymbol sym, boolean needsCloning) {
-        VarInfo attrInfo = translatedAttributes.get(attrName);
-        
-        // If attribute is a duplicate then select mixins with caution.
-        boolean oldIsMixin = attrInfo != null && (attrInfo.sym.owner.flags() & JavafxFlags.MIXIN) != 0;
-        boolean newIsMixin = (sym.owner.flags() & JavafxFlags.MIXIN) != 0;
-        
-        // normal override 
-        if (attrInfo == null || attrInfo.getSymbol() != sym) {
-            attrInfo = new VarInfo(diagPos,
-                    attrName,
-                    sym, typeMorpher.varMorphInfo(sym), null, sym.owner == currentClassSym);
-        }
-        
-        attrInfo.setNeedsCloning(needsCloning || attrInfo.isDirectOwner());
-        
-        if (attrInfo == null && !oldIsMixin && newIsMixin) {
-            attributeInfos.prepend(attrInfo);
-        } else {
-            attributeInfos.append(attrInfo);
-        }
-        
-        return attrInfo;
     }
 
     private void processMethodFromClassFile(MethodSymbol meth, ClassSymbol cSym, boolean cloneVisible) {
@@ -363,10 +402,28 @@ class JavafxAnalyzeClass {
     private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean cloneVisible) {
         if (var.owner.kind == Kinds.TYP && (var.flags() & Flags.STATIC) == 0) {
             Name attrName = var.name;
-            VarInfo ai = addAttribute(attrName, var, cloneVisible);
-            if ((var.flags() & PRIVATE) == 0) {
-                visitedAttributes.put(attrName, ai);
+            VarInfo oldAttrInfo = visitedAttributes.get(attrName);
+            
+            // If attribute is a duplicate then select mixins with caution.
+            boolean needsProxy = false;
+            if (oldAttrInfo != null) {
+                boolean oldIsMixin = oldAttrInfo.isMixinVar();
+                boolean newIsMixin = (var.owner.flags() & JavafxFlags.MIXIN) != 0;
+                needsProxy = !oldIsMixin && newIsMixin;
             }
+            
+            // normal override
+            VarInfo newAttrInfo = oldAttrInfo;
+            if (oldAttrInfo == null || oldAttrInfo.getSymbol() != var) {
+                newAttrInfo = new VarInfo(diagPos, attrName, var, typeMorpher.varMorphInfo(var), null,
+                                          var.owner == currentClassSym);
+            }
+            
+            if (needsProxy) newAttrInfo.setProxyVar(oldAttrInfo);
+            
+            newAttrInfo.setNeedsCloning(cloneVisible || newAttrInfo.isDirectOwner());
+            attributeInfos.append(newAttrInfo);
+            visitedAttributes.put(attrName, newAttrInfo);
         }
     }
 
