@@ -43,7 +43,7 @@ import static com.sun.tools.javac.code.Kinds.*;
  */
 public class BlockExprResolve extends Resolve {
     BlockExprMemberEnter memberEnter;
-    String interfaceNameSuffix = "$Intf";
+    String mixinNameSuffix = "$Mixin";
     public static Resolve instance0(Context context) {
         Resolve instance = context.get(resolveKey);
         if (instance == null)
@@ -92,7 +92,7 @@ public class BlockExprResolve extends Resolve {
             if (!site.isErroneous() &&
                 !Type.isErroneous(argtypes) &&
                 (typeargtypes==null || !Type.isErroneous(typeargtypes)))
-                if (!(memberEnter.resolvingImport && name.toString().endsWith(interfaceNameSuffix))) {
+                if (!(memberEnter.resolvingImport && name.toString().endsWith(mixinNameSuffix))) {
                     ((ResolveError)sym).report(log, pos, site, name, argtypes, typeargtypes);
                 }
             do {

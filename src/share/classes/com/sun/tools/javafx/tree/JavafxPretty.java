@@ -733,6 +733,7 @@ public class JavafxPretty implements JavafxVisitor {
             println();
             align();
             printDocComment(tree);
+            printFlags(tree.getModifiers().flags);
             print("class ");
             Name n = tree.getName();
             print(n == null ? "<anonymous>" : n);

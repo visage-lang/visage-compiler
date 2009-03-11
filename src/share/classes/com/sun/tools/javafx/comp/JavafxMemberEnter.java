@@ -725,6 +725,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
     }
 
+
 /* ********************************************************************
  * Source completer
  *********************************************************************/
@@ -777,36 +778,37 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
             // create an environment for evaluating the base clauses
             JavafxEnv<JavafxAttrContext> baseEnv = baseEnv(tree, localEnv);
-            //TODO: solesupertype implies a bug
-            Type supertype = null, solesupertype = null;  
+            Type supertype = null;  
             ListBuffer<Type> interfaces = new ListBuffer<Type>();
             Set<Type> interfaceSet = new HashSet<Type>();
+            Set<Type> mixinSet = new HashSet<Type>();
             {
-                ListBuffer<JFXExpression> extending = ListBuffer.<JFXExpression>lb();
+                ListBuffer<JFXExpression> extending    = ListBuffer.<JFXExpression>lb();
                 ListBuffer<JFXExpression> implementing = ListBuffer.<JFXExpression>lb();
-                boolean compound = (tree.getModifiers().flags & Flags.FINAL) == 0;
+                ListBuffer<JFXExpression> mixing       = ListBuffer.<JFXExpression>lb();
                 for (JFXExpression stype : tree.getSupertypes()) {
                     Type st = attr.attribType(stype, localEnv);
                     
                     if (st.isInterface()) {
                         implementing.append(stype);
                     } else {
-                        solesupertype = extending.isEmpty() ? st : null;
-                        extending.append(stype); 
-                        if ((st.tsym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0) {
-                            compound = false;
-                            supertype = st;
-                        }
-                        else {
-                            interfaces.append(st);
-                            chk.checkNotRepeated(stype.pos(), types.erasure(st), interfaceSet);
+                        long flags = st.tsym.flags_field;
+                        boolean isMixin = (flags & JavafxFlags.MIXIN) != 0;
+                       
+                        if (isMixin) {
+                            mixing.append(stype);
+                            chk.checkNotRepeated(stype.pos(), types.erasure(st), mixinSet);
+                        } else {
+                            supertype = extending.isEmpty() ? st : null;
+                            extending.append(stype);
                         }
                     }
                 }
-                if (compound)
-                    c.flags_field |= JavafxFlags.COMPOUND_CLASS;
-                        
-                tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList());
+
+                if ((sym.flags() & JavafxFlags.MIXIN) != 0)
+                    c.flags_field |= JavafxFlags.MIXIN;
+
+                tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList(), mixing.toList());
             }
             
             if (supertype == null)
@@ -861,15 +863,15 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                     new VarSymbol(FINAL | HASINIT, names._this, c.type, c);
                 thisSym.pos = Position.FIRSTPOS;
                 localEnv.info.scope.enter(thisSym);
-                if (ct.supertype_field.tag == CLASS && solesupertype != null) {
+                if (ct.supertype_field.tag == CLASS && supertype != null) {
                     VarSymbol superSym =
                         new VarSymbol(FINAL | HASINIT, names._super,
-                                      solesupertype, c);
+                                      supertype, c);
                     superSym.pos = Position.FIRSTPOS;
                     localEnv.info.scope.enter(superSym);
                 }
             }
-
+            
             // check that no package exists with same fully qualified name,
             // but admit classes in the unnamed package which have the same
             // name as a top-level package.

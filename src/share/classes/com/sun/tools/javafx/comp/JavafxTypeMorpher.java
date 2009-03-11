@@ -355,10 +355,10 @@ public class JavafxTypeMorpher {
             List<Type> newActuals = List.nil();
             for (Type t : actuals) {
                 if ((t.tsym instanceof ClassSymbol) &&
-                        (t.tsym.flags_field & COMPOUND_CLASS) != 0) {
+                        (t.tsym.flags_field & MIXIN) != 0) {
                     String str = t.tsym.name.toString().replace("$", ".");
                     ClassSymbol csym = new JavafxClassSymbol(0, names.fromString(str), t.tsym.owner);
-                    csym.flags_field |= COMPOUND_CLASS;
+                    csym.flags_field |= MIXIN;
                     Type tp = new ClassType(Type.noType, List.<Type>nil(), csym);
                     newActuals = newActuals.append(tp);
                     break;

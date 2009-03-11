@@ -28,6 +28,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Scope;
@@ -38,10 +39,11 @@ import com.sun.tools.javac.code.Scope;
 public class JFXClassDeclaration extends JFXExpression implements ClassDeclarationTree {
     public final JFXModifiers mods;
     private final Name name;
-    private List<JFXExpression> extending = null;
+    private List<JFXExpression> extending    = null;
     private List<JFXExpression> implementing = null;
+    private List<JFXExpression> mixing       = null;
     private List<JFXTree> defs;
-    private final List<JFXExpression> supertypes;
+    private List<JFXExpression> supertypes;
 
     public ClassSymbol sym;
     
@@ -103,13 +105,31 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         return extending;
     }
 
-    public void setDifferentiatedExtendingImplementing(List<JFXExpression> extending, List<JFXExpression> implementing) {
-        this.extending = extending;
+    public List<JFXExpression> getMixing() {
+        return mixing;
+    }
+
+    public void setDifferentiatedExtendingImplementing(List<JFXExpression> extending,
+                                                       List<JFXExpression> implementing,
+                                                       List<JFXExpression> mixing) {
+        this.extending    = extending;
         this.implementing = implementing;
+        this.mixing       = mixing;
+        
+        // JFXC-2820 - Reorder the supertypes during attribution.
+        ListBuffer<JFXExpression> orderedSuperTypes = new ListBuffer<JFXExpression>();
+        
+        // Add supers according to declaration and normal, mixin and interface constraints.
+        for (JFXExpression extend    : extending)    orderedSuperTypes.append(extend);
+        for (JFXExpression mixin     : mixing)       orderedSuperTypes.append(mixin);
+        for (JFXExpression implement : implementing) orderedSuperTypes.append(implement);
+        
+        // Replace supertypes so that all references use the correct ordering.
+        supertypes = orderedSuperTypes.toList();
     }
     
-    public boolean generateClassOnly () {
-        return (sym.flags_field & JavafxFlags.COMPOUND_CLASS) == 0;
+    public boolean isMixinClass() {
+        return (sym.flags_field & JavafxFlags.MIXIN) != 0;
     }
 
     @Override
@@ -143,5 +163,9 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
 
     public java.util.List<ExpressionTree> getExtends() {
         return convertList(ExpressionTree.class, extending);
+    }
+
+    public java.util.List<ExpressionTree> getMixins() {
+        return convertList(ExpressionTree.class, mixing);
     }
 }

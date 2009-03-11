@@ -21,7 +21,7 @@ class Square extends MyRect {
    protected var atProt : String;
 };
 
-class Simple extends Square, java.lang.Object {
+class Simple extends Square {
    public var at1;
    public var func : function(:String) : function();
 };
@@ -29,20 +29,20 @@ class Simple extends Square, java.lang.Object {
 //function run( ) {
 var clsSquare = context.findClass("Main.Square");
 var clsMyRect = context.findClass("MyRect");
-System.out.println("clsSquare={clsSquare} jfx-class:{clsSquare.isJfxType()} compound:{clsSquare.isCompoundClass()}");
+System.out.println("clsSquare={clsSquare} jfx-class:{clsSquare.isJfxType()} mixin:{clsSquare.isMixin()}");
 System.out.println("Sq.super: {clsSquare.getSuperClasses(false)}");
 
 var smpl = Simple {};
 var smplRef = context.mirrorOf(smpl);
 var clsSimple = smplRef.getType();
-System.out.println("clsSimple={clsSimple} jfx-class:{clsSimple.isJfxType()}  compound:{clsSimple.isCompoundClass()}");
+System.out.println("clsSimple={clsSimple} jfx-class:{clsSimple.isJfxType()} mixin:{clsSimple.isMixin()}");
 System.out.println("Simpl.super: {clsSimple.getSuperClasses(false)}");
 System.out.println("Simpl.super (inherited also):");
 for (cls in clsSimple.getSuperClasses(true))
     System.out.println("  {cls}");
 
 var clsString = context.findClass("java.lang.String");
-System.out.println("clsString={clsString} jfx-class:{clsString.isJfxType()} compound:{clsString.isCompoundClass()}");
+System.out.println("clsString={clsString} jfx-class:{clsString.isJfxType()} mixin:{clsString.isMixin()}");
 
 System.out.println("String .super (direct only):");
 for (cls in clsString.getSuperClasses(false))

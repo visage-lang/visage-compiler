@@ -174,11 +174,15 @@ public abstract class JavafxTranslationSupport {
      * */
     protected Name interfaceName(JFXClassDeclaration cDecl) {
         Name name = cDecl.getName();
-        if (cDecl.generateClassOnly())
+        if (!cDecl.isMixinClass())
             return name;
-        return names.fromString(name.toString() + interfaceSuffix);
+        return names.fromString(name.toString() + mixinSuffix);
     }
 
+    protected boolean isMixinClass(ClassSymbol sym) {
+        return (sym.flags_field & JavafxFlags.MIXIN) != 0;
+    }
+    
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, Name aName) {
         String str = aName.toString();
         if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
@@ -276,7 +280,7 @@ public abstract class JavafxTranslationSupport {
                     throw new RuntimeException("TYPEVAR: " + owner.type);
                 }
                 if (makeIntf) {
-                    name = names.fromString(name.toString() + interfaceSuffix);
+                    name = names.fromString(name.toString() + mixinSuffix);
                 }
                 break;
             default:
@@ -325,12 +329,13 @@ public abstract class JavafxTranslationSupport {
         switch (t.tag) {
             case TypeTags.CLASS: {
                 JCExpression texp = null;
+                boolean isMixin = types.isMixin(t.tsym);
 
-                if (makeIntf && types.isCompoundClass(t.tsym)) {
+                if (makeIntf && isMixin) {
                     texp = makeAccessExpression(diagPos, t.tsym, true);
                 } else {
                     if (t.isCompound()) {
-                        t = syms.objectType;
+                        t = types.supertype(t);
                     }
                     texp = makeAccessExpression(diagPos, t.tsym, false);
                 }
@@ -607,10 +612,13 @@ public abstract class JavafxTranslationSupport {
             return sym.name;
         }
         String sname = sym.name.toString();
-        long privateAccess = sym.flags() & (Flags.PRIVATE | JavafxFlags.SCRIPT_PRIVATE);
-        if ((sym.flags() & STATIC) == 0L
-                && privateAccess != 0L // private or script-private
-                && types.isCompoundClass(owner)) {
+        // JFXC-2837 - Mixins: script-private vars no longer hidden -- var with same name as
+        // var in subclass, but with different type fails
+        long flags = sym.flags();
+        boolean isStatic = (flags & STATIC) != 0;
+        boolean privateAccess = (flags & JavafxFlags.JavafxInstanceVarFlags &
+                                         ~(JavafxFlags.SCRIPT_PRIVATE | Flags.PRIVATE)) == 0L;
+        if (!isStatic && privateAccess && types.isJFXClass(owner)) {
             // mangle name to hide it
             sname = owner.toString().replace('.', '$') + '$' + sname;
         }

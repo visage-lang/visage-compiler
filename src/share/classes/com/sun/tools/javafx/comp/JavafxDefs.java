@@ -48,13 +48,15 @@ public class JavafxDefs {
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeSetMethodParamNameString = "value";
     public static final String needsDefaultSuffix = "$needs_default$";
-    public static final String interfaceSuffix = "$Intf";
+    public static final String mixinSuffix = "$Mixin";
+    public static final String deprecatedInterfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
     public static final String scriptBindingExpressionsString = "com.sun.javafx.runtime.location.ScriptBindingExpressions";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
+    public static final String fxMixinString = "com.sun.javafx.runtime.FXMixin";
     public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfo";
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
@@ -105,7 +107,9 @@ public class JavafxDefs {
      * Name definitions
      */
     public final Name fxObjectName;
-    public final Name interfaceSuffixName;
+    public final Name fxMixinName;
+    public final Name mixinSuffixName;
+    public final Name deprecatedInterfaceSuffixName;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
     final Name mainName;
@@ -207,7 +211,9 @@ public class JavafxDefs {
         final JavafxSymtab syms = (JavafxSymtab)(JavafxSymtab.instance(context));
 
         fxObjectName = names.fromString(fxObjectString);
-        interfaceSuffixName = names.fromString(interfaceSuffix);
+        fxMixinName = names.fromString(fxMixinString);
+        mixinSuffixName = names.fromString(mixinSuffix);
+        deprecatedInterfaceSuffixName = names.fromString(deprecatedInterfaceSuffix);
         userRunFunctionName = names.fromString("run");
         internalRunFunctionName = names.fromString(internalRunFunctionNameString);
         mainName = names.fromString("main");

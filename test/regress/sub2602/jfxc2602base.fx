@@ -5,6 +5,6 @@
  */
 
 package sub2602;
-public class jfxc2602base {
+public mixin class jfxc2602base {
   public-read protected var minimumWidth:Number = 0; 
 }

@@ -168,7 +168,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
-    private JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
+    JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
 
     /** Class symbols for classes that need a reference to the outer class. */
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
@@ -681,7 +681,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitScript(JFXScript tree) {
-        // add to the hasOuters set the clas symbols for classes that need a reference to the outer class
+        // add to the hasOuters set the class symbols for classes that need a reference to the outer class
         fillClassesWithOuters(tree);
 
         ListBuffer<JCTree> translatedDefinitions = ListBuffer.lb();
@@ -815,7 +815,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
-            boolean classOnly = tree.generateClassOnly();
+            boolean isMixinClass = tree.isMixinClass();
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList());
             additionalImports.appendList(model.additionalImports);
 
@@ -823,7 +823,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             // include the interface only once
             if (!tree.hasBeenTranslated) {
-                if (! classOnly) {
+                if (isMixinClass) {
                     JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.INTERFACE);
                     mods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, mods);
 
@@ -837,8 +837,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             translatedDefs.appendList(model.additionalClassMembers);
-
-            {
+            
+            if (!isMixinClass) {
                 // Add the userInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
@@ -851,8 +851,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     if (types.isJFXClass(symbol)) {
                         ClassSymbol cSym = (ClassSymbol) symbol;
                         String className = cSym.fullname.toString();
-                        if (className.endsWith(interfaceSuffix)) {
-                            className = className.substring(0, className.length() - interfaceSuffix.length());
+                        if (className.endsWith(mixinSuffix)) {
+                            className = className.substring(0, className.length() - mixinSuffix.length());
                         }
 
                         if (!dupSet.contains(className)) {
@@ -867,7 +867,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
                 JCBlock userInitBlock = make.Block(0L, initStats.toList());
                 translatedDefs.append(make.MethodDef(
-                        make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
+                        make.Modifiers(classIsFinal? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC)),
                         defs.userInitName,
                         makeTypeTree( null,syms.voidType),
                         List.<JCTypeParameter>nil(),
@@ -876,7 +876,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         userInitBlock,
                         null));
             }
-            {
+            if (!isMixinClass) {
                 // Add the userPostInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
@@ -889,8 +889,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     if (types.isJFXClass(symbol)) {
                         ClassSymbol cSym = (ClassSymbol) symbol;
                         String className = cSym.fullname.toString();
-                        if (className.endsWith(interfaceSuffix)) {
-                            className = className.substring(0, className.length() - interfaceSuffix.length());
+                        if (className.endsWith(mixinSuffix)) {
+                            className = className.substring(0, className.length() - mixinSuffix.length());
                         }
 
                         if (!dupSet.contains(className)) {
@@ -905,7 +905,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
                 JCBlock postInitBlock = make.Block(0L, initStats.toList());
                 translatedDefs.append(make.MethodDef(
-                        make.Modifiers(classIsFinal? Flags.PUBLIC  : Flags.PUBLIC | Flags.STATIC),
+                        make.Modifiers(classIsFinal? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC)),
                         defs.postInitName,
                         makeTypeTree( null,syms.voidType),
                         List.<JCTypeParameter>nil(),
@@ -916,28 +916,33 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             }
 
             if (tree.isScriptClass) {
-                // JFXC-1888: Do *not* add main method! 
-                // com.sun.javafx.runtime.Main has the 
-                // "main" that will call Entry.start().
-                // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                if (!isMixinClass) {
+                   // JFXC-1888: Do *not* add main method! 
+                   // com.sun.javafx.runtime.Main has the 
+                   // "main" that will call Entry.start().
+                   // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                }
                 
                 // Add binding support
                 translatedDefs.appendList(toBound.scriptComplete(tree.pos()));
             }
 
             // build the list of implemented interfaces
-            List<JCExpression> implementing;
-            if (classOnly) {
-                implementing = model.interfaces;
-            }
-            else {
-                implementing = List.of(make.Ident(model.interfaceName), makeIdentifier(diagPos, fxObjectString));
-            }
+            List<JCExpression> implementing = model.interfaces;
 
-            long flags = tree.mods.flags & (Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.FINAL | Flags.ABSTRACT);
+            // Class must be visible for reflection.
+            long flags = tree.mods.flags & (Flags.FINAL | Flags.ABSTRACT | Flags.SYNTHETIC);
+            if ((flags & Flags.SYNTHETIC) == 0) {
+                flags |= Flags.PUBLIC;
+            }
             if (tree.sym.owner.kind == Kinds.TYP) {
                 flags |= Flags.STATIC;
             }
+            // JFXC-2831 - Mixins should be abstract.
+            if (tree.sym.kind == Kinds.TYP && isMixinClass) {
+                flags |= Flags.ABSTRACT;
+            }
+
             JCModifiers classMods = make.at(diagPos).Modifiers(flags);
             classMods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, classMods);
 
@@ -1383,6 +1388,12 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // It is a member variable
                 if (instanceName == null) {
                     varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
+                } else if (!types.isMixin(vsym.owner) && !requiresLocation(vsym) &&
+                // TODO JFXC-2836 - figure out why requiresLocation isn't sufficient for external setting.
+                           vsym.owner == currentClass.sym) { 
+                    // Direct access.
+                    JCExpression tc = make.at(diagPos).Ident(instanceName); 
+                    varRef = make.at(diagPos).Select(tc, attributeFieldName(vsym)); 
                 } else {
                     JCExpression tc = make.at(diagPos).Ident(instanceName);
                     final Name setter = attributeSetterName(vsym);
@@ -1619,7 +1630,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         translationState = null; //should be explicitly set
 
         try {
-            boolean classOnly = currentClass.generateClassOnly();
+            boolean isMixinClass = currentClass.isMixinClass();
             // Made all the operations public. Per Brian's spec.
             // If they are left package level it interfere with Multiple Inheritance
             // The interface methods cannot be package level and an error is reported.
@@ -1628,13 +1639,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             flags &= ~Flags.PROTECTED;
             if ((tree.mods.flags & Flags.PRIVATE) == 0)
                 flags |=  Flags.PUBLIC;
-            if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && !classOnly) {
+            if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && isMixinClass) {
                 flags |= Flags.STATIC;
             }
             flags &= ~Flags.SYNTHETIC;
             JCModifiers mods = make.Modifiers(flags);
             final boolean isRunMethod = syms.isRunMethod(tree.sym);
-            final boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0L && !isRunMethod && !classOnly;
+            final boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0L && !isRunMethod && isMixinClass;
 
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType)tree.type;
@@ -1659,7 +1670,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
             if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
-                if (classOnly) {
+                if (!isMixinClass) {
                     // all implementation code is generated assuming a receiver parameter.
                     // in the final class case, there is no receiver param, so allow generated code
                     // to function by adding:   var receiver = this;
@@ -2010,14 +2021,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             result = rcvr;
             return;
         } else if (tree.name == names._super) {
-            if (types.isCompoundClass(tree.type.tsym)) {
+            if (types.isMixin(tree.type.tsym)) {
                 // "super" become just the class where the static implementation method is defined
                 //  the rest of the implementation is in visitFunctionInvocation
                 result = make.at(diagPos).Ident(tree.type.tsym.name);
-            }
-            else {
-               JCFieldAccess superSelect = make.at(diagPos).Select(make.at(diagPos).Ident(defs.receiverName), tree.name);
-                result = superSelect;
+            } else {
+                // Just use super.
+                result = make.at(diagPos).Ident(tree.name);
             }
             return;
         }
@@ -3230,8 +3240,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     selectorSym instanceof ClassSymbol &&
                     // FIXME should also allow other enclosing classes:
                     types.isSuperType(selectorSym.type, csym);
-            renameToSuper = namedSuperCall && !types.isCompoundClass(csym);
-            superToStatic = (superCall || namedSuperCall) && !renameToSuper;
+            boolean isMixinSuper = namedSuperCall && (selectorSym.flags_field & JavafxFlags.MIXIN) != 0;
+            renameToSuper = namedSuperCall && !isMixinSuper;
+            superToStatic = (superCall || namedSuperCall) && isMixinSuper;
             formals = meth.type.getParameterTypes();
             //TODO: probably move this local to the arg processing
             usesVarArgs = tree.args != null && msym != null &&
@@ -3248,7 +3259,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             magicIsInitializedFunction = (msym != null) &&
                     (msym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
-        }
+       }
     }
 
     @Override
@@ -3654,6 +3665,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 if (staticReference) {
                     // a script-level (static) variable, direct access with prefix
                     expr = switchName(diagPos, varRef, attributeFieldName(vsym));
+                } else if (!types.isMixin(vsym.owner) && !requiresLocation(vsym)) {
+                    // Direct access.
+                    expr = switchName(diagPos, varRef, attributeFieldName(vsym)); 
                 } else {
                     // an instance variable, use get$
                     JCExpression accessFunc = switchName(diagPos, varRef, attributeGetterName(vsym));

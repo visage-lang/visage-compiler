@@ -86,6 +86,7 @@ var CompilerProperties:String[] = ["compiler.err.javafx.applied.to.instance.var"
 "compiler.err.javafx.wrong.type.for.bidi.bind",
 "compiler.err.neither.conditional.subtype",
 "compiler.err.plugin.cannot.find.plugin",
+"compiler.misc.deprecated.interface.class",
 "compiler.misc.version.resource.missing",
 "compiler.misc.version.unknown",
 "compiler.note.javafx.internal.error",

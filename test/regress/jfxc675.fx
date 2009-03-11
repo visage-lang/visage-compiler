@@ -7,14 +7,14 @@
 
 import java.lang.System;
 
-public abstract class TTransformable {
+public mixin class Transform {
     public var af = 1234;
 }
 
 public abstract class TCanvasElement {
 }
 
-public abstract class TNode extends TCanvasElement, TTransformable {
+public abstract class TNode extends TCanvasElement, Transform {
 }
 
 public class TShape extends TNode {

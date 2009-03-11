@@ -1418,11 +1418,18 @@ public class JavafxAttr implements JavafxVisitor {
 
         // If we have made no mistakes in the class type...
         if (clazztype.tag == CLASS) {
-            // Check that class is not abstract
+            // Check that class is not abstract or mixin
+            long flags = clazztype.tsym.flags();
             if (cdef == null &&
-                (clazztype.tsym.flags() & (ABSTRACT | INTERFACE | JavafxFlags.MIXIN)) != 0) {
-                log.error(tree.pos(), MsgSym.MESSAGE_ABSTRACT_CANNOT_BE_INSTANTIATED,
-                          clazztype.tsym);
+                (flags & (ABSTRACT | INTERFACE | JavafxFlags.MIXIN)) != 0) {
+                if ((flags & (JavafxFlags.MIXIN)) != 0) {
+                    // JFXC-2815 - new expressions should report an error when trying to instantiate a mixin class.
+                    log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_MIXIN_CANNOT_BE_INSTANTIATED,
+                              clazztype.tsym);
+                } else {
+                    log.error(tree.pos(), MsgSym.MESSAGE_ABSTRACT_CANNOT_BE_INSTANTIATED,
+                              clazztype.tsym);
+                }
             } else if (cdef != null && clazztype.tsym.isInterface()) {
                 // Check that no constructor arguments are given to
                 // anonymous classes implementing an interface
@@ -2888,6 +2895,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
             if (!supType.isInterface() &&
                     !types.isJFXClass(supType.tsym) &&
+                    !types.isMixin(supType.tsym) &&
                     !supType.isPrimitive() &&
                     javafxClassSymbol.type instanceof ClassType) {
                 if (javaSupertypeSymbol == null) {
@@ -3685,7 +3693,18 @@ public class JavafxAttr implements JavafxVisitor {
             if (!relax)
                 chk.checkAllDefined(tree.pos(), c);
         }
+            
+        // Make sure there is only one real base class.  Others may be mixins.
+        chk.checkOneBaseClass(tree);
 
+        // If the class is a mixin 
+        if ((c.flags() & (JavafxFlags.MIXIN)) != 0) {
+            // Check that the mixin is only a pure mixin class.
+            chk.checkPureMixinClass(tree.pos(), c);
+            // Check that only it only extends mixins and interfaces.
+            chk.checkOnlyMixinsAndInterfaces(tree);
+        }
+         
         // Check that all extended classes and interfaces
         // are compatible (i.e. no two define methods with same arguments
         // yet different return types).  (JLS 8.4.6.3)

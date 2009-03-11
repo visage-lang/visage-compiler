@@ -5,9 +5,9 @@
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public abstract class jfxc211Widget {}
+public mixin class jfxc211Widget {}
 
-public abstract class jfxc211ActionWidget extends jfxc211Widget {
+public mixin class jfxc211ActionWidget extends jfxc211Widget {
     /**
      * Function which implements this widget's action.
      */

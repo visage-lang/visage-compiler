@@ -17,7 +17,7 @@
 import Base2.*;
 import Base1b.*;
 
-public class TestClass extends bc2,bc1b{
+public class TestClass extends bc2, bc1b {
   var tc_ival  : Integer = 10;
   var tc_nval  : Number  = 10.0;
   var tc_name : String  = "a baseclass";

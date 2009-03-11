@@ -12,8 +12,8 @@ currently do not support cast/instance test whose target type is a sequence type
 
 //reference types
 
-class A {}
-class B {}
+mixin class A {}
+mixin class B {}
 class C extends A,B {}
 var c = C{};
 var b:B = c;

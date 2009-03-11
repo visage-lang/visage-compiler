@@ -48,9 +48,11 @@ public abstract class FXContext {
     protected FXContext() {
     }
 
-    public static final String INTERFACE_SUFFIX = "$Intf";
+    public static final String MIXIN_SUFFIX = "$Mixin";
     public static final String FXOBJECT_NAME =
             "com.sun.javafx.runtime.FXObject";
+    public static final String FXMIXIN_NAME =
+            "com.sun.javafx.runtime.FXMixin";
     
     /** Get the {@code FXClassType} for the class with the given name. */
     public abstract FXClassType findClass(String name);
