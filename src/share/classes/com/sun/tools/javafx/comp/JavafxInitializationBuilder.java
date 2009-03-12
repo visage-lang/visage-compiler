@@ -601,16 +601,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
                 if (ai.getDefaultInitStatement() != null) {
+                    /* TODO JFXC-2836
                     if (!ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
                         stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
                     }
+                    */
                     
                     // a default exists, either on the direct attribute or on an override
                     stmts.append(ai.getDefaultInitStatement());
                 } else {
+                    /* TODO JFXC-2836
                     if (ai.isMixinVar() && !ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
                         stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
                     }
+                    */
                     
                     ClassSymbol attrParent = (ClassSymbol)ai.getSymbol().owner;
                     assert attrParent != null : "Parent supertype for attribute " + ai.getNameString() + " not found";
