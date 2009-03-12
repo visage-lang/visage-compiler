@@ -203,7 +203,7 @@ function test4() {
 	TA.checkB( ba instanceof B, "ba instanceof B");
 	TA.checkB( ba instanceof A, "ba instanceof A");
 	TA.checkI( callFoo(a),1,"a.foo");
-  TA.checkI( callFoo(b),11,"b.foo");
+  TA.checkI( callFoo(b),102,"b.foo");
 	TA.checkI( callFoo(aa),101,"aa.foo");
 	TA.checkI( callFoo(ba),102,"ba.foo");
 }

@@ -1,5 +1,5 @@
 Reflecting class ReflectionTest.TypeInference3
-Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference, class ReflectionTest.TypeInference2, class ReflectionTest.TypeInference3]
+Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference, class ReflectionTest.TypeInference2, class ReflectionTest.TypeInference3, class java.lang.Object]
  Type of anotherAttr is inferred as class java.lang.String
  Type of attr1 is inferred as class java.lang.Object
  Type of booleanAttr1 is inferred as Boolean
@@ -25,8 +25,10 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Type of stringrAttr1 is inferred as class java.lang.String
  Type of stringrAttr2 is inferred as class java.lang.String
  Type of type1Attr1 is inferred as class ReflectionTest.TypeInference
+ Return Type of method clone inferred as class java.lang.Object
+ Return Type of method equals inferred as Boolean
+ Return Type of method finalize inferred as Void
  Return Type of method func0$$bound$int inferred as class com.sun.javafx.runtime.location.IntLocation
- Return Type of method func0$impl$$bound$int inferred as class com.sun.javafx.runtime.location.IntLocation
  Return Type of method func1 inferred as class java.lang.String
  Return Type of method func2 inferred as class java.lang.String
  Return Type of method func3 inferred as Integer[]
@@ -36,3 +38,12 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Return Type of method func7 inferred as class javafx.lang.Duration
  Return Type of method func8 inferred as class java.lang.String
  Return Type of method func8 inferred as class java.lang.String
+ Return Type of method getClass inferred as class java.lang.Class
+ Return Type of method hashCode inferred as Integer
+ Return Type of method notify inferred as Void
+ Return Type of method notifyAll inferred as Void
+ Return Type of method registerNatives inferred as Void
+ Return Type of method toString inferred as class java.lang.String
+ Return Type of method wait inferred as Void
+ Return Type of method wait inferred as Void
+ Return Type of method wait inferred as Void

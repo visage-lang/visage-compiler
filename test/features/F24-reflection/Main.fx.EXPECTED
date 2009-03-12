@@ -21,15 +21,12 @@ String .super (inherited also):
   class java.lang.Comparable
   class java.lang.Object
   class java.lang.String
-String methods (inherited also):
-  function java.lang.CharSequence.charAt(Integer):Character
+String methods:
   function java.lang.String.charAt(Integer):Character
   function java.lang.String.checkBounds(JavaArray<Byte>,Integer,Integer):Void
-  function java.lang.Object.clone():java.lang.Object
   function java.lang.String.codePointAt(Integer):Integer
   function java.lang.String.codePointBefore(Integer):Integer
   function java.lang.String.codePointCount(Integer,Integer):Integer
-  function java.lang.Comparable.compareTo(java.lang.Object):Integer
   function java.lang.String.compareTo(java.lang.String):Integer
   function java.lang.String.compareToIgnoreCase(java.lang.String):Integer
   function java.lang.String.concat(java.lang.String):java.lang.String
@@ -39,19 +36,16 @@ String methods (inherited also):
   function java.lang.String.copyValueOf(JavaArray<Character>):java.lang.String
   function java.lang.String.copyValueOf(JavaArray<Character>,Integer,Integer):java.lang.String
   function java.lang.String.endsWith(java.lang.String):Boolean
-  function java.lang.Object.equals(java.lang.Object):Boolean
   function java.lang.String.equals(java.lang.Object):Boolean
   function java.lang.String.equalsIgnoreCase(java.lang.String):Boolean
-  function java.lang.Object.finalize():Void
   function java.lang.String.format(java.lang.String,JavaArray<java.lang.Object>):java.lang.String
   function java.lang.String.format(java.util.Locale,java.lang.String,JavaArray<java.lang.Object>):java.lang.String
   function java.lang.String.getBytes():JavaArray<Byte>
   function java.lang.String.getBytes(Integer,Integer,JavaArray<Byte>,Integer):Void
   function java.lang.String.getBytes(java.lang.String):JavaArray<Byte>
+  function java.lang.String.getBytes(java.nio.charset.Charset):JavaArray<Byte>
   function java.lang.String.getChars(Integer,Integer,JavaArray<Character>,Integer):Void
   function java.lang.String.getChars(JavaArray<Character>,Integer):Void
-  function java.lang.Object.getClass():java.lang.Class
-  function java.lang.Object.hashCode():Integer
   function java.lang.String.hashCode():Integer
   function java.lang.String.indexOf(Integer):Integer
   function java.lang.String.indexOf(Integer,Integer):Integer
@@ -59,20 +53,17 @@ String methods (inherited also):
   function java.lang.String.indexOf(java.lang.String,Integer):Integer
   function java.lang.String.indexOf(JavaArray<Character>,Integer,Integer,JavaArray<Character>,Integer,Integer,Integer):Integer
   function java.lang.String.intern():java.lang.String
+  function java.lang.String.isEmpty():Boolean
   function java.lang.String.lastIndexOf(Integer):Integer
   function java.lang.String.lastIndexOf(Integer,Integer):Integer
   function java.lang.String.lastIndexOf(java.lang.String):Integer
   function java.lang.String.lastIndexOf(java.lang.String,Integer):Integer
   function java.lang.String.lastIndexOf(JavaArray<Character>,Integer,Integer,JavaArray<Character>,Integer,Integer,Integer):Integer
-  function java.lang.CharSequence.length():Integer
   function java.lang.String.length():Integer
   function java.lang.String.matches(java.lang.String):Boolean
-  function java.lang.Object.notify():Void
-  function java.lang.Object.notifyAll():Void
   function java.lang.String.offsetByCodePoints(Integer,Integer):Integer
   function java.lang.String.regionMatches(Boolean,Integer,java.lang.String,Integer,Integer):Boolean
   function java.lang.String.regionMatches(Integer,java.lang.String,Integer,Integer):Boolean
-  function java.lang.Object.registerNatives():Void
   function java.lang.String.replace(Character,Character):java.lang.String
   function java.lang.String.replace(java.lang.CharSequence,java.lang.CharSequence):java.lang.String
   function java.lang.String.replaceAll(java.lang.String,java.lang.String):java.lang.String
@@ -81,15 +72,12 @@ String methods (inherited also):
   function java.lang.String.split(java.lang.String,Integer):JavaArray<java.lang.String>
   function java.lang.String.startsWith(java.lang.String):Boolean
   function java.lang.String.startsWith(java.lang.String,Integer):Boolean
-  function java.lang.CharSequence.subSequence(Integer,Integer):java.lang.CharSequence
   function java.lang.String.subSequence(Integer,Integer):java.lang.CharSequence
   function java.lang.String.substring(Integer):java.lang.String
   function java.lang.String.substring(Integer,Integer):java.lang.String
   function java.lang.String.toCharArray():JavaArray<Character>
   function java.lang.String.toLowerCase():java.lang.String
   function java.lang.String.toLowerCase(java.util.Locale):java.lang.String
-  function java.lang.CharSequence.toString():java.lang.String
-  function java.lang.Object.toString():java.lang.String
   function java.lang.String.toString():java.lang.String
   function java.lang.String.toUpperCase():java.lang.String
   function java.lang.String.toUpperCase(java.util.Locale):java.lang.String
@@ -103,29 +91,7 @@ String methods (inherited also):
   function java.lang.String.valueOf(JavaArray<Character>):java.lang.String
   function java.lang.String.valueOf(JavaArray<Character>,Integer,Integer):java.lang.String
   function java.lang.String.valueOf(Long):java.lang.String
-  function java.lang.Object.wait():Void
-  function java.lang.Object.wait(Long):Void
-  function java.lang.Object.wait(Long,Integer):Void
-Square methods (inherited also):
-  function java.lang.Object.clone():java.lang.Object
-  function MyRect.corners():java.awt.geom.Point2D[]
-  function java.lang.Object.equals(java.lang.Object):Boolean
-  function java.lang.Object.finalize():Void
-  function java.lang.Object.getClass():java.lang.Class
-  function java.lang.Object.hashCode():Integer
-  function MyCanvasItem.main(JavaArray<java.lang.String>):Void
-  function MyShape.main(JavaArray<java.lang.String>):Void
-  function MyRect.main(JavaArray<java.lang.String>):Void
-  function java.lang.Object.notify():Void
-  function java.lang.Object.notifyAll():Void
-  function java.lang.Object.registerNatives():Void
-  function MyShape.times1(Float):Float
-  function java.lang.Object.toString():java.lang.String
-  function MyShape.transformed(java.awt.geom.AffineTransform):MyShape
-  function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
-  function java.lang.Object.wait():Void
-  function java.lang.Object.wait(Long):Void
-  function java.lang.Object.wait(Long,Integer):Void
+Square methods:
 MyRect.methods: 
   function MyRect.corners():java.awt.geom.Point2D[]
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
@@ -146,25 +112,8 @@ Simple attributes (only):
   at1 : class java.lang.Object
   func : function(java.lang.String):function():Void
 MyRect methods:
-  function java.lang.Object.clone():java.lang.Object
   function MyRect.corners():java.awt.geom.Point2D[]
-  function java.lang.Object.equals(java.lang.Object):Boolean
-  function java.lang.Object.finalize():Void
-  function java.lang.Object.getClass():java.lang.Class
-  function java.lang.Object.hashCode():Integer
-  function MyCanvasItem.main(JavaArray<java.lang.String>):Void
-  function MyShape.main(JavaArray<java.lang.String>):Void
-  function MyRect.main(JavaArray<java.lang.String>):Void
-  function java.lang.Object.notify():Void
-  function java.lang.Object.notifyAll():Void
-  function java.lang.Object.registerNatives():Void
-  function MyShape.times1(Float):Float
-  function java.lang.Object.toString():java.lang.String
-  function MyShape.transformed(java.awt.geom.AffineTransform):MyShape
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
-  function java.lang.Object.wait():Void
-  function java.lang.Object.wait(Long):Void
-  function java.lang.Object.wait(Long,Integer):Void
 MyRect.times1(Number): function MyRect.times1(Float):Float
 call times1(2.5): FloatValue(45.0)
 MyRect.shapeFun1 variable: var MyShape.shapeFun1:function(Integer,java.lang.String):java.lang.String
@@ -179,7 +128,7 @@ Allocated new String: .
 Covariance test: val1-type: Main.B val2-type: Main.B.
 myAnonRectRef.getType: class <anonymous>
 myAnonRectRef.getClassType: class <anonymous>
-myAnonRectRef.super: [class MyRect, class java.lang.Object]
+myAnonRectRef.super: [class MyRect]
 myAnonRectRef.super (inherited also):
   class <anonymous>
   class MyCanvasItem

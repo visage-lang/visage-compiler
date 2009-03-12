@@ -52,12 +52,12 @@ System.out.println("String .super (inherited also):");
 for (cls in clsString.getSuperClasses(true))
     System.out.println("  {cls}");
 
-System.out.println("String methods (inherited also):");
-for (meth in clsString.getFunctions(true))
+System.out.println("String methods:");
+for (meth in clsString.getFunctions(false))
      System.out.println("  {meth}");
 
-System.out.println("Square methods (inherited also):");
-for (meth in clsSquare.getFunctions(true))
+System.out.println("Square methods:");
+for (meth in clsSquare.getFunctions(false))
      System.out.println("  {meth}");
 System.out.println("MyRect.methods: ");
 for (meth in clsMyRect.getFunctions(false))
@@ -91,7 +91,7 @@ for (attr in context.findClass("Main.Simple").getVariables(false)) {
   System.out.println("  {attr.getName()} : {attr.getType()}"); };
 
 System.out.println("MyRect methods:");
-for (meth in clsMyRect.getFunctions(true)) {
+for (meth in clsMyRect.getFunctions(false)) {
   System.out.println("  {meth}"); };
 
 def times1_MyRect = clsMyRect.getFunction("times1", context.getNumberType());

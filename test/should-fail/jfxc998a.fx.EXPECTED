@@ -4,5 +4,8 @@ test/should-fail/jfxc998a.fx:11: warning: Function x() overrides another, it sho
 test/should-fail/jfxc998a.fx:14: Function y() declared 'override' but does not override another function.
   override function y() : Void { // Error: doesn't override.
   ^
-1 error
+test/should-fail/jfxc998a.fx:10: Only one non-mixin based class allowed.
+class Foo extends Object, Bar {
+                          ^
+2 errors
 1 warning

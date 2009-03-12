@@ -200,7 +200,7 @@ ovCAnon-ci
 cfi
 Anoni
 Anonfi
-------- E-BitSet{}
+------- E-C{}
 trig: wayOut1 ovA-wayOuti
 trig: override Out wayOuti ovA-wayOuti
 trig: override A wayOuti ovA-wayOuti
@@ -218,7 +218,6 @@ bi
 bfi
 ci
 cfi
-1
 ei
 efi
 ------- E{bi: 'litEBi'}
@@ -239,6 +238,5 @@ litEBi
 bfi
 ci
 cfi
-0
 ei
 efi

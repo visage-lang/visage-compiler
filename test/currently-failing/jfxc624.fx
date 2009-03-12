@@ -1,7 +1,6 @@
 /*
  * jfxc624.fx
- * @test/fail
- * Note: when fixed should be a plain compile test
+ * @test
  *
  * Note to mobile: Sorry about the SE code,but per comment:
  "The fact that "extends java.lang.Object" activates the bug suggests

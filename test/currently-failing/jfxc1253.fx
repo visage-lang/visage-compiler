@@ -1,7 +1,6 @@
 /* jfxc1253 Class with overriden method cannot be compiled.
- * @test/fail
+ * @test
  *
- * should be plain test
  */
 import java.lang.*;
 
@@ -11,8 +10,7 @@ public function me(s:String):String {
         boo: "Booo"
         moo: "Moo"
 
-      //override - 'override' here gets error: Function doMoo() declared 'override' but does not override another function
-        public function doMoo(): String {
+        override public function doMoo(): String {
             "BoooMoooBooo";
         }
 

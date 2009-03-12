@@ -20,5 +20,5 @@ class Bar {
 }
 
 var nb = Bar {}
-System.out.println(nb.yum().y)
+System.out.println(nb.yum().y);
 
