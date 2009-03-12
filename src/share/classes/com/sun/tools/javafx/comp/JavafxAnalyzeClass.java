@@ -55,7 +55,8 @@ class JavafxAnalyzeClass {
     private final DiagnosticPosition diagPos;
     private final ClassSymbol currentClassSym;
     private final ListBuffer<VarInfo> attributeInfos = ListBuffer.lb();
-    private final Map<String,MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
+    private final Map<String, MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
+    private final Map<String, MethodSymbol> visitedMethods = new HashMap<String, MethodSymbol>();
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     private final Set<Symbol> addedBaseClasses = new HashSet<Symbol>();
     private final List<TranslatedVarInfo> translatedAttrInfo;
@@ -244,51 +245,6 @@ class JavafxAnalyzeClass {
 
         // do the analysis
         process(currentClassSym, true);
-        
-        if (false) {
-            System.out.println("process : " + currentClassSym);
-            
-            System.out.println("  translatedAttrInfo");
-            for (TranslatedVarInfo ai : translatedAttrInfo) {
-                System.out.println("    " + ai.getSymbol() +
-                                   ", owner=" + ai.getSymbol().owner +
-                                   ", static=" + ai.isStatic() +
-                                   ", needsCloning=" + ai.needsCloning() + 
-                                   ", isDef=" + ai.isDef() +
-                                   ", getDefaultInitStatement=" + (ai.getDefaultInitStatement() != null) +
-                                   ", isDirectOwner=" + ai.isDirectOwner());
-            }
-            
-            System.out.println("  translatedOverrideAttrInfo");
-            for (TranslatedOverrideClassVarInfo ai : translatedOverrideAttrInfo) {
-                System.out.println("    " + ai.getSymbol() +
-                                   ", owner=" + ai.getSymbol().owner +
-                                   ", static=" + ai.isStatic() +
-                                   ", needsCloning=" + ai.needsCloning() + 
-                                   ", isDef=" + ai.isDef() +
-                                   ", getDefaultInitStatement=" + (ai.getDefaultInitStatement() != null) +
-                                   ", isDirectOwner=" + ai.isDirectOwner());
-            }
-            
-            System.out.println("  attributeInfos");
-            for (VarInfo ai : attributeInfos) {
-                System.out.println("    " + ai.getSymbol() +
-                                   ", owner=" + ai.getSymbol().owner +
-                                   ", static=" + ai.isStatic() +
-                                   ", needsCloning=" + ai.needsCloning() + 
-                                   ", isDef=" + ai.isDef() +
-                                   ", getDefaultInitStatement=" + (ai.getDefaultInitStatement() != null) +
-                                   ", isDirectOwner=" + ai.isDirectOwner());
-            }
-            
-            System.out.println("  needDispatchMethods");
-            for (MethodSymbol m : needDispatch()) {
-                System.out.println("    " + m);
-            }
-             
-            System.out.println();
-            System.out.println();
-        }
     }
 
     public List<VarInfo> instanceAttributeInfos() {
@@ -313,9 +269,7 @@ class JavafxAnalyzeClass {
         for (MethodSymbol mSym : needDispatchMethods.values()) {
             // Process only methods that are being mixed in or members
             // of a superclass.
-            if (isMixin || mSym.owner != currentClassSym) {
-                meths.append( mSym );
-            }
+            meths.append( mSym );
         }
         
         return meths.toList();
@@ -366,8 +320,8 @@ class JavafxAnalyzeClass {
                 for (JFXTree def : cDecl.getMembers()) {
                     if (def.getFXTag() == JavafxTag.VAR_DEF) {
                         processAttribute((VarSymbol)(((JFXVar) def).sym), cDecl.sym, cloneVisible);
-                    } else if (cloneVisible && def.getFXTag() == JavafxTag.FUNCTION_DEF) {
-                        processMethod(((JFXFunctionDefinition) def).sym);
+                    } else if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
+                        processMethod(((JFXFunctionDefinition) def).sym, cloneVisible);
                     }
                 }
                 
@@ -380,21 +334,27 @@ class JavafxAnalyzeClass {
 
     private void processMethodFromClassFile(MethodSymbol meth, ClassSymbol cSym, boolean cloneVisible) {
         if (cloneVisible && meth.name != names.init) {
-            processMethod(meth);
+            processMethod(meth, cloneVisible);
         }
     }
 
-     private void processMethod(MethodSymbol meth) {
+     private void processMethod(MethodSymbol newMethod, boolean cloneVisible) {
         // No dispatch methods for abstract or static functions,
         // and for methods from non-mixin classes (this test is not redundant 
         // since the current class is allowed through if non-mixin)
-        if ((meth.flags() & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0) {
-            String nameSig = methodSignature(meth);
-            boolean isMixin = (meth.owner.flags() & JavafxFlags.MIXIN) != 0;
-            // Filter out non mixins and duplicates.
-            if (!(isMixin && needDispatchMethods.containsKey(nameSig))) {
-                // because we traverse super-to-sub class, last one wins
-                needDispatchMethods.put(nameSig, meth);
+        if ((newMethod.flags() & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0) {
+            String nameSig = methodSignature(newMethod);
+            MethodSymbol oldMethod = visitedMethods.get(nameSig);
+            boolean newIsMixin = (newMethod.owner.flags() & JavafxFlags.MIXIN) != 0;
+            boolean oldIsMixin = oldMethod != null && (oldMethod.owner.flags() & JavafxFlags.MIXIN) != 0;
+            
+            if (oldMethod == null || (oldIsMixin && !newIsMixin)) {
+                // Filter out only those relevant to the class.
+                if (cloneVisible && newIsMixin) {
+                    needDispatchMethods.put(nameSig, newMethod);
+                }
+                
+                visitedMethods.put(nameSig, newMethod);
             }
         }
     }
@@ -409,7 +369,9 @@ class JavafxAnalyzeClass {
             if (oldAttrInfo != null) {
                 boolean oldIsMixin = oldAttrInfo.isMixinVar();
                 boolean newIsMixin = (var.owner.flags() & JavafxFlags.MIXIN) != 0;
-                needsProxy = !oldIsMixin && newIsMixin;
+                boolean privateAccess = (oldAttrInfo.getFlags() & JavafxFlags.JavafxInstanceVarFlags &
+                                            ~(JavafxFlags.SCRIPT_PRIVATE | Flags.PRIVATE)) == 0L;
+                needsProxy = !oldIsMixin && newIsMixin && !privateAccess && oldAttrInfo.getSymbol().type == var.type;
             }
             
             // normal override

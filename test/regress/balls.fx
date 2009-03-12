@@ -9,7 +9,7 @@ import javax.swing.Timer;
 class balls {
     var _is_running : Boolean;
     var timer = new Timer(5, ActionListener { 
-        public function actionPerformed(evt : java.awt.event.ActionEvent): Void {
+        override public function actionPerformed(evt : java.awt.event.ActionEvent): Void {
             if (_is_running) {
             }
         }
