@@ -61,11 +61,12 @@ parse_args() {
 while [ $# -gt 0 ] ; do
     case "$1" in
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs \"$jopt\"";;
+        -jar) shift; args="$args \"$1\""; classpath="$1"; seen_main=true ;;
         -cp | -classpath) shift; classpath="$classpath:$1";;
         -version) args="com.sun.javafx.runtime.LauncherHelper -version"; break;;
         -fullversion) args="com.sun.javafx.runtime.LauncherHelper -fullversion"; break;;
         -profile) shift; profile="$1";;
-	-*) if [ "x$seen_main" = "x" ]; then 
+        -*) if [ "x$seen_main" = "x" ]; then
                jargs="$jargs \"$1\""
             else 
                args="$args \"$1\"" 

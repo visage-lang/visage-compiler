@@ -180,7 +180,17 @@ int Configuration::parseArgs(int argc, char** argv) {
                 fprintf (stderr, "No argument for classpath found.");
                 return (EXIT_FAILURE);
             }
-
+        } else if (isjavafx && 0 == strcmp("-jar", arg)) {
+             if (argc-- > 0 && (arg = *argv++) != NULL) {
+                classpath = arg;
+                fxargs += " \"";
+                fxargs += arg;
+                fxargs += "\"";
+                seen_main = true;
+            } else {
+                fprintf (stderr, "No argument for jar found.");
+                return (EXIT_FAILURE);
+            }
         } else if (0 == strcmp("-profile", arg)) {
             if (argc-- > 0 && (arg = *argv++) != NULL) {
                 profile_filename = arg;
