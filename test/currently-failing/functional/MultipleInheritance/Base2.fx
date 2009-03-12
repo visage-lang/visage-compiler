@@ -5,7 +5,7 @@
  */
 import Base1.*;
 
-public mixin class bc2 extends bc1,TestBase {
+public class bc2 extends bc1,TestBase {
   public var bc2_ival  : Integer = 10;
   public var bc2_nval  : Number  = 10.0;
   public var bc2_name : String  = "a baseclass";
