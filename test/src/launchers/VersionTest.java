@@ -24,12 +24,8 @@
 package launchers;
 
 import junit.framework.TestCase;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.List;
 import javax.script.ScriptException;
 
 import com.sun.javafx.runtime.SystemProperties;

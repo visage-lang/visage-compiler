@@ -23,7 +23,12 @@
 
 package com.sun.javafx.runtime;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 /**
  * The main method in this class calls the
@@ -47,12 +52,19 @@ public class Main {
         }
 
         Class mainClass = null;
+        String mclassname = args[0];
         try {
+            if (args[0].endsWith(".jar")) {
+                mclassname = getMainClass(args[0]);
+            }
             // load the user's JavaFX class but do *not* initialize!
-            mainClass = Class.forName(args[0], false, 
+            mainClass = Class.forName(mclassname, false,
                             Main.class.getClassLoader());
         } catch (ClassNotFoundException cnfe) {
-            errorExit("Class not found: " + args[0], cnfe);
+            errorExit("Class not found: " + mclassname, cnfe);
+        } catch (IOException ioe) {
+            errorExit("Failed to load the Main-Class manifest attribute from " +
+                    mclassname, ioe);
         }
 
         // if it is a JavaFX class, call Entry.start() 
@@ -88,5 +100,28 @@ public class Main {
             exp.printStackTrace();
         }
         System.exit(1);
+    }
+
+      static String getMainClass(String jarfilename) throws IOException {
+        JarFile jf = new JarFile(jarfilename);
+        try {
+            Manifest mf = jf.getManifest();
+            if (mf != null) {
+                Attributes attr = mf.getMainAttributes();
+                if (attr != null) {
+                    String mainclassname = attr.getValue("Main-Class");
+                    if (mainclassname != null) {
+                        return mainclassname;
+                    }
+                }
+            }
+            throw new IOException("Main-Class not found in " + jarfilename);
+        } finally {
+            if (jf != null) {
+                try {
+                    jf.close();
+                } catch (IOException ex) { /* swallow the exception */ }
+            }
+        }
     }
 }

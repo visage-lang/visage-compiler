@@ -76,7 +76,7 @@ public class ArgumentsTest  extends TestCase {
 
     }
 
-    public void testJavaFxArgumentParsing() throws IOException {
+    public void testBasicArguments() throws IOException {
         ArrayList<String> cmdsList = new ArrayList<String>();
         List<String> output = null;
         cmdsList.add(Utils.javafxExe.toString());
@@ -89,7 +89,7 @@ public class ArgumentsTest  extends TestCase {
         FileWriter fw = new FileWriter(new File(Utils.workingDir, filename + ".fx"));
         PrintWriter pw = new PrintWriter(fw);
         try {
-            pw.println(Utils.emitFx(false));
+            pw.println(Utils.emitVersionFx(false));
         } finally {
             if (pw != null) pw.close();
             if (fw != null) fw.close();
@@ -119,12 +119,82 @@ public class ArgumentsTest  extends TestCase {
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
-        // Call the launcher
+        // Call the launcher to test java arguments
         cmdsList.clear();
         cmdsList.add(Utils.javafxExe.toString());
         cmdsList.add("-verbose:class");
         cmdsList.add(filename);
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
+
+        // Call the launcher to test VM arguments
+        cmdsList.clear();
+        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add("-J-verbose:class");
+        cmdsList.add(filename);
+        output = Utils.doExec(cmdsList);
+        assertNotNull(output);
+    }
+
+    private void assertLauncherArgs(String[] args, List<String> output) {
+        assertEquals(args.length, output.size());
+        for (int i = 0; i < args.length; i++) {
+            assertEquals(args[i], output.get(i));
+        }
+    }
+
+    public void testJavaFxArgumentsPassing() throws IOException {
+        ArrayList<String> cmdsList = new ArrayList<String>();
+        List<String> output = null;
+
+        // Test the application args to see if they are passed in correctly
+        String appargs[] = {"-appflagOne", "One", "-appflagTwo", "Two"};
+
+        // using cp
+        cmdsList.add("-cp");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+
+        for (String x : appargs) {
+            cmdsList.add(x);
+        }
+
+        output = Utils.getArgumentsFromFx(cmdsList);
+        assertLauncherArgs(appargs, output);
+
+        output = Utils.getArgumentsFromJava(cmdsList);
+        assertLauncherArgs(appargs, output);
+
+        // use classpath
+        cmdsList.clear();
+        cmdsList.add("-classpath");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+
+        for (String x : appargs) {
+            cmdsList.add(x);
+        }
+
+        output = Utils.getArgumentsFromFx(cmdsList);
+        assertLauncherArgs(appargs, output);
+
+        output = Utils.getArgumentsFromJava(cmdsList);
+        assertLauncherArgs(appargs, output);
+
+        // use jar cmd
+        cmdsList.clear();
+        cmdsList.add("-jar");
+        cmdsList.add("ArgsTest.jar");
+
+        for (String x : appargs) {
+            cmdsList.add(x);
+        }
+
+        output = Utils.getArgumentsFromFx(cmdsList);
+        assertLauncherArgs(appargs, output);
+        
+        output = Utils.getArgumentsFromJava(cmdsList);
+        assertLauncherArgs(appargs, output);
     }
 }
+

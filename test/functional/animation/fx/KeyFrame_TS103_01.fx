@@ -1,10 +1,8 @@
-/**
- * Regression test for JFXC-2771: Regression: tests KeyFrame_TS103_01.fx, and 104 and 105 fail using an uptodate Scenario.jar
- *
+/*
  * KeyFrame_TS103_01.fx
- * 
+ *
  * @test
- * @run/fail
+ * @run
  */
 
 /**
@@ -24,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 function runLater(ms: Number, f: function(): Void): Void {
     var timer = new Timer(ms, ActionListener {
         public override function actionPerformed(e: ActionEvent) {
-            f();
+            FX.deferAction(f);
         }
     });
     timer.setRepeats(false);

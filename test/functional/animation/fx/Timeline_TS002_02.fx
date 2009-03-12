@@ -54,7 +54,7 @@ var t : Timeline = Timeline {
 function runLater(ms: Number, f: function(): Void): Void {
 	var timer = new Timer(ms, ActionListener {
 		public override function actionPerformed(e: ActionEvent) {
-			f();
+			FX.deferAction(f);
 		}
 	});
 	timer.setRepeats(false);

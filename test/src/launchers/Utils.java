@@ -22,7 +22,6 @@
  */
 package launchers;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,9 +33,13 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import com.sun.javafx.api.JavaFXScriptEngine;
+import java.io.FileFilter;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 
 /**
  * This class primarily calls into javafxrt, javafxc and javafxdoc to ensure
@@ -44,23 +47,44 @@ import javax.script.ScriptEngineManager;
  *   a. System properties.
  *   b. tools javafx, javafxc, and javafxdoc.
  */
-public class Utils  {
+public class Utils {
 
     private static File distDir = null;
     static File javaExe = null;
     static File javafxExe = null;
+    static File javafxwExe = null;
     static File javafxcExe = null;
     static File javafxdocExe = null;
-
-
-
     static boolean debug = false;
     static File workingDir = null;
-
-   private static JavaFXScriptEngine engine = null;
-
+    static JavaCompiler javaCompiler = null;
+    private static JavaFXScriptEngine engine = null;
     static final boolean isWindows =
-           System.getProperty("os.name").startsWith("Windows");
+            System.getProperty("os.name").startsWith("Windows");
+
+    static final FileFilter CLASS_FILTER = new FileFilter() {
+        public boolean accept(File pathname) {
+            return pathname.getName().endsWith(".class");
+        }
+    };
+
+    static final FileFilter JAR_FILTER = new FileFilter() {
+        public boolean accept(File pathname) {
+            return pathname.getName().endsWith(".jar");
+        }
+    };
+
+    static final FileFilter FX_FILTER = new FileFilter() {
+        public boolean accept(File pathname) {
+            return pathname.getName().endsWith(".fx");
+        }
+    };
+
+    static final FileFilter JAVA_FILTER = new FileFilter() {
+        public boolean accept(File pathname) {
+            return pathname.getName().endsWith(".java");
+        }
+    };
 
     static void init() throws IOException {
         if (Utils.javaExe == null) {
@@ -79,7 +103,7 @@ public class Utils  {
             ScriptEngineManager manager = new ScriptEngineManager();
             ScriptEngine scrEng = manager.getEngineByName("javafx");
             if (scrEng instanceof JavaFXScriptEngine) {
-               engine = (JavaFXScriptEngine) scrEng;
+                engine = (JavaFXScriptEngine) scrEng;
             } else {
                 throw new AssertionError("scrEng not instance of JavaFXSciptEngine");
             }
@@ -91,10 +115,11 @@ public class Utils  {
         if (!workingDir.exists()) {
             workingDir.mkdirs();
         }
+        javaCompiler = ToolProvider.getSystemJavaCompiler();
     }
 
     static void reset() {
-           if (!debug) {
+        if (!debug) {
             if (workingDir != null && workingDir.exists()) {
                 try {
                     Utils.recursiveDelete(workingDir);
@@ -102,6 +127,37 @@ public class Utils  {
             }
         }
     }
+
+    static void deleteAllFiles() {
+        deleteJavaFiles();
+        deleteFxFiles();
+        deleteClassFiles();
+        deleteJarFiles();
+    }
+
+    static void deleteJavaFiles() {
+        deleteFiles(JAVA_FILTER);
+    }
+
+    static void deleteFxFiles() {
+        deleteFiles(FX_FILTER);
+    }
+
+    static void deleteClassFiles() {
+        deleteFiles(CLASS_FILTER);
+    }
+
+    static void deleteJarFiles() {
+        deleteFiles(JAR_FILTER);
+    }
+
+    static void deleteFiles(FileFilter filter) {
+        File[] files = workingDir.listFiles(filter);
+        for (File f : files) {
+            f.delete();
+        }
+    }
+
     /*
      * get the path to where the dist directory lives, we use javac.jar
      * and script-api.jar to get the lib path, the parent of which is the
@@ -224,8 +280,9 @@ public class Utils  {
     /*
      * execs a cmd and returns a List representation of the output
      */
-    static  List<String> doExec(List<String> cmds) {
+    static List<String> doExec(List<String> cmds) {
         if (debug) {
+            System.out.println("----Execution args----");
             for (String x : cmds) {
                 System.out.println(x);
             }
@@ -241,6 +298,9 @@ public class Utils  {
             // note: its a good idea to read the whole stream, half baked
             // reads can cause undesired side-effects.
             String in = rdr.readLine();
+            if (debug) {
+                System.out.println("---output---");
+            }
             while (in != null) {
                 if (debug) {
                     System.out.println(in);
@@ -265,7 +325,7 @@ public class Utils  {
     /*
      * emit our FX code
      */
-    static String emitFx(boolean fullversion) {
+    static String emitVersionFx(boolean fullversion) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         pw.print("java.lang.System.out.print(FX.getProperty(\"");
@@ -285,10 +345,14 @@ public class Utils  {
         FileWriter fw = new FileWriter(new File(workingDir, filename + ".fx"));
         PrintWriter pw = new PrintWriter(fw);
         try {
-            pw.println(emitFx(isFullVersion));
+            pw.println(emitVersionFx(isFullVersion));
         } finally {
-            if (pw != null) pw.close();
-            if (fw != null) fw.close();
+            if (pw != null) {
+                pw.close();
+            }
+            if (fw != null) {
+                fw.close();
+            }
         }
         ArrayList<String> cmdsList = new ArrayList<String>();
         cmdsList.add(javafxcExe.toString());
@@ -299,5 +363,130 @@ public class Utils  {
         cmdsList.add(filename);
         List<String> output = doExec(cmdsList);
         return output.get(0);
+    }
+
+    /*
+     * emit our FX code to print out the arguments
+     */
+    static String emitArgsTestFx() {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.println("public function run(args: String[]) : Void {");
+        pw.println("for (i in args) {");
+        pw.println("FX.println(i);");
+        pw.println("}");
+        pw.println("}");
+        return sw.toString();
+    }
+
+    /*
+     * emit our Java code to print out the arguments
+     */
+    static String emitArgsTestJava(String classname) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        pw.println("public class " + classname + " {");
+        pw.println("public static void main(String[] args) {");
+        pw.println("for (String x : args) {");
+        pw.println("System.out.println(x);");
+        pw.println("}");
+        pw.println("}");
+        pw.println("}");
+        return sw.toString();
+    }
+
+    /* NOTE:
+     * usage args = "-cp" | "-classpath", "jar-file", "main-class", "app-args....."
+     * OR
+     * usage args = "-jar", "jar-file", "app-args....."
+     */
+    static List<String> getArgumentsFromLauncher(List<String> cmdsList,
+            boolean useFx, boolean usejavafxw) throws IOException {
+        if (useFx) {
+            createFxJar(new File(workingDir, cmdsList.get(1)));
+        } else {
+            createJavaJar(new File(workingDir, cmdsList.get(1)));
+        }
+
+        ArrayList<String> execList = new ArrayList<String>();
+        if (usejavafxw) {
+            execList.add(0, javafxwExe.toString());
+        } else {
+            execList.add(0, javafxExe.toString());
+        }
+
+        execList.addAll(cmdsList);
+        return doExec(execList);
+    }
+
+    static List<String> getArgumentsFromFx(List<String> cmdsList)
+            throws IOException {
+        return getArgumentsFromLauncher(cmdsList, true, false);
+    }
+
+      static List<String> getArgumentsFromJava(List<String> cmdsList)
+            throws IOException {
+        return getArgumentsFromLauncher(cmdsList, false, false);
+    }
+
+    static void createFxJar(File jarFilename) throws IOException {
+        createJar(true, jarFilename);
+    }
+    static void createJavaJar(File jarFilename) throws IOException {
+        createJar(false, jarFilename);
+    }
+    static void createJar(boolean isFx, File jarFilename) throws IOException {
+        String filename = null;
+        String jarfilename = jarFilename.getName();
+        if (!jarfilename.endsWith(".jar")) {
+            throw new RuntimeException("jarFilename: does not end with .jar");
+        } else {
+            filename = jarfilename.substring(0, jarfilename.indexOf(".jar"));
+        }
+        
+        // delete any stray files lying around
+        deleteAllFiles();
+
+        if (isFx) {
+            PrintStream ps = new PrintStream(new FileOutputStream(
+                    new File(workingDir, filename + ".fx")));
+            ps.println(emitArgsTestFx());
+            ps.close();
+            ArrayList<String> cmdsList = new ArrayList<String>();
+            cmdsList.add(javafxcExe.toString());
+            cmdsList.add(filename + ".fx");
+            doExec(cmdsList);
+        } else {
+            File javaFile = new File(workingDir, filename + ".java");
+            PrintStream ps = new PrintStream(new FileOutputStream(javaFile));
+            ps.println(emitArgsTestJava(filename));
+            ps.close();
+
+            String compileArgs[] = {
+                "-d",
+                workingDir.getAbsolutePath(),
+                javaFile.getAbsolutePath()
+            };
+            if (javaCompiler.run(null, null, null, compileArgs) != 0) {
+                throw new RuntimeException("compilation failed " + filename + ".java");
+            }
+        }
+
+        String jarArgs[] = {
+            (debug) ? "cvfe" : "cfe",
+            jarFilename.getAbsolutePath(),
+            filename,
+            "-C",
+            workingDir.getAbsolutePath(),
+            "."
+        };
+        
+        sun.tools.jar.Main jarTool =
+                new sun.tools.jar.Main(System.out, System.err, "JarCreator");
+        if (!jarTool.run(jarArgs)) {
+            throw new RuntimeException("jar creation failed " + jarFilename);
+        }
+        // delete left over class files
+        deleteClassFiles();
     }
 }

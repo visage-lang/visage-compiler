@@ -1,8 +1,7 @@
-/*
- * toggle test
- *
- * @test/nocompare
- * @run
+/**
+ * Regression test JFXC-1143: toggle test
+ * @test
+ * @run/fail
  */
 
 import javafx.animation.*;
