@@ -169,6 +169,11 @@ class JavafxAnalyzeClass {
             return initStmt;
         }
         
+        public boolean isPrivateAccess() {
+            return (getFlags() & JavafxFlags.JavafxInstanceVarFlags &
+                                 ~(JavafxFlags.SCRIPT_PRIVATE | Flags.PRIVATE)) == 0L;
+        }
+        
         JFXOnReplace onReplace() { return null; }
         
         JCBlock onReplaceTranslatedBody() { return null; }
@@ -369,9 +374,9 @@ class JavafxAnalyzeClass {
             if (oldAttrInfo != null) {
                 boolean oldIsMixin = oldAttrInfo.isMixinVar();
                 boolean newIsMixin = (var.owner.flags() & JavafxFlags.MIXIN) != 0;
-                boolean privateAccess = (oldAttrInfo.getFlags() & JavafxFlags.JavafxInstanceVarFlags &
-                                            ~(JavafxFlags.SCRIPT_PRIVATE | Flags.PRIVATE)) == 0L;
-                needsProxy = !oldIsMixin && newIsMixin && !privateAccess && oldAttrInfo.getSymbol().type == var.type;
+                needsProxy = !oldIsMixin && newIsMixin &&
+                             !oldAttrInfo.isPrivateAccess() &&
+                             oldAttrInfo.getSymbol().type == var.type;
             }
             
             // normal override

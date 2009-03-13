@@ -609,7 +609,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // a default exists, either on the direct attribute or on an override
                     stmts.append(ai.getDefaultInitStatement());
-                } else {
+                } else if (ai.isMixinVar()) {
                     /* TODO JFXC-2836
                     if (ai.isMixinVar() && !ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
                         stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
@@ -622,6 +622,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         stmts.append(makeSuperCall(diagPos, attrParent, methodName));
                     }
                 }
+                
                 JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
 
                 // Add the method for this class' attributes
@@ -642,16 +643,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
     
     private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName) {
+        JCExpression arg = make.at(diagPos).Ident(defs.receiverName);
         JCExpression receiver;
-        List<JCExpression> arg = List.<JCExpression>of(make.at(diagPos).Ident(defs.receiverName));
+        
         if ((cSym.flags() & JavafxFlags.MIXIN) != 0) {
             // call to a mixin super, use local static reference
             receiver = makeTypeTree(diagPos, cSym.type, false);
         } else {
+            // cast the arg to the right type
+            // TODO JFXC-2836
+            // arg = make.at(diagPos).TypeCast(make.Ident(cSym.fullname), arg);
             // call to a non-mixin super, use "super"
             receiver = make.at(diagPos).Ident(names._super);
         }
-        return callStatement(diagPos, receiver, methodName, arg);
+        
+        List<JCExpression> args = List.<JCExpression>of(arg);
+        return callStatement(diagPos, receiver, methodName, args);
     }
 
     private JCMethodDecl makeInitializeMethod(DiagnosticPosition diagPos,
@@ -812,7 +819,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // call the super addTriggers
         ClassSymbol superClassSym = getSuperSymbol(cDecl);
         if (superClassSym != null) {
-            stmts.append(makeSuperCall(diagPos, cDecl.sym, defs.addTriggersName));
+            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName));
         }
         
         // JFXC-2822 - Triggers need to work from mixins.
