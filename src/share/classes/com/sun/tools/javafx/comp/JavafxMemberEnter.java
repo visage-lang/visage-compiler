@@ -801,6 +801,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                         } else {
                             supertype = extending.isEmpty() ? st : null;
                             extending.append(stype);
+                            interfaces.append(st);
                         }
                     }
                 }
