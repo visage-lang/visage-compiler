@@ -49,7 +49,7 @@
         If the jfx.build.number is not set to a real value, then we are building outside hudson.  Use
         userName-date instead.
     -->
-    <condition property="build.number.string" value="${jfx.build.user}-${date.stamp}" else="${jfx.build.number}">
+    <condition property="build.number.string" value="${user.name}-${date.stamp}" else="${jfx.build.number}">
        <matches string="${jfx.build.number}" pattern="^0*$"/>
     </condition>
 
