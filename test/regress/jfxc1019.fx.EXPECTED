@@ -1,0 +1,4 @@
+test/regress/jfxc1019.fx:18: cyclic inheritance involving jfxc1019.Foo
+class Foo extends Bar, One {
+^
+1 error
