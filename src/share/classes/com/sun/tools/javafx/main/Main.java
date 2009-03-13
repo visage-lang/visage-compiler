@@ -217,7 +217,7 @@ public class Main {
             ac++;
 
             int j;
-            // quick hack to speed up file processing: 
+            // quick hack to speed up file processing:
             // if the option does not begin with '-', there is no need to check
             // most of the compiler options.
             int firstOptionToCheck = flag.charAt(0) == '-' ? 0 : recognizedOptions.length-1;
@@ -244,7 +244,7 @@ public class Main {
                     return null;
             }
         }
-        
+
         if (!checkDirectory("-d"))
             return null;
         if (!checkDirectory("-s"))
@@ -319,7 +319,7 @@ public class Main {
 
     static final Context.Key<Context> backendContextKey =
          new Context.Key<Context>();
-    
+
     public void registerServices(Context context, String[] args) {
         Context backEndContext = context.get(backendContextKey);
         if (backEndContext != null)
@@ -333,7 +333,7 @@ public class Main {
 
         // add -target flag to backEndContext, if specified
         options = Options.instance(backEndContext);
-        
+
         // default target is Java 5
         options.put("-target", Target.JDK1_5.name);
 
@@ -358,7 +358,7 @@ public class Main {
             JavafxFileManager.preRegister(backEndContext);
         else
             backEndContext.put(JavaFileManager.class, currentFileManager);
-        
+
         com.sun.tools.javafx.util.JavafxBackendLog.preRegister(backEndContext, context);
         com.sun.tools.javafx.comp.JavafxFlow.preRegister(backEndContext);
         com.sun.tools.javafx.code.JavafxLint.preRegister(backEndContext);
@@ -369,12 +369,12 @@ public class Main {
         com.sun.tools.javafx.comp.BlockExprResolve.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprLower.preRegister(backEndContext);
         com.sun.tools.javafx.comp.BlockExprGen.preRegister(backEndContext);
-        
+
         // Sequencing requires that we get the name table from the fully initialized back-end
         // rather than send the completed one.
         JavafxJavaCompiler javafxJavaCompiler = JavafxJavaCompiler.instance(backEndContext);
-        
-        context.put(JavafxJavaCompiler.javafxJavaCompilerKey, javafxJavaCompiler);        
+
+        context.put(JavafxJavaCompiler.javafxJavaCompilerKey, javafxJavaCompiler);
 
         // Tranfer the options -- must be done before any initialization
         context.put(Options.optionsKey, (Options)null);  // remove any old value
@@ -387,8 +387,8 @@ public class Main {
             JavafxFileManager.preRegister(context); // can't create it until Log has been set up
     }
 
-    /** Load a plug-in corresponding to platform option. If platform option had 
-     *  not been defined, the method returns immediately. 
+    /** Load a plug-in corresponding to platform option. If platform option had
+     *  not been defined, the method returns immediately.
      * @param context The compiler context.
      * @param options The compiler options.
      */
@@ -403,7 +403,7 @@ public class Main {
         path = path.substring(path.lastIndexOf('.') + 1);
         path = this.getClass().getResource(path + ".class").toString();
         path = path.substring(0, path.lastIndexOf(".jar!"));
-        path = path.substring("jar:file:".length(), path.lastIndexOf("/")); 
+        path = path.substring("jar:file:".length(), path.lastIndexOf("/"));
         File   dir  = new File(path);
         File[] jars = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -425,8 +425,8 @@ public class Main {
                 // read service provider class name
                 Reader reader = new InputStreamReader(stream);
                 String pname  = Main.readServiceProvider(reader);
-                try { 
-                    reader.close(); 
+                try {
+                    reader.close();
                 } catch (IOException ioe) {
                 }
                 if (pname == null) {
@@ -475,7 +475,7 @@ public class Main {
         }
     }
 
-    /** Reads the first class name as defined by Jar &quot;Service provider&quot; 
+    /** Reads the first class name as defined by Jar &quot;Service provider&quot;
      *  specification.
      * @param reader The reader of service provider configuration file.
      * @return Plugin&apos;s class name on successful read, null otherwise.
@@ -601,7 +601,7 @@ public class Main {
             }
 
             context.put(Log.outKey, out);
-            
+
             fileManager = context.get(JavaFileManager.class);
 
             comp = JavafxCompiler.instance(context);
@@ -658,12 +658,12 @@ public class Main {
         }
         return EXIT_OK;
     }
-    
+
     /** Print a message reporting an internal exception.
      */
     void bugMessage(Throwable ex) {
         Log.printLines(out, getJavafxLocalizedString(MsgSym.MESSAGE_JAVAFX_MSG_BUG,
-                                               JavafxCompiler.version()));
+                                               JavafxCompiler.fullVersion()));
         ex.printStackTrace(out);
     }
 
