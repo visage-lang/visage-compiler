@@ -159,13 +159,12 @@ public abstract class JavafxTranslationSupport {
         return expr;
     }
 
-    protected JCExpression convertNumericSequence(final DiagnosticPosition diagPos, final String sequenceSupport,
+    protected JCExpression convertNumericSequence(final DiagnosticPosition diagPos, final boolean isBound,
             final JCExpression expr, final Type inElementType, final Type targetElementType) {
         JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
         JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
         return runtime(diagPos,
-                sequenceSupport,
-                convertNumberSequence,
+                isBound? defs.BoundSequences_convertNumberSequence : defs.Sequences_convertNumberSequence,
                 List.of(targetTypeInfo, inTypeInfo, expr));
     }
 
@@ -500,21 +499,13 @@ public abstract class JavafxTranslationSupport {
         return makeUnboundLocation(diagPos, typeMorpher.typeMorphInfo(type), expr);
     }
 
-    protected JCExpression runtime(DiagnosticPosition diagPos, String cString, String methString) {
-        return runtime(diagPos, cString, methString, null, List.<JCExpression>nil());
+    JCExpression runtime(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> args) {
+        return runtime(diagPos, meth, null, args);
     }
 
-    protected JCExpression runtime(DiagnosticPosition diagPos, String cString, String methString, List<JCExpression> args) {
-        return runtime(diagPos, cString, methString, null, args);
-    }
-
-    protected JCExpression runtime(DiagnosticPosition diagPos, String cString, String methString, List<JCExpression> typeArgs, List<JCExpression> args) {
-        JCExpression meth = make.at(diagPos).Select(makeQualifiedTree(diagPos, cString), names.fromString(methString));
-        return make.at(diagPos).Apply(typeArgs, meth, args);
-    }
-
-    protected JCExpression runtime(DiagnosticPosition diagPos, String cString, String methString, ListBuffer<JCExpression> args) {
-        return runtime(diagPos, cString, methString, null, args.toList());
+    JCExpression runtime(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> typeArgs, List<JCExpression> args) {
+        JCExpression select = make.at(diagPos).Select(makeQualifiedTree(diagPos, meth.classString), meth.methodName);
+        return make.at(diagPos).Apply(typeArgs, select, args);
     }
 
     JCMethodInvocation callExpression(DiagnosticPosition diagPos, JCExpression receiver, Name methodName) {
@@ -652,7 +643,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     private JCExpression primitiveTypeInfo(DiagnosticPosition diagPos, Name typeName) {
-        return make.at(diagPos).Select(makeQualifiedTree(diagPos, typeInfosString), typeName);
+        return make.at(diagPos).Select(makeQualifiedTree(diagPos, cTypeInfo), typeName);
     }
     
     /**
@@ -691,7 +682,7 @@ public abstract class JavafxTranslationSupport {
         } else {
             assert !type.isPrimitive();
             List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, type, true));
-            return runtime(diagPos, typeInfosString, "getTypeInfo", typeArgs, List.<JCExpression>nil());
+            return runtime(diagPos, defs.TypeInfo_getTypeInfo, typeArgs, List.<JCExpression>nil());
         }
     }
 

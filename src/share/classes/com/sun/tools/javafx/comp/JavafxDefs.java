@@ -55,7 +55,7 @@ public class JavafxDefs {
     public static final String scriptBindingExpressionsString = "com.sun.javafx.runtime.location.ScriptBindingExpressions";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
-    public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfo";
+    public static final String cTypeInfo = "com.sun.javafx.runtime.TypeInfo";
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
@@ -80,15 +80,18 @@ public class JavafxDefs {
     public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
     
-    public static final String javaLangPackageNameString = "java.lang";
-    public static final String runtimePackageNameString = "com.sun.javafx.runtime";
-    public static final String annotationPackageNameString = "com.sun.javafx.runtime.annotation";
-    public static final String locationPackageNameString = "com.sun.javafx.runtime.location";
-    public static final String functionsPackageNameString = "com.sun.javafx.functions";
-    public static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
-    public static final String cSequences = sequencePackageNameString + ".Sequences";
-    public static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
-    public static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
+    public  static final String javaLangPackageNameString = "java.lang";
+    public  static final String runtimePackageNameString = "com.sun.javafx.runtime";
+    public  static final String annotationPackageNameString = "com.sun.javafx.runtime.annotation";
+    public  static final String locationPackageNameString = "com.sun.javafx.runtime.location";
+    public  static final String functionsPackageNameString = "com.sun.javafx.functions";
+    public  static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
+
+    private static final String cLocations = locationPackageNameString + ".Locations";
+    public  static final String cSequences = sequencePackageNameString + ".Sequences";
+    private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
+    private static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
+            static final String cOperator = cBoundOperators + ".Operator";
 
     static final String[] milieuNames = { "", "FromLiteral" };
     public static String getMilieuName(int index) { return milieuNames[index]; }
@@ -100,7 +103,60 @@ public class JavafxDefs {
     
     public char typeCharToEscape = '.';
     public char escapeTypeChar = '_';
-    
+
+    static class RuntimeMethod {
+        final String classString;
+        final Name methodName;
+
+        private RuntimeMethod(Name.Table names, String classString, String methodString) {
+            this.classString = classString;
+            this.methodName = names.fromString(methodString);
+        }
+    }
+
+    /**
+     * RuntimeMethod definitions
+     */
+    final RuntimeMethod TypeInfo_getTypeInfo;
+
+    final RuntimeMethod Locations_upcast;
+    final RuntimeMethod Locations_toByteLocation;
+    final RuntimeMethod Locations_toShortLocation;
+    final RuntimeMethod Locations_toIntLocation;
+    final RuntimeMethod Locations_toLongLocation;
+    final RuntimeMethod Locations_toFloatLocation;
+    final RuntimeMethod Locations_toDoubleLocation;
+
+    final RuntimeMethod Sequences_forceNonNull;
+    final RuntimeMethod Sequences_size;
+    final RuntimeMethod Sequences_convertNumberSequence;
+
+    final RuntimeMethod BoundOperators_makeBoundSequenceSelect;
+    final RuntimeMethod BoundOperators_makeBoundSelect;
+    final RuntimeMethod BoundOperators_makeBoundIf;
+    final RuntimeMethod BoundOperators_op_boolean;
+    final RuntimeMethod BoundOperators_op_double;
+    final RuntimeMethod BoundOperators_op_float;
+    final RuntimeMethod BoundOperators_op_long;
+    final RuntimeMethod BoundOperators_op_int;
+    final RuntimeMethod BoundOperators_cmp_double;
+    final RuntimeMethod BoundOperators_cmp_float;
+    final RuntimeMethod BoundOperators_cmp_long;
+    final RuntimeMethod BoundOperators_cmp_int;
+    final RuntimeMethod BoundOperators_cmp_other;
+    final RuntimeMethod BoundOperators_and_bb;
+
+    final RuntimeMethod BoundSequences_singleton;
+    final RuntimeMethod BoundSequences_range;
+    final RuntimeMethod BoundSequences_empty;
+    final RuntimeMethod BoundSequences_sizeof;
+    final RuntimeMethod BoundSequences_reverse;
+    final RuntimeMethod BoundSequences_element;
+    final RuntimeMethod BoundSequences_slice;
+    final RuntimeMethod BoundSequences_sliceExclusive;
+    final RuntimeMethod BoundSequences_upcast;
+    final RuntimeMethod BoundSequences_convertNumberSequence;
+
     /**
      * Name definitions
      */
@@ -275,6 +331,49 @@ public class JavafxDefs {
         locationSetMilieuMethodName = new Name[TYPE_KIND_COUNT][MILIEU_COUNT];
         locationVariableName = new Name[TYPE_KIND_COUNT];
         locationInterfaceName = new Name[TYPE_KIND_COUNT];
+
+        // Initialize RuntimeMethods
+        TypeInfo_getTypeInfo = new RuntimeMethod(names, cTypeInfo, "getTypeInfo");
+
+        Locations_upcast = new RuntimeMethod(names, cLocations, "upcast");
+        Locations_toByteLocation = new RuntimeMethod(names, cLocations, "toByteLocation");
+        Locations_toShortLocation = new RuntimeMethod(names, cLocations, "toShortLocation");
+        Locations_toIntLocation = new RuntimeMethod(names, cLocations, "toIntLocation");
+        Locations_toLongLocation = new RuntimeMethod(names, cLocations, "toLongLocation");
+        Locations_toFloatLocation = new RuntimeMethod(names, cLocations, "toFloatLocation");
+        Locations_toDoubleLocation = new RuntimeMethod(names, cLocations, "toDoubleLocation");
+
+        Sequences_size = new RuntimeMethod(names, cSequences, "size");
+        Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
+        Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
+
+        BoundOperators_makeBoundSequenceSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSequenceSelect");
+        BoundOperators_makeBoundSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSelect");
+        BoundOperators_makeBoundIf = new RuntimeMethod(names, cBoundOperators, "makeBoundIf");
+        BoundOperators_op_boolean = new RuntimeMethod(names, cBoundOperators, "op_boolean");
+        BoundOperators_op_double = new RuntimeMethod(names, cBoundOperators, "op_double");
+        BoundOperators_op_float = new RuntimeMethod(names, cBoundOperators, "op_float");
+        BoundOperators_op_long = new RuntimeMethod(names, cBoundOperators, "op_long");
+        BoundOperators_op_int = new RuntimeMethod(names, cBoundOperators, "op_int");
+        BoundOperators_cmp_double = new RuntimeMethod(names, cBoundOperators, "cmp_double");
+        BoundOperators_cmp_float = new RuntimeMethod(names, cBoundOperators, "cmp_float");
+        BoundOperators_cmp_long = new RuntimeMethod(names, cBoundOperators, "cmp_long");
+        BoundOperators_cmp_int = new RuntimeMethod(names, cBoundOperators, "cmp_int");
+        BoundOperators_cmp_other = new RuntimeMethod(names, cBoundOperators, "cmp_other");
+        BoundOperators_and_bb = new RuntimeMethod(names, cBoundOperators, "and_bb");
+
+        BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
+        BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");
+        BoundSequences_empty = new RuntimeMethod(names, cBoundSequences, "empty");
+        BoundSequences_sizeof = new RuntimeMethod(names, cBoundSequences, "sizeof");
+        BoundSequences_reverse = new RuntimeMethod(names, cBoundSequences, "reverse");
+        BoundSequences_element = new RuntimeMethod(names, cBoundSequences, "element");
+        BoundSequences_slice = new RuntimeMethod(names, cBoundSequences, "slice");
+        BoundSequences_sliceExclusive = new RuntimeMethod(names, cBoundSequences, "sliceExclusive");
+        BoundSequences_upcast = new RuntimeMethod(names, cBoundSequences, "upcast");
+        BoundSequences_convertNumberSequence = new RuntimeMethod(names, cBoundSequences, "convertNumberSequence");
+
+        // Initialize per Kind / Milieu names and types
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
             for (int m = 0; m < MILIEU_COUNT; ++m) {
                 locationSetMilieuMethodName[kind][m] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(kind) + milieuNames[m]);

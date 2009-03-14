@@ -452,7 +452,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (!types.isSameType(sourceElementType, targetElementType) &&
                     types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
                 return convertNumericSequence(diagPos,
-                        cSequences,
+                        false,
                         translated,
                         sourceElementType,
                         targetElementType);
@@ -3003,8 +3003,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 if (types.isSequence(seq.type)) {
                     // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
                     tseq = runtime(diagPos,
-                            cSequences,
-                            "forceNonNull",
+                            defs.Sequences_forceNonNull,
                             List.of(makeTypeInfo(diagPos, type), tseq));
                     body = m().ForeachLoop(inductionVar, tseq, body);
                 } else if (seq.type.tag == TypeTags.ARRAY ||
@@ -3506,9 +3505,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         if (expr.type.tag == TypeTags.ARRAY) {
                             return m().Select(transExpr, defs.lengthName);
                         }
-                        return callExpression(diagPos,
-                                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
-                                defs.sizeMethodName, transExpr);
+                        return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
                     case REVERSE:
                         if (types.isSequence(expr.type)) {
                             // call runtime reverse of a sequence

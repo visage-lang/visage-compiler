@@ -213,10 +213,12 @@ public class Locations {
             return (val == null) ? 0 : val.doubleValue();
         }
 
+        @Override
         public boolean isViewLocation() {
             return true;
         }
 
+        @Override
         public Location getUnderlyingLocation() {
             return location;
         }
@@ -354,16 +356,48 @@ public class Locations {
             location.addChangeListener(listener);
         }
 
+        @Override
         public boolean isViewLocation() {
             return true;
         }
 
+        @Override
         public Location getUnderlyingLocation() {
             return location;
         }
     }
 
-    public static class NumericToByteLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+    public static <T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number> ByteLocation
+            toByteLocation(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
+        return new NumericToByteLocationConversionWrapper(location, inType);
+    }
+
+    public static <T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number> ShortLocation
+            toShortLocation(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
+        return new NumericToShortLocationConversionWrapper(location, inType);
+    }
+
+    public static <T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number> IntLocation
+            toIntLocation(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
+        return new NumericToIntLocationConversionWrapper(location, inType);
+    }
+
+    public static <T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number> LongLocation
+            toLongLocation(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
+        return new NumericToLongLocationConversionWrapper(location, inType);
+    }
+
+    public static <T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number> FloatLocation
+            toFloatLocation(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
+        return new NumericToFloatLocationConversionWrapper(location, inType);
+    }
+
+    public static <T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number> DoubleLocation
+            toDoubleLocation(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
+        return new NumericToDoubleLocationConversionWrapper(location, inType);
+    }
+
+    static class NumericToByteLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ByteLocation, Byte, PrimitiveChangeListener<Byte>> implements ByteLocation {
 
         public NumericToByteLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
@@ -383,7 +417,7 @@ public class Locations {
         }
     }
 
-    public static class NumericToShortLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+    static class NumericToShortLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, ShortLocation, Short, PrimitiveChangeListener<Short>> implements ShortLocation {
 
         public NumericToShortLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
@@ -403,7 +437,7 @@ public class Locations {
         }
     }
 
-    public static class NumericToIntLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+    static class NumericToIntLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, IntLocation, Integer, PrimitiveChangeListener<Integer>> implements IntLocation {
 
         public NumericToIntLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
@@ -423,7 +457,7 @@ public class Locations {
         }
     }
 
-    public static class NumericToLongLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+    static class NumericToLongLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, LongLocation, Long, PrimitiveChangeListener<Long>> implements LongLocation {
 
         public NumericToLongLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
@@ -443,7 +477,7 @@ public class Locations {
         }
     }
 
-    public static class NumericToFloatLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+    static class NumericToFloatLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, FloatLocation, Float, PrimitiveChangeListener<Float>> implements FloatLocation {
 
         public NumericToFloatLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
@@ -463,7 +497,7 @@ public class Locations {
         }
     }
 
-    public static class NumericToDoubleLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
+    static class NumericToDoubleLocationConversionWrapper<T_LOC_IN extends NumericLocation & ObjectLocation<T_VALUE_IN>, T_VALUE_IN extends Number>
             extends NumericLocationConversionWrapper<T_LOC_IN, T_VALUE_IN, DoubleLocation, Double, PrimitiveChangeListener<Double>> implements DoubleLocation {
 
         public NumericToDoubleLocationConversionWrapper(T_LOC_IN location, NumericTypeInfo<T_VALUE_IN, ?> inType) {
