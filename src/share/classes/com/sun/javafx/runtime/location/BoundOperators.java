@@ -381,8 +381,8 @@ public class BoundOperators {
         final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
         final L loc = typeInfo.makeLocation();
         final L defaultConstant = typeInfo.makeDefaultConstant();
-        final ObjectVariable<L> lastADotB = makeIndirectHelper(lazy, loc,                                                                                      makeSelectBindingExpression(receiver, selector, defaultConstant),
-                                                                                      defaultConstant, receiver);
+        final ObjectVariable<L> lastADotB = makeIndirectHelper(lazy, loc, makeSelectBindingExpression(receiver, selector, defaultConstant),
+                                                               defaultConstant, receiver);
         ((BindableLocation<T, ?>) loc).bind(lazy, makeBindingExpression(typeInfo, lastADotB));
         return loc;
     }
@@ -437,13 +437,14 @@ public class BoundOperators {
         return new SequenceVariable<T>(typeInfo) {
             ObjectLocation<SequenceLocation<T>> helper;
             {
-                helper = makeIndirectHelper(lazy, this, binding, new SequenceConstant<T>(typeInfo, typeInfo.emptySequence), dependencies);
+                // Helper is deliberately not lazy -- because we need to get change events
+                helper = makeIndirectHelper(false, this, binding, new SequenceConstant<T>(typeInfo, typeInfo.emptySequence), dependencies);
                 bind(lazy, helper.get());
                 // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
                 // the rebinding happens.
                 helper.addChangeListener(new ObjectChangeListener<SequenceLocation<T>>() {
                     public void onChange(SequenceLocation<T> oldValue, SequenceLocation<T> newValue) {
-                        rebind(newValue);
+                        rebind(lazy, newValue);
                     }
                 });
             }
