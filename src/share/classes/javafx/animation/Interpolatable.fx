@@ -32,7 +32,7 @@ import java.lang.Object;
  *
  * @profile common
  */
-public abstract class Interpolatable {
+public mixin class Interpolatable {
     
     /**
      * The function calcuates an interpolated value along the {@code t} between
