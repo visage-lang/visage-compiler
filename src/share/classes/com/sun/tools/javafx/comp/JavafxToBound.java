@@ -47,6 +47,8 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
+import java.util.HashSet;
+import java.util.Set;
 import static com.sun.tools.javac.code.TypeTags.*;
 
 public class JavafxToBound extends JavafxTranslationSupport implements JavafxVisitor {
@@ -289,6 +291,38 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             default:
                 throw new AssertionError("Should not reach here");
         }
+    }
+    
+    /**
+     * Return the list of local variables accessed, but not defined within the FX expression.
+     * @param expr
+     * @return
+     */
+    private List<VarSymbol> localVars(JFXExpression expr) {
+        final ListBuffer<VarSymbol> lb = ListBuffer.<VarSymbol>lb();
+        final Set<VarSymbol> exclude = new HashSet<VarSymbol>();
+        new JavafxTreeScanner() {
+
+            @Override
+            public void visitIdent(JFXIdent tree) {
+                if (tree.sym instanceof VarSymbol) {
+                    VarSymbol vsym = (VarSymbol) (tree.sym);
+                    if (vsym.owner.kind != Kinds.TYP && !exclude.contains(vsym)) {
+                        // Local variable we haven't seen before, include it
+                        lb.append(vsym);
+                        exclude.add(vsym);
+                    }
+                }
+            }
+
+            @Override
+            public void visitVar(JFXVar tree) {
+                exclude.add(tree.sym);
+                super.visitVar(tree);
+            }
+        }.scan(expr);
+
+        return lb.toList();
     }
 
     /**
@@ -559,6 +593,49 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             trees.append(bindingClass);
         }
         return trees.toList();
+    }
+
+    private JCExpression wrapInBindingExpression(final DiagnosticPosition diagPos,
+            final Type resultType,
+            final JCExpression texpr,
+            final JFXExpression expr) {
+        return new BindingExpressionClosureTranslator(diagPos, resultType) {
+
+            private JCVariableDecl renamingVar(Name name, Name vname, Type type, boolean isLocation) {
+                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
+                Type varType = isLocation? tmi.getLocationType() : type;
+                FieldInfo rcvrField = new FieldInfo(name.toString(), typeMorpher.typeMorphInfo(varType), false);
+                return m().VarDef(
+                        m().Modifiers(Flags.FINAL),
+                        vname,
+                        makeTypeTree(diagPos, varType),
+                        buildArgField(m().Ident(name), rcvrField, ArgKind.FREE));
+            }
+
+            protected JCExpression makePushExpression() {
+                ListBuffer<JCStatement> renamings = ListBuffer.<JCStatement>lb();
+                switch (toJava.inInstanceContext) {
+                    case ScriptAsStatic:
+                        // No receiver
+                        break;
+                    case InstanceAsStatic:
+                        renamings.append( renamingVar(defs.receiverName, defs.receiverName, toJava.attrEnv.enclClass.type, false) );
+                        break;
+                    case InstanceAsInstance:
+                        renamings.append( renamingVar(names._this, defs.receiverName, toJava.attrEnv.enclClass.type, false) );
+                        break;
+                    default:
+                        assert false : "Bad receiver context";
+                        break;
+                }
+                if (expr != null) {
+                    for (VarSymbol vsym : localVars(expr)) {
+                        renamings.append( renamingVar(vsym.name, vsym.name, vsym.type, true) );
+                    }
+                }
+                return makeBlockExpression(diagPos, renamings.toList(), texpr);
+            }
+        }.buildClosure();
     }
 
     @Override
@@ -939,9 +1016,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 if (whereTest != null) {
                     tbody = makeBoundConditional(diagPos,
                             tree.type,
+                            whereTest,
                             tbody,
-                            runtime(diagPos, defs.BoundSequences_empty, List.of(makeTypeInfo(diagPos, resultElementType))),
-                            whereTest);
+                            runtime(diagPos, defs.BoundSequences_empty, List.of(makeTypeInfo(diagPos, resultElementType)))
+                          );
                 }
                 return tbody;
             }
@@ -1060,9 +1138,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private JCExpression makeBoundSequenceConditional(final DiagnosticPosition diagPos,
             final Type resultType,
             final TypeMorphInfo tmiResult,
+            final JCExpression condExpr,
             final JCExpression trueExpr,
-            final JCExpression falseExpr,
-            final JCExpression condExpr) {
+            final JCExpression falseExpr) {
         List<JCExpression> args = List.of(
                 makeTypeInfo(diagPos, tmiResult.getElementType()),
                 makeLaziness(diagPos),
@@ -1097,18 +1175,18 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     private JCExpression makeBoundConditional(final DiagnosticPosition diagPos,
             final Type resultType,
+            final JCExpression condExpr,
             final JCExpression trueExpr,
-            final JCExpression falseExpr,
-            final JCExpression condExpr) {
+            final JCExpression falseExpr) {
         TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(resultType);
         if (tmiResult.isSequence()) {
             // the lazy approach won't work for sequences
             return makeBoundSequenceConditional(diagPos,
                     resultType,
                     tmiResult,
+                    condExpr,
                     trueExpr,
-                    falseExpr,
-                    condExpr);
+                    falseExpr);
         }
         List<JCExpression> args = List.of(
                 makeTypeInfo(diagPos, resultType),
@@ -1124,9 +1202,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         Type targetType = targetType(tree.type);
         result = makeBoundConditional(tree.pos(),
                 targetType,
+                translate(tree.getCondition()) ,
                 translateForConditional(tree.getTrueExpression(), targetType),
-                translateForConditional(tree.getFalseExpression(), targetType),
-                translate(tree.getCondition()) );
+                translateForConditional(tree.getFalseExpression(), targetType));
     }
 
     @Override
@@ -1559,15 +1637,17 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 case AND:
                     return makeBoundConditional(diagPos,
                             syms.booleanType,
+                            translate(l, syms.booleanType),
                             translateForConditional(r, syms.booleanType),
-                            makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)),
-                            translate(l, syms.booleanType));
+                            makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0))
+                        );
                 case OR:
                     return makeBoundConditional(diagPos,
                             syms.booleanType,
+                            translate(l, syms.booleanType),
                             makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
-                            translateForConditional(r, syms.booleanType),
-                            translate(l, syms.booleanType));
+                            translateForConditional(r, syms.booleanType)
+                         );
                 default:
                     assert false : "unhandled binary operator";
                     return translate(l);
