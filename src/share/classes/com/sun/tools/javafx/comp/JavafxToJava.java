@@ -88,6 +88,18 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     private Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
 
+    enum ReceiverContext {
+        // In a script function or script var init, implemented as a static method
+        ScriptAsStatic,
+        // In an instance function or instance var init, implemented as static
+        InstanceAsStatic,
+        // In an instance function or instance var init, implemented as an instance method
+        InstanceAsInstance,
+        // Should not see code in this state
+        Oops
+    }
+    ReceiverContext inInstanceContext = ReceiverContext.Oops;
+
     public enum Locationness {
         // We need a Location
         AsLocation,
@@ -452,7 +464,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (!types.isSameType(sourceElementType, targetElementType) &&
                     types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
                 return convertNumericSequence(diagPos,
-                        cSequences,
+                        false,
                         translated,
                         sourceElementType,
                         targetElementType);
@@ -748,16 +760,21 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 for (JFXTree def : tree.getMembers()) {
                     switch(def.getFXTag()) {
                         case INIT_DEF: {
+                            inInstanceContext = ReceiverContext.InstanceAsStatic;
                             translateAndAppendStaticBlock(((JFXInitDefinition) def).getBody(), translatedInitBlocks);
+                            inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case POSTINIT_DEF: {
+                            inInstanceContext = ReceiverContext.InstanceAsStatic;
                             translateAndAppendStaticBlock(((JFXPostInitDefinition) def).getBody(), translatedPostInitBlocks);
+                            inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
+                            inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : ReceiverContext.InstanceAsStatic;
                             JCStatement init = (!isStatic || attrEnv.toplevel.isLibrary)?
                                 translateDefinitionalAssignmentToSet(attrDef.pos(),
                                 attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
@@ -769,12 +786,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                     init,
                                     attrDef.getOnReplace(),
                                     translatedOnReplaceBody(attrDef.getOnReplace())));
-                            //translatedDefs.append(trans);
+                            inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case OVERRIDE_ATTRIBUTE_DEF: {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
+                            inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : ReceiverContext.InstanceAsStatic;
                             JCStatement init;
                             if (override.getInitializer() == null) {
                                 init = null;
@@ -790,6 +808,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                     init,
                                     override.getOnReplace(),
                                     translatedOnReplaceBody(override.getOnReplace())));
+                            inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                        case FUNCTION_DEF : {
@@ -1630,6 +1649,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         boolean isBound = (tree.sym.flags() & JavafxFlags.BOUND) != 0;
         TranslationState prevZ = translationState;
         translationState = null; //should be explicitly set
+        ReceiverContext prevContext = inInstanceContext;
 
         try {
             boolean isMixinClass = currentClass.isMixinClass();
@@ -1648,6 +1668,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             JCModifiers mods = make.Modifiers(flags);
             final boolean isRunMethod = syms.isRunMethod(tree.sym);
             final boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0L && !isRunMethod && isMixinClass;
+            inInstanceContext = (originalFlags & (Flags.STATIC)) != 0L ?
+                ReceiverContext.ScriptAsStatic :
+                isImplMethod ?
+                    ReceiverContext.InstanceAsStatic :
+                    ReceiverContext.InstanceAsInstance;
 
             DiagnosticPosition diagPos = tree.pos();
             MethodType mtype = (MethodType)tree.type;
@@ -1709,6 +1734,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
         finally {
             translationState = prevZ;
+            inInstanceContext = prevContext;
         }
     }
 
@@ -3015,8 +3041,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 if (types.isSequence(seq.type)) {
                     // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
                     tseq = runtime(diagPos,
-                            cSequences,
-                            "forceNonNull",
+                            defs.Sequences_forceNonNull,
                             List.of(makeTypeInfo(diagPos, type), tseq));
                     body = m().ForeachLoop(inductionVar, tseq, body);
                 } else if (seq.type.tag == TypeTags.ARRAY ||
@@ -3519,9 +3544,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         if (expr.type.tag == TypeTags.ARRAY) {
                             return m().Select(transExpr, defs.lengthName);
                         }
-                        return callExpression(diagPos,
-                                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
-                                defs.sizeMethodName, transExpr);
+                        return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
                     case REVERSE:
                         if (types.isSequence(expr.type)) {
                             // call runtime reverse of a sequence

@@ -8,6 +8,11 @@
          <available file="${build.defs}" type="file" property="ignored"/>
        </not>
     </condition>
+
+    <tstamp>
+        <format property="date.stamp" pattern="yyyy-MM-dd"/>
+    </tstamp>
+
     <property name="top-repo" value="openjfx-compiler~marina-setup"/>
     <property name="top-url" value="http://kenai.com/hg/${top-repo}"/>
     <property name="build.dir" value="${basedir}/build"/>
@@ -40,6 +45,14 @@
 
     <import file="${build.defs}"/>
 
+    <!-- 
+        If the jfx.build.number is not set to a real value, then we are building outside hudson.  Use
+        userName-date instead.
+    -->
+    <condition property="build.number.string" value="${user.name}-${date.stamp}" else="${jfx.build.number}">
+       <matches string="${jfx.build.number}" pattern="^0*$"/>
+    </condition>
+
     <property name="javafxdoc.dir" value="${basedir}/javafxdoc"/>
     <property name="launcher.dir" value="${basedir}/launcher"/>
     <property environment="env" />
@@ -54,6 +67,7 @@
 
     <target name="jj">
     <echo>
+
     </echo>
     </target>
 
@@ -99,7 +113,8 @@
       name="test"       depends="binaries,-do-test"            description="Build binaries and run all tests"
            To run a single framework/xxxTest.java, do
                ant test -Dincludes=framework/xxxTest.java
-
+           or for example
+               ant test -Dincludes=launchers/VersionTest.java
            To run a subset, say fxunit/ of the JFXCompilerTest tests, do
                ant test -Dtest.fx.roots=test/fxunit -Dincludes=framework/FXCompilerTest.java
 
@@ -658,12 +673,10 @@
 
     <target name="staticsizes" depends="jar, staticsizes-clean">
         <mkdir dir="${build.staticsizes.dir}"/>
-        <property environment="env"/>
-        <property name="label" value="env.BUILD_NUMBER"/>
         <java classname="com.sun.javafx.tools.jaranalyzer.JarAnalyzer">
             <arg value="${dist.javafxrt.jar}" />
             <arg value="${build.staticsizes.dir}" />
-            <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${env.BUILD_NUMBER}/artifact/build/staticsizes" />
+            <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/artifact/build/staticsizes" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
             </classpath>
@@ -747,9 +760,6 @@
     </target>
     
     <target name="weekly-build" description="Weekly build target" depends="weekly-build-check">
-        <tstamp>
-            <format property="date.stamp" pattern="yyyy-MM-dd"/>
-        </tstamp>
         <antcall target="-bundle-build">
             <param name="release" value="weekly-${date.stamp}"/>
         </antcall>

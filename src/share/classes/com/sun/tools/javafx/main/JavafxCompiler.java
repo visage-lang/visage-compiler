@@ -166,7 +166,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     private static CompilePolicy DEFAULT_COMPILE_POLICY = CompilePolicy.BY_TODO;
-    
+
     private static enum ImplicitSourcePolicy {
         /** Don't generate or process implicitly read source files. */
         NONE,
@@ -174,7 +174,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         CLASS,
         /** Like CLASS, but generate warnings if annotation processing occurs */
         UNSET;
-        
+
         static ImplicitSourcePolicy decode(String option) {
             if (option == null)
                 return UNSET;
@@ -186,11 +186,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 return UNSET;
         }
     }
-    
+
     /** Command line options
      */
     protected Options options;
-    
+
     /** The log to be used for error reporting.
      */
     public Log log;
@@ -230,18 +230,18 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /** The annotation annotator.
      */
     protected JavafxAnnotate annotate;
-    
+
     /** The back-end preper
      */
-    protected JavafxPrepForBackEnd prepForBackEnd;    
-    
+    protected JavafxPrepForBackEnd prepForBackEnd;
+
     /** Optimization statistics
      */
-    protected JavafxOptimizationStatistics optStat;    
-    
+    protected JavafxOptimizationStatistics optStat;
+
     /** The Java Compiler instance the processes the flow through gen.
      */
-    protected JavafxJavaCompiler javafxJavaCompiler;    
+    protected JavafxJavaCompiler javafxJavaCompiler;
 
     /** Force a completion failure on this name
      */
@@ -322,7 +322,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         encoding      = options.get("-encoding");
         lineDebugInfo = options.get("-g:")            == null ||
                         options.get("-g:lines")       != null;
-        devVerbose    = options.get("dev") != null;  
+        devVerbose    = options.get("dev") != null;
         processPcks   = options.get("process.packages") != null;
 
         verboseCompilePolicy = options.get("verboseCompilePolicy") != null;
@@ -331,7 +331,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             compilePolicy = CompilePolicy.ATTR_ONLY;
         else
             compilePolicy = CompilePolicy.decode(options.get("compilePolicy"));
-        
+
         implicitSourcePolicy = ImplicitSourcePolicy.decode(options.get("-implicit"));
 
         completionFailureName =
@@ -392,7 +392,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * The policy for the order in which to perform the compilation
      */
     protected CompilePolicy compilePolicy;
-    
+
     /**
      * The policy for what to do with implicitly read source files
      */
@@ -471,7 +471,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 taskListener.started(e);
             }
             int initialErrorCount = log.nerrors;
-            
+
             // Parse the input, returning the AST
             tree = syntacticAnalysis.parse(content, filename.getName());
             parseErrors |= (log.nerrors > initialErrorCount);
@@ -630,7 +630,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                                                 c.fullname));
             }
         }
-        
+
         implicitSourceFilesRead = true;
     }
 
@@ -681,7 +681,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 cus.head.starImportScope = starImportScope;
             // These method calls must be chained to avoid memory leaks
             enterTrees(cus);
-            
+
             compile2(null);
             if (attr != null) {
                 attr.clearCaches();
@@ -692,7 +692,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 ex.printStackTrace();
         }
     }
-    
+
     public List<JavafxEnv<JavafxAttrContext>> jfxToJava(List<JavafxEnv<JavafxAttrContext>> envs) {
         ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
         for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
@@ -706,7 +706,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         jfxToJava(env, results);
         return stopIfError(results);
     }
-    
+
     protected void jfxToJava(JavafxEnv<JavafxAttrContext> env, ListBuffer<JavafxEnv<JavafxAttrContext>> results) {
         try {
             if (errorCount() > 0)
@@ -734,7 +734,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
             catch (RuntimeException ex) {
                 if (env.where != null)
-                    log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR);
+                    log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR,
+                             JavafxCompiler.fullVersion());
                 throw ex;
             }
             finally {
@@ -780,7 +781,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 while (todo.nonEmpty()) {
                     envbuff.append(attribute(todo.next()));
                 }
-                
+
                 backEnd(prepForBackEnd(jfxToJava(varAnalysis(stopIfError(envbuff)))), results);
                 break;
             }
@@ -793,9 +794,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
 
         if (verbose) {
-	    elapsed_msec = elapsed(start_msec);
+            elapsed_msec = elapsed(start_msec);
             printVerbose(MsgSym.MESSAGE_TOTAL, Long.toString(elapsed_msec));
-	}
+        }
 
         reportDeferredDiagnostics();
 
@@ -803,10 +804,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             printCount(MsgSym.MESSAGEPREFIX_ERROR, errorCount());
             printCount(MsgSym.MESSAGEPREFIX_WARN, warningCount());
         }
-        
+
         ((JavafxTypes) types).clearCaches();
     }
-    
+
     /**
      * Generate any files on the todo list.  Called by JavafxcTaskImpl.
      */
@@ -814,7 +815,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         todo.appendList(genlist);
         compile2(results);
     }
-    
+
     private void backEnd(List<JavafxEnv<JavafxAttrContext>> envs, ListBuffer<JavaFileObject> results) throws IOException {
         ListBuffer<JCCompilationUnit> javaTrees = lb();
         for (JavafxEnv<JavafxAttrContext> env : envs) {
@@ -836,7 +837,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
    public List<JFXScript> parseFiles(List<JavaFileObject> fileObjects) throws IOException {
        if (errorCount() > 0)
-       	   return List.nil();
+           return List.nil();
 
         //parse all files
         ListBuffer<JFXScript> trees = lb();
@@ -858,9 +859,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 taskListener.started(e);
             }
         }
-        
+
         enter.main(roots);
-        
+
         if (taskListener != null) {
             for (JFXScript unit: roots) {
                 JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, unit);
@@ -890,7 +891,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     public void errorCheck() throws IOException {
         backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), null);
     }
-    
+
     /**
      * Attribute the existing JavafxTodo list.  Called by JavafxTaskImpl.
      */
@@ -1030,7 +1031,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 map.put(tree, map.get(tree).reverse());
             return map;
         }
-        
+
     public void reportDeferredDiagnostics() {
         chk.reportDeferredDiagnostics();
     }
@@ -1045,8 +1046,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         make = null;
         writer = null;
         enter = null;
-	if (todo != null)
-	    todo.clear();
+        if (todo != null)
+            todo.clear();
         todo = null;
         syms = null;
         source = null;
@@ -1090,17 +1091,17 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     private static long now() {
-	return System.currentTimeMillis();
+        return System.currentTimeMillis();
     }
 
     private static long elapsed(long then) {
-	return now() - then;
+        return now() - then;
     }
 
     public void initRound(JavafxCompiler prev) {
-	keepComments = prev.keepComments;
-	start_msec = prev.start_msec;
-	hasBeenUsed = true;
+        keepComments = prev.keepComments;
+        start_msec = prev.start_msec;
+        hasBeenUsed = true;
     }
 
     public static void enableLogging() {

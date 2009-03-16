@@ -93,7 +93,7 @@ public class JavafxBackendLog extends Log {
             Log fxLog = Log.instance(fxContext);
             fxLog.note(
                     MsgSym.MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR,
-                    JavafxCompiler.version(),
+                    JavafxCompiler.fullVersion(),
                     sw.toString());
         }
     }
