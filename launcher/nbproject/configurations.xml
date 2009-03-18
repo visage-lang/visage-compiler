@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="45">
+<configurationDescriptor version="51">
   <logicalFolder name="root" displayName="root" projectFiles="true">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -18,6 +18,7 @@
       <itemPath>src/javafx.cpp</itemPath>
       <itemPath>src/javafxc.cpp</itemPath>
       <itemPath>src/javafxdoc.cpp</itemPath>
+      <itemPath>src/javafxw.cpp</itemPath>
       <itemPath>src/util.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -26,11 +27,11 @@
       <itemPath>Makefile</itemPath>
     </logicalFolder>
   </logicalFolder>
-  <sourceEncoding>UTF-8</sourceEncoding>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="javafx_debug" type="1">
       <toolsSet>
+        <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
         <platform>3</platform>
       </toolsSet>
@@ -64,6 +65,9 @@
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
       </item>
+      <item path="src/javafxw.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="src/util.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -73,6 +77,7 @@
     </conf>
     <conf name="javafxc_debug" type="1">
       <toolsSet>
+        <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
         <platform>3</platform>
       </toolsSet>
@@ -106,6 +111,9 @@
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
       </item>
+      <item path="src/javafxw.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="src/util.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -115,6 +123,7 @@
     </conf>
     <conf name="javafx_release" type="1">
       <toolsSet>
+        <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
         <platform>3</platform>
       </toolsSet>
@@ -153,6 +162,9 @@
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
       </item>
+      <item path="src/javafxw.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="src/util.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -162,6 +174,7 @@
     </conf>
     <conf name="javafxc_release" type="1">
       <toolsSet>
+        <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
         <platform>3</platform>
       </toolsSet>
@@ -200,6 +213,9 @@
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
       </item>
+      <item path="src/javafxw.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="src/util.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -209,6 +225,7 @@
     </conf>
     <conf name="javafxdoc_debug" type="1">
       <toolsSet>
+        <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
         <platform>3</platform>
       </toolsSet>
@@ -242,6 +259,9 @@
       <item path="src/javafxdoc.cpp">
         <itemTool>1</itemTool>
       </item>
+      <item path="src/javafxw.cpp">
+        <itemTool>1</itemTool>
+      </item>
       <item path="src/util.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -251,6 +271,7 @@
     </conf>
     <conf name="javafxdoc_release" type="1">
       <toolsSet>
+        <developmentServer>localhost</developmentServer>
         <compilerSet>Cygwin|Cygwin</compilerSet>
         <platform>3</platform>
       </toolsSet>
@@ -287,6 +308,106 @@
         <itemTool>1</itemTool>
       </item>
       <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxw.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.h">
+        <itemTool>3</itemTool>
+      </item>
+    </conf>
+    <conf name="javafxw_release" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+          <commandLine>-mwindows -mno-cygwin -s</commandLine>
+          <preprocessorList>
+            <Elem>PROJECT_JAVAFXW</Elem>
+          </preprocessorList>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <output>dist/Release/javafxw</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="src/configuration.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/configuration.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="src/javafx.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxw.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/util.h">
+        <itemTool>3</itemTool>
+      </item>
+    </conf>
+    <conf name="javafxw_debug" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <ccCompilerTool>
+          <commandLine>-mno-cygwin</commandLine>
+          <preprocessorList>
+            <Elem>PROJECT_JAVAFXW</Elem>
+            <Elem>DEBUG</Elem>
+          </preprocessorList>
+          <warningLevel>2</warningLevel>
+        </ccCompilerTool>
+        <linkerTool>
+          <output>dist/Debug/javafxw</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="src/configuration.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/configuration.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="src/javafx.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxdoc.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="src/javafxw.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="src/util.cpp">
