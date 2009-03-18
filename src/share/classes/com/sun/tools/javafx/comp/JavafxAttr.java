@@ -3703,6 +3703,9 @@ public class JavafxAttr implements JavafxVisitor {
             chk.checkPureMixinClass(tree.pos(), c);
             // Check that only it only extends mixins and interfaces.
             chk.checkOnlyMixinsAndInterfaces(tree);
+        } else {
+            // Check to make sure that mixins don't cause any conflicts.
+            chk.checkMixinConflicts(tree);
         }
          
         // Check that all extended classes and interfaces

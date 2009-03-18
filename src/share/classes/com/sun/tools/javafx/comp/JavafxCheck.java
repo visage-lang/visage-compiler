@@ -1562,11 +1562,33 @@ public class JavafxCheck {
             }
         }
     }
+    
+    
+    /** Check to make sure that any mixins don't create var conflicts.
+     */
+    void checkMixinConflicts(JFXClassDeclaration tree) {
+        for (JFXExpression mixin : tree.getMixing()) {
+            if (mixin instanceof JFXIdent) {
+                Symbol symbol = ((JFXIdent)mixin).sym;
+                if ((symbol.flags_field & JavafxFlags.MIXIN) != 0) {
+                    ClassSymbol mixinSym = (ClassSymbol)symbol;
+                    Scope s = mixinSym.members();
+                    for (Scope.Entry e = s.elems; e != null; e = e.sibling) {
+                        if (e.sym.kind == VAR) {
+                            checkVarOverride(mixin.pos(), (VarSymbol)e.sym, tree.sym, false);
+                        }
+                    }
+               }
+            }
+        }
+    }
 
     /** Check that var/def does not override (unless it is hidden by being script private)
      */
     void checkVarOverride(DiagnosticPosition diagPos, VarSymbol vsym) {
-        ClassSymbol origin = (ClassSymbol) vsym.owner;
+        checkVarOverride(diagPos, vsym, (ClassSymbol)vsym.owner, true);
+    }
+    void checkVarOverride(DiagnosticPosition diagPos, VarSymbol vsym, ClassSymbol origin, boolean overrides) {
         for (Type t : types.supertypes(origin)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
@@ -1578,11 +1600,19 @@ public class JavafxCheck {
                             origin.outermostClass() == ((ClassSymbol) e.sym.owner).outermostClass()))  {
                         // We have a name clash, the variable name is the name of a member
                         // which is visible outside the script or which is in the same script
-                        log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
-                               MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER :
-                               MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER,
-                            e.sym,
-                            e.sym.owner);
+                        if (!types.isJFXClass(e.sym.owner)) {
+                            log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
+                                   MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_JAVA_MEMBER :
+                                   MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_JAVA_MEMBER,
+                                e.sym,
+                                e.sym.owner);
+                        } else if (overrides) {
+                            log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
+                                   MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER :
+                                   MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER,
+                                e.sym,
+                                e.sym.owner);
+                        }
                         return;
                     }
                     e = e.next();

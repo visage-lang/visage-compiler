@@ -350,6 +350,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE = "javafx.function.overrides.another.should.be.declared.override";
     public static final String MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER = "javafx.var.overrides.member";
     public static final String MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER = "javafx.def.overrides.member";
+    public static final String MESSAGE_JAVAFX_VAR_OVERRIDES_JAVA_MEMBER = "javafx.var.overrides.java.member";
+    public static final String MESSAGE_JAVAFX_DEF_OVERRIDES_JAVA_MEMBER = "javafx.def.overrides.java.member";
     public static final String MESSAGE_JAVAFX_STATIC_DEPRECATED = "javafx.static.deprecated";
     public static final String MESSAGE_JAVAFX_REDUNDANT_ACCESS_MODIFIERS = "javafx.redundant.access.modifiers";
     public static final String MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE = "javafx.var.not.supported.here";
