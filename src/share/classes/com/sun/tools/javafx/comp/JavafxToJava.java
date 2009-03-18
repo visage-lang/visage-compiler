@@ -857,13 +857,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             translatedDefs.appendList(model.additionalClassMembers);
             
-            if (!isMixinClass) {
+            {
                 // Add the userInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
                 // call the superclasses userInit$
                 Set<String> dupSet = new HashSet<String>();
-                for (JFXExpression parent : tree.getExtending()) {
+                ListBuffer<JFXExpression> parents = ListBuffer.lb();
+                parents.appendList(tree.getExtending());
+                parents.appendList(tree.getMixing());
+                
+                for (JFXExpression parent : parents.toList()) {
                     if (! (parent instanceof JFXIdent))
                         continue;
                     Symbol symbol = expressionSymbol(parent);
@@ -895,13 +899,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                         userInitBlock,
                         null));
             }
-            if (!isMixinClass) {
+            {
                 // Add the userPostInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
                 // call the superclasses postInit$
                 Set<String> dupSet = new HashSet<String>();
-                for (JFXExpression parent : tree.getExtending()) {
+                ListBuffer<JFXExpression> parents = ListBuffer.lb();
+                parents.appendList(tree.getExtending());
+                parents.appendList(tree.getMixing());
+                
+                for (JFXExpression parent : parents.toList()) {
                     if (! (parent instanceof JFXIdent))
                         continue;
                     Symbol symbol = expressionSymbol(parent);
