@@ -1,0 +1,7 @@
+test/regress/jfxc2862.fx:2: 'var' overrides member 'xxread' in 'jfxc2862a'; use 'override'.
+    var xxread: Number; 
+    ^
+test/regress/jfxc2862.fx:3: 'var' overrides member 'xxinit' in 'jfxc2862a'; use 'override'.
+    var xxinit: Number; 
+    ^
+2 errors
