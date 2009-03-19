@@ -113,31 +113,31 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         ifLoc.addChangeListener(hl);
         assertEqualsAndClear(hl);
         assertEquals(ifLoc.getAsSequence(), 1, 2, 3);
-//        assertEqualsLazy(lazyIfLoc, 1, 2, 3);
+        assertEqualsLazy(lazyIfLoc, 1, 2, 3);
 
         x.insert(4);
         assertEquals(ifLoc.getAsSequence(), 1, 2, 3, 4);
-//        assertEqualsLazy(lazyIfLoc, 1, 2, 3, 4);
+        assertEqualsLazy(lazyIfLoc, 1, 2, 3, 4);
         assertEqualsAndClear(hl, "[3, 2] => [ 4 ]");
 
         b.set(false);
         assertEquals(ifLoc.getAsSequence(), 4, 5, 6);
-//        assertEqualsLazy(lazyIfLoc, 4, 5, 6);
+        assertEqualsLazy(lazyIfLoc, 4, 5, 6);
         assertEqualsAndClear(hl, "[0, 3] => [ 4, 5, 6 ]");
 
         x.insert(5);
         assertEquals(ifLoc.getAsSequence(), 4, 5, 6);
-//        assertEquals(lazyIfLoc.getAsSequence(), 4, 5, 6);
+        assertEquals(lazyIfLoc.getAsSequence(), 4, 5, 6);
         assertEqualsAndClear(hl);
 
         y.insert(7);
         assertEquals(ifLoc.getAsSequence(), 4, 5, 6, 7);
-//        assertEqualsLazy(lazyIfLoc, 4, 5, 6, 7);
+        assertEqualsLazy(lazyIfLoc, 4, 5, 6, 7);
         assertEqualsAndClear(hl, "[3, 2] => [ 7 ]");
 
         b.set(true);
         assertEquals(ifLoc.getAsSequence(), 1, 2, 3, 4, 5);
-//        assertEqualsLazy(lazyIfLoc, 1, 2, 3, 4, 5);
+        assertEqualsLazy(lazyIfLoc, 1, 2, 3, 4, 5);
         assertEqualsAndClear(hl, "[0, 3] => [ 1, 2, 3, 4, 5 ]");
     }
 

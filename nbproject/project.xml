@@ -201,7 +201,7 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>
                 <package-root>build/gensrc</package-root>
-                <classpath mode="compile">lib/javac.jar:build/classes</classpath>
+                <classpath mode="compile">lib/javac.jar:build/classes:../import/antlr-3.1.3/antlr-3.1.3/lib/antlr-3.1.3.jar</classpath>
                 <built-to>build/classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
@@ -212,7 +212,7 @@
             </compilation-unit>
             <compilation-unit>
                 <package-root>src/share/classes</package-root>
-                <classpath mode="compile">lib/javac.jar:lib/javadoc.jar:lib/org-netbeans-modules-java-j2seproject-copylibstask.jar:lib/script-api.jar:build/classes:lib/plugin_exports.jar</classpath>
+                <classpath mode="compile">lib/javac.jar:lib/javadoc.jar:lib/org-netbeans-modules-java-j2seproject-copylibstask.jar:lib/script-api.jar:build/classes:lib/plugin_exports.jar:../import/antlr-3.1.3/antlr-3.1.3/lib/antlr-3.1.3.jar</classpath>
                 <built-to>build/classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>

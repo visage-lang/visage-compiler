@@ -34,7 +34,7 @@ import com.sun.javafx.runtime.location.SequenceChangeListener;
 class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private final SequenceLocation<T> location;
 
-    BoundReverseSequence(SequenceLocation<T> location) {
+    BoundReverseSequence(boolean lazy, SequenceLocation<T> location) {
         super(location.getElementType());
         this.location = location;
 

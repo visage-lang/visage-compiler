@@ -44,11 +44,12 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     private final SequenceLocation<T> sequenceLocation;
     protected final boolean useIndex;
+    protected final boolean lazy;
     protected final TypeInfo<T, L> inType;
     private DumbMutableSequence<State<T, L, V>> state;
     private BoundCompositeSequence<V> underlying;
 
-    public AbstractBoundComprehension(TypeInfo<V, ?> typeInfo,
+    public AbstractBoundComprehension(boolean lazy, TypeInfo<V, ?> typeInfo,
                                       TypeInfo<T, L> inType,
                                       SequenceLocation<T> sequenceLocation,
                                       boolean useIndex) {
@@ -56,14 +57,15 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
         this.inType = inType;
         this.sequenceLocation = sequenceLocation;
         this.useIndex = useIndex;
+        this.lazy = lazy;
         setInitialValue(computeValue());
         addTriggers();
     }
 
-    public AbstractBoundComprehension(TypeInfo<V, ?> typeInfo,
+    public AbstractBoundComprehension(boolean lazy, TypeInfo<V, ?> typeInfo,
                                       TypeInfo<T, L> inType,
                                       SequenceLocation<T> sequenceLocation) {
-        this(typeInfo, inType, sequenceLocation, false);
+        this(lazy, typeInfo, inType, sequenceLocation, false);
     }
 
     protected static class State<T, L extends ObjectLocation<T>, V> {
@@ -91,7 +93,7 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
         State<T, L, V>[] newStates = State.newArray(sequence.size());
         fillInNewValues(sequence, newStates, locationsArray, 0);
         state.replaceSlice(0, -1, newStates);
-        underlying = new BoundCompositeSequence<V>(getElementType(), locationsArray);
+        underlying = new BoundCompositeSequence<V>(lazy, getElementType(), locationsArray);
         return underlying.getAsSequence();
     }
 

@@ -49,7 +49,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
      * @param sequenceLocation The input sequence
      * @param dependsOnIndex Whether or not the computeElement$ makes use of the indexof operator
      */
-    public SimpleBoundComprehension(TypeInfo<V, ?> typeInfo,
+    public SimpleBoundComprehension(boolean lazy, TypeInfo<V, ?> typeInfo,
                                     SequenceLocation<T> sequenceLocation,
                                     boolean dependsOnIndex) {
         super(typeInfo);
@@ -59,8 +59,8 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
         addTriggers();
     }
 
-    public SimpleBoundComprehension(TypeInfo<V, ?> typeInfo, SequenceLocation<T> sequenceLocation) {
-        this(typeInfo, sequenceLocation, false);
+    public SimpleBoundComprehension(boolean lazy, TypeInfo<V, ?> typeInfo, SequenceLocation<T> sequenceLocation) {
+        this(lazy, typeInfo, sequenceLocation, false);
     }
 
     protected abstract V computeElement$(T element, int index);

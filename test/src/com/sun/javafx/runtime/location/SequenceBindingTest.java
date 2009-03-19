@@ -34,6 +34,8 @@ import com.sun.javafx.runtime.sequence.*;
  */
 public class SequenceBindingTest extends JavaFXTestCase {
 
+    static final boolean NOT_LAZY = false;
+
     private final SequencePredicate<Integer> isOnePredicate = new SequencePredicate<Integer>() {
         public boolean matches(Sequence sequence, int index, Integer value) {
             return value == 1;
@@ -342,7 +344,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testBoundConcat() {
         SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 2));
         SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, Sequences.range(3, 4));
-        BoundCompositeSequence<Integer> c = new BoundCompositeSequence<Integer>(TypeInfo.Integer, a, b);
+        BoundCompositeSequence<Integer> c = new BoundCompositeSequence<Integer>(NOT_LAZY, TypeInfo.Integer, a, b);
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
         c.addChangeListener(hl);
 
@@ -448,7 +450,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     public void testBoundReverse() {
         SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
-        SequenceLocation<Integer> r = BoundSequences.reverse(a);
+        SequenceLocation<Integer> r = BoundSequences.reverse(NOT_LAZY, a);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         r.addChangeListener(hl);
 
@@ -527,7 +529,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testBoundSingleton() {
         IntLocation i = IntVariable.make(0);
         ObjectLocation<Integer> o = Locations.asObjectLocation(i);
-        SequenceLocation<Integer> s = BoundSequences.singleton(TypeInfo.Integer, o);
+        SequenceLocation<Integer> s = BoundSequences.singleton(NOT_LAZY, TypeInfo.Integer, o);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         s.addChangeListener(hl);
 
@@ -540,7 +542,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEqualsAndClear(hl, "[0, 0] => [ 1 ]");
 
         o = ObjectVariable.make((Integer) null);
-        s = BoundSequences.singleton(TypeInfo.Integer, o);
+        s = BoundSequences.singleton(NOT_LAZY, TypeInfo.Integer, o);
         s.addChangeListener(hl);
         assertEquals(s);
 
@@ -599,7 +601,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testBoundSequenceBuilder() {
-        BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(TypeInfo.Integer);
+        BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(NOT_LAZY, TypeInfo.Integer);
         IntLocation a = IntVariable.make(1);
         final SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 4, 5, 6));
         IntLocation c = IntVariable.make(10);

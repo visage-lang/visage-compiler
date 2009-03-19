@@ -35,6 +35,7 @@ import java.util.List;
 import com.sun.javafx.api.JavaFXScriptEngine;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.PrintStream;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -92,6 +93,9 @@ public class Utils {
         }
         if (javafxExe == null) {
             javafxExe = getJavaFxDistExe("javafx");
+        }
+         if (javafxwExe == null) {
+            javafxwExe = getJavaFxDistExe("javafxw");
         }
         if (javafxcExe == null) {
             javafxcExe = getJavaFxDistExe("javafxc");
@@ -277,10 +281,47 @@ public class Utils {
         return false;
     }
 
-    /*
-     * execs a cmd and returns a List representation of the output
-     */
+    static boolean verifyArguments(List<String> output, String[] expectedArgs) {
+        if (expectedArgs.length != output.size()) {
+            return false;
+        }
+        for (int i = 0; i < expectedArgs.length; i++) {
+            if (!expectedArgs[i].equals(output.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static boolean checkExec(List<String> cmds, String[] expectedArgs)
+            throws IOException {
+        if (!verifyArguments(getArgumentsFromFx(cmds), expectedArgs)) {
+            return false;
+        }
+        if (!verifyArguments(getArgumentsFromJava(cmds), expectedArgs)) {
+            return false;
+        }
+        if (isWindows) {
+            if (!verifyArguments(getArgumentsFromJavawFx(cmds), expectedArgs)) {
+                return false;
+            }
+            if (!verifyArguments(getArgumentsFromJavawJava(cmds), expectedArgs)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     static List<String> doExec(List<String> cmds) {
+        return doExec(cmds, null);
+    }
+
+    /*
+     * execs a cmd and returns a List representation of the output,
+     * if a testoutput file is provide that file is read for the programs
+     * output instead of stdout and stderr.
+     */
+    static List<String> doExec(List<String> cmds, File testOutput) {
         if (debug) {
             System.out.println("----Execution args----");
             for (String x : cmds) {
@@ -290,7 +331,8 @@ public class Utils {
         List<String> outputList = new ArrayList<String>();
         ProcessBuilder pb = new ProcessBuilder(cmds);
         pb = pb.directory(workingDir);
-        BufferedReader rdr = null;
+        FileReader      fr = null;
+        BufferedReader  rdr = null;
         try {
             pb.redirectErrorStream(true);
             Process p = pb.start();
@@ -315,10 +357,34 @@ public class Utils {
                         p.exitValue());
                 return null;
             }
+            if (testOutput != null) {
+                fr = new FileReader(testOutput);
+                rdr = new BufferedReader(fr);
+                outputList.clear();
+                if (debug) {
+                    System.out.println("---file output---");
+                }
+                in = rdr.readLine();
+                while (in != null) {
+                    if (debug) {
+                        System.out.println(in);
+                    }
+                    outputList.add(in);
+                    in = rdr.readLine();
+                }
+            }
             return outputList;
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex.getMessage());
+        } finally {
+            if (fr != null) {
+                try {
+                    fr.close();
+                } catch (IOException ioe) {
+                    throw new RuntimeException("Error while closing file " + ioe);
+                }
+            }
         }
     }
 
@@ -366,30 +432,48 @@ public class Utils {
     }
 
     /*
-     * emit our FX code to print out the arguments
+     * emit our FX code to print out the arguments, if it is
+     * javaw launcher then we write to a file.
      */
-    static String emitArgsTestFx() {
+    private static String emitArgsTestFx(File outFile) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         pw.println("public function run(args: String[]) : Void {");
+        if (outFile != null) {
+            pw.println("var ps = new java.io.PrintStream(\"" +
+                    outFile.getName() + "\");");
+            pw.println("java.lang.System.setOut(ps);");
+        }
         pw.println("for (i in args) {");
         pw.println("FX.println(i);");
         pw.println("}");
+        if (outFile != null) {
+            pw.println("ps.close();");
+        }
         pw.println("}");
         return sw.toString();
     }
 
     /*
-     * emit our Java code to print out the arguments
+     * emit our Java code to print out the arguments, if it is
+     * javaw launcher we write to a file.
      */
-    static String emitArgsTestJava(String classname) {
+    private static String emitArgsTestJava(String classname, File outFile) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         pw.println("public class " + classname + " {");
-        pw.println("public static void main(String[] args) {");
+        pw.println("public static void main(String[] args) throws Exception {");
+        if (outFile != null) {
+            pw.println("java.io.PrintStream ps = new java.io.PrintStream(\"" +
+                    outFile.getName() + "\");");
+            pw.println("System.setOut(ps);");
+        }
         pw.println("for (String x : args) {");
         pw.println("System.out.println(x);");
         pw.println("}");
+        if (outFile != null) {
+            pw.println("ps.close();");
+        }
         pw.println("}");
         pw.println("}");
         return sw.toString();
@@ -400,42 +484,64 @@ public class Utils {
      * OR
      * usage args = "-jar", "jar-file", "app-args....."
      */
-    static List<String> getArgumentsFromLauncher(List<String> cmdsList,
+    private static List<String> getArgumentsFromLauncher(List<String> cmdsList,
             boolean useFx, boolean usejavafxw) throws IOException {
+        File testOutput = null ;
+        if (usejavafxw) {
+            testOutput = new File(workingDir, "output.log");
+            if (testOutput.exists()) {
+                if (!testOutput.delete()) {
+                    throw new RuntimeException("Could not delete file " +
+                            testOutput.getAbsolutePath());
+                }
+            }
+        }
         if (useFx) {
-            createFxJar(new File(workingDir, cmdsList.get(1)));
+            createFxJar(new File(workingDir, cmdsList.get(1)), testOutput);
         } else {
-            createJavaJar(new File(workingDir, cmdsList.get(1)));
+            createJavaJar(new File(workingDir, cmdsList.get(1)), testOutput);
         }
 
         ArrayList<String> execList = new ArrayList<String>();
-        if (usejavafxw) {
-            execList.add(0, javafxwExe.toString());
-        } else {
-            execList.add(0, javafxExe.toString());
-        }
+        execList.add(0, (usejavafxw)
+                ? javafxwExe.toString()
+                : javafxExe.toString()
+                );
+    
 
         execList.addAll(cmdsList);
-        return doExec(execList);
+        return doExec(execList, testOutput);
     }
 
-    static List<String> getArgumentsFromFx(List<String> cmdsList)
+    private static List<String> getArgumentsFromFx(List<String> cmdsList)
             throws IOException {
         return getArgumentsFromLauncher(cmdsList, true, false);
     }
 
-      static List<String> getArgumentsFromJava(List<String> cmdsList)
+    private static List<String> getArgumentsFromJava(List<String> cmdsList)
             throws IOException {
         return getArgumentsFromLauncher(cmdsList, false, false);
     }
 
-    static void createFxJar(File jarFilename) throws IOException {
-        createJar(true, jarFilename);
+    private static List<String> getArgumentsFromJavawFx(List<String> cmdsList)
+            throws IOException {
+        return getArgumentsFromLauncher(cmdsList, true, true);
     }
-    static void createJavaJar(File jarFilename) throws IOException {
-        createJar(false, jarFilename);
+
+    private static List<String> getArgumentsFromJavawJava(List<String> cmdsList)
+            throws IOException {
+        return getArgumentsFromLauncher(cmdsList, false, true);
     }
-    static void createJar(boolean isFx, File jarFilename) throws IOException {
+
+    private static void createFxJar(File jarFilename, File testOutput) throws IOException {
+        createJar(true, jarFilename, testOutput);
+    }
+    
+    private static void createJavaJar(File jarFilename, File testOutput) throws IOException {
+        createJar(false, jarFilename, testOutput);
+    }
+
+    private static void createJar(boolean isFx, File jarFilename, File testOutput) throws IOException {
         String filename = null;
         String jarfilename = jarFilename.getName();
         if (!jarfilename.endsWith(".jar")) {
@@ -450,16 +556,19 @@ public class Utils {
         if (isFx) {
             PrintStream ps = new PrintStream(new FileOutputStream(
                     new File(workingDir, filename + ".fx")));
-            ps.println(emitArgsTestFx());
+            ps.println(emitArgsTestFx(testOutput));
             ps.close();
             ArrayList<String> cmdsList = new ArrayList<String>();
             cmdsList.add(javafxcExe.toString());
             cmdsList.add(filename + ".fx");
-            doExec(cmdsList);
+            List<String> fxcList = doExec(cmdsList);
+            if (fxcList == null) {
+                throw new RuntimeException("FX compilation failed " + filename + ".java");
+            }
         } else {
             File javaFile = new File(workingDir, filename + ".java");
             PrintStream ps = new PrintStream(new FileOutputStream(javaFile));
-            ps.println(emitArgsTestJava(filename));
+            ps.println(emitArgsTestJava(filename, testOutput));
             ps.close();
 
             String compileArgs[] = {
@@ -468,7 +577,7 @@ public class Utils {
                 javaFile.getAbsolutePath()
             };
             if (javaCompiler.run(null, null, null, compileArgs) != 0) {
-                throw new RuntimeException("compilation failed " + filename + ".java");
+                throw new RuntimeException("Java compilation failed " + filename + ".java");
             }
         }
 

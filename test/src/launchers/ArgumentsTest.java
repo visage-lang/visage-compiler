@@ -136,12 +136,7 @@ public class ArgumentsTest  extends TestCase {
         assertNotNull(output);
     }
 
-    private void assertLauncherArgs(String[] args, List<String> output) {
-        assertEquals(args.length, output.size());
-        for (int i = 0; i < args.length; i++) {
-            assertEquals(args[i], output.get(i));
-        }
-    }
+
 
     public void testJavaFxArgumentsPassing() throws IOException {
         ArrayList<String> cmdsList = new ArrayList<String>();
@@ -159,12 +154,8 @@ public class ArgumentsTest  extends TestCase {
             cmdsList.add(x);
         }
 
-        output = Utils.getArgumentsFromFx(cmdsList);
-        assertLauncherArgs(appargs, output);
-
-        output = Utils.getArgumentsFromJava(cmdsList);
-        assertLauncherArgs(appargs, output);
-
+        assertTrue(Utils.checkExec(cmdsList, appargs));
+   
         // use classpath
         cmdsList.clear();
         cmdsList.add("-classpath");
@@ -174,12 +165,7 @@ public class ArgumentsTest  extends TestCase {
         for (String x : appargs) {
             cmdsList.add(x);
         }
-
-        output = Utils.getArgumentsFromFx(cmdsList);
-        assertLauncherArgs(appargs, output);
-
-        output = Utils.getArgumentsFromJava(cmdsList);
-        assertLauncherArgs(appargs, output);
+        assertTrue(Utils.checkExec(cmdsList, appargs));
 
         // use jar cmd
         cmdsList.clear();
@@ -189,12 +175,7 @@ public class ArgumentsTest  extends TestCase {
         for (String x : appargs) {
             cmdsList.add(x);
         }
-
-        output = Utils.getArgumentsFromFx(cmdsList);
-        assertLauncherArgs(appargs, output);
-        
-        output = Utils.getArgumentsFromJava(cmdsList);
-        assertLauncherArgs(appargs, output);
+        assertTrue(Utils.checkExec(cmdsList, appargs));
     }
 }
 

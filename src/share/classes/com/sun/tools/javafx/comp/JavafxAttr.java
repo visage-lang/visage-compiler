@@ -988,8 +988,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         }
         warnOnStaticUse(tree.pos(), tree.getModifiers(), sym);        
-        // type is the type of the variable unless the variable is bound
-        result = tree.isBound()? syms.voidType : tree.type;
+        result = /*tree.isBound()? syms.voidType : */ tree.type;
     }
 
     private void warnOnStaticUse(DiagnosticPosition pos, JFXModifiers mods, Symbol sym) {

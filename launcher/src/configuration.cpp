@@ -57,19 +57,19 @@ int Configuration::initConfiguration(int argc, char** argv) {
     if ( (error =  readConfigFile()) != (EXIT_SUCCESS) )  {
         return error;
     }
-    
+    bool isjavafxw = (javafxcmd == "javafxw.exe");
+
     // evaluate JAVA_HOME, if javacmd not set
     if (javacmd.empty()) {
         const char* s = getenv("JAVA_HOME");
         if (s != NULL) {
             javacmd = s;
-            javacmd += "/bin/java.exe";
+            javacmd += isjavafxw ? "/bin/javaw.exe" : "/bin/java.exe";
             if (! fileExists(javacmd)) {
-                javacmd = "java.exe";
+                javacmd = isjavafxw ? "javaw.exe" : "java.exe";
             }
-
         } else {
-            javacmd = "java.exe";
+            javacmd = isjavafxw ? "javaw.exe" : "java.exe";
         }
     }
     
@@ -169,7 +169,7 @@ int Configuration::readConfigFile() {
 
 int Configuration::parseArgs(int argc, char** argv) {
     const char *arg;
-    bool isjavafx = (javafxcmd == "javafx.exe");
+    bool islauncher = (javafxcmd == "javafx.exe" || javafxcmd == "javafxw.exe");
     bool seen_main = FALSE;
     while (argc-- > 0 && (arg = *argv++) != NULL) {
 
@@ -180,7 +180,7 @@ int Configuration::parseArgs(int argc, char** argv) {
                 fprintf (stderr, "No argument for classpath found.");
                 return (EXIT_FAILURE);
             }
-        } else if (isjavafx && 0 == strcmp("-jar", arg)) {
+        } else if (islauncher && 0 == strcmp("-jar", arg)) {
              if (argc-- > 0 && (arg = *argv++) != NULL) {
                 classpath = arg;
                 fxargs += " \"";
@@ -204,13 +204,13 @@ int Configuration::parseArgs(int argc, char** argv) {
             vmargs += " \"";
             vmargs += arg+2;    // skip first two characters "-J"
             vmargs += "\"";
-        } else if (isjavafx && 0 == strcmp("-version", arg)) {
+        } else if (islauncher && 0 == strcmp("-version", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -version";
             return (EXIT_SUCCESS);
-        } else if (isjavafx && 0 == strcmp("-fullversion", arg)) {
+        } else if (islauncher && 0 == strcmp("-fullversion", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -fullversion";
             return (EXIT_SUCCESS);
-        } else if (isjavafx && !seen_main && 0 == strncmp("-", arg, 1)) {
+        } else if (islauncher && !seen_main && 0 == strncmp("-", arg, 1)) {
             vmargs += " \"";
             vmargs += arg;
             vmargs += "\"";
