@@ -82,7 +82,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         }, b);
 
         CountingListener counter = new CountingListener();
-        c.addChangeListener(counter);
+        c.addInvalidationListener(counter);
 
         assertTrue(a.isValid());
         assertTrue(b.isValid());
@@ -226,13 +226,13 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         CountingListener xCounter = new CountingListener();
         CountingListener yCounter = new CountingListener();
         CountingListener zCounter = new CountingListener();
-        a.addChangeListener(aCounter);
-        b.addChangeListener(bCounter);
-        c.addChangeListener(cCounter);
-        d.addChangeListener(dCounter);
-        x.addChangeListener(xCounter);
-        y.addChangeListener(yCounter);
-        z.addChangeListener(zCounter);
+        a.addInvalidationListener(aCounter);
+        b.addInvalidationListener(bCounter);
+        c.addInvalidationListener(cCounter);
+        d.addInvalidationListener(dCounter);
+        x.addInvalidationListener(xCounter);
+        y.addInvalidationListener(yCounter);
+        z.addInvalidationListener(zCounter);
 
         a.setAsInt(1);
         assertEquals(x.getAsInt(), 1);

@@ -51,16 +51,17 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
     }
 
     public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc, boolean exclusive) {
-        super(TypeInfo.Float);
+        super(lazy, TypeInfo.Float);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<Float> computeValue() {
+    protected Sequence<Float> computeValue() {
         computeBounds(lowerLoc.get(), upperLoc.get(), stepLoc.get());
         return computeFull(lower, upper, step);
     }
@@ -99,6 +100,11 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
     }
 
     private void addTriggers() {
+        if (lazy) {
+            lowerLoc.addInvalidationListener(new InvalidateMeListener());
+            upperLoc.addInvalidationListener(new InvalidateMeListener());
+            stepLoc.addInvalidationListener(new InvalidateMeListener());
+        }
         lowerLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
             public void onChange(float oldValue, float newValue) {
                 

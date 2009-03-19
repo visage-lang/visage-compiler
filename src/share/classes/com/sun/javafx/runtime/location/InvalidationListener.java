@@ -29,7 +29,7 @@ package com.sun.javafx.runtime.location;
  * @see Location
  * @author Brian Goetz
  */
-public abstract class ChangeListener extends AbstractLocationDependency {
+public abstract class InvalidationListener extends AbstractLocationDependency {
     /** Notifies the listener that the contents of the location may have changed.
      *
      * @return a boolean value indicating whether this listener is still valid.  Returning false will cause the

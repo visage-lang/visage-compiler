@@ -60,7 +60,7 @@ public class BoundSequences {
      *
      */
     public static <T, V extends T> SequenceLocation<T> upcast(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<V> location) {
-        return new BoundUpcastSequence<T, V>(typeInfo, location);
+        return new BoundUpcastSequence<T, V>(lazy, typeInfo, location);
     }
 
     /** Construct a bound sequence of the form
@@ -76,7 +76,7 @@ public class BoundSequences {
      * where x is an instance.
      */
     public static<T, V extends T> SequenceLocation<T> singleton(boolean lazy, TypeInfo<T, ?> typeInfo, ObjectLocation<V> location) {
-        return new BoundSingletonSequence<T, V>(typeInfo, location);
+        return new BoundSingletonSequence<T, V>(lazy, typeInfo, location);
     }
 
     /** Construct a bound sequence of the form
@@ -87,11 +87,8 @@ public class BoundSequences {
 //        return new BoundSingletonSequence<Integer, Integer>(TypeInfo.Integer, location);
 //    }
 
-    //TODO: this seems absurd.  Why do we need it?  Why not use Sequences.empty() ?
     public static<T> SequenceLocation<T> empty(boolean lazy, final TypeInfo<T, ?> typeInfo) {
-        return new AbstractBoundSequence<T>(typeInfo) {
-            { setInitialValue(typeInfo.emptySequence); }
-        };
+        return SequenceConstant.make(typeInfo, typeInfo.emptySequence);
     }
 
     public static<T> ObjectLocation<T> element(boolean lazy, SequenceLocation<T> sequence, IntLocation index) {
@@ -170,7 +167,7 @@ public class BoundSequences {
     /** Convert any numeric sequence location to any other numeric sequence */
     public static<T extends Number, V extends Number>
     SequenceLocation<T> convertNumberSequence(boolean lazy, final NumericTypeInfo<T, ?> toType, final NumericTypeInfo<V, ?> fromType, SequenceLocation<V> seq) {
-        return new BoundNumericConversion<T, V>(toType, fromType, seq);
+        return new BoundNumericConversion<T, V>(lazy, toType, fromType, seq);
     }
 
     public interface SimpleBoundComprehensionCallback<T, V> {

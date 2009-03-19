@@ -41,7 +41,7 @@ public class ElementLocationTest extends JavaFXTestCase {
         IntLocation index = IntVariable.make(1);
         ObjectLocation<Integer> second = BoundSequences.element(NOT_LAZY, seq, index);
         CountingListener cl = new CountingListener();
-        second.addChangeListener(cl);
+        second.addInvalidationListener(cl);
 
         assertEquals(cl.count, 0);
         assertEquals((int) second.get(), 2);

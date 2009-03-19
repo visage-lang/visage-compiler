@@ -50,16 +50,17 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
     }
 
     public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc, boolean exclusive) {
-        super(TypeInfo.Integer);
+        super(lazy, TypeInfo.Integer);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<Integer> computeValue() {
+    protected Sequence<Integer> computeValue() {
         computeBounds(lowerLoc.get(), upperLoc.get(), stepLoc.get());
         return computeFull(lower, upper, step);
     }
@@ -93,6 +94,11 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
     }
 
     private void addTriggers() {
+        if (!lazy) {
+            lowerLoc.addInvalidationListener(new InvalidateMeListener());
+            upperLoc.addInvalidationListener(new InvalidateMeListener());
+            stepLoc.addInvalidationListener(new InvalidateMeListener());
+        }
         lowerLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
             public void onChange(int oldValue, int newValue) {
                 

@@ -47,7 +47,7 @@ public class NestedBindTest extends JavaFXTestCase {
     public void testNestedLiteral() {
         final ObjectLocation<String> name = ObjectVariable.make("Bob");
         CountingListener clName = new CountingListener();
-        name.addChangeListener(clName);
+        name.addInvalidationListener(clName);
         final int[] counters = new int[] { 0, 0 };
         final ObjectVariable<List<String>> inner = ObjectVariable.make(false,
                                                                        new ObjectBindingExpression<List<String>>() {
@@ -63,7 +63,7 @@ public class NestedBindTest extends JavaFXTestCase {
                                                                            }
                                                                        });
         CountingListener clInner = new CountingListener();
-        inner.addChangeListener(clInner);
+        inner.addInvalidationListener(clInner);
         ObjectVariable<List<List<String>>> outer = ObjectVariable.make(false,
                                                                        new ObjectBindingExpression<List<List<String>>>() {
                                                                            protected Location[] getStaticDependents() {
@@ -78,7 +78,7 @@ public class NestedBindTest extends JavaFXTestCase {
                                                                            }
                                                                        });
         CountingListener clOuter = new CountingListener();
-        outer.addChangeListener(clOuter);
+        outer.addInvalidationListener(clOuter);
         assertEquals(0, clName.count);
         assertEquals(0, clInner.count);
         assertEquals(0, clOuter.count);
@@ -98,7 +98,7 @@ public class NestedBindTest extends JavaFXTestCase {
     public void testNestedIntegers() {
         final IntLocation n = IntVariable.make(1);
         CountingListener clName = new CountingListener();
-        n.addChangeListener(clName);
+        n.addInvalidationListener(clName);
         final int[] counters = new int[] { 0, 0, 0 };
         final IntLocation inner = IntVariable.make(false,
                                                    new IntBindingExpression() {
@@ -112,7 +112,7 @@ public class NestedBindTest extends JavaFXTestCase {
                                                        }
                                                    });
         CountingListener clInner = new CountingListener();
-        inner.addChangeListener(clInner);
+        inner.addInvalidationListener(clInner);
         final IntVariable middle = IntVariable.make(false,
                                              new IntBindingExpression() {
                                                  protected Location[] getStaticDependents() {
@@ -125,7 +125,7 @@ public class NestedBindTest extends JavaFXTestCase {
                                                  }
                                              });
         CountingListener clMiddle = new CountingListener();
-        middle.addChangeListener(clMiddle);
+        middle.addInvalidationListener(clMiddle);
         IntVariable outer = IntVariable.make(false,
                                              new IntBindingExpression() {
                                                  protected Location[] getStaticDependents() {
@@ -138,7 +138,7 @@ public class NestedBindTest extends JavaFXTestCase {
                                                  }
                                              });
         CountingListener clOuter = new CountingListener();
-        outer.addChangeListener(clOuter);
+        outer.addInvalidationListener(clOuter);
         assertEquals(0, clName.count);
         assertEquals(0, clInner.count);
         assertEquals(0, clMiddle.count);

@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.location.InvalidationListener;
 import com.sun.javafx.runtime.location.SequenceChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
@@ -50,6 +51,10 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             location.addChangeListener(this.listener);
         }
 
+        public void addListener(InvalidationListener listener) {
+            location.addInvalidationListener(listener);
+        }
+
         public void removeListener() {
             location.removeChangeListener(this.listener);
             this.listener = null;
@@ -61,12 +66,13 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     }
 
     public BoundCompositeSequence(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
-        super(typeInfo);
+        super(lazy, typeInfo);
         this.infos = newInfoArray(size);
         for (int i = 0; i < size; i++)
             infos[i] = new Info<T>(locations[i]);
 
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
@@ -75,7 +81,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         return (Info<T>[]) new Info[len];
     }
 
-    private Sequence<T> computeValue() {
+    protected Sequence<T> computeValue() {
         Sequence<? extends T>[] sequences = Util.newSequenceArray(infos.length);
         for (int i = 0, offset = 0; i < infos.length; i++) {
             sequences[i] = infos[i].location.getAsSequence();
@@ -87,8 +93,12 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     }
 
     private void addTriggers() {
-        for (int i = 0; i < infos.length; i++)
-            infos[i].addListener(new MyListener<T>(i));
+        for (int i = 0; i < infos.length; i++) {
+            if (lazy)
+                infos[i].addListener(new InvalidateMeListener());
+            else
+                infos[i].addListener(new MyListener<T>(i));
+        }
     }
 
     public void replaceSlice(int startPos, int endPos, SequenceLocation<? extends T>[] newValues) {
