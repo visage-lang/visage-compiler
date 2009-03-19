@@ -626,6 +626,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             if (targetType == syms.voidType) {
                 return make.at(diagPos).Exec(translated);
             } else {
+                JFXVar var = null;
+                if (expr instanceof JFXVar) {
+                    var = (JFXVar)expr;
+                } else if (expr instanceof JFXVarScriptInit) {
+                    var = ((JFXVarScriptInit)expr).getVar();
+                }
+
+                if ((var != null) && var.isBound()) {
+                    translated = getLocationValue(diagPos, translated, 
+                        TYPE_KIND_OBJECT);
+                }
                 return make.at(diagPos).Return(convertTranslated(translated, diagPos, expr.type, targetType));
             }
         }

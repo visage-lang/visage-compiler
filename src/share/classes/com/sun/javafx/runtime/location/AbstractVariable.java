@@ -96,8 +96,8 @@ public abstract class AbstractVariable<
         return (BindingExpression) findChildByKind(CHILD_KIND_BINDING_EXPRESSION);
     }
 
-    public void bind(boolean lazy, T_LOCATION otherLocation) {
-        bind(lazy, makeBindingExpression(otherLocation), otherLocation);
+    public ObjectLocation<T_VALUE> bind(boolean lazy, T_LOCATION otherLocation) {
+        return bind(lazy, makeBindingExpression(otherLocation), otherLocation);
     }
 
     public void bindFromLiteral(final boolean lazy, final T_LOCATION otherLocation) {
@@ -108,7 +108,7 @@ public abstract class AbstractVariable<
         });
     }
 
-    public void bind(boolean lazy, BindingExpression binding, Location... dependencies) {
+    public ObjectLocation<T_VALUE> bind(boolean lazy, BindingExpression binding, Location... dependencies) {
         ensureBindable();
         resetState(lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND);
         enqueueChild(binding);
@@ -116,6 +116,7 @@ public abstract class AbstractVariable<
         addDependency(dependencies);
         if (!lazy)
             update();
+        return this;
     }
 
     public void bindFromLiteral(final boolean lazy, final BindingExpression binding, final Location... dependencies) {

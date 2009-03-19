@@ -225,13 +225,14 @@ public class SequenceVariable<T>
             });
     }
 
-    public void bind(boolean lazy, SequenceLocation<T> otherLocation) {
+    public SequenceVariable<T> bind(boolean lazy, SequenceLocation<T> otherLocation) {
         ensureBindable();
         Sequence<T> oldValue = $value;
         $value = otherLocation.get();
         boundLocation = new BoundLocationInfo(otherLocation, lazy);
         boundLocation.bind();
         notifyListeners(0, Sequences.size(oldValue) - 1, $value, oldValue, $value, true);
+        return this;
     }
 
     protected void rebind(SequenceLocation<T> otherLocation) {
