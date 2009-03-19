@@ -34,10 +34,12 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Brian Goetz
  */
 public class ElementLocationTest extends JavaFXTestCase {
+    static final boolean NOT_LAZY = false;
+
     public void testElementLocation() {
         SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         IntLocation index = IntVariable.make(1);
-        ObjectLocation<Integer> second = BoundSequences.element(seq, index);
+        ObjectLocation<Integer> second = BoundSequences.element(NOT_LAZY, seq, index);
         CountingListener cl = new CountingListener();
         second.addChangeListener(cl);
 
@@ -75,7 +77,7 @@ public class ElementLocationTest extends JavaFXTestCase {
 
     public void testSizeof() {
         SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
-        IntLocation size = BoundSequences.sizeof(seq);
+        IntLocation size = BoundSequences.sizeof(NOT_LAZY, seq);
         assertEquals(3, size.getAsInt());
         seq.deleteAll();
         assertEquals(0, size.getAsInt());

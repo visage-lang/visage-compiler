@@ -31,25 +31,25 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements SequenceLocation<Integer> {
+class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements SequenceLocation<Integer> {
 
     private final IntLocation lowerLoc, upperLoc, stepLoc;
     private final boolean exclusive;
     private int lower, upper, size, step;
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc) {
-        this(lowerLoc, upperLoc, IntConstant.make(1), false);
+    public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc) {
+        this(lazy, lowerLoc, upperLoc, IntConstant.make(1), false);
     }
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc) {
-        this(lowerLoc, upperLoc, stepLoc, false);
+    public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc) {
+        this(lazy, lowerLoc, upperLoc, stepLoc, false);
     }
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, boolean exclusive) {
-        this(lowerLoc, upperLoc, IntConstant.make(1), exclusive);
+    public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc, boolean exclusive) {
+        this(lazy, lowerLoc, upperLoc, IntConstant.make(1), exclusive);
     }
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc, boolean exclusive) {
+    public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc, boolean exclusive) {
         super(TypeInfo.Integer);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;

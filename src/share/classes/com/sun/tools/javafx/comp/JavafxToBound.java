@@ -238,20 +238,22 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
                     tree = runtime(diagPos, 
                             defs.BoundSequences_singleton,
-                            List.of(targetTypeInfo, convert(inType, tree, targetElementType)));
+                            List.of(
+                                makeLaziness(diagPos),
+                                targetTypeInfo,
+                                convert(inType, tree, targetElementType)));
                 } else {
                     // this additional test is needed because wildcards compare as different
                     Type sourceElementType = types.elementType(inType);
                     if (!types.isSameType(sourceElementType, targetElementType)) {
                         if (types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
                             tree = convertNumericSequence(diagPos,
-                                    true,
                                     tree,
                                     sourceElementType,
                                     targetElementType);
                         } else {
                             JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
-                            tree = runtime(diagPos, defs.BoundSequences_upcast, List.of(targetTypeInfo, tree));
+                            tree = runtime(diagPos, defs.BoundSequences_upcast, List.of(makeLaziness(diagPos), targetTypeInfo, tree));
                         }
                     }
                 }
@@ -293,6 +295,15 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }
     }
     
+    private JCExpression convertNumericSequence(final DiagnosticPosition diagPos,
+            final JCExpression expr, final Type inElementType, final Type targetElementType) {
+        JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
+        JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
+        return runtime(diagPos,
+                defs.BoundSequences_convertNumberSequence,
+                List.of(makeLaziness(diagPos), targetTypeInfo, inTypeInfo, expr));
+    }
+
     /**
      * Return the list of local variables accessed, but not defined within the FX expression.
      * @param expr
@@ -861,14 +872,15 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) { //done
+        DiagnosticPosition diagPos = tree.pos();
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         Type elemType = boxedElementType(targetType(tree.type));
-        UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(tree.pos(), elemType, tree.getItems().length());
+        UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(diagPos, elemType, makeLaziness(diagPos), tree.getItems().length());
         stmts.append(builder.makeBuilderVar());
         for (JFXExpression item : tree.getItems()) {
             stmts.append(builder.addElement( item ) );
         }
-        result = makeBlockExpression(tree.pos(), stmts, builder.makeToSequence());
+        result = makeBlockExpression(diagPos, stmts, builder.makeToSequence());
     }
 
     @Override
@@ -885,6 +897,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }
         TypeMorphInfo tmi = typeMorpher.typeMorphInfo(elemType);
         ListBuffer<JCExpression> args = ListBuffer.lb();
+        args.append( makeLaziness(diagPos) );
         args.append( translate( tree.getLower(), tmi ));
         args.append( translate( tree.getUpper(), tmi ));
         if (tree.getStepOrNull() != null) {
@@ -901,7 +914,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         DiagnosticPosition diagPos = tree.pos();
         if (types.isSequence(tree.type)) {
             Type elemType = types.elementType(targetType(tree.type));
-            result = runtime(diagPos, defs.BoundSequences_empty, List.of(makeTypeInfo(diagPos, elemType)));
+            result = runtime(diagPos, defs.BoundSequences_empty, List.of(makeLaziness(diagPos), makeTypeInfo(diagPos, elemType)));
         } else {
             result = makeConstantLocation(diagPos, targetType(tree.type), makeNull(diagPos));
         }
@@ -911,8 +924,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {   //done
         DiagnosticPosition diagPos = tree.pos();
         result = convert(tree.type, runtime(diagPos, defs.BoundSequences_element,
-                List.of(translate(tree.getSequence()),
-                translate(tree.getIndex(), syms.intType))));
+                List.of(
+                    makeLaziness(diagPos),
+                    translate(tree.getSequence()),
+                    translate(tree.getIndex(), syms.intType)
+                )
+              ));
     }
 
     @Override
@@ -921,6 +938,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = runtime(diagPos, 
                 tree.getEndKind()==SequenceSliceTree.END_EXCLUSIVE? defs.BoundSequences_sliceExclusive : defs.BoundSequences_slice,
                 List.of(
+                    makeLaziness(diagPos),
                     makeTypeInfo(diagPos, types.elementType(targetType(tree.type))),
                     translate(tree.getSequence()),
                     translate(tree.getFirstIndex()),
@@ -1012,7 +1030,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     // the body is not a sequence, desired type is the element tpe need for for-loop
                     Type elemType = types.unboxedTypeOrType(resultElementType);
                     JCExpression single = whereTest!=null? translateForConditional(body, elemType) : translate(body, elemType);
-                    List<JCExpression> args = List.of(makeResultClass(), single);
+                    List<JCExpression> args = List.of(makeLaziness(diagPos),makeResultClass(), single);
                     tbody = runtime(diagPos, defs.BoundSequences_singleton, args);
                 }
                 if (whereTest != null) {
@@ -1020,7 +1038,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                             tree.type,
                             whereTest,
                             tbody,
-                            runtime(diagPos, defs.BoundSequences_empty, List.of(makeTypeInfo(diagPos, resultElementType)))
+                            runtime(diagPos, defs.BoundSequences_empty, List.of(makeLaziness(diagPos), makeTypeInfo(diagPos, resultElementType)))
                           );
                 }
                 return tbody;
@@ -1076,9 +1094,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 boolean useIndex = clause.getIndexUsed();
                 JCExpression transSeq = translate( seq );
                 if (!tmiSeq.isSequence()) {
-                    transSeq = runtime(diagPos, defs.BoundSequences_singleton, List.of(makeResultClass(), transSeq));
+                    transSeq = runtime(diagPos, defs.BoundSequences_singleton, List.of(makeLaziness(diagPos),makeResultClass(), transSeq));
                 }
                 List<JCExpression> constructorArgs = List.of(
+                        makeLaziness(diagPos),
                         makeResultClass(),
                         makeTypeInfo(diagPos, tmiInduction.getRealBoxedType()),
                         transSeq,
@@ -1247,7 +1266,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         final DiagnosticPosition diagPos = tree.pos();
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = types.elementType(targetType(tree.type));
-            result = runtime(diagPos, defs.BoundSequences_empty, List.of(makeTypeInfo(diagPos, elemType)));
+            result = runtime(diagPos, defs.BoundSequences_empty, List.of(makeLaziness(diagPos), makeTypeInfo(diagPos, elemType)));
         } else {
             Type targetType = targetType(tree.type);
             JCExpression unbound = toJava.convertTranslated(make.at(diagPos).Literal(tree.typetag, tree.value), diagPos, tree.type, targetType);
@@ -1685,12 +1704,12 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
         switch (tree.getFXTag()) {
             case SIZEOF:
-                res = runtime(diagPos, defs.BoundSequences_sizeof, List.of(transExpr) );
+                res = runtime(diagPos, defs.BoundSequences_sizeof, List.of(makeLaziness(diagPos), transExpr) );
                 break;
             case REVERSE:
                 if (types.isSequence(expr.type)) {
                     // call runtime reverse of a sequence
-                    res = runtime(diagPos, defs.BoundSequences_reverse, List.of(transExpr));
+                    res = runtime(diagPos, defs.BoundSequences_reverse, List.of(makeLaziness(diagPos), transExpr));
                 } else {
                     // this isn't a sequence, just make it into a sequence
                     res = convert(expr.type, transExpr, tree.type);

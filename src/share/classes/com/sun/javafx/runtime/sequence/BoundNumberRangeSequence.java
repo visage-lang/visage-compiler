@@ -31,26 +31,26 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Zhiqun Chen
  */
-public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements SequenceLocation<Float> {
+class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements SequenceLocation<Float> {
 
     private final FloatLocation lowerLoc, upperLoc, stepLoc;
     private final boolean exclusive;
     private float lower, upper, step;
     private int size;
 
-    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc) {
-        this(lowerLoc, upperLoc, FloatConstant.make(1), false);
+    public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc) {
+        this(lazy, lowerLoc, upperLoc, FloatConstant.make(1), false);
     }
 
-    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc) {
-        this(lowerLoc, upperLoc, stepLoc, false);
+    public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc) {
+        this(lazy, lowerLoc, upperLoc, stepLoc, false);
     }
 
-    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, boolean exclusive) {
-        this(lowerLoc, upperLoc, FloatConstant.make(1), exclusive);
+    public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc, boolean exclusive) {
+        this(lazy, lowerLoc, upperLoc, FloatConstant.make(1), exclusive);
     }
 
-    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc, boolean exclusive) {
+    public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc, boolean exclusive) {
         super(TypeInfo.Float);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;

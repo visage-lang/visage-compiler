@@ -31,11 +31,14 @@ import com.sun.javafx.runtime.sequence.BoundSequences;
  *
  * @author Brian Goetz
  */
-public class BoundRangeTest extends JavaFXTestCase {   
+public class BoundRangeTest extends JavaFXTestCase {
+
+    static final boolean NOT_LAZY = false;
+
     public void testBoundIntRange() {
         IntLocation a = IntVariable.make(10);
         IntLocation b = IntVariable.make(15);    
-        SequenceLocation<Integer> range = BoundSequences.range(a, b);
+        SequenceLocation<Integer> range = BoundSequences.range(NOT_LAZY, a, b);
 
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         range.addChangeListener(hl);
@@ -93,7 +96,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         HistoryReplaceListener<Integer> hls = new HistoryReplaceListener<Integer>();
        
         
-        SequenceLocation<Integer> stepRange = BoundSequences.range(c, d, s, false );
+        SequenceLocation<Integer> stepRange = BoundSequences.range(NOT_LAZY, c, d, s, false );
         stepRange.addChangeListener(hls);
         
         assertEquals(stepRange, 10, 12, 14);
@@ -152,7 +155,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         HistoryReplaceListener<Integer> hle = new HistoryReplaceListener<Integer>();
        
         
-        SequenceLocation<Integer> exclusiveRange = BoundSequences.range(e, f, ns, true );
+        SequenceLocation<Integer> exclusiveRange = BoundSequences.range(NOT_LAZY, e, f, ns, true );
         exclusiveRange.addChangeListener(hle);
         
         assertEquals(exclusiveRange, 20, 17, 14, 11);
@@ -223,7 +226,7 @@ public class BoundRangeTest extends JavaFXTestCase {
     public void testBoundNumberRange() {
         FloatLocation a = FloatVariable.make(10.2f);
         FloatLocation b = FloatVariable.make(15.7f);
-        SequenceLocation<Float> range = BoundSequences.range(a, b);
+        SequenceLocation<Float> range = BoundSequences.range(NOT_LAZY, a, b);
                 
         HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
         range.addChangeListener(hl);
@@ -293,7 +296,7 @@ public class BoundRangeTest extends JavaFXTestCase {
      public void testBoundNumberRangeExclusive() {
         FloatLocation a = FloatVariable.make(10.2f);
         FloatLocation b = FloatVariable.make(15.2f);
-        SequenceLocation<Float> range = BoundSequences.range(a, b, true);
+        SequenceLocation<Float> range = BoundSequences.range(NOT_LAZY, a, b, true);
                 
         HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
         range.addChangeListener(hl);
@@ -323,7 +326,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         FloatLocation a = FloatVariable.make(0.0f);
         FloatLocation b = FloatVariable.make(4.0f);
         FloatLocation s = FloatVariable.make(2.0f);
-        SequenceLocation<Float> range = BoundSequences.range(a, b, s, true);
+        SequenceLocation<Float> range = BoundSequences.range(NOT_LAZY, a, b, s, true);
         
         HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
         range.addChangeListener(hl);

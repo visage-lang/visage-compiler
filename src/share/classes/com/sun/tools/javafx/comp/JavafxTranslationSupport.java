@@ -159,15 +159,6 @@ public abstract class JavafxTranslationSupport {
         return expr;
     }
 
-    protected JCExpression convertNumericSequence(final DiagnosticPosition diagPos, final boolean isBound,
-            final JCExpression expr, final Type inElementType, final Type targetElementType) {
-        JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
-        JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
-        return runtime(diagPos,
-                isBound? defs.BoundSequences_convertNumberSequence : defs.Sequences_convertNumberSequence,
-                List.of(targetTypeInfo, inTypeInfo, expr));
-    }
-
     /**
      * Return the generated interface name corresponding to the class
      * */
