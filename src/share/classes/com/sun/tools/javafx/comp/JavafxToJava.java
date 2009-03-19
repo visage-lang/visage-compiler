@@ -173,8 +173,6 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     /*
      * static information
      */
-    private static final String sequencesRangeString = "com.sun.javafx.runtime.sequence.Sequences.range";
-    private static final String sequencesRangeExclusiveString = "com.sun.javafx.runtime.sequence.Sequences.rangeExclusive";
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.ArraySequence";
     private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundSequenceBuilder";
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
@@ -2178,10 +2176,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression meth = makeQualifiedTree(
-                diagPos, tree.isExclusive()?
-                    sequencesRangeExclusiveString :
-                    sequencesRangeString);
+        RuntimeMethod rm  = tree.isExclusive()?
+                    defs.Sequences_rangeExclusive :
+                    defs.Sequences_range;
         Type elemType = syms.javafx_IntegerType;
         int ltag = tree.getLower().type.tag;
         int utag = tree.getUpper().type.tag;
@@ -2192,13 +2189,16 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             elemType = syms.javafx_NumberType;
         }
         ListBuffer<JCExpression> args = ListBuffer.lb();
-        List<JCExpression> typeArgs = List.nil();
         args.append( translateAsValue( tree.getLower(), elemType ));
         args.append( translateAsValue( tree.getUpper(), elemType ));
         if (tree.getStepOrNull() != null) {
             args.append( translateAsValue( tree.getStepOrNull(), elemType ));
         }
-        result = convertTranslated(make.at(diagPos).Apply(typeArgs, meth, args.toList()), diagPos, types.sequenceType(elemType), tree.type);
+        result = convertTranslated(
+                runtime(diagPos, rm, args.toList()),
+                diagPos,
+                types.sequenceType(elemType),
+                tree.type);
     }
 
     @Override

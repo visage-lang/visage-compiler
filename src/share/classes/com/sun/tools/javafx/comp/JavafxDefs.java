@@ -129,9 +129,11 @@ public class JavafxDefs {
     final RuntimeMethod Locations_toFloatLocation;
     final RuntimeMethod Locations_toDoubleLocation;
 
-    final RuntimeMethod Sequences_forceNonNull;
-    final RuntimeMethod Sequences_size;
     final RuntimeMethod Sequences_convertNumberSequence;
+    final RuntimeMethod Sequences_forceNonNull;
+    final RuntimeMethod Sequences_range;
+    final RuntimeMethod Sequences_rangeExclusive;
+    final RuntimeMethod Sequences_size;
 
     final RuntimeMethod BoundOperators_makeBoundSequenceSelect;
     final RuntimeMethod BoundOperators_makeBoundSelect;
@@ -148,16 +150,17 @@ public class JavafxDefs {
     final RuntimeMethod BoundOperators_cmp_other;
     final RuntimeMethod BoundOperators_and_bb;
 
-    final RuntimeMethod BoundSequences_singleton;
-    final RuntimeMethod BoundSequences_range;
-    final RuntimeMethod BoundSequences_empty;
-    final RuntimeMethod BoundSequences_sizeof;
-    final RuntimeMethod BoundSequences_reverse;
+    final RuntimeMethod BoundSequences_convertNumberSequence;
     final RuntimeMethod BoundSequences_element;
+    final RuntimeMethod BoundSequences_empty;
+    final RuntimeMethod BoundSequences_range;
+    final RuntimeMethod BoundSequences_rangeExclusive;
+    final RuntimeMethod BoundSequences_reverse;
+    final RuntimeMethod BoundSequences_singleton;
+    final RuntimeMethod BoundSequences_sizeof;
     final RuntimeMethod BoundSequences_slice;
     final RuntimeMethod BoundSequences_sliceExclusive;
     final RuntimeMethod BoundSequences_upcast;
-    final RuntimeMethod BoundSequences_convertNumberSequence;
 
     /**
      * Name definitions
@@ -349,9 +352,11 @@ public class JavafxDefs {
         Locations_toFloatLocation = new RuntimeMethod(names, cLocations, "toFloatLocation");
         Locations_toDoubleLocation = new RuntimeMethod(names, cLocations, "toDoubleLocation");
 
-        Sequences_size = new RuntimeMethod(names, cSequences, "size");
-        Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
         Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
+        Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
+        Sequences_range = new RuntimeMethod(names, cSequences, "range");
+        Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");
+        Sequences_size = new RuntimeMethod(names, cSequences, "size");
 
         BoundOperators_makeBoundSequenceSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSequenceSelect");
         BoundOperators_makeBoundSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSelect");
@@ -370,6 +375,7 @@ public class JavafxDefs {
 
         BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
         BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");
+        BoundSequences_rangeExclusive = new RuntimeMethod(names, cBoundSequences, "rangeExclusive");
         BoundSequences_empty = new RuntimeMethod(names, cBoundSequences, "empty");
         BoundSequences_sizeof = new RuntimeMethod(names, cBoundSequences, "sizeof");
         BoundSequences_reverse = new RuntimeMethod(names, cBoundSequences, "reverse");

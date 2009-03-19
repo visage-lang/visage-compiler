@@ -134,12 +134,12 @@ public class BoundSequences {
         return new BoundIntRangeSequence(lazy, a, b, step);
     }
 
-    public static SequenceLocation<Integer> range(boolean lazy, IntLocation a, IntLocation b, boolean exclusive) {
-        return new BoundIntRangeSequence(lazy, a, b, exclusive);
+    public static SequenceLocation<Integer> rangeExclusive(boolean lazy, IntLocation a, IntLocation b) {
+        return new BoundIntRangeSequence(lazy, a, b, true);
     }
 
-    public static SequenceLocation<Integer> range(boolean lazy, IntLocation a, IntLocation b, IntLocation step, boolean exclusive) {
-        return new BoundIntRangeSequence(lazy, a, b, step, exclusive);
+    public static SequenceLocation<Integer> rangeExclusive(boolean lazy, IntLocation a, IntLocation b, IntLocation step) {
+        return new BoundIntRangeSequence(lazy, a, b, step, true);
     }
 
     
@@ -151,12 +151,12 @@ public class BoundSequences {
         return new BoundNumberRangeSequence(lazy, a, b, step);
     }
 
-    public static SequenceLocation<Float> range(boolean lazy, FloatLocation a, FloatLocation b, boolean exclusive) {
-        return new BoundNumberRangeSequence(lazy, a, b, exclusive);
+    public static SequenceLocation<Float> rangeExclusive(boolean lazy, FloatLocation a, FloatLocation b) {
+        return new BoundNumberRangeSequence(lazy, a, b, true);
     }
 
-    public static SequenceLocation<Float> range(boolean lazy, FloatLocation a, FloatLocation b, FloatLocation step, boolean exclusive) {
-        return new BoundNumberRangeSequence(lazy, a, b, step, exclusive);
+    public static SequenceLocation<Float> rangeExclusive(boolean lazy, FloatLocation a, FloatLocation b, FloatLocation step) {
+        return new BoundNumberRangeSequence(lazy, a, b, step, true);
     }
     
     public static<T> SequenceLocation<T> slice(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<T> sequence, IntLocation a, IntLocation b) {

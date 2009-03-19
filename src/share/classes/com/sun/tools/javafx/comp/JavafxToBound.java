@@ -903,10 +903,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         if (tree.getStepOrNull() != null) {
             args.append( translate( tree.getStepOrNull(), tmi ));
         }
-        if (tree.isExclusive()) {
-            args.append( make.at(diagPos).Literal(TypeTags.BOOLEAN, 1) );
-        }
-        result = convert(types.sequenceType(elemType), runtime(diagPos, defs.BoundSequences_range, args.toList()));
+        RuntimeMethod rm = tree.isExclusive()?
+            defs.BoundSequences_rangeExclusive :
+            defs.BoundSequences_range;
+        result = convert(types.sequenceType(elemType), runtime(diagPos, rm, args.toList()));
     }
 
     @Override
