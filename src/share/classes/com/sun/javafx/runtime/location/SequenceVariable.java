@@ -78,11 +78,17 @@ public class SequenceVariable<T>
         this.$value = typeInfo.emptySequence;
         this.mutationListener = new SequenceMutator.Listener<T>() {
             public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                replaceSlice(startPos, endPos, newElements, newValue);
+                if (isLazilyBound())
+                    invalidate();
+                else
+                    replaceSlice(startPos, endPos, newElements, newValue);
             }
 
             public void onReplaceElement(int startPos, int endPos, T newElement, Sequence<T> oldValue, Sequence<T> newValue) {
-                replaceElement(startPos, endPos, newElement, newValue);
+                if (isLazilyBound())
+                    invalidate();
+                else
+                    replaceElement(startPos, endPos, newElement, newValue);
             }
         };
     }
@@ -227,23 +233,24 @@ public class SequenceVariable<T>
 
     public SequenceVariable<T> bind(boolean lazy, SequenceLocation<T> otherLocation) {
         ensureBindable();
-        Sequence<T> oldValue = $value;
-        $value = otherLocation.get();
-        boundLocation = new BoundLocationInfo(otherLocation, lazy);
+        boundLocation = new BoundLocationInfo(lazy, otherLocation);
         boundLocation.bind();
-        notifyListeners(0, Sequences.size(oldValue) - 1, $value, oldValue, $value, true);
+        if (lazy)
+            invalidate();
+        else {
+            Sequence<T> oldValue = $value;
+            $value = otherLocation.get();
+            setValid();
+            notifyListeners(0, Sequences.size(oldValue) - 1, $value, oldValue, $value, true);
+        }
         return this;
     }
 
-    protected void rebind(SequenceLocation<T> otherLocation) {
+    protected void rebind(boolean lazy, SequenceLocation<T> otherLocation) {
         if (boundLocation != null)
             boundLocation.unbind();
         boundLocation = null;
-        bind(false, otherLocation);
-    }
-
-    protected boolean isUnidirectionallyBound() {
-        return super.isUnidirectionallyBound() || (boundLocation != null);
+        bind(lazy, otherLocation);
     }
 
     @Override
@@ -261,12 +268,16 @@ public class SequenceVariable<T>
 
     public void update() {
         try {
-            if (isUnidirectionallyBound() && !isValid() && boundLocation == null)
-                getBindingExpression().compute();
+            if (isUnidirectionallyBound() && !isValid()) {
+                if (boundLocation == null)
+                    getBindingExpression().compute();
+                else if (isLazilyBound()) // always valid if bound non-lazily to another location
+                    boundLocation.update();
+            }
         }
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
-            if (isInitialized())
+            if (isInitialized() && !isLazilyBound())
                 replaceWithDefault();
         }
     }
@@ -453,35 +464,51 @@ public class SequenceVariable<T>
         public SequenceChangeListener<T> sequenceChangeListener;
         public final boolean lazy;
 
-        BoundLocationInfo(SequenceLocation<T> otherLocation, boolean lazy) {
+        BoundLocationInfo(boolean lazy, SequenceLocation<T> otherLocation) {
             this.otherLocation = otherLocation;
             this.lazy = lazy;
         }
 
+        void update() {
+            Sequence<T> oldValue = $value;
+            $value = otherLocation.getAsSequence();
+            setValid();
+            if (hasDependencies() && !Sequences.isEqual(oldValue, $value))
+                notifyListeners(0, oldValue.size() - 1, $value, oldValue, $value, true);
+        }
+
         void bind() {
-            // @@@ lazy ignored -- deferring computation is more expensive than eagerly recomputing
             changeListener = new ChangeListener() {
                 public boolean onChange() {
+                    if (lazy)
+                        invalidate();
                     invalidateDependencies();
                     return true;
                 }
             };
-            sequenceChangeListener = new SequenceChangeListener<T>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                    $value = newValue;
-                    // JFXC-2627 - changed updateDependencies to true
-                    notifyListeners(startPos, endPos, newElements, oldValue, newValue, true);
-                }
-            };
             otherLocation.addChangeListener(changeListener);
-            otherLocation.addChangeListener(sequenceChangeListener);
+            if (!lazy) {
+                sequenceChangeListener = new SequenceChangeListener<T>() {
+                    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                        // Don't need to check lazy, since we're never called if binding is lazy
+                        $value = newValue;
+                        setValid();
+                        // JFXC-2627 - changed updateDependencies to true
+                        notifyListeners(startPos, endPos, newElements, oldValue, newValue, true);
+                    }
+                };
+                otherLocation.addChangeListener(sequenceChangeListener);
+            }
+            state = lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND;
         }
 
         void unbind() {
             otherLocation.removeChangeListener(changeListener);
-            otherLocation.removeChangeListener(sequenceChangeListener);
+            if (sequenceChangeListener != null)
+                otherLocation.removeChangeListener(sequenceChangeListener);
             changeListener = null;
             sequenceChangeListener = null;
+            state = STATE_UNBOUND;
         }
     }
 }

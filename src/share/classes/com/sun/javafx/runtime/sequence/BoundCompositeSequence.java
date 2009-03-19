@@ -88,7 +88,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 
     private void addTriggers() {
         for (int i = 0; i < infos.length; i++)
-            infos[i].addListener(new MyListener(i));
+            infos[i].addListener(new MyListener<T>(i));
     }
 
     public void replaceSlice(int startPos, int endPos, SequenceLocation<? extends T>[] newValues) {
@@ -124,7 +124,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             infos[i + startPos].size = sz;
             offset += sz;
             newSize += sz;
-            infos[i + startPos].addListener(new MyListener(i + startPos));
+            infos[i + startPos].addListener(new MyListener<T>(i + startPos));
         }
         Sequence<T> newSlice = Sequences.concatenate(getElementType(), sequences);
         int deltaElements = newSize - (affectedEnd - affectedStart + 1);
