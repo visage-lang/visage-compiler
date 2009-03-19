@@ -1592,30 +1592,35 @@ public class JavafxCheck {
         for (Type t : types.supertypes(origin)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
-                Scope.Entry e = c.members().lookup(vsym.name);
-                while (e.scope != null) {
-                    e.sym.complete();
-                    if ( e.sym.owner instanceof ClassSymbol &&
-                            ((e.sym.flags_field & JavafxFlags.SCRIPT_PRIVATE) == 0L ||
-                            origin.outermostClass() == ((ClassSymbol) e.sym.owner).outermostClass()))  {
+
+                for (Scope.Entry e = c.members().lookup(vsym.name); e.scope != null; e = e.next()) {
+                    Symbol eSym = e.sym;
+                    eSym.complete();
+                    if (!(eSym.owner instanceof ClassSymbol)) continue;
+                    
+                    long flags = eSym.flags_field;
+                    boolean isScriptPrivate = (flags & JavafxFlags.SCRIPT_PRIVATE) == 0L;
+                    boolean isPublicRead = (flags & (JavafxFlags.PUBLIC_READ|JavafxFlags.PUBLIC_INIT)) != 0L;
+                    boolean isScriptScope = origin.outermostClass() == ((ClassSymbol) eSym.owner).outermostClass();
+                    
+                    if (isScriptPrivate || isPublicRead || isScriptScope) {
                         // We have a name clash, the variable name is the name of a member
                         // which is visible outside the script or which is in the same script
-                        if (!types.isJFXClass(e.sym.owner)) {
+                        if (!types.isJFXClass(eSym.owner)) {
                             log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
                                    MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_JAVA_MEMBER :
                                    MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_JAVA_MEMBER,
-                                e.sym,
-                                e.sym.owner);
+                                eSym,
+                                eSym.owner);
                         } else if (overrides) {
                             log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
                                    MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER :
                                    MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER,
-                                e.sym,
-                                e.sym.owner);
+                                eSym,
+                                eSym.owner);
                         }
                         return;
                     }
-                    e = e.next();
                 }
             }
         }
