@@ -56,9 +56,12 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
-        if (!lazy)
+        if (lazy) {
+            addInvalidationListeners();
+        } else {
             setInitialValue(computeValue());
-        addTriggers();
+            addTriggers();
+        }
     }
 
     protected Sequence<Float> computeValue() {
@@ -82,30 +85,32 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
             size = exclusive ? 0 : 1;
         }
         else {
-            long size = Math.max(0, ((long)((upper - lower) / step)) + 1);
+            long sz = Math.max(0, ((long)((upper - lower) / step)) + 1);
 
             if (exclusive) {
                 boolean tooBig = (step > 0)
-                        ? (lower + (size - 1) * step >= upper)
-                        : (lower + (size - 1) * step <= upper);
-                if (tooBig && size > 0)
-                    --size;
+                        ? (lower + (sz - 1) * step >= upper)
+                        : (lower + (sz - 1) * step <= upper);
+                if (tooBig && sz > 0)
+                    --sz;
             }
             
-            if (size > Integer.MAX_VALUE || size < 0)
+            if (sz > Integer.MAX_VALUE || sz < 0)
                 throw new IllegalArgumentException("Range sequence too big");
             else
-                this.size = (int) size;
+                size = (int) sz;
         }
     }
 
+    private void addInvalidationListeners() {
+        lowerLoc.addInvalidationListener(new InvalidateMeListener());
+        upperLoc.addInvalidationListener(new InvalidateMeListener());
+        stepLoc.addInvalidationListener(new InvalidateMeListener());
+    }
+
     private void addTriggers() {
-        if (lazy) {
-            lowerLoc.addInvalidationListener(new InvalidateMeListener());
-            upperLoc.addInvalidationListener(new InvalidateMeListener());
-            stepLoc.addInvalidationListener(new InvalidateMeListener());
-        }
         lowerLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+            @Override
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;
@@ -139,6 +144,7 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
             }
         });
         upperLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+            @Override
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;         
@@ -161,6 +167,7 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
         });
 
         stepLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+            @Override
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;                                  

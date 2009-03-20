@@ -55,9 +55,12 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
-        if (!lazy)
+        if (lazy) {
+            addInvalidationListeners();
+        } else {
             setInitialValue(computeValue());
-        addTriggers();
+            addTriggers();
+        }
     }
 
     protected Sequence<Integer> computeValue() {
@@ -66,7 +69,7 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
     }
 
     private Sequence<Integer> computeFull(int lower, int upper, int step) {
-        return exclusive ? Sequences.rangeExclusive(lower, upper, step) : Sequences.range(lower, upper, step);
+      return exclusive ? Sequences.rangeExclusive(lower, upper, step) : Sequences.range(lower, upper, step);
     }
 
     private void computeBounds(int newLower, int newUpper, int newStep) {
@@ -93,15 +96,17 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
         }
     }
 
+    private void addInvalidationListeners() {
+        lowerLoc.addInvalidationListener(new InvalidateMeListener());
+        upperLoc.addInvalidationListener(new InvalidateMeListener());
+        stepLoc.addInvalidationListener(new InvalidateMeListener());
+    }
+
     private void addTriggers() {
-        if (!lazy) {
-            lowerLoc.addInvalidationListener(new InvalidateMeListener());
-            upperLoc.addInvalidationListener(new InvalidateMeListener());
-            stepLoc.addInvalidationListener(new InvalidateMeListener());
-        }
         lowerLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+            @Override
             public void onChange(int oldValue, int newValue) {
-                
+
                 assert oldValue != newValue;
                 
                 int oldSize = size;
@@ -133,6 +138,7 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
             }
         });
         upperLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+            @Override
             public void onChange(int oldValue, int newValue) {
                 
                 assert oldValue != newValue;
@@ -157,6 +163,7 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
         });
 
         stepLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+            @Override
             public void onChange(int oldValue, int newValue) {
                 
                 assert oldValue != newValue;
