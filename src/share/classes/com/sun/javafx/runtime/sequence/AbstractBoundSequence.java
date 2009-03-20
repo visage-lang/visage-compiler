@@ -27,11 +27,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.sun.javafx.runtime.location.AbstractLocation;
-import com.sun.javafx.runtime.location.ObjectChangeListener;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
-import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.location.*;
 
 /**
  * Abstract base class for bound sequences.  Subclass constructors are expected to compute the initial value, set up
@@ -43,23 +40,27 @@ import com.sun.javafx.runtime.TypeInfo;
 public abstract class AbstractBoundSequence<T> extends AbstractLocation implements SequenceLocation<T> {
     protected final TypeInfo<T, ?> typeInfo;
     private List<SequenceChangeListener<T>> changeListeners;
-    private Sequence<T> value;
+    private Sequence<T> $value;
+    protected final boolean lazy;
 
     // Currently, no support for lazy binding.
 
-    protected AbstractBoundSequence(TypeInfo<T, ?> typeInfo) {
+    protected AbstractBoundSequence(boolean lazy, TypeInfo<T, ?> typeInfo) {
         this.typeInfo = typeInfo;
-        this.value = typeInfo.emptySequence;
+        this.lazy = lazy;
+        this.$value = typeInfo.emptySequence;
     }
+
+    protected abstract Sequence<T> computeValue();
 
     protected void setInitialValue(Sequence<T> initialValue) {
         if (isValid())
             throw new IllegalStateException("Cannot call setInitialValue more than once");
-        Sequence<T> oldValue = value;
+        Sequence<T> oldValue = $value;
         Sequence<T> newValue = initialValue;
         if (newValue == null)
             newValue = typeInfo.emptySequence;
-        value = newValue;
+        $value = newValue;
         setValid();
         if (!Sequences.isEqual(oldValue, newValue)) {
             invalidateDependencies();
@@ -68,25 +69,27 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     }
 
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
-        Sequence<T> oldValue = value;
+        assert !lazy;
+        Sequence<T> oldValue = $value;
         if (changeListeners != null) {
             Sequences.noteShared(newValues);
             Sequences.noteShared(oldValue);
         }
-        value = Sequences.replaceSlice(oldValue, startPos, endPos, newValues);
+        $value = Sequences.replaceSlice(oldValue, startPos, endPos, newValues);
         invalidateDependencies();
-        notifyListeners(startPos, endPos, newValues, oldValue, value);
+        notifyListeners(startPos, endPos, newValues, oldValue, $value);
     }
 
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues, Sequence<T> newSequence) {
-        Sequence<T> oldValue = value;
-        value = newSequence;
+        assert !lazy;
+        Sequence<T> oldValue = $value;
+        $value = newSequence;
         invalidateDependencies();
         notifyListeners(startPos, endPos, newValues, oldValue, newSequence);
     }
 
     protected Sequence<T> getRawValue() {
-        return value;
+        return $value;
     }
 
     public Sequence<T> get() {
@@ -98,9 +101,12 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     }
 
     public Sequence<T> getAsSequence() {
-        assert(isValid());
-        Sequences.noteShared(value);
-        return value;
+        if (lazy)
+            update();
+        else
+            assert(isValid());
+        Sequences.noteShared($value);
+        return $value;
     }
 
     public TypeInfo<T, ?> getElementType() {
@@ -113,6 +119,11 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
 
     public boolean isNull() {
         return Sequences.size(getAsSequence()) == 0;
+    }
+
+    @Override
+    protected boolean hasDependencies() {
+        return super.hasDependencies() || changeListeners.size() > 0;
     }
 
     public void addChangeListener(final ObjectChangeListener<Sequence<T>> listener) {
@@ -146,6 +157,23 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         }
     }
 
+    @Override
+    public void invalidate() {
+        if (lazy)
+            super.invalidate();
+    }
+
+    @Override
+    public void update() {
+        if (lazy) {
+            Sequence<T> oldValue = $value;
+            $value = computeValue();
+            setValid();
+            if (hasDependencies() && !Sequences.isEqual(oldValue, $value))
+                notifyListeners(0, oldValue.size() - 1, $value, oldValue, $value);
+        }
+    }
+
     public Iterator<T> iterator() {
         return getAsSequence().iterator();
     }
@@ -153,11 +181,6 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     @Override
     public String toString() {
         return getAsSequence().toString();
-    }
-
-    @Override
-    public void invalidate() {
-        throw new UnsupportedOperationException();
     }
 
     public void setDefault() {
@@ -254,5 +277,13 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
 
     public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
+    }
+
+    protected class InvalidateMeListener extends InvalidationListener {
+        @Override
+        public boolean onChange() {
+            invalidate();
+            return true;
+        }
     }
 }

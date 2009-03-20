@@ -460,7 +460,7 @@ public class SequenceVariable<T>
 
     private class BoundLocationInfo {
         public final SequenceLocation<T> otherLocation;
-        public ChangeListener changeListener;
+        public InvalidationListener invalidationListener;
         public SequenceChangeListener<T> sequenceChangeListener;
         public final boolean lazy;
 
@@ -478,15 +478,16 @@ public class SequenceVariable<T>
         }
 
         void bind() {
-            changeListener = new ChangeListener() {
+            invalidationListener = new InvalidationListener() {
                 public boolean onChange() {
+                    // @@@ This probably means we invalidate dependencies twice if we are lazy
                     if (lazy)
                         invalidate();
                     invalidateDependencies();
                     return true;
                 }
             };
-            otherLocation.addChangeListener(changeListener);
+            otherLocation.addInvalidationListener(invalidationListener);
             if (!lazy) {
                 sequenceChangeListener = new SequenceChangeListener<T>() {
                     public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
@@ -503,10 +504,10 @@ public class SequenceVariable<T>
         }
 
         void unbind() {
-            otherLocation.removeChangeListener(changeListener);
+            otherLocation.removeInvalidationListener(invalidationListener);
             if (sequenceChangeListener != null)
                 otherLocation.removeChangeListener(sequenceChangeListener);
-            changeListener = null;
+            invalidationListener = null;
             sequenceChangeListener = null;
             state = STATE_UNBOUND;
         }

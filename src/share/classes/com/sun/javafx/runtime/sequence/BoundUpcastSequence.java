@@ -36,14 +36,15 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
 
     private final SequenceLocation<V> sequence;
 
-    public BoundUpcastSequence(TypeInfo<T, ?> typeInfo, SequenceLocation<V> sequence) {
-        super(typeInfo);
+    public BoundUpcastSequence(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<V> sequence) {
+        super(lazy, typeInfo);
         this.sequence = sequence;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<T> computeValue() {
+    protected Sequence<T> computeValue() {
         return Sequences.<T>upcast(sequence.get());
     }
 

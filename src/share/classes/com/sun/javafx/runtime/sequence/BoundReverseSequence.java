@@ -35,26 +35,30 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
     private final SequenceLocation<T> location;
 
     BoundReverseSequence(boolean lazy, SequenceLocation<T> location) {
-        super(location.getElementType());
+        super(lazy, location.getElementType());
         this.location = location;
 
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<T> computeValue() {
+    protected Sequence<T> computeValue() {
         return Sequences.reverse(location.getAsSequence());
     }
 
     private void addTriggers() {
-        location.addChangeListener(new SequenceChangeListener<T>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                int sliceSize = endPos - startPos;
-                int actualStart = oldValue.size() - startPos - (sliceSize + 1);
-                int actualEnd = actualStart + sliceSize;
-                Sequence<? extends T> reverseElements = newElements == null ? null : Sequences.reverse(newElements);
-                updateSlice(actualStart, actualEnd, reverseElements);
-            }
-        });
+        if (lazy)
+            location.addInvalidationListener(new InvalidateMeListener());
+        else
+            location.addChangeListener(new SequenceChangeListener<T>() {
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                    int sliceSize = endPos - startPos;
+                    int actualStart = oldValue.size() - startPos - (sliceSize + 1);
+                    int actualEnd = actualStart + sliceSize;
+                    Sequence<? extends T> reverseElements = newElements == null ? null : Sequences.reverse(newElements);
+                    updateSlice(actualStart, actualEnd, reverseElements);
+                }
+            });
     }
 }

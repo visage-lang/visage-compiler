@@ -12,18 +12,30 @@ import com.sun.javafx.runtime.NumericTypeInfo;
 class BoundNumericConversion<T extends Number, V extends Number> extends AbstractBoundSequence<T> {
     private final NumericTypeInfo<T, ?> toType;
     private final NumericTypeInfo<V, ?> fromType;
+    SequenceLocation<V> sequence;
 
-    public BoundNumericConversion(NumericTypeInfo<T, ?> toType, NumericTypeInfo<V, ?> fromType, SequenceLocation<V> sequence) {
-        super(toType);
+    public BoundNumericConversion(boolean lazy, NumericTypeInfo<T, ?> toType, NumericTypeInfo<V, ?> fromType, SequenceLocation<V> sequence) {
+        super(lazy, toType);
         this.toType = toType;
         this.fromType = fromType;
+        this.sequence = sequence;
 
-        setInitialValue(convert(sequence.get()));
-        sequence.addChangeListener(new SequenceChangeListener<V>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
-                updateSlice(startPos, endPos, convert(Sequences.upcast(newElements)), convert(newValue));
-            }
-        });
+        if (!lazy) {
+            setInitialValue(convert(sequence.get()));
+            sequence.addChangeListener(new SequenceChangeListener<V>() {
+                public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
+                    updateSlice(startPos, endPos, convert(Sequences.upcast(newElements)), convert(newValue));
+                }
+            });
+        }
+        else {
+            sequence.addInvalidationListener(new InvalidateMeListener());
+        }
+    }
+
+    @Override
+    protected Sequence<T> computeValue() {
+        return convert(sequence.get());
     }
 
     private Sequence<T> convert(Sequence<V> seq) {

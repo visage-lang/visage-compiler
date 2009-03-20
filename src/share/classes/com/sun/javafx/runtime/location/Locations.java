@@ -137,12 +137,12 @@ public class Locations {
             location.update();
         }
 
-        public void addChangeListener(ChangeListener listener) {
-            location.addChangeListener(listener);
+        public void addInvalidationListener(InvalidationListener listener) {
+            location.addInvalidationListener(listener);
         }
 
-        public void removeChangeListener(ChangeListener listener) {
-            location.removeChangeListener(listener);
+        public void removeInvalidationListener(InvalidationListener listener) {
+            location.removeInvalidationListener(listener);
         }
 
         public void iterateChildren(DependencyIterator<? extends LocationDependency> closure) {

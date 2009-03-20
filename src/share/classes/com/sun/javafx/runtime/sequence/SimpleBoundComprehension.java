@@ -52,10 +52,11 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
     public SimpleBoundComprehension(boolean lazy, TypeInfo<V, ?> typeInfo,
                                     SequenceLocation<T> sequenceLocation,
                                     boolean dependsOnIndex) {
-        super(typeInfo);
+        super(lazy, typeInfo);
         this.sequenceLocation = sequenceLocation;
         this.dependsOnIndex = dependsOnIndex;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
@@ -65,7 +66,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
 
     protected abstract V computeElement$(T element, int index);
 
-    private Sequence<V> computeValue() {
+    protected Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         int i = 0;
@@ -77,37 +78,40 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
     }
 
     private void addTriggers() {
-        sequenceLocation.addChangeListener(new SequenceChangeListener<T>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
-                // trailing segment of the comprehension, so not only do we recompute the affected segment, but also
-                // the whole rest of the sequence too.
+        if (lazy)
+            sequenceLocation.addInvalidationListener(new InvalidateMeListener());
+        else
+            sequenceLocation.addChangeListener(new SequenceChangeListener<T>() {
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                    // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
+                    // trailing segment of the comprehension, so not only do we recompute the affected segment, but also
+                    // the whole rest of the sequence too.
 
-                int directlyAffectedSize = Sequences.size(newElements);
-                int elementsAdded = directlyAffectedSize - (endPos - startPos + 1);
-                boolean updateTrailingElements = dependsOnIndex
-                        && (elementsAdded != 0)
-                        && (endPos + 1 < Sequences.size(oldValue));
-                int indirectlyAffectedStart=0, indirectlyAffectedEnd=-1, indirectlyAffectedSize=0;
-                if (updateTrailingElements) {
-                    indirectlyAffectedStart = endPos + 1;
-                    indirectlyAffectedEnd = oldValue.size() - 1;
-                    indirectlyAffectedSize = indirectlyAffectedEnd - indirectlyAffectedStart + 1;
-                }
-                V[] ourNewElements = Util.<V>newObjectArray(directlyAffectedSize + indirectlyAffectedSize);
-                int i = 0;
-                for (Iterator<? extends T> it = Sequences.iterator(newElements); it.hasNext(); i++) {
-                    ourNewElements[i] = computeElement$(it.next(), dependsOnIndex ? startPos + i : -1);
-                }
-                i = 0;
-                for (Iterator<? extends T> it = Sequences.iterator(oldValue, indirectlyAffectedStart, indirectlyAffectedEnd); it.hasNext(); i++) {
-                    ourNewElements[directlyAffectedSize + i]
-                            = computeElement$(it.next(), indirectlyAffectedStart + i + elementsAdded);
-                }
+                    int directlyAffectedSize = Sequences.size(newElements);
+                    int elementsAdded = directlyAffectedSize - (endPos - startPos + 1);
+                    boolean updateTrailingElements = dependsOnIndex
+                            && (elementsAdded != 0)
+                            && (endPos + 1 < Sequences.size(oldValue));
+                    int indirectlyAffectedStart=0, indirectlyAffectedEnd=-1, indirectlyAffectedSize=0;
+                    if (updateTrailingElements) {
+                        indirectlyAffectedStart = endPos + 1;
+                        indirectlyAffectedEnd = oldValue.size() - 1;
+                        indirectlyAffectedSize = indirectlyAffectedEnd - indirectlyAffectedStart + 1;
+                    }
+                    V[] ourNewElements = Util.<V>newObjectArray(directlyAffectedSize + indirectlyAffectedSize);
+                    int i = 0;
+                    for (Iterator<? extends T> it = Sequences.iterator(newElements); it.hasNext(); i++) {
+                        ourNewElements[i] = computeElement$(it.next(), dependsOnIndex ? startPos + i : -1);
+                    }
+                    i = 0;
+                    for (Iterator<? extends T> it = Sequences.iterator(oldValue, indirectlyAffectedStart, indirectlyAffectedEnd); it.hasNext(); i++) {
+                        ourNewElements[directlyAffectedSize + i]
+                                = computeElement$(it.next(), indirectlyAffectedStart + i + elementsAdded);
+                    }
 
-                Sequence<V> vSequence = Sequences.make(getElementType(), ourNewElements);
-                updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
-            }
-        });
+                    Sequence<V> vSequence = Sequences.make(getElementType(), ourNewElements);
+                    updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
+                }
+            });
     }
 }
