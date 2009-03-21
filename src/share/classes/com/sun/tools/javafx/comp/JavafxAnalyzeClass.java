@@ -170,8 +170,7 @@ class JavafxAnalyzeClass {
         }
         
         public boolean isPrivateAccess() {
-            return (getFlags() & JavafxFlags.JavafxInstanceVarFlags &
-                                 ~(JavafxFlags.SCRIPT_PRIVATE | Flags.PRIVATE)) == 0L;
+            return (getFlags() & Flags.PRIVATE) != 0L;
         }
         
         JFXOnReplace onReplace() { return null; }
@@ -372,10 +371,10 @@ class JavafxAnalyzeClass {
             // If attribute is a duplicate then select mixins with caution.
             boolean needsProxy = false;
             if (oldAttrInfo != null) {
-                boolean oldIsMixin = oldAttrInfo.isMixinVar();
                 boolean newIsMixin = (var.owner.flags() & JavafxFlags.MIXIN) != 0;
-                needsProxy = !oldIsMixin && newIsMixin &&
+                needsProxy = newIsMixin &&
                              !oldAttrInfo.isPrivateAccess() &&
+                             oldAttrInfo.getSymbol() != var &&
                              oldAttrInfo.getSymbol().type == var.type;
             }
             

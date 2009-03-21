@@ -696,8 +696,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // "InitHelper.finish(new[] { attribute, ... });
         ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            final VarSymbol vsym = ai.getSymbol();
-            if (ai.needsCloning() && requiresLocation(ai)) {
+            if (ai.needsCloning() && requiresLocation(ai) && !ai.hasProxyVar()) {
+                final VarSymbol vsym = ai.getSymbol();
                 finishAttrs.append(make.at(diagPos).Ident(attributeFieldName(vsym)));
             }
         }                
