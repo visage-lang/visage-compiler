@@ -1995,16 +1995,17 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
     class SelectTranslator extends NullCheckTranslator {
+        
         protected final Symbol sym;
         protected final boolean isFunctionReference;
         protected final boolean staticReference;
         protected final Name name;
 
-        protected SelectTranslator(JFXSelect tree, Locationness wrapper) {
+        protected SelectTranslator(JavafxToJava toJava, JFXSelect tree, Locationness wrapper) {
             super(tree.pos(), tree.getExpression(), tree.type, tree.sym.isStatic(), wrapper);
             sym = tree.sym;
-            isFunctionReference = tree.type instanceof FunctionType && tree.sym.type instanceof MethodType;
-            staticReference = tree.sym.isStatic();
+            isFunctionReference = tree.type instanceof FunctionType && sym.type instanceof MethodType;
+            staticReference = sym.isStatic();
             name = tree.getIdentifier();
         }
 
@@ -2016,6 +2017,19 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             if (staticReference) {
                 translatedSelected = makeTypeTree(diagPos, types.erasure(sym.owner.type), false);
+            } else if (expr instanceof JFXIdent) {
+                JFXIdent ident = (JFXIdent)expr;
+                Symbol identSym = ident.sym;
+                
+                if (identSym != null && types.isJFXClass(identSym)) {
+                    if ((identSym.flags_field & JavafxFlags.MIXIN) != 0) {
+                        translatedSelected = make.at(diagPos).Ident(defs.receiverName);
+                    } else if (identSym == toJava.attrEnv.enclClass.sym) {
+                        translatedSelected = make.at(diagPos).Ident(names._this);
+                    } else {
+                        translatedSelected = make.at(diagPos).Ident(names._super);
+                    }
+                }
             }
 
             return translatedSelected;
@@ -2053,7 +2067,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (substitute(tree.sym, wrapper)) {
             return;
         }
-        result = new SelectTranslator(tree, wrapper).doit();
+        result = new SelectTranslator(this, tree, wrapper).doit();
     }
 
     @Override
@@ -2075,7 +2089,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
             return;
         } else if (tree.name == names._super) {
             if (types.isMixin(tree.type.tsym)) {
-                // "super" become just the class where the static implementation method is defined
+                // "super" becomes just the class where the static implementation method is defined
                 //  the rest of the implementation is in visitFunctionInvocation
                 result = make.at(diagPos).Ident(tree.type.tsym.name);
             } else {
@@ -3258,6 +3272,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         protected final boolean thisCall;
         protected final boolean superCall;
         protected final MethodSymbol msym;
+        protected final boolean renameToThis;
         protected final boolean renameToSuper;
         protected final boolean superToStatic;
         protected final List<Type> formals;
@@ -3289,7 +3304,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                     // FIXME should also allow other enclosing classes:
                     types.isSuperType(selectorSym.type, csym);
             boolean isMixinSuper = namedSuperCall && (selectorSym.flags_field & JavafxFlags.MIXIN) != 0;
-            renameToSuper = namedSuperCall && !isMixinSuper;
+            boolean canRename = namedSuperCall && !isMixinSuper;
+            renameToThis = canRename && selectorSym == csym;
+            renameToSuper = canRename && selectorSym != csym;
             superToStatic = (superCall || namedSuperCall) && isMixinSuper;
             formals = meth.type.getParameterTypes();
             //TODO: probably move this local to the arg processing
@@ -3300,8 +3317,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                                  types.elemtype(formals.last())));
 
             selectorMutable = msym != null &&
-                    !sym.isStatic() && selector != null && !superCall && !namedSuperCall &&
-                    !thisCall && !renameToSuper;
+                    !sym.isStatic() && selector != null &&
+                    !namedSuperCall &&
+                    !superCall && !renameToSuper &&
+                    !thisCall && !renameToThis;
             callBound = msym != null && !useInvoke &&
                   ((msym.flags() & JavafxFlags.BOUND) != 0);
 
@@ -3356,8 +3375,10 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
                     JCExpression translateToCheck(JFXExpression expr) {
                         JCExpression trans;
-                        if (renameToSuper) {
-                            trans = m().Select(makeTypeTree(diagPos, currentClass.sym.type, false), names._super);
+                        if (renameToSuper || superCall) {
+                           trans = m().Ident(names._super);
+                        } else if (renameToThis || thisCall) {
+                           trans = m().Ident(names._this);
                         } else if (superToStatic) {
                             trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
                         } else if (selector != null && !useInvoke && msym != null && msym.isStatic()) {

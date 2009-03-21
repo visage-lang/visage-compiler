@@ -1491,7 +1491,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                 if (superToStatic) {  //TODO: should this be higher?
                                     // This is a super call, add the receiver so that the impl is called directly
                                     callArgs.prepend( receiver() );
-                                } else if (renameToSuper || superCall) {
+                                } else if (renameToSuper || renameToThis || superCall || thisCall) {
                                     generateInLine = true;
                                 }
                                 // result is a block expression that has the definition of receiver$ at the beginning
@@ -1522,7 +1522,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                                     stor = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
                                 } else if (renameToSuper || superCall) {
                                     stor = m().Select(makeTypeTree(diagPos, toJava.currentClass.sym.type, false), names._super);
-                                } else if (selector == null || thisCall) {
+                                } else if (selector == null || thisCall || renameToThis) {
                                     stor = receiver();
                                 } else {
                                     stor = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
@@ -1543,6 +1543,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     expr = makeTypeTree(diagPos, msym.owner.type, false);
                 } else if (renameToSuper || superCall) {
                     expr = m().Ident(names._super);
+                } else if (renameToThis || thisCall) {
+                    expr = m().Ident(names._this);
                 } else if (callBound) {
                     expr = ((JCFieldAccess) transMeth).getExpression();
                 }

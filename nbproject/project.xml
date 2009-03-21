@@ -219,7 +219,7 @@
             <compilation-unit>
                 <package-root>test/src</package-root>
                 <unit-tests/>
-                <classpath mode="compile">build/classes:lib/javac.jar</classpath>
+                <classpath mode="compile">build/classes;lib/javac.jar;../import/junit-4.4/junit-4.4.jar;../import/junit-dep-4.4/junit-dep-4.4.jar</classpath>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
