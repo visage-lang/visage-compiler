@@ -55,12 +55,9 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
-        if (lazy) {
-            addInvalidationListeners();
-        } else {
+        if (!lazy)
             setInitialValue(computeValue());
-            addTriggers();
-        }
+        addTriggers();
     }
 
     protected Sequence<Integer> computeValue() {
@@ -96,13 +93,13 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
         }
     }
 
-    private void addInvalidationListeners() {
-        lowerLoc.addInvalidationListener(new InvalidateMeListener());
-        upperLoc.addInvalidationListener(new InvalidateMeListener());
-        stepLoc.addInvalidationListener(new InvalidateMeListener());
-    }
-
     private void addTriggers() {
+        if (lazy) {
+            lowerLoc.addInvalidationListener(new InvalidateMeListener());
+            upperLoc.addInvalidationListener(new InvalidateMeListener());
+            stepLoc.addInvalidationListener(new InvalidateMeListener());
+            return;
+        }
         lowerLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
             @Override
             public void onChange(int oldValue, int newValue) {
