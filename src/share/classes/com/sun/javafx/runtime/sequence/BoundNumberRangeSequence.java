@@ -56,12 +56,9 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
-        if (lazy) {
-            addInvalidationListeners();
-        } else {
+        if (!lazy)
             setInitialValue(computeValue());
-            addTriggers();
-        }
+        addTriggers();
     }
 
     protected Sequence<Float> computeValue() {
@@ -102,13 +99,13 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
         }
     }
 
-    private void addInvalidationListeners() {
-        lowerLoc.addInvalidationListener(new InvalidateMeListener());
-        upperLoc.addInvalidationListener(new InvalidateMeListener());
-        stepLoc.addInvalidationListener(new InvalidateMeListener());
-    }
-
     private void addTriggers() {
+        if (lazy) {
+            lowerLoc.addInvalidationListener(new InvalidateMeListener());
+            upperLoc.addInvalidationListener(new InvalidateMeListener());
+            stepLoc.addInvalidationListener(new InvalidateMeListener());
+            return;
+        }
         lowerLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
             @Override
             public void onChange(float oldValue, float newValue) {
