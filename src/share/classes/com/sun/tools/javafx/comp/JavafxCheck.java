@@ -1599,11 +1599,11 @@ public class JavafxCheck {
                     if (!(eSym.owner instanceof ClassSymbol)) continue;
                     
                     long flags = eSym.flags_field;
-                    boolean isScriptPrivate = (flags & JavafxFlags.SCRIPT_PRIVATE) == 0L;
+                    boolean isNotScriptPrivate = (flags & JavafxFlags.SCRIPT_PRIVATE) == 0L;
                     boolean isPublicRead = (flags & (JavafxFlags.PUBLIC_READ|JavafxFlags.PUBLIC_INIT)) != 0L;
                     boolean isScriptScope = origin.outermostClass() == ((ClassSymbol) eSym.owner).outermostClass();
                     
-                    if (isScriptPrivate || isPublicRead || isScriptScope) {
+                    if (isNotScriptPrivate || isPublicRead || isScriptScope) {
                         // We have a name clash, the variable name is the name of a member
                         // which is visible outside the script or which is in the same script
                         if (!types.isJFXClass(eSym.owner)) {
