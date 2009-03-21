@@ -2023,11 +2023,11 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 
                 if (identSym != null && types.isJFXClass(identSym)) {
                     if ((identSym.flags_field & JavafxFlags.MIXIN) != 0) {
-                        translatedSelected = make.at(diagPos).Ident(defs.receiverName);
+                        translatedSelected = m().Ident(defs.receiverName);
                     } else if (identSym == toJava.attrEnv.enclClass.sym) {
-                        translatedSelected = make.at(diagPos).Ident(names._this);
+                        translatedSelected = m().Ident(names._this);
                     } else {
-                        translatedSelected = make.at(diagPos).Ident(names._super);
+                        translatedSelected = m().Ident(names._super);
                     }
                 }
             }
