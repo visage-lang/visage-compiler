@@ -389,7 +389,7 @@ class JavafxAnalyzeClass {
             
             newAttrInfo.setNeedsCloning(cloneVisible || newAttrInfo.isDirectOwner());
             attributeInfos.append(newAttrInfo);
-            visitedAttributes.put(attrName, newAttrInfo);
+            if (!needsProxy) visitedAttributes.put(attrName, newAttrInfo);
         }
     }
 
