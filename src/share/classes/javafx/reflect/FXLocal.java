@@ -247,7 +247,7 @@ public class FXLocal {
                     String cname = cls.getName();
                     
                     if (cname.endsWith(MIXIN_SUFFIX)) {
-                        cname = cname.substring(0, cname.length()-MIXIN_SUFFIX.length());
+                        cname = cname.substring(0, cname.length() - MIXIN_SUFFIX.length());
                         clsInterface = cls;
                         cls = Class.forName(cname, false, cls.getClassLoader());
                         if (cls == null) throw new RuntimeException("Missing mixin class " + cname);
