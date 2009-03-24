@@ -40,6 +40,8 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
 
     public IntRangeSequence(int start, int bound, int step, boolean exclusive) {
         super(TypeInfo.Integer);
+        if (step == 0)
+            throw new IllegalArgumentException("Range step of zero");
         this.start = start;
         this.step = step;
         this.size = Sequences.calculateSize(start, bound, step, exclusive);

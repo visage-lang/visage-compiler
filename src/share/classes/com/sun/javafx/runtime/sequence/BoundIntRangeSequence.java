@@ -74,6 +74,9 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
         upper = newUpper;
         step = newStep;
 
+        if (step == 0)
+            throw new IllegalArgumentException("Range step of zero");
+
         if (Math.abs((long) newLower - (long) newUpper) + ((long) (exclusive ? 0 : 1) / step) > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range sequence too big");
 

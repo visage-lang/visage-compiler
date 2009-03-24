@@ -76,6 +76,9 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
         upper = newUpper;
         step = newStep;
 
+        if (step == 0.0f)
+            throw new IllegalArgumentException("Range step of zero");
+
         // Not all floating point numbers can be exactly represented as a binary (base 2) decimal number (e.g lower = 0.1).
         // The size of the sequence from the following calculation could be off by 1. However, such cases are very rare.
         if (lower == upper) {
@@ -85,7 +88,7 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
             long sz = Math.max(0, ((long)((upper - lower) / step)) + 1);
 
             if (exclusive) {
-                boolean tooBig = (step > 0)
+                boolean tooBig = (step > 0.0f)
                         ? (lower + (sz - 1) * step >= upper)
                         : (lower + (sz - 1) * step <= upper);
                 if (tooBig && sz > 0)
