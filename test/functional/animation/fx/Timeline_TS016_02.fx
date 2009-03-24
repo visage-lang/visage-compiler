@@ -16,9 +16,6 @@ import java.lang.System;
 import java.lang.Thread;
 import java.lang.AssertionError;
 
-import javax.swing.Timer;
-import java.awt.event.*;
-
 var t: Timeline = Timeline {
     repeatCount: 1
     autoReverse: false
@@ -31,20 +28,22 @@ var t: Timeline = Timeline {
 }
 
 function terminate(ms: String) {
-	t.stop();
+    t.stop();
     throw new AssertionError(ms);
 }
 
 t.play();
 
-// timeline should be ended after 1s. So check the running status is false.
-var timer = new Timer(1000, ActionListener {
-    public override function actionPerformed(e: ActionEvent) {
-		if(t.running != false) {
-			terminate("t.running = {t.running}: should false.");
-		}
+function checkRunningStatus() {
+    if(t.running != false) {
+       terminate("t.running = {t.running}: should false.");
     }
-});
-timer.setRepeats(false);
-timer.start();
+}
 
+// timeline should be ended after 1s. So check the running status is false.
+Timeline {
+    keyFrames: KeyFrame {
+        time: 1000ms,
+        action: checkRunningStatus
+    }
+}.play();
