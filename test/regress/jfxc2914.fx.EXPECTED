@@ -1,0 +1,11 @@
+test/regress/jfxc2914.fx:8: warning: possible loss of precision
+found   : Number[]
+required: Integer[]
+var b2: Integer[] = b1;
+                    ^
+test/regress/jfxc2914.fx:11: warning: possible loss of precision
+found   : Number[]
+required: Integer[]
+  return b1;
+         ^
+2 warnings

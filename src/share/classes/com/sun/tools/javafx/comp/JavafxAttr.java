@@ -182,6 +182,9 @@ public class JavafxAttr implements JavafxVisitor {
      *  @param pt       The expected type (or: prototype) of the tree
      */
     Type check(JFXTree tree, Type owntype, int ownkind, int pkind, Type pt, Sequenceness pSequenceness) {
+        return check(tree, owntype, ownkind, pkind, pt, pSequenceness, true);
+    }
+    Type check(JFXTree tree, Type owntype, int ownkind, int pkind, Type pt, Sequenceness pSequenceness, boolean giveWarnings) {
         if (owntype != null && owntype != syms.javafx_UnspecifiedType && owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
 //        if (owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
             if ((pkind & VAL) != 0 && ownkind == MTH) {
@@ -191,7 +194,7 @@ public class JavafxAttr implements JavafxVisitor {
                 }
             }
             if ((ownkind & ~pkind) == 0) {
-                owntype = chk.checkType(tree.pos(), owntype, pt, pSequenceness);
+                owntype = chk.checkType(tree.pos(), owntype, pt, pSequenceness, giveWarnings);
             } else {
                 log.error(tree.pos(), MsgSym.MESSAGE_UNEXPECTED_TYPE,
                           Resolve.kindNames(pkind),
@@ -907,14 +910,9 @@ public class JavafxAttr implements JavafxVisitor {
                 this.inBindContext |= tree.isBound();
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
-                initType = chk.checkNonVoid(tree.pos(), initType);
-                if (declType.tag <= LONG && initType.tag >= LONG && initType.tag <= DOUBLE) {
-                    // Temporary kludge to supress duplicate warnings.
-                    // (The kludge won't be needed if we make Number->Integer and error.)
-                }
-                else
-                    chk.checkType(tree.pos(), initType, declType,
-                            types.isSequence(declType) ? Sequenceness.REQUIRED : Sequenceness.DISALLOWED);
+                initType = chk.checkNonVoid(tree.pos(), initType);                
+                chk.checkType(tree.pos(), initType, declType,
+                        types.isSequence(declType) ? Sequenceness.REQUIRED : Sequenceness.DISALLOWED, false);
                 if (initType == syms.botType
                         || initType == syms.unreachableType)
                     initType = syms.objectType;
@@ -1345,7 +1343,7 @@ public class JavafxAttr implements JavafxVisitor {
             owntype = syms.unreachableType;
         }
         owntype = owntype.baseType();
-        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness, false);
         if (env.info.scope.owner.kind != TYP)
             localEnv.info.scope.leave();
     }
@@ -1832,11 +1830,8 @@ public class JavafxAttr implements JavafxVisitor {
                 } else {
                     if (returnType == syms.unknownType)
                         returnType = bodyType == syms.unreachableType ? syms.javafx_VoidType : bodyType;
-                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.internalRunFunctionName
-                            // Temporary hack to suppress duplicate warning on Number->Integer.
-                            // Hack can go away if/when we make it an error.  FIXME.
-                            && ! (typeToCheck.tag <= LONG && bodyType.tag >= FLOAT && bodyType.tag <= DOUBLE))
-                        chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.PERMITTED);
+                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.internalRunFunctionName)
+                        chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.PERMITTED, false);
                 }
                 if (tree.isBound() && returnType == syms.javafx_VoidType) {
                     log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID);
@@ -2635,7 +2630,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
             result = tree.type = pt;
         else {
-            Type expected = types.isSequence(pt)? types.elementType(pt) : pt;
+            Type expected = types.elementTypeOrType(pt);
             if (tree.value instanceof Double) {
                 double dvalue = ((Double) tree.value).doubleValue();
                 double dabs = Math.abs(dvalue);

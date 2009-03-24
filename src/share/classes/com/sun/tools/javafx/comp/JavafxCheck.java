@@ -386,6 +386,10 @@ public class JavafxCheck {
      *  @param req        The type that was required.
      */
     Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw, Sequenceness pSequenceness) {
+        return checkType(pos, foundRaw, reqRaw, pSequenceness, true);
+    }
+
+    Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw, Sequenceness pSequenceness, boolean giveWarnings) {
         Type req = deLocationize(reqRaw);
         Type found = deLocationize(foundRaw);
         Type realFound = found;
@@ -429,7 +433,9 @@ public class JavafxCheck {
             foundUnboxed = found;
 
         if (types.isAssignable(foundUnboxed, reqUnboxed, convertWarner(pos, found, req))) {
-            if (reqUnboxed.tag <= LONG && foundUnboxed.tag >= FLOAT && foundUnboxed.tag <= DOUBLE) {
+            Type foundElem = types.elementTypeOrType(found);
+            Type reqElem = types.elementTypeOrType(req);
+            if (reqElem.tag <= LONG && foundElem.tag >= FLOAT && foundElem.tag <= DOUBLE && giveWarnings) {
                 // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
                 String foundAsJavaFXType = types.toJavaFXString(foundUnboxed);
                 String requiredAsJavaFXType = types.toJavaFXString(reqUnboxed);
@@ -448,11 +454,16 @@ public class JavafxCheck {
                 return realFound;
         }
 
-        if (found.tag <= DOUBLE && req.tag <= DOUBLE) {
-            String foundAsJavaFXType = types.toJavaFXString(found);
-            String requiredAsJavaFXType = types.toJavaFXString(req);
-            log.warning(pos.getStartPosition(), MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
-                    foundAsJavaFXType, requiredAsJavaFXType);
+        Type foundElem = types.elementTypeOrType(found);
+        Type reqElem = types.elementTypeOrType(req);
+
+        if (foundElem.tag <= DOUBLE && reqElem.tag <= DOUBLE) {
+            if (giveWarnings) {
+                String foundAsJavaFXType = types.toJavaFXString(found);
+                String requiredAsJavaFXType = types.toJavaFXString(req);
+                log.warning(pos.getStartPosition(), MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
+                        foundAsJavaFXType, requiredAsJavaFXType);
+            }
             return realFound;
         }
         if (found.isSuperBound()) {

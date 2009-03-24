@@ -107,6 +107,10 @@ public class JavafxTypes extends Types {
         return ubt==Type.noType? t : ubt;
     }
 
+    public Type elementTypeOrType(Type t) {
+        return isSequence(t) ? elementType(t) : t;
+    }
+
     public void getSupertypes(Symbol clazz, ListBuffer<Type> supertypes,Set<Type> dupSet) {
         if (clazz != null) {
             Type supType = supertype(clazz.type);
