@@ -24,17 +24,14 @@
 package javafx.util;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
-import com.sun.javafx.api.JavaFXScriptEngine;
+import com.sun.tools.javafx.script.JavaFXScriptEngineFactory;
 
 // factored out to avoid linkage error for javax.script.* on Java 1.5
 class Evaluator {
     static Object eval(String script) throws ScriptException {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine scrEng = manager.getEngineByExtension("javafx");
-        JavaFXScriptEngine engine = (JavaFXScriptEngine)scrEng;
+        JavaFXScriptEngineFactory fac = new JavaFXScriptEngineFactory();
+        ScriptEngine engine = fac.getScriptEngine();
         if (engine == null)
             throw new ScriptException("no scripting engine available");
         return engine.eval(script);
@@ -49,24 +46,37 @@ class Evaluator {
 public class FXEvaluator {
 
     /**
+     * <p>
      * Evaluates a JavaFX Script source string and returns its result, if any.
-     * For example, 
-     * <br/>
      * This method depends upon the JavaFX Script compiler API being accessible
      * by the application, such as including the <code>javafxc.jar</code> file
      * in the application's classpath.
-     * <br/>
+     * </p>
+     * <p>
      * This method also depends upon the JSR-223 API classes being accessible
      * by the application, such as including the <code>script-api.jar</code> 
      * file in the application's classpath or the application must be run on 
      * JDK 6+ where JSR-223 API classes are part of the platform API. For
      * JDK 5, script-api.jar has to be in application's classpath.
-     * <br/>
-     * Note:  this method provides only the simplest scripting functionality;
+     * </p>
+     * <p> 
+     * Note: This method provides only the simplest scripting functionality;
      * the script is evaluated without any specified context state, nor can 
      * any state it creates during evaluation be reused by other scripts.  For
      * sophisticated scripting applications, use the Java Scripting API
-     * (<code>javax.scripting</code>).
+     * (<code>javax.script</code>).
+     * </p>
+     * <p>
+     * Note: On Mac platform, javafxc.jar, javafxrt.jar and script-api.jar 
+     * have to be prefixed in bootclasspath for this API to work. This is 
+     * because on Mac, javac classes are in bootclasspath. But, javafxc 
+     * re-implements certain javac classes differently. The version of javac 
+     * classes from javafxc.jar should take precedence over the ones from
+     * the platform javac's jar. The javafx command line goes like:
+     * </p>
+     * <code>
+     *     javafxc -Xbootclasspath/p:&lt;javafxc.jar-path&gt;:&lt;javafxrt.jar-path&gt;:&lt;script-api.jar-path&gt; -cp &lt;app-class-path&gt; &lt;app-main-class&gt;
+     * </code>
      * 
      * @param script the JavaFX Script source to evaluate
      * @return the results from evaluating the script, or null if no results

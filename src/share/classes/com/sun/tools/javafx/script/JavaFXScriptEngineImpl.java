@@ -83,14 +83,17 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                 // implementation of ScriptContext and ScriptBindings.
                 boolean copyVars = true;
                 if (copyVars) {
-                    for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.GLOBAL_SCOPE).entrySet()) {
-                        String key = entry.getKey();
-                        if (key.indexOf('.') >= 0)
-                            continue; // Kludge FIXME
-                        Symbol sym = compiled.lookup(key);
-                        if (compiled.scriptScope.lookup(sym.name).sym == sym)
-                            continue;
-                        scontext.setVarValue(sym, entry.getValue());
+                    Bindings globals = ctx.getBindings(ScriptContext.GLOBAL_SCOPE);
+                    if (globals != null) {
+                        for (Map.Entry<String, Object> entry : globals.entrySet()) {
+                            String key = entry.getKey();
+                            if (key.indexOf('.') >= 0)
+                                continue; // Kludge FIXME
+                            Symbol sym = compiled.lookup(key);
+                            if (compiled.scriptScope.lookup(sym.name).sym == sym)
+                                continue;
+                            scontext.setVarValue(sym, entry.getValue());
+                        }
                     }
                     for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
                         String key = entry.getKey();
@@ -220,16 +223,19 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
         JavaFXScriptContext scontext = getJavaFXScriptContext(ctx);
         boolean copyVars = true;
         // JSR-223 requirement - but unsure if it's a good idea.
-        // ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);
+        // ctx.setAttribute("context", ctx, ScriptContext.ENGINE_SCOPE);	
         if (copyVars) {
-            for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.GLOBAL_SCOPE).entrySet()) {
-                String key = entry.getKey();
-                if (key.indexOf('.') >= 0)
-                    continue; // Kludge FIXME
-                Symbol sym = scontext.compiler.names == null ? null : scontext.compiler.lookup(key);
-                if (sym == null) {
-                    scontext.compiler.compile(fileName+"_"+key, "public var <<"+key+">>;",
-                       ctx.getErrorWriter(), null, classPath, listener);
+            Bindings globals = ctx.getBindings(ScriptContext.GLOBAL_SCOPE);
+            if (globals != null) {
+                for (Map.Entry<String, Object> entry : globals.entrySet()) {
+                    String key = entry.getKey();
+                    if (key.indexOf('.') >= 0)
+                        continue; // Kludge FIXME
+                    Symbol sym = scontext.compiler.names == null ? null : scontext.compiler.lookup(key);
+                    if (sym == null) {
+                        scontext.compiler.compile(fileName+"_"+key, "public var <<"+key+">>;",
+                        ctx.getErrorWriter(), null, classPath, listener);
+                    }
                 }
             }
             for (Map.Entry<String, Object> entry : ctx.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {

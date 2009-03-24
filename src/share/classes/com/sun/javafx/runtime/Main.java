@@ -59,7 +59,7 @@ public class Main {
             }
             // load the user's JavaFX class but do *not* initialize!
             mainClass = Class.forName(mclassname, false,
-                            Main.class.getClassLoader());
+                Thread.currentThread().getContextClassLoader());
         } catch (ClassNotFoundException cnfe) {
             errorExit("Class not found: " + mclassname, cnfe);
         } catch (IOException ioe) {
