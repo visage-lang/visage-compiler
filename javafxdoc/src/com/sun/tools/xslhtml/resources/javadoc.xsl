@@ -525,41 +525,43 @@
 <!-- ====================== -->    
 <!-- The Table of Contents  -->
 <!-- ====================== -->    
-    
+
     <xsl:template name="toc">
         <div id="toc">
+            <xsl:if test="count(script-var) > 0">
+                <a id="fields-summary"><h3>Script Variable Summary</h3></a>
+                <table class="fields-summary fields">
+                    <tr>
+                        <th class="access">access</th>
+                        <th class="name">name</th>
+                        <th class="type">type</th>
+                        <xsl:call-template name="extra-var-column-header"/>
+                        <th class="description">description</th>
+                    </tr>
+                    <xsl:for-each select="script-var">
+                        <xsl:sort select="@name" order="ascending"/>
+                        <xsl:apply-templates select="." mode="toc"/>
+                    </xsl:for-each>
+                </table>
+            </xsl:if>
             
-            <xsl:if test="count(attribute) > 0">
+            <xsl:if test="count(var) > 0">
                 <a id="fields-summary"><h3>Variable Summary</h3></a>
                 <table class="fields-summary fields">
                     <tr>
                         <th class="access">access</th>
                         <th class="name">name</th>
                         <th class="type">type</th>
-                        <xsl:call-template name="extra-attribute-column-header"/>
+                        <xsl:call-template name="extra-var-column-header"/>
                         <th class="description">description</th>
                     </tr>
-                        <!-- show all access types grouped together
-                    <tr><th class="header">
-                        <xsl:attribute name="colspan"><xsl:call-template name="attribute-table-width"/></xsl:attribute>
-                        <xsl:text>Public</xsl:text>
-                        </th></tr>-->
-                    <xsl:for-each select="attribute">
-                        <xsl:sort select="@name" order="ascending"/>
+                    <xsl:for-each select="var">
+                    <xsl:sort select="@name" order="ascending"/>
                         <xsl:apply-templates select="." mode="toc"/>
                     </xsl:for-each>
-                    <!-- do all protected attributes -->
-                    <!--
-                    <xsl:if test="attribute[modifiers/protected]">
-                        <tr><th colspan="3" class="header">Protected</th></tr>
-                        <xsl:for-each select="attribute[modifiers/protected]">
-                            <xsl:sort select="@name" order="ascending"/>
-                            <xsl:apply-templates select="." mode="toc"/>
-                        </xsl:for-each>
-                    </xsl:if>-->
                 </table>
             </xsl:if>
-            
+
             <xsl:if test="count(field) > 0">
                 <a id="fields-summary"><h3>Field Summary</h3></a>
                 <table class="fields-summary fields">
@@ -572,7 +574,7 @@
             </xsl:if>
             
             
-            <!-- inherited attributes -->
+            <!-- inherited variables -->
             <h3>Inherited Variables</h3>
             <xsl:for-each select="hierarchy/super">
                 <xsl:variable name="super-package" select="@packageName"/>
@@ -580,9 +582,6 @@
                 <xsl:apply-templates select="/javadoc/package[@name=$super-package]/class[@name=$super-name]" mode="inherited-field"/>
             </xsl:for-each>
 
-            
-            
-            
             <!-- constructors -->
             
             <xsl:if test="count(constructor) > 0">
@@ -596,22 +595,30 @@
             </xsl:if>
             
             
-            
-            
-            
             <!-- methods and functions -->
+
+            <!-- script functions -->
+            <xsl:if test="count(script-function) > 0">
+                <a id="methods-summary"><h3>Script Function Summary</h3></a>
+                <dl class="methods-summary">
+                    <xsl:for-each select="script-function">
+                         <xsl:sort select="@name" order="ascending"/>
+                         <xsl:call-template name="method-like-toc"/>
+                    </xsl:for-each>
+                </dl>
+            </xsl:if>
+            
             
             <!-- functions -->
             <xsl:if test="count(function) > 0">
                 <a id="methods-summary"><h3>Function Summary</h3></a>
                 <dl class="methods-summary">
                     <xsl:for-each select="function">
-                        <xsl:sort select="@name" order="ascending"/>
-                        <xsl:call-template name="method-like-toc"/>
+                         <xsl:sort select="@name" order="ascending"/>
+                         <xsl:call-template name="method-like-toc"/>
                     </xsl:for-each>
                 </dl>
             </xsl:if>
-            
             
             <!-- methods -->
             <xsl:if test="count(method) > 0">
@@ -636,13 +643,23 @@
     </xsl:template>
     
     
-    <!--  ==== Member details: attributes, fields, functions, methods === -->
+    <!--  ==== Member details: variables, fields, functions, methods === -->
     
     <xsl:template name="members">
-        <xsl:if test="count(attribute) > 0">
-            <div id="attributes">
+        <xsl:if test="count(script-var) > 0">
+            <div id="fields">
+                <h3>Script Variables</h3>
+                <xsl:for-each select="script-var">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <xsl:apply-templates select="."/>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+
+        <xsl:if test="count(var) > 0">
+            <div id="fields">
                 <h3>Variables</h3>
-                <xsl:for-each select="attribute">
+                <xsl:for-each select="var">
                     <xsl:sort select="@name" order="ascending"/>
                     <xsl:apply-templates select="."/>
                 </xsl:for-each>
@@ -669,6 +686,16 @@
             </div>
         </xsl:if>
         
+        <xsl:if test="count(script-function) > 0">
+            <div id="functions">
+                <h3>Script Functions</h3>
+                <xsl:for-each select="script-function">
+                    <xsl:sort select="@name" order="ascending"/>
+                    <xsl:call-template name="method-like"/>
+                </xsl:for-each>
+            </div>
+        </xsl:if>
+
         <xsl:if test="count(function) > 0">
             <div id="functions">
                 <h3>Functions</h3>
@@ -695,17 +722,17 @@
     </xsl:template>
     
     <xsl:template match="class" mode="inherited-field">
-        <xsl:if test="count(attribute) > 0">
+        <xsl:if test="count(var) > 0">
             <h4><xsl:value-of select="@qualifiedName"/></h4>
             <table class="inherited-field fields">
                 <tr>
                     <th class="access">access</th>
                     <th class="name">name</th>
                     <th class="type">type</th>
-                    <xsl:call-template name="extra-attribute-column-header"/>
+                    <xsl:call-template name="extra-var-column-header"/>
                     <th class="description">description</th>
                 </tr>
-                <xsl:for-each select="attribute">
+                <xsl:for-each select="var">
                     <xsl:sort select="@name" order="ascending"/>
                     <xsl:apply-templates select="." mode="toc"/>
                 </xsl:for-each>
@@ -734,15 +761,9 @@
 <!-- ====================== -->    
     
     <!-- summary line -->
-<!--    <xsl:template match="$foo and attribute[]" mode="toc"><tr><td>skipping because it's a common one</td></tr></xsl:template>-->
-    <xsl:template match="field | attribute" mode="toc">
+<!--    <xsl:template match="$foo and var[]" mode="toc"><tr><td>skipping because it's a common one</td></tr></xsl:template>-->
+    <xsl:template match="field | var | script-var" mode="toc">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
-            <!-- anchor for this field -->
-            <xsl:if test="$inline-descriptions='true'">
-            <a>
-                <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
-            </a>
-            </xsl:if>
             <tr>
                 <xsl:attribute name="class">
                     <xsl:text>var </xsl:text>
@@ -751,19 +772,25 @@
                         <xsl:text> </xsl:text>
                     </xsl:for-each>
                     <xsl:call-template name="profile-class"/>
-                    <xsl:call-template name="extra-attribute"/>
-                    <xsl:call-template name="extra-attribute-toc"/>
+                    <xsl:call-template name="extra-var"/>
+                    <xsl:call-template name="extra-var-toc"/>
                 </xsl:attribute>
                 <td class="access">
                     <xsl:value-of select="modifiers/@text"/>
                 </td>
                 <td class="name">
                     <a>
-                        <xsl:if test="not($inline-descriptions='true')">
+                        <xsl:choose>
+                        <xsl:when test="not($inline-descriptions='true')">
                             <xsl:apply-templates select="." mode="href"/>
-                        </xsl:if>
-                        <b class="name"><xsl:value-of select="@name"/></b>
+                        </xsl:when>
+                        <!-- anchor for this field -->
+                        <xsl:when test="$inline-descriptions='true'">
+                            <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
+                        </xsl:when>
+                        </xsl:choose>
                     </a>
+                    <b class="name"><xsl:value-of select="@name"/></b>
                 </td>
                 <td class="type">
                     <a>
@@ -771,8 +798,11 @@
                         <i class="type"><xsl:value-of select="type/@simpleTypeName"/><xsl:value-of select="type/@dimension"/></i>
                     </a>
                 </td>
-                <xsl:if test="name(.)='attribute'">
-                    <xsl:call-template name="extra-attribute-column-data"/>
+                <xsl:if test="name(.)='var'">
+                    <xsl:call-template name="extra-var-column-data"/>
+                </xsl:if>
+                <xsl:if test="name(.)='script-var'">
+                    <xsl:call-template name="extra-var-column-data"/>
                 </xsl:if>
                 <td class="description">
                     <xsl:apply-templates select="docComment/firstSentenceTags"/>
@@ -780,7 +810,7 @@
                         <xsl:if test="docComment/extraNotes[@multipleSentences='true']">
                             <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
                             <div class="long-desc">
-                                <xsl:call-template name="attribute-full-description"/>
+                                <xsl:call-template name="var-full-description"/>
                                 &amp;nbsp;
                             </div>
                         </xsl:if>
@@ -791,7 +821,7 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="field/type | attribute/type | parameter/type" mode="href">
+    <xsl:template match="field/type | var/type | script-var/type | parameter/type" mode="href">
         <!--<xsl:variable name="atype" select="@qualifiedTypeName"/>-->
         <xsl:variable name="type-package" select="@packageName"/>
         <xsl:variable name="type-name" select="@simpleTypeName"/>
@@ -806,7 +836,7 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template match="field/type | attribute/type | parameter/type" mode="linkname">
+    <xsl:template match="field/type | var/type | script-var/type | parameter/type" mode="linkname">
         <xsl:variable name="type-package" select="@packageName"/>
         <xsl:variable name="type-name" select="@simpleTypeName"/>
         <xsl:variable name="atype" select="@qualifiedTypeName"/>
@@ -820,7 +850,7 @@
         </xsl:choose>
     </xsl:template>
     
-    <xsl:template match="field | attribute" mode="href">
+    <xsl:template match="field | var | script-var" mode="href">
         <xsl:attribute name="href">
             <xsl:text><xsl:value-of select="$root-path"/></xsl:text>
             <xsl:value-of select="../@packageName"/>
@@ -831,7 +861,7 @@
         </xsl:attribute>
     </xsl:template>
     
-    <xsl:template match="function" mode="href">
+    <xsl:template match="function | script-function" mode="href">
         <xsl:attribute name="href">
             <xsl:text><xsl:value-of select="$root-path"/></xsl:text>
             <xsl:value-of select="../@packageName"/>
@@ -854,20 +884,20 @@
     </xsl:template>
     
     <!-- full description -->
-    <xsl:template match="field | attribute">
+    <xsl:template match="field | var | script-var ">
         <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
         <div>
             
             <!-- class attribute of div -->
             <xsl:attribute name="class">
-                <xsl:text>attribute member </xsl:text>
+                <xsl:text>variable member </xsl:text>
                 <xsl:for-each select="docComment/tags/cssclass">
                     <xsl:value-of select="text()"/>
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
                 <xsl:call-template name="profile-class"/>
-                <xsl:call-template name="extra-attribute"/>
-                <xsl:call-template name="extra-attribute-full"/>
+                <xsl:call-template name="extra-var"/>
+                <xsl:call-template name="extra-var-full"/>
             </xsl:attribute>
             
             <!-- signature line -->
@@ -886,14 +916,14 @@
             </a>
             
             <!-- all of the docs -->
-            <xsl:call-template name="attribute-full-description"/>
+            <xsl:call-template name="var-full-description"/>
             
         </div>
         </xsl:if>
     </xsl:template>
     
 
-    <xsl:template name="attribute-full-description">
+    <xsl:template name="var-full-description">
         <xsl:apply-templates select="docComment/inlineTags"/>
         <xsl:apply-templates select="docComment/tags/defaultvalue"/>
         <xsl:apply-templates select="docComment/tags/setonce"/>
@@ -1100,7 +1130,7 @@
     <!-- signature stuff -->
     <!-- =================== -->
 
-    <xsl:template match="function | method | constructor" mode="anchor-signature">
+    <xsl:template match="function | script-function | method | constructor" mode="anchor-signature">
         <xsl:value-of select="@name"/>
         <xsl:text>(</xsl:text>
         <xsl:for-each select="parameters/parameter">
@@ -1277,14 +1307,14 @@
 
 
     <!-- extension templates for custom XSLTs to override -->
-    <xsl:template name="extra-attribute"></xsl:template>
-    <xsl:template name="extra-attribute-full"></xsl:template>
-    <xsl:template name="extra-attribute-toc"></xsl:template>
+    <xsl:template name="extra-var"></xsl:template>
+    <xsl:template name="extra-var-full"></xsl:template>
+    <xsl:template name="extra-var-toc"></xsl:template>
     <xsl:template name="head-post"></xsl:template>
     <xsl:template name="header-pre"></xsl:template>
-    <xsl:template name="extra-attribute-column-header"></xsl:template>
-    <xsl:template name="extra-attribute-column-data"></xsl:template>
-    <xsl:template name="attribute-table-width">3</xsl:template>
+    <xsl:template name="extra-var-column-header"></xsl:template>
+    <xsl:template name="extra-var-column-data"></xsl:template>
+    <xsl:template name="var-table-width">3</xsl:template>
 
 </xsl:stylesheet>
                 

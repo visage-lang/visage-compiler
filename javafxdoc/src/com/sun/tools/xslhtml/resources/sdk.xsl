@@ -34,11 +34,10 @@
     <xsl:import href="javadoc.xsl"/>
     
     <!-- duplicates from previous reprise custom.xsl -->
-    <xsl:template match="attribute[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
-    <xsl:template match="attribute[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
-    
+    <xsl:template match="var[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
+    <xsl:template match="script-var[docComment/tags/treatasprivate]" mode="toc"></xsl:template>
 
-    <xsl:template name="extra-attribute">
+    <xsl:template name="extra-var">
         <xsl:if test="docComment/tags/treatasprivate">
             <xsl:text>private</xsl:text>
         </xsl:if>
@@ -54,7 +53,7 @@
         </xsl:if>
     </xsl:template>
     
-    <xsl:template name="extra-attribute-column-header">
+    <xsl:template name="extra-var-column-header">
         <th><a class="tooltip" title="Indicates the variable can be read">Can Read</a></th>
         <th><a title="Indicates the variable can only be set in the Object initializer. Any further changes will be ignored."
          class="tooltip">Can Init</a></th>
@@ -64,7 +63,7 @@
          class="tooltip">Default Value</a></th>
     </xsl:template>
     
-    <xsl:template name="extra-attribute-column-data">
+    <xsl:template name="extra-var-column-data">
         <td class="canread">
             <xsl:choose>
                 <xsl:when test="modifiers/public"><img src="{$root-path}/images/JFX_highlight_dot.png"/></xsl:when>
@@ -115,7 +114,7 @@
         </td>
     </xsl:template>
     
-    <xsl:template name="attribute-table-width">6</xsl:template>
+    <xsl:template name="var-table-width">6</xsl:template>
 
     <!-- new stuff -->
     <xsl:template match="seeTags">
@@ -125,7 +124,7 @@
     </xsl:template>
     
     <!-- turn off jumpdown links -->
-    <xsl:template match="function | method | constructor" mode="toc-signature">
+    <xsl:template match="function | script-function | method | constructor" mode="toc-signature">
         <xsl:apply-templates select="modifiers"/>
         <xsl:text> </xsl:text>
         

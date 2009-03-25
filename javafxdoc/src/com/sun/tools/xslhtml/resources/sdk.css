@@ -85,7 +85,7 @@ html, body { padding: 0px; margin: 0px; height: 100%; }
 .overview img 				{ padding: 1em; } 
 #content #toc h4 			{ font-size: 12pt; font-family: Arial; font-weight: bold; } 
 
-/* fields / attribute summary */ 
+/* fields / vars summary */ 
 .fields 			{ font-size: 10.5pt; border-collapse: collapse; } 
 .fields th 			{ text-align: left; text-align: center; font-weight: bold; padding: .5em; vertical-align: top; } 
 .fields td 			{ background-color: white; vertical-align: top; padding-right: .5em; padding-left: .5em; padding-top: 0.5em; padding-bottom: 0.5em; vertical-align: top; } 
