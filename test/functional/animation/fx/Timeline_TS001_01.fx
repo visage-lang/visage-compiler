@@ -15,8 +15,6 @@ import java.lang.System;
 import java.lang.Thread;
 import java.lang.AssertionError;
 import java.lang.Throwable;
-import javax.swing.Timer;
-import java.awt.event.*;
 
 var images = [1..16];
 var golden = [[0..15], [14..0 step -1]];
