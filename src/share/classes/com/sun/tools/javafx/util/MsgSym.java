@@ -214,6 +214,7 @@ public class MsgSym {
     public static final String MESSAGE_INTF_EXPECTED_HERE = "intf.expected.here";
     public static final String MESSAGE_NO_INTF_EXPECTED_HERE = "no.intf.expected.here";
     public static final String MESSAGE_CANNOT_INHERIT_FROM_FINAL = "cant.inherit.from.final";
+    public static final String MESSAGE_CANNOT_INHERIT_FROM_SCRIPT_CLASS = "cant.inherit.from.script";
     public static final String MESSAGE_TYPE_VAR_CANNOT_BE_DEREF = "type.var.cant.be.deref";
     public static final String MESSAGE_CANNOT_DEREF = "cant.deref";
     public static final String MESSAGE_ILLEGAL_START_OF_TYPE = "illegal.start.of.type";

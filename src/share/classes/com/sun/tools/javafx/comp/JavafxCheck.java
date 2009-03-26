@@ -1705,7 +1705,7 @@ public class JavafxCheck {
      *  @param t        The type referred to.
      */
     void checkNonCyclic(DiagnosticPosition pos, Type t) {
-	checkNonCyclicInternal(pos, t);
+	checkNonCyclicInternal(pos, t, false);
     }
 
 
@@ -1734,14 +1734,14 @@ public class JavafxCheck {
      *  @param t        The type referred to.
      *  @returns        True if the check completed on all attributed classes
      */
-    private boolean checkNonCyclicInternal(DiagnosticPosition pos, Type t) {
+    private boolean checkNonCyclicInternal(DiagnosticPosition pos, Type t, boolean ownerCycle) {
 	boolean complete = true; // was the check complete?
 	//- System.err.println("checkNonCyclicInternal("+t+");");//DEBUG
 	Symbol c = t.tsym;
 	if ((c.flags_field & ACYCLIC) != 0) return true;
 
 	if ((c.flags_field & LOCKED) != 0) {
-	    noteCyclic(pos, (ClassSymbol)c);
+	    noteCyclic(pos, (ClassSymbol)c, ownerCycle);
 	} else if (!c.type.isErroneous()) {
 	    try {
 		c.flags_field |= LOCKED;
@@ -1749,14 +1749,14 @@ public class JavafxCheck {
 		    ClassType clazz = (ClassType)c.type;
 		    if (clazz.interfaces_field != null)
 			for (List<Type> l=clazz.interfaces_field; l.nonEmpty(); l=l.tail)
-			    complete &= checkNonCyclicInternal(pos, l.head);
+			    complete &= checkNonCyclicInternal(pos, l.head, ownerCycle);
 		    if (clazz.supertype_field != null) {
 			Type st = clazz.supertype_field;
 			if (st != null && st.tag == CLASS)
-			    complete &= checkNonCyclicInternal(pos, st);
+			    complete &= checkNonCyclicInternal(pos, st, ownerCycle);
 		    }
 		    if (c.owner.kind == TYP)
-			complete &= checkNonCyclicInternal(pos, c.owner.type);
+			complete &= checkNonCyclicInternal(pos, c.owner.type, true);
 		}
 	    } finally {
 		c.flags_field &= ~LOCKED;
@@ -1769,8 +1769,11 @@ public class JavafxCheck {
     }
 
     /** Note that we found an inheritance cycle. */
-    private void noteCyclic(DiagnosticPosition pos, ClassSymbol c) {
-	log.error(pos, MsgSym.MESSAGE_CYCLIC_INHERITANCE, c);
+    private void noteCyclic(DiagnosticPosition pos, ClassSymbol c, boolean ownerCycle) {
+	if (!ownerCycle)
+        log.error(pos, MsgSym.MESSAGE_CYCLIC_INHERITANCE, c);
+    else
+        log.error(pos, MsgSym.MESSAGE_CANNOT_INHERIT_FROM_SCRIPT_CLASS, c);
 	for (List<Type> l=types.interfaces(c.type); l.nonEmpty(); l=l.tail)
 	    l.head = new ErrorType((ClassSymbol)l.head.tsym);
 	Type st = types.supertype(c.type);
