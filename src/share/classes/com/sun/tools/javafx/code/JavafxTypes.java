@@ -78,8 +78,7 @@ public class JavafxTypes extends Types {
         return sequenceType(elemType, true);
     }
      public Type sequenceType(Type elemType, boolean withExtends) {
-        if (elemType.isPrimitive())
-            elemType = boxedClass(elemType).type;
+        elemType = boxedTypeOrType(elemType);
         if (withExtends)
             elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
         Type seqtype = syms.javafx_SequenceType;
@@ -105,6 +104,12 @@ public class JavafxTypes extends Types {
     public Type unboxedTypeOrType(Type t) {
         Type ubt = unboxedType(t);
         return ubt==Type.noType? t : ubt;
+    }
+
+    public Type boxedTypeOrType(Type t) {
+        return (t.isPrimitive() || t == syms.voidType)?
+                      boxedClass(t).type
+                    : t;
     }
 
     public Type elementTypeOrType(Type t) {
@@ -241,10 +246,10 @@ public class JavafxTypes extends Types {
 
         Type target = isSequence(s) ? elementType(s) : s.tag == TypeTags.ARRAY ? ((ArrayType) s).elemtype : s;
         Type source = isSequence(t) ? elementType(t) : t.tag == TypeTags.ARRAY ? ((ArrayType) t).elemtype : t;
-        if (target.isPrimitive() && ! source.isPrimitive())
-            target = boxedClass(target).type;
-        if (source.isPrimitive() && ! target.isPrimitive())
-            source = boxedClass(source).type;
+        if (!source.isPrimitive())
+            target = boxedTypeOrType(target);
+        if (!target.isPrimitive())
+            source = boxedTypeOrType(source);
 
         if (source == syms.botType ||
             target == syms.botType)

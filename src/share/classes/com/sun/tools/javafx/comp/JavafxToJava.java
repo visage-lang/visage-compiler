@@ -1592,14 +1592,14 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         Type ftype = syms.javafx_FunctionTypes[nargs];
         JCExpression t = makeQualifiedTree(null, ftype.tsym.getQualifiedName().toString());
         ListBuffer<JCExpression> typeargs = new ListBuffer<JCExpression>();
-        Type rtype = syms.boxIfNeeded(mtype.restype);
+        Type rtype = types.boxedTypeOrType(mtype.restype);
         typeargs.append(makeTypeTree(diagPos, rtype));
         ListBuffer<JCVariableDecl> params = new ListBuffer<JCVariableDecl>();
         ListBuffer<JCExpression> margs = new ListBuffer<JCExpression>();
         int i = 0;
         for (List<Type> l = mtype.argtypes;  l.nonEmpty();  l = l.tail) {
             Name pname = make.paramName(i++);
-            Type ptype = syms.boxIfNeeded(l.head);
+            Type ptype = types.boxedTypeOrType(l.head);
             JCVariableDecl param = make.VarDef(make.Modifiers(0), pname,
                     makeTypeTree(diagPos, ptype), null);
             params.append(param);
@@ -2259,7 +2259,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         }
         else {
             JCExpression trans = callExpression(diagPos, tseq, defs.getMethodName, index);
-            result = tree.type.isPrimitive()? convertTranslated(trans, diagPos, types.boxedClass(tree.type).type, tree.type) : trans;
+            result = tree.type.isPrimitive()? convertTranslated(trans, diagPos, types.boxedTypeOrType(tree.type), tree.type) : trans;
         }
     }
 
@@ -2400,23 +2400,21 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     /** Box up a single primitive expression. */
     JCExpression makeBox(DiagnosticPosition diagPos, JCExpression translatedExpr, Type primitiveType) {
-	make_at(translatedExpr.pos());
-        Type boxedType = types.boxedClass(primitiveType).type;
+        make_at(translatedExpr.pos());
+        Type boxedType = types.boxedTypeOrType(primitiveType);
         JCExpression box;
         if (target.boxWithConstructors()) {
             Symbol ctor = lookupConstructor(translatedExpr.pos(),
-                                            boxedType,
-                                            List.<Type>nil()
-                                            .prepend(primitiveType));
+                    boxedType,
+                    List.<Type>nil().prepend(primitiveType));
             box = make.Create(ctor, List.of(translatedExpr));
         } else {
             Symbol valueOfSym = lookupMethod(translatedExpr.pos(),
-                                             names.valueOf,
-                                             boxedType,
-                                             List.<Type>nil()
-                                             .prepend(primitiveType));
+                    names.valueOf,
+                    boxedType,
+                    List.<Type>nil().prepend(primitiveType));
 //            JCExpression meth =makeIdentifier(valueOfSym.owner.type.toString() + "." + valueOfSym.name.toString());
-            JCExpression meth = make.Select(makeTypeTree( diagPos,valueOfSym.owner.type), valueOfSym.name);
+            JCExpression meth = make.Select(makeTypeTree(diagPos, valueOfSym.owner.type), valueOfSym.name);
             TreeInfo.setSymbol(meth, valueOfSym);
             meth.type = valueOfSym.type;
             box = make.App(meth, List.of(translatedExpr));
@@ -2556,9 +2554,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     }
 
    JCExpression castFromObject (JCExpression arg, Type castType) {
-        if (castType.isPrimitive())
-            castType = types.boxedClass(castType).type;
-         return make.TypeCast(makeTypeTree( arg.pos(),castType), arg);
+       return make.TypeCast(makeTypeTree(arg.pos(), types.boxedTypeOrType(castType)), arg);
     }
 
     static class DurationOperationTranslator extends Translator {
@@ -3187,9 +3183,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
     @Override
     public void visitInstanceOf(JFXInstanceOf tree) {
-        Type type = tree.clazz.type;
-        if (type.isPrimitive())
-            type = types.boxedClass(type).type;
+        Type type = types.boxedTypeOrType(tree.clazz.type);
         JCTree clazz = this.makeTypeTree( tree, type);
         JCExpression expr = translateAsUnconvertedValue(tree.expr);
         if (tree.expr.type.isPrimitive()) {
@@ -3205,51 +3199,13 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitTypeCast(final JFXTypeCast tree) {
         final DiagnosticPosition diagPos = tree.pos();
-        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(tree.expr.type);
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            // We can't just cast the Object to Float (for example)
-            // because if the Object is not Float, we will get a ClassCastException at runtime.
-            // And we can't just call java.lang.Number.floatValue() because java.lang.Number
-            // doesn't exist on mobile, at least not as of Jan 2009.
-            String method = null;
-            switch (tree.clazz.type.tag) {
-                case TypeTags.CHAR:
-                    method="objectToCharacter";
-                    break;
-                case TypeTags.BYTE:
-                    method="objectToByte";
-                    break;
-                case TypeTags.SHORT:
-                    method="objectToShort";
-                    break;
-                case TypeTags.INT:
-                    method="objectToInt";
-                    break;
-                case TypeTags.LONG:
-                    method="objectToLong";
-                    break;
-                case TypeTags.FLOAT:
-                    method="objectToFloat";
-                    break;
-                case TypeTags.DOUBLE:
-                    method="objectToDouble";
-                    break;
-            }
-            if (method != null) {
-                result = callExpression(diagPos,
-                                        makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Util"),
-                                        method,
-                                        translate(tree.expr));
-                return;
-            }
-        }
 
         JCExpression val = translateAsValue(tree.expr, tree.clazz.type);
         // The makeTypeCast below is usually redundant, since translateAsValue
         // takes care of most conversions - except in the case of a plain object cast.
         // It would be cleaner to move the makeTypeCast to translateAsValue,
         // but it's painful to get it right.  FIXME.
-        JCExpression ret = makeTypeCast(diagPos, tree.clazz.type, tree.expr.type, val);
+        JCExpression ret = typeCast(diagPos, tree.clazz.type, tree.expr.type, val);
         result = convertNullability(diagPos, ret, tree.expr, tree.clazz.type);
     }
 

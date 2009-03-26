@@ -163,8 +163,8 @@ public class JavafxTypeMorpher {
         }
 
         public Type getRealType() { return realType; }
-        public Type getRealBoxedType() { return (realType.isPrimitive())? types.boxedClass(realType).type : realType; }
-        public Type getRealFXType() { return (realType.isPrimitive() && typeKind==TYPE_KIND_OBJECT)? types.boxedClass(realType).type : realType; }
+        public Type getRealBoxedType() { return types.boxedTypeOrType(realType); }
+        public Type getRealFXType() { return (realType.isPrimitive() && typeKind==TYPE_KIND_OBJECT)? types.boxedTypeOrType(realType) : realType; }
 
         public Type getLocationType() { return morphedLocationType; }
         public Type getVariableType() { return morphedVariableType; }

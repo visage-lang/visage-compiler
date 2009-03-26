@@ -95,18 +95,6 @@ public class BoundSequences {
         return new BoundSequenceElement<T>(lazy, sequence, index);
     }
 
-    public static IntLocation element(boolean lazy, SequenceLocation<Integer> sequence, IntLocation index) {
-        return Locations.asIntLocation(new BoundSequenceElement<Integer>(lazy, sequence, index));
-    }
-
-    public static FloatLocation element(boolean lazy, SequenceLocation<Float> sequence, IntLocation index) {
-        return Locations.asFloatLocation(new BoundSequenceElement<Float>(lazy, sequence, index));
-    }
-
-    public static BooleanLocation element(boolean lazy, SequenceLocation<Boolean> sequence, IntLocation index) {
-        return Locations.asBooleanLocation(new BoundSequenceElement<Boolean>(lazy, sequence, index));
-    }
-
     public static<T> IntLocation sizeof(boolean lazy, final SequenceLocation<T> sequence) {
         return IntVariable.make(new BindingExpression() {
             public void compute() {

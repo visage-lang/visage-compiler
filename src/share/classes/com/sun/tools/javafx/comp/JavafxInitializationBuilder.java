@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -504,7 +503,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 attributeSetterName(vsym),
                 makeTypeTree(diagPos, ai.getRealType()),
                 List.<JCTypeParameter>nil(),
-                List.of(makeParam(diagPos, ai.getRealType(), null, defs.attributeSetMethodParamNameString)),
+                List.of(makeParam(diagPos, ai.getRealType(), null, JavafxDefs.attributeSetMethodParamNameString)),
                 List.<JCExpression>nil(),
                 block,
                 null);
@@ -964,7 +963,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         else if (info.getRealType().isPrimitive()) {
             changeListener = makeIdentifier(diagPos, primitiveChangeListenerInterfaceName);
             changeListener = make.at(diagPos).TypeApply(changeListener,
-                                                        List.<JCExpression>of(makeTypeTree( diagPos, types.boxedClass(info.getRealType()).type)));
+                                                        List.<JCExpression>of(makeTypeTree( diagPos, types.boxedTypeOrType(info.getRealType()))));
             members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
         }
         else {
