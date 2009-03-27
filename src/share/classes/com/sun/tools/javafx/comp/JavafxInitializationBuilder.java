@@ -719,7 +719,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     // Add the initialization of instance variables
     private List<JCStatement> makeInitAttributesCode(List<? extends VarInfo> attrInfos,
             JFXClassDeclaration cDecl) {
-        boolean isMixinClass = cDecl.isMixinClass();
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
             if (!ai.hasProxyVar() && !ai.isStatic()) {
