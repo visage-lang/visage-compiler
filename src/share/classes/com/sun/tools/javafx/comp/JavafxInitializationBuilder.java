@@ -189,11 +189,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             iDefinitions.appendList(makeMemberVariableAccessorInterfaceMethods(diagPos, translatedAttrInfo));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            
-            // TODO - remove when we can generate triggers from addTriggers$ declarations.
             cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, supertypeClasses, translatedAttrInfo, translatedOverrideAttrInfo));
-            // TODO - remove when we can generate proxies from $impl declarations.
-            cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
          }
 
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
@@ -277,7 +273,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private void appendMethodClones(ListBuffer<JCTree> methods, JFXClassDeclaration cDecl, MethodSymbol sym, boolean withDispatch) {
         //TODO: static test is broken
         boolean isBound = (sym.flags() & JavafxFlags.BOUND) != 0;
-        JCBlock mthBody = withDispatch ? makeDispatchBody(cDecl, sym, isBound, sym.flags() == Flags.STATIC) : null;
+        JCBlock mthBody = withDispatch ? makeDispatchBody(cDecl, sym, isBound, (sym.flags() & Flags.STATIC) != 0) : null;
         DiagnosticPosition diagPos = cDecl;
         // build the parameter list
         ListBuffer<JCVariableDecl> params = ListBuffer.lb();
@@ -616,7 +612,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     ClassSymbol attrParent = (ClassSymbol)ai.getSymbol().owner;
                     assert attrParent != null : "Parent supertype for attribute " + ai.getNameString() + " not found";
                     if (attrParent != null) {
-                        stmts.append(makeSuperCall(diagPos, attrParent, methodName));
+                        stmts.append(makeSuperCall(diagPos, attrParent, methodName, false));
                     }
                 }
                 
@@ -639,11 +635,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return methods.toList();
     }
     
-    private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName) {
+    private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName, boolean isStatic) {
         JCExpression arg = make.at(diagPos).Ident(defs.receiverName);
         JCExpression receiver;
         
-        if ((cSym.flags() & JavafxFlags.MIXIN) != 0) {
+        if (isStatic || (cSym.flags() & JavafxFlags.MIXIN) != 0) {
             // call to a mixin super, use local static reference
             receiver = makeTypeTree(diagPos, cSym.type, false);
         } else {
@@ -669,7 +665,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // "addTriggers$(this);"
        stmts.append( callStatement(
                diagPos, 
-               null, 
+               null,
                defs.addTriggersName, 
                make.at(diagPos).Ident(names._this)));
 
@@ -679,16 +675,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // "userInit$(this);"
         stmts.append(callStatement(
                 diagPos, 
-                make.Ident(classIsFinal? names._this : cDecl.getName()),
+                null,
                 defs.userInitName, 
-                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
+                make.at(diagPos).Ident(names._this)));
         
         // "postInit$(this);"
         stmts.append(callStatement(
                 diagPos,
-                make.Ident(classIsFinal? names._this : cDecl.getName()),
+                null,
                 defs.postInitName,
-                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
+                make.at(diagPos).Ident(names._this)));
 
         // "InitHelper.finish(new[] { attribute, ... });
         ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
@@ -815,13 +811,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // call the super addTriggers
         ClassSymbol superClassSym = getSuperSymbol(cDecl);
         if (superClassSym != null) {
-            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName));
+            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, true));
         }
         
         // JFXC-2822 - Triggers need to work from mixins.
         List<ClassSymbol> mixinClasses = immediateMixinNames(cDecl);
         for (ClassSymbol cSym : mixinClasses) {
-            stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName));
+            stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, true));
         }
 
         // add change listeners for triggers on attribute definitions
@@ -845,7 +841,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         return make.at(diagPos).MethodDef(
-                make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) ),
+                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 defs.addTriggersName,
                 makeTypeTree( null,syms.voidType),
                 List.<JCTypeParameter>nil(),
