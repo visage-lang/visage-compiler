@@ -85,7 +85,7 @@ public class ObjectVariable<T>
     }
 
     protected BindingExpression makeBindingExpression(final ObjectLocation<T> otherLocation) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             public void compute() { pushValue(otherLocation.get()); }
         };
     }

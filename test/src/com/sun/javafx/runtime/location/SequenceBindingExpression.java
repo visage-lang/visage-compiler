@@ -27,10 +27,11 @@ import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
  * SequenceBindingExpression
+ * Kept around only for test compatibility.  This is in test sources.
  *
  * @author Brian Goetz
  */
-public abstract class SequenceBindingExpression<T> extends BindingExpression {
+public abstract class SequenceBindingExpression<T> extends AbstractBindingExpression {
     public void compute() {
         pushValue(computeValue());
     }

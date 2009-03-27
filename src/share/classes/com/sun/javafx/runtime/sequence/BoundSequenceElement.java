@@ -41,7 +41,7 @@ class BoundSequenceElement<T> extends ObjectVariable<T> implements ObjectLocatio
         this.seq = seq;
         this.index = index;
         lastIndex = index.get();
-        bind(lazy, new BindingExpression() {
+        bind(lazy, new AbstractBindingExpression() {
             public void compute() {
                 lastIndex = BoundSequenceElement.this.index.get();
                 pushValue(BoundSequenceElement.this.seq.getAsSequence().get(lastIndex));

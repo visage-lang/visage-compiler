@@ -55,7 +55,7 @@ public class BoundOperators {
     private static final int CASE_CMP_FLOAT = 6;
     private static final int CASE_CMP_LONG = 7;
 
-    private static class NumericBindingExpression extends BindingExpression {
+    private static class NumericBindingExpression extends AbstractBindingExpression {
         private final Operator op;
         private final int arm;
         private final NumericLocation a, b;
@@ -218,7 +218,7 @@ public class BoundOperators {
 
 
     public static BooleanLocation op_boolean(final boolean lazy, final BooleanLocation a, final BooleanLocation b, final Operator op) {
-        return BooleanVariable.make(lazy, new BindingExpression() {
+        return BooleanVariable.make(lazy, new AbstractBindingExpression() {
             public void compute() {
                 switch (op) {
                     case AND: pushValue((a.getAsBoolean() && b.getAsBoolean())); break;
@@ -233,7 +233,7 @@ public class BoundOperators {
     }
 
     public static<T, V> BooleanLocation cmp_other(final boolean lazy, final ObjectLocation<T> a, final ObjectLocation<V> b, final Operator op) {
-        return BooleanVariable.make(lazy, new BindingExpression() {
+        return BooleanVariable.make(lazy, new AbstractBindingExpression() {
             public void compute() {
                 T aVal = a.get();
                 V bVal = b.get();
@@ -247,7 +247,7 @@ public class BoundOperators {
     }
 
     public static<T, V> BooleanLocation cmp_other(final boolean lazy, final ObjectLocation<T> a, final SequenceLocation<V> b, final Operator op) {
-        return BooleanVariable.make(lazy, new BindingExpression() {
+        return BooleanVariable.make(lazy, new AbstractBindingExpression() {
             public void compute() {
                 T aVal = a.get();
                 Sequence<V> bVal = b.getAsSequence();
@@ -274,7 +274,7 @@ public class BoundOperators {
     }
 
     public static<T, V> BooleanLocation cmp_other(final boolean lazy, final SequenceLocation<T> a, final SequenceLocation<V> b, final Operator op) {
-        return BooleanVariable.make(lazy, new BindingExpression() {
+        return BooleanVariable.make(lazy, new AbstractBindingExpression() {
             public void compute() {
                 Sequence<T> aVal = a.getAsSequence();
                 Sequence<V> bVal = b.getAsSequence();
@@ -306,7 +306,7 @@ public class BoundOperators {
         conditional.addChangeListener(listener);
         listener.onChange(!conditional.getAsBoolean(), conditional.getAsBoolean());
 
-        BindingExpression bindingExpression = new BindingExpression() {
+        BindingExpression bindingExpression = new AbstractBindingExpression() {
             public void compute() {
                 pushFrom(typeInfo, conditional.getAsBoolean() ? thenLoc : elseLoc);
             }
@@ -317,7 +317,7 @@ public class BoundOperators {
 
     // @@@ This can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
     private static<T> BindingExpression wrap(final Function0<SequenceLocation<T>> fun) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             @Override
             public void compute() {
                 pushValue(fun.invoke());
@@ -339,10 +339,10 @@ public class BoundOperators {
                                                              final BooleanLocation conditional,
                                                              final BindingExpression thenBranch,
                                                              final BindingExpression elseBranch) {
-        BindingExpression bindingExpression = new BindingExpression() {
+        BindingExpression bindingExpression = new AbstractBindingExpression() {
             @Override
             public void compute() {
-                if (thenBranch.location == null) {
+                if (thenBranch.getLocation() == null) {
                     // First-time setup
                     thenBranch.setLocation(location);
                     elseBranch.setLocation(location);
@@ -358,9 +358,9 @@ public class BoundOperators {
     }
 
     private static <T, L extends ObjectLocation<T>> BindingExpression makeSelectBindingExpression(final ObjectLocation<?> receiver, final BindingExpression selector, final L defaultConstant) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             public void compute() {
-                if (selector.location == null) {
+                if (selector.getLocation() == null) {
                     // First-time setup
                     selector.setLocation(location);
                 }
@@ -422,7 +422,7 @@ public class BoundOperators {
     }
 
     private static<V, T extends ObjectLocation<V>> BindingExpression makeBindingExpression(final TypeInfo<V, ?> ti, final ObjectLocation<T> helper) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             public void compute() {
                 pushFrom(ti, helper.get());
             }

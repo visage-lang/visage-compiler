@@ -28,7 +28,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Robert Field
  */
-public abstract class ScriptBindingExpressions extends BindingExpression {
+public abstract class ScriptBindingExpressions extends AbstractBindingExpression {
     protected final int id;
     protected final Object arg$0;
     protected final Object arg$1;

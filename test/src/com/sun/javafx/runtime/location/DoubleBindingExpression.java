@@ -24,8 +24,7 @@
 package com.sun.javafx.runtime.location;
 
 /*
- * WARNING: Automatically generated from the template XxxBindingExpression; do not edit!
- * Kept around only for test compatibility.
+ * Kept around only for test compatibility.  This is in test sources.
  */
 
 /**
@@ -34,7 +33,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public abstract class DoubleBindingExpression extends BindingExpression {
+public abstract class DoubleBindingExpression extends AbstractBindingExpression {
     public abstract double computeValue();
 
     public void compute() { pushValue(computeValue()); }

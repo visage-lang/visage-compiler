@@ -25,11 +25,11 @@ package com.sun.javafx.runtime.location;
 
 /**
  * ObjectBindingExpression
- * Kept around only for test compatibility.
+ * Kept around only for test compatibility.  This is in test sources.
  *
  * @author Brian Goetz
  */
-public abstract class ObjectBindingExpression<T> extends BindingExpression {
+public abstract class ObjectBindingExpression<T> extends AbstractBindingExpression {
     public void compute() {
         pushValue(computeValue());
 

@@ -99,7 +99,7 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> impl
     }
 
     protected BindingExpression makeBindingExpression(final $T.Location$ otherLocation) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             public void compute() {
                 pushValue(otherLocation.getAs$PREFIX$());
             }

@@ -197,7 +197,7 @@ public class SequenceVariable<T>
     }
 
     protected BindingExpression makeBindingExpression(final SequenceLocation<T> otherLocation) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             public void compute() {
                 pushValue(otherLocation.getAsSequence());
            }

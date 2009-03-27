@@ -96,7 +96,7 @@ public class BoundSequences {
     }
 
     public static<T> IntLocation sizeof(boolean lazy, final SequenceLocation<T> sequence) {
-        return IntVariable.make(new BindingExpression() {
+        return IntVariable.make(new AbstractBindingExpression() {
             public void compute() {
                 pushValue(Sequences.size(sequence.get()));
             }
@@ -104,7 +104,7 @@ public class BoundSequences {
     }
 
     public static<T> IntLocation sizeof(boolean lazy, final ObjectLocation<T> item) {
-        return IntVariable.make(new BindingExpression() {
+        return IntVariable.make(new AbstractBindingExpression() {
             public void compute() {
                 pushValue(item.get() == null ? 0 : 1);
             }

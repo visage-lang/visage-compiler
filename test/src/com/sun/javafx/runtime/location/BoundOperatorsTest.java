@@ -19,23 +19,23 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         BooleanLocation b = BooleanVariable.make(true);
         final IntVariable i = IntVariable.make(1);
         IntLocation ifLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, false, b,
-                                                       IntVariable.make(true, new BindingExpression() {
+                                                       IntVariable.make(true, new AbstractBindingExpression() {
                                                            public void compute() {
                                                                pushValue(i.getAsInt());
                                                            }
                                                        }, i),
-                                                       IntVariable.make(true, new BindingExpression() {
+                                                       IntVariable.make(true, new AbstractBindingExpression() {
                                                            public void compute() {
                                                                pushValue(-i.getAsInt());
                                                            }
                                                        }, i));
         IntLocation lazyIfLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, true, b,
-                                                           IntVariable.make(true, new BindingExpression() {
+                                                           IntVariable.make(true, new AbstractBindingExpression() {
                                                                public void compute() {
                                                                    pushValue(i.getAsInt());
                                                                }
                                                            }, i),
-                                                           IntVariable.make(true, new BindingExpression() {
+                                                           IntVariable.make(true, new AbstractBindingExpression() {
                                                                public void compute() {
                                                                    pushValue(-i.getAsInt());
                                                                }
