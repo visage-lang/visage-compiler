@@ -367,6 +367,7 @@ public class JavafxClassReader extends ClassReader {
         ClassSymbol csym = (ClassSymbol) tsym; // FIXME
         return enterClass(csym);
     }
+    
     Symbol translateSymbol(Symbol sym) {
         if (sym == null)
             return null;
@@ -376,19 +377,8 @@ public class JavafxClassReader extends ClassReader {
         if (sym instanceof PackageSymbol)
             s = enterPackage(((PackageSymbol) sym).fullname);
         else if (sym instanceof MethodSymbol) {
-            Name name = sym.name;
-            long flags = sym.flags_field;
             Symbol owner = translateSymbol(sym.owner);
-            Type type = translateType(sym.type);
-            String nameString = name.toString();
-            int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
-            if (boundStringIndex != -1) {
-                // this is a bound function
-                // remove the bound suffix, and mark as bound
-                name = names.fromString(nameString.substring(0, boundStringIndex));
-                flags |= JavafxFlags.BOUND;
-            }
-            MethodSymbol m = new MethodSymbol(flags, name, type, owner);
+            MethodSymbol m = translateMethodSymbol(sym.flags_field, sym, owner);
             ((ClassSymbol) owner).members_field.enter(m);
             s = m;
         }
@@ -398,7 +388,50 @@ public class JavafxClassReader extends ClassReader {
         return s;
     }
     
-    // JFXC-2849 - Mixins: Change the on mixin interface from $Intf to $Mixin.
+    void popMethodTypeArg(MethodType type) {
+        List<Type> argtypes = type.argtypes;
+        ListBuffer<Type> lb = ListBuffer.<Type>lb();
+        
+        for (int i = 1; i < argtypes.size(); i++) {
+            lb.append(argtypes.get(i));
+        }
+        
+        type.argtypes = lb.toList();
+    }
+    
+    MethodSymbol translateMethodSymbol(long flags, Symbol sym, Symbol owner) {
+        Name name = sym.name;
+        Type type = translateType(sym.type);
+        String nameString = name.toString();
+        
+        if (type instanceof MethodType) {
+            boolean convertToStatic = false;
+            
+            if (nameString.endsWith(defs.implFunctionSuffix)) {
+                nameString = nameString.substring(0, nameString.length() - defs.implFunctionSuffix.length());
+                convertToStatic = true;
+            }
+            
+            if (convertToStatic) {
+                flags &= ~Flags.STATIC;
+                popMethodTypeArg((MethodType)type);
+            }
+        }
+        
+        int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
+        if (boundStringIndex != -1) {
+            // this is a bound function
+            // remove the bound suffix, and mark as bound
+            nameString = nameString.substring(0, boundStringIndex);
+            flags |= JavafxFlags.BOUND;
+        }
+    
+        name = names.fromString(nameString);
+        
+        return new MethodSymbol(flags, name, type, owner);
+    }
+
+    // JFXC-2849 - Mixins: Change the mixin interface from $Intf to $Mixin.
     private void checkForIntfSymbol(Symbol sym) throws CompletionFailure {        
         if (sym.name.endsWith(defs.deprecatedInterfaceSuffixName)) {
             String fileString = ((ClassSymbol) sym).classfile.getName();
@@ -529,6 +562,8 @@ public class JavafxClassReader extends ClassReader {
                     continue;
                 symlist = symlist.prepend(e.sym);
             }
+            boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
+            boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
             handleSyms:
             for (List<Symbol> l = symlist; l.nonEmpty(); l=l.tail) {
                 Symbol memsym = l.head;
@@ -566,11 +601,10 @@ public class JavafxClassReader extends ClassReader {
                             name == names.clinit ||
                             name.startsWith(defs.attributeGetPrefixName) ||
                             name.startsWith(defs.attributeSetPrefixName) ||
-                            name.startsWith(defs.applyDefaultsPrefixName) ||
-                            name.endsWith(defs.implFunctionSuffixName)))
+                            name.startsWith(defs.applyDefaultsPrefixName)))
                         continue;
                     // if this is a main method in an FX class then it is synthetic, ignore it
-                    if (name == defs.mainName && (csym.flags_field & JavafxFlags.FX_CLASS) == JavafxFlags.FX_CLASS) {
+                    if (name == defs.mainName && isFXClass) {
                         if (memsym.type instanceof MethodType) {
                             MethodType mt = (MethodType) (memsym.type);
                             List<Type> paramTypes = mt.getParameterTypes();
@@ -582,18 +616,8 @@ public class JavafxClassReader extends ClassReader {
                             }
                         }
                     }
-                    // This should be merged with translateSymbol.
-                    // But that doesn't work for some unknown reason.  FIXME
-                    Type type = translateType(memsym.type);
-                    String nameString = name.toString();
-                    int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
-                    if (boundStringIndex != -1) {
-                        // this is a bound function
-                        // remove the bound suffix, and mark as bound
-                         name = names.fromString(nameString.substring(0, boundStringIndex));
-                        flags |= JavafxFlags.BOUND;
-                    }
-                    MethodSymbol m = new MethodSymbol(flags, name, type, csym);
+
+                    MethodSymbol m = translateMethodSymbol(flags, memsym, csym);     
                     csym.members_field.enter(m);
                 }
                 else if (memsym instanceof VarSymbol) {
