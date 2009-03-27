@@ -39,7 +39,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Brian Goetz
  */
 public class SequenceVariable<T>
-        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceChangeListener<T>>
+        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, ChangeListener<T>>
         implements SequenceLocation<T> {
 
     private final TypeInfo<T, ?> typeInfo;
@@ -204,8 +204,17 @@ public class SequenceVariable<T>
         };
     }
 
+    public void addSequenceChangeListener(ChangeListener listener) {
+        addChild(listener);
+    }
+
+    public void removeSequenceChangeListener(ChangeListener listener) {
+        removeChild(listener);
+    }
+
     public void addChangeListener(final ChangeListener<Sequence<T>> listener) {
-        addChangeListener(new SequenceChangeListener<T>() {
+        addChangeListener(new ChangeListener<T>() {
+            @Override
             public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 listener.onChange(oldValue, newValue);
             }
@@ -219,8 +228,8 @@ public class SequenceVariable<T>
         if (invalidateDependencies)
             invalidateDependencies();
         if (hasChildren(CHILD_KIND_TRIGGER))
-            iterateChildren(new DependencyIterator<SequenceChangeListener<T>>(CHILD_KIND_TRIGGER) {
-                public void onAction(SequenceChangeListener<T> listener) {
+            iterateChildren(new DependencyIterator<ChangeListener<T>>(CHILD_KIND_TRIGGER) {
+                public void onAction(ChangeListener<T> listener) {
                     try {
                         listener.onChange(startPos, endPos, newElements, oldValue, newValue);
                     }
@@ -463,7 +472,7 @@ public class SequenceVariable<T>
     private class BoundLocationInfo {
         public final SequenceLocation<T> otherLocation;
         public InvalidationListener invalidationListener;
-        public SequenceChangeListener<T> sequenceChangeListener;
+        public ChangeListener<T> sequenceChangeListener;
         public final boolean lazy;
 
         BoundLocationInfo(boolean lazy, SequenceLocation<T> otherLocation) {
@@ -491,7 +500,8 @@ public class SequenceVariable<T>
             };
             otherLocation.addInvalidationListener(invalidationListener);
             if (!lazy) {
-                sequenceChangeListener = new SequenceChangeListener<T>() {
+                sequenceChangeListener = new ChangeListener<T>() {
+                    @Override
                     public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                         // Don't need to check lazy, since we're never called if binding is lazy
                         $value = newValue;
@@ -500,7 +510,7 @@ public class SequenceVariable<T>
                         notifyListeners(startPos, endPos, newElements, oldValue, newValue, true);
                     }
                 };
-                otherLocation.addChangeListener(sequenceChangeListener);
+                otherLocation.addSequenceChangeListener(sequenceChangeListener);
             }
             state = lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND;
         }
@@ -508,7 +518,7 @@ public class SequenceVariable<T>
         void unbind() {
             otherLocation.removeInvalidationListener(invalidationListener);
             if (sequenceChangeListener != null)
-                otherLocation.removeChangeListener(sequenceChangeListener);
+                otherLocation.removeSequenceChangeListener(sequenceChangeListener);
             invalidationListener = null;
             sequenceChangeListener = null;
             state = STATE_UNBOUND;

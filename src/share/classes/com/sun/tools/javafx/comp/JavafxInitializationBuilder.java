@@ -88,7 +88,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         addChangeListenerName = names.fromString("addChangeListener");
         locationInitializeName = names.fromString("initialize");
         changeListenerInterfaceName = names.fromString(locationPackageNameString + ".ChangeListener");
-        sequenceChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".SequenceChangeListener");
+        sequenceChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".ChangeListener");
         onChangeArgName1 = names.fromString("$oldValue");
         onChangeArgName2 = names.fromString("$newValue");
         outerAccessorName = names.fromString("accessOuter$");

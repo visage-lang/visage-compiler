@@ -33,7 +33,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         }, derived);
 
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        derived.addChangeListener(hl);
+        derived.addSequenceChangeListener(hl);
 
         assertEquals(derived, 2, 4, 6);
         assertEqualsAndClear(hl);
@@ -76,7 +76,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         }, derived);
 
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        derived.addChangeListener(hl);
+        derived.addSequenceChangeListener(hl);
 
         assertEquals(derived, 4, 8, 12);
         assertEqualsAndClear(hl);
@@ -113,7 +113,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                                                               });
 
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        derived.addChangeListener(hl);
+        derived.addSequenceChangeListener(hl);
 
         assertEquals(derived, 1, 12, 23);
         assertEquals(hl);
@@ -156,7 +156,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         }, derived);
 
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        derived.addChangeListener(hl);
+        derived.addSequenceChangeListener(hl);
 
         assertEquals(derived, 2, 4, 6);
         // @@@ jfxc-1035: if we build the loc as the compiler would, we'd expect the following:
@@ -218,7 +218,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                                                   });
 
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        derived.addChangeListener(hl);
+        derived.addSequenceChangeListener(hl);
 
         assertEquals(derived, 0, 2, 4);
         assertEquals(hl);
@@ -258,7 +258,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                         });
 
         hl = new HistoryReplaceListener<Integer>();
-        derived.addChangeListener(hl);
+        derived.addSequenceChangeListener(hl);
 
         assertEquals(derived, 1, 12, 23);
         assertEquals(hl);
@@ -314,7 +314,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                                                });
 
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        comp.addChangeListener(hl);
+        comp.addSequenceChangeListener(hl);
 
         assertEquals(comp, 11, 21, 31, 12, 22, 32, 13, 23, 33);
         assertEquals(hl);

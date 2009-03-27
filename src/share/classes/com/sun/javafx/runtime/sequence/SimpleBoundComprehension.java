@@ -27,7 +27,7 @@ import java.util.Iterator;
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -81,7 +81,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
         if (lazy)
             sequenceLocation.addInvalidationListener(new InvalidateMeListener());
         else
-            sequenceLocation.addChangeListener(new SequenceChangeListener<T>() {
+            sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
                 public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                     // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
                     // trailing segment of the comprehension, so not only do we recompute the affected segment, but also

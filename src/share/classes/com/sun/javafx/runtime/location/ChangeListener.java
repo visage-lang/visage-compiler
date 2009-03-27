@@ -1,5 +1,7 @@
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.sequence.Sequence;
+
 /**
  * ChangeListener
  *
@@ -11,6 +13,10 @@ public class ChangeListener<T> extends AbstractLocationDependency {
         throw new UnsupportedOperationException();
     }
 
+    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+        throw new UnsupportedOperationException();
+    }
+    
     public void onChange(byte oldValue, byte newValue) {
         onChange((T) (Byte) oldValue, (T) (Byte) newValue);
     }

@@ -126,13 +126,13 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
             sequenceLocation.addInvalidationListener(new InvalidateMeListener());
         }
         else {
-            underlying.addChangeListener(new SequenceChangeListener<V>() {
+            underlying.addSequenceChangeListener(new ChangeListener<V>() {
                 public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
                     AbstractBoundComprehension.this.updateSlice(startPos, endPos, newElements);
                 }
             });
 
-            sequenceLocation.addChangeListener(new SequenceChangeListener<T>() {
+            sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
                 public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                     int insertedCount = Sequences.size(newElements);
                     int deletedCount = endPos - startPos + 1;

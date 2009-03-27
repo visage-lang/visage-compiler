@@ -41,9 +41,9 @@ public interface SequenceLocation<T> extends Location, Iterable<T>, ObjectLocati
 
     public TypeInfo<T, ?> getElementType();
 
-    public void addChangeListener(SequenceChangeListener<T> listener);
+    public void addSequenceChangeListener(ChangeListener<T> listener);
 
-    public void removeChangeListener(SequenceChangeListener<T> listener);
+    public void removeSequenceChangeListener(ChangeListener<T> listener);
 
     public Sequence<T> setAsSequence(Sequence<? extends T> value);
 
