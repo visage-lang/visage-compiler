@@ -122,12 +122,6 @@ public class JavafxDefs {
     final RuntimeMethod TypeInfo_getTypeInfo;
 
     final RuntimeMethod Locations_upcast;
-    final RuntimeMethod Locations_toByteLocation;
-    final RuntimeMethod Locations_toShortLocation;
-    final RuntimeMethod Locations_toIntLocation;
-    final RuntimeMethod Locations_toLongLocation;
-    final RuntimeMethod Locations_toFloatLocation;
-    final RuntimeMethod Locations_toDoubleLocation;
 
     final RuntimeMethod Sequences_convertNumberSequence;
     final RuntimeMethod Sequences_forceNonNull;
@@ -345,12 +339,6 @@ public class JavafxDefs {
         TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");
 
         Locations_upcast = new RuntimeMethod(names, cLocations, "upcast");
-        Locations_toByteLocation = new RuntimeMethod(names, cLocations, "toByteLocation");
-        Locations_toShortLocation = new RuntimeMethod(names, cLocations, "toShortLocation");
-        Locations_toIntLocation = new RuntimeMethod(names, cLocations, "toIntLocation");
-        Locations_toLongLocation = new RuntimeMethod(names, cLocations, "toLongLocation");
-        Locations_toFloatLocation = new RuntimeMethod(names, cLocations, "toFloatLocation");
-        Locations_toDoubleLocation = new RuntimeMethod(names, cLocations, "toDoubleLocation");
 
         Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
         Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");

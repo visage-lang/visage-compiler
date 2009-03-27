@@ -40,6 +40,7 @@ public:
     std::string profile_bootclasspath_prepend;
     std::string profile_bootclasspath_append;
     std::string profile_nativelibpath;
+    std::string profile_bootnativelibpath;
     
     Configuration(const std::string& prefix);
     ~Configuration();

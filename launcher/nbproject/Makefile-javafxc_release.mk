@@ -12,9 +12,9 @@ MKDIR=mkdir
 CP=cp
 CCADMIN=CCadmin
 RANLIB=ranlib
-CC=gcc.exe.lnk
-CCC=g++.exe.lnk
-CXX=g++.exe.lnk
+CC=
+CCC=g++.exe
+CXX=g++.exe
 FC=
 
 # Macros

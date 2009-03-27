@@ -103,7 +103,7 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
             stepLoc.addInvalidationListener(new InvalidateMeListener());
             return;
         }
-        lowerLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+        lowerLoc.addChangeListener(new ChangeListener<Integer>() {
             @Override
             public void onChange(int oldValue, int newValue) {
 
@@ -137,7 +137,7 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
                 }
             }
         });
-        upperLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+        upperLoc.addChangeListener(new ChangeListener<Integer>() {
             @Override
             public void onChange(int oldValue, int newValue) {
                 
@@ -162,7 +162,7 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
             }
         });
 
-        stepLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+        stepLoc.addChangeListener(new ChangeListener<Integer>() {
             @Override
             public void onChange(int oldValue, int newValue) {
                 

@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -61,7 +60,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final Name addChangeListenerName;
     private final Name locationInitializeName;
     private final Name primitiveChangeListenerInterfaceName;
-    private final Name objectChangeListenerInterfaceName;
     private final Name sequenceChangeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name onChangeArgName1, onChangeArgName2;
@@ -89,8 +87,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         addChangeListenerName = names.fromString("addChangeListener");
         locationInitializeName = names.fromString("initialize");
-        primitiveChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".PrimitiveChangeListener");
-        objectChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".ObjectChangeListener");
+        primitiveChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".ChangeListener");
         sequenceChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".SequenceChangeListener");
         onChangeArgName1 = names.fromString("$oldValue");
         onChangeArgName2 = names.fromString("$newValue");
@@ -504,7 +501,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 attributeSetterName(vsym),
                 makeTypeTree(diagPos, ai.getRealType()),
                 List.<JCTypeParameter>nil(),
-                List.of(makeParam(diagPos, ai.getRealType(), null, defs.attributeSetMethodParamNameString)),
+                List.of(makeParam(diagPos, ai.getRealType(), null, JavafxDefs.attributeSetMethodParamNameString)),
                 List.<JCExpression>nil(),
                 block,
                 null);
@@ -961,16 +958,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    //         members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onReplace", onChangeArgs, TypeTags.VOID));
             members.append(makeChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), setUpStmts, "onChange", onChangeArgs, TypeTags.VOID));
         }
-        else if (info.getRealType().isPrimitive()) {
+        else {
             changeListener = makeIdentifier(diagPos, primitiveChangeListenerInterfaceName);
             changeListener = make.at(diagPos).TypeApply(changeListener,
-                                                        List.<JCExpression>of(makeTypeTree( diagPos, types.boxedClass(info.getRealType()).type)));
-            members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
-        }
-        else {
-            changeListener = makeIdentifier(diagPos, objectChangeListenerInterfaceName);
-            changeListener = make.at(diagPos).TypeApply(changeListener,
-                                                        List.<JCExpression>of(makeTypeTree(diagPos, info.getRealType())));
+                                                        List.<JCExpression>of(makeTypeTree( diagPos, types.boxedTypeOrType(info.getRealType()))));
             members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
         }
 

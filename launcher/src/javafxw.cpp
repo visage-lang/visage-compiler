@@ -58,6 +58,9 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE previnst, LPSTR cmdline, int cmdsho
     if (! config.profile_nativelibpath.empty()) {
         cmd += "-Djava.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
     }
+    if (! config.profile_bootnativelibpath.empty()) {
+        cmd += "-Dsun.boot.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_bootnativelibpath + "\" ");
+    }
     if (! config.profile_bootclasspath_prepend.empty()) {
         cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_prepend) + "\" ";
     }

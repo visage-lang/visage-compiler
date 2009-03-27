@@ -255,7 +255,7 @@ public class JavafxSymtab extends Symtab {
         return sym.name == runMethodName;
     }
 
-    public Type boxIfNeeded(Type elemType) {
+    private Type boxedTypeOrType(Type elemType) {
         if (elemType.isPrimitive() || elemType == voidType)
             return types.boxedClass(elemType).type;
         else
@@ -294,9 +294,9 @@ public class JavafxSymtab extends Symtab {
     public FunctionType makeFunctionType(MethodType mtype) {
         Type rtype = mtype.restype;
         ListBuffer<Type> typarams = new ListBuffer<Type>();
-        typarams.append(boxIfNeeded(rtype));
+        typarams.append(boxedTypeOrType(rtype));
         for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
-            typarams.append(boxIfNeeded(l.head));
+            typarams.append(boxedTypeOrType(l.head));
         }
         return makeFunctionType(typarams.toList(), mtype);
     }

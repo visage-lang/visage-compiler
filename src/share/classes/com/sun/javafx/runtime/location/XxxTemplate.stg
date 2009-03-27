@@ -46,7 +46,6 @@ T ::= [
     "boxed":"<BOXED_MAP.(PREFIX)>",
     "Location":"<PREFIX>Location",
     "Variable":"<PREFIX>Variable",
-    "ChangeListener":"<PREFIX>ChangeListener",
     "Constant":"<PREFIX>Constant",
     "TypeInfo":"<TYPEINFO_MAP.(PREFIX)>",
     "BindingExpression":"<PREFIX>BindingExpression",

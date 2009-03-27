@@ -35,7 +35,8 @@ Configuration::Configuration(const std::string& prefix)
         profile_bootclasspath(""), 
         profile_bootclasspath_prepend(""), 
         profile_bootclasspath_append(""), 
-        profile_nativelibpath(""), 
+        profile_nativelibpath(""),
+        profile_bootnativelibpath(""),
         profile_filename("desktop.properties") {
 }
 
@@ -160,6 +161,9 @@ int Configuration::readConfigFile() {
             } else
             if (key == "nativelibpath") {
                 profile_nativelibpath = value;
+            } else
+            if (key == "bootnativelibpath") {
+                profile_bootnativelibpath = value;
             };
         }
     }

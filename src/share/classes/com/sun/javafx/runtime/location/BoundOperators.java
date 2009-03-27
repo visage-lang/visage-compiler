@@ -294,7 +294,7 @@ public class BoundOperators {
                                                                 final ObjectLocation<T> thenLoc,
                                                                 final ObjectLocation<T> elseLoc) {
         final L loc = typeInfo.makeLocation();
-        PrimitiveChangeListener<Boolean> listener = new PrimitiveChangeListener<Boolean>() {
+        ChangeListener<Boolean> listener = new ChangeListener<Boolean>() {
             @Override
             public void onChange(boolean oldValue, boolean newValue) {
                 loc.clearDynamicDependencies();
@@ -410,7 +410,7 @@ public class BoundOperators {
             helpedLocation.addDynamicDependency(initialValue);
             ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
         }
-        helper.addChangeListener(new ObjectChangeListener<L>() {
+        helper.addChangeListener(new ChangeListener<L>() {
             public void onChange(L oldLoc, L newLoc) {
                 helpedLocation.clearDynamicDependencies();
                 helpedLocation.addDynamicDependency(newLoc);
@@ -442,7 +442,7 @@ public class BoundOperators {
                 bind(lazy, helper.get());
                 // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
                 // the rebinding happens.
-                helper.addChangeListener(new ObjectChangeListener<SequenceLocation<T>>() {
+                helper.addChangeListener(new ChangeListener<SequenceLocation<T>>() {
                     public void onChange(SequenceLocation<T> oldValue, SequenceLocation<T> newValue) {
                         rebind(lazy, newValue);
                     }

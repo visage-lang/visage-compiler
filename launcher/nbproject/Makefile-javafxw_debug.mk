@@ -24,7 +24,7 @@ PLATFORM=Cygwin-Windows
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/javafxc_debug/${PLATFORM}
+OBJECTDIR=build/javafxw_debug/${PLATFORM}
 
 # Object Files
 OBJECTFILES= \
@@ -50,49 +50,49 @@ LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	${MAKE}  -f nbproject/Makefile-javafxc_debug.mk dist/Debug/javafxc.exe
+	${MAKE}  -f nbproject/Makefile-javafxw_debug.mk dist/Debug/javafxw.exe
 
-dist/Debug/javafxc.exe: ${OBJECTFILES}
+dist/Debug/javafxw.exe: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug
-	${LINK.cc} -o dist/Debug/javafxc ${OBJECTFILES} ${LDLIBSOPTIONS} 
+	${LINK.cc} -o dist/Debug/javafxw ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/src/configuration.o: src/configuration.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
 
 ${OBJECTDIR}/src/javafxc.o: src/javafxc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxc.o src/javafxc.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxc.o src/javafxc.cpp
 
 ${OBJECTDIR}/src/util.o: src/util.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/util.o src/util.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/util.o src/util.cpp
 
 ${OBJECTDIR}/src/javafxw.o: src/javafxw.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxw.o src/javafxw.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxw.o src/javafxw.cpp
 
 ${OBJECTDIR}/src/javafxdoc.o: src/javafxdoc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxdoc.o src/javafxdoc.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxdoc.o src/javafxdoc.cpp
 
 ${OBJECTDIR}/src/javafx.o: src/javafx.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
 	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafx.o src/javafx.cpp
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXW -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafx.o src/javafx.cpp
 
 # Subprojects
 .build-subprojects:
 
 # Clean Targets
 .clean-conf:
-	${RM} -r build/javafxc_debug
-	${RM} dist/Debug/javafxc.exe
+	${RM} -r build/javafxw_debug
+	${RM} dist/Debug/javafxw.exe
 
 # Subprojects
 .clean-subprojects:

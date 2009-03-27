@@ -465,7 +465,7 @@ public class JavafxAttr implements JavafxVisitor {
         //not supported by translation
         result = chk.checkReifiableReferenceType(
                 tree.clazz.pos(),
-                type.isPrimitive() ? types.boxedClass(type).type : type);
+                types.boxedTypeOrType(type));
         if (!result.isErroneous()) {
             chk.checkCastable(tree.expr.pos(), exprtype, type);
             result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
@@ -586,9 +586,7 @@ public class JavafxAttr implements JavafxVisitor {
         Type site = attribTree(tree.selected, env, skind,
                 Infer.anyPoly, Sequenceness.PERMITTED);
         boolean wasPrimitive = site.isPrimitive();
-        if (wasPrimitive) {
-            site = types.boxedClass(site).type;
-        }
+        site = types.boxedTypeOrType(site);
         env.info.inSelect = inSelectPrev;
         if ((pkind & (PCK | TYP)) == 0)
             site = capture(site); // Capture field access
@@ -782,7 +780,7 @@ public class JavafxAttr implements JavafxVisitor {
                     // In this case, we have already made sure in Select that
                     // qualifier expression is a type.
                     Type t = syms.classType;
-                    Type arg = types.boxedClass(site).type;
+                    Type arg = types.boxedTypeOrType(site);
                     t = new ClassType(t.getEnclosingType(), List.of(arg), t.tsym);
                     return new VarSymbol(
                         STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
@@ -2040,8 +2038,8 @@ public class JavafxAttr implements JavafxVisitor {
 
             // Those were all the cases that could result in a primitive
             if (allowBoxing) {
-                type1 = syms.boxIfNeeded(type1);
-                type2 = syms.boxIfNeeded(type2);
+                type1 = types.boxedTypeOrType(type1);
+                type2 = types.boxedTypeOrType(type2);
             }
 
             if (types.isSubtype(type1, type2))
@@ -2223,7 +2221,7 @@ public class JavafxAttr implements JavafxVisitor {
                 Type qualifier = (tree.meth.getFXTag() == JavafxTag.SELECT)
                     ? ((JFXSelect) tree.meth).selected.type
                     : env.enclClass.sym.type;
-                qualifier = syms.boxIfNeeded(qualifier);
+                qualifier = types.boxedTypeOrType(qualifier);
                 restype = new
                     ClassType(restype.getEnclosingType(),
                               List.<Type>of(new WildcardType(types.erasure(qualifier),
@@ -3165,7 +3163,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (restype == syms.unknownType)
             restype = syms.voidType;
         Type rtype = restype == syms.voidType ? syms.javafx_java_lang_VoidType
-                : new WildcardType(syms.boxIfNeeded(restype), BoundKind.EXTENDS, syms.boundClass);
+                : new WildcardType(types.boxedTypeOrType(restype), BoundKind.EXTENDS, syms.boundClass);
         ListBuffer<Type> typarams = new ListBuffer<Type>();
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
         typarams.append(rtype);
@@ -3175,7 +3173,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (argtype == syms.javafx_UnspecifiedType)
                 argtype = syms.objectType;
             argtypes.append(argtype);
-            Type ptype = syms.boxIfNeeded(argtype);
+            Type ptype = types.boxedTypeOrType(argtype);
             ptype = new WildcardType(ptype, BoundKind.SUPER, syms.boundClass);
             typarams.append(ptype);
             nargs++;

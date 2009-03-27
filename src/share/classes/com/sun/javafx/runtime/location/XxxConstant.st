@@ -56,8 +56,6 @@ public class $T.Constant$ extends AbstractConstantLocation<$T.boxed$> implements
         throw new UnsupportedOperationException();
     }
 
-    public void addChangeListener(PrimitiveChangeListener<$T.boxed$> listener) { }
-
 $if(NUMERIC)$
     public byte getAsByte() { return (byte) \$value; }
     public short getAsShort() { return (short) \$value; }

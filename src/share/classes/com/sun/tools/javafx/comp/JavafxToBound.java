@@ -225,7 +225,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         return convert(inType, tree, targetType);
     }
 
-    private JCExpression convert(Type inType, JCExpression tree, Type targetType) {
+    private JCExpression convert(final Type inType, JCExpression tree, final Type targetType) {
         DiagnosticPosition diagPos = tree.pos();
         if (!types.isSameType(inType, targetType)) {
             if (types.isSequence(targetType)) {
@@ -258,15 +258,22 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     }
                 }
             } else if (targetType.isPrimitive()) {
-                if (inType.isPrimitive()) {
-                    tree = runtime(diagPos,
-                            numericConvertMethod(targetType),
-                            List.of(tree, makeTypeInfo(diagPos, inType)));
-                }
-                //TODO: boxed inType
+                final JCExpression prevTree = tree;
+                TypeMorphInfo tmiPrevTarget = tmiTarget;
+                tmiTarget = null;  // ignore translation-time type targets
+
+
+                tree = new BindingExpressionClosureTranslator(diagPos, targetType) {
+
+                    protected JCExpression makePushExpression() {
+                        return typeCast(diagPos, targetType, inType, buildArgField(prevTree, inType));
+
+                    }
+                }.doit();
+                tmiTarget = tmiPrevTarget;
             } else {
                 List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, targetType, true),
-                        makeTypeTree(diagPos, syms.boxIfNeeded(inType), true));
+                        makeTypeTree(diagPos, types.boxedTypeOrType(inType), true));
                 Type inRealType = typeMorpher.typeMorphInfo(inType).getRealType();
                 JCExpression inClass = makeTypeInfo(diagPos, inRealType);
                 tree = runtime(diagPos, defs.Locations_upcast, typeArgs, List.of(inClass, tree));
@@ -275,25 +282,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         tree.type = targetType; // as a way of passing it to methods which needs to know the target type
         return tree;
     }
-    //where
-    private RuntimeMethod numericConvertMethod(Type type) {
-        switch (type.tag) {
-            case BYTE:
-                return defs.Locations_toByteLocation;
-            case SHORT:
-                return defs.Locations_toShortLocation;
-            case INT:
-                return defs.Locations_toIntLocation;
-            case LONG:
-                return defs.Locations_toLongLocation;
-            case FLOAT:
-                return defs.Locations_toFloatLocation;
-            case DOUBLE:
-                return defs.Locations_toDoubleLocation;
-            default:
-                throw new AssertionError("Should not reach here");
-        }
-    }
+
     
     private JCExpression convertNumericSequence(final DiagnosticPosition diagPos,
             final JCExpression expr, final Type inElementType, final Type targetElementType) {
@@ -923,13 +912,17 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {   //done
         DiagnosticPosition diagPos = tree.pos();
-        result = convert(tree.type, runtime(diagPos, defs.BoundSequences_element,
-                List.of(
+        result = convert(
+                types.boxedTypeOrType(tree.type),
+                runtime(diagPos, defs.BoundSequences_element,
+                  List.of(
                     makeLaziness(diagPos),
                     translate(tree.getSequence()),
                     translate(tree.getIndex(), syms.intType)
-                )
-              ));
+                  )
+                ),
+                (tmiTarget == null)? tree.type : tmiTarget.getRealType()
+              );
     }
 
     @Override
@@ -1240,8 +1233,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
             protected JCExpression makePushExpression() {
                 Type type = tree.clazz.type;
-                if (type.isPrimitive())
-                    type = types.boxedClass(type).type;
+                type = types.boxedTypeOrType(type);
                 return m().TypeTest(
                         buildArgField(translate(tree.expr),
                         new FieldInfo(defs.toTestName, tree.expr.type)),
