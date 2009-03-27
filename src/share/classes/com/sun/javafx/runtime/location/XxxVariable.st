@@ -144,10 +144,6 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, Chan
 
     protected void replaceWithDefault() { replaceValue(DEFAULT); }
 
-    public void addChangeListener(final ObjectChangeListener<$T.boxed$> listener) {
-        addChangeListener(ChangeListener.make(listener));
-    }
-
     private void notifyListeners(final $T.prim$ oldValue, final $T.prim$ newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();

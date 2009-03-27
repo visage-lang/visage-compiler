@@ -60,7 +60,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final Name addChangeListenerName;
     private final Name locationInitializeName;
     private final Name primitiveChangeListenerInterfaceName;
-    private final Name objectChangeListenerInterfaceName;
     private final Name sequenceChangeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name onChangeArgName1, onChangeArgName2;
@@ -89,7 +88,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         addChangeListenerName = names.fromString("addChangeListener");
         locationInitializeName = names.fromString("initialize");
         primitiveChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".ChangeListener");
-        objectChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".ObjectChangeListener");
         sequenceChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".SequenceChangeListener");
         onChangeArgName1 = names.fromString("$oldValue");
         onChangeArgName2 = names.fromString("$newValue");
@@ -960,16 +958,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    //         members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onReplace", onChangeArgs, TypeTags.VOID));
             members.append(makeChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), setUpStmts, "onChange", onChangeArgs, TypeTags.VOID));
         }
-        else if (info.getRealType().isPrimitive()) {
+        else {
             changeListener = makeIdentifier(diagPos, primitiveChangeListenerInterfaceName);
             changeListener = make.at(diagPos).TypeApply(changeListener,
                                                         List.<JCExpression>of(makeTypeTree( diagPos, types.boxedTypeOrType(info.getRealType()))));
-            members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
-        }
-        else {
-            changeListener = makeIdentifier(diagPos, objectChangeListenerInterfaceName);
-            changeListener = make.at(diagPos).TypeApply(changeListener,
-                                                        List.<JCExpression>of(makeTypeTree(diagPos, info.getRealType())));
             members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
         }
 

@@ -204,7 +204,7 @@ public class SequenceVariable<T>
         };
     }
 
-    public void addChangeListener(final ObjectChangeListener<Sequence<T>> listener) {
+    public void addChangeListener(final ChangeListener<Sequence<T>> listener) {
         addChangeListener(new SequenceChangeListener<T>() {
             public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 listener.onChange(oldValue, newValue);

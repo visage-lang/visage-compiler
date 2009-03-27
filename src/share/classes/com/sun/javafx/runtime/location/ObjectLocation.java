@@ -42,5 +42,5 @@ public interface ObjectLocation<T> extends Location {
     public void setDefault();
 
     /** Add a change listener to this Location */
-    public void addChangeListener(ObjectChangeListener<T> listener);
+    public void addChangeListener(ChangeListener<T> listener);
 }

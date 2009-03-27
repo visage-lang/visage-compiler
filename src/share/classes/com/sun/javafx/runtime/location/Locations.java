@@ -236,8 +236,8 @@ public class Locations {
             // location.setDefault();
         }
 
-        public void addChangeListener(final ObjectChangeListener<T> listener) {
-            location.addChangeListener(new ObjectChangeListener<V>() {
+        public void addChangeListener(final ChangeListener<T> listener) {
+            location.addChangeListener(new ChangeListener<V>() {
                 public void onChange(V oldValue, V newValue) {
                     listener.onChange(oldValue, newValue);
                 }

@@ -83,5 +83,5 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
 
     public void clearDynamicDependencies() { }
 
-    public void addChangeListener(ObjectChangeListener<T> listener) { }
+    public void addChangeListener(ChangeListener<T> listener) { }
 }

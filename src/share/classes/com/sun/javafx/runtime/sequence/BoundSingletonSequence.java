@@ -24,7 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.location.ObjectChangeListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
@@ -52,7 +52,7 @@ class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> im
         if (lazy)
             location.addInvalidationListener(new InvalidateMeListener());
         else
-            location.addChangeListener(new ObjectChangeListener<V>() {
+            location.addChangeListener(new ChangeListener<V>() {
                 public void onChange(V oldValue, V newValue) {
                     updateSlice(0, getRawValue().size() - 1, Sequences.singleton(getElementType(), newValue));
                 }
