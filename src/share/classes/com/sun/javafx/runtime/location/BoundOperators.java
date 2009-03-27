@@ -411,6 +411,7 @@ public class BoundOperators {
             ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
         }
         helper.addChangeListener(new ChangeListener<L>() {
+            @Override
             public void onChange(L oldLoc, L newLoc) {
                 helpedLocation.clearDynamicDependencies();
                 helpedLocation.addDynamicDependency(newLoc);
@@ -443,6 +444,7 @@ public class BoundOperators {
                 // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
                 // the rebinding happens.
                 helper.addChangeListener(new ChangeListener<SequenceLocation<T>>() {
+                    @Override
                     public void onChange(SequenceLocation<T> oldValue, SequenceLocation<T> newValue) {
                         rebind(lazy, newValue);
                     }

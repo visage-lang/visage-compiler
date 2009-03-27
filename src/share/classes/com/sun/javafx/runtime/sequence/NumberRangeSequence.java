@@ -50,21 +50,21 @@ class NumberRangeSequence extends AbstractSequence<Float> implements Sequence<Fl
         }
         else {
 
-            long size = ((bound < start  && step > 0.0f) ||
+            long sz = ((bound < start  && step > 0.0f) ||
                     (bound > start && step < 0.0f))?
                         0
                 :Math.max(0, (((long) ((bound - start) / step)) + 1));
             if (exclusive) {
                 boolean tooBig = (step > 0.0f)
-                        ? (start + (size-1)*step >= bound)
-                        : (start + (size-1)*step <= bound);
-                if (tooBig && size > 0)
-                    --size;
+                        ? (start + (sz-1)*step >= bound)
+                        : (start + (sz-1)*step <= bound);
+                if (tooBig && sz > 0)
+                    --sz;
             }
-            if (size > Integer.MAX_VALUE || size < 0)
+            if (sz > Integer.MAX_VALUE || sz < 0)
                 throw new IllegalArgumentException("Range sequence too big");
             else
-                this.size = (int) size;
+                this.size = (int) sz;
         }
     }
 

@@ -12,6 +12,7 @@ public class NumericTypeInfo<T extends Number, L extends ObjectLocation<T>> exte
         super(defaultValue, type);
     }
 
+    @Override
     public boolean isNumeric() {
         return true;
     }
@@ -47,6 +48,7 @@ public class NumericTypeInfo<T extends Number, L extends ObjectLocation<T>> exte
     // This ugly and not typesafe construct eliminates lots of small classes, which add a lot to our static footprint.
     // Such optimizations are ugly but needed for smaller-memory platforms.
     @SuppressWarnings("unchecked")
+    @Override
     public L makeLocation() {
         switch (type) {
             case INT: return (L) IntVariable.make();
@@ -61,6 +63,7 @@ public class NumericTypeInfo<T extends Number, L extends ObjectLocation<T>> exte
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public L makeDefaultConstant() {
         switch (type) {
             case INT: return (L) IntConstant.make(IntVariable.DEFAULT);

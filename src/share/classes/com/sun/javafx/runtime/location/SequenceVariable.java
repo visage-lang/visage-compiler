@@ -231,6 +231,7 @@ public class SequenceVariable<T>
             });
     }
 
+    @Override
     public SequenceVariable<T> bind(boolean lazy, SequenceLocation<T> otherLocation) {
         ensureBindable();
         boundLocation = new BoundLocationInfo(lazy, otherLocation);
@@ -266,6 +267,7 @@ public class SequenceVariable<T>
         replaceValue(typeInfo.emptySequence);
     }
 
+    @Override
     public void update() {
         try {
             if (isUnidirectionallyBound() && !isValid()) {

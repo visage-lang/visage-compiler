@@ -29,8 +29,7 @@ import com.sun.javafx.runtime.TypeInfo;
 
 /**
  * A sequence-valued Location.  Exposes analogues of the mutative methods from Sequence, which modify the sequence
- * value and notify the appropriate change listeners.  If the change listeners implement the SequenceChangeListener
- * interface, the additional methods in SequenceChangeListener for insert, delete, and update will be called.
+ * value and notify the appropriate change listeners.  
  *
  * @author Brian Goetz
  */

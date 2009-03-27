@@ -189,6 +189,7 @@ public abstract class AbstractVariable<
             throw new BindingException("Cannot invalidate non-bound variable");
     }
 
+    @Override
     public boolean isMutable() {
         return !isUnidirectionallyBound();
     }

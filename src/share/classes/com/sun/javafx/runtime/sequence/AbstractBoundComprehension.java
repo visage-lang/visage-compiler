@@ -45,7 +45,7 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
     private final SequenceLocation<T> sequenceLocation;
     protected final boolean useIndex;
     protected final TypeInfo<T, L> inType;
-    private DumbMutableSequence<State<T, L, V>> state;
+    private DumbMutableSequence<State<T, L, V>> dmState;
     private BoundCompositeSequence<V> underlying;
 
     public AbstractBoundComprehension(boolean lazy, TypeInfo<V, ?> typeInfo,
@@ -87,11 +87,11 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     protected Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
-        state = new DumbMutableSequence<State<T, L, V>>(sequence.size());
+        dmState = new DumbMutableSequence<State<T, L, V>>(sequence.size());
         SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(sequence.size());
         State<T, L, V>[] newStates = State.newArray(sequence.size());
         fillInNewValues(sequence, newStates, locationsArray, 0);
-        state.replaceSlice(0, -1, newStates);
+        dmState.replaceSlice(0, -1, newStates);
         underlying = new BoundCompositeSequence<V>(lazy, getElementType(), locationsArray);
         return underlying.getAsSequence();
     }
@@ -140,7 +140,7 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
                     if (netAdded == 0) {
                         int i = startPos;
                         for (Iterator<? extends T> it = Sequences.iterator(newElements); it.hasNext(); i++) {
-                            state.get(i).element.set(it.next());
+                            dmState.get(i).element.set(it.next());
                         }
                     }
                     else {
@@ -148,11 +148,11 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
                         State<T, L, V>[] newStates = State.newArray(newElements.size());
                         fillInNewValues(newElements, newStates, locationsArray, startPos);
                         underlying.replaceSlice(startPos, endPos, locationsArray);
-                        state.replaceSlice(startPos, endPos, newStates);
+                        dmState.replaceSlice(startPos, endPos, newStates);
                         if (useIndex) {
-                            final int length = state.size();
+                            final int length = dmState.size();
                             for (int i = endPos + 1 + netAdded; i < length; i++)
-                                state.get(i).index.set(i);
+                                dmState.get(i).index.set(i);
                         }
                     }
                 }

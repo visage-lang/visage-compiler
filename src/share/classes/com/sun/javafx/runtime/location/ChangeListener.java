@@ -1,7 +1,5 @@
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.TypeInfo;
-
 /**
  * ChangeListener
  *
