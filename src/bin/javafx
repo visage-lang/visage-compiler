@@ -122,6 +122,12 @@ if [ -n "${execute_nativelibpath}" ]; then
     fi
     jargs="$jargs \"-Djava.library.path=${execute_nativelibpath}\""
 fi
+if [ -n "${execute_bootnativelibpath}" ]; then
+    if $cygwin ; then
+        execute_bootnativelibpath=`cygpath --path --windows "$execute_nativelibpath"`
+    fi
+    jargs="$jargs \"-Dsun.boot.library.path=${execute_bootnativelibpath}\""
+fi
 jargs="$jargs -classpath '"$classpath"' com.sun.javafx.runtime.Main"
 if [ -n "$args" ]; then
     jargs="$jargs $args"
