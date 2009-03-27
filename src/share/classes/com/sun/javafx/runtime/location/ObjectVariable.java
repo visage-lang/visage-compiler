@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.Util;
  * @author Brian Goetz
  */
 public class ObjectVariable<T>
-        extends AbstractVariable<T, ObjectLocation<T>, ChangeListener<T>>
+        extends AbstractVariable<T, ObjectLocation<T>>
         implements ObjectLocation<T> {
 
     protected T $value;

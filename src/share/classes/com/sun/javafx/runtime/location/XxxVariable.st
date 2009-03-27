@@ -35,7 +35,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, ChangeListener<$T.boxed$>> implements $T.Location$ {
+public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> implements $T.Location$ {
     public static final $T.prim$ DEFAULT = $V.default$;
 
     protected $T.prim$ \$value = DEFAULT;

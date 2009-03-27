@@ -39,7 +39,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Brian Goetz
  */
 public class SequenceVariable<T>
-        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, ChangeListener<T>>
+        extends AbstractVariable<Sequence<T>, SequenceLocation<T>>
         implements SequenceLocation<T> {
 
     private final TypeInfo<T, ?> typeInfo;
@@ -212,8 +212,9 @@ public class SequenceVariable<T>
         removeChild(listener);
     }
 
+    @Override
     public void addChangeListener(final ChangeListener<Sequence<T>> listener) {
-        addChangeListener(new ChangeListener<T>() {
+        addSequenceChangeListener(new ChangeListener<T>() {
             @Override
             public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 listener.onChange(oldValue, newValue);
