@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceVariable;
 
@@ -388,7 +388,7 @@ public class NumberSequenceTest extends JavaFXTestCase {
             for (int j=0; j<tis.length; j++) {
                 converted[i][j] = BoundSequences.convertNumberSequence(NOT_LAZY, tis[i], tis[j], locs[j]);
                 final int j1 = j;
-                converted[i][j].addChangeListener(new SequenceChangeListener() {
+                converted[i][j].addSequenceChangeListener(new ChangeListener() {
                     public void onChange(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {
                         count.incrementAndGet();
                         assertEquals(1, newElements.size());

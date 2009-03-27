@@ -39,7 +39,7 @@ import com.sun.javafx.runtime.location.*;
  */
 public abstract class AbstractBoundSequence<T> extends AbstractLocation implements SequenceLocation<T> {
     protected final TypeInfo<T, ?> typeInfo;
-    private List<SequenceChangeListener<T>> changeListeners;
+    private List<ChangeListener<T>> changeListeners;
     private Sequence<T> $value;
     protected final boolean lazy;
 
@@ -127,20 +127,20 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     }
 
     public void addChangeListener(final ChangeListener<Sequence<T>> listener) {
-        addChangeListener(new SequenceChangeListener<T>() {
+        addSequenceChangeListener(new ChangeListener<T>() {
             public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 listener.onChange(oldValue, newValue);
             }
         });
     }
 
-    public void addChangeListener(SequenceChangeListener<T> listener) {
+    public void addSequenceChangeListener(ChangeListener<T> listener) {
         if (changeListeners == null)
-            changeListeners = new LinkedList<SequenceChangeListener<T>>();
+            changeListeners = new LinkedList<ChangeListener<T>>();
         changeListeners.add(listener);
     }
 
-    public void removeChangeListener(SequenceChangeListener<T> listener) {
+    public void removeSequenceChangeListener(ChangeListener<T> listener) {
         if (changeListeners != null)
             changeListeners.remove(listener);
     }
@@ -152,7 +152,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
             Sequences.noteShared(newElements);
             Sequences.noteShared(oldValue);
             Sequences.noteShared(newValue);
-            for (SequenceChangeListener<T> listener : changeListeners)
+            for (ChangeListener<T> listener : changeListeners)
                 listener.onChange(startPos, endPos, newElements, oldValue, newValue);
         }
     }

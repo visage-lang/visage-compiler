@@ -1,7 +1,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.NumericTypeInfo;
 
 /**
@@ -22,7 +22,7 @@ class BoundNumericConversion<T extends Number, V extends Number> extends Abstrac
 
         if (!lazy) {
             setInitialValue(convert(sequence.get()));
-            sequence.addChangeListener(new SequenceChangeListener<V>() {
+            sequence.addSequenceChangeListener(new ChangeListener<V>() {
                 public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
                     updateSlice(startPos, endPos, convert(Sequences.upcast(newElements)), convert(newValue));
                 }

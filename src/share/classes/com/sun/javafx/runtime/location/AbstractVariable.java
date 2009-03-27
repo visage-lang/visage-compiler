@@ -33,11 +33,10 @@ import com.sun.javafx.runtime.ErrorHandler;
  */
 public abstract class AbstractVariable<
         T_VALUE,
-        T_LOCATION extends ObjectLocation<T_VALUE>,
-        T_LISTENER extends LocationDependency
+        T_LOCATION extends ObjectLocation<T_VALUE>
         >
         extends AbstractLocation
-        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_LISTENER> {
+        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, ChangeListener<T_VALUE>> {
 
     protected static final byte STATE_INITIAL = 0;
     protected static final byte STATE_UNBOUND_DEFAULT = 1;
@@ -194,11 +193,11 @@ public abstract class AbstractVariable<
         return !isUnidirectionallyBound();
     }
 
-    public void addChangeListener(T_LISTENER listener) {
+    public void addChangeListener(ChangeListener<T_VALUE> listener) {
         addChild(listener);
     }
 
-    public void removeChangeListener(T_LISTENER listener) {
+    public void removeChangeListener(ChangeListener<T_VALUE> listener) {
         removeChild(listener);
     }
 

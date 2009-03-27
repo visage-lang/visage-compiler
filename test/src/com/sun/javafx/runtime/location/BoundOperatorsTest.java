@@ -110,7 +110,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                                                                          }
                                                                      });
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        ifLoc.addChangeListener(hl);
+        ifLoc.addSequenceChangeListener(hl);
         assertEqualsAndClear(hl);
         assertEquals(ifLoc.getAsSequence(), 1, 2, 3);
         assertEqualsLazy(lazyIfLoc, 1, 2, 3);

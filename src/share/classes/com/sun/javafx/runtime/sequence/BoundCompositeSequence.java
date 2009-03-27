@@ -26,7 +26,7 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.InvalidationListener;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -48,7 +48,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 
         public void addListener(IndexListener<T> listener) {
             this.listener = listener;
-            location.addChangeListener(this.listener);
+            location.addSequenceChangeListener(this.listener);
         }
 
         public void addListener(InvalidationListener listener) {
@@ -56,7 +56,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         }
 
         public void removeListener() {
-            location.removeChangeListener(this.listener);
+            location.removeSequenceChangeListener(this.listener);
             this.listener = null;
         }
     }
@@ -161,7 +161,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 //        Assert.assertEquals(offset, value().size());
     }
 
-    private static abstract class IndexListener<T> extends SequenceChangeListener<T> {
+    private static abstract class IndexListener<T> extends ChangeListener<T> {
         public abstract void setIndex(int index);
     }
 

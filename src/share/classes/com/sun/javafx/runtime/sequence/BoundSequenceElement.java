@@ -47,10 +47,10 @@ class BoundSequenceElement<T> extends ObjectVariable<T> implements ObjectLocatio
                 pushValue(BoundSequenceElement.this.seq.getAsSequence().get(lastIndex));
             }
         }, index);
-        seq.addChangeListener(new MySequenceListener());
+        seq.addSequenceChangeListener(new MySequenceListener());
     }
 
-    private class MySequenceListener extends SequenceChangeListener<T> {
+    private class MySequenceListener extends ChangeListener<T> {
         public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
             int deltaSize = (endPos-startPos+1) - Sequences.size(newElements);
             if (deltaSize != 0) {

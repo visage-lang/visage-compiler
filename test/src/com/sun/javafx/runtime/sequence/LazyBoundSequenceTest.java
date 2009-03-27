@@ -16,7 +16,7 @@ public class LazyBoundSequenceTest extends JavaFXTestCase {
         SequenceLocation<Integer> i = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         SequenceLocation<Integer> ri = BoundSequences.reverse(true, i);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        ri.addChangeListener(hl);
+        ri.addSequenceChangeListener(hl);
         assertEqualsAndClear(hl);
         assertEqualsLazy(ri, 3, 2, 1);
         assertEqualsAndClear(hl, "[0, -1] => [ 3, 2, 1 ]");

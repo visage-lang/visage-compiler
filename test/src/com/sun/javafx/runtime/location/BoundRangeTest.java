@@ -41,7 +41,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         SequenceLocation<Integer> range = BoundSequences.range(NOT_LAZY, a, b);
 
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        range.addChangeListener(hl);
+        range.addSequenceChangeListener(hl);
 
         assertEquals(range, 10, 11, 12, 13, 14, 15);
         assertEquals(0, range.get().getDepth());
@@ -97,7 +97,7 @@ public class BoundRangeTest extends JavaFXTestCase {
        
         
         SequenceLocation<Integer> stepRange = BoundSequences.range(NOT_LAZY, c, d, s);
-        stepRange.addChangeListener(hls);
+        stepRange.addSequenceChangeListener(hls);
         
         assertEquals(stepRange, 10, 12, 14);
 //        assertEquals(0, stepRange.get().getDepth());
@@ -156,7 +156,7 @@ public class BoundRangeTest extends JavaFXTestCase {
        
         
         SequenceLocation<Integer> exclusiveRange = BoundSequences.rangeExclusive(NOT_LAZY, e, f, ns );
-        exclusiveRange.addChangeListener(hle);
+        exclusiveRange.addSequenceChangeListener(hle);
         
         assertEquals(exclusiveRange, 20, 17, 14, 11);
 //        assertEquals(0, exclusiveRange.get().getDepth());
@@ -229,7 +229,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         SequenceLocation<Float> range = BoundSequences.range(NOT_LAZY, a, b);
                 
         HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
-        range.addChangeListener(hl);
+        range.addSequenceChangeListener(hl);
 
         assertEquals(range, 10.2f, 11.2f, 12.2f, 13.2f, 14.2f, 15.2f);
 //        assertEquals(0, range.get().getDepth());
@@ -299,7 +299,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         SequenceLocation<Float> range = BoundSequences.rangeExclusive(NOT_LAZY, a, b);
                 
         HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
-        range.addChangeListener(hl);
+        range.addSequenceChangeListener(hl);
         
         assertEquals(range, 10.2f, 11.2f, 12.2f, 13.2f, 14.2f);
 //        assertEquals(0, range.get().getDepth());
@@ -329,7 +329,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         SequenceLocation<Float> range = BoundSequences.rangeExclusive(NOT_LAZY, a, b, s);
         
         HistoryReplaceListener<Float> hl = new HistoryReplaceListener<Float>();
-        range.addChangeListener(hl);
+        range.addSequenceChangeListener(hl);
         
         assertEquals(range, 0.0f, 2.0f);
 //        assertEquals(0, range.get().getDepth());

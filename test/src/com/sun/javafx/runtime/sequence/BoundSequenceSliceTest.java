@@ -48,7 +48,7 @@ public class BoundSequenceSliceTest extends JavaFXTestCase {
         SequenceLocation<Integer> slice = BoundSequences.slice(NOT_LAZY, seq.getElementType(), seq, lower, upper);
         
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        slice.addChangeListener(hl);
+        slice.addSequenceChangeListener(hl);
 
         assertEquals(slice, 0, 3, 6, 9, 12);
 //        assertEquals(1, slice.get().getDepth());
@@ -141,7 +141,7 @@ public class BoundSequenceSliceTest extends JavaFXTestCase {
         SequenceLocation<Integer> slice = BoundSequences.slice(NOT_LAZY, seq.getElementType(), seq, lower, upper);
         
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        slice.addChangeListener(hl);
+        slice.addSequenceChangeListener(hl);
         
         assertEquals(slice, 3, 6, 9, 12);
 //        assertEquals(1, slice.get().getDepth());

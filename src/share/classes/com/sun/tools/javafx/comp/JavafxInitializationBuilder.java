@@ -58,9 +58,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final JavafxOptimizationStatistics optStat;
     
     private final Name addChangeListenerName;
+    private final Name addSequenceChangeListenerName;
     private final Name locationInitializeName;
     private final Name changeListenerInterfaceName;
-    private final Name sequenceChangeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     private final Name onChangeArgName1, onChangeArgName2;
     Name outerAccessorName;
@@ -86,9 +86,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         optStat = JavafxOptimizationStatistics.instance(context);
         
         addChangeListenerName = names.fromString("addChangeListener");
+        addSequenceChangeListenerName = names.fromString("addSequenceChangeListener");
         locationInitializeName = names.fromString("initialize");
         changeListenerInterfaceName = names.fromString(locationPackageNameString + ".ChangeListener");
-        sequenceChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".SequenceChangeListener");
         onChangeArgName1 = names.fromString("$oldValue");
         onChangeArgName2 = names.fromString("$newValue");
         outerAccessorName = names.fromString("accessOuter$");
@@ -942,11 +942,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         JCExpression changeListener;
         List<JCExpression> emptyTypeArgs = List.nil();
+        Name addListenerName;
         
         if (types.isSequence(info.getRealType())) {
+            addListenerName = addSequenceChangeListenerName;
             ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
-//            changeListener = make.at(diagPos).Identifier(sequenceReplaceListenerInterfaceName);
-            changeListener = makeIdentifier(diagPos, sequenceChangeListenerInterfaceName);
+            changeListener = makeIdentifier(diagPos, changeListenerInterfaceName);
             changeListener = make.TypeApply(changeListener, List.of(makeTypeTree( diagPos,info.getElementType())));
             Type seqValType = types.sequenceType(info.getElementType(), false);
             List<JCVariableDecl> onChangeArgs = List.of(
@@ -955,10 +956,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 makeParam(diagPos, info.getRealType(), onReplace.getNewElements(), "$newElements$"),
                 makeParam(diagPos, seqValType, onReplace.getOldValue(), "$oldValue$"),
                 makeParam(diagPos, seqValType, null, "$newValue$"));
-   //         members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onReplace", onChangeArgs, TypeTags.VOID));
             members.append(makeChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), setUpStmts, "onChange", onChangeArgs, TypeTags.VOID));
         }
         else {
+            addListenerName = addChangeListenerName;
             changeListener = makeIdentifier(diagPos, changeListenerInterfaceName);
             changeListener = make.at(diagPos).TypeApply(changeListener,
                                                         List.<JCExpression>of(makeTypeTree( diagPos, types.boxedTypeOrType(info.getRealType()))));
@@ -981,7 +982,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // on replace is on local variable
             varRef = make.at(diagPos).Ident(info.getName());
         }
-        JCFieldAccess tmpSelect = make.at(diagPos).Select(varRef, addChangeListenerName);
+        JCFieldAccess tmpSelect = make.at(diagPos).Select(varRef, addListenerName);
 
         List<JCExpression> args = List.<JCExpression>of(anonymousChangeListener);
         return make.at(diagPos).Exec(make.at(diagPos).Apply(emptyTypeArgs, tmpSelect, args));

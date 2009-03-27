@@ -26,7 +26,6 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.location.IntLocation;
 import com.sun.javafx.runtime.location.ChangeListener;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -96,8 +95,9 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
                 upperLoc.addInvalidationListener(new InvalidateMeListener());
         }
         else {
-            sequenceLoc.addChangeListener(new SequenceChangeListener<T>() {
+            sequenceLoc.addSequenceChangeListener(new ChangeListener<T>() {
 
+                @Override
                 public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                     computeBounds(true, true);
 
@@ -107,6 +107,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
             });
             lowerLoc.addChangeListener(new ChangeListener<Integer>() {
 
+                @Override
                 public void onChange(int oldValue, int newValue) {
                     assert oldValue != newValue;
                     int oldSize = size;
@@ -130,6 +131,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
             if (upperLoc != null) {
                 upperLoc.addChangeListener(new ChangeListener<Integer>() {
 
+                    @Override
                     public void onChange(int oldValue, int newValue) {
                         assert oldValue != newValue;
                         int oldSize = size;
