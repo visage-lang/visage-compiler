@@ -109,7 +109,7 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
             stepLoc.addInvalidationListener(new InvalidateMeListener());
             return;
         }
-        lowerLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+        lowerLoc.addChangeListener(new ChangeListener<Float>() {
             @Override
             public void onChange(float oldValue, float newValue) {
                 
@@ -143,7 +143,7 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
                 }
             }
         });
-        upperLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+        upperLoc.addChangeListener(new ChangeListener<Float>() {
             @Override
             public void onChange(float oldValue, float newValue) {
                 
@@ -166,7 +166,7 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
             }
         });
 
-        stepLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+        stepLoc.addChangeListener(new ChangeListener<Float>() {
             @Override
             public void onChange(float oldValue, float newValue) {
                 

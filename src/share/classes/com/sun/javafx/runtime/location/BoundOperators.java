@@ -294,7 +294,7 @@ public class BoundOperators {
                                                                 final ObjectLocation<T> thenLoc,
                                                                 final ObjectLocation<T> elseLoc) {
         final L loc = typeInfo.makeLocation();
-        PrimitiveChangeListener<Boolean> listener = new PrimitiveChangeListener<Boolean>() {
+        ChangeListener<Boolean> listener = new ChangeListener<Boolean>() {
             @Override
             public void onChange(boolean oldValue, boolean newValue) {
                 loc.clearDynamicDependencies();

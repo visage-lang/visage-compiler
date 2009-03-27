@@ -3,11 +3,11 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.runtime.TypeInfo;
 
 /**
- * PrimitiveChangeListener
+ * ChangeListener
  *
  * @author Brian Goetz
  */
-public class PrimitiveChangeListener<T> extends AbstractLocationDependency {
+public class ChangeListener<T> extends AbstractLocationDependency {
     public void onChange(byte oldValue, byte newValue) {
         throw new UnsupportedOperationException();
     }
@@ -49,35 +49,35 @@ public class PrimitiveChangeListener<T> extends AbstractLocationDependency {
             public void onChange(T oldValue, T newValue) {
                 switch (typeInfo.type) {
                     case BYTE:
-                        PrimitiveChangeListener.this.onChange((Byte) oldValue, (Byte) newValue);
+                        ChangeListener.this.onChange((Byte) oldValue, (Byte) newValue);
                         break;
 
                     case SHORT:
-                        PrimitiveChangeListener.this.onChange((Short) oldValue, (Short) newValue);
+                        ChangeListener.this.onChange((Short) oldValue, (Short) newValue);
                         break;
 
                     case INT:
-                        PrimitiveChangeListener.this.onChange((Integer) oldValue, (Integer) newValue);
+                        ChangeListener.this.onChange((Integer) oldValue, (Integer) newValue);
                         break;
 
                     case LONG:
-                        PrimitiveChangeListener.this.onChange((Long) oldValue, (Long) newValue);
+                        ChangeListener.this.onChange((Long) oldValue, (Long) newValue);
                         break;
 
                     case FLOAT:
-                        PrimitiveChangeListener.this.onChange((Float) oldValue, (Float) newValue);
+                        ChangeListener.this.onChange((Float) oldValue, (Float) newValue);
                         break;
 
                     case DOUBLE:
-                        PrimitiveChangeListener.this.onChange((Double) oldValue, (Double) newValue);
+                        ChangeListener.this.onChange((Double) oldValue, (Double) newValue);
                         break;
 
                     case BOOLEAN:
-                        PrimitiveChangeListener.this.onChange((Boolean) oldValue, (Boolean) newValue);
+                        ChangeListener.this.onChange((Boolean) oldValue, (Boolean) newValue);
                         break;
 
                     case CHAR:
-                        PrimitiveChangeListener.this.onChange((Character) oldValue, (Character) newValue);
+                        ChangeListener.this.onChange((Character) oldValue, (Character) newValue);
                         break;
 
                     default: throw new UnsupportedOperationException();
@@ -86,8 +86,8 @@ public class PrimitiveChangeListener<T> extends AbstractLocationDependency {
         };
     }
 
-    public static<T> PrimitiveChangeListener<T> make(final ObjectChangeListener<T> listener) {
-        return new PrimitiveChangeListener<T>() {
+    public static<T> ChangeListener<T> make(final ObjectChangeListener<T> listener) {
+        return new ChangeListener<T>() {
             public void onChange(byte oldValue, byte newValue) {
                 listener.onChange((T) (Byte) oldValue, (T) (Byte) newValue);
             }
