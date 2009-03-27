@@ -53,7 +53,7 @@ public class JavafxDefs {
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
-    public static final String scriptBindingExpressionsString = "com.sun.javafx.runtime.location.ScriptBindingExpressions";
+    public static final String scriptBindingExpressionsString = "com.sun.javafx.runtime.location.SBECL";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String fxMixinString = "com.sun.javafx.runtime.FXMixin";

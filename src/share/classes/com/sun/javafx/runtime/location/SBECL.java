@@ -28,14 +28,14 @@ package com.sun.javafx.runtime.location;
  *
  * @author Robert Field
  */
-public abstract class ScriptBindingExpressions extends AbstractBindingExpression {
+public abstract class SBECL extends AbstractBindingExpression {
     protected final int id;
     protected final Object arg$0;
     protected final Object arg$1;
     protected final Object[] moreArgs;
     protected final int dependents;
 
-    public ScriptBindingExpressions(int id, Object arg0, Object arg1, Object[] moreArgs, int dependents) {
+    public SBECL(int id, Object arg0, Object arg1, Object[] moreArgs, int dependents) {
         this.id = id;
         this.arg$0 = arg0;
         this.arg$1 = arg1;

@@ -26,10 +26,6 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
- * Common base class for all binding expressions, regardless of type.  Binding expressions override compute(), and
- * must call one of the pushValue() methods as its last operation.  It must call the appropriate pushValue method for
- * the Location to which this binding expression is attached.
- *
  * @author Brian Goetz
  */
 public interface BindingExpression extends LocationDependency {
@@ -54,7 +50,7 @@ public interface BindingExpression extends LocationDependency {
 
     public<V> void pushValue(V x);
 
-    public abstract void compute();
+    public void compute();
 
     public Location getLocation();
 

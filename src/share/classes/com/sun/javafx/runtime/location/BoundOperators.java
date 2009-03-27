@@ -377,7 +377,7 @@ public class BoundOperators {
     @SuppressWarnings("unchecked")
     public static<T, L extends ObjectLocation<T>> L makeBoundSelect(final TypeInfo<T, L> typeInfo,
                                                                     boolean lazy,
-                                                                    final ScriptBindingExpressions selector) {
+                                                                    final SBECL selector) {
         final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
         final L loc = typeInfo.makeLocation();
         final L defaultConstant = typeInfo.makeDefaultConstant();
@@ -389,7 +389,7 @@ public class BoundOperators {
 
     public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
                                                                     boolean lazy,
-                                                                    final ScriptBindingExpressions selector) {
+                                                                    final SBECL selector) {
         final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
         SequenceLocation<U> defaultValue = SequenceConstant.<U>make(typeInfo, typeInfo.emptySequence);
         return makeIndirectSequenceLocation(typeInfo, lazy, makeSelectBindingExpression(receiver, selector, defaultValue), receiver);
