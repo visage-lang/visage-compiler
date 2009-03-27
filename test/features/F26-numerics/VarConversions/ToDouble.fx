@@ -8,7 +8,6 @@
  */
 
 
-import java.util.Date;
 import javafx.fxunit.FXTestCase;
 
 /* --------------------------------------------------------------
@@ -26,7 +25,6 @@ public def nn : Number = 3.1415926535;
 public def dduu : Duration = 600s;
 public def bboo : Boolean = true;
 public def sstt : String = "Hello, Java FX!";
-public def jj : Date = new Date();
 public def nul = null;
 public def iSeq : Integer[] = [ 1, 2, 3 ];
 public def fSeq : Float[] = [ 1.11, 2.22, 3.33 ];
@@ -37,48 +35,45 @@ var d : Double;
 public class ToDouble extends FXTestCase {
 
     function testToDouble() {
-        var temp:Double;
         d = bb;
         assertEquals127();
         d = 127 as Byte;
         assertEquals127();
 
         d = cc;
-        assertEquals(temp = 65535.0, d, 0);
+        assertEquals(65535.0 as Double, d, 0);
         d = 127 as Character;
         assertEquals127();
 
         d = ii;
-        assertEquals(temp = 2147483647.0, d, 0);
+        assertEquals(2147483647.0 as Double, d, 0);
         d = 127 as Integer;
         assertEquals127();
 
         d = ll;
-        assertEquals(temp = 9223372036854775807.0, d, 0);
+        assertEquals(9223372036854775807.0 as Double, d, 0);
         d = 127 as Long;
         assertEquals127();
 
         d = ss;
-        assertEquals(temp = 32767.0, d, 0);
+        assertEquals(32767.0 as Double, d, 0);
         d = 127 as Short;
         assertEquals127();
 
         d = ff;
-        assertEquals(temp = 3.4028234663852886E38, d, 0);
+        assertEquals(3.4028234663852886E38, d, 0);
         d = 3.4028234663852886E38 as Float;
-        assertEquals(temp = 3.4028234663852886E38, d, 0);
+        assertEquals(3.4028234663852886E38, d, 0);
 
         d = dd;
-        assertEquals(temp = 1.7976931348623157E308, d, 0);
-        //d = 1.7976931348623157E308 as Double; //doesn't work because cast doesn't preserve the expected type
-        //assertEquals(1.7976931348623157E308, d, 0);
+        assertEquals(1.7976931348623157E308, d, 0);
+        d = 1.7976931348623157E308 as Double;
+        assertEquals(1.7976931348623157E308, d, 0);
         d = 1.7976931348623157E308;
-        assertEquals(temp = 1.7976931348623157E308, d, 0);
-        d = 1.7976931348623157E308;
-        assertEquals(temp = 1.7976931348623157E308, d, 0);
+        assertEquals(1.7976931348623157E308, d, 0);
 
         d = nn;
-        assertEquals(3.1415926535 as Number, d, 0);
+        assertEquals(3.1415926535 as Double, d, 0);
         d = 127.0 as Number;
         assertEquals127();
 
@@ -86,7 +81,6 @@ public class ToDouble extends FXTestCase {
         d = dduu;
         d = bboo;
         d = sstt;
-        d = jj;
         d = nul;
         d = iSeq;
         d = fSeq;
@@ -105,7 +99,6 @@ public class ToDouble extends FXTestCase {
     }
 
     function assertEquals127() {
-        var temp:Double;
-        assertEquals(temp = 127.0, d, 0);
+        assertEquals(127.0 as Double, d, 0);
     }
 }

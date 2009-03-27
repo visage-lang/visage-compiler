@@ -7,7 +7,6 @@
  * @run
  */
 
-import java.util.Date;
 import javafx.fxunit.FXTestCase;
 
 /* --------------------------------------------------------------
@@ -25,7 +24,6 @@ public def nn : Number = 3.1415926535;
 public def dduu : Duration = 600s;
 public def bboo : Boolean = true;
 public def sstt : String = "Hello, Java FX!";
-public def jj : Date = new Date();
 public def nul = null;
 public def iSeq : Integer[] = [ 1, 2, 3 ];
 public def fSeq : Float[] = [ 1.11, 2.22, 3.33 ];
