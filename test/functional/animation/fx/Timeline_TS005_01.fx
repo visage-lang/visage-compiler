@@ -1,8 +1,8 @@
 /*
  * Timeline_TS005_01.fx
  * 
- * @test
- * @run
+ * @ test  disabled: see RT-3743 
+ * @ run  disabled
  */
 
 /**
