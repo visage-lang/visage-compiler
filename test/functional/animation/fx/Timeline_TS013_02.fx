@@ -15,8 +15,6 @@ import java.lang.System;
 import java.lang.Thread;
 import java.lang.AssertionError;
 import java.lang.Throwable;
-import javax.swing.Timer;
-import java.awt.event.*;
 
 var k: KeyFrame = KeyFrame {};
 
