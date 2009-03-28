@@ -23,18 +23,33 @@
 
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
+
 /**
  * The base class for the per-script class which combines all binding expressions
+ * and change listeners
  *
  * @author Robert Field
  */
-public abstract class SBECL extends AbstractBindingExpression {
+public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpression {
     protected final int id;
     protected final Object arg$0;
     protected final Object arg$1;
     protected final Object[] moreArgs;
     protected final int dependents;
+    private Location location;
 
+    private static final Object CHANGE_LISTENER_MARKER = "CHANGE_LISTENER_MARKER";
+
+    /**
+     * BindingExpression constructor
+     * @param id
+     * @param arg0
+     * @param arg1
+     * @param moreArgs
+     * @param dependents
+     */
     public SBECL(int id, Object arg0, Object arg1, Object[] moreArgs, int dependents) {
         this.id = id;
         this.arg$0 = arg0;
@@ -43,9 +58,35 @@ public abstract class SBECL extends AbstractBindingExpression {
         this.dependents = dependents;
     }
 
+    /**
+     * ChangeListener constructor
+     * @param id
+     */
+    public SBECL(int id) {
+        this.id = id;
+        this.arg$0 = CHANGE_LISTENER_MARKER;
+        this.arg$1 = CHANGE_LISTENER_MARKER;
+        this.moreArgs = null;
+        this.dependents = 0;
+    }
+
     @Override
+    public int getDependencyKind() {
+        if (arg$0 == CHANGE_LISTENER_MARKER) {
+            return AbstractLocation.CHILD_KIND_TRIGGER;
+        } else {
+            return AbstractLocation.CHILD_KIND_BINDING_EXPRESSION;
+        }
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
     public void setLocation(Location location) {
-        super.setLocation(location);
+        if (this.location != null)
+            throw new IllegalStateException("Cannot reuse binding expressions");
+        this.location = location;
         if (arg$0 != null && (dependents & 0x1) != 0)  {
             location.addDependency((Location)arg$0);
         }
@@ -64,4 +105,30 @@ public abstract class SBECL extends AbstractBindingExpression {
     public Object arg0() {
         return arg$0;
     }
+
+
+    /************* cloned from AbstractBindingExpression **************/
+
+    public void pushValue(int x) { ((IntVariable) location).replaceValue(x); }
+
+    public void pushValue(long x) { ((LongVariable) location).replaceValue(x); }
+
+    public void pushValue(short x) { ((ShortVariable) location).replaceValue(x); }
+
+    public void pushValue(byte x) { ((ByteVariable) location).replaceValue(x); }
+
+    public void pushValue(char x) { ((CharVariable) location).replaceValue(x); }
+
+    public void pushValue(boolean x) { ((BooleanVariable) location).replaceValue(x); }
+
+    public void pushValue(float x) { ((FloatVariable) location).replaceValue(x); }
+
+    public void pushValue(double x) { ((DoubleVariable) location).replaceValue(x); }
+
+    public<V> void pushValue(Sequence<? extends V> x) { ((SequenceVariable<V>) location).replaceValue(Sequences.upcast(x)); }
+
+    public<V> void pushValue(V x) { ((ObjectVariable<V>) location).replaceValue(x); }
+
+    public abstract void compute();
+
 }
