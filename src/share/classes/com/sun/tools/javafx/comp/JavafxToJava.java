@@ -1432,14 +1432,9 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 // It is a member variable
                 if (instanceName == null) {
                     varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
-                /*
-                } else if (!types.isMixin(vsym.owner) && !requiresLocation(vsym) &&
-                // TODO JFXC-2836 - figure out why requiresLocation isn't sufficient for external setting.
-                           vsym.owner == currentClass.sym) { 
-                    // Direct access.
+                } else if (allowDirectAccess(vsym, true)) {
                     JCExpression tc = make.at(diagPos).Ident(instanceName); 
                     varRef = make.at(diagPos).Select(tc, attributeFieldName(vsym));
-                */
                 } else {
                     JCExpression tc = make.at(diagPos).Ident(instanceName);
                     final Name setter = attributeSetterName(vsym);
@@ -3666,6 +3661,23 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     JCBlock translatedOnReplaceBody(JFXOnReplace onr) {
         return (onr == null)?  null : translateBlockExpressionToBlock(onr.getBody());
         }
+        
+    boolean allowDirectAccess(VarSymbol vsym, boolean isSet) {
+        boolean isMixinVar = types.isMixin(vsym.owner);
+        if (isMixinVar) return false;
+        
+        boolean inSameClass = attrEnv.enclClass.sym == vsym.owner;
+        boolean requiresLocation = requiresLocation(vsym);
+
+        if (isSet) {
+            return false;
+        } else {
+            if (requiresLocation) return true;
+            if (!inSameClass) return false;
+        }
+        
+        return true;
+    }
 
     JCExpression convertVariableReference(DiagnosticPosition diagPos,
                                                  JCExpression varRef, Symbol sym,
@@ -3688,11 +3700,8 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 if (staticReference) {
                     // a script-level (static) variable, direct access with prefix
                     expr = switchName(diagPos, varRef, attributeFieldName(vsym));
-                /* JFXC-2836
-                } else if (!types.isMixin(vsym.owner) && !requiresLocation(vsym)) {
-                    // Direct access.
+                } else if (allowDirectAccess(vsym, false)) {
                     expr = switchName(diagPos, varRef, attributeFieldName(vsym));
-                */
                 } else {
                     // an instance variable, use get$
                     JCExpression accessFunc = switchName(diagPos, varRef, attributeGetterName(vsym));

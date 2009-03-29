@@ -372,7 +372,8 @@ class JavafxAnalyzeClass {
             boolean needsProxy = false;
             if (oldAttrInfo != null) {
                 boolean newIsMixin = (var.owner.flags() & JavafxFlags.MIXIN) != 0;
-                needsProxy = newIsMixin &&
+                
+                needsProxy = (newIsMixin || oldAttrInfo instanceof TranslatedOverrideClassVarInfo) && 
                              !oldAttrInfo.isPrivateAccess() &&
                              oldAttrInfo.getSymbol() != var &&
                              oldAttrInfo.getSymbol().type == var.type;
