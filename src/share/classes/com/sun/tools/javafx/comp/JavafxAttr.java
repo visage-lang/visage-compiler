@@ -957,6 +957,9 @@ public class JavafxAttr implements JavafxVisitor {
         
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
+            if (inBindContext) {
+                log.error(onReplace.pos(), MsgSym.MESSAGE_ON_REPLACE_IN_BIND_NOT_ALLOWED);
+            }
             JFXVar oldValue = onReplace.getOldValue();
             if (oldValue != null && oldValue.type == null) {
                     oldValue.type =  tree.type;

@@ -282,6 +282,7 @@ public class MsgSym {
     public static final String MESSAGE_TOO_MANY_PARAMETERS = "javafx.too.many.parameters";
     public static final String MESSAGE_BIND_TOO_COMPLEX = "javafx.bind.too.complex";
     public static final String MESSAGE_CATCH_WITHIN_EXPRESSION = "catch.within.expression";
+    public static final String MESSAGE_ON_REPLACE_IN_BIND_NOT_ALLOWED = "on.replace.in.bind.not.allowed";
 
     // kindname
     public static final String KINDNAME = "kindname";
