@@ -65,6 +65,8 @@ while [ $# -gt 0 ] ; do
         -cp | -classpath) shift; classpath="$classpath:$1";;
         -version) args="com.sun.javafx.runtime.LauncherHelper -version"; break;;
         -fullversion) args="com.sun.javafx.runtime.LauncherHelper -fullversion"; break;;
+        -X) args="com.sun.javafx.runtime.LauncherHelper -helpx"; break;;
+        -help | -\? ) args="com.sun.javafx.runtime.LauncherHelper -help"; break;;
         -profile) shift; profile="$1";;
         -*) if [ "x$seen_main" = "x" ]; then
                jargs="$jargs \"$1\""

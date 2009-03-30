@@ -20,10 +20,8 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-
 package com.sun.javafx.runtime;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.jar.Attributes;
@@ -39,11 +37,15 @@ import java.util.jar.Manifest;
  *
  * @author A. Sundararajan
  */
-
 public class Main {
+
+    private static String getErrorMessage(String key, Object... args) {
+        return LauncherHelper.getLocalizedMessage("javafx.launcher.err.main." + key, args);
+    }
+
     public static void main(String[] args) {
         if (args.length == 0) {
-            errorExit("Missing main class!");
+            getErrorMessage("notfound", "");
         }
 
         String[] argsToMain = new String[args.length - 1];
@@ -59,19 +61,18 @@ public class Main {
             }
             // load the user's JavaFX class but do *not* initialize!
             mainClass = Class.forName(mclassname, false,
-                Thread.currentThread().getContextClassLoader());
+                    Thread.currentThread().getContextClassLoader());
         } catch (ClassNotFoundException cnfe) {
-            errorExit("Class not found: " + mclassname, cnfe);
+            errorExit(getErrorMessage("notfound", mclassname), cnfe);
         } catch (IOException ioe) {
-            errorExit("Failed to load the Main-Class manifest attribute from " +
-                    mclassname, ioe);
+            errorExit(getErrorMessage("loadfailed", mclassname), ioe);
         }
 
         // if it is a JavaFX class, call Entry.start() 
         // else just execute "main" method.
         if (FXObject.class.isAssignableFrom(mainClass)) {
             try {
-                Entry.start(mainClass, argsToMain); 
+                Entry.start(mainClass, argsToMain);
             } catch (Throwable th) {
                 th.printStackTrace();
             }
@@ -80,12 +81,12 @@ public class Main {
             try {
                 mainMethod = mainClass.getMethod("main", String[].class);
             } catch (Exception exp) {
-                errorExit(mainClass + " does not have main method");
+                errorExit(getErrorMessage("nomethod", mainClass));
             }
             try {
-                mainMethod.invoke(null, (Object)argsToMain);
+                mainMethod.invoke(null, (Object) argsToMain);
             } catch (Exception exp) {
-                exp.printStackTrace();
+                errorExit("", exp);
             }
         }
     }
@@ -102,7 +103,7 @@ public class Main {
         System.exit(1);
     }
 
-      static String getMainClass(String jarfilename) throws IOException {
+    static String getMainClass(String jarfilename) throws IOException {
         JarFile jf = new JarFile(jarfilename);
         try {
             Manifest mf = jf.getManifest();
@@ -115,7 +116,9 @@ public class Main {
                     }
                 }
             }
-            throw new IOException("Main-Class not found in " + jarfilename);
+            String msg = getErrorMessage("notfound", getErrorMessage("reason", jarfilename));
+            errorExit(msg, new IOException("Main-Class not found in " + jarfilename));
+            return null;
         } finally {
             if (jf != null) {
                 try {

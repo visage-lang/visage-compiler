@@ -214,6 +214,15 @@ int Configuration::parseArgs(int argc, char** argv) {
         } else if (islauncher && 0 == strcmp("-fullversion", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -fullversion";
             return (EXIT_SUCCESS);
+        } else if (islauncher && 0 == strcmp("-help", arg)) {
+            fxargs = "com.sun.javafx.runtime.LauncherHelper -help";
+            return (EXIT_SUCCESS);
+        } else if (islauncher && 0 == strcmp("-?", arg)) {
+            fxargs = "com.sun.javafx.runtime.LauncherHelper -help";
+            return (EXIT_SUCCESS);
+        } else if (islauncher && 0 == strcmp("-X", arg)) {
+            fxargs = "com.sun.javafx.runtime.LauncherHelper -helpx";
+            return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strncmp("-", arg, 1)) {
             vmargs += " \"";
             vmargs += arg;

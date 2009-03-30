@@ -60,6 +60,20 @@ public class ArgumentsTest  extends TestCase {
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
+        // Call the launcher to test -X
+        cmdsList.clear();
+        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add("-X");
+        output = Utils.doExec(cmdsList);
+        assertNotNull(output);
+
+        // Call the launcher to test -?
+        cmdsList.clear();
+        cmdsList.add(Utils.javafxExe.toString());
+        cmdsList.add("-?");
+        output = Utils.doExec(cmdsList);
+        assertNotNull(output);
+
         // Call the javafxc  to test -help
         cmdsList.clear();
         cmdsList.add(Utils.javafxcExe.toString());
@@ -67,7 +81,7 @@ public class ArgumentsTest  extends TestCase {
         output = Utils.doExec(cmdsList);
         assertNotNull(output);
 
-        // Call the javafxc  to test -help
+        // Call the javafxdoc  to test -help
         cmdsList.clear();
         cmdsList.add(Utils.javafxdocExe.toString());
         cmdsList.add("-help");
