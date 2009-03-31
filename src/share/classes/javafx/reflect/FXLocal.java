@@ -709,8 +709,12 @@ public class FXLocal {
                     ((DoubleVariable) loc).setAsDoubleFromLiteral(((FXDoubleValue) value).doubleValue());
                     return;
                 }
+                if (loc instanceof SequenceVariable) {
+                    ((SequenceVariable) loc).setAsSequenceFromLiteral(((SequenceValue) value).asObject());
+                    return;
+                }
                 if (loc instanceof AbstractVariable) {
-                    ((AbstractVariable) loc).setFromLiteral(((ObjectValue) value).asObject());
+                    ((AbstractVariable) loc).setFromLiteral(((Value) value).asObject());
                     return;
                 }
             }
