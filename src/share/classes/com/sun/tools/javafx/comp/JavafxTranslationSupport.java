@@ -116,17 +116,6 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
-    protected Type boxedElementType(Type seqType) {
-        Type elemType = seqType.getTypeArguments().head;
-        if (elemType instanceof CapturedType)
-            elemType = ((CapturedType) elemType).wildcard;
-        if (elemType instanceof WildcardType)
-            elemType = ((WildcardType) elemType).type;
-        if (elemType == null)
-            return syms.javafx_AnyType;
-        return elemType;
-    }
-
     /**
      * Special handling for Strings and Durations. If a value assigned to one of these is null,
      * the default value for the type must be substituted.

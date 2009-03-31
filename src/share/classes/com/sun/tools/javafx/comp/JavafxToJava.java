@@ -2178,7 +2178,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 tree.pos(),
                 this,
                 tree.getItems(),
-                boxedElementType(tree.type)
+                types.boxedElementType(tree.type)
         ).doit();
     }
 
@@ -2213,7 +2213,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         if (types.isSequence(tree.type)) {
-            Type elemType = boxedElementType(tree.type);
+            Type elemType = types.boxedElementType(tree.type);
             JCExpression expr = accessEmptySequence(tree.pos(), elemType);
             result =  castFromObject(expr, syms.javafx_SequenceTypeErasure);
         }
@@ -2278,7 +2278,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         if (types.isArray(elemType) || types.isSequence(elemType))
             elem = convertTranslated(elem, diagPos, elemType, tree.getSequence().type);
         else
-            elem = convertTranslated(elem, diagPos, elemType, boxedElementType(tree.getSequence().type));
+            elem = convertTranslated(elem, diagPos, elemType, types.boxedElementType(tree.getSequence().type));
         if (tree.getPosition() == null) {
             result = callStatement(diagPos, seqLoc, "insert", elem);
         } else {
@@ -2814,7 +2814,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
 
             // Compute the element type from the sequence type
             assert tree.type.getTypeArguments().size() == 1;
-            Type elemType = boxedElementType(tree.type);
+            Type elemType = types.boxedElementType(tree.type);
 
             UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType);
             stmts.append(builder.makeBuilderVar());
@@ -3207,7 +3207,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
     @Override
     public void visitLiteral(JFXLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
-            Type elemType = boxedElementType(tree.type);
+            Type elemType = types.boxedElementType(tree.type);
             JCExpression expr = accessEmptySequence(tree.pos(), elemType);
             result =  castFromObject(expr, syms.javafx_SequenceTypeErasure);
         } else {

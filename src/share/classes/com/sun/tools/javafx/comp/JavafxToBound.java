@@ -380,7 +380,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
             super(diagPos, toJava);
             this.tmiResult = tmiResult;
             typeKindResult = tmiResult.getTypeKind();
-            elementTypeResult = boxedElementType(tmiResult.getLocationType()); // want boxed, JavafxTypes version won't work
+            elementTypeResult = types.boxedElementType(tmiResult.getLocationType()); // want boxed, JavafxTypes version won't work
         }
 
         /**
@@ -863,7 +863,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     public void visitSequenceExplicit(JFXSequenceExplicit tree) { //done
         DiagnosticPosition diagPos = tree.pos();
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        Type elemType = boxedElementType(targetType(tree.type));
+        Type elemType = types.boxedElementType(targetType(tree.type));
         UseSequenceBuilder builder = toJava.useBoundSequenceBuilder(diagPos, elemType, makeLaziness(diagPos), tree.getItems().length());
         stmts.append(builder.makeBuilderVar());
         for (JFXExpression item : tree.getItems()) {

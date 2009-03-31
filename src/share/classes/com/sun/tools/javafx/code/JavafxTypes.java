@@ -87,7 +87,7 @@ public class JavafxTypes extends Types {
         return new ClassType(clazzOuter, actuals, seqtype.tsym);
     }
 
-    public Type elementType(Type seqType) {
+    public Type boxedElementType(Type seqType) {
         Type elemType = seqType.getTypeArguments().head;
         if (elemType instanceof CapturedType)
             elemType = ((CapturedType) elemType).wildcard;
@@ -95,6 +95,11 @@ public class JavafxTypes extends Types {
             elemType = ((WildcardType) elemType).type;
         if (elemType == null)
             return syms.javafx_AnyType;
+        return elemType;
+    }
+
+    public Type elementType(Type seqType) {
+        Type elemType = boxedElementType(seqType);
         Type unboxed = unboxedType(elemType);
         if (unboxed.tag != TypeTags.NONE)
             elemType = unboxed;

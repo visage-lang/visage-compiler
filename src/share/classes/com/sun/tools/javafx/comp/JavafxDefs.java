@@ -46,7 +46,6 @@ public class JavafxDefs {
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
-    public static final String attributeSetMethodParamNameString = "value";
     public static final String needsDefaultSuffix = "$needs_default$";
     public static final String mixinSuffix = "$Mixin";
     public static final String deprecatedInterfaceSuffix = "$Intf";
@@ -216,6 +215,11 @@ public class JavafxDefs {
     final Name applyDefaultsPrefixName;
     final Name setDefaultMethodName;
     final Name noteSharedMethodName;
+    final Name onReplaceArgNameOld;
+    final Name onReplaceArgNameNew;
+    final Name onReplaceArgNameFirstIndex;
+    final Name onReplaceArgNameLastIndex;
+    final Name onReplaceArgNameNewElements;
     final Name getAsSequenceRawMethodName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
@@ -273,7 +277,7 @@ public class JavafxDefs {
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         getMethodName = names.fromString(getMethodNameString);
-        attributeSetMethodParamName = names.fromString(attributeSetMethodParamNameString);
+        attributeSetMethodParamName = names.fromString("value");
         getSliceMethodName = names.fromString("getSlice");
         replaceSliceMethodName = names.fromString("replaceSlice");
         getAsSequenceRawMethodName = names.fromString("getAsSequenceRaw");
@@ -317,6 +321,11 @@ public class JavafxDefs {
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
         noteSharedMethodName = names.fromString("noteShared");
+        onReplaceArgNameOld = names.fromString("$oldValue");
+        onReplaceArgNameNew = names.fromString("$newValue");
+        onReplaceArgNameFirstIndex = names.fromString("$index$");
+        onReplaceArgNameLastIndex = names.fromString("$lastIndex$");
+        onReplaceArgNameNewElements = names.fromString("$newElements$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
         needsDefaultSuffixName = names.fromString(needsDefaultSuffix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);

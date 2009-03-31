@@ -62,7 +62,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final Name locationInitializeName;
     private final Name changeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
-    private final Name onChangeArgName1, onChangeArgName2;
     Name outerAccessorName;
     Name outerAccessorFieldName;
     
@@ -89,8 +88,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         addSequenceChangeListenerName = names.fromString("addSequenceChangeListener");
         locationInitializeName = names.fromString("initialize");
         changeListenerInterfaceName = names.fromString(locationPackageNameString + ".ChangeListener");
-        onChangeArgName1 = names.fromString("$oldValue");
-        onChangeArgName2 = names.fromString("$newValue");
         outerAccessorName = names.fromString("accessOuter$");
         outerAccessorFieldName = names.fromString("accessOuterField$");
         
@@ -497,7 +494,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 attributeSetterName(vsym),
                 makeTypeTree(diagPos, ai.getRealType()),
                 List.<JCTypeParameter>nil(),
-                List.of(makeParam(diagPos, ai.getRealType(), null, JavafxDefs.attributeSetMethodParamNameString)),
+                List.of(makeParam(diagPos, ai.getRealType(), null, defs.attributeSetMethodParamName)),
                 List.<JCExpression>nil(),
                 block,
                 null);
@@ -933,40 +930,42 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         if (onReplace == null) return null;
         
         DiagnosticPosition diagPos = info.pos();
-        ListBuffer<JCTree> members = ListBuffer.lb();
 
-        JCExpression changeListener;
         List<JCExpression> emptyTypeArgs = List.nil();
+        ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
+        List<JCVariableDecl> onChangeArgs;
         Name addListenerName;
+        Type valueType;
         
         if (types.isSequence(info.getRealType())) {
             addListenerName = addSequenceChangeListenerName;
-            ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
-            changeListener = makeIdentifier(diagPos, changeListenerInterfaceName);
-            changeListener = make.TypeApply(changeListener, List.of(makeTypeTree( diagPos,info.getElementType())));
-            Type seqValType = types.sequenceType(info.getElementType(), false);
-            List<JCVariableDecl> onChangeArgs = List.of(
-                makeIndexParam(diagPos, onReplace),
-                makeParam(diagPos, syms.intType, onReplace.getLastIndex(), "$lastIndex$"),
-                makeParam(diagPos, info.getRealType(), onReplace.getNewElements(), "$newElements$"),
-                makeParam(diagPos, seqValType, onReplace.getOldValue(), "$oldValue$"),
-                makeParam(diagPos, seqValType, null, "$newValue$"));
-            members.append(makeChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), setUpStmts, "onChange", onChangeArgs, TypeTags.VOID));
-        }
-        else {
+            valueType = info.getElementType();
+            Type seqValType = types.sequenceType(valueType, false);
+            onChangeArgs = List.of(
+                    makeParam(diagPos, syms.intType, onReplace.getFirstIndex(), defs.onReplaceArgNameFirstIndex),
+                    makeParam(diagPos, syms.intType, onReplace.getLastIndex(), defs.onReplaceArgNameLastIndex),
+                    makeParam(diagPos, info.getRealType(), onReplace.getNewElements(), defs.onReplaceArgNameNewElements),
+                    makeParam(diagPos, seqValType, onReplace.getOldValue(), defs.onReplaceArgNameOld),
+                    makeParam(diagPos, seqValType, null, defs.onReplaceArgNameNew));
+        } else {
             addListenerName = addChangeListenerName;
-            changeListener = makeIdentifier(diagPos, changeListenerInterfaceName);
-            changeListener = make.at(diagPos).TypeApply(changeListener,
-                                                        List.<JCExpression>of(makeTypeTree( diagPos, types.boxedTypeOrType(info.getRealType()))));
-            members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
+            valueType = info.getRealType();
+            onChangeArgs = List.of(
+                    makeParam(diagPos, valueType, onReplace.getOldValue(), defs.onReplaceArgNameOld),
+                    makeParam(diagPos, valueType, onReplace.getNewElements(), defs.onReplaceArgNameNew));
         }
 
+        JCTree clMethod = makeChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), setUpStmts, onChangeArgs, TypeTags.VOID);
+        JCExpression changeListener = make.at(diagPos).TypeApply(
+                makeIdentifier(diagPos, changeListenerInterfaceName),
+                List.of(makeTypeTree(diagPos, types.boxedTypeOrType(valueType))));
         JCNewClass anonymousChangeListener = make.NewClass(
                 null, 
                 emptyTypeArgs,
                 changeListener, 
                 List.<JCExpression>nil(), 
-                make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), members.toList()));
+                make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), List.of(clMethod)
+                ));
 
         JCExpression varRef;
         if (info.getSymbol().owner.kind == Kinds.TYP) {
@@ -983,13 +982,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return make.at(diagPos).Exec(make.at(diagPos).Apply(emptyTypeArgs, tmpSelect, args));
     }
     
-    private JCVariableDecl makeParam(DiagnosticPosition diagPos, Type type, JFXVar var, String nameDefault) {
+    private JCVariableDecl makeParam(DiagnosticPosition diagPos, Type type, JFXVar var, Name nameDefault) {
         Name name;
         if (var != null) {
             name = var.getName();
             diagPos = var.pos();
         } else {
-            name = names.fromString(nameDefault);
+            name = nameDefault;
         }
         long flags = Flags.PARAMETER|Flags.FINAL;
         if (var != null && var.mods != null) {
@@ -1003,51 +1002,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
     }
     
-    private JCVariableDecl makeIndexParam(DiagnosticPosition diagPos, JFXOnReplace onReplace) {
- //       return makeParam(diagPos, syms.intType, onReplace == null ? null : onReplace.getIndex(), "$index$");
-        return makeParam(diagPos, syms.intType, onReplace == null ? null : onReplace.getFirstIndex(), "$index$");
-    }
-     
-    
-    /**
-     * construct a change listener method for insertion in a listener anon class.
-     *   void onReplace(...); ...
-     */
-    private JCMethodDecl makeOnReplaceChangeListenerMethod(DiagnosticPosition diagPos,
-                                                           JFXOnReplace onReplace,
-                                                           JCBlock onReplaceTranslatedBody,
-                                                           Type attributeType) {
-        List<JCVariableDecl> onChangeArgs = List.<JCVariableDecl>nil()
-                .append(make.VarDef(make.Modifiers(0L), onChangeArgName1, makeTypeTree(diagPos, attributeType), null))
-                .append(make.VarDef(make.Modifiers(0L), onChangeArgName2, makeTypeTree(diagPos, attributeType), null));
-        ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
-        if (onReplace != null && onReplace.getOldValue() != null) {
-            // Create the variable for the old value, using the specified name
-            JFXVar oldValue = onReplace.getOldValue();
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(oldValue.sym);
-
-            setUpStmts.append( 
-                    make.at(diagPos).VarDef(
-                        make.Modifiers(0L), 
-                        oldValue.getName(), 
-                        makeTypeTree( diagPos, vmi.getRealType()),
-                        makeIdentifier(diagPos, onChangeArgName1)));
-        }
-        if (onReplace != null && onReplace.getNewElements() != null) {
-            // Create the variable for the new value, using the specified name
-            JFXVar newValue = onReplace.getNewElements();
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(newValue.sym);
-
-            setUpStmts.append( 
-                    make.at(diagPos).VarDef(
-                        make.Modifiers(0L), 
-                        newValue.getName(), 
-                        makeTypeTree( diagPos, vmi.getRealType()),
-                        makeIdentifier(diagPos, onChangeArgName2)));
-        }
-        return makeChangeListenerMethod(diagPos, onReplace, onReplaceTranslatedBody, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID);
-    }
-
     /**
      * construct a change listener method for insertion in a listener anon class.
      *   boolean onChange();
@@ -1059,7 +1013,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JFXOnReplace onReplace,
             JCBlock onReplaceTranslatedBody,
             ListBuffer<JCStatement> prefixStmts,
-            String methodName,
             List<JCVariableDecl> args,
             int returnTypeTag) {
         ListBuffer<JCStatement> ocMethStmts = ListBuffer.lb();
@@ -1076,7 +1029,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         return make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(Flags.PUBLIC), 
-                names.fromString(methodName), 
+                names.fromString("onChange"),
                 make.at(diagPos).TypeIdent(returnTypeTag), 
                 List.<JCTypeParameter>nil(), 
                 args,
