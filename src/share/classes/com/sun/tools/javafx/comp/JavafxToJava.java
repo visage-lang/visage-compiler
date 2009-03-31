@@ -708,6 +708,27 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;
     }
 
+    void scriptBegin() {
+        toBound.scriptBeginBinding();
+    }
+
+    List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
+        List<JCTree> bindingMembers = toBound.scriptCompleteBinding(diagPos);
+        // Add _Bindings class
+        if (bindingMembers.isEmpty()) {
+            return List.nil();
+        } else {
+            JCClassDecl bindingClass = make.at(diagPos).ClassDef(
+                    make.at(diagPos).Modifiers(Flags.PRIVATE | Flags.STATIC),
+                    defs.scriptBindingClassName,
+                    List.<JCTypeParameter>nil(),
+                    makeQualifiedTree(diagPos, JavafxDefs.baseBindingListenerClassString),
+                    List.<JCExpression>nil(),
+                    bindingMembers);
+            return List.<JCTree>of(bindingClass);
+        }
+    }
+
     @Override
     public void visitScript(JFXScript tree) {
         // add to the hasOuters set the class symbols for classes that need a reference to the outer class
@@ -754,7 +775,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
         JFXClassDeclaration prevEnclClass = attrEnv.enclClass;
         currentClass = tree;
         if (tree.isScriptClass) {
-            toBound.scriptBegin();
+            scriptBegin();
         }
 
         try {
@@ -968,7 +989,7 @@ public class JavafxToJava extends JavafxTranslationSupport implements JavafxVisi
                 }
                 
                 // Add binding support
-                translatedDefs.appendList(toBound.scriptComplete(tree.pos()));
+                translatedDefs.appendList(scriptComplete(tree.pos()));
             }
 
             // build the list of implemented interfaces

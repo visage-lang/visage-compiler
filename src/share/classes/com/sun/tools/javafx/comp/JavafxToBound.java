@@ -550,14 +550,14 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         }
     }
 
-    void scriptBegin() {
+    void scriptBeginBinding() {
         bects = ListBuffer.lb();
     }
 
-    List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
-        ListBuffer<JCTree> trees = ListBuffer.lb();
-        // Add _Bindings class
-        if (!bects.isEmpty()) {
+    List<JCTree> scriptCompleteBinding(DiagnosticPosition diagPos) {
+        if (bects.isEmpty()) {
+            return List.nil();
+        } else {
             ListBuffer<JCCase> cases = ListBuffer.lb();
             for (BindingExpressionClosureTranslator b : bects) {
                 if (!b.generateInLine) {
@@ -585,16 +585,8 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                     )));
             JCTree constr = makeMethod(diagPos, names.init, List.of(cbody), params.toList(), syms.voidType, Flags.PRIVATE);
 
-            JCClassDecl bindingClass = make.at(diagPos).ClassDef(
-                    make.at(diagPos).Modifiers(Flags.PRIVATE | Flags.STATIC),
-                    defs.scriptBindingClassName,
-                    List.<JCTypeParameter>nil(),
-                    makeQualifiedTree(diagPos, JavafxDefs.scriptBindingExpressionsString),
-                    List.<JCExpression>nil(),
-                    List.of(computeMethod, constr));
-            trees.append(bindingClass);
+            return List.of(computeMethod, constr);
         }
-        return trees.toList();
     }
 
     private JCExpression wrapInBindingExpression(final DiagnosticPosition diagPos,
@@ -1267,7 +1259,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     }
 
     /**
-     * Translator for Java method and non-bound JavaFX functions.
+     * Translator for 
      */
     private abstract class BindingExpressionClosureTranslator extends ClosureTranslator {
 

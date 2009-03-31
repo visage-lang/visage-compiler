@@ -52,7 +52,7 @@ public class JavafxDefs {
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
-    public static final String scriptBindingExpressionsString = "com.sun.javafx.runtime.location.SBECL";
+    public static final String baseBindingListenerClassString = "com.sun.javafx.runtime.location.SBECL";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String fxMixinString = "com.sun.javafx.runtime.FXMixin";
@@ -76,7 +76,7 @@ public class JavafxDefs {
     public static final String lambdaNameString = "lambda";
     public static final String isInitializedNameString = "isInitialized";
     public static final String convertNumberSequence = "convertNumberSequence";
-    public static final String scriptBindingClassString = "_Bindings";
+    public static final String scriptBindingListenerClassString = "_SBECL";
     public static final String bindingIdString = "id";
     public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
@@ -297,7 +297,7 @@ public class JavafxDefs {
         lengthName = names.fromString("length");
         emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
-        scriptBindingClassName = names.fromString(scriptBindingClassString);
+        scriptBindingClassName = names.fromString(scriptBindingListenerClassString);
         bindingIdName = names.fromString(bindingIdString);
         getStaticDependentsMethodName = names.fromString(getStaticDependentsMethodString);
         computeMethodName = names.fromString(computeMethodString);

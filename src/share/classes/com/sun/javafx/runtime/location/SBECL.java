@@ -39,8 +39,7 @@ public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpre
     protected final Object[] moreArgs;
     protected final int dependents;
     private Location location;
-
-    private static final Object CHANGE_LISTENER_MARKER = "CHANGE_LISTENER_MARKER";
+    private final int childKind;
 
     /**
      * BindingExpression constructor
@@ -56,6 +55,7 @@ public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpre
         this.arg$1 = arg1;
         this.moreArgs = moreArgs;
         this.dependents = dependents;
+        this.childKind = AbstractLocation.CHILD_KIND_BINDING_EXPRESSION;
     }
 
     /**
@@ -64,19 +64,32 @@ public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpre
      */
     public SBECL(int id) {
         this.id = id;
-        this.arg$0 = CHANGE_LISTENER_MARKER;
-        this.arg$1 = CHANGE_LISTENER_MARKER;
+        this.arg$0 = null;
+        this.arg$1 = null;
         this.moreArgs = null;
         this.dependents = 0;
+        this.childKind = AbstractLocation.CHILD_KIND_TRIGGER;
+    }
+
+    /**
+     * ChangeListener constructor
+     * @param id
+     * @param arg0
+     * @param arg1
+     * @param moreArgs
+     */
+    public SBECL(int id, Object arg0, Object arg1, Object[] moreArgs) {
+        this.id = id;
+        this.arg$0 = arg0;
+        this.arg$1 = arg1;
+        this.moreArgs = moreArgs;
+        this.dependents = 0;
+        this.childKind = AbstractLocation.CHILD_KIND_TRIGGER;
     }
 
     @Override
     public int getDependencyKind() {
-        if (arg$0 == CHANGE_LISTENER_MARKER) {
-            return AbstractLocation.CHILD_KIND_TRIGGER;
-        } else {
-            return AbstractLocation.CHILD_KIND_BINDING_EXPRESSION;
-        }
+        return childKind;
     }
 
     public Location getLocation() {
