@@ -65,7 +65,7 @@ public enum LauncherHelper {
         return (args != null) ? MessageFormat.format(msg, args) : msg;
     }
 
-    private static void printHelpMessage() {
+    static StringBuilder getHelpMessage() {
         StringBuilder outBuf = new StringBuilder();
         outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.opt.header",
                 myname));
@@ -80,7 +80,11 @@ public enum LauncherHelper {
                 "-server", "server", getLocalizedMessage("javafx.launcher.ifavailable")));
         outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.opt.footer",
                 File.pathSeparator));
-        System.err.println(outBuf.toString());
+        return outBuf;
+    }
+    
+    private static void printHelpMessage() {
+        System.err.println(getHelpMessage().toString());
         System.err.flush();
     }
 

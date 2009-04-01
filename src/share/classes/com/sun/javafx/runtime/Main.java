@@ -45,7 +45,7 @@ public class Main {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            getErrorMessage("notfound", "");
+            errorExit(LauncherHelper.getHelpMessage().toString());
         }
 
         String[] argsToMain = new String[args.length - 1];
