@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,44 +25,43 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
-import com.sun.tools.javac.code.*;
+import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
-import com.sun.tools.javafx.comp.JavafxToJava.DurationOperationTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.UseSequenceBuilder;
-import com.sun.tools.javafx.comp.JavafxToJava.Translator;
-import com.sun.tools.javafx.comp.JavafxToJava.FunctionCallTranslator;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.FunctionCallTranslator;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Locationness;
 import com.sun.tools.javafx.comp.JavafxToJava.InstanciateTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.InterpolateValueTranslator;
-import com.sun.tools.javafx.comp.JavafxToJava.StringExpressionTranslator;
-import com.sun.tools.javafx.comp.JavafxToJava.Locationness;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javafx.util.MsgSym;
 import java.util.HashSet;
 import java.util.Set;
 import static com.sun.tools.javac.code.TypeTags.*;
 
-public class JavafxToBound extends JavafxTranslationSupport implements JavafxVisitor {
+public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVisitor {
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
         new Context.Key<JavafxToBound>();
 
     static final boolean SEQUENCE_CONDITIONAL_INLINE = true;
 
-    enum ArgKind { BOUND, DEPENDENT, FREE };
-
     /*
      * modules imported by context
      */
-    private final JavafxToJava toJava;
     private final JavafxOptimizationStatistics optStat;
 
     /*
@@ -101,17 +100,18 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
     public static JavafxToBound instance(Context context) {
         JavafxToBound instance = context.get(jfxToBoundKey);
-        if (instance == null)
-            instance = new JavafxToBound(context);
+        if (instance == null) {
+            JavafxToJava toJava = JavafxToJava.instance(context);
+            instance = new JavafxToBound(context, toJava);
+        }
         return instance;
     }
 
-    protected JavafxToBound(Context context) {
-        super(context);
+    protected JavafxToBound(Context context, JavafxToJava toJava) {
+        super(context, toJava);
         
         context.put(jfxToBoundKey, this);
 
-        toJava = JavafxToJava.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
         
         computeElementsName = names.fromString("computeElements$");
@@ -166,7 +166,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         if (tree == null) {
             ret = null;
         } else {
-            JFXTree prevWhere = toJava.attrEnv.where;
+            JFXTree prevWhere = getAttrEnv().where;
             toJava.attrEnv.where = tree;
             tree.accept(this);
             toJava.attrEnv.where = prevWhere;
@@ -359,197 +359,6 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         return make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
     }
 
-    private abstract class ClosureTranslator extends Translator {
-
-        protected final TypeMorphInfo tmiResult;
-        protected final int typeKindResult;
-        protected final Type elementTypeResult;
-
-        // these only used when fields are built
-        ListBuffer<JCTree> members = ListBuffer.lb();
-        ListBuffer<JCStatement> fieldInits = ListBuffer.lb();
-        int dependents = 0;
-        ListBuffer<JCExpression> callArgs = ListBuffer.lb();
-        int argNum = 0;
-
-        ClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
-            this(diagPos, JavafxToBound.this.toJava, (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType));
-        }
-
-        private ClosureTranslator(DiagnosticPosition diagPos, JavafxToJava toJava, TypeMorphInfo tmiResult) {
-            super(diagPos, toJava);
-            this.tmiResult = tmiResult;
-            typeKindResult = tmiResult.getTypeKind();
-            elementTypeResult = types.boxedElementType(tmiResult.getLocationType()); // want boxed, JavafxTypes version won't work
-        }
-
-        /**
-         * Make a method paramter
-         */
-        protected JCVariableDecl makeParam(Type type, Name name) {
-            return make.at(diagPos).VarDef(
-                    m().Modifiers(Flags.PARAMETER | Flags.FINAL),
-                    name,
-                    makeExpression(type),
-                    null);
-        }
-
-        protected JCTree makeClosureMethod(Name methName, JCExpression expr, List<JCVariableDecl> params, Type returnType, long flags) {
-            return toJava.makeMethod(diagPos, methName, List.<JCStatement>of((returnType == syms.voidType) ? m().Exec(expr) : m().Return(expr)), params, returnType, flags);
-        }
-
-        protected abstract List<JCTree> makeBody();
-
-        protected abstract JCExpression makeBaseClass();
-
-        protected JCExpression makeBaseClass(Type clazzType, Type additionTypeParamOrNull) {
-            JCExpression clazz = makeExpression(types.erasure(clazzType));  // type params added below, so erase formals
-            ListBuffer<JCExpression> typeParams = ListBuffer.lb();
-
-            if (typeKindResult == TYPE_KIND_OBJECT || typeKindResult == TYPE_KIND_SEQUENCE) {
-                typeParams.append(makeExpression(elementTypeResult));
-            }
-            if (additionTypeParamOrNull != null) {
-                typeParams.append(makeExpression(additionTypeParamOrNull));
-            }
-            return typeParams.isEmpty()? clazz : m().TypeApply(clazz, typeParams.toList());
-        }
-        
-        protected abstract List<JCExpression> makeConstructorArgs();
-
-        protected JCExpression buildClosure() {
-            List<JCTree> body = makeBody();
-            JCClassDecl classDecl = body==null? null : m().AnonymousClassDef(m().Modifiers(0L), body);
-            List<JCExpression> typeArgs = List.nil();
-            return m().NewClass(null/*encl*/, typeArgs, makeBaseClass(), makeConstructorArgs(), classDecl);
-        }
-
-        protected JCExpression doit() {
-            return buildClosure();
-        }
-
-
-        // field building support
-
-        protected List<JCTree> completeMembers() {
-            members.append(m().Block(0L, fieldInits.toList()));
-            return members.toList();
-        }
-
-        protected JCExpression makeLocationGet(JCExpression locExpr, int typeKind) {
-            Name getMethodName = defs.locationGetMethodName[typeKind];
-            JCFieldAccess select = m().Select(locExpr, getMethodName);
-            return m().Apply(null, select, List.<JCExpression>nil());
-        }
-        
-        class FieldInfo {
-            final String desc;
-            final int num;
-            final TypeMorphInfo tmi;
-            final boolean isLocation;
-
-            FieldInfo(Type type) {
-                this((String)null, type);
-            }
-
-            FieldInfo(Name descName, Type type) {
-                this(descName.toString(), type);
-            }
-
-            FieldInfo(Name descName, TypeMorphInfo tmi) {
-                this(descName.toString(), tmi);
-            }
-
-            FieldInfo(String desc, Type type) {
-                this(desc, typeMorpher.typeMorphInfo(type));
-            }
-
-            FieldInfo(TypeMorphInfo tmi) {
-                this((String)null, tmi);
-            }
-
-            FieldInfo(String desc, TypeMorphInfo tmi) {
-                this(desc, tmi, true);
-            }
-
-            FieldInfo(String desc, TypeMorphInfo tmi, boolean isLocation) {
-                this.desc = desc;
-                this.num = argNum++;
-                this.tmi = tmi;
-                this.isLocation = isLocation;
-            }
-
-            JCExpression makeGetField() {
-                return makeGetField(tmi.getTypeKind());
-            }
-
-            JCExpression makeGetField(int typeKind) {
-                return isLocation ? makeLocationGet(makeAccess(this), typeKind) : makeAccess(this);
-            }
-
-            Type type() {
-                return isLocation ? tmi.getLocationType() : tmi.getRealBoxedType();
-            }
-        }
-
-        private Name argAccessName(FieldInfo fieldInfo) {
-            return names.fromString("arg$" + fieldInfo.num);
-        }
-
-        JCExpression makeAccess(FieldInfo fieldInfo) {
-            return m().Ident(argAccessName(fieldInfo));
-        }
-
-        protected void makeLocationField(JCExpression targ, FieldInfo fieldInfo) {
-            fieldInits.append( m().Exec( m().Assign(makeAccess(fieldInfo), targ)) );
-            members.append(m().VarDef(
-                    m().Modifiers(Flags.PRIVATE),
-                    argAccessName(fieldInfo),
-                    makeExpression(fieldInfo.type()),
-                    null));
-        }
-
-        protected JCExpression buildArgField(JCExpression arg, Type type) {
-            return buildArgField(arg, type, ArgKind.DEPENDENT);
-        }
-
-        protected JCExpression buildArgField(JCExpression arg, Type type, ArgKind kind) {
-            return buildArgField(arg, new FieldInfo(type), kind);
-        }
-
-        protected JCExpression buildArgField(JCExpression arg, FieldInfo fieldInfo) {
-            return buildArgField(arg, fieldInfo, ArgKind.DEPENDENT);
-        }
-
-        protected JCExpression buildArgField(JCExpression arg, FieldInfo fieldInfo, ArgKind kind) {
-            // translate the method arg into a Location field of the BindingExpression
-            // XxxLocation arg$0 = ...;
-            makeLocationField(arg, fieldInfo);
-
-            // build a list of these args, for use as dependents -- arg$0, arg$1, ...
-            if (kind == ArgKind.BOUND) {
-                return makeAccess(fieldInfo);
-            } else {
-                if (fieldInfo.num > 32) {
-                    log.error(diagPos, MsgSym.MESSAGE_BIND_TOO_COMPLEX);
-                }
-                if (kind == ArgKind.DEPENDENT) {
-                    dependents |= 1 << fieldInfo.num;
-                }
-
-                // set up these arg for the call -- arg$0.getXxx()
-                return fieldInfo.makeGetField();
-            }
-         }
-
-        protected void buildArgFields(List<JCExpression> targs, ArgKind kind) {
-            for (JCExpression targ : targs) {
-                assert targ.type != null : "caller is supposed to decorate the translated arg with its type";
-                callArgs.append( buildArgField(targ, targ.type, kind) );
-            }
-        }
-    }
-
     void scriptBeginBinding() {
         bects = ListBuffer.lb();
     }
@@ -613,10 +422,10 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                         // No receiver
                         break;
                     case InstanceAsStatic:
-                        renamings.append( renamingVar(defs.receiverName, defs.receiverName, toJava.attrEnv.enclClass.type, false) );
+                        renamings.append( renamingVar(defs.receiverName, defs.receiverName, getAttrEnv().enclClass.type, false) );
                         break;
                     case InstanceAsInstance:
-                        renamings.append( renamingVar(names._this, defs.receiverName, toJava.attrEnv.enclClass.type, false) );
+                        renamings.append( renamingVar(names._this, defs.receiverName, getAttrEnv().enclClass.type, false) );
                         break;
                     default:
                         assert false : "Bad receiver context";
@@ -680,7 +489,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         result = new BindingExpressionClosureTranslator(tree.pos(), syms.stringType) {
 
             protected JCExpression makePushExpression() {
-                return new StringExpressionTranslator(tree, toJava) {
+                return new StringExpressionTranslator(tree) {
 
                     protected JCExpression translateArg(JFXExpression arg) {
                         return buildArgField(translate(arg), arg.type);
@@ -951,7 +760,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
      * **/
     @Override
     public void visitForExpression(final JFXForExpression tree) {
-        result = (new Translator( tree.pos(), toJava ) {
+        result = (new Translator( tree.pos() ) {
 
             private final TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(targetType(tree.type));
 
@@ -1159,7 +968,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     private JCExpression makeFunction0(
             final Type resultType,
             final JCExpression bodyExpr) {
-        return (new ClosureTranslator(bodyExpr.pos(), resultType) {
+        return (new ClosureTranslator(bodyExpr.pos(), (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType)) {
 
             protected List<JCTree> makeBody() {
                 return List.<JCTree>of(
@@ -1271,7 +1080,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
         boolean generateInLine = false;
 
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
-            super(diagPos, resultType);
+            super(diagPos, (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType));
             this.id = bects.size();
             this.actualTranslatedType = resultType;
             bects.append(this);
@@ -1384,7 +1193,7 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         //TODO: painfully in need of refactoring
-        result = (new FunctionCallTranslator(tree, toJava) {
+        result = (new FunctionCallTranslator(tree) {
 
             final List<JCExpression> typeArgs = toJava.translateExpressions(tree.typeargs); //TODO: should, I think, be nil list
             final List<JCExpression> targs = translate(tree.args, meth.type, usesVarArgs);
@@ -1490,9 +1299,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
 
                             JCExpression receiver() {
                                 if (rcvrField == null) {
-                                    Type rcvrType = toJava.attrEnv.enclClass.sym.type;
+                                    Type rcvrType = getAttrEnv().enclClass.sym.type;
                                     rcvrField = new FieldInfo(JavafxDefs.receiverNameString, typeMorpher.typeMorphInfo(rcvrType), false);
-                                    return buildArgField(toJava.makeReceiver(diagPos, msym, toJava.attrEnv.enclClass.sym), rcvrField, ArgKind.BOUND);
+                                    return buildArgField(toJava.makeReceiver(diagPos, msym, getAttrEnv().enclClass.sym), rcvrField, ArgKind.BOUND);
                                 } else {
                                     return rcvrField.makeGetField();
                                 }
@@ -1623,9 +1432,9 @@ public class JavafxToBound extends JavafxTranslationSupport implements JavafxVis
                 return new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
                     protected JCExpression makePushExpression() {
-                        return new DurationOperationTranslator(diagPos, tree.getFXTag(),
+                        return toJava.translateDurationOperation(diagPos, tree.getFXTag(),
                                 buildArgField(translate(l), lType), buildArgField(translate(r), rType),
-                                lType, rType, toJava).doit();
+                                lType, rType);
                     }
                 }.doit();
             }

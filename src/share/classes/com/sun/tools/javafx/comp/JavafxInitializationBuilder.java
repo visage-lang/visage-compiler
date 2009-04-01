@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -747,7 +747,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             List<TranslatedVarInfo> translatedAttrInfo) {
         // Add the initialization of this class' attributesa
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        boolean isLibrary = toJava.attrEnv.toplevel.isLibrary;
+        boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
         for (TranslatedVarInfo tai : translatedAttrInfo) {
             assert tai.var != null;
             assert tai.var.getFXTag() == JavafxTag.VAR_DEF;
