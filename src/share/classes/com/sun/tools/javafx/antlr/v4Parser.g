@@ -5048,7 +5048,7 @@ qlsl [ ListBuffer<JFXExpression> strexp]
 					// iii) There were prior expressions in the list, in which case, as per
 					//      ii) we must merge the last literal in the buffer with ($ql) from
 					//      above and make it the leadin string for this expression.
-					//      NB: THis can aonly arise from "{expr}" ("STRING")* "{expr}"
+					//      NB: THis can only arise from "{expr}" ("STRING")* "{expr}"
 					//
 					switch	(strexp.size())
 					{
@@ -5216,7 +5216,7 @@ stringFormat [ ListBuffer<JFXExpression> strexp]
 	| // no format
 		{
 			value = F.at(rPos).Literal(TypeTags.CLASS, "");
-			endPos(value);
+			endPos(value, rPos);	// Needs to be shown as an empty string to the IDE
 			strexp.append(value);
 		}
 	;
