@@ -60,10 +60,13 @@ public class Entry {
             if (namedArgProvider == null)
                 Entry.commandLineArgs = (String[]) commandLineArgs.clone();
         }
-
-        String codebase = app.getProtectionDomain().getCodeSource().getLocation().toString();
-        codebase = codebase.substring(0, codebase.lastIndexOf('/')+1);
-        SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
+	try { 
+            String codebase = app.getProtectionDomain().getCodeSource().getLocation().toString();
+            codebase = codebase.substring(0, codebase.lastIndexOf('/')+1);
+            SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
+	} catch (NullPointerException ignored) {
+	    // just in case the codesource is null
+	}
         final Method main = app.getMethod(entryMethodName(), Sequence.class);
         Object args = Sequences.make(TypeInfo.String, commandLineArgs);
         
