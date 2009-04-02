@@ -1157,7 +1157,7 @@ functionDefinition [ JFXModifiers mods, int pos ]
 					
 						// Function cannot be anonymous here
 						//
-						log.error($n1.pos, MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
+						log.error(pos(), MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
 					}
 					
 					// Accumulate a node in case of error
@@ -6312,6 +6312,31 @@ catch [RecognitionException re] {
 	$inError	= true;
  }
  
+// A list of all the keywords that the lexer will generate so that they can
+// also be used as identifier and name when appropriate.
+//
+keyword
+    : ABSTRACT  | AFTER     | AND           | AS
+    | ASSERT    | AT        | ATTRIBUTE     | BEFORE
+    | BIND      | BOUND     | BREAK         | CATCH
+    | CLASS     | CONTINUE  | DEF           | DELETE
+    | ELSE      | EXCLUSIVE | EXTENDS       | FALSE
+    | FINALLY   | FIRST     | FOR           | FROM
+    | FUNCTION  | IF        | IMPORT        | IN
+    | INDEXOF   | INIT      | INSERT        | INSTANCEOF
+    | INTO      | INVERSE   | LAST          | LAZY
+    | MIXIN     | MOD       | NATIVEARRAY   | NEW
+    | NOT       | NULL      | ON            | OR
+    | OVERRIDE  | PACKAGE   | POSTINIT      | PRIVATE
+    | PROTECTED | PUBLIC    | PUBLIC_INIT   | PUBLIC_READ
+    | REPLACE   | RETURN    | REVERSE       | SIZEOF
+    | STATIC    | STEP      | SUPER         | THEN
+    | THIS      | THROW     | TRIGGER       | TRUE
+    | TRY       | TWEEN     | TYPEOF        | VAR
+    | WHERE     | WHILE     | WITH
+    ;
+
+
 // -----------------------
 // Process a SEMI colon that is always required, regardless of
 // where the contruct is in the script. There are not too many
