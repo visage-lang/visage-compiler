@@ -413,4 +413,5 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_MIXIN_CANNOT_BE_INSTANTIATED = "javafx.mixin.cant.be.instantiated";
     public static final String MESSAGE_JAVAFX_FOR_OVER_ITERABLE_DISALLOWED_IN_BIND = "javafx.for.over.iterable.disallowed.in.bind";
     public static final String MESSAGE_JAVAFX_KEYVALUE_REQUIRED = "javafx.keyvalue.required";
+    public static final String MESSAGE_JAVAFX_MANDATORY_COMMA = "javafx.mandatory.comma";
 }

@@ -420,14 +420,8 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 			  // valid modifier for the upcoming declaration. Whether it is
 			  // valid or not is a matter for semantic checks to decide.
 			  //
-			  // Script level variable declarations can conflict with
-			  // local variable declarations (which do not allow modifiers
-			  // and are encapsulated in the expression rule, which is called
-			  // by the statement rule. Hence we must special case it here
-			  // unless we want to pass around status to all our rules.
-			  // The predicate is a small one and passes or fails quickly.
 			  //
-			  	m1=modifiers { errNodes.append($m1.mods); }
+			  	(modifiers (CLASS|FUNCTION))=> m1=modifiers { errNodes.append($m1.mods); }
 				(
 					  c=classDefinition			[$m1.mods, $m1.pos]
 					  
@@ -1143,6 +1137,9 @@ functionDefinition [ JFXModifiers mods, int pos ]
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 	
+	// Function name we accumulate one way or another (manufacture if missing)
+	//
+	JFXIdent id;
 	
 	// Start of rule for error node production/
 	//
@@ -1153,16 +1150,17 @@ functionDefinition [ JFXModifiers mods, int pos ]
 		(
 			n1=name 
 				{
-					if	($n1.inError) {
+				
+					if ($n1.inError) {
 					
-						// Function cannot be anonymous here
+						// First, lets report the error as the user needs to know about it
+						// Issue an error - can't have anonymous functions
 						//
 						log.error(pos(), MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
 					}
-					
 					// Accumulate a node in case of error
 					//			
-					JFXIdent id = F.at($n1.pos).Ident($n1.value);
+					id = F.at($n1.pos).Ident($n1.value);
 					endPos(id);
 				
 					// Accumulate in case of error
@@ -5281,7 +5279,7 @@ bracketExpression
 		     			
 	     				  (
 	     				    
-	     				    COMMA
+	     				    (COMMA | { log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);} )
 	     					e2=expression
 	     						{
 	     							seqexp.append($e2.value);
@@ -5371,7 +5369,7 @@ expressionList
 		}
 		
 		(
-			COMMA 	
+			(COMMA | { log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);} )	
 			e2=expression
 			
 			{
@@ -6289,52 +6287,30 @@ name
 			
 				$inError = false;		// It was genuinely there
 			}
-		}				
+		}
 	;
-
+	
 // Catch an error when looking for a name. The only error we can
 // have is that it is not there, so we create an error node for
 // placing in the AST
 //
 catch [RecognitionException re] {
-  
-  	// First, lets report the error as the user needs to know about it
-  	//
-    reportError(re);
 
-	// Now create an AST node that represents a missing name, The required entry
-	// is of type Name so we use an identifier name that cannot exist in
-	// JavaFX, so that IDEs can detect it, but flag it as being a manufactured
-	// token to the caller.
-	//
-	$value 		= Name.fromString(names, "<missing>");
-	$pos   		= semiPos();
-	$inError	= true;
+	    // First, lets report the error as the user needs to know about it                             
+	    //                                                                                             
+	    reportError(re);   
+	
+		// Now create an AST node that represents a missing name, The required entry
+		// is of type Name so we use an identifier name that cannot exist in
+		// JavaFX, so that IDEs can detect it, but flag it as being a manufactured
+		// token to the caller.
+		//
+		$value 		= Name.fromString(names, "<missing>");
+		$pos   		= semiPos();
+		$inError	= true;
  }
- 
-// A list of all the keywords that the lexer will generate so that they can
-// also be used as identifier and name when appropriate.
-//
-keyword
-    : ABSTRACT  | AFTER     | AND           | AS
-    | ASSERT    | AT        | ATTRIBUTE     | BEFORE
-    | BIND      | BOUND     | BREAK         | CATCH
-    | CLASS     | CONTINUE  | DEF           | DELETE
-    | ELSE      | EXCLUSIVE | EXTENDS       | FALSE
-    | FINALLY   | FIRST     | FOR           | FROM
-    | FUNCTION  | IF        | IMPORT        | IN
-    | INDEXOF   | INIT      | INSERT        | INSTANCEOF
-    | INTO      | INVERSE   | LAST          | LAZY
-    | MIXIN     | MOD       | NATIVEARRAY   | NEW
-    | NOT       | NULL      | ON            | OR
-    | OVERRIDE  | PACKAGE   | POSTINIT      | PRIVATE
-    | PROTECTED | PUBLIC    | PUBLIC_INIT   | PUBLIC_READ
-    | REPLACE   | RETURN    | REVERSE       | SIZEOF
-    | STATIC    | STEP      | SUPER         | THEN
-    | THIS      | THROW     | TRIGGER       | TRUE
-    | TRY       | TWEEN     | TYPEOF        | VAR
-    | WHERE     | WHILE     | WITH
-    ;
+
+
 
 
 // -----------------------
