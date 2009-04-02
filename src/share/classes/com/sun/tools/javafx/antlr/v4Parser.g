@@ -1563,7 +1563,8 @@ formalParameters
 						//
 						params.append($fp2.var); 
 					} 
-			)*  
+			)*
+			COMMA?  
 		)?
 			
 	  RPAREN
@@ -5277,18 +5278,18 @@ bracketExpression
 					errNodes.append($e1.value);
 				}
 		     	(
-		     		COMMA*
-		     		  (
 		     			
-		     				(
-		     					e2=expression
-		     						{
-		     							seqexp.append($e2.value);
-		     							errNodes.append($e2.value);
-		     						}
-		     				)
-		     				COMMA*
-		     		  )*
+	     				  (
+	     				    
+	     				    COMMA
+	     					e2=expression
+	     						{
+	     							seqexp.append($e2.value);
+	     							errNodes.append($e2.value);
+	     						}
+	     				  )*
+	     				  COMMA?
+
 	                    
 	                    {
 	                    	// Explicit sequence detected
@@ -5370,15 +5371,16 @@ expressionList
 		}
 		
 		(
-			COMMA 	(
-						e2=expression
-						
-						{
-							args.append		($e2.value);
-							errNodes.append	($e2.value);
-						}
-					)?
+			COMMA 	
+			e2=expression
+			
+			{
+				args.append		($e2.value);
+				errNodes.append	($e2.value);
+			}
+		
 		)*
+		COMMA?
 	|
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -5645,15 +5647,15 @@ typeArgList
  		}
  		 
  		(
- 			COMMA 
- 			(
- 				t2=typeArg
- 				
- 				{
- 					ptypes.append($t2.rtype);
- 				}
- 			)?
+ 			COMMA 	
+			t2=typeArg
+			
+			{
+				ptypes.append($t2.rtype);
+			}
+		
  		)*
+ 		COMMA?
  	|
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -5839,12 +5841,12 @@ typeName
 			  	
 			  		(
 			  			COMMA
-			  				(
-			  					ga2=genericArgument
-			  				
-			  							{ exprbuff.append($ga2.value); }
-			  				)?
+	  					ga2=genericArgument
+	  				
+	  							{ exprbuff.append($ga2.value); }
+
 			  		)* 
+			  		COMMA?
 			  GT
 			  
 			  {

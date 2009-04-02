@@ -1,0 +1,13 @@
+test/should-fail/jfxc2677-b.fx:9: Sorry, I was trying to understand a sequence creation expression but I got confused when I saw '7'.
+se= [6 7 8];
+       ^
+test/should-fail/jfxc2677-b.fx:9: You have forgotten the ';', which is needed to separate one expression from the next.
+se= [6 7 8];
+      ^
+test/should-fail/jfxc2677-b.fx:9: You have forgotten the ';', which is needed to separate one expression from the next.
+se= [6 7 8];
+        ^
+test/should-fail/jfxc2677-b.fx:9: You have forgotten the ';', which is needed to separate one expression from the next.
+se= [6 7 8];
+          ^
+4 errors
