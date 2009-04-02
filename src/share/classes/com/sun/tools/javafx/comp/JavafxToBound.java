@@ -26,7 +26,6 @@ package com.sun.tools.javafx.comp;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.code.Symbol;
@@ -49,8 +48,6 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
-import java.util.HashSet;
-import java.util.Set;
 import static com.sun.tools.javac.code.TypeTags.*;
 
 public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVisitor {
@@ -294,38 +291,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
     }
 
     /**
-     * Return the list of local variables accessed, but not defined within the FX expression.
-     * @param expr
-     * @return
-     */
-    private List<VarSymbol> localVars(JFXExpression expr) {
-        final ListBuffer<VarSymbol> lb = ListBuffer.<VarSymbol>lb();
-        final Set<VarSymbol> exclude = new HashSet<VarSymbol>();
-        new JavafxTreeScanner() {
-
-            @Override
-            public void visitIdent(JFXIdent tree) {
-                if (tree.sym instanceof VarSymbol) {
-                    VarSymbol vsym = (VarSymbol) (tree.sym);
-                    if (vsym.owner.kind != Kinds.TYP && !exclude.contains(vsym)) {
-                        // Local variable we haven't seen before, include it
-                        lb.append(vsym);
-                        exclude.add(vsym);
-                    }
-                }
-            }
-
-            @Override
-            public void visitVar(JFXVar tree) {
-                exclude.add(tree.sym);
-                super.visitVar(tree);
-            }
-        }.scan(expr);
-
-        return lb.toList();
-    }
-
-    /**
      *
      * @param diagPos
      * @return a boolean expression indicating if the bind is lazy
@@ -370,7 +335,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             ListBuffer<JCCase> cases = ListBuffer.lb();
             for (BindingExpressionClosureTranslator b : bects) {
                 if (!b.generateInLine) {
-                    cases.append(b.makeBindingCase());
+                    cases.append(b.makeCase());
                 }
             }
 
@@ -968,7 +933,9 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
     private JCExpression makeFunction0(
             final Type resultType,
             final JCExpression bodyExpr) {
-        return (new ClosureTranslator(bodyExpr.pos(), (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType)) {
+        return (new ClosureTranslator(bodyExpr.pos()) {
+
+            TypeMorphInfo tmiResult = (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType);
 
             protected List<JCTree> makeBody() {
                 return List.<JCTree>of(
@@ -1068,48 +1035,26 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
     }
 
     /**
-     * Translator for 
+     * Translator for bound expressions which become BindingExpressions
      */
-    private abstract class BindingExpressionClosureTranslator extends ClosureTranslator {
+    private abstract class BindingExpressionClosureTranslator extends ScriptClosureTranslator {
 
+        final TypeMorphInfo tmiResult;
         final Type actualTranslatedType;
-        final int id;
-        JCStatement pushStatement;
-        final ListBuffer<JCExpression> argInits = ListBuffer.lb();
         final ListBuffer<JCStatement> preDecls = ListBuffer.lb();
         boolean generateInLine = false;
 
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
-            super(diagPos, (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType));
-            this.id = bects.size();
+            super(diagPos, bects.size());
+            this.tmiResult = (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType);
             this.actualTranslatedType = resultType;
             bects.append(this);
         }
 
-        protected abstract JCExpression makePushExpression();
+        abstract JCExpression makePushExpression();
 
         protected void buildFields() {
             // by default do this dynamically
-        }
-
-        JCCase makeBindingCase() {
-            return m().Case(m().Literal(id), List.<JCStatement>of(
-                        pushStatement,
-                        m().Break(null)));
-        }
-
-        @Override
-        JCExpression makeAccess(FieldInfo fieldInfo) {
-            JCExpression uncast;
-            if (fieldInfo.num < 2) {
-                // arg$0 and arg$1, use Ident
-                uncast = super.makeAccess(fieldInfo);
-            } else {
-                // moreArgs
-                uncast = m().Indexed(m().Ident(defs.moreArgsName), m().Literal(fieldInfo.num - 2));
-            }
-            // These are just "Location" -- cast to their XxxLocation type
-            return m().TypeCast(makeExpression(fieldInfo.type()), uncast);
         }
 
         protected List<JCTree> makeBody() {
@@ -1120,10 +1065,10 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 // If we have a target type and this isn't a Location yielding translation (which handles it's own), do any needed type conversion
                 resultVal = toJava.convertTranslated(resultVal, diagPos, actualTranslatedType, tmiTarget.getRealType());
             }
-            pushStatement = callStatement(diagPos, null, "pushValue", resultVal);
+            resultStatement = callStatement(diagPos, null, "pushValue", resultVal);
 
             if (generateInLine) {
-                JCTree computeMethod = makeMethod(diagPos, defs.computeMethodName, List.of(pushStatement), null, syms.voidType, Flags.PUBLIC);
+                JCTree computeMethod = makeMethod(diagPos, defs.computeMethodName, List.of(resultStatement), null, syms.voidType, Flags.PUBLIC);
                 members.append(computeMethod);
                 return completeMembers();
             } else {
@@ -1131,46 +1076,9 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             }
         }
 
-        protected JCExpression makeBaseClass() {
-            return m().Ident(defs.scriptBindingClassName);
-        }
-
         @Override
-        protected void makeLocationField(JCExpression targ, FieldInfo fieldInfo) {
-            // We use the fields in the base class, just store to Location constructions for use in the constructor args
-            argInits.append(targ);
-        }
-
         protected List<JCExpression> makeConstructorArgs() {
-            ListBuffer<JCExpression> args = ListBuffer.lb();
-            // arg: id
-            args.append(m().Literal(id));
-            List<JCExpression> inits = argInits.toList();
-            assert inits.length() == argNum : "Mismatch Args: " + argNum + ", Inits: " + inits.length();
-            // arg: arg$0
-            if (argNum > 0) {
-                args.append(inits.head);
-                inits = inits.tail;
-            } else {
-                args.append(m().Literal(TypeTags.BOT, null));
-            }
-            // arg: arg$1
-            if (argNum > 1) {
-                args.append(inits.head);
-                inits = inits.tail;
-            } else {
-                args.append(m().Literal(TypeTags.BOT, null));
-            }
-            // arg: moreArgs
-            if (argNum > 2) {
-                args.append(m().NewArray(makeExpression(syms.objectType), List.<JCExpression>nil(), inits));
-            } else {
-                args.append(m().Literal(TypeTags.BOT, null));
-            }
-            // arg: dependents
-            args.append(m().Literal(TypeTags.INT, dependents));
-            
-            return args.toList();
+            return super.makeConstructorArgs().append(m().Literal(TypeTags.INT, dependents));
         }
 
         @Override

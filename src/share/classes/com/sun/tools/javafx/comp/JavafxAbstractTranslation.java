@@ -25,12 +25,15 @@ package com.sun.tools.javafx.comp;
 
 
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTags;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCCase;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
@@ -47,7 +50,6 @@ import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.javafx.tree.JFXFunctionInvocation;
@@ -55,9 +57,13 @@ import com.sun.tools.javafx.tree.JFXIdent;
 import com.sun.tools.javafx.tree.JFXLiteral;
 import com.sun.tools.javafx.tree.JFXSelect;
 import com.sun.tools.javafx.tree.JFXStringExpression;
+import com.sun.tools.javafx.tree.JFXVar;
 import com.sun.tools.javafx.tree.JavafxTag;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
+import com.sun.tools.javafx.tree.JavafxTreeScanner;
 import com.sun.tools.javafx.util.MsgSym;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 
@@ -98,6 +104,39 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         return toJava.attrEnv;
     }
 
+    /**
+     * Return the list of local variables accessed, but not defined within the FX expression.
+     * @param expr
+     * @return
+     */
+    List<VarSymbol> localVars(JFXExpression expr) {
+        final ListBuffer<VarSymbol> lb = ListBuffer.<VarSymbol>lb();
+        final Set<VarSymbol> exclude = new HashSet<VarSymbol>();
+        new JavafxTreeScanner() {
+
+            @Override
+            public void visitIdent(JFXIdent tree) {
+                if (tree.sym instanceof VarSymbol) {
+                    VarSymbol vsym = (VarSymbol) (tree.sym);
+                    if (vsym.owner.kind != Kinds.TYP && !exclude.contains(vsym)) {
+                        // Local variable we haven't seen before, include it
+                        lb.append(vsym);
+                        exclude.add(vsym);
+                    }
+                }
+            }
+
+            @Override
+            public void visitVar(JFXVar tree) {
+                exclude.add(tree.sym);
+                super.visitVar(tree);
+            }
+        }.scan(expr);
+
+        return lb.toList();
+    }
+
+    //TODO: this class should go away in favor of Translator
     abstract static class STranslator {
 
         protected DiagnosticPosition diagPos;
@@ -301,10 +340,6 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
 
     abstract class ClosureTranslator extends Translator {
 
-        protected final TypeMorphInfo tmiResult;
-        protected final int typeKindResult;
-        protected final Type elementTypeResult;
-
         // these only used when fields are built
         ListBuffer<JCTree> members = ListBuffer.lb();
         ListBuffer<JCStatement> fieldInits = ListBuffer.lb();
@@ -312,11 +347,8 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         ListBuffer<JCExpression> callArgs = ListBuffer.lb();
         int argNum = 0;
 
-        ClosureTranslator(DiagnosticPosition diagPos, TypeMorphInfo tmiResult) {
+        ClosureTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
-            this.tmiResult = tmiResult;
-            typeKindResult = tmiResult.getTypeKind();
-            elementTypeResult = types.boxedElementType(tmiResult.getLocationType()); // want boxed, JavafxTypes version won't work
         }
 
         /**
@@ -337,19 +369,6 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         protected abstract List<JCTree> makeBody();
 
         protected abstract JCExpression makeBaseClass();
-
-        protected JCExpression makeBaseClass(Type clazzType, Type additionTypeParamOrNull) {
-            JCExpression clazz = makeExpression(types.erasure(clazzType));  // type params added below, so erase formals
-            ListBuffer<JCExpression> typeParams = ListBuffer.lb();
-
-            if (typeKindResult == JavafxVarSymbol.TYPE_KIND_OBJECT || typeKindResult == JavafxVarSymbol.TYPE_KIND_SEQUENCE) {
-                typeParams.append(makeExpression(elementTypeResult));
-            }
-            if (additionTypeParamOrNull != null) {
-                typeParams.append(makeExpression(additionTypeParamOrNull));
-            }
-            return typeParams.isEmpty()? clazz : m().TypeApply(clazz, typeParams.toList());
-        }
 
         protected abstract List<JCExpression> makeConstructorArgs();
 
@@ -436,7 +455,7 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
             return m().Ident(argAccessName(fieldInfo));
         }
 
-        protected void makeLocationField(JCExpression targ, FieldInfo fieldInfo) {
+        protected void sendField(JCExpression targ, FieldInfo fieldInfo) {
             fieldInits.append( m().Exec( m().Assign(makeAccess(fieldInfo), targ)) );
             members.append(m().VarDef(
                     m().Modifiers(Flags.PRIVATE),
@@ -460,7 +479,7 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         protected JCExpression buildArgField(JCExpression arg, FieldInfo fieldInfo, ArgKind kind) {
             // translate the method arg into a Location field of the BindingExpression
             // XxxLocation arg$0 = ...;
-            makeLocationField(arg, fieldInfo);
+            sendField(arg, fieldInfo);
 
             // build a list of these args, for use as dependents -- arg$0, arg$1, ...
             if (kind == ArgKind.BOUND) {
@@ -485,4 +504,78 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
             }
         }
     }
+
+
+    abstract class ScriptClosureTranslator extends ClosureTranslator {
+
+        final int id;
+        JCStatement resultStatement;
+        final ListBuffer<JCExpression> argInits = ListBuffer.lb();
+
+        ScriptClosureTranslator(DiagnosticPosition diagPos, int id) {
+            super(diagPos);
+            this.id = id;
+        }
+
+        JCCase makeCase() {
+            return m().Case(m().Literal(id), List.<JCStatement>of(
+                    resultStatement,
+                    m().Break(null)));
+        }
+
+        @Override
+        JCExpression makeAccess(FieldInfo fieldInfo) {
+            JCExpression uncast;
+            if (fieldInfo.num < 2) {
+                // arg$0 and arg$1, use Ident
+                uncast = super.makeAccess(fieldInfo);
+            } else {
+                // moreArgs
+                uncast = m().Indexed(m().Ident(defs.moreArgsName), m().Literal(fieldInfo.num - 2));
+            }
+            // Cast to their XxxLocation type
+            return m().TypeCast(makeExpression(fieldInfo.type()), uncast);
+        }
+
+        protected JCExpression makeBaseClass() {
+            return m().Ident(defs.scriptBindingClassName);
+        }
+
+        @Override
+        protected void sendField(JCExpression targ, FieldInfo fieldInfo) {
+            // for use in the constructor args
+            argInits.append(targ);
+        }
+
+        protected List<JCExpression> makeConstructorArgs() {
+            ListBuffer<JCExpression> args = ListBuffer.lb();
+            // arg: id
+            args.append(m().Literal(id));
+            List<JCExpression> inits = argInits.toList();
+            assert inits.length() == argNum : "Mismatch Args: " + argNum + ", Inits: " + inits.length();
+            // arg: arg$0
+            if (argNum > 0) {
+                args.append(inits.head);
+                inits = inits.tail;
+            } else {
+                args.append(m().Literal(TypeTags.BOT, null));
+            }
+            // arg: arg$1
+            if (argNum > 1) {
+                args.append(inits.head);
+                inits = inits.tail;
+            } else {
+                args.append(m().Literal(TypeTags.BOT, null));
+            }
+            // arg: moreArgs
+            if (argNum > 2) {
+                args.append(m().NewArray(makeExpression(syms.objectType), List.<JCExpression>nil(), inits));
+            } else {
+                args.append(m().Literal(TypeTags.BOT, null));
+            }
+            return args.toList();
+        }
+
+    }
 }
+

@@ -111,6 +111,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     private Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
 
+    private ListBuffer<OnReplaceClosureTranslator> triggers;
+
     enum ReceiverContext {
         // In a script function or script var init, implemented as a static method
         ScriptAsStatic,
@@ -678,6 +680,62 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         attrEnv.translatedToplevel = translate(attrEnv.toplevel);
         attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;
+    }
+
+    /**
+     * Translator for on replace triggers
+     */
+    private class OnReplaceClosureTranslator extends ScriptClosureTranslator {
+
+        final JFXExpression expr;
+
+        OnReplaceClosureTranslator(DiagnosticPosition diagPos, JFXExpression expr) {
+            super(diagPos, triggers.size());
+            this.expr = expr;
+            triggers.append(this);
+        }
+
+        protected void buildFields() {
+        }
+
+        protected List<JCTree> makeBody() {
+            return null;
+        }
+
+        private JCVariableDecl renamingVar(Name name, Name vname, Type type, boolean isLocation) {
+            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
+            Type varType = isLocation ? tmi.getLocationType() : type;
+            FieldInfo rcvrField = new FieldInfo(name.toString(), typeMorpher.typeMorphInfo(varType), false);
+            return m().VarDef(
+                    m().Modifiers(Flags.FINAL),
+                    vname,
+                    makeTypeTree(diagPos, varType),
+                    buildArgField(m().Ident(name), rcvrField, ArgKind.FREE));
+        }
+
+        protected JCBlock makeResultBlock() {
+            ListBuffer<JCStatement> renamings = ListBuffer.<JCStatement>lb();
+            switch (toJava.inInstanceContext) {
+                case ScriptAsStatic:
+                    // No receiver
+                    break;
+                case InstanceAsStatic:
+                    renamings.append(renamingVar(defs.receiverName, defs.receiverName, getAttrEnv().enclClass.type, false));
+                    break;
+                case InstanceAsInstance:
+                    renamings.append(renamingVar(names._this, defs.receiverName, getAttrEnv().enclClass.type, false));
+                    break;
+                default:
+                    assert false : "Bad receiver context";
+                    break;
+            }
+            if (expr != null) {
+                for (VarSymbol vsym : localVars(expr)) {
+                    renamings.append(renamingVar(vsym.name, vsym.name, vsym.type, true));
+                }
+            }
+            return m().Block(0L, renamings.toList().append(translateToStatement(expr)));
+        }
     }
 
     void scriptBegin() {

@@ -1018,10 +1018,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCStatement> ocMethStmts = ListBuffer.lb();
         ocMethStmts.appendList(prefixStmts);
         
-        if (onReplace != null) {
-            diagPos = onReplace.pos();
-            ocMethStmts.appendList(onReplaceTranslatedBody.getStatements());
-        }
+        diagPos = onReplace.pos();
+        ocMethStmts.appendList(onReplaceTranslatedBody.getStatements());
         
         if (returnTypeTag == TypeTags.BOOLEAN) {
             ocMethStmts.append(make.at(diagPos).Return(make.at(diagPos).Literal(TypeTags.BOOLEAN, 1)));
