@@ -61,6 +61,9 @@ public class Entry {
                 Entry.commandLineArgs = (String[]) commandLineArgs.clone();
         }
 
+        String codebase = app.getProtectionDomain().getCodeSource().getLocation().toString();
+        codebase = codebase.substring(0, codebase.lastIndexOf('/')+1);
+        SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
         final Method main = app.getMethod(entryMethodName(), Sequence.class);
         Object args = Sequences.make(TypeInfo.String, commandLineArgs);
         
