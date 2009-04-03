@@ -759,6 +759,38 @@ public class JavafxCheck {
             return t;
     }
 
+    /**
+     * Check that a method call of the kind t.memberName() is legal.
+     * t must be a direct supertype of the enclosing class type csym.
+     *
+     * @param pos the position in which the error should be reported
+     * @param csym the enclosing class
+     * @param t the qualifier type
+     */
+    public void checkSuper(DiagnosticPosition pos, JavafxClassSymbol csym, Type t) {
+        if (types.isSameType(csym.type, t))
+            return;
+
+        boolean isOk = false;
+        List<Type> supertypes = csym.getSuperTypes();
+        if (supertypes.isEmpty()) {
+            isOk = types.isSameType(syms.objectType, t);
+        }
+        else {
+            while(supertypes.nonEmpty() && !isOk) {
+                if (types.isSameType(t, supertypes.head))
+                    isOk = true;
+                supertypes = supertypes.tail;
+            }
+        }
+
+        if (!isOk) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_INVALID_SELECT_FOR_SUPER,
+                    types.toJavaFXString(t),
+                    types.toJavaFXString(csym.type));
+        }
+    }
+
     /** Check that type is a class or interface type.
      *  @param pos           Position to be used for error reporting.
      *  @param t             The type to be checked.

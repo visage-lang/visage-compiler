@@ -624,8 +624,9 @@ public class JavafxAttr implements JavafxVisitor {
         // Determine the symbol represented by the selection.
         env.info.varArgs = false;
         if (sitesym instanceof ClassSymbol &&
-                env.enclClass.sym.isSubClass(sitesym, types))
-            env.info.selectSuper = true;
+                (types.isSameType(sitesym.type, syms.objectType) ||
+                env.enclClass.sym.isSubClass(sitesym, types)))
+                    env.info.selectSuper = true;
         Symbol sym = selectSym(tree, site, env, pt, pkind);
         sym.complete();
         if (sym.exists() && !isType(sym) && (pkind & (PCK | TYP)) != 0) {
@@ -693,6 +694,11 @@ public class JavafxAttr implements JavafxVisitor {
 
             // Check that super-qualified symbols are not abstract (JLS)
             rs.checkNonAbstract(tree.pos(), sym);
+
+            if (env.enclClass.sym instanceof JavafxClassSymbol) {
+                // Check that the selectet type is a direct supertype of the enclosing class
+                chk.checkSuper(tree.pos(), (JavafxClassSymbol)env.enclClass.sym, site);
+            }
 
             if (site.isRaw()) {
                 // Determine argument types for site.

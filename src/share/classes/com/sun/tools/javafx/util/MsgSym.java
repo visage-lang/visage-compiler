@@ -332,7 +332,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_BOUND_OVERRIDE_METH = "javafx.bound.override.meth"; 
     public static final String MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH = "javafx.non.bound.override.meth"; 
     public static final String MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR = "javafx.base.java.class.non.papar.ctor"; 
-    public static final String MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER = "javafx.ambiguous.param.type.from.super"; 
+    public static final String MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER = "javafx.ambiguous.param.type.from.super";
+    public static final String MESSAGE_JAVAFX_INVALID_SELECT_FOR_SUPER = "javafx.invalid.select.for.super";
     public static final String MESSAGE_JAVAFX_AMBIGUOUS_RETURN_TYPE_FROM_SUPER = "javafx.ambiguous.return.type.from.super";
     public static final String MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE = "javafx.iterating.non.sequence";
     public static final String MESSAGE_JAVAFX_NOT_A_FUNC = "javafx.not.a.function";
