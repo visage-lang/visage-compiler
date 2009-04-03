@@ -228,9 +228,24 @@ public class  SystemProperties {
                // Change existing property value
                props = jfxprop_list;
                props.put(key, value);
+               if (codebase.equals(prefix+key))
+		   codebase_value = value;
 	   }
 	} 
     }
+
+    public static String getCodebase() {
+	return codebase_value;
+    }
+
+    public static void setCodebase(String value) {
+	 if (value == null)
+		value = "";
+ 	 codebase_value = value;
+	 setFXProperty("javafx.application.codebase", value);
+    }
+
+    private static String codebase_value;
 
     public static final String codebase = "javafx.application.codebase";
 }
