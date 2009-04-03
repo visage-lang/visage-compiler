@@ -1,0 +1,19 @@
+test/should-fail/jfxc1086.fx:21: warning: Target of variable select expression is not re-evaluated for bind with inverse. You may want to rewrite like the following:
+def obj = <expression-without-bind>;
+def x = bind obj.variableName with inverse;
+
+var name = bind shapes[index].name with inverse;
+                ^
+test/should-fail/jfxc1086.fx:29: warning: Target of variable select expression is not re-evaluated for bind with inverse. You may want to rewrite like the following:
+def obj = <expression-without-bind>;
+def x = bind obj.variableName with inverse;
+
+var y = bind x.name with inverse;
+             ^
+test/should-fail/jfxc1086.fx:37: warning: Target of variable select expression is not re-evaluated for bind with inverse. You may want to rewrite like the following:
+def obj = <expression-without-bind>;
+def x = bind obj.variableName with inverse;
+
+var b1 = bind a1.name with inverse;
+              ^
+3 warnings
