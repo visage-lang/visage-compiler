@@ -1819,6 +1819,10 @@ public class JavafxAttr implements JavafxVisitor {
             } else {
                 JFXBlock body = opVal.getBodyExpression();
                 if (body.value instanceof JFXReturn) {
+                    if (returnType == syms.voidType) {
+                        log.error(body.value.pos(),
+                                MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
+                    }
                     body.value = ((JFXReturn) body.value).expr;
                 }
                 // Attribute method bodyExpression
@@ -2134,7 +2138,7 @@ public class JavafxAttr implements JavafxVisitor {
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE);
             else if (tree.returnType.tag == VOID) {
                 if (tree.expr != null) {
-                    log.error(tree.expr.pos(),
+                    log.error(tree.pos(),
                         MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
                 }
             } else if (tree.expr == null) {
