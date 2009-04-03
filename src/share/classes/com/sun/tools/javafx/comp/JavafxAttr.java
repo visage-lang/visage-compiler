@@ -3426,7 +3426,7 @@ public class JavafxAttr implements JavafxVisitor {
             return false;
         }
         //where
-        private boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
+        public boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
             return isFunctionDef(env) ||
                    env.tree.getFXTag() == JavafxTag.FUNCTIONEXPRESSION ||                   
                    env.tree.getFXTag() == JavafxTag.CLASS_DEF ||

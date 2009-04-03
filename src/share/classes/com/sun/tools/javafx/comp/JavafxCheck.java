@@ -80,6 +80,7 @@ public class JavafxCheck {
     private final Target target;
     private final Source source;
     private final JavafxTypes types;
+    private final JavafxAttr attr;
     private final JavafxTreeInfo treeinfo;
     private final JavafxResolve rs;
 
@@ -119,7 +120,8 @@ public class JavafxCheck {
         messages = Messages.instance(context);
         syms = (JavafxSymtab) Symtab.instance(context);
         infer = Infer.instance(context);
-        this.types = JavafxTypes.instance(context);
+        types = JavafxTypes.instance(context);
+        attr = JavafxAttr.instance(context);
         Options options = Options.instance(context);
         target = Target.instance(context);
             source = Source.instance(context);
@@ -263,7 +265,7 @@ public class JavafxCheck {
      */
     void duplicateError(DiagnosticPosition pos, Symbol sym) {
 	if (sym.type == null || !sym.type.isErroneous()) {
-	    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED, sym, sym.location());
+	    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED, sym, types.location(sym));
 	}
     }
 
@@ -2059,6 +2061,17 @@ public class JavafxCheck {
      *	@param sym	     The symbol.
      *	@param s	     The scope.
      */
+    boolean checkUnique(DiagnosticPosition pos, Symbol sym, JavafxEnv<JavafxAttrContext> env) {
+        boolean shouldContinue = true;
+        do {
+            shouldContinue = !attr.isClassOrFuncDef(env);
+            if (!checkUnique(pos, sym, JavafxEnter.enterScope(env)))
+                return false;
+            env = env.outer;
+        } while (env != null && shouldContinue);
+        return true;
+    }
+    
     boolean checkUnique(DiagnosticPosition pos, Symbol sym, Scope s) {
         if (sym.type != null && sym.type.isErroneous()) {
             return true;

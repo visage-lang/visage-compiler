@@ -390,81 +390,43 @@ public class JavafxTypes extends Types {
     }
 
     private boolean isJavaFXBoolean(Type type) {
-        boolean result = false;
-        if (type.tag == BOOLEAN) {
-            result = true;
-        }
-        return result;
+        return type.tag == BOOLEAN;
     }
     
     private boolean isJavaLong(Type type) {
-        boolean result = false;
-        if (type.tag == LONG) {
-            result = true;
-        }
-        return result;
+        return type.tag == LONG;
     }
     
     private boolean isJavaFXInteger(Type type) {
-        boolean result = false;
-        if (type.tag == BYTE) {
-            result = true;
-        } else if (type.tag == SHORT) {
-            result = true;
-        } else if (type.tag == INT) {
-            result = true;
-        }
-        return result;
+        return type.tag == BYTE ||
+                type.tag == SHORT ||
+                type.tag == INT;
     }
     
     private boolean isJavaFXNumber(Type type){
-        boolean result = false;
-        if (type.tag == FLOAT) {
-            result = true;
-        } else if (type.tag == DOUBLE) {
-            result = true;
-        }
-        return result;
+        return type.tag == FLOAT ||
+                type.tag == DOUBLE;
     }
     
     private boolean isJavaFXString(Type type) {
-        boolean result = false;
-        if ((type.tag == CLASS) && (type.toString().equals("java.lang.String"))) {
-            result = true;
-        }
-        return result;
+        return (type.tag == CLASS) && (type.toString().equals("java.lang.String"));
     }
     
     private boolean isJavaFXObject(Type type) {
-        boolean result = false;
-        if ((type.tag == CLASS) && (type.toString().equals("java.lang.Object"))) {
-            result = true;
-        }
-        return result;
+        return (type.tag == CLASS) && (type.toString().equals("java.lang.Object"));
     }
     
     private boolean isJavaFXUnknown(Type type) {
-        boolean result = false;
-        if (type.tag == UNKNOWN) {
-            result = true;
-        }
-        return result;
+        return type.tag == UNKNOWN;
     }
     
     private boolean isJavaFXSequence(Type type) {
-        boolean result = false;
-        if (isSequence(type)) {
-            result = true;
-        }
-        return result;
+        return isSequence(type);
     }
     
     private boolean isJavaFXMethod(Type type) {
-        boolean result = false;
-        if ((type instanceof MethodType) || (type instanceof FunctionType)) {
-            result = true;
-        }
-        return result;
+        return type instanceof MethodType ||
+                type instanceof FunctionType;
     }
     
     private void sequenceToJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
@@ -570,5 +532,12 @@ public class JavafxTypes extends Types {
                 syms.isRunMethod(sym.owner))
             sym = sym.owner;
         return sym.location(site, this);
+    }
+
+    public String location (Symbol sym) {
+        while ((sym.owner.flags() & BLOCK) != 0 ||
+                syms.isRunMethod(sym.owner))
+            sym = sym.owner;
+        return sym.location();
     }
 }
