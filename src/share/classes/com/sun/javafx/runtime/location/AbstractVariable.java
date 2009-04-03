@@ -70,10 +70,11 @@ public abstract class AbstractVariable<
             throw new BindingException("Cannot rebind variable");
     }
 
-    public void bijectiveBind(ObjectLocation<T_VALUE> other) {
+    public ObjectLocation<T_VALUE> bijectiveBind(ObjectLocation<T_VALUE> other) {
         ensureBindable();
         resetState(STATE_BIDI_BOUND);
         Bindings.bijectiveBind(this, other);
+        return this;
     }
 
     protected void setDeferredLiteral(DeferredInitializer initializer) {
