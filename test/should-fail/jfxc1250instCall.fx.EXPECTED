@@ -1,15 +1,15 @@
 test\should-fail\jfxc1250instCall.fx:33: cannot find symbol
-symbol  : variable memFScr
+symbol  : function memFScr()
 location: class jfxc1250instCall.Inh
 	System.out.println( memFScr() );   // ERROR: inherited, same package
 	                    ^
 test\should-fail\jfxc1250instCall.fx:41: cannot find symbol
-symbol  : variable memFPkg
+symbol  : function memFPkg()
 location: class jfxc1250instCall.InhA
 	System.out.println( memFPkg() );   // ERROR: inherited, different package
 	                    ^
 test\should-fail\jfxc1250instCall.fx:42: cannot find symbol
-symbol  : variable memFScr
+symbol  : function memFScr()
 location: class jfxc1250instCall.InhA
 	System.out.println( memFScr() );   // ERROR: inherited, different package
 	                    ^

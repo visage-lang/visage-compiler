@@ -295,13 +295,13 @@ public class MsgSym {
     public static final String KINDNAME_CLASS = "kindname.class";
     public static final String KINDNAME_VARIABLE = "kindname.variable";
     public static final String KINDNAME_VALUE = "kindname.value";
-    public static final String KINDNAME_METHOD = "kindname.method";
     public static final String KINDNAME_TYPE_VARIABLE = "kindname.type.variable";
     public static final String KINDNAME_TYPE_VARIABLE_BOUND = "kindname.type.variable.bound";
     public static final String KINDNAME_ANNOTATION = "kindname.annotation";
     public static final String KINDNAME_INTERFACE = "kindname.interface";
     public static final String KINDNAME_CONSTRUCTOR = "kindname.constructor";
     public static final String KINDNAME_STATIC = "kindname.static";
+    public static final String MESSAGE_JAVAFX_KINDNAME_FUNCTION = "kindname.function";
 
     
     // jfx-compiler messages
