@@ -595,7 +595,9 @@ public class JavafxResolve {
                         if (checkArgs) {
                             return checkArgs(e.sym, mtype);
                         }
-                        return e.sym;
+                        return !e.sym.isStatic() && staticOnly ?
+                            new StaticError(e.sym) :
+                            e.sym;
                     }
                 }
             }
