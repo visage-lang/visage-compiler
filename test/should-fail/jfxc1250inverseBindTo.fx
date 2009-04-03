@@ -88,7 +88,7 @@ function memInhAInvBind() {
 }
 
 function memHereInvBind() {
-	var vf = jfxc1250inverseBindTo {};
+	def vf = jfxc1250inverseBindTo {};
 	Foo { toThis: bind vf.memHerePub with inverse };   // script class, select access
 	Foo { toThis: bind vf.memHerePro with inverse };   // script class, select access
 	Foo { toThis: bind vf.memHerePkg with inverse };   // script class, select access
@@ -104,7 +104,7 @@ function memHereInvBind() {
 }
 
 function memFooInvBind() {
-	var vf = Foo {};
+	def vf = Foo {};
 	Foo { toThis: bind vf.fooPub with inverse };   // nested class
 	Foo { toThis: bind vf.fooPro with inverse };   // nested class
 	Foo { toThis: bind vf.fooPkg with inverse };   // nested class
@@ -120,7 +120,7 @@ function memFooInvBind() {
 }
 
 function memSubInvBind() {
-	var vf = jfxc1250subFail {};
+	def vf = jfxc1250subFail {};
 	Foo { toThis: bind vf.memPub with inverse };   // same package
 	Foo { toThis: bind vf.memPro with inverse };   // same package
 	Foo { toThis: bind vf.memPkg with inverse };   // same package
@@ -136,7 +136,7 @@ function memSubInvBind() {
 }
 
 function memSubAInvBind() {
-	var vf = jfxc1250subFailA {};
+	def vf = jfxc1250subFailA {};
 	Foo { toThis: bind vf.memPub with inverse };   // different package
 	Foo { toThis: bind vf.memPro with inverse };   // ERROR: different package
 	Foo { toThis: bind vf.memPkg with inverse };   // ERROR: different package

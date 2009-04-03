@@ -85,7 +85,7 @@ function memInhAInvBind() {
 }
 
 function memHereInvBind() {
-	var vf = jfxc1250varInverseBind {};
+	def vf = jfxc1250varInverseBind {};
 	{ var x = bind vf.memHerePub with inverse };   // script class, select access
 	{ var x = bind vf.memHerePro with inverse };   // script class, select access
 	{ var x = bind vf.memHerePkg with inverse };   // script class, select access
@@ -101,7 +101,7 @@ function memHereInvBind() {
 }
 
 function memFooInvBind() {
-	var vf = Foo {};
+	def vf = Foo {};
 	{ var x = bind vf.fooPub with inverse };   // nested class
 	{ var x = bind vf.fooPro with inverse };   // nested class
 	{ var x = bind vf.fooPkg with inverse };   // nested class
@@ -117,7 +117,7 @@ function memFooInvBind() {
 }
 
 function memSubInvBind() {
-	var vf = jfxc1250subFail {};
+	def vf = jfxc1250subFail {};
 	{ var x = bind vf.memPub with inverse };   // same package
 	{ var x = bind vf.memPro with inverse };   // same package
 	{ var x = bind vf.memPkg with inverse };   // same package
@@ -133,7 +133,7 @@ function memSubInvBind() {
 }
 
 function memSubAInvBind() {
-	var vf = jfxc1250subFailA {};
+	def vf = jfxc1250subFailA {};
 	{ var x = bind vf.memPub with inverse };   // different package
 	{ var x = bind vf.memPro with inverse };   // ERROR: different package
 	{ var x = bind vf.memPkg with inverse };   // ERROR: different package

@@ -327,7 +327,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed"; 
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
     public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
-    public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
+    public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";    
+    public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND = "javafx.select.target.not.reevaluated.for.bidi.bind";
     public static final String MESSAGE_JAVAFX_BOUND_OVERRIDE_METH = "javafx.bound.override.meth"; 
     public static final String MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH = "javafx.non.bound.override.meth"; 
     public static final String MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR = "javafx.base.java.class.non.papar.ctor"; 

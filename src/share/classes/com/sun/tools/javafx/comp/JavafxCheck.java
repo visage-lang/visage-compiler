@@ -683,6 +683,42 @@ public class JavafxCheck {
                     JFXSelect select = (JFXSelect) init;
                     initSym = select.sym;
                     base = select.getExpression();
+
+                    // We don't re-evaluate the select target 
+                    // in bidirectional binds. So, we issue warning.
+                    boolean warn = true;
+
+                    // Do not warn for this.foo and super.foo
+                    Name baseName = JavafxTreeInfo.name(base);
+                    if (baseName == names._this || 
+                        baseName == names._super) {
+                        warn = false;
+                    }
+
+                    // Do not warn for static variable select,
+                    // because the target is a class and so that
+                    // can not change. Also, ClassName.foo is used
+                    // to access super class variable - we do not
+                    // warn that case either.
+                    Symbol sym = JavafxTreeInfo.symbolFor(base);
+                    if (warn && sym instanceof JavafxClassSymbol) {
+                        warn = false;
+                    }
+
+                    // If the target of member select is a "def" 
+                    // variable and not initialized with bind, then
+                    // we know the target can not change.
+                    if (warn && base instanceof JFXIdent) {
+                        long flags = sym.flags();
+                        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0L;
+                        boolean isBindInit = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0L;
+                        boolean targetFinal = isDef && !isBindInit;
+                        warn = !targetFinal;
+                    }
+
+                    if (warn) {
+                        log.warning(base.pos(), MsgSym.MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND);
+                    }
                     site = select.type;
                     break;
                 }

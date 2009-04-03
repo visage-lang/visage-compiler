@@ -906,6 +906,9 @@ public class JavafxAttr implements JavafxVisitor {
                 v.pos = Position.MAXPOS;
                 boolean wasInBindContext = this.inBindContext;
                 this.inBindContext |= tree.isBound();
+                if (this.inBindContext) {
+                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+                }
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
                 initType = chk.checkNonVoid(tree.pos(), initType);                
@@ -1035,6 +1038,9 @@ public class JavafxAttr implements JavafxVisitor {
 
         boolean wasInBindContext = this.inBindContext;
         this.inBindContext |= tree.isBound();
+        if (this.inBindContext) {
+            v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+        }
         try {
             JFXExpression init = tree.getInitializer();
             if (init != null) {
