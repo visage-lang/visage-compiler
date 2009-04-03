@@ -909,7 +909,7 @@ public class JavafxAttr implements JavafxVisitor {
                 // In order to catch self-references, we set the variable's
                 // declaration position to maximal possible value, effectively
                 // marking the variable as undefined.
-                v.pos = Position.MAXPOS;
+                initEnv.info.enclVar = v;
                 boolean wasInBindContext = this.inBindContext;
                 this.inBindContext |= tree.isBound();
                 if (this.inBindContext) {
@@ -939,7 +939,6 @@ public class JavafxAttr implements JavafxVisitor {
         finally {
             chk.setLint(prevLint);
             log.useSource(prev);
-            v.pos = tree.pos;
         }
     }
 
@@ -3399,15 +3398,15 @@ public class JavafxAttr implements JavafxVisitor {
         private void checkForward(JFXTree tree,
                                JavafxEnv<JavafxAttrContext> env,
                                VarSymbol v
-                               ) {            
+                               ) {
             // A forward reference is diagnosed if the declaration position
             // of the variable is greater than the current tree position
             // and the tree and variable definition share the same enclosing 
             // scope. A forward reference to a def variable whose initializer is
             // an object literal is always allowed. Selection on such variables
             // is only allowed when it occurs within bound/function/class context.
-            if (v.pos > tree.pos && (env.info.inSelect ?                
-                true : !isObjLiteralDef(v)) &&
+            if ((v.pos > tree.pos || env.info.enclVar == v) &&
+                (env.info.inSelect ? true : !isObjLiteralDef(v)) &&
                 inSameEnclosingScope(v, env))
                 log.warning(tree.pos(), MsgSym.MESSAGE_ILLEGAL_FORWARD_REF, Resolve.kindName(v.kind), v);
         }
