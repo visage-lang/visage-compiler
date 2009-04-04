@@ -1,4 +1,11 @@
-var a = 100; 
+/**
+ * Regress test for JFXC-3018 - Binding chain isn't updated when initialized.
+ *
+ * @test
+ * @run
+ */
+
+var a = 1234; 
 
 class SuperB { 
     var c:C; 
@@ -17,4 +24,4 @@ class C {
 var b = B { 
     b: bind a 
 }; 
-println(b.c.c); // expect 100, is 0 
+println(b.c.c); // expect 1234, is 0 
