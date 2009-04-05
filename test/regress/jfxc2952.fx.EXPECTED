@@ -1,13 +1,10 @@
 In Football: count=1024.
-In Video: count=1024.
+In Video: count=2048.
 Football playing
 In Football: count=1025.
-In Video: count=1025.
 Video playing
-In Football: count=1026.
-In Video: count=1026.
+In Video: count=2049.
 Football playing
-In Football: count=1027.
-In Video: count=1027.
-o.countInFootball=1027.
-o.countInVideo=1027.
+In Football: count=1026.
+o.countInFootball=1026.
+o.countInVideo=2049.

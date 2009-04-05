@@ -33,9 +33,7 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.VarInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -529,16 +527,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isMixinClass = cDecl.isMixinClass();
         
         for (VarInfo ai : attrInfos) {
-            if (ai.needsCloning()) {
-                final DiagnosticPosition diagPos = ai.pos();
-                final VarSymbol vsym = ai.getSymbol();
-                final VarSymbol proxyVarSym = ai.proxyVarSym();
-
+            final DiagnosticPosition diagPos = ai.pos();
+            final VarSymbol vsym = ai.getSymbol();
+            final VarSymbol proxyVarSym = ai.proxyVarSym();
+            
+            if (!(ai instanceof SuperClassVarInfo)) {
                 {
                     // Add the return statement for the attribute
                     JCExpression value = make.Ident(attributeFieldName(proxyVarSym));
                     JCStatement returnStat = make.at(diagPos).Return(value);
-
+    
                     // Add the method for this class' attributes
                     JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
                     accessors.append(makeGetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
@@ -546,22 +544,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (!requiresLocation(ai)) {
                     // Add setter method
                     ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
+    
                     if (!ai.isDef() && !isMixinClass) {
                         stmts.append(clearNeedsDefault(diagPos, proxyVarSym));
                     }
-
+    
                     // Set value
                     JCExpression attr = make.at(diagPos).Ident(attributeFieldName(proxyVarSym));
                     JCExpression value = make.at(diagPos).Ident(defs.attributeSetMethodParamName);
                     JCExpression assign = make.at(diagPos).Assign(attr, value);
                     stmts.append(make.at(diagPos).Return(assign));
-
+    
                     // Add setter method
                     JCBlock block = make.at(diagPos).Block(0L, stmts.toList());
                     accessors.append(makeSetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
                 }
-
+    
                 optStat.recordProxyMethod();
             }
         }
@@ -586,11 +584,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isMixinClass = cDecl.isMixinClass();
         ListBuffer<JCTree> methods = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            if (ai.needsCloning() && !ai.hasProxyVar()) {
+            boolean hasDefault = ai.getDefaultInitStatement() != null;
+            
+            if (ai.needsCloning() || hasDefault) {
                 Name methodName = attributeApplyDefaultsName(ai.getSymbol());
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-                if (ai.getDefaultInitStatement() != null) {
+                if (hasDefault) {
                     /* TODO JFXC-2836
                     if (!ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
                         stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
@@ -714,7 +714,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JFXClassDeclaration cDecl) {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            if (!ai.hasProxyVar() && !ai.isStatic()) {
+            if (!ai.isStatic() && !ai.isInitOverridden()) {
                 DiagnosticPosition diagPos = ai.pos();
                 VarSymbol vsym = ai.getSymbol();
                 Name methodName = attributeApplyDefaultsName(vsym);
@@ -749,9 +749,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            assert tai.var != null;
-            assert tai.var.getFXTag() == JavafxTag.VAR_DEF;
-            assert tai.var.pos != Position.NOPOS;
+            assert tai.jfxVar() != null;
+            assert tai.jfxVar().getFXTag() == JavafxTag.VAR_DEF;
+            assert tai.jfxVar().pos != Position.NOPOS;
             if (tai.isStatic()) {
                 DiagnosticPosition diagPos = tai.pos();
                 // don't put variable initialization in the static initializer if this is a simple-form
