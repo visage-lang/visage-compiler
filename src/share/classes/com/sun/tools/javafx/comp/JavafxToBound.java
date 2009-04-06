@@ -324,13 +324,28 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         return make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
     }
 
+    /**
+     * Make BindingExpression compute() method
+     * @param diagPos
+     * @param stmts
+     * @return
+     */
+    private JCTree makeComputeMethod(DiagnosticPosition diagPos, List<JCStatement> stmts) {
+        return makeMethod(diagPos, defs.computeMethodName, stmts, null, syms.voidType, Flags.PUBLIC);
+    }
+
     void scriptBeginBinding() {
         bects = ListBuffer.lb();
     }
 
+    boolean hasScriptBinding() {
+        return bects.isEmpty();
+    }
+
     List<JCTree> scriptCompleteBinding(DiagnosticPosition diagPos) {
         if (bects.isEmpty()) {
-            return List.nil();
+            // Make empty BindingExpression compute() method -- To make interface happy
+            return List.<JCTree>of(makeComputeMethod(diagPos, List.<JCStatement>nil()));
         } else {
             ListBuffer<JCCase> cases = ListBuffer.lb();
             for (BindingExpressionClosureTranslator b : bects) {
@@ -341,7 +356,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
 
             JCStatement swit = make.at(diagPos).Switch(make.at(diagPos).Ident(defs.bindingIdName), cases.toList());
 
-            JCTree computeMethod = makeMethod(diagPos, defs.computeMethodName, List.of(swit), null, syms.voidType, Flags.PUBLIC);
+            JCTree computeMethod = makeComputeMethod(diagPos, List.of(swit));
 
             Type objectArrayType = new Type.ArrayType(syms.objectType, syms.arrayClass);
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
@@ -937,11 +952,18 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
 
             TypeMorphInfo tmiResult = (tmiTarget != null) ? tmiTarget : typeMorpher.typeMorphInfo(resultType);
 
+            /**
+             * Build the closure body
+             * @return if the closure will be generated in-line, the list of class memebers of the closure, otherwise return null
+             */
             protected List<JCTree> makeBody() {
                 return List.<JCTree>of(
                         makeClosureMethod(defs.invokeName, bodyExpr, null, tmiResult.getLocationType(), Flags.PUBLIC));
             }
 
+            /**
+             * The class to instanciate that includes the closure
+             */
             protected JCExpression makeBaseClass() {
                 JCExpression objFactory = makeQualifiedTree(diagPos, cFunction0);
                 Type clazzType = tmiResult.getLocationType();
@@ -1042,7 +1064,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         final TypeMorphInfo tmiResult;
         final Type actualTranslatedType;
         final ListBuffer<JCStatement> preDecls = ListBuffer.lb();
-        boolean generateInLine = false;
 
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
             super(diagPos, bects.size());
@@ -1057,6 +1078,10 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             // by default do this dynamically
         }
 
+        /**
+         * Build the closure body
+         * @return if the closure will be generated in-line, the list of class memebers of the closure, otherwise return null
+         */
         protected List<JCTree> makeBody() {
             buildFields();
             // build first since this may add dependencies
@@ -1068,10 +1093,11 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             resultStatement = callStatement(diagPos, null, "pushValue", resultVal);
 
             if (generateInLine) {
-                JCTree computeMethod = makeMethod(diagPos, defs.computeMethodName, List.of(resultStatement), null, syms.voidType, Flags.PUBLIC);
+                JCTree computeMethod = makeComputeMethod(diagPos, List.of(resultStatement));
                 members.append(computeMethod);
                 return completeMembers();
             } else {
+                // Add to per-script class
                 return null;
             }
         }

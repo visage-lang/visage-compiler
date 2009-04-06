@@ -179,7 +179,7 @@ public class JavafxSymtab extends Symtab {
         unreachableType = new Type(TypeTags.VOID, null);
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;
-        javafx_SequenceType = enterClass(JavafxDefs.sequencePackageNameString + ".Sequence");
+        javafx_SequenceType = enterClass(JavafxDefs.cSequence);
         javafx_SequencesType = enterClass(JavafxDefs.cSequences);
         javafx_EmptySequenceType = fxtypes.sequenceType(botType);
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);

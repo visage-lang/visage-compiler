@@ -55,10 +55,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final JavafxClassReader reader;
     private final JavafxOptimizationStatistics optStat;
     
-    private final Name addChangeListenerName;
-    private final Name addSequenceChangeListenerName;
-    private final Name locationInitializeName;
-    private final Name changeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     Name outerAccessorName;
     Name outerAccessorFieldName;
@@ -82,10 +78,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
         
-        addChangeListenerName = names.fromString("addChangeListener");
-        addSequenceChangeListenerName = names.fromString("addSequenceChangeListener");
-        locationInitializeName = names.fromString("initialize");
-        changeListenerInterfaceName = names.fromString(locationPackageNameString + ".ChangeListener");
         outerAccessorName = names.fromString("accessOuter$");
         outerAccessorFieldName = names.fromString("accessOuterField$");
         
@@ -492,7 +484,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 attributeSetterName(vsym),
                 makeTypeTree(diagPos, ai.getRealType()),
                 List.<JCTypeParameter>nil(),
-                List.of(makeParam(diagPos, ai.getRealType(), null, defs.attributeSetMethodParamName)),
+                List.of(makeParam(diagPos, defs.attributeSetMethodParamName, ai.getRealType())),
                 List.<JCExpression>nil(),
                 block,
                 null);
@@ -762,10 +754,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     if (requiresLocation(tai)) {
                         // If the static variable is represented with a Location, initialize it
-                        stmts.append(callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), locationInitializeName));
+                        stmts.append(callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), defs.locationInitializeName));
                     }
                 }
-                JCStatement stat = makeChangeListenerCall(tai);
+                JCStatement stat = tai.onReplaceAsListenerInstanciation();
                 if (stat != null) {
                     stmts.append(stat);
                 }
@@ -820,7 +812,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // add change listeners for triggers on attribute definitions
         for (TranslatedVarInfo info : translatedAttrInfo) {
             if (!info.isStatic()) {
-                JCStatement stat = makeChangeListenerCall(info);
+                JCStatement stat = info.onReplaceAsListenerInstanciation();
                 if (stat != null) {
                     stmts.append(stat);
                 }
@@ -830,7 +822,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // add change listeners for "with" triggers
         for (TranslatedOverrideClassVarInfo info : translatedTriggerInfo) {
             if (!info.isStatic()) {
-                JCStatement stat = makeChangeListenerCall(info);
+                JCStatement stat = info.onReplaceAsListenerInstanciation();
                 if (stat != null) {
                     stmts.append(stat);
                 }
@@ -918,124 +910,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         return members.toList();
     }
-
-    /**
-     * Non-destructive creation of "on change" change listener set-up call.
-     */
-    JCStatement makeChangeListenerCall(VarInfo info) {
-        
-        //TODO: TranslatedAttributeInfo should be simplified to hold onReplace attribute only
-        //
-        JFXOnReplace onReplace = info.onReplace();
-        if (onReplace == null) return null;
-        
-        DiagnosticPosition diagPos = info.pos();
-
-        List<JCExpression> emptyTypeArgs = List.nil();
-        ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
-        List<JCVariableDecl> onChangeArgs;
-        Name addListenerName;
-        Type valueType;
-        
-        if (types.isSequence(info.getRealType())) {
-            addListenerName = addSequenceChangeListenerName;
-            valueType = info.getElementType();
-            Type seqValType = types.sequenceType(valueType, false);
-            onChangeArgs = List.of(
-                    makeParam(diagPos, syms.intType, onReplace.getFirstIndex(), defs.onReplaceArgNameFirstIndex),
-                    makeParam(diagPos, syms.intType, onReplace.getLastIndex(), defs.onReplaceArgNameLastIndex),
-                    makeParam(diagPos, info.getRealType(), onReplace.getNewElements(), defs.onReplaceArgNameNewElements),
-                    makeParam(diagPos, seqValType, onReplace.getOldValue(), defs.onReplaceArgNameOld),
-                    makeParam(diagPos, seqValType, null, defs.onReplaceArgNameNew));
-        } else {
-            addListenerName = addChangeListenerName;
-            valueType = info.getRealType();
-            onChangeArgs = List.of(
-                    makeParam(diagPos, valueType, onReplace.getOldValue(), defs.onReplaceArgNameOld),
-                    makeParam(diagPos, valueType, onReplace.getNewElements(), defs.onReplaceArgNameNew));
-        }
-
-        JCTree clMethod = makeChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), setUpStmts, onChangeArgs, TypeTags.VOID);
-        JCExpression changeListener = make.at(diagPos).TypeApply(
-                makeIdentifier(diagPos, changeListenerInterfaceName),
-                List.of(makeTypeTree(diagPos, types.boxedTypeOrType(valueType))));
-        JCNewClass anonymousChangeListener = make.NewClass(
-                null, 
-                emptyTypeArgs,
-                changeListener, 
-                List.<JCExpression>nil(), 
-                make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), List.of(clMethod)
-                ));
-
-        JCExpression varRef;
-        if (info.getSymbol().owner.kind == Kinds.TYP) {
-            // on replace is on class variable
-            varRef = makeAttributeAccess(diagPos, info.getSymbol(),
-                    info.getSymbol().isStatic()? null : defs.receiverName);
-        } else {
-            // on replace is on local variable
-            varRef = make.at(diagPos).Ident(info.getName());
-        }
-        JCFieldAccess tmpSelect = make.at(diagPos).Select(varRef, addListenerName);
-
-        List<JCExpression> args = List.<JCExpression>of(anonymousChangeListener);
-        return make.at(diagPos).Exec(make.at(diagPos).Apply(emptyTypeArgs, tmpSelect, args));
-    }
-    
-    private JCVariableDecl makeParam(DiagnosticPosition diagPos, Type type, JFXVar var, Name nameDefault) {
-        Name name;
-        if (var != null) {
-            name = var.getName();
-            diagPos = var.pos();
-        } else {
-            name = nameDefault;
-        }
-        long flags = Flags.PARAMETER|Flags.FINAL;
-        if (var != null && var.mods != null) {
-            flags |= var.mods.flags;
-        }
-        return make.at(diagPos).VarDef(
-                make.Modifiers(flags),
-                name,
-                makeTypeTree(diagPos, type),
-                null);
-        
-    }
-    
-    /**
-     * construct a change listener method for insertion in a listener anon class.
-     *   boolean onChange();
-     *   void onInsert(...);
-     *   void on Delete(...); ...
-     */
-    private JCMethodDecl makeChangeListenerMethod(
-            DiagnosticPosition diagPos,
-            JFXOnReplace onReplace,
-            JCBlock onReplaceTranslatedBody,
-            ListBuffer<JCStatement> prefixStmts,
-            List<JCVariableDecl> args,
-            int returnTypeTag) {
-        ListBuffer<JCStatement> ocMethStmts = ListBuffer.lb();
-        ocMethStmts.appendList(prefixStmts);
-        
-        diagPos = onReplace.pos();
-        ocMethStmts.appendList(onReplaceTranslatedBody.getStatements());
-        
-        if (returnTypeTag == TypeTags.BOOLEAN) {
-            ocMethStmts.append(make.at(diagPos).Return(make.at(diagPos).Literal(TypeTags.BOOLEAN, 1)));
-        }
-
-        return make.at(diagPos).MethodDef(
-                make.at(diagPos).Modifiers(Flags.PUBLIC), 
-                names.fromString("onChange"),
-                make.at(diagPos).TypeIdent(returnTypeTag), 
-                List.<JCTypeParameter>nil(), 
-                args,
-                List.<JCExpression>nil(), 
-                make.at(diagPos).Block(0L, ocMethStmts.toList()), 
-                null);
-    }
-
+   
     /**
      * Make a method body which redirects to the actual implementation in a static method of the defining class.
      */

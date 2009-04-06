@@ -213,10 +213,15 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, Type type) {
+        return makeParam(diagPos, name, makeTypeTree(diagPos, type));
+
+    }
+
+    protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, JCExpression typeExpression) {
         return make.at(diagPos).VarDef(
-                make.Modifiers(Flags.PARAMETER|Flags.FINAL),
+                make.Modifiers(Flags.PARAMETER | Flags.FINAL),
                 name,
-                makeTypeTree(diagPos, type),
+                typeExpression,
                 null);
 
     }

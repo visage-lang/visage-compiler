@@ -31,7 +31,6 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.tree.JCTree.JCBlock;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
@@ -190,7 +189,7 @@ class JavafxAnalyzeClass {
         public JFXOnReplace onReplace() { return null; }
         
         // Return null or java code for the var's 'on replace'.
-        public JCBlock onReplaceTranslatedBody() { return null; }
+        public JCStatement onReplaceAsListenerInstanciation() { return null; }
 
         @Override
         public String toString() { return getNameString(); }
@@ -218,13 +217,13 @@ class JavafxAnalyzeClass {
         private final JFXOnReplace onReplace;
         
         // Null or java code for the var's on replace.
-        private final JCBlock onReplaceTranslatedBody;
+        private final JCStatement onReplaceAsListenerInstanciation;
         
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCBlock onReplaceTranslatedBody) {
+                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
             super(diagPos, name, attrSym, vmi, initStmt);
             this.onReplace = onReplace;
-            this.onReplaceTranslatedBody = onReplaceTranslatedBody;
+            this.onReplaceAsListenerInstanciation = onReplaceAsListenerInstanciation;
         }
         
         // Possible javafx code for the var's 'on replace'.
@@ -233,7 +232,7 @@ class JavafxAnalyzeClass {
         
         // Possible java code for the var's 'on replace'.
         @Override
-        public JCBlock onReplaceTranslatedBody() { return onReplaceTranslatedBody; }
+        public JCStatement onReplaceAsListenerInstanciation() { return onReplaceAsListenerInstanciation; }
         
         // This var is in the current javafx class so it has to be cloned into the java class.
         @Override
@@ -252,8 +251,8 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
         
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCBlock onReplaceTranslatedBody) {
-            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, onReplace, onReplaceTranslatedBody);
+                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
+            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, onReplace, onReplaceAsListenerInstanciation);
             this.var = var;
         }
         
@@ -270,8 +269,8 @@ class JavafxAnalyzeClass {
         
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCBlock onReplaceTranslatedBody) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, onReplace, onReplaceTranslatedBody);
+                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
+            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, onReplace, onReplaceAsListenerInstanciation);
         }
         
         // Returns the var information the override overshadows.

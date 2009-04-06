@@ -57,6 +57,7 @@ import com.sun.tools.javafx.tree.JFXIdent;
 import com.sun.tools.javafx.tree.JFXLiteral;
 import com.sun.tools.javafx.tree.JFXSelect;
 import com.sun.tools.javafx.tree.JFXStringExpression;
+import com.sun.tools.javafx.tree.JFXTree;
 import com.sun.tools.javafx.tree.JFXVar;
 import com.sun.tools.javafx.tree.JavafxTag;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
@@ -109,7 +110,7 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
      * @param expr
      * @return
      */
-    List<VarSymbol> localVars(JFXExpression expr) {
+    List<VarSymbol> localVars(JFXTree expr) {
         final ListBuffer<VarSymbol> lb = ListBuffer.<VarSymbol>lb();
         final Set<VarSymbol> exclude = new HashSet<VarSymbol>();
         new JavafxTreeScanner() {
@@ -134,6 +135,42 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         }.scan(expr);
 
         return lb.toList();
+    }
+
+    /**
+     * Determine is a local class is referenced, if so need local generation
+     * @param expr Expression to check
+     * @return if must generate locally
+     */
+    boolean mustGenerateInline(JFXTree expr) {
+        class InlineChecker extends JavafxTreeScanner {
+
+            boolean mustBeInline = false;
+
+            void checkSymbol(Symbol sym) {
+                if (sym instanceof ClassSymbol) {
+                    ClassSymbol csym = (ClassSymbol) sym;
+                    int ownerKind = csym.owner.kind;
+                    if (ownerKind != Kinds.TYP && ownerKind != Kinds.PCK) {
+                        // Reference to a local class -- can get to it from script class -- so need inline closure
+                        mustBeInline = true;
+                    }
+                }
+            }
+
+            @Override
+            public void visitIdent(JFXIdent tree) {
+                checkSymbol(tree.sym);
+            }
+        }
+        InlineChecker checker = new InlineChecker();
+        checker.scan(expr);
+        for (VarSymbol vsym : localVars(expr)) {
+            checker.checkSymbol(vsym.type.tsym);
+        }
+        checker.checkSymbol(getAttrEnv().enclClass.type.tsym);
+
+        return checker.mustBeInline;
     }
 
     //TODO: this class should go away in favor of Translator
@@ -366,6 +403,10 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
             return toJava.makeMethod(diagPos, methName, List.<JCStatement>of((returnType == syms.voidType) ? m().Exec(expr) : m().Return(expr)), params, returnType, flags);
         }
 
+        /**
+         * Build the closure body
+         * @return if the closure will be generated in-line, the list of class memebers of the closure, otherwise return null
+         */
         protected abstract List<JCTree> makeBody();
 
         protected abstract JCExpression makeBaseClass();
@@ -375,8 +416,8 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         protected JCExpression buildClosure() {
             List<JCTree> body = makeBody();
             JCClassDecl classDecl = body==null? null : m().AnonymousClassDef(m().Modifiers(0L), body);
-            List<JCExpression> typeArgs = List.nil();
-            return m().NewClass(null/*encl*/, typeArgs, makeBaseClass(), makeConstructorArgs(), classDecl);
+            List<JCExpression> emptyTypeArgs = List.nil();
+            return m().NewClass(null/*encl*/, emptyTypeArgs, makeBaseClass(), makeConstructorArgs(), classDecl);
         }
 
         protected JCExpression doit() {
@@ -506,11 +547,18 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
     }
 
 
+    /**
+     * Translator for for closures that can be expressed as instances of the per-script class.
+     * When possible they become instanciations of the per-script class (with support
+     * the add the needed support code to the per-script class).
+     * When not possible, they are generated as in-line anonymous inner classes.
+     */
     abstract class ScriptClosureTranslator extends ClosureTranslator {
 
         final int id;
         JCStatement resultStatement;
         final ListBuffer<JCExpression> argInits = ListBuffer.lb();
+        boolean generateInLine = false;
 
         ScriptClosureTranslator(DiagnosticPosition diagPos, int id) {
             super(diagPos);
@@ -537,6 +585,9 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
             return m().TypeCast(makeExpression(fieldInfo.type()), uncast);
         }
 
+        /**
+         * The class to instanciate that includes the closure
+         */
         protected JCExpression makeBaseClass() {
             return m().Ident(defs.scriptBindingClassName);
         }
@@ -575,7 +626,6 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
             }
             return args.toList();
         }
-
     }
 }
 

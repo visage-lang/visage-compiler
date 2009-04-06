@@ -39,6 +39,7 @@ import com.sun.tools.javac.jvm.Target;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCBlock;
+import com.sun.tools.javac.tree.JCTree.JCCase;
 import com.sun.tools.javac.tree.JCTree.JCCatch;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
@@ -683,78 +684,367 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     /**
-     * Translator for on replace triggers
+     * Translator for on replace triggers.
+     * When possible they become instanciations of the per-script class (with support the add the needed listener code).
+     * When not possible, they are generated as in-line anonymous inner classes of ChangeListener.
      */
     private class OnReplaceClosureTranslator extends ScriptClosureTranslator {
 
-        final JFXExpression expr;
+        final JFXOnReplace onReplace;
+        final boolean isSequence;
+        final Type valueType;
 
-        OnReplaceClosureTranslator(DiagnosticPosition diagPos, JFXExpression expr) {
-            super(diagPos, triggers.size());
-            this.expr = expr;
-            triggers.append(this);
+        OnReplaceClosureTranslator(JFXOnReplace onReplace, boolean isSequence, Type valueType) {
+            super(onReplace.pos(), triggers.size());
+            this.onReplace = onReplace;
+            this.isSequence = isSequence;
+            this.valueType = valueType;
+            this.generateInLine = mustGenerateInline(onReplace);
+            if (!generateInLine)
+                triggers.append(this);
         }
 
-        protected void buildFields() {
-        }
-
+        /**
+         * Build the closure body
+         * @return if the closure will be generated in-line, the list of class memebers of the closure, otherwise return null
+         */
         protected List<JCTree> makeBody() {
-            return null;
+            resultStatement = makeResultBlock();
+            if (generateInLine) {
+                JCTree listenerMethod = makeChangeListenerMethod(diagPos, isSequence, valueType.tag, List.of(resultStatement), valueType);
+                members.append(listenerMethod);
+                return completeMembers();
+            } else {
+                // Add to per-script class
+                return null;
+            }
         }
 
-        private JCVariableDecl renamingVar(Name name, Name vname, Type type, boolean isLocation) {
+        /**
+         * The class to instanciate that includes the closure
+         */
+        @Override
+        protected JCExpression makeBaseClass() {
+            return m().TypeApply(
+                    generateInLine? makeIdentifier(diagPos, JavafxDefs.cChangeListener) : super.makeBaseClass(),
+                    List.of(makeTypeTree(diagPos, types.boxedTypeOrType(valueType))));
+        }
+
+        @Override
+        protected List<JCExpression> makeConstructorArgs() {
+            if (generateInLine) {
+                return List.nil();
+            } else {
+                return super.makeConstructorArgs();
+            }
+        }
+
+        /*** handled renames from method parameters and instance parameters ***/
+
+        private void addRenamingVar(ListBuffer<JCStatement> renamings, Name vname, Type type, JCExpression init) {
+           renamings.append( m().VarDef(
+                    m().Modifiers(Flags.FINAL),
+                    vname,
+                    makeExpression(type),
+                    init));
+        }
+
+        private void renamingVar(ListBuffer<JCStatement> renamings, Name name, Name vname, Type type, boolean isLocation) {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
             Type varType = isLocation ? tmi.getLocationType() : type;
             FieldInfo rcvrField = new FieldInfo(name.toString(), typeMorpher.typeMorphInfo(varType), false);
-            return m().VarDef(
-                    m().Modifiers(Flags.FINAL),
-                    vname,
-                    makeTypeTree(diagPos, varType),
-                    buildArgField(m().Ident(name), rcvrField, ArgKind.FREE));
+            addRenamingVar(renamings, vname, varType, buildArgField(m().Ident(name), rcvrField, ArgKind.FREE));
         }
 
-        protected JCBlock makeResultBlock() {
-            ListBuffer<JCStatement> renamings = ListBuffer.<JCStatement>lb();
-            switch (toJava.inInstanceContext) {
-                case ScriptAsStatic:
-                    // No receiver
-                    break;
-                case InstanceAsStatic:
-                    renamings.append(renamingVar(defs.receiverName, defs.receiverName, getAttrEnv().enclClass.type, false));
-                    break;
-                case InstanceAsInstance:
-                    renamings.append(renamingVar(names._this, defs.receiverName, getAttrEnv().enclClass.type, false));
-                    break;
-                default:
-                    assert false : "Bad receiver context";
-                    break;
+        private void renameParam(ListBuffer<JCStatement> renamings, Type type, JFXVar var, Name nameDefault) {
+            if (var != null) {
+                addRenamingVar(renamings, var.getName(), type, m().TypeCast(this.makeExpression(type), m().Ident(nameDefault)));
             }
-            if (expr != null) {
-                for (VarSymbol vsym : localVars(expr)) {
-                    renamings.append(renamingVar(vsym.name, vsym.name, vsym.type, true));
+        }
+
+        /**
+         * Make the block that will live under a switch-case in the per-script class
+         * or be the body of the method if it needs to be generated in-line.
+         * Also, switch to a static receiver context for translating the body of the trigger
+         * since the trigger body will be in what needs to be considered a static context.
+         * @return The translated body of the trigger.
+         */
+        protected JCBlock makeResultBlock() {
+            JFXExpression expr = onReplace.getBody();
+            ListBuffer<JCStatement> renamings = ListBuffer.<JCStatement>lb();
+
+            ReceiverContext prevContext = inInstanceContext;
+            if (!generateInLine) {
+                // Set-up receiver$, if needed
+                switch (inInstanceContext) {
+                    case ScriptAsStatic:
+                        // No receiver
+                        break;
+                    case InstanceAsStatic:
+                        renamingVar(renamings, defs.receiverName, defs.receiverName, getAttrEnv().enclClass.type, false);
+                        break;
+                    case InstanceAsInstance:
+                        renamingVar(renamings, names._this, defs.receiverName, getAttrEnv().enclClass.type, false);
+                        inInstanceContext = ReceiverContext.InstanceAsStatic;  // We are converting to an effectively static context
+                        break;
+                    default:
+                        assert false : "Bad receiver context";
+                        break;
+                }
+
+                // Fetch any references to local variables from the instance parameters
+                if (expr != null) {
+                    for (VarSymbol vsym : localVars(onReplace)) {
+                        renamingVar(renamings, vsym.name, vsym.name, vsym.type, requiresLocation(vsym));
+                    }
                 }
             }
-            return m().Block(0L, renamings.toList().append(translateToStatement(expr)));
+            JCStatement translatedTriggerBody = translateToStatement(expr);
+            inInstanceContext = prevContext;
+
+            // Rename method parameters to the user specified names
+            if (isSequence) {
+                Type seqValType = types.sequenceType(valueType, false);
+                Type seqWithExtendsType = types.sequenceType(valueType, true);
+                renameParam(renamings, syms.intType, onReplace.getFirstIndex(), defs.onReplaceArgNameFirstIndex);
+                renameParam(renamings, syms.intType, onReplace.getLastIndex(), defs.onReplaceArgNameLastIndex);
+                renameParam(renamings, seqWithExtendsType, onReplace.getNewElements(), defs.onReplaceArgNameNewElements);
+                renameParam(renamings, seqValType, onReplace.getOldValue(), defs.onReplaceArgNameOld);
+                renameParam(renamings, seqValType, null, defs.onReplaceArgNameNew);
+            } else {
+                renameParam(renamings, valueType, onReplace.getOldValue(), defs.onReplaceArgNameOld);
+                renameParam(renamings, valueType, onReplace.getNewElements(), defs.onReplaceArgNameNew);
+            }
+
+            // The resulting embedded trigger block is the translated trigger body prefixed by any renamings
+            return m().Block(0L, renamings.toList().append(translatedTriggerBody));
         }
+    }
+
+    JCExpression makeOnReplaceListener(boolean isStatic, JFXOnReplace onReplace, boolean isSequence, Type valueType) {
+        JCExpression listener = new OnReplaceClosureTranslator(onReplace, isSequence, valueType).doit();
+        return listener;
+    }
+
+    /**
+     * Non-destructive creation of "on change" change listener set-up call.
+     */
+    JCStatement makeInstanciateChangeListener(VarSymbol vsym, JFXOnReplace onReplace) {
+        if (onReplace == null) return null;
+        DiagnosticPosition diagPos = onReplace.pos();
+        Name addListenerName;
+        Type valueType;
+        final boolean isSequence = types.isSequence(vsym.type);
+
+        if (isSequence) {
+            addListenerName = defs.addSequenceChangeListenerName;
+            valueType = types.elementType(vsym.type);
+        } else {
+            addListenerName = defs.addChangeListenerName;
+            valueType = vsym.type;
+        }
+
+        boolean isStatic = vsym.isStatic();
+        JCExpression onReplaceListener = makeOnReplaceListener(isStatic, onReplace, isSequence, valueType);
+
+        JCExpression varRef;
+        if (vsym.owner.kind == Kinds.TYP) {
+            // on replace is on class variable
+            varRef = makeAttributeAccess(diagPos, vsym,
+                    isStatic? null : defs.receiverName);
+        } else {
+            // on replace is on local variable
+            varRef = make.at(diagPos).Ident(vsym.name);
+        }
+        return callStatement(diagPos, varRef, addListenerName, onReplaceListener);
     }
 
     void scriptBegin() {
+        triggers = ListBuffer.lb();
         toBound.scriptBeginBinding();
     }
 
-    List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
-        List<JCTree> bindingMembers = toBound.scriptCompleteBinding(diagPos);
-        // Add _Bindings class
-        if (bindingMembers.isEmpty()) {
+
+    boolean hasScriptTriggers() {
+        return triggers.isEmpty();
+    }
+
+    List<JCTree> scriptCompleteTriggers(DiagnosticPosition diagPos) {
+        if (triggers.isEmpty()) {
             return List.nil();
         } else {
+            // Collect all the switch-cases for all the listener types
+            ListBuffer<JCCase> sequenceCases = ListBuffer.lb();
+            ListBuffer<JCCase> otherCases[] = new ListBuffer[TypeTags.CLASS + 1];
+            for (int tag = 0; tag <= TypeTags.CLASS; ++tag) {
+                otherCases[tag] = ListBuffer.lb();
+            }
+            for (OnReplaceClosureTranslator b : triggers) {
+                if (!b.generateInLine) {
+                    if (b.isSequence) {
+                        sequenceCases.append(b.makeCase());
+                    } else {
+                        otherCases[b.valueType.tag].append(b.makeCase());
+                    }
+                }
+            }
+
+            // Make all the onChange methods
+            ListBuffer<JCTree> members = ListBuffer.lb();
+            for (int tag = 0; tag <= TypeTags.CLASS; ++tag) {
+                if (otherCases[tag].nonEmpty()) {
+                    members.append(makeChangeListenerMethod(diagPos, false, tag, otherCases[tag]));
+                }
+            }
+            if (sequenceCases.nonEmpty()) {
+                members.append(makeChangeListenerMethod(diagPos, true, TypeTags.ERROR, sequenceCases));
+            }
+
+            // Make constructor
+            Type objectArrayType = new Type.ArrayType(syms.objectType, syms.arrayClass);
+            ListBuffer<JCVariableDecl> params = ListBuffer.lb();
+            params.append(makeParam(diagPos, defs.idName, syms.intType));
+            params.append(makeParam(diagPos, defs.arg0Name, syms.objectType));
+            params.append(makeParam(diagPos, defs.arg1Name, syms.objectType));
+            params.append(makeParam(diagPos, defs.moreArgsName, objectArrayType));
+            JCStatement cbody = make.Exec(make.Apply(null, make.Ident(names._super), List.<JCExpression>of(
+                    make.Ident(defs.idName),
+                    make.Ident(defs.arg0Name),
+                    make.Ident(defs.arg1Name),
+                    make.Ident(defs.moreArgsName)
+                    )));
+            JCTree constr = makeMethod(diagPos, names.init, List.of(cbody), params.toList(), syms.voidType, Flags.PRIVATE);
+            members.append(constr);
+
+            return members.toList();
+        }
+    }
+
+    private JCExpression makeSequenceTypeExpression(DiagnosticPosition diagPos, Type concreteType) {
+        return make.at(diagPos).TypeApply(
+                makeIdentifier(diagPos, JavafxDefs.cSequence),
+                List.<JCExpression>of(
+                       concreteType==null?
+                           make.at(diagPos).Ident(defs.typeParamName) :
+                           makeTypeTree(diagPos, concreteType)));
+    }
+
+    private JCExpression makeSequenceWithExtendsTypeExpression(DiagnosticPosition diagPos, Type concreteType) {
+        return make.at(diagPos).TypeApply(
+                makeIdentifier(diagPos, JavafxDefs.cSequence),
+                List.<JCExpression>of(
+                       concreteType==null? 
+                           make.at(diagPos).Wildcard(make.at(diagPos).TypeBoundKind(BoundKind.EXTENDS), make.at(diagPos).Ident(defs.typeParamName)) :
+                           makeTypeTree(diagPos, concreteType)));
+    }
+
+    private JCExpression makeTypeExpression(DiagnosticPosition diagPos, int typeTag, Type concreteType) {
+        switch (typeTag) {
+            case TypeTags.BYTE:
+            case TypeTags.CHAR:
+            case TypeTags.SHORT:
+            case TypeTags.INT:
+            case TypeTags.LONG:
+            case TypeTags.FLOAT:
+            case TypeTags.DOUBLE:
+            case TypeTags.BOOLEAN:
+                return make.at(diagPos).TypeIdent(typeTag);
+            case TypeTags.CLASS:
+                return 
+                       concreteType==null? 
+                           make.at(diagPos).Ident(defs.typeParamName) :
+                           makeTypeTree(diagPos, concreteType);
+            default:
+                throw new AssertionError("should not reach here");
+        }
+    }
+
+    /**
+     * construct a change listener method for insertion in a listener class from a list of cases clauses.
+     */
+    private JCMethodDecl makeChangeListenerMethod(
+            DiagnosticPosition diagPos,
+            boolean isSequence,
+            int typeTag,
+            ListBuffer<JCCase> cases) {
+        List<JCExpression> superArgs = isSequence?
+                List.<JCExpression>of(
+                    make.Ident(defs.onReplaceArgNameFirstIndex),
+                    make.Ident(defs.onReplaceArgNameLastIndex),
+                    make.Ident(defs.onReplaceArgNameNewElements),
+                    make.Ident(defs.onReplaceArgNameOld),
+                    make.Ident(defs.onReplaceArgNameNew))
+                :
+               List.<JCExpression>of(
+                    make.Ident(defs.onReplaceArgNameOld),
+                    make.Ident(defs.onReplaceArgNameNew));
+        JCCase forward = make.at(diagPos).Case(null, List.<JCStatement>of(
+                callStatement(diagPos, make.at(diagPos).Ident(names._super), defs.onChangeMethodName, superArgs),
+                make.at(diagPos).Break(null)));
+        JCStatement swit = make.at(diagPos).Switch(make.at(diagPos).Ident(defs.bindingIdName), cases.toList().append(forward));
+        return makeChangeListenerMethod(
+                diagPos,
+                isSequence,
+                typeTag,
+                List.of(swit),
+                null);
+    }
+
+    /**
+     * construct a change listener method for insertion in a listener class from a list of statements which make up the body.
+     */
+    private JCMethodDecl makeChangeListenerMethod(
+            DiagnosticPosition diagPos,
+            boolean isSequence,
+            int typeTag,
+            List<JCStatement> stmts,
+            Type concreteType) {
+        List<JCVariableDecl> onChangeArgs = isSequence?
+            List.of(
+                    makeParam(diagPos, defs.onReplaceArgNameFirstIndex, makeTypeExpression(diagPos, TypeTags.INT, null)),
+                    makeParam(diagPos, defs.onReplaceArgNameLastIndex, makeTypeExpression(diagPos, TypeTags.INT, null)),
+                    makeParam(diagPos, defs.onReplaceArgNameNewElements, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)),
+                    makeParam(diagPos, defs.onReplaceArgNameOld, makeSequenceTypeExpression(diagPos, concreteType)),
+                    makeParam(diagPos, defs.onReplaceArgNameNew, makeSequenceTypeExpression(diagPos, concreteType)))
+        :
+            List.of(
+                    makeParam(diagPos, defs.onReplaceArgNameOld, makeTypeExpression(diagPos, typeTag, concreteType)),
+                    makeParam(diagPos, defs.onReplaceArgNameNew, makeTypeExpression(diagPos, typeTag, concreteType)));
+
+        return make.at(diagPos).MethodDef(
+                make.at(diagPos).Modifiers(Flags.PUBLIC),
+                defs.onChangeMethodName,
+                make.at(diagPos).TypeIdent(TypeTags.VOID),
+                List.<JCTypeParameter>nil(),
+                onChangeArgs,
+                List.<JCExpression>nil(),
+                make.at(diagPos).Block(0L, stmts),
+                null);
+    }
+
+    /**
+     * Add per-script BindingExpression/ChangeListener class, is needed
+     * @param diagPos
+     * @return
+     */
+    List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
+        if (toBound.hasScriptBinding() && hasScriptTriggers()) {
+            return List.nil();
+        } else {
+            JCExpression scriptClosureClass = make.at(diagPos).TypeApply(
+                    makeIdentifier(diagPos, JavafxDefs.baseBindingListenerClassString),
+                    List.<JCExpression>of(make.at(diagPos).Ident(defs.typeParamName)));
+            JCTypeParameter typeParam = make.at(diagPos).TypeParameter(defs.typeParamName, List.<JCExpression>nil());
+
+            List<JCTree> bindingMembers = toBound.scriptCompleteBinding(diagPos);
+            List<JCTree> triggerMembers = scriptCompleteTriggers(diagPos);
             JCClassDecl bindingClass = make.at(diagPos).ClassDef(
                     make.at(diagPos).Modifiers(Flags.PRIVATE | Flags.STATIC),
                     defs.scriptBindingClassName,
-                    List.<JCTypeParameter>nil(),
-                    makeQualifiedTree(diagPos, JavafxDefs.baseBindingListenerClassString),
+                    List.of(typeParam),
+                    scriptClosureClass,
                     List.<JCExpression>nil(),
-                    bindingMembers);
+                    bindingMembers.appendList(triggerMembers));
             return List.<JCTree>of(bindingClass);
         }
     }
@@ -853,7 +1143,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     typeMorpher.varMorphInfo(attrDef.sym),
                                     init,
                                     attrDef.getOnReplace(),
-                                    translatedOnReplaceBody(attrDef.getOnReplace())));
+                                    makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
@@ -875,7 +1165,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     typeMorpher.varMorphInfo(override.sym),
                                     init,
                                     override.getOnReplace(),
-                                    translatedOnReplaceBody(override.getOnReplace())));
+                                    makeInstanciateChangeListener(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
@@ -1513,25 +1803,20 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 if ((modFlags & Flags.FINAL) != 0) {
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                             tree.getBindStatus(), vsym);
-                    result = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
+                    //TODO: It seems that there would be cases of forwardreference or reference from a trigger which would fail
+                    prependToStatements.append(make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init));
+                    result = make.at(diagPos).Skip();
                     return;
                 }
                 // non location types:
                 init = makeDefaultValue(diagPos, vmi);
             }
-            prependToStatements.append(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));
+            prependToStatements.prepend(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));
 
             // create change Listener and append it to the beginning of the block after the blank variable declaration
             JFXOnReplace onReplace = tree.getOnReplace();
             if ( onReplace != null ) {
-
-                TranslatedVarInfo varInfo = new TranslatedVarInfo(
-                                                            tree,
-                                                            vmi,
-                                                            null,
-                                                            tree.getOnReplace(),
-                                                            translatedOnReplaceBody(tree.getOnReplace()));
-                JCStatement changeListener = initBuilder.makeChangeListenerCall(varInfo);
+                JCStatement changeListener = makeInstanciateChangeListener(vsym, onReplace);
                 prependToStatements.append(changeListener);
             }
 
@@ -3578,8 +3863,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     JCBlock translatedOnReplaceBody(JFXOnReplace onr) {
         return (onr == null)?  null : translateBlockExpressionToBlock(onr.getBody());
-        }
-        
+    }
+
     boolean allowDirectAccess(VarSymbol vsym, boolean isSet) {
         boolean isMixinVar = types.isMixin(vsym.owner);
         if (isMixinVar) return false;

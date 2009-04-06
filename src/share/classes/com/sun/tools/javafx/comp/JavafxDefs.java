@@ -89,7 +89,9 @@ public class JavafxDefs {
     public  static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
 
     private static final String cLocations = locationPackageNameString + ".Locations";
+    public  static final String cChangeListener = locationPackageNameString + ".ChangeListener";
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
+    public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
     private static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
             static final String cOperator = cBoundOperators + ".Operator";
@@ -182,6 +184,10 @@ public class JavafxDefs {
     final Name makeMethodName;
     final Name makeWithDefaultMethodName;
     final Name makeBijectiveMethodName;
+    final Name onChangeMethodName;
+    final Name addChangeListenerName;
+    final Name addSequenceChangeListenerName;
+    final Name locationInitializeName;
     final Name invokeName;
     final Name lambdaName;
     final Name lengthName;
@@ -198,6 +204,7 @@ public class JavafxDefs {
     final Name arg1Name;
     final Name moreArgsName;
     final Name dependentsName;
+    final Name typeParamName;
     final Name initDefName;
     final Name postInitDefName;
     final Name javalangThreadName;
@@ -292,6 +299,10 @@ public class JavafxDefs {
         makeMethodName = names.fromString(makeMethodNameString);
         makeWithDefaultMethodName = names.fromString(makeWithDefaultMethodNameString);
         makeBijectiveMethodName = names.fromString(makeBijectiveMethodNameString);
+        onChangeMethodName = names.fromString("onChange");
+        addChangeListenerName = names.fromString("addChangeListener");
+        addSequenceChangeListenerName = names.fromString("addSequenceChangeListener");
+        locationInitializeName = names.fromString("initialize");
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         lengthName = names.fromString("length");
@@ -308,6 +319,7 @@ public class JavafxDefs {
         arg1Name = names.fromString("arg$1");
         moreArgsName = names.fromString("moreArgs");
         dependentsName = names.fromString("dependents");
+        typeParamName = names.fromString("T");
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
         timeName = names.fromString("time");
