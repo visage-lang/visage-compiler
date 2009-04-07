@@ -54,26 +54,27 @@ public class Entry {
     private static String[] commandLineArgs;
     private static NamedArgumentProvider namedArgProvider;
 
-    public static void start(Class<?> app, String[] commandLineArgs) throws Throwable {
+    public static void start(final Class<?> app, String[] commandLineArgs) throws Throwable {
         if (commandLineArgs != null) {
             setNamedArgumentProvider(NamedArgumentProviderDefault.getInstance(commandLineArgs));
             if (namedArgProvider == null)
                 Entry.commandLineArgs = (String[]) commandLineArgs.clone();
         }
-	try { 
-            String codebase = app.getProtectionDomain().getCodeSource().getLocation().toString();
-            codebase = codebase.substring(0, codebase.lastIndexOf('/')+1);
-            SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
-	} catch (NullPointerException ignored) {
-	    // just in case the codesource is null
-	}
         final Method main = app.getMethod(entryMethodName(), Sequence.class);
         Object args = Sequences.make(TypeInfo.String, commandLineArgs);
-        
         try {
             AccessController.doPrivileged(
                 new PrivilegedAction<Void>() {
                     public Void run() {
+			try { 
+			    // TODO: make this not get set for webstart case, 
+			    // perhaps move to usesRuntimeLibrary
+            		    String codebase = app.getProtectionDomain().getCodeSource().getLocation().toString();
+            		    codebase = codebase.substring(0, codebase.lastIndexOf('/')+1);
+            		    SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
+			} catch (NullPointerException ignored) {
+	    		    // just in case the codesource is null
+			}
                         main.setAccessible(true);
                         provider = runtimeProviderLocator();
                         return null;
