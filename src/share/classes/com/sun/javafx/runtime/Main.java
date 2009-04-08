@@ -38,6 +38,7 @@ import java.util.jar.Manifest;
  * @author A. Sundararajan
  */
 public class Main {
+    private static final String MAIN_CLASS_PREFIX = "MainJavaFXScript=";
 
     private static String getErrorMessage(String key, Object... args) {
         return LauncherHelper.getLocalizedMessage("javafx.launcher.err.main." + key, args);
