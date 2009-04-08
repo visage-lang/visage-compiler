@@ -1305,7 +1305,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                    // JFXC-1888: Do *not* add main method! 
                    // com.sun.javafx.runtime.Main has the 
                    // "main" that will call Entry.start().
-                   // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                    // jjh: Re-instating this at least temporarily, so add main method
+                    translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
                 }
                 
                 // Add binding support
