@@ -32,21 +32,23 @@ import com.sun.javafx.runtime.location.*;
  */
 public class BoundSequenceSliceTest extends JavaFXTestCase {
 
+    static final boolean NOT_LAZY = false;
+
     public void testBounds() {
         
         IntLocation a = IntVariable.make(0);
         IntLocation b = IntVariable.make(18);
         IntLocation s = IntVariable.make(3);
             
-        SequenceLocation<Integer> seq = BoundSequences.range(a, b, s);
+        SequenceLocation<Integer> seq = BoundSequences.range(NOT_LAZY, a, b, s);
         
         IntLocation lower = IntVariable.make(0);
         IntLocation upper = IntVariable.make(4);
         
-        SequenceLocation<Integer> slice = BoundSequences.slice(seq.getElementType(), seq, lower, upper);
+        SequenceLocation<Integer> slice = BoundSequences.slice(NOT_LAZY, seq.getElementType(), seq, lower, upper);
         
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        slice.addChangeListener(hl);
+        slice.addSequenceChangeListener(hl);
 
         assertEquals(slice, 0, 3, 6, 9, 12);
 //        assertEquals(1, slice.get().getDepth());
@@ -131,15 +133,15 @@ public class BoundSequenceSliceTest extends JavaFXTestCase {
         IntLocation b = IntVariable.make(18);
         IntLocation s = IntVariable.make(3);
             
-        SequenceLocation<Integer> seq = BoundSequences.range(a, b, s);
+        SequenceLocation<Integer> seq = BoundSequences.range(NOT_LAZY, a, b, s);
         
         IntLocation lower = IntVariable.make(1);
         IntLocation upper = IntVariable.make(4);
         
-        SequenceLocation<Integer> slice = BoundSequences.slice(seq.getElementType(), seq, lower, upper);
+        SequenceLocation<Integer> slice = BoundSequences.slice(NOT_LAZY, seq.getElementType(), seq, lower, upper);
         
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        slice.addChangeListener(hl);
+        slice.addSequenceChangeListener(hl);
         
         assertEquals(slice, 3, 6, 9, 12);
 //        assertEquals(1, slice.get().getDepth());

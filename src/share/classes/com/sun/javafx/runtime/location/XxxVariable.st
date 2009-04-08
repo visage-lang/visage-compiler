@@ -35,7 +35,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  *
  * @author Brian Goetz
  */
-public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, PrimitiveChangeListener<$T.boxed$>> implements $T.Location$ {
+public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> implements $T.Location$ {
     public static final $T.prim$ DEFAULT = $V.default$;
 
     protected $T.prim$ \$value = DEFAULT;
@@ -99,7 +99,7 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, Prim
     }
 
     protected BindingExpression makeBindingExpression(final $T.Location$ otherLocation) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             public void compute() {
                 pushValue(otherLocation.getAs$PREFIX$());
             }
@@ -144,16 +144,12 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$, Prim
 
     protected void replaceWithDefault() { replaceValue(DEFAULT); }
 
-    public void addChangeListener(final ObjectChangeListener<$T.boxed$> listener) {
-        addChangeListener(PrimitiveChangeListener.make(listener));
-    }
-
     private void notifyListeners(final $T.prim$ oldValue, final $T.prim$ newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
         if (hasChildren(CHILD_KIND_TRIGGER))
-            iterateChildren(new DependencyIterator<PrimitiveChangeListener<$T.boxed$>>(CHILD_KIND_TRIGGER) {
-                public void onAction(PrimitiveChangeListener<$T.boxed$> listener) {
+            iterateChildren(new DependencyIterator<ChangeListener<$T.boxed$>>(CHILD_KIND_TRIGGER) {
+                public void onAction(ChangeListener<$T.boxed$> listener) {
                     try {
                         listener.onChange(oldValue, newValue);
                     }

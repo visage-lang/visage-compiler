@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.Util;
  * @author Brian Goetz
  */
 public class ObjectVariable<T>
-        extends AbstractVariable<T, ObjectLocation<T>, ObjectChangeListener<T>>
+        extends AbstractVariable<T, ObjectLocation<T>>
         implements ObjectLocation<T> {
 
     protected T $value;
@@ -85,7 +85,7 @@ public class ObjectVariable<T>
     }
 
     protected BindingExpression makeBindingExpression(final ObjectLocation<T> otherLocation) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             public void compute() { pushValue(otherLocation.get()); }
         };
     }
@@ -135,8 +135,8 @@ public class ObjectVariable<T>
         if (invalidateDependencies)
             invalidateDependencies();
         if (hasChildren(CHILD_KIND_TRIGGER))
-            iterateChildren(new DependencyIterator<ObjectChangeListener<T>>(CHILD_KIND_TRIGGER) {
-                public void onAction(ObjectChangeListener<T> listener) {
+            iterateChildren(new DependencyIterator<ChangeListener<T>>(CHILD_KIND_TRIGGER) {
+                public void onAction(ChangeListener<T> listener) {
                     try {
                         listener.onChange(oldValue, newValue);
                     }

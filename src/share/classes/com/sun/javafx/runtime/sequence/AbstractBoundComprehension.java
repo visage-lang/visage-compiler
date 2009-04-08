@@ -45,25 +45,26 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
     private final SequenceLocation<T> sequenceLocation;
     protected final boolean useIndex;
     protected final TypeInfo<T, L> inType;
-    private DumbMutableSequence<State<T, L, V>> state;
+    private DumbMutableSequence<State<T, L, V>> dmState;
     private BoundCompositeSequence<V> underlying;
 
-    public AbstractBoundComprehension(TypeInfo<V, ?> typeInfo,
+    public AbstractBoundComprehension(boolean lazy, TypeInfo<V, ?> typeInfo,
                                       TypeInfo<T, L> inType,
                                       SequenceLocation<T> sequenceLocation,
                                       boolean useIndex) {
-        super(typeInfo);
+        super(lazy, typeInfo);
         this.inType = inType;
         this.sequenceLocation = sequenceLocation;
         this.useIndex = useIndex;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    public AbstractBoundComprehension(TypeInfo<V, ?> typeInfo,
+    public AbstractBoundComprehension(boolean lazy, TypeInfo<V, ?> typeInfo,
                                       TypeInfo<T, L> inType,
                                       SequenceLocation<T> sequenceLocation) {
-        this(typeInfo, inType, sequenceLocation, false);
+        this(lazy, typeInfo, inType, sequenceLocation, false);
     }
 
     protected static class State<T, L extends ObjectLocation<T>, V> {
@@ -84,14 +85,14 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     }
 
-    private Sequence<V> computeValue() {
+    protected Sequence<V> computeValue() {
         Sequence<T> sequence = sequenceLocation.getAsSequence();
-        state = new DumbMutableSequence<State<T, L, V>>(sequence.size());
+        dmState = new DumbMutableSequence<State<T, L, V>>(sequence.size());
         SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(sequence.size());
         State<T, L, V>[] newStates = State.newArray(sequence.size());
         fillInNewValues(sequence, newStates, locationsArray, 0);
-        state.replaceSlice(0, -1, newStates);
-        underlying = new BoundCompositeSequence<V>(getElementType(), locationsArray);
+        dmState.replaceSlice(0, -1, newStates);
+        underlying = new BoundCompositeSequence<V>(lazy, getElementType(), locationsArray);
         return underlying.getAsSequence();
     }
 
@@ -120,36 +121,42 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
     }
 
     private void addTriggers() {
-        underlying.addChangeListener(new SequenceChangeListener<V>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
-                AbstractBoundComprehension.this.updateSlice(startPos, endPos, newElements);
-            }
-        });
+        if (lazy) {
+            underlying.addInvalidationListener(new InvalidateMeListener());
+            sequenceLocation.addInvalidationListener(new InvalidateMeListener());
+        }
+        else {
+            underlying.addSequenceChangeListener(new ChangeListener<V>() {
+                public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
+                    AbstractBoundComprehension.this.updateSlice(startPos, endPos, newElements);
+                }
+            });
 
-        sequenceLocation.addChangeListener(new SequenceChangeListener<T>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                int insertedCount = Sequences.size(newElements);
-                int deletedCount = endPos - startPos + 1;
-                int netAdded = insertedCount - deletedCount;
-                if (netAdded == 0) {
-                    int i = startPos;
-                    for (Iterator<? extends T> it = Sequences.iterator(newElements); it.hasNext(); i++) {
-                        state.get(i).element.set(it.next());
+            sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                    int insertedCount = Sequences.size(newElements);
+                    int deletedCount = endPos - startPos + 1;
+                    int netAdded = insertedCount - deletedCount;
+                    if (netAdded == 0) {
+                        int i = startPos;
+                        for (Iterator<? extends T> it = Sequences.iterator(newElements); it.hasNext(); i++) {
+                            dmState.get(i).element.set(it.next());
+                        }
+                    }
+                    else {
+                        SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(newElements.size());
+                        State<T, L, V>[] newStates = State.newArray(newElements.size());
+                        fillInNewValues(newElements, newStates, locationsArray, startPos);
+                        underlying.replaceSlice(startPos, endPos, locationsArray);
+                        dmState.replaceSlice(startPos, endPos, newStates);
+                        if (useIndex) {
+                            final int length = dmState.size();
+                            for (int i = endPos + 1 + netAdded; i < length; i++)
+                                dmState.get(i).index.set(i);
+                        }
                     }
                 }
-                else {
-                    SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(newElements.size());
-                    State<T, L, V>[] newStates = State.newArray(newElements.size());
-                    fillInNewValues(newElements, newStates, locationsArray, startPos);
-                    underlying.replaceSlice(startPos, endPos, locationsArray);
-                    state.replaceSlice(startPos, endPos, newStates);
-                    if (useIndex) {
-                        final int length = state.size();
-                        for (int i = endPos + 1 + netAdded; i < length; i++)
-                            state.get(i).index.set(i);
-                    }
-                }
-            }
-        });
+            });
+        }
     }
 }

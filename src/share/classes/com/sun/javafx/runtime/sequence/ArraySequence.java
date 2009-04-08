@@ -71,7 +71,7 @@ public class ArraySequence<T> extends AbstractSequence<T> implements Sequence<T>
     private final static int DEFAULT_SIZE = 16;
 
     /** A potentially useful debugging/testing hook. */
-    public static boolean disableInplaceArrayUpdates;
+    public static final boolean disableInplaceArrayUpdates = false;
 
     /** Basically a one-bit reference count.
      * I.e. false means a single reference, and true means more than one.

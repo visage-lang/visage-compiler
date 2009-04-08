@@ -15,7 +15,7 @@ var l:Long  on replace { println("l={l}") };
 var d:Double on replace { println("d={d}") };
 var f:Float on replace { println("f={f}") };
 //*
-for(i in [97..122]) c=i;
+for(i2 in [97..122]) c=i2;
 c=99;
 println("");
 b=64;

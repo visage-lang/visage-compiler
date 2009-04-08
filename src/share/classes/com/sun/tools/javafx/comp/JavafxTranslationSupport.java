@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,18 +27,37 @@ import java.io.OutputStreamWriter;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import com.sun.tools.javac.code.*;
-import static com.sun.tools.javac.code.Flags.STATIC;
+import com.sun.tools.javac.code.BoundKind;
+import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.CapturedType;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.WildcardType;
+import com.sun.tools.javac.code.TypeTags;
+import static com.sun.tools.javac.code.Flags.STATIC;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
+import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
+import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import com.sun.tools.javac.tree.JCTree.JCStatement;
+import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.List;
+import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javac.util.Log;
+import com.sun.tools.javac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
@@ -116,17 +135,6 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
-    protected Type boxedElementType(Type seqType) {
-        Type elemType = seqType.getTypeArguments().head;
-        if (elemType instanceof CapturedType)
-            elemType = ((CapturedType) elemType).wildcard;
-        if (elemType instanceof WildcardType)
-            elemType = ((WildcardType) elemType).type;
-        if (elemType == null)
-            return syms.javafx_AnyType;
-        return elemType;
-    }
-
     /**
      * Special handling for Strings and Durations. If a value assigned to one of these is null,
      * the default value for the type must be substituted.
@@ -157,15 +165,6 @@ public abstract class JavafxTranslationSupport {
             return makeBlockExpression(diagPos, List.<JCStatement>of(daVar), ret);
         }
         return expr;
-    }
-
-    protected JCExpression convertNumericSequence(final DiagnosticPosition diagPos, final boolean isBound,
-            final JCExpression expr, final Type inElementType, final Type targetElementType) {
-        JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
-        JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
-        return runtime(diagPos,
-                isBound? defs.BoundSequences_convertNumberSequence : defs.Sequences_convertNumberSequence,
-                List.of(targetTypeInfo, inTypeInfo, expr));
     }
 
     /**
@@ -214,10 +213,15 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, Type type) {
+        return makeParam(diagPos, name, makeTypeTree(diagPos, type));
+
+    }
+
+    protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, JCExpression typeExpression) {
         return make.at(diagPos).VarDef(
-                make.Modifiers(Flags.PARAMETER|Flags.FINAL),
+                make.Modifiers(Flags.PARAMETER | Flags.FINAL),
                 name,
-                makeTypeTree(diagPos, type),
+                typeExpression,
                 null);
 
     }
@@ -380,13 +384,60 @@ public abstract class JavafxTranslationSupport {
         return makeTypeTree(diagPos, returnType);
     }
 
+    JCExpression typeCast(final DiagnosticPosition diagPos, final Type targetType, final Type inType, final JCExpression expr) {
+        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(inType);
+        if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
+            // We can't just cast the Object to Float (for example)
+            // because if the Object is not Float, we will get a ClassCastException at runtime.
+            // And we can't just call java.lang.Number.floatValue() because java.lang.Number
+            // doesn't exist on mobile, at least not as of Jan 2009.
+            String method = null;
+            switch (targetType.tag) {
+                case TypeTags.CHAR:
+                    method="objectToCharacter";
+                    break;
+                case TypeTags.BYTE:
+                    method="objectToByte";
+                    break;
+                case TypeTags.SHORT:
+                    method="objectToShort";
+                    break;
+                case TypeTags.INT:
+                    method="objectToInt";
+                    break;
+                case TypeTags.LONG:
+                    method="objectToLong";
+                    break;
+                case TypeTags.FLOAT:
+                    method="objectToFloat";
+                    break;
+                case TypeTags.DOUBLE:
+                    method="objectToDouble";
+                    break;
+            }
+            if (method != null) {
+                //TODO: Use RuntimeMethod
+                return callExpression(diagPos,
+                                        makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Util"),
+                                        method,
+                                        expr);
+            }
+        }
+
+        // The makeTypeCast below is usually redundant, since translateAsValue
+        // takes care of most conversions - except in the case of a plain object cast.
+        // It would be cleaner to move the makeTypeCast to translateAsValue,
+        // but it's painful to get it right.  FIXME.
+        return makeTypeCast(diagPos, targetType, inType, expr);
+    }
+
     JCExpression makeTypeCast(DiagnosticPosition diagPos, Type clazztype, Type exprtype, JCExpression translatedExpr) {
         if (types.isSameType(clazztype, exprtype)) {
             return translatedExpr;
         } else {
             Type castType = clazztype;
-            if (castType.isPrimitive() && !exprtype.isPrimitive()) {
-                castType = types.boxedClass(castType).type;
+            if (!exprtype.isPrimitive()) {
+                castType = types.boxedTypeOrType(castType);
             }
             if (castType.isPrimitive() && exprtype.isPrimitive()) {
                 JCTree clazz = makeTypeTree(diagPos, exprtype, true);

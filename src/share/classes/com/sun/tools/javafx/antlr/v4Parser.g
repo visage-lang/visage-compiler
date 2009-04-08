@@ -420,14 +420,8 @@ scriptItem  [ListBuffer<JFXTree> items] // This rule builds a list of JFXTree, w
 			  // valid modifier for the upcoming declaration. Whether it is
 			  // valid or not is a matter for semantic checks to decide.
 			  //
-			  // Script level variable declarations can conflict with
-			  // local variable declarations (which do not allow modifiers
-			  // and are encapsulated in the expression rule, which is called
-			  // by the statement rule. Hence we must special case it here
-			  // unless we want to pass around status to all our rules.
-			  // The predicate is a small one and passes or fails quickly.
 			  //
-			  	m1=modifiers { errNodes.append($m1.mods); }
+			  	(modifiers (CLASS|FUNCTION))=> m1=modifiers { errNodes.append($m1.mods); }
 				(
 					  c=classDefinition			[$m1.mods, $m1.pos]
 					  
@@ -1143,6 +1137,9 @@ functionDefinition [ JFXModifiers mods, int pos ]
 	//
 	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
 	
+	// Function name we accumulate one way or another (manufacture if missing)
+	//
+	JFXIdent id;
 	
 	// Start of rule for error node production/
 	//
@@ -1153,16 +1150,17 @@ functionDefinition [ JFXModifiers mods, int pos ]
 		(
 			n1=name 
 				{
-					if	($n1.inError) {
+				
+					if ($n1.inError) {
 					
-						// Function cannot be anonymous here
+						// First, lets report the error as the user needs to know about it
+						// Issue an error - can't have anonymous functions
 						//
-						log.error($n1.pos, MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
+						log.error(pos(), MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
 					}
-					
 					// Accumulate a node in case of error
 					//			
-					JFXIdent id = F.at($n1.pos).Ident($n1.value);
+					id = F.at($n1.pos).Ident($n1.value);
 					endPos(id);
 				
 					// Accumulate in case of error
@@ -1563,7 +1561,8 @@ formalParameters
 						//
 						params.append($fp2.var); 
 					} 
-			)*  
+			)*
+			COMMA?  
 		)?
 			
 	  RPAREN
@@ -5047,7 +5046,7 @@ qlsl [ ListBuffer<JFXExpression> strexp]
 					// iii) There were prior expressions in the list, in which case, as per
 					//      ii) we must merge the last literal in the buffer with ($ql) from
 					//      above and make it the leadin string for this expression.
-					//      NB: THis can aonly arise from "{expr}" ("STRING")* "{expr}"
+					//      NB: THis can only arise from "{expr}" ("STRING")* "{expr}"
 					//
 					switch	(strexp.size())
 					{
@@ -5215,7 +5214,7 @@ stringFormat [ ListBuffer<JFXExpression> strexp]
 	| // no format
 		{
 			value = F.at(rPos).Literal(TypeTags.CLASS, "");
-			endPos(value);
+			endPos(value, rPos);	// Needs to be shown as an empty string to the IDE
 			strexp.append(value);
 		}
 	;
@@ -5277,18 +5276,18 @@ bracketExpression
 					errNodes.append($e1.value);
 				}
 		     	(
-		     		COMMA*
-		     		  (
 		     			
-		     				(
-		     					e2=expression
-		     						{
-		     							seqexp.append($e2.value);
-		     							errNodes.append($e2.value);
-		     						}
-		     				)
-		     				COMMA*
-		     		  )*
+	     				  (
+	     				    
+	     				    (COMMA | { log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);} )
+	     					e2=expression
+	     						{
+	     							seqexp.append($e2.value);
+	     							errNodes.append($e2.value);
+	     						}
+	     				  )*
+	     				  COMMA?
+
 	                    
 	                    {
 	                    	// Explicit sequence detected
@@ -5370,15 +5369,16 @@ expressionList
 		}
 		
 		(
-			COMMA 	(
-						e2=expression
-						
-						{
-							args.append		($e2.value);
-							errNodes.append	($e2.value);
-						}
-					)?
+			(COMMA | { log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);} )	
+			e2=expression
+			
+			{
+				args.append		($e2.value);
+				errNodes.append	($e2.value);
+			}
+		
 		)*
+		COMMA?
 	|
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -5645,15 +5645,15 @@ typeArgList
  		}
  		 
  		(
- 			COMMA 
- 			(
- 				t2=typeArg
- 				
- 				{
- 					ptypes.append($t2.rtype);
- 				}
- 			)?
+ 			COMMA 	
+			t2=typeArg
+			
+			{
+				ptypes.append($t2.rtype);
+			}
+		
  		)*
+ 		COMMA?
  	|
 	;
 // Catch an error. We create an erroneous node for anything that was at the start 
@@ -5839,12 +5839,12 @@ typeName
 			  	
 			  		(
 			  			COMMA
-			  				(
-			  					ga2=genericArgument
-			  				
-			  							{ exprbuff.append($ga2.value); }
-			  				)?
+	  					ga2=genericArgument
+	  				
+	  							{ exprbuff.append($ga2.value); }
+
 			  		)* 
+			  		COMMA?
 			  GT
 			  
 			  {
@@ -6287,29 +6287,32 @@ name
 			
 				$inError = false;		// It was genuinely there
 			}
-		}				
+		}
 	;
-
+	
 // Catch an error when looking for a name. The only error we can
 // have is that it is not there, so we create an error node for
 // placing in the AST
 //
 catch [RecognitionException re] {
-  
-  	// First, lets report the error as the user needs to know about it
-  	//
-    reportError(re);
 
-	// Now create an AST node that represents a missing name, The required entry
-	// is of type Name so we use an identifier name that cannot exist in
-	// JavaFX, so that IDEs can detect it, but flag it as being a manufactured
-	// token to the caller.
-	//
-	$value 		= Name.fromString(names, "<missing>");
-	$pos   		= semiPos();
-	$inError	= true;
+	    // First, lets report the error as the user needs to know about it                             
+	    //                                                                                             
+	    reportError(re);   
+	
+		// Now create an AST node that represents a missing name, The required entry
+		// is of type Name so we use an identifier name that cannot exist in
+		// JavaFX, so that IDEs can detect it, but flag it as being a manufactured
+		// token to the caller.
+		//
+		$value 		= Name.fromString(names, "<missing>");
+		$pos   		= semiPos();
+		$inError	= true;
  }
- 
+
+
+
+
 // -----------------------
 // Process a SEMI colon that is always required, regardless of
 // where the contruct is in the script. There are not too many

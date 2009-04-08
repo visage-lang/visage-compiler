@@ -12,7 +12,7 @@ class jfxc1859Sub extends jfxc1859
 {
     var x:String;
  }
- var f1=new jfxc1859Sub;
+ def f1=new jfxc1859Sub;
  var f2=jfxc1859Sub{ x:bind f1.s with inverse; };  
  f2.x="update  script only bind access variable";
  System.out.println(f1.s);

@@ -52,7 +52,7 @@
             <body>
                 <xsl:call-template name="header-pre"/>
                 <ul id="master-list"><!-- |//class | //function-->
-                    <xsl:for-each select="//attribute | //function | //class">
+                    <xsl:for-each select="//script-var | //var | //script-function | //function | //class">
                         <xsl:sort select="@name"/>
                         <li>
                             <xsl:attribute name="class">
@@ -77,7 +77,7 @@
         </a>
         - class in package <b><xsl:value-of select="@packageName"/></b>
     </xsl:template>
-    <xsl:template match="attribute">
+    <xsl:template match="var | script-var">
         <a>
             <xsl:apply-templates select="." mode="href"/>
             <xsl:value-of select="@name"/>
@@ -88,7 +88,7 @@
             <xsl:value-of select="../@qualifiedName"/>
         </a>
     </xsl:template>
-    <xsl:template match="function">
+    <xsl:template match="function | script-function">
         <a>
             <xsl:apply-templates select="." mode="href"/>
             <xsl:value-of select="@name"/>

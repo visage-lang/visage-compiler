@@ -1,5 +1,5 @@
 #
-# Gererated Makefile - do not edit!
+# Generated Makefile - do not edit!
 #
 # Edit the Makefile in the project folder instead (../Makefile). Each target
 # has a -pre and a -post target defined where you can add customized code.
@@ -12,22 +12,26 @@ MKDIR=mkdir
 CP=cp
 CCADMIN=CCadmin
 RANLIB=ranlib
-CC=gcc.exe
+CC=
 CCC=g++.exe
 CXX=g++.exe
 FC=
+
+# Macros
+PLATFORM=Cygwin-Windows
 
 # Include project Makefile
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/javafxdoc_debug/Cygwin-Windows
+OBJECTDIR=build/javafxdoc_debug/${PLATFORM}
 
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/src/configuration.o \
 	${OBJECTDIR}/src/javafxc.o \
 	${OBJECTDIR}/src/util.o \
+	${OBJECTDIR}/src/javafxw.o \
 	${OBJECTDIR}/src/javafxdoc.o \
 	${OBJECTDIR}/src/javafx.o
 
@@ -45,7 +49,8 @@ FFLAGS=
 LDLIBSOPTIONS=
 
 # Build Targets
-.build-conf: ${BUILD_SUBPROJECTS} dist/Debug/javafxdoc.exe
+.build-conf: ${BUILD_SUBPROJECTS}
+	${MAKE}  -f nbproject/Makefile-javafxdoc_debug.mk dist/Debug/javafxdoc.exe
 
 dist/Debug/javafxdoc.exe: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug
@@ -53,23 +58,33 @@ dist/Debug/javafxdoc.exe: ${OBJECTFILES}
 
 ${OBJECTDIR}/src/configuration.o: src/configuration.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/configuration.o src/configuration.cpp
 
 ${OBJECTDIR}/src/javafxc.o: src/javafxc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -o ${OBJECTDIR}/src/javafxc.o src/javafxc.cpp
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxc.o src/javafxc.cpp
 
 ${OBJECTDIR}/src/util.o: src/util.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -o ${OBJECTDIR}/src/util.o src/util.cpp
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/util.o src/util.cpp
+
+${OBJECTDIR}/src/javafxw.o: src/javafxw.cpp 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxw.o src/javafxw.cpp
 
 ${OBJECTDIR}/src/javafxdoc.o: src/javafxdoc.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -o ${OBJECTDIR}/src/javafxdoc.o src/javafxdoc.cpp
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafxdoc.o src/javafxdoc.cpp
 
 ${OBJECTDIR}/src/javafx.o: src/javafx.cpp 
 	${MKDIR} -p ${OBJECTDIR}/src
-	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -o ${OBJECTDIR}/src/javafx.o src/javafx.cpp
+	${RM} $@.d
+	$(COMPILE.cc) -g -Wall -DPROJECT_JAVAFXDOC -DDEBUG -MMD -MP -MF $@.d -o ${OBJECTDIR}/src/javafx.o src/javafx.cpp
 
 # Subprojects
 .build-subprojects:
@@ -81,3 +96,8 @@ ${OBJECTDIR}/src/javafx.o: src/javafx.cpp
 
 # Subprojects
 .clean-subprojects:
+
+# Enable dependency checking
+.dep.inc: .depcheck-impl
+
+include .dep.inc

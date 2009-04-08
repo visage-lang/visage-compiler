@@ -194,9 +194,9 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         }
     }
 
-    private static MutativeIterator<ChangeListener> CALL_LISTENER_CLOSURE
-            = new MutativeIterator<ChangeListener>(CHILD_KIND_CHANGE_LISTENER) {
-        public boolean onAction(ChangeListener element) {
+    private static MutativeIterator<InvalidationListener> CALL_LISTENER_CLOSURE
+            = new MutativeIterator<InvalidationListener>(CHILD_KIND_CHANGE_LISTENER) {
+        public boolean onAction(InvalidationListener element) {
             try {
                 return element.onChange();
             }
@@ -282,11 +282,11 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
             Linkables.iterate(children, closure);
     }
 
-    public void addChangeListener(ChangeListener listener) {
+    public void addInvalidationListener(InvalidationListener listener) {
         addChild(listener);
     }
 
-    public void removeChangeListener(ChangeListener listener) {
+    public void removeInvalidationListener(InvalidationListener listener) {
         removeChild(listener);
     }
 

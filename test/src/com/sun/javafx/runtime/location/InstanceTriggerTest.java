@@ -37,7 +37,7 @@ public class InstanceTriggerTest extends JavaFXTestCase {
     public void testChangeTrigger() {
         final IntLocation v = IntVariable.make(3);
         CountingListener cl = new CountingListener();
-        v.addChangeListener(cl);
+        v.addInvalidationListener(cl);
         assertEquals(0, cl.count);
         v.setAsInt(4);
         assertEquals(1, cl.count);
@@ -50,7 +50,7 @@ public class InstanceTriggerTest extends JavaFXTestCase {
         Sequence<Integer> otherSeq = Sequences.make(TypeInfo.Integer, 1, 2, 3, 5);
         Sequence<Integer> otherButEqualSeq = Sequences.make(TypeInfo.Integer, 1, 2, 3, 5);
         CountingListener cl = new CountingListener();
-        v.addChangeListener(cl);
+        v.addInvalidationListener(cl);
         assertEquals(0, cl.count);
         v.setAsSequence(otherSeq);
         assertEquals(1, cl.count);
@@ -105,7 +105,7 @@ public class InstanceTriggerTest extends JavaFXTestCase {
     public void testPrevValue() {
         final IntLocation v = IntVariable.make();
         final int[] last = new int[1];
-        v.addChangeListener(new PrimitiveChangeListener<Integer>() {
+        v.addChangeListener(new ChangeListener<Integer>() {
             public void onChange(int oldValue, int newValue) {
                 last[0] = oldValue;
             }

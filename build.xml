@@ -123,7 +123,7 @@
       name="all"        depends="docs,test,pack-jars"          description="Build and test all project artifacts"
       name="bundle"     depends="docs,pack-jars,-do-bundle"    description="Build distribution bundle"
       name="clean"      depends="-do-clean"                    description="Remove build products"
-      name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
+      name="all-with-coverage" depends="-init-coverage, all, findbugs, plot-data, coverage-report"
                                description="Build and test all project artifacts with coverage"
 
       name="smoketest"         description="Run tests that interface to SDK code"
@@ -218,14 +218,13 @@
 
     <target name="-do-bundle" depends="-bundle-init,-bundle-zip,-bundle-tgz"/>
 
-
-    <target name="hudson-dev" depends="-hudson-init, all, findbugs, staticsizes, coverage-report, hudson-post-build"
+    <target name="hudson-dev" depends="-hudson-init, all, findbugs, plot-data, coverage-report, hudson-post-build"
             description="Build and test all project artifacts for each developer push"/>
     
-    <target name="hudson-all" depends="-hudson-init, -init-coverage, all, findbugs, staticsizes, coverage-report, hudson-post-build"
+    <target name="hudson-all" depends="-hudson-init, -init-coverage, all, findbugs, plot-data, coverage-report, hudson-post-build"
             description="Build and test with coverage all project artifacts for nightly build"/>
 
-    <target name="all-with-coverage" depends="-init-coverage, all, findbugs, staticsizes, coverage-report"
+    <target name="all-with-coverage" depends="-init-coverage, all, findbugs, plot-data, coverage-report"
             description="Build and test all project artifacts with coverage"/>
 
     <target name="-hudson-init">
@@ -348,12 +347,14 @@
 
     <target depends="-pre-compile" name="generate-lexerv4" unless="lexerv4.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-verbose"/>
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4l.file}" />
             <jvmarg value="-Xmx256m"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-verbose"/>
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4p.file}" />
@@ -364,12 +365,14 @@
 
     <target depends="-pre-compile, generate-lexerv4" name="generate-parserv4" unless="parserv4.uptodate">
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-verbose"/>
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4l.file}" />
             <jvmarg value="-Xmx256m"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-verbose"/>
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4p.file}" />
@@ -672,6 +675,8 @@
         <delete dir="${build.staticsizes.dir}" />
     </target>
 
+    <target name="plot-data" depends="staticsizes, ldclassreport"/>
+    
     <target name="staticsizes" depends="jar, staticsizes-clean">
         <mkdir dir="${build.staticsizes.dir}"/>
         <java classname="com.sun.javafx.tools.jaranalyzer.JarAnalyzer">
@@ -680,6 +685,22 @@
             <arg value="http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/artifact/build/staticsizes" />
             <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
+            </classpath>
+            </java>
+    </target>
+
+    <target name="ldclassreport-clean">
+        <delete dir="${build.ldclassreport.dir}" />
+    </target>
+
+    <target name="ldclassreport" depends="binaries, ldclassreport-clean">
+        <mkdir dir="${build.ldclassreport.dir}" />
+        <java classname="com.sun.javafx.tools.classreporter.ClassReporter">
+            <arg value="-dist.dir=${dist.dir}" />
+            <arg value="-build.dir=${build.ldclassreport.dir}" />
+            <arg value="-reference.url=http://openjfx.java.sun.com/hudson/job/openjfx-compiler/${jfx.build.number}/changes" />
+            <classpath>
+                <pathelement location="${build.buildtools.dir}" />
             </classpath>
             </java>
     </target>

@@ -23,18 +23,22 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.sequence.Sequence;
-
 /**
- * Sequence-specific notification methods 
+ * ChangeListeners are notified when a Location's value may have changed.
  *
+ * @see Location
  * @author Brian Goetz
  */
-public abstract class SequenceChangeListener<T> extends AbstractLocationDependency {
-
-    public abstract void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
+public abstract class InvalidationListener extends AbstractLocationDependency {
+    /** Notifies the listener that the contents of the location may have changed.
+     *
+     * @return a boolean value indicating whether this listener is still valid.  Returning false will cause the
+     * listener to be removed from the listener list.  For listeners that do their own weak reference management,
+     * they should return false when the relevant weak references have been reported as cleared.
+     */
+    public abstract boolean onChange();
 
     public int getDependencyKind() {
-        return AbstractLocation.CHILD_KIND_TRIGGER;
+        return AbstractLocation.CHILD_KIND_CHANGE_LISTENER;
     }
 }

@@ -154,12 +154,12 @@ public class InitializationTest extends JavaFXTestCase {
         }
 
         protected static void addTriggers$(final Temperature receiver) {
-            receiver.get$f().addChangeListener(new PrimitiveChangeListener<Integer>() {
+            receiver.get$f().addChangeListener(new ChangeListener<Integer>() {
                 public void onChange(int oldValue, int newValue) {
                     receiver.get$c().set((receiver.get$f().get() - 30) / 2);
                 }
             });
-            receiver.get$c().addChangeListener(new PrimitiveChangeListener<Integer>() {
+            receiver.get$c().addChangeListener(new ChangeListener<Integer>() {
                 public void onChange(int oldValue, int newValue) {
                     receiver.get$f().set(2 * receiver.get$c().get() + 30);
                 }
@@ -231,17 +231,17 @@ public class InitializationTest extends JavaFXTestCase {
         public IntVariable get$c() { return c; }
 
         protected static void addTriggers$(final ThreeAttributes receiver) {
-            receiver.get$a().addChangeListener(new PrimitiveChangeListener<Integer>() {
+            receiver.get$a().addChangeListener(new ChangeListener<Integer>() {
                 public void onChange(int oldValue, int newValue) {
                     receiver.list.add("a:" + newValue);
                 }
             });
-            receiver.get$b().addChangeListener(new PrimitiveChangeListener<Integer>() {
+            receiver.get$b().addChangeListener(new ChangeListener<Integer>() {
                 public void onChange(int oldValue, int newValue) {
                     receiver.list.add("b:" + newValue);
                 }
             });
-            receiver.get$c().addChangeListener(new PrimitiveChangeListener<Integer>() {
+            receiver.get$c().addChangeListener(new ChangeListener<Integer>() {
                 public void onChange(int oldValue, int newValue) {
                     receiver.list.add("c:" + newValue);
                 }

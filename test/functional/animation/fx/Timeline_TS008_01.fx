@@ -15,18 +15,15 @@ import java.lang.System;
 import java.lang.Thread;
 import java.lang.AssertionError;
 import java.lang.Throwable;
-import javax.swing.Timer;
-import java.awt.event.*;
 
 function runLater(ms: Number, f: function(): Void): Void {
-	var timer = new Timer(ms, ActionListener {
-		public override function actionPerformed(e: ActionEvent) {
-			FX.deferAction(f);
-		}
-	});
-	timer.setRepeats(false);
-	timer.start();
-}
+    Timeline {
+        keyFrames: KeyFrame {
+            time: Duration.valueOf(ms)
+            action: f
+        }
+    }.play();
+} 
 
 var golden: Integer[] = [0..1500 step 500];
 var out: Integer[];

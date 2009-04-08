@@ -39,15 +39,17 @@ public class BoundSequenceBuilder<T> {
     private static final int DEFAULT_SIZE = 8;
 
     private final TypeInfo<T, ?> typeInfo;
+    private final boolean lazy;
     private SequenceLocation<? extends T>[] array;
     private int size;
 
-    public BoundSequenceBuilder(TypeInfo<T, ?> typeInfo) {
-        this(DEFAULT_SIZE, typeInfo);
+    public BoundSequenceBuilder(boolean lazy, TypeInfo<T, ?> typeInfo) {
+        this(lazy, DEFAULT_SIZE, typeInfo);
     }
 
-    public BoundSequenceBuilder(int initialSize, TypeInfo<T, ?> typeInfo) {
+    public BoundSequenceBuilder(boolean lazy, int initialSize, TypeInfo<T, ?> typeInfo) {
         this.typeInfo = typeInfo;
+        this.lazy = lazy;
         array = Util.newSequenceLocationArray(Util.powerOfTwo(1, initialSize));
     }
 
@@ -73,7 +75,7 @@ public class BoundSequenceBuilder<T> {
 
     /** Add an instance location to the sequence */
     public void add(ObjectLocation<? extends T> singleton) {
-        add(BoundSequences.singleton(typeInfo, singleton));
+        add(BoundSequences.singleton(lazy, typeInfo, singleton));
     }
 
     /** Erase the current contents */
@@ -85,6 +87,6 @@ public class BoundSequenceBuilder<T> {
     /** Convert to a SequenceLocation.  The elements will be copied to a new sequence, and will remain
      * in the builder */
     public SequenceLocation<T> toSequence() {
-        return BoundSequences.concatenate(typeInfo, array, size);
+        return BoundSequences.concatenate(lazy, typeInfo, array, size);
     }
 }

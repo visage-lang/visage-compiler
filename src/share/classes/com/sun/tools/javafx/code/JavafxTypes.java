@@ -78,8 +78,7 @@ public class JavafxTypes extends Types {
         return sequenceType(elemType, true);
     }
      public Type sequenceType(Type elemType, boolean withExtends) {
-        if (elemType.isPrimitive())
-            elemType = boxedClass(elemType).type;
+        elemType = boxedTypeOrType(elemType);
         if (withExtends)
             elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
         Type seqtype = syms.javafx_SequenceType;
@@ -88,7 +87,7 @@ public class JavafxTypes extends Types {
         return new ClassType(clazzOuter, actuals, seqtype.tsym);
     }
 
-    public Type elementType(Type seqType) {
+    public Type boxedElementType(Type seqType) {
         Type elemType = seqType.getTypeArguments().head;
         if (elemType instanceof CapturedType)
             elemType = ((CapturedType) elemType).wildcard;
@@ -96,6 +95,11 @@ public class JavafxTypes extends Types {
             elemType = ((WildcardType) elemType).type;
         if (elemType == null)
             return syms.javafx_AnyType;
+        return elemType;
+    }
+
+    public Type elementType(Type seqType) {
+        Type elemType = boxedElementType(seqType);
         Type unboxed = unboxedType(elemType);
         if (unboxed.tag != TypeTags.NONE)
             elemType = unboxed;
@@ -105,6 +109,16 @@ public class JavafxTypes extends Types {
     public Type unboxedTypeOrType(Type t) {
         Type ubt = unboxedType(t);
         return ubt==Type.noType? t : ubt;
+    }
+
+    public Type boxedTypeOrType(Type t) {
+        return (t.isPrimitive() || t == syms.voidType)?
+                      boxedClass(t).type
+                    : t;
+    }
+
+    public Type elementTypeOrType(Type t) {
+        return isSequence(t) ? elementType(t) : t;
     }
 
     public void getSupertypes(Symbol clazz, ListBuffer<Type> supertypes,Set<Type> dupSet) {
@@ -237,10 +251,10 @@ public class JavafxTypes extends Types {
 
         Type target = isSequence(s) ? elementType(s) : s.tag == TypeTags.ARRAY ? ((ArrayType) s).elemtype : s;
         Type source = isSequence(t) ? elementType(t) : t.tag == TypeTags.ARRAY ? ((ArrayType) t).elemtype : t;
-        if (target.isPrimitive() && ! source.isPrimitive())
-            target = boxedClass(target).type;
-        if (source.isPrimitive() && ! target.isPrimitive())
-            source = boxedClass(source).type;
+        if (!source.isPrimitive())
+            target = boxedTypeOrType(target);
+        if (!target.isPrimitive())
+            source = boxedTypeOrType(source);
 
         if (source == syms.botType ||
             target == syms.botType)
@@ -376,81 +390,43 @@ public class JavafxTypes extends Types {
     }
 
     private boolean isJavaFXBoolean(Type type) {
-        boolean result = false;
-        if (type.tag == BOOLEAN) {
-            result = true;
-        }
-        return result;
+        return type.tag == BOOLEAN;
     }
     
     private boolean isJavaLong(Type type) {
-        boolean result = false;
-        if (type.tag == LONG) {
-            result = true;
-        }
-        return result;
+        return type.tag == LONG;
     }
     
     private boolean isJavaFXInteger(Type type) {
-        boolean result = false;
-        if (type.tag == BYTE) {
-            result = true;
-        } else if (type.tag == SHORT) {
-            result = true;
-        } else if (type.tag == INT) {
-            result = true;
-        }
-        return result;
+        return type.tag == BYTE ||
+                type.tag == SHORT ||
+                type.tag == INT;
     }
     
     private boolean isJavaFXNumber(Type type){
-        boolean result = false;
-        if (type.tag == FLOAT) {
-            result = true;
-        } else if (type.tag == DOUBLE) {
-            result = true;
-        }
-        return result;
+        return type.tag == FLOAT ||
+                type.tag == DOUBLE;
     }
     
     private boolean isJavaFXString(Type type) {
-        boolean result = false;
-        if ((type.tag == CLASS) && (type.toString().equals("java.lang.String"))) {
-            result = true;
-        }
-        return result;
+        return (type.tag == CLASS) && (type.toString().equals("java.lang.String"));
     }
     
     private boolean isJavaFXObject(Type type) {
-        boolean result = false;
-        if ((type.tag == CLASS) && (type.toString().equals("java.lang.Object"))) {
-            result = true;
-        }
-        return result;
+        return (type.tag == CLASS) && (type.toString().equals("java.lang.Object"));
     }
     
     private boolean isJavaFXUnknown(Type type) {
-        boolean result = false;
-        if (type.tag == UNKNOWN) {
-            result = true;
-        }
-        return result;
+        return type.tag == UNKNOWN;
     }
     
     private boolean isJavaFXSequence(Type type) {
-        boolean result = false;
-        if (isSequence(type)) {
-            result = true;
-        }
-        return result;
+        return isSequence(type);
     }
     
     private boolean isJavaFXMethod(Type type) {
-        boolean result = false;
-        if ((type instanceof MethodType) || (type instanceof FunctionType)) {
-            result = true;
-        }
-        return result;
+        return type instanceof MethodType ||
+                type instanceof FunctionType;
     }
     
     private void sequenceToJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
@@ -556,5 +532,12 @@ public class JavafxTypes extends Types {
                 syms.isRunMethod(sym.owner))
             sym = sym.owner;
         return sym.location(site, this);
+    }
+
+    public String location (Symbol sym) {
+        while ((sym.owner.flags() & BLOCK) != 0 ||
+                syms.isRunMethod(sym.owner))
+            sym = sym.owner;
+        return sym.location();
     }
 }

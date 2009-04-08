@@ -46,7 +46,7 @@ function testSequenceBind1() {
 
 function testSequenceBind2(){
        
-	var values = [1,2,3,4,,,5,6,7,8];
+	var values = [1,2,3,4,5,6,7,8];
 	var filter1 = 2;
 	var filteredValues1 = bind if ( filter1 == 2 ) 
 	                              values

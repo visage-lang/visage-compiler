@@ -34,6 +34,8 @@ import com.sun.javafx.runtime.sequence.*;
  */
 public class SequenceBindingTest extends JavaFXTestCase {
 
+    static final boolean NOT_LAZY = false;
+
     private final SequencePredicate<Integer> isOnePredicate = new SequencePredicate<Integer>() {
         public boolean matches(Sequence sequence, int index, Integer value) {
             return value == 1;
@@ -58,7 +60,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
             }
         }, seq);
         CountingSequenceListener cl = new CountingSequenceListener();
-        seq.addChangeListener(cl);
+        seq.addSequenceChangeListener(cl);
         assertEquals(seq, 1, 2, 3);
 
         assertEquals(1, firstValue);
@@ -73,8 +75,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         final SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         CountingSequenceListener cl = new CountingSequenceListener();
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
-        seq.addChangeListener(cl);
-        seq.addChangeListener(hl);
+        seq.addSequenceChangeListener(cl);
+        seq.addSequenceChangeListener(hl);
 
         assertEquals(seq, 1, 2, 3);
         seq.set(0, 0);
@@ -86,8 +88,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         final SequenceLocation<Integer> seq = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 3));
         CountingSequenceListener cl = new CountingSequenceListener();
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
-        seq.addChangeListener(cl);
-        seq.addChangeListener(hl);
+        seq.addSequenceChangeListener(cl);
+        seq.addSequenceChangeListener(hl);
 
         seq.insert(4);
         assertEquals(seq, 1, 2, 3, 4);
@@ -309,8 +311,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
                                                                   }, v);
         HistorySequenceListener<Integer> vh = new HistorySequenceListener<Integer>();
         HistorySequenceListener<Integer> bh = new HistorySequenceListener<Integer>();
-        v.addChangeListener(vh);
-        b.addChangeListener(bh);
+        v.addSequenceChangeListener(vh);
+        b.addSequenceChangeListener(bh);
 
         assertEquals(v, 1, 2, 3);
         assertEquals(b, 1, 2, 3);
@@ -342,9 +344,9 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testBoundConcat() {
         SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.range(1, 2));
         SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, Sequences.range(3, 4));
-        BoundCompositeSequence<Integer> c = new BoundCompositeSequence<Integer>(TypeInfo.Integer, a, b);
+        BoundCompositeSequence<Integer> c = new BoundCompositeSequence<Integer>(NOT_LAZY, TypeInfo.Integer, a, b);
         HistorySequenceListener<Integer> hl = new HistorySequenceListener<Integer>();
-        c.addChangeListener(hl);
+        c.addSequenceChangeListener(hl);
 
         assertEquals(c, 1, 2, 3, 4);
         assertEquals(hl);
@@ -448,9 +450,9 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     public void testBoundReverse() {
         SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
-        SequenceLocation<Integer> r = BoundSequences.reverse(a);
+        SequenceLocation<Integer> r = BoundSequences.reverse(NOT_LAZY, a);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        r.addChangeListener(hl);
+        r.addSequenceChangeListener(hl);
 
         assertEquals(r, 3, 2, 1);
         assertEquals(hl);
@@ -527,9 +529,9 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testBoundSingleton() {
         IntLocation i = IntVariable.make(0);
         ObjectLocation<Integer> o = Locations.asObjectLocation(i);
-        SequenceLocation<Integer> s = BoundSequences.singleton(TypeInfo.Integer, o);
+        SequenceLocation<Integer> s = BoundSequences.singleton(NOT_LAZY, TypeInfo.Integer, o);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        s.addChangeListener(hl);
+        s.addSequenceChangeListener(hl);
 
         assertEquals(s, 0);
         assertEquals(hl);
@@ -540,8 +542,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEqualsAndClear(hl, "[0, 0] => [ 1 ]");
 
         o = ObjectVariable.make((Integer) null);
-        s = BoundSequences.singleton(TypeInfo.Integer, o);
-        s.addChangeListener(hl);
+        s = BoundSequences.singleton(NOT_LAZY, TypeInfo.Integer, o);
+        s.addSequenceChangeListener(hl);
         assertEquals(s);
 
         o.set(1);
@@ -564,7 +566,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     public void testSliceTriggers() {
         SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        a.addChangeListener(hl);
+        a.addSequenceChangeListener(hl);
         a.setAsSequence(Sequences.range(1, 2));
         assertEquals(a, 1, 2);
         assertEqualsAndClear(hl, "[0, 2] => [ 1, 2 ]");
@@ -599,7 +601,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testBoundSequenceBuilder() {
-        BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(TypeInfo.Integer);
+        BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(NOT_LAZY, TypeInfo.Integer);
         IntLocation a = IntVariable.make(1);
         final SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 4, 5, 6));
         IntLocation c = IntVariable.make(10);
@@ -615,7 +617,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         sb.add(d);
         SequenceLocation<Integer> derived = sb.toSequence();
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        derived.addChangeListener(hl);
+        derived.addSequenceChangeListener(hl);
 
         assertEquals(derived, 1, 4, 5, 6, 10, 3);
         assertEquals(hl);

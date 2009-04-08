@@ -17,19 +17,16 @@ import java.lang.System;
 import java.lang.Thread;
 import java.lang.AssertionError;
 import java.lang.Throwable;
-import javax.swing.Timer;
-import java.awt.event.*;
 import java.util.concurrent.TimeUnit;
 
 function runLater(ms: Number, f: function(): Void): Void {
-    var timer = new Timer(ms, ActionListener {
-        public override function actionPerformed(e: ActionEvent) {
-            f();
+    Timeline {
+        keyFrames: KeyFrame {
+            time: Duration.valueOf(ms)
+            action: f
         }
-    });
-    timer.setRepeats(false);
-    timer.start();
-}
+    }.play();
+} 
 
 var keepAlive : Timeline = Timeline {
     repeatCount: Timeline.INDEFINITE

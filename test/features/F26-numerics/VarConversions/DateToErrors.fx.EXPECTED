@@ -1,0 +1,11 @@
+test\features\F26-numerics\VarConversions\DateToErrors.fx:17: incompatible types
+found   : java.util.Date
+required: Integer
+b = jj;
+    ^
+test\features\F26-numerics\VarConversions\DateToErrors.fx:18: incompatible types
+found   : java.util.Date
+required: java.lang.Long
+l = jj;
+    ^
+2 errors

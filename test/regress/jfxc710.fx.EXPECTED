@@ -7,36 +7,36 @@ trig: wayOut1 litWayOuti
 litWayOuti
 WayOutfi
 ------- Out{}
+trig: outi Outi
 trig: wayOut1 ovOut-WayOuti
 trig: override Out wayOuti ovOut-WayOuti
-trig: outi Outi
 ovOut-WayOuti
 WayOutfi
 Outi
 Outfi
 ------- Out{wayOuti: 'litOutWayOuti'}
+trig: outi Outi
 trig: wayOut1 litOutWayOuti
 trig: override Out wayOuti litOutWayOuti
-trig: outi Outi
 litOutWayOuti
 WayOutfi
 Outi
 Outfi
 ------- Out{outi: 'litOuti'}
+trig: outi litOuti
 trig: wayOut1 ovOut-WayOuti
 trig: override Out wayOuti ovOut-WayOuti
-trig: outi litOuti
 ovOut-WayOuti
 WayOutfi
 litOuti
 Outfi
 ------- A{}
+trig: a1 ai
+trig: outi ovA-outi
+trig: override A out1 ovA-outi
 trig: wayOut1 ovA-wayOuti
 trig: override Out wayOuti ovA-wayOuti
 trig: override A wayOuti ovA-wayOuti
-trig: outi ovA-outi
-trig: override A out1 ovA-outi
-trig: a1 ai
 ovA-wayOuti
 WayOutfi
 ovA-outi
@@ -44,12 +44,12 @@ Outfi
 ai
 afi
 ------- A{wayOuti: 'litAWayOuti'}
+trig: a1 ai
+trig: outi ovA-outi
+trig: override A out1 ovA-outi
 trig: wayOut1 litAWayOuti
 trig: override Out wayOuti litAWayOuti
 trig: override A wayOuti litAWayOuti
-trig: outi ovA-outi
-trig: override A out1 ovA-outi
-trig: a1 ai
 litAWayOuti
 WayOutfi
 ovA-outi
@@ -57,12 +57,12 @@ Outfi
 ai
 afi
 ------- A{outi: 'litAOuti'}
+trig: a1 ai
+trig: outi litAOuti
+trig: override A out1 litAOuti
 trig: wayOut1 ovA-wayOuti
 trig: override Out wayOuti ovA-wayOuti
 trig: override A wayOuti ovA-wayOuti
-trig: outi litAOuti
-trig: override A out1 litAOuti
-trig: a1 ai
 ovA-wayOuti
 WayOutfi
 litAOuti
@@ -70,12 +70,12 @@ Outfi
 ai
 afi
 ------- A{ai: 'litAi'}
+trig: a1 litAi
+trig: outi ovA-outi
+trig: override A out1 ovA-outi
 trig: wayOut1 ovA-wayOuti
 trig: override Out wayOuti ovA-wayOuti
 trig: override A wayOuti ovA-wayOuti
-trig: outi ovA-outi
-trig: override A out1 ovA-outi
-trig: a1 litAi
 ovA-wayOuti
 WayOutfi
 ovA-outi

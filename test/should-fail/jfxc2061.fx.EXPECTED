@@ -1,0 +1,4 @@
+test/should-fail/jfxc2061.fx:9: i is already defined in jfxc2061
+   var i:Integer=1;
+   ^
+1 error
