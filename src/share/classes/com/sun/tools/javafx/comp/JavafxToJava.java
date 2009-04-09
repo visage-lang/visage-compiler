@@ -213,8 +213,14 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                    return true;
                case BLOCK_EXPRESSION:
                    return possiblyNull(((JFXBlock)expr).getValue());
-               case IDENT:
-                   return ((JFXIdent)expr).sym instanceof VarSymbol;
+               case IDENT: {
+                   if (((JFXIdent)expr).sym instanceof VarSymbol) {
+                       Symbol sym = ((JFXIdent)expr).sym;
+                       return sym.name != names._this && sym.name != names._super;
+                   } else {
+                       return false;
+                   }
+               }
                case CONDEXPR:
                    return possiblyNull(((JFXIfExpression)expr).getTrueExpression()) || possiblyNull(((JFXIfExpression)expr).getFalseExpression());
                case LITERAL:
