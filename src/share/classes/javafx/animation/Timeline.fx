@@ -370,21 +370,21 @@ public class Timeline {
 
     // duration is inferred from time of last key frame and durations
     // of any sub-timelines in rebuildTargets()
-    var duration: Number = -1;
+    var timelineDur: Number = -1;
 
     function getTotalDur():Number {
         if (not valid) {
             rebuildTargets();
         }
-        if (duration < 0 or repeatCount < 0) {
+        if (timelineDur < 0 or repeatCount < 0) {
             return -1;
         }
 	
-	// enforce minimum duration of 1 ms
-	// Refer to JFXC-1399, minimum duration prevents 
+	// enforce minimum timelineDur of 1 ms
+	// Refer to JFXC-1399, minimum timelineDur prevents 
 	// timeline from running "too fast", especially 
-        // when duration = 0 can result tight loop.
-        return Math.max(duration, 1) * repeatCount;
+        // when timelineDur = 0 can result tight loop.
+        return Math.max(timelineDur, 1) * repeatCount;
     }
 
 
@@ -432,7 +432,7 @@ public class Timeline {
     
     function start() {
         reset(false);
-        if(not forward and duration < 0) {
+        if(not forward and timelineDur < 0) {
             throw new UnsupportedOperationException("backward-running INDEFINITE sub-timeline is not supported");
         }
         setSubtimelineDirection(forward);        
@@ -626,7 +626,7 @@ public class Timeline {
         initialKeyValues = [];
         targets.clear();
         subtimelines.clear();
-        duration = 0;
+        timelineDur = 0;
         if (sizeof keyFrames == 0) {
             return;
         }
@@ -641,8 +641,8 @@ public class Timeline {
         }
 
         for (keyFrame in keyFrames) {
-            if (duration >= 0) {
-                duration = java.lang.Math.max(duration, keyFrame.time.toMillis());
+            if (timelineDur >= 0) {
+                timelineDur = java.lang.Math.max(timelineDur, keyFrame.time.toMillis());
             }
 
             if (keyFrame.timelines != null) {
@@ -653,10 +653,10 @@ public class Timeline {
                 for (timeline in keyFrame.timelines) {
                     timeline.subtimeline = true;
                     var subDur = timeline.getTotalDur();
-                    if (duration >= 0 and subDur >= 0) {
-                        duration = java.lang.Math.max(duration, keyFrame.time.toMillis() + subDur);
+                    if (timelineDur >= 0 and subDur >= 0) {
+                        timelineDur = java.lang.Math.max(timelineDur, keyFrame.time.toMillis() + subDur);
                     } else {
-                        duration = -1;
+                        timelineDur = -1;
                     }
                     var sub = SubTimeline {
                         startTime: keyFrame.time
@@ -729,8 +729,8 @@ public class Timeline {
         totalElapsed -= durOffset;
         var needsStop = false;
         var totalDur = getTotalDur();
-	// enforce minimum duration of 1 ms
-        var dur = Math.max(duration, 1);
+	// enforce minimum timelineDur of 1 ms
+        var dur = Math.max(timelineDur, 1);
 
         var curT:Number;
         var cycle:Integer;
@@ -784,7 +784,7 @@ public class Timeline {
             
         lastElapsed = totalElapsed;
         
-        if (duration < 0) {
+        if (timelineDur < 0) {
             // indefinite duration (e.g. will occur when a sub-timeline
             // has indefinite repeatCount); always stay on zero cycle
             curT = totalElapsed;
@@ -828,7 +828,7 @@ public class Timeline {
         
         if((not needsStop) or cycleIndex < repeatCount) {
             if(not cycleForward) {
-                if(duration >= 0) {
+                if(timelineDur >= 0) {
                     curT = dur - curT;
                     curPos = curT;
                     time = makeDur(curT);
@@ -1005,7 +1005,7 @@ public class Timeline {
      * to complete repositioning
      */
     function updateFrameIndex(totalElapsed: Number): Void {
-        var curT = if(duration < 0) totalElapsed else (totalElapsed mod Math.max(duration, 1));
+        var curT = if(timelineDur < 0) totalElapsed else (totalElapsed mod Math.max(timelineDur, 1));
         
         // now we need to recalculate frameIndex
         frameIndex = 0;
@@ -1025,7 +1025,7 @@ public class Timeline {
     
     
     function visitCycle(catchingUp:Boolean): Void {
-        var cycleT = if (forward) duration else 0;
+        var cycleT = if (forward) timelineDur else 0;
         curPos = cycleT;
         time = makeDur(cycleT);
         
@@ -1177,9 +1177,9 @@ public class Timeline {
                      * and intends to move forward, treat it as a completed
                      * forward cycle.
                      */
-                    if(time.toMillis() == duration) {
-                        durOffset = -duration;
-                        curPos = duration;
+                    if(time.toMillis() == timelineDur) {
+                        durOffset = -timelineDur;
+                        curPos = timelineDur;
                         cycleIndex ++;
                         if(autoReverse) {
                             forward = not forward;
@@ -1193,11 +1193,11 @@ public class Timeline {
                      */
                     if(time == 0ms) {
                         cycleIndex ++;
-                        durOffset = -duration;
+                        durOffset = -timelineDur;
                         if(autoReverse) {
                             forward = not forward;
                         }
-                    } else if(time.toMillis() == duration) {
+                    } else if(time.toMillis() == timelineDur) {
                         // play backward from the end of timeline
                         curPos = 0.0;
                         time = 0.0ms;
