@@ -680,6 +680,14 @@ public class JavafxAttr implements JavafxVisitor {
                                 tree.pos(), site, sym.name, true);
                         break;
                     }
+
+                    if (env1.tree instanceof JFXFunctionDefinition &&
+                       ((JFXFunctionDefinition)env1.tree).sym.isStatic()) {
+                        rs.access(rs.new StaticError(sym),
+                                tree.pos(), site, sym.name, true);
+                        break;
+                    }
+                    
                     if (env1.tree instanceof JFXClassDeclaration &&
                             types.isSubtype(((JFXClassDeclaration) env1.tree).sym.type, site)) {
                         break;
