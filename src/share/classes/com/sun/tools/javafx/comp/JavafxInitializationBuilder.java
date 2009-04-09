@@ -817,7 +817,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // call the super addTriggers
         ClassSymbol superClassSym = getSuperSymbol(cDecl);
         if (superClassSym != null) {
-            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, true));
+            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, false));
         }
         
         // JFXC-2822 - Triggers need to work from mixins.
@@ -847,7 +847,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         return make.at(diagPos).MethodDef(
-                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
+                make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
                 defs.addTriggersName,
                 makeTypeTree( null,syms.voidType),
                 List.<JCTypeParameter>nil(),
