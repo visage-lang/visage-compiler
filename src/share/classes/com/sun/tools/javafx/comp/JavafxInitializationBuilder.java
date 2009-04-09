@@ -46,6 +46,7 @@ import com.sun.tools.javafx.tree.*;
  * @author Lubo Litchev
  * @author Per Bothner
  * @author Zhiqun Chen
+ * @author Jim Laskey
  */
 public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     protected static final Context.Key<JavafxInitializationBuilder> javafxInitializationBuilderKey =
@@ -103,6 +104,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         final List<JCTree> additionalClassMembers;
         final List<JCExpression> additionalImports;
         final Type superType;
+        final ClassSymbol superClassSym;
+        final List<ClassSymbol> superClasses;
+        final List<ClassSymbol> immediateMixins;
+        final List<ClassSymbol> allMixins;
 
         JavafxClassModel(
                 Name interfaceName,
@@ -110,13 +115,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 List<JCTree> iDefinitions,
                 List<JCTree> addedClassMembers,
                 List<JCExpression> additionalImports,
-                Type superType) {
+                Type superType,
+                ClassSymbol superClassSym,
+                List<ClassSymbol> superClasses,
+                List<ClassSymbol> immediateMixins,
+                List<ClassSymbol> allMixins) {
             this.interfaceName = interfaceName;
             this.interfaces = interfaces;
             this.iDefinitions = iDefinitions;
             this.additionalClassMembers = addedClassMembers;
             this.additionalImports = additionalImports;
             this.superType = superType;
+            this.superClassSym = superClassSym;
+            this.superClasses = superClasses;
+            this.immediateMixins = immediateMixins;
+            this.allMixins = allMixins;
         }
     }
 
@@ -187,7 +200,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 iDefinitions.toList(),
                 cDefinitions.toList(),
                 makeAdditionalImports(diagPos, cDecl, mixinClasses),
-                superType);
+                superType,
+                analysis.getSuperClassSym(),
+                analysis.getSuperClasses(),
+                analysis.getImmediateMixins(),
+                analysis.getAllMixins());
     }
 
     
