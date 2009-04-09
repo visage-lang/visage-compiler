@@ -76,9 +76,10 @@
     <target name="jfx-clean"     depends="clean"/>
     <target name="jfx-clean-sdk" depends="init,-do-jfx-clean-sdk"/>
     <target name="jfx-clean-deploy" depends="init,-do-jfx-clean-deploy"/>
-    <target name="jfx-init"/>
     <target name="jfx-sdk"       depends="init,-do-jfx-sdk"/>
     <target name="jfx-test"      depends="smoketest"/>
+    <target name="jfx-full-test"/>
+    <target name="jfx-samples"/>
     <target name="jfx-deploy"    depends="init,-do-jfx-deploy"/>
     <target name="jfx-sdk-docs"  depends="init,-do-jfx-sdk-docs"/>
 

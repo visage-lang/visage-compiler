@@ -38,6 +38,7 @@ import java.util.jar.Manifest;
  * @author A. Sundararajan
  */
 public class Main {
+    private static final String MAIN_CLASS_PREFIX = "MainJavaFXScript=";
 
     private static String getErrorMessage(String key, Object... args) {
         return LauncherHelper.getLocalizedMessage("javafx.launcher.err.main." + key, args);
@@ -56,9 +57,13 @@ public class Main {
         Class mainClass = null;
         String mclassname = args[0];
         try {
-            if (args[0].endsWith(".jar")) {
-                mclassname = getMainClass(args[0]);
-            }
+            if (mclassname.endsWith(".jar")) {
+		// executable Jar case
+                mclassname = getMainClass(mclassname);
+            } else if (mclassname.startsWith(MAIN_CLASS_PREFIX)) {
+		// webstart case
+                mclassname = mclassname.substring(mclassname.indexOf('=')+1);
+	    }
             // load the user's JavaFX class but do *not* initialize!
             mainClass = Class.forName(mclassname, false,
                     Thread.currentThread().getContextClassLoader());
