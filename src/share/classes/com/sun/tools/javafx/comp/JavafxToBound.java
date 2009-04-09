@@ -114,25 +114,24 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         computeElementsName = names.fromString("computeElements$");
     }
 
-    /*** External entry points ***/
-
+    // External translation entry-point
     JCExpression translate(JFXExpression tree, JavafxBindStatus bindStatus, TypeMorphInfo tmi) {
         JavafxBindStatus prevBindStatus = this.bindStatus;
         this.bindStatus = bindStatus;
-        JCExpression res = translateGeneric(tree, tmi);
+        JCExpression res = translate(tree, tmi);
         this.bindStatus = prevBindStatus;
         return res;
     }
 
-    JCExpression translate(JFXExpression tree, JavafxBindStatus bindStatus, Type type) {
+    private JCExpression translate(JFXExpression tree, JavafxBindStatus bindStatus, Type type) {
         JavafxBindStatus prevBindStatus = this.bindStatus;
         this.bindStatus = bindStatus;
-        JCExpression res = translateGeneric(tree, type);
+        JCExpression res = translate(tree, type);
         this.bindStatus = prevBindStatus;
         return res;
     }
 
-    JCExpression translateForConditional(JFXExpression tree, Type type) {
+    private JCExpression translateForConditional(JFXExpression tree, Type type) {
         if (SEQUENCE_CONDITIONAL_INLINE && types.isSequence(type)) {
             return translate(tree, type);
         } else {
@@ -140,26 +139,12 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }
     }
 
-    // only for re-entry use by SequenceBuilder
-    JCExpression translate(JFXExpression tree) {
-        return translateGeneric(tree);
-    }
-
-    private JCExpression translate(JFXExpression tree, TypeMorphInfo tmi) {
-        return translateGeneric(tree, tmi);
-    }
-
-    JCExpression translate(JFXExpression tree, Type type) {
-        return translateGeneric(tree, type);
-    }
-    
     /** Visitor method: Translate a single node.
      */
-    @SuppressWarnings("unchecked")
-    private <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree, TypeMorphInfo tmi) {
+    private JCExpression translate(JFXExpression tree, TypeMorphInfo tmi) {
         TypeMorphInfo tmiPrevTarget = tmiTarget;
         this.tmiTarget = tmi;
-        TC ret;
+        JCExpression ret;
         if (tree == null) {
             ret = null;
         } else {
@@ -167,31 +152,28 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             toJava.attrEnv.where = tree;
             tree.accept(this);
             toJava.attrEnv.where = prevWhere;
-            ret = (TC) this.result;
+            ret = (JCExpression) this.result;
             this.result = null;
         }
         this.tmiTarget = tmiPrevTarget;
         return ret;
     }
 
-    private <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree, Type type) {
-        return translateGeneric(tree, typeMorpher.typeMorphInfo(type));
+    private JCExpression translate(JFXExpression tree) {
+        return translate(tree, (TypeMorphInfo)null);
     }
 
-    private <TFX extends JFXExpression, TC extends JCTree> TC translateGeneric(TFX tree) {
-        return translateGeneric(tree, (TypeMorphInfo) null);
+    // External translation entry-point: used by SequenceBuilder
+    JCExpression translate(JFXExpression tree, Type type) {
+        return translate(tree, typeMorpher.typeMorphInfo(type));
     }
 
     private List<JCExpression> translate(List<JFXExpression> trees, Type methType, boolean usesVarArgs) {
-        return translateGeneric(trees, methType, usesVarArgs);
-    }
-
-    private <TFX extends JFXExpression, TC extends JCExpression> List<TC> translateGeneric(List<TFX> trees, Type methType, boolean usesVarArgs) {
-        ListBuffer<TC> translated = ListBuffer.lb();
+        ListBuffer<JCExpression> translated = ListBuffer.lb();
         boolean handlingVarargs = false;
         Type formal = null;
         List<Type> t = methType.getParameterTypes();
-        for (List<TFX> l = trees; l.nonEmpty(); l = l.tail) {
+        for (List<JFXExpression> l = trees; l.nonEmpty(); l = l.tail) {
             if (!handlingVarargs) {
                 formal = t.head;
                 t = t.tail;
@@ -200,7 +182,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                     handlingVarargs = true;
                 }
             }
-            TC tree = translateGeneric(l.head, formal);
+            JCExpression tree = translate(l.head, formal);
             if (tree != null) {
                 if (tree.type == null) { // if not set by convert()
                     tree.type = formal; // mark the type to declare the holder of this arg
@@ -208,7 +190,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 translated.append(tree);
             }
         }
-        List<TC> args = translated.toList();
+        List<JCExpression> args = translated.toList();
 
         return args;
     }

@@ -1613,7 +1613,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     private JCExpression translateDefinitionalAssignmentToValueArg(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
         if (bindStatus.isUnidiBind()) {
-            return toBound.translate(init, bindStatus, vmi.getRealType());
+            return toBound.translate(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
             assert requiresLocation(vmi);
             // Bi-directional bind translate so it stays in a Location
