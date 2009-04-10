@@ -1,7 +1,7 @@
-test\should-fail\jfxc2278.fx:9: 'var' overrides member x in jfxc2278Sub; use 'override'.
+test\should-fail\jfxc2278.fx:9: 'var' overrides member 'x' in 'jfxc2278Sub'; use 'override'.
   var x;
   ^
-test\should-fail\jfxc2278.fx:10: 'def' overrides member y() in jfxc2278Sub.
+test\should-fail\jfxc2278.fx:10: 'def' overrides member 'y()' in 'jfxc2278Sub'.
   def y = 6;
   ^
 2 errors

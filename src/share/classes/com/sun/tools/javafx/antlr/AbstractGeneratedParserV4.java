@@ -387,29 +387,6 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         
     }
     
-
-   
-    /**
-     * An override for the standard ANTLR mismatch method, which is called when
-     * the token type predicted for the current input position is not the expected
-     * token type.
-     * 
-     * @param input The input stream whence the token came
-     * @param ttype The token type that was found
-     * @param follow The bitset that indicates all the tokens that would be valid at this point
-     *               in the input stream.
-     * @throws org.antlr.runtime.RecognitionException
-     */
-    @Override
-    protected void mismatch(IntStream input, int ttype, BitSet follow)
-            throws RecognitionException 
-    {
-        // Currently this is just a hook back in to the ANTLR
-        // default implementation.
-        //
-        super.mismatch(input, ttype, follow);
-    }
-
     /**
      * Using the supplied grammar rule name, search the rule map
      * and return a user friendly description of the what the

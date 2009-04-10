@@ -46,14 +46,13 @@ public class JavafxDefs {
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
-    public static final String attributeSetMethodParamNameString = "value";
     public static final String needsDefaultSuffix = "$needs_default$";
     public static final String mixinSuffix = "$Mixin";
     public static final String deprecatedInterfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
-    public static final String scriptBindingExpressionsString = "com.sun.javafx.runtime.location.ScriptBindingExpressions";
+    public static final String baseBindingListenerClassString = "com.sun.javafx.runtime.location.SBECL";
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String fxMixinString = "com.sun.javafx.runtime.FXMixin";
@@ -77,7 +76,7 @@ public class JavafxDefs {
     public static final String lambdaNameString = "lambda";
     public static final String isInitializedNameString = "isInitialized";
     public static final String convertNumberSequence = "convertNumberSequence";
-    public static final String scriptBindingClassString = "_Bindings";
+    public static final String scriptBindingListenerClassString = "_SBECL";
     public static final String bindingIdString = "id";
     public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
@@ -90,7 +89,9 @@ public class JavafxDefs {
     public  static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
 
     private static final String cLocations = locationPackageNameString + ".Locations";
+    public  static final String cChangeListener = locationPackageNameString + ".ChangeListener";
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
+    public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
     private static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
             static final String cOperator = cBoundOperators + ".Operator";
@@ -122,16 +123,12 @@ public class JavafxDefs {
     final RuntimeMethod TypeInfo_getTypeInfo;
 
     final RuntimeMethod Locations_upcast;
-    final RuntimeMethod Locations_toByteLocation;
-    final RuntimeMethod Locations_toShortLocation;
-    final RuntimeMethod Locations_toIntLocation;
-    final RuntimeMethod Locations_toLongLocation;
-    final RuntimeMethod Locations_toFloatLocation;
-    final RuntimeMethod Locations_toDoubleLocation;
 
-    final RuntimeMethod Sequences_forceNonNull;
-    final RuntimeMethod Sequences_size;
     final RuntimeMethod Sequences_convertNumberSequence;
+    final RuntimeMethod Sequences_forceNonNull;
+    final RuntimeMethod Sequences_range;
+    final RuntimeMethod Sequences_rangeExclusive;
+    final RuntimeMethod Sequences_size;
 
     final RuntimeMethod BoundOperators_makeBoundSequenceSelect;
     final RuntimeMethod BoundOperators_makeBoundSelect;
@@ -148,16 +145,17 @@ public class JavafxDefs {
     final RuntimeMethod BoundOperators_cmp_other;
     final RuntimeMethod BoundOperators_and_bb;
 
-    final RuntimeMethod BoundSequences_singleton;
-    final RuntimeMethod BoundSequences_range;
-    final RuntimeMethod BoundSequences_empty;
-    final RuntimeMethod BoundSequences_sizeof;
-    final RuntimeMethod BoundSequences_reverse;
+    final RuntimeMethod BoundSequences_convertNumberSequence;
     final RuntimeMethod BoundSequences_element;
+    final RuntimeMethod BoundSequences_empty;
+    final RuntimeMethod BoundSequences_range;
+    final RuntimeMethod BoundSequences_rangeExclusive;
+    final RuntimeMethod BoundSequences_reverse;
+    final RuntimeMethod BoundSequences_singleton;
+    final RuntimeMethod BoundSequences_sizeof;
     final RuntimeMethod BoundSequences_slice;
     final RuntimeMethod BoundSequences_sliceExclusive;
     final RuntimeMethod BoundSequences_upcast;
-    final RuntimeMethod BoundSequences_convertNumberSequence;
 
     /**
      * Name definitions
@@ -186,6 +184,10 @@ public class JavafxDefs {
     final Name makeMethodName;
     final Name makeWithDefaultMethodName;
     final Name makeBijectiveMethodName;
+    final Name onChangeMethodName;
+    final Name addChangeListenerName;
+    final Name addSequenceChangeListenerName;
+    final Name locationInitializeName;
     final Name invokeName;
     final Name lambdaName;
     final Name lengthName;
@@ -202,6 +204,7 @@ public class JavafxDefs {
     final Name arg1Name;
     final Name moreArgsName;
     final Name dependentsName;
+    final Name typeParamName;
     final Name initDefName;
     final Name postInitDefName;
     final Name javalangThreadName;
@@ -219,6 +222,11 @@ public class JavafxDefs {
     final Name applyDefaultsPrefixName;
     final Name setDefaultMethodName;
     final Name noteSharedMethodName;
+    final Name onReplaceArgNameOld;
+    final Name onReplaceArgNameNew;
+    final Name onReplaceArgNameFirstIndex;
+    final Name onReplaceArgNameLastIndex;
+    final Name onReplaceArgNameNewElements;
     final Name getAsSequenceRawMethodName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
@@ -276,7 +284,7 @@ public class JavafxDefs {
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         getMethodName = names.fromString(getMethodNameString);
-        attributeSetMethodParamName = names.fromString(attributeSetMethodParamNameString);
+        attributeSetMethodParamName = names.fromString("value");
         getSliceMethodName = names.fromString("getSlice");
         replaceSliceMethodName = names.fromString("replaceSlice");
         getAsSequenceRawMethodName = names.fromString("getAsSequenceRaw");
@@ -291,12 +299,16 @@ public class JavafxDefs {
         makeMethodName = names.fromString(makeMethodNameString);
         makeWithDefaultMethodName = names.fromString(makeWithDefaultMethodNameString);
         makeBijectiveMethodName = names.fromString(makeBijectiveMethodNameString);
+        onChangeMethodName = names.fromString("onChange");
+        addChangeListenerName = names.fromString("addChangeListener");
+        addSequenceChangeListenerName = names.fromString("addSequenceChangeListener");
+        locationInitializeName = names.fromString("initialize");
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         lengthName = names.fromString("length");
         emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
-        scriptBindingClassName = names.fromString(scriptBindingClassString);
+        scriptBindingClassName = names.fromString(scriptBindingListenerClassString);
         bindingIdName = names.fromString(bindingIdString);
         getStaticDependentsMethodName = names.fromString(getStaticDependentsMethodString);
         computeMethodName = names.fromString(computeMethodString);
@@ -307,6 +319,7 @@ public class JavafxDefs {
         arg1Name = names.fromString("arg$1");
         moreArgsName = names.fromString("moreArgs");
         dependentsName = names.fromString("dependents");
+        typeParamName = names.fromString("T");
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
         timeName = names.fromString("time");
@@ -320,6 +333,11 @@ public class JavafxDefs {
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
         noteSharedMethodName = names.fromString("noteShared");
+        onReplaceArgNameOld = names.fromString("$oldValue");
+        onReplaceArgNameNew = names.fromString("$newValue");
+        onReplaceArgNameFirstIndex = names.fromString("$index$");
+        onReplaceArgNameLastIndex = names.fromString("$lastIndex$");
+        onReplaceArgNameNewElements = names.fromString("$newElements$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
         needsDefaultSuffixName = names.fromString(needsDefaultSuffix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
@@ -342,16 +360,12 @@ public class JavafxDefs {
         TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");
 
         Locations_upcast = new RuntimeMethod(names, cLocations, "upcast");
-        Locations_toByteLocation = new RuntimeMethod(names, cLocations, "toByteLocation");
-        Locations_toShortLocation = new RuntimeMethod(names, cLocations, "toShortLocation");
-        Locations_toIntLocation = new RuntimeMethod(names, cLocations, "toIntLocation");
-        Locations_toLongLocation = new RuntimeMethod(names, cLocations, "toLongLocation");
-        Locations_toFloatLocation = new RuntimeMethod(names, cLocations, "toFloatLocation");
-        Locations_toDoubleLocation = new RuntimeMethod(names, cLocations, "toDoubleLocation");
 
-        Sequences_size = new RuntimeMethod(names, cSequences, "size");
-        Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
         Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
+        Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
+        Sequences_range = new RuntimeMethod(names, cSequences, "range");
+        Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");
+        Sequences_size = new RuntimeMethod(names, cSequences, "size");
 
         BoundOperators_makeBoundSequenceSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSequenceSelect");
         BoundOperators_makeBoundSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSelect");
@@ -370,6 +384,7 @@ public class JavafxDefs {
 
         BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
         BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");
+        BoundSequences_rangeExclusive = new RuntimeMethod(names, cBoundSequences, "rangeExclusive");
         BoundSequences_empty = new RuntimeMethod(names, cBoundSequences, "empty");
         BoundSequences_sizeof = new RuntimeMethod(names, cBoundSequences, "sizeof");
         BoundSequences_reverse = new RuntimeMethod(names, cBoundSequences, "reverse");

@@ -182,6 +182,9 @@ public class JavafxAttr implements JavafxVisitor {
      *  @param pt       The expected type (or: prototype) of the tree
      */
     Type check(JFXTree tree, Type owntype, int ownkind, int pkind, Type pt, Sequenceness pSequenceness) {
+        return check(tree, owntype, ownkind, pkind, pt, pSequenceness, true);
+    }
+    Type check(JFXTree tree, Type owntype, int ownkind, int pkind, Type pt, Sequenceness pSequenceness, boolean giveWarnings) {
         if (owntype != null && owntype != syms.javafx_UnspecifiedType && owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
 //        if (owntype.tag != ERROR && pt.tag != METHOD && pt.tag != FORALL) {
             if ((pkind & VAL) != 0 && ownkind == MTH) {
@@ -191,7 +194,7 @@ public class JavafxAttr implements JavafxVisitor {
                 }
             }
             if ((ownkind & ~pkind) == 0) {
-                owntype = chk.checkType(tree.pos(), owntype, pt, pSequenceness);
+                owntype = chk.checkType(tree.pos(), owntype, pt, pSequenceness, giveWarnings);
             } else {
                 log.error(tree.pos(), MsgSym.MESSAGE_UNEXPECTED_TYPE,
                           Resolve.kindNames(pkind),
@@ -462,7 +465,7 @@ public class JavafxAttr implements JavafxVisitor {
         //not supported by translation
         result = chk.checkReifiableReferenceType(
                 tree.clazz.pos(),
-                type.isPrimitive() ? types.boxedClass(type).type : type);
+                types.boxedTypeOrType(type));
         if (!result.isErroneous()) {
             chk.checkCastable(tree.expr.pos(), exprtype, type);
             result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
@@ -583,9 +586,7 @@ public class JavafxAttr implements JavafxVisitor {
         Type site = attribTree(tree.selected, env, skind,
                 Infer.anyPoly, Sequenceness.PERMITTED);
         boolean wasPrimitive = site.isPrimitive();
-        if (wasPrimitive) {
-            site = types.boxedClass(site).type;
-        }
+        site = types.boxedTypeOrType(site);
         env.info.inSelect = inSelectPrev;
         if ((pkind & (PCK | TYP)) == 0)
             site = capture(site); // Capture field access
@@ -623,8 +624,9 @@ public class JavafxAttr implements JavafxVisitor {
         // Determine the symbol represented by the selection.
         env.info.varArgs = false;
         if (sitesym instanceof ClassSymbol &&
-                env.enclClass.sym.isSubClass(sitesym, types))
-            env.info.selectSuper = true;
+                (types.isSameType(sitesym.type, syms.objectType) ||
+                env.enclClass.sym.isSubClass(sitesym, types)))
+                    env.info.selectSuper = true;
         Symbol sym = selectSym(tree, site, env, pt, pkind);
         sym.complete();
         if (sym.exists() && !isType(sym) && (pkind & (PCK | TYP)) != 0) {
@@ -692,6 +694,11 @@ public class JavafxAttr implements JavafxVisitor {
 
             // Check that super-qualified symbols are not abstract (JLS)
             rs.checkNonAbstract(tree.pos(), sym);
+
+            if (env.enclClass.sym instanceof JavafxClassSymbol) {
+                // Check that the selectet type is a direct supertype of the enclosing class
+                chk.checkSuper(tree.pos(), (JavafxClassSymbol)env.enclClass.sym, site);
+            }
 
             if (site.isRaw()) {
                 // Determine argument types for site.
@@ -779,7 +786,7 @@ public class JavafxAttr implements JavafxVisitor {
                     // In this case, we have already made sure in Select that
                     // qualifier expression is a type.
                     Type t = syms.classType;
-                    Type arg = types.boxedClass(site).type;
+                    Type arg = types.boxedTypeOrType(site);
                     t = new ClassType(t.getEnclosingType(), List.of(arg), t.tsym);
                     return new VarSymbol(
                         STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
@@ -902,19 +909,17 @@ public class JavafxAttr implements JavafxVisitor {
                 // In order to catch self-references, we set the variable's
                 // declaration position to maximal possible value, effectively
                 // marking the variable as undefined.
-                v.pos = Position.MAXPOS;
+                initEnv.info.enclVar = v;
                 boolean wasInBindContext = this.inBindContext;
                 this.inBindContext |= tree.isBound();
+                if (this.inBindContext) {
+                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+                }
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
-                initType = chk.checkNonVoid(tree.pos(), initType);
-                if (declType.tag <= LONG && initType.tag >= LONG && initType.tag <= DOUBLE) {
-                    // Temporary kludge to supress duplicate warnings.
-                    // (The kludge won't be needed if we make Number->Integer and error.)
-                }
-                else
-                    chk.checkType(tree.pos(), initType, declType,
-                            types.isSequence(declType) ? Sequenceness.REQUIRED : Sequenceness.DISALLOWED);
+                initType = chk.checkNonVoid(tree.pos(), initType);                
+                chk.checkType(tree.pos(), initType, declType,
+                        types.isSequence(declType) ? Sequenceness.REQUIRED : Sequenceness.DISALLOWED, false);
                 if (initType == syms.botType
                         || initType == syms.unreachableType)
                     initType = syms.objectType;
@@ -934,7 +939,6 @@ public class JavafxAttr implements JavafxVisitor {
         finally {
             chk.setLint(prevLint);
             log.useSource(prev);
-            v.pos = tree.pos;
         }
     }
 
@@ -961,6 +965,9 @@ public class JavafxAttr implements JavafxVisitor {
         
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
+            if (inBindContext) {
+                log.error(onReplace.pos(), MsgSym.MESSAGE_ON_REPLACE_IN_BIND_NOT_ALLOWED);
+            }
             JFXVar oldValue = onReplace.getOldValue();
             if (oldValue != null && oldValue.type == null) {
                     oldValue.type =  tree.type;
@@ -988,8 +995,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         }
         warnOnStaticUse(tree.pos(), tree.getModifiers(), sym);        
-        // type is the type of the variable unless the variable is bound
-        result = tree.isBound()? syms.voidType : tree.type;
+        result = /*tree.isBound()? syms.voidType : */ tree.type;
     }
 
     private void warnOnStaticUse(DiagnosticPosition pos, JFXModifiers mods, Symbol sym) {
@@ -1037,6 +1043,9 @@ public class JavafxAttr implements JavafxVisitor {
 
         boolean wasInBindContext = this.inBindContext;
         this.inBindContext |= tree.isBound();
+        if (this.inBindContext) {
+            v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+        }
         try {
             JFXExpression init = tree.getInitializer();
             if (init != null) {
@@ -1346,7 +1355,7 @@ public class JavafxAttr implements JavafxVisitor {
             owntype = syms.unreachableType;
         }
         owntype = owntype.baseType();
-        result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
+        result = check(tree, owntype, VAL, pkind, pt, pSequenceness, false);
         if (env.info.scope.owner.kind != TYP)
             localEnv.info.scope.leave();
     }
@@ -1815,6 +1824,10 @@ public class JavafxAttr implements JavafxVisitor {
             } else {
                 JFXBlock body = opVal.getBodyExpression();
                 if (body.value instanceof JFXReturn) {
+                    if (returnType == syms.voidType) {
+                        log.error(body.value.pos(),
+                                MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
+                    }
                     body.value = ((JFXReturn) body.value).expr;
                 }
                 // Attribute method bodyExpression
@@ -1833,11 +1846,8 @@ public class JavafxAttr implements JavafxVisitor {
                 } else {
                     if (returnType == syms.unknownType)
                         returnType = bodyType == syms.unreachableType ? syms.javafx_VoidType : bodyType;
-                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.internalRunFunctionName
-                            // Temporary hack to suppress duplicate warning on Number->Integer.
-                            // Hack can go away if/when we make it an error.  FIXME.
-                            && ! (typeToCheck.tag <= LONG && bodyType.tag >= FLOAT && bodyType.tag <= DOUBLE))
-                        chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.PERMITTED);
+                    else if (returnType != syms.javafx_VoidType && tree.getName() != defs.internalRunFunctionName)
+                        chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.PERMITTED, false);
                 }
                 if (tree.isBound() && returnType == syms.javafx_VoidType) {
                     log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_BOUND_FUNCTION_MUST_NOT_BE_VOID);
@@ -2046,8 +2056,8 @@ public class JavafxAttr implements JavafxVisitor {
 
             // Those were all the cases that could result in a primitive
             if (allowBoxing) {
-                type1 = syms.boxIfNeeded(type1);
-                type2 = syms.boxIfNeeded(type2);
+                type1 = types.boxedTypeOrType(type1);
+                type2 = types.boxedTypeOrType(type2);
             }
 
             if (types.isSubtype(type1, type2))
@@ -2133,7 +2143,7 @@ public class JavafxAttr implements JavafxVisitor {
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE);
             else if (tree.returnType.tag == VOID) {
                 if (tree.expr != null) {
-                    log.error(tree.expr.pos(),
+                    log.error(tree.pos(),
                         MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
                 }
             } else if (tree.expr == null) {
@@ -2229,7 +2239,7 @@ public class JavafxAttr implements JavafxVisitor {
                 Type qualifier = (tree.meth.getFXTag() == JavafxTag.SELECT)
                     ? ((JFXSelect) tree.meth).selected.type
                     : env.enclClass.sym.type;
-                qualifier = syms.boxIfNeeded(qualifier);
+                qualifier = types.boxedTypeOrType(qualifier);
                 restype = new
                     ClassType(restype.getEnclosingType(),
                               List.<Type>of(new WildcardType(types.erasure(qualifier),
@@ -2636,7 +2646,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
             result = tree.type = pt;
         else {
-            Type expected = types.isSequence(pt)? types.elementType(pt) : pt;
+            Type expected = types.elementTypeOrType(pt);
             if (tree.value instanceof Double) {
                 double dvalue = ((Double) tree.value).doubleValue();
                 double dabs = Math.abs(dvalue);
@@ -3171,7 +3181,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (restype == syms.unknownType)
             restype = syms.voidType;
         Type rtype = restype == syms.voidType ? syms.javafx_java_lang_VoidType
-                : new WildcardType(syms.boxIfNeeded(restype), BoundKind.EXTENDS, syms.boundClass);
+                : new WildcardType(types.boxedTypeOrType(restype), BoundKind.EXTENDS, syms.boundClass);
         ListBuffer<Type> typarams = new ListBuffer<Type>();
         ListBuffer<Type> argtypes = new ListBuffer<Type>();
         typarams.append(rtype);
@@ -3181,7 +3191,7 @@ public class JavafxAttr implements JavafxVisitor {
             if (argtype == syms.javafx_UnspecifiedType)
                 argtype = syms.objectType;
             argtypes.append(argtype);
-            Type ptype = syms.boxIfNeeded(argtype);
+            Type ptype = types.boxedTypeOrType(argtype);
             ptype = new WildcardType(ptype, BoundKind.SUPER, syms.boundClass);
             typarams.append(ptype);
             nargs++;
@@ -3388,15 +3398,15 @@ public class JavafxAttr implements JavafxVisitor {
         private void checkForward(JFXTree tree,
                                JavafxEnv<JavafxAttrContext> env,
                                VarSymbol v
-                               ) {            
+                               ) {
             // A forward reference is diagnosed if the declaration position
             // of the variable is greater than the current tree position
             // and the tree and variable definition share the same enclosing 
             // scope. A forward reference to a def variable whose initializer is
             // an object literal is always allowed. Selection on such variables
             // is only allowed when it occurs within bound/function/class context.
-            if (v.pos > tree.pos && (env.info.inSelect ?                
-                true : !isObjLiteralDef(v)) &&
+            if ((v.pos > tree.pos || env.info.enclVar == v) &&
+                (env.info.inSelect ? true : !isObjLiteralDef(v)) &&
                 inSameEnclosingScope(v, env))
                 log.warning(tree.pos(), MsgSym.MESSAGE_ILLEGAL_FORWARD_REF, Resolve.kindName(v.kind), v);
         }
@@ -3416,7 +3426,7 @@ public class JavafxAttr implements JavafxVisitor {
             return false;
         }
         //where
-        private boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
+        public boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
             return isFunctionDef(env) ||
                    env.tree.getFXTag() == JavafxTag.FUNCTIONEXPRESSION ||                   
                    env.tree.getFXTag() == JavafxTag.CLASS_DEF ||
@@ -3703,6 +3713,9 @@ public class JavafxAttr implements JavafxVisitor {
             chk.checkPureMixinClass(tree.pos(), c);
             // Check that only it only extends mixins and interfaces.
             chk.checkOnlyMixinsAndInterfaces(tree);
+        } else {
+            // Check to make sure that mixins don't cause any conflicts.
+            chk.checkMixinConflicts(tree);
         }
          
         // Check that all extended classes and interfaces

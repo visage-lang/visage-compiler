@@ -1,15 +1,15 @@
 test\should-fail\jfxc1250slCall.fx:23: cannot find symbol
-symbol  : variable slFScr
+symbol  : function slFScr()
 location: class jfxc1250slCall.Inh
 	slFScr();   // ERROR: inherited, same package
 	^
 test\should-fail\jfxc1250slCall.fx:37: cannot find symbol
-symbol  : variable slFPkg
+symbol  : function slFPkg()
 location: class jfxc1250slCall.InhA
 	slFPkg();   // ERROR: inherited, different package
 	^
 test\should-fail\jfxc1250slCall.fx:38: cannot find symbol
-symbol  : variable slFScr
+symbol  : function slFScr()
 location: class jfxc1250slCall.InhA
 	slFScr();   // ERROR: inherited, different package
 	^

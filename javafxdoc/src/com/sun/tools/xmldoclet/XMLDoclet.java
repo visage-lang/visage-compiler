@@ -431,12 +431,25 @@ public class XMLDoclet {
             generateExecutableMember(cons, "constructor");
         }
         
-        for (MethodDoc meth : cls.methods())
-            generateExecutableMember(meth, fxClass ? "function" : "method");
-        for (FieldDoc field : cls.fields())
-            generateField(field, fxClass ? "attribute" : "field");
+        for (MethodDoc meth : cls.methods()) {
+            if (fxClass) {
+                generateExecutableMember(meth, meth.isStatic()? 
+                    "script-function" : "function");
+            } else {
+                generateExecutableMember(meth, "method");
+            }
+        }
+
+        for (FieldDoc field : cls.fields()) {
+            if (fxClass) {
+                generateField(field, field.isStatic()? 
+                    "script-var" : "var");
+            } else {
+                generateField(field, "field");
+            }
+        }
         for (FieldDoc field : cls.enumConstants())
-            generateField(field, fxClass ? "attribute" : "field");
+            generateField(field, fxClass ? "script-var" : "field");
         
         hd.endElement("", "", "class");
     }

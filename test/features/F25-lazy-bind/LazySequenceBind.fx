@@ -12,12 +12,14 @@ var x = [ 1, 2, 3 ]
 var y = bind lazy x
     on replace oldY[a..b]=newElements { println("y[{a}..{b}] => [ { newElements } ]") };
 
-// @@@ Note that true laziness is not exhibited for this case -- it is more expensive to defer updates than to eagerly propagate
+// @@@ Note that true laziness is not exhibited for all cases yet
 
 println("==simple sequence bind");
 py();
+py();
 println("modify x");
 insert 4 into x;
+py();
 py();
 
 function py() { println("reading y"); println("y:{y}") }

@@ -1,5 +1,4 @@
-test/should-fail/jfxc-2058.fx:7: Sorry, I was trying to understand an identifier but I got confused when I saw ')' which is a punctuation character.
- Perhaps you are missing a 'identifier'.
+test/should-fail/jfxc-2058.fx:7: missing method body, or declare abstract
 function f(a :Number, )
-                      ^
+^
 1 error

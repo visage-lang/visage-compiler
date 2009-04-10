@@ -19,29 +19,29 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         BooleanLocation b = BooleanVariable.make(true);
         final IntVariable i = IntVariable.make(1);
         IntLocation ifLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, false, b,
-                                                       IntVariable.make(true, new BindingExpression() {
+                                                       IntVariable.make(true, new AbstractBindingExpression() {
                                                            public void compute() {
                                                                pushValue(i.getAsInt());
                                                            }
                                                        }, i),
-                                                       IntVariable.make(true, new BindingExpression() {
+                                                       IntVariable.make(true, new AbstractBindingExpression() {
                                                            public void compute() {
                                                                pushValue(-i.getAsInt());
                                                            }
                                                        }, i));
         IntLocation lazyIfLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, true, b,
-                                                           IntVariable.make(true, new BindingExpression() {
+                                                           IntVariable.make(true, new AbstractBindingExpression() {
                                                                public void compute() {
                                                                    pushValue(i.getAsInt());
                                                                }
                                                            }, i),
-                                                           IntVariable.make(true, new BindingExpression() {
+                                                           IntVariable.make(true, new AbstractBindingExpression() {
                                                                public void compute() {
                                                                    pushValue(-i.getAsInt());
                                                                }
                                                            }, i));
         CountingListener cl = new CountingListener();
-        ifLoc.addChangeListener(cl);
+        ifLoc.addInvalidationListener(cl);
         assertEquals(1, ifLoc.getAsInt());
         assertEqualsLazy(1, lazyIfLoc);
         assertEquals(0, cl.count);
@@ -110,34 +110,34 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                                                                          }
                                                                      });
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
-        ifLoc.addChangeListener(hl);
+        ifLoc.addSequenceChangeListener(hl);
         assertEqualsAndClear(hl);
         assertEquals(ifLoc.getAsSequence(), 1, 2, 3);
-//        assertEqualsLazy(lazyIfLoc, 1, 2, 3);
+        assertEqualsLazy(lazyIfLoc, 1, 2, 3);
 
         x.insert(4);
         assertEquals(ifLoc.getAsSequence(), 1, 2, 3, 4);
-//        assertEqualsLazy(lazyIfLoc, 1, 2, 3, 4);
+        assertEqualsLazy(lazyIfLoc, 1, 2, 3, 4);
         assertEqualsAndClear(hl, "[3, 2] => [ 4 ]");
 
         b.set(false);
         assertEquals(ifLoc.getAsSequence(), 4, 5, 6);
-//        assertEqualsLazy(lazyIfLoc, 4, 5, 6);
+        assertEqualsLazy(lazyIfLoc, 4, 5, 6);
         assertEqualsAndClear(hl, "[0, 3] => [ 4, 5, 6 ]");
 
         x.insert(5);
         assertEquals(ifLoc.getAsSequence(), 4, 5, 6);
-//        assertEquals(lazyIfLoc.getAsSequence(), 4, 5, 6);
+        assertEquals(lazyIfLoc.getAsSequence(), 4, 5, 6);
         assertEqualsAndClear(hl);
 
         y.insert(7);
         assertEquals(ifLoc.getAsSequence(), 4, 5, 6, 7);
-//        assertEqualsLazy(lazyIfLoc, 4, 5, 6, 7);
+        assertEqualsLazy(lazyIfLoc, 4, 5, 6, 7);
         assertEqualsAndClear(hl, "[3, 2] => [ 7 ]");
 
         b.set(true);
         assertEquals(ifLoc.getAsSequence(), 1, 2, 3, 4, 5);
-//        assertEqualsLazy(lazyIfLoc, 1, 2, 3, 4, 5);
+        assertEqualsLazy(lazyIfLoc, 1, 2, 3, 4, 5);
         assertEqualsAndClear(hl, "[0, 3] => [ 1, 2, 3, 4, 5 ]");
     }
 
@@ -239,10 +239,10 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                     CountingListener cl2 = new CountingListener();
                     CountingListener cl3 = new CountingListener();
                     CountingListener cl4 = new CountingListener();
-                    il.addChangeListener(cl1);
-                    dl.addChangeListener(cl2);
-                    fl.addChangeListener(cl3);
-                    ll.addChangeListener(cl4);
+                    il.addInvalidationListener(cl1);
+                    dl.addInvalidationListener(cl2);
+                    fl.addInvalidationListener(cl3);
+                    ll.addInvalidationListener(cl4);
 
                     OpResults[] results = opMap.get(op);
                     results[0].loc = il;
@@ -281,10 +281,10 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                     CountingListener cl2 = new CountingListener();
                     CountingListener cl3 = new CountingListener();
                     CountingListener cl4 = new CountingListener();
-                    il.addChangeListener(cl1);
-                    dl.addChangeListener(cl2);
-                    fl.addChangeListener(cl3);
-                    ll.addChangeListener(cl4);
+                    il.addInvalidationListener(cl1);
+                    dl.addInvalidationListener(cl2);
+                    fl.addInvalidationListener(cl3);
+                    ll.addInvalidationListener(cl4);
 
                     OpResults[] results = opMap.get(op);
                     results[0].loc = il;
@@ -405,10 +405,10 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                     CountingListener cl2 = new CountingListener();
                     CountingListener cl3 = new CountingListener();
                     CountingListener cl4 = new CountingListener();
-                    il.addChangeListener(cl1);
-                    dl.addChangeListener(cl2);
-                    fl.addChangeListener(cl3);
-                    ll.addChangeListener(cl4);
+                    il.addInvalidationListener(cl1);
+                    dl.addInvalidationListener(cl2);
+                    fl.addInvalidationListener(cl3);
+                    ll.addInvalidationListener(cl4);
 
                     OpResults[] results = opMap.get(op);
                     results[0].loc = il;

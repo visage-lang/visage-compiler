@@ -230,28 +230,35 @@ public class FXLocal {
         public ClassType makeClassRef(Class cls) {
             int modifiers = 0;
             try {
-                String cname = cls.getName();
-                Class clsInterface = null;
-                if (cname.endsWith(MIXIN_SUFFIX)) {
-                    clsInterface = cls;
-                    cname = cname.substring(0, cname.length()-MIXIN_SUFFIX.length());
-                    cls = Class.forName(cname, false, cls.getClassLoader());
-                    modifiers = FXClassType.FX_MIXIN | FXClassType.FX_CLASS;
-                    return new ClassType(this, modifiers, cls, clsInterface);
-                }
                 Class[] interfaces = cls.getInterfaces();
-                String intfName = cname + MIXIN_SUFFIX;
                 for (int i = 0;  i < interfaces.length;  i++ ) {
                     String iname = interfaces[i].getName();
                     if (iname.equals(FXOBJECT_NAME)) {
                         modifiers |= FXClassType.FX_CLASS;
+                        break;
                     } else if (iname.equals(FXMIXIN_NAME)) {
-                        modifiers |= FXClassType.FX_MIXIN;
-                    } else if (iname.equals(intfName)) {
-                        clsInterface = interfaces[i];
                         modifiers |= FXClassType.FX_MIXIN | FXClassType.FX_CLASS;
+                        break;
                     }
                 }
+                
+                Class clsInterface = null;
+                if ((modifiers & FXClassType.FX_MIXIN) != 0) {
+                    String cname = cls.getName();
+                    
+                    if (cname.endsWith(MIXIN_SUFFIX)) {
+                        cname = cname.substring(0, cname.length() - MIXIN_SUFFIX.length());
+                        clsInterface = cls;
+                        cls = Class.forName(cname, false, cls.getClassLoader());
+                        if (cls == null) throw new RuntimeException("Missing mixin class " + cname);
+                       
+                    } else {
+                        String intfName = cname + MIXIN_SUFFIX;
+                        clsInterface = Class.forName(intfName, false, cls.getClassLoader());
+                        if (clsInterface == null) throw new RuntimeException("Missing mixin interface " + intfName);
+                    }
+                }
+ 
                 return new ClassType(this, modifiers, cls, clsInterface);
             }
             catch (RuntimeException ex) {
@@ -702,8 +709,12 @@ public class FXLocal {
                     ((DoubleVariable) loc).setAsDoubleFromLiteral(((FXDoubleValue) value).doubleValue());
                     return;
                 }
+                if (loc instanceof SequenceVariable) {
+                    ((SequenceVariable) loc).setAsSequenceFromLiteral(((SequenceValue) value).asObject());
+                    return;
+                }
                 if (loc instanceof AbstractVariable) {
-                    ((AbstractVariable) loc).setFromLiteral(((ObjectValue) value).asObject());
+                    ((AbstractVariable) loc).setFromLiteral(((Value) value).asObject());
                     return;
                 }
             }

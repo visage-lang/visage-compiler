@@ -1,44 +1,55 @@
-/*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
- * CA 95054 USA or visit www.sun.com if you need additional information or
- * have any questions.
- */
-
 package com.sun.javafx.runtime.location;
 
+import com.sun.javafx.runtime.sequence.Sequence;
+
 /**
- * ChangeListeners are notified when a Location's value may have changed.
+ * ChangeListener
  *
- * @see Location
  * @author Brian Goetz
  */
-public abstract class ChangeListener extends AbstractLocationDependency {
-    /** Notifies the listener that the contents of the location may have changed.
-     *
-     * @return a boolean value indicating whether this listener is still valid.  Returning false will cause the
-     * listener to be removed from the listener list.  For listeners that do their own weak reference management,
-     * they should return false when the relevant weak references have been reported as cleared.
-     */
-    public abstract boolean onChange();
+public class ChangeListener<T> extends AbstractLocationDependency {
+
+    public void onChange(T oldValue, T newValue) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+        throw new UnsupportedOperationException();
+    }
+    
+    public void onChange(byte oldValue, byte newValue) {
+        onChange((T) (Byte) oldValue, (T) (Byte) newValue);
+    }
+
+    public void onChange(short oldValue, short newValue) {
+        onChange((T) (Short) oldValue, (T) (Short) newValue);
+    }
+
+    public void onChange(int oldValue, int newValue) {
+        onChange((T) (Integer) oldValue, (T) (Integer) newValue);
+    }
+
+    public void onChange(long oldValue, long newValue) {
+        onChange((T) (Long) oldValue, (T) (Long) newValue);
+    }
+
+    public void onChange(float oldValue, float newValue) {
+        onChange((T) (Float) oldValue, (T) (Float) newValue);
+    }
+
+    public void onChange(double oldValue, double newValue) {
+        onChange((T) (Double) oldValue, (T) (Double) newValue);
+    }
+
+    public void onChange(boolean oldValue, boolean newValue) {
+        onChange((T) (Boolean) oldValue, (T) (Boolean) newValue);
+    }
+
+    public void onChange(char oldValue, char newValue) {
+        onChange((T) (Character) oldValue, (T) (Character) newValue);
+    }
 
     public int getDependencyKind() {
-        return AbstractLocation.CHILD_KIND_CHANGE_LISTENER;
+        return AbstractLocation.CHILD_KIND_TRIGGER;
     }
 }

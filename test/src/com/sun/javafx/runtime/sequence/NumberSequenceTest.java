@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.sun.javafx.runtime.JavaFXTestCase;
 import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.SequenceVariable;
 
@@ -38,6 +38,9 @@ import com.sun.javafx.runtime.location.SequenceVariable;
  * @author Per Bothner
  */
 public class NumberSequenceTest extends JavaFXTestCase {
+
+    static final boolean NOT_LAZY = false;
+
     private final Sequence<Float> EMPTY_SEQUENCE = TypeInfo.Float.emptySequence;
     private final Sequence<Float> ZERO_SEQUENCE = new ArraySequence<Float>(TypeInfo.Float, 0.0f).noteShared();
 
@@ -383,9 +386,9 @@ public class NumberSequenceTest extends JavaFXTestCase {
         for (int i=0; i<tis.length; i++) {
             converted[i] = new SequenceLocation[6];
             for (int j=0; j<tis.length; j++) {
-                converted[i][j] = BoundSequences.convertNumberSequence(tis[i], tis[j], locs[j]);
+                converted[i][j] = BoundSequences.convertNumberSequence(NOT_LAZY, tis[i], tis[j], locs[j]);
                 final int j1 = j;
-                converted[i][j].addChangeListener(new SequenceChangeListener() {
+                converted[i][j].addSequenceChangeListener(new ChangeListener() {
                     public void onChange(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {
                         count.incrementAndGet();
                         assertEquals(1, newElements.size());

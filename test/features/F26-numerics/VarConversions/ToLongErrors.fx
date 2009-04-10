@@ -12,7 +12,6 @@ var l : Long;
 l = Values.dduu;
 l = Values.bboo;
 l = Values.sstt;
-l = Values.jj;
 l = Values.nul;
 l = Values.iSeq;
 

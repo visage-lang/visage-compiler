@@ -31,36 +31,37 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Zhiqun Chen
  */
-public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements SequenceLocation<Float> {
+class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements SequenceLocation<Float> {
 
     private final FloatLocation lowerLoc, upperLoc, stepLoc;
     private final boolean exclusive;
     private float lower, upper, step;
     private int size;
 
-    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc) {
-        this(lowerLoc, upperLoc, FloatConstant.make(1), false);
+    public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc) {
+        this(lazy, lowerLoc, upperLoc, FloatConstant.make(1), false);
     }
 
-    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc) {
-        this(lowerLoc, upperLoc, stepLoc, false);
+    public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc) {
+        this(lazy, lowerLoc, upperLoc, stepLoc, false);
     }
 
-    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, boolean exclusive) {
-        this(lowerLoc, upperLoc, FloatConstant.make(1), exclusive);
+    public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc, boolean exclusive) {
+        this(lazy, lowerLoc, upperLoc, FloatConstant.make(1), exclusive);
     }
 
-    public BoundNumberRangeSequence(FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc, boolean exclusive) {
-        super(TypeInfo.Float);
+    public BoundNumberRangeSequence(boolean lazy, FloatLocation lowerLoc, FloatLocation upperLoc, FloatLocation stepLoc, boolean exclusive) {
+        super(lazy, TypeInfo.Float);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<Float> computeValue() {
+    protected Sequence<Float> computeValue() {
         computeBounds(lowerLoc.get(), upperLoc.get(), stepLoc.get());
         return computeFull(lower, upper, step);
     }
@@ -75,31 +76,41 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> imple
         upper = newUpper;
         step = newStep;
 
+        if (step == 0.0f)
+            throw new IllegalArgumentException("Range step of zero");
+
         // Not all floating point numbers can be exactly represented as a binary (base 2) decimal number (e.g lower = 0.1).
         // The size of the sequence from the following calculation could be off by 1. However, such cases are very rare.
         if (lower == upper) {
             size = exclusive ? 0 : 1;
         }
         else {
-            long size = Math.max(0, ((long)((upper - lower) / step)) + 1);
+            long sz = Math.max(0, ((long)((upper - lower) / step)) + 1);
 
             if (exclusive) {
-                boolean tooBig = (step > 0)
-                        ? (lower + (size - 1) * step >= upper)
-                        : (lower + (size - 1) * step <= upper);
-                if (tooBig && size > 0)
-                    --size;
+                boolean tooBig = (step > 0.0f)
+                        ? (lower + (sz - 1) * step >= upper)
+                        : (lower + (sz - 1) * step <= upper);
+                if (tooBig && sz > 0)
+                    --sz;
             }
             
-            if (size > Integer.MAX_VALUE || size < 0)
+            if (sz > Integer.MAX_VALUE || sz < 0)
                 throw new IllegalArgumentException("Range sequence too big");
             else
-                this.size = (int) size;
+                size = (int) sz;
         }
     }
 
     private void addTriggers() {
-        lowerLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+        if (lazy) {
+            lowerLoc.addInvalidationListener(new InvalidateMeListener());
+            upperLoc.addInvalidationListener(new InvalidateMeListener());
+            stepLoc.addInvalidationListener(new InvalidateMeListener());
+            return;
+        }
+        lowerLoc.addChangeListener(new ChangeListener<Float>() {
+            @Override
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;
@@ -132,7 +143,8 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> imple
                 }
             }
         });
-        upperLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+        upperLoc.addChangeListener(new ChangeListener<Float>() {
+            @Override
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;         
@@ -154,7 +166,8 @@ public class BoundNumberRangeSequence extends AbstractBoundSequence<Float> imple
             }
         });
 
-        stepLoc.addChangeListener(new PrimitiveChangeListener<Float>() {
+        stepLoc.addChangeListener(new ChangeListener<Float>() {
+            @Override
             public void onChange(float oldValue, float newValue) {
                 
                 assert oldValue != newValue;                                  

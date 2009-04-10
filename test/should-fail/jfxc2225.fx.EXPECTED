@@ -1,0 +1,4 @@
+test/should-fail/jfxc2225.fx:8: script class jfxc2225 cannot extend another class in the same script
+class jfxc2225 extends A {}
+^
+1 error

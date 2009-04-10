@@ -58,11 +58,11 @@ public interface Location {
     /** Register a change listener that will be notified whenever this location may have changed.  Locations are allowed
      * to notify change listeners spuriously.
      */
-    public void addChangeListener(ChangeListener listener);
+    public void addInvalidationListener(InvalidationListener listener);
 
     /** Remove a previously registered change listener.
      */
-    public void removeChangeListener(ChangeListener listener);
+    public void removeInvalidationListener(InvalidationListener listener);
 
     /** Record a location as depending on this location -- for internal use only!  */
     public void addDependentLocation(WeakLocation location);

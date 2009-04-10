@@ -11,7 +11,6 @@ var b : Byte;
 b = Values.dduu;
 b = Values.bboo;
 b = Values.sstt;
-b = Values.jj;  
 b = Values.nul;
 b = Values.iSeq;
 b = Values.fSeq;

@@ -33,11 +33,10 @@ import com.sun.javafx.runtime.ErrorHandler;
  */
 public abstract class AbstractVariable<
         T_VALUE,
-        T_LOCATION extends ObjectLocation<T_VALUE>,
-        T_LISTENER extends LocationDependency
+        T_LOCATION extends ObjectLocation<T_VALUE>
         >
         extends AbstractLocation
-        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, T_LISTENER> {
+        implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, ChangeListener<T_VALUE>> {
 
     protected static final byte STATE_INITIAL = 0;
     protected static final byte STATE_UNBOUND_DEFAULT = 1;
@@ -71,10 +70,11 @@ public abstract class AbstractVariable<
             throw new BindingException("Cannot rebind variable");
     }
 
-    public void bijectiveBind(ObjectLocation<T_VALUE> other) {
+    public ObjectLocation<T_VALUE> bijectiveBind(ObjectLocation<T_VALUE> other) {
         ensureBindable();
         resetState(STATE_BIDI_BOUND);
         Bindings.bijectiveBind(this, other);
+        return this;
     }
 
     protected void setDeferredLiteral(DeferredInitializer initializer) {
@@ -96,8 +96,8 @@ public abstract class AbstractVariable<
         return (BindingExpression) findChildByKind(CHILD_KIND_BINDING_EXPRESSION);
     }
 
-    public void bind(boolean lazy, T_LOCATION otherLocation) {
-        bind(lazy, makeBindingExpression(otherLocation), otherLocation);
+    public ObjectLocation<T_VALUE> bind(boolean lazy, T_LOCATION otherLocation) {
+        return bind(lazy, makeBindingExpression(otherLocation), otherLocation);
     }
 
     public void bindFromLiteral(final boolean lazy, final T_LOCATION otherLocation) {
@@ -108,7 +108,7 @@ public abstract class AbstractVariable<
         });
     }
 
-    public void bind(boolean lazy, BindingExpression binding, Location... dependencies) {
+    public ObjectLocation<T_VALUE> bind(boolean lazy, BindingExpression binding, Location... dependencies) {
         ensureBindable();
         resetState(lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND);
         enqueueChild(binding);
@@ -116,6 +116,7 @@ public abstract class AbstractVariable<
         addDependency(dependencies);
         if (!lazy)
             update();
+        return this;
     }
 
     public void bindFromLiteral(final boolean lazy, final BindingExpression binding, final Location... dependencies) {
@@ -188,15 +189,16 @@ public abstract class AbstractVariable<
             throw new BindingException("Cannot invalidate non-bound variable");
     }
 
+    @Override
     public boolean isMutable() {
         return !isUnidirectionallyBound();
     }
 
-    public void addChangeListener(T_LISTENER listener) {
+    public void addChangeListener(ChangeListener<T_VALUE> listener) {
         addChild(listener);
     }
 
-    public void removeChangeListener(T_LISTENER listener) {
+    public void removeChangeListener(ChangeListener<T_VALUE> listener) {
         removeChild(listener);
     }
 

@@ -214,6 +214,7 @@ public class MsgSym {
     public static final String MESSAGE_INTF_EXPECTED_HERE = "intf.expected.here";
     public static final String MESSAGE_NO_INTF_EXPECTED_HERE = "no.intf.expected.here";
     public static final String MESSAGE_CANNOT_INHERIT_FROM_FINAL = "cant.inherit.from.final";
+    public static final String MESSAGE_CANNOT_INHERIT_FROM_SCRIPT_CLASS = "cant.inherit.from.script";
     public static final String MESSAGE_TYPE_VAR_CANNOT_BE_DEREF = "type.var.cant.be.deref";
     public static final String MESSAGE_CANNOT_DEREF = "cant.deref";
     public static final String MESSAGE_ILLEGAL_START_OF_TYPE = "illegal.start.of.type";
@@ -281,6 +282,7 @@ public class MsgSym {
     public static final String MESSAGE_TOO_MANY_PARAMETERS = "javafx.too.many.parameters";
     public static final String MESSAGE_BIND_TOO_COMPLEX = "javafx.bind.too.complex";
     public static final String MESSAGE_CATCH_WITHIN_EXPRESSION = "catch.within.expression";
+    public static final String MESSAGE_ON_REPLACE_IN_BIND_NOT_ALLOWED = "on.replace.in.bind.not.allowed";
 
     // kindname
     public static final String KINDNAME = "kindname";
@@ -293,13 +295,13 @@ public class MsgSym {
     public static final String KINDNAME_CLASS = "kindname.class";
     public static final String KINDNAME_VARIABLE = "kindname.variable";
     public static final String KINDNAME_VALUE = "kindname.value";
-    public static final String KINDNAME_METHOD = "kindname.method";
     public static final String KINDNAME_TYPE_VARIABLE = "kindname.type.variable";
     public static final String KINDNAME_TYPE_VARIABLE_BOUND = "kindname.type.variable.bound";
     public static final String KINDNAME_ANNOTATION = "kindname.annotation";
     public static final String KINDNAME_INTERFACE = "kindname.interface";
     public static final String KINDNAME_CONSTRUCTOR = "kindname.constructor";
     public static final String KINDNAME_STATIC = "kindname.static";
+    public static final String MESSAGE_JAVAFX_KINDNAME_FUNCTION = "kindname.function";
 
     
     // jfx-compiler messages
@@ -325,11 +327,13 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed"; 
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
     public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
-    public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
+    public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";    
+    public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND = "javafx.select.target.not.reevaluated.for.bidi.bind";
     public static final String MESSAGE_JAVAFX_BOUND_OVERRIDE_METH = "javafx.bound.override.meth"; 
     public static final String MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH = "javafx.non.bound.override.meth"; 
     public static final String MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR = "javafx.base.java.class.non.papar.ctor"; 
-    public static final String MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER = "javafx.ambiguous.param.type.from.super"; 
+    public static final String MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER = "javafx.ambiguous.param.type.from.super";
+    public static final String MESSAGE_JAVAFX_INVALID_SELECT_FOR_SUPER = "javafx.invalid.select.for.super";
     public static final String MESSAGE_JAVAFX_AMBIGUOUS_RETURN_TYPE_FROM_SUPER = "javafx.ambiguous.return.type.from.super";
     public static final String MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE = "javafx.iterating.non.sequence";
     public static final String MESSAGE_JAVAFX_NOT_A_FUNC = "javafx.not.a.function";
@@ -350,6 +354,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_SHOULD_BE_DECLARED_OVERRIDE = "javafx.function.overrides.another.should.be.declared.override";
     public static final String MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER = "javafx.var.overrides.member";
     public static final String MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER = "javafx.def.overrides.member";
+    public static final String MESSAGE_JAVAFX_VAR_OVERRIDES_JAVA_MEMBER = "javafx.var.overrides.java.member";
+    public static final String MESSAGE_JAVAFX_DEF_OVERRIDES_JAVA_MEMBER = "javafx.def.overrides.java.member";
     public static final String MESSAGE_JAVAFX_STATIC_DEPRECATED = "javafx.static.deprecated";
     public static final String MESSAGE_JAVAFX_REDUNDANT_ACCESS_MODIFIERS = "javafx.redundant.access.modifiers";
     public static final String MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE = "javafx.var.not.supported.here";
@@ -409,4 +415,5 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_MIXIN_CANNOT_BE_INSTANTIATED = "javafx.mixin.cant.be.instantiated";
     public static final String MESSAGE_JAVAFX_FOR_OVER_ITERABLE_DISALLOWED_IN_BIND = "javafx.for.over.iterable.disallowed.in.bind";
     public static final String MESSAGE_JAVAFX_KEYVALUE_REQUIRED = "javafx.keyvalue.required";
+    public static final String MESSAGE_JAVAFX_MANDATORY_COMMA = "javafx.mandatory.comma";
 }

@@ -120,7 +120,7 @@ public class Bindings {
             // Set A before setting up the listeners
             a.set(mapper.mapBackwards(b.get()));
 
-            a.addChangeListener(new BijectiveChangeListener() {
+            a.addInvalidationListener(new BijectiveInvalidationListener() {
                 public boolean onChange() {
                     ObjectLocation<T> a = aRef.get();
                     ObjectLocation<U> b = bRef.get();
@@ -140,7 +140,7 @@ public class Bindings {
                     return BijectiveBinding.this;
                 }
             });
-            b.addChangeListener(new BijectiveChangeListener() {
+            b.addInvalidationListener(new BijectiveInvalidationListener() {
                 public boolean onChange() {
                     ObjectLocation<T> a = aRef.get();
                     ObjectLocation<U> b = bRef.get();
@@ -163,16 +163,16 @@ public class Bindings {
         }
 
         public static List<Location> getDirectPeers(final Location loc) {
-            class DirectPeerClosure extends DependencyIterator<ChangeListener> {
+            class DirectPeerClosure extends DependencyIterator<InvalidationListener> {
                 List<Location> list = null;
 
                 public DirectPeerClosure() {
                     super(AbstractLocation.CHILD_KIND_CHANGE_LISTENER);
                 }
 
-                public void onAction(ChangeListener element) {
-                    if (element instanceof BijectiveChangeListener) {
-                        BijectiveBinding<?, ?> bb = ((BijectiveChangeListener) element).getBijectiveBinding();
+                public void onAction(InvalidationListener element) {
+                    if (element instanceof BijectiveInvalidationListener) {
+                        BijectiveBinding<?, ?> bb = ((BijectiveInvalidationListener) element).getBijectiveBinding();
                         ObjectLocation<?> a = (ObjectLocation) bb.aRef.get();
                         ObjectLocation<?> b = (ObjectLocation) bb.bRef.get();
                         if (a != null && a != loc) {
@@ -197,7 +197,7 @@ public class Bindings {
                 return Collections.emptyList();
         }
 
-        private static abstract class BijectiveChangeListener extends ChangeListener {
+        private static abstract class BijectiveInvalidationListener extends InvalidationListener {
             public abstract BijectiveBinding getBijectiveBinding();
         }
     }

@@ -10,7 +10,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
  *
  * @author Brian Goetz
  */
-public class HistoryReplaceListener<T> extends SequenceChangeListener<T> {
+public class HistoryReplaceListener<T> extends ChangeListener<T> {
     private List<String> elements = new ArrayList<String>();
 
     public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {

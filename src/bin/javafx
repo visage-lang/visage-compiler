@@ -65,6 +65,8 @@ while [ $# -gt 0 ] ; do
         -cp | -classpath) shift; classpath="$classpath:$1";;
         -version) args="com.sun.javafx.runtime.LauncherHelper -version"; break;;
         -fullversion) args="com.sun.javafx.runtime.LauncherHelper -fullversion"; break;;
+        -X) args="com.sun.javafx.runtime.LauncherHelper -helpx"; break;;
+        -help | -\? ) args="com.sun.javafx.runtime.LauncherHelper -help"; break;;
         -profile) shift; profile="$1";;
         -*) if [ "x$seen_main" = "x" ]; then
                jargs="$jargs \"$1\""
@@ -121,6 +123,12 @@ if [ -n "${execute_nativelibpath}" ]; then
         execute_nativelibpath=`cygpath --path --windows "$execute_nativelibpath"`
     fi
     jargs="$jargs \"-Djava.library.path=${execute_nativelibpath}\""
+fi
+if [ -n "${execute_bootnativelibpath}" ]; then
+    if $cygwin ; then
+        execute_bootnativelibpath=`cygpath --path --windows "$execute_nativelibpath"`
+    fi
+    jargs="$jargs \"-Dsun.boot.library.path=${execute_bootnativelibpath}\""
 fi
 jargs="$jargs -classpath '"$classpath"' com.sun.javafx.runtime.Main"
 if [ -n "$args" ]; then

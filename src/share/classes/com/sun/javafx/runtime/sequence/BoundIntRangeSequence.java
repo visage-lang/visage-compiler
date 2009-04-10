@@ -31,47 +31,51 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements SequenceLocation<Integer> {
+class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements SequenceLocation<Integer> {
 
     private final IntLocation lowerLoc, upperLoc, stepLoc;
     private final boolean exclusive;
     private int lower, upper, size, step;
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc) {
-        this(lowerLoc, upperLoc, IntConstant.make(1), false);
+    public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc) {
+        this(lazy, lowerLoc, upperLoc, IntConstant.make(1), false);
     }
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc) {
-        this(lowerLoc, upperLoc, stepLoc, false);
+    public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc) {
+        this(lazy, lowerLoc, upperLoc, stepLoc, false);
     }
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, boolean exclusive) {
-        this(lowerLoc, upperLoc, IntConstant.make(1), exclusive);
+    public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc, boolean exclusive) {
+        this(lazy, lowerLoc, upperLoc, IntConstant.make(1), exclusive);
     }
 
-    public BoundIntRangeSequence(IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc, boolean exclusive) {
-        super(TypeInfo.Integer);
+    public BoundIntRangeSequence(boolean lazy, IntLocation lowerLoc, IntLocation upperLoc, IntLocation stepLoc, boolean exclusive) {
+        super(lazy, TypeInfo.Integer);
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
         this.stepLoc = stepLoc;
         this.exclusive = exclusive;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<Integer> computeValue() {
+    protected Sequence<Integer> computeValue() {
         computeBounds(lowerLoc.get(), upperLoc.get(), stepLoc.get());
         return computeFull(lower, upper, step);
     }
 
     private Sequence<Integer> computeFull(int lower, int upper, int step) {
-        return exclusive ? Sequences.rangeExclusive(lower, upper, step) : Sequences.range(lower, upper, step);
+      return exclusive ? Sequences.rangeExclusive(lower, upper, step) : Sequences.range(lower, upper, step);
     }
 
     private void computeBounds(int newLower, int newUpper, int newStep) {
         lower = newLower;
         upper = newUpper;
         step = newStep;
+
+        if (step == 0)
+            throw new IllegalArgumentException("Range step of zero");
 
         if (Math.abs((long) newLower - (long) newUpper) + ((long) (exclusive ? 0 : 1) / step) > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range sequence too big");
@@ -93,9 +97,16 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
     }
 
     private void addTriggers() {
-        lowerLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+        if (lazy) {
+            lowerLoc.addInvalidationListener(new InvalidateMeListener());
+            upperLoc.addInvalidationListener(new InvalidateMeListener());
+            stepLoc.addInvalidationListener(new InvalidateMeListener());
+            return;
+        }
+        lowerLoc.addChangeListener(new ChangeListener<Integer>() {
+            @Override
             public void onChange(int oldValue, int newValue) {
-                
+
                 assert oldValue != newValue;
                 
                 int oldSize = size;
@@ -126,7 +137,8 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
                 }
             }
         });
-        upperLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+        upperLoc.addChangeListener(new ChangeListener<Integer>() {
+            @Override
             public void onChange(int oldValue, int newValue) {
                 
                 assert oldValue != newValue;
@@ -150,7 +162,8 @@ public class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implem
             }
         });
 
-        stepLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+        stepLoc.addChangeListener(new ChangeListener<Integer>() {
+            @Override
             public void onChange(int oldValue, int newValue) {
                 
                 assert oldValue != newValue;

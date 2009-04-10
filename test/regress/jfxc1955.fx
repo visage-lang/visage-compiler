@@ -18,7 +18,7 @@ function calc(arg:Number):function(a:Number):Number {
 }
 
 
-var fvSeq=bind for(i in [1..5]) calc(i);
+var fvSeq=bind for(i2 in [1..5]) calc(i2);
 var i=5;
 for(fn in fvSeq){
   println("{fn(2*i++)}");

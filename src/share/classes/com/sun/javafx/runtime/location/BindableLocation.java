@@ -32,11 +32,11 @@ package com.sun.javafx.runtime.location;
  */
 public interface BindableLocation<T_VALUE, T_LISTENER> extends ObjectLocation<T_VALUE> {
 
-    public void bind(boolean lazy, BindingExpression binding, Location... dependencies);
+    public ObjectLocation<T_VALUE> bind(boolean lazy, BindingExpression binding, Location... dependencies);
 
     void bindFromLiteral(boolean lazy, BindingExpression binding, Location... dependencies);
 
-    public void bijectiveBind(ObjectLocation<T_VALUE> other);
+    public ObjectLocation<T_VALUE> bijectiveBind(ObjectLocation<T_VALUE> other);
 
     void bijectiveBindFromLiteral(ObjectLocation<T_VALUE> other);
 

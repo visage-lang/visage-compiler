@@ -24,7 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.location.ObjectChangeListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
@@ -36,22 +36,26 @@ import com.sun.javafx.runtime.location.SequenceLocation;
 class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private final ObjectLocation<V> location;
 
-    public BoundSingletonSequence(TypeInfo<T, ?> typeInfo, ObjectLocation<V> location) {
-        super(typeInfo);
+    public BoundSingletonSequence(boolean lazy, TypeInfo<T, ?> typeInfo, ObjectLocation<V> location) {
+        super(lazy, typeInfo);
         this.location = location;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<T> computeValue() {
+    protected Sequence<T> computeValue() {
         return Sequences.singleton(getElementType(), location.get());
     }
 
     private void addTriggers() {
-        location.addChangeListener(new ObjectChangeListener<V>() {
-            public void onChange(V oldValue, V newValue) {
-                updateSlice(0, getRawValue().size() - 1, Sequences.singleton(getElementType(), newValue));
-            }
-        });
+        if (lazy)
+            location.addInvalidationListener(new InvalidateMeListener());
+        else
+            location.addChangeListener(new ChangeListener<V>() {
+                public void onChange(V oldValue, V newValue) {
+                    updateSlice(0, getRawValue().size() - 1, Sequences.singleton(getElementType(), newValue));
+                }
+            });
     }
 }

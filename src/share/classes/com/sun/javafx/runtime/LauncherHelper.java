@@ -20,17 +20,23 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-
 package com.sun.javafx.runtime;
+
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
 /**
  * A singleton helper class for the javafx launcher
  * @author ksrini
  */
 public enum LauncherHelper {
-    INSTANCE;
 
+    INSTANCE;
     private static final String myname = "javafx";
+    private static final String defaultBundleName =
+            "com.sun.javafx.runtime.resources.launcher";
+    private static ResourceBundle javafxrb = null;
 
     private static void printVersion(boolean fullversion) {
         StringBuilder sb = new StringBuilder(myname + " ");
@@ -45,13 +51,61 @@ public enum LauncherHelper {
         System.err.println(sb.toString());
         System.err.flush();
     }
+
+    /**
+     * A  helper method to get a localized message and also
+     * apply any arguments that we might pass, though synchronized
+     * is really not required, but it is a good practice EJ-Item 71.
+     */
+    synchronized static  String getLocalizedMessage(String key, Object... args) {
+        if (javafxrb == null) {
+            javafxrb = ResourceBundle.getBundle(defaultBundleName);
+        }
+        String msg = javafxrb.getString(key);
+        return (args != null) ? MessageFormat.format(msg, args) : msg;
+    }
+
+    static StringBuilder getHelpMessage() {
+        StringBuilder outBuf = new StringBuilder();
+        outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.opt.header",
+                myname));
+        outBuf = outBuf.append("\n");
+        outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.opt.datamodel",
+                32, getLocalizedMessage("javafx.launcher.ifavailable")));
+        outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.opt.datamodel",
+                64, getLocalizedMessage("javafx.launcher.ifavailable")));
+        outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.opt.vmselect",
+                "-client", "client", getLocalizedMessage("javafx.launcher.ifavailable")));
+        outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.opt.vmselect",
+                "-server", "server", getLocalizedMessage("javafx.launcher.ifavailable")));
+        outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.opt.footer",
+                File.pathSeparator));
+        return outBuf;
+    }
     
+    private static void printHelpMessage() {
+        System.err.println(getHelpMessage().toString());
+        System.err.flush();
+    }
+
+    static void printHelpMessageX() {
+        StringBuilder outBuf = new StringBuilder();
+        outBuf = outBuf.append(getLocalizedMessage("javafx.launcher.X.usage",
+                File.pathSeparator));
+        System.err.println(outBuf.toString());
+        System.err.flush();
+    }
+
     public static void main(String... args) {
         if (args.length > 0) {
             if (args[0].equals("-fullversion")) {
                 printVersion(true);
+            } else if (args[0].equals("-version")) {
+                printVersion(false);
+            } else if (args[0].endsWith("-helpx")) {
+                printHelpMessageX();
             } else {
-                printVersion(false);             
+                printHelpMessage();
             }
         }
     }

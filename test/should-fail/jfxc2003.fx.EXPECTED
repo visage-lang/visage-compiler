@@ -1,6 +1,4 @@
-test/should-fail/jfxc2003.fx:7: cannot find symbol
-symbol  : variable print
-location: class jfxc2003
+test/should-fail/jfxc2003.fx:7: print(:Object) in javafx.lang.Builtins cannot be applied to (String,String)
 print(s, s);
 ^
 1 error

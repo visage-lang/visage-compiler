@@ -80,6 +80,7 @@ public class JavafxCheck {
     private final Target target;
     private final Source source;
     private final JavafxTypes types;
+    private final JavafxAttr attr;
     private final JavafxTreeInfo treeinfo;
     private final JavafxResolve rs;
 
@@ -119,7 +120,8 @@ public class JavafxCheck {
         messages = Messages.instance(context);
         syms = (JavafxSymtab) Symtab.instance(context);
         infer = Infer.instance(context);
-        this.types = JavafxTypes.instance(context);
+        types = JavafxTypes.instance(context);
+        attr = JavafxAttr.instance(context);
         Options options = Options.instance(context);
         target = Target.instance(context);
             source = Source.instance(context);
@@ -263,7 +265,7 @@ public class JavafxCheck {
      */
     void duplicateError(DiagnosticPosition pos, Symbol sym) {
 	if (sym.type == null || !sym.type.isErroneous()) {
-	    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED, sym, sym.location());
+	    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED, sym, types.location(sym));
 	}
     }
 
@@ -386,6 +388,10 @@ public class JavafxCheck {
      *  @param req        The type that was required.
      */
     Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw, Sequenceness pSequenceness) {
+        return checkType(pos, foundRaw, reqRaw, pSequenceness, true);
+    }
+
+    Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw, Sequenceness pSequenceness, boolean giveWarnings) {
         Type req = deLocationize(reqRaw);
         Type found = deLocationize(foundRaw);
         Type realFound = found;
@@ -429,7 +435,9 @@ public class JavafxCheck {
             foundUnboxed = found;
 
         if (types.isAssignable(foundUnboxed, reqUnboxed, convertWarner(pos, found, req))) {
-            if (reqUnboxed.tag <= LONG && foundUnboxed.tag >= FLOAT && foundUnboxed.tag <= DOUBLE) {
+            Type foundElem = types.elementTypeOrType(found);
+            Type reqElem = types.elementTypeOrType(req);
+            if (reqElem.tag <= LONG && foundElem.tag >= FLOAT && foundElem.tag <= DOUBLE && giveWarnings) {
                 // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
                 String foundAsJavaFXType = types.toJavaFXString(foundUnboxed);
                 String requiredAsJavaFXType = types.toJavaFXString(reqUnboxed);
@@ -448,11 +456,16 @@ public class JavafxCheck {
                 return realFound;
         }
 
-        if (found.tag <= DOUBLE && req.tag <= DOUBLE) {
-            String foundAsJavaFXType = types.toJavaFXString(found);
-            String requiredAsJavaFXType = types.toJavaFXString(req);
-            log.warning(pos.getStartPosition(), MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
-                    foundAsJavaFXType, requiredAsJavaFXType);
+        Type foundElem = types.elementTypeOrType(found);
+        Type reqElem = types.elementTypeOrType(req);
+
+        if (foundElem.tag <= DOUBLE && reqElem.tag <= DOUBLE) {
+            if (giveWarnings) {
+                String foundAsJavaFXType = types.toJavaFXString(found);
+                String requiredAsJavaFXType = types.toJavaFXString(req);
+                log.warning(pos.getStartPosition(), MsgSym.MESSAGE_PROB_FOUND_REQ, JCDiagnostic.fragment(MsgSym.MESSAGE_POSSIBLE_LOSS_OF_PRECISION),
+                        foundAsJavaFXType, requiredAsJavaFXType);
+            }
             return realFound;
         }
         if (found.isSuperBound()) {
@@ -672,6 +685,42 @@ public class JavafxCheck {
                     JFXSelect select = (JFXSelect) init;
                     initSym = select.sym;
                     base = select.getExpression();
+
+                    // We don't re-evaluate the select target 
+                    // in bidirectional binds. So, we issue warning.
+                    boolean warn = true;
+
+                    // Do not warn for this.foo and super.foo
+                    Name baseName = JavafxTreeInfo.name(base);
+                    if (baseName == names._this || 
+                        baseName == names._super) {
+                        warn = false;
+                    }
+
+                    // Do not warn for static variable select,
+                    // because the target is a class and so that
+                    // can not change. Also, ClassName.foo is used
+                    // to access super class variable - we do not
+                    // warn that case either.
+                    Symbol sym = JavafxTreeInfo.symbolFor(base);
+                    if (warn && sym instanceof JavafxClassSymbol) {
+                        warn = false;
+                    }
+
+                    // If the target of member select is a "def" 
+                    // variable and not initialized with bind, then
+                    // we know the target can not change.
+                    if (warn && base instanceof JFXIdent) {
+                        long flags = sym.flags();
+                        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0L;
+                        boolean isBindInit = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0L;
+                        boolean targetFinal = isDef && !isBindInit;
+                        warn = !targetFinal;
+                    }
+
+                    if (warn) {
+                        log.warning(base.pos(), MsgSym.MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND);
+                    }
                     site = select.type;
                     break;
                 }
@@ -710,6 +759,38 @@ public class JavafxCheck {
                         t);
         else
             return t;
+    }
+
+    /**
+     * Check that a method call of the kind t.memberName() is legal.
+     * t must be a direct supertype of the enclosing class type csym.
+     *
+     * @param pos the position in which the error should be reported
+     * @param csym the enclosing class
+     * @param t the qualifier type
+     */
+    public void checkSuper(DiagnosticPosition pos, JavafxClassSymbol csym, Type t) {
+        if (types.isSameType(csym.type, t))
+            return;
+
+        boolean isOk = false;
+        List<Type> supertypes = csym.getSuperTypes();
+        if (supertypes.isEmpty()) {
+            isOk = types.isSameType(syms.objectType, t);
+        }
+        else {
+            while(supertypes.nonEmpty() && !isOk) {
+                if (types.isSameType(t, supertypes.head))
+                    isOk = true;
+                supertypes = supertypes.tail;
+            }
+        }
+
+        if (!isOk) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_INVALID_SELECT_FOR_SUPER,
+                    types.toJavaFXString(t),
+                    types.toJavaFXString(csym.type));
+        }
     }
 
     /** Check that type is a class or interface type.
@@ -1562,30 +1643,65 @@ public class JavafxCheck {
             }
         }
     }
+    
+    
+    /** Check to make sure that any mixins don't create var conflicts.
+     */
+    void checkMixinConflicts(JFXClassDeclaration tree) {
+        for (JFXExpression mixin : tree.getMixing()) {
+            if (mixin instanceof JFXIdent) {
+                Symbol symbol = ((JFXIdent)mixin).sym;
+                if ((symbol.flags_field & JavafxFlags.MIXIN) != 0) {
+                    ClassSymbol mixinSym = (ClassSymbol)symbol;
+                    Scope s = mixinSym.members();
+                    for (Scope.Entry e = s.elems; e != null; e = e.sibling) {
+                        if (e.sym.kind == VAR) {
+                            checkVarOverride(mixin.pos(), (VarSymbol)e.sym, tree.sym, false);
+                        }
+                    }
+               }
+            }
+        }
+    }
 
     /** Check that var/def does not override (unless it is hidden by being script private)
      */
     void checkVarOverride(DiagnosticPosition diagPos, VarSymbol vsym) {
-        ClassSymbol origin = (ClassSymbol) vsym.owner;
+        checkVarOverride(diagPos, vsym, (ClassSymbol)vsym.owner, true);
+    }
+    void checkVarOverride(DiagnosticPosition diagPos, VarSymbol vsym, ClassSymbol origin, boolean overrides) {
         for (Type t : types.supertypes(origin)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;
-                Scope.Entry e = c.members().lookup(vsym.name);
-                while (e.scope != null) {
-                    e.sym.complete();
-                    if ( e.sym.owner instanceof ClassSymbol &&
-                            ((e.sym.flags_field & JavafxFlags.SCRIPT_PRIVATE) == 0L ||
-                            origin.outermostClass() == ((ClassSymbol) e.sym.owner).outermostClass()))  {
+
+                for (Scope.Entry e = c.members().lookup(vsym.name); e.scope != null; e = e.next()) {
+                    Symbol eSym = e.sym;
+                    eSym.complete();
+                    if (!(eSym.owner instanceof ClassSymbol)) continue;
+                    
+                    long flags = eSym.flags_field;
+                    boolean isNotScriptPrivate = (flags & JavafxFlags.SCRIPT_PRIVATE) == 0L;
+                    boolean isPublicRead = (flags & (JavafxFlags.PUBLIC_READ|JavafxFlags.PUBLIC_INIT)) != 0L;
+                    boolean isScriptScope = origin.outermostClass() == ((ClassSymbol) eSym.owner).outermostClass();
+                    
+                    if (isNotScriptPrivate || isPublicRead || isScriptScope) {
                         // We have a name clash, the variable name is the name of a member
                         // which is visible outside the script or which is in the same script
-                        log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
-                               MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER :
-                               MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER,
-                            e.sym,
-                            e.sym.owner);
+                        if (!types.isJFXClass(eSym.owner)) {
+                            log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
+                                   MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_JAVA_MEMBER :
+                                   MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_JAVA_MEMBER,
+                                eSym,
+                                eSym.owner);
+                        } else if (overrides) {
+                            log.error(diagPos, (vsym.flags_field & JavafxFlags.IS_DEF) == 0L?
+                                   MsgSym.MESSAGE_JAVAFX_VAR_OVERRIDES_MEMBER :
+                                   MsgSym.MESSAGE_JAVAFX_DEF_OVERRIDES_MEMBER,
+                                eSym,
+                                eSym.owner);
+                        }
                         return;
                     }
-                    e = e.next();
                 }
             }
         }
@@ -1659,7 +1775,7 @@ public class JavafxCheck {
      *  @param t        The type referred to.
      */
     void checkNonCyclic(DiagnosticPosition pos, Type t) {
-	checkNonCyclicInternal(pos, t);
+	checkNonCyclicInternal(pos, t, false);
     }
 
 
@@ -1688,14 +1804,14 @@ public class JavafxCheck {
      *  @param t        The type referred to.
      *  @returns        True if the check completed on all attributed classes
      */
-    private boolean checkNonCyclicInternal(DiagnosticPosition pos, Type t) {
+    private boolean checkNonCyclicInternal(DiagnosticPosition pos, Type t, boolean ownerCycle) {
 	boolean complete = true; // was the check complete?
 	//- System.err.println("checkNonCyclicInternal("+t+");");//DEBUG
 	Symbol c = t.tsym;
 	if ((c.flags_field & ACYCLIC) != 0) return true;
 
 	if ((c.flags_field & LOCKED) != 0) {
-	    noteCyclic(pos, (ClassSymbol)c);
+	    noteCyclic(pos, (ClassSymbol)c, ownerCycle);
 	} else if (!c.type.isErroneous()) {
 	    try {
 		c.flags_field |= LOCKED;
@@ -1703,14 +1819,14 @@ public class JavafxCheck {
 		    ClassType clazz = (ClassType)c.type;
 		    if (clazz.interfaces_field != null)
 			for (List<Type> l=clazz.interfaces_field; l.nonEmpty(); l=l.tail)
-			    complete &= checkNonCyclicInternal(pos, l.head);
+			    complete &= checkNonCyclicInternal(pos, l.head, ownerCycle);
 		    if (clazz.supertype_field != null) {
 			Type st = clazz.supertype_field;
 			if (st != null && st.tag == CLASS)
-			    complete &= checkNonCyclicInternal(pos, st);
+			    complete &= checkNonCyclicInternal(pos, st, ownerCycle);
 		    }
 		    if (c.owner.kind == TYP)
-			complete &= checkNonCyclicInternal(pos, c.owner.type);
+			complete &= checkNonCyclicInternal(pos, c.owner.type, true);
 		}
 	    } finally {
 		c.flags_field &= ~LOCKED;
@@ -1723,8 +1839,11 @@ public class JavafxCheck {
     }
 
     /** Note that we found an inheritance cycle. */
-    private void noteCyclic(DiagnosticPosition pos, ClassSymbol c) {
-	log.error(pos, MsgSym.MESSAGE_CYCLIC_INHERITANCE, c);
+    private void noteCyclic(DiagnosticPosition pos, ClassSymbol c, boolean ownerCycle) {
+	if (!ownerCycle)
+        log.error(pos, MsgSym.MESSAGE_CYCLIC_INHERITANCE, c);
+    else
+        log.error(pos, MsgSym.MESSAGE_CANNOT_INHERIT_FROM_SCRIPT_CLASS, c);
 	for (List<Type> l=types.interfaces(c.type); l.nonEmpty(); l=l.tail)
 	    l.head = new ErrorType((ClassSymbol)l.head.tsym);
 	Type st = types.supertype(c.type);
@@ -1942,6 +2061,17 @@ public class JavafxCheck {
      *	@param sym	     The symbol.
      *	@param s	     The scope.
      */
+    boolean checkUnique(DiagnosticPosition pos, Symbol sym, JavafxEnv<JavafxAttrContext> env) {
+        boolean shouldContinue = true;
+        do {
+            shouldContinue = !attr.isClassOrFuncDef(env);
+            if (!checkUnique(pos, sym, JavafxEnter.enterScope(env)))
+                return false;
+            env = env.outer;
+        } while (env != null && shouldContinue);
+        return true;
+    }
+    
     boolean checkUnique(DiagnosticPosition pos, Symbol sym, Scope s) {
         if (sym.type != null && sym.type.isErroneous()) {
             return true;

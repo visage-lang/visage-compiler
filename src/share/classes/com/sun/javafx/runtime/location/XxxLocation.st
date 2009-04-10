@@ -44,5 +44,5 @@ public interface $T.Location$ extends $if(NUMERIC)$ NumericLocation $else$ Locat
     $T.prim$ setAs$PREFIX$FromLiteral($T.prim$ value);
 
     /** Add a change listener to this Location */
-    public void addChangeListener(PrimitiveChangeListener<$T.boxed$> listener);
+    public void addChangeListener(ChangeListener<$T.boxed$> listener);
 }

@@ -1,0 +1,4 @@
+test/regress/jfxc2958.fx:7: cyclic inheritance involving jfxc2958
+class jfxc2958 extends Runnable {
+^
+1 error

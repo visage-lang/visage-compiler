@@ -25,7 +25,8 @@ package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.InvalidationListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -47,26 +48,31 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 
         public void addListener(IndexListener<T> listener) {
             this.listener = listener;
-            location.addChangeListener(this.listener);
+            location.addSequenceChangeListener(this.listener);
+        }
+
+        public void addListener(InvalidationListener listener) {
+            location.addInvalidationListener(listener);
         }
 
         public void removeListener() {
-            location.removeChangeListener(this.listener);
+            location.removeSequenceChangeListener(this.listener);
             this.listener = null;
         }
     }
 
-    public BoundCompositeSequence(TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>... locations) {
-        this(typeInfo, locations, locations.length);
+    public BoundCompositeSequence(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>... locations) {
+        this(lazy, typeInfo, locations, locations.length);
     }
 
-    public BoundCompositeSequence(TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
-        super(typeInfo);
+    public BoundCompositeSequence(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
+        super(lazy, typeInfo);
         this.infos = newInfoArray(size);
         for (int i = 0; i < size; i++)
             infos[i] = new Info<T>(locations[i]);
 
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
@@ -75,7 +81,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         return (Info<T>[]) new Info[len];
     }
 
-    private Sequence<T> computeValue() {
+    protected Sequence<T> computeValue() {
         Sequence<? extends T>[] sequences = Util.newSequenceArray(infos.length);
         for (int i = 0, offset = 0; i < infos.length; i++) {
             sequences[i] = infos[i].location.getAsSequence();
@@ -87,8 +93,12 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     }
 
     private void addTriggers() {
-        for (int i = 0; i < infos.length; i++)
-            infos[i].addListener(new MyListener(i));
+        for (int i = 0; i < infos.length; i++) {
+            if (lazy)
+                infos[i].addListener(new InvalidateMeListener());
+            else
+                infos[i].addListener(new MyListener<T>(i));
+        }
     }
 
     public void replaceSlice(int startPos, int endPos, SequenceLocation<? extends T>[] newValues) {
@@ -124,7 +134,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             infos[i + startPos].size = sz;
             offset += sz;
             newSize += sz;
-            infos[i + startPos].addListener(new MyListener(i + startPos));
+            infos[i + startPos].addListener(new MyListener<T>(i + startPos));
         }
         Sequence<T> newSlice = Sequences.concatenate(getElementType(), sequences);
         int deltaElements = newSize - (affectedEnd - affectedStart + 1);
@@ -151,7 +161,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 //        Assert.assertEquals(offset, value().size());
     }
 
-    private static abstract class IndexListener<T> extends SequenceChangeListener<T> {
+    private static abstract class IndexListener<T> extends ChangeListener<T> {
         public abstract void setIndex(int index);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Scope.Entry;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
@@ -34,9 +33,7 @@ import com.sun.tools.javac.util.*;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.VarInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -58,13 +55,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final JavafxClassReader reader;
     private final JavafxOptimizationStatistics optStat;
     
-    private final Name addChangeListenerName;
-    private final Name locationInitializeName;
-    private final Name primitiveChangeListenerInterfaceName;
-    private final Name objectChangeListenerInterfaceName;
-    private final Name sequenceChangeListenerInterfaceName;
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
-    private final Name onChangeArgName1, onChangeArgName2;
     Name outerAccessorName;
     Name outerAccessorFieldName;
     
@@ -87,13 +78,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
         
-        addChangeListenerName = names.fromString("addChangeListener");
-        locationInitializeName = names.fromString("initialize");
-        primitiveChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".PrimitiveChangeListener");
-        objectChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".ObjectChangeListener");
-        sequenceChangeListenerInterfaceName = names.fromString(locationPackageNameString + ".SequenceChangeListener");
-        onChangeArgName1 = names.fromString("$oldValue");
-        onChangeArgName2 = names.fromString("$newValue");
         outerAccessorName = names.fromString("accessOuter$");
         outerAccessorFieldName = names.fromString("accessOuterField$");
         
@@ -192,11 +176,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             iDefinitions.appendList(makeMemberVariableAccessorInterfaceMethods(diagPos, translatedAttrInfo));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            
-            // TODO - remove when we can generate triggers from addTriggers$ declarations.
             cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, supertypeClasses, translatedAttrInfo, translatedOverrideAttrInfo));
-            // TODO - remove when we can generate proxies from $impl declarations.
-            cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
          }
 
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
@@ -280,7 +260,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private void appendMethodClones(ListBuffer<JCTree> methods, JFXClassDeclaration cDecl, MethodSymbol sym, boolean withDispatch) {
         //TODO: static test is broken
         boolean isBound = (sym.flags() & JavafxFlags.BOUND) != 0;
-        JCBlock mthBody = withDispatch ? makeDispatchBody(cDecl, sym, isBound, sym.flags() == Flags.STATIC) : null;
+        JCBlock mthBody = withDispatch ? makeDispatchBody(cDecl, sym, isBound, (sym.flags() & Flags.STATIC) != 0) : null;
         DiagnosticPosition diagPos = cDecl;
         // build the parameter list
         ListBuffer<JCVariableDecl> params = ListBuffer.lb();
@@ -504,7 +484,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 attributeSetterName(vsym),
                 makeTypeTree(diagPos, ai.getRealType()),
                 List.<JCTypeParameter>nil(),
-                List.of(makeParam(diagPos, ai.getRealType(), null, defs.attributeSetMethodParamNameString)),
+                List.of(makeParam(diagPos, defs.attributeSetMethodParamName, ai.getRealType())),
                 List.<JCExpression>nil(),
                 block,
                 null);
@@ -539,16 +519,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isMixinClass = cDecl.isMixinClass();
         
         for (VarInfo ai : attrInfos) {
-            if (ai.needsCloning()) {
-                final DiagnosticPosition diagPos = ai.pos();
-                final VarSymbol vsym = ai.getSymbol();
-                final VarSymbol proxyVarSym = ai.proxyVarSym();
-
+            final DiagnosticPosition diagPos = ai.pos();
+            final VarSymbol vsym = ai.getSymbol();
+            final VarSymbol proxyVarSym = ai.proxyVarSym();
+            
+            if (!(ai instanceof SuperClassVarInfo)) {
                 {
                     // Add the return statement for the attribute
                     JCExpression value = make.Ident(attributeFieldName(proxyVarSym));
                     JCStatement returnStat = make.at(diagPos).Return(value);
-
+    
                     // Add the method for this class' attributes
                     JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
                     accessors.append(makeGetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
@@ -556,22 +536,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (!requiresLocation(ai)) {
                     // Add setter method
                     ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
+    
                     if (!ai.isDef() && !isMixinClass) {
                         stmts.append(clearNeedsDefault(diagPos, proxyVarSym));
                     }
-
+    
                     // Set value
                     JCExpression attr = make.at(diagPos).Ident(attributeFieldName(proxyVarSym));
                     JCExpression value = make.at(diagPos).Ident(defs.attributeSetMethodParamName);
                     JCExpression assign = make.at(diagPos).Assign(attr, value);
                     stmts.append(make.at(diagPos).Return(assign));
-
+    
                     // Add setter method
                     JCBlock block = make.at(diagPos).Block(0L, stmts.toList());
                     accessors.append(makeSetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
                 }
-
+    
                 optStat.recordProxyMethod();
             }
         }
@@ -596,11 +576,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isMixinClass = cDecl.isMixinClass();
         ListBuffer<JCTree> methods = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            if (ai.needsCloning() && !ai.hasProxyVar()) {
+            boolean hasDefault = ai.getDefaultInitStatement() != null;
+            
+            if (ai.needsCloning() || hasDefault) {
                 Name methodName = attributeApplyDefaultsName(ai.getSymbol());
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-                if (ai.getDefaultInitStatement() != null) {
+                if (hasDefault) {
                     /* TODO JFXC-2836
                     if (!ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
                         stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
@@ -619,7 +601,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     ClassSymbol attrParent = (ClassSymbol)ai.getSymbol().owner;
                     assert attrParent != null : "Parent supertype for attribute " + ai.getNameString() + " not found";
                     if (attrParent != null) {
-                        stmts.append(makeSuperCall(diagPos, attrParent, methodName));
+                        stmts.append(makeSuperCall(diagPos, attrParent, methodName, false));
                     }
                 }
                 
@@ -642,11 +624,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return methods.toList();
     }
     
-    private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName) {
+    private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName, boolean isStatic) {
         JCExpression arg = make.at(diagPos).Ident(defs.receiverName);
         JCExpression receiver;
         
-        if ((cSym.flags() & JavafxFlags.MIXIN) != 0) {
+        if (isStatic || (cSym.flags() & JavafxFlags.MIXIN) != 0) {
             // call to a mixin super, use local static reference
             receiver = makeTypeTree(diagPos, cSym.type, false);
         } else {
@@ -672,7 +654,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // "addTriggers$(this);"
        stmts.append( callStatement(
                diagPos, 
-               null, 
+               null,
                defs.addTriggersName, 
                make.at(diagPos).Ident(names._this)));
 
@@ -682,22 +664,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // "userInit$(this);"
         stmts.append(callStatement(
                 diagPos, 
-                make.Ident(classIsFinal? names._this : cDecl.getName()),
+                null,
                 defs.userInitName, 
-                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
+                make.at(diagPos).Ident(names._this)));
         
         // "postInit$(this);"
         stmts.append(callStatement(
                 diagPos,
-                make.Ident(classIsFinal? names._this : cDecl.getName()),
+                null,
                 defs.postInitName,
-                make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this))));
+                make.at(diagPos).Ident(names._this)));
 
         // "InitHelper.finish(new[] { attribute, ... });
         ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            final VarSymbol vsym = ai.getSymbol();
-            if (ai.needsCloning() && requiresLocation(ai)) {
+            if (ai.needsCloning() && requiresLocation(ai) && !ai.hasProxyVar()) {
+                final VarSymbol vsym = ai.getSymbol();
                 finishAttrs.append(make.at(diagPos).Ident(attributeFieldName(vsym)));
             }
         }                
@@ -722,10 +704,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     // Add the initialization of instance variables
     private List<JCStatement> makeInitAttributesCode(List<? extends VarInfo> attrInfos,
             JFXClassDeclaration cDecl) {
-        boolean isMixinClass = cDecl.isMixinClass();
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            if (!ai.hasProxyVar() && !ai.isStatic()) {
+            if (!ai.isStatic() && !ai.isInitOverridden()) {
                 DiagnosticPosition diagPos = ai.pos();
                 VarSymbol vsym = ai.getSymbol();
                 Name methodName = attributeApplyDefaultsName(vsym);
@@ -758,11 +739,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             List<TranslatedVarInfo> translatedAttrInfo) {
         // Add the initialization of this class' attributesa
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        boolean isLibrary = toJava.attrEnv.toplevel.isLibrary;
+        boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            assert tai.var != null;
-            assert tai.var.getFXTag() == JavafxTag.VAR_DEF;
-            assert tai.var.pos != Position.NOPOS;
+            assert tai.jfxVar() != null;
+            assert tai.jfxVar().getFXTag() == JavafxTag.VAR_DEF;
+            assert tai.jfxVar().pos != Position.NOPOS;
             if (tai.isStatic()) {
                 DiagnosticPosition diagPos = tai.pos();
                 // don't put variable initialization in the static initializer if this is a simple-form
@@ -773,10 +754,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     if (requiresLocation(tai)) {
                         // If the static variable is represented with a Location, initialize it
-                        stmts.append(callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), locationInitializeName));
+                        stmts.append(callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), defs.locationInitializeName));
                     }
                 }
-                JCStatement stat = makeChangeListenerCall(tai);
+                JCStatement stat = tai.onReplaceAsListenerInstanciation();
                 if (stat != null) {
                     stmts.append(stat);
                 }
@@ -819,19 +800,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // call the super addTriggers
         ClassSymbol superClassSym = getSuperSymbol(cDecl);
         if (superClassSym != null) {
-            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName));
+            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, true));
         }
         
         // JFXC-2822 - Triggers need to work from mixins.
         List<ClassSymbol> mixinClasses = immediateMixinNames(cDecl);
         for (ClassSymbol cSym : mixinClasses) {
-            stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName));
+            stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, true));
         }
 
         // add change listeners for triggers on attribute definitions
         for (TranslatedVarInfo info : translatedAttrInfo) {
             if (!info.isStatic()) {
-                JCStatement stat = makeChangeListenerCall(info);
+                JCStatement stat = info.onReplaceAsListenerInstanciation();
                 if (stat != null) {
                     stmts.append(stat);
                 }
@@ -841,7 +822,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // add change listeners for "with" triggers
         for (TranslatedOverrideClassVarInfo info : translatedTriggerInfo) {
             if (!info.isStatic()) {
-                JCStatement stat = makeChangeListenerCall(info);
+                JCStatement stat = info.onReplaceAsListenerInstanciation();
                 if (stat != null) {
                     stmts.append(stat);
                 }
@@ -849,7 +830,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         return make.at(diagPos).MethodDef(
-                make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) ),
+                make.Modifiers(Flags.PUBLIC | Flags.STATIC),
                 defs.addTriggersName,
                 makeTypeTree( null,syms.voidType),
                 List.<JCTypeParameter>nil(),
@@ -929,175 +910,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         return members.toList();
     }
-
-    /**
-     * Non-destructive creation of "on change" change listener set-up call.
-     */
-    JCStatement makeChangeListenerCall(VarInfo info) {
-        
-        //TODO: TranslatedAttributeInfo should be simplified to hold onReplace attribute only
-        //
-        JFXOnReplace onReplace = info.onReplace();
-        if (onReplace == null) return null;
-        
-        DiagnosticPosition diagPos = info.pos();
-        ListBuffer<JCTree> members = ListBuffer.lb();
-
-        JCExpression changeListener;
-        List<JCExpression> emptyTypeArgs = List.nil();
-        
-        if (types.isSequence(info.getRealType())) {
-            ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
-//            changeListener = make.at(diagPos).Identifier(sequenceReplaceListenerInterfaceName);
-            changeListener = makeIdentifier(diagPos, sequenceChangeListenerInterfaceName);
-            changeListener = make.TypeApply(changeListener, List.of(makeTypeTree( diagPos,info.getElementType())));
-            Type seqValType = types.sequenceType(info.getElementType(), false);
-            List<JCVariableDecl> onChangeArgs = List.of(
-                makeIndexParam(diagPos, onReplace),
-                makeParam(diagPos, syms.intType, onReplace.getLastIndex(), "$lastIndex$"),
-                makeParam(diagPos, info.getRealType(), onReplace.getNewElements(), "$newElements$"),
-                makeParam(diagPos, seqValType, onReplace.getOldValue(), "$oldValue$"),
-                makeParam(diagPos, seqValType, null, "$newValue$"));
-   //         members.append(makeChangeListenerMethod(diagPos, onReplace, setUpStmts, "onReplace", onChangeArgs, TypeTags.VOID));
-            members.append(makeChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), setUpStmts, "onChange", onChangeArgs, TypeTags.VOID));
-        }
-        else if (info.getRealType().isPrimitive()) {
-            changeListener = makeIdentifier(diagPos, primitiveChangeListenerInterfaceName);
-            changeListener = make.at(diagPos).TypeApply(changeListener,
-                                                        List.<JCExpression>of(makeTypeTree( diagPos, types.boxedClass(info.getRealType()).type)));
-            members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
-        }
-        else {
-            changeListener = makeIdentifier(diagPos, objectChangeListenerInterfaceName);
-            changeListener = make.at(diagPos).TypeApply(changeListener,
-                                                        List.<JCExpression>of(makeTypeTree(diagPos, info.getRealType())));
-            members.append(makeOnReplaceChangeListenerMethod(diagPos, onReplace, info.onReplaceTranslatedBody(), info.getRealType()));
-        }
-
-        JCNewClass anonymousChangeListener = make.NewClass(
-                null, 
-                emptyTypeArgs,
-                changeListener, 
-                List.<JCExpression>nil(), 
-                make.at(diagPos).AnonymousClassDef(make.Modifiers(0L), members.toList()));
-
-        JCExpression varRef;
-        if (info.getSymbol().owner.kind == Kinds.TYP) {
-            // on replace is on class variable
-            varRef = makeAttributeAccess(diagPos, info.getSymbol(),
-                    info.getSymbol().isStatic()? null : defs.receiverName);
-        } else {
-            // on replace is on local variable
-            varRef = make.at(diagPos).Ident(info.getName());
-        }
-        JCFieldAccess tmpSelect = make.at(diagPos).Select(varRef, addChangeListenerName);
-
-        List<JCExpression> args = List.<JCExpression>of(anonymousChangeListener);
-        return make.at(diagPos).Exec(make.at(diagPos).Apply(emptyTypeArgs, tmpSelect, args));
-    }
-    
-    private JCVariableDecl makeParam(DiagnosticPosition diagPos, Type type, JFXVar var, String nameDefault) {
-        Name name;
-        if (var != null) {
-            name = var.getName();
-            diagPos = var.pos();
-        } else {
-            name = names.fromString(nameDefault);
-        }
-        long flags = Flags.PARAMETER|Flags.FINAL;
-        if (var != null && var.mods != null) {
-            flags |= var.mods.flags;
-        }
-        return make.at(diagPos).VarDef(
-                make.Modifiers(flags),
-                name,
-                makeTypeTree(diagPos, type),
-                null);
-        
-    }
-    
-    private JCVariableDecl makeIndexParam(DiagnosticPosition diagPos, JFXOnReplace onReplace) {
- //       return makeParam(diagPos, syms.intType, onReplace == null ? null : onReplace.getIndex(), "$index$");
-        return makeParam(diagPos, syms.intType, onReplace == null ? null : onReplace.getFirstIndex(), "$index$");
-    }
-     
-    
-    /**
-     * construct a change listener method for insertion in a listener anon class.
-     *   void onReplace(...); ...
-     */
-    private JCMethodDecl makeOnReplaceChangeListenerMethod(DiagnosticPosition diagPos,
-                                                           JFXOnReplace onReplace,
-                                                           JCBlock onReplaceTranslatedBody,
-                                                           Type attributeType) {
-        List<JCVariableDecl> onChangeArgs = List.<JCVariableDecl>nil()
-                .append(make.VarDef(make.Modifiers(0L), onChangeArgName1, makeTypeTree(diagPos, attributeType), null))
-                .append(make.VarDef(make.Modifiers(0L), onChangeArgName2, makeTypeTree(diagPos, attributeType), null));
-        ListBuffer<JCStatement> setUpStmts = ListBuffer.lb();
-        if (onReplace != null && onReplace.getOldValue() != null) {
-            // Create the variable for the old value, using the specified name
-            JFXVar oldValue = onReplace.getOldValue();
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(oldValue.sym);
-
-            setUpStmts.append( 
-                    make.at(diagPos).VarDef(
-                        make.Modifiers(0L), 
-                        oldValue.getName(), 
-                        makeTypeTree( diagPos, vmi.getRealType()),
-                        makeIdentifier(diagPos, onChangeArgName1)));
-        }
-        if (onReplace != null && onReplace.getNewElements() != null) {
-            // Create the variable for the new value, using the specified name
-            JFXVar newValue = onReplace.getNewElements();
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(newValue.sym);
-
-            setUpStmts.append( 
-                    make.at(diagPos).VarDef(
-                        make.Modifiers(0L), 
-                        newValue.getName(), 
-                        makeTypeTree( diagPos, vmi.getRealType()),
-                        makeIdentifier(diagPos, onChangeArgName2)));
-        }
-        return makeChangeListenerMethod(diagPos, onReplace, onReplaceTranslatedBody, setUpStmts, "onChange", onChangeArgs, TypeTags.VOID);
-    }
-
-    /**
-     * construct a change listener method for insertion in a listener anon class.
-     *   boolean onChange();
-     *   void onInsert(...);
-     *   void on Delete(...); ...
-     */
-    private JCMethodDecl makeChangeListenerMethod(
-            DiagnosticPosition diagPos,
-            JFXOnReplace onReplace,
-            JCBlock onReplaceTranslatedBody,
-            ListBuffer<JCStatement> prefixStmts,
-            String methodName,
-            List<JCVariableDecl> args,
-            int returnTypeTag) {
-        ListBuffer<JCStatement> ocMethStmts = ListBuffer.lb();
-        ocMethStmts.appendList(prefixStmts);
-        
-        if (onReplace != null) {
-            diagPos = onReplace.pos();
-            ocMethStmts.appendList(onReplaceTranslatedBody.getStatements());
-        }
-        
-        if (returnTypeTag == TypeTags.BOOLEAN) {
-            ocMethStmts.append(make.at(diagPos).Return(make.at(diagPos).Literal(TypeTags.BOOLEAN, 1)));
-        }
-
-        return make.at(diagPos).MethodDef(
-                make.at(diagPos).Modifiers(Flags.PUBLIC), 
-                names.fromString(methodName), 
-                make.at(diagPos).TypeIdent(returnTypeTag), 
-                List.<JCTypeParameter>nil(), 
-                args,
-                List.<JCExpression>nil(), 
-                make.at(diagPos).Block(0L, ocMethStmts.toList()), 
-                null);
-    }
-
+   
     /**
      * Make a method body which redirects to the actual implementation in a static method of the defining class.
      */

@@ -23,7 +23,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.SequenceChangeListener;
+import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.TypeInfo;
 
@@ -36,19 +36,20 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
 
     private final SequenceLocation<V> sequence;
 
-    public BoundUpcastSequence(TypeInfo<T, ?> typeInfo, SequenceLocation<V> sequence) {
-        super(typeInfo);
+    public BoundUpcastSequence(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<V> sequence) {
+        super(lazy, typeInfo);
         this.sequence = sequence;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<T> computeValue() {
+    protected Sequence<T> computeValue() {
         return Sequences.<T>upcast(sequence.get());
     }
 
     private void addTriggers() {
-        sequence.addChangeListener(new SequenceChangeListener<V>() {
+        sequence.addSequenceChangeListener(new ChangeListener<V>() {
             public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
                 updateSlice(startPos, endPos, newElements, Sequences.<T>upcast(newValue));
             }

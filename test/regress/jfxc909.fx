@@ -6,8 +6,8 @@
  */
 
 var a = {
-       var a = [1,2];
-       println(a);
-       a
+       var a2 = [1,2];
+       println(a2);
+       a2
 }
 println(a);

@@ -14,19 +14,14 @@ required: Integer
 b = Values.sstt;
           ^
 test/features/F26-numerics/VarConversions/ToByteErrors.fx:14: incompatible types
-found   : java.util.Date
-required: Integer
-b = Values.jj;  
-          ^
-test/features/F26-numerics/VarConversions/ToByteErrors.fx:15: incompatible types
 found   : Object
 required: Integer
 b = Values.nul;
           ^
-test/features/F26-numerics/VarConversions/ToByteErrors.fx:16: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'Integer'
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:15: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'Integer'
 b = Values.iSeq;
           ^
-test/features/F26-numerics/VarConversions/ToByteErrors.fx:17: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'Integer'
+test/features/F26-numerics/VarConversions/ToByteErrors.fx:16: A sequence is not a valid expression for this operation, I am looking for an expression that yields 'Integer'
 b = Values.fSeq;
           ^
-7 errors
+6 errors

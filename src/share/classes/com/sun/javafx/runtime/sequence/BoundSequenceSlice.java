@@ -23,8 +23,10 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.location.IntLocation;
+import com.sun.javafx.runtime.location.ChangeListener;
+import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
  * BoundSequenceSlice
@@ -40,17 +42,18 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     private int lower, upper;
     private int size;
 
-    BoundSequenceSlice(TypeInfo<T, ?> typeInfo, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc, boolean isExclusive) {
-        super(typeInfo);
+    BoundSequenceSlice(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc, boolean isExclusive) {
+        super(lazy, typeInfo);
         this.sequenceLoc = sequenceLoc;
         this.lowerLoc = lowerLoc;
         this.upperLoc = upperLoc;
         this.isExclusive = isExclusive;
-        setInitialValue(computeValue());
+        if (!lazy)
+            setInitialValue(computeValue());
         addTriggers();
     }
 
-    private Sequence<T> computeValue() {
+    protected Sequence<T> computeValue() {
         computeBounds(true, true);
         return sequenceLoc.get().getSlice(lower, upper);
     }
@@ -85,61 +88,72 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     }
                     
     private void addTriggers() {
-        sequenceLoc.addChangeListener(new SequenceChangeListener<T>() {
+        if (lazy) {
+            sequenceLoc.addInvalidationListener(new InvalidateMeListener());
+            lowerLoc.addInvalidationListener(new InvalidateMeListener());
+            if (upperLoc != null)
+                upperLoc.addInvalidationListener(new InvalidateMeListener());
+        }
+        else {
+            sequenceLoc.addSequenceChangeListener(new ChangeListener<T>() {
 
-            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                computeBounds(true, true);
+                @Override
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                    computeBounds(true, true);
 
-                Sequence<T> newSeq = newValue.getSlice(lower, upper);
-                updateSlice(0, size == 0 ? 0 : size - 1, newSeq, newSeq);
-            }
-        });
-        lowerLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
-
-            public void onChange(int oldValue, int newValue) {
-                assert oldValue != newValue;
-                int oldSize = size;
-                computeBounds(true, false);
-
-                if (sequenceLoc.getAsSequence().size() > 0 && size != oldSize) {
-                    if (size > oldSize) {
-                        updateSlice(
-                                0, 
-                                -1, 
-                                sequenceLoc.getSlice(newValue, (oldSize == 0) ? upper : (oldValue - 1)));
-                    } else {
-                        updateSlice(
-                                0, 
-                                oldSize - size - 1, 
-                                sequenceLoc.getAsSequence().getEmptySequence());
-                    }
+                    Sequence<T> newSeq = newValue.getSlice(lower, upper);
+                    updateSlice(0, size == 0 ? 0 : size - 1, newSeq, newSeq);
                 }
-            }
-        });
-        if (upperLoc != null) {
-            upperLoc.addChangeListener(new PrimitiveChangeListener<Integer>() {
+            });
+            lowerLoc.addChangeListener(new ChangeListener<Integer>() {
 
+                @Override
                 public void onChange(int oldValue, int newValue) {
                     assert oldValue != newValue;
                     int oldSize = size;
-                    computeBounds(false, true);
+                    computeBounds(true, false);
 
                     if (sequenceLoc.getAsSequence().size() > 0 && size != oldSize) {
                         if (size > oldSize) {
-                            int oldUpper = adjusted(oldValue);
                             updateSlice(
-                                    oldSize, 
-                                    oldSize - 1, 
-                                    sequenceLoc.getSlice((oldUpper >= lower) ? oldUpper + 1 : lower, upper));
+                                    0,
+                                    -1,
+                                    sequenceLoc.getSlice(newValue, (oldSize == 0) ? upper : (oldValue - 1)));
                         } else {
                             updateSlice(
-                                    size, 
-                                    oldSize - 1, 
+                                    0,
+                                    oldSize - size - 1,
                                     sequenceLoc.getAsSequence().getEmptySequence());
                         }
                     }
                 }
             });
+            if (upperLoc != null) {
+                upperLoc.addChangeListener(new ChangeListener<Integer>() {
+
+                    @Override
+                    public void onChange(int oldValue, int newValue) {
+                        assert oldValue != newValue;
+                        int oldSize = size;
+                        computeBounds(false, true);
+
+                        if (sequenceLoc.getAsSequence().size() > 0 && size != oldSize) {
+                            if (size > oldSize) {
+                                int oldUpper = adjusted(oldValue);
+                                updateSlice(
+                                        oldSize,
+                                        oldSize - 1,
+                                        sequenceLoc.getSlice((oldUpper >= lower) ? oldUpper + 1 : lower, upper));
+                            } else {
+                                updateSlice(
+                                        size,
+                                        oldSize - 1,
+                                        sequenceLoc.getAsSequence().getEmptySequence());
+                            }
+                        }
+                    }
+                });
+            }
         }
     }
 }

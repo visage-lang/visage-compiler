@@ -39,7 +39,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  * @author Brian Goetz
  */
 public class SequenceVariable<T>
-        extends AbstractVariable<Sequence<T>, SequenceLocation<T>, SequenceChangeListener<T>>
+        extends AbstractVariable<Sequence<T>, SequenceLocation<T>>
         implements SequenceLocation<T> {
 
     private final TypeInfo<T, ?> typeInfo;
@@ -78,11 +78,17 @@ public class SequenceVariable<T>
         this.$value = typeInfo.emptySequence;
         this.mutationListener = new SequenceMutator.Listener<T>() {
             public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                replaceSlice(startPos, endPos, newElements, newValue);
+                if (isLazilyBound())
+                    invalidate();
+                else
+                    replaceSlice(startPos, endPos, newElements, newValue);
             }
 
             public void onReplaceElement(int startPos, int endPos, T newElement, Sequence<T> oldValue, Sequence<T> newValue) {
-                replaceElement(startPos, endPos, newElement, newValue);
+                if (isLazilyBound())
+                    invalidate();
+                else
+                    replaceElement(startPos, endPos, newElement, newValue);
             }
         };
     }
@@ -191,15 +197,25 @@ public class SequenceVariable<T>
     }
 
     protected BindingExpression makeBindingExpression(final SequenceLocation<T> otherLocation) {
-        return new BindingExpression() {
+        return new AbstractBindingExpression() {
             public void compute() {
                 pushValue(otherLocation.getAsSequence());
            }
         };
     }
 
-    public void addChangeListener(final ObjectChangeListener<Sequence<T>> listener) {
-        addChangeListener(new SequenceChangeListener<T>() {
+    public void addSequenceChangeListener(ChangeListener listener) {
+        addChild(listener);
+    }
+
+    public void removeSequenceChangeListener(ChangeListener listener) {
+        removeChild(listener);
+    }
+
+    @Override
+    public void addChangeListener(final ChangeListener<Sequence<T>> listener) {
+        addSequenceChangeListener(new ChangeListener<T>() {
+            @Override
             public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
                 listener.onChange(oldValue, newValue);
             }
@@ -213,8 +229,8 @@ public class SequenceVariable<T>
         if (invalidateDependencies)
             invalidateDependencies();
         if (hasChildren(CHILD_KIND_TRIGGER))
-            iterateChildren(new DependencyIterator<SequenceChangeListener<T>>(CHILD_KIND_TRIGGER) {
-                public void onAction(SequenceChangeListener<T> listener) {
+            iterateChildren(new DependencyIterator<ChangeListener<T>>(CHILD_KIND_TRIGGER) {
+                public void onAction(ChangeListener<T> listener) {
                     try {
                         listener.onChange(startPos, endPos, newElements, oldValue, newValue);
                     }
@@ -225,24 +241,27 @@ public class SequenceVariable<T>
             });
     }
 
-    public void bind(boolean lazy, SequenceLocation<T> otherLocation) {
+    @Override
+    public SequenceVariable<T> bind(boolean lazy, SequenceLocation<T> otherLocation) {
         ensureBindable();
-        Sequence<T> oldValue = $value;
-        $value = otherLocation.get();
-        boundLocation = new BoundLocationInfo(otherLocation, lazy);
+        boundLocation = new BoundLocationInfo(lazy, otherLocation);
         boundLocation.bind();
-        notifyListeners(0, Sequences.size(oldValue) - 1, $value, oldValue, $value, true);
+        if (lazy)
+            invalidate();
+        else {
+            Sequence<T> oldValue = $value;
+            $value = otherLocation.get();
+            setValid();
+            notifyListeners(0, Sequences.size(oldValue) - 1, $value, oldValue, $value, true);
+        }
+        return this;
     }
 
-    protected void rebind(SequenceLocation<T> otherLocation) {
+    protected void rebind(boolean lazy, SequenceLocation<T> otherLocation) {
         if (boundLocation != null)
             boundLocation.unbind();
         boundLocation = null;
-        bind(false, otherLocation);
-    }
-
-    protected boolean isUnidirectionallyBound() {
-        return super.isUnidirectionallyBound() || (boundLocation != null);
+        bind(lazy, otherLocation);
     }
 
     @Override
@@ -258,14 +277,19 @@ public class SequenceVariable<T>
         replaceValue(typeInfo.emptySequence);
     }
 
+    @Override
     public void update() {
         try {
-            if (isUnidirectionallyBound() && !isValid() && boundLocation == null)
-                getBindingExpression().compute();
+            if (isUnidirectionallyBound() && !isValid()) {
+                if (boundLocation == null)
+                    getBindingExpression().compute();
+                else if (isLazilyBound()) // always valid if bound non-lazily to another location
+                    boundLocation.update();
+            }
         }
         catch (RuntimeException e) {
             ErrorHandler.bindException(e);
-            if (isInitialized())
+            if (isInitialized() && !isLazilyBound())
                 replaceWithDefault();
         }
     }
@@ -448,39 +472,57 @@ public class SequenceVariable<T>
 
     private class BoundLocationInfo {
         public final SequenceLocation<T> otherLocation;
-        public ChangeListener changeListener;
-        public SequenceChangeListener<T> sequenceChangeListener;
+        public InvalidationListener invalidationListener;
+        public ChangeListener<T> sequenceChangeListener;
         public final boolean lazy;
 
-        BoundLocationInfo(SequenceLocation<T> otherLocation, boolean lazy) {
+        BoundLocationInfo(boolean lazy, SequenceLocation<T> otherLocation) {
             this.otherLocation = otherLocation;
             this.lazy = lazy;
         }
 
+        void update() {
+            Sequence<T> oldValue = $value;
+            $value = otherLocation.getAsSequence();
+            setValid();
+            if (hasDependencies() && !Sequences.isEqual(oldValue, $value))
+                notifyListeners(0, oldValue.size() - 1, $value, oldValue, $value, true);
+        }
+
         void bind() {
-            // @@@ lazy ignored -- deferring computation is more expensive than eagerly recomputing
-            changeListener = new ChangeListener() {
+            invalidationListener = new InvalidationListener() {
                 public boolean onChange() {
+                    // @@@ This probably means we invalidate dependencies twice if we are lazy
+                    if (lazy)
+                        invalidate();
                     invalidateDependencies();
                     return true;
                 }
             };
-            sequenceChangeListener = new SequenceChangeListener<T>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                    $value = newValue;
-                    // JFXC-2627 - changed updateDependencies to true
-                    notifyListeners(startPos, endPos, newElements, oldValue, newValue, true);
-                }
-            };
-            otherLocation.addChangeListener(changeListener);
-            otherLocation.addChangeListener(sequenceChangeListener);
+            otherLocation.addInvalidationListener(invalidationListener);
+            if (!lazy) {
+                sequenceChangeListener = new ChangeListener<T>() {
+                    @Override
+                    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                        // Don't need to check lazy, since we're never called if binding is lazy
+                        $value = newValue;
+                        setValid();
+                        // JFXC-2627 - changed updateDependencies to true
+                        notifyListeners(startPos, endPos, newElements, oldValue, newValue, true);
+                    }
+                };
+                otherLocation.addSequenceChangeListener(sequenceChangeListener);
+            }
+            state = lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND;
         }
 
         void unbind() {
-            otherLocation.removeChangeListener(changeListener);
-            otherLocation.removeChangeListener(sequenceChangeListener);
-            changeListener = null;
+            otherLocation.removeInvalidationListener(invalidationListener);
+            if (sequenceChangeListener != null)
+                otherLocation.removeSequenceChangeListener(sequenceChangeListener);
+            invalidationListener = null;
             sequenceChangeListener = null;
+            state = STATE_UNBOUND;
         }
     }
 }

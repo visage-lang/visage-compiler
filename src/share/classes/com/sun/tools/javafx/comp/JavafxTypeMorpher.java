@@ -54,7 +54,6 @@ public class JavafxTypeMorpher {
     private final Name.Table names;
     final JavafxClassReader reader;
     private final JavafxSymtab syms;
-    private final JavafxToJava toJava;  //TODO: this dependency should go away
     private final JavafxTypes types;
 
     public final LocationNameSymType[] locationNCT;
@@ -146,7 +145,7 @@ public class JavafxTypeMorpher {
             } else {
                 if (isSequence()) {
                     typeKind = TYPE_KIND_SEQUENCE;
-                    elementType = toJava.boxedElementType(symType);
+                    elementType = types.boxedElementType(symType);
                 } else {
                     typeKind = TYPE_KIND_OBJECT;
                     elementType = realType;
@@ -163,8 +162,8 @@ public class JavafxTypeMorpher {
         }
 
         public Type getRealType() { return realType; }
-        public Type getRealBoxedType() { return (realType.isPrimitive())? types.boxedClass(realType).type : realType; }
-        public Type getRealFXType() { return (realType.isPrimitive() && typeKind==TYPE_KIND_OBJECT)? types.boxedClass(realType).type : realType; }
+        public Type getRealBoxedType() { return types.boxedTypeOrType(realType); }
+        public Type getRealFXType() { return (realType.isPrimitive() && typeKind==TYPE_KIND_OBJECT)? types.boxedTypeOrType(realType) : realType; }
 
         public Type getLocationType() { return morphedLocationType; }
         public Type getVariableType() { return morphedVariableType; }
@@ -203,7 +202,6 @@ public class JavafxTypeMorpher {
         types = JavafxTypes.instance(context);
         names = Name.Table.instance(context);
         reader = JavafxClassReader.instance(context);
-        toJava = JavafxToJava.instance(context);
 
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];

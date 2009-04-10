@@ -36,21 +36,22 @@ class BoundSequenceElement<T> extends ObjectVariable<T> implements ObjectLocatio
     private final IntLocation index;
     private int lastIndex;
 
-    public BoundSequenceElement(SequenceLocation<T> seq, IntLocation index) {
+    public BoundSequenceElement(boolean lazy, SequenceLocation<T> seq, IntLocation index) {
         super();
         this.seq = seq;
         this.index = index;
-        lastIndex = index.get();
-        bind(false, new BindingExpression() {
+        lastIndex = lazy? Integer.MAX_VALUE : index.get();
+        bind(lazy, new AbstractBindingExpression() {
             public void compute() {
                 lastIndex = BoundSequenceElement.this.index.get();
                 pushValue(BoundSequenceElement.this.seq.getAsSequence().get(lastIndex));
             }
         }, index);
-        seq.addChangeListener(new MySequenceListener());
+        seq.addSequenceChangeListener(new MySequenceListener());
     }
 
-    private class MySequenceListener extends SequenceChangeListener<T> {
+    private class MySequenceListener extends ChangeListener<T> {
+        @Override
         public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
             int deltaSize = (endPos-startPos+1) - Sequences.size(newElements);
             if (deltaSize != 0) {

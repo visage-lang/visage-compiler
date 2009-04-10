@@ -24,7 +24,6 @@
 package com.sun.javafx.runtime;
 
 import com.sun.javafx.runtime.location.*;
-import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
  * PointerFactory
