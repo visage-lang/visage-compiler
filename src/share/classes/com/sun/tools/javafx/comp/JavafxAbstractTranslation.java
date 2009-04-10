@@ -114,7 +114,14 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         final ListBuffer<VarSymbol> lb = ListBuffer.<VarSymbol>lb();
         final Set<VarSymbol> exclude = new HashSet<VarSymbol>();
         new JavafxTreeScanner() {
+            @Override
+            public void visitVar(JFXVar tree) {
+                exclude.add(tree.sym);
+                super.visitVar(tree);
+            }
+        }.scan(expr);
 
+        new JavafxTreeScanner() {
             @Override
             public void visitIdent(JFXIdent tree) {
                 if (tree.sym instanceof VarSymbol) {
@@ -125,12 +132,6 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
                         exclude.add(vsym);
                     }
                 }
-            }
-
-            @Override
-            public void visitVar(JFXVar tree) {
-                exclude.add(tree.sym);
-                super.visitVar(tree);
             }
         }.scan(expr);
 
