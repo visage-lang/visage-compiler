@@ -444,36 +444,38 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
             final int num;
             final TypeMorphInfo tmi;
             final boolean isLocation;
+            final ArgKind kind;
 
-            FieldInfo(Type type) {
-                this((String)null, type);
+            FieldInfo(Type type, ArgKind kind) {
+                this((String)null, type, kind);
             }
 
-            FieldInfo(Name descName, Type type) {
-                this(descName.toString(), type);
+            FieldInfo(Name descName, Type type, ArgKind kind) {
+                this(descName.toString(), type, kind);
             }
 
-            FieldInfo(Name descName, TypeMorphInfo tmi) {
-                this(descName.toString(), tmi);
+            FieldInfo(Name descName, TypeMorphInfo tmi, ArgKind kind) {
+                this(descName.toString(), tmi, kind);
             }
 
-            FieldInfo(String desc, Type type) {
-                this(desc, typeMorpher.typeMorphInfo(type));
+            FieldInfo(String desc, Type type, ArgKind kind) {
+                this(desc, typeMorpher.typeMorphInfo(type), kind);
             }
 
-            FieldInfo(TypeMorphInfo tmi) {
-                this((String)null, tmi);
+            FieldInfo(TypeMorphInfo tmi, ArgKind kind) {
+                this((String)null, tmi, kind);
             }
 
-            FieldInfo(String desc, TypeMorphInfo tmi) {
-                this(desc, tmi, true);
+            FieldInfo(String desc, TypeMorphInfo tmi, ArgKind kind) {
+                this(desc, tmi, true, kind);
             }
 
-            FieldInfo(String desc, TypeMorphInfo tmi, boolean isLocation) {
+            FieldInfo(String desc, TypeMorphInfo tmi, boolean isLocation, ArgKind kind) {
                 this.desc = desc;
                 this.num = argNum++;
                 this.tmi = tmi;
                 this.isLocation = isLocation;
+                this.kind = kind;
             }
 
             JCExpression makeGetField() {
@@ -511,26 +513,22 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         }
 
         protected JCExpression buildArgField(JCExpression arg, Type type, ArgKind kind) {
-            return buildArgField(arg, new FieldInfo(type), kind);
+            return buildArgField(arg, new FieldInfo(type, kind));
         }
 
         protected JCExpression buildArgField(JCExpression arg, FieldInfo fieldInfo) {
-            return buildArgField(arg, fieldInfo, ArgKind.DEPENDENT);
-        }
-
-        protected JCExpression buildArgField(JCExpression arg, FieldInfo fieldInfo, ArgKind kind) {
             // translate the method arg into a Location field of the BindingExpression
             // XxxLocation arg$0 = ...;
             sendField(arg, fieldInfo);
 
             // build a list of these args, for use as dependents -- arg$0, arg$1, ...
-            if (kind == ArgKind.BOUND) {
+            if (fieldInfo.kind == ArgKind.BOUND) {
                 return makeAccess(fieldInfo);
             } else {
                 if (fieldInfo.num > 32) {
                     log.error(diagPos, MsgSym.MESSAGE_BIND_TOO_COMPLEX);
                 }
-                if (kind == ArgKind.DEPENDENT) {
+                if (fieldInfo.kind == ArgKind.DEPENDENT) {
                     dependents |= 1 << fieldInfo.num;
                 }
 

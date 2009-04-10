@@ -91,6 +91,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         new Context.Key<JavafxToJava>();
 
     /*
+     * the result of translating a tree by a visit method
+     */
+    JCTree result;
+
+    /*
      * modules imported by context
      */
     private final JavafxToBound toBound;
@@ -757,8 +762,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         private void renamingVar(ListBuffer<JCStatement> renamings, Name name, Name vname, Type type, boolean isLocation) {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
             Type varType = isLocation ? tmi.getLocationType() : type;
-            FieldInfo rcvrField = new FieldInfo(name.toString(), typeMorpher.typeMorphInfo(varType), false);
-            addRenamingVar(renamings, vname, varType, buildArgField(m().Ident(name), rcvrField, ArgKind.FREE));
+            FieldInfo rcvrField = new FieldInfo(name.toString(), typeMorpher.typeMorphInfo(varType), false, ArgKind.FREE);
+            addRenamingVar(renamings, vname, varType, buildArgField(m().Ident(name), rcvrField));
         }
 
         private void renameParam(ListBuffer<JCStatement> renamings, Type type, JFXVar var, Name nameDefault) {
@@ -1613,7 +1618,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     private JCExpression translateDefinitionalAssignmentToValueArg(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
         if (bindStatus.isUnidiBind()) {
-            return toBound.translate(init, bindStatus, vmi);
+            return toBound.translateAsLocationOrBE(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
             assert requiresLocation(vmi);
             // Bi-directional bind translate so it stays in a Location
@@ -1954,7 +1959,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             } else if (isBound) {
                 // Build the body of a bound function by treating it as a bound expression
                 // TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented -- it is, so it should be
-                JCExpression expr = toBound.translate(bexpr, JavafxBindStatus.UNIDIBIND, typeMorpher.varMorphInfo(tree.sym));
+                JCExpression expr = toBound.translateAsLocation(bexpr, JavafxBindStatus.UNIDIBIND, typeMorpher.varMorphInfo(tree.sym));
                 body = asBlock(make.at(diagPos).Return(expr));
             } else if (isRunMethod) {
                 // it is a module level run method, do special translation
