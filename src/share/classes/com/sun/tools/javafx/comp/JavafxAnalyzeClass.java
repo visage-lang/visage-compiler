@@ -481,18 +481,16 @@ class JavafxAnalyzeClass {
             analyzeClass(superType.tsym, true, false);
         }
         
-        // Add the current vars to the instance attribute results.
+        // Track the current vars to the instance attribute results.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
             // Only look at instance vars.
             if (!tai.isStatic()) {
-                // Add the var to the instance var results.
-                attributeInfos.append(tai);
                 // Track the var for overrides and mixin duplication.
                 visitedAttributes.put(tai.getName(), tai);
             }
         }
         
-        // Add the override vars to the instance attribute results.
+        // Track the override vars to the instance attribute results.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
             // Only look at instance vars.
             if (!tai.isStatic()) {
@@ -510,8 +508,6 @@ class JavafxAnalyzeClass {
                     }
                 }
                 
-                // Add the var to the instance var results.
-                attributeInfos.append(tai);
                 // Track the var for overrides and mixin duplication.
                 visitedAttributes.put(tai.getName(), tai);
             }
@@ -531,6 +527,26 @@ class JavafxAnalyzeClass {
             // This will technically only analyze mixin classes.
             // We also want to clone all mixin vars amnd methods.
             analyzeClass(supertype.type.tsym, true, true);
+        }
+        
+        // Add the current vars to the instance attribute results.
+        // JFXC-3043 - This needs to be done after mixins.
+        for (TranslatedVarInfo tai : translatedAttrInfo) {
+            // Only look at instance vars.
+            if (!tai.isStatic()) {
+                // Add the var to the instance var results.
+                attributeInfos.append(tai);
+            }
+        }
+        
+        // Add the override vars to the instance attribute results.
+        // JFXC-3043 - This needs to be done after mixins.
+        for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
+            // Only look at instance vars.
+            if (!tai.isStatic()) {
+                // Add the var to the instance var results.
+                attributeInfos.append(tai);
+            }
         }
     }
 
