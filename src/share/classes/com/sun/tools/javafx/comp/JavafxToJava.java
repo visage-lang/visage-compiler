@@ -70,8 +70,7 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.STranslator;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedOverrideClassVarInfo;
-import com.sun.tools.javafx.comp.JavafxAnalyzeClass.TranslatedVarInfo;
+import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
@@ -213,8 +212,14 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                    return true;
                case BLOCK_EXPRESSION:
                    return possiblyNull(((JFXBlock)expr).getValue());
-               case IDENT:
-                   return ((JFXIdent)expr).sym instanceof VarSymbol;
+               case IDENT: {
+                   if (((JFXIdent)expr).sym instanceof VarSymbol) {
+                       Symbol sym = ((JFXIdent)expr).sym;
+                       return sym.name != names._this && sym.name != names._super;
+                   } else {
+                       return false;
+                   }
+               }
                case CONDEXPR:
                    return possiblyNull(((JFXIfExpression)expr).getTrueExpression()) || possiblyNull(((JFXIfExpression)expr).getFalseExpression());
                case LITERAL:
@@ -1219,30 +1224,20 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 // Add the userInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
-                // call the superclasses userInit$
-                Set<String> dupSet = new HashSet<String>();
-                ListBuffer<JFXExpression> parents = ListBuffer.lb();
-                parents.appendList(tree.getExtending());
-                parents.appendList(tree.getMixing());
                 
-                for (JFXExpression parent : parents.toList()) {
-                    if (! (parent instanceof JFXIdent))
-                        continue;
-                    Symbol symbol = expressionSymbol(parent);
-                    if (types.isJFXClass(symbol)) {
-                        ClassSymbol cSym = (ClassSymbol) symbol;
-                        String className = cSym.fullname.toString();
-                        if (className.endsWith(mixinSuffix)) {
-                            className = className.substring(0, className.length() - mixinSuffix.length());
-                        }
-
-                        if (!dupSet.contains(className)) {
-                            dupSet.add(className);
-                            List<JCExpression> args1 = List.nil();
-                            args1 = args1.append(make.TypeCast(makeTypeTree( diagPos,cSym.type, true), make.Ident(defs.receiverName)));
-                            initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, className), defs.userInitName, args1));
-                        }
-                    }
+                ClassSymbol superClassSym = model.superClassSym;
+                if (superClassSym != null) {
+                    String superName = superClassSym.fullname.toString();
+                    List<JCExpression> args1 = List.nil();
+                    args1 = args1.append(make.TypeCast(makeTypeTree( diagPos, superClassSym.type, true), make.Ident(defs.receiverName)));
+                    initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, superName), defs.userInitName, args1));
+                }
+                 
+                for (ClassSymbol mixinClassSym : model.immediateMixins) {
+                    String mixinName = mixinClassSym.fullname.toString();
+                    List<JCExpression> args1 = List.nil();
+                    args1 = args1.append(make.TypeCast(makeTypeTree( diagPos, mixinClassSym.type, true), make.Ident(defs.receiverName)));
+                    initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, mixinName), defs.userInitName, args1));
                 }
                 initStats.appendList(translatedInitBlocks);
 
@@ -1261,30 +1256,20 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 // Add the userPostInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
-                // call the superclasses postInit$
-                Set<String> dupSet = new HashSet<String>();
-                ListBuffer<JFXExpression> parents = ListBuffer.lb();
-                parents.appendList(tree.getExtending());
-                parents.appendList(tree.getMixing());
                 
-                for (JFXExpression parent : parents.toList()) {
-                    if (! (parent instanceof JFXIdent))
-                        continue;
-                    Symbol symbol = expressionSymbol(parent);
-                    if (types.isJFXClass(symbol)) {
-                        ClassSymbol cSym = (ClassSymbol) symbol;
-                        String className = cSym.fullname.toString();
-                        if (className.endsWith(mixinSuffix)) {
-                            className = className.substring(0, className.length() - mixinSuffix.length());
-                        }
-
-                        if (!dupSet.contains(className)) {
-                            dupSet.add(className);
-                            List<JCExpression> args1 = List.nil();
-                            args1 = args1.append(make.TypeCast(makeTypeTree( diagPos,cSym.type, true), make.Ident(defs.receiverName)));
-                            initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, className), defs.postInitName, args1));
-                        }
-                    }
+                ClassSymbol superClassSym = model.superClassSym;
+                if (superClassSym != null) {
+                    String superName = superClassSym.fullname.toString();
+                    List<JCExpression> args1 = List.nil();
+                    args1 = args1.append(make.TypeCast(makeTypeTree( diagPos, superClassSym.type, true), make.Ident(defs.receiverName)));
+                    initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, superName), defs.postInitName, args1));
+                }
+                 
+                for (ClassSymbol mixinClassSym : model.immediateMixins) {
+                    String mixinName = mixinClassSym.fullname.toString();
+                    List<JCExpression> args1 = List.nil();
+                    args1 = args1.append(make.TypeCast(makeTypeTree( diagPos, mixinClassSym.type, true), make.Ident(defs.receiverName)));
+                    initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, mixinName), defs.postInitName, args1));
                 }
                 initStats.appendList(translatedPostInitBlocks);
 
