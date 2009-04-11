@@ -876,7 +876,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
 
     boolean hasScriptTriggers() {
-        return triggers.isEmpty();
+        return triggers.nonEmpty();
     }
 
     List<JCTree> scriptCompleteTriggers(DiagnosticPosition diagPos) {
@@ -1038,7 +1038,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
      * @return
      */
     List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
-        if (toBound.hasScriptBinding() && hasScriptTriggers()) {
+        if (!toBound.hasScriptBinding() && !hasScriptTriggers()) {
             return List.nil();
         } else {
             JCExpression scriptClosureClass = make.at(diagPos).TypeApply(

@@ -135,10 +135,12 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
     // External translation entry-point
     JCExpression translateAsLocationOrBE(JFXExpression tree, JavafxBindStatus bindStatus, TypeMorphInfo tmi) {
         BoundResult res = translateAsResult(tree, bindStatus, tmi);
-        if (res.instanciateBE != null)
+        if (res.translator != null) {
             // There is a binding expression we can return, so do so
+            // Mark the BE as un-absorbed since we are using it explicitly
+            res.translator.absorbed = false;
             return res.instanciateBE;
-        else
+        } else
             // no binding expression, return a Location
             return res.asLocation();
     }
@@ -276,7 +278,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
 
                     protected JCExpression makePushExpression() {
                         return typeCast(diagPos, targetType, inType, buildArgField(prevTree, inType));
-
                     }
                 }.doit();
                 tmiTarget = tmiPrevTarget;
@@ -351,7 +352,12 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
     }
 
     boolean hasScriptBinding() {
-        return bects.isEmpty();
+        for (BindingExpressionClosureTranslator b : bects) {
+            if (b.shouldBuildIntoScriptClass()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     List<JCTree> scriptCompleteBinding(DiagnosticPosition diagPos) {
@@ -361,7 +367,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         } else {
             ListBuffer<JCCase> cases = ListBuffer.lb();
             for (BindingExpressionClosureTranslator b : bects) {
-                if (!b.generateInLine) {
+                if (b.shouldBuildIntoScriptClass()) {
                     cases.append(b.makeCase());
                 }
             }
@@ -1061,15 +1067,32 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
     }
 
     @Override
-    public void visitLiteral(JFXLiteral tree) {
+    public void visitLiteral(final JFXLiteral tree) {
         final DiagnosticPosition diagPos = tree.pos();
+        final Type targetType = targetType(tree.type);
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
-            Type elemType = types.elementType(targetType(tree.type));
+            Type elemType = types.elementType(targetType);
             result = new BoundResult(runtime(diagPos, defs.BoundSequences_empty, List.of(makeLaziness(diagPos), makeTypeInfo(diagPos, elemType))));
         } else {
-            Type targetType = targetType(tree.type);
-            JCExpression unbound = toJava.convertTranslated(make.at(diagPos).Literal(tree.typetag, tree.value), diagPos, tree.type, targetType);
-            result = new BoundResult(makeConstantLocation(diagPos, targetType, unbound));
+            final JCExpression lit = make.at(diagPos).Literal(tree.typetag, tree.value);
+            final JCExpression unbound = tree.typetag == TypeTags.BOT?
+                    make.at(diagPos).TypeCast(makeTypeTree(diagPos, targetType.tag != TypeTags.BOT? targetType : syms.objectType, true), lit) :
+                    toJava.convertTranslated(lit, diagPos, tree.type, targetType);
+            BindingExpressionClosureTranslator bet = new BindingExpressionClosureTranslator(diagPos, targetType) {
+
+                protected JCExpression makePushExpression() {
+                    return unbound;
+                }
+
+                @Override
+                protected JCExpression makeLocation(JCExpression instanciateBE) {
+                    return makeConstantLocation(diagPos, targetType, unbound);
+                }
+            };
+            // the Location has absorbed (in this case ignored) the BindingExpression
+            // may be un-absorbed if explicitly used
+            bet.absorbed = true;
+            result = bet.result();
         }
     }
 
@@ -1081,6 +1104,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         final TypeMorphInfo tmiResult;
         final Type actualTranslatedType;
         final ListBuffer<JCStatement> preDecls = ListBuffer.lb();
+        boolean absorbed = false;
 
         BindingExpressionClosureTranslator(DiagnosticPosition diagPos, Type resultType) {
             super(diagPos, bects.size());
@@ -1090,6 +1114,10 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }
 
         abstract JCExpression makePushExpression();
+
+        protected boolean shouldBuildIntoScriptClass() {
+            return !generateInLine && !absorbed;
+        }
 
         protected void buildFields() {
             // by default do this dynamically
@@ -1124,15 +1152,19 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             return super.makeConstructorArgs().append(m().Literal(TypeTags.INT, dependents));
         }
 
-        @Override
-        protected JCExpression doit() {
+        protected JCExpression makeLocation(JCExpression instanciateBE) {
             ListBuffer<JCExpression> args = ListBuffer.lb();
             if (tmiResult.getTypeKind() == TYPE_KIND_OBJECT) {
                 args.append(makeDefaultValue(diagPos, tmiResult));
             }
             args.append(makeLaziness(diagPos));
-            args.append(buildClosure());
-            JCExpression varResult = makeLocationLocalVariable(tmiResult, diagPos, args.toList());
+            args.append(instanciateBE);
+            return makeLocationLocalVariable(tmiResult, diagPos, args.toList());
+        }
+
+        @Override
+        protected JCExpression doit() {
+            JCExpression varResult = makeLocation(buildClosure());
             if (preDecls.nonEmpty()) {
                 return toJava.makeBlockExpression(diagPos, preDecls, varResult);
             } else {
@@ -1142,13 +1174,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
 
         BoundResult result() {
             JCExpression instanciateBE = buildClosure();
-            ListBuffer<JCExpression> args = ListBuffer.lb();
-            if (tmiResult.getTypeKind() == TYPE_KIND_OBJECT) {
-                args.append(makeDefaultValue(diagPos, tmiResult));
-            }
-            args.append(makeLaziness(diagPos));
-            args.append(instanciateBE);
-            JCExpression varResult = makeLocationLocalVariable(tmiResult, diagPos, args.toList());
+            JCExpression varResult = makeLocation(instanciateBE);
             if (preDecls.nonEmpty()) {
                 varResult = toJava.makeBlockExpression(diagPos, preDecls, varResult);
             }
