@@ -51,6 +51,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
+import com.sun.tools.javafx.tree.JFXBinary;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.javafx.tree.JFXFunctionInvocation;
 import com.sun.tools.javafx.tree.JFXIdent;
@@ -66,6 +67,7 @@ import com.sun.tools.javafx.util.MsgSym;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.lang.model.type.TypeKind;
 
 
 /**
@@ -624,6 +626,216 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
                 args.append(m().Literal(TypeTags.BOT, null));
             }
             return args.toList();
+        }
+    }
+
+    protected abstract class BinaryOperationTranslator extends Translator {
+
+        final JFXBinary tree;
+        final Type lhsType;
+        final Type rhsType;
+
+        BinaryOperationTranslator(DiagnosticPosition diagPos, final JFXBinary tree) {
+            super(diagPos);
+            this.tree = tree;
+            this.lhsType = tree.lhs.type;
+            this.rhsType = tree.rhs.type;
+        }
+
+        protected abstract JCExpression translateArg(JFXExpression arg, Type type);
+
+        JCExpression lhs(Type type) {
+            return translateArg(tree.lhs, type);
+        }
+
+        JCExpression lhs() {
+            return lhs(null);
+        }
+
+        JCExpression rhs(Type type) {
+            return translateArg(tree.rhs, type);
+        }
+
+        JCExpression rhs() {
+            return rhs(null);
+        }
+
+        /**
+         * Compare against null
+         */
+        private JCExpression makeNullCheck(JCExpression targ) {
+            return makeEqEq(targ, makeNull());
+        }
+
+        //TODO: after type system is figured out, this needs to be revisited
+        /**
+         * Check if a primitive has the default value for its type.
+         */
+        private JCExpression makePrimitiveNullCheck(Type argType, JCExpression arg) {
+            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
+            JCExpression defaultValue = makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
+            return makeEqEq(arg, defaultValue);
+        }
+
+        /**
+         * Check if a non-primitive has the default value for its type.
+         */
+        private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
+            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
+            if (tmi.isSequence() || tmi.getRealType() == syms.javafx_StringType) {
+                return callRuntime(JavafxDefs.isNullMethodString, List.of(arg));
+            } else {
+                return makeNullCheck(arg);
+            }
+        }
+
+        /*
+         * Do a == compare
+         */
+        private JCExpression makeEqEq(JCExpression arg1, JCExpression arg2) {
+            return makeBinary(JCTree.EQ, arg1, arg2);
+        }
+
+        private JCExpression makeBinary(int tag, JCExpression arg1, JCExpression arg2) {
+            return m().Binary(tag, arg1, arg2);
+        }
+
+        private JCExpression makeNull() {
+            return m().Literal(TypeTags.BOT, null);
+        }
+
+        private JCExpression callRuntime(String methNameString, List<JCExpression> args) {
+            JCExpression meth = makeQualifiedTree(diagPos, methNameString);
+            List<JCExpression> typeArgs = List.nil();
+            return m().Apply(typeArgs, meth, args);
+        }
+
+        /**
+         * Make a .equals() comparison with a null check on the receiver
+         */
+        private JCExpression makeFullCheck(JCExpression lhs, JCExpression rhs) {
+            return callRuntime(JavafxDefs.equalsMethodString, List.of(lhs, rhs));
+        }
+
+        /**
+         * Return the translation for a == comparision
+         */
+        private JCExpression translateEqualsEquals() {
+            final boolean reqSeq = types.isSequence(lhsType) ||
+                    types.isSequence(rhsType);
+
+            Type expected = tree.operator.type.getParameterTypes().head;
+
+            if (reqSeq) {
+                Type left = types.isSequence(lhsType) ? types.elementType(lhsType) : lhsType;
+                Type right = types.isSequence(rhsType) ? types.elementType(rhsType) : rhsType;
+                if (left.isPrimitive() && right.isPrimitive() && left == right) {
+                    expected = left;
+                }
+            }
+
+            final JCExpression lhs = lhs(reqSeq ? types.sequenceType(expected) : null);
+            final JCExpression rhs = rhs(reqSeq ? types.sequenceType(expected) : null);
+
+            // this is an x == y
+            if (lhsType.getKind() == TypeKind.NULL) {
+                if (rhsType.getKind() == TypeKind.NULL) {
+                    // both are known to be null
+                    return m().Literal(TypeTags.BOOLEAN, 1);
+                } else if (rhsType.isPrimitive()) {
+                    // lhs is null, rhs is primitive, do default check
+                    return makePrimitiveNullCheck(rhsType, rhs);
+                } else {
+                    // lhs is null, rhs is non-primitive, figure out what check to do
+                    return makeObjectNullCheck(rhsType, rhs);
+                }
+            } else if (lhsType.isPrimitive()) {
+                if (rhsType.getKind() == TypeKind.NULL) {
+                    // lhs is primitive, rhs is null, do default check on lhs
+                    return makePrimitiveNullCheck(lhsType, lhs);
+                } else if (rhsType.isPrimitive()) {
+                    // both are primitive, use ==
+                    return makeEqEq(lhs, rhs);
+                } else {
+                    // lhs is primitive, rhs is non-primitive, use equals(), but switch them
+                    return makeFullCheck(rhs, lhs);
+                }
+            } else {
+                if (rhsType.getKind() == TypeKind.NULL) {
+                    // lhs is non-primitive, rhs is null, figure out what check to do
+                    return makeObjectNullCheck(lhsType, lhs);
+                } else {
+                    //  lhs is non-primitive, use equals()
+                    return makeFullCheck(lhs, rhs);
+                }
+            }
+        }
+
+        JCExpression op(JCExpression leftSide, Name methodName, JCExpression rightSide) {
+            return callExpression(diagPos, leftSide, methodName, rightSide);
+        }
+
+        boolean isDuration(Type type) {
+            return types.isSameType(type, syms.javafx_DurationType);
+        }
+
+        final Type durationNumericType = syms.javafx_NumberType;
+
+        JCExpression durationOp() {
+            switch (tree.getFXTag()) {
+                case PLUS:
+                    return op(lhs(), defs.durOpAdd, rhs());
+                case MINUS:
+                    return op(lhs(), defs.durOpSub, rhs());
+                case DIV:
+                    return op(lhs(), defs.durOpDiv, rhs(isDuration(rhsType)? null : durationNumericType));
+                case MUL: {
+                    // lhs.mul(rhs);
+                    JCExpression rcvr;
+                    JCExpression arg;
+                    if (isDuration(lhsType)) {
+                        rcvr = lhs();
+                        arg = rhs(durationNumericType);
+                    } else {
+                        //TODO: This may get side-effects out-of-order.
+                        // A simple fix is to use a static Duration.mul(double,Duration).
+                        // Another is to use a Block and a temporary.
+                        rcvr = rhs();
+                        arg = lhs(durationNumericType);
+                    }
+                    return op(rcvr, defs.durOpMul, arg);
+                }
+                case LT:
+                    return op(lhs(), defs.durOpLT, rhs());
+                case LE:
+                    return op(lhs(), defs.durOpLE, rhs());
+                case GT:
+                    return op(lhs(), defs.durOpGT, rhs());
+                case GE:
+                    return op(lhs(), defs.durOpGE, rhs());
+            }
+            throw new RuntimeException("Internal Error: bad Duration operation");
+        }
+
+        /**
+         * Translate a binary expressions
+         */
+        public JCExpression doit() {
+            //TODO: handle <>
+            if (tree.getFXTag() == JavafxTag.EQ) {
+                return translateEqualsEquals();
+            } else if (tree.getFXTag() == JavafxTag.NE) {
+                return m().Unary(JCTree.NOT, translateEqualsEquals());
+            } else {
+                // anything other than == or !=
+
+                // Duration type operator overloading
+                if ((isDuration(lhsType) || isDuration(rhsType)) &&
+                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Duration method isn't matched
+                    return durationOp();
+                }
+                return makeBinary(tree.getOperatorTag(), lhs(), rhs());
+            }
         }
     }
 }

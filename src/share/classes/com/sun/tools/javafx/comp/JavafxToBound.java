@@ -1429,9 +1429,13 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 return new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
                     protected JCExpression makePushExpression() {
-                        return toJava.translateDurationOperation(diagPos, tree.getFXTag(),
-                                buildArgField(translate(l), lType), buildArgField(translate(r), rType),
-                                lType, rType);
+                        return (new BinaryOperationTranslator(tree.pos(), tree) {
+
+                            protected JCExpression translateArg(JFXExpression arg, Type type) {
+                                Type transType = type==null? arg.type : type;
+                                return buildArgField(translate(arg, transType), transType);
+                            }
+                        }).doit();
                     }
                 }.doit();
             }

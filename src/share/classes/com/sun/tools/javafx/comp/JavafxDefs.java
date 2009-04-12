@@ -164,6 +164,14 @@ public class JavafxDefs {
     public final Name fxMixinName;
     public final Name mixinSuffixName;
     public final Name deprecatedInterfaceSuffixName;
+    final Name durOpAdd;
+    final Name durOpSub;
+    final Name durOpMul;
+    final Name durOpDiv;
+    final Name durOpLE;
+    final Name durOpLT;
+    final Name durOpGE;
+    final Name durOpGT;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
     final Name mainName;
@@ -274,6 +282,14 @@ public class JavafxDefs {
         final Name.Table names = Name.Table.instance(context);
         final JavafxSymtab syms = (JavafxSymtab)(JavafxSymtab.instance(context));
 
+        durOpAdd = names.fromString("add");
+        durOpSub = names.fromString("sub");
+        durOpMul = names.fromString("mul");
+        durOpDiv = names.fromString("div");
+        durOpLE = names.fromString("le");
+        durOpLT = names.fromString("lt");
+        durOpGE = names.fromString("ge");
+        durOpGT = names.fromString("gt");
         fxObjectName = names.fromString(fxObjectString);
         fxMixinName = names.fromString(fxMixinString);
         mixinSuffixName = names.fromString(mixinSuffix);
