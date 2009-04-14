@@ -94,7 +94,6 @@ public class JavafxDefs {
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
     private static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
-            static final String cOperator = cBoundOperators + ".Operator";
 
     static final String[] milieuNames = { "", "FromLiteral" };
     public static String getMilieuName(int index) { return milieuNames[index]; }
@@ -133,17 +132,6 @@ public class JavafxDefs {
     final RuntimeMethod BoundOperators_makeBoundSequenceSelect;
     final RuntimeMethod BoundOperators_makeBoundSelect;
     final RuntimeMethod BoundOperators_makeBoundIf;
-    final RuntimeMethod BoundOperators_op_boolean;
-    final RuntimeMethod BoundOperators_op_double;
-    final RuntimeMethod BoundOperators_op_float;
-    final RuntimeMethod BoundOperators_op_long;
-    final RuntimeMethod BoundOperators_op_int;
-    final RuntimeMethod BoundOperators_cmp_double;
-    final RuntimeMethod BoundOperators_cmp_float;
-    final RuntimeMethod BoundOperators_cmp_long;
-    final RuntimeMethod BoundOperators_cmp_int;
-    final RuntimeMethod BoundOperators_cmp_other;
-    final RuntimeMethod BoundOperators_and_bb;
 
     final RuntimeMethod BoundSequences_convertNumberSequence;
     final RuntimeMethod BoundSequences_element;
@@ -386,17 +374,6 @@ public class JavafxDefs {
         BoundOperators_makeBoundSequenceSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSequenceSelect");
         BoundOperators_makeBoundSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSelect");
         BoundOperators_makeBoundIf = new RuntimeMethod(names, cBoundOperators, "makeBoundIf");
-        BoundOperators_op_boolean = new RuntimeMethod(names, cBoundOperators, "op_boolean");
-        BoundOperators_op_double = new RuntimeMethod(names, cBoundOperators, "op_double");
-        BoundOperators_op_float = new RuntimeMethod(names, cBoundOperators, "op_float");
-        BoundOperators_op_long = new RuntimeMethod(names, cBoundOperators, "op_long");
-        BoundOperators_op_int = new RuntimeMethod(names, cBoundOperators, "op_int");
-        BoundOperators_cmp_double = new RuntimeMethod(names, cBoundOperators, "cmp_double");
-        BoundOperators_cmp_float = new RuntimeMethod(names, cBoundOperators, "cmp_float");
-        BoundOperators_cmp_long = new RuntimeMethod(names, cBoundOperators, "cmp_long");
-        BoundOperators_cmp_int = new RuntimeMethod(names, cBoundOperators, "cmp_int");
-        BoundOperators_cmp_other = new RuntimeMethod(names, cBoundOperators, "cmp_other");
-        BoundOperators_and_bb = new RuntimeMethod(names, cBoundOperators, "and_bb");
 
         BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
         BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");
