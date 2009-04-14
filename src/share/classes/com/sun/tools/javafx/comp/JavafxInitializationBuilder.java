@@ -723,7 +723,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JFXClassDeclaration cDecl) {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
-            if (!ai.isStatic() && !ai.isInitOverridden()) {
+            if (!ai.isStatic() && !ai.hasProxyVar()) {
                 DiagnosticPosition diagPos = ai.pos();
                 VarSymbol vsym = ai.getSymbol();
                 Name methodName = attributeApplyDefaultsName(vsym);
