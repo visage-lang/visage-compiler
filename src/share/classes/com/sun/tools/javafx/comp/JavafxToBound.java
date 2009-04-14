@@ -1346,149 +1346,39 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }).doit());
     }
 
-    private class BinaryTranslator {
-        final JFXBinary tree;
-        final DiagnosticPosition diagPos;
-        final JFXExpression l;
-        final JFXExpression r;
-        final boolean lBoxed;
-        final boolean rBoxed;
-        final Type lType;
-        final Type rType;
-
-        BinaryTranslator(final JFXBinary tree) {
-            this.tree = tree;
-            this.diagPos = tree.pos();
-            this.l = tree.lhs;
-            this.r = tree.rhs;
-            Type tubl = types.unboxedType(tree.lhs.type);
-            lBoxed = tubl.tag != TypeTags.NONE;
-            lType = lBoxed? tubl : tree.lhs.type;
-            Type tubr = types.unboxedType(tree.rhs.type);
-            rBoxed = tubr.tag != TypeTags.NONE;
-            rType = rBoxed? tubr : tree.rhs.type;
-        }
-
-        RuntimeMethod opMethod(boolean isCompare) {
-            if (types.isSameType(rType, syms.doubleType) || types.isSameType(lType, syms.doubleType)) {
-                return isCompare? defs.BoundOperators_cmp_double : defs.BoundOperators_op_double;
-            }
-            if (types.isSameType(rType, syms.floatType) || types.isSameType(lType, syms.floatType)) {
-                return isCompare? defs.BoundOperators_cmp_float : defs.BoundOperators_op_float;
-            }
-            if (types.isSameType(rType, syms.longType) || types.isSameType(lType, syms.longType)) {
-                return isCompare? defs.BoundOperators_cmp_long : defs.BoundOperators_op_long;
-            }
-                return isCompare? defs.BoundOperators_cmp_int : defs.BoundOperators_op_int;
-        }
-
-        JCExpression makeBinaryOperator(String op, RuntimeMethod rm) {
-            final JCExpression lhs = translate(l);
-            final JCExpression rhs = translate(r);
-            return runtime(diagPos, rm, List.of(makeLaziness(diagPos), lhs, rhs, makeQualifiedTree(diagPos, op)));
-        }
-
-        JCExpression makeBinaryArithmeticOperator(String op) {
-            return makeBinaryOperator(op, opMethod(false));
-        }
-
-        JCExpression makeBinaryComparisonOperator(String op) {
-            return makeBinaryOperator(op, opMethod(true));
-        }
-
-        boolean isNumeric(Type opType) {
-            switch (opType.tag) {
-                case BYTE:
-                case CHAR:
-                case SHORT:
-                case INT:
-                case LONG:
-                case FLOAT:
-                case DOUBLE:
-                    return true;
-            }
-            return false;
-        }
-
-        JCExpression makeBinaryEqualityOperator(String op) {
-            if (isNumeric(lType) && isNumeric(rType)) {
-                return makeBinaryComparisonOperator(op);
-            } else {
-                final JCExpression lhs = translate(l);
-                final JCExpression rhs = translate(r);
-                RuntimeMethod rm = (lType.tag == BOOLEAN && rType.tag == BOOLEAN) ? defs.BoundOperators_op_boolean : defs.BoundOperators_cmp_other;
-                return runtime(diagPos, rm, List.of(makeLaziness(diagPos), lhs, rhs, makeQualifiedTree(diagPos, op)));
-            }
-        }
-
-        JCExpression doit() {
-            if ((types.isSameType(lType, syms.javafx_DurationType) ||
-                    types.isSameType(rType, syms.javafx_DurationType)) &&
-                    (tree.getFXTag() != JavafxTag.EQ && tree.getFXTag() != JavafxTag.NE)) {
-                // This is a Duration operation (other than equality).  Use the Duration translator
-                return new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
+    @Override
+    public void visitBinary(final JFXBinary tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        switch (tree.getFXTag()) {
+            case AND:
+                result = new BoundResult(makeBoundConditional(diagPos,
+                        syms.booleanType,
+                        translate(tree.lhs, syms.booleanType),
+                        translateForConditional(tree.rhs, syms.booleanType),
+                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0))));
+                break;
+            case OR:
+                result = new BoundResult(makeBoundConditional(diagPos,
+                        syms.booleanType,
+                        translate(tree.lhs, syms.booleanType),
+                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
+                        translateForConditional(tree.rhs, syms.booleanType)));
+                break;
+            default:
+                result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
                     protected JCExpression makePushExpression() {
                         return (new BinaryOperationTranslator(tree.pos(), tree) {
 
                             protected JCExpression translateArg(JFXExpression arg, Type type) {
-                                Type transType = type==null? arg.type : type;
+                                Type transType = type == null ? arg.type : type;
                                 return buildArgField(translate(arg, transType), transType);
                             }
                         }).doit();
                     }
-                }.doit();
-            }
-            switch (tree.getFXTag()) {
-                case PLUS:
-                    return makeBinaryArithmeticOperator(opPLUS);
-                case MINUS:
-                    return makeBinaryArithmeticOperator(opMINUS);
-                case DIV:
-                    return makeBinaryArithmeticOperator(opDIVIDE);
-                case MUL:
-                    return makeBinaryArithmeticOperator(opTIMES);
-                case MOD:
-                    return makeBinaryArithmeticOperator(opMODULO);
-
-                case LT:
-                    return makeBinaryComparisonOperator(opLT);
-                case LE:
-                    return makeBinaryComparisonOperator(opLE);
-                case GT:
-                    return makeBinaryComparisonOperator(opGT);
-                case GE:
-                    return makeBinaryComparisonOperator(opGE);
-
-                case EQ:
-                    return makeBinaryEqualityOperator(opEQ);
-                case NE:
-                    return makeBinaryEqualityOperator(opNE);
-
-                case AND:
-                    return makeBoundConditional(diagPos,
-                            syms.booleanType,
-                            translate(l, syms.booleanType),
-                            translateForConditional(r, syms.booleanType),
-                            makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0))
-                        );
-                case OR:
-                    return makeBoundConditional(diagPos,
-                            syms.booleanType,
-                            translate(l, syms.booleanType),
-                            makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
-                            translateForConditional(r, syms.booleanType)
-                         );
-                default:
-                    assert false : "unhandled binary operator";
-                    return translate(l);
-            }
+                }.result();
+                break;
         }
-    }
-
-    @Override
-    public void visitBinary(final JFXBinary tree) {
-        result = new BoundResult(convert(tree.type, new BinaryTranslator(tree).doit()));
     }
 
     @Override

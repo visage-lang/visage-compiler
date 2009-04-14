@@ -725,7 +725,6 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
                     types.isSequence(rhsType);
 
             Type expected = tree.operator.type.getParameterTypes().head;
-
             if (reqSeq) {
                 Type left = types.isSequence(lhsType) ? types.elementType(lhsType) : lhsType;
                 Type right = types.isSequence(rhsType) ? types.elementType(rhsType) : rhsType;
@@ -733,9 +732,7 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
                     expected = left;
                 }
             }
-
-            final JCExpression lhs = lhs(reqSeq ? types.sequenceType(expected) : null);
-            final JCExpression rhs = rhs(reqSeq ? types.sequenceType(expected) : null);
+            Type req = reqSeq ? types.sequenceType(expected) : null;
 
             // this is an x == y
             if (lhsType.getKind() == TypeKind.NULL) {
@@ -744,29 +741,30 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
                     return m().Literal(TypeTags.BOOLEAN, 1);
                 } else if (rhsType.isPrimitive()) {
                     // lhs is null, rhs is primitive, do default check
-                    return makePrimitiveNullCheck(rhsType, rhs);
+                    return makePrimitiveNullCheck(rhsType, rhs(req));
                 } else {
                     // lhs is null, rhs is non-primitive, figure out what check to do
-                    return makeObjectNullCheck(rhsType, rhs);
+                    return makeObjectNullCheck(rhsType, rhs(req));
                 }
             } else if (lhsType.isPrimitive()) {
                 if (rhsType.getKind() == TypeKind.NULL) {
                     // lhs is primitive, rhs is null, do default check on lhs
-                    return makePrimitiveNullCheck(lhsType, lhs);
+                    return makePrimitiveNullCheck(lhsType, lhs(req));
                 } else if (rhsType.isPrimitive()) {
                     // both are primitive, use ==
-                    return makeEqEq(lhs, rhs);
+                    return makeEqEq(lhs(req), rhs(req));
                 } else {
                     // lhs is primitive, rhs is non-primitive, use equals(), but switch them
-                    return makeFullCheck(rhs, lhs);
+                    JCVariableDecl sl = makeTmpVar(diagPos, req!=null? req : lhsType, lhs(req));  // eval first to keep the order correct
+                    return makeBlockExpression(diagPos, List.<JCStatement>of(sl), makeFullCheck(rhs(req), m().Ident(sl.name)));
                 }
             } else {
                 if (rhsType.getKind() == TypeKind.NULL) {
                     // lhs is non-primitive, rhs is null, figure out what check to do
-                    return makeObjectNullCheck(lhsType, lhs);
+                    return makeObjectNullCheck(lhsType, lhs(req));
                 } else {
                     //  lhs is non-primitive, use equals()
-                    return makeFullCheck(lhs, rhs);
+                    return makeFullCheck(lhs(req), rhs(req));
                 }
             }
         }
