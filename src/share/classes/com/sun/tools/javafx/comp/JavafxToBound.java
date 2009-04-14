@@ -48,7 +48,6 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javac.code.TypeTags.*;
 
 public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVisitor {
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
@@ -82,23 +81,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
      * static information
      */
     private static final String cFunction0 = functionsPackageNameString + ".Function0";
-
-    private static final String opPLUS = cOperator + ".PLUS";
-    private static final String opMINUS = cOperator + ".MINUS";
-    private static final String opTIMES = cOperator + ".TIMES";
-    private static final String opDIVIDE = cOperator + ".DIVIDE";
-    private static final String opMODULO = cOperator + ".MODULO";
-
-    private static final String opLT = cOperator + ".CMP_LT";
-    private static final String opLE = cOperator + ".CMP_LE";
-    private static final String opGT = cOperator + ".CMP_GT";
-    private static final String opGE = cOperator + ".CMP_GE";
-
-    private static final String opEQ = cOperator + ".CMP_EQ";
-    private static final String opNE = cOperator + ".CMP_NE";
-
-    private static final String opNEGATE = cOperator + ".NEGATE";
-    private static final String opNOT = cOperator + ".NOT";
 
     public static JavafxToBound instance(Context context) {
         JavafxToBound instance = context.get(jfxToBoundKey);
@@ -792,7 +774,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
              * Make a method parameter
              */
             private JCVariableDecl makeParam(Type type, Name name) {
-                return make.at(diagPos).VarDef(
+                return m().VarDef(
                         make.Modifiers(Flags.PARAMETER | Flags.FINAL),
                         name,
                         makeExpression(type),
@@ -816,7 +798,12 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                         if (whereTest == null) {
                             whereTest = where;
                         } else {
-                            whereTest = runtime(diagPos, defs.BoundOperators_and_bb, List.of(whereTest, where));
+                            // Bound cut-off logical-and
+                            whereTest = makeBoundConditional(diagPos,
+                                    syms.booleanType,
+                                    where,
+                                    whereTest, //TODO: should be translated for conditional
+                                    makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)));
                         }
                     }
                 }
@@ -1346,152 +1333,46 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }).doit());
     }
 
-    private class BinaryTranslator {
-        final JFXBinary tree;
-        final DiagnosticPosition diagPos;
-        final JFXExpression l;
-        final JFXExpression r;
-        final boolean lBoxed;
-        final boolean rBoxed;
-        final Type lType;
-        final Type rType;
-
-        BinaryTranslator(final JFXBinary tree) {
-            this.tree = tree;
-            this.diagPos = tree.pos();
-            this.l = tree.lhs;
-            this.r = tree.rhs;
-            Type tubl = types.unboxedType(tree.lhs.type);
-            lBoxed = tubl.tag != TypeTags.NONE;
-            lType = lBoxed? tubl : tree.lhs.type;
-            Type tubr = types.unboxedType(tree.rhs.type);
-            rBoxed = tubr.tag != TypeTags.NONE;
-            rType = rBoxed? tubr : tree.rhs.type;
-        }
-
-        RuntimeMethod opMethod(boolean isCompare) {
-            if (types.isSameType(rType, syms.doubleType) || types.isSameType(lType, syms.doubleType)) {
-                return isCompare? defs.BoundOperators_cmp_double : defs.BoundOperators_op_double;
-            }
-            if (types.isSameType(rType, syms.floatType) || types.isSameType(lType, syms.floatType)) {
-                return isCompare? defs.BoundOperators_cmp_float : defs.BoundOperators_op_float;
-            }
-            if (types.isSameType(rType, syms.longType) || types.isSameType(lType, syms.longType)) {
-                return isCompare? defs.BoundOperators_cmp_long : defs.BoundOperators_op_long;
-            }
-                return isCompare? defs.BoundOperators_cmp_int : defs.BoundOperators_op_int;
-        }
-
-        JCExpression makeBinaryOperator(String op, RuntimeMethod rm) {
-            final JCExpression lhs = translate(l);
-            final JCExpression rhs = translate(r);
-            return runtime(diagPos, rm, List.of(makeLaziness(diagPos), lhs, rhs, makeQualifiedTree(diagPos, op)));
-        }
-
-        JCExpression makeBinaryArithmeticOperator(String op) {
-            return makeBinaryOperator(op, opMethod(false));
-        }
-
-        JCExpression makeBinaryComparisonOperator(String op) {
-            return makeBinaryOperator(op, opMethod(true));
-        }
-
-        boolean isNumeric(Type opType) {
-            switch (opType.tag) {
-                case BYTE:
-                case CHAR:
-                case SHORT:
-                case INT:
-                case LONG:
-                case FLOAT:
-                case DOUBLE:
-                    return true;
-            }
-            return false;
-        }
-
-        JCExpression makeBinaryEqualityOperator(String op) {
-            if (isNumeric(lType) && isNumeric(rType)) {
-                return makeBinaryComparisonOperator(op);
-            } else {
-                final JCExpression lhs = translate(l);
-                final JCExpression rhs = translate(r);
-                RuntimeMethod rm = (lType.tag == BOOLEAN && rType.tag == BOOLEAN) ? defs.BoundOperators_op_boolean : defs.BoundOperators_cmp_other;
-                return runtime(diagPos, rm, List.of(makeLaziness(diagPos), lhs, rhs, makeQualifiedTree(diagPos, op)));
-            }
-        }
-
-        JCExpression doit() {
-            if ((types.isSameType(lType, syms.javafx_DurationType) ||
-                    types.isSameType(rType, syms.javafx_DurationType)) &&
-                    (tree.getFXTag() != JavafxTag.EQ && tree.getFXTag() != JavafxTag.NE)) {
-                // This is a Duration operation (other than equality).  Use the Duration translator
-                return new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
-
-                    protected JCExpression makePushExpression() {
-                        return toJava.translateDurationOperation(diagPos, tree.getFXTag(),
-                                buildArgField(translate(l), lType), buildArgField(translate(r), rType),
-                                lType, rType);
-                    }
-                }.doit();
-            }
-            switch (tree.getFXTag()) {
-                case PLUS:
-                    return makeBinaryArithmeticOperator(opPLUS);
-                case MINUS:
-                    return makeBinaryArithmeticOperator(opMINUS);
-                case DIV:
-                    return makeBinaryArithmeticOperator(opDIVIDE);
-                case MUL:
-                    return makeBinaryArithmeticOperator(opTIMES);
-                case MOD:
-                    return makeBinaryArithmeticOperator(opMODULO);
-
-                case LT:
-                    return makeBinaryComparisonOperator(opLT);
-                case LE:
-                    return makeBinaryComparisonOperator(opLE);
-                case GT:
-                    return makeBinaryComparisonOperator(opGT);
-                case GE:
-                    return makeBinaryComparisonOperator(opGE);
-
-                case EQ:
-                    return makeBinaryEqualityOperator(opEQ);
-                case NE:
-                    return makeBinaryEqualityOperator(opNE);
-
-                case AND:
-                    return makeBoundConditional(diagPos,
-                            syms.booleanType,
-                            translate(l, syms.booleanType),
-                            translateForConditional(r, syms.booleanType),
-                            makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0))
-                        );
-                case OR:
-                    return makeBoundConditional(diagPos,
-                            syms.booleanType,
-                            translate(l, syms.booleanType),
-                            makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
-                            translateForConditional(r, syms.booleanType)
-                         );
-                default:
-                    assert false : "unhandled binary operator";
-                    return translate(l);
-            }
-        }
-    }
-
     @Override
     public void visitBinary(final JFXBinary tree) {
-        result = new BoundResult(convert(tree.type, new BinaryTranslator(tree).doit()));
+        DiagnosticPosition diagPos = tree.pos();
+        switch (tree.getFXTag()) {
+            case AND:
+                result = new BoundResult(makeBoundConditional(diagPos,
+                        syms.booleanType,
+                        translate(tree.lhs, syms.booleanType),
+                        translateForConditional(tree.rhs, syms.booleanType),
+                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0))));
+                break;
+            case OR:
+                result = new BoundResult(makeBoundConditional(diagPos,
+                        syms.booleanType,
+                        translate(tree.lhs, syms.booleanType),
+                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
+                        translateForConditional(tree.rhs, syms.booleanType)));
+                break;
+            default:
+                result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
+
+                    protected JCExpression makePushExpression() {
+                        return (new BinaryOperationTranslator(tree.pos(), tree) {
+
+                            protected JCExpression translateArg(JFXExpression arg, Type type) {
+                                Type transType = type == null ? arg.type : type;
+                                return buildArgField(translate(arg, transType), transType);
+                            }
+                        }).doit();
+                    }
+                }.result();
+                break;
+        }
     }
 
     @Override
     public void visitUnary(final JFXUnary tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JFXExpression expr = tree.getExpression();
-        JCExpression transExpr = translate(expr);
+        final JFXExpression expr = tree.getExpression();
+        final JCExpression transExpr = translate(expr);
         JCExpression res;
 
         switch (tree.getFXTag()) {
@@ -1507,27 +1388,22 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                     res = convert(expr.type, transExpr, tree.type);
                 }
                 break;
-            case NOT:
-                res = runtime(diagPos, defs.BoundOperators_op_boolean, List.of(makeLaziness(diagPos), transExpr, make.Literal(TypeTags.BOT, null), makeQualifiedTree(diagPos, opNOT)));
-                break;
             case NEG:
                 if (types.isSameType(tree.type, syms.javafx_DurationType)) {   
                     //TODO: totally wrong
                     res = make.at(diagPos).Apply(null,
                             make.at(diagPos).Select(translate(tree.arg), names.fromString("negate")), List.<JCExpression>nil());
-                } else {
-                    Type t = expr.type;
-                    Type tub = types.unboxedType(t);
-                    if (tub.tag != TypeTags.NONE) {
-                        t = tub;
-                    }
-                    RuntimeMethod rm = (types.isSameType(t, syms.doubleType)) ? defs.BoundOperators_op_double
-                            : (types.isSameType(t, syms.floatType)) ? defs.BoundOperators_op_float
-                            : (types.isSameType(t, syms.longType)) ? defs.BoundOperators_op_long
-                            : defs.BoundOperators_op_int;
-                    res = runtime(diagPos, rm, List.of(makeLaziness(diagPos), transExpr, make.Literal(TypeTags.BOT, null), makeQualifiedTree(diagPos, opNEGATE)));
+                    break;
                 }
-                break;
+            /* FALL THROUGH */
+            case NOT:
+                result = new BindingExpressionClosureTranslator(diagPos, tree.type) {
+
+                    protected JCExpression makePushExpression() {
+                        return m().Unary(tree.getOperatorTag(), buildArgField(transExpr, expr.type));
+                    }
+                }.result();
+                return;
             case PREINC:
             case PREDEC:
             case POSTINC:
