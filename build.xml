@@ -324,8 +324,14 @@
                 <include name="com/sun/javafx/runtime/resources/version.properties"/>
                 <exclude name="com/sun/tools/javafx/**"/>
                 <exclude name="com/sun/javafx/api/**"/>
+                <exclude name="com/sun/javafx/runtime/main/**"/>
             </fileset>
         </jar>
+        <zip compress="${jar.compress}" destfile="${dist.javafxrt-main.jar}" >
+            <zipfileset dir="${build.classes.dir}" >
+                <include name="com/sun/javafx/runtime/main/Main.class"/>
+            </zipfileset>
+        </zip>
         <!-- make CLASS.LIST file using "jar tf" command -->
         <exec executable="jar" failonerror="true"
               output="${build.classes.dir}/META-INF/CLASS.LIST">
@@ -986,6 +992,8 @@
     <target depends="init" name="-pre-jar">
         <dirname file="${dist.jar}" property="dist.jar.dir"/>
         <mkdir dir="${dist.jar.dir}"/>
+        <dirname file="${dist.javafxrt-main.jar}" property="dist.jar.dir2"/>
+        <mkdir dir="${dist.jar.dir2}"/>
     </target>
     <target depends="init,compile,-pre-jar" name="-do-jar-without-manifest" unless="manifest.available">
         <jar/>

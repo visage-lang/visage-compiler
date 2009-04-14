@@ -25,7 +25,6 @@ MEMBERS of class ReflectionTest02
    hashCode  isStatic=false; Declaring class: java.lang.Object 
    inspectClass  isStatic=true; Declaring class: ReflectionTest02 
    inspectMember  isStatic=true; Declaring class: ReflectionTest02 
-   main  isStatic=true; Declaring class: ReflectionTest02 
    notify  isStatic=false; Declaring class: java.lang.Object 
    notifyAll  isStatic=false; Declaring class: java.lang.Object 
    registerNatives  isStatic=true; Declaring class: java.lang.Object 
@@ -54,7 +53,6 @@ FUNCTIONS of class ReflectionTest02
   Integer hashCode() min_args=0; var_args: false
   Void inspectClass() min_args=3; var_args: false
   Void inspectMember() min_args=1; var_args: false
-  Void main() min_args=1; var_args: false
   Void notify() min_args=0; var_args: false
   Void notifyAll() min_args=0; var_args: false
   Void registerNatives() min_args=0; var_args: false
