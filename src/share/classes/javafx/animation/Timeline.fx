@@ -292,11 +292,16 @@ public class Timeline {
         
     /**
      * The maximum framerate at which this animation will run, in frames per
-     * second.
+     * second.  This can be used, for example, to keep particularly complex
+     * Timelines from over-consuming system resources.
+     * By default, a Timeline's framerate is not explicitly limited, meaning
+     * the Timeline will run at an optimal framerate for the underlying
+     * platform.
      *
      * @profile common
      */
-    public-init var framerate: Number = 60;
+    // We're gonna have to go right to ludicrous speed
+    public-init var framerate: Number = Float.MAX_VALUE;
 
     /**
      * {@code forward} indicates whether the timeline is on
@@ -594,7 +599,10 @@ public class Timeline {
         }
         clip = getClipFactory().create(Clip.INDEFINITE, adapter);
         clip.setInterpolator(getInterpolatorFactory().getLinearInstance());
-        clip.setResolution(1000 / framerate)
+        // Leave Clip resolution alone if framerate was not set by user
+        if (framerate != Float.MAX_VALUE) {
+            clip.setResolution(1000 / framerate)
+        }
     }
 
     var clip: Clip;
