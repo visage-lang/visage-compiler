@@ -1743,16 +1743,13 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             } else {
                 optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
                 if ((modFlags & Flags.FINAL) != 0) {
+                    //TODO: this case probably won't be used any more, but it will
+                    // be again if we optimize the case for initializer which don't reference locals
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                             tree.getBindStatus(), vsym);
                     JCStatement var = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
-                    if (tree.init == null || !hasSideEffects(tree.init)) {
-                        prependToStatements.append(var);
-                        result = make.at(diagPos).Skip();
-                    } else {
-                        //TODO: there are cases of forwardreference or reference from a trigger which would fail
-                        result = var;
-                    }
+                    prependToStatements.append(var);
+                    result = make.at(diagPos).Skip();
                     return;
                 }
                 // non location types:
