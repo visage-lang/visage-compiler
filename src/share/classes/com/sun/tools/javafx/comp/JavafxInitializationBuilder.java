@@ -1002,25 +1002,25 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         }
         
         // 
-        // Methods for managing the current diagnosic position.
+        // Methods for managing the current diagnostic position.
         //
         private void setCurrentPos(DiagnosticPosition diagPos) { currentPos = diagPos; }
         private void resetCurrentPos() { currentPos = analysis.getCurrentClassPos(); }
         
         //
-        // This method simplifies the declaration of new java ccode nodes.
+        // This method simplifies the declaration of new java code nodes.
         //
         private TreeMaker m() { return make.at(currentPos); }
         
         //
-        // Methods to generate simpel constants.
+        // Methods to generate simple constants.
         //
         private JCExpression makeInt(int value)         { return m().Literal(TypeTags.INT, value); }
         private JCExpression makeBoolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
         private JCExpression makeNull()                 { return m().Literal(TypeTags.BOT, null); }
         
         //
-        // This method simpifies Ident declaration.
+        // This method simplifies Ident declaration.
         //
         private JCExpression Id(Name name) { return m().Ident(name); }
 
@@ -1348,7 +1348,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         }
           
         //
-        // This method constructs the abstract interfaces for trhe getters and setters in
+        // This method constructs the abstract interfaces for the getters and setters in
         // a mixin class.
         //
         public List<JCTree> makeMemberVariableAccessorInterfaceMethods() {
@@ -1402,7 +1402,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 vars.append(addSimpleIntVariable(Flags.FINAL | Flags.STATIC | Flags.PUBLIC, defs.varBaseName, 0));
             }
             
-            // Number of variables in currect class.
+            // Number of variables in current class.
             int count = analysis.getVarCount();
             
             // public static int $VAR_COUNT = $VAR_BASE + count;
@@ -1453,7 +1453,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                                                           makeType(syms.intType),
                                                           null);
 
-            // Number of variables in currect class.
+            // Number of variables in current class.
             int count = analysis.getVarCount();
             
             // Prepare to accumulate statements.
@@ -1638,7 +1638,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         // This method adds the cascading calls to the super classes and mixins.  The topdown flag indicates
         // whether the calls should be made in top down order or bottom up order.  The analysis is used to 
         // determine whether the method is static (mixin) or an instance (normal.)  The analysis also
-        // indicates whether the inheritence goes back to the FXBase class or whether it inherits from a
+        // indicates whether the inheritance goes back to the FXBase class or whether it inherits from a
         // java class.
         //
         private ListBuffer<JCStatement> addSuperCalls(Name name, ListBuffer<JCStatement> stmts, boolean topdown) {
