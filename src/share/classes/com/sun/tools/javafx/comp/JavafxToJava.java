@@ -178,7 +178,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             this.toCheck = toCheck;
             this.resultType = resultType;
             this.needNullCheck = !knownNonNull && !toCheck.type.isPrimitive() && possiblyNull(toCheck);
-            this.hasSideEffects = needNullCheck && computeHasSideEffects(toCheck);
+            this.hasSideEffects = needNullCheck && hasSideEffects(toCheck);
             this.tmpVarList = ListBuffer.<JCStatement>lb();
             this.wrapper = wrapper;
         }
@@ -188,7 +188,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         abstract JCExpression translateToCheck(JFXExpression expr);
 
         protected JCExpression preserveSideEffects(Type type, JFXExpression expr, JCExpression trans) {
-            if (needNullCheck && expr!=null && computeHasSideEffects(expr)) {
+            if (needNullCheck && expr!=null && hasSideEffects(expr)) {
                 // if there is going to be a null check (which thus could keep expr
                 // from being evaluated), and expr has side-effects, then eval
                 // it first and put it in a temp var.
@@ -241,54 +241,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 default:
                     return false;
             }
-        }
-
-        private boolean computeHasSideEffects(JFXExpression expr) {
-            hse = false;
-            new JavafxTreeScanner() {
-
-                private void markSideEffects() {
-                    hse = true;
-                }
-
-                @Override
-                public void visitBlockExpression(JFXBlock tree) {
-                    markSideEffects(); // maybe doesn't but covers all statements
-                }
-
-                @Override
-                public void visitUnary(JFXUnary tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitAssign(JFXAssign tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitAssignop(JFXAssignOp tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitInstanciate(JFXInstanciate tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitFunctionInvocation(JFXFunctionInvocation tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitSelect(JFXSelect tree) {
-                    // Doesn't really have side-effects but the dupllicate null checking is aweful
-                    //TODO: do this in a cleaner way
-                    markSideEffects();
-                }
-            }.scan(expr);
-            return hse;
         }
 
         protected JCTree doit() {
@@ -1793,9 +1745,14 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 if ((modFlags & Flags.FINAL) != 0) {
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                             tree.getBindStatus(), vsym);
-                    //TODO: It seems that there would be cases of forwardreference or reference from a trigger which would fail
-                    prependToStatements.append(make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init));
-                    result = make.at(diagPos).Skip();
+                    JCStatement var = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
+                    if (tree.init == null || !hasSideEffects(tree.init)) {
+                        prependToStatements.append(var);
+                        result = make.at(diagPos).Skip();
+                    } else {
+                        //TODO: there are cases of forwardreference or reference from a trigger which would fail
+                        result = var;
+                    }
                     return;
                 }
                 // non location types:

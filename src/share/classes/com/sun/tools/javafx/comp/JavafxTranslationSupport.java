@@ -130,6 +130,57 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
+    boolean hasSideEffects(JFXExpression expr) {
+        class SideEffectScanner extends JavafxTreeScanner {
+
+            boolean hse = false;
+
+            private void markSideEffects() {
+                hse = true;
+            }
+
+            @Override
+            public void visitBlockExpression(JFXBlock tree) {
+                markSideEffects(); // maybe doesn't but covers all statements
+            }
+
+            @Override
+            public void visitUnary(JFXUnary tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitAssign(JFXAssign tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitAssignop(JFXAssignOp tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitInstanciate(JFXInstanciate tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitSelect(JFXSelect tree) {
+                // Doesn't really have side-effects but the dupllicate null checking is aweful
+                //TODO: do this in a cleaner way
+                markSideEffects();
+            }
+        }
+        SideEffectScanner scanner = new SideEffectScanner();
+        scanner.scan(expr);
+        return scanner.hse;
+    }
+
     /**
      * Special handling for Strings and Durations. If a value assigned to one of these is null,
      * the default value for the type must be substituted.
