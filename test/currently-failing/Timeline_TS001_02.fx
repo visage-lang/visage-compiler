@@ -1,7 +1,7 @@
 /*
- * Timeline_TS001_02.fx
+ * Timeline_TS001_02.fx  @ run disabled due to intermittent failures; See JFXC-2918
  * @test
- * @run/fail
+ * 
  */
 
 /**
