@@ -5309,7 +5309,18 @@ bracketExpression
 		     			
 	     				  (
 	     				    
-	     				    (COMMA | { log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);} )
+	     				    (
+                                  COMMA
+                                | {
+                                        // Object literals need not be delimited, but everything
+                                        // else must be. Object literals end in '}' of course
+                                        //
+                                        if (input.LA(-1) != RBRACE)
+                                        {
+                                            log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);
+                                        }
+                                  }
+                            )
 	     					e2=expression
 	     						{
 	     							seqexp.append($e2.value);
