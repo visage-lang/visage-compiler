@@ -94,7 +94,6 @@ String methods:
 Square methods:
 MyRect.methods: 
   function MyRect.corners():java.awt.geom.Point2D[]
-  function MyRect.main(JavaArray<java.lang.String>):Void
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect variables: 
   var MyRect.crners:java.awt.geom.Point2D[]
@@ -114,7 +113,6 @@ Simple attributes (only):
   func : function(java.lang.String):function():Void
 MyRect methods:
   function MyRect.corners():java.awt.geom.Point2D[]
-  function MyRect.main(JavaArray<java.lang.String>):Void
   function MyRect.transformed(java.awt.geom.AffineTransform):MyShape
 MyRect.times1(Number): function MyRect.times1(Float):Float
 call times1(2.5): FloatValue(45.0)
