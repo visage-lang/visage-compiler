@@ -21,7 +21,6 @@ var k: KeyFrame = KeyFrame {};
 //System.out.println("Default KeyFrame.action = {k.action}");
 //System.out.println("Default KeyFrame.canSkip = {k.canSkip}");
 //System.out.println("Default KeyFrame.time = {k.time}");
-//System.out.println("Default KeyFrame.timelines = " + k.timelines);
 //System.out.println("Default KeyFrame.values = " + k.values);
 
 
@@ -35,10 +34,6 @@ if(k.canSkip != false) {
 
 if(k.time != 0s) {
 	throw new AssertionError("test failed: time should be '0s'");
-}
-
-if(sizeof k.timelines != 0) {
-	throw new AssertionError("test failed: timelines should have be an empty sequence");
 }
 
 if(sizeof k.values != 0) {
