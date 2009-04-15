@@ -813,10 +813,11 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList(), mixing.toList());
             }
             
-            if (supertype == null)
+            if (supertype == null) {
                 supertype = (c.fullname == names.java_lang_Object)
                 ? Type.noType
-                : syms.objectType;
+                : (syms.USE_SLACKER_LOCATIONS ? syms.javafx_FXBaseType : syms.objectType);
+            }
             ct.supertype_field = supertype;
 
             // Determine interfaces.

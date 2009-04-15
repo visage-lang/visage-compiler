@@ -3642,7 +3642,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     boolean allowDirectAccess(VarSymbol vsym, boolean isSet) {
         boolean isMixinVar = types.isMixin(vsym.owner);
-        if (isMixinVar) return false;
+        if (isMixinVar || syms.USE_SLACKER_LOCATIONS) return false;
         
         boolean inSameClass = getAttrEnv().enclClass.sym == vsym.owner;
         boolean requiresLocation = requiresLocation(vsym);

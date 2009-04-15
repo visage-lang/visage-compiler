@@ -301,7 +301,7 @@ public abstract class JavafxTranslationSupport {
      * Build a Java AST representing the specified type.
      * Convert JavaFX class references to interface references.
      * */
-    protected JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t) {
+    public JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t) {
         return makeTypeTree(diagPos, t, true);
     }
 
@@ -309,7 +309,7 @@ public abstract class JavafxTranslationSupport {
      * Build a Java AST representing the specified type.
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
-    protected JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
+    public JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
         while (t instanceof CapturedType) {
             WildcardType wtype = ((CapturedType) t).wildcard;
             // A kludge for Class.newInstance (and maybe other cases):
@@ -626,9 +626,30 @@ public abstract class JavafxTranslationSupport {
         return functionName(sym, sym.name.toString(), markAsImpl, isBound);
     }
 
-
     Name attributeFieldName(Symbol sym) {
         return prefixedAttributeName(sym, "$");
+    }
+
+    Name attributeOffsetName(Symbol sym) {
+        return prefixedAttributeName(sym, varOffsetString);
+    }
+    
+    Name attributeBitsName(int word) {
+        return names.fromString(varBitsString + word);
+    }
+
+    Name attributeValueName(Symbol sym) {
+        return prefixedAttributeName(sym, varValueString);
+    }
+
+    Name attributeLocationName(Symbol sym) {
+        return prefixedAttributeName(sym, varLocationString);
+    }
+
+    Name attributeGetLocationName(Symbol sym) {
+        // TODO - fix it.
+        // return prefixedAttributeName(sym, attributeGetLocationMethodNamePrefix);
+        return prefixedAttributeName(sym, attributeGetMethodNamePrefix);
     }
 
     Name attributeGetterName(Symbol sym) {
