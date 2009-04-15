@@ -105,10 +105,6 @@ public class FX {
      *     <td><code>JavaFX  release version - javafx specific property</code></td></tr>
      * <tr><td><code>javafx.application.codebase</code></td>
      *     <td><code>Application codebase - javafx specific property</code></td></tr>  
-     * <tr><td><code>javafx.screen.width</code></td>
-     *     <td><code>Screen width (pixels) - javafx specific property</code></td></tr>  
-     * <tr><td><code>javafx.screen.height</code></td>
-     *     <td><code>Screen height (pixels) - javafx specific property</code></td></tr>  
      * <tr><td><code>javafx.java.version</code></td>
      *     <td><code>Java Runtime Environment version</code></td></tr>
      * <tr><td><code>javafx.java.vendor</code></td>
