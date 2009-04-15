@@ -53,6 +53,8 @@ public abstract class FXContext {
             "com.sun.javafx.runtime.FXObject";
     public static final String FXMIXIN_NAME =
             "com.sun.javafx.runtime.FXMixin";
+    public static final String FXBASE_NAME =
+            "com.sun.javafx.runtime.FXBase";
     
     /** Get the {@code FXClassType} for the class with the given name. */
     public abstract FXClassType findClass(String name);

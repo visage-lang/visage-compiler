@@ -40,6 +40,7 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.javac.code.Flags.*;
@@ -77,6 +78,9 @@ class JavafxAnalyzeClass {
     
     // Resulting list of all mixin classes in top down order.
     private ListBuffer<ClassSymbol> allMixins = ListBuffer.lb();
+    
+    // Number of vars in the current class (includes mixins.)
+    private int varCount;
     
     // Resulting list of relevant attributes.
     private final ListBuffer<VarInfo> attributeInfos = ListBuffer.lb();
@@ -134,6 +138,9 @@ class JavafxAnalyzeClass {
         // Predicate whether the initialize is overshadowed by a subclass.
         private boolean initOverridden;
         
+        // The class local enumeration value for this var.
+        private int enumeration;
+        
         
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
@@ -143,6 +150,7 @@ class JavafxAnalyzeClass {
             this.vmi = vmi;
             this.initStmt = initStmt;
             this.initOverridden = false;
+            this.enumeration = -1;
         }
 
         // Return the var symbol.
@@ -193,6 +201,11 @@ class JavafxAnalyzeClass {
         // Predicate whether the var came from the current javafx class. 
         public boolean isDirectOwner() { return false; }
         
+        // Predicate to test for sequence.
+        public boolean isSequence() {
+            return vmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE;
+        }
+        
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
         
@@ -201,6 +214,10 @@ class JavafxAnalyzeClass {
         
         // Predicate for testing if the initialization code is supplied by another var.
         public boolean isInitOverridden() { return initOverridden; }
+        
+        // Class local enumeration accessors.
+        public int  getEnumeration()                { return enumeration; }
+        public void setEnumeration(int enumeration) { this.enumeration = enumeration; }
         
         // Return null or javafx code for the var's 'on replace'.
         public JFXOnReplace onReplace() { return null; }
@@ -228,6 +245,7 @@ class JavafxAnalyzeClass {
             System.out.println("    " + getSymbol() +
                                ", owner=" + getSymbol().owner +
                                ", static=" + isStatic() +
+                               ", enum=" + getEnumeration() +
                                ", isPrivateAccess=" + isPrivateAccess() +
                                ", needsCloning=" + needsCloning() + 
                                ", isDef=" + isDef() +
@@ -361,10 +379,20 @@ class JavafxAnalyzeClass {
         this.currentClassSym = currentClassSym;
         this.translatedAttrInfo = translatedAttrInfo;
         this.translatedOverrideAttrInfo = translatedOverrideAttrInfo;
+        this.varCount = 0;
         
         // Start by analyzing the current class.
         analyzeCurrentClass();
         
+        // Assign var enumeration.
+        for (VarInfo ai : attributeInfos) {
+            // Only variables actually declared.
+            if (ai.needsDeclaration()) {
+                // Assign the vars enumeration.
+                ai.setEnumeration(varCount++);
+            }
+        }
+         
         // Useful debugging tool.
         // printAnalysis(false);
     }
@@ -383,6 +411,23 @@ class JavafxAnalyzeClass {
     // Returns the current class symbol.
     //
     public ClassSymbol getCurrentClassSymbol() { return currentClassSym; }
+
+    //
+    // Returns the var count for the current class.
+    //
+    public int getVarCount() { return varCount; }
+    
+    //
+    // Returns the translatedAttrInfo for the current class.
+    //
+    public List<TranslatedVarInfo> getTranslatedAttrInfo() { return translatedAttrInfo; }
+
+    //
+    // Returns the translatedOverrideAttrInfo for the current class.
+    //
+    public List<TranslatedOverrideClassVarInfo> getTranslatedOverrideAttrInfo() {
+        return translatedOverrideAttrInfo;
+    }
 
     //
     // Returns the resulting list of instance attribute vars.
