@@ -81,7 +81,7 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         this.toJava = toJava==null? (JavafxToJava)this : toJava;  //TODO: temp hack
     }
 
-    private static final Pattern EXTENDED_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT][guwxGUVWXE]");
+    private static final Pattern DATETIME_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT]");
 
     enum ArgKind { BOUND, DEPENDENT, FREE };
 
@@ -254,14 +254,14 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
             JFXLiteral lit = (JFXLiteral) (parts.head);            // "...{
             sb.append((String) lit.value);
             parts = parts.tail;
-            boolean containsExtendedFormat = false;
+            boolean containsDateTimeFormat = false;
 
             while (parts.nonEmpty()) {
                 lit = (JFXLiteral) (parts.head);                  // optional format (or null)
                 String format = (String) lit.value;
-                if ((!containsExtendedFormat) && format.length() > 0
-                    && EXTENDED_FORMAT_PATTERN.matcher(format).find()) {
-                    containsExtendedFormat = true;
+                if ((!containsDateTimeFormat) && format.length() > 0
+                    && DATETIME_FORMAT_PATTERN.matcher(format).find()) {
+                    containsDateTimeFormat = true;
                 }
                 parts = parts.tail;
                 JFXExpression exp = parts.head;
@@ -298,7 +298,7 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
                 String resourceName =
                         toJava.getAttrEnv().enclClass.sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
                 values.prepend(m().Literal(TypeTags.CLASS, resourceName));
-            } else if (containsExtendedFormat) {
+            } else if (containsDateTimeFormat) {
                 formatMethod = "com.sun.javafx.runtime.util.FXFormatter.sprintf";
             } else {
                 formatMethod = "java.lang.String.format";
