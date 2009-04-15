@@ -34,9 +34,13 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
@@ -71,6 +75,8 @@ import java.util.regex.Pattern;
 import sun.misc.FpUtils;
 import sun.misc.DoubleConsts;
 import sun.misc.FormattedFloatingDecimal;
+
+import com.sun.javafx.runtime.location.LongVariable;
 
 /**
  * An interpreter for printf-style format strings.  This class provides support
@@ -2908,6 +2914,7 @@ public final class FXFormatter implements Closeable, Flushable {
                 failConversion(c, arg);
         }
 
+        @SuppressWarnings("unchecked")
         private void printDateTime(Object arg, Locale l) throws IOException {
             if (arg == null) {
                 print("null");
@@ -2930,18 +2937,60 @@ public final class FXFormatter implements Closeable, Flushable {
                 cal.setTimeInMillis((Long)arg);
             } else if (arg instanceof Date) {
                 // Note that the following method uses an instance of the
-                // default time zone (TimeZone.getDefaultRef().
+                // default time zone (TimeZone.getDefault()).
                 cal = Calendar.getInstance(l == null ? Locale.US : l);
                 cal.setTime((Date)arg);
             } else if (arg instanceof Calendar) {
                 cal = (Calendar) ((Calendar)arg).clone();
                 cal.setLenient(true);
             } else {
-                failConversion(c, arg);
+                try {
+                    // As of build time, javafx.date.DateTime isn't available.
+                    Class clazz = Class.forName("javafx.date.DateTime");
+                    Class argClass = arg.getClass();
+                    if (argClass.isAssignableFrom(clazz)) {
+                        try {
+                            Field instantField = getField(argClass, "$instant");
+                            LongVariable instant = (LongVariable) instantField.get(arg);
+                            long time = instant.getAsLong();
+                            Field tzField = getField(argClass, "$javafx$date$DateTime$tz");
+                            TimeZone tz = (TimeZone) tzField.get(arg);
+                            if (tz == null) {
+                                tz = TimeZone.getTimeZone("GMT");
+                            }
+                            GregorianCalendar gcal
+                                = new GregorianCalendar(tz, l == null ? Locale.US : l);
+                            gcal.setGregorianChange(new Date(Long.MIN_VALUE));
+                            gcal.setTimeInMillis(time);
+                            cal = gcal;
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        failConversion(c, arg);
+                    }
+                } catch (ClassNotFoundException cnfe) {
+                    failConversion(c, arg);
+                }
             }
             // Use the provided locale so that invocations of
             // localizedMagnitude() use optimizations for null.
             print(cal, c, l);
+        }
+
+        private Field getField(final Class klass, final String name) {
+            try {
+                Field field = AccessController.doPrivileged(
+                    new PrivilegedExceptionAction<Field>() {
+                        public Field run() throws NoSuchFieldException {
+                            Field f = klass.getDeclaredField(name);
+                            return f;
+                        }
+                    });
+                return field;
+            } catch (PrivilegedActionException pe) {
+                throw new RuntimeException(pe.getException());
+            }
         }
 
         private void printLocalDateTime(Object arg, Locale l) throws IOException {
