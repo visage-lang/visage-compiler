@@ -66,19 +66,6 @@ public class KeyFrame extends Comparable {
     public var values: KeyValue[];
 
     /**
-     * A list of sub-timelines that will be started when the time cursor passes
-     * the specified time of this {@code KeyFrame}.
-     * <p>
-     * Sub timelines inside another sub timeline is not supported, a 
-     * <code>java.lang.UnsupportedOperationException</code> will be thrown
-     * as the result.
-     * 
-     * @profile common
-     * @defaultvalue null
-     */
-    public var timelines: Timeline[];
-
-    /**
      * A function that is called when the elapsed time on a cycle passes
      * the specified time of this {@code KeyFrame}.
      * The {@code action()} function will be called if the elapsed
