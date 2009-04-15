@@ -235,6 +235,8 @@ public class JavafxTypeMorpher {
             final long flags = sym.flags();
             final boolean isClassVar = owner.kind == Kinds.TYP;
             final boolean isAssignedTo = (flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0;
+            final boolean isParameter = (flags & Flags.PARAMETER) != 0;
+            final boolean hasInnerAccess = (flags & VARUSE_INNER_ACCESS) != 0;
 
             if (sym.flatName() == names._super || sym.flatName() == names._this) {
                 // 'this' and 'super' can't be made into Locations
@@ -244,11 +246,13 @@ public class JavafxTypeMorpher {
                 assert sym.name == defs.lengthName && owner == syms.arrayClass : "should be handled by ClassReader";
                 return false;
             }
-            if (isAssignedTo && !isClassVar && (flags & VARUSE_INNER_ACCESS) != 0) {
-                // Local variables must be Locations if they are accessed within an inner class and have been assigned to
+            if (!isParameter && !isClassVar && hasInnerAccess) {
+                // Local variables must be Locations if they are accessed within an inner class
+                // Because of proper sequencing, this is true even if the var isn't assigned to
+                //TODO: optimize the cases where the initializer does not depend on other local vars
                 return true;
             }
-            if ((flags & Flags.PARAMETER) != 0) {
+            if (isParameter) {
                 // Otherwise parameters are Locations only if in bound contexts, for-loops induction vars, bound function params
                 return (flags & VARUSE_BOUND_INIT) != 0;
             }
@@ -299,11 +303,11 @@ public class JavafxTypeMorpher {
                     return false;
                 }
 
-                // (3b) check.  No assignments (except in init{}) and
+                // (3b) check.  No assignments ((no longer) except in init{}) and
                 // permissions such that this can't be done externally, or it is a 'def'.
                 //JFXC-2026 : Elide unassigned and externally unassignable member vars
                 //JFXC-2103 -- allow public-init
-                if ((flags & VARUSE_ASSIGNED_TO) == 0L &&
+                if (!isAssignedTo &&
                         ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) == 0L ||
                         (flags & IS_DEF) != 0L)) {
                     return false;

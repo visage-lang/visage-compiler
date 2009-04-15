@@ -24,8 +24,7 @@
 package com.sun.javafx.runtime;
 
 /**
- * All FX Mixins must extend FXMixin; it acts as a marker interface, and also includes methods required for
- * object lifecyle.
+ * All FX Mixins must extend FXMixin; it acts as a marker interface.
  *
  * @author Jim Laskey
  */

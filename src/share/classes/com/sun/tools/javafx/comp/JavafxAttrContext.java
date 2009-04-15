@@ -63,27 +63,34 @@ public class JavafxAttrContext {
     /** A record of the lint/SuppressWarnings currently in effect
      */
     public Lint lint;
+
+    /** The variable whose initializer is being attributed
+     * useful for detecting self-references in variable initializers
+     */
+    Symbol enclVar = null;
+
     
     public boolean inSelect = false;
 
     /** Duplicate this context, replacing scope field and copying all others.
      */
     JavafxAttrContext dup(Scope scope) {
-	JavafxAttrContext info = new JavafxAttrContext();
-	info.scope = scope;
-	info.staticLevel = staticLevel;
-	info.isSelfCall = isSelfCall;
-	info.selectSuper = selectSuper;
-	info.varArgs = varArgs;
-	info.tvars = tvars;
-	info.lint = lint;
-	return info;
+        JavafxAttrContext info = new JavafxAttrContext();
+        info.scope = scope;
+        info.staticLevel = staticLevel;
+        info.isSelfCall = isSelfCall;
+        info.selectSuper = selectSuper;
+        info.varArgs = varArgs;
+        info.tvars = tvars;
+        info.lint = lint;
+        info.enclVar = enclVar;
+        return info;
     }
 
     /** Duplicate this context, copying all fields.
      */
     JavafxAttrContext dup() {
-	return dup(scope);
+        return dup(scope);
     }
     
     public Iterable<Symbol> getLocalElements() {

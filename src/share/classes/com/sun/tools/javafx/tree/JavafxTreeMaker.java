@@ -884,7 +884,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     public JFXTimeLiteral TimeLiteral(String str) {
         int i = 0;
         char[] buf = str.toCharArray();
-        while (i < buf.length && (Character.isDigit(buf[i]) || buf[i] == '.'))
+        while (i < buf.length && (Character.isDigit(buf[i]) || buf[i] == '.' || buf[i] == 'e' || buf[i] == 'E'))
             i++;
         
         assert i > 0;               // lexer should only pass valid time strings

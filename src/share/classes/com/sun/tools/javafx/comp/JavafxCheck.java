@@ -80,6 +80,7 @@ public class JavafxCheck {
     private final Target target;
     private final Source source;
     private final JavafxTypes types;
+    private final JavafxAttr attr;
     private final JavafxTreeInfo treeinfo;
     private final JavafxResolve rs;
 
@@ -119,7 +120,8 @@ public class JavafxCheck {
         messages = Messages.instance(context);
         syms = (JavafxSymtab) Symtab.instance(context);
         infer = Infer.instance(context);
-        this.types = JavafxTypes.instance(context);
+        types = JavafxTypes.instance(context);
+        attr = JavafxAttr.instance(context);
         Options options = Options.instance(context);
         target = Target.instance(context);
             source = Source.instance(context);
@@ -263,7 +265,7 @@ public class JavafxCheck {
      */
     void duplicateError(DiagnosticPosition pos, Symbol sym) {
 	if (sym.type == null || !sym.type.isErroneous()) {
-	    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED, sym, sym.location());
+	    log.error(pos, MsgSym.MESSAGE_ALREADY_DEFINED, sym, types.location(sym));
 	}
     }
 
@@ -683,6 +685,42 @@ public class JavafxCheck {
                     JFXSelect select = (JFXSelect) init;
                     initSym = select.sym;
                     base = select.getExpression();
+
+                    // We don't re-evaluate the select target 
+                    // in bidirectional binds. So, we issue warning.
+                    boolean warn = true;
+
+                    // Do not warn for this.foo and super.foo
+                    Name baseName = JavafxTreeInfo.name(base);
+                    if (baseName == names._this || 
+                        baseName == names._super) {
+                        warn = false;
+                    }
+
+                    // Do not warn for static variable select,
+                    // because the target is a class and so that
+                    // can not change. Also, ClassName.foo is used
+                    // to access super class variable - we do not
+                    // warn that case either.
+                    Symbol sym = JavafxTreeInfo.symbolFor(base);
+                    if (warn && sym instanceof JavafxClassSymbol) {
+                        warn = false;
+                    }
+
+                    // If the target of member select is a "def" 
+                    // variable and not initialized with bind, then
+                    // we know the target can not change.
+                    if (warn && base instanceof JFXIdent) {
+                        long flags = sym.flags();
+                        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0L;
+                        boolean isBindInit = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0L;
+                        boolean targetFinal = isDef && !isBindInit;
+                        warn = !targetFinal;
+                    }
+
+                    if (warn) {
+                        log.warning(base.pos(), MsgSym.MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND);
+                    }
                     site = select.type;
                     break;
                 }
@@ -721,6 +759,38 @@ public class JavafxCheck {
                         t);
         else
             return t;
+    }
+
+    /**
+     * Check that a method call of the kind t.memberName() is legal.
+     * t must be a direct supertype of the enclosing class type csym.
+     *
+     * @param pos the position in which the error should be reported
+     * @param csym the enclosing class
+     * @param t the qualifier type
+     */
+    public void checkSuper(DiagnosticPosition pos, JavafxClassSymbol csym, Type t) {
+        if (types.isSameType(csym.type, t))
+            return;
+
+        boolean isOk = false;
+        List<Type> supertypes = csym.getSuperTypes();
+        if (supertypes.isEmpty()) {
+            isOk = types.isSameType(syms.objectType, t);
+        }
+        else {
+            while(supertypes.nonEmpty() && !isOk) {
+                if (types.isSameType(t, supertypes.head))
+                    isOk = true;
+                supertypes = supertypes.tail;
+            }
+        }
+
+        if (!isOk) {
+            log.error(pos, MsgSym.MESSAGE_JAVAFX_INVALID_SELECT_FOR_SUPER,
+                    types.toJavaFXString(t),
+                    types.toJavaFXString(csym.type));
+        }
     }
 
     /** Check that type is a class or interface type.
@@ -1991,6 +2061,17 @@ public class JavafxCheck {
      *	@param sym	     The symbol.
      *	@param s	     The scope.
      */
+    boolean checkUnique(DiagnosticPosition pos, Symbol sym, JavafxEnv<JavafxAttrContext> env) {
+        boolean shouldContinue = true;
+        do {
+            shouldContinue = !attr.isClassOrFuncDef(env);
+            if (!checkUnique(pos, sym, JavafxEnter.enterScope(env)))
+                return false;
+            env = env.outer;
+        } while (env != null && shouldContinue);
+        return true;
+    }
+    
     boolean checkUnique(DiagnosticPosition pos, Symbol sym, Scope s) {
         if (sym.type != null && sym.type.isErroneous()) {
             return true;

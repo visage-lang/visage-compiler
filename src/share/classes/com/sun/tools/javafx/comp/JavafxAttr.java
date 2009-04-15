@@ -624,8 +624,9 @@ public class JavafxAttr implements JavafxVisitor {
         // Determine the symbol represented by the selection.
         env.info.varArgs = false;
         if (sitesym instanceof ClassSymbol &&
-                env.enclClass.sym.isSubClass(sitesym, types))
-            env.info.selectSuper = true;
+                (types.isSameType(sitesym.type, syms.objectType) ||
+                env.enclClass.sym.isSubClass(sitesym, types)))
+                    env.info.selectSuper = true;
         Symbol sym = selectSym(tree, site, env, pt, pkind);
         sym.complete();
         if (sym.exists() && !isType(sym) && (pkind & (PCK | TYP)) != 0) {
@@ -679,6 +680,14 @@ public class JavafxAttr implements JavafxVisitor {
                                 tree.pos(), site, sym.name, true);
                         break;
                     }
+
+                    if (env1.tree instanceof JFXFunctionDefinition &&
+                       ((JFXFunctionDefinition)env1.tree).sym.isStatic()) {
+                        rs.access(rs.new StaticError(sym),
+                                tree.pos(), site, sym.name, true);
+                        break;
+                    }
+                    
                     if (env1.tree instanceof JFXClassDeclaration &&
                             types.isSubtype(((JFXClassDeclaration) env1.tree).sym.type, site)) {
                         break;
@@ -693,6 +702,11 @@ public class JavafxAttr implements JavafxVisitor {
 
             // Check that super-qualified symbols are not abstract (JLS)
             rs.checkNonAbstract(tree.pos(), sym);
+
+            if (env.enclClass.sym instanceof JavafxClassSymbol) {
+                // Check that the selectet type is a direct supertype of the enclosing class
+                chk.checkSuper(tree.pos(), (JavafxClassSymbol)env.enclClass.sym, site);
+            }
 
             if (site.isRaw()) {
                 // Determine argument types for site.
@@ -903,9 +917,12 @@ public class JavafxAttr implements JavafxVisitor {
                 // In order to catch self-references, we set the variable's
                 // declaration position to maximal possible value, effectively
                 // marking the variable as undefined.
-                v.pos = Position.MAXPOS;
+                initEnv.info.enclVar = v;
                 boolean wasInBindContext = this.inBindContext;
                 this.inBindContext |= tree.isBound();
+                if (this.inBindContext) {
+                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+                }
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
                 initType = chk.checkNonVoid(tree.pos(), initType);                
@@ -930,7 +947,6 @@ public class JavafxAttr implements JavafxVisitor {
         finally {
             chk.setLint(prevLint);
             log.useSource(prev);
-            v.pos = tree.pos;
         }
     }
 
@@ -1035,6 +1051,9 @@ public class JavafxAttr implements JavafxVisitor {
 
         boolean wasInBindContext = this.inBindContext;
         this.inBindContext |= tree.isBound();
+        if (this.inBindContext) {
+            v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+        }
         try {
             JFXExpression init = tree.getInitializer();
             if (init != null) {
@@ -1813,6 +1832,10 @@ public class JavafxAttr implements JavafxVisitor {
             } else {
                 JFXBlock body = opVal.getBodyExpression();
                 if (body.value instanceof JFXReturn) {
+                    if (returnType == syms.voidType) {
+                        log.error(body.value.pos(),
+                                MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
+                    }
                     body.value = ((JFXReturn) body.value).expr;
                 }
                 // Attribute method bodyExpression
@@ -2128,7 +2151,7 @@ public class JavafxAttr implements JavafxVisitor {
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE);
             else if (tree.returnType.tag == VOID) {
                 if (tree.expr != null) {
-                    log.error(tree.expr.pos(),
+                    log.error(tree.pos(),
                         MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
                 }
             } else if (tree.expr == null) {
@@ -3383,15 +3406,15 @@ public class JavafxAttr implements JavafxVisitor {
         private void checkForward(JFXTree tree,
                                JavafxEnv<JavafxAttrContext> env,
                                VarSymbol v
-                               ) {            
+                               ) {
             // A forward reference is diagnosed if the declaration position
             // of the variable is greater than the current tree position
             // and the tree and variable definition share the same enclosing 
             // scope. A forward reference to a def variable whose initializer is
             // an object literal is always allowed. Selection on such variables
             // is only allowed when it occurs within bound/function/class context.
-            if (v.pos > tree.pos && (env.info.inSelect ?                
-                true : !isObjLiteralDef(v)) &&
+            if ((v.pos > tree.pos || env.info.enclVar == v) &&
+                (env.info.inSelect ? true : !isObjLiteralDef(v)) &&
                 inSameEnclosingScope(v, env))
                 log.warning(tree.pos(), MsgSym.MESSAGE_ILLEGAL_FORWARD_REF, Resolve.kindName(v.kind), v);
         }
@@ -3411,7 +3434,7 @@ public class JavafxAttr implements JavafxVisitor {
             return false;
         }
         //where
-        private boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
+        public boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
             return isFunctionDef(env) ||
                    env.tree.getFXTag() == JavafxTag.FUNCTIONEXPRESSION ||                   
                    env.tree.getFXTag() == JavafxTag.CLASS_DEF ||

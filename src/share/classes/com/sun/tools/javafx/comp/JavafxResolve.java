@@ -61,6 +61,7 @@ public class JavafxResolve {
     JavafxCheck chk;
     Infer infer;
     JavafxClassReader reader;
+    JCDiagnostic.Factory diags;
     JavafxAttr attr;
     JavafxTreeInfo treeinfo;
     JavafxTypes types;
@@ -100,6 +101,7 @@ public class JavafxResolve {
         Source source = Source.instance(context);
         boxingEnabled = source.allowBoxing();
         varargsEnabled = source.allowVarargs();
+        diags = JCDiagnostic.Factory.instance(context);
         Options options = Options.instance(context);
         debugResolve = options.get("debugresolve") != null;
         attr = JavafxAttr.instance(context);
@@ -535,7 +537,7 @@ public class JavafxResolve {
      *  @param name    The name of the variable or field.
      */
     Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
-        Symbol bestSoFar = varNotFound;
+        Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : varNotFound;
         Symbol sym;
         JavafxEnv<JavafxAttrContext> env1 = env;
         boolean staticOnly = false;
@@ -595,7 +597,9 @@ public class JavafxResolve {
                         if (checkArgs) {
                             return checkArgs(e.sym, mtype);
                         }
-                        return e.sym;
+                        return !e.sym.isStatic() && staticOnly ?
+                            new StaticError(e.sym) :
+                            e.sym;
                     }
                 }
             }
@@ -1218,7 +1222,7 @@ public class JavafxResolve {
      *                   (a subset of VAL, TYP, PCK).
      */
     Symbol findIdent(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
-        Symbol bestSoFar = typeNotFound;
+        Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : typeNotFound;
         Symbol sym;
         if ((kind & (VAR|MTH)) != 0) {
             sym = findVar(env, name, kind, expected);
@@ -1758,19 +1762,19 @@ public class JavafxResolve {
     /** A localized string describing a given kind.
      */
     public // Javafx change
-    static JCDiagnostic kindName(int kind) {
+    JCDiagnostic kindName(int kind) {
         switch (kind) {
         case PCK: return JCDiagnostic.fragment(MsgSym.KINDNAME_PACKAGE);
         case TYP: return JCDiagnostic.fragment(MsgSym.KINDNAME_CLASS);
         case VAR: return JCDiagnostic.fragment(MsgSym.KINDNAME_VARIABLE);
         case VAL: return JCDiagnostic.fragment(MsgSym.KINDNAME_VALUE);
-        case MTH: return JCDiagnostic.fragment(MsgSym.KINDNAME_METHOD);
+        case MTH: return diags.fragment(MsgSym.MESSAGE_JAVAFX_KINDNAME_FUNCTION);
         default : return JCDiagnostic.fragment(MsgSym.KINDNAME,
                                                Integer.toString(kind)); //debug
         }
     }
 
-    static JCDiagnostic kindName(Symbol sym) {
+    JCDiagnostic kindName(Symbol sym) {
         switch (sym.getKind()) {
         case PACKAGE:
             return JCDiagnostic.fragment(MsgSym.KINDNAME_PACKAGE);
@@ -1795,7 +1799,7 @@ public class JavafxResolve {
         case CONSTRUCTOR:
         case STATIC_INIT:
         case INSTANCE_INIT:
-            return JCDiagnostic.fragment(MsgSym.KINDNAME_METHOD);
+            return diags.fragment(MsgSym.MESSAGE_JAVAFX_KINDNAME_FUNCTION);
 
         default:
             if (sym.kind == VAL)
@@ -1841,12 +1845,12 @@ public class JavafxResolve {
     /** A localized string describing the kind of a missing symbol, given an
      *  error kind.
      */
-    static JCDiagnostic absentKindName(int kind) {
+    JCDiagnostic absentKindName(int kind) {
         switch (kind) {
         case ABSENT_VAR:
             return JCDiagnostic.fragment(MsgSym.KINDNAME_VARIABLE);
         case WRONG_MTHS: case WRONG_MTH: case ABSENT_MTH:
-            return JCDiagnostic.fragment(MsgSym.KINDNAME_METHOD);
+            return diags.fragment(MsgSym.MESSAGE_JAVAFX_KINDNAME_FUNCTION);
         case ABSENT_TYP:
             return JCDiagnostic.fragment(MsgSym.KINDNAME_CLASS);
         default:

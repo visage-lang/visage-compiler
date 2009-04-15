@@ -2,7 +2,7 @@
  *
  * @subtest
 **/
-public class FxComparator{
+public abstract class FxComparator{
 	public var comparatorCalled:String = "FxComparator";
 	public abstract function compare(one,another):Integer;
 }

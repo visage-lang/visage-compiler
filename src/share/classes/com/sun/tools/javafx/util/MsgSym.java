@@ -295,13 +295,13 @@ public class MsgSym {
     public static final String KINDNAME_CLASS = "kindname.class";
     public static final String KINDNAME_VARIABLE = "kindname.variable";
     public static final String KINDNAME_VALUE = "kindname.value";
-    public static final String KINDNAME_METHOD = "kindname.method";
     public static final String KINDNAME_TYPE_VARIABLE = "kindname.type.variable";
     public static final String KINDNAME_TYPE_VARIABLE_BOUND = "kindname.type.variable.bound";
     public static final String KINDNAME_ANNOTATION = "kindname.annotation";
     public static final String KINDNAME_INTERFACE = "kindname.interface";
     public static final String KINDNAME_CONSTRUCTOR = "kindname.constructor";
     public static final String KINDNAME_STATIC = "kindname.static";
+    public static final String MESSAGE_JAVAFX_KINDNAME_FUNCTION = "kindname.function";
 
     
     // jfx-compiler messages
@@ -327,11 +327,13 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed"; 
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
     public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
-    public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
+    public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";    
+    public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND = "javafx.select.target.not.reevaluated.for.bidi.bind";
     public static final String MESSAGE_JAVAFX_BOUND_OVERRIDE_METH = "javafx.bound.override.meth"; 
     public static final String MESSAGE_JAVAFX_NON_BOUND_OVERRIDE_METH = "javafx.non.bound.override.meth"; 
     public static final String MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR = "javafx.base.java.class.non.papar.ctor"; 
-    public static final String MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER = "javafx.ambiguous.param.type.from.super"; 
+    public static final String MESSAGE_JAVAFX_AMBIGUOUS_PARAM_TYPE_FROM_SUPER = "javafx.ambiguous.param.type.from.super";
+    public static final String MESSAGE_JAVAFX_INVALID_SELECT_FOR_SUPER = "javafx.invalid.select.for.super";
     public static final String MESSAGE_JAVAFX_AMBIGUOUS_RETURN_TYPE_FROM_SUPER = "javafx.ambiguous.return.type.from.super";
     public static final String MESSAGE_JAVAFX_ITERATING_NON_SEQUENCE = "javafx.iterating.non.sequence";
     public static final String MESSAGE_JAVAFX_NOT_A_FUNC = "javafx.not.a.function";

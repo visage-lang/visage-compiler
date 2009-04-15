@@ -43,9 +43,11 @@ public class JavafxDefs {
      */
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
+    public static final String attributeGetLocationMethodNamePrefix = "location$";
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
+    public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
     public static final String needsDefaultSuffix = "$needs_default$";
     public static final String mixinSuffix = "$Mixin";
     public static final String deprecatedInterfaceSuffix = "$Intf";
@@ -56,6 +58,7 @@ public class JavafxDefs {
     
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String fxMixinString = "com.sun.javafx.runtime.FXMixin";
+    public static final String fxBaseString = "com.sun.javafx.runtime.FXBase";
     public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfo";
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
@@ -81,6 +84,13 @@ public class JavafxDefs {
     public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
     
+    public static final String varOffsetString = "$VAR_OFFSET_";
+    public static final String varBaseString = "$VAR_BASE";
+    public static final String varCountString = "$VAR_COUNT";
+    public static final String varBitsString = "$VAR_BITS_";
+    public static final String varValueString = "value$";
+    public static final String varLocationString = "location$";
+    
     public  static final String javaLangPackageNameString = "java.lang";
     public  static final String runtimePackageNameString = "com.sun.javafx.runtime";
     public  static final String annotationPackageNameString = "com.sun.javafx.runtime.annotation";
@@ -89,10 +99,11 @@ public class JavafxDefs {
     public  static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
 
     private static final String cLocations = locationPackageNameString + ".Locations";
+    public  static final String cChangeListener = locationPackageNameString + ".ChangeListener";
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
+    public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
     private static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
-            static final String cOperator = cBoundOperators + ".Operator";
 
     static final String[] milieuNames = { "", "FromLiteral" };
     public static String getMilieuName(int index) { return milieuNames[index]; }
@@ -131,17 +142,6 @@ public class JavafxDefs {
     final RuntimeMethod BoundOperators_makeBoundSequenceSelect;
     final RuntimeMethod BoundOperators_makeBoundSelect;
     final RuntimeMethod BoundOperators_makeBoundIf;
-    final RuntimeMethod BoundOperators_op_boolean;
-    final RuntimeMethod BoundOperators_op_double;
-    final RuntimeMethod BoundOperators_op_float;
-    final RuntimeMethod BoundOperators_op_long;
-    final RuntimeMethod BoundOperators_op_int;
-    final RuntimeMethod BoundOperators_cmp_double;
-    final RuntimeMethod BoundOperators_cmp_float;
-    final RuntimeMethod BoundOperators_cmp_long;
-    final RuntimeMethod BoundOperators_cmp_int;
-    final RuntimeMethod BoundOperators_cmp_other;
-    final RuntimeMethod BoundOperators_and_bb;
 
     final RuntimeMethod BoundSequences_convertNumberSequence;
     final RuntimeMethod BoundSequences_element;
@@ -160,8 +160,17 @@ public class JavafxDefs {
      */
     public final Name fxObjectName;
     public final Name fxMixinName;
+    public final Name fxBaseName;
     public final Name mixinSuffixName;
     public final Name deprecatedInterfaceSuffixName;
+    final Name durOpAdd;
+    final Name durOpSub;
+    final Name durOpMul;
+    final Name durOpDiv;
+    final Name durOpLE;
+    final Name durOpLT;
+    final Name durOpGE;
+    final Name durOpGT;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
     final Name mainName;
@@ -182,6 +191,10 @@ public class JavafxDefs {
     final Name makeMethodName;
     final Name makeWithDefaultMethodName;
     final Name makeBijectiveMethodName;
+    final Name onChangeMethodName;
+    final Name addChangeListenerName;
+    final Name addSequenceChangeListenerName;
+    final Name locationInitializeName;
     final Name invokeName;
     final Name lambdaName;
     final Name lengthName;
@@ -191,6 +204,8 @@ public class JavafxDefs {
     final Name bindingIdName;
     final Name getStaticDependentsMethodName;
     final Name computeMethodName;
+    final Name varBaseName;
+    final Name varCountName;
     final Name toTestName;
     final Name toBeCastName;
     final Name idName;
@@ -198,6 +213,7 @@ public class JavafxDefs {
     final Name arg1Name;
     final Name moreArgsName;
     final Name dependentsName;
+    final Name typeParamName;
     final Name initDefName;
     final Name postInitDefName;
     final Name javalangThreadName;
@@ -213,6 +229,7 @@ public class JavafxDefs {
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name applyDefaultsPrefixName;
+    final Name isInitializedPrefixName;
     final Name setDefaultMethodName;
     final Name noteSharedMethodName;
     final Name onReplaceArgNameOld;
@@ -267,8 +284,17 @@ public class JavafxDefs {
         final Name.Table names = Name.Table.instance(context);
         final JavafxSymtab syms = (JavafxSymtab)(JavafxSymtab.instance(context));
 
+        durOpAdd = names.fromString("add");
+        durOpSub = names.fromString("sub");
+        durOpMul = names.fromString("mul");
+        durOpDiv = names.fromString("div");
+        durOpLE = names.fromString("le");
+        durOpLT = names.fromString("lt");
+        durOpGE = names.fromString("ge");
+        durOpGT = names.fromString("gt");
         fxObjectName = names.fromString(fxObjectString);
         fxMixinName = names.fromString(fxMixinString);
+        fxBaseName = names.fromString(fxBaseString);
         mixinSuffixName = names.fromString(mixinSuffix);
         deprecatedInterfaceSuffixName = names.fromString(deprecatedInterfaceSuffix);
         userRunFunctionName = names.fromString("run");
@@ -292,6 +318,10 @@ public class JavafxDefs {
         makeMethodName = names.fromString(makeMethodNameString);
         makeWithDefaultMethodName = names.fromString(makeWithDefaultMethodNameString);
         makeBijectiveMethodName = names.fromString(makeBijectiveMethodNameString);
+        onChangeMethodName = names.fromString("onChange");
+        addChangeListenerName = names.fromString("addChangeListener");
+        addSequenceChangeListenerName = names.fromString("addSequenceChangeListener");
+        locationInitializeName = names.fromString("initialize");
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         lengthName = names.fromString("length");
@@ -301,6 +331,8 @@ public class JavafxDefs {
         bindingIdName = names.fromString(bindingIdString);
         getStaticDependentsMethodName = names.fromString(getStaticDependentsMethodString);
         computeMethodName = names.fromString(computeMethodString);
+        varBaseName = names.fromString(varBaseString);
+        varCountName = names.fromString(varCountString);
         toTestName = names.fromString("toTest");
         toBeCastName = names.fromString("toBeCast");
         idName = names.fromString("id");
@@ -308,6 +340,7 @@ public class JavafxDefs {
         arg1Name = names.fromString("arg$1");
         moreArgsName = names.fromString("moreArgs");
         dependentsName = names.fromString("dependents");
+        typeParamName = names.fromString("T");
         initDefName = names.fromString("$init$def$name");
         postInitDefName = names.fromString("$postinit$def$name");
         timeName = names.fromString("time");
@@ -331,6 +364,7 @@ public class JavafxDefs {
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
+        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);
 		javaLangPackageName = names.fromString(javaLangPackageNameString);
@@ -358,17 +392,6 @@ public class JavafxDefs {
         BoundOperators_makeBoundSequenceSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSequenceSelect");
         BoundOperators_makeBoundSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSelect");
         BoundOperators_makeBoundIf = new RuntimeMethod(names, cBoundOperators, "makeBoundIf");
-        BoundOperators_op_boolean = new RuntimeMethod(names, cBoundOperators, "op_boolean");
-        BoundOperators_op_double = new RuntimeMethod(names, cBoundOperators, "op_double");
-        BoundOperators_op_float = new RuntimeMethod(names, cBoundOperators, "op_float");
-        BoundOperators_op_long = new RuntimeMethod(names, cBoundOperators, "op_long");
-        BoundOperators_op_int = new RuntimeMethod(names, cBoundOperators, "op_int");
-        BoundOperators_cmp_double = new RuntimeMethod(names, cBoundOperators, "cmp_double");
-        BoundOperators_cmp_float = new RuntimeMethod(names, cBoundOperators, "cmp_float");
-        BoundOperators_cmp_long = new RuntimeMethod(names, cBoundOperators, "cmp_long");
-        BoundOperators_cmp_int = new RuntimeMethod(names, cBoundOperators, "cmp_int");
-        BoundOperators_cmp_other = new RuntimeMethod(names, cBoundOperators, "cmp_other");
-        BoundOperators_and_bb = new RuntimeMethod(names, cBoundOperators, "and_bb");
 
         BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
         BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");

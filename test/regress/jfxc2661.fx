@@ -15,7 +15,7 @@ class B extends A {
 }
 
 class C extends B {
-  function moo() { A.foo(); }
+  function moo() { B.foo(); }
 }
 
 var c = new C;

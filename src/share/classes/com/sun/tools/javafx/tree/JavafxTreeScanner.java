@@ -318,10 +318,10 @@ public class JavafxTreeScanner implements JavafxVisitor {
     @Override
     public void visitOnReplace(JFXOnReplace tree) {
         scan(tree.getFirstIndex());
-        scan(tree.getOldValue());
-        scan(tree.getBody());
         scan(tree.getLastIndex());
+        scan(tree.getOldValue());
         scan(tree.getNewElements());
+        scan(tree.getBody());
     }
     
     

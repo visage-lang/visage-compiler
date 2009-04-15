@@ -88,11 +88,6 @@ public abstract class JavafxTranslationSupport {
      */
     private int syntheticNameCounter = 0;
 
-    /*
-     * the result of translating a tree by a visit method
-     */
-    JCTree result;
-
     protected JavafxTranslationSupport(Context context) {
         make = TreeMaker.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
@@ -133,6 +128,57 @@ public abstract class JavafxTranslationSupport {
             }
         }
         return false;
+    }
+
+    boolean hasSideEffects(JFXExpression expr) {
+        class SideEffectScanner extends JavafxTreeScanner {
+
+            boolean hse = false;
+
+            private void markSideEffects() {
+                hse = true;
+            }
+
+            @Override
+            public void visitBlockExpression(JFXBlock tree) {
+                markSideEffects(); // maybe doesn't but covers all statements
+            }
+
+            @Override
+            public void visitUnary(JFXUnary tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitAssign(JFXAssign tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitAssignop(JFXAssignOp tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitInstanciate(JFXInstanciate tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitSelect(JFXSelect tree) {
+                // Doesn't really have side-effects but the dupllicate null checking is aweful
+                //TODO: do this in a cleaner way
+                markSideEffects();
+            }
+        }
+        SideEffectScanner scanner = new SideEffectScanner();
+        scanner.scan(expr);
+        return scanner.hse;
     }
 
     /**
@@ -213,10 +259,15 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, Type type) {
+        return makeParam(diagPos, name, makeTypeTree(diagPos, type));
+
+    }
+
+    protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, JCExpression typeExpression) {
         return make.at(diagPos).VarDef(
-                make.Modifiers(Flags.PARAMETER|Flags.FINAL),
+                make.Modifiers(Flags.PARAMETER | Flags.FINAL),
                 name,
-                makeTypeTree(diagPos, type),
+                typeExpression,
                 null);
 
     }
@@ -301,7 +352,7 @@ public abstract class JavafxTranslationSupport {
      * Build a Java AST representing the specified type.
      * Convert JavaFX class references to interface references.
      * */
-    protected JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t) {
+    public JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t) {
         return makeTypeTree(diagPos, t, true);
     }
 
@@ -309,7 +360,7 @@ public abstract class JavafxTranslationSupport {
      * Build a Java AST representing the specified type.
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
-    protected JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
+    public JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
         while (t instanceof CapturedType) {
             WildcardType wtype = ((CapturedType) t).wildcard;
             // A kludge for Class.newInstance (and maybe other cases):
@@ -626,9 +677,30 @@ public abstract class JavafxTranslationSupport {
         return functionName(sym, sym.name.toString(), markAsImpl, isBound);
     }
 
-
     Name attributeFieldName(Symbol sym) {
         return prefixedAttributeName(sym, "$");
+    }
+
+    Name attributeOffsetName(Symbol sym) {
+        return prefixedAttributeName(sym, varOffsetString);
+    }
+    
+    Name attributeBitsName(int word) {
+        return names.fromString(varBitsString + word);
+    }
+
+    Name attributeValueName(Symbol sym) {
+        return prefixedAttributeName(sym, varValueString);
+    }
+
+    Name attributeLocationName(Symbol sym) {
+        return prefixedAttributeName(sym, varLocationString);
+    }
+
+    Name attributeGetLocationName(Symbol sym) {
+        // TODO - fix it.
+        // return prefixedAttributeName(sym, attributeGetLocationMethodNamePrefix);
+        return prefixedAttributeName(sym, attributeGetMethodNamePrefix);
     }
 
     Name attributeGetterName(Symbol sym) {

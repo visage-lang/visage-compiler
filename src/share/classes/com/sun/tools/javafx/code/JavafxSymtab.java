@@ -40,6 +40,9 @@ import com.sun.tools.javafx.comp.JavafxDefs;
  */
 public class JavafxSymtab extends Symtab {
 
+    // TEMPORARY FLAG FOR SLACKER LOCATIONS
+    public static final boolean USE_SLACKER_LOCATIONS = false;
+
     private static final String anno = JavafxDefs.annotationPackageNameString;
     public static final String privateAnnotationClassNameString = anno + ".Private";
     public static final String protectedAnnotationClassNameString = anno + ".Protected";
@@ -79,6 +82,8 @@ public class JavafxSymtab extends Symtab {
     static public final int MAX_FIXED_PARAM_LENGTH = 8;
     public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     public final Type javafx_FXObjectType;
+    public final Type javafx_FXMixinType;
+    public final Type javafx_FXBaseType;
     public final Type javafx_SequencesType;
     public final Type javafx_KeyValueType;
     public final Type javafx_KeyFrameType;
@@ -179,7 +184,7 @@ public class JavafxSymtab extends Symtab {
         unreachableType = new Type(TypeTags.VOID, null);
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;
-        javafx_SequenceType = enterClass(JavafxDefs.sequencePackageNameString + ".Sequence");
+        javafx_SequenceType = enterClass(JavafxDefs.cSequence);
         javafx_SequencesType = enterClass(JavafxDefs.cSequences);
         javafx_EmptySequenceType = fxtypes.sequenceType(botType);
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
@@ -218,7 +223,10 @@ public class JavafxSymtab extends Symtab {
 
         runMethodName = names.fromString(JavafxDefs.internalRunFunctionNameString);
 
-        javafx_FXObjectType = enterClass("com.sun.javafx.runtime.FXObject");
+        javafx_FXObjectType = enterClass(JavafxDefs.fxObjectString);
+        javafx_FXMixinType = enterClass(JavafxDefs.fxMixinString);
+        javafx_FXBaseType = enterClass(JavafxDefs.fxBaseString);
+        
         enterOperators();
     }
 

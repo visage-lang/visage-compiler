@@ -23,9 +23,22 @@
 
 package javafx.fxunit;
 import java.lang.Object;
+import java.lang.NullPointerException;
 import junit.framework.TestCase;
+import com.sun.javafx.runtime.SystemProperties;
 
 public class FXTestCase extends TestCase {
+
+    init {
+       try {
+           var codebase = getClass().getProtectionDomain().getCodeSource().getLocation().toString();
+           codebase = codebase.substring(0, codebase.lastIndexOf('/')+1);
+           SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
+	} catch (ignored : NullPointerException) {
+	   // just in case the code source is null
+	}
+    }
+
     function assertEquals(a : Object[], b : Object[]) {
         assertEquals(sizeof a, sizeof b);
         for (i in [0..sizeof a -1]) {
