@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.lang.model.type.TypeKind;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
@@ -89,6 +88,11 @@ import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Locationness.*
 public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVisitor {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
         new Context.Key<JavafxToJava>();
+
+    /*
+     * the result of translating a tree by a visit method
+     */
+    JCTree result;
 
     /*
      * modules imported by context
@@ -757,8 +761,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         private void renamingVar(ListBuffer<JCStatement> renamings, Name name, Name vname, Type type, boolean isLocation) {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
             Type varType = isLocation ? tmi.getLocationType() : type;
-            FieldInfo rcvrField = new FieldInfo(name.toString(), typeMorpher.typeMorphInfo(varType), false);
-            addRenamingVar(renamings, vname, varType, buildArgField(m().Ident(name), rcvrField, ArgKind.FREE));
+            FieldInfo rcvrField = new FieldInfo(name.toString(), typeMorpher.typeMorphInfo(varType), false, ArgKind.FREE);
+            addRenamingVar(renamings, vname, varType, buildArgField(m().Ident(name), rcvrField));
         }
 
         private void renameParam(ListBuffer<JCStatement> renamings, Type type, JFXVar var, Name nameDefault) {
@@ -871,7 +875,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
 
     boolean hasScriptTriggers() {
-        return triggers.isEmpty();
+        return triggers.nonEmpty();
     }
 
     List<JCTree> scriptCompleteTriggers(DiagnosticPosition diagPos) {
@@ -1033,7 +1037,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
      * @return
      */
     List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
-        if (toBound.hasScriptBinding() && hasScriptTriggers()) {
+        if (!toBound.hasScriptBinding() && !hasScriptTriggers()) {
             return List.nil();
         } else {
             JCExpression scriptClosureClass = make.at(diagPos).TypeApply(
@@ -1612,7 +1616,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     private JCExpression translateDefinitionalAssignmentToValueArg(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
         if (bindStatus.isUnidiBind()) {
-            return toBound.translate(init, bindStatus, vmi.getRealType());
+            return toBound.translateAsLocationOrBE(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
             assert requiresLocation(vmi);
             // Bi-directional bind translate so it stays in a Location
@@ -1953,7 +1957,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             } else if (isBound) {
                 // Build the body of a bound function by treating it as a bound expression
                 // TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented -- it is, so it should be
-                JCExpression expr = toBound.translate(bexpr, JavafxBindStatus.UNIDIBIND, typeMorpher.varMorphInfo(tree.sym));
+                JCExpression expr = toBound.translateAsLocation(bexpr, JavafxBindStatus.UNIDIBIND, typeMorpher.varMorphInfo(tree.sym));
                 body = asBlock(make.at(diagPos).Return(expr));
             } else if (isRunMethod) {
                 // it is a module level run method, do special translation
@@ -2799,228 +2803,13 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
        return make.TypeCast(makeTypeTree(arg.pos(), types.boxedTypeOrType(castType)), arg);
     }
 
-   JCExpression translateDurationOperation(DiagnosticPosition diagPos, JavafxTag tag,
-                JCExpression lhsExpr, JCExpression rhsExpr,
-                Type lhsType, Type rhsType) {
-       return new DurationOperationTranslator(diagPos, tag,
-               lhsExpr, rhsExpr,
-               lhsType, rhsType).doit();
-   }
-
-   private class DurationOperationTranslator extends Translator {
-         private final JavafxTag tag;
-         private final JCExpression lhsExpr;
-         private final JCExpression rhsExpr;
-         private final Type rhsType;
-         private final Type lhsType;
-
-        DurationOperationTranslator(DiagnosticPosition diagPos, JavafxTag tag,
-                JCExpression lhsExpr, JCExpression rhsExpr,
-                Type lhsType, Type rhsType) {
-            super(diagPos);
-            this.tag = tag;
-            this.lhsExpr = lhsExpr;
-            this.rhsExpr = rhsExpr;
-            this.lhsType = lhsType;
-            this.rhsType = rhsType;
-        }
-
-        protected JCExpression doit() {
-            switch (tag) {
-                case PLUS:
-                    return m().Apply(null,
-                            m().Select(lhsExpr, names.fromString("add")), List.<JCExpression>of(rhsExpr));
-                // lhs.add(rhs);
-                case MINUS:
-                    // lhs.sub(rhs);
-                    return m().Apply(null,
-                            m().Select(lhsExpr, names.fromString("sub")), List.<JCExpression>of(rhsExpr));
-                case DIV:
-                    // lhs.div(rhs);
-                    return m().Apply(null,
-                            m().Select(lhsExpr, names.fromString("div")),
-                            List.<JCExpression>of(toJava.convertTranslated(rhsExpr, diagPos, rhsType, syms.javafx_NumberType)));
-                case MUL: {
-                    // lhs.mul(rhs);
-                    JCExpression rcvr;
-                    JCExpression arg;
-                    Type argType;
-                    if (!types.isSameType(lhsType, syms.javafx_DurationType)) {
-                        // FIXME This may get side-effects out-of-order.
-                        // A simple fix is to use a static Duration.mul(double,Duration).
-                        // Another is to use a Block and a temporary.
-                        rcvr = rhsExpr;
-                        arg = lhsExpr;
-                        argType = lhsType;
-                    } else {
-                        rcvr = lhsExpr;
-                        arg = rhsExpr;
-                        argType = rhsType;
-                    }
-                    return m().Apply(null,
-                            m().Select(rcvr, names.fromString("mul")),
-                            List.<JCExpression>of(toJava.convertTranslated(arg, diagPos, argType, syms.javafx_NumberType)));
-                }
-                case LT:
-                    return m().Apply(null,
-                            m().Select(lhsExpr, names.fromString("lt")), List.<JCExpression>of(rhsExpr));
-                case LE:
-                    return m().Apply(null,
-                            m().Select(lhsExpr, names.fromString("le")), List.<JCExpression>of(rhsExpr));
-                case GT:
-                    return m().Apply(null,
-                            m().Select(lhsExpr, names.fromString("gt")), List.<JCExpression>of(rhsExpr));
-                case GE:
-                    return m().Apply(null,
-                            m().Select(lhsExpr, names.fromString("ge")), List.<JCExpression>of(rhsExpr));
-            }
-            throw new RuntimeException("Internal Error: bad Duration operation");
-        }
-    }
-
     @Override
     public void visitBinary(final JFXBinary tree) {
-        result = (new Translator( tree.pos() ) {
+        result = (new BinaryOperationTranslator(tree.pos(), tree) {
 
-            /**
-             * Compare against null
-             */
-            private JCExpression makeNullCheck(JCExpression targ) {
-                return makeEqEq(targ, makeNull());
+            protected JCExpression translateArg(JFXExpression arg, Type type) {
+                return translateAsValue(arg, type);
             }
-
-            //TODO: after type system is figured out, this needs to be revisited
-            /**
-             * Check if a primitive has the default value for its type.
-             */
-            private JCExpression makePrimitiveNullCheck(Type argType, JCExpression arg) {
-                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-                JCExpression defaultValue = makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
-                return makeEqEq( arg, defaultValue);
-            }
-
-            /**
-             * Check if a non-primitive has the default value for its type.
-             */
-            private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
-                TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-                if (tmi.getTypeKind() == TYPE_KIND_SEQUENCE || tmi.getRealType() == syms.javafx_StringType) {
-                    return callRuntime(JavafxDefs.isNullMethodString, List.of(arg));
-                } else {
-                    return makeNullCheck(arg);
-                }
-            }
-
-            /*
-             * Do a == compare
-             */
-            private JCExpression makeEqEq(JCExpression arg1, JCExpression arg2) {
-                return makeBinary(JCTree.EQ, arg1, arg2);
-            }
-
-            private JCExpression makeBinary(int tag, JCExpression arg1, JCExpression arg2) {
-                return make.at(diagPos).Binary(tag, arg1, arg2);
-            }
-
-            private JCExpression makeNull() {
-                return make.at(diagPos).Literal(TypeTags.BOT, null);
-            }
-
-            private JCExpression callRuntime(String methNameString, List<JCExpression> args) {
-                JCExpression meth = makeQualifiedTree(diagPos, methNameString);
-                List<JCExpression> typeArgs = List.nil();
-                return m().Apply(typeArgs, meth, args);
-            }
-
-            /**
-             * Make a .equals() comparison with a null check on the receiver
-             */
-            private JCExpression makeFullCheck(JCExpression lhs, JCExpression rhs) {
-                return callRuntime(JavafxDefs.equalsMethodString, List.of(lhs, rhs));
-            }
-
-            /**
-             * Return the translation for a == comparision
-             */
-            private JCExpression translateEqualsEquals() {
-                final Type lhsType = tree.lhs.type;
-                final Type rhsType = tree.rhs.type;
-
-                final boolean reqSeq = types.isSequence(lhsType) ||
-                        types.isSequence(rhsType);
-
-                Type expected = tree.operator.type.getParameterTypes().head;
-
-                if (reqSeq) {
-                    Type left = types.isSequence(lhsType) ? types.elementType(lhsType) : lhsType;
-                    Type right = types.isSequence(rhsType) ? types.elementType(rhsType) : rhsType;
-                    if (left.isPrimitive() && right.isPrimitive() && left == right)
-                        expected = left;
-                }
-                
-                final JCExpression lhs = translateAsValue(tree.lhs, reqSeq ?
-                    types.sequenceType(expected) : null);
-                final JCExpression rhs = translateAsValue(tree.rhs, reqSeq ?
-                    types.sequenceType(expected) : null);
-
-                    // this is an x == y
-                    if (lhsType.getKind() == TypeKind.NULL) {
-                        if (rhsType.getKind() == TypeKind.NULL) {
-                            // both are known to be null
-                            return make.at(diagPos).Literal(TypeTags.BOOLEAN, 1);
-                        } else if (rhsType.isPrimitive()) {
-                            // lhs is null, rhs is primitive, do default check
-                            return makePrimitiveNullCheck(rhsType, rhs);
-                        } else {
-                            // lhs is null, rhs is non-primitive, figure out what check to do
-                            return makeObjectNullCheck(rhsType, rhs);
-                        }                    
-                    } else if (lhsType.isPrimitive()) {
-                        if (rhsType.getKind() == TypeKind.NULL) {
-                            // lhs is primitive, rhs is null, do default check on lhs
-                            return makePrimitiveNullCheck(lhsType, lhs);
-                        } else if (rhsType.isPrimitive()) {
-                            // both are primitive, use ==
-                            return makeEqEq(lhs, rhs);
-                        } else {
-                            // lhs is primitive, rhs is non-primitive, use equals(), but switch them
-                            return makeFullCheck(rhs, lhs);
-                        }
-                    } else {
-                        if (rhsType.getKind() == TypeKind.NULL) {
-                            // lhs is non-primitive, rhs is null, figure out what check to do
-                            return makeObjectNullCheck(lhsType, lhs);
-                        } else {
-                            //  lhs is non-primitive, use equals()
-                            return makeFullCheck(lhs, rhs);
-                        }
-                    }
-            }
-
-            /**
-             * Translate a binary expressions
-             */
-            public JCTree doit() {
-                //TODO: handle <>
-                if (tree.getFXTag() == JavafxTag.EQ) {
-                    return translateEqualsEquals();
-                } else if (tree.getFXTag() == JavafxTag.NE) {
-                    return make.at(diagPos).Unary(JCTree.NOT, translateEqualsEquals());
-                }  else {
-                    // anything other than == or <>
-
-                    // Duration type operator overloading
-                    final JCExpression lhs = translateAsUnconvertedValue(tree.lhs);
-                    final JCExpression rhs = translateAsUnconvertedValue(tree.rhs);
-                    if ((types.isSameType(tree.lhs.type, syms.javafx_DurationType) ||
-                         types.isSameType(tree.rhs.type, syms.javafx_DurationType)) &&
-                        tree.operator == null) { // operator check is to try to get a decent error message by falling through if the Duration method isn't matched
-                        return translateDurationOperation(diagPos, tree.getFXTag(), lhs, rhs, tree.lhs.type, tree.rhs.type);
-                    }
-                    return makeBinary(tree.getOperatorTag(), lhs, rhs);
-                }
-            }
-
         }).doit();
     }
 

@@ -24,4 +24,4 @@ class C {
 var b = B { 
     b: bind a 
 }; 
-println(b.c.c); // expect 1234, is 0 
+println(b.c.c);

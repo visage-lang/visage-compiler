@@ -18,8 +18,13 @@
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
 	<filter token="javafxversion" value="${javafx.version}"/>
+        <!-- do macro replacement but avoid binary image files -->
         <copy todir="${build.classes.dir}" filtering="true">
-            <fileset dir="${src.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.dir}" excludes="**/*.png,**/*.gif,${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        <!-- copy the .png, .gif image files without macro replacement -->
+        <copy todir="${build.classes.dir}" filtering="false">
+            <fileset dir="${src.dir}" excludes="${build.classes.excludes},${excludes}" includes="**/*.png,**/*.gif"/>
         </copy>
     </target>
     

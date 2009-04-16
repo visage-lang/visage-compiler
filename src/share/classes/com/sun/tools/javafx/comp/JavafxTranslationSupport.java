@@ -88,11 +88,6 @@ public abstract class JavafxTranslationSupport {
      */
     private int syntheticNameCounter = 0;
 
-    /*
-     * the result of translating a tree by a visit method
-     */
-    JCTree result;
-
     protected JavafxTranslationSupport(Context context) {
         make = TreeMaker.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
