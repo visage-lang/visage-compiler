@@ -482,7 +482,10 @@ public class Timeline {
     
     
     function start() {
-        reset();
+        validate();
+        if (time == 0.0ms) {
+            initKeyValues();
+        }
         buildClip();
         clip.start();       
     }
@@ -543,13 +546,20 @@ public class Timeline {
     var initialKeyValues: KeyValue[];
 
     function reset():Void {
-	if(not valid) {
+        validate();
+        initKeyValues();
+    }
+
+    function validate():Void {
+        if(not valid) {
             rebuildTargets();
         }
+    }
 
+    function initKeyValues():Void {
         for (kv in initialKeyValues) {
             kv.target.set(kv.value());
-        }        
+        }
     }
 
     /**
