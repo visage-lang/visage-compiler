@@ -64,6 +64,9 @@ package function getInterpolatorFactory():InterpolatorFactory {
 class CurrentKeyValue extends KeyValue {
 }
 
+// TODO: Temporary constant awaiting for Duration.INDEFINITE
+protected def Duration_INDEFINITE = -1ms;
+
 /**
  * Used to specify an animation that repeats indefinitely (until
  * the {@code stop()} method is called).
@@ -174,8 +177,37 @@ public class Timeline {
      * @profile common
      * @defaultvalue 0.0
      */
-    public-read var currentRate: Number = 0.0;
-   
+    public-read var currentRate: Number = 0.0;   
+
+    /**
+     * Read-only variable to indicate the duration of one cycle of this
+     * {@code Timeline}: the time it takes to play from time 0 to the 
+     * {code KeyFrame} with the largest time (at the default  {@code rate} 
+     * of 1.0).
+     *
+     * <p>
+     * This is set to the largest time value of its keyFrames.  
+     *
+     * @profile common
+     * @defaultvalue 0ms
+     */
+    public-read protected var cycleDuration:Duration = 0ms;
+
+    /**
+     * Read-only variable to indicate the total duration of this 
+     * {@code Timeline}, including repeats. A Timeline with a 
+     * {@code repeatCount} of {@code Timeline.INDEFINITE} will have a 
+     * {@code totalDuration} of {@code Duration.INDEFINITE}.
+     *
+     * <p>
+     * This is set to cycleDuration * repeatCount.  
+     *
+     * @profile common
+     * @defaultvalue 0ms
+     */
+    public-read var totalDuration:Duration = bind
+	if (repeatCount == Timeline.INDEFINITE) then Duration_INDEFINITE else repeatCount * cycleDuration;						 
+
     /**
      * Defines {@code Timeline}'s play head position.
      * <p>
@@ -195,10 +227,10 @@ public class Timeline {
      *  </code>
      * 
      * @profile common
-     * @defaultvalue 0.0ms
+     * @defaultvalue 0ms
      *
      */
-    public var time: Duration = 0.0ms;
+    public var time: Duration = 0ms;
     
    /**
     * Enable/disable interpolation. 
@@ -253,6 +285,7 @@ public class Timeline {
 	    keyFrame.owner = this;
 	}
         invalidate();
+	sortAndComputeTL(false);
     };
 
     /**
@@ -368,6 +401,29 @@ public class Timeline {
     // duration is inferred from time of last key frame in rebuildTargets()
     var timelineDur: Number = -1;
 
+    function sortAndComputeTL(sorted: Boolean):Void {
+	/*
+	if (keyFrames != null) { 
+	    if (not sorted) {
+		sortedFrames = Sequences.sort(keyFrames) as KeyFrame[];
+		cycleDuration = sortedFrames[sortedFrames.size()-1].time;
+	    }
+	}
+	*/
+	if (not sorted) {
+	    if (keyFrames.size() > 0) {
+		sortedFrames = Sequences.sort(keyFrames) as KeyFrame[];
+		cycleDuration = sortedFrames[sortedFrames.size()-1].time;
+	    } else {
+		sortedFrames = [];
+		cycleDuration = 0ms;
+	    }
+	}
+
+
+
+    }
+
     function getTotalDur():Number {
         if (not valid) {
             rebuildTargets();
@@ -458,7 +514,7 @@ public class Timeline {
             rate = Math.abs(rate);
             getTotalDur();
             curPos = 0.0;
-            time = 0.0ms;
+            time = 0ms;
             start();
         }
     }
@@ -517,7 +573,7 @@ public class Timeline {
             
 	if(not running) {
 	    curPos = 0.0;
-	    time = 0.0ms;
+	    time = 0ms;
 	}
     }
 
@@ -588,12 +644,11 @@ public class Timeline {
     function rebuildTargets():Void {
         initialKeyValues = [];
         targets.clear();
-        timelineDur = 0;
         if (sizeof keyFrames == 0) {
             return;
         }
 
-        sortedFrames = Sequences.sort(keyFrames) as KeyFrame[];
+	timelineDur = sortedFrames[sortedFrames.size()-1].time.toMillis();
 
         var zeroFrame:KeyFrame;
         if (sortedFrames[0].time == 0s) {
@@ -602,11 +657,7 @@ public class Timeline {
             zeroFrame = KeyFrame { time: 0s };
         }
 
-        for (keyFrame in keyFrames) {
-            if (timelineDur >= 0) {
-                timelineDur = java.lang.Math.max(timelineDur, keyFrame.time.toMillis());
-            }
-
+        for (keyFrame in sortedFrames) {
             for (keyValue in keyFrame.values) {
                 // TODO: targets should really be Map<KeyValueTarget,List<KFPair>>
                 var pairlist: KFPairList = targets.get(keyValue.target) as KFPairList;
@@ -965,7 +1016,7 @@ public class Timeline {
                     } else if(time.toMillis() == timelineDur) {
                         // play backward from the end of timeline
                         curPos = 0.0;
-                        time = 0.0ms;
+                        time = 0ms;
                     }
                 }
                 
