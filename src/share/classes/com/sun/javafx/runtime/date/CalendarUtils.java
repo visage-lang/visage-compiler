@@ -167,6 +167,11 @@ public class CalendarUtils {
         return sb;
     }
 
+    /*
+     * The following unused function is commented out because it causes build problems.
+     * TODO: REMOVE THE FUNCTION
+     */
+    /*
     public static final StringBuffer sprintf0d(StringBuffer sb, int value, int width) {
         long d = value;
         if (d < 0) {
@@ -185,4 +190,5 @@ public class CalendarUtils {
         sb.append(d);
         return sb;
     }
+    */
 }
