@@ -178,7 +178,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             this.toCheck = toCheck;
             this.resultType = resultType;
             this.needNullCheck = !knownNonNull && !toCheck.type.isPrimitive() && possiblyNull(toCheck);
-            this.hasSideEffects = needNullCheck && computeHasSideEffects(toCheck);
+            this.hasSideEffects = needNullCheck && hasSideEffects(toCheck);
             this.tmpVarList = ListBuffer.<JCStatement>lb();
             this.wrapper = wrapper;
         }
@@ -188,7 +188,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         abstract JCExpression translateToCheck(JFXExpression expr);
 
         protected JCExpression preserveSideEffects(Type type, JFXExpression expr, JCExpression trans) {
-            if (needNullCheck && expr!=null && computeHasSideEffects(expr)) {
+            if (needNullCheck && expr!=null && hasSideEffects(expr)) {
                 // if there is going to be a null check (which thus could keep expr
                 // from being evaluated), and expr has side-effects, then eval
                 // it first and put it in a temp var.
@@ -241,54 +241,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 default:
                     return false;
             }
-        }
-
-        private boolean computeHasSideEffects(JFXExpression expr) {
-            hse = false;
-            new JavafxTreeScanner() {
-
-                private void markSideEffects() {
-                    hse = true;
-                }
-
-                @Override
-                public void visitBlockExpression(JFXBlock tree) {
-                    markSideEffects(); // maybe doesn't but covers all statements
-                }
-
-                @Override
-                public void visitUnary(JFXUnary tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitAssign(JFXAssign tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitAssignop(JFXAssignOp tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitInstanciate(JFXInstanciate tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitFunctionInvocation(JFXFunctionInvocation tree) {
-                    markSideEffects();
-                }
-
-                @Override
-                public void visitSelect(JFXSelect tree) {
-                    // Doesn't really have side-effects but the dupllicate null checking is aweful
-                    //TODO: do this in a cleaner way
-                    markSideEffects();
-                }
-            }.scan(expr);
-            return hse;
         }
 
         protected JCTree doit() {
@@ -1790,10 +1742,12 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             } else {
                 optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
                 if ((modFlags & Flags.FINAL) != 0) {
+                    //TODO: this case probably won't be used any more, but it will
+                    // be again if we optimize the case for initializer which don't reference locals
                     init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
                             tree.getBindStatus(), vsym);
-                    //TODO: It seems that there would be cases of forwardreference or reference from a trigger which would fail
-                    prependToStatements.append(make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init));
+                    JCStatement var = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
+                    prependToStatements.append(var);
                     result = make.at(diagPos).Skip();
                     return;
                 }
@@ -3641,7 +3595,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     boolean allowDirectAccess(VarSymbol vsym, boolean isSet) {
         boolean isMixinVar = types.isMixin(vsym.owner);
-        if (isMixinVar) return false;
+        if (isMixinVar || syms.USE_SLACKER_LOCATIONS) return false;
         
         boolean inSameClass = getAttrEnv().enclClass.sym == vsym.owner;
         boolean requiresLocation = requiresLocation(vsym);

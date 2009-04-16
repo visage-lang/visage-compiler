@@ -364,7 +364,9 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             {"literal",                     "a literal constant"},
             {"qualname",                    "a qualified identifier"},
             {"identifier",                  "an identifier"},
+            {"identifierAll",               "an identifier"},
             {"name",                        "an identifier"},
+            {"nameAll",                     "an identifier"},
     };
     
 
@@ -733,7 +735,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         //
         mb.append("Sorry, I was trying to understand ");
         mb.append(posDescription);
-            
+
         if (e instanceof UnwantedTokenException) {
          
             // We had an extraneous token in the stream, so we have discarded it
@@ -854,7 +856,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             
             if (tokenClass == TokenClassification.KEYWORD && mte.expecting == v4Parser.IDENTIFIER) {
                 
-                mb.append(".\n Perhaps you tried to use a keyword as the name of a variable");
+                mb.append(".\n Perhaps you tried to use a keyword as the name of a variable (use <<keyword>> if you need to do this)");
                 
             } else if (mte.expecting != Token.EOF) {
 
@@ -895,6 +897,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                     mb.append(tokenClass.forHumans());
                 }
 
+                if (tokenClass == TokenClassification.KEYWORD && (stackTop.equals("name") || stackTop.equals("identifier"))) {
+
+                    mb.append(".\n Perhaps you tried to use a keyword as the name of a variable (use <<keyword>> if you need to do this)");
+
+                }
                 // The start and end points come directly from the mismatched token.
                 //
                 sp = ((CommonToken)nvae.token).getStartIndex();

@@ -570,11 +570,11 @@ importId
 	//
 	int	starP = 0;
 }
- 	: i1=identifier
+ 	: i1=identifierAll
  		{
  			$pid = $i1.value;
  			
- 			// Accumulate in case of error, and flag if the indentifer was not thre
+ 			// Accumulate in case of error, and flag if the indentifer was not there
  			//
  			errNodes.append($i1.value);
  			inError = $i1.inError;
@@ -593,13 +593,13 @@ importId
 					}
 			)
 				(
-					(IDENTIFIER)=> n2=name
+					(nameAll)=> n2=nameAll
 					{
 						// Check for errors
 						//
 						if	($n2.inError)
 						{
-							// We shoudl not be able to get this, as the follow set
+							// We should not be able to get this, as the follow set
 							// will not allow error recovery to insert a token as
 							// it is not singular - which one should it insert? However
 							// future improvements may make this happen, so code for it anyway
@@ -1144,29 +1144,61 @@ functionDefinition [ JFXModifiers mods, int pos ]
 	// Start of rule for error node production/
 	//
 	int	rPos	= pos();
+	
+	// Is this an override?
+	//
+	boolean isOverride = (JavafxFlags.OVERRIDE & $mods.flags) == JavafxFlags.OVERRIDE;
+	
+	// The Name symbol we create
+	//
+	Name name = null;
 }
 	: FUNCTION 
 		
 		(
-			n1=name 
-				{
-				
-					if ($n1.inError) {
+			(
+				  { isOverride }?=> n2=nameAll
+					{
+						if ($n2.inError) {
+						
+							// First, lets report the error as the user needs to know about it
+							// Issue an error - can't have anonymous functions
+							//
+							log.error(pos(), MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
+						}
+						// Accumulate a node in case of error
+						//			
+						id = F.at($n2.pos).Ident($n2.value);
+						name = $n2.value;
+						endPos(id);
 					
-						// First, lets report the error as the user needs to know about it
-						// Issue an error - can't have anonymous functions
+						// Accumulate in case of error
 						//
-						log.error(pos(), MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
+						errNodes.append(id);
 					}
-					// Accumulate a node in case of error
-					//			
-					id = F.at($n1.pos).Ident($n1.value);
-					endPos(id);
+				  
+				| n1=name
+					{		
+						if ($n1.inError) {
+						
+							// First, lets report the error as the user needs to know about it
+							// Issue an error - can't have anonymous functions
+							//
+							log.error(pos(), MsgSym.MESSAGE_JAVAFX_FUNC_UNNAMED);
+						}
+						// Accumulate a node in case of error
+						//			
+						id = F.at($n1.pos).Ident($n1.value);
+						name = $n1.value;
+						endPos(id);
+					
+						// Accumulate in case of error
+						//
+						errNodes.append(id);
+					}
 				
-					// Accumulate in case of error
-					//
-					errNodes.append(id);
-				}
+			)
+				
 		)
 		formalParameters
 			{
@@ -1209,14 +1241,14 @@ functionDefinition [ JFXModifiers mods, int pos ]
 			$value = F.at($pos).FunctionDefinition
 							(
 								$mods,
-								$n1.value, 
+								name, 
 								$typeReference.rtype,
 								$formalParameters.params.toList(), 
 								$block.value
 							);
 							
 			// Ensure that the function value, manufactured within the FunctionDefinition() method
-			// call, receives and endPos() map
+			// call, receives an endPos() map
 			//
 			endPos(((JFXFunctionDefinition)($value)).operation);
 			
@@ -2083,9 +2115,8 @@ paramName
 
 	returns [JFXVar var]	// Returns a JFXVar tree node
 
-	: pn=IDENTIFIER
+	: pn=name
 	 	{
-    		Name name;
     		
     		// The recovery mechanisms will auto generate the IDENTIFIER
 			// token, in the case that it can predict that it was just a single
@@ -2093,17 +2124,15 @@ paramName
 			// pick up on that and generate a different node for a Missing
 			// identifier.
 			//
-			if ($IDENTIFIER instanceof MissingCommonToken) {
+			if ($pn.inError) {
 			
-			    name = Name.fromString(names, $IDENTIFIER.text);
-			    $var = F.at(pos($IDENTIFIER)).Param(name, F.TypeUnknown()); 
+			    $var = F.at($pn.pos).Param($pn.value, F.TypeUnknown()); 
 			    endPos($var, pos());
 			    
 			} else {
 			
-			    name = Name.fromString(names, $IDENTIFIER.text);
-			    $var = F.at(pos($IDENTIFIER)).Param(name, F.TypeUnknown()); 
-			    endPos($var, pos($IDENTIFIER) + name.length());
+			    $var = F.at($pn.pos).Param($pn.value, F.TypeUnknown()); 
+			    endPos($var, $pn.pos + $pn.value.length());
 			}
     	}
 	;
@@ -3308,7 +3337,7 @@ assignmentOpExpression
            		such=orExpression { errNodes.append($such.value); }
            	
            			(
-           				TWEEN i=orExpression
+           				(TWEEN)=>TWEEN i=orExpression
            			)?
            	
            		{
@@ -4006,15 +4035,7 @@ postfixExpression
 		(
 			  DOT 
 				( 
-					  n1=name
-					  
-					  {
-							$value = F.at(pos($DOT)).Select($value, $n1.value);
-							endPos($value);
-							errNodes.append($value);
-					  }
-					  
-					| CLASS 
+				      (CLASS)=>CLASS 
 					
 						{
 							Name cName = Name.fromString(names, "class"); 
@@ -4022,6 +4043,15 @@ postfixExpression
 							endPos($value);
 							errNodes.append($value);
 					  	}
+					  	
+					| n1=nameAll
+					  
+					  {
+							$value = F.at(pos($DOT)).Select($value, $n1.value);
+							endPos($value);
+							errNodes.append($value);
+					  }
+					   
 	         	)
 
 			| (LPAREN)=>LPAREN 
@@ -5279,7 +5309,18 @@ bracketExpression
 		     			
 	     				  (
 	     				    
-	     				    (COMMA | { log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);} )
+	     				    (
+                                  COMMA
+                                | {
+                                        // Object literals need not be delimited, but everything
+                                        // else must be. Object literals end in '}' of course
+                                        //
+                                        if (input.LA(-1) != RBRACE)
+                                        {
+                                            log.error(semiPos(), MsgSym.MESSAGE_JAVAFX_MANDATORY_COMMA);
+                                        }
+                                  }
+                            )
 	     					e2=expression
 	     						{
 	     							seqexp.append($e2.value);
@@ -6081,7 +6122,7 @@ qualname
 				(DOT)=>DOT 
 
 				(
-						(IDENTIFIER)=>n2=name
+						(nameAll)=>n2=nameAll
 						{
 							
 							if	($n2.inError) {
@@ -6100,15 +6141,7 @@ qualname
 							errNodes.append(part);
 							endPos(part);
 						}
-						
-					//| CLASS 
-					//
-					//	{
-					//		Name cName = Name.fromString(names, "class"); 
-					///		$value = F.at(pos($DOT)).Select($value, cName);
-					//		endPos($value);
-					//		errNodes.append($value);
-					 // 	}
+
 					|	{
 							$value = F.at(pos($DOT)).Select($value, Name.fromString(names, "<missing>"));
 							endPos($value);
@@ -6218,7 +6251,11 @@ identifier
 {
 	// Assume the input will be there
 	//
-	$inError = false;	
+	$inError = false;
+		
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
 }
 	: IDENTIFIER
 		{
@@ -6230,39 +6267,68 @@ identifier
 			//
 			if ($IDENTIFIER instanceof MissingCommonToken) {
 			
-			    $value = F.at(pos($IDENTIFIER)).ErroneousIdent();
+			    $value = F.at(rPos).ErroneousIdent();
 			    endPos($value, pos());
 			    $inError = true;
 			    
 			} else {
 			
 			    Name name = Name.fromString(names, $IDENTIFIER.text);
-			    $value = F.at(pos($IDENTIFIER)).Ident(name);
-			    endPos($value, pos($IDENTIFIER) + name.length());
+			    $value = F.at(rPos).Ident(name);
+			    endPos($value, rPos + name.length());
 			}
 		}
 	;
 
-// Catch an error when looking for an identifier. The only error we can
-// have is that it is not there, so we create an error node for
-// placing in the AST
+// -----------------------
+// ID
+// Basic identifier parse, but when Any keyword, including reserved
+// words, is allowed.
 //
-catch [RecognitionException re] {
-  
-  	// First, lets report the error as the user needs to know about it
-  	//
-    reportError(re);
+identifierAll
 
-	// Now create an AST node that represents a missing identifier.
-	//
-	$value = F.at(pos()).ErroneousIdent();
-	
-	// The AST has no span as the identifier isn't really there
-	//
-	endPos($value, pos());
-	$inError = true;
+	returns [JFXIdent value, boolean inError]
 
- }
+@init
+{
+	// Assume the input will be there
+	//
+	$inError = false;	
+
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+	: IDENTIFIER
+		{
+			// The recovery mechanisms will auto generate the IDENTIFIER
+			// token, in the case that it can predict that it was just a single
+			// token that the programmer forgot to use. Hence we must
+			// pick up on that and generate a different node for a Missing
+			// identifier.
+			//
+			if ($IDENTIFIER instanceof MissingCommonToken) {
+			
+			    $value = F.at(rPos).ErroneousIdent();
+			    endPos($value, pos());
+			    $inError = true;
+			    
+			} else {
+			
+			    Name name = Name.fromString(names, $IDENTIFIER.text);
+			    $value = F.at(rPos).Ident(name);
+			    endPos($value, rPos + name.length());
+			}
+		}
+		
+	| aw=allWords
+		{
+			
+			    Name name = Name.fromString(names, $aw.text);
+			    $value = F.at(rPos).Ident(name);
+			    endPos($value, rPos + name.length());
+		}
+	;
  
 // ------------------------
 // ID
@@ -6272,12 +6338,21 @@ catch [RecognitionException re] {
 name 
 
 	returns [Name value, int pos, boolean inError]
-	
+@init
+{
+	// Assume the input will be there
+	//
+	$inError = false;	
+
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
 	: IDENTIFIER
 	
 		{ 
 			$value = Name.fromString(names, $IDENTIFIER.text); 
-			$pos = pos($IDENTIFIER); 
+			$pos = rPos; 
 			
 			if	($IDENTIFIER instanceof MissingCommonToken) {
 			
@@ -6288,29 +6363,108 @@ name
 				$inError = false;		// It was genuinely there
 			}
 		}
+	| aw=keyword
+	    { 
+			$value = Name.fromString(names, $aw.text); 
+			$pos = rPos; 
+	    }
 	;
 	
-// Catch an error when looking for a name. The only error we can
-// have is that it is not there, so we create an error node for
-// placing in the AST
+// ------------------------
+// ID
+// Parse and identifier token that isn't necessarilly an Identifier,
+// it could just be a tag or function name etc.
 //
-catch [RecognitionException re] {
+nameAll 
 
-	    // First, lets report the error as the user needs to know about it                             
-	    //                                                                                             
-	    reportError(re);   
+	returns [Name value, int pos, boolean inError]
 	
-		// Now create an AST node that represents a missing name, The required entry
-		// is of type Name so we use an identifier name that cannot exist in
-		// JavaFX, so that IDEs can detect it, but flag it as being a manufactured
-		// token to the caller.
-		//
-		$value 		= Name.fromString(names, "<missing>");
-		$pos   		= semiPos();
-		$inError	= true;
- }
+@init
+{
+	// Assume the input will be there
+	//
+	$inError = false;	
 
+    // Work out current position in the input stream
+	//
+	int	rPos = pos();
+}
+	: IDENTIFIER
+	
+		{ 
+			$value = Name.fromString(names, $IDENTIFIER.text); 
+			$pos = rPos; 
+			
+			if	($IDENTIFIER instanceof MissingCommonToken) {
+			
+				$inError = true;		// Recognizer manufactured this for us
+			
+			} else {
+			
+				$inError = false;		// It was genuinely there
+			}
+		}
+	| aw=allWords
+	    { 
+			$value = Name.fromString(names, $aw.text); 
+			$pos = rPos; 
+			$inError = false;
+	    }
+	;
+	
+// ----------
+// All tokens
+//
+// The set of keywords, both reserved and non-reserved words, which
+// can sometimes be used as Indentifiers, such as elements of
+// import statements and second and subsequent elements of compound references
+//
+allWords
+	: keyword
+	| reservedWord
+	;
+	
+// ---------------------
+// Non-reserved keywords
+//
+// Some tokens are returned by the lexer as keywords for the grammar
+// but are not reserved words in the language. These can be used as
+// identifiers and are basically the set of keywords that cannot
+// possibly start a statement/expression, such as 'to' but not those
+// that are not sensible to allow as identifiers, such as 'true'.
+//
+keyword
+    : FIRST     | IN    | INIT      | INTO
+    | INVERSE   | LAST  | ON        | POSTINIT      
+    | REPLACE   | STEP  | TRIGGER   | TWEEN
+    | WHERE     | WITH
+    ;
 
+// --------------
+// Reserved words
+//
+// Tokens returned by the lexer that cannot be used as Identifiers
+// but can be valid in some circumstances, such as components of
+// an import statement, or as second and subsequent elements of
+// compounds such as x.public.for.function()
+//
+reservedWord
+	: ABSTRACT		| AFTER		| AND			| AS
+	| ASSERT		| AT		| ATTRIBUTE		| BEFORE
+	| BIND			| BOUND		| BREAK			| CATCH
+	| CLASS			| CONTINUE	| DEF			| DELETE
+	| ELSE			| EXCLUSIVE	| EXTENDS		| FALSE
+	| FINALLY		| FOR		| FROM			| FUNCTION
+	| IF			| IMPORT	| INDEXOF		| INSERT
+	| INSTANCEOF	| LAZY		| MIXIN			| MOD
+	| NATIVEARRAY	| NEW		| NOT			| NULL
+	| OR			| OVERRIDE	| PACKAGE		| PRIVATE
+	| PROTECTED		| PUBLIC	| PUBLIC_INIT	| PUBLIC_READ
+	| RETURN		| REVERSE	| SIZEOF		| STATIC
+	| SUPER			| THEN		| THIS			| THROW
+	| TRUE			| TRY		| TYPEOF		| VAR
+	| WHILE
+	;
 
 
 // -----------------------

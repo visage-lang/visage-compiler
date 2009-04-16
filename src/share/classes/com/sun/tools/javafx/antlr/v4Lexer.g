@@ -911,7 +911,7 @@ Exponent
 			)
  	;
 
-// Identifiers are any sequence of vharacters considered
+// Identifiers are any sequence of characters considered
 // to be alphanumeric in the Java specification. Identifiers
 // that cannot match this pattern may be 'quoted' by surrounding
 // them with '<<' and '>>' - this allows external references to
