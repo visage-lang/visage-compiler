@@ -353,6 +353,8 @@
 
     <target depends="-pre-compile" name="generate-lexerv4" unless="lexerv4.uptodate" >
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+	    <arg value="-Xconversiontimeout" />
+	    <arg value="10000" />
             <arg value="-verbose"/>
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
@@ -360,6 +362,8 @@
             <jvmarg value="-Xmx256m"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+	    <arg value="-Xconversiontimeout" />
+	    <arg value="10000" />
             <arg value="-verbose"/>
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
@@ -371,6 +375,8 @@
 
     <target depends="-pre-compile, generate-lexerv4" name="generate-parserv4" unless="parserv4.uptodate">
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+	    <arg value="-Xconversiontimeout" />
+	    <arg value="10000" />
             <arg value="-verbose"/>
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
@@ -378,6 +384,8 @@
             <jvmarg value="-Xmx256m"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+	    <arg value="-Xconversiontimeout" />
+	    <arg value="10000" />
             <arg value="-verbose"/>
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
