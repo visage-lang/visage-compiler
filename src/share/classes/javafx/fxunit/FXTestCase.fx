@@ -39,16 +39,26 @@ public class FXTestCase extends TestCase {
 	}
     }
 
-    function assertEquals(a : Object[], b : Object[]) {
-        assertEquals(sizeof a, sizeof b);
+    public function assertEquals(a:Object[], b:Object[]):Void {
+        assertEquals(null, a, b);
+    }
+
+    public function assertEquals(message:String, a:Object[], b:Object[]):Void {
+        assertEquals(message, sizeof a, sizeof b);
         for (i in [0..sizeof a -1]) {
-            var ax : Object = a[i];
-            var bx : Object = b[i];
-            assertEquals(ax, bx);
+            var ax:Object = a[i];
+            var bx:Object = b[i];
+            assertEquals(message, ax, bx);
         };
     }
     
-    function assertEquals(expected:Number, actual:Number) : Void {
-        TestCase.assertEquals(expected as Object, actual as Object);
+    public function assertEquals(expected:Number, actual:Number):Void {
+        assertEquals(null, expected, actual);
+    }
+
+    public function assertEquals(message:String, expected:Number, actual:Number):Void {
+        var exp:Object = expected;
+        var act:Object = actual;
+        assertEquals(message, expected, actual);
     }
 }
