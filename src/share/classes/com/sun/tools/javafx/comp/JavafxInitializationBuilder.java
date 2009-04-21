@@ -214,12 +214,10 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods());
             cDefinitions.append    (javaCodeMaker.makeIsInitialized());
             cDefinitions.append    (javaCodeMaker.makeApplyDefaults());
+            cDefinitions.append    (javaCodeMaker.makeGetDependency());
             
-            // cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
             cDefinitions.appendList(makeAttributeFields(cDecl.sym, staticAttributeInfos));
-            // cDefinitions.appendList(makeNeedsDefaultFields(instanceAttributeInfos));
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            // cDefinitions.appendList(makeMemberVariableAccessorMethods(cDecl, instanceAttributeInfos));
             cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
             cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
@@ -235,13 +233,10 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, superClassSym != null));
         } else {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
-            // cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
             iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
 
-            // cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
             cDefinitions.appendList(makeAttributeFields(cDecl.sym, staticAttributeInfos));
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            // iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
             cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
@@ -724,6 +719,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 defs.postInitName,
                 make.at(diagPos).Ident(names._this)));
 
+if (!syms.USE_SLACKER_LOCATIONS) {
         // "InitHelper.finish(new[] { attribute, ... });
         ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
         for (VarInfo ai : attrInfos) {
@@ -738,6 +734,22 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 "finish",
                 make.NewArray(makeTypeTree(diagPos, abstractVariableType), 
                                 List.<JCExpression>nil(), finishAttrs.toList())));
+} else { // if (!syms.USE_SLACKER_LOCATIONS)
+        // "InitHelper.finish(new[] { attribute, ... });
+        ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
+        for (VarInfo ai : attrInfos) {
+            if (!ai.isStatic() && !ai.hasProxyVar() && requiresLocation(ai)) {
+                final VarSymbol vsym = ai.getSymbol();
+                finishAttrs.append(make.at(diagPos).Ident(attributeLocationName(vsym)));
+            }
+        }
+
+        stmts.append( callStatement(diagPos, 
+                makeTypeTree(diagPos, initHelperType), 
+                "finish",
+                make.NewArray(makeTypeTree(diagPos, abstractVariableType), 
+                                List.<JCExpression>nil(), finishAttrs.toList())));
+} // if (!syms.USE_SLACKER_LOCATIONS)
 
         JCBlock initializeBlock = make.Block(0L, stmts.toList());
         return make.MethodDef(
@@ -1111,9 +1123,15 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                                                      makeDefaultValue(currentPos, ai.getVMI())));
                         
                         if (requiresLocation(ai)) {
-                            // Construct the location field.
-                            vars.append(addVariableField(ai,  mods, ai.getVariableType(), attributeLocationName(varSym),
-                                                         makeLocationAttributeVariable(ai.getVMI(), currentPos)));
+                            // TODO - switch over to using NULL.
+                            if (true) {
+                                // Construct the location field.
+                                vars.append(addVariableField(ai,  mods, ai.getVariableType(), attributeLocationName(varSym),
+                                                             makeLocationAttributeVariable(ai.getVMI(), currentPos)));
+                            } else {
+                                // Construct the location field.
+                                vars.append(addVariableField(ai,  mods, ai.getVariableType(), attributeLocationName(varSym), makeNull()));
+                            }
                         }
                     }
                 }
@@ -1561,7 +1579,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                         
                         if (requiresLocation(ai)) {
                             // location$var.needsDefault()
-                            condition = callExpression(currentPos, Id(attributeFieldName(ai.getSymbol())), defs.needDefaultsMethodName);
+                            condition = callExpression(currentPos, Id(attributeLocationName(ai.getSymbol())), defs.needDefaultsMethodName);
                         } else {
                             // Find the vars enumeration.
                             int enumeration = ai.getEnumeration();
@@ -1572,11 +1590,11 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                             
                             // (varWord & (1 << varBit))
                             JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
-                            // (varWord & (1 << varBit)) != 0
-                            condition = m().Binary(JCTree.NE, maskExpr, makeInt(0));
+                            // (varWord & (1 << varBit)) == 0
+                            condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
                         }
                         
-                        // Construct and add: if (($VAR_BITS_(word) & (1 << bit)) != 0) { set$var(default); }
+                        // Construct and add: if (($VAR_BITS_(word) & (1 << bit)) == 0) { set$var(default); }
                         stmts.append(m().If(condition, applyDefaultsCall, null));
                     } else {
                         // Add the default statement.
@@ -1592,6 +1610,86 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                                              syms.voidType,
                                              defs.applyDefaultsPrefixName,
                                              List.<JCVariableDecl>nil(),
+                                             stmts);
+            return method;
+        }
+
+        //
+        // This methods generates the getDependency$ method for this class.
+        //
+        public JCTree makeGetDependency() {
+            // varNum ARG
+            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+                                                          varNumName,
+                                                          makeType(syms.intType),
+                                                          null);
+            // Number of variables in current class.
+            int count = analysis.getVarCount();
+
+            // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+
+            // Prepare to accumulate cases.
+            ListBuffer<JCCase> cases = ListBuffer.lb();
+            
+            // Gather this class' instance attributes.
+            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+            for (VarInfo ai : attrInfos) {
+                // Only process attributes declared in this class (includes mixins.)
+                if (ai.needsDeclaration() && requiresLocation(ai)) {
+                    // Set the current diagnostic position.
+                    setCurrentPos(ai.pos());
+                    // Grab the variable symbol.
+                    VarSymbol varSym = ai.getSymbol();
+                    
+                    // location$var
+                    Name locationName = ai.isSequence() ? attributeFieldName(varSym) : attributeLocationName(varSym);
+                    // XXXVariable.makeWithDefault(value$var)
+                    JCExpression initExpr = makeLocationWithDefault(ai.getVMI(), ai.pos(), varSym);
+                    // location$var = XXXVariable.makeWithDefault(value$var)
+                    JCExpression assignExpr = m().Assign(Id(locationName), initExpr);
+                    // location$var == null
+                    JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
+                    // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
+                    JCExpression resultExpr = m().Conditional(nullCheck, assignExpr, Id(locationName));
+                    // return location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
+                    JCStatement returnStmt = m().Return(resultExpr);
+                    // i: return location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var;
+                    cases.append(m().Case(makeInt(ai.getEnumeration()), List.<JCStatement>of(returnStmt)));
+                }
+            }
+            
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+
+            // varNum - $VAR_BASE
+            JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
+            // Construct and add: switch(varNum - $VAR_BASE) { ... } 
+            stmts.append(m().Switch(tagExpr, cases.toList()));
+            
+            // Check to see if we need to pass to the super class.
+            ClassSymbol superClassSym = analysis.getSuperClassSym();
+            if (superClassSym != null) {
+                // super
+                JCExpression selector = Id(names._super);
+                // (varNum)
+                List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
+                // super.getDependency$(varNum);
+                JCExpression callExp = callExpression(currentPos, selector, defs.getDependencyPrefixName, args);
+                // Construct and add: return super.getDependency$(varNum);
+                stmts.append(m().Return(callExp));
+            } else {
+                // Construct and add: return super.getDependency$(varNum);
+                stmts.append(m().Return(makeNull()));
+            }
+
+            // Construct method.
+            JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                             syms.objectType,
+                                             defs.getDependencyPrefixName,
+                                             List.<JCVariableDecl>of(arg),
                                              stmts);
             return method;
         }
