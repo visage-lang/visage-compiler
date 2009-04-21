@@ -15,7 +15,7 @@ var data:String = "";
 /** covered   public static java.lang.String getProperty(java.lang.String);  */
 /** covered   public static int addShutdownAction(com.sun.javafx.functions.Function0);   */
 /** covered   public static void deferAction(com.sun.javafx.functions.Function0);   */
-/** NOT covered  public static boolean removeShutdownAction(int);   
+/** NOT covered  public static boolean removeShutdownAction(int);
 
   * @param  action of type function():Void that will be removed from the Shutdown Action Stack
   * @return a Boolean value signifing sucess or failure of removing the action
@@ -28,7 +28,18 @@ public function faction2():Void { var message = "faction2"; println(message); }
 public var action1 = function():Void { var message = "action1"; println(message); }
 public var action2 = function():Void { var message = "action2"; println(message); }
 
-
+/*
+handles should be both empty and not contain handle0; should hit this case:
+   boolean removeAction(int handle) {
+         if (handles.isEmpty() || !handles.contains(handle)) {  //<<===
+             return false;
+ */
+public function RemoveFromEmptyActionsTest()
+{
+  var handle0 = FX.addShutdownAction( action1 );
+  var ret = FX.removeShutdownAction(handle0);
+  ret = FX.removeShutdownAction(handle0);
+}
 /**
  * test using function variables action1, action 2
  */
@@ -46,7 +57,7 @@ assertEquals( handle5,handle6);
 assertEquals( handle4,handle7);
 
  /** 
-   * handle6 and handle7 should be same as handle5 and handle4, so nothign should be printed 
+   * handle6 and handle7 should be same as handle5 and handle4, so nothign should be printed
    * without having to remove handle5 and handle4.
    */
    var ret = FX.removeShutdownAction(handle6);
@@ -57,7 +68,7 @@ assertEquals( handle4,handle7);
      assertEquals(ret,true);
 
   /**
-    * In fact, these should have been removed already, so should return false 
+    * In fact, these should have been removed already, so should return false
 	*/
    ret = FX.removeShutdownAction(handle4);
    /* check that remove was successful by checking return value */
@@ -72,7 +83,7 @@ public function RemoveShutdownActionNegTest()   {
    var handle86 =  FX.addShutdownAction( action86);
    var ret = FX.removeShutdownAction(handle86);
    /**
-     * Try to remove action added by invalide handle id 
+     * Try to remove action added by invalide handle id
 	 */
    ret = FX.removeShutdownAction(handle86+1);
    /* check that remove was not successful by checking return value */
@@ -89,13 +100,13 @@ var handle30 =  FX.addShutdownAction( faction2);
 var handle40 =  FX.addShutdownAction( faction1);
 
 /**
-  * attempt to add same action should return same handle 
+  * attempt to add same action should return same handle
   */
 assertEquals( handle10,handle40);
 assertEquals( handle20,handle30);
 
- /** 
-   * handle4 and handle3 should be same as handle1 and handle2, so nothign should be printed 
+ /**
+   * handle4 and handle3 should be same as handle1 and handle2, so nothign should be printed
    * without having to remove handle1 and handle2.
    */
   var  ret = FX.removeShutdownAction(handle30);
@@ -106,7 +117,7 @@ assertEquals( handle20,handle30);
      assertEquals(ret,true);
 
   /**
-    * In fact, these should have been removed already, so should return false 
+    * In fact, these should have been removed already, so should return false
 	*/
    ret = FX.removeShutdownAction(handle10);
    /* check that remove was successful by checking return value */
@@ -118,21 +129,21 @@ assertEquals( handle20,handle30);
 
 /**
  * test with function variables pointing to separately defined functions (as parm to addShutDownAction) with  same signature
- */ 
+ */
 public function RemoveShutdownPActionTest()
 {
 	var data:String[] = ["some data collected during run","some data collected during run","some data collected during run"];
    /* get handle to action added */
    var handle1 =  FX.addShutdownAction(
-	     function(){ var message = "action3"; println(message); } 
+	     function(){ var message = "action3"; println(message); }
    );
 
    var handle2 =  FX.addShutdownAction(
-	     function(){ var message = "action4"; println(message); } 
+	     function(){ var message = "action4"; println(message); }
    );
 
    var handle3 =  FX.addShutdownAction(
-	     function(){ delete data; println("action5"); } 
+	     function(){ delete data; println("action5"); }
    );
 
   /**
@@ -167,6 +178,11 @@ public function RemoveShutdownPActionTest()
 }
 
 public class TestFX extends FXTestCase  {
+
+    function testRemoveFromEmptyActions() {
+      var jlt = JAVAFX_LANG_TEST {}
+      jlt.RemoveFromEmptyActionsTest()
+    }
 
 	function testRemoveShutdownFVAction()  {
       var jlt = JAVAFX_LANG_TEST {}
