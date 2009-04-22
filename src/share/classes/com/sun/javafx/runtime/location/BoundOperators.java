@@ -149,7 +149,7 @@ public class BoundOperators {
      */
 
     private static<T, L extends ObjectLocation<T>>
-    ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
+    ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, DependencySource... dependencies) {
         final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
         helpedLocation.addDependency(helper);
         if (!lazy) {
@@ -179,7 +179,7 @@ public class BoundOperators {
     private static<T> SequenceLocation<T> makeIndirectSequenceLocation(final TypeInfo<T, ?> typeInfo,
                                                                       final boolean lazy,
                                                                       final BindingExpression binding,
-                                                                      final Location... dependencies) {
+                                                                      final DependencySource... dependencies) {
         // The approach for sequences is different because we need to use actual binding, not just triggers, otherwise
         // the sequences triggers won't flow through the intermediate nodes correctly.
         return new SequenceVariable<T>(typeInfo) {

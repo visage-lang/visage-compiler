@@ -290,19 +290,19 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         removeChild(listener);
     }
 
-    public void addDependency(Location... dependencies) {
+    public void addDependency(DependencySource... dependencies) {
         if (dependencies.length > 0) {
-            for (Location dep : dependencies)
+            for (DependencySource dep : dependencies)
                 addDependency(dep);
         }
     }
 
-    public void addDependency(Location location) {
+    public void addDependency(DependencySource location) {
         if (location != null)
             location.addDependentLocation(new StaticDependentLocation(this));
     }
 
-    public void addDynamicDependency(Location location) {
+    public void addDynamicDependency(DependencySource location) {
         WeakMeHolder weakMeHolder = (WeakMeHolder) findChildByKind(CHILD_KIND_WEAK_ME_HOLDER);
         if (weakMeHolder == null) {
             weakMeHolder = new WeakMeHolder(this);
@@ -324,12 +324,12 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         }
     }
 
-    public <T extends Location> T addDynamicDependent(T dep) {
+    public <T extends DependencySource> T addDynamicDependent(T dep) {
         addDynamicDependency(dep);
         return dep;
     }
 
-    public <T extends Location> T addStaticDependent(T dep) {
+    public <T extends DependencySource> T addStaticDependent(T dep) {
         addDependency(dep);
         return dep;
     }

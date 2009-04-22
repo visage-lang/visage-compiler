@@ -101,15 +101,15 @@ public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpre
             throw new IllegalStateException("Cannot reuse binding expressions");
         this.location = location;
         if (arg$0 != null && (dependents & 0x1) != 0)  {
-            location.addDependency((Location)arg$0);
+            location.addDependency((DependencySource)arg$0);
         }
         if (arg$1 != null && (dependents & 0x2) != 0)  {
-            location.addDependency((Location)arg$1);
+            location.addDependency((DependencySource)arg$1);
         }
         if (moreArgs != null && (dependents & ~0x3) != 0) {
             for (int i = 0; i < moreArgs.length; ++i) {
                 if ((dependents & (1 << (i + 2))) != 0) {
-                    location.addDependency((Location)moreArgs[i]);
+                    location.addDependency((DependencySource)moreArgs[i]);
                 }
             }
         }
