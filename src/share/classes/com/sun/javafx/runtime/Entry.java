@@ -70,7 +70,9 @@ public class Entry {
 			    // TODO: make this not get set for webstart case, 
 			    // perhaps move to usesRuntimeLibrary
             		    String codebase = app.getProtectionDomain().getCodeSource().getLocation().toString();
-            		    codebase = codebase.substring(0, codebase.lastIndexOf('/')+1);
+            		    if (codebase.endsWith(".jar")) {
+            		        codebase += '/';
+            		    }
             		    SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
 			} catch (NullPointerException ignored) {
 	    		    // just in case the codesource is null
