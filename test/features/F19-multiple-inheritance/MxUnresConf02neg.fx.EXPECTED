@@ -1,0 +1,4 @@
+test/features/F19-multiple-inheritance/MxUnresConf02neg.fx:17: reference to bar is ambiguous, both variable bar in MxUnresConf02neg.Super and variable bar in MxUnresConf02neg.Mixin match
+    var far = bar;
+              ^
+1 error
