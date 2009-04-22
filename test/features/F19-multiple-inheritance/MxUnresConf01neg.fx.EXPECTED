@@ -1,0 +1,4 @@
+test/features/F19-multiple-inheritance/MxUnresConf01neg.fx:18: An override variable cannot be given a type as that comes from the variable you override.
+    override public var bar : String;
+                              ^
+1 error
