@@ -1157,8 +1157,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList());
             additionalImports.appendList(model.additionalImports);
 
-            boolean classIsFinal = (tree.getModifiers().flags & Flags.FINAL) != 0;
-
             // include the interface only once
             if (!tree.hasBeenTranslated) {
                 if (isMixinClass) {
@@ -1176,26 +1174,27 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
             translatedDefs.appendList(model.additionalClassMembers);
             
-            {
+            ClassSymbol superClassSym = model.superClassSym;
+            List<ClassSymbol> immediateMixins = model.immediateMixins;
+            boolean forceInit = !immediateMixins.isEmpty() || superClassSym == null || isMixinClass;
+          
+            if (forceInit || !translatedInitBlocks.isEmpty()) {
                 // Add the userInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
-                
-                ClassSymbol superClassSym = model.superClassSym;
-
+ 
                 // Mixin super calls will be handled when inserted into real classes.
                 if (!isMixinClass) {
                     if (superClassSym != null) {
-                        String superName = superClassSym.fullname.toString();
                         List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree( diagPos, superClassSym.type, true), make.Ident(defs.receiverName)));
-                        initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, superName), defs.userInitName, args1));
+                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(defs.receiverName)));
+                        initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, names._super), defs.userInitName, args1));
                     }
                      
-                    for (ClassSymbol mixinClassSym : model.immediateMixins) {
+                    for (ClassSymbol mixinClassSym : immediateMixins) {
                         String mixinName = mixinClassSym.fullname.toString();
                         List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree( diagPos, mixinClassSym.type, true), make.Ident(defs.receiverName)));
+                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, mixinClassSym.type, true), make.Ident(defs.receiverName)));
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, mixinName), defs.userInitName, args1));
                     }
                 }
@@ -1206,7 +1205,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 if (initStats.nonEmpty() || isMixinClass || superClassSym == null) {
                     JCBlock userInitBlock = make.Block(0L, initStats.toList());
                     translatedDefs.append(make.MethodDef(
-                            make.Modifiers(classIsFinal? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC)),
+                            make.Modifiers(!isMixinClass ? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC)),
                             defs.userInitName,
                             makeTypeTree( null,syms.voidType),
                             List.<JCTypeParameter>nil(),
@@ -1216,26 +1215,24 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                             null));
                 }
             }
-            {
+            
+            if (forceInit || !translatedPostInitBlocks.isEmpty()) {
                 // Add the userPostInit$ method
                 List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
                 
-                ClassSymbol superClassSym = model.superClassSym;
-
                 // Mixin super calls will be handled when inserted into real classes.
                 if (!isMixinClass) {
                     if (superClassSym != null) {
-                        String superName = superClassSym.fullname.toString();
                         List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree( diagPos, superClassSym.type, true), make.Ident(defs.receiverName)));
-                        initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, superName), defs.postInitName, args1));
+                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(defs.receiverName)));
+                        initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, names._super), defs.postInitName, args1));
                     }
                      
-                    for (ClassSymbol mixinClassSym : model.immediateMixins) {
+                    for (ClassSymbol mixinClassSym : immediateMixins) {
                         String mixinName = mixinClassSym.fullname.toString();
                         List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree( diagPos, mixinClassSym.type, true), make.Ident(defs.receiverName)));
+                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, mixinClassSym.type, true), make.Ident(defs.receiverName)));
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, mixinName), defs.postInitName, args1));
                     }
                 }
@@ -1246,7 +1243,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 if (initStats.nonEmpty() || isMixinClass || superClassSym == null) {
                     JCBlock postInitBlock = make.Block(0L, initStats.toList());
                     translatedDefs.append(make.MethodDef(
-                            make.Modifiers(classIsFinal? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC)),
+                            make.Modifiers(!isMixinClass ? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC)),
                             defs.postInitName,
                             makeTypeTree( null,syms.voidType),
                             List.<JCTypeParameter>nil(),
