@@ -67,7 +67,7 @@ public class MxOnSeq01 extends FXTestCase {
         var x = C{};
         res="";
         x.v[1..2] = [5, 5];
-        assertEquals("AAEC", res);
+        assertEquals("AEC", res);
         assertEquals([4, 5, 5], x.v);
     }
 
@@ -78,7 +78,7 @@ public class MxOnSeq01 extends FXTestCase {
         var x = D{};
         res="";
         x.v[1..2] = [5, 5];
-        assertEquals("AAECD", res);
+        assertEquals("AECD", res);
         assertEquals([4, 5, 5], x.v);
     }
 

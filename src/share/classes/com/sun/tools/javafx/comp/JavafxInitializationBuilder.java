@@ -194,7 +194,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
             }
             
-            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
             cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
             cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, superType != null && types.isJFXClass(superType.tsym)));
         } else {
@@ -204,7 +204,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             iDefinitions.appendList(makeMemberVariableAccessorInterfaceMethods(diagPos, translatedAttrInfo));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
         }
 } else { // if (!syms.USE_SLACKER_LOCATIONS)
         if (!isMixinClass) {
@@ -228,7 +228,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
          }
 
-            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
             cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
             cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, superClassSym != null));
         } else {
@@ -239,7 +239,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
         }
 } // if (!syms.USE_SLACKER_LOCATIONS)
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
@@ -850,23 +850,27 @@ if (!syms.USE_SLACKER_LOCATIONS) {
     /**
      * Construct the addTriggers method
      * */
-    private JCMethodDecl makeAddTriggersMethod(DiagnosticPosition diagPos, 
+    private List<JCTree> makeAddTriggersMethod(DiagnosticPosition diagPos, 
                                                JFXClassDeclaration cDecl,
                                                ClassSymbol superClassSym,
                                                List<ClassSymbol> immediateMixinClasses,
                                                List<TranslatedVarInfo> translatedAttrInfo,
                                                List<TranslatedOverrideClassVarInfo> translatedTriggerInfo) {
+        ListBuffer<JCTree> methods = ListBuffer.lb();
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         boolean isMixinClass = cDecl.isMixinClass();
 
-        // call the super addTriggers
-        if (superClassSym != null) {
-            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, isMixinClass));
-        }
-        
-        // JFXC-2822 - Triggers need to work from mixins.
-        for (ClassSymbol cSym : immediateMixinClasses) {
-            stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, true));
+        // Supers will be called when inserted into real classes.
+        if (!isMixinClass) {
+            // call the super addTriggers
+            if (superClassSym != null) {
+                stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, isMixinClass));
+            }
+            
+            // JFXC-2822 - Triggers need to work from mixins.
+            for (ClassSymbol cSym : immediateMixinClasses) {
+                stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, true));
+            }
         }
 
         // add change listeners for triggers on attribute definitions
@@ -888,16 +892,21 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 }
             }
         }
-
-        return make.at(diagPos).MethodDef(
-                make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
-                defs.addTriggersName,
-                makeTypeTree( null,syms.voidType),
-                List.<JCTypeParameter>nil(),
-                List.<JCVariableDecl>of( makeReceiverParam(cDecl) ),
-                List.<JCExpression>nil(),
-                make.Block(0L, stmts.toList()),
-                null);
+        
+        // Only generate method if necessary.
+        if (stmts.nonEmpty() || isMixinClass || superClassSym == null) {
+            methods.append(make.at(diagPos).MethodDef(
+                    make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
+                    defs.addTriggersName,
+                    makeTypeTree( null,syms.voidType),
+                    List.<JCTypeParameter>nil(),
+                    List.<JCVariableDecl>of( makeReceiverParam(cDecl) ),
+                    List.<JCExpression>nil(),
+                    make.Block(0L, stmts.toList()),
+                    null));
+        }
+        
+        return methods.toList();
     }
 
     // build a field for each non-static attribute (including inherited).
