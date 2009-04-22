@@ -324,6 +324,9 @@ class JavafxAnalyzeClass {
         @Override
         public VarInfo proxyVar() { return proxyVar; }
         
+        // Return true if the var needs to accessors in the current class.
+        public boolean needsAccessors() { return false; }
+
         // Setter for the proxy var information.
         public void setProxyVar(VarInfo proxyVar) { this.proxyVar = proxyVar; }
     }
