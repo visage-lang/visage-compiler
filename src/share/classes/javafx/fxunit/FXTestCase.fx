@@ -59,6 +59,6 @@ public class FXTestCase extends TestCase {
     public function assertEquals(message:String, expected:Number, actual:Number):Void {
         var exp:Object = expected;
         var act:Object = actual;
-        assertEquals(message, expected, actual);
+        assertEquals(message, exp, act);
     }
 }
