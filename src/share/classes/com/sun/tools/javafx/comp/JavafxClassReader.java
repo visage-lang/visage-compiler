@@ -404,6 +404,14 @@ public class JavafxClassReader extends ClassReader {
         Type type = translateType(sym.type);
         String nameString = name.toString();
         
+        int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
+        if (boundStringIndex != -1) {
+            // this is a bound function
+            // remove the bound suffix, and mark as bound
+            nameString = nameString.substring(0, boundStringIndex);
+            flags |= JavafxFlags.BOUND;
+        }
+        
         if (type instanceof MethodType) {
             boolean convertToStatic = false;
             
@@ -416,14 +424,6 @@ public class JavafxClassReader extends ClassReader {
                 flags &= ~Flags.STATIC;
                 popMethodTypeArg((MethodType)type);
             }
-        }
-        
-        int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
-        if (boundStringIndex != -1) {
-            // this is a bound function
-            // remove the bound suffix, and mark as bound
-            nameString = nameString.substring(0, boundStringIndex);
-            flags |= JavafxFlags.BOUND;
         }
     
         name = names.fromString(nameString);
