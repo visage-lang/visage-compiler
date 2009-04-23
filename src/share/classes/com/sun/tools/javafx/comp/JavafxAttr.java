@@ -1156,6 +1156,7 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitForExpression(JFXForExpression tree) {
         JavafxEnv<JavafxAttrContext> forExprEnv =
             env.dup(tree, env.info.dup(env.info.scope.dup()));
+        forExprEnv.outer = env;
 
         if (forClauses == null)
             forClauses = new ArrayList<JFXForExpressionInClause>();
@@ -3427,7 +3428,7 @@ public class JavafxAttr implements JavafxVisitor {
             while (env != null) {
                 Symbol s2 = env.info.scope.owner;
                 if (s.owner == s2) return true;
-                if (isBound(env) || isClassOrFuncDef(env))                    
+                if (isBound(env) || isClassOrFuncDef(env))
                     return false;
                 env = env.outer;
             }

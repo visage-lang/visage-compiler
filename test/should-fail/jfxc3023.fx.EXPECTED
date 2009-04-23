@@ -1,0 +1,4 @@
+test/should-fail/jfxc3023.fx:10: aaa is already defined in aaa()
+        var aaa = 10;
+        ^
+1 error
