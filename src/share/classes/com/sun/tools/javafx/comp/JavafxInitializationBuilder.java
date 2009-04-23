@@ -1609,26 +1609,17 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                         JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>of(Id(names._this)));
                     
                         if (!ai.isDef()) {
-                            // Condition used to apply defaults.
-                            JCExpression condition;
+                            // Find the vars enumeration.
+                            int enumeration = ai.getEnumeration();
+                            // Which $VAR_BITS_(word) to use.
+                            int word = enumeration >> 5;
+                            // Which bit to use.
+                            int bit = enumeration & 31;
                             
-                            if (requiresLocation(ai)) {
-                                // location$var.needsDefault()
-                                condition = callExpression(currentPos, Id(attributeLocationName(ai.getSymbol())), defs.needDefaultsMethodName);
-                            } else {
-                                // Find the vars enumeration.
-                                int enumeration = ai.getEnumeration();
-                                // Which $VAR_BITS_(word) to use.
-                                int word = enumeration >> 5;
-                                // Which bit to use.
-                                int bit = enumeration & 31;
-                                
-                                // (varWord & (1 << varBit))
-                                JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
-                                // (varWord & (1 << varBit)) == 0
-                                condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
-                            }
-                            
+                            // (varWord & (1 << varBit))
+                            JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
+                            // (varWord & (1 << varBit)) == 0
+                            JCExpression condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
                             // Construct and add: if (($VAR_BITS_(word) & (1 << bit)) == 0) { set$var(default); }
                             stmts.append(m().If(condition, applyDefaultsCall, null));
                         } else {
