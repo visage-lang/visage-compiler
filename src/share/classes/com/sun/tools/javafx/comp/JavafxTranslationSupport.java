@@ -903,6 +903,8 @@ if (!syms.USE_SLACKER_LOCATIONS) {
            Name fieldName = attributeFieldName(attribSym);
            return instanceIdent==null? make.at(diagPos).Ident(fieldName) : make.at(diagPos).Select(instanceIdent, fieldName);
        } else {
+           // TODO use when getDependency is square.
+           // return callExpression(diagPos, instanceIdent, attributeGetDependencyName(attribSym));
            Name fieldName = attributeLocationName(attribSym);
            return instanceIdent==null? make.at(diagPos).Ident(fieldName) : make.at(diagPos).Select(instanceIdent, fieldName);
        }
