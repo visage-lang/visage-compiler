@@ -1,10 +1,10 @@
 test/should-fail/jfxc2784.fx:8: unexpected type
-found   : nativearray of char
+found   : nativearray of Character
 required: Object[]
 delete arr;
        ^
 test/should-fail/jfxc2784.fx:9: unexpected type
-found   : nativearray of char
+found   : nativearray of Character
 required: Object[]
 insert 1 into arr;
               ^

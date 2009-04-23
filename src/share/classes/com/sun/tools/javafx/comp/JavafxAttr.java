@@ -1109,6 +1109,8 @@ public class JavafxAttr implements JavafxVisitor {
         // Must reference an attribute
         if (sym.kind != VAR) {
             log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE, id.name);
+        } else if (localEnv.outer.tree.getFXTag() != JavafxTag.CLASS_DEF) {
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION, sym.name, sym.owner);
         } else {
             VarSymbol v = (VarSymbol) sym;
             tree.sym = v;
@@ -1156,6 +1158,7 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitForExpression(JFXForExpression tree) {
         JavafxEnv<JavafxAttrContext> forExprEnv =
             env.dup(tree, env.info.dup(env.info.scope.dup()));
+        forExprEnv.outer = env;
 
         if (forClauses == null)
             forClauses = new ArrayList<JFXForExpressionInClause>();
@@ -3427,7 +3430,7 @@ public class JavafxAttr implements JavafxVisitor {
             while (env != null) {
                 Symbol s2 = env.info.scope.owner;
                 if (s.owner == s2) return true;
-                if (isBound(env) || isClassOrFuncDef(env))                    
+                if (isBound(env) || isClassOrFuncDef(env))
                     return false;
                 env = env.outer;
             }

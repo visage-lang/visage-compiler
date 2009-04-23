@@ -1,0 +1,4 @@
+test/should-fail/jfxc3091.fx:13: Cannot override variable x defined in jfxc3091.A within a function definition.
+override var x = 12;
+^
+1 error

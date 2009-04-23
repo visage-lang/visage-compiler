@@ -17,7 +17,7 @@ class Mixee3 extends M4 {}
 
 public class MxInstof01 extends FXTestCase {
 
-    function testLevel1() {
+    function testInstanceOfLevel1() {
         var m = Mixee1 {};
         assertTrue(m instanceof M1);
         assertTrue(m instanceof Mixee1);
@@ -26,7 +26,7 @@ public class MxInstof01 extends FXTestCase {
         assertFalse(m instanceof M4);
     }
 
-    function testLevel2() {
+    function testInstanceOfLevel2() {
         var m = new Mixee2();
         assertTrue(m instanceof M1);
         assertTrue(m instanceof M2);
@@ -35,7 +35,7 @@ public class MxInstof01 extends FXTestCase {
         assertFalse(m instanceof M4);
     }
 
-    function testLevel3() {
+    function testInstanceOfLevel3() {
         var m = new Mixee3();
         assertTrue(m instanceof M1);
         assertTrue(m instanceof M2);
