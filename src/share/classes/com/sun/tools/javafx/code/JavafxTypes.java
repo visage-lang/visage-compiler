@@ -353,32 +353,6 @@ public class JavafxTypes extends Types {
     public void clearCaches() {
         fxClasses = null;
     }
-    
-    public String toJavaFXString(Type type) {
-        StringBuilder buffer = new StringBuilder();
-        try {
-            toJavaFXString(type, buffer);
-        } catch (java.io.IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-        return buffer.toString();
-    }
-    
-    public String toJavaFXString(List<Type> ts) {
-        if (ts.isEmpty())
-            return "";
-        StringBuilder buffer = new StringBuilder();
-        try {
-            toJavaFXString(ts.head, buffer);
-            for (List<Type> l = ts.tail; l.nonEmpty(); l = l.tail) {
-                buffer.append(",");
-                toJavaFXString(l.head, buffer);
-            }
-        } catch (java.io.IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-        return buffer.toString();
-    }
 
     public boolean isNumeric(Type type) {
         return (isSameType(type, syms.javafx_ByteType) ||
@@ -389,119 +363,94 @@ public class JavafxTypes extends Types {
                 isSameType(type, syms.javafx_DoubleType));
     }
 
-    private boolean isJavaFXBoolean(Type type) {
-        return type.tag == BOOLEAN;
-    }
-    
-    private boolean isJavaLong(Type type) {
-        return type.tag == LONG;
-    }
-    
-    private boolean isJavaFXInteger(Type type) {
-        return type.tag == BYTE ||
-                type.tag == SHORT ||
-                type.tag == INT;
-    }
-    
-    private boolean isJavaFXNumber(Type type){
-        return type.tag == FLOAT ||
-                type.tag == DOUBLE;
-    }
-    
-    private boolean isJavaFXString(Type type) {
-        return (type.tag == CLASS) && (type.toString().equals("java.lang.String"));
-    }
-    
-    private boolean isJavaFXObject(Type type) {
-        return (type.tag == CLASS) && (type.toString().equals("java.lang.Object"));
-    }
-    
-    private boolean isJavaFXUnknown(Type type) {
-        return type.tag == UNKNOWN;
-    }
-    
-    private boolean isJavaFXSequence(Type type) {
-        return isSequence(type);
-    }
-    
-    private boolean isJavaFXMethod(Type type) {
-        return type instanceof MethodType ||
-                type instanceof FunctionType;
-    }
-    
-    private void sequenceToJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
-        if (type != syms.javafx_EmptySequenceType)
-            toJavaFXString(elementType(type), buffer);
-        buffer.append("[]");
+    public List<String> toJavaFXString(List<Type> ts) {
+        List<String> buf = List.nil();
+        for (Type t : ts) {
+            buf = buf.prepend(toJavaFXString(t));
+        }
+        return buf.reverse();
     }
 
-    private void arrayToJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
-        buffer.append("nativearray of ");
-        toJavaFXString(elemtype(type), buffer);
+    public String toJavaFXString(Type type) {
+        StringBuilder buffer = new StringBuilder();
+        typePrinter.visit(type, buffer);
+        return buffer.toString();
     }
-    
-    private void methodToJavaFXString(MethodType type, Appendable buffer) throws java.io.IOException {
-        if (type.getReturnType() == null) {
-            buffer.append("function(?):?");
-            return;
-        }
-        buffer.append("function(");
-        List<Type> args = type.getParameterTypes();
-        for (List<Type> l = args; l.nonEmpty(); l = l.tail) {
-            if (l != args) {
-                buffer.append(",");
+
+    SimpleVisitor typePrinter = new SimpleVisitor<Void, StringBuilder>() {
+
+        public Void visitType(Type t, StringBuilder buffer) {
+            String s = null;
+            switch (t.tag) {
+                case NONE: s = "<unknown>"; break;
+                case UNKNOWN: s = "Object"; break;
+                case BYTE: s = "Byte"; break;
+                case SHORT: s = "Short"; break;
+                case INT: s = "Integer"; break;
+                case LONG: s = "Long"; break;
+                case FLOAT: s = "Number"; break;
+                case DOUBLE: s = "Double"; break;
+                case CHAR: s = "Character"; break;
+                case BOOLEAN: s = "Boolean"; break;
+                default: s = t.toString(); break;
             }
-            buffer.append(":");
-            toJavaFXString(l.head, buffer);
+            buffer.append(s);
+            return null;
         }
-        buffer.append("):");
-        toJavaFXString(type.getReturnType(), buffer);
-    }
 
-    private void toJavaFXString(Type type, Appendable buffer) throws java.io.IOException {
-        if (isJavaFXBoolean(type)) {
-            buffer.append("Boolean");
-        } else if (isJavaLong(type)) {
-            buffer.append("java.lang.Long");
-        } else if (isJavaFXInteger(type)) {
-            buffer.append("Integer");
-        } else if (isJavaFXNumber(type)) {
-            buffer.append("Number");
-        } else if (isJavaFXString(type)) {
-            buffer.append("String");
-        } else if (isJavaFXObject(type)) {
-            buffer.append("Object");
-        } else if (isJavaFXUnknown(type)) {
-            // Is this right?
-            buffer.append("Object");
-        } else if (type == Type.noType) {
-            buffer.append("<unknown>");
-        } else if (isJavaFXSequence(type)) {
-            sequenceToJavaFXString(type, buffer);
-        } else if (type.tag == ARRAY) {
-            arrayToJavaFXString(type, buffer);
-        } else if (isJavaFXMethod(type)) {
-            MethodType methodType = type.asMethodType();
-            methodToJavaFXString(methodType, buffer);
-        } else if (type.isCompound()) {
-            toJavaFXString(supertype(type), buffer);
-        } else {
-            buffer.append(type.toString());
+        @Override
+        public Void visitMethodType(MethodType t, StringBuilder buffer) {
+            if (t.getReturnType() == null) {
+                buffer.append("function(?):?");
+                return null;
+            }
+            buffer.append("function(");
+            List<Type> args = t.getParameterTypes();
+            for (List<Type> l = args; l.nonEmpty(); l = l.tail) {
+                if (l != args) {
+                    buffer.append(",");
+                }
+                buffer.append(":");
+                visit(l.head, buffer);
+            }
+            buffer.append("):");
+            visit(t.getReturnType(), buffer);
+            return null;
         }
-    }
+
+        @Override
+        public Void visitArrayType(ArrayType t, StringBuilder buffer) {
+            buffer.append("nativearray of ");
+            visit(elemtype(t), buffer);
+            return null;
+        }
+
+        @Override
+        public Void visitClassType(ClassType t, StringBuilder buffer) {
+            if (isSameType(t, syms.stringType))
+                buffer.append("String");
+            else if (isSameType(t, syms.objectType))
+                buffer.append("Object");
+            else if (isSequence(t)) {
+                if (t != syms.javafx_EmptySequenceType) {
+                    visit(elementType(t), buffer);
+                }
+                buffer.append("[]");
+            }
+            else if (t instanceof FunctionType) {
+                visitMethodType(t.asMethodType(), buffer);
+            }
+            else if (t.isCompound()) {
+                visit(supertype(t), buffer);
+            }
+            else
+                buffer.append(t.toString());
+            return null;
+        }
+    };
 
     public String toJavaFXString(MethodSymbol sym, List<VarSymbol> params) {
-        StringBuilder builder = new StringBuilder();
-        try {
-            toJavaFXString(sym, params, builder);
-        } catch (java.io.IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-        return builder.toString();
-    }
-
-    public void toJavaFXString(MethodSymbol sym, List<VarSymbol> params,
-            Appendable buffer) throws java.io.IOException {
+        StringBuilder buffer = new StringBuilder();
         if ((sym.flags() & BLOCK) != 0)
             buffer.append(sym.owner.name);
         else {
@@ -520,11 +469,12 @@ public class JavafxTypes extends Types {
                         params = params.tail;
                     }
                     buffer.append(":");
-                    toJavaFXString(l.head, buffer);
+                    buffer.append(toJavaFXString(l.head));
                 }
                 buffer.append(')');
             }
         }
+        return buffer.toString();
     }
 
     public String location (Symbol sym, Type site) {
