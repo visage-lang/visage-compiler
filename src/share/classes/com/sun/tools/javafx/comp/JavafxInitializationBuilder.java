@@ -68,6 +68,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     final Type initHelperType;
     final Type abstractVariableType;
+    final Type locationDependencyType;
     
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -102,6 +103,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             Name name = names.fromString(locationPackageNameString + ".AbstractVariable");
             ClassSymbol sym = reader.enterClass(name);
             abstractVariableType = types.erasure( sym.type );
+        }
+        {
+            Name name = names.fromString(locationPackageNameString + ".LocationDependency");
+            ClassSymbol sym = reader.enterClass(name);
+            locationDependencyType = types.erasure( sym.type );
         }
     }
 
@@ -1685,10 +1691,12 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     // location$var == null
                     JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
                     // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
-                    JCExpression resultExpr = m().Conditional(nullCheck, assignExpr, Id(locationName));
-                    // return location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
-                    JCStatement returnStmt = m().Return(resultExpr);
-                    // i: return location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var;
+                    JCExpression locationExpr = m().Conditional(nullCheck, assignExpr, Id(locationName));
+                    // (LocationDependency)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
+                    JCExpression castExpr = m().TypeCast(makeType(locationDependencyType), locationExpr);
+                    // return location$var == null ? (LocationDependency)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
+                    JCStatement returnStmt = m().Return(castExpr);
+                    // i: return location$var == null ? (LocationDependency)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
                     cases.append(m().Case(makeInt(ai.getEnumeration()), List.<JCStatement>of(returnStmt)));
                 }
             }
@@ -1730,7 +1738,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                                                               null);
                 // Construct method.
                 JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 syms.objectType,
+                                                 locationDependencyType,
                                                  defs.getDependencyPrefixName,
                                                  List.<JCVariableDecl>of(arg),
                                                  stmts);
