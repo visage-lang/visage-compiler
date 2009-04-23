@@ -47,6 +47,7 @@ public class JavafxDefs {
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
+    public static final String attributeGetDependencyMethodNamePrefix = "getDependency$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
     public static final String needsDefaultSuffix = "$needs_default$";
     public static final String mixinSuffix = "$Mixin";
@@ -229,6 +230,7 @@ public class JavafxDefs {
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name applyDefaultsPrefixName;
+    final Name getDependencyPrefixName;
     final Name isInitializedPrefixName;
     final Name setDefaultMethodName;
     final Name noteSharedMethodName;
@@ -364,6 +366,7 @@ public class JavafxDefs {
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
+        getDependencyPrefixName = names.fromString(attributeGetDependencyMethodNamePrefix);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);

@@ -41,7 +41,7 @@ import com.sun.tools.javafx.comp.JavafxDefs;
 public class JavafxSymtab extends Symtab {
 
     // TEMPORARY FLAG FOR SLACKER LOCATIONS
-    public static final boolean USE_SLACKER_LOCATIONS = false;
+    public static boolean USE_SLACKER_LOCATIONS = false;
 
     private static final String anno = JavafxDefs.annotationPackageNameString;
     public static final String privateAnnotationClassNameString = anno + ".Private";

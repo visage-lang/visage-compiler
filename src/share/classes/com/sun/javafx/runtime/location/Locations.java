@@ -136,16 +136,16 @@ public class Locations {
             location.iterateChildren(closure);
         }
 
-        public void addDependency(Location... locations) {
-            location.addDependency(locations);
+        public void addDependency(DependencySource... deps) {
+            location.addDependency(deps);
         }
 
-        public void addDependency(Location location) {
-            location.addDependency(location);
+        public void addDependency(DependencySource dep) {
+            location.addDependency(dep);
         }
 
-        public void addDynamicDependency(Location location) {
-            location.addDynamicDependency(location);
+        public void addDynamicDependency(DependencySource dep) {
+            location.addDynamicDependency(dep);
         }
 
         public void clearDynamicDependencies() {
