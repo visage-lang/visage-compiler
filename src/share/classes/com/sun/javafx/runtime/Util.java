@@ -195,4 +195,11 @@ public class Util {
         }
         return ((Number)p1).doubleValue();
     }
+
+    static public boolean objectToBoolean(Object p1) {
+        if (p1 == null) {
+            return false;
+        }
+        return (boolean)(Boolean)p1;
+    }
 }

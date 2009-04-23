@@ -439,6 +439,9 @@ public abstract class JavafxTranslationSupport {
             // doesn't exist on mobile, at least not as of Jan 2009.
             String method = null;
             switch (targetType.tag) {
+                case TypeTags.BOOLEAN:
+                    method="objectToBoolean";
+                    break;
                 case TypeTags.CHAR:
                     method="objectToCharacter";
                     break;
