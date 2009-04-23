@@ -69,6 +69,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     final Type initHelperType;
     final Type abstractVariableType;
     final Type locationDependencyType;
+    final Type locationType;
     
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -108,6 +109,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             Name name = names.fromString(locationPackageNameString + ".LocationDependency");
             ClassSymbol sym = reader.enterClass(name);
             locationDependencyType = types.erasure( sym.type );
+        }
+        {
+            Name name = names.fromString(locationPackageNameString + ".Location");
+            ClassSymbol sym = reader.enterClass(name);
+            locationType = types.erasure( sym.type );
         }
     }
 
@@ -1291,12 +1297,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             Type type = varInfo.getRealType();
             // Assume no body.
             ListBuffer<JCStatement> stmts = null;
-             // Arg value
-            JCExpression argExp = Id(defs.attributeSetMethodParamName);
-            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
-                                                          defs.attributeSetMethodParamName,
-                                                          makeType(type),
-                                                          null);
  
             if (needsBody) {
                 // Prepare to accumulate statements.
@@ -1320,6 +1320,8 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 
                 // value$var
                 JCExpression valueExp = Id(attributeValueName(proxyVarSym));
+                // Arg value
+                JCExpression argExp = Id(defs.attributeSetMethodParamName);
                 // value$var = value
                 JCExpression assignExp = m().Assign(valueExp, argExp);
                 
@@ -1346,6 +1348,11 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 }
             }
         
+            // Set up value arg.
+            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+                                                          defs.attributeSetMethodParamName,
+                                                          makeType(type),
+                                                          null);
             // Construct method.
             JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
                                              type,
@@ -1357,6 +1364,51 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             return method;
         }
         
+        
+        //
+        // This method constructs the getDependency method for the specified attribute.
+        //
+        //     Location getDependency$var() {
+        //         return location$var == null ? (Location)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var);
+        //     }
+        //     
+        private JCTree makeGetDependencyAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            // Symbol used on the method.
+            VarSymbol varSym = varInfo.getSymbol();
+            // Assume no body.
+            ListBuffer<JCStatement> stmts = null;
+            
+            if (needsBody) {
+                // Prepare to accumulate statements.
+                stmts = ListBuffer.lb();
+                
+                // location$var
+                Name locationName = varInfo.isSequence() ? attributeFieldName(varSym) : attributeLocationName(varSym);
+                // XXXVariable.makeWithDefault(value$var)
+                JCExpression initExpr = makeLocationWithDefault(varInfo.getVMI(), varInfo.pos(), varSym);
+                // location$var = XXXVariable.makeWithDefault(value$var)
+                JCExpression assignExpr = m().Assign(Id(locationName), initExpr);
+                // location$var == null
+                JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
+                // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
+                JCExpression locationExpr = m().Conditional(nullCheck, assignExpr, Id(locationName));
+                // (LocationDependency)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
+                JCExpression castExpr = m().TypeCast(makeType(locationType), locationExpr);
+                /// Construct and add: return location$var == null ? (Location)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
+                stmts.append(m().Return(castExpr));
+            }
+            
+            // Construct method.
+            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody), 
+                                             locationType,
+                                             attributeGetDependencyName(varSym),
+                                             List.<JCVariableDecl>nil(),
+                                             stmts);
+            optStat.recordProxyMethod();
+            
+            return method;
+        }
+
         //
         // This method constructs the getter/setter/location accessor methods for each attribute.
         //     
@@ -1375,6 +1427,10 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     } else {
                         accessors.append(makeGetterAccessorMethod(ai, true));
                         accessors.append(makeSetterAccessorMethod(ai, true));
+                    }
+                    
+                    if (requiresLocation(ai)) {
+                        accessors.append(makeGetDependencyAccessorMethod(ai, true));
                     }
                 }
             }
@@ -1403,6 +1459,10 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     } else {
                         accessors.append(makeGetterAccessorMethod(ai, false));
                         accessors.append(makeSetterAccessorMethod(ai, false));
+                    }
+                    
+                    if (requiresLocation(ai)) {
+                        accessors.append(makeGetDependencyAccessorMethod(ai, false));
                     }
                 }
             }
@@ -1673,21 +1733,11 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     // Grab the variable symbol.
                     VarSymbol varSym = ai.getSymbol();
                     
-                    // location$var
-                    Name locationName = ai.isSequence() ? attributeFieldName(varSym) : attributeLocationName(varSym);
-                    // XXXVariable.makeWithDefault(value$var)
-                    JCExpression initExpr = makeLocationWithDefault(ai.getVMI(), ai.pos(), varSym);
-                    // location$var = XXXVariable.makeWithDefault(value$var)
-                    JCExpression assignExpr = m().Assign(Id(locationName), initExpr);
-                    // location$var == null
-                    JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
-                    // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
-                    JCExpression locationExpr = m().Conditional(nullCheck, assignExpr, Id(locationName));
-                    // (LocationDependency)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
-                    JCExpression castExpr = m().TypeCast(makeType(locationDependencyType), locationExpr);
-                    // return location$var == null ? (LocationDependency)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
-                    JCStatement returnStmt = m().Return(castExpr);
-                    // i: return location$var == null ? (LocationDependency)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
+                    // getDependency$var()
+                    JCExpression callExp = callExpression(currentPos, null, attributeGetDependencyName(varSym), List.<JCExpression>nil());
+                    // return getDependency$var()
+                    JCStatement returnStmt = m().Return(callExp);
+                    // i: return getDependency$var();
                     cases.append(m().Case(makeInt(ai.getEnumeration()), List.<JCStatement>of(returnStmt)));
                 }
             }
@@ -1729,7 +1779,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                                                               null);
                 // Construct method.
                 JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 locationDependencyType,
+                                                 locationType,
                                                  defs.getDependencyPrefixName,
                                                  List.<JCVariableDecl>of(arg),
                                                  stmts);
