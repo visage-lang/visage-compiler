@@ -1109,6 +1109,8 @@ public class JavafxAttr implements JavafxVisitor {
         // Must reference an attribute
         if (sym.kind != VAR) {
             log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE, id.name);
+        } else if (localEnv.outer.tree.getFXTag() != JavafxTag.CLASS_DEF) {
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION, sym.name, sym.owner);
         } else {
             VarSymbol v = (VarSymbol) sym;
             tree.sym = v;
