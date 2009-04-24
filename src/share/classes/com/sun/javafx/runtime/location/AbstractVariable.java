@@ -108,7 +108,7 @@ public abstract class AbstractVariable<
         });
     }
 
-    public ObjectLocation<T_VALUE> bind(boolean lazy, BindingExpression binding, Location... dependencies) {
+    public ObjectLocation<T_VALUE> bind(boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         ensureBindable();
         resetState(lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND);
         enqueueChild(binding);
@@ -119,7 +119,7 @@ public abstract class AbstractVariable<
         return this;
     }
 
-    public void bindFromLiteral(final boolean lazy, final BindingExpression binding, final Location... dependencies) {
+    public void bindFromLiteral(final boolean lazy, final BindingExpression binding, final DependencySource... dependencies) {
         setDeferredLiteral(new DeferredInitializer() {
             public void apply() {
                 bind(lazy, binding, dependencies);

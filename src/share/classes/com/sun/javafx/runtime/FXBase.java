@@ -54,4 +54,5 @@ public class FXBase implements FXObject {
     
     public boolean isInitialized$(final int varNum) { return true; }
     public void applyDefaults$() {}
+    public Location getDependency$(final int varNum) { return null; }
 }

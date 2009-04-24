@@ -56,11 +56,11 @@ public class SequenceVariable<T>
         return new SequenceVariable<T>(typeInfo, value);
     }
 
-    public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo, boolean lazy, BindingExpression binding, Location... dependencies) {
+    public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo, boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         return new SequenceVariable<T>(typeInfo, lazy, binding, dependencies);
     }
 
-    public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo, BindingExpression binding, Location... dependencies) {
+    public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo, BindingExpression binding, DependencySource... dependencies) {
         return new SequenceVariable<T>(typeInfo, false, binding, dependencies);
     }
 
@@ -100,7 +100,7 @@ public class SequenceVariable<T>
         replaceValue(Sequences.<T>upcast(value));
     }
 
-    protected SequenceVariable(TypeInfo<T, ?> typeInfo, boolean lazy, BindingExpression binding, Location... dependencies) {
+    protected SequenceVariable(TypeInfo<T, ?> typeInfo, boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         this(typeInfo);
         bind(lazy, binding);
         addDependency(dependencies);
