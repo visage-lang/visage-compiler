@@ -1384,19 +1384,28 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             if (needsBody) {
                 // Prepare to accumulate statements.
                 stmts = ListBuffer.lb();
-                
-                // location$var
-                Name locationName = varInfo.isSequence() ? attributeFieldName(varSym) : attributeLocationName(varSym);
-                // XXXVariable.makeWithDefault(value$var)
-                JCExpression initExpr = makeLocationWithDefault(varInfo.getVMI(), varInfo.pos(), varSym);
-                // location$var = XXXVariable.makeWithDefault(value$var)
-                JCExpression assignExpr = m().Assign(Id(locationName), initExpr);
-                // location$var == null
-                JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
-                // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
-                JCExpression locationExpr = m().Conditional(nullCheck, assignExpr, Id(locationName));
-                /// Construct and add: return location$var == null ? (Location)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
-                stmts.append(m().Return(locationExpr));
+                // value$var
+                JCExpression valueExpr = Id(attributeValueName(varSym));
+               
+                if (requiresLocation(varInfo)) {
+                    // location$var
+                    Name locationName = varInfo.isSequence() ? attributeFieldName(varSym) : attributeLocationName(varSym);
+                    // XXXVariable.makeWithDefault(value$var)
+                    JCExpression initExpr = makeLocationWithDefault(varInfo.getVMI(), varInfo.pos(), valueExpr);
+                    // location$var = XXXVariable.makeWithDefault(value$var)
+                    JCExpression assignExpr = m().Assign(Id(locationName), initExpr);
+                    // location$var == null
+                    JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
+                    // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
+                    JCExpression locationExpr = m().Conditional(nullCheck, assignExpr, Id(locationName));
+                    // Construct and add: return location$var == null ? (Location)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
+                    stmts.append(m().Return(locationExpr));
+                } else {
+                    // new ConstantLocation<T>(value$var)
+                    JCExpression locationExpr = makeConstantLocation(currentPos, varInfo.getVMI().getRealType(), valueExpr);
+                    // Construct and add: return new ConstantLocation<T>(value$var);
+                    stmts.append(m().Return(locationExpr));
+                }
             }
             
             // Construct method.
@@ -1429,9 +1438,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                         accessors.append(makeSetterAccessorMethod(ai, true));
                     }
                     
-                    if (requiresLocation(ai)) {
-                        accessors.append(makeGetDependencyAccessorMethod(ai, true));
-                    }
+                    accessors.append(makeGetDependencyAccessorMethod(ai, true));
                 }
             }
             
@@ -1461,9 +1468,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                         accessors.append(makeSetterAccessorMethod(ai, false));
                     }
                     
-                    if (requiresLocation(ai)) {
-                        accessors.append(makeGetDependencyAccessorMethod(ai, false));
-                    }
+                    accessors.append(makeGetDependencyAccessorMethod(ai, false));
                 }
             }
             return accessors.toList();
@@ -1727,7 +1732,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
             for (VarInfo ai : attrInfos) {
                 // Only process attributes declared in this class (includes mixins.)
-                if (ai.needsDeclaration() && requiresLocation(ai)) {
+                if (ai.needsDeclaration()) {
                     // Set the current diagnostic position.
                     setCurrentPos(ai.pos());
                     // Grab the variable symbol.

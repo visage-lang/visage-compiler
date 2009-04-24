@@ -571,9 +571,8 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Apply(typeArgs, getSelect, getArgs);
     }
 
-    JCExpression makeLocationWithDefault(TypeMorphInfo tmi, DiagnosticPosition diagPos, Symbol sym) {
-        Name valueName = attributeValueName(sym);
-        List<JCExpression> makeArgs = List.<JCExpression>of(make.at(diagPos).Ident(valueName));
+    JCExpression makeLocationWithDefault(TypeMorphInfo tmi, DiagnosticPosition diagPos, JCExpression expr) {
+        List<JCExpression> makeArgs = List.<JCExpression>of(expr);
         Name makeMethod;
         if (tmi.getTypeKind() == TYPE_KIND_OBJECT && 
                 (tmi.getRealType() == syms.javafx_StringType || tmi.getRealType() == syms.javafx_DurationType)) {
