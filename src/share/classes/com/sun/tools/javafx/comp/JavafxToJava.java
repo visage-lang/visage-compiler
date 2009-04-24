@@ -3641,11 +3641,8 @@ if (!syms.USE_SLACKER_LOCATIONS) {
     }
 
     boolean requiresLocation(Symbol sym) {
-        if (sym == null) {
-            return false;
-        }
-        return typeMorpher.requiresLocation(sym);
-        }
+        return sym != null && typeMorpher.requiresLocation(sym);
+    }
 
     boolean requiresLocation(VarMorphInfo vmi) {
         return requiresLocation(vmi.getSymbol());
@@ -3736,7 +3733,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
 } else { // if (!syms.USE_SLACKER_LOCATIONS) {
         JCExpression expr = varRef;
 
-        boolean staticReference = sym.isStatic();
         if (sym instanceof VarSymbol) {
             final VarSymbol vsym = (VarSymbol) sym;
             boolean doNoteShared = false;
@@ -3748,7 +3744,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
  
             if (sym.owner.kind == Kinds.TYP && types.isJFXClass(sym.owner)) {
                 // this is a reference to a JavaFX class variable
-                if (staticReference) {
+                if (sym.isStatic()) {
                     // a script-level (static) variable, direct access with prefix
                     expr = switchName(diagPos, varRef, attributeFieldName(vsym));
                 } else {
@@ -3763,12 +3759,16 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 if (wrapper != AsLocation) {
                     // non-bind context -- want v1.get()
                     int typeKind = vmi.getTypeKind();
-                    Name getMethodName = defs.locationGetMethodName[typeKind];
+                    
                     if (typeKind == JavafxVarSymbol.TYPE_KIND_SEQUENCE) {
-                        if (doNoteShared)
+                        Name getMethodName;
+                        
+                        if (doNoteShared) {
+                            getMethodName = defs.locationGetMethodName[typeKind];
                             doNoteShared = false;
-                        else
+                        } else {
                             getMethodName = defs.getAsSequenceRawMethodName;
+                        }
                             
                         expr = getLocationValue(diagPos, expr, getMethodName);
                     }

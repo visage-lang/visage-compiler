@@ -898,15 +898,12 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 attributeGetterName(attribSym));
        }
  } else { // if (!syms.USE_SLACKER_LOCATIONS) {
-      JCExpression instanceIdent = instanceName==null? null : make.at(diagPos).Ident(instanceName);
+       JCExpression instanceIdent = instanceName == null? null : make.at(diagPos).Ident(instanceName);
        if (attribSym.isStatic()) {
            Name fieldName = attributeFieldName(attribSym);
            return instanceIdent==null? make.at(diagPos).Ident(fieldName) : make.at(diagPos).Select(instanceIdent, fieldName);
        } else {
-           // TODO use when getDependency is square.
-           // return callExpression(diagPos, instanceIdent, attributeGetDependencyName(attribSym));
-           Name fieldName = attributeLocationName(attribSym);
-           return instanceIdent==null? make.at(diagPos).Ident(fieldName) : make.at(diagPos).Select(instanceIdent, fieldName);
+           return callExpression(diagPos, instanceIdent, attributeGetDependencyName(attribSym));
        }
  } // if (!syms.USE_SLACKER_LOCATIONS) {
    }

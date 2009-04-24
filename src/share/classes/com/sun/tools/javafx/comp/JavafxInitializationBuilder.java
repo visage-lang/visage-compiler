@@ -1392,15 +1392,13 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
                 // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
                 JCExpression locationExpr = m().Conditional(nullCheck, assignExpr, Id(locationName));
-                // (LocationDependency)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
-                JCExpression castExpr = m().TypeCast(makeType(locationType), locationExpr);
                 /// Construct and add: return location$var == null ? (Location)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var)
-                stmts.append(m().Return(castExpr));
+                stmts.append(m().Return(locationExpr));
             }
             
             // Construct method.
             JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody), 
-                                             locationType,
+                                             varInfo.getVariableType(),
                                              attributeGetDependencyName(varSym),
                                              List.<JCVariableDecl>nil(),
                                              stmts);
@@ -1735,9 +1733,11 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     
                     // getDependency$var()
                     JCExpression callExp = callExpression(currentPos, null, attributeGetDependencyName(varSym), List.<JCExpression>nil());
-                    // return getDependency$var()
-                    JCStatement returnStmt = m().Return(callExp);
-                    // i: return getDependency$var();
+                    // (Location)getDependency$var()
+                    JCExpression castExpr = m().TypeCast(makeType(locationType), callExp);
+                    // return (Location)getDependency$var()
+                    JCStatement returnStmt = m().Return(castExpr);
+                    // i: return (Location)getDependency$var();
                     cases.append(m().Case(makeInt(ai.getEnumeration()), List.<JCStatement>of(returnStmt)));
                 }
             }
