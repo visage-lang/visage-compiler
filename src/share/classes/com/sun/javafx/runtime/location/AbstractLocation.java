@@ -171,8 +171,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     }
 
     private void iterateChildren(MutativeIterator<? extends LocationDependency> closure) {
-        if (hasChildren(closure.kind))
-            Linkables.iterate(children, closure);
+        if (hasChildren(closure.kind)) {
+            if (Linkables.iterate(children, closure))
+                recalculateChildMask();
+        }
     }
 
     static abstract class MutativeIterator<T extends LocationDependency>
