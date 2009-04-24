@@ -1,11 +1,8 @@
 /*
  * @test
- * @run/fail
+ * @run
  * 
  */
-
-// When this isuue will be fixed, please, update test
-// features/F25-lazy-bind/Lz/lzIfGlobal.fx
 
 var flag : Boolean = false as Boolean;
 function checkFlag (expected : Boolean, msg : String) {

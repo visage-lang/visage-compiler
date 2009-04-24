@@ -1,80 +1,40 @@
 Byte lazy+eager
-FAILED Byte 1
-FAILED Byte 2
 Byte eager
 Short lazy+eager
-FAILED Short 1
-FAILED Short 2
 Short eager
 Integer lazy+eager
-FAILED Integer 1
-FAILED Integer 2
 Integer eager
 Long lazy+eager
-FAILED Long 1
-FAILED Long 2
 Long eager
 Float lazy+eager
-FAILED Float 1
-FAILED Float 2
 Float eager
 Double lazy+eager
-FAILED Double 1
-FAILED Double 2
 Double eager
 Number lazy+eager
-FAILED Number 1
-FAILED Number 2
 Number eager
 String lazy+eager
-FAILED String 1
-FAILED String 2
 String eager
 Boolean lazy+eager
-FAILED Boolean 1
-FAILED Boolean 2
 Boolean eager
 Duration lazy+eager
-FAILED Duration 1
-FAILED Duration 2
 Duration eager
 Byte lazy+eager in function
-FAILED Byte 1f
-FAILED Byte 2f
 Byte eager in function
 Short lazy+eager in function
-FAILED Short 1f
-FAILED Short 2f
 Short eager in function
 Integer lazy+eager in function
-FAILED Integer 1f
-FAILED Integer 2f
 Integer eager in function
 Long lazy+eager in function
-FAILED Long 1f
-FAILED Long 2f
 Long eager in function
 Float lazy+eager in function
-FAILED Float 1f
-FAILED Float 2f
 Float eager in function
 Double lazy+eager in function
-FAILED Double 1f
-FAILED Double 2f
 Double eager in function
 Number lazy+eager in function
-FAILED Number 1f
-FAILED Number 2f
 Number eager in function
 String lazy+eager in function
-FAILED String 1f
-FAILED String 2f
 String eager in function
 Boolean lazy+eager in function
-FAILED Boolean 1f
-FAILED Boolean 2f
 Boolean eager in function
 Duration lazy+eager in function
-FAILED Duration 1f
-FAILED Duration 2f
 Duration eager in function
