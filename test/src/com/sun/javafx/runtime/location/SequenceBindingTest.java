@@ -528,7 +528,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
 
     public void testBoundSingleton() {
         IntLocation i = IntVariable.make(0);
-        ObjectLocation<Integer> o = Locations.asObjectLocation(i);
+        ObjectLocation<Integer> o = i;
         SequenceLocation<Integer> s = BoundSequences.singleton(NOT_LAZY, TypeInfo.Integer, o);
         HistoryReplaceListener<Integer> hl = new HistoryReplaceListener<Integer>();
         s.addSequenceChangeListener(hl);

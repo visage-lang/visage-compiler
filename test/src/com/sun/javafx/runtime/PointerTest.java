@@ -68,7 +68,7 @@ public class PointerTest extends JavaFXTestCase {
         assertEquals(pintvar1.hashCode(), pdwrapper.hashCode());
          * */
 
-        final ObjectLocation<Integer> asObject = Locations.asObjectLocation(intvar1);
+        final ObjectLocation<Integer> asObject = intvar1;
         Pointer powrapper = Pointer.make(asObject);
         assertEquals(pintvar1, powrapper);
         assertEquals(pintvar1.hashCode(), powrapper.hashCode());

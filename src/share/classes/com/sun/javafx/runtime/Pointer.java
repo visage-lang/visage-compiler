@@ -175,12 +175,18 @@ public class Pointer implements KeyValueTarget {
             return true;
         else
             return (o instanceof Pointer)
-                    && Locations.getUnderlyingLocation(location) == Locations.getUnderlyingLocation(((Pointer) o).location);
+                    && getUnderlyingLocation(location) == getUnderlyingLocation(((Pointer) o).location);
     }
 
     @Override
     public int hashCode() {
-        Location loc = Locations.getUnderlyingLocation(location);
+        Location loc = getUnderlyingLocation(location);
         return loc != null ? loc.hashCode() : 0;
+    }
+
+    private static Location getUnderlyingLocation(Location loc) {
+        while (loc.isViewLocation())
+            loc = loc.getUnderlyingLocation();
+        return loc;
     }
 }

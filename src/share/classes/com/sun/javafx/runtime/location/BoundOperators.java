@@ -227,4 +227,15 @@ public class BoundOperators {
             }
         };
     }
+
+    /**
+     * Return a wrapping location that mirrors the underlying Location but upcasts its type
+     * @param clazz  Really Class<V> but because of generics limitations this cannot be declared
+     * @param loc Location to upcast
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static<T, V extends T> ObjectLocation<T> upcast(TypeInfo<V, ?> typeInfo, ObjectLocation<V> loc) {
+        return (ObjectLocation<T>)(loc);
+    }
 }

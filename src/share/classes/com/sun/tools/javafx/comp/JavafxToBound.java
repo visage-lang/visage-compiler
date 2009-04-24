@@ -269,7 +269,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                         makeTypeTree(diagPos, types.boxedTypeOrType(inType), true));
                 Type inRealType = typeMorpher.typeMorphInfo(inType).getRealType();
                 JCExpression inClass = makeTypeInfo(diagPos, inRealType);
-                tree = runtime(diagPos, defs.Locations_upcast, typeArgs, List.of(inClass, tree));
+                tree = runtime(diagPos, defs.BoundOperators_upcast, typeArgs, List.of(inClass, tree));
             }
         }
         tree.type = targetType; // as a way of passing it to methods which needs to know the target type
