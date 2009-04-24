@@ -1,0 +1,44 @@
+Byte lazy+eager
+Byte eager
+Short lazy+eager
+Short eager
+Character lazy+eager
+Character eager
+Integer lazy+eager
+Integer eager
+Long lazy+eager
+Long eager
+Float lazy+eager
+Float eager
+Double lazy+eager
+Double eager
+Number lazy+eager
+Number eager
+String lazy+eager
+String eager
+Boolean lazy+eager
+Boolean eager
+Duration lazy+eager
+Duration eager
+Byte lazy+eager in function
+Byte eager in function
+Short lazy+eager in function
+Short eager in function
+Character lazy+eager in function
+Character eager in function
+Integer lazy+eager in function
+Integer eager in function
+Long lazy+eager in function
+Long eager in function
+Float lazy+eager in function
+Float eager in function
+Double lazy+eager in function
+Double eager in function
+Number lazy+eager in function
+Number eager in function
+String lazy+eager in function
+String eager in function
+Boolean lazy+eager in function
+Boolean eager in function
+Duration lazy+eager in function
+Duration eager in function
