@@ -222,12 +222,13 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         if (!isMixinClass) {
             cDefinitions.appendList(javaCodeMaker.makeAttributeNumbers());
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods());
+            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(instanceAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
             cDefinitions.appendList(javaCodeMaker.makeIsInitialized());
             cDefinitions.appendList(javaCodeMaker.makeApplyDefaults());
             cDefinitions.appendList(javaCodeMaker.makeGetDependency());
             
-            cDefinitions.appendList(makeAttributeFields(cDecl.sym, staticAttributeInfos));
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
             cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
             cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
@@ -246,7 +247,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
             iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
 
-            cDefinitions.appendList(makeAttributeFields(cDecl.sym, staticAttributeInfos));
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
@@ -1305,18 +1305,21 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                  // Symbol used when accessing the variable.
                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
                 
-                // Get the var enumeration.
-                int enumeration = varInfo.getEnumeration();
-                // Which $VAR_BITS_ word.
-                int word = enumeration >> 5;
-                // Which $VAR_BITS_ bit.
-                int bit = 1 << (enumeration & 31);
-        
-                // $VAR_BITS_word
-                JCExpression bitsIdent = Id(attributeBitsName(word));
-                // $VAR_BITS_word |= bit;
-                JCStatement bitsStmt = m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
-                stmts.append(bitsStmt);
+                // Script vars don't need flags.
+                if (!varInfo.isStatic()) {
+                    // Get the var enumeration.
+                    int enumeration = varInfo.getEnumeration();
+                    // Which $VAR_BITS_ word.
+                    int word = enumeration >> 5;
+                    // Which $VAR_BITS_ bit.
+                    int bit = 1 << (enumeration & 31);
+            
+                    // $VAR_BITS_word
+                    JCExpression bitsIdent = Id(attributeBitsName(word));
+                    // $VAR_BITS_word |= bit;
+                    JCStatement bitsStmt = m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
+                    stmts.append(bitsStmt);
+                }
                 
                 // value$var
                 JCExpression valueExp = Id(attributeValueName(proxyVarSym));
@@ -1410,8 +1413,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         //
         // This method constructs the getter/setter/location accessor methods for each attribute.
         //     
-        public List<JCTree> makeAttributeAccessorMethods() {
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+        public List<JCTree> makeAttributeAccessorMethods(List<VarInfo> attrInfos) {
             ListBuffer<JCTree> accessors = ListBuffer.lb();
             
             for (VarInfo ai : attrInfos) {
