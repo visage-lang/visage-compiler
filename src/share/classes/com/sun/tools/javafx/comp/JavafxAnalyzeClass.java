@@ -165,6 +165,8 @@ class JavafxAnalyzeClass {
         public Type getVariableType() { return vmi.getVariableType(); }
         public Type getLocationType() { return vmi.getLocationType(); }
         public Type getElementType()  { return vmi.getElementType(); }
+        public boolean requiresLocation()  { return vmi.requiresLocation(); }
+        public boolean alwaysLocation()    { return vmi.alwaysLocation(); }
 
         // Return var name.
         public Name getName() { return name; }
@@ -227,9 +229,6 @@ class JavafxAnalyzeClass {
 
         // Return true if the var needs to be declared in the current class.
         public boolean needsDeclaration() { return needsCloning() && !hasProxyVar(); }
-
-        // Return true if the var needs to accessors in the current class.
-        public boolean needsAccessors() { return needsCloning(); }
 
         // Return true if the var needs to be instance declared in the current class.
         public boolean needsInstanceDeclaration() { return needsDeclaration() && !isStatic(); }
@@ -324,9 +323,6 @@ class JavafxAnalyzeClass {
         @Override
         public VarInfo proxyVar() { return proxyVar; }
         
-        // Return true if the var needs to accessors in the current class.
-        public boolean needsAccessors() { return false; }
-
         // Setter for the proxy var information.
         public void setProxyVar(VarInfo proxyVar) { this.proxyVar = proxyVar; }
     }

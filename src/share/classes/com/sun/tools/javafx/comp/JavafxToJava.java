@@ -65,7 +65,6 @@ import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.Position;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.STranslator;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
@@ -536,6 +535,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     JCExpression translateAsLocation(JFXExpression expr) {
+        return translateToExpression(expr, AsLocation, null);
+    }
+
+    JCExpression translateAsSequenceVariable(JFXExpression expr) {
         return translateToExpression(expr, AsLocation, null);
     }
 
@@ -1345,8 +1348,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
-            stats.append(toJava.definitionalAssignmentToSet(diagPos, transInit, bindStatus, vsym, instName,
-                    FROM_LITERAL_MILIEU));
+            stats.append(m().Exec( toJava.definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, vsym, instName,
+                                                     toJava.typeMorpher.varMorphInfo(vsym), FROM_LITERAL_MILIEU) ) );
         }
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instName, VarSymbol vsym, JCExpression transInit) {
@@ -1641,72 +1644,25 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JCExpression valueArg = translateDefinitionalAssignmentToValueArg(diagPos, init, bindStatus, vmi);
         return definitionalAssignmentToSetExpression(diagPos, valueArg, bindStatus, vsym, instanceName,
-                                                     vmi.getTypeKind(), milieu);
+                                                     vmi, milieu);
     }
 
-    JCExpression definitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
-            JCExpression valueArg, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name instanceName, int typeKind, int milieu) {
-if (!syms.USE_SLACKER_LOCATIONS) {
-        JCExpression varRef;
+    private JCExpression definitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
+            JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
+            Name instanceName, VarMorphInfo vmi, int milieu) {
+        final boolean isLocal = vsym.owner.kind != Kinds.TYP;
+        assert !isLocal || instanceName == null;
+        final JCExpression varRef = isLocal?
+                make.at(diagPos).Ident(vsym)                          // It is a local variable
+            :   makeAttributeAccess(diagPos, vsym, instanceName);     // It is a member variable
+        final JCExpression nonNullInit = (init == null)? makeDefaultValue(diagPos, vmi) : init;  //TODO: is this needed?
 
-        if (!requiresLocation(vsym)) {
-            if (vsym.owner.kind == Kinds.TYP) {
-                // It is a member variable
-                if (instanceName == null) {
-                    varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
-                } else if (allowDirectAccess(vsym, true)) {
-                    JCExpression tc = make.at(diagPos).Ident(instanceName); 
-                    varRef = make.at(diagPos).Select(tc, attributeFieldName(vsym));
-                } else {
-                    JCExpression tc = make.at(diagPos).Ident(instanceName);
-                    final Name setter = attributeSetterName(vsym);
-                    JCExpression toApply = make.at(diagPos).Select(tc, setter);
-                    return make.at(diagPos).Apply(null, toApply, List.of(valueArg));
-                }
-            } else {
-                // It is a local variable
-                assert instanceName == null;
-                varRef = make.at(diagPos).Ident(vsym);
-            }
-            return make.at(diagPos).Assign(varRef, valueArg);
+        if (!requiresLocation(vsym) && isLocal) {
+            // It is a local variable which is not a Location, just assign to it
+            return make.at(diagPos).Assign(varRef, nonNullInit);
         }
 
-        if (vsym.owner.kind == Kinds.TYP) {
-            // It is a member variable
-            varRef = makeAttributeAccess(diagPos, vsym, instanceName);
-        } else {
-            // It is a local variable
-            varRef = make.at(diagPos).Ident(vsym);
-        }
-
-        Name methName;
-        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-        if (bindStatus.isUnidiBind()) {
-            methName = defs.locationBindMilieuMethodName[milieu];
-            args.append(makeLaziness(diagPos, bindStatus));
-        } else if (bindStatus.isBidiBind()) {
-            methName = defs.locationBijectiveBindMilieuMethodName[milieu];
-        } else {
-            methName = defs.locationSetMilieuMethodName[typeKind][milieu];
-        }
-        args.append(valueArg);
-        return callExpression(diagPos, varRef, methName, args);
-} else { // if (!syms.USE_SLACKER_LOCATIONS)
-        JCExpression varRef;
-
-        if (requiresLocation(vsym) &&
-              (milieu == FROM_LITERAL_MILIEU ||
-               bindStatus.isBound() ||
-               typeKind == JavafxVarSymbol.TYPE_KIND_SEQUENCE)) {
-            if (vsym.owner.kind == Kinds.TYP) {
-                // It is a member variable
-                varRef = makeAttributeAccess(diagPos, vsym, instanceName);
-            } else {
-                // It is a local variable
-                varRef = make.at(diagPos).Ident(vsym);
-            }
-    
+        if (requiresLocation(vsym)) {
             Name methName;
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
             if (bindStatus.isUnidiBind()) {
@@ -1715,41 +1671,20 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             } else if (bindStatus.isBidiBind()) {
                 methName = defs.locationBijectiveBindMilieuMethodName[milieu];
             } else {
-                methName = defs.locationSetMilieuMethodName[typeKind][milieu];
+                methName = defs.locationSetMilieuMethodName[vmi.getTypeKind()][milieu];
             }
-            args.append(valueArg);
-            
+            args.append(nonNullInit);
+
             return callExpression(diagPos, varRef, methName, args);
         }
-        
-        if (vsym.owner.kind == Kinds.TYP) {
-            // It is a member variable
-            if (instanceName == null) {
-                varRef = make.at(diagPos).Ident(attributeFieldName(vsym));
-            } else {
-                JCExpression tc = make.at(diagPos).Ident(instanceName);
-                final Name setter = attributeSetterName(vsym);
-                JCExpression toApply = make.at(diagPos).Select(tc, setter);
-                return make.at(diagPos).Apply(null, toApply, List.of(valueArg));
-            }
-        } else {
-            // It is a local variable
-            assert instanceName == null;
-            varRef = make.at(diagPos).Ident(vsym);
-        }
-        
-        return make.at(diagPos).Assign(varRef, valueArg);
-} // if (!syms.USE_SLACKER_LOCATIONS)
-    }
 
-    JCStatement definitionalAssignmentToSet(DiagnosticPosition diagPos,
-            JCExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name instanceName, int milieu) {
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        JCExpression nonNullInit = (init == null)? makeDefaultValue(diagPos, vmi) : init;  //TODO: is this needed?
-        JCExpression setExpr = definitionalAssignmentToSetExpression(diagPos, nonNullInit, bindStatus, vsym, instanceName,
-                                                     vmi.getTypeKind(), milieu);
-        return make.at(diagPos).Exec( setExpr );
+        if (!isLocal) {
+            // It is a member variable
+            JCExpression tc = instanceName == null ? null : make.at(diagPos).Ident(instanceName);
+            return callExpression(diagPos, tc, attributeSetterName(vsym), nonNullInit);
+        }
+
+        return make.at(diagPos).Assign(varRef, nonNullInit);
     }
 
     @Override
@@ -2074,6 +2009,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         protected final JFXExpression lhs;
         protected final JFXExpression rhs;
         protected final Symbol sym;
+        protected final VarMorphInfo vmi;
         protected final JCExpression rhsTranslated;
 
         AssignTranslator(final DiagnosticPosition diagPos, final JFXExpression lhs, final JFXExpression rhs) {
@@ -2082,6 +2018,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             this.rhs = rhs;
             this.rhsTranslated = convertNullability(diagPos, translateAsValue(rhs, rhsType()), rhs, rhsType());
             this.sym = expressionSymbol(lhs);
+            this.vmi = sym==null? null : typeMorpher.varMorphInfo(sym);
         }
 
         abstract JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated);
@@ -2119,19 +2056,19 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     return postProcess(m().Assign(m().Indexed(tseq, index), buildRHS(rhsTranslated)));
                 }
                 else {
-                    JCExpression tseq = translateAsLocation(seq);
+                    JCExpression tseq = translateAsSequenceVariable(seq);
                     JCFieldAccess select = m().Select(tseq, defs.setMethodName);
                     List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
                     return postProcess(m().Apply(null, select, args));
                 }
-            } else if (requiresLocation(sym)) {
+            } else if ((!vmi.isFXClassVariable() || vmi.isSequence()) && vmi.requiresLocation()) {
                 // we are setting a var Location, call the set method
                 JCExpression lhsTranslated = translateAsLocation(lhs);
                 JCFieldAccess setSelect = m().Select(lhsTranslated, defs.locationSetMethodName[typeMorpher.typeMorphInfo(lhs.type).getTypeKind()]);
                 List<JCExpression> setArgs = List.of(buildRHS(rhsTranslated));
                 return postProcess(m().Apply(null, setSelect, setArgs));
             } else {
-                final boolean useSetters = sym.owner.kind == Kinds.TYP && !sym.isStatic() && types.isJFXClass(sym.owner);
+                final boolean useSetters = vmi.isFXClassVariable();
 
                 if (lhs.getFXTag() == JavafxTag.SELECT) {
                     final JFXSelect select = (JFXSelect) lhs;
@@ -2158,7 +2095,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 } else {
                     // not SELECT
                     if (useSetters) {
-                        JCExpression recv = makeReceiver(diagPos, sym, getAttrEnv().enclClass.sym);
+                        JCExpression recv = sym.isStatic()? null : makeReceiver(diagPos, sym, getAttrEnv().enclClass.sym);
                         return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
                     } else {
                         return defaultFullExpression(translateToExpression(lhs, AsShareSafeValue, null), rhsTranslated);
@@ -2176,7 +2113,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
             JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
             JCExpression rhs = translateAsValue(tree.rhs, si.getSequence().type);
-            JCExpression seq = translateToExpression(si.getSequence(), AsLocation, null);
+            JCExpression seq = translateAsSequenceVariable(si.getSequence());
             JCExpression firstIndex = translateAsValue(si.getFirstIndex(), syms.intType);
             JCExpression lastIndex = makeSliceLastIndex(si);
             JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
@@ -2528,7 +2465,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
     @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression seq = translateAsLocation(tree.getSequence());
+        JCExpression seq = translateAsSequenceVariable(tree.getSequence());
         JCExpression firstIndex = translateAsValue(tree.getFirstIndex(), syms.intType);
         JCExpression lastIndex = makeSliceLastIndex(tree);
         JCFieldAccess select = make.at(diagPos).Select(seq, defs.getSliceMethodName);
@@ -2539,7 +2476,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
     @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JCExpression seqLoc = translateAsLocation(tree.getSequence());
+        JCExpression seqLoc = translateAsSequenceVariable(tree.getSequence());
         JCExpression elem = translateAsUnconvertedValue( tree.getElement() );
         Type elemType = tree.getElement().type;
         if (types.isArray(elemType) || types.isSequence(elemType))
@@ -2560,26 +2497,26 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         JFXExpression seq = tree.getSequence();
 
         if (tree.getElement() != null) {
-            JCExpression seqLoc = translateAsLocation(seq);
+            JCExpression seqLoc = translateAsSequenceVariable(seq);
             result = callStatement(tree.pos(), seqLoc, "deleteValue", translateAsUnconvertedValue(tree.getElement())); //TODO: convert to seqence type
         } else {
             if (seq.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
                 // deletion of a sequence element -- delete s[i]
                 JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
                 JFXExpression seqseq = si.getSequence();
-                JCExpression seqLoc = translateAsLocation(seqseq);
+                JCExpression seqLoc = translateAsSequenceVariable(seqseq);
                 JCExpression index = translateAsValue(si.getIndex(), syms.intType);
                 result = callStatement(tree.pos(), seqLoc, "delete", index);
             } else if (seq.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
                 // deletion of a sequence slice --  delete s[i..j]=8
                 JFXSequenceSlice slice = (JFXSequenceSlice) seq;
                 JFXExpression seqseq = slice.getSequence();
-                JCExpression seqLoc = translateAsLocation(seqseq);
+                JCExpression seqLoc = translateAsSequenceVariable(seqseq);
                 JCExpression first = translateAsValue(slice.getFirstIndex(), syms.intType);
                 JCExpression last = makeSliceLastIndex(slice);
                 result = callStatement(tree.pos(), seqLoc, "deleteSlice", List.of(first, last));
             } else if (types.isSequence(seq.type)) {
-                JCExpression seqLoc = translateAsLocation(seq);
+                JCExpression seqLoc = translateAsSequenceVariable(seq);
                 result = callStatement(tree.pos(), seqLoc, "deleteAll");
             } else {
                 result = make.at(tree.pos()).Exec(
@@ -3653,6 +3590,8 @@ if (!syms.USE_SLACKER_LOCATIONS) {
     }
 
     boolean allowDirectAccess(VarSymbol vsym, boolean isSet) {
+        return false;
+        /*
         boolean isMixinVar = types.isMixin(vsym.owner);
         if (isMixinVar || syms.USE_SLACKER_LOCATIONS) return false;
         
@@ -3667,61 +3606,53 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         }
         
         return true;
+         * */
     }
 
     JCExpression convertVariableReference(DiagnosticPosition diagPos,
                                                  JCExpression varRef, Symbol sym,
                                                  Locationness wrapper) {
-if (!syms.USE_SLACKER_LOCATIONS) {
         JCExpression expr = varRef;
 
-        boolean staticReference = sym.isStatic();
         if (sym instanceof VarSymbol) {
             final VarSymbol vsym = (VarSymbol) sym;
-            boolean doNoteShared = false;
-            if (wrapper == AsValue) {
-                Type type = vsym.type;
-                if (types.isSequence(type))
-                    doNoteShared = true;
-            }
- 
-            if (sym.owner.kind == Kinds.TYP && types.isJFXClass(sym.owner)) {
-                // this is a reference to a JavaFX class variable
-                if (staticReference) {
-                    // a script-level (static) variable, direct access with prefix
-                    expr = switchName(diagPos, varRef, attributeFieldName(vsym));
-                } else if (allowDirectAccess(vsym, false)) {
-                    expr = switchName(diagPos, varRef, attributeFieldName(vsym));
-                } else {
-                    // an instance variable, use get$
-                    JCExpression accessFunc = switchName(diagPos, varRef, attributeGetterName(vsym));
-                    List<JCExpression> emptyArgs = List.nil();
-                    expr = make.at(diagPos).Apply(null, accessFunc, emptyArgs);
-                }
-            }
+            Type type = vsym.type;
             VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            if (requiresLocation(vsym)) {
-                if (wrapper == AsLocation) {
-                    // already in correct form-- leave it
-                } else {
-                    // non-bind context -- want v1.get()
-                    int typeKind = vmi.getTypeKind();
-                    Name getMethodName = defs.locationGetMethodName[typeKind];
-                    if (typeKind == JavafxVarSymbol.TYPE_KIND_SEQUENCE) {
-                        if (doNoteShared)
-                            doNoteShared = false;
-                        else
-                            getMethodName = defs.getAsSequenceRawMethodName;
+            int typeKind = vmi.getTypeKind();
+            boolean isSequence = vmi.isSequence();
+            boolean isClassVar = sym.owner.kind == Kinds.TYP && types.isJFXClass(sym.owner);
+
+ 
+            if (isClassVar) {
+                // this is a reference to a JavaFX class variable, use getter
+                Name accessName = ((wrapper == AsLocation) || isSequence)? attributeGetDependencyName(vsym) : attributeGetterName(vsym);
+                JCExpression accessFunc = switchName(diagPos, varRef, accessName);
+                List<JCExpression> emptyArgs = List.nil();
+                expr = make.at(diagPos).Apply(null, accessFunc, emptyArgs);
+            }
+
+            // Anything still in the form of a Location (and that isn't what we want), get the value
+            if (vmi.requiresLocation() && wrapper != AsLocation) {
+                if (isSequence) {
+                    if (wrapper == AsShareSafeValue) {
+                        expr = callExpression(diagPos, expr, defs.getAsSequenceRawMethodName);
+                    } else {
+                        expr = getLocationValue(diagPos, expr, typeKind);
                     }
-                    expr = getLocationValue(diagPos, expr, getMethodName);
+                } else if (!isClassVar) {
+                    expr = getLocationValue(diagPos, expr, typeKind);
                 }
-            } else {
+            }
                 // not morphed
+                /** save in case we optimize script-private
                 if (wrapper == AsLocation) {
+                    VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
                     expr = makeUnboundLocation(diagPos, vmi, expr);
                 }
-            }
-            if (doNoteShared) {
+                 * **/
+
+            //TODO: the previoiuis logic appeared never to come here
+            if (false && wrapper == AsValue && isSequence) {
                 // typeArgs = List.of(makeTypeTree(diagPos, tmi.getRealType(), true));
                 JCExpression st = makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences");
                 JCExpression fn = make.at(diagPos).Select(st, defs.noteSharedMethodName);
@@ -3730,65 +3661,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         }
         
         return expr;
-} else { // if (!syms.USE_SLACKER_LOCATIONS) {
-        JCExpression expr = varRef;
-
-        if (sym instanceof VarSymbol) {
-            final VarSymbol vsym = (VarSymbol) sym;
-            boolean doNoteShared = false;
-            if (wrapper == AsValue) {
-                Type type = vsym.type;
-                if (types.isSequence(type))
-                    doNoteShared = true;
-            }
- 
-            if (sym.owner.kind == Kinds.TYP && types.isJFXClass(sym.owner)) {
-                // this is a reference to a JavaFX class variable
-                if (sym.isStatic()) {
-                    // a script-level (static) variable, direct access with prefix
-                    expr = switchName(diagPos, varRef, attributeFieldName(vsym));
-                } else {
-                    // an instance variable, use get$
-                    JCExpression accessFunc = switchName(diagPos, varRef, attributeGetterName(vsym));
-                    List<JCExpression> emptyArgs = List.nil();
-                    expr = make.at(diagPos).Apply(null, accessFunc, emptyArgs);
-                }
-            }
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            if (requiresLocation(vsym)) {
-                if (wrapper != AsLocation) {
-                    // non-bind context -- want v1.get()
-                    int typeKind = vmi.getTypeKind();
-                    
-                    if (typeKind == JavafxVarSymbol.TYPE_KIND_SEQUENCE) {
-                        Name getMethodName;
-                        
-                        if (doNoteShared) {
-                            getMethodName = defs.locationGetMethodName[typeKind];
-                            doNoteShared = false;
-                        } else {
-                            getMethodName = defs.getAsSequenceRawMethodName;
-                        }
-                            
-                        expr = getLocationValue(diagPos, expr, getMethodName);
-                    }
-                }
-            } else {
-                // not morphed
-                if (wrapper == AsLocation) {
-                    expr = makeUnboundLocation(diagPos, vmi, expr);
-                }
-            }
-            if (doNoteShared) {
-                // typeArgs = List.of(makeTypeTree(diagPos, tmi.getRealType(), true));
-                JCExpression st = makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences");
-                JCExpression fn = make.at(diagPos).Select(st, defs.noteSharedMethodName);
-                expr = make.at(diagPos).Apply(null/*typeArgs*/, fn, List.of(expr));
-            }
-        }
-        
-        return expr;
-} // if (!syms.USE_SLACKER_LOCATIONS) {
     }
     //where
     private JCExpression switchName(DiagnosticPosition diagPos, JCExpression identOrSelect, Name name) {

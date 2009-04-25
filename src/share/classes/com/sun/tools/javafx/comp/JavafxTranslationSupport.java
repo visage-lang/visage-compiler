@@ -870,13 +870,7 @@ public abstract class JavafxTranslationSupport {
 
     // expr.get()
     JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, int typeKind) {
-        return getLocationValue(diagPos, expr, defs.locationGetMethodName[typeKind]);
-    }
-
-    JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, Name getMethodName) {
-        JCFieldAccess getSelect = make.at(diagPos).Select(expr, getMethodName);
-        List<JCExpression> getArgs = List.nil();
-        return make.at(diagPos).Apply(null, getSelect, getArgs);
+        return callExpression(diagPos, expr, defs.locationGetMethodName[typeKind]);
     }
 
     /**
@@ -886,25 +880,8 @@ public abstract class JavafxTranslationSupport {
      * If receiver is null, use direct access.
      * */
    JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym, Name instanceName) {
-if (!syms.USE_SLACKER_LOCATIONS) {
-       JCExpression instanceIdent = instanceName==null? null : make.at(diagPos).Ident(instanceName);
-       if (attribSym.isStatic()) {
-           Name fieldName = attributeFieldName(attribSym);
-           return instanceIdent==null? make.at(diagPos).Ident(fieldName) : make.at(diagPos).Select(instanceIdent, fieldName);
-       } else {
-           return callExpression(diagPos,
-                instanceIdent,
-                attributeGetterName(attribSym));
-       }
- } else { // if (!syms.USE_SLACKER_LOCATIONS) {
        JCExpression instanceIdent = instanceName == null? null : make.at(diagPos).Ident(instanceName);
-       if (attribSym.isStatic()) {
-           Name fieldName = attributeFieldName(attribSym);
-           return instanceIdent==null? make.at(diagPos).Ident(fieldName) : make.at(diagPos).Select(instanceIdent, fieldName);
-       } else {
-           return callExpression(diagPos, instanceIdent, attributeGetDependencyName(attribSym));
-       }
- } // if (!syms.USE_SLACKER_LOCATIONS) {
+       return callExpression(diagPos, instanceIdent, attributeGetDependencyName(attribSym));
    }
 
     JCIdent makeIdentOfPresetKind(DiagnosticPosition diagPos, Name name, int pkind) {

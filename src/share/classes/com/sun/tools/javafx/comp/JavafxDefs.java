@@ -89,7 +89,7 @@ public class JavafxDefs {
     public static final String varBaseString = "$VAR_BASE";
     public static final String varCountString = "$VAR_COUNT";
     public static final String varBitsString = "$VAR_BITS_";
-    public static final String varValueString = "value$";
+    public static final String varValueString = "$";
     public static final String varLocationString = "location$";
     
     public  static final String javaLangPackageNameString = "java.lang";

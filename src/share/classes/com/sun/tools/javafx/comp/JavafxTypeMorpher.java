@@ -81,19 +81,38 @@ public class JavafxTypeMorpher {
         }
     }
 
+    enum VarAccess { PROHIBITED, DIRECT, ACCESSOR, LOCATION };
+
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
 
     public class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
+        private final boolean requiresLocation;
+        private final boolean onlyLocation;
 
         VarMorphInfo(Symbol sym) {
             super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
             this.sym = sym;
+            this.requiresLocation = JavafxTypeMorpher.this.requiresLocation(sym);
+            this.onlyLocation = isSequence();
         }
 
         public Symbol getSymbol() {
             return sym;
         }
+
+        public boolean requiresLocation() {
+            return requiresLocation;
+        }
+
+        public boolean alwaysLocation() {
+            return onlyLocation;
+        }
+
+        public boolean isFXClassVariable() {
+            return sym.owner.kind == Kinds.TYP && JavafxTypeMorpher.this.types.isJFXClass(sym.owner);
+        }
+
     }
 
     public class TypeMorphInfo {
