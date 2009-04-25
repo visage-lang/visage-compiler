@@ -407,6 +407,11 @@ class JavafxAnalyzeClass {
     public JFXClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
     
     //
+    // Returns true if teh current class is a script.
+    //
+    public boolean isScriptClass() { return currentClassDecl.isScriptClass; }
+    
+    //
     // Returns the current class symbol.
     //
     public ClassSymbol getCurrentClassSymbol() { return currentClassSym; }
@@ -491,7 +496,7 @@ class JavafxAnalyzeClass {
     //
     // Returns null or the superclass symbol if it is a javafx class.
     //
-    public ClassSymbol getSuperClassSym() { return superClassSym; }
+    public ClassSymbol getFXSuperClassSym() { return superClassSym; }
     
     //
     // Returns resulting list of all superclasses in top down order.

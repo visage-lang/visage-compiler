@@ -3589,26 +3589,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         return (onr == null)?  null : translateBlockExpressionToBlock(onr.getBody());
     }
 
-    boolean allowDirectAccess(VarSymbol vsym, boolean isSet) {
-        return false;
-        /*
-        boolean isMixinVar = types.isMixin(vsym.owner);
-        if (isMixinVar || syms.USE_SLACKER_LOCATIONS) return false;
-        
-        boolean inSameClass = getAttrEnv().enclClass.sym == vsym.owner;
-        boolean requiresLocation = requiresLocation(vsym);
-
-        if (isSet) {
-            return false;
-        } else {
-            if (requiresLocation) return true;
-            if (!inSameClass) return false;
-        }
-        
-        return true;
-         * */
-    }
-
     JCExpression convertVariableReference(DiagnosticPosition diagPos,
                                                  JCExpression varRef, Symbol sym,
                                                  Locationness wrapper) {

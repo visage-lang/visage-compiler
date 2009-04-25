@@ -181,7 +181,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<VarInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
         List<VarInfo> staticAttributeInfos = analysis.staticAttributeInfos();
         List<MethodSymbol> needDispatch = analysis.needDispatch();
-        ClassSymbol superClassSym = analysis.getSuperClassSym();
+        ClassSymbol superClassSym = analysis.getFXSuperClassSym();
         List<ClassSymbol> superClasses = analysis.getSuperClasses();
         List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
         List<ClassSymbol> allMixinClasses = analysis.getAllMixins();
@@ -196,8 +196,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(instanceAttributeInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
             cDefinitions.appendList(javaCodeMaker.makeIsInitialized());
-            cDefinitions.appendList(javaCodeMaker.makeApplyDefaults());
+            cDefinitions.appendList(javaCodeMaker.makeBlanketApplyDefaults());
+            cDefinitions.appendList(javaCodeMaker.makeSpecificApplyDefaults());
             cDefinitions.appendList(javaCodeMaker.makeGetDependency());
+            cDefinitions.append    (javaCodeMaker.makeCount());
             
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
             cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
@@ -491,42 +493,29 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
                 if (hasDefault) {
-                    /* TODO JFXC-2836
-                    if (!ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
-                        stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
-                    }
-                    */
-                    
-                    // a default exists, either on the direct attribute or on an override
+                     // a default exists, either on the direct attribute or on an override
                     stmts.append(ai.getDefaultInitStatement());
-                } else if (ai.isMixinVar()) {
-                    /* TODO JFXC-2836
-                    if (ai.isMixinVar() && !ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
-                        stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
-                    }
-                    */
-                    
-                    ClassSymbol attrParent = (ClassSymbol)ai.getSymbol().owner;
-                    assert attrParent != null : "Parent supertype for attribute " + ai.getNameString() + " not found";
-                    if (attrParent != null) {
-                        stmts.append(makeSuperCall(diagPos, attrParent, methodName, false));
-                    }
+                } else if (ai.isMixinVar() && !isMixinClass) {
+                    // Include defaults for mixins into real classes.
+                    stmts.append(makeSuperCall(diagPos, (ClassSymbol)ai.getSymbol().owner, methodName, false));
                 }
                 
-                JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
-
-                // Add the method for this class' attributes
-                JCModifiers mods = make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) );
-                methods.append(make.at(diagPos).MethodDef(
-                        mods,
-                        methodName,
-                        makeTypeTree( null,syms.voidType),
-                        List.<JCTypeParameter>nil(),
-                        List.<JCVariableDecl>of(makeReceiverParam(cDecl)),
-                        List.<JCExpression>nil(),
-                        statBlock,
-                        null));
-                optStat.recordProxyMethod();
+                if (stmts.nonEmpty()) {
+                    JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
+    
+                    // Add the method for this class' attributes
+                    JCModifiers mods = make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) );
+                    methods.append(make.at(diagPos).MethodDef(
+                            mods,
+                            methodName,
+                            makeTypeTree( null,syms.voidType),
+                            List.<JCTypeParameter>nil(),
+                            List.<JCVariableDecl>of(makeReceiverParam(cDecl)),
+                            List.<JCExpression>nil(),
+                            statBlock,
+                            null));
+                    optStat.recordProxyMethod();
+                }
             }
         }
         return methods.toList();
@@ -1076,7 +1065,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return method;
         }
         
-        
         //
         // This method constructs the getDependency method for the specified attribute.
         //
@@ -1132,7 +1120,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             return method;
         }
-
+        
         //
         // This method constructs the getter/setter/location accessor methods for each attribute.
         //     
@@ -1201,10 +1189,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
             
             // See if there is a javafx super class.
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             
             // Construct a variable for the base offset.
-            if (superClassSym != null && types.isJFXClass(superClassSym)) {
+            if (superClassSym != null) {
                 // supername
                 JCExpression superType = makeType(superClassSym.type);
                 // supername.$VAR_COUNT
@@ -1258,6 +1246,27 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
     
         //
+        // The methods constructs the count method for the current class.
+        //
+        public JCTree makeCount() {
+            // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            
+            // Construct and add: return $VAR_COUNT;
+            stmts.append(m().Return(Id(defs.varCountName)));
+            
+            // Construct method.
+            JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                             syms.intType,
+                                             defs.attributeCountMethodName,
+                                             List.<JCVariableDecl>nil(),
+                                             stmts);
+            return method;
+        }
+
+        //
         // This methods generates the isInitialized$ method for this class.
         //
         public List<JCTree> makeIsInitialized() {
@@ -1272,7 +1281,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Reset diagnostic position to current class.
             resetCurrentPos();
             // Grab the super class.
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             
             // Only bother if there are vars.
             if (0 < count) {
@@ -1351,9 +1360,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This methods generates the applDefaults$ method for this class.
+        // This methods generates the applDefaults$ methods for this class.  The first method
+        // Is a blanket apply all defaults.  The second methods is the default apply default
+        // of a specific (numbered) var.
         //
-        public List<JCTree> makeApplyDefaults() {
+        public List<JCTree> makeBlanketApplyDefaults() {
             // Buffer for new methods.
             ListBuffer<JCTree> methods = ListBuffer.lb();
             
@@ -1361,7 +1372,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             int count = analysis.getVarCount();
 
             // Grab the super class.                                         
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
 
             // Only bother if there are some vars or no super class.
             if (0 < count || superClassSym == null) {
@@ -1384,7 +1395,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         Name methodName = attributeApplyDefaultsName(ai.getSymbol());
                         // This argument for call.
                         List<JCExpression> args = List.<JCExpression>of(Id(names._this));
-                        // applDefaults$var(this)
+                        // applyDefaults$var(this)
                         JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>of(Id(names._this)));
                     
                         if (!ai.isDef()) {
@@ -1402,11 +1413,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
                                 // (varWord & (1 << varBit)) == 0
                                 JCExpression condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
-                                // Construct and add: if (($VAR_BITS_(word) & (1 << bit)) == 0) { set$var(default); }
+                                // Construct and add: if (($VAR_BITS_(word) & (1 << bit)) == 0) { applyDefaults$var(this); }
                                 stmts.append(m().If(condition, applyDefaultsCall, null));
                             }
                         } else {
-                            // Add the default statement.
+                            /// Construct and add: applyDefaults$var(this);
                             stmts.append(applyDefaultsCall);
                         }
                     }
@@ -1427,6 +1438,87 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             return methods.toList();
         }
+        public List<JCTree> makeSpecificApplyDefaults() {
+            // Buffer for new methods.
+            ListBuffer<JCTree> methods = ListBuffer.lb();
+            
+            // Number of variables in current class.
+            int count = analysis.getVarCount();
+
+            // Grab the super class.                                         
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+
+            // Only bother if there are some vars or no super class.
+            if (0 < count || superClassSym == null) {
+                // Prepare to accumulate statements.
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                // Reset diagnostic position to current class.
+                resetCurrentPos();
+
+                // Prepare to accumulate cases.
+                ListBuffer<JCCase> cases = ListBuffer.lb();
+                
+                // Gather the instance attributes.
+                List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+                for (VarInfo ai : attrInfos) {
+                    // Only attributes with default expressions.
+                    if (ai.needsDeclaration()) {
+                        // Name of applDefaults$ methods.
+                        Name methodName = attributeApplyDefaultsName(ai.getSymbol());
+                        // This argument for call.
+                        List<JCExpression> args = List.<JCExpression>of(Id(names._this));
+                        // applyDefaults$var(this)
+                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>of(Id(names._this)));
+                        // return true;
+                        JCStatement returnExpr = m().Return(makeBoolean(true));
+                        // i: applyDefaults$var(this); return true;
+                        cases.append(m().Case(makeInt(ai.getEnumeration()), List.<JCStatement>of(applyDefaultsCall, returnExpr)));
+                    }
+                }
+    
+                // Reset diagnostic position to current class.
+                resetCurrentPos();
+                
+                // If there were some location vars.
+                if (cases.nonEmpty()) {
+                    // varNum - $VAR_BASE
+                    JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
+                    // Construct and add: switch(varNum - $VAR_BASE) { ... } 
+                    stmts.append(m().Switch(tagExpr, cases.toList()));
+                }
+
+                // If there is a super class.
+                if (superClassSym != null) {
+                    // super
+                    JCExpression selector = Id(names._super);
+                    // (varNum)
+                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
+                    // super.applyDefaults$(varNum);
+                    JCExpression callExp = callExpression(currentPos, selector, defs.applyDefaultsPrefixName, args);
+                    // Construct and add: return super.applyDefaults$(varNum);
+                    stmts.append(m().Return(callExp));
+                } else {
+                    // Construct and add: return false;
+                    stmts.append(m().Return(makeBoolean(false)));
+                }
+
+                // varNum ARG
+                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+                                                              varNumName,
+                                                              makeType(syms.intType),
+                                                              null);
+                // Construct method.
+                JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                                 syms.booleanType,
+                                                 defs.applyDefaultsPrefixName,
+                                                 List.<JCVariableDecl>of(arg),
+                                                 stmts);
+                // Add to the methods list.
+                methods.append(method);
+            }
+            
+            return methods.toList();
+        }
 
         //
         // This methods generates the getDependency$ method for this class.
@@ -1435,9 +1527,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Buffer for new methods.
             ListBuffer<JCTree> methods = ListBuffer.lb();
             
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
-
             // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Reset diagnostic position to current class.
@@ -1470,7 +1559,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Reset diagnostic position to current class.
             resetCurrentPos();           
             // Grab the super class.
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             
             // Only bother if there are location vars or no super class.
             if (cases.nonEmpty() || superClassSym == null) {
@@ -1493,7 +1582,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Construct and add: return super.getDependency$(varNum);
                     stmts.append(m().Return(callExp));
                 } else {
-                    // Construct and add: return super.getDependency$(varNum);
+                    // Construct and add: return null;
                     stmts.append(m().Return(makeNull()));
                 }
     
@@ -1562,7 +1651,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         private ListBuffer<JCStatement> addSuperCalls(Name name, ListBuffer<JCStatement> stmts, boolean topdown) {
             // Get the current class's super class.                                         
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             // Get the immediate mixin classes.
             List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
             // Construct a list to hold the super calls in the correct order.
