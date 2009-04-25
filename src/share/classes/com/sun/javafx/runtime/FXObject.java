@@ -23,16 +23,25 @@
 
 package com.sun.javafx.runtime;
 
+import com.sun.javafx.runtime.location.*;
+
 /**
- * All FX interfaces must extend FXObject; it acts as a marker interface, and also includes methods required for
+ * All FX classes must extend FXObject; it acts as a marker interface, and also includes methods required for
  * object lifecyle.
  *
  * @author Brian Goetz
+ * @author Jim Laskey
  */
 public interface FXObject {
-    /** Set default values, set up change triggers, and run init blocks */
-    public void initialize$();
-
-    /** Inform the object that the object literal has intialized a Location */
-    // public void setInitialized(Location loc);
+    public void initialize$ ();
+    
+    public void addTriggers$  (final FXBase receiver$);
+    public void applyDefaults$();
+    public void userInit$     (final FXBase receiver$);
+    public void postInit$     (final FXBase receiver$);
+    
+    public int      count$();
+    public boolean  applyDefaults$(final int varNum);
+    public boolean  isInitialized$(final int varNum);
+    public Location getDependency$(final int varNum);
 }

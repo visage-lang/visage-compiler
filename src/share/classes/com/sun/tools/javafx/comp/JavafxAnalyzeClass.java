@@ -411,6 +411,11 @@ class JavafxAnalyzeClass {
     public JFXClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
     
     //
+    // Returns true if teh current class is a script.
+    //
+    public boolean isScriptClass() { return currentClassDecl.isScriptClass; }
+    
+    //
     // Returns the current class symbol.
     //
     public ClassSymbol getCurrentClassSymbol() { return currentClassSym; }
