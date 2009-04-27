@@ -324,7 +324,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_FUNC_TYPE_INFER_CYCLE = "javafx.function.type.infer.cycle";
     public static final String MESSAGE_JAVAFX_VOID_SEQUENCE_NOT_ALLOWED = "javafx.void.sequence.not.allowed";
     public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED = "javafx.only.one.base.java.class.allowed"; 
-    public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed"; 
+    public static final String MESSAGE_JAVAFX_ONLY_ONE_BASE_CLASS_ALLOWED = "javafx.only.one.base.class.allowed";
+    public static final String MESSAGE_NEW_FX_CLASS_NO_ARGS = "new.fxclass.no.args";
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
     public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
     public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";

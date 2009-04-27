@@ -1459,6 +1459,8 @@ public class JavafxAttr implements JavafxVisitor {
 
                 // Error recovery: pretend no arguments were supplied.
                 argtypes = List.nil();
+            } else if (types.isJFXClass(clazztype.tsym) && tree.getArgs().nonEmpty()) {
+                log.error(tree.getArgs().head.pos(), MsgSym.MESSAGE_NEW_FX_CLASS_NO_ARGS);
             }
 
             // Resolve the called constructor under the assumption
