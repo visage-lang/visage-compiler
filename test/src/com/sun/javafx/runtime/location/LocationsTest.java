@@ -9,16 +9,16 @@ import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.Sequences;
 
 /**
- * BoundOperatorsTest
+ * LocationsTest
  *
  * @author Brian Goetz
  */
-public class BoundOperatorsTest extends JavaFXTestCase {
+public class LocationsTest extends JavaFXTestCase {
 
     public void testIndirectIf() {
         BooleanLocation b = BooleanVariable.make(true);
         final IntVariable i = IntVariable.make(1);
-        IntLocation ifLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, false, b,
+        IntLocation ifLoc = Locations.makeBoundIf(TypeInfo.Integer, false, b,
                                                        IntVariable.make(true, new AbstractBindingExpression() {
                                                            public void compute() {
                                                                pushValue(i.getAsInt());
@@ -29,7 +29,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                                                                pushValue(-i.getAsInt());
                                                            }
                                                        }, i));
-        IntLocation lazyIfLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, true, b,
+        IntLocation lazyIfLoc = Locations.makeBoundIf(TypeInfo.Integer, true, b,
                                                            IntVariable.make(true, new AbstractBindingExpression() {
                                                                public void compute() {
                                                                    pushValue(i.getAsInt());
@@ -87,7 +87,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
         BooleanLocation b = BooleanVariable.make(true);
         final SequenceVariable<Integer> x = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 1, 2, 3));
         final SequenceVariable<Integer> y = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 4, 5, 6));
-        SequenceLocation<Integer> ifLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, false, b,
+        SequenceLocation<Integer> ifLoc = Locations.makeBoundIf(TypeInfo.Integer, false, b,
                                                                      new Function0<SequenceLocation<Integer>>() {
                                                                          public SequenceLocation<Integer> invoke() {
                                                                              return x;
@@ -98,7 +98,7 @@ public class BoundOperatorsTest extends JavaFXTestCase {
                                                                              return y;
                                                                          }
                                                                      });
-        SequenceLocation<Integer> lazyIfLoc = BoundOperators.makeBoundIf(TypeInfo.Integer, true, b,
+        SequenceLocation<Integer> lazyIfLoc = Locations.makeBoundIf(TypeInfo.Integer, true, b,
                                                                      new Function0<SequenceLocation<Integer>>() {
                                                                          public SequenceLocation<Integer> invoke() {
                                                                              return x;

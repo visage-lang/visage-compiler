@@ -102,7 +102,7 @@ public class JavafxDefs {
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
-    private static final String cBoundOperators = locationPackageNameString + ".BoundOperators";
+    private static final String cLocations = locationPackageNameString + ".Locations";
 
     static final String[] milieuNames = { "", "FromLiteral" };
     public static String getMilieuName(int index) { return milieuNames[index]; }
@@ -136,10 +136,10 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_rangeExclusive;
     final RuntimeMethod Sequences_size;
 
-    final RuntimeMethod BoundOperators_makeBoundSequenceSelect;
-    final RuntimeMethod BoundOperators_makeBoundSelect;
-    final RuntimeMethod BoundOperators_makeBoundIf;
-    final RuntimeMethod BoundOperators_upcast;
+    final RuntimeMethod Locations_makeBoundSequenceSelect;
+    final RuntimeMethod Locations_makeBoundSelect;
+    final RuntimeMethod Locations_makeBoundIf;
+    final RuntimeMethod Locations_upcast;
 
     final RuntimeMethod BoundSequences_convertNumberSequence;
     final RuntimeMethod BoundSequences_element;
@@ -386,10 +386,10 @@ public class JavafxDefs {
         Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");
         Sequences_size = new RuntimeMethod(names, cSequences, "size");
 
-        BoundOperators_makeBoundSequenceSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSequenceSelect");
-        BoundOperators_makeBoundSelect = new RuntimeMethod(names, cBoundOperators, "makeBoundSelect");
-        BoundOperators_makeBoundIf = new RuntimeMethod(names, cBoundOperators, "makeBoundIf");
-        BoundOperators_upcast = new RuntimeMethod(names, cBoundOperators, "upcast");
+        Locations_makeBoundSequenceSelect = new RuntimeMethod(names, cLocations, "makeBoundSequenceSelect");
+        Locations_makeBoundSelect = new RuntimeMethod(names, cLocations, "makeBoundSelect");
+        Locations_makeBoundIf = new RuntimeMethod(names, cLocations, "makeBoundIf");
+        Locations_upcast = new RuntimeMethod(names, cLocations, "upcast");
         BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
         BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");
         BoundSequences_rangeExclusive = new RuntimeMethod(names, cBoundSequences, "rangeExclusive");

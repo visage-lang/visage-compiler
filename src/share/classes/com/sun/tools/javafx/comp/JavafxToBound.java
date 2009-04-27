@@ -269,7 +269,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                         makeTypeTree(diagPos, types.boxedTypeOrType(inType), true));
                 Type inRealType = typeMorpher.typeMorphInfo(inType).getRealType();
                 JCExpression inClass = makeTypeInfo(diagPos, inRealType);
-                tree = runtime(diagPos, defs.BoundOperators_upcast, typeArgs, List.of(inClass, tree));
+                tree = runtime(diagPos, defs.Locations_upcast, typeArgs, List.of(inClass, tree));
             }
         }
         tree.type = targetType; // as a way of passing it to methods which needs to know the target type
@@ -558,7 +558,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 bindingExpression);
         return runtime(
                 diagPos,
-                tmi.isSequence()? defs.BoundOperators_makeBoundSequenceSelect : defs.BoundOperators_makeBoundSelect,
+                tmi.isSequence()? defs.Locations_makeBoundSequenceSelect : defs.Locations_makeBoundSelect,
                 args);
     }
 
@@ -953,7 +953,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 condExpr,
                 makeFunction0(resultType, trueExpr),
                 makeFunction0(resultType, falseExpr));
-        return runtime(diagPos, defs.BoundOperators_makeBoundIf, args);
+        return runtime(diagPos, defs.Locations_makeBoundIf, args);
     }
 
     private JCExpression makeFunction0(
@@ -1009,7 +1009,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 condExpr,
                 trueExpr,
                 falseExpr);
-        return runtime(diagPos, defs.BoundOperators_makeBoundIf, args);
+        return runtime(diagPos, defs.Locations_makeBoundIf, args);
     }
 
     @Override
