@@ -41,6 +41,8 @@ public:
     std::string profile_bootclasspath_append;
     std::string profile_nativelibpath;
     std::string profile_bootnativelibpath;
+    bool        is_desktop() { return device_profile == "desktop"; };
+    bool        is_mobile()  { return device_profile == "mobile" ; };
     
     Configuration(const std::string& prefix);
     ~Configuration();
@@ -55,6 +57,7 @@ private:
     
     std::string prefix;
     std::string profile_filename;
+    std::string device_profile;
 };
 
 #endif	/* _CONFIGURATION_H */

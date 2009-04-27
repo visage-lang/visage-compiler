@@ -52,9 +52,13 @@ int Util::createProcess(const std::string& cmd) {
     memset (&start, 0, sizeof (start));
     start.cb = sizeof (start);
 
-#ifdef DEBUG 
-    printf("Cmdline: %s\n", cmd.c_str());
-#endif
+    bool ldebug = getenv("_JAVAFX_LAUNCHER_DEBUG") != NULL;
+    #ifdef DEBUG
+    ldebug = true;
+    #endif
+    if (ldebug == true) {
+        printf("Cmdline: %s\n", cmd.c_str());
+    }
     if (!CreateProcess (NULL, (char*)cmd.c_str(),
                         NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS,
                         NULL, 

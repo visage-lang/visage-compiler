@@ -111,7 +111,11 @@ if [ -n "${compile_nativelibpath}" ]; then
     fi
     jargs="$jargs \"-Djava.library.path=${compile_nativelibpath}\""
 fi
-jargs="$jargs com.sun.tools.javafx.Main -classpath '"$classpath"'"
+extra_cp=""
+if [ "$profile" = "mobile" ]; then
+    extra_cp="-classpath '"$user_classpath"'"
+fi
+jargs="$jargs $extra_cp com.sun.tools.javafx.Main -classpath '"$classpath"'"
 if [ -n "${compile_bootclasspath}" ]; then
     if $cygwin ; then
         compile_bootclasspath=`cygpath --path --windows "$compile_bootclasspath"`

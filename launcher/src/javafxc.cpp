@@ -50,6 +50,20 @@ int main(int argc, char** argv) {
     if (! config.profile_bootclasspath_append.empty()) {
         cmd += "\"-Xbootclasspath/a:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_append) + "\" ";
     }
+    /*
+     * TODO, Remove this and add a new property for compiler properties
+     */
+    if (config.is_mobile()) {
+        if (!config.profile_classpath.empty()) {
+            cmd += "-classpath \"" + util.evaluatePath(config.javafxpath, config.profile_classpath);
+            if (!config.classpath.empty()) {
+                cmd += ";" + config.classpath;
+            }
+            cmd += "\" ";
+        } else if (!config.classpath.empty()) {
+            cmd += "-classpath \"" + config.classpath + "\" ";
+        }
+    }
     cmd += "com.sun.tools.javafx.Main ";
     if (! config.profile_bootclasspath.empty()) {
         cmd += "-bootclasspath \"" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath) + "\" ";

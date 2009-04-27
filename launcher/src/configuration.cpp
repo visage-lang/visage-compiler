@@ -37,6 +37,7 @@ Configuration::Configuration(const std::string& prefix)
         profile_bootclasspath_append(""), 
         profile_nativelibpath(""),
         profile_bootnativelibpath(""),
+        device_profile("desktop"),
         profile_filename("desktop.properties") {
 }
 
@@ -198,6 +199,7 @@ int Configuration::parseArgs(int argc, char** argv) {
         } else if (0 == strcmp("-profile", arg)) {
             if (argc-- > 0 && (arg = *argv++) != NULL) {
                 profile_filename = arg;
+                device_profile   = arg;
                 profile_filename += ".properties";
             } else {
                 fprintf (stderr, "No argument for profile found.");
