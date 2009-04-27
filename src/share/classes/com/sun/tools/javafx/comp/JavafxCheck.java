@@ -2064,7 +2064,7 @@ public class JavafxCheck {
     boolean checkUnique(DiagnosticPosition pos, Symbol sym, JavafxEnv<JavafxAttrContext> env) {
         boolean shouldContinue = true;
         do {
-            shouldContinue = !attr.isClassOrFuncDef(env);
+            shouldContinue = !attr.isClassOrFuncDef(env, false);
             if (!checkUnique(pos, sym, JavafxEnter.enterScope(env)))
                 return false;
             env = env.outer;

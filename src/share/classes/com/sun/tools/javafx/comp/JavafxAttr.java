@@ -3430,15 +3430,15 @@ public class JavafxAttr implements JavafxVisitor {
             while (env != null) {
                 Symbol s2 = env.info.scope.owner;
                 if (s.owner == s2) return true;
-                if (isBound(env) || isClassOrFuncDef(env))
+                if (isBound(env) || isClassOrFuncDef(env, true))
                     return false;
                 env = env.outer;
             }
             return false;
         }
         //where
-        public boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env) {
-            return isFunctionDef(env) ||
+        public boolean isClassOrFuncDef(JavafxEnv<JavafxAttrContext> env, boolean discardRun) {
+            return isFunctionDef(env, discardRun) ||
                    env.tree.getFXTag() == JavafxTag.FUNCTIONEXPRESSION ||                   
                    env.tree.getFXTag() == JavafxTag.CLASS_DEF ||
                    env.tree.getFXTag() == JavafxTag.ON_REPLACE ||
@@ -3447,10 +3447,9 @@ public class JavafxAttr implements JavafxVisitor {
                    env.tree.getFXTag() == JavafxTag.POSTINIT_DEF;
         }
         //where
-        private boolean isFunctionDef(JavafxEnv<JavafxAttrContext> env) {
-            return env.tree.getFXTag() == JavafxTag.FUNCTION_DEF &&
-                    ((((JFXFunctionDefinition)env.tree).sym.flags() & SYNTHETIC) == 0 ||
-                    (((JFXFunctionDefinition)env.tree).name.equals(names.fromString("lambda"))));
+        private boolean isFunctionDef(JavafxEnv<JavafxAttrContext> env, boolean discardRun) {
+            return env.tree.getFXTag() == JavafxTag.FUNCTION_DEF && (!discardRun ||
+                    !(((JFXFunctionDefinition)env.tree).name.equals(syms.runMethodName)));
         }
         //where
         private boolean isBound(JavafxEnv<JavafxAttrContext> env) {

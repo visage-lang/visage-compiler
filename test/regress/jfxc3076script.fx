@@ -1,7 +1,7 @@
 /**
  * Regress test for JFXC-3076 - Can no longer use same variable name as member var and as local var in run() function
  *
- * @test/fail
+ * @test
  */
 
 public class jfxc3076script {
