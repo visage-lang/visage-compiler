@@ -24,6 +24,9 @@
 package com.sun.tools.javafx.comp;
 
 import java.util.IdentityHashMap;
+import java.util.Set;
+import java.util.HashSet;
+
 import javax.tools.JavaFileObject;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.code.*;
@@ -564,7 +567,7 @@ public class JavafxClassReader extends ClassReader {
             }
             boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
-            Name priorVarName = names.fromString("");
+            Set<Name> priorNames = new HashSet<Name>();
             handleSyms:
             for (List<Symbol> l = symlist; l.nonEmpty(); l=l.tail) {
                 Symbol memsym = l.head;
@@ -624,13 +627,14 @@ public class JavafxClassReader extends ClassReader {
                 else if (memsym instanceof VarSymbol) {
                     if (name.endsWith(defs.needsDefaultSuffixName))
                         continue;
-                    if (name.equals(priorVarName))
+                    // Eliminate any duplicate value/location.
+                    if (priorNames.contains(name))
                         continue;
                     Type otype = memsym.type;
                     Type type = translateType(otype);
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
                     csym.members_field.enter(v);
-                    priorVarName = name;
+                    priorNames.add(name);
                 }
                 else {
                     memsym.flags_field = flags;
