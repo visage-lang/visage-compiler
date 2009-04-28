@@ -489,8 +489,19 @@ class JavafxAnalyzeClass {
     //
     // Returns true if the class is a Interface.
     //
-    private boolean isInterface(Symbol cSym) {
+    public boolean isInterface(Symbol cSym) {
         return (cSym.flags() & Flags.INTERFACE) != 0;
+    }
+    
+    //
+    // Returns true if the class is anon (synthetic.)
+    //
+    public boolean isAnonClass() {
+        return isAnonClass(currentClassSym);
+    }
+    public boolean isAnonClass(Symbol cSym) {
+        final long flags = (Flags.SYNTHETIC | Flags.FINAL);
+        return (cSym.flags() & flags) == flags;
     }
     
     //

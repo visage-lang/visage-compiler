@@ -91,6 +91,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             return value.intValue();
         }
+
+        public int size() {
+            return varMap.size();
+        }
     }
     
     public static class LiteralInitClassMap {
@@ -105,6 +109,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             return map;
+        }
+        
+        public int size() {
+            return classMap.size();
         }
     }
     
@@ -208,7 +216,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
            List<TranslatedVarInfo> translatedAttrInfo,
            List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
            LiteralInitClassMap initClassMap) {
-        boolean isMixinClass = cDecl.isMixinClass();
+           
         DiagnosticPosition diagPos = cDecl.pos();
         Type superType = types.superType(cDecl);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl); // null unless inner class with outer reference
@@ -225,11 +233,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
         List<ClassSymbol> allMixinClasses = analysis.getAllMixins();
 
+        boolean isMixinClass = cDecl.isMixinClass();
+        boolean isScriptClass = cDecl.isScriptClass;
+        boolean isAnonClass = analysis.isAnonClass();
+        
+        // Have to populate the var map for anon classes.
+        // TODO: figure away to avoid this if not used (needs global knowledge.)
+        LiteralInitVarMap varMap = isAnonClass ? initClassMap.getVarMap(analysis.getCurrentClassSymbol()) : null;
+        
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
          
         if (!isMixinClass) {
-            cDefinitions.appendList(javaCodeMaker.makeAttributeNumbers());
+            cDefinitions.appendList(javaCodeMaker.makeAttributeNumbers(varMap));
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(instanceAttributeInfos));
@@ -239,10 +255,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeSpecificApplyDefaults());
             cDefinitions.appendList(javaCodeMaker.makeGetDependency());
             cDefinitions.append    (javaCodeMaker.makeCount());
-            cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+            
+            if (isScriptClass) {
+                cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+            }
+            
+            JCTree initMap = isAnonClass ? javaCodeMaker.makeInitVarMap(analysis.getCurrentClassSymbol(), varMap, false, true) : null;
             
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
+            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, (JCStatement)initMap));
             cDefinitions.append    (makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
             if (outerTypeSym == null) {
@@ -541,22 +562,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     stmts.append(makeSuperCall(diagPos, (ClassSymbol)ai.getSymbol().owner, methodName, isMixinClass));
                 }
                 
-                if (true /*stmts.nonEmpty()*/) {
-                    JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
-    
-                    // Add the method for this class' attributes
-                    JCModifiers mods = make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) );
-                    methods.append(make.at(diagPos).MethodDef(
-                            mods,
-                            methodName,
-                            makeTypeTree( null,syms.voidType),
-                            List.<JCTypeParameter>nil(),
-                            List.<JCVariableDecl>of(makeReceiverParam(cDecl)),
-                            List.<JCExpression>nil(),
-                            statBlock,
-                            null));
-                    optStat.recordProxyMethod();
-                }
+                JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
+
+                // Add the method for this class' attributes
+                JCModifiers mods = make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) );
+                methods.append(make.at(diagPos).MethodDef(
+                        mods,
+                        methodName,
+                        makeTypeTree( null,syms.voidType),
+                        List.<JCTypeParameter>nil(),
+                        List.<JCVariableDecl>of(makeReceiverParam(cDecl)),
+                        List.<JCExpression>nil(),
+                        statBlock,
+                        null));
+                optStat.recordProxyMethod();
             }
         }
         return methods.toList();
@@ -623,9 +642,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * Construct the static block for setting defaults
      * */
     private JCBlock makeInitStaticAttributesBlock(JFXClassDeclaration cDecl,
-            List<TranslatedVarInfo> translatedAttrInfo) {
+            List<TranslatedVarInfo> translatedAttrInfo,
+            JCStatement initMap) {
         // Add the initialization of this class' attributesa
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        
+        // Initialize the var map for anon class.
+        if (initMap != null) {
+            stmts.append(initMap);
+        }
+        
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
         for (TranslatedVarInfo tai : translatedAttrInfo) {
             assert tai.jfxVar() != null;
@@ -1249,7 +1275,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method generates an enumeration for each of the instance attributes
         // of the class.
         //
-        public List<JCTree> makeAttributeNumbers() {
+        public List<JCTree> makeAttributeNumbers(LiteralInitVarMap varMap) {
             // Buffer for new vars.
             ListBuffer<JCTree> vars = ListBuffer.lb();
             // Reset diagnostic position to current class.
@@ -1297,6 +1323,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Construct and add: public static int $VAR_OFFSET_name = $VAR_BASE + enumeration;
                     vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, name, sum));
                 }
+                
+                // Add to var map if an anon class.
+                if (varMap != null) varMap.addVar(ai.getSymbol());
             }
     
             // private int $VAR_BITS_0 = 0; private int $VAR_BITS_1 = 0; ...
@@ -1673,7 +1702,45 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return methods.toList();
         }
         
-        
+        //
+        // This method constructs a single var map.
+        //
+        public JCTree makeInitVarMap(ClassSymbol cSym, LiteralInitVarMap varMap, boolean asDecl, boolean withInit) {
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            // Assume no init.
+            JCExpression mapExpr = null;
+            
+            // Anon classes get defined in the static init.
+            if (withInit) {
+                // Build up the argument list for the call.
+                ListBuffer<JCExpression> args = ListBuffer.lb();
+                // X.$VAR_COUNT
+                args.append(m().Select(makeType(cSym.type), defs.varCountName));
+                
+                // For each var declared in order (to make the switch tags align to the vars.)
+                for (VarSymbol vSym : varMap.varList.toList()) {
+                    args.append(m().Select(makeType(cSym.type), attributeOffsetName(vSym)));
+                }
+                
+                // FXBase.makeInitMap$
+                JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
+                // FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...)
+                mapExpr = m().Apply(null, methExpr, args.toList());
+            }
+            
+            // As a declaration or as an assignment.
+            if (asDecl) {
+                // Can't be final if set elsewhere (anon class static init.)
+                long flags = mapExpr == null ? Flags.STATIC : (Flags.FINAL | Flags.STATIC);
+                // final static short[] $Map$X = FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...);
+                return makeVariable(flags, syms.javafx_ShortArray, varMapName(cSym), mapExpr);
+            } else {
+                // $Map$X = FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...);
+                return m().Exec(m().Assign(Id(varMapName(cSym)), mapExpr));
+            }
+        }
+         
         //
         // This method constructs declarations for var maps used by literal initializers.
         //
@@ -1685,25 +1752,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             // For each class initialized in the current class.
             for (ClassSymbol cSym : initClassMap.classMap.keySet()) {
-                // Build up the argument list for the call.
-                ListBuffer<JCExpression> args = ListBuffer.lb();
-                // X.$VAR_COUNT
-                args.append(m().Select(makeType(cSym.type), defs.varCountName));
-                
+                // Anon class maps are defined in class init.
+                if (analysis.isAnonClass() && cSym == analysis.getCurrentClassSymbol()) continue;
+                // Anon classes use deferred assignment.
+                boolean withInit = !analysis.isAnonClass(cSym); 
                 // Get the var map for the referencing class.
                 LiteralInitVarMap varMap = initClassMap.classMap.get(cSym);
-                
-                // For each var declared in order (to make the switch tags align to the vars.)
-                for (VarSymbol vSym : varMap.varList.toList()) {
-                    args.append(m().Select(makeType(cSym.type), attributeOffsetName(vSym)));
-                }
-                
-                // FXBase.makeInitMap$
-                JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
-                // FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...)
-                JCExpression mapExpr = m().Apply(null, methExpr, args.toList());
-                // final static short[] $Map$X = FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...);
-                vars.append(makeVariable(Flags.FINAL | Flags.STATIC, syms.javafx_ShortArray, varMapName(cSym), mapExpr));
+                // Add to list as var.
+                vars.append(makeInitVarMap(cSym, varMap, true, withInit));
             }
             
             return vars.toList();
