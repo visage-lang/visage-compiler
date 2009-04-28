@@ -564,6 +564,7 @@ public class JavafxClassReader extends ClassReader {
             }
             boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
+            Name priorVarName = names.fromString("");
             handleSyms:
             for (List<Symbol> l = symlist; l.nonEmpty(); l=l.tail) {
                 Symbol memsym = l.head;
@@ -623,15 +624,13 @@ public class JavafxClassReader extends ClassReader {
                 else if (memsym instanceof VarSymbol) {
                     if (name.endsWith(defs.needsDefaultSuffixName))
                         continue;
+                    if (name.equals(priorVarName))
+                        continue;
                     Type otype = memsym.type;
-                    if (otype.tag == CLASS) {
-                        TypeSymbol tsym = otype.tsym;
-                        Name flatname = ((ClassSymbol) tsym).flatname;
-                        Type deloc = defs.delocationize(flatname);
-                    }
                     Type type = translateType(otype);
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
                     csym.members_field.enter(v);
+                    priorVarName = name;
                 }
                 else {
                     memsym.flags_field = flags;
