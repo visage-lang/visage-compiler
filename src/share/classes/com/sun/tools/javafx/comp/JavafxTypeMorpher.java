@@ -36,6 +36,7 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
+import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
 import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageNameString;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
@@ -81,36 +82,49 @@ public class JavafxTypeMorpher {
         }
     }
 
-    enum VarAccess { PROHIBITED, DIRECT, ACCESSOR, LOCATION };
+    enum VarRepresentation {
+        NeverLocation,
+        SlackerLocation,
+        AlwaysLocation;
+
+        boolean isSlacker() { return this==SlackerLocation; }
+        boolean possiblyLocation() { return this!=NeverLocation; }
+    }
 
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
 
     public class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
-        private final boolean requiresLocation;
-        private final boolean onlyLocation;
+        private final VarRepresentation representation;
 
         VarMorphInfo(Symbol sym) {
             super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
             this.sym = sym;
-            this.requiresLocation = JavafxTypeMorpher.this.requiresLocation(sym);
-            this.onlyLocation = isSequence();
+            this.representation = computeRepresentation(sym);
         }
 
-        public Symbol getSymbol() {
+        Symbol getSymbol() {
             return sym;
         }
 
-        public boolean requiresLocation() {
-            return requiresLocation;
+        VarRepresentation representation() {
+            return representation;
         }
 
-        public boolean alwaysLocation() {
-            return onlyLocation;
+        boolean useSetters() {
+            return isFXMemberVariable() && !isSequence();
         }
 
-        public boolean isFXClassVariable() {
-            return sym.owner.kind == Kinds.TYP && JavafxTypeMorpher.this.types.isJFXClass(sym.owner);
+        boolean useGetters() {
+            return isFXMemberVariable() && !isSequence();
+        }
+
+        boolean isMemberVariable() {
+            return sym.owner.kind == Kinds.TYP;
+        }
+
+        boolean isFXMemberVariable() {
+            return isMemberVariable() && JavafxTypeMorpher.this.types.isJFXClass(sym.owner);
         }
 
     }
@@ -248,7 +262,7 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; // Empty sequence done programatically
     }
 
-    private boolean computeRequiresLocation(Symbol sym) {
+    private VarRepresentation computeRepresentation(Symbol sym) {
         if (sym.kind == Kinds.VAR) {
             final Symbol owner = sym.owner;
             final long flags = sym.flags();
@@ -259,41 +273,48 @@ public class JavafxTypeMorpher {
 
             if (sym.flatName() == names._super || sym.flatName() == names._this) {
                 // 'this' and 'super' can't be made into Locations
-                return false;
+                return NeverLocation;
             }
             if (isClassVar && !types.isJFXClass(owner)) {
-                assert sym.name == defs.lengthName && owner == syms.arrayClass : "should be handled by ClassReader";
-                return false;
+                return NeverLocation;
             }
             if (!isParameter && !isClassVar && hasInnerAccess) {
                 // Local variables must be Locations if they are accessed within an inner class
                 // Because of proper sequencing, this is true even if the var isn't assigned to
                 //TODO: optimize the cases where the initializer does not depend on other local vars
-                return true;
+                return AlwaysLocation;
             }
             if (isParameter) {
                 // Otherwise parameters are Locations only if in bound contexts, for-loops induction vars, bound function params
-                return (flags & VARUSE_BOUND_INIT) != 0;
+                return (flags & VARUSE_BOUND_INIT) != 0? AlwaysLocation : NeverLocation;
             }
-            if( (flags & (VARUSE_BOUND_INIT | VARUSE_HAS_ON_REPLACE | VARUSE_USED_IN_BIND | VARUSE_SELF_REFERENCE)) != 0 ) {
-                // vars which are defined by a bind or have an 'on replace' must be Locations
-                // vars which reference themselves in their init expression must be Locactions // TODO: maybe not needed for class vars
+            if( (flags & VARUSE_BOUND_INIT) != 0 ) {
+                // vars which are defined by a bind could be slackers but it seems a bad bet, so make it always
+                return AlwaysLocation;
+            }
+            if( (flags & VARUSE_HAS_ON_REPLACE) != 0 ) {
+                //TODO: Optimize these away, but, for now, always need to be Locations
+                return AlwaysLocation;
+            }
+            if( (flags & VARUSE_USED_IN_BIND) != 0 ) {
+                // This is a choice.  If the choice is changed, then some of the NeverLocations below have to be conditionally SlackerLocation.
+                //TODO: Once the bind translation is smart about collapsing expressions, then making unchanging values Locations is wrong.
                 // vars which are used in a bind should be Locations (even if never changed) since otherwise they will dynamically be turned to Locations
-                return true;
+                return AlwaysLocation;
             }
             if (types.isSequence(sym.type)) {
                 // for a sequence to be modified it must be a Location
                 //TODO: check for sequence variables which are never modifier (no insert, delete, assignment, etc)
-                return true;
+                return AlwaysLocation;
             }
             if (sym.type instanceof MethodType) {
                 // Function values have wierd behavior, we just don't want to go there
-                return true;
+                return AlwaysLocation;
             }
             if( (flags & (VARUSE_SELF_REFERENCE | VARUSE_IS_INITIALIZED_USED)) != 0 ) {
                 // Reference to the var within its own initializer requires a Location.
                 // To be able to use isInitialized()  requires a Location.
-                return true;
+                return AlwaysLocation;
             }
 
             if (isClassVar) {  // class or script var
@@ -319,7 +340,7 @@ public class JavafxTypeMorpher {
                 // (3a) check.  Not used in bind has already been checked (above).
                 // Check that it is not accessible outside the script (so noone else can bind it).
                 if ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L) {
-                    return false;
+                    return NeverLocation;
                 }
 
                 // (3b) check.  No assignments ((no longer) except in init{}) and
@@ -329,23 +350,13 @@ public class JavafxTypeMorpher {
                 if (!isAssignedTo &&
                         ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) == 0L ||
                         (flags & IS_DEF) != 0L)) {
-                    return false;
+                    return NeverLocation;
                 }
 
-                return true; 
+                return SlackerLocation;
             }
         }
-        return false;
-    }
-
-    public boolean requiresLocation(Symbol sym) {
-        if ((sym.flags_field & VARUSE_NEED_LOCATION_DETERMINED) == 0) {
-            if (computeRequiresLocation(sym)) {
-                sym.flags_field |= VARUSE_NEED_LOCATION;
-            }
-            sym.flags_field |= VARUSE_NEED_LOCATION_DETERMINED;
-        }
-        return (sym.flags_field & VARUSE_NEED_LOCATION) != 0;
+        return NeverLocation;
     }
 
     Type variableType(int typeKind) {

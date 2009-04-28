@@ -41,6 +41,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.javac.code.Flags.*;
@@ -165,8 +166,7 @@ class JavafxAnalyzeClass {
         public Type getVariableType() { return vmi.getVariableType(); }
         public Type getLocationType() { return vmi.getLocationType(); }
         public Type getElementType()  { return vmi.getElementType(); }
-        public boolean requiresLocation()  { return vmi.requiresLocation(); }
-        public boolean alwaysLocation()    { return vmi.alwaysLocation(); }
+        public VarRepresentation representation() { return vmi.representation(); }
 
         // Return var name.
         public Name getName() { return name; }

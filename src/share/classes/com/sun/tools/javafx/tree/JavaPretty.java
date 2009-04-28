@@ -28,6 +28,7 @@ import java.io.Writer;
 import java.util.HashSet;
 
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCImport;
 import com.sun.tools.javac.tree.Pretty;
@@ -48,6 +49,8 @@ import com.sun.tools.javafx.comp.JavafxDefs;
 public class JavaPretty extends Pretty {
 	private HashSet<Name> importedPackages = new HashSet<Name>();
 	private HashSet<Name> importedClasses = new HashSet<Name>();
+
+    public static final boolean showAnnotations = false;
 	
     public JavaPretty(Writer out, boolean sourceOutput, Context context) {
         super(out, sourceOutput);
@@ -59,6 +62,13 @@ public class JavaPretty extends Pretty {
 		importedPackages.add(defs.sequencePackageName);
 		importedPackages.add(defs.functionsPackageName);
                 importedPackages.add(defs.javaLangPackageName);
+    }
+
+    @Override
+    public void visitAnnotation(JCAnnotation tree) {
+        if (showAnnotations) {
+            super.visitAnnotation(tree);
+        }
     }
 
     public void visitBlockExpression(BlockExprJCBlockExpression tree) {

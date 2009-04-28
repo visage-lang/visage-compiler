@@ -48,6 +48,7 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
+import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 
 public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVisitor {
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
@@ -568,10 +569,10 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             result = convert(tree.type, toJava.translateAsLocation(tree)); //TODO -- for now punt, translate like normal case
             return;
         }
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(tree.sym);
         DiagnosticPosition diagPos = tree.pos();
 
-        Symbol owner = tree.sym.owner;
-        if (types.isJFXClass(owner) && typeMorpher.requiresLocation(tree.sym)) {
+        if (vmi.isFXMemberVariable() && vmi.representation().possiblyLocation()) {
             if (tree.sym.isStatic()) {
                 // if this is a static reference to an attribute, eg.   MyClass.myAttribute
                 JCExpression classRef = makeTypeTree( diagPos,types.erasure(tree.sym.owner.type), false);
@@ -922,7 +923,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
         JCExpression transIndex = make.at(tree.pos()).Ident(indexVarName(tree.fname));
         VarSymbol vsym = (VarSymbol)tree.clause.getVar().sym;
-        if (toJava.requiresLocation(vsym)) {
+        if (toJava.representation(vsym) == AlwaysLocation) {
             // from inside the bind, already a Location
             result = convert(tree.type, transIndex);
         } else {

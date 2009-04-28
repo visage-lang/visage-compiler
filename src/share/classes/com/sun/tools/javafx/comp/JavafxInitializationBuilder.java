@@ -38,7 +38,7 @@ import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-
+import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -541,7 +541,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     stmts.append(makeSuperCall(diagPos, (ClassSymbol)ai.getSymbol().owner, methodName, false));
                 }
                 
-                if (stmts.nonEmpty()) {
+                if (true /*stmts.nonEmpty()*/) {
                     JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
     
                     // Add the method for this class' attributes
@@ -648,7 +648,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (tai.getDefaultInitStatement() != null) {
                         stmts.append(tai.getDefaultInitStatement());
                     }
-                    if (tai.requiresLocation()) {
+                    if (tai.representation().possiblyLocation()) {  //TODO: this goes away
                         // If the static variable is represented with a Location, initialize it
                         Name locName = attributeLocationName(tai.getSymbol());
                         JCStatement initvar = callStatement(diagPos, make.at(diagPos).Ident(locName), defs.locationInitializeName);
@@ -772,6 +772,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Methods for managing the current diagnostic position.
         //
         private void setCurrentPos(DiagnosticPosition diagPos) { currentPos = diagPos; }
+        private void setCurrentPos(VarInfo ai) { setCurrentPos(ai.pos()); }
         private void resetCurrentPos() { currentPos = analysis.getCurrentClassPos(); }
         
         //
@@ -809,6 +810,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method generates a java field for a varInfo.
         //
         private JCVariableDecl makeVariableField(VarInfo varInfo, JCModifiers mods, Type varType, Name name, JCExpression varInit) {
+            setCurrentPos(varInfo);
             // Define the type.
             JCExpression type = makeType(varType);
             // Construct the variable itself.
@@ -850,7 +852,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Only process attributes declared in this class (includes mixins.)
                 if (ai.needsDeclaration()) {
                     // Set the current diagnostic position.
-                    setCurrentPos(ai.pos());
+                    setCurrentPos(ai);
                     // Grab the variable symbol.
                     VarSymbol varSym = ai.getSymbol();
                     // The fields need to be available to reflection.
@@ -868,13 +870,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
 
                     // Construct the value field unless it will always be a Location
-                    if (!ai.alwaysLocation()) {
+                    if (ai.representation() != AlwaysLocation) {
                         vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
                                 makeDefaultValue(currentPos, ai.getVMI())));
                     }
 
                     // If a Location might be needed, build the field
-                    if (ai.requiresLocation()) {
+                    if (ai.representation() != NeverLocation) {
                         // TODO - switch over to using NULL.
                         JCExpression initialValue = true ? makeLocationAttributeVariable(ai.getVMI(), currentPos) : null;
                         // Construct the location field.
@@ -916,6 +918,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //     }
         //     
         private JCTree makeGetLocationAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
             // Variable type for var.
@@ -955,6 +958,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //     }
         //     
         private JCTree makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
             // Real type for var.
@@ -968,31 +972,50 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 // Symbol used when accessing the variable.
                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                
-                if (varInfo.requiresLocation()) {
-                    // Construct and add: return location$var != null ? location$var.getAsType() : value$var;
+                int typeKind = varInfo.getVMI().getTypeKind();
 
-                    // Get the location accessor method name.
-                    int typeKind = varInfo.getVMI().getTypeKind();
-                    Name getMethodName = defs.locationGetMethodName[typeKind];
-                
-                    // location$var
-                    JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                    // location$var.getAsType
-                    JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
-                    // location$var.getAsType()
-                    JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
-                    // value$var
-                    JCExpression valueExp = Id(attributeValueName(proxyVarSym));
-                    // location$var != null
-                    JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
-                    // location$var != null ? location$var.getAsType() : value$var
-                    stmts.append( m().If(condition, m().Return(getCall), m().Return(valueExp)));
-                } else {
-                    // value$var
-                    JCExpression valueExp = Id(attributeValueName(proxyVarSym));
-                    // Construct and add: return value$var;
-                    stmts.append(m().Return(valueExp));
+                switch (varInfo.representation()) {
+                    case SlackerLocation: {
+                        // Construct and add: return location$var != null ? location$var.getAsType() : value$var;
+
+                        // Get the location accessor method name.
+                        Name getMethodName = defs.locationGetMethodName[typeKind];
+
+                        // location$var
+                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
+                        // location$var.getAsType
+                        JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
+                        // location$var.getAsType()
+                        JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
+                        // value$var
+                        JCExpression valueExp = Id(attributeValueName(proxyVarSym));
+                        // location$var != null
+                        JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
+                        // location$var != null ? location$var.getAsType() : value$var
+                        stmts.append(m().If(condition, m().Return(getCall), m().Return(valueExp)));
+                        break;
+                    }
+                    case AlwaysLocation: {
+                        // Get the location accessor method name.
+                        Name getMethodName = defs.locationGetMethodName[typeKind];
+
+                        // location$var
+                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
+                        // location$var.getAsType
+                        JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
+                        // location$var.getAsType()
+                        JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
+
+                        stmts.append(m().Return(getCall));
+                        break;
+                    }
+                    case NeverLocation: {
+                        // value$var
+                        JCExpression valueExp = Id(attributeValueName(proxyVarSym));
+                        // Construct and add: return value$var;
+                        stmts.append(m().Return(valueExp));
+                        break;
+                    }
                 }
             }
             
@@ -1015,6 +1038,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //     }
         //     
         private JCTree makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
             // Real type for var.
@@ -1052,26 +1076,48 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // value$var = value
                 JCExpression assignExp = m().Assign(valueExp, argExp);
                 
-                if (varInfo.requiresLocation()) {
-                    // Construct and add: if (location$var != null) return location$var.setAsType(value) else return value$var = value
+                int typeKind = varInfo.getVMI().getTypeKind();
 
-                    // Get the location accessor method name.
-                    int typeKind = varInfo.getVMI().getTypeKind();
-                    Name setMethodName = defs.locationSetMethodName[typeKind];
-                    
-                    // location$var
-                    JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                    // location$var.setAsType
-                    JCFieldAccess setSelect = m().Select(locationExp, setMethodName);
-                    // location$var.setAsType(value)
-                    JCExpression setCall = m().Apply(null, setSelect, List.<JCExpression>of(argExp));
-                    // location$var != null
-                    JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
-                    // if (location$var != null) return location$var.setAsType(value) else return value$var = value
-                    stmts.append( m().If(condition, m().Return(setCall), m().Return(assignExp)) );
-                } else {
-                    // Construct and add: return value$var = value;
-                    stmts.append(m().Return(assignExp));
+                switch (varInfo.representation()) {
+                    case SlackerLocation: {
+                        // Construct and add: if (location$var != null) return location$var.setAsType(value) else return value$var = value
+
+                        // Get the location accessor method name.
+                        Name setMethodName = defs.locationSetMethodName[typeKind];
+
+                        // location$var
+                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
+                        // location$var.setAsType
+                        JCFieldAccess setSelect = m().Select(locationExp, setMethodName);
+                        // location$var.setAsType(value)
+                        JCExpression setCall = m().Apply(null, setSelect, List.<JCExpression>of(argExp));
+                        // location$var != null
+                        JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
+                        // if (location$var != null) return location$var.setAsType(value) else return value$var = value
+                        stmts.append(m().If(condition, m().Return(setCall), m().Return(assignExp)));
+                        break;
+                    }
+                    case AlwaysLocation: {
+                        // Construct and add: location$var.setAsType(value)
+
+                        // Get the location accessor method name.
+                        Name setMethodName = defs.locationSetMethodName[typeKind];
+
+                        // location$var
+                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
+                        // location$var.setAsType
+                        JCFieldAccess setSelect = m().Select(locationExp, setMethodName);
+                        // location$var.setAsType(value)
+                        JCExpression setCall = m().Apply(null, setSelect, List.<JCExpression>of(argExp));
+
+                        stmts.append(m().Return(setCall));
+                        break;
+                    }
+                    case NeverLocation: {
+                        // Construct and add: return value$var = value;
+                        stmts.append(m().Return(assignExp));
+                        break;
+                    }
                 }
             }
         
@@ -1099,6 +1145,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //     }
         //     
         private JCTree makeGetDependencyAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
             // Assume no body.
@@ -1108,34 +1155,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Prepare to accumulate statements.
                 stmts = ListBuffer.lb();
                 // value$var
-                JCExpression valueExpr = Id(attributeValueName(varSym));
-               
-                if (varInfo.requiresLocation()) {
-                    // location$var
-                    Name locationName = attributeLocationName(varSym);
+                Name valueName = attributeValueName(varSym);
+                // location$var
+                Name locationName = attributeLocationName(varSym);
 
-                    // If we are implementing slacker Locations, construct and add:
-                    //     if (location$var == null) location$var = XXXVariable.makeWithDefault(value$var);
-                    if (!varInfo.alwaysLocation()) {
+                switch (varInfo.representation()) {
+                    case SlackerLocation: {
                         // XXXVariable.makeWithDefault(value$var)
-                        JCExpression initExpr = makeLocationWithDefault(varInfo.getVMI(), varInfo.pos(), valueExpr);
+                        JCExpression initExpr = makeLocationWithDefault(varInfo.getVMI(), varInfo.pos(), Id(valueName));
                         // location$var = XXXVariable.makeWithDefault(value$var)
                         JCStatement assignExpr = m().Exec(m().Assign(Id(locationName), initExpr));
                         // location$var == null
                         JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
-                        // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
+                        //
                         stmts.append(m().If(nullCheck, assignExpr, null));
+                        // Construct and add: return location$var)
+                        stmts.append(m().Return(Id(locationName)));
+                        break;
                     }
-                    // Construct and add: return location$var)
-                    stmts.append(m().Return(Id(locationName)));
-                } else {
-                    // new ConstantLocation<T>(value$var)
-                    JCExpression locationExpr = makeUnboundLocation(currentPos, varInfo.getVMI(), valueExpr);
-                    // Construct and add: return new ConstantLocation<T>(value$var);
-                    stmts.append(m().Return(locationExpr));
+                    case AlwaysLocation: {
+                        // Construct and add: return location$var)
+                        stmts.append(m().Return(Id(locationName)));
+                        break;
+                    }
+                    case NeverLocation: {
+                        // new ConstantLocation<T>(value$var)
+                        JCExpression locationExpr = makeUnboundLocation(currentPos, varInfo.getVMI(), Id(valueName));
+                        // Construct and add: return new ConstantLocation<T>(value$var);
+                        stmts.append(m().Return(locationExpr));
+                        break;
+                    }
                 }
             }
-            
+
             // Construct method.
             JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody), 
                                              varInfo.getVariableType(),
@@ -1567,7 +1619,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Only process attributes declared in this class (includes mixins.)
                 if (ai.needsDeclaration()) {
                     // Set the current diagnostic position.
-                    setCurrentPos(ai.pos());
+                    setCurrentPos(ai);
                     // Grab the variable symbol.
                     VarSymbol varSym = ai.getSymbol();
                     
