@@ -23,7 +23,6 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -174,10 +173,6 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         }
     }
 
-    public Iterator<T> iterator() {
-        return getAsSequence().iterator();
-    }
-
     @Override
     public String toString() {
         return getAsSequence().toString();
@@ -239,43 +234,11 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         throw new UnsupportedOperationException();
     }
 
-    public void insertFirst(T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertFirst(Sequence<? extends T> values) {
-        throw new UnsupportedOperationException();
-    }
-
     public void insertBefore(T value, int position) {
         throw new UnsupportedOperationException();
     }
 
-    public void insertBefore(T value, SequencePredicate<T> sequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
     public void insertBefore(Sequence<? extends T> values, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertAfter(T value, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertAfter(T value, SequencePredicate<T> sequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertAfter(Sequence<? extends T> values, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
         throw new UnsupportedOperationException();
     }
 

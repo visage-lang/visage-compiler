@@ -2487,9 +2487,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         if (tree.getPosition() == null) {
             result = callStatement(diagPos, seqLoc, "insert", elem);
         } else {
-            String meth = tree.shouldInsertAfter()? "insertAfter" : "insertBefore";
-            result = callStatement(diagPos, seqLoc, meth,
-                    List.of(elem, translateAsValue(tree.getPosition(), syms.intType)));
+            JCExpression position = translateAsValue(tree.getPosition(), syms.intType);
+            if (tree.shouldInsertAfter())
+                position = make.Binary(JCTree.PLUS, position, make.Literal(Integer.valueOf(1)));
+            result = callStatement(diagPos, seqLoc, "insertBefore",
+                    List.of(elem, position));
         }
     }
 
