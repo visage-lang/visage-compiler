@@ -23,225 +23,225 @@
 
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.functions.Function0;
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
+ * Factory methods for wrapping Locations: unmodifiable locations, ObjectLocation-typed views of primitive locations, etc
+ *
  * @author Brian Goetz
  */
 public class Locations {
-
     // non-instantiable
-    private Locations() { }
+    private Locations() {
+    }
 
-    @SuppressWarnings("unchecked")
-    public static<T, L extends ObjectLocation<T>> L makeBoundIf(final TypeInfo<T, L> typeInfo,
-                                                                boolean lazy,
-                                                                final BooleanLocation conditional,
-                                                                final ObjectLocation<T> thenLoc,
-                                                                final ObjectLocation<T> elseLoc) {
-        final L loc = typeInfo.makeLocation();
-
-        class ArmInvalidationListener extends InvalidationListener {
-            private final ObjectLocation<T> branch;
-
-            ArmInvalidationListener(ObjectLocation<T> branch) {
-                this.branch = branch;
-            }
-
-            @Override
-            public boolean onChange() {
-                if (conditional.getAsBoolean()) {
-                    if (branch == thenLoc)
-                        loc.invalidate();
-                }
-                else {
-                    if (branch == elseLoc)
-                        loc.invalidate();
-                }
-                return true;
-            }
-        }
-
-        BindingExpression bindingExpression = new AbstractBindingExpression() {
-            public void compute() {
-                pushFrom(typeInfo, conditional.getAsBoolean() ? thenLoc : elseLoc);
-            }
-        };
-        ((BindableLocation<T, ?>) loc).bind(lazy, bindingExpression, conditional);
-
-        elseLoc.addInvalidationListener(new ArmInvalidationListener(elseLoc));
-        thenLoc.addInvalidationListener(new ArmInvalidationListener(thenLoc));
-
+    public static Location getUnderlyingLocation(Location loc) {
+        while (loc.isViewLocation())
+            loc = loc.getUnderlyingLocation();
         return loc;
     }
 
-    // @@@ This can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
-    private static<T> BindingExpression wrap(final Function0<SequenceLocation<T>> fun) {
-        return new AbstractBindingExpression() {
-            @Override
-            public void compute() {
-                pushValue(fun.invoke());
-            }
-        };
+    public static boolean hasDependencies(Location loc) {
+        // May also want these lines, eventually:
+        // while (loc.isViewLocation())
+        //     loc = loc.getUnderlyingLocation();
+        return ((AbstractVariable) loc).hasDependencies();
     }
 
-    public static<T> SequenceLocation<T> makeBoundIf(TypeInfo<T, ?> typeInfo,
-                                                     boolean lazy,
-                                                     final BooleanLocation conditional,
-                                                     final Function0<SequenceLocation<T>> thenBranch,
-                                                     final Function0<SequenceLocation<T>> elseBranch) {
-        return makeBoundSequenceIf(typeInfo, lazy, conditional, wrap(thenBranch), wrap(elseBranch));
+    public static IntLocation constant(int value) {
+        return IntConstant.make(value);
     }
 
-    // @@@ This can go away once we switch to the makeBoundIf(TypeInfo, ...) version ^^^
-    public static<T> SequenceLocation<T> makeBoundSequenceIf(TypeInfo<T, ?> typeInfo,
-                                                             boolean lazy,
-                                                             final BooleanLocation conditional,
-                                                             final BindingExpression thenBranch,
-                                                             final BindingExpression elseBranch) {
-        BindingExpression bindingExpression = new AbstractBindingExpression() {
-            @Override
-            public void compute() {
-                if (thenBranch.getLocation() == null) {
-                    // First-time setup
-                    thenBranch.setLocation(location);
-                    elseBranch.setLocation(location);
-                }
-
-                if (conditional.getAsBoolean())
-                    thenBranch.compute();
-                else
-                    elseBranch.compute();
-            }
-        };
-        return makeIndirectSequenceLocation(typeInfo, lazy, bindingExpression, conditional);
+    public static DoubleLocation constant(double value) {
+        return DoubleConstant.make(value);
     }
 
-    private static <T, L extends ObjectLocation<T>> BindingExpression makeSelectBindingExpression(final ObjectLocation<?> receiver, final BindingExpression selector, final L defaultConstant) {
-        return new AbstractBindingExpression() {
-            public void compute() {
-                if (selector.getLocation() == null) {
-                    // First-time setup
-                    selector.setLocation(location);
-                }
-
-                if (receiver.get() != null)
-                    selector.compute();
-                else {
-                    pushValue(defaultConstant);
-                }
-            }
-        };
+    public static BooleanLocation constant(boolean value) {
+        return BooleanConstant.make(value);
     }
 
-    @SuppressWarnings("unchecked")
-    public static<T, L extends ObjectLocation<T>> L makeBoundSelect(final TypeInfo<T, L> typeInfo,
-                                                                    boolean lazy,
-                                                                    final SBECL selector) {
-        final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
-        final L loc = typeInfo.makeLocation();
-        final L defaultConstant = typeInfo.makeDefaultConstant();
-        final ObjectVariable<L> lastAdotBLoc = makeIndirectHelper(lazy, loc, makeSelectBindingExpression(receiver, selector, defaultConstant),
-                                                                  defaultConstant);
-        ((BindableLocation<T, ?>) loc).bind(lazy, new AbstractBindingExpression() {
-            public void compute() {
-                pushFrom(typeInfo, lastAdotBLoc.get());
-            }
-        });
+    public static<T> ObjectLocation<T> constant(T value) {
+        return ObjectConstant.make(value);
+    }
+
+    public static<T> SequenceLocation<T> constant(TypeInfo<T, ?> typeInfo, Sequence<T> value) {
+        return SequenceConstant.make(typeInfo, value);
+    }
+
+
+    public static ObjectLocation<Integer> asObjectLocation(IntLocation loc) {
         return loc;
     }
 
-    public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
-                                                                    boolean lazy,
-                                                                    final SBECL selector) {
-        final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
-        SequenceLocation<U> defaultValue = SequenceConstant.<U>make(typeInfo, typeInfo.emptySequence);
-        return makeIndirectSequenceLocation(typeInfo, lazy, makeSelectBindingExpression(receiver, selector, defaultValue), receiver);
+    public static ObjectLocation<Double> asObjectLocation(DoubleLocation loc) {
+        return loc;
     }
 
-    /**
-     * Helper methods for indirect locations; maintains separate dependency paths for the static dependencies (passed into
-     * the constructor) and the dynamic dependencies (embodied in the returned location from computeLocation()).  All
-     * subclasses need to do is provide the computeLocation() method.
-     */
-
-    private static<T, L extends ObjectLocation<T>>
-    ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
-        final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
-        helpedLocation.addDependency(helper);
-
-        class IndirectInvalidationListener extends InvalidationListener {
-            private final L attachedTo;
-
-            IndirectInvalidationListener(L attachedTo) {
-                this.attachedTo = attachedTo;
-            }
-
-            @Override
-            public boolean onChange() {
-                if (helper.get() == attachedTo)
-                    helpedLocation.invalidate();
-                return true;
-            }
-        }
-
-        ChangeListener<L> changeListener = new ChangeListener<L>() {
-            IndirectInvalidationListener listener;
-
-            @Override
-            public void onChange(L oldLoc, L newLoc) {
-                if (listener != null)
-                    listener.attachedTo.removeInvalidationListener(listener);
-                listener = new IndirectInvalidationListener(newLoc);
-                newLoc.addInvalidationListener(listener);
-                ((AbstractLocation) helpedLocation).setUnderlyingLocation(newLoc);
-            }
-        };
-        helper.addChangeListener(changeListener);
-        if (!lazy)
-            changeListener.onChange(null, helper.get());
-        return helper;
+    public static ObjectLocation<Boolean> asObjectLocation(BooleanLocation loc) {
+        return loc;
     }
 
-    private static<T> SequenceLocation<T> makeIndirectSequenceLocation(final TypeInfo<T, ?> typeInfo,
-                                                                      final boolean lazy,
-                                                                      final BindingExpression binding,
-                                                                      final Location... dependencies) {
-        // The approach for sequences is different because we need to use actual binding, not just triggers, otherwise
-        // the sequences triggers won't flow through the intermediate nodes correctly.
-        return new SequenceVariable<T>(typeInfo) {
-            ObjectLocation<SequenceLocation<T>> helper;
-            {
-                // Helper is deliberately not lazy -- because we need to get change events
-                helper = makeIndirectHelper(false, this, binding, new SequenceConstant<T>(typeInfo, typeInfo.emptySequence), dependencies);
-                bind(lazy, helper.get());
-                // @@@ Downside of this approach: we get two change events, one when the dependencies change, and another when
-                // the rebinding happens.
-                helper.addChangeListener(new ChangeListener<SequenceLocation<T>>() {
-                    @Override
-                    public void onChange(SequenceLocation<T> oldValue, SequenceLocation<T> newValue) {
-                        rebind(lazy, newValue);
-                    }
-                });
-            }
-        };
+    public static <T extends Number> NumericLocation asNumericLocation(ObjectLocation<T> loc) {
+        return new ObjectNumericLocation<T>(loc);
     }
 
     /**
      * Return a wrapping location that mirrors the underlying Location but upcasts its type
      * @param clazz  Really Class<V> but because of generics limitations this cannot be declared
-     * @param loc Location to upcast
+     * @param loc Location to wrap
      * @return
      */
-    @SuppressWarnings("unchecked")
     public static<T, V extends T> ObjectLocation<T> upcast(TypeInfo<V, ?> typeInfo, ObjectLocation<V> loc) {
-        return (ObjectLocation<T>)(loc);
+        return new UpcastLocation<T, V>(typeInfo, loc);
     }
 
-    // Used outside compiler - in GUI code. Once we design
-    // an alternative for them, we can remove this method.
-    public static boolean hasDependencies(Location loc) {
-	 return ((AbstractVariable) loc).hasDependencies();
+    private static abstract class LocationWrapper<T extends Location> implements Location {
+        protected final T location;
+
+        protected LocationWrapper(T location) {
+            this.location = location;
+        }
+
+        public boolean isValid() {
+            return location.isValid();
+        }
+
+        public boolean isNull() {
+            return location.isNull();
+        }
+
+        public boolean isMutable() {
+            return location.isMutable();
+        }
+
+        public void invalidate() {
+            location.invalidate();
+        }
+
+        public void update() {
+            location.update();
+        }
+
+        public void addInvalidationListener(InvalidationListener listener) {
+            location.addInvalidationListener(listener);
+        }
+
+        public void removeInvalidationListener(InvalidationListener listener) {
+            location.removeInvalidationListener(listener);
+        }
+
+        public void iterateChildren(DependencyIterator<? extends LocationDependency> closure) {
+            location.iterateChildren(closure);
+        }
+
+        public void addDependency(DependencySource... deps) {
+            location.addDependency(deps);
+        }
+
+        public void addDependency(DependencySource dep) {
+            location.addDependency(dep);
+        }
+
+        public void addDynamicDependency(DependencySource dep) {
+            location.addDynamicDependency(dep);
+        }
+
+        public void clearDynamicDependencies() {
+            location.clearDynamicDependencies();
+        }
+
+        public void addDependentLocation(WeakLocation weakLocation) {
+            location.addDependentLocation(weakLocation);
+        }
+
+        public boolean isViewLocation() {
+            return false;
+        }
+
+        public Location getUnderlyingLocation() {
+            return this;
+        }
+    }
+
+    private static class ObjectNumericLocation<T extends Number> extends LocationWrapper<ObjectLocation<T>> implements NumericLocation {
+        private ObjectNumericLocation(ObjectLocation<T> location) {
+            super(location);
+        }
+
+        public int getAsInt() {
+            Number val = location.get();
+            return (val == null) ? 0 : val.intValue();
+        }
+
+        public byte getAsByte() {
+            Number val = location.get();
+            return (val == null) ? 0 : val.byteValue();
+        }
+
+        public short getAsShort() {
+            Number val = location.get();
+            return (val == null) ? 0 : val.shortValue();
+        }
+
+        public long getAsLong() {
+            Number val = location.get();
+            return (val == null) ? 0 : val.longValue();
+        }
+
+        public float getAsFloat() {
+            Number val = location.get();
+            return (val == null) ? 0 : val.floatValue();
+        }
+
+        public double getAsDouble() {
+            Number val = location.get();
+            return (val == null) ? 0 : val.doubleValue();
+        }
+
+        @Override
+        public boolean isViewLocation() {
+            return true;
+        }
+
+        @Override
+        public Location getUnderlyingLocation() {
+            return location;
+        }
+    }
+
+    private static class UpcastLocation<T, V extends T> extends LocationWrapper<ObjectLocation<V>> implements ObjectLocation<T> {
+
+        public UpcastLocation(TypeInfo<V, ?> typeInfo, ObjectLocation<V> location) {
+            super(location);
+        }
+
+        public V get() {
+            return location.get();
+        }
+
+        public V set(T value) {
+            throw new AssignToBoundException("Cannot assign to bound variable");
+            // return location.set((V)value);
+        }
+
+        public T setFromLiteral(T value) {
+            throw new AssignToBoundException("Cannot assign to bound variable");
+            // return location.setFromLiteral((V)value);
+        }
+
+        public void setDefault() {
+            throw new AssignToBoundException("Cannot assign to bound variable");
+            // location.setDefault();
+        }
+
+        public void addChangeListener(final ChangeListener<T> listener) {
+            location.addChangeListener(new ChangeListener<V>() {
+                public void onChange(V oldValue, V newValue) {
+                    listener.onChange(oldValue, newValue);
+                }
+            });
+        }
     }
 }

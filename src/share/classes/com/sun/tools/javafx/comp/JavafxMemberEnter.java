@@ -816,7 +816,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             if (supertype == null) {
                 supertype = (c.fullname == names.java_lang_Object)
                 ? Type.noType
-                : (syms.USE_SLACKER_LOCATIONS ? syms.javafx_FXBaseType : syms.objectType);
+                : syms.javafx_FXBaseType;
             }
             ct.supertype_field = supertype;
 

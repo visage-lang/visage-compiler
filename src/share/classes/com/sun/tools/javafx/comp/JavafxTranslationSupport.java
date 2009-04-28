@@ -560,6 +560,29 @@ public abstract class JavafxTranslationSupport {
         return makeLocationVariable(tmi, diagPos, makeArgs, makeMethod);
     }
 
+    JCExpression makeGetDependency(DiagnosticPosition diagPos, JCExpression receiver, Symbol sym) {
+        Symbol owner = sym.owner;
+        Name ownerName = owner.name;
+        Name offsetName = attributeOffsetName(sym);
+        JCExpression ownerIdent = make.at(diagPos).Ident(ownerName);
+        List<JCExpression> getArgs = List.<JCExpression>of(make.at(diagPos).Select(ownerIdent, offsetName));
+        List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, syms.intType, true));
+        JCExpression getSelect = make.at(diagPos).Select(receiver, defs.getDependencyPrefixName);
+        return make.at(diagPos).Apply(typeArgs, getSelect, getArgs);
+    }
+
+    JCExpression makeLocationWithDefault(TypeMorphInfo tmi, DiagnosticPosition diagPos, JCExpression expr) {
+        List<JCExpression> makeArgs = List.<JCExpression>of(expr);
+        Name makeMethod;
+        if (tmi.getTypeKind() == TYPE_KIND_OBJECT && 
+                (tmi.getRealType() == syms.javafx_StringType || tmi.getRealType() == syms.javafx_DurationType)) {
+            makeMethod = defs.makeWithDefaultMethodName;
+        } else {
+            makeMethod = defs.makeMethodName;
+        }
+        return makeLocationVariable(tmi, diagPos, makeArgs, makeMethod);
+    }
+    
     JCExpression makeLocation(TypeMorphInfo tmi,
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
@@ -680,6 +703,11 @@ public abstract class JavafxTranslationSupport {
         return functionName(sym, sym.name.toString(), markAsImpl, isBound);
     }
 
+    Name varMapName(ClassSymbol sym) {
+        String className = sym.fullname.toString();
+        return names.fromString(varMapString + className.replace('.', '$'));
+    }
+
     Name attributeFieldName(Symbol sym) {
         return prefixedAttributeName(sym, "$");
     }
@@ -713,7 +741,11 @@ public abstract class JavafxTranslationSupport {
     Name attributeSetterName(Symbol sym) {
         return prefixedAttributeName(sym, attributeSetMethodNamePrefix);
     }
-
+    
+    Name attributeGetDependencyName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeGetDependencyMethodNamePrefix);
+    }
+ 
     Name attributeApplyDefaultsName(Symbol sym) {
         return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
     }
@@ -843,13 +875,7 @@ public abstract class JavafxTranslationSupport {
 
     // expr.get()
     JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, int typeKind) {
-        return getLocationValue(diagPos, expr, defs.locationGetMethodName[typeKind]);
-    }
-
-    JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, Name getMethodName) {
-        JCFieldAccess getSelect = make.at(diagPos).Select(expr, getMethodName);
-        List<JCExpression> getArgs = List.nil();
-        return make.at(diagPos).Apply(null, getSelect, getArgs);
+        return callExpression(diagPos, expr, defs.locationGetMethodName[typeKind]);
     }
 
     /**
@@ -859,15 +885,8 @@ public abstract class JavafxTranslationSupport {
      * If receiver is null, use direct access.
      * */
    JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym, Name instanceName) {
-       JCExpression instanceIdent = instanceName==null? null : make.at(diagPos).Ident(instanceName);
-       if (attribSym.isStatic()) {
-           Name fieldName = attributeFieldName(attribSym);
-           return instanceIdent==null? make.at(diagPos).Ident(fieldName) : make.at(diagPos).Select(instanceIdent, fieldName);
-       } else {
-           return callExpression(diagPos,
-                instanceIdent,
-                attributeGetterName(attribSym));
-       }
+       JCExpression instanceIdent = instanceName == null? null : make.at(diagPos).Ident(instanceName);
+       return callExpression(diagPos, instanceIdent, attributeGetDependencyName(attribSym));
    }
 
     JCIdent makeIdentOfPresetKind(DiagnosticPosition diagPos, Name name, int pkind) {
@@ -888,6 +907,13 @@ public abstract class JavafxTranslationSupport {
 
     JCExpression makeLaziness(DiagnosticPosition diagPos, JavafxBindStatus bindStatus) {
         return make.at(diagPos).Literal(TypeTags.BOOLEAN, bindStatus.isLazy()? 1 : 0);
+    }
+
+    JCVariableDecl makeTmpLoopVar(DiagnosticPosition diagPos, int initValue) {
+        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(0),
+                                       getSyntheticName("loop"),
+                                       makeTypeTree(diagPos, syms.intType),
+                                       make.at(diagPos).Literal(TypeTags.INT, initValue));
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {

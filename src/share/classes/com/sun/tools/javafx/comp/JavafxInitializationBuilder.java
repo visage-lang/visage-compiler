@@ -39,6 +39,9 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Build the representation(s) of a JavaFX class.  Includes class initialization, attribute and function proxies.
  * With support for mixins.
@@ -60,6 +63,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     Name outerAccessorName;
     Name outerAccessorFieldName;
+    Name makeInitMap;
     
     Name varNumName;
     Name varLocalNumName;
@@ -68,6 +72,41 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     final Type initHelperType;
     final Type abstractVariableType;
+    final Type locationDependencyType;
+    final Type locationType;
+    
+    public static class LiteralInitVarMap {
+        private int count = 1;
+        public Map<VarSymbol, Integer> varMap = new HashMap<VarSymbol, Integer>();
+        public ListBuffer<VarSymbol> varList = ListBuffer.lb();
+        
+        public int addVar(VarSymbol sym) {
+            Integer value = varMap.get(sym);
+            
+            if (value == null) {
+                value = new Integer(count++);
+                varMap.put(sym, value);
+                varList.append(sym);
+            }
+            
+            return value.intValue();
+        }
+    }
+    
+    public static class LiteralInitClassMap {
+        public Map<ClassSymbol, LiteralInitVarMap> classMap = new HashMap<ClassSymbol, LiteralInitVarMap>();
+        
+        public LiteralInitVarMap getVarMap(ClassSymbol sym) {
+            LiteralInitVarMap map = classMap.get(sym);
+            
+            if (map == null) {
+                map = new LiteralInitVarMap();
+                classMap.put(sym, map);
+            }
+            
+            return map;
+        }
+    }
     
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -87,6 +126,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         outerAccessorName = names.fromString("accessOuter$");
         outerAccessorFieldName = names.fromString("accessOuterField$");
+        makeInitMap = names.fromString("makeInitMap$");
         
         varNumName = names.fromString("varNum$");
         varLocalNumName = names.fromString("varLocalNum$");
@@ -102,6 +142,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             Name name = names.fromString(locationPackageNameString + ".AbstractVariable");
             ClassSymbol sym = reader.enterClass(name);
             abstractVariableType = types.erasure( sym.type );
+        }
+        {
+            Name name = names.fromString(locationPackageNameString + ".LocationDependency");
+            ClassSymbol sym = reader.enterClass(name);
+            locationDependencyType = types.erasure( sym.type );
+        }
+        {
+            Name name = names.fromString(locationPackageNameString + ".Location");
+            ClassSymbol sym = reader.enterClass(name);
+            locationType = types.erasure( sym.type );
         }
     }
 
@@ -156,7 +206,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * */
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, 
            List<TranslatedVarInfo> translatedAttrInfo,
-           List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo) {
+           List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
+           LiteralInitClassMap initClassMap) {
         boolean isMixinClass = cDecl.isMixinClass();
         DiagnosticPosition diagPos = cDecl.pos();
         Type superType = types.superType(cDecl);
@@ -169,7 +220,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<VarInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
         List<VarInfo> staticAttributeInfos = analysis.staticAttributeInfos();
         List<MethodSymbol> needDispatch = analysis.needDispatch();
-        ClassSymbol superClassSym = analysis.getSuperClassSym();
+        ClassSymbol superClassSym = analysis.getFXSuperClassSym();
         List<ClassSymbol> superClasses = analysis.getSuperClasses();
         List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
         List<ClassSymbol> allMixinClasses = analysis.getAllMixins();
@@ -177,15 +228,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
          
-if (!syms.USE_SLACKER_LOCATIONS) {     
         if (!isMixinClass) {
-            cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
-            cDefinitions.appendList(makeAttributeFields(cDecl.sym, staticAttributeInfos));
-            cDefinitions.appendList(makeNeedsDefaultFields(instanceAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeNumbers());
+            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(instanceAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeIsInitialized());
+            cDefinitions.appendList(javaCodeMaker.makeBlanketApplyDefaults());
+            cDefinitions.appendList(javaCodeMaker.makeSpecificApplyDefaults());
+            cDefinitions.appendList(javaCodeMaker.makeGetDependency());
+            cDefinitions.append    (javaCodeMaker.makeCount());
+            cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+            
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            cDefinitions.appendList(makeMemberVariableAccessorMethods(cDecl, instanceAttributeInfos));
-            cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
-            cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
+            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
+            cDefinitions.append    (makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
             if (outerTypeSym == null) {
                 cDefinitions.append(makeJavaEntryConstructor(diagPos));
@@ -193,60 +251,20 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 cDefinitions.append(makeOuterAccessorField(diagPos, cDecl, outerTypeSym));
                 cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
             }
-            
-            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
-            cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
-            cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, superType != null && types.isJFXClass(superType.tsym)));
-        } else {
-            cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
-            cDefinitions.appendList(makeAttributeFields(cDecl.sym, staticAttributeInfos));
-            cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            iDefinitions.appendList(makeMemberVariableAccessorInterfaceMethods(diagPos, translatedAttrInfo));
-            iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
-            iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
-        }
-} else { // if (!syms.USE_SLACKER_LOCATIONS)
-        if (!isMixinClass) {
-            cDefinitions.appendList(javaCodeMaker.makeAttributeNumbers());
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
-            // cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods());
-            cDefinitions.append    (javaCodeMaker.makeIsInitialized());
-            cDefinitions.append    (javaCodeMaker.makeApplyDefaults());
-            
-            // cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
-            cDefinitions.appendList(makeAttributeFields(cDecl.sym, staticAttributeInfos));
-            // cDefinitions.appendList(makeNeedsDefaultFields(instanceAttributeInfos));
-            cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            // cDefinitions.appendList(makeMemberVariableAccessorMethods(cDecl, instanceAttributeInfos));
-            cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
-            cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
-            if (outerTypeSym == null) {
-                cDefinitions.append(makeJavaEntryConstructor(diagPos));
-            } else {
-                cDefinitions.append(makeOuterAccessorField(diagPos, cDecl, outerTypeSym));
-                cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
-         }
-
-            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
             cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
             cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, superClassSym != null));
         } else {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
-            // cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
             iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
+            cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
 
-            // cDefinitions.appendList(makeAttributeFields(cDecl.sym, instanceAttributeInfos));
-            cDefinitions.appendList(makeAttributeFields(cDecl.sym, staticAttributeInfos));
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            // iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            cDefinitions.append(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
         }
-} // if (!syms.USE_SLACKER_LOCATIONS)
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
 
         return new JavafxClassModel(
@@ -500,113 +518,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         return members.toList();
     }
 
-    private Type morphedType(VarInfo ai) {
-        return requiresLocation(ai) ? ai.getVariableType() : ai.getRealType();
-    }
-
-    private JCMethodDecl makeGetterMethod(DiagnosticPosition diagPos, VarInfo ai, JCModifiers mods, JCBlock statBlock) {
-        final VarSymbol vsym = ai.getSymbol();
-        return make.at(diagPos).MethodDef(
-                mods,
-                attributeGetterName(vsym),
-                makeTypeTree(diagPos, morphedType(ai)),
-                List.<JCTypeParameter>nil(),
-                List.<JCVariableDecl>nil(),
-                List.<JCExpression>nil(),
-                statBlock,
-                null);
-    }
-
-    private JCMethodDecl makeSetterMethod(DiagnosticPosition diagPos, VarInfo ai, JCModifiers mods, JCBlock block) {
-        final VarSymbol vsym = ai.getSymbol();
-        return make.at(diagPos).MethodDef(
-                mods,
-                attributeSetterName(vsym),
-                makeTypeTree(diagPos, ai.getRealType()),
-                List.<JCTypeParameter>nil(),
-                List.of(makeParam(diagPos, defs.attributeSetMethodParamName, ai.getRealType())),
-                List.<JCExpression>nil(),
-                block,
-                null);
-    }
-
-    private List<JCTree> makeMemberVariableAccessorInterfaceMethods(DiagnosticPosition diagPos, List<? extends VarInfo> attrInfos) {
-        ListBuffer<JCTree> accessors = ListBuffer.lb();
-        for (VarInfo ai : attrInfos) {
-            if (!ai.isStatic()) {
-                accessors.append(makeGetterMethod(diagPos, ai, make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT), null));
-                if (!requiresLocation(ai)) {
-                    accessors.append(makeSetterMethod(diagPos, ai, make.Modifiers(Flags.PUBLIC | Flags.ABSTRACT), null));
-                }
-            }
-        }
-        return accessors.toList();
-    }
-
-    private JCModifiers proxyModifiers(VarInfo ai, JFXClassDeclaration cDecl) {
-        long flags = ai.getFlags();
-        JCModifiers mods = make.Modifiers(Flags.PUBLIC);
-        if (ai.getSymbol().owner == cDecl.sym) {
-            mods = addAccessAnnotationModifiers(ai.pos(), flags, mods);
-        } else {
-            mods = addInheritedAnnotationModifiers(ai.pos(), flags, mods);
-        }
-        return mods;
-    }
-
-    private List<JCTree> makeMemberVariableAccessorMethods(JFXClassDeclaration cDecl, List<? extends VarInfo> attrInfos) {
-        ListBuffer<JCTree> accessors = ListBuffer.lb();
-        boolean isMixinClass = cDecl.isMixinClass();
-        
-        for (VarInfo ai : attrInfos) {
-            final DiagnosticPosition diagPos = ai.pos();
-            final VarSymbol vsym = ai.getSymbol();
-            final VarSymbol proxyVarSym = ai.proxyVarSym();
-            
-            if (!(ai instanceof SuperClassVarInfo)) {
-                {
-                    // Add the return statement for the attribute
-                    JCExpression value = make.Ident(attributeFieldName(proxyVarSym));
-                    JCStatement returnStat = make.at(diagPos).Return(value);
-    
-                    // Add the method for this class' attributes
-                    JCBlock block = make.at(diagPos).Block(0L, List.of(returnStat));
-                    accessors.append(makeGetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
-                }
-                if (!requiresLocation(ai)) {
-                    // Add setter method
-                    ListBuffer<JCStatement> stmts = ListBuffer.lb();
-    
-                    if (!ai.isDef() && !isMixinClass) {
-                        stmts.append(clearNeedsDefault(diagPos, proxyVarSym));
-                    }
-    
-                    // Set value
-                    JCExpression attr = make.at(diagPos).Ident(attributeFieldName(proxyVarSym));
-                    JCExpression value = make.at(diagPos).Ident(defs.attributeSetMethodParamName);
-                    JCExpression assign = make.at(diagPos).Assign(attr, value);
-                    stmts.append(make.at(diagPos).Return(assign));
-    
-                    // Add setter method
-                    JCBlock block = make.at(diagPos).Block(0L, stmts.toList());
-                    accessors.append(makeSetterMethod(diagPos, ai, proxyModifiers(ai, cDecl), block));
-                }
-    
-                optStat.recordProxyMethod();
-            }
-        }
-        return accessors.toList();
-    }
-        
-    /**
-     * Construct a var$needs_default$ = false; statement.
-     */
-    private JCStatement clearNeedsDefault(DiagnosticPosition diagPos, VarSymbol sym) {
-      JCExpression needsDefaultField = make.at(diagPos).Ident(attributeNeedsDefaultFieldName(sym));
-      JCExpression mark = make.at(diagPos).Assign(needsDefaultField, make.at(diagPos).Literal(TypeTags.BOOLEAN, 0));
-      return make.at(diagPos).Exec(mark);
-    }
-        
     /**
      * Construct the applyDefaults methods
      */
@@ -623,42 +534,29 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
                 if (hasDefault) {
-                    /* TODO JFXC-2836
-                    if (!ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
-                        stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
-                    }
-                    */
-                    
-                    // a default exists, either on the direct attribute or on an override
+                     // a default exists, either on the direct attribute or on an override
                     stmts.append(ai.getDefaultInitStatement());
-                } else if (ai.isMixinVar()) {
-                    /* TODO JFXC-2836
-                    if (ai.isMixinVar() && !ai.isDef() && !isMixinClass && !requiresLocation(ai)) {
-                        stmts.append(clearNeedsDefault(diagPos, ai.proxyVarSym()));
-                    }
-                    */
-                    
-                    ClassSymbol attrParent = (ClassSymbol)ai.getSymbol().owner;
-                    assert attrParent != null : "Parent supertype for attribute " + ai.getNameString() + " not found";
-                    if (attrParent != null) {
-                        stmts.append(makeSuperCall(diagPos, attrParent, methodName, false));
-                    }
+                } else if (ai.isMixinVar() && !isMixinClass) {
+                    // Include defaults for mixins into real classes.
+                    stmts.append(makeSuperCall(diagPos, (ClassSymbol)ai.getSymbol().owner, methodName, false));
                 }
                 
-                JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
-
-                // Add the method for this class' attributes
-                JCModifiers mods = make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) );
-                methods.append(make.at(diagPos).MethodDef(
-                        mods,
-                        methodName,
-                        makeTypeTree( null,syms.voidType),
-                        List.<JCTypeParameter>nil(),
-                        List.<JCVariableDecl>of(makeReceiverParam(cDecl)),
-                        List.<JCExpression>nil(),
-                        statBlock,
-                        null));
-                optStat.recordProxyMethod();
+                if (stmts.nonEmpty()) {
+                    JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
+    
+                    // Add the method for this class' attributes
+                    JCModifiers mods = make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) );
+                    methods.append(make.at(diagPos).MethodDef(
+                            mods,
+                            methodName,
+                            makeTypeTree( null,syms.voidType),
+                            List.<JCTypeParameter>nil(),
+                            List.<JCVariableDecl>of(makeReceiverParam(cDecl)),
+                            List.<JCExpression>nil(),
+                            statBlock,
+                            null));
+                    optStat.recordProxyMethod();
+                }
             }
         }
         return methods.toList();
@@ -692,23 +590,18 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         // Add calls to do the the default value initialization and user init code (validation for example.)
         
         // "addTriggers$(this);"
-       stmts.append( callStatement(
+        stmts.append( callStatement(
                diagPos, 
                null,
                defs.addTriggersName, 
                make.at(diagPos).Ident(names._this)));
 
-if (!syms.USE_SLACKER_LOCATIONS) {
-       // "initAttributes$(this);"
-        stmts.appendList( makeInitAttributesCode(attrInfos, cDecl) );
-} else { // if (!syms.USE_SLACKER_LOCATIONS)
-       // "applDefaults$();"
+        // "applDefaults$();"
         stmts.append(callStatement(
                 diagPos, 
                 null,
                 defs.applyDefaultsPrefixName, 
                 List.<JCExpression>nil()));
-} // if (!syms.USE_SLACKER_LOCATIONS)
         
         // "userInit$(this);"
         stmts.append(callStatement(
@@ -724,21 +617,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 defs.postInitName,
                 make.at(diagPos).Ident(names._this)));
 
-        // "InitHelper.finish(new[] { attribute, ... });
-        ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
-        for (VarInfo ai : attrInfos) {
-            if (!ai.isStatic() && !ai.hasProxyVar() && requiresLocation(ai)) {
-                final VarSymbol vsym = ai.getSymbol();
-                finishAttrs.append(make.at(diagPos).Ident(attributeFieldName(vsym)));
-            }
-        }                
-
-        stmts.append( callStatement(diagPos, 
-                makeTypeTree(diagPos, initHelperType), 
-                "finish",
-                make.NewArray(makeTypeTree(diagPos, abstractVariableType), 
-                                List.<JCExpression>nil(), finishAttrs.toList())));
-
         JCBlock initializeBlock = make.Block(0L, stmts.toList());
         return make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
@@ -748,37 +626,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 List.<JCVariableDecl>nil(), 
                 List.<JCExpression>nil(), 
                 initializeBlock, null);
-    }
-    
-    // Add the initialization of instance variables
-    private List<JCStatement> makeInitAttributesCode(List<? extends VarInfo> attrInfos,
-            JFXClassDeclaration cDecl) {
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        for (VarInfo ai : attrInfos) {
-            if (!ai.isStatic() && !ai.hasProxyVar()) {
-                DiagnosticPosition diagPos = ai.pos();
-                VarSymbol vsym = ai.getSymbol();
-                Name methodName = attributeApplyDefaultsName(vsym);
-
-                List<JCExpression> applyDefaultsArg = List.<JCExpression>of(make.at(diagPos).Ident(names._this));
-                JCStatement applyDefaultsCall = callStatement(diagPos, null, methodName, applyDefaultsArg);
-                if (!ai.isDef()) {
-                    JCExpression cond;
-                    if (requiresLocation(ai)) {
-                        Name fieldName = attributeFieldName(vsym);
-                        cond = callExpression(diagPos,
-                                make.at(diagPos).Ident(fieldName),
-                                defs.needDefaultsMethodName);
-                    } else {
-                        Name fieldName = attributeNeedsDefaultFieldName(vsym);
-                        cond = make.at(diagPos).Ident(fieldName);
-                    }
-                    applyDefaultsCall = make.If(cond, applyDefaultsCall, null);
-                }
-                stmts.append(applyDefaultsCall);
-            }
-        }
-        return stmts.toList();
     }
     
     /**
@@ -801,9 +648,12 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     if (tai.getDefaultInitStatement() != null) {
                         stmts.append(tai.getDefaultInitStatement());
                     }
-                    if (requiresLocation(tai)) {
+                    if (tai.requiresLocation()) {
                         // If the static variable is represented with a Location, initialize it
-                        stmts.append(callStatement(diagPos, make.at(diagPos).Ident(attributeFieldName(tai.getSymbol())), defs.locationInitializeName));
+                        Name locName = attributeLocationName(tai.getSymbol());
+                        JCStatement initvar = callStatement(diagPos, make.at(diagPos).Ident(locName), defs.locationInitializeName);
+                        JCExpression nullCheck = make.at(diagPos).Binary(JCTree.NE, make.at(diagPos).Ident(locName), make.at(diagPos).Literal(TypeTags.BOT, null));
+                        stmts.append(make.at(diagPos).If(nullCheck, initvar, null));
                     }
                 }
                 JCStatement stat = tai.onReplaceAsListenerInstanciation();
@@ -815,47 +665,34 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         return make.at(cDecl.pos()).Block(Flags.STATIC, stmts.toList());
     }
      
-    
-    // 
-    // Return the super class symbol if it is a FX class.
-    // 
-    private ClassSymbol getSuperSymbol(JFXClassDeclaration cDecl) {
-        List<JFXExpression> extending = cDecl.getExtending();
-        if (!extending.isEmpty()) {
-            JFXExpression parent = extending.get(0);
-            if (parent instanceof JFXIdent) {
-                Symbol symbol = expressionSymbol(parent);
-                if (types.isJFXClass(symbol)) {
-                    return (ClassSymbol)symbol;
-                }
-            }
-        }
-        
-        return null;
-    }
-    
-
     /**
      * Construct the addTriggers method
      * */
-    private JCMethodDecl makeAddTriggersMethod(DiagnosticPosition diagPos, 
+    private List<JCTree> makeAddTriggersMethod(DiagnosticPosition diagPos, 
                                                JFXClassDeclaration cDecl,
                                                ClassSymbol superClassSym,
                                                List<ClassSymbol> immediateMixinClasses,
                                                List<TranslatedVarInfo> translatedAttrInfo,
                                                List<TranslatedOverrideClassVarInfo> translatedTriggerInfo) {
+        ListBuffer<JCTree> methods = ListBuffer.lb();
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         boolean isMixinClass = cDecl.isMixinClass();
 
-        // call the super addTriggers
-        if (superClassSym != null) {
-            stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, isMixinClass));
+        // Supers will be called when inserted into real classes.
+        if (!isMixinClass) {
+            // call the super addTriggers
+            if (superClassSym != null) {
+                stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, isMixinClass));
+            }
+            
+            // JFXC-2822 - Triggers need to work from mixins.
+            for (ClassSymbol cSym : immediateMixinClasses) {
+                stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, true));
+            }
         }
         
-        // JFXC-2822 - Triggers need to work from mixins.
-        for (ClassSymbol cSym : immediateMixinClasses) {
-            stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, true));
-        }
+        // Capture the number of statements prior to adding triggers.
+        int priorSize = stmts.size();
 
         // add change listeners for triggers on attribute definitions
         for (TranslatedVarInfo info : translatedAttrInfo) {
@@ -876,89 +713,23 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 }
             }
         }
-
-        return make.at(diagPos).MethodDef(
-                make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
-                defs.addTriggersName,
-                makeTypeTree( null,syms.voidType),
-                List.<JCTypeParameter>nil(),
-                List.<JCVariableDecl>of( makeReceiverParam(cDecl) ),
-                List.<JCExpression>nil(),
-                make.Block(0L, stmts.toList()),
-                null);
-    }
-
-    // build a field for each non-static attribute (including inherited).
-    // and for static attributes of this class
-    private List<JCTree> makeAttributeFields(Symbol csym, List<? extends VarInfo> attrInfos) {
-        ListBuffer<JCTree> fields = ListBuffer.lb();
-        for (VarInfo ai : attrInfos) {
-            if (ai.needsDeclaration()) {
-                final DiagnosticPosition diagPos = ai.pos();
-                final VarSymbol sym = ai.getSymbol();
-                final boolean requiresLocation = requiresLocation(ai);
-                final long modFlags = Flags.PUBLIC | (requiresLocation? Flags.FINAL : 0L) | (ai.getFlags() & Flags.STATIC);
-
-                JCModifiers mods = make.Modifiers(modFlags);
-                if (sym.owner == csym) {
-                    List<JCAnnotation> annotations = List.<JCAnnotation>of(make.Annotation(
-                            makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
-                            List.<JCExpression>of(make.Literal(sym.name.toString()))));
-                    mods = addAccessAnnotationModifiers(diagPos, sym.flags(), mods, annotations);
-                } else {
-                    mods = addInheritedAnnotationModifiers(diagPos, sym.flags(), mods);
-                }
-
-                Type varType;
-                JCExpression varInit;
-                VarMorphInfo vmi = ai.getVMI();
-                if (requiresLocation) {
-                    varType = ai.getVariableType();
-                    varInit = makeLocationAttributeVariable(vmi, diagPos);
-                } else {
-                    varType = ai.getRealType();
-                    varInit = makeDefaultValue(diagPos, vmi);
-                }
-                optStat.recordClassVar(sym, requiresLocation);
-                JCVariableDecl var = make.at(diagPos).VarDef(
-                        mods,
-                        attributeFieldName(sym),
-                        makeTypeTree(diagPos, varType),
-                        varInit);
-                fields.append(var);
-                optStat.recordConcreteField();
-            }
+        
+        // Only generate method if necessary.
+        if (stmts.size() != priorSize || isMixinClass || superClassSym == null) {
+            methods.append(make.at(diagPos).MethodDef(
+                    make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
+                    defs.addTriggersName,
+                    makeTypeTree( null,syms.voidType),
+                    List.<JCTypeParameter>nil(),
+                    List.<JCVariableDecl>of( makeReceiverParam(cDecl) ),
+                    List.<JCExpression>nil(),
+                    make.Block(0L, stmts.toList()),
+                    null));
         }
-        return fields.toList();
+        
+        return methods.toList();
     }
 
-    private Name attributeNeedsDefaultFieldName(VarSymbol vsym) {
-        Name aName = attributeFieldName(vsym);
-        String nameStr = aName.toString() + needsDefaultSuffix;
-        return names.fromString(nameStr);
-    }
-
-    // build a needs-default boolean field for each non-Location non-def instance member var (including inherited).
-    private List<JCTree> makeNeedsDefaultFields(List<? extends VarInfo> attrInfos) {
-        ListBuffer<JCTree> members = ListBuffer.lb();
-        for (VarInfo ai : attrInfos) {
-            if (ai.needsCloning() && !ai.hasProxyVar() && !ai.isStatic() && !ai.isDef() && !requiresLocation(ai)) {
-                final DiagnosticPosition diagPos = ai.pos();
-                final VarSymbol vsym = ai.getSymbol();
-
-                // Make field
-                 JCVariableDecl var = make.at(diagPos).VarDef(
-                        make.Modifiers(Flags.PUBLIC),
-                        attributeNeedsDefaultFieldName(vsym),
-                        makeTypeTree(diagPos, syms.booleanType),
-                        make.at(diagPos).Literal(TypeTags.BOOLEAN, 1));
-                members.append(var);
-                optStat.recordConcreteField();
-            }
-        }
-        return members.toList();
-    }
-   
     /**
      * Make a method body which redirects to the actual implementation in a static method of the defining class.
      */
@@ -975,10 +746,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         JCExpression expr = callExpression(cDecl.pos(), receiver, functionName(mth, !isStatic, isBound), args);
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
         return make.at(cDecl.pos()).Block(0L, List.<JCStatement>of(statement));
-    }
-
-    private boolean requiresLocation(VarInfo ai) {
-        return typeMorpher.requiresLocation(ai.getSymbol());
     }
 
     protected String getSyntheticPrefix() {
@@ -1027,7 +794,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         //
         // This method makes a type tree using the current diagnosic position.
         //
-        private JCExpression makeType(Type t) { return makeTypeTree(currentPos, t); }
+        private JCExpression makeType(Type t)                   { return makeTypeTree(currentPos, t); }
         private JCExpression makeType(Type t, boolean makeIntf) { return makeTypeTree(currentPos, t, makeIntf); }
 
         //
@@ -1035,13 +802,13 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         //
         private JCVariableDecl addSimpleIntVariable(long modifiers, Name name, int value) {
             // Construct the variable itself.
-            return addVariable(modifiers, syms.intType, name, makeInt(value));
+            return makeVariable(modifiers, syms.intType, name, makeInt(value));
         }
         
         //
         // This method generates a java field for a varInfo.
         //
-        private JCVariableDecl addVariableField(VarInfo varInfo, JCModifiers mods, Type varType, Name name, JCExpression varInit) {
+        private JCVariableDecl makeVariableField(VarInfo varInfo, JCModifiers mods, Type varType, Name name, JCExpression varInit) {
             // Define the type.
             JCExpression type = makeType(varType);
             // Construct the variable itself.
@@ -1056,10 +823,10 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         //
         // This method generates a simple variable.
         //
-        private JCVariableDecl addVariable(long modifiers, Type varType, String name, JCExpression varInit) {
-            return addVariable(modifiers, varType, names.fromString(name), varInit);
+        private JCVariableDecl makeVariable(long modifiers, Type varType, String name, JCExpression varInit) {
+            return makeVariable(modifiers, varType, names.fromString(name), varInit);
         }
-        private JCVariableDecl addVariable(long modifiers, Type varType, Name name, JCExpression varInit) {
+        private JCVariableDecl makeVariable(long modifiers, Type varType, Name name, JCExpression varInit) {
             // JCVariableDecl the modifiers.
             JCModifiers mods = m().Modifiers(modifiers);
             // Define the type.
@@ -1099,22 +866,19 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     } else {
                         mods = addInheritedAnnotationModifiers(currentPos, varSym.flags(), mods);
                     }
-    
-                    // Special case sequences.
-                    if (ai.isSequence()) {
+
+                    // Construct the value field unless it will always be a Location
+                    if (!ai.alwaysLocation()) {
+                        vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
+                                makeDefaultValue(currentPos, ai.getVMI())));
+                    }
+
+                    // If a Location might be needed, build the field
+                    if (ai.requiresLocation()) {
+                        // TODO - switch over to using NULL.
+                        JCExpression initialValue = true ? makeLocationAttributeVariable(ai.getVMI(), currentPos) : null;
                         // Construct the location field.
-                        vars.append(addVariableField(ai,  mods, ai.getVariableType(), attributeFieldName(varSym),
-                                                     makeLocationAttributeVariable(ai.getVMI(), currentPos)));
-                    } else {
-                        // Construct the value field.
-                        vars.append(addVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
-                                                     makeDefaultValue(currentPos, ai.getVMI())));
-                        
-                        if (requiresLocation(ai)) {
-                            // Construct the location field.
-                            vars.append(addVariableField(ai,  mods, ai.getVariableType(), attributeLocationName(varSym),
-                                                         makeLocationAttributeVariable(ai.getVMI(), currentPos)));
-                        }
+                        vars.append(makeVariableField(ai, mods, ai.getVariableType(), attributeLocationName(varSym), initialValue));
                     }
                 }
             }
@@ -1126,10 +890,11 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         // This method constructs modifiers for getters/setters and proxies.
         //
         private JCModifiers proxyModifiers(VarInfo ai, boolean isAbstract) {
-            // Set up basic flags.
-            JCModifiers mods = make.Modifiers(isAbstract ? (Flags.PUBLIC | Flags.ABSTRACT) : Flags.PUBLIC);
             // Copy flags from VarInfo.
             long flags = ai.getFlags();
+
+            // Set up basic flags.
+            JCModifiers mods = make.Modifiers((flags & Flags.STATIC) | (isAbstract ? (Flags.PUBLIC | Flags.ABSTRACT) : Flags.PUBLIC));
            
             // If var is in current class.
             if (ai.getSymbol().owner == analysis.getCurrentClassSymbol()) {
@@ -1166,7 +931,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
 
                 // location$var
-                JCExpression locationExp = Id(attributeFieldName(proxyVarSym));
+                JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
                 // Construct and add: return value$var;
                 stmts.append(m().Return(locationExp));
             }
@@ -1204,7 +969,9 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 // Symbol used when accessing the variable.
                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
                 
-                if (requiresLocation(varInfo)) {
+                if (varInfo.requiresLocation()) {
+                    // Construct and add: return location$var != null ? location$var.getAsType() : value$var;
+
                     // Get the location accessor method name.
                     int typeKind = varInfo.getVMI().getTypeKind();
                     Name getMethodName = defs.locationGetMethodName[typeKind];
@@ -1220,9 +987,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     // location$var != null
                     JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
                     // location$var != null ? location$var.getAsType() : value$var
-                    JCExpression IfExpr = m().Conditional(condition, getCall, valueExp);
-                    // Construct and add: return location$var != null ? location$var.getAsType() : value$var;
-                    stmts.append(m().Return(IfExpr));
+                    stmts.append( m().If(condition, m().Return(getCall), m().Return(valueExp)));
                 } else {
                     // value$var
                     JCExpression valueExp = Id(attributeValueName(proxyVarSym));
@@ -1256,12 +1021,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             Type type = varInfo.getRealType();
             // Assume no body.
             ListBuffer<JCStatement> stmts = null;
-             // Arg value
-            JCExpression argExp = Id(defs.attributeSetMethodParamName);
-            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
-                                                          defs.attributeSetMethodParamName,
-                                                          makeType(type),
-                                                          null);
  
             if (needsBody) {
                 // Prepare to accumulate statements.
@@ -1270,25 +1029,32 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                  // Symbol used when accessing the variable.
                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
                 
-                // Get the var enumeration.
-                int enumeration = varInfo.getEnumeration();
-                // Which $VAR_BITS_ word.
-                int word = enumeration >> 5;
-                // Which $VAR_BITS_ bit.
-                int bit = 1 << (enumeration & 31);
-        
-                // $VAR_BITS_word
-                JCExpression bitsIdent = Id(attributeBitsName(word));
-                // $VAR_BITS_word |= bit;
-                JCStatement bitsStmt = m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
-                stmts.append(bitsStmt);
+                // Script vars don't need flags.
+                if (!varInfo.isStatic()) {
+                    // Get the var enumeration.
+                    int enumeration = varInfo.getEnumeration();
+                    // Which $VAR_BITS_ word.
+                    int word = enumeration >> 5;
+                    // Which $VAR_BITS_ bit.
+                    int bit = 1 << (enumeration & 31);
+            
+                    // $VAR_BITS_word
+                    JCExpression bitsIdent = Id(attributeBitsName(word));
+                    // $VAR_BITS_word |= bit;
+                    JCStatement bitsStmt = m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
+                    stmts.append(bitsStmt);
+                }
                 
                 // value$var
                 JCExpression valueExp = Id(attributeValueName(proxyVarSym));
+                // Arg value
+                JCExpression argExp = Id(defs.attributeSetMethodParamName);
                 // value$var = value
                 JCExpression assignExp = m().Assign(valueExp, argExp);
                 
-                if (requiresLocation(varInfo)) {
+                if (varInfo.requiresLocation()) {
+                    // Construct and add: if (location$var != null) return location$var.setAsType(value) else return value$var = value
+
                     // Get the location accessor method name.
                     int typeKind = varInfo.getVMI().getTypeKind();
                     Name setMethodName = defs.locationSetMethodName[typeKind];
@@ -1301,16 +1067,19 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     JCExpression setCall = m().Apply(null, setSelect, List.<JCExpression>of(argExp));
                     // location$var != null
                     JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
-                    // location$var != null ? location$var.setAsType(value) : value$var = value
-                    JCExpression ifStatement = m().Conditional(condition, setCall, assignExp);
-                    // Construct and add: return location$var != null ? location$var.setAsType(value) : value$var = value;
-                    stmts.append(m().Return(ifStatement));
+                    // if (location$var != null) return location$var.setAsType(value) else return value$var = value
+                    stmts.append( m().If(condition, m().Return(setCall), m().Return(assignExp)) );
                 } else {
                     // Construct and add: return value$var = value;
                     stmts.append(m().Return(assignExp));
                 }
             }
         
+            // Set up value arg.
+            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+                                                          defs.attributeSetMethodParamName,
+                                                          makeType(type),
+                                                          null);
             // Construct method.
             JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
                                              type,
@@ -1323,15 +1092,70 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         }
         
         //
+        // This method constructs the getDependency method for the specified attribute.
+        //
+        //     Location getDependency$var() {
+        //         return location$var == null ? (Location)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var);
+        //     }
+        //     
+        private JCTree makeGetDependencyAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            // Symbol used on the method.
+            VarSymbol varSym = varInfo.getSymbol();
+            // Assume no body.
+            ListBuffer<JCStatement> stmts = null;
+            
+            if (needsBody) {
+                // Prepare to accumulate statements.
+                stmts = ListBuffer.lb();
+                // value$var
+                JCExpression valueExpr = Id(attributeValueName(varSym));
+               
+                if (varInfo.requiresLocation()) {
+                    // location$var
+                    Name locationName = attributeLocationName(varSym);
+
+                    // If we are implementing slacker Locations, construct and add:
+                    //     if (location$var == null) location$var = XXXVariable.makeWithDefault(value$var);
+                    if (!varInfo.alwaysLocation()) {
+                        // XXXVariable.makeWithDefault(value$var)
+                        JCExpression initExpr = makeLocationWithDefault(varInfo.getVMI(), varInfo.pos(), valueExpr);
+                        // location$var = XXXVariable.makeWithDefault(value$var)
+                        JCStatement assignExpr = m().Exec(m().Assign(Id(locationName), initExpr));
+                        // location$var == null
+                        JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
+                        // location$var == null ? (location$var = XXXVariable.makeWithDefault(value$var)) : location$var
+                        stmts.append(m().If(nullCheck, assignExpr, null));
+                    }
+                    // Construct and add: return location$var)
+                    stmts.append(m().Return(Id(locationName)));
+                } else {
+                    // new ConstantLocation<T>(value$var)
+                    JCExpression locationExpr = makeUnboundLocation(currentPos, varInfo.getVMI(), valueExpr);
+                    // Construct and add: return new ConstantLocation<T>(value$var);
+                    stmts.append(m().Return(locationExpr));
+                }
+            }
+            
+            // Construct method.
+            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody), 
+                                             varInfo.getVariableType(),
+                                             attributeGetDependencyName(varSym),
+                                             List.<JCVariableDecl>nil(),
+                                             stmts);
+            optStat.recordProxyMethod();
+            
+            return method;
+        }
+        
+        //
         // This method constructs the getter/setter/location accessor methods for each attribute.
         //     
-        public List<JCTree> makeAttributeAccessorMethods() {
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+        public List<JCTree> makeAttributeAccessorMethods(List<VarInfo> attrInfos) {
             ListBuffer<JCTree> accessors = ListBuffer.lb();
             
             for (VarInfo ai : attrInfos) {
                 // Only create accessors for declared and proxied vars.
-                if (ai.needsAccessors()) {
+                if (ai.needsDeclaration()) {
                     setCurrentPos(ai.pos());
                     
                     // Special case sequences.
@@ -1341,6 +1165,8 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                         accessors.append(makeGetterAccessorMethod(ai, true));
                         accessors.append(makeSetterAccessorMethod(ai, true));
                     }
+                    
+                    accessors.append(makeGetDependencyAccessorMethod(ai, true));
                 }
             }
             
@@ -1369,6 +1195,8 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                         accessors.append(makeGetterAccessorMethod(ai, false));
                         accessors.append(makeSetterAccessorMethod(ai, false));
                     }
+                    
+                    accessors.append(makeGetDependencyAccessorMethod(ai, false));
                 }
             }
             return accessors.toList();
@@ -1387,7 +1215,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
             
             // See if there is a javafx super class.
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             
             // Construct a variable for the base offset.
             if (superClassSym != null) {
@@ -1396,7 +1224,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 // supername.$VAR_COUNT
                 JCExpression select = m().Select(superType, defs.varCountName);
                 // Construct and add: public static int $VAR_BASE = supername.$VAR_COUNT;
-                vars.append(addVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varBaseName, select));
+                vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varBaseName, select));
             } else {
                 // Construct and add: public final static int $VAR_BASE = 0;
                 vars.append(addSimpleIntVariable(Flags.FINAL | Flags.STATIC | Flags.PUBLIC, defs.varBaseName, 0));
@@ -1410,7 +1238,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 // $VAR_BASE + enumeration
                 JCExpression sum = m().Binary(JCTree.PLUS,  Id(defs.varBaseName), makeInt(count));
                 // Construct and add: public static int $VAR_COUNT = $VAR_BASE + count;
-                vars.append(addVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varCountName, sum));
+                vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varCountName, sum));
             }
             
             // Accumulate variable numbering.
@@ -1424,7 +1252,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                     // $VAR_BASE + enumeration
                     JCExpression sum = m().Binary(JCTree.PLUS, Id(defs.varBaseName), makeInt(ai.getEnumeration()));
                     // Construct and add: public static int $VAR_OFFSET_name = $VAR_BASE + enumeration;
-                    vars.append(addVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, name, sum));
+                    vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, name, sum));
                 }
             }
     
@@ -1444,15 +1272,33 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         }
     
         //
+        // The methods constructs the count method for the current class.
+        //
+        public JCTree makeCount() {
+            // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            
+            // Construct and add: return $VAR_COUNT;
+            stmts.append(m().Return(Id(defs.varCountName)));
+            
+            // Construct method.
+            JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                             syms.intType,
+                                             defs.attributeCountMethodName,
+                                             List.<JCVariableDecl>nil(),
+                                             stmts);
+            return method;
+        }
+
+        //
         // This methods generates the isInitialized$ method for this class.
         //
-        public JCTree makeIsInitialized() {
-            // varNum ARG
-            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
-                                                          varNumName,
-                                                          makeType(syms.intType),
-                                                          null);
-
+        public List<JCTree> makeIsInitialized() {
+            // Buffer for new methods.
+            ListBuffer<JCTree> methods = ListBuffer.lb();
+            
             // Number of variables in current class.
             int count = analysis.getVarCount();
             
@@ -1460,35 +1306,36 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Reset diagnostic position to current class.
             resetCurrentPos();
+            // Grab the super class.
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             
-            // varNum - $VAR_BASE;
-            JCExpression localVarNumExp = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
-            // Construct and add: final int varlocalNum = varNum - $VAR_BASE;
-            stmts.append(addVariable(Flags.FINAL, syms.intType, varLocalNumName, localVarNumExp));
-            
-            // Check to see if we need to pass to the super class.
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
-            if (superClassSym != null) {
-                // super
-                JCExpression selector = Id(names._super);
-                // (varNum)
-                List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
-                // super.isInitialized$(varNum);
-                JCExpression callExp = callExpression(currentPos, selector, defs.isInitializedPrefixName, args);
-                // return super.isInitialized$(varNum)
-                JCStatement returnStmt = m().Return(callExp);
-                // varlocalNum < 0
-                JCExpression condition = m().Binary(JCTree.LT, Id(varLocalNumName), makeInt(0));
-                // Construct and add: if (varlocalNum < 0) return super.isInitialized$(varNum);
-                stmts.append(m().If(condition, returnStmt, null));
-            }
-            
-            // Only bother if there are some vars.
+            // Only bother if there are vars.
             if (0 < count) {
+                // varNum - $VAR_BASE;
+                JCExpression localVarNumExp = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
+                // Construct and add: final int varlocalNum = varNum - $VAR_BASE;
+                stmts.append(makeVariable(Flags.FINAL, syms.intType, varLocalNumName, localVarNumExp));
+ 
+                // Check to see if we need to pass to the super class.
+                if (superClassSym != null) {
+                    // super
+                    JCExpression selector = Id(names._super);
+                    // (varNum)
+                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
+                    // super.isInitialized$(varNum);
+                    JCExpression callExp = callExpression(currentPos, selector, defs.isInitializedPrefixName, args);
+                    // return super.isInitialized$(varNum)
+                    JCStatement returnStmt = m().Return(callExp);
+                    // varlocalNum < 0
+                    JCExpression condition = m().Binary(JCTree.LT, Id(varLocalNumName), makeInt(0));
+                    // Construct and add: if (varlocalNum < 0) return super.isInitialized$(varNum);
+                    stmts.append(m().If(condition, returnStmt, null));
+                }
+            
                 // varLocalNum & 31
                 JCExpression varBitExp = m().Binary(JCTree.BITAND, Id(varLocalNumName), makeInt(31));
                 // Construct and add: int varBit = varLocalNum & 31;
-                stmts.append(addVariable(Flags.FINAL, syms.intType, varBitName, varBitExp));
+                stmts.append(makeVariable(Flags.FINAL, syms.intType, varBitName, varBitExp));
                 
                 // Number of words needed to manage initialization bitmaps.
                 int words = (count + 31) >> 5;
@@ -1504,7 +1351,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 }
                 
                 // Construct and add: int varWord = ...varlocalNum < (i*32) ? $VAR_BITS_(i) : $VAR_BITS_(i+1)...
-                stmts.append(addVariable(Flags.FINAL, syms.intType, varWordName, varWordExp));
+                stmts.append(makeVariable(Flags.FINAL, syms.intType, varWordName, varWordExp));
                 
                 // 1 << varBit
                 JCExpression bitShiftExpr = m().Binary(JCTree.SL, makeInt(1), Id(varBitName));
@@ -1514,87 +1361,311 @@ if (!syms.USE_SLACKER_LOCATIONS) {
                 JCExpression resultExpr = m().Binary(JCTree.NE, maskExpr, makeInt(0));
                 // Construct and add: return (varWord & (1 << varBit)) != 0;
                 stmts.append(m().Return(resultExpr));
-            } else {
+            } else if (superClassSym == null) {
+                // Construct and add: return true;
                 stmts.append(m().Return(makeBoolean(true)));
             }
             
-            // Construct method.
-            JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                             syms.booleanType,
-                                             defs.isInitializedPrefixName,
-                                             List.<JCVariableDecl>of(arg),
-                                             stmts);
-            return method;
+            if (stmts.nonEmpty()) {
+                // varNum ARG
+                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+                                                              varNumName,
+                                                              makeType(syms.intType),
+                                                              null);
+                // Construct method.
+                JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                                 syms.booleanType,
+                                                 defs.isInitializedPrefixName,
+                                                 List.<JCVariableDecl>of(arg),
+                                                 stmts);
+                // Add to the methods list.
+                methods.append(method);
+            }
+            
+            return methods.toList();
         }
         
         //
-        // This methods generates the applDefaults$ method for this class.
+        // This methods generates the applDefaults$ methods for this class.  The first method
+        // Is a blanket apply all defaults.  The second methods is the default apply default
+        // of a specific (numbered) var.
         //
-        public JCTree makeApplyDefaults() {
+        public List<JCTree> makeBlanketApplyDefaults() {
+            // Buffer for new methods.
+            ListBuffer<JCTree> methods = ListBuffer.lb();
+            
+            // Number of variables in current class.
+            int count = analysis.getVarCount();
+
+            // Grab the super class.                                         
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+
+            // Only bother if there are some vars or no super class.
+            if (0 < count || superClassSym == null) {
+                // Prepare to accumulate statements.
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                // Reset diagnostic position to current class.
+                resetCurrentPos();
+            
+                // If present we need to call super.applDefaults$
+                if (superClassSym != null) {
+                    stmts.append(makeSuperCall(superClassSym, defs.applyDefaultsPrefixName));
+                }
+                
+                // Gather the instance attributes.
+                List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+                for (VarInfo ai : attrInfos) {
+                    // Only attributes with default expressions.
+                    if (ai.getDefaultInitStatement() != null) {
+                        // Name of applDefaults$ methods.
+                        Name methodName = attributeApplyDefaultsName(ai.getSymbol());
+                        // This argument for call.
+                        List<JCExpression> args = List.<JCExpression>of(Id(names._this));
+                        // applyDefaults$var(this)
+                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>of(Id(names._this)));
+                    
+                        if (!ai.isDef()) {
+                            // Find the vars enumeration.
+                            int enumeration = ai.getEnumeration();
+
+                            // Don't generate for overrides
+                            if (enumeration >= 0) {
+                                // Which $VAR_BITS_(word) to use.
+                                int word = enumeration >> 5;
+                                // Which bit to use.
+                                int bit = enumeration & 31;
+
+                                // (varWord & (1 << varBit))
+                                JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
+                                // (varWord & (1 << varBit)) == 0
+                                JCExpression condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
+                                // Construct and add: if (($VAR_BITS_(word) & (1 << bit)) == 0) { applyDefaults$var(this); }
+                                stmts.append(m().If(condition, applyDefaultsCall, null));
+                            }
+                        } else {
+                            /// Construct and add: applyDefaults$var(this);
+                            stmts.append(applyDefaultsCall);
+                        }
+                    }
+                }
+    
+                // Reset diagnostic position to current class.
+                resetCurrentPos();
+                
+                // Construct method.
+                JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                                 syms.voidType,
+                                                 defs.applyDefaultsPrefixName,
+                                                 List.<JCVariableDecl>nil(),
+                                                 stmts);
+                // Add to the methods list.
+                methods.append(method);
+            }
+            
+            return methods.toList();
+        }
+        public List<JCTree> makeSpecificApplyDefaults() {
+            // Buffer for new methods.
+            ListBuffer<JCTree> methods = ListBuffer.lb();
+            
+            // Number of variables in current class.
+            int count = analysis.getVarCount();
+
+            // Grab the super class.                                         
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+
+            // Only bother if there are some vars or no super class.
+            if (0 < count || superClassSym == null) {
+                // Prepare to accumulate statements.
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                // Reset diagnostic position to current class.
+                resetCurrentPos();
+
+                // Prepare to accumulate cases.
+                ListBuffer<JCCase> cases = ListBuffer.lb();
+                
+                // Gather the instance attributes.
+                List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+                for (VarInfo ai : attrInfos) {
+                    // Only attributes with default expressions.
+                    if (ai.needsDeclaration()) {
+                        // Name of applDefaults$ methods.
+                        Name methodName = attributeApplyDefaultsName(ai.getSymbol());
+                        // This argument for call.
+                        List<JCExpression> args = List.<JCExpression>of(Id(names._this));
+                        // applyDefaults$var(this)
+                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>of(Id(names._this)));
+                        // return true;
+                        JCStatement returnExpr = m().Return(makeBoolean(true));
+                        // i: applyDefaults$var(this); return true;
+                        cases.append(m().Case(makeInt(ai.getEnumeration()), List.<JCStatement>of(applyDefaultsCall, returnExpr)));
+                    }
+                }
+    
+                // Reset diagnostic position to current class.
+                resetCurrentPos();
+                
+                // If there were some location vars.
+                if (cases.nonEmpty()) {
+                    // varNum - $VAR_BASE
+                    JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
+                    // Construct and add: switch(varNum - $VAR_BASE) { ... } 
+                    stmts.append(m().Switch(tagExpr, cases.toList()));
+                }
+
+                // If there is a super class.
+                if (superClassSym != null) {
+                    // super
+                    JCExpression selector = Id(names._super);
+                    // (varNum)
+                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
+                    // super.applyDefaults$(varNum);
+                    JCExpression callExp = callExpression(currentPos, selector, defs.applyDefaultsPrefixName, args);
+                    // Construct and add: return super.applyDefaults$(varNum);
+                    stmts.append(m().Return(callExp));
+                } else {
+                    // Construct and add: return false;
+                    stmts.append(m().Return(makeBoolean(false)));
+                }
+
+                // varNum ARG
+                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+                                                              varNumName,
+                                                              makeType(syms.intType),
+                                                              null);
+                // Construct method.
+                JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                                 syms.booleanType,
+                                                 defs.applyDefaultsPrefixName,
+                                                 List.<JCVariableDecl>of(arg),
+                                                 stmts);
+                // Add to the methods list.
+                methods.append(method);
+            }
+            
+            return methods.toList();
+        }
+
+        //
+        // This methods generates the getDependency$ method for this class.
+        //
+        public List<JCTree> makeGetDependency() {
+            // Buffer for new methods.
+            ListBuffer<JCTree> methods = ListBuffer.lb();
+            
             // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Reset diagnostic position to current class.
             resetCurrentPos();
             
-            // Get the current class's super class.                                         
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
-            // If present we need to call super.applDefaults$
-            if (superClassSym != null) {
-                stmts.append(makeSuperCall(superClassSym, defs.applyDefaultsPrefixName));
-            }
+            // Prepare to accumulate cases.
+            ListBuffer<JCCase> cases = ListBuffer.lb();
             
-            // Gather the instance attributes.
+            // Gather this class' instance attributes.
             List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
             for (VarInfo ai : attrInfos) {
-                // Only attributes with default expressions.
-                if (ai.getDefaultInitStatement() != null) {
-                    // Name of applDefaults$ methods.
-                    Name methodName = attributeApplyDefaultsName(ai.getSymbol());
-                    // This argument for call.
-                    List<JCExpression> args = List.<JCExpression>of(Id(names._this));
-                    // applDefaults$var(this)
-                    JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>of(Id(names._this)));
-                
-                    if (!ai.isDef()) {
-                        // Condition used to apply defaults.
-                        JCExpression condition;
-                        
-                        if (requiresLocation(ai)) {
-                            // location$var.needsDefault()
-                            condition = callExpression(currentPos, Id(attributeFieldName(ai.getSymbol())), defs.needDefaultsMethodName);
-                        } else {
-                            // Find the vars enumeration.
-                            int enumeration = ai.getEnumeration();
-                            // Which $VAR_BITS_(word) to use.
-                            int word = enumeration >> 5;
-                            // Which bit to use.
-                            int bit = enumeration & 31;
-                            
-                            // (varWord & (1 << varBit))
-                            JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
-                            // (varWord & (1 << varBit)) != 0
-                            condition = m().Binary(JCTree.NE, maskExpr, makeInt(0));
-                        }
-                        
-                        // Construct and add: if (($VAR_BITS_(word) & (1 << bit)) != 0) { set$var(default); }
-                        stmts.append(m().If(condition, applyDefaultsCall, null));
-                    } else {
-                        // Add the default statement.
-                        stmts.append(applyDefaultsCall);
-                    }
+                // Only process attributes declared in this class (includes mixins.)
+                if (ai.needsDeclaration()) {
+                    // Set the current diagnostic position.
+                    setCurrentPos(ai.pos());
+                    // Grab the variable symbol.
+                    VarSymbol varSym = ai.getSymbol();
+                    
+                    // getDependency$var()
+                    JCExpression callExp = callExpression(currentPos, null, attributeGetDependencyName(varSym), List.<JCExpression>nil());
+                    // (Location)getDependency$var()
+                    JCExpression castExpr = m().TypeCast(makeType(locationType), callExp);
+                    // return (Location)getDependency$var()
+                    JCStatement returnStmt = m().Return(castExpr);
+                    // i: return (Location)getDependency$var();
+                    cases.append(m().Case(makeInt(ai.getEnumeration()), List.<JCStatement>of(returnStmt)));
                 }
             }
-
+            
+            // Reset diagnostic position to current class.
+            resetCurrentPos();           
+            // Grab the super class.
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            
+            // Only bother if there are location vars or no super class.
+            if (cases.nonEmpty() || superClassSym == null) {
+                // If there were some location vars.
+                if (cases.nonEmpty()) {
+                    // varNum - $VAR_BASE
+                    JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
+                    // Construct and add: switch(varNum - $VAR_BASE) { ... } 
+                    stmts.append(m().Switch(tagExpr, cases.toList()));
+                }
+                
+                // If there is a super class.
+                if (superClassSym != null) {
+                    // super
+                    JCExpression selector = Id(names._super);
+                    // (varNum)
+                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
+                    // super.getDependency$(varNum);
+                    JCExpression callExp = callExpression(currentPos, selector, defs.getDependencyPrefixName, args);
+                    // Construct and add: return super.getDependency$(varNum);
+                    stmts.append(m().Return(callExp));
+                } else {
+                    // Construct and add: return null;
+                    stmts.append(m().Return(makeNull()));
+                }
+    
+                // varNum ARG
+                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+                                                              varNumName,
+                                                              makeType(syms.intType),
+                                                              null);
+                // Construct method.
+                JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                                 locationType,
+                                                 defs.getDependencyPrefixName,
+                                                 List.<JCVariableDecl>of(arg),
+                                                 stmts);
+                // Add to the methods list.
+                methods.append(method);
+            }
+            
+            return methods.toList();
+        }
+        
+        
+        //
+        // This method constructs declarations for var maps used by literal initializers.
+        //
+        public List<JCTree> makeInitClassMaps(LiteralInitClassMap initClassMap) {
+            // Buffer for new vars.
+            ListBuffer<JCTree> vars = ListBuffer.lb();
             // Reset diagnostic position to current class.
             resetCurrentPos();
-            // Construct method.
-            JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                             syms.voidType,
-                                             defs.applyDefaultsPrefixName,
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            return method;
+            
+            // For each class initialized in the current class.
+            for (ClassSymbol cSym : initClassMap.classMap.keySet()) {
+                // Build up the argument list for the call.
+                ListBuffer<JCExpression> args = ListBuffer.lb();
+                // X.$VAR_COUNT
+                args.append(m().Select(makeType(cSym.type), defs.varCountName));
+                
+                // Get the var map for the referencing class.
+                LiteralInitVarMap varMap = initClassMap.classMap.get(cSym);
+                
+                // For each var declared in order (to make the switch tags align to the vars.)
+                for (VarSymbol vSym : varMap.varList.toList()) {
+                    args.append(m().Select(makeType(cSym.type), attributeOffsetName(vSym)));
+                }
+                
+                // FXBase.makeInitMap$
+                JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
+                // FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...)
+                JCExpression mapExpr = m().Apply(null, methExpr, args.toList());
+                // final static short[] $Map$X = FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...);
+                vars.append(makeVariable(Flags.FINAL | Flags.STATIC, syms.javafx_ShortArray, varMapName(cSym), mapExpr));
+            }
+            
+            return vars.toList();
         }
+        
 
         //
         // This method constructs a super call with appropriate arguments.
@@ -1606,7 +1677,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
             // If this is from a mixin class then we need to use receiver$ otherwise this.
             boolean fromMixinClass = analysis.isMixinClass();
             // If this is to a mixin class then we need to use receiver$ otherwise this.
-            boolean toMixinClass = analysis.isMixinClass(cSym);
+            boolean toMixinClass = JavafxAnalyzeClass.isMixinClass(cSym);
             // If this class doesn't have a javafx super then punt to FXBase.
             boolean toFXBase = cSym == null;
             
@@ -1643,7 +1714,7 @@ if (!syms.USE_SLACKER_LOCATIONS) {
         //
         private ListBuffer<JCStatement> addSuperCalls(Name name, ListBuffer<JCStatement> stmts, boolean topdown) {
             // Get the current class's super class.                                         
-            ClassSymbol superClassSym = analysis.getSuperClassSym();
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             // Get the immediate mixin classes.
             List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
             // Construct a list to hold the super calls in the correct order.
@@ -1682,33 +1753,6 @@ if (!syms.USE_SLACKER_LOCATIONS) {
     
             
             return stmts;
-        }
-        
-        //
-        // This method constructs a java method of the specified name. The analysis is used to determine whether 
-        // the method is static (mixin) or an instance (normal.)  
-        //
-        private JCMethodDecl makeRuntimeMethod(Name name, ListBuffer<JCStatement> stmts,
-                                               boolean callSupers, boolean topdown) {
-            // If this is a mixin method the it will need to be static with a receiver$ arg.
-            boolean isMixinClass = analysis.isMixinClass();
-            
-            // Add calls to supers if required.
-            if (callSupers) stmts = addSuperCalls(name, stmts, topdown);
-            
-            // Determine modifiers.  Static for mixins.
-            long mods = isMixinClass ? (Flags.PUBLIC | Flags.STATIC) : Flags.PUBLIC;
-            
-            // Determine if a receiver argument is required.  Receiver argument required for mixins.
-            List<JCVariableDecl> args = isMixinClass ? List.<JCVariableDecl>of(makeReceiverParam(analysis.getCurrentClassDecl())) : List.<JCVariableDecl>nil();
-            
-            // Construct the body.
-            JCBlock block = m().Block(0L, stmts.toList());
-            
-            // Construct the method.
-            JCMethodDecl method = makeMethod(mods, syms.voidType, name, args, stmts);
-                
-            return method;
         }
         
         //

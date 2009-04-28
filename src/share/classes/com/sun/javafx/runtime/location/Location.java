@@ -37,7 +37,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-public interface Location {
+public interface Location extends DependencySource {
     /** Is the value associated with this location currently valid, or would it have to be recomputed? */
     public boolean isValid();
 
@@ -64,20 +64,17 @@ public interface Location {
      */
     public void removeInvalidationListener(InvalidationListener listener);
 
-    /** Record a location as depending on this location -- for internal use only!  */
-    public void addDependentLocation(WeakLocation location);
-
     /** Iterate over the dependent objects, including change listeners, dependencies, triggers, etc */
     public void iterateChildren(DependencyIterator<? extends LocationDependency> closure);
 
     /** Add this location as a dependency of zero or more other Locations */
-    public void addDependency(Location... location);
+    public void addDependency(DependencySource... location);
 
     /** Add this location as a dependency of another Location */
-    public void addDependency(Location location);
+    public void addDependency(DependencySource location);
 
     /** Add this location as a dynamic dependency of zero or more other Locations */
-    public void addDynamicDependency(Location location);
+    public void addDynamicDependency(DependencySource location);
 
     /** Remove this location as a dynamic dependency of any Location it was previously registered with */
     public void clearDynamicDependencies();

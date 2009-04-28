@@ -51,7 +51,7 @@ public class NestedBindTest extends JavaFXTestCase {
         final int[] counters = new int[] { 0, 0 };
         final ObjectVariable<List<String>> inner = ObjectVariable.make(false,
                                                                        new ObjectBindingExpression<List<String>>() {
-                                                                           protected Location[] getStaticDependents() {
+                                                                           protected DependencySource[] getStaticDependents() {
                                                                                return new Location[] { name };
                                                                            }
 
@@ -66,7 +66,7 @@ public class NestedBindTest extends JavaFXTestCase {
         inner.addInvalidationListener(clInner);
         ObjectVariable<List<List<String>>> outer = ObjectVariable.make(false,
                                                                        new ObjectBindingExpression<List<List<String>>>() {
-                                                                           protected Location[] getStaticDependents() {
+                                                                           protected DependencySource[] getStaticDependents() {
                                                                                return new Location[] { inner };
                                                                            }
 
@@ -102,7 +102,7 @@ public class NestedBindTest extends JavaFXTestCase {
         final int[] counters = new int[] { 0, 0, 0 };
         final IntLocation inner = IntVariable.make(false,
                                                    new IntBindingExpression() {
-                                                       protected Location[] getStaticDependents() {
+                                                       protected DependencySource[] getStaticDependents() {
                                                            return new Location[] { n };
                                                        }
 
@@ -115,7 +115,7 @@ public class NestedBindTest extends JavaFXTestCase {
         inner.addInvalidationListener(clInner);
         final IntVariable middle = IntVariable.make(false,
                                              new IntBindingExpression() {
-                                                 protected Location[] getStaticDependents() {
+                                                 protected DependencySource[] getStaticDependents() {
                                                      return new Location[] { inner };
                                                  }
 
@@ -128,7 +128,7 @@ public class NestedBindTest extends JavaFXTestCase {
         middle.addInvalidationListener(clMiddle);
         IntVariable outer = IntVariable.make(false,
                                              new IntBindingExpression() {
-                                                 protected Location[] getStaticDependents() {
+                                                 protected DependencySource[] getStaticDependents() {
                                                      return new Location[] { inner };
                                                  }
 

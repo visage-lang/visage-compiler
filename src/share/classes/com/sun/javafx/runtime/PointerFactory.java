@@ -30,7 +30,7 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-public class PointerFactory implements FXObject {
+public class PointerFactory extends FXBase implements FXObject {
     
     public PointerFactory() {
         this(false);

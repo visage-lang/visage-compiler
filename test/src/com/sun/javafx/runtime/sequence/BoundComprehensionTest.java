@@ -391,7 +391,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
             private SequenceLocation<String> xform$attr;
 
             @Override
-            protected Location[] getStaticDependents() {
+            protected DependencySource[] getStaticDependents() {
                 return new Location[]{xform$attr};
             }
 
@@ -432,7 +432,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                     private SequenceLocation<String> xform$attr;
 
                                                     @Override
-                                                    protected Location[] getStaticDependents() {
+                                                    protected DependencySource[] getStaticDependents() {
                                                         return new Location[]{xform$attr};
                                                     }
 

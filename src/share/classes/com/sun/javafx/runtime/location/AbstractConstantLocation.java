@@ -75,11 +75,11 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
 
     public void iterateChildren(DependencyIterator<? extends LocationDependency> closure) { }
 
-    public void addDependency(Location... location) { }
+    public void addDependency(DependencySource... location) { }
 
-    public void addDependency(Location location) { }
+    public void addDependency(DependencySource location) { }
 
-    public void addDynamicDependency(Location location) { }
+    public void addDynamicDependency(DependencySource location) { }
 
     public void clearDynamicDependencies() { }
 

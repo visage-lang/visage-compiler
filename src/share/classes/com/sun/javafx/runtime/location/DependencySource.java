@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,29 +21,17 @@
  * have any questions.
  */
 
+
 package com.sun.javafx.runtime.location;
 
 /**
- * Indicates that a Location can be bound.  Locations can be bound at most once; rebinding is not permitted.
+ * DependencySource
  *
- * @param T_BINDING the type of the XxxBindingExpression that computes the new value.
+ * The exposed type of a dependency
  *
  * @author Brian Goetz
  */
-public interface BindableLocation<T_VALUE, T_LISTENER> extends ObjectLocation<T_VALUE> {
-
-    public ObjectLocation<T_VALUE> bind(boolean lazy, BindingExpression binding, DependencySource... dependencies);
-
-    void bindFromLiteral(boolean lazy, BindingExpression binding, DependencySource... dependencies);
-
-    public ObjectLocation<T_VALUE> bijectiveBind(ObjectLocation<T_VALUE> other);
-
-    void bijectiveBindFromLiteral(ObjectLocation<T_VALUE> other);
-
-    /** Has the variable ever been initialized?  Initialization includes assigning it a value or binding it. */
-    boolean isInitialized();
-
-    void addChangeListener(T_LISTENER listener);
-
-    void removeChangeListener(T_LISTENER listener);
+public interface DependencySource {
+    /** Record a location as depending on this location -- for internal use only!  */
+    void addDependentLocation(WeakLocation location);
 }

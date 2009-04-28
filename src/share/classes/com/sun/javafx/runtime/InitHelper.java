@@ -33,6 +33,6 @@ import com.sun.javafx.runtime.location.AbstractVariable;
 public class InitHelper {
     public static void finish(AbstractVariable[] attributes) {
         for (AbstractVariable v : attributes)
-            v.initialize();
+            if (v != null) v.initialize();
     }
 }

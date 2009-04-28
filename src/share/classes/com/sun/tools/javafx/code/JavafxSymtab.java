@@ -40,9 +40,6 @@ import com.sun.tools.javafx.comp.JavafxDefs;
  */
 public class JavafxSymtab extends Symtab {
 
-    // TEMPORARY FLAG FOR SLACKER LOCATIONS
-    public static final boolean USE_SLACKER_LOCATIONS = false;
-
     private static final String anno = JavafxDefs.annotationPackageNameString;
     public static final String privateAnnotationClassNameString = anno + ".Private";
     public static final String protectedAnnotationClassNameString = anno + ".Protected";
@@ -79,6 +76,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_SequenceType;
     public final Type javafx_EmptySequenceType;
     public final Type javafx_SequenceTypeErasure;
+    public final Type javafx_ShortArray;
     static public final int MAX_FIXED_PARAM_LENGTH = 8;
     public final Type[] javafx_FunctionTypes = new Type[MAX_FIXED_PARAM_LENGTH+1];
     public final Type javafx_FXObjectType;
@@ -188,6 +186,7 @@ public class JavafxSymtab extends Symtab {
         javafx_SequencesType = enterClass(JavafxDefs.cSequences);
         javafx_EmptySequenceType = fxtypes.sequenceType(botType);
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
+        javafx_ShortArray = new ArrayType(shortType, arrayClass);
         javafx_KeyValueType = enterClass("javafx.animation.KeyValue");
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");
         javafx_KeyValueTargetType = enterClass("javafx.animation.KeyValueTarget");
