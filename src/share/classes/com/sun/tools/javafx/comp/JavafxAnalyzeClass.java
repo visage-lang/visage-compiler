@@ -641,7 +641,7 @@ class JavafxAnalyzeClass {
                     for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                         reversed.prepend(e.sym);
                     }
-                    
+
                     // Scan attribute/method members. 
                     for (Symbol mem : reversed) {
                         if (mem.kind == Kinds.MTH) {
@@ -671,7 +671,7 @@ class JavafxAnalyzeClass {
                 }
             } else {
                 // Class is in current compile unit.
-                
+
                 // Scan attribute/method members. 
                 for (JFXTree def : cDecl.getMembers()) {
                     if (def.getFXTag() == JavafxTag.VAR_DEF) {

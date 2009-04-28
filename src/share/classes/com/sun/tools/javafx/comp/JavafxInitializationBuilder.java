@@ -1074,14 +1074,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (!varInfo.isStatic()) {
                     // Get the var enumeration.
                     int enumeration = varInfo.getEnumeration();
-                    // Which $VAR_BITS_ word.
+                    // Which VFLGS$_ word.
                     int word = enumeration >> 5;
-                    // Which $VAR_BITS_ bit.
+                    // Which VFLGS$_ bit.
                     int bit = 1 << (enumeration & 31);
             
-                    // $VAR_BITS_word
+                    // VFLGS$_word
                     JCExpression bitsIdent = Id(attributeBitsName(word));
-                    // $VAR_BITS_word |= bit;
+                    // VFLGS$_word |= bit;
                     JCStatement bitsStmt = m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
                     stmts.append(bitsStmt);
                 }
@@ -1290,23 +1290,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (superClassSym != null) {
                 // supername
                 JCExpression superType = makeType(superClassSym.type);
-                // supername.$VAR_COUNT
+                // supername.VCNT$
                 JCExpression select = m().Select(superType, defs.varCountName);
-                // Construct and add: public static int $VAR_BASE = supername.$VAR_COUNT;
+                // Construct and add: public static int VBASE$ = supername.VCNT$;
                 vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varBaseName, select));
             } else {
-                // Construct and add: public final static int $VAR_BASE = 0;
+                // Construct and add: public final static int VBASE$ = 0;
                 vars.append(addSimpleIntVariable(Flags.FINAL | Flags.STATIC | Flags.PUBLIC, defs.varBaseName, 0));
             }
             
             // Number of variables in current class.
             int count = analysis.getVarCount();
             
-            // public static int $VAR_COUNT = $VAR_BASE + count;
+            // public static int VCNT$ = VBASE$ + count;
             {
-                // $VAR_BASE + enumeration
+                // VBASE$ + enumeration
                 JCExpression sum = m().Binary(JCTree.PLUS,  Id(defs.varBaseName), makeInt(count));
-                // Construct and add: public static int $VAR_COUNT = $VAR_BASE + count;
+                // Construct and add: public static int VCNT$ = VBASE$ + count;
                 vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varCountName, sum));
             }
             
@@ -1318,9 +1318,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     setCurrentPos(ai.pos());
                     // Construct enumeration var.
                     Name name = attributeOffsetName(ai.getSymbol());
-                    // $VAR_BASE + enumeration
+                    // VBASE$ + enumeration
                     JCExpression sum = m().Binary(JCTree.PLUS, Id(defs.varBaseName), makeInt(ai.getEnumeration()));
-                    // Construct and add: public static int $VAR_OFFSET_name = $VAR_BASE + enumeration;
+                    // Construct and add: public static int VOFF$_name = VBASE$ + enumeration;
                     vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, name, sum));
                 }
                 
@@ -1328,14 +1328,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (varMap != null) varMap.addVar(ai.getSymbol());
             }
     
-            // private int $VAR_BITS_0 = 0; private int $VAR_BITS_1 = 0; ...
+            // private int VFLGS$_0 = 0; private int VFLGS$_1 = 0; ...
             {
                 // Number of words needed to manage initialization bitmaps.
                 int words = (count + 31) >> 5;
                 
                 // Allocate bit map words.
                 for (int word = 0; word < words; word++) {
-                    // Construct and add: private int $VAR_BITS_0 = 0;
+                    // Construct and add: private int VFLGS$_0 = 0;
                     vars.append(addSimpleIntVariable(0, attributeBitsName(word), 0));
                 }
             }
@@ -1352,7 +1352,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Reset diagnostic position to current class.
             resetCurrentPos();
             
-            // Construct and add: return $VAR_COUNT;
+            // Construct and add: return VCNT$;
             stmts.append(m().Return(Id(defs.varCountName)));
             
             // Construct method.
@@ -1383,9 +1383,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             // Only bother if there are vars.
             if (0 < count) {
-                // varNum - $VAR_BASE;
+                // varNum - VBASE$;
                 JCExpression localVarNumExp = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
-                // Construct and add: final int varlocalNum = varNum - $VAR_BASE;
+                // Construct and add: final int varlocalNum = varNum - VBASE$;
                 stmts.append(makeVariable(Flags.FINAL, syms.intType, varLocalNumName, localVarNumExp));
  
                 // Check to see if we need to pass to the super class.
@@ -1418,11 +1418,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 for (int i = words - 1; 0 < i; i--) {
                     // varlocalNum < (i*32)
                     JCExpression condition = m().Binary(JCTree.LT, Id(varLocalNumName), makeInt(i * 32));
-                    // varlocalNum < (i*32) ? $VAR_BITS_(i-1) : $VAR_BITS_(i)
+                    // varlocalNum < (i*32) ? VFLGS$_(i-1) : VFLGS$_(i)
                     varWordExp = m().Conditional(condition, Id(attributeBitsName(i-1)), varWordExp);
                 }
                 
-                // Construct and add: int varWord = ...varlocalNum < (i*32) ? $VAR_BITS_(i) : $VAR_BITS_(i+1)...
+                // Construct and add: int varWord = ...varlocalNum < (i*32) ? VFLGS$_(i) : VFLGS$_(i+1)...
                 stmts.append(makeVariable(Flags.FINAL, syms.intType, varWordName, varWordExp));
                 
                 // 1 << varBit
@@ -1502,7 +1502,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                             // Don't generate for overrides
                             if (enumeration >= 0) {
-                                // Which $VAR_BITS_(word) to use.
+                                // Which VFLGS$_(word) to use.
                                 int word = enumeration >> 5;
                                 // Which bit to use.
                                 int bit = enumeration & 31;
@@ -1511,7 +1511,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
                                 // (varWord & (1 << varBit)) == 0
                                 JCExpression condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
-                                // Construct and add: if (($VAR_BITS_(word) & (1 << bit)) == 0) { applyDefaults$var(this); }
+                                // Construct and add: if ((VFLGS$_(word) & (1 << bit)) == 0) { applyDefaults$var(this); }
                                 stmts.append(m().If(condition, applyDefaultsCall, null));
                             }
                         } else {
@@ -1579,9 +1579,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 // If there were some location vars.
                 if (cases.nonEmpty()) {
-                    // varNum - $VAR_BASE
+                    // varNum - VBASE$
                     JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
-                    // Construct and add: switch(varNum - $VAR_BASE) { ... } 
+                    // Construct and add: switch(varNum - VBASE$) { ... } 
                     stmts.append(m().Switch(tagExpr, cases.toList()));
                 }
 
@@ -1663,9 +1663,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (cases.nonEmpty() || superClassSym == null) {
                 // If there were some location vars.
                 if (cases.nonEmpty()) {
-                    // varNum - $VAR_BASE
+                    // varNum - VBASE$
                     JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
-                    // Construct and add: switch(varNum - $VAR_BASE) { ... } 
+                    // Construct and add: switch(varNum - VBASE$) { ... } 
                     stmts.append(m().Switch(tagExpr, cases.toList()));
                 }
                 
@@ -1715,7 +1715,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (withInit) {
                 // Build up the argument list for the call.
                 ListBuffer<JCExpression> args = ListBuffer.lb();
-                // X.$VAR_COUNT
+                // X.VCNT$
                 args.append(m().Select(makeType(cSym.type), defs.varCountName));
                 
                 // For each var declared in order (to make the switch tags align to the vars.)
@@ -1725,7 +1725,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 // FXBase.makeInitMap$
                 JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
-                // FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...)
+                // FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...)
                 mapExpr = m().Apply(null, methExpr, args.toList());
             }
             
@@ -1733,10 +1733,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (asDecl) {
                 // Can't be final if set elsewhere (anon class static init.)
                 long flags = mapExpr == null ? Flags.STATIC : (Flags.FINAL | Flags.STATIC);
-                // final static short[] $Map$X = FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...);
+                // final static short[] Map$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...);
                 return makeVariable(flags, syms.javafx_ShortArray, varMapName(cSym), mapExpr);
             } else {
-                // $Map$X = FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...);
+                // Map$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...);
                 return m().Exec(m().Assign(Id(varMapName(cSym)), mapExpr));
             }
         }
