@@ -869,7 +869,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // If a Location might be needed, build the field
                     if (ai.representation() != NeverLocation) {
                         // TODO - switch over to using NULL.
-                        JCExpression initialValue = true ? makeLocationAttributeVariable(ai.getVMI(), currentPos) : null;
+                        JCExpression initialValue = ai.representation()==AlwaysLocation ? makeLocationAttributeVariable(ai.getVMI(), currentPos) : null;
                         // Construct the location field.
                         vars.append(makeVariableField(ai, mods, ai.getVariableType(), attributeLocationName(varSym), initialValue));
                     }
