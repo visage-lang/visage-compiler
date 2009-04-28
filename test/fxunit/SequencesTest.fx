@@ -96,7 +96,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
     
     /** 
      * function binarySearch(seq: Comparable[], key: Comparable): Integer 
-     * This method uses Arrays.binarySearch for sorting, which we can asume to
+     * This method uses Arrays.binarySearch for sorting, which we can assume to
      * work. Only tests for the mapping are needed.
      */
     function testBinarySearchComparable() {
@@ -135,7 +135,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
 
     /** 
      * function binarySearch(seq: Object[], key: Object, c: Comparator): Integer
-     * This method uses Arrays.binarySearch for sorting, which we can asume to
+     * This method uses Arrays.binarySearch for sorting, which we can assume to
      * work. Only tests for the mapping are needed.
      */
     function testBinarySearchComparator() {
@@ -649,7 +649,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
     
     /**
      * function sort(seq: Comparable[]): Comparable[]
-     * This method uses Arrays.sort for sorting, which we can asume to work.
+     * This method uses Arrays.sort for sorting, which we can assume to work.
      * Only tests for the mapping are needed.
      */
     function testSortComparable() {
@@ -675,7 +675,7 @@ public class SequencesTest extends javafx.fxunit.FXTestCase {
 
     /**
      * function sort(seq: Object[], c: Comparator): Object[]
-     * This method uses Arrays.sort for sorting, which we can asume to work.
+     * This method uses Arrays.sort for sorting, which we can assume to work.
      * Only tests for the mapping are needed.
      */
     function testSortComparator() {
