@@ -703,6 +703,11 @@ public abstract class JavafxTranslationSupport {
         return functionName(sym, sym.name.toString(), markAsImpl, isBound);
     }
 
+    Name varMapName(ClassSymbol sym) {
+        String className = sym.fullname.toString();
+        return names.fromString(varMapString + className.replace('.', '$'));
+    }
+
     Name attributeFieldName(Symbol sym) {
         return prefixedAttributeName(sym, "$");
     }
@@ -902,6 +907,13 @@ public abstract class JavafxTranslationSupport {
 
     JCExpression makeLaziness(DiagnosticPosition diagPos, JavafxBindStatus bindStatus) {
         return make.at(diagPos).Literal(TypeTags.BOOLEAN, bindStatus.isLazy()? 1 : 0);
+    }
+
+    JCVariableDecl makeTmpLoopVar(DiagnosticPosition diagPos, int initValue) {
+        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(0),
+                                       getSyntheticName("loop"),
+                                       makeTypeTree(diagPos, syms.intType),
+                                       make.at(diagPos).Literal(TypeTags.INT, initValue));
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {

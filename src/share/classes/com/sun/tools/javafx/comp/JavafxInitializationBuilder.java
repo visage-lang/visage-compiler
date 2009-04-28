@@ -39,6 +39,9 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Build the representation(s) of a JavaFX class.  Includes class initialization, attribute and function proxies.
  * With support for mixins.
@@ -60,6 +63,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
     Name outerAccessorName;
     Name outerAccessorFieldName;
+    Name makeInitMap;
     
     Name varNumName;
     Name varLocalNumName;
@@ -70,6 +74,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     final Type abstractVariableType;
     final Type locationDependencyType;
     final Type locationType;
+    
+    public static class LiteralInitVarMap {
+        private int count = 1;
+        public Map<VarSymbol, Integer> varMap = new HashMap<VarSymbol, Integer>();
+        public ListBuffer<VarSymbol> varList = ListBuffer.lb();
+        
+        public int addVar(VarSymbol sym) {
+            Integer value = varMap.get(sym);
+            
+            if (value == null) {
+                value = new Integer(count++);
+                varMap.put(sym, value);
+                varList.append(sym);
+            }
+            
+            return value.intValue();
+        }
+    }
+    
+    public static class LiteralInitClassMap {
+        public Map<ClassSymbol, LiteralInitVarMap> classMap = new HashMap<ClassSymbol, LiteralInitVarMap>();
+        
+        public LiteralInitVarMap getVarMap(ClassSymbol sym) {
+            LiteralInitVarMap map = classMap.get(sym);
+            
+            if (map == null) {
+                map = new LiteralInitVarMap();
+                classMap.put(sym, map);
+            }
+            
+            return map;
+        }
+    }
     
     public static JavafxInitializationBuilder instance(Context context) {
         JavafxInitializationBuilder instance = context.get(javafxInitializationBuilderKey);
@@ -89,6 +126,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         outerAccessorName = names.fromString("accessOuter$");
         outerAccessorFieldName = names.fromString("accessOuterField$");
+        makeInitMap = names.fromString("makeInitMap$");
         
         varNumName = names.fromString("varNum$");
         varLocalNumName = names.fromString("varLocalNum$");
@@ -168,7 +206,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * */
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl, 
            List<TranslatedVarInfo> translatedAttrInfo,
-           List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo) {
+           List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
+           LiteralInitClassMap initClassMap) {
         boolean isMixinClass = cDecl.isMixinClass();
         DiagnosticPosition diagPos = cDecl.pos();
         Type superType = types.superType(cDecl);
@@ -200,10 +239,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeSpecificApplyDefaults());
             cDefinitions.appendList(javaCodeMaker.makeGetDependency());
             cDefinitions.append    (javaCodeMaker.makeCount());
+            cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
             
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            cDefinitions.append(makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
-            cDefinitions.append(makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
+            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo));
+            cDefinitions.append    (makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
             if (outerTypeSym == null) {
                 cDefinitions.append(makeJavaEntryConstructor(diagPos));
@@ -218,6 +258,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         } else {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
             iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
+            cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
 
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
@@ -549,13 +590,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Add calls to do the the default value initialization and user init code (validation for example.)
         
         // "addTriggers$(this);"
-       stmts.append( callStatement(
+        stmts.append( callStatement(
                diagPos, 
                null,
                defs.addTriggersName, 
                make.at(diagPos).Ident(names._this)));
 
-       // "applDefaults$();"
+        // "applDefaults$();"
         stmts.append(callStatement(
                 diagPos, 
                 null,
@@ -575,21 +616,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 null,
                 defs.postInitName,
                 make.at(diagPos).Ident(names._this)));
-
-        // "InitHelper.finish(new[] { attribute, ... });
-        ListBuffer<JCExpression> finishAttrs = ListBuffer.lb();
-        for (VarInfo ai : attrInfos) {
-            if (!ai.isStatic() && !ai.hasProxyVar() && ai.requiresLocation()) {
-                final VarSymbol vsym = ai.getSymbol();
-                finishAttrs.append(make.at(diagPos).Ident(attributeLocationName(vsym)));
-            }
-        }
-
-        stmts.append( callStatement(diagPos, 
-                makeTypeTree(diagPos, initHelperType), 
-                "finish",
-                make.NewArray(makeTypeTree(diagPos, abstractVariableType), 
-                                List.<JCExpression>nil(), finishAttrs.toList())));
 
         JCBlock initializeBlock = make.Block(0L, stmts.toList());
         return make.MethodDef(
@@ -768,7 +794,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method makes a type tree using the current diagnosic position.
         //
-        private JCExpression makeType(Type t) { return makeTypeTree(currentPos, t); }
+        private JCExpression makeType(Type t)                   { return makeTypeTree(currentPos, t); }
         private JCExpression makeType(Type t, boolean makeIntf) { return makeTypeTree(currentPos, t, makeIntf); }
 
         //
@@ -776,13 +802,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         private JCVariableDecl addSimpleIntVariable(long modifiers, Name name, int value) {
             // Construct the variable itself.
-            return addVariable(modifiers, syms.intType, name, makeInt(value));
+            return makeVariable(modifiers, syms.intType, name, makeInt(value));
         }
         
         //
         // This method generates a java field for a varInfo.
         //
-        private JCVariableDecl addVariableField(VarInfo varInfo, JCModifiers mods, Type varType, Name name, JCExpression varInit) {
+        private JCVariableDecl makeVariableField(VarInfo varInfo, JCModifiers mods, Type varType, Name name, JCExpression varInit) {
             // Define the type.
             JCExpression type = makeType(varType);
             // Construct the variable itself.
@@ -797,10 +823,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method generates a simple variable.
         //
-        private JCVariableDecl addVariable(long modifiers, Type varType, String name, JCExpression varInit) {
-            return addVariable(modifiers, varType, names.fromString(name), varInit);
+        private JCVariableDecl makeVariable(long modifiers, Type varType, String name, JCExpression varInit) {
+            return makeVariable(modifiers, varType, names.fromString(name), varInit);
         }
-        private JCVariableDecl addVariable(long modifiers, Type varType, Name name, JCExpression varInit) {
+        private JCVariableDecl makeVariable(long modifiers, Type varType, Name name, JCExpression varInit) {
             // JCVariableDecl the modifiers.
             JCModifiers mods = m().Modifiers(modifiers);
             // Define the type.
@@ -843,7 +869,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct the value field unless it will always be a Location
                     if (!ai.alwaysLocation()) {
-                        vars.append(addVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
+                        vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
                                 makeDefaultValue(currentPos, ai.getVMI())));
                     }
 
@@ -852,7 +878,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // TODO - switch over to using NULL.
                         JCExpression initialValue = true ? makeLocationAttributeVariable(ai.getVMI(), currentPos) : null;
                         // Construct the location field.
-                        vars.append(addVariableField(ai, mods, ai.getVariableType(), attributeLocationName(varSym), initialValue));
+                        vars.append(makeVariableField(ai, mods, ai.getVariableType(), attributeLocationName(varSym), initialValue));
                     }
                 }
             }
@@ -1198,7 +1224,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // supername.$VAR_COUNT
                 JCExpression select = m().Select(superType, defs.varCountName);
                 // Construct and add: public static int $VAR_BASE = supername.$VAR_COUNT;
-                vars.append(addVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varBaseName, select));
+                vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varBaseName, select));
             } else {
                 // Construct and add: public final static int $VAR_BASE = 0;
                 vars.append(addSimpleIntVariable(Flags.FINAL | Flags.STATIC | Flags.PUBLIC, defs.varBaseName, 0));
@@ -1212,7 +1238,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // $VAR_BASE + enumeration
                 JCExpression sum = m().Binary(JCTree.PLUS,  Id(defs.varBaseName), makeInt(count));
                 // Construct and add: public static int $VAR_COUNT = $VAR_BASE + count;
-                vars.append(addVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varCountName, sum));
+                vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varCountName, sum));
             }
             
             // Accumulate variable numbering.
@@ -1226,7 +1252,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // $VAR_BASE + enumeration
                     JCExpression sum = m().Binary(JCTree.PLUS, Id(defs.varBaseName), makeInt(ai.getEnumeration()));
                     // Construct and add: public static int $VAR_OFFSET_name = $VAR_BASE + enumeration;
-                    vars.append(addVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, name, sum));
+                    vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, name, sum));
                 }
             }
     
@@ -1288,7 +1314,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // varNum - $VAR_BASE;
                 JCExpression localVarNumExp = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varBaseName));
                 // Construct and add: final int varlocalNum = varNum - $VAR_BASE;
-                stmts.append(addVariable(Flags.FINAL, syms.intType, varLocalNumName, localVarNumExp));
+                stmts.append(makeVariable(Flags.FINAL, syms.intType, varLocalNumName, localVarNumExp));
  
                 // Check to see if we need to pass to the super class.
                 if (superClassSym != null) {
@@ -1309,7 +1335,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // varLocalNum & 31
                 JCExpression varBitExp = m().Binary(JCTree.BITAND, Id(varLocalNumName), makeInt(31));
                 // Construct and add: int varBit = varLocalNum & 31;
-                stmts.append(addVariable(Flags.FINAL, syms.intType, varBitName, varBitExp));
+                stmts.append(makeVariable(Flags.FINAL, syms.intType, varBitName, varBitExp));
                 
                 // Number of words needed to manage initialization bitmaps.
                 int words = (count + 31) >> 5;
@@ -1325,7 +1351,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
                 
                 // Construct and add: int varWord = ...varlocalNum < (i*32) ? $VAR_BITS_(i) : $VAR_BITS_(i+1)...
-                stmts.append(addVariable(Flags.FINAL, syms.intType, varWordName, varWordExp));
+                stmts.append(makeVariable(Flags.FINAL, syms.intType, varWordName, varWordExp));
                 
                 // 1 << varBit
                 JCExpression bitShiftExpr = m().Binary(JCTree.SL, makeInt(1), Id(varBitName));
@@ -1603,6 +1629,43 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             return methods.toList();
         }
+        
+        
+        //
+        // This method constructs declarations for var maps used by literal initializers.
+        //
+        public List<JCTree> makeInitClassMaps(LiteralInitClassMap initClassMap) {
+            // Buffer for new vars.
+            ListBuffer<JCTree> vars = ListBuffer.lb();
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            
+            // For each class initialized in the current class.
+            for (ClassSymbol cSym : initClassMap.classMap.keySet()) {
+                // Build up the argument list for the call.
+                ListBuffer<JCExpression> args = ListBuffer.lb();
+                // X.$VAR_COUNT
+                args.append(m().Select(makeType(cSym.type), defs.varCountName));
+                
+                // Get the var map for the referencing class.
+                LiteralInitVarMap varMap = initClassMap.classMap.get(cSym);
+                
+                // For each var declared in order (to make the switch tags align to the vars.)
+                for (VarSymbol vSym : varMap.varList.toList()) {
+                    args.append(m().Select(makeType(cSym.type), attributeOffsetName(vSym)));
+                }
+                
+                // FXBase.makeInitMap$
+                JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
+                // FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...)
+                JCExpression mapExpr = m().Apply(null, methExpr, args.toList());
+                // final static short[] $Map$X = FXBase.makeInitMap$(X.$VAR_COUNT, X.$VAR_OFFSET_a, ...);
+                vars.append(makeVariable(Flags.FINAL | Flags.STATIC, syms.javafx_ShortArray, varMapName(cSym), mapExpr));
+            }
+            
+            return vars.toList();
+        }
+        
 
         //
         // This method constructs a super call with appropriate arguments.

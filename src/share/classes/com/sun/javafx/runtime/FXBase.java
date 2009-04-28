@@ -54,4 +54,12 @@ public class FXBase implements FXObject {
     public boolean  applyDefaults$(final int varNum) { return false; }
     public boolean  isInitialized$(final int varNum) { return true; }
     public Location getDependency$(final int varNum) { return null; }
+    
+    public static short [] makeInitMap$(int count, int... offsets) {
+        final short [] map = new short[count];
+        for (int i = 0; i < offsets.length; i++) {
+            map[offsets[i]] = (short)(i + 1);
+        }
+        return map;
+    }
 }

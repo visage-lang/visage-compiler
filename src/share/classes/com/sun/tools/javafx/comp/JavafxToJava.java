@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
@@ -70,7 +71,7 @@ import com.sun.tools.javafx.comp.JavafxAbstractTranslation.STranslator;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import com.sun.tools.javafx.comp.JavafxInitializationBuilder.JavafxClassModel;
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -143,6 +144,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             this.targetType = targetType;
         }
     }
+
+    // Stack used to track literal symbols for the current class.
+    Stack<LiteralInitClassMap> literalInitClassMapStack = new Stack<LiteralInitClassMap>();
 
     private TranslationState translationState = null; // should be set before use
 
@@ -1058,6 +1062,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         JFXClassDeclaration prevClass = currentClass;
         JFXClassDeclaration prevEnclClass = getAttrEnv().enclClass;
         currentClass = tree;
+        
+        literalInitClassMapStack.push(new LiteralInitClassMap());
+        
         if (tree.isScriptClass) {
             scriptBegin();
         }
@@ -1157,7 +1164,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
             boolean isMixinClass = tree.isMixinClass();
-            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList());
+            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList(),
+                                                                     literalInitClassMapStack.peek());
             additionalImports.appendList(model.additionalImports);
 
             // include the interface only once
@@ -1268,7 +1276,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 // Add binding support
                 translatedDefs.appendList(scriptComplete(tree.pos()));
             }
-
+            
             // build the list of implemented interfaces
             List<JCExpression> implementing = model.interfaces;
 
@@ -1301,6 +1309,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             result = res;
         }
         finally {
+            literalInitClassMapStack.pop();
+        
             attrEnv.enclClass = prevEnclClass;
 
             currentClass = prevClass;
@@ -1325,7 +1335,14 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     abstract static class NewInstanceTranslator extends STranslator {
 
+        // Statements for the initialization steps.
         protected ListBuffer<JCStatement> stats = ListBuffer.lb();
+        
+        // Statements to set symbols with initial values.
+        protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
+        
+        // Symbols corresponding to caseStats.
+        protected ListBuffer<VarSymbol> varSyms = ListBuffer.lb();
 
         NewInstanceTranslator(DiagnosticPosition diagPos, JavafxToJava toJava) {
             super(diagPos, toJava);
@@ -1348,8 +1365,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
-            stats.append(m().Exec( toJava.definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, vsym, instName,
-                                                     toJava.typeMorpher.varMorphInfo(vsym), FROM_LITERAL_MILIEU) ) );
+            varInits.append(m().Exec( toJava.definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, vsym, instName,
+                                                     toJava.typeMorpher.varMorphInfo(vsym), VANILLA_MILIEU) ) );
+            varSyms.append(vsym);
         }
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instName, VarSymbol vsym, JCExpression transInit) {
@@ -1364,6 +1382,59 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         void setInstanceVariable(Name instName, VarSymbol vsym, JFXExpression init) {
             setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
+        }
+        
+        void makeInitSupportCall(Name methName, Name receiverName, boolean needsArg) {
+            List<JCExpression> args = needsArg ? List.<JCExpression>of(m().Ident(receiverName)) : List.<JCExpression>nil();
+            JCExpression receiver = m().Ident(receiverName);
+            JCStatement callExec = toJava.callStatement(diagPos, receiver, methName, args);
+            stats.append(callExec);
+        }
+        
+        void makeInitApplyDefaults(Type classType, Name receiverName) {
+            int count = varSyms.size();
+            int index;
+        
+            JCVariableDecl loopVar = toJava.makeTmpLoopVar(diagPos, 0);
+            Name loopName = loopVar.name;
+            JCExpression loopTest = m().Binary(JCTree.LT, m().Ident(loopName),
+                                                          m().Select(toJava.makeTypeTree(diagPos, classType, false), defs.varCountName));
+            List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, m().Ident(loopName), m().Literal(TypeTags.INT, 1))));
+            JCStatement loopBody;
+            
+            List<JCExpression> args = List.<JCExpression>of(m().Ident(loopName));
+            JCStatement applyDefaultsExpr = toJava.callStatement(diagPos, m().Ident(receiverName), defs.applyDefaultsPrefixName, args);
+            
+            if (1 < count) {
+                ClassSymbol classSym = (ClassSymbol)classType.tsym;
+                
+                LiteralInitClassMap classMap = toJava.literalInitClassMapStack.peek();
+                LiteralInitVarMap varMap = classMap.getVarMap(classSym);
+                int[] tags = new int[count];
+            
+                index = 0;
+                for (VarSymbol varSym : varSyms.toList()) {
+                    tags[index++] = varMap.addVar(varSym);
+                }
+            
+                ListBuffer<JCCase> cases = ListBuffer.lb();
+                index = 0;
+                for (JCStatement varInit : varInits) {
+                    cases.append(m().Case(m().Literal(TypeTags.INT, tags[index++]), List.<JCStatement>of(varInit, m().Break(null))));
+                }
+                
+                cases.append(m().Case(null, List.<JCStatement>of(applyDefaultsExpr, m().Break(null))));
+                
+                JCExpression mapExpr = m().Indexed(m().Ident(toJava.varMapName(classSym)), m().Ident(loopName));
+                loopBody = m().Switch(mapExpr, cases.toList());
+            } else {
+                JCExpression condition = m().Binary(JCTree.EQ, m().Ident(loopName),
+                                                               m().Select(toJava.makeTypeTree(diagPos, classType, false),
+                                                                          toJava.attributeOffsetName(varSyms.first())));
+                loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
+            }
+                        
+            stats.append(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
         }
 
         /**
@@ -1394,14 +1465,41 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             JCExpression instExpression;
             {
                 if (isFX || cdef != null) {
-                    // it is a JavaFX class, initializa it properly
+                    // it is a JavaFX class, initialize it properly
                     JCVariableDecl tmpVar = toJava.makeTmpVar(diagPos, "objlit", type, newClass);
                     stats.append(tmpVar);
                     initInstanceVariables(tmpVar.name);
-
-                    JCIdent ident3 = m().Ident(tmpVar.name);
-                    JCStatement applyExec = toJava.callStatement(diagPos, ident3, defs.initializeName);
-                    stats.append(applyExec);
+                    
+                    if (varSyms.nonEmpty()) {
+                        //   {
+                        //       final X jfx$0objlit = new X(true);
+                        //       jfx$0objlit.addTriggers$(jfx$0objlit);
+                        //       
+                        //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
+                        //           if (!isInitialized(jfx$0initloop) {
+                        //               switch (Map$X[jfx$0initloop]) {
+                        //                   1: jfx$0objlit.set$a(0); break;
+                        //                   2: jfx$0objlit.set$b(0); break;
+                        //                   ...
+                        //                   n: jfx$0objlit.set$z(0); break;
+                        //                   default: jfx$0objlit.applyDefaults$(jfx$0initloop);
+                        //               }
+                        //           }
+                        //       }
+                        // 
+                        //       jfx$0objlit.userInit$(jfx$0objlit);
+                        //       jfx$0objlit.postInit$(jfx$0objlit);
+                        //       jfx$0objlit
+                        //   }
+                        
+                        makeInitSupportCall(defs.addTriggersName, tmpVar.name, true);
+                        makeInitApplyDefaults(type, tmpVar.name);
+                        makeInitSupportCall(defs.userInitName, tmpVar.name, true);
+                        makeInitSupportCall(defs.postInitName, tmpVar.name, true);
+                        
+                    } else {
+                        makeInitSupportCall(defs.initializeName, tmpVar.name, false);
+                     }
 
                     JCIdent ident2 = m().Ident(tmpVar.name);
                     instExpression = toJava.makeBlockExpression(diagPos, stats, ident2);
