@@ -34,11 +34,7 @@ public interface BindableLocation<T_VALUE, T_LISTENER> extends ObjectLocation<T_
 
     public ObjectLocation<T_VALUE> bind(boolean lazy, BindingExpression binding, DependencySource... dependencies);
 
-    void bindFromLiteral(boolean lazy, BindingExpression binding, DependencySource... dependencies);
-
     public ObjectLocation<T_VALUE> bijectiveBind(ObjectLocation<T_VALUE> other);
-
-    void bijectiveBindFromLiteral(ObjectLocation<T_VALUE> other);
 
     /** Has the variable ever been initialized?  Initialization includes assigning it a value or binding it. */
     boolean isInitialized();

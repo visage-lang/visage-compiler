@@ -113,15 +113,6 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> impl
             return replaceValue(value);
     }
 
-    public $T.prim$ setAs$PREFIX$FromLiteral(final $T.prim$ value) {
-        setDeferredLiteral(new DeferredInitializer() {
-            public void apply() {
-                setAs$PREFIX$(value);
-            }
-        });
-        return value;
-    }
-
     public void setDefault() {
         if (state == STATE_INITIAL) {
             \$value = DEFAULT;

@@ -341,15 +341,6 @@ public class SequenceVariable<T>
         return result;
     }
 
-    public Sequence<T> setAsSequenceFromLiteral(final Sequence<? extends T> value) {
-        setDeferredLiteral(new DeferredInitializer() {
-            public void apply() {
-                setAsSequence(value);
-            }
-        });
-        return Sequences.upcast(value);
-    }
-
     @Override
     public T set(int position, T newValue) {
         ensureNotBound();

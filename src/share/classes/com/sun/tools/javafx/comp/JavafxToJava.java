@@ -1110,7 +1110,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                             JCStatement init = (!isStatic || getAttrEnv().toplevel.isLibrary)?
                                 translateDefinitionalAssignmentToSet(attrDef.pos(),
                                 attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
-                                isStatic? null : defs.receiverName, FROM_DEFAULT_MILIEU)
+                                isStatic? null : defs.receiverName)
                                 : null;
                             attrInfo.append(new TranslatedVarInfo(
                                     attrDef,
@@ -1128,8 +1128,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                             JCStatement init;
                             init = translateDefinitionalAssignmentToSet(override.pos(),
                                     override.getInitializer(), override.getBindStatus(), override.sym,
-                                    isStatic ? null : defs.receiverName,
-                                    FROM_DEFAULT_MILIEU);
+                                    isStatic ? null : defs.receiverName);
                             overrideInfo.append(new TranslatedOverrideClassVarInfo(
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
@@ -1387,7 +1386,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
             //TODO: should not be calling definitionalAssignmentToSetExpression, instead should be translateDefinitionalAssignmentToSetExpression
             varInits.append(m().Exec( toJava.definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, instName,
-                                                     toJava.typeMorpher.varMorphInfo(vsym), VANILLA_MILIEU) ) );
+                                                     toJava.typeMorpher.varMorphInfo(vsym)) ) );
             varSyms.append(vsym);
         }
 
@@ -1749,32 +1748,30 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name instanceName, int milieu) {
+            Name instanceName) {
         if (init == null) {
             // Nothing to set, no init statement
             return null;
         }
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         return make.at(diagPos).Exec( translateDefinitionalAssignmentToSetExpression(diagPos,
-            init, bindStatus, vmi,
-             instanceName, milieu) );
+            init, bindStatus, vmi, instanceName) );
     }
 
     private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi,
-            Name instanceName, int milieu) {
+            Name instanceName) {
         Symbol vsym = vmi.getSymbol();
         assert( (vsym.flags() & Flags.PARAMETER) == 0L): "Parameters are not initialized";
         setSubstitution(init, vsym);
         JCExpression valueArg = translateDefinitionalAssignmentToValueArg(diagPos, init, bindStatus, vmi);
-        return definitionalAssignmentToSetExpression(diagPos, valueArg, bindStatus, instanceName,
-                                                     vmi, milieu);
+        return definitionalAssignmentToSetExpression(diagPos, valueArg, bindStatus, instanceName, vmi);
     }
 
     //TODO: should go away and be folded with above
     private JCExpression definitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JCExpression init, JavafxBindStatus bindStatus,
-            Name instanceName, VarMorphInfo vmi, int milieu) {
+            Name instanceName, VarMorphInfo vmi) {
         Symbol vsym = vmi.getSymbol();
         final boolean isLocal = !vmi.isMemberVariable();
         assert !isLocal || instanceName == null;
@@ -1791,22 +1788,22 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             // It is a local variable which is not a Location, just assign to it
             return make.at(diagPos).Assign(varRef, nonNullInit);
         } else {
-            return makeLocation(diagPos, varRef, nonNullInit, bindStatus, vmi, milieu);
+            return makeLocation(diagPos, varRef, nonNullInit, bindStatus, vmi);
         }
     }
 
     private JCExpression makeLocation(DiagnosticPosition diagPos, JCExpression varRef,
             JCExpression init, JavafxBindStatus bindStatus,
-            VarMorphInfo vmi, int milieu) {
+            VarMorphInfo vmi) {
         Name methName;
         ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
         if (bindStatus.isUnidiBind()) {
-            methName = defs.locationBindMilieuMethodName[milieu];
+            methName = defs.locationBindMethodName;
             args.append(makeLaziness(diagPos, bindStatus));
         } else if (bindStatus.isBidiBind()) {
-            methName = defs.locationBijectiveBindMilieuMethodName[milieu];
+            methName = defs.locationBijectiveBindMethodName;
         } else {
-            methName = defs.locationSetMilieuMethodName[vmi.getTypeKind()][milieu];
+            methName = defs.locationSetMethodName[vmi.getTypeKind()];
         }
         args.append(init);
 
@@ -1826,7 +1823,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         assert (modFlags & JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC) != 0;
         assert !attrEnv.toplevel.isLibrary;
 
-        result = translateDefinitionalAssignmentToSetExpression(diagPos, var.init, var.getBindStatus(), vmi, null, 0);
+        result = translateDefinitionalAssignmentToSetExpression(diagPos, var.init, var.getBindStatus(), vmi, null);
     }
 
     @Override
@@ -1887,7 +1884,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 prependToStatements.append(changeListener);
             }
 
-            result = translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), vmi, null, 0);
+            result = translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), vmi, null);
         }
     }
 

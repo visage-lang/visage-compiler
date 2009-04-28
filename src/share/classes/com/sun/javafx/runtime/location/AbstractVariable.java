@@ -77,18 +77,6 @@ public abstract class AbstractVariable<
         return this;
     }
 
-    protected void setDeferredLiteral(DeferredInitializer initializer) {
-        enqueueChild(initializer);
-    }
-
-    public void bijectiveBindFromLiteral(final ObjectLocation<T_VALUE> other) {
-        setDeferredLiteral(new DeferredInitializer() {
-            public void apply() {
-                bijectiveBind(other);
-            }
-        });
-    }
-
     protected abstract BindingExpression makeBindingExpression(T_LOCATION location);
 
     @SuppressWarnings("unchecked")
@@ -98,14 +86,6 @@ public abstract class AbstractVariable<
 
     public ObjectLocation<T_VALUE> bind(boolean lazy, T_LOCATION otherLocation) {
         return bind(lazy, makeBindingExpression(otherLocation), otherLocation);
-    }
-
-    public void bindFromLiteral(final boolean lazy, final T_LOCATION otherLocation) {
-        setDeferredLiteral(new DeferredInitializer() {
-            public void apply() {
-                bind(lazy, otherLocation);
-            }
-        });
     }
 
     public ObjectLocation<T_VALUE> bind(boolean lazy, BindingExpression binding, DependencySource... dependencies) {
@@ -119,23 +99,6 @@ public abstract class AbstractVariable<
         return this;
     }
 
-    public void bindFromLiteral(final boolean lazy, final BindingExpression binding, final DependencySource... dependencies) {
-        setDeferredLiteral(new DeferredInitializer() {
-            public void apply() {
-                bind(lazy, binding, dependencies);
-            }
-        });
-    }
-
-    public T_VALUE setFromLiteral(final T_VALUE value) {
-        setDeferredLiteral(new DeferredInitializer() {
-            public void apply() {
-                set(value);
-            }
-        });
-        return value;
-    }
-
     protected boolean isUnidirectionallyBound() {
         return state == STATE_UNI_BOUND || state == STATE_UNI_BOUND_LAZY;
     }
@@ -144,17 +107,10 @@ public abstract class AbstractVariable<
         return state == STATE_UNI_BOUND_LAZY;
     }
 
-    /** Returns true if this instance needs a default value.  Warning: this method has side effects; when called,
-     * it will try and apply any deferred values from the object literal, if there is one.  */
+    /** Returns true if this instance needs a default value.
+     */
     public boolean needDefault() {
-        DeferredInitializer deferredLiteral = (DeferredInitializer) findChildByKind(CHILD_KIND_LITERAL_INITIALIZER);
-        if (deferredLiteral != null) {
-            deferredLiteral.apply();
-            dequeueChild(deferredLiteral);
-            return false;
-        }
-        else
-            return !isInitialized();
+        return !isInitialized();
     }
 
     public void initialize() {
@@ -229,12 +185,4 @@ public abstract class AbstractVariable<
         }
         return shouldFire;
     }
-}
-
-abstract class DeferredInitializer extends AbstractLocationDependency {
-    public int getDependencyKind() {
-        return AbstractLocation.CHILD_KIND_LITERAL_INITIALIZER;
-    }
-
-    public abstract void apply();
 }

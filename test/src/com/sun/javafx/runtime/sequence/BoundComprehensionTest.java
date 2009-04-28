@@ -397,7 +397,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
             public Foo computeValue() {
                 final Foo foo = fooFactory.make();
-                foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
+                foo.get$x().setAsSequence(xform$attr.getAsSequence());  //Was: setAsSequenceFromLiteral
                 foo.initialize$();
                 return foo;
             }
@@ -438,7 +438,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
 
                                                     public Foo computeValue() {
                                                         final Foo foo = fooFactory.make();
-                                                        foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
+                                                        foo.get$x().setAsSequence(xform$attr.getAsSequence());  //Was: setAsSequenceFromLiteral
                                                         foo.initialize$();
                                                         return foo;
                                                     }

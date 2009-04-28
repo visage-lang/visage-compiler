@@ -628,11 +628,7 @@ public class JavafxClassReader extends ClassReader {
                         TypeSymbol tsym = otype.tsym;
                         Name flatname = ((ClassSymbol) tsym).flatname;
                         Type deloc = defs.delocationize(flatname);
-                        if (deloc != null) {
-                            flags |= JavafxFlags.VARUSE_NEED_LOCATION;
-                        }
                     }
-                    flags |= JavafxFlags.VARUSE_NEED_LOCATION_DETERMINED;
                     Type type = translateType(otype);
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
                     csym.members_field.enter(v);

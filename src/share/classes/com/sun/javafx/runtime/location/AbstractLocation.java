@@ -48,9 +48,8 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     static final int CHILD_KIND_WEAK_LOCATION = 2;
     static final int CHILD_KIND_TRIGGER = 4;
     static final int CHILD_KIND_BINDING_EXPRESSION = 8;
-    static final int CHILD_KIND_LITERAL_INITIALIZER = 16;
-    static final int CHILD_KIND_WEAK_ME_HOLDER = 32;
-    static final int CHILD_KIND_VIEW_LOCATION = 64;
+    static final int CHILD_KIND_WEAK_ME_HOLDER = 16;
+    static final int CHILD_KIND_VIEW_LOCATION = 32;
 
     // Space is at a premium; FX classes use a *lot* of locations.
     // We've currently got four byte-size fields here already; we rely on the VM packing byte-size fields

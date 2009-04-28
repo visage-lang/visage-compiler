@@ -37,10 +37,6 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
         throw new UnsupportedOperationException();
     }
 
-    public T setFromLiteral(T value) {
-        throw new UnsupportedOperationException();
-    }
-
     public boolean isValid() {
         return true;
     }

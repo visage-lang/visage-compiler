@@ -678,43 +678,43 @@ public class FXLocal {
                 else
                     loc = fld.get(robj);
                 if (loc instanceof IntVariable) {
-                    ((IntVariable) loc).setAsIntFromLiteral(((FXIntegerValue) value).intValue());
+                    ((IntVariable) loc).setAsInt(((FXIntegerValue) value).intValue());
                     return;
                 }
                 if (loc instanceof BooleanVariable) {
-                    ((BooleanVariable) loc).setAsBooleanFromLiteral(((FXBooleanValue) value).booleanValue());
+                    ((BooleanVariable) loc).setAsBoolean(((FXBooleanValue) value).booleanValue());
                     return;
                 }
                 if (loc instanceof CharVariable) {
-                    ((CharVariable) loc).setAsCharFromLiteral((char) ((FXIntegerValue) value).intValue());
+                    ((CharVariable) loc).setAsChar((char) ((FXIntegerValue) value).intValue());
                     return;
                 }
                 if (loc instanceof ByteVariable) {
-                    ((ByteVariable) loc).setAsByteFromLiteral((byte) ((FXIntegerValue) value).intValue());
+                    ((ByteVariable) loc).setAsByte((byte) ((FXIntegerValue) value).intValue());
                     return;
                 }
                 if (loc instanceof ShortVariable) {
-                    ((ShortVariable) loc).setAsShortFromLiteral((short) ((FXIntegerValue) value).intValue());
+                    ((ShortVariable) loc).setAsShort((short) ((FXIntegerValue) value).intValue());
                     return;
                 }
                 if (loc instanceof LongVariable) {
-                    ((LongVariable) loc).setAsLongFromLiteral(((FXLongValue) value).longValue());
+                    ((LongVariable) loc).setAsLong(((FXLongValue) value).longValue());
                     return;
                 }
                 if (loc instanceof FloatVariable) {
-                    ((FloatVariable) loc).setAsFloatFromLiteral(((FXFloatValue) value).floatValue());
+                    ((FloatVariable) loc).setAsFloat(((FXFloatValue) value).floatValue());
                     return;
                 }
                 if (loc instanceof DoubleVariable) {
-                    ((DoubleVariable) loc).setAsDoubleFromLiteral(((FXDoubleValue) value).doubleValue());
+                    ((DoubleVariable) loc).setAsDouble(((FXDoubleValue) value).doubleValue());
                     return;
                 }
                 if (loc instanceof SequenceVariable) {
-                    ((SequenceVariable) loc).setAsSequenceFromLiteral(((SequenceValue) value).asObject());
+                    ((SequenceVariable) loc).setAsSequence(((SequenceValue) value).asObject());
                     return;
                 }
                 if (loc instanceof AbstractVariable) {
-                    ((AbstractVariable) loc).setFromLiteral(((Value) value).asObject());
+                    ((AbstractVariable) loc).set(((Value) value).asObject());
                     return;
                 }
             }
