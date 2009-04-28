@@ -1325,7 +1325,9 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 } else if (renameToThis || thisCall) {
                     expr = m().Ident(names._this);
                 } else if (callBound) {
-                    expr = ((JCFieldAccess) transMeth).getExpression();
+                    expr = (transMeth instanceof JCFieldAccess)? 
+                          ((JCFieldAccess) transMeth).getExpression()
+                        : m().Ident(names._this);
                 }
                 
                 Name name = functionName(msym, superToStatic, callBound);

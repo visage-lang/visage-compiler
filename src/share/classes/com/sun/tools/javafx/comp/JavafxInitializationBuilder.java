@@ -538,7 +538,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     stmts.append(ai.getDefaultInitStatement());
                 } else if (ai.isMixinVar() && !isMixinClass) {
                     // Include defaults for mixins into real classes.
-                    stmts.append(makeSuperCall(diagPos, (ClassSymbol)ai.getSymbol().owner, methodName, false));
+                    stmts.append(makeSuperCall(diagPos, (ClassSymbol)ai.getSymbol().owner, methodName, isMixinClass));
                 }
                 
                 if (true /*stmts.nonEmpty()*/) {
@@ -562,23 +562,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return methods.toList();
     }
     
-    private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName, boolean isStatic) {
-        JCExpression arg = make.at(diagPos).Ident(defs.receiverName);
-        JCExpression receiver;
-        
-        if (isStatic || (cSym.flags() & JavafxFlags.MIXIN) != 0) {
+    private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName, boolean fromMixin) {
+        if ((cSym.flags() & JavafxFlags.MIXIN) != 0) {
             // call to a mixin super, use local static reference
-            receiver = makeTypeTree(diagPos, cSym.type, false);
+            Name rcvr = fromMixin? defs.receiverName : names._this;
+            return callStatement(diagPos,
+                    makeTypeTree(diagPos, cSym.type, false),
+                    methodName, make.at(diagPos).Ident(rcvr));
         } else {
-            // cast the arg to the right type
-            // TODO JFXC-2836
-            // arg = make.at(diagPos).TypeCast(make.Ident(cSym.fullname), arg);
             // call to a non-mixin super, use "super"
-            receiver = make.at(diagPos).Ident(names._super);
+            return callStatement(diagPos, make.at(diagPos).Ident(names._super), methodName);
         }
-        
-        List<JCExpression> args = List.<JCExpression>of(arg);
-        return callStatement(diagPos, receiver, methodName, args);
     }
 
     private JCMethodDecl makeInitializeMethod(DiagnosticPosition diagPos,
@@ -593,8 +587,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         stmts.append( callStatement(
                diagPos, 
                null,
-               defs.addTriggersName, 
-               make.at(diagPos).Ident(names._this)));
+               defs.addTriggersName));
 
         // "applDefaults$();"
         stmts.append(callStatement(
@@ -607,15 +600,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         stmts.append(callStatement(
                 diagPos, 
                 null,
-                defs.userInitName, 
-                make.at(diagPos).Ident(names._this)));
+                defs.userInitName));
         
         // "postInit$(this);"
         stmts.append(callStatement(
                 diagPos,
                 null,
-                defs.postInitName,
-                make.at(diagPos).Ident(names._this)));
+                defs.postInitName));
 
         JCBlock initializeBlock = make.Block(0L, stmts.toList());
         return make.MethodDef(
@@ -687,14 +678,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             // JFXC-2822 - Triggers need to work from mixins.
             for (ClassSymbol cSym : immediateMixinClasses) {
-                stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, true));
+                stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, isMixinClass));
             }
         }
         
         // Capture the number of statements prior to adding triggers.
         int priorSize = stmts.size();
 
-        // add change listeners for triggers on attribute definitions
+        // add change listeners for triggers on instance var definitions
         for (TranslatedVarInfo info : translatedAttrInfo) {
             if (!info.isStatic()) {
                 JCStatement stat = info.onReplaceAsListenerInstanciation();
@@ -704,7 +695,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
         }
 
-        // add change listeners for "with" triggers
+        // add change listeners for on replace on overridden vars
         for (TranslatedOverrideClassVarInfo info : translatedTriggerInfo) {
             if (!info.isStatic()) {
                 JCStatement stat = info.onReplaceAsListenerInstanciation();
@@ -721,7 +712,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     defs.addTriggersName,
                     makeTypeTree( null,syms.voidType),
                     List.<JCTypeParameter>nil(),
-                    List.<JCVariableDecl>of( makeReceiverParam(cDecl) ),
+                    isMixinClass? List.<JCVariableDecl>of( makeReceiverParam(cDecl) ) : List.<JCVariableDecl>nil(),
                     List.<JCExpression>nil(),
                     make.Block(0L, stmts.toList()),
                     null));

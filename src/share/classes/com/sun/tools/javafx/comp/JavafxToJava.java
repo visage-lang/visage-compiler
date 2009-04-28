@@ -821,7 +821,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         if (vsym.owner.kind == Kinds.TYP) {
             // on replace is on class variable
             varRef = makeAttributeAccess(diagPos, vsym,
-                    isStatic? null : defs.receiverName);
+                    inInstanceContext==ReceiverContext.InstanceAsStatic? defs.receiverName : null);
         } else {
             // on replace is on local variable
             varRef = make.at(diagPos).Ident(vsym.name);
@@ -1081,6 +1081,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             ListBuffer<JCTree> translatedDefs = ListBuffer.lb();
             ListBuffer<TranslatedVarInfo> attrInfo = ListBuffer.lb();
             ListBuffer<TranslatedOverrideClassVarInfo> overrideInfo = ListBuffer.lb();
+            boolean isMixinClass = tree.isMixinClass();
 
            // translate all the definitions that make up the class.
            // collect any prepended definitions, and prepend then to the tranlations
@@ -1091,13 +1092,13 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 for (JFXTree def : tree.getMembers()) {
                     switch(def.getFXTag()) {
                         case INIT_DEF: {
-                            inInstanceContext = ReceiverContext.InstanceAsStatic;
+                            inInstanceContext = isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             translateAndAppendStaticBlock(((JFXInitDefinition) def).getBody(), translatedInitBlocks);
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case POSTINIT_DEF: {
-                            inInstanceContext = ReceiverContext.InstanceAsStatic;
+                            inInstanceContext = isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             translateAndAppendStaticBlock(((JFXPostInitDefinition) def).getBody(), translatedPostInitBlocks);
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -1105,7 +1106,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                            inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : ReceiverContext.InstanceAsStatic;
+                            inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             JCStatement init = (!isStatic || getAttrEnv().toplevel.isLibrary)?
                                 translateDefinitionalAssignmentToSet(attrDef.pos(),
                                 attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
@@ -1123,7 +1124,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         case OVERRIDE_ATTRIBUTE_DEF: {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
-                            inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : ReceiverContext.InstanceAsStatic;
+                            inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             JCStatement init;
                             init = translateDefinitionalAssignmentToSet(override.pos(),
                                     override.getInitializer(), override.getBindStatus(), override.sym,
@@ -1161,7 +1162,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
-            boolean isMixinClass = tree.isMixinClass();
             JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList(),
                                                                      literalInitClassMapStack.peek());
             additionalImports.appendList(model.additionalImports);
@@ -1189,21 +1189,32 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
           
             if (forceInit || !translatedInitBlocks.isEmpty()) {
                 // Add the userInit$ method
-                List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
+                List<JCVariableDecl> receiverVarDeclList = isMixinClass? List.of(makeReceiverParam(tree)) : List.<JCVariableDecl>nil();
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
  
                 // Mixin super calls will be handled when inserted into real classes.
                 if (!isMixinClass) {
+                    //TODO:
+                    // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
+                    //    var receiver = this;
+                    initStats.prepend(
+                            make.at(diagPos).VarDef(
+                            make.at(diagPos).Modifiers(Flags.FINAL),
+                            defs.receiverName,
+                            make.Ident(initBuilder.interfaceName(currentClass)),
+                            make.at(diagPos).Ident(names._this))
+                            );
+
                     if (superClassSym != null) {
                         List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(defs.receiverName)));
+                        //args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(names._this)));
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, names._super), defs.userInitName, args1));
                     }
                      
                     for (ClassSymbol mixinClassSym : immediateMixins) {
                         String mixinName = mixinClassSym.fullname.toString();
                         List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, mixinClassSym.type, true), make.Ident(defs.receiverName)));
+                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, mixinClassSym.type, true), make.Ident(names._this)));
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, mixinName), defs.userInitName, args1));
                     }
                 }
@@ -1227,21 +1238,32 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             
             if (forceInit || !translatedPostInitBlocks.isEmpty()) {
                 // Add the userPostInit$ method
-                List<JCVariableDecl> receiverVarDeclList = List.of(makeReceiverParam(tree));
+                List<JCVariableDecl> receiverVarDeclList = isMixinClass? List.of(makeReceiverParam(tree)) : List.<JCVariableDecl>nil();
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
                 
                 // Mixin super calls will be handled when inserted into real classes.
                 if (!isMixinClass) {
+                    //TODO:
+                    // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
+                    //    var receiver = this;
+                    initStats.prepend(
+                            make.at(diagPos).VarDef(
+                            make.at(diagPos).Modifiers(Flags.FINAL),
+                            defs.receiverName,
+                            make.Ident(initBuilder.interfaceName(currentClass)),
+                            make.at(diagPos).Ident(names._this))
+                            );
+
                     if (superClassSym != null) {
                         List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(defs.receiverName)));
+                        //args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(names._this)));
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, names._super), defs.postInitName, args1));
                     }
                      
                     for (ClassSymbol mixinClassSym : immediateMixins) {
                         String mixinName = mixinClassSym.fullname.toString();
                         List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, mixinClassSym.type, true), make.Ident(defs.receiverName)));
+                        args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, mixinClassSym.type, true), make.Ident(names._this)));
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, mixinName), defs.postInitName, args1));
                     }
                 }
@@ -1491,10 +1513,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         //       jfx$0objlit
                         //   }
                         
-                        makeInitSupportCall(defs.addTriggersName, tmpVar.name, true);
+                        makeInitSupportCall(defs.addTriggersName, tmpVar.name, false);
                         makeInitApplyDefaults(type, tmpVar.name);
-                        makeInitSupportCall(defs.userInitName, tmpVar.name, true);
-                        makeInitSupportCall(defs.postInitName, tmpVar.name, true);
+                        makeInitSupportCall(defs.userInitName, tmpVar.name, false);
+                        makeInitSupportCall(defs.postInitName, tmpVar.name, false);
                         
                     } else {
                         makeInitSupportCall(defs.initializeName, tmpVar.name, false);
@@ -2173,7 +2195,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 List<JCExpression> setArgs = List.of(buildRHS(rhsTranslated));
                 return postProcess(m().Apply(null, setSelect, setArgs));
             } else {
-                final boolean useSetters = vmi.isFXMemberVariable();
+                final boolean useSetters = vmi.useSetters();
 
                 if (lhs.getFXTag() == JavafxTag.SELECT) {
                     final JFXSelect select = (JFXSelect) lhs;
@@ -2200,7 +2222,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 } else {
                     // not SELECT
                     if (useSetters) {
-                        JCExpression recv = sym.isStatic()? null : makeReceiver(diagPos, sym, getAttrEnv().enclClass.sym);
+                        JCExpression recv = !sym.isStatic() && inInstanceContext==ReceiverContext.InstanceAsStatic? makeReceiver(diagPos, sym, getAttrEnv().enclClass.sym) : null;
                         return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
                     } else {
                         return defaultFullExpression(translateToExpression(lhs, AsShareSafeValue, null), rhsTranslated);
@@ -2386,7 +2408,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         if (tree.name == names._this) {
             // in the static implementation method, "this" becomes "receiver$"
-            JCExpression rcvr = make.at(diagPos).Ident(defs.receiverName);
+            Name thisName = inInstanceContext==ReceiverContext.InstanceAsStatic? defs.receiverName : names._this;
+            JCExpression rcvr = make.at(diagPos).Ident(thisName);
             if (wrapper == AsLocation) {
                 rcvr = makeConstantLocation(diagPos, tree.type, rcvr);
             }
@@ -2419,7 +2442,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             // make class-based direct static reference:   Foo.x
             convert = make.at(diagPos).Select(makeTypeTree(diagPos, tree.sym.owner.type, false), tree.name);
         } else {
-            if ((kind == Kinds.VAR || kind == Kinds.MTH) && tree.sym.owner.kind == Kinds.TYP) {
+            if ((kind == Kinds.VAR || kind == Kinds.MTH) && 
+                    tree.sym.owner.kind == Kinds.TYP &&
+                    inInstanceContext==ReceiverContext.InstanceAsStatic) {
                 // it is a non-static attribute or function class member
                 // reference it through the receiver
                 JCExpression mRec = makeReceiver(diagPos, tree.sym, getAttrEnv().enclClass.sym);

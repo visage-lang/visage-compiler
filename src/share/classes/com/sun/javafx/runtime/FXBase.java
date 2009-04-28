@@ -39,16 +39,16 @@ public class FXBase implements FXObject {
     public FXBase(boolean dummy) {}
     
     public void initialize$ () {
-        addTriggers$(this);
+        addTriggers$();
         applyDefaults$();
-        userInit$(this);
-        postInit$(this);
+        userInit$();
+        postInit$();
     }
     
-    public void addTriggers$  (final FXBase receiver$) {}
+    public void addTriggers$  () {}
     public void applyDefaults$()                       {}
-    public void userInit$     (final FXBase receiver$) {}
-    public void postInit$     (final FXBase receiver$) {}
+    public void userInit$     () {}
+    public void postInit$     () {}
     
     public int      count$()                         { return 0; }
     public boolean  applyDefaults$(final int varNum) { return false; }
