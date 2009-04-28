@@ -32,8 +32,8 @@ import com.sun.javafx.runtime.location.*;
  */
 public class FXBase implements FXObject {
     // First class base and count.
-    public static int $VAR_BASE = 0;
-    public static int $VAR_COUNT = 0;
+    public static int VBASE$ = 0;
+    public static int VCNT$ = 0;
 
     public FXBase()              { this(false); }
     public FXBase(boolean dummy) {}

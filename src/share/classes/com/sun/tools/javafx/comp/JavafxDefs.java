@@ -86,11 +86,11 @@ public class JavafxDefs {
     public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
     
-    public static final String varOffsetString = "$VAR_OFFSET_";
-    public static final String varBaseString = "$VAR_BASE";
-    public static final String varCountString = "$VAR_COUNT";
-    public static final String varBitsString = "$VAR_BITS_";
-    public static final String varMapString = "$Map$";
+    public static final String varOffsetString = "VOFF$";
+    public static final String varBaseString = "VBASE$";
+    public static final String varCountString = "VCNT$";
+    public static final String varBitsString = "VFLGS$";
+    public static final String varMapString = "MAP$";
     public static final String varValueString = "$";
     public static final String varLocationString = "location$";
     

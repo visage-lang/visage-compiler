@@ -468,8 +468,10 @@ public class FXLocal {
             return result.toArray(new Field[0]);
         }
 
+        static final String[] SYSTEM_PREFIXES = {"VBASE$", "VCNT$", "VFLGS$", "VOFF$", "MAP$"};
+
         protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
-            Context context = getReflectionContext();
+            Context ctxt = getReflectionContext();
             Class cls = refClass;
             Class[] noClasses = {};
             String requiredName = filter.getRequiredName();
@@ -482,27 +484,32 @@ public class FXLocal {
             } catch (SecurityException e) {
                 fields = filter(cls.getFields(), cls);
             }
-            for (int i = 0;  i < fields.length;  i++) {
+            fieldLoop: for (int i = 0;  i < fields.length;  i++) {
                 java.lang.reflect.Field fld = fields[i];
                 if (fld.isSynthetic())
                     continue;
                 if (fld.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
                     continue;
-                String name = fld.getName();
+                String fname = fld.getName();
                 SourceName sourceName = fld.getAnnotation(SourceName.class);
                 if (sourceName != null)
-                    name = sourceName.value();
-                if (requiredName != null && ! requiredName.equals(name))
+                    fname = sourceName.value();
+                if (requiredName != null && ! requiredName.equals(fname))
                     continue;
-                if (name.endsWith("$needs_default$")) {
+                for (String prefix : SYSTEM_PREFIXES) {
+                    if (fname.startsWith(prefix)) {
+                        continue fieldLoop;
+                    }
+                }
+                if (fname.endsWith("$needs_default$")) {
                     continue;
                 }
                 java.lang.reflect.Type gtype = fld.getGenericType();
-                FXType tr = context.makeTypeRef(gtype);
-                VarMember ref = new VarMember(name, this, tr);
+                FXType tr = ctxt.makeTypeRef(gtype);
+                VarMember ref = new VarMember(fname, this, tr);
                 ref.fld = fld;
                 if (!isMixin()) {
-                    String getterName = FXClassType.GETTER_PREFIX + name;
+                    String getterName = FXClassType.GETTER_PREFIX + fname;
                     Method getter = null;
                     try {
                       getter = refClass.getMethod(getterName, noClasses);
@@ -519,7 +526,7 @@ public class FXLocal {
                     }
                     if (getter != null) {
                         Class type = getter.getReturnType();
-                        String setName = FXClassType.SETTER_PREFIX + name;
+                        String setName = FXClassType.SETTER_PREFIX + fname;
                         try {
                             Method setter = refClass.getMethod(setName, type);
                             ref.fld = null;

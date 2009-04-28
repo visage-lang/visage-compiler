@@ -85,6 +85,7 @@ public abstract class FXClassType extends FXType implements FXMember {
         return (modifiers & FX_MIXIN) != 0;
     }
 
+    @Override
     public boolean isJfxType() {
         return (modifiers & FX_CLASS) != 0;
     }
