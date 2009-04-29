@@ -625,6 +625,7 @@ public class FXLocal {
         Field fld;
         Method getter;
         Method setter;
+        Method loc_getter;
         FXType type;
         String name;
         FXClassType owner;
@@ -644,16 +645,20 @@ public class FXLocal {
         public FXValue getValue(FXObjectValue obj) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if (fld != null || getter != null) {
+                if (fld != null || getter != null || loc_getter != null) {
                     Context context =
                         (Context) owner.getReflectionContext();
                     Object val;
                     if (getter != null)
                         val = getter.invoke(robj, new Object[0]);
+                    else if (loc_getter != null)
+                        val = loc_getter.invoke(robj, new Object[0]);
                     else
                         val = fld.get(robj);
                     if (val instanceof ObjectLocation)
                         val = ((ObjectLocation) val).get();
+                    else if (val instanceof SequenceLocation)
+                        val = ((SequenceLocation) val).get();
                     return context.mirrorOf(val, type);
                 }
             }
@@ -672,95 +677,77 @@ public class FXLocal {
         public FXLocation getLocation(FXObjectValue obj) {
             return new VarMemberLocation(obj, this);
         }
-
-
+        
         static final Object[] noObjects = {};
 
         protected void initVar(FXObjectValue instance, FXValue value) {
-            try {
-                Object robj = ((ObjectValue) instance).obj;
-                Object loc;
-                if (getter != null)
-                    loc = getter.invoke(robj, noObjects);
-                else
-                    loc = fld.get(robj);
-                if (loc instanceof IntVariable) {
-                    ((IntVariable) loc).setAsInt(((FXIntegerValue) value).intValue());
-                    return;
-                }
-                if (loc instanceof BooleanVariable) {
-                    ((BooleanVariable) loc).setAsBoolean(((FXBooleanValue) value).booleanValue());
-                    return;
-                }
-                if (loc instanceof CharVariable) {
-                    ((CharVariable) loc).setAsChar((char) ((FXIntegerValue) value).intValue());
-                    return;
-                }
-                if (loc instanceof ByteVariable) {
-                    ((ByteVariable) loc).setAsByte((byte) ((FXIntegerValue) value).intValue());
-                    return;
-                }
-                if (loc instanceof ShortVariable) {
-                    ((ShortVariable) loc).setAsShort((short) ((FXIntegerValue) value).intValue());
-                    return;
-                }
-                if (loc instanceof LongVariable) {
-                    ((LongVariable) loc).setAsLong(((FXLongValue) value).longValue());
-                    return;
-                }
-                if (loc instanceof FloatVariable) {
-                    ((FloatVariable) loc).setAsFloat(((FXFloatValue) value).floatValue());
-                    return;
-                }
-                if (loc instanceof DoubleVariable) {
-                    ((DoubleVariable) loc).setAsDouble(((FXDoubleValue) value).doubleValue());
-                    return;
-                }
-                if (loc instanceof SequenceVariable) {
-                    ((SequenceVariable) loc).setAsSequence(((SequenceValue) value).asObject());
-                    return;
-                }
-                if (loc instanceof AbstractVariable) {
-                    ((AbstractVariable) loc).set(((Value) value).asObject());
-                    return;
-                }
-            }
-            catch (RuntimeException ex) {
-                throw ex;
-            }
-            catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-            throw new UnsupportedOperationException("unimplemented: initVar");
+            setValue(instance, value);
         }
+
         @Override
         public void setValue(FXObjectValue obj, FXValue newValue) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
                 if (fld != null || getter != null || setter != null) {
-                    Object newVal = ((Value) newValue).asObject();
+                    Object value = ((Value) newValue).asObject();
                     if (setter != null) {
-                        setter.invoke(robj, newVal);
+                        setter.invoke(robj, value);
                     } else {
-                        Object val;
-                        if (getter != null) {
-                            val = getter.invoke(robj, noObjects);
-                        } else {
-                            val = fld.get(robj);
-                        }
-                        if (val instanceof ObjectLocation) {
-                            ((ObjectLocation) val).set(newVal);
+                        Object loc = null;
+                        if (loc_getter != null) {
+                            loc = loc_getter.invoke(robj, noObjects);
                         } else if (fld != null) {
-                            fld.set(robj, newVal);
+                            loc = fld.get(robj);
+                        }
+                        if (loc instanceof IntVariable) {
+                            ((IntVariable) loc).setAsInt(((FXIntegerValue) value).intValue());
+                            return;
+                        }
+                        if (loc instanceof BooleanVariable) {
+                            ((BooleanVariable) loc).setAsBoolean(((FXBooleanValue) value).booleanValue());
+                            return;
+                        }
+                        if (loc instanceof CharVariable) {
+                            ((CharVariable) loc).setAsChar((char) ((FXIntegerValue) value).intValue());
+                            return;
+                        }
+                        if (loc instanceof ByteVariable) {
+                            ((ByteVariable) loc).setAsByte((byte) ((FXIntegerValue) value).intValue());
+                            return;
+                        }
+                        if (loc instanceof ShortVariable) {
+                            ((ShortVariable) loc).setAsShort((short) ((FXIntegerValue) value).intValue());
+                            return;
+                        }
+                        if (loc instanceof LongVariable) {
+                            ((LongVariable) loc).setAsLong(((FXLongValue) value).longValue());
+                            return;
+                        }
+                        if (loc instanceof FloatVariable) {
+                            ((FloatVariable) loc).setAsFloat(((FXFloatValue) value).floatValue());
+                            return;
+                        }
+                        if (loc instanceof DoubleVariable) {
+                            ((DoubleVariable) loc).setAsDouble(((FXDoubleValue) value).doubleValue());
+                            return;
+                        }
+                        if (loc instanceof SequenceVariable) {
+                            ((SequenceVariable) loc).setAsSequence(((SequenceValue) value).asObject());
+                            return;
+                        }
+                        if (loc instanceof AbstractVariable) {
+                            ((AbstractVariable) loc).set(((Value) value).asObject());
+                            return;
+                        }
+                        if (fld != null) {
+                            fld.set(robj, value);
+                            return;
                         }
                     }
-                    return;
                 }
-            }
-            catch (RuntimeException ex) {
+            } catch (RuntimeException ex) {
                 throw ex;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
             throw new UnsupportedOperationException("Not supported yet.");

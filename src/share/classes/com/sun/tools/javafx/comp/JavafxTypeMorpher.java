@@ -111,11 +111,7 @@ public class JavafxTypeMorpher {
             return representation;
         }
 
-        boolean useSetters() {
-            return isFXMemberVariable() && !isSequence();
-        }
-
-        boolean useGetters() {
+        boolean useAccessors() {
             return isFXMemberVariable() && !isSequence();
         }
 

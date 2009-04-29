@@ -1768,7 +1768,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         assert !isLocal || instanceName == null;
         final JCExpression nonNullInit = (init == null) ? makeDefaultValue(diagPos, vmi) : init;  //TODO: is this needed?
 
-        if (!bindStatus.isBound() && vmi.useSetters()) {
+        if (!bindStatus.isBound() && vmi.useAccessors()) {
             JCExpression tc = instanceName == null ? null : make.at(diagPos).Ident(instanceName);
             return callExpression(diagPos, tc, attributeSetterName(vsym), nonNullInit);
         }
@@ -2176,14 +2176,14 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                     List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
                     return postProcess(m().Apply(null, select, args));
                 }
-            } else if (!vmi.useSetters() && vmi.representation() == AlwaysLocation) {
+            } else if (!vmi.useAccessors() && vmi.representation() == AlwaysLocation) {
                 // we are setting a var Location, call the set method
                 JCExpression lhsTranslated = translateAsLocation(lhs);
                 JCFieldAccess setSelect = m().Select(lhsTranslated, defs.locationSetMethodName[typeMorpher.typeMorphInfo(lhs.type).getTypeKind()]);
                 List<JCExpression> setArgs = List.of(buildRHS(rhsTranslated));
                 return postProcess(m().Apply(null, setSelect, setArgs));
             } else {
-                final boolean useSetters = vmi.useSetters();
+                final boolean useSetters = vmi.useAccessors();
 
                 if (lhs.getFXTag() == JavafxTag.SELECT) {
                     final JFXSelect select = (JFXSelect) lhs;
@@ -3717,13 +3717,13 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
  
             if (isClassVar) {
                 // this is a reference to a JavaFX class variable, use getter
-                Name accessName = ((wrapper == AsLocation) || isSequence)? attributeGetDependencyName(vsym) : attributeGetterName(vsym);
+                Name accessName = ((wrapper == AsLocation) || isSequence)? attributeGetLocationName(vsym) : attributeGetterName(vsym);
                 JCExpression accessFunc = switchName(diagPos, varRef, accessName);
                 List<JCExpression> emptyArgs = List.nil();
                 expr = make.at(diagPos).Apply(null, accessFunc, emptyArgs);
             }
 
-            if (!vmi.useGetters()) {
+            if (!vmi.useAccessors()) {
                 if (vmi.representation() == AlwaysLocation && wrapper != AsLocation) {
                     // Anything still in the form of a Location (and that isn't what we want), get the value
                     if (isSequence) {

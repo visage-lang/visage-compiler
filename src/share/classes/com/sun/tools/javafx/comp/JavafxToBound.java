@@ -576,7 +576,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             if (tree.sym.isStatic()) {
                 // if this is a static reference to an attribute, eg.   MyClass.myAttribute
                 JCExpression classRef = makeTypeTree( diagPos,types.erasure(tree.sym.owner.type), false);
-                result = convert(tree.type, callExpression(diagPos, classRef, attributeGetDependencyName(tree.sym)));
+                result = convert(tree.type, callExpression(diagPos, classRef, attributeGetLocationName(tree.sym)));
             } else {
                 // this is a dynamic reference to an attribute
                 final JFXExpression expr = tree.getExpression();

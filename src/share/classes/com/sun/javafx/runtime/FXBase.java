@@ -53,7 +53,7 @@ public class FXBase implements FXObject {
     public int      count$()                         { return 0; }
     public boolean  applyDefaults$(final int varNum) { return false; }
     public boolean  isInitialized$(final int varNum) { return true; }
-    public Location getDependency$(final int varNum) { return null; }
+    public Location loc$(final int varNum)           { return null; }
     
     public static short [] makeInitMap$(int count, int... offsets) {
         final short [] map = new short[count];

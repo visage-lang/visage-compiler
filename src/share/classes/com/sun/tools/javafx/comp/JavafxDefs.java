@@ -43,11 +43,10 @@ public class JavafxDefs {
      */
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
-    public static final String attributeGetLocationMethodNamePrefix = "location$";
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
-    public static final String attributeGetDependencyMethodNamePrefix = "getDependency$";
+    public static final String attributeGetLocationMethodNamePrefix = "loc$";
     public static final String attributeCountMethodString = "count$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
     public static final String needsDefaultSuffix = "$needs_default$";
@@ -92,7 +91,7 @@ public class JavafxDefs {
     public static final String varBitsString = "VFLGS$";
     public static final String varMapString = "MAP$";
     public static final String varValueString = "$";
-    public static final String varLocationString = "location$";
+    public static final String varLocationString = "loc$";
     
     public  static final String javaLangPackageNameString = "java.lang";
     public  static final String runtimePackageNameString = "com.sun.javafx.runtime";
@@ -222,7 +221,7 @@ public class JavafxDefs {
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name applyDefaultsPrefixName;
-    final Name getDependencyPrefixName;
+    final Name getLocationPrefixName;
     final Name attributeCountMethodName;
     final Name isInitializedPrefixName;
     final Name setDefaultMethodName;
@@ -358,7 +357,7 @@ public class JavafxDefs {
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
-        getDependencyPrefixName = names.fromString(attributeGetDependencyMethodNamePrefix);
+        getLocationPrefixName = names.fromString(attributeGetLocationMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
 		runtimePackageName = names.fromString(runtimePackageNameString);

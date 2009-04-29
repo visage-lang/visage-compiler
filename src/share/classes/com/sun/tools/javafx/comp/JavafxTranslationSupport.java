@@ -560,17 +560,6 @@ public abstract class JavafxTranslationSupport {
         return makeLocationVariable(tmi, diagPos, makeArgs, makeMethod);
     }
 
-    JCExpression makeGetDependency(DiagnosticPosition diagPos, JCExpression receiver, Symbol sym) {
-        Symbol owner = sym.owner;
-        Name ownerName = owner.name;
-        Name offsetName = attributeOffsetName(sym);
-        JCExpression ownerIdent = make.at(diagPos).Ident(ownerName);
-        List<JCExpression> getArgs = List.<JCExpression>of(make.at(diagPos).Select(ownerIdent, offsetName));
-        List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, syms.intType, true));
-        JCExpression getSelect = make.at(diagPos).Select(receiver, defs.getDependencyPrefixName);
-        return make.at(diagPos).Apply(typeArgs, getSelect, getArgs);
-    }
-
     JCExpression makeLocationWithDefault(TypeMorphInfo tmi, DiagnosticPosition diagPos, JCExpression expr) {
         List<JCExpression> makeArgs = List.<JCExpression>of(expr);
         Name makeMethod;
@@ -728,12 +717,6 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, varLocationString);
     }
 
-    Name attributeGetLocationName(Symbol sym) {
-        // TODO - fix it.
-        // return prefixedAttributeName(sym, attributeGetLocationMethodNamePrefix);
-        return prefixedAttributeName(sym, attributeGetMethodNamePrefix);
-    }
-
     Name attributeGetterName(Symbol sym) {
         return prefixedAttributeName(sym, attributeGetMethodNamePrefix);
     }
@@ -742,8 +725,8 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, attributeSetMethodNamePrefix);
     }
     
-    Name attributeGetDependencyName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeGetDependencyMethodNamePrefix);
+    Name attributeGetLocationName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeGetLocationMethodNamePrefix);
     }
  
     Name attributeApplyDefaultsName(Symbol sym) {
@@ -886,7 +869,7 @@ public abstract class JavafxTranslationSupport {
      * */
    JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym, Name instanceName) {
        JCExpression instanceIdent = instanceName == null? null : make.at(diagPos).Ident(instanceName);
-       return callExpression(diagPos, instanceIdent, attributeGetDependencyName(attribSym));
+       return callExpression(diagPos, instanceIdent, attributeGetLocationName(attribSym));
    }
 
     JCIdent makeIdentOfPresetKind(DiagnosticPosition diagPos, Name name, int pkind) {

@@ -167,6 +167,7 @@ class JavafxAnalyzeClass {
         public Type getLocationType() { return vmi.getLocationType(); }
         public Type getElementType()  { return vmi.getElementType(); }
         public VarRepresentation representation() { return vmi.representation(); }
+        public boolean useAccessors() { return vmi.useAccessors(); }
 
         // Return var name.
         public Name getName() { return name; }

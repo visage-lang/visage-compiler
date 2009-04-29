@@ -927,47 +927,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return mods;
         }
 
-        //
-        // This method constructs the get location method for the specified attribute.
-        //
-        //     type location$var() {
-        //         return location$var;
-        //     }
-        //     
-        private JCTree makeGetLocationAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            setCurrentPos(varInfo);
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Variable type for var.
-            Type type = varInfo.getVariableType();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
-            
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-                
-                // Symbol used when accessing the variable.
-                VarSymbol proxyVarSym = varInfo.proxyVarSym();
-
-                // location$var
-                JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                // Construct and add: return value$var;
-                stmts.append(m().Return(locationExp));
-            }
-            
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody), 
-                                             type,
-                                             attributeGetLocationName(varSym),
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            optStat.recordProxyMethod();
-            
-            return method;
-        }
-        
-        //
         // This method constructs the getter method for the specified attribute.
         //
         //     type get$var() {
@@ -1155,13 +1114,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This method constructs the getDependency method for the specified attribute.
+        // This method constructs the get location method for the specified attribute.
         //
-        //     Location getDependency$var() {
-        //         return location$var == null ? (Location)((location$var = XXXVariable.makeWithDefault(value$var)) : location$var);
+        //     Location loc$var() {
+        //         return location$var;
+        //     }
+        //
+        // Or:
+        //     Location loc$var() {
+        //         if (loc$var == null) {
+        //             loc$var = XXXVariable.makeWithDefault($var));
+        //         }
+        //         return location$var);
         //     }
         //     
-        private JCTree makeGetDependencyAccessorMethod(VarInfo varInfo, boolean needsBody) {
+        private JCTree makeGetLocationAccessorMethod(VarInfo varInfo, boolean needsBody) {
             setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
@@ -1208,7 +1175,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Construct method.
             JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody), 
                                              varInfo.getVariableType(),
-                                             attributeGetDependencyName(varSym),
+                                             attributeGetLocationName(varSym),
                                              List.<JCVariableDecl>nil(),
                                              stmts);
             optStat.recordProxyMethod();
@@ -1227,15 +1194,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (ai.needsDeclaration()) {
                     setCurrentPos(ai.pos());
                     
-                    // Special case sequences.
-                    if (ai.isSequence()) {
-                        accessors.append(makeGetLocationAccessorMethod(ai, true));
-                    } else {
+                    if (ai.useAccessors()) {
                         accessors.append(makeGetterAccessorMethod(ai, true));
                         accessors.append(makeSetterAccessorMethod(ai, true));
-                    }
-                    
-                    accessors.append(makeGetDependencyAccessorMethod(ai, true));
+                    }                
+                    accessors.append(makeGetLocationAccessorMethod(ai, true));
                 }
             }
             
@@ -1257,15 +1220,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (!ai.isStatic()) {
                     setCurrentPos(ai.pos());
                     
-                    // Special case sequences.
-                    if (ai.isSequence()) {
-                        accessors.append(makeGetLocationAccessorMethod(ai, false));
-                    } else {
+                    if (ai.useAccessors()) {
                         accessors.append(makeGetterAccessorMethod(ai, false));
                         accessors.append(makeSetterAccessorMethod(ai, false));
-                    }
-                    
-                    accessors.append(makeGetDependencyAccessorMethod(ai, false));
+                    }                    
+                    accessors.append(makeGetLocationAccessorMethod(ai, false));
                 }
             }
             return accessors.toList();
@@ -1644,7 +1603,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     VarSymbol varSym = ai.getSymbol();
                     
                     // getDependency$var()
-                    JCExpression callExp = callExpression(currentPos, null, attributeGetDependencyName(varSym), List.<JCExpression>nil());
+                    JCExpression callExp = callExpression(currentPos, null, attributeGetLocationName(varSym), List.<JCExpression>nil());
                     // (Location)getDependency$var()
                     JCExpression castExpr = m().TypeCast(makeType(locationType), callExp);
                     // return (Location)getDependency$var()
@@ -1676,7 +1635,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // (varNum)
                     List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
                     // super.getDependency$(varNum);
-                    JCExpression callExp = callExpression(currentPos, selector, defs.getDependencyPrefixName, args);
+                    JCExpression callExp = callExpression(currentPos, selector, defs.getLocationPrefixName, args);
                     // Construct and add: return super.getDependency$(varNum);
                     stmts.append(m().Return(callExp));
                 } else {
@@ -1692,7 +1651,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Construct method.
                 JCMethodDecl method = makeMethod(Flags.PUBLIC,
                                                  locationType,
-                                                 defs.getDependencyPrefixName,
+                                                 defs.getLocationPrefixName,
                                                  List.<JCVariableDecl>of(arg),
                                                  stmts);
                 // Add to the methods list.
