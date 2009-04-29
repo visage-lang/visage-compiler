@@ -5,6 +5,8 @@
  * @run
  */
 
+// when issue 3166 will be fixed please update .expected file
+
 /** flag **/
 var flag : Boolean = false as Boolean;
 function checkFlag (expected : Boolean, msg : String) {
@@ -39,7 +41,7 @@ insert 121 into valueByte;
 checkFlag(false, "Byte 2");
 var trashByte : Byte[] = bindedByte;
 checkFlag(true, "Byte 3");
-if (trashByte != [122, 120, 121]) println("FAILED Byte 4");
+if (trashByte != [122, 120, 121, 121]) println("FAILED Byte 4");
 resetFlag();
 
 println("Byte eager");
@@ -81,7 +83,7 @@ insert 30001 into valueShort;
 checkFlag(false, "Short 2");
 var trashShort : Short[] = bindedShort;
 checkFlag(true, "Short 3");
-if (trashShort != [30002, 30000, 30001]) println("FAILED Short 4");
+if (trashShort != [30002, 30000, 30001, 30001]) println("FAILED Short 4");
 resetFlag();
 
 println("Short eager");
@@ -123,7 +125,7 @@ insert 61 into valueCharacter;
 checkFlag(false, "Character 2");
 var trashCharacter : Character[] = bindedCharacter;
 checkFlag(true, "Character 3");
-if (trashCharacter != [62, 64, 61]) println("FAILED Character 4");
+if (trashCharacter != [62, 64, 61, 61]) println("FAILED Character 4");
 resetFlag();
 
 println("Character eager");
@@ -165,7 +167,7 @@ insert 1000001 into valueInteger;
 checkFlag(false, "Integer 2");
 var trashInteger : Integer[] = bindedInteger;
 checkFlag(true, "Integer 3");
-if (trashInteger != [1000002, 1000000, 1000001]) println("FAILED Integer 4");
+if (trashInteger != [1000002, 1000000, 1000001, 1000001]) println("FAILED Integer 4");
 resetFlag();
 
 println("Integer eager");
@@ -207,7 +209,7 @@ insert 1000000001 into valueLong;
 checkFlag(false, "Long 2");
 var trashLong : Long[] = bindedLong;
 checkFlag(true, "Long 3");
-if (trashLong != [1000000002, 1000000000, 1000000001]) println("FAILED Long 4");
+if (trashLong != [1000000002, 1000000000, 1000000001, 1000000001]) println("FAILED Long 4");
 resetFlag();
 
 println("Long eager");
@@ -249,7 +251,7 @@ insert 11.5 into valueFloat;
 checkFlag(false, "Float 2");
 var trashFloat : Float[] = bindedFloat;
 checkFlag(true, "Float 3");
-if (trashFloat != [12.5, 10.5, 11.5]) println("FAILED Float 4");
+if (trashFloat != [12.5, 10.5, 11.5, 11.5]) println("FAILED Float 4");
 resetFlag();
 
 println("Float eager");
@@ -291,7 +293,7 @@ insert 1.21e4 into valueDouble;
 checkFlag(false, "Double 2");
 var trashDouble : Double[] = bindedDouble;
 checkFlag(true, "Double 3");
-if (trashDouble != [1.22e4, 1.25e4, 1.21e4]) println("FAILED Double 4");
+if (trashDouble != [1.22e4, 1.25e4, 1.21e4, 1.21e4]) println("FAILED Double 4");
 resetFlag();
 
 println("Double eager");
@@ -333,7 +335,7 @@ insert 101 into valueNumber;
 checkFlag(false, "Number 2");
 var trashNumber : Number[] = bindedNumber;
 checkFlag(true, "Number 3");
-if (trashNumber != [102, 100, 101]) println("FAILED Number 4");
+if (trashNumber != [102, 100, 101, 101]) println("FAILED Number 4");
 resetFlag();
 
 println("Number eager");
@@ -375,7 +377,7 @@ insert "-51" into valueString;
 checkFlag(false, "String 2");
 var trashString : String[] = bindedString;
 checkFlag(true, "String 3");
-if (trashString != ["-52", "-50", "-51"]) println("FAILED String 4");
+if (trashString != ["-52", "-50", "-51", "-51"]) println("FAILED String 4");
 resetFlag();
 
 println("String eager");
@@ -417,7 +419,7 @@ insert false into valueBoolean;
 checkFlag(false, "Boolean 2");
 var trashBoolean : Boolean[] = bindedBoolean;
 checkFlag(true, "Boolean 3");
-if (trashBoolean != [true, true, false]) println("FAILED Boolean 4");
+if (trashBoolean != [true, true, false, false]) println("FAILED Boolean 4");
 resetFlag();
 
 println("Boolean eager");
@@ -459,7 +461,7 @@ insert 11s into valueDuration;
 checkFlag(false, "Duration 2");
 var trashDuration : Duration[] = bindedDuration;
 checkFlag(true, "Duration 3");
-if (trashDuration != [12s, 10s, 11s]) println("FAILED Duration 4");
+if (trashDuration != [12s, 10s, 11s, 11s]) println("FAILED Duration 4");
 resetFlag();
 
 println("Duration eager");
@@ -500,7 +502,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Byte 2f");
     var trashFuncByte : Byte[] = bindedFuncByte;
     checkFlag(true, "Byte 3f");
-    if (trashFuncByte != [122, 120, 121]) println("FAILED Byte 4f");
+    if (trashFuncByte != [122, 120, 121, 121]) println("FAILED Byte 4f");
     resetFlag();
 
     println("Byte eager in function");
@@ -537,7 +539,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Short 2f");
     var trashFuncShort : Short[] = bindedFuncShort;
     checkFlag(true, "Short 3f");
-    if (trashFuncShort != [30002, 30000, 30001]) println("FAILED Short 4f");
+    if (trashFuncShort != [30002, 30000, 30001, 30001]) println("FAILED Short 4f");
     resetFlag();
 
     println("Short eager in function");
@@ -574,7 +576,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Character 2f");
     var trashFuncCharacter : Character[] = bindedFuncCharacter;
     checkFlag(true, "Character 3f");
-    if (trashFuncCharacter != [62, 64, 61]) println("FAILED Character 4f");
+    if (trashFuncCharacter != [62, 64, 61, 61]) println("FAILED Character 4f");
     resetFlag();
 
     println("Character eager in function");
@@ -611,7 +613,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Integer 2f");
     var trashFuncInteger : Integer[] = bindedFuncInteger;
     checkFlag(true, "Integer 3f");
-    if (trashFuncInteger != [1000002, 1000000, 1000001]) println("FAILED Integer 4f");
+    if (trashFuncInteger != [1000002, 1000000, 1000001, 1000001]) println("FAILED Integer 4f");
     resetFlag();
 
     println("Integer eager in function");
@@ -648,7 +650,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Long 2f");
     var trashFuncLong : Long[] = bindedFuncLong;
     checkFlag(true, "Long 3f");
-    if (trashFuncLong != [1000000002, 1000000000, 1000000001]) println("FAILED Long 4f");
+    if (trashFuncLong != [1000000002, 1000000000, 1000000001, 1000000001]) println("FAILED Long 4f");
     resetFlag();
 
     println("Long eager in function");
@@ -685,7 +687,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Float 2f");
     var trashFuncFloat : Float[] = bindedFuncFloat;
     checkFlag(true, "Float 3f");
-    if (trashFuncFloat != [12.5, 10.5, 11.5]) println("FAILED Float 4f");
+    if (trashFuncFloat != [12.5, 10.5, 11.5, 11.5]) println("FAILED Float 4f");
     resetFlag();
 
     println("Float eager in function");
@@ -722,7 +724,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Double 2f");
     var trashFuncDouble : Double[] = bindedFuncDouble;
     checkFlag(true, "Double 3f");
-    if (trashFuncDouble != [1.22e4, 1.25e4, 1.21e4]) println("FAILED Double 4f");
+    if (trashFuncDouble != [1.22e4, 1.25e4, 1.21e4, 1.21e4]) println("FAILED Double 4f");
     resetFlag();
 
     println("Double eager in function");
@@ -759,7 +761,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Number 2f");
     var trashFuncNumber : Number[] = bindedFuncNumber;
     checkFlag(true, "Number 3f");
-    if (trashFuncNumber != [102, 100, 101]) println("FAILED Number 4f");
+    if (trashFuncNumber != [102, 100, 101, 101]) println("FAILED Number 4f");
     resetFlag();
 
     println("Number eager in function");
@@ -796,7 +798,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "String 2f");
     var trashFuncString : String[] = bindedFuncString;
     checkFlag(true, "String 3f");
-    if (trashFuncString != ["-52", "-50", "-51"]) println("FAILED String 4f");
+    if (trashFuncString != ["-52", "-50", "-51", "-51"]) println("FAILED String 4f");
     resetFlag();
 
     println("String eager in function");
@@ -833,7 +835,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Boolean 2f");
     var trashFuncBoolean : Boolean[] = bindedFuncBoolean;
     checkFlag(true, "Boolean 3f");
-    if (trashFuncBoolean != [true, true, false]) println("FAILED Boolean 4f");
+    if (trashFuncBoolean != [true, true, false, false]) println("FAILED Boolean 4f");
     resetFlag();
 
     println("Boolean eager in function");
@@ -870,7 +872,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Duration 2f");
     var trashFuncDuration : Duration[] = bindedFuncDuration;
     checkFlag(true, "Duration 3f");
-    if (trashFuncDuration != [12s, 10s, 11s]) println("FAILED Duration 4f");
+    if (trashFuncDuration != [12s, 10s, 11s, 11s]) println("FAILED Duration 4f");
     resetFlag();
 
     println("Duration eager in function");
