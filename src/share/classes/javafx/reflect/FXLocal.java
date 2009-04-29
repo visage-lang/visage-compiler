@@ -684,13 +684,13 @@ public class FXLocal {
         }
 
         @Override
-        public void setValue(FXObjectValue obj, FXValue newValue) {
+        public void setValue(FXObjectValue obj, FXValue value) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
                 if (fld != null || getter != null || setter != null) {
-                    Object value = ((Value) newValue).asObject();
+                   
                     if (setter != null) {
-                        setter.invoke(robj, value);
+                        setter.invoke(robj, ((Value) value).asObject());
                         return;
                     } else {
                         Object loc = null;
