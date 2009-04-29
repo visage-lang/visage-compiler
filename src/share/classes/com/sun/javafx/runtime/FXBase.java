@@ -55,6 +55,12 @@ public class FXBase implements FXObject {
     public boolean  isInitialized$(final int varNum) { return true; }
     public Location loc$(final int varNum)           { return null; }
     
+    //
+    // makeInitMap$ constructs a field mapping table used in the switch portion
+    // of a object literal initialization.  Each entry in the table represents
+    // a field in a class.  The value in the slot is zero (no case) or the
+    // switch case tag that has a value setting.
+    //
     public static short [] makeInitMap$(int count, int... offsets) {
         final short [] map = new short[count];
         for (int i = 0; i < offsets.length; i++) {
