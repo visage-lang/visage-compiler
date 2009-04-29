@@ -184,20 +184,6 @@ public class SequenceMutator {
     }
 
     /**
-     * Insert the specified value at the beginning of the sequence
-     */
-    public static <T> Sequence<T> insertFirst(Sequence<T> target, Listener<T> listener, T value) {
-        return replaceSlice(target, listener, 0, -1, value);
-    }
-
-    /**
-     * Insert the specified values at the beginning of the sequence
-     */
-    public static <T> Sequence<T> insertFirst(Sequence<T> target, Listener<T> listener, Sequence<? extends T> values) {
-        return replaceSlice(target, listener, 0, -1, values);
-    }
-
-    /**
      * Insert the specified value before the specified position.  If the position is negative, it is inserted before
      * element zero; if it is greater than or equal to the size of the sequence, it is inserted at the end.
      */
@@ -230,24 +216,6 @@ public class SequenceMutator {
     }
 
     /**
-     * Insert the specified value after the specified position.  If the position is negative, it is inserted before
-     * element zero; if it is greater than or equal to the size of the sequence, it is inserted at the end.
-     */
-    public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
-                                              T value, int position) {
-        return insertBefore(target, listener, value, position+1);
-    }
-
-    /**
-     * Insert the specified values after the specified position.  If the position is negative, they are inserted before
-     * element zero; if it is greater than or equal to the size of the sequence, they are inserted at the end.
-     */
-    public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
-                                              Sequence<? extends T> values, int position) {
-        return insertBefore(target, listener, values, position+1);
-    }
-
-    /**
      * Delete the elements matching the specified predicate.
      */
     public static <T> Sequence<T> delete(Sequence<T> target, Listener<T> listener,
@@ -273,91 +241,4 @@ public class SequenceMutator {
         }
         return result;
     }
-
-    /**
-     * Insert the specified value before the position(s) matching the specified predicate.
-     */
-    public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
-                                               T value, SequencePredicate<? super T> predicate) {
-        BitSet bits = target.getBits(predicate);
-        if (bits.cardinality() == 0)
-            return target;
-        else if (bits.cardinality() == 1)
-            return insertBefore(target, listener, value, bits.nextSetBit(0));
-        else
-            return multiInsertBefore(target, listener, bits, Sequences.singleton(target.getElementType(), value));
-    }
-
-    /**
-     * Insert the specified values before the position(s) matching the specified predicate.
-     */
-    public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
-                                               Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
-        BitSet bits = target.getBits(predicate);
-        if (bits.cardinality() == 0)
-            return target;
-        else if (bits.cardinality() == 1)
-            return insertBefore(target, listener, values, bits.nextSetBit(0));
-        else
-            return multiInsertBefore(target, listener, bits, values);
-    }
-
-    /**
-     * Insert the specified value after the position(s) matching the specified predicate.
-     */
-    public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
-                                              T value, SequencePredicate<? super T> predicate) {
-        BitSet bits = target.getBits(predicate);
-        if (bits.cardinality() == 0)
-            return target;
-        else if (bits.cardinality() == 1)
-            return insertAfter(target, listener, value, bits.nextSetBit(0));
-        else
-            return multiInsertAfter(target, listener, bits, Sequences.singleton(target.getElementType(), value));
-    }
-
-    /**
-     * Insert the specified values after the position(s) matching the specified predicate.
-     */
-    public static <T> Sequence<T> insertAfter(Sequence<T> target, Listener<T> listener,
-                                              Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
-        BitSet bits = target.getBits(predicate);
-        if (bits.cardinality() == 0)
-            return target;
-        else if (bits.cardinality() == 1)
-            return insertAfter(target, listener, values, bits.nextSetBit(0));
-        else
-            return multiInsertAfter(target, listener, bits, values);
-    }
-
-    /*
-    * Precondition: bits.cardinality() > 1
-    */
-    private static <T> Sequence<T> multiInsertBefore(Sequence<T> target, Listener<T> listener,
-                                                     BitSet bits, Sequence<? extends T> values) {
-        assert (bits.cardinality() > 1);
-        Sequence<T> nextValue = target;
-        int firstBit = bits.nextSetBit(0);
-        int curPos = firstBit > 0 ? firstBit : 0;
-        for (int i = firstBit, j = bits.nextSetBit(i + 1); i >= 0; i = j, j = bits.nextSetBit(j + 1)) {
-            nextValue = replaceSlice(nextValue, listener, curPos, curPos-1, values);
-            curPos += ((j > 0) ? (j - i) : (target.size() - i)) + Sequences.size(values);
-        }
-        return nextValue;
-    }
-
-    /*
-     * Precondition: bits.cardinality() > 1
-     */
-    private static <T> Sequence<T> multiInsertAfter(Sequence<T> target, Listener<T> listener,
-                                                    BitSet bits, Sequence<? extends T> values) {
-        assert (bits.cardinality() > 1);
-        Sequence<T> nextValue = target;
-        for (int j = bits.nextSetBit(0), iteration=0; j >= 0; j = bits.nextSetBit(j + 1), iteration++) {
-            int curPos = j + (iteration * Sequences.size(values)) + 1;
-            nextValue = replaceSlice(nextValue, listener, curPos, curPos-1, values);
-        }
-        return nextValue;
-    }
-
 }

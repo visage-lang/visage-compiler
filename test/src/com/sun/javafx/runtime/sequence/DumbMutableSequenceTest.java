@@ -79,7 +79,7 @@ public class DumbMutableSequenceTest extends JavaFXTestCase {
 
         for (int i = 0; i < 10; i++) {
             replaceSlice(ds, 0, -1, i);
-            seq.insertFirst(i);
+            seq.insertBefore(i, 0);
             assertEquals(seq.getAsSequence(), ds.get(Integer.class));
             ds.testValid();
         }

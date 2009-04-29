@@ -813,44 +813,12 @@ public final class Sequences extends SequenceConversions {
         return SequenceMutator.insert(sequence, (SequenceMutator.Listener<T>) null, values);
     }
 
-    public static<T> Sequence<T> insertFirst(Sequence<T> sequence, T value) {
-        return SequenceMutator.insertFirst(sequence, null, value);
-    }
-
-    public static<T> Sequence<T> insertFirst(Sequence<T> sequence, Sequence<? extends T> values) {
-        return SequenceMutator.insertFirst(sequence, (SequenceMutator.Listener<T>) null, values);
-    }
-
     public static<T> Sequence<T> insertBefore(Sequence<T> sequence, T value, int position) {
         return SequenceMutator.insertBefore(sequence, null, value, position);
     }
 
     public static<T> Sequence<T> insertBefore(Sequence<T> sequence, Sequence<? extends T> values, int position) {
         return SequenceMutator.<T>insertBefore(sequence, null, values, position);
-    }
-
-    public static<T> Sequence<T> insertAfter(Sequence<T> sequence, T value, int position) {
-        return SequenceMutator.insertAfter(sequence, null, value, position);
-    }
-
-    public static<T> Sequence<T> insertAfter(Sequence<T> sequence, Sequence<? extends T> values, int position) {
-        return SequenceMutator.<T>insertAfter(sequence, null, values, position);
-    }
-
-    public static<T> Sequence<T> insertBefore(Sequence<T> sequence, T value, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.insertBefore(sequence, null, value, predicate);
-    }
-
-    public static<T> Sequence<T> insertBefore(Sequence<T> sequence, Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.insertBefore(sequence, null, values, predicate);
-    }
-
-    public static<T> Sequence<T> insertAfter(Sequence<T> sequence, T value, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.insertAfter(sequence, null, value, predicate);
-    }
-
-    public static<T> Sequence<T> insertAfter(Sequence<T> sequence, Sequence<? extends T> values, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.insertAfter(sequence, null, values, predicate);
     }
 
     public static<T> Sequence<T> delete(Sequence<T> sequence, int position) {

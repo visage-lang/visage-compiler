@@ -100,22 +100,6 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> i
         throw new UnsupportedOperationException();
     }
 
-    public void insertBefore(T value, SequencePredicate<T> tSequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> tSequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertAfter(T value, SequencePredicate<T> tSequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> tSequencePredicate) {
-        throw new UnsupportedOperationException();
-    }
-
     public void delete(int position) {
         throw new UnsupportedOperationException();
     }
@@ -132,31 +116,11 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> i
         throw new UnsupportedOperationException();
     }
 
-    public void insertFirst(T value) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertFirst(Sequence<? extends T> values) {
-        throw new UnsupportedOperationException();
-    }
-
     public void insertBefore(T value, int position) {
         throw new UnsupportedOperationException();
     }
 
     public void insertBefore(Sequence<? extends T> values, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertAfter(T value, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void insertAfter(Sequence<? extends T> values, int position) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Iterator<T> iterator() {
         throw new UnsupportedOperationException();
     }
 }

@@ -54,7 +54,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(3, len.getAsInt());
         assertEqualsAndClear(hl, "[0, 0] => [ 0 ]");
 
-        base.insertFirst(-1);
+        base.insertBefore(-1, 0);
         assertEquals(derived, -2, 0, 6, 8);
         assertEquals(4, len.getAsInt());
         assertEqualsAndClear(hl, "[0, -1] => [ -2 ]");
@@ -97,7 +97,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(3, len.getAsInt());
         assertEqualsAndClear(hl, "[0, 0] => [ 0 ]");
 
-        base.insertFirst(-1);
+        base.insertBefore(-1, 0);
         assertEquals(derived, -4, 0, 12, 16);
         assertEquals(4, len.getAsInt());
         assertEqualsAndClear(hl, "[0, -1] => [ -4 ]");
@@ -127,7 +127,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(derived, 2, 13, 24);
         assertEqualsAndClear(hl, "[0, 3] => [ 2, 13, 24 ]");
 
-        base.insertFirst(-1);
+        base.insertBefore(-1, 0);
         assertEquals(derived, -1, 12, 23, 34);
         assertEqualsAndClear(hl, "[0, 2] => [ -1, 12, 23, 34 ]");
 
@@ -135,7 +135,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(derived, 0, 12, 23, 34);
         assertEqualsAndClear(hl, "[0, 0] => [ 0 ]");
 
-        base.insertAfter(0, 1); // 0, 2, 0, 3, 4
+        base.insertBefore(0, 2); // 0, 2, 0, 3, 4
         assertEquals(derived, 0, 12, 20, 33, 44);
         assertEqualsAndClear(hl, "[2, 3] => [ 20, 33, 44 ]");
     }
@@ -179,7 +179,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(3, len.getAsInt());
         assertEqualsAndClear(hl, "[0, 0] => [ 0 ]");
 
-        base.insertFirst(-1);
+        base.insertBefore(-1, 0);
         assertEquals(derived, -2, 0, 6, 8);
         assertEquals(4, len.getAsInt());
         assertEqualsAndClear(hl, "[0, -1] => [ -2 ]");
@@ -232,7 +232,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(derived, 0, 2, 4);
         assertEqualsAndClear(hl, "[0, 0] => [ ]", "[0, 0] => [ 0 ]", "[1, 1] => [ 2 ]", "[2, 2] => [ 4 ]");
 
-        base.insertFirst(-1);
+        base.insertBefore(-1, 0);
         assertEquals(derived, 0, 2, 4, 6);
         assertEqualsAndClear(hl, "[0, -1] => [ 0 ]", "[1, 1] => [ 2 ]", "[2, 2] => [ 4 ]", "[3, 3] => [ 6 ]");
 
@@ -240,7 +240,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(derived, 0, 2, 4, 6);
         assertEqualsAndClear(hl);
 
-        base.insertAfter(0, 1);
+        base.insertBefore(0, 2);
         assertEquals(derived, 0, 2, 4, 6, 8);
         assertEqualsAndClear(hl, "[2, 1] => [ 4 ]", "[3, 3] => [ 6 ]", "[4, 4] => [ 8 ]");
 
@@ -272,7 +272,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(derived, 2, 13, 24);
         assertEqualsAndClear(hl, "[0, 0] => [ ]", "[0, 0] => [ 2 ]", "[1, 1] => [ 13 ]", "[2, 2] => [ 24 ]");
 
-        base.insertFirst(-1);
+        base.insertBefore(-1, 0);
         assertEquals(derived, -1, 12, 23, 34);
         assertEqualsAndClear(hl, "[0, -1] => [ -1 ]", "[1, 1] => [ 12 ]", "[2, 2] => [ 23 ]", "[3, 3] => [ 34 ]");
 
@@ -284,7 +284,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         assertEquals(derived, 0, 12, 23, 34);
         assertEqualsAndClear(hl);
 
-        base.insertAfter(0, 1); // 0, 2, 0, 3, 4
+        base.insertBefore(0, 2); // 0, 2, 0, 3, 4
         assertEquals(derived, 0, 12, 20, 33, 44);
         assertEqualsAndClear(hl, "[2, 1] => [ 20 ]", "[3, 3] => [ 33 ]", "[4, 4] => [ 44 ]");
 

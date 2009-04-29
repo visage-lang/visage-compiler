@@ -105,28 +105,31 @@ public class SequenceBindingTest extends JavaFXTestCase {
 //        assertEquals(cl.changeCount, 2);
         assertEqualsAndClear(hl, "i-4-1", "i-5-2", "i-6-3");
 
-        seq.insertAfter(10, 5);
+        seq.insertBefore(10, 6);
         assertEquals(seq, 1, 2, 3, 4, 1, 2, 10, 3);
         assertEquals(5, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10);
 //        assertEquals(cl.changeCount, 3);
         assertEqualsAndClear(hl, "i-6-10");
 
-        seq.insertAfter(8, isOnePredicate);
+        seq.insertBefore(8, 1);
+        seq.insertBefore(8, 6);
         assertEquals(seq, 1, 8, 2, 3, 4, 1, 8, 2, 10, 3);
         assertEquals(7, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8);
 //        assertEquals(cl.changeCount, 4);
         assertEqualsAndClear(hl, "i-1-8", "i-6-8");
 
-        seq.insertAfter(Sequences.range(1, 3), 9);
+        seq.insertBefore(Sequences.range(1, 3), 10);
         assertEquals(seq, 1, 8, 2, 3, 4, 1, 8, 2, 10, 3, 1, 2, 3);
         assertEquals(10, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3);
 //        assertEquals(cl.changeCount, 5);
         assertEqualsAndClear(hl, "i-10-1", "i-11-2", "i-12-3");
 
-        seq.insertAfter(Sequences.range(1, 3), isOnePredicate);
+        seq.insertBefore(Sequences.range(1, 3), 1);
+        seq.insertBefore(Sequences.range(1, 3), 9);
+        seq.insertBefore(Sequences.range(1, 3), 17);
         assertEquals(seq, 1, 1, 2, 3, 8, 2, 3, 4, 1, 1, 2, 3, 8, 2, 10, 3, 1, 1, 2, 3, 2, 3);
         assertEquals(19, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3);
@@ -140,7 +143,12 @@ public class SequenceBindingTest extends JavaFXTestCase {
 //        assertEquals(cl.changeCount, 7);
         assertEqualsAndClear(hl, "i-5-10");
 
-        seq.insertBefore(9, isOnePredicate);
+        seq.insertBefore(9, 0);
+        seq.insertBefore(9, 2);
+        seq.insertBefore(9, 11);
+        seq.insertBefore(9, 13);
+        seq.insertBefore(9, 21);
+        seq.insertBefore(9, 23);
         assertEquals(seq, 9, 1, 9, 1, 2, 3, 8, 10, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
         assertEquals(26, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9);
@@ -154,11 +162,8 @@ public class SequenceBindingTest extends JavaFXTestCase {
 //        assertEquals(cl.changeCount, 9);
         assertEqualsAndClear(hl, "i-10-1", "i-11-2", "i-12-3");
 
-        seq.insertBefore(Sequences.range(1, 3), new SequencePredicate<Integer>() {
-            public boolean matches(Sequence sequence, int index, Integer value) {
-                return value == 10;
-            }
-        });
+        seq.insertBefore(Sequences.range(1, 3), 7);
+        seq.insertBefore(Sequences.range(1, 3), 25);
         assertEquals(seq, 9, 1, 9, 1, 2, 3, 8, 1, 2, 3, 10, 2, 3, 1, 2, 3, 4, 9, 1, 9, 1, 2, 3, 8, 2, 1, 2, 3, 10, 3, 9, 1, 9, 1, 2, 3, 2, 3);
         assertEquals(35, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3, 1, 2, 3, 1, 2, 3);
@@ -202,14 +207,14 @@ public class SequenceBindingTest extends JavaFXTestCase {
 //        assertEquals(cl.changeCount, 13);
         assertEqualsAndClear(hl, "d-31-1", "d-29-1", "d-23-1", "d-18-1", "d-16-1", "d-11-1", "d-5-1", "d-2-1", "d-0-1");
 
-        seq.insertFirst(777);
+        seq.insertBefore(777, 0);
         assertEquals(seq, 777, 9, 3, 8, 2, 3, 10, 2, 3, 2, 3, 4, 9, 9, 2, 3, 8, 2, 2, 3, 10, 3, 9, 9, 2, 3, 2, 3);
         assertEquals(36, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3, 1, 2, 3, 1, 2, 3, 777);
 //        assertEquals(cl.changeCount, 14);
         assertEqualsAndClear(hl, "i-0-777");
 
-        seq.insertFirst(Sequences.range(33, 34));
+        seq.insertBefore(Sequences.range(33, 34), 0);
         assertEquals(seq, 33, 34, 777, 9, 3, 8, 2, 3, 10, 2, 3, 2, 3, 4, 9, 9, 2, 3, 8, 2, 2, 3, 10, 3, 9, 9, 2, 3, 2, 3);
         assertEquals(38, cl.insertCount);
         assertEquals(cl.inserted, 4, 1, 2, 3, 10, 8, 8, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 10, 9, 9, 9, 9, 9, 9, 1, 2, 3, 1, 2, 3, 1, 2, 3, 777, 33, 34);
@@ -267,9 +272,6 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertException(AssignToBoundException.class, seq, "setAsSequence(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfo.Integer.emptySequence);
         assertException(AssignToBoundException.class, seq, "insert(T)", 0);
         assertException(AssignToBoundException.class, seq, "insert(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfo.Integer.emptySequence);
-        assertException(AssignToBoundException.class, seq, "insertFirst(T)", 0);
-        assertException(AssignToBoundException.class, seq, "insertFirst(Lcom.sun.javafx.runtime.sequence.Sequence;)", TypeInfo.Integer.emptySequence);
-        // Also insertBefore/After 
     }
 
     public void testNestedSequenceBinding() {
@@ -365,7 +367,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         b.insert(19);
         assertEquals(c, 0, 2, 9, 3, 5, 19);
         assertEqualsAndClear(hl, "i-5-19");
-        b.insertFirst(100);
+        b.insertBefore(100, 0);
         assertEquals(c, 0, 2, 9, 100, 3, 5, 19);
         assertEqualsAndClear(hl, "i-3-100");
         c.validate();
@@ -463,7 +465,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(r, 4, 3, 2, 1);
         assertEqualsAndClear(hl, "[0, -1] => [ 4 ]");
 
-        a.insertFirst(0);
+        a.insertBefore(0, 0);
         assertEquals(a, 0, 1, 2, 3, 4);
         assertEquals(r, 4, 3, 2, 1, 0);
         assertEqualsAndClear(hl, "[4, 3] => [ 0 ]");
@@ -583,7 +585,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         assertEquals(a, 1);
         assertEqualsAndClear(hl, "[0, -1] => [ 1 ]");
 
-        a.insertFirst(0);
+        a.insertBefore(0, 0);
         assertEquals(a, 0, 1);
         assertEqualsAndClear(hl, "[0, -1] => [ 0 ]");
 
