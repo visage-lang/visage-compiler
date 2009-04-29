@@ -88,9 +88,10 @@ public class JavafxDefs {
     public static final String varBaseString = "VBASE$";
     public static final String varCountString = "VCNT$";
     public static final String varBitsString = "VFLGS$";
-    public static final String varMapString = "MAP$";
     public static final String varValueString = "$";
     public static final String varLocationString = "loc$";
+    public static final String varMapString = "MAP$";
+    public static final String varGetMapString = "GETMAP$";
     
     public  static final String javaLangPackageNameString = "java.lang";
     public  static final String runtimePackageNameString = "com.sun.javafx.runtime";

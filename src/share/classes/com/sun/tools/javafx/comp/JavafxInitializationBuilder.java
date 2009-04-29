@@ -260,10 +260,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
             }
             
-            JCTree initMap = isAnonClass ? javaCodeMaker.makeInitVarMap(analysis.getCurrentClassSymbol(), varMap, false, true) : null;
+            JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(analysis.getCurrentClassSymbol(), varMap) : null;
             
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
-            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, (JCStatement)initMap));
+            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, initMap));
             cDefinitions.append    (makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
             if (outerTypeSym == null) {
@@ -279,7 +279,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         } else {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
             iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
-            cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+            
+            if (isScriptClass) {
+                cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+            }    
 
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
@@ -1662,66 +1665,97 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This method constructs a single var map.
+        // This method constructs the initializer for a var map.
         //
-        public JCTree makeInitVarMap(ClassSymbol cSym, LiteralInitVarMap varMap, boolean asDecl, boolean withInit) {
+        public JCExpression makeInitVarMapExpression(ClassSymbol cSym, LiteralInitVarMap varMap) {
             // Reset diagnostic position to current class.
             resetCurrentPos();
-            // Assume no init.
-            JCExpression mapExpr = null;
             
-            // Anon classes get defined in the static init.
-            if (withInit) {
-                // Build up the argument list for the call.
-                ListBuffer<JCExpression> args = ListBuffer.lb();
-                // X.VCNT$
-                args.append(m().Select(makeType(cSym.type), defs.varCountName));
-                
-                // For each var declared in order (to make the switch tags align to the vars.)
-                for (VarSymbol vSym : varMap.varList.toList()) {
-                    args.append(m().Select(makeType(cSym.type), attributeOffsetName(vSym)));
-                }
-                
-                // FXBase.makeInitMap$
-                JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
-                // FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...)
-                mapExpr = m().Apply(null, methExpr, args.toList());
+             // Build up the argument list for the call.
+            ListBuffer<JCExpression> args = ListBuffer.lb();
+            // X.VCNT$
+            args.append(m().Select(makeType(cSym.type), defs.varCountName));
+            
+            // For each var declared in order (to make the switch tags align to the vars.)
+            for (VarSymbol vSym : varMap.varList.toList()) {
+                // ..., X.VOFF$x, ...
+                args.append(m().Select(makeType(cSym.type), attributeOffsetName(vSym)));
             }
             
-            // As a declaration or as an assignment.
-            if (asDecl) {
-                // Can't be final if set elsewhere (anon class static init.)
-                long flags = mapExpr == null ? Flags.STATIC : (Flags.FINAL | Flags.STATIC);
-                // final static short[] Map$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...);
-                return makeVariable(flags, syms.javafx_ShortArray, varMapName(cSym), mapExpr);
-            } else {
-                // Map$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...);
-                return m().Exec(m().Assign(Id(varMapName(cSym)), mapExpr));
-            }
+            // FXBase.makeInitMap$
+            JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
+            // FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)
+            return m().Apply(null, methExpr, args.toList());
+        }
+        
+        //
+        // This method constructs a single var map declaration.
+        //
+        public JCVariableDecl makeInitVarMapDecl(ClassSymbol cSym, LiteralInitVarMap varMap) {
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            // Fetch name of map.
+            Name mapName = varMapName(cSym);
+            // static short[] Map$X;
+            return makeVariable(Flags.STATIC, syms.javafx_ShortArray, mapName, null);
+        }
+         
+        //
+        // This method constructs a single var map initial value.
+        //
+        public JCStatement makeInitVarMapInit(ClassSymbol cSym, LiteralInitVarMap varMap) {
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            // Fetch name of map.
+            Name mapName = varMapName(cSym);
+            // Map$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...);
+            return m().Exec(m().Assign(Id(mapName), makeInitVarMapExpression(cSym, varMap)));
         }
          
         //
         // This method constructs declarations for var maps used by literal initializers.
         //
         public List<JCTree> makeInitClassMaps(LiteralInitClassMap initClassMap) {
-            // Buffer for new vars.
-            ListBuffer<JCTree> vars = ListBuffer.lb();
+            // Buffer for new vars and methods.
+            ListBuffer<JCTree> members = ListBuffer.lb();
             // Reset diagnostic position to current class.
             resetCurrentPos();
             
             // For each class initialized in the current class.
             for (ClassSymbol cSym : initClassMap.classMap.keySet()) {
-                // Anon class maps are defined in class init.
-                if (analysis.isAnonClass() && cSym == analysis.getCurrentClassSymbol()) continue;
-                // Anon classes use deferred assignment.
-                boolean withInit = !analysis.isAnonClass(cSym); 
                 // Get the var map for the referencing class.
                 LiteralInitVarMap varMap = initClassMap.classMap.get(cSym);
-                // Add to list as var.
-                vars.append(makeInitVarMap(cSym, varMap, true, withInit));
+                // Add to var to list.
+                members.append(makeInitVarMapDecl(cSym, varMap));
+                
+                // Fetch name of map.
+                Name mapName = varMapName(cSym);
+                // Prepare to accumulate statements.
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                
+                if (analysis.isAnonClass(cSym)) {
+                    // Construct and add: return MAP$X;
+                    stmts.append(m().Return(Id(mapName)));
+                } else {
+                    // MAP$X == null
+                    JCExpression condition = m().Binary(JCTree.EQ, Id(mapName), makeNull());
+                    // MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...)
+                    JCExpression assignExpr = m().Assign(Id(mapName), makeInitVarMapExpression(cSym, varMap));
+                    // Construct and add: return MAP$X == null ? (MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...)) : MAP$X;
+                    stmts.append(m().Return(m().Conditional(condition, assignExpr, Id(mapName))));
+                }
+                
+                // Construct lazy accessor method.
+                JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
+                                                 syms.javafx_ShortArray,
+                                                 varGetMapName(cSym),
+                                                 List.<JCVariableDecl>nil(),
+                                                 stmts);
+                // Add method to list.
+                members.append(method);
             }
             
-            return vars.toList();
+            return members.toList();
         }
         
 

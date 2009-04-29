@@ -697,6 +697,11 @@ public abstract class JavafxTranslationSupport {
         return names.fromString(varMapString + className.replace('.', '$'));
     }
 
+    Name varGetMapName(ClassSymbol sym) {
+        String className = sym.fullname.toString();
+        return names.fromString(varGetMapString + className.replace('.', '$'));
+    }
+
     Name attributeFieldName(Symbol sym) {
         return prefixedAttributeName(sym, "$");
     }

@@ -1420,6 +1420,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             JCStatement applyDefaultsExpr = toJava.callStatement(diagPos, m().Ident(receiverName), defs.applyDefaultsPrefixName, args);
             
             if (1 < count) {
+                // final short[] jfx$0map = GETMAP$X();
+                JCExpression getmapExpr = m().Apply(null, m().Ident(toJava.varGetMapName(classSym)), List.<JCExpression>nil());
+                JCVariableDecl mapVar = toJava.makeTmpVar(diagPos, "map", syms.javafx_ShortArray, getmapExpr);
+                stats.append(mapVar);
+                
                 LiteralInitVarMap varMap = toJava.literalInitClassMap.getVarMap(classSym);
                 int[] tags = new int[count];
             
@@ -1436,7 +1441,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 
                 cases.append(m().Case(null, List.<JCStatement>of(applyDefaultsExpr, m().Break(null))));
                 
-                JCExpression mapExpr = m().Indexed(m().Ident(toJava.varMapName(classSym)), m().Ident(loopName));
+                JCExpression mapExpr = m().Indexed(m().Ident(mapVar.name), m().Ident(loopName));
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
                 VarSymbol varSym = varSyms.first();
@@ -1485,10 +1490,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         //   {
                         //       final X jfx$0objlit = new X(true);
                         //       jfx$0objlit.addTriggers$(jfx$0objlit);
-                        //       
+                        //       final short[] jfx$0map = GETMAP$X();
+                        //
                         //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
                         //           if (!isInitialized(jfx$0initloop) {
-                        //               switch (Map$X[jfx$0initloop]) {
+                        //               switch (jfx$0map[jfx$0initloop]) {
                         //                   1: jfx$0objlit.set$a(0); break;
                         //                   2: jfx$0objlit.set$b(0); break;
                         //                   ...
