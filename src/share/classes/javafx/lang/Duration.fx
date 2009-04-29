@@ -28,6 +28,13 @@ import java.lang.Comparable;
 import java.lang.Math;
 
 /**
+ * Used to specify a duration of indefinite length.
+ *
+ * @profile common
+ */
+public def INDEFINITE: Duration = com.sun.javafx.runtime.Duration.indefinite as Duration;
+
+/**
  * A class that defines a duration of time.  Duration instances are defined in
  * milliseconds, but can be easily created using time literals; for
  * example, a two-and-a-half minute Duration instance can be defined in several
@@ -43,15 +50,15 @@ import java.lang.Math;
  */
 public class Duration extends com.sun.javafx.runtime.Duration {
 
-    /** Returns the number of milliseconds in this period. 
+    /** Returns the number of milliseconds in this period or Double.POSITIVE_INFINITY if the period is INDEFINITE.
      *
      * @profile common
      */
-    public function toMillis():Number {
+    public function toMillis():Double {
         return millis;
     }
     
-    /** Returns the number of whole seconds in this period. 
+    /** Returns the number of whole seconds in this period or Number.POSITIVE_INFINITY if the period is INDEFINITE. 
      *
      * @profile common
      */
@@ -59,7 +66,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
         return Math.floor(millis / 1000);
     }
     
-    /** Returns the number of whole minutes in this period. 
+    /** Returns the number of whole minutes in this period or Number.POSITIVE_INFINITY if the period is INDEFINITE. 
      *
      * @profile common
      */
@@ -67,7 +74,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
         return Math.floor(millis / 60 / 1000);
     }
     
-    /** Returns the number of whole hours in this period. 
+    /** Returns the number of whole hours in this period or Number.POSITIVE_INFINITY if the period is INDEFINITE. 
      *
      * @profile common
      */
@@ -76,25 +83,33 @@ public class Duration extends com.sun.javafx.runtime.Duration {
     }
 
     /** Add this instance and another Duration instance to return a new Duration instance.
-     *  This function does not change the value of called Duration instance. 
+     *  If either instance is INDEFINITE, return INDEFINITE.
+     *  This function does not change the value of the called Duration instance. 
      *
      * @profile common
      */
     public function add(other:Duration):Duration {
+        // Note that several of these functions assume that the value of millis in INDEFINITE
+        // is Double.POSITIVE_INFINITY.
         return valueOf(millis + other.millis);
     }
 
     /** Subtract other Duration instance from this instance to return a new Duration instance.
-     *  This function does not change the value of called Duration instance. 
+     *  If either instance is INDEFINITE, return INDEFINITE.
+     *  This function does not change the value of the called Duration instance. 
      *
      * @profile common
      */
     public function sub(other:Duration):Duration {
+        if (isIndefinite() or other.isIndefinite()) {
+            return INDEFINITE;
+        }
         return valueOf(millis - other.millis);
     }
 
     /** Multiply this instance with a number to return a new Duration instance.
-     *  This function does not change the value of called Duration instance. 
+     *  If the called Duration instance is INDEFINITE, return INDEFINITE.
+     *  This function does not change the value of the called Duration instance. 
      *
      * @profile common
      */ 
@@ -104,7 +119,8 @@ public class Duration extends com.sun.javafx.runtime.Duration {
 
 
     /** Divide this instance by a number to return a new Duration instance.
-     *  This function does not change the value of called Duration instance. 
+     *  If the called Duration instance is INDEFINITE, return INDEFINITE.
+     *  This function does not change the value of the called Duration instance. 
      *
      * @profile common
      */     
@@ -117,11 +133,23 @@ public class Duration extends com.sun.javafx.runtime.Duration {
     }
 
     /** Divide this instance by another Duration to return the ratio.
-     *  This function does not change the value of called Duration instance. 
+     *  If both instances are INDEFINITE, return NaN.
+     *  If this instance is INDEFINITE, return POSITIVE_INFINITY
+     *  If the other instance is INDEFINITE, return 0.0.
+     *  This function does not change the value of the called Duration instance. 
      *
      * @profile common
      */     
     public function div(other:Duration):Number {
+        if (isIndefinite() and other.isIndefinite()) {
+            return java.lang.Float.NaN;
+        } 
+        if (isIndefinite()) {
+            return java.lang.Float.POSITIVE_INFINITY;
+        }
+        if (other.isIndefinite()) {
+            return 0.0;
+        }
         if (other.millis == 0) {
             throw new java.lang.ArithmeticException("/ by zero");
         }
@@ -132,24 +160,26 @@ public class Duration extends com.sun.javafx.runtime.Duration {
     /** 
      * Return a new Duration instance which has a negative number of milliseconds
      * from this instance.  For example, <code>(50ms).negate()</code> returns
-     * a Duration of -50 milliseconds.  This function does not change the value 
-     * of called Duration instance. 
+     * a Duration of -50 milliseconds. 
+     * If the called Duration instance is INDEFINITE, return INDEFINITE.
+     * This function does not change the value of the called Duration instance. 
      *
      * @profile common
      */
     public function negate():Duration {
-        return valueOf(-millis);
+        return if (isIndefinite()) INDEFINITE else valueOf(-millis);
     }
 
     /**
      * @profile common
      */        
     override function toString(): String {
-        return "{millis}ms";
+        return if (isIndefinite()) "INDEFINITE" else "{millis}ms";
     }
 
     /** 
      * Returns true if the specified duration is less than (<) this instance. 
+     * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
@@ -159,6 +189,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
 
     /** 
      * Returns true if the specified duration is less than or equal to (<=) this instance. 
+     * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
@@ -168,6 +199,7 @@ public class Duration extends com.sun.javafx.runtime.Duration {
 
     /** 
      * Returns true if the specified duration is greater than (>) this instance. 
+     * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
@@ -177,19 +209,12 @@ public class Duration extends com.sun.javafx.runtime.Duration {
 
     /**
      * Returns true if the specified duration is greater than or equal to (>=) this instance. 
+     * INDEFINITE is treated as if it were positive infinity.
      *
      * @profile common
      */
     public function ge(other: Duration):Boolean {
         return compareTo(other) >= 0;
-    }
-
-    /** 
-     * Returns a Date instance initialized to the length of this instance.  
-     * It is equivalent to <code>new java.util.Data(this.toMillis())</code>.
-     */
-    public function toDate():java.util.Date {
-        return new java.util.Date(millis.longValue());
     }
 }
 
