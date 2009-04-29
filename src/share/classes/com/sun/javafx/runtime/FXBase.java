@@ -46,7 +46,7 @@ public class FXBase implements FXObject {
     }
     
     public void addTriggers$  () {}
-    public void applyDefaults$()                       {}
+    public void applyDefaults$() {}
     public void userInit$     () {}
     public void postInit$     () {}
     

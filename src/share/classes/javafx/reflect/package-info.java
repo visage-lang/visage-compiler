@@ -48,7 +48,7 @@
  * Java values.  Instead,
  * an {@link javafx.reflect.FXObjectValue} is a <q>handle</q> or
  * proxy for an <code>Object</code>.  This extra layer of indirection
- * isn't needed in many cases, bur it is useful for remote invocation,
+ * isn't needed in many cases, but it is useful for remote invocation,
  * remote control, or in general access to data in a different VM.
  *
  * <h2>Object creation</h2>

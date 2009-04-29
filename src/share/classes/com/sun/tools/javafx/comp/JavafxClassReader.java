@@ -625,8 +625,6 @@ public class JavafxClassReader extends ClassReader {
                     csym.members_field.enter(m);
                 }
                 else if (memsym instanceof VarSymbol) {
-                    if (name.endsWith(defs.needsDefaultSuffixName))
-                        continue;
                     // Eliminate any duplicate value/location.
                     if (priorNames.contains(name))
                         continue;

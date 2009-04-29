@@ -419,15 +419,17 @@ public class FXLocal {
                 if (m.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
                 continue;
                 String mname = m.getName();
-                if ("userInit$".equals(mname) || "postInit$".equals(mname) ||
-                        "addTriggers$".equals(mname) || "initialize$".equals(mname) ||
-                        "javafx$run$".equals(mname))
+                if ("userInit$".equals(mname) ||
+                    "postInit$".equals(mname) ||
+                    "addTriggers$".equals(mname) ||
+                    "initialize$".equals(mname) ||
+                    "javafx$run$".equals(mname))
                     continue;
                 if (mname.endsWith("$impl"))
                     continue;
-
                 if (    mname.startsWith(FXClassType.GETTER_PREFIX) ||
                         mname.startsWith(FXClassType.SETTER_PREFIX) ||
+                        mname.startsWith(FXClassType.LOCATION_GETTER_PREFIX) ||
                         mname.startsWith("applyDefaults$")) {
                     continue;
                 }
@@ -500,9 +502,6 @@ public class FXLocal {
                     if (fname.startsWith(prefix)) {
                         continue fieldLoop;
                     }
-                }
-                if (fname.endsWith("$needs_default$")) {
-                    continue;
                 }
                 java.lang.reflect.Type gtype = fld.getGenericType();
                 FXType tr = ctxt.makeTypeRef(gtype);
@@ -692,6 +691,7 @@ public class FXLocal {
                     Object value = ((Value) newValue).asObject();
                     if (setter != null) {
                         setter.invoke(robj, value);
+                        return;
                     } else {
                         Object loc = null;
                         if (loc_getter != null) {
