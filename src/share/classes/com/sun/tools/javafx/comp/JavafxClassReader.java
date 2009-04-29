@@ -630,6 +630,14 @@ public class JavafxClassReader extends ClassReader {
                     // Eliminate any duplicate value/location.
                     if (priorNames.contains(name))
                         continue;
+                    // Filter out synthetic vars.
+                    String nameString = name.toString();
+                    if (nameString.startsWith(defs.varOffsetString)) continue;
+                    if (nameString.startsWith(defs.varBaseString)) continue;
+                    if (nameString.startsWith(defs.varCountString)) continue;
+                    if (nameString.startsWith(defs.varBitsString)) continue;
+                    if (nameString.startsWith(defs.varMapString)) continue;
+
                     Type otype = memsym.type;
                     Type type = translateType(otype);
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
