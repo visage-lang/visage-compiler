@@ -2950,7 +2950,7 @@ public final class FXFormatter implements Closeable, Flushable {
                     Class argClass = arg.getClass();
                     if (argClass.isAssignableFrom(clazz)) {
                         try {
-                            Field instantField = getField(argClass, "$instant");
+                            Field instantField = getField(argClass, "loc$instant");
                             LongVariable instant = (LongVariable) instantField.get(arg);
                             long time = instant.getAsLong();
                             Field tzField = getField(argClass, "$javafx$date$DateTime$tz");
