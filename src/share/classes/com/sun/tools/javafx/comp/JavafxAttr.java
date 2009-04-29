@@ -952,7 +952,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     @Override
     public void visitVarScriptInit(JFXVarScriptInit tree) {
-        result = tree.type = tree.getVar().type;
+        result = tree.type = attribExpr(tree.getVar(), env);
     }
             
     @Override
@@ -3691,14 +3691,8 @@ public class JavafxAttr implements JavafxVisitor {
         if (!c.type.allparams().isEmpty() && types.isSubtype(c.type, syms.throwableType))
             log.error(tree.getExtending().head.pos(), MsgSym.MESSAGE_GENERIC_THROWABLE);
 
-        JFXFunctionDefinition runFunc = null;
         for (List<JFXTree> l = tree.getMembers(); l.nonEmpty(); l = l.tail) {
             // Attribute declaration
-            if ((l.head instanceof JFXFunctionDefinition) &&
-                ((JFXFunctionDefinition)l.head).name == defs.internalRunFunctionName) {
-                runFunc = (JFXFunctionDefinition)l.head;
-                continue;
-            }
             attribDecl(l.head, env);
             // Check that declarations in inner classes are not static (JLS 8.1.2)
             // Make an exception for static constants.
@@ -3713,10 +3707,6 @@ public class JavafxAttr implements JavafxVisitor {
 //                    ((VarSymbol) sym).getConstValue() == null)
 //                    log.error(l.head.pos(), "icls.cant.have.static.decl");
 //            }
-        }
-
-        if (runFunc != null) {
-            attribDecl(runFunc, env);
         }
 
         // If this is a non-abstract class, check that it has no abstract
@@ -3935,7 +3925,6 @@ public class JavafxAttr implements JavafxVisitor {
                                                          fxmake.at(tree.pos()).Block(0L,
                                                                                      List.<JFXExpression>nil(),
                                                                                      tree.value));    
-
         attribExpr(tree.value, env);
         result = check(tree, syms.javafx_KeyValueType, VAL, pkind, pt, pSequenceness);
         this.inBindContext = wasInBindContext;
