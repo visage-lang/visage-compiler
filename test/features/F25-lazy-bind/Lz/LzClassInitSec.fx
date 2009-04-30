@@ -10,6 +10,8 @@
 import javafx.fxunit.FXTestCase;
 
 public class LzClassInitSec extends FXTestCase {
+    def showDebugInfo : Boolean = false;
+
     function checkFlag (expected : Boolean, current : Boolean, msg : String) {
         if (expected != current) println("FAILED {msg}");
         assertEquals("{expected as Boolean}", "{current as Boolean}");
@@ -120,7 +122,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncByte : Byte[] = bindedFuncByte;
         checkFlag(true, flagByte, "Byte 3f");
         def expectedFuncByte : Byte[] = [122 as Byte, 120 as Byte, 121 as Byte, 121 as Byte] as Byte[];
-        if (trashFuncByte != expectedFuncByte) println("FAILED Byte 4f");
+        if (showDebugInfo and trashFuncByte != expectedFuncByte) println("FAILED Byte 4f");
         //***issue-3166*** assertEquals("{trashFuncByte as Byte[]}", "{expectedFuncByte as Byte[]}");
         flagByte = false; // reset flag
 
@@ -140,7 +142,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdByte : Byte[] = bindedFuncBdByte;
         checkFlag(false, flagByte, "Byte 3Bf");
         def expectedFuncBdByte : Byte[] = [122 as Byte, 120 as Byte, 121 as Byte, 121 as Byte] as Byte[];
-        if (trashFuncBdByte != expectedFuncBdByte) println("FAILED Byte 4Bf");
+        if (showDebugInfo and trashFuncBdByte != expectedFuncBdByte) println("FAILED Byte 4Bf");
         assertEquals("{trashFuncBdByte as Byte[]}", "{expectedFuncBdByte as Byte[]}");
         flagByte = false; // reset flag
 
@@ -159,7 +161,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncShort : Short[] = bindedFuncShort;
         checkFlag(true, flagShort, "Short 3f");
         def expectedFuncShort : Short[] = [30002 as Short, 30000 as Short, 30001 as Short, 30001 as Short] as Short[];
-        if (trashFuncShort != expectedFuncShort) println("FAILED Short 4f");
+        if (showDebugInfo and trashFuncShort != expectedFuncShort) println("FAILED Short 4f");
         //***issue-3166*** assertEquals("{trashFuncShort as Short[]}", "{expectedFuncShort as Short[]}");
         flagShort = false; // reset flag
 
@@ -179,7 +181,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdShort : Short[] = bindedFuncBdShort;
         checkFlag(false, flagShort, "Short 3Bf");
         def expectedFuncBdShort : Short[] = [30002 as Short, 30000 as Short, 30001 as Short, 30001 as Short] as Short[];
-        if (trashFuncBdShort != expectedFuncBdShort) println("FAILED Short 4Bf");
+        if (showDebugInfo and trashFuncBdShort != expectedFuncBdShort) println("FAILED Short 4Bf");
         assertEquals("{trashFuncBdShort as Short[]}", "{expectedFuncBdShort as Short[]}");
         flagShort = false; // reset flag
 
@@ -198,7 +200,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncCharacter : Character[] = bindedFuncCharacter;
         checkFlag(true, flagCharacter, "Character 3f");
         def expectedFuncCharacter : Character[] = [62 as Character, 64 as Character, 61 as Character, 61 as Character] as Character[];
-        if (trashFuncCharacter != expectedFuncCharacter) println("FAILED Character 4f");
+        if (showDebugInfo and trashFuncCharacter != expectedFuncCharacter) println("FAILED Character 4f");
         //***issue-3166*** assertEquals("{trashFuncCharacter as Character[]}", "{expectedFuncCharacter as Character[]}");
         flagCharacter = false; // reset flag
 
@@ -218,7 +220,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdCharacter : Character[] = bindedFuncBdCharacter;
         checkFlag(false, flagCharacter, "Character 3Bf");
         def expectedFuncBdCharacter : Character[] = [62 as Character, 64 as Character, 61 as Character, 61 as Character] as Character[];
-        if (trashFuncBdCharacter != expectedFuncBdCharacter) println("FAILED Character 4Bf");
+        if (showDebugInfo and trashFuncBdCharacter != expectedFuncBdCharacter) println("FAILED Character 4Bf");
         assertEquals("{trashFuncBdCharacter as Character[]}", "{expectedFuncBdCharacter as Character[]}");
         flagCharacter = false; // reset flag
 
@@ -237,7 +239,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncInteger : Integer[] = bindedFuncInteger;
         checkFlag(true, flagInteger, "Integer 3f");
         def expectedFuncInteger : Integer[] = [1000002 as Integer, 1000000 as Integer, 1000001 as Integer, 1000001 as Integer] as Integer[];
-        if (trashFuncInteger != expectedFuncInteger) println("FAILED Integer 4f");
+        if (showDebugInfo and trashFuncInteger != expectedFuncInteger) println("FAILED Integer 4f");
         //***issue-3166*** assertEquals("{trashFuncInteger as Integer[]}", "{expectedFuncInteger as Integer[]}");
         flagInteger = false; // reset flag
 
@@ -257,7 +259,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdInteger : Integer[] = bindedFuncBdInteger;
         checkFlag(false, flagInteger, "Integer 3Bf");
         def expectedFuncBdInteger : Integer[] = [1000002 as Integer, 1000000 as Integer, 1000001 as Integer, 1000001 as Integer] as Integer[];
-        if (trashFuncBdInteger != expectedFuncBdInteger) println("FAILED Integer 4Bf");
+        if (showDebugInfo and trashFuncBdInteger != expectedFuncBdInteger) println("FAILED Integer 4Bf");
         assertEquals("{trashFuncBdInteger as Integer[]}", "{expectedFuncBdInteger as Integer[]}");
         flagInteger = false; // reset flag
 
@@ -276,7 +278,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncLong : Long[] = bindedFuncLong;
         checkFlag(true, flagLong, "Long 3f");
         def expectedFuncLong : Long[] = [1000000002 as Long, 1000000000 as Long, 1000000001 as Long, 1000000001 as Long] as Long[];
-        if (trashFuncLong != expectedFuncLong) println("FAILED Long 4f");
+        if (showDebugInfo and trashFuncLong != expectedFuncLong) println("FAILED Long 4f");
         //***issue-3166*** assertEquals("{trashFuncLong as Long[]}", "{expectedFuncLong as Long[]}");
         flagLong = false; // reset flag
 
@@ -296,7 +298,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdLong : Long[] = bindedFuncBdLong;
         checkFlag(false, flagLong, "Long 3Bf");
         def expectedFuncBdLong : Long[] = [1000000002 as Long, 1000000000 as Long, 1000000001 as Long, 1000000001 as Long] as Long[];
-        if (trashFuncBdLong != expectedFuncBdLong) println("FAILED Long 4Bf");
+        if (showDebugInfo and trashFuncBdLong != expectedFuncBdLong) println("FAILED Long 4Bf");
         assertEquals("{trashFuncBdLong as Long[]}", "{expectedFuncBdLong as Long[]}");
         flagLong = false; // reset flag
 
@@ -315,7 +317,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncFloat : Float[] = bindedFuncFloat;
         checkFlag(true, flagFloat, "Float 3f");
         def expectedFuncFloat : Float[] = [12.5 as Float, 10.5 as Float, 11.5 as Float, 11.5 as Float] as Float[];
-        if (trashFuncFloat != expectedFuncFloat) println("FAILED Float 4f");
+        if (showDebugInfo and trashFuncFloat != expectedFuncFloat) println("FAILED Float 4f");
         //***issue-3166*** assertEquals("{trashFuncFloat as Float[]}", "{expectedFuncFloat as Float[]}");
         flagFloat = false; // reset flag
 
@@ -335,7 +337,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdFloat : Float[] = bindedFuncBdFloat;
         checkFlag(false, flagFloat, "Float 3Bf");
         def expectedFuncBdFloat : Float[] = [12.5 as Float, 10.5 as Float, 11.5 as Float, 11.5 as Float] as Float[];
-        if (trashFuncBdFloat != expectedFuncBdFloat) println("FAILED Float 4Bf");
+        if (showDebugInfo and trashFuncBdFloat != expectedFuncBdFloat) println("FAILED Float 4Bf");
         assertEquals("{trashFuncBdFloat as Float[]}", "{expectedFuncBdFloat as Float[]}");
         flagFloat = false; // reset flag
 
@@ -354,7 +356,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncDouble : Double[] = bindedFuncDouble;
         checkFlag(true, flagDouble, "Double 3f");
         def expectedFuncDouble : Double[] = [1.22e4 as Double, 1.25e4 as Double, 1.21e4 as Double, 1.21e4 as Double] as Double[];
-        if (trashFuncDouble != expectedFuncDouble) println("FAILED Double 4f");
+        if (showDebugInfo and trashFuncDouble != expectedFuncDouble) println("FAILED Double 4f");
         //***issue-3166*** assertEquals("{trashFuncDouble as Double[]}", "{expectedFuncDouble as Double[]}");
         flagDouble = false; // reset flag
 
@@ -374,7 +376,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdDouble : Double[] = bindedFuncBdDouble;
         checkFlag(false, flagDouble, "Double 3Bf");
         def expectedFuncBdDouble : Double[] = [1.22e4 as Double, 1.25e4 as Double, 1.21e4 as Double, 1.21e4 as Double] as Double[];
-        if (trashFuncBdDouble != expectedFuncBdDouble) println("FAILED Double 4Bf");
+        if (showDebugInfo and trashFuncBdDouble != expectedFuncBdDouble) println("FAILED Double 4Bf");
         assertEquals("{trashFuncBdDouble as Double[]}", "{expectedFuncBdDouble as Double[]}");
         flagDouble = false; // reset flag
 
@@ -393,7 +395,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncNumber : Number[] = bindedFuncNumber;
         checkFlag(true, flagNumber, "Number 3f");
         def expectedFuncNumber : Number[] = [102 as Number, 100 as Number, 101 as Number, 101 as Number] as Number[];
-        if (trashFuncNumber != expectedFuncNumber) println("FAILED Number 4f");
+        if (showDebugInfo and trashFuncNumber != expectedFuncNumber) println("FAILED Number 4f");
         //***issue-3166*** assertEquals("{trashFuncNumber as Number[]}", "{expectedFuncNumber as Number[]}");
         flagNumber = false; // reset flag
 
@@ -413,7 +415,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdNumber : Number[] = bindedFuncBdNumber;
         checkFlag(false, flagNumber, "Number 3Bf");
         def expectedFuncBdNumber : Number[] = [102 as Number, 100 as Number, 101 as Number, 101 as Number] as Number[];
-        if (trashFuncBdNumber != expectedFuncBdNumber) println("FAILED Number 4Bf");
+        if (showDebugInfo and trashFuncBdNumber != expectedFuncBdNumber) println("FAILED Number 4Bf");
         assertEquals("{trashFuncBdNumber as Number[]}", "{expectedFuncBdNumber as Number[]}");
         flagNumber = false; // reset flag
 
@@ -432,7 +434,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncString : String[] = bindedFuncString;
         checkFlag(true, flagString, "String 3f");
         def expectedFuncString : String[] = ["-52" as String, "-50" as String, "-51" as String, "-51" as String] as String[];
-        if (trashFuncString != expectedFuncString) println("FAILED String 4f");
+        if (showDebugInfo and trashFuncString != expectedFuncString) println("FAILED String 4f");
         //***issue-3166*** assertEquals("{trashFuncString as String[]}", "{expectedFuncString as String[]}");
         flagString = false; // reset flag
 
@@ -452,7 +454,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdString : String[] = bindedFuncBdString;
         checkFlag(false, flagString, "String 3Bf");
         def expectedFuncBdString : String[] = ["-52" as String, "-50" as String, "-51" as String, "-51" as String] as String[];
-        if (trashFuncBdString != expectedFuncBdString) println("FAILED String 4Bf");
+        if (showDebugInfo and trashFuncBdString != expectedFuncBdString) println("FAILED String 4Bf");
         assertEquals("{trashFuncBdString as String[]}", "{expectedFuncBdString as String[]}");
         flagString = false; // reset flag
 
@@ -471,7 +473,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBoolean : Boolean[] = bindedFuncBoolean;
         checkFlag(true, flagBoolean, "Boolean 3f");
         def expectedFuncBoolean : Boolean[] = [true as Boolean, true as Boolean, false as Boolean, false as Boolean] as Boolean[];
-        if (trashFuncBoolean != expectedFuncBoolean) println("FAILED Boolean 4f");
+        if (showDebugInfo and trashFuncBoolean != expectedFuncBoolean) println("FAILED Boolean 4f");
         //***issue-3166*** assertEquals("{trashFuncBoolean as Boolean[]}", "{expectedFuncBoolean as Boolean[]}");
         flagBoolean = false; // reset flag
 
@@ -491,7 +493,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdBoolean : Boolean[] = bindedFuncBdBoolean;
         checkFlag(false, flagBoolean, "Boolean 3Bf");
         def expectedFuncBdBoolean : Boolean[] = [true as Boolean, true as Boolean, false as Boolean, false as Boolean] as Boolean[];
-        if (trashFuncBdBoolean != expectedFuncBdBoolean) println("FAILED Boolean 4Bf");
+        if (showDebugInfo and trashFuncBdBoolean != expectedFuncBdBoolean) println("FAILED Boolean 4Bf");
         assertEquals("{trashFuncBdBoolean as Boolean[]}", "{expectedFuncBdBoolean as Boolean[]}");
         flagBoolean = false; // reset flag
 
@@ -510,7 +512,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncDuration : Duration[] = bindedFuncDuration;
         checkFlag(true, flagDuration, "Duration 3f");
         def expectedFuncDuration : Duration[] = [12s as Duration, 10s as Duration, 11s as Duration, 11s as Duration] as Duration[];
-        if (trashFuncDuration != expectedFuncDuration) println("FAILED Duration 4f");
+        if (showDebugInfo and trashFuncDuration != expectedFuncDuration) println("FAILED Duration 4f");
         //***issue-3166*** assertEquals("{trashFuncDuration as Duration[]}", "{expectedFuncDuration as Duration[]}");
         flagDuration = false; // reset flag
 
@@ -530,7 +532,7 @@ public class LzClassInitSec extends FXTestCase {
         var trashFuncBdDuration : Duration[] = bindedFuncBdDuration;
         checkFlag(false, flagDuration, "Duration 3Bf");
         def expectedFuncBdDuration : Duration[] = [12s as Duration, 10s as Duration, 11s as Duration, 11s as Duration] as Duration[];
-        if (trashFuncBdDuration != expectedFuncBdDuration) println("FAILED Duration 4Bf");
+        if (showDebugInfo and trashFuncBdDuration != expectedFuncBdDuration) println("FAILED Duration 4Bf");
         assertEquals("{trashFuncBdDuration as Duration[]}", "{expectedFuncBdDuration as Duration[]}");
         flagDuration = false; // reset flag
 

@@ -8,6 +8,9 @@
 import javafx.fxunit.FXTestCase;
 
 public class LzClassInit extends FXTestCase {
+
+    def showDebugInfo : Boolean = false;
+
     function checkFlag (expected : Boolean, current : Boolean, msg : String) {
         if (expected != current) println("FAILED {msg}");
         assertEquals("{expected as Boolean}", "{current as Boolean}");
@@ -116,7 +119,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagByte, "Byte 2f");
         var trashFuncByte : Byte = bindedFuncByte;
         checkFlag(true, flagByte, "Byte 3f");
-        if (trashFuncByte != 122) println("FAILED Byte 4f");
+        if (showDebugInfo and trashFuncByte != 122) println("FAILED Byte 4f");
         assertEquals("{trashFuncByte as Byte}", "{122 as Byte}");
         flagByte = false; // reset flag
 
@@ -135,7 +138,7 @@ public class LzClassInit extends FXTestCase {
         flagByte = false; // reset flag
         var trashFuncBdByte : Byte = bindedFuncBdByte;
         checkFlag(false, flagByte, "Byte 3Bf");
-        if (trashFuncBdByte != 122) println("FAILED Byte 4Bf");
+        if (showDebugInfo and trashFuncBdByte != 122) println("FAILED Byte 4Bf");
         assertEquals("{trashFuncBdByte as Byte}", "{122 as Byte}");
         flagByte = false; // reset flag
         var valueFuncShort : Short = 30000 as Short;
@@ -151,7 +154,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagShort, "Short 2f");
         var trashFuncShort : Short = bindedFuncShort;
         checkFlag(true, flagShort, "Short 3f");
-        if (trashFuncShort != 30002) println("FAILED Short 4f");
+        if (showDebugInfo and trashFuncShort != 30002) println("FAILED Short 4f");
         assertEquals("{trashFuncShort as Short}", "{30002 as Short}");
         flagShort = false; // reset flag
 
@@ -170,7 +173,7 @@ public class LzClassInit extends FXTestCase {
         flagShort = false; // reset flag
         var trashFuncBdShort : Short = bindedFuncBdShort;
         checkFlag(false, flagShort, "Short 3Bf");
-        if (trashFuncBdShort != 30002) println("FAILED Short 4Bf");
+        if (showDebugInfo and trashFuncBdShort != 30002) println("FAILED Short 4Bf");
         assertEquals("{trashFuncBdShort as Short}", "{30002 as Short}");
         flagShort = false; // reset flag
         var valueFuncCharacter : Character = 64 as Character;
@@ -186,7 +189,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagCharacter, "Character 2f");
         var trashFuncCharacter : Character = bindedFuncCharacter;
         checkFlag(true, flagCharacter, "Character 3f");
-        if (trashFuncCharacter != 62) println("FAILED Character 4f");
+        if (showDebugInfo and trashFuncCharacter != 62) println("FAILED Character 4f");
         assertEquals("{trashFuncCharacter as Character}", "{62 as Character}");
         flagCharacter = false; // reset flag
 
@@ -205,7 +208,7 @@ public class LzClassInit extends FXTestCase {
         flagCharacter = false; // reset flag
         var trashFuncBdCharacter : Character = bindedFuncBdCharacter;
         checkFlag(false, flagCharacter, "Character 3Bf");
-        if (trashFuncBdCharacter != 62) println("FAILED Character 4Bf");
+        if (showDebugInfo and trashFuncBdCharacter != 62) println("FAILED Character 4Bf");
         assertEquals("{trashFuncBdCharacter as Character}", "{62 as Character}");
         flagCharacter = false; // reset flag
         var valueFuncInteger : Integer = 1000000 as Integer;
@@ -221,7 +224,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagInteger, "Integer 2f");
         var trashFuncInteger : Integer = bindedFuncInteger;
         checkFlag(true, flagInteger, "Integer 3f");
-        if (trashFuncInteger != 1000002) println("FAILED Integer 4f");
+        if (showDebugInfo and trashFuncInteger != 1000002) println("FAILED Integer 4f");
         assertEquals("{trashFuncInteger as Integer}", "{1000002 as Integer}");
         flagInteger = false; // reset flag
 
@@ -240,7 +243,7 @@ public class LzClassInit extends FXTestCase {
         flagInteger = false; // reset flag
         var trashFuncBdInteger : Integer = bindedFuncBdInteger;
         checkFlag(false, flagInteger, "Integer 3Bf");
-        if (trashFuncBdInteger != 1000002) println("FAILED Integer 4Bf");
+        if (showDebugInfo and trashFuncBdInteger != 1000002) println("FAILED Integer 4Bf");
         assertEquals("{trashFuncBdInteger as Integer}", "{1000002 as Integer}");
         flagInteger = false; // reset flag
         var valueFuncLong : Long = 1000000000 as Long;
@@ -256,7 +259,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagLong, "Long 2f");
         var trashFuncLong : Long = bindedFuncLong;
         checkFlag(true, flagLong, "Long 3f");
-        if (trashFuncLong != 1000000002) println("FAILED Long 4f");
+        if (showDebugInfo and trashFuncLong != 1000000002) println("FAILED Long 4f");
         assertEquals("{trashFuncLong as Long}", "{1000000002 as Long}");
         flagLong = false; // reset flag
 
@@ -275,7 +278,7 @@ public class LzClassInit extends FXTestCase {
         flagLong = false; // reset flag
         var trashFuncBdLong : Long = bindedFuncBdLong;
         checkFlag(false, flagLong, "Long 3Bf");
-        if (trashFuncBdLong != 1000000002) println("FAILED Long 4Bf");
+        if (showDebugInfo and trashFuncBdLong != 1000000002) println("FAILED Long 4Bf");
         assertEquals("{trashFuncBdLong as Long}", "{1000000002 as Long}");
         flagLong = false; // reset flag
         var valueFuncFloat : Float = 10.5 as Float;
@@ -291,7 +294,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagFloat, "Float 2f");
         var trashFuncFloat : Float = bindedFuncFloat;
         checkFlag(true, flagFloat, "Float 3f");
-        if (trashFuncFloat != 12.5) println("FAILED Float 4f");
+        if (showDebugInfo and trashFuncFloat != 12.5) println("FAILED Float 4f");
         assertEquals("{trashFuncFloat as Float}", "{12.5 as Float}");
         flagFloat = false; // reset flag
 
@@ -310,7 +313,7 @@ public class LzClassInit extends FXTestCase {
         flagFloat = false; // reset flag
         var trashFuncBdFloat : Float = bindedFuncBdFloat;
         checkFlag(false, flagFloat, "Float 3Bf");
-        if (trashFuncBdFloat != 12.5) println("FAILED Float 4Bf");
+        if (showDebugInfo and trashFuncBdFloat != 12.5) println("FAILED Float 4Bf");
         assertEquals("{trashFuncBdFloat as Float}", "{12.5 as Float}");
         flagFloat = false; // reset flag
         var valueFuncDouble : Double = 1.25e4 as Double;
@@ -326,7 +329,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagDouble, "Double 2f");
         var trashFuncDouble : Double = bindedFuncDouble;
         checkFlag(true, flagDouble, "Double 3f");
-        if (trashFuncDouble != 1.22e4) println("FAILED Double 4f");
+        if (showDebugInfo and trashFuncDouble != 1.22e4) println("FAILED Double 4f");
         assertEquals("{trashFuncDouble as Double}", "{1.22e4 as Double}");
         flagDouble = false; // reset flag
 
@@ -345,7 +348,7 @@ public class LzClassInit extends FXTestCase {
         flagDouble = false; // reset flag
         var trashFuncBdDouble : Double = bindedFuncBdDouble;
         checkFlag(false, flagDouble, "Double 3Bf");
-        if (trashFuncBdDouble != 1.22e4) println("FAILED Double 4Bf");
+        if (showDebugInfo and trashFuncBdDouble != 1.22e4) println("FAILED Double 4Bf");
         assertEquals("{trashFuncBdDouble as Double}", "{1.22e4 as Double}");
         flagDouble = false; // reset flag
         var valueFuncNumber : Number = 100 as Number;
@@ -361,7 +364,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagNumber, "Number 2f");
         var trashFuncNumber : Number = bindedFuncNumber;
         checkFlag(true, flagNumber, "Number 3f");
-        if (trashFuncNumber != 102) println("FAILED Number 4f");
+        if (showDebugInfo and trashFuncNumber != 102) println("FAILED Number 4f");
         assertEquals("{trashFuncNumber as Number}", "{102 as Number}");
         flagNumber = false; // reset flag
 
@@ -380,7 +383,7 @@ public class LzClassInit extends FXTestCase {
         flagNumber = false; // reset flag
         var trashFuncBdNumber : Number = bindedFuncBdNumber;
         checkFlag(false, flagNumber, "Number 3Bf");
-        if (trashFuncBdNumber != 102) println("FAILED Number 4Bf");
+        if (showDebugInfo and trashFuncBdNumber != 102) println("FAILED Number 4Bf");
         assertEquals("{trashFuncBdNumber as Number}", "{102 as Number}");
         flagNumber = false; // reset flag
         var valueFuncString : String = "-50" as String;
@@ -396,7 +399,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagString, "String 2f");
         var trashFuncString : String = bindedFuncString;
         checkFlag(true, flagString, "String 3f");
-        if (trashFuncString != "-52") println("FAILED String 4f");
+        if (showDebugInfo and trashFuncString != "-52") println("FAILED String 4f");
         assertEquals("{trashFuncString as String}", "-52");
         flagString = false; // reset flag
 
@@ -415,7 +418,7 @@ public class LzClassInit extends FXTestCase {
         flagString = false; // reset flag
         var trashFuncBdString : String = bindedFuncBdString;
         checkFlag(false, flagString, "String 3Bf");
-        if (trashFuncBdString != "-52") println("FAILED String 4Bf");
+        if (showDebugInfo and trashFuncBdString != "-52") println("FAILED String 4Bf");
         assertEquals("{trashFuncBdString as String}", "-52");
         flagString = false; // reset flag
         var valueFuncBoolean : Boolean = true as Boolean;
@@ -431,7 +434,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagBoolean, "Boolean 2f");
         var trashFuncBoolean : Boolean = bindedFuncBoolean;
         checkFlag(true, flagBoolean, "Boolean 3f");
-        if (trashFuncBoolean != true) println("FAILED Boolean 4f");
+        if (showDebugInfo and trashFuncBoolean != true) println("FAILED Boolean 4f");
         assertEquals("{trashFuncBoolean as Boolean}", "{true as Boolean}");
         flagBoolean = false; // reset flag
 
@@ -450,7 +453,7 @@ public class LzClassInit extends FXTestCase {
         flagBoolean = false; // reset flag
         var trashFuncBdBoolean : Boolean = bindedFuncBdBoolean;
         checkFlag(false, flagBoolean, "Boolean 3Bf");
-        if (trashFuncBdBoolean != true) println("FAILED Boolean 4Bf");
+        if (showDebugInfo and trashFuncBdBoolean != true) println("FAILED Boolean 4Bf");
         assertEquals("{trashFuncBdBoolean as Boolean}", "{true as Boolean}");
         flagBoolean = false; // reset flag
         var valueFuncDuration : Duration = 10s as Duration;
@@ -466,7 +469,7 @@ public class LzClassInit extends FXTestCase {
         checkFlag(false, flagDuration, "Duration 2f");
         var trashFuncDuration : Duration = bindedFuncDuration;
         checkFlag(true, flagDuration, "Duration 3f");
-        if (trashFuncDuration != 12s) println("FAILED Duration 4f");
+        if (showDebugInfo and trashFuncDuration != 12s) println("FAILED Duration 4f");
         assertEquals("{trashFuncDuration as Duration}", "{12s as Duration}");
         flagDuration = false; // reset flag
 
@@ -485,7 +488,7 @@ public class LzClassInit extends FXTestCase {
         flagDuration = false; // reset flag
         var trashFuncBdDuration : Duration = bindedFuncBdDuration;
         checkFlag(false, flagDuration, "Duration 3Bf");
-        if (trashFuncBdDuration != 12s) println("FAILED Duration 4Bf");
+        if (showDebugInfo and trashFuncBdDuration != 12s) println("FAILED Duration 4Bf");
         assertEquals("{trashFuncBdDuration as Duration}", "{12s as Duration}");
         flagDuration = false; // reset flag
     }
