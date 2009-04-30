@@ -509,6 +509,18 @@ public abstract class JavafxTranslationSupport {
                 null);
     }
 
+   /**
+    * Make a receiver local.
+    * Its type is that of the corresponding interface and it is a final parameter.
+    * */
+    JCVariableDecl makeReceiverLocal(JFXClassDeclaration cDecl) {
+        return make.VarDef(
+                make.Modifiers(Flags.FINAL),
+                defs.receiverName,
+                make.Ident(interfaceName(cDecl)),
+                make.Ident(names._this));
+    }
+
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
         return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ?
                 accessEmptySequence(diagPos, tmi.getElementType()) :

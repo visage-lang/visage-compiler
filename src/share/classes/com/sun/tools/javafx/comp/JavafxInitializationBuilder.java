@@ -554,15 +554,28 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             boolean hasDefault = ai.getDefaultInitStatement() != null;
             
             if (ai.needsCloning() || hasDefault) {
-                Name methodName = attributeApplyDefaultsName(ai.getSymbol());
+                VarSymbol varSym = ai.getSymbol();
+                Name methodName = attributeApplyDefaultsName(varSym);
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                List<JCVariableDecl> args;
+                
+                // Only need receiver arg if a mixin.
+                if (isMixinClass) {
+                    // Don't override someone elses default.
+                    if (cDecl.sym != varSym.owner && !hasDefault) continue;
+                    args = List.<JCVariableDecl>of(makeReceiverParam(cDecl));
+                } else {
+                    args = List.<JCVariableDecl>nil();
+                    // Compensate with a local receiver.
+                    stmts.append(makeReceiverLocal(cDecl));
+                }
 
                 if (hasDefault) {
                      // a default exists, either on the direct attribute or on an override
                     stmts.append(ai.getDefaultInitStatement());
                 } else if (ai.isMixinVar() && !isMixinClass) {
                     // Include defaults for mixins into real classes.
-                    stmts.append(makeSuperCall(diagPos, (ClassSymbol)ai.getSymbol().owner, methodName, isMixinClass));
+                    stmts.append(makeSuperCall(diagPos, (ClassSymbol)varSym.owner, methodName, isMixinClass));
                 }
                 
                 JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
@@ -574,7 +587,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         methodName,
                         makeTypeTree( null,syms.voidType),
                         List.<JCTypeParameter>nil(),
-                        List.<JCVariableDecl>of(makeReceiverParam(cDecl)),
+                        args,
                         List.<JCExpression>nil(),
                         statBlock,
                         null));
@@ -1453,10 +1466,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (ai.needsDeclaration()) {
                         // Name of applDefaults$ methods.
                         Name methodName = attributeApplyDefaultsName(ai.getSymbol());
-                        // This argument for call.
-                        List<JCExpression> args = List.<JCExpression>of(Id(names._this));
-                        // applyDefaults$var(this)
-                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, args);
+                        // applyDefaults$var()
+                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>nil());
                     
                         if (!ai.isDef()) {
                             // Find the vars enumeration.
@@ -1473,7 +1484,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
                                 // (varWord & (1 << varBit)) == 0
                                 JCExpression condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
-                                // Construct and add: if ((VFLGS$_(word) & (1 << bit)) == 0) { applyDefaults$var(this); }
+                                // Construct and add: if ((VFLGS$_(word) & (1 << bit)) == 0) { applyDefaults$var(); }
                                 stmts.append(m().If(condition, applyDefaultsCall, null));
                             }
                         } else {
@@ -1525,13 +1536,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (ai.needsDeclaration()) {
                         // Name of applDefaults$ methods.
                         Name methodName = attributeApplyDefaultsName(ai.getSymbol());
-                        // This argument for call.
-                        List<JCExpression> args = List.<JCExpression>of(Id(names._this));
                         // applyDefaults$var(this)
-                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>of(Id(names._this)));
+                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>nil());
                         // return true;
                         JCStatement returnExpr = m().Return(makeBoolean(true));
-                        // i: applyDefaults$var(this); return true;
+                        // i: applyDefaults$var(); return true;
                         cases.append(m().Case(makeInt(ai.getEnumeration()), List.<JCStatement>of(applyDefaultsCall, returnExpr)));
                     }
                 }
