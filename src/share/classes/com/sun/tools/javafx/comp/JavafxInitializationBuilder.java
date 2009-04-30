@@ -1450,13 +1450,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
                 for (VarInfo ai : attrInfos) {
                     // Only attributes with default expressions.
-                    if (ai.getDefaultInitStatement() != null || ai instanceof MixinClassVarInfo) {
+                    if (ai.needsDeclaration()) {
                         // Name of applDefaults$ methods.
                         Name methodName = attributeApplyDefaultsName(ai.getSymbol());
                         // This argument for call.
                         List<JCExpression> args = List.<JCExpression>of(Id(names._this));
                         // applyDefaults$var(this)
-                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>of(Id(names._this)));
+                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, args);
                     
                         if (!ai.isDef()) {
                             // Find the vars enumeration.
