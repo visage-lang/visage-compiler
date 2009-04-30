@@ -1405,7 +1405,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             JCVariableDecl loopVar = toJava.makeTmpLoopVar(diagPos, 0);
             Name loopName = loopVar.name;
             JCExpression loopLimit = m().Select(toJava.makeTypeTree(diagPos, classType, false), defs.varCountName);
-            JCExpression loopTest = m().Binary(JCTree.LT, m().Ident(loopName), loopLimit);
+            JCVariableDecl loopLimitVar = toJava.makeTmpVar(diagPos, "count", syms.intType, loopLimit);
+            stats.append(loopLimitVar);
+            JCExpression loopTest = m().Binary(JCTree.LT, m().Ident(loopName), m().Ident(loopLimitVar.name));
             List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, m().Ident(loopName), m().Literal(TypeTags.INT, 1))));
             JCStatement loopBody;
             
