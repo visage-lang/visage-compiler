@@ -431,9 +431,9 @@ public class Timeline {
         if (timelineDur < 0 or repeatCount < 0) {
             return -1;
         }
-	
+
 	// enforce minimum timelineDur of 1 ms
-	// Refer to JFXC-1399, minimum timelineDur prevents 
+	// Refer to RT-319, minimum timelineDur prevents
 	// timeline from running "too fast", especially 
         // when timelineDur = 0 can result tight loop.
         return Math.max(timelineDur, 1) * repeatCount;
@@ -542,7 +542,7 @@ public class Timeline {
 	    frameIndex = sortedFrames.size() - frameIndex -1 ; 
         }
     }
-    
+
     var initialKeyValues: KeyValue[];
 
     function reset():Void {
@@ -558,7 +558,7 @@ public class Timeline {
 
     function initKeyValues():Void {
         for (kv in initialKeyValues) {
-            kv.target.set(kv.value());
+                kv.target.set(kv.value());
         }
     }
 
@@ -629,7 +629,7 @@ public class Timeline {
 
     var clip: Clip;
     var sortedFrames: KeyFrame[];
-    var targets: Map = new HashMap();
+    var targets: Map = new HashMap(); // KeyValueTarget -> List<KFPair>
     var adapter: TimingTarget = createAdapter();
 
     var cycleIndex: Integer = 0;
@@ -647,7 +647,8 @@ public class Timeline {
     // The following should be safe to change at any time:
     //   - Timeline.repeatCount
     //   - Timeline.autoReverse
-    //   - Timeline.toggle
+    // 
+    // *Should* work, may not
     //   - KeyValue.value
     //   - KeyValue.interpolate
     //
@@ -658,7 +659,7 @@ public class Timeline {
             return;
         }
 
-	timelineDur = sortedFrames[sortedFrames.size()-1].time.toMillis();
+	    timelineDur = sortedFrames[sortedFrames.size()-1].time.toMillis();
 
         var zeroFrame:KeyFrame;
         if (sortedFrames[0].time == 0s) {
@@ -672,24 +673,27 @@ public class Timeline {
                 // TODO: targets should really be Map<KeyValueTarget,List<KFPair>>
                 var pairlist: KFPairList = targets.get(keyValue.target) as KFPairList;
                 if (pairlist == null) {
+                    // New KeyValue: setup its KFPairList & 0-frame if needed
                     pairlist = KFPairList { 
                         target: keyValue.target 
                     }
-                    
-                    // get current value and attach it to zero frame
-                    var kv = KeyValue {
-                        target: keyValue.target;
-                        var value = if (keyFrame.time == 0ms) then keyValue.value() else keyValue.target.get();
-                        value: function() { value }
-                    }
-                        
-                    insert kv into initialKeyValues;
-                    var kfp = KFPair {
-                        value: kv
-                        frame: zeroFrame
-                    }
-                    pairlist.add(kfp);
 
+                    if (keyFrame.time != 0ms) {
+                        // This KeyValue doesn't have an entry in the 0-frame,
+                        // so set one up.  Get the current value and attach it
+                        // to the zero frame.
+                        var kv = KeyValue {
+                            target: keyValue.target;
+                            var value = keyValue.target.get();
+                            value: function() { value }
+                        }
+                        insert kv into initialKeyValues;
+                        var kfp = KFPair {
+                            value: kv
+                            frame: zeroFrame
+                        }
+                        pairlist.add(kfp);
+                    }
                     targets.put(keyValue.target, pairlist);
                 }
                 var kfpair = KFPair {
