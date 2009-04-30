@@ -30,7 +30,15 @@ import com.sun.javafx.runtime.location.*;
  * object lifecyle.
  *
  * @author Brian Goetz
+ * @author Jim Laskey
  */
 public interface FXObject {
-    public void initialize$ ();
+    public void    initialize$   ();
+    public void    addTriggers$  ();
+    public void    applyDefaults$();
+    public boolean applyDefaults$(final int varNum);
+    public void    userInit$     ();
+    public void    postInit$     ();
+    public int     count$        ();
+    public boolean isInitialized$(final int varNum);
 }
