@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
@@ -791,21 +790,16 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    JCExpression makeOnReplaceListener(boolean isStatic, JFXOnReplace onReplace, boolean isSequence, Type valueType) {
-        JCExpression listener = new OnReplaceClosureTranslator(onReplace, isSequence, valueType).doit();
-        return listener;
-    }
-
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
     JCStatement makeInstanciateChangeListener(VarSymbol vsym, JFXOnReplace onReplace) {
         if (onReplace == null) return null;
         DiagnosticPosition diagPos = onReplace.pos();
-        Name addListenerName;
-        Type valueType;
         final boolean isSequence = types.isSequence(vsym.type);
 
+        Name addListenerName;
+        Type valueType;
         if (isSequence) {
             addListenerName = defs.addSequenceChangeListenerName;
             valueType = types.elementType(vsym.type);
@@ -814,8 +808,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             valueType = vsym.type;
         }
 
-        boolean isStatic = vsym.isStatic();
-        JCExpression onReplaceListener = makeOnReplaceListener(isStatic, onReplace, isSequence, valueType);
+        JCExpression onReplaceListener = new OnReplaceClosureTranslator(onReplace, isSequence, valueType).doit();
 
         JCExpression varRef;
         if (vsym.owner.kind == Kinds.TYP) {
@@ -2162,7 +2155,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         private JCExpression buildSetter(JCExpression tc, JCExpression rhsComplete) {
             final Name setter = attributeSetterName(sym);
-            JCExpression toApply = tc==null? m().Ident(setter) : m().Select(tc, setter);
+            JCExpression toApply = (tc==null)? m().Ident(setter) : m().Select(tc, setter);
             return m().Apply(null, toApply, List.of(rhsComplete));
         }
 
@@ -2216,7 +2209,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 } else {
                     // not SELECT
                     if (useSetters) {
-                        JCExpression recv = !sym.isStatic() && inInstanceContext==ReceiverContext.InstanceAsStatic? makeReceiver(diagPos, sym, getAttrEnv().enclClass.sym) : null;
+                        JCExpression recv = sym.isStatic()? null : makeReceiver(diagPos, sym, true);
                         return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
                     } else {
                         return defaultFullExpression(translateToExpression(lhs, AsShareSafeValue, null), rhsTranslated);
@@ -2402,8 +2395,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         if (tree.name == names._this) {
             // in the static implementation method, "this" becomes "receiver$"
-            Name thisName = inInstanceContext==ReceiverContext.InstanceAsStatic? defs.receiverName : names._this;
-            JCExpression rcvr = make.at(diagPos).Ident(thisName);
+            JCExpression rcvr = makeReceiver(diagPos, tree.sym);
             if (wrapper == AsLocation) {
                 rcvr = makeConstantLocation(diagPos, tree.type, rcvr);
             }
@@ -2437,12 +2429,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             convert = make.at(diagPos).Select(makeTypeTree(diagPos, tree.sym.owner.type, false), tree.name);
         } else {
             if ((kind == Kinds.VAR || kind == Kinds.MTH) && 
-                    tree.sym.owner.kind == Kinds.TYP &&
-                    inInstanceContext==ReceiverContext.InstanceAsStatic) {
+                    tree.sym.owner.kind == Kinds.TYP) {
                 // it is a non-static attribute or function class member
                 // reference it through the receiver
-                JCExpression mRec = makeReceiver(diagPos, tree.sym, getAttrEnv().enclClass.sym);
-                convert = make.at(diagPos).Select(mRec, tree.name);
+                JCExpression mRec = makeReceiver(diagPos, tree.sym, true);
+                convert = (mRec==null)? make.at(diagPos).Ident(tree.name) : make.at(diagPos).Select(mRec, tree.name);
             } else {
                 convert = make.at(diagPos).Ident(tree.name);
             }
@@ -3763,67 +3754,74 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
+    JCExpression makeReceiver(DiagnosticPosition diagPos, Symbol sym) {
+        return makeReceiver(diagPos, sym, false);
+    }
+
     /**
      * Build the AST for accessing the outer member.
      * The accessors might be chained if the member accessed is more than one level up in the outer chain.
      * */
-    JCExpression makeReceiver(DiagnosticPosition pos, Symbol treeSym, Symbol siteOwner) {
-        JCExpression ret = null;
-        if (treeSym != null && siteOwner != null) {
+    JCExpression makeReceiver(DiagnosticPosition diagPos, Symbol sym, boolean nullForThis) {
+        // !sym.isStatic()
+        Symbol siteOwner = getAttrEnv().enclClass.sym;
+        // This following cannot be used until anonymous classes like BoundComprehensions are handled
+        // JCExpression ret = make.Ident(inInstanceContext == ReceiverContext.InstanceAsStatic ? defs.receiverName : names._this);
+        JCExpression thisExpr = make.at(diagPos).Select(makeTypeTree(diagPos, siteOwner.type), names._this);
+        JCExpression ret = inInstanceContext == ReceiverContext.InstanceAsStatic ?
+            make.at(diagPos).Ident(defs.receiverName) :
+            thisExpr;
+        ret.type = siteOwner.type;
 
-            ret = make.Ident(defs.receiverName);
-            ret.type = siteOwner.type;
-
-            // check if it is in the chain
-            if (siteOwner != treeSym.owner) {
-                Symbol siteCursor = siteOwner;
-                boolean foundOwner = false;
-                int numOfOuters = 0;
-                ownerSearch:
-                while (siteCursor.kind != Kinds.PCK) {
-                    ListBuffer<Type> supertypes = ListBuffer.lb();
-                    Set<Type> superSet = new HashSet<Type>();
-                    if (siteCursor.type != null) {
-                        supertypes.append(siteCursor.type);
-                        superSet.add(siteCursor.type);
-                    }
-
-                    if (siteCursor.kind == Kinds.TYP) {
-                        types.getSupertypes(siteCursor, supertypes, superSet);
-                    }
-
-                    for (Type supType : supertypes) {
-                        if (types.isSameType(supType, treeSym.owner.type)) {
-                            foundOwner = true;
-                            break ownerSearch;
-                        }
-                    }
-
-                    if (siteCursor.kind == Kinds.TYP) {
-                        numOfOuters++;
-                    }
-
-                    siteCursor = siteCursor.owner;
+        // check if it is in the chain
+        if (sym != null && siteOwner != null && siteOwner != sym.owner) {
+            Symbol siteCursor = siteOwner;
+            boolean foundOwner = false;
+            int numOfOuters = 0;
+            ownerSearch:
+            while (siteCursor.kind != Kinds.PCK) {
+                ListBuffer<Type> supertypes = ListBuffer.lb();
+                Set<Type> superSet = new HashSet<Type>();
+                if (siteCursor.type != null) {
+                    supertypes.append(siteCursor.type);
+                    superSet.add(siteCursor.type);
                 }
 
-                if (foundOwner) {
-                    // site was found up the outer class chain, add the chaining accessors
-                    siteCursor = siteOwner;
-                    while (numOfOuters > 0) {
-                        if (siteCursor.kind == Kinds.TYP) {
-                            ret = callExpression(pos, ret, initBuilder.outerAccessorName);
-                            ret.type = siteCursor.type;
-                        }
+                if (siteCursor.kind == Kinds.TYP) {
+                    types.getSupertypes(siteCursor, supertypes, superSet);
+                }
 
-                        if (siteCursor.kind == Kinds.TYP) {
-                            numOfOuters--;
-                        }
-                        siteCursor = siteCursor.owner;
+                for (Type supType : supertypes) {
+                    if (types.isSameType(supType, sym.owner.type)) {
+                        foundOwner = true;
+                        break ownerSearch;
                     }
+                }
+
+                if (siteCursor.kind == Kinds.TYP) {
+                    numOfOuters++;
+                }
+
+                siteCursor = siteCursor.owner;
+            }
+
+            if (foundOwner) {
+                // site was found up the outer class chain, add the chaining accessors
+                siteCursor = siteOwner;
+                while (numOfOuters > 0) {
+                    if (siteCursor.kind == Kinds.TYP) {
+                        ret = callExpression(diagPos, ret, initBuilder.outerAccessorName);
+                        ret.type = siteCursor.type;
+                    }
+
+                    if (siteCursor.kind == Kinds.TYP) {
+                        numOfOuters--;
+                    }
+                    siteCursor = siteCursor.owner;
                 }
             }
         }
-        return ret;
+        return (nullForThis && ret == thisExpr)? null : ret;
     }
 
     private void fillClassesWithOuters(JFXScript tree) {

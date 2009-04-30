@@ -1287,7 +1287,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                                 if (rcvrField == null) {
                                     Type rcvrType = getAttrEnv().enclClass.sym.type;
                                     rcvrField = new FieldInfo(JavafxDefs.receiverNameString, typeMorpher.typeMorphInfo(rcvrType), false, ArgKind.BOUND);
-                                    return buildArgField(toJava.makeReceiver(diagPos, msym, getAttrEnv().enclClass.sym), rcvrField);
+                                    return buildArgField(toJava.makeReceiver(diagPos, msym), rcvrField);
                                 } else {
                                     return rcvrField.makeGetField();
                                 }
