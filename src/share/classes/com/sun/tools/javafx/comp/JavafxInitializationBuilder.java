@@ -1450,7 +1450,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
                 for (VarInfo ai : attrInfos) {
                     // Only attributes with default expressions.
-                    if (ai.getDefaultInitStatement() != null) {
+                    if (ai.getDefaultInitStatement() != null || ai instanceof MixinClassVarInfo) {
                         // Name of applDefaults$ methods.
                         Name methodName = attributeApplyDefaultsName(ai.getSymbol());
                         // This argument for call.

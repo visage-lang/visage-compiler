@@ -243,6 +243,7 @@ class JavafxAnalyzeClass {
         // Useful diagnostic tool. 
         public void printInfo() {
             System.out.println("    " + getSymbol() +
+                               ", type=" + getRealType() +
                                ", owner=" + getSymbol().owner +
                                ", static=" + isStatic() +
                                ", enum=" + getEnumeration() +
@@ -408,7 +409,7 @@ class JavafxAnalyzeClass {
     public JFXClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
     
     //
-    // Returns true if teh current class is a script.
+    // Returns true if the current class is a script.
     //
     public boolean isScriptClass() { return currentClassDecl.isScriptClass; }
     
