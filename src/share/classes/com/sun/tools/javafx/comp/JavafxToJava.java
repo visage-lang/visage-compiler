@@ -49,7 +49,6 @@ import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
-import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
@@ -1469,58 +1468,77 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
             List<JCExpression> newClassArgs = completeTranslatedConstructorArgs();
 
-            JCNewClass newClass =
-                    m().NewClass(null, null, classTypeExpr,
-                    newClassArgs,
-                    null);
+            Name tmpVarName = toJava.getSyntheticName("objlit");
+            initInstanceVariables(tmpVarName);  // Must preceed varSyms.nonEmpty() test
 
             JCExpression instExpression;
-            {
-                if (isFX || cdef != null) {
-                    // it is a JavaFX class, initialize it properly
-                    JCVariableDecl tmpVar = toJava.makeTmpVar(diagPos, "objlit", type, newClass);
-                    stats.append(tmpVar);
-                    initInstanceVariables(tmpVar.name);
-                    
-                    if (varSyms.nonEmpty()) {
-                        //   {
-                        //       final X jfx$0objlit = new X(true);
-                        //       jfx$0objlit.addTriggers$(jfx$0objlit);
-                        //       final short[] jfx$0map = GETMAP$X();
-                        //
-                        //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
-                        //           if (!isInitialized(jfx$0initloop) {
-                        //               switch (jfx$0map[jfx$0initloop]) {
-                        //                   1: jfx$0objlit.set$a(0); break;
-                        //                   2: jfx$0objlit.set$b(0); break;
-                        //                   ...
-                        //                   n: jfx$0objlit.set$z(0); break;
-                        //                   default: jfx$0objlit.applyDefaults$(jfx$0initloop);
-                        //               }
-                        //           }
-                        //       }
-                        // 
-                        //       jfx$0objlit.userInit$(jfx$0objlit);
-                        //       jfx$0objlit.postInit$(jfx$0objlit);
-                        //       jfx$0objlit
-                        //   }
-                        
-                        makeInitSupportCall(defs.addTriggersName, tmpVar.name);
-                        makeInitApplyDefaults(type, tmpVar.name);
-                        makeInitSupportCall(defs.userInitName, tmpVar.name);
-                        makeInitSupportCall(defs.postInitName, tmpVar.name);
-                        
-                    } else {
-                        makeInitSupportCall(defs.initializeName, tmpVar.name);
-                     }
+            if (varSyms.nonEmpty() || cdef != null) {
+                // it is a instanciation of a JavaFX class which has instance variable initializers (or is anonymous)
+                //
+                //   {
+                //       final X jfx$0objlit = new X(true);
+                //       jfx$0objlit.addTriggers$();
+                //       final short[] jfx$0map = GETMAP$X();
+                //
+                //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
+                //           if (!isInitialized(jfx$0initloop) {
+                //               switch (jfx$0map[jfx$0initloop]) {
+                //                   1: jfx$0objlit.set$a(0); break;
+                //                   2: jfx$0objlit.set$b(0); break;
+                //                   ...
+                //                   n: jfx$0objlit.set$z(0); break;
+                //                   default: jfx$0objlit.applyDefaults$(jfx$0initloop);
+                //               }
+                //           }
+                //       }
+                //
+                //       jfx$0objlit.complete$();
+                //       jfx$0objlit
+                //   }
 
-                    JCIdent ident2 = m().Ident(tmpVar.name);
-                    instExpression = toJava.makeBlockExpression(diagPos, stats, ident2);
+                // Use the JavaFX constructor by adding a marker argument. The "true" in:
+                //       ... new X(true);
+                newClassArgs = newClassArgs.append(m().Literal(TypeTags.BOOLEAN, 1));
+
+                // Create the new instance, placing it in a temporary variable "jfx$0objlit"
+                //       final X jfx$0objlit = new X(true);
+                stats.append(toJava.makeTmpVar(diagPos,
+                        tmpVarName,
+                        type,
+                        m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
+
+                // addTriggers# to set-up triggers
+                //       jfx$0objlit.addTriggers$();
+                makeInitSupportCall(defs.addTriggersName, tmpVarName);
+
+                // Apply defaults to the instance variables
+                //
+                //       final short[] jfx$0map = GETMAP$X();
+                //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
+                //           ...
+                //       }
+                if (varSyms.nonEmpty()) {
+                    makeInitApplyDefaults(type, tmpVarName);
                 } else {
-                    // this is a Java class, just instanciate it
-                    instExpression = newClass;
+                    makeInitSupportCall(defs.applyDefaultsPrefixName, tmpVarName);
                 }
+
+                // Call complete$ to do user's init and postinit blocks
+                //       jfx$0objlit.complete$();
+                makeInitSupportCall(defs.completeName, tmpVarName);
+
+                // Return the instance from the block expressions
+                //       jfx$0objlit
+                JCExpression instValue = m().Ident(tmpVarName);
+
+                // Wrap it in a block expression
+                instExpression = toJava.makeBlockExpression(diagPos, stats, instValue);
+
+            } else {
+                // this is a Java class or has no instance variable initializers, just instanciate it
+                instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
             }
+
             return instExpression;
         }
     }
@@ -1545,7 +1563,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
          * Just generate the default init 'true' flag for JavaFX generated constructors.
          */
         protected List<JCExpression> completeTranslatedConstructorArgs() {
-            return List.<JCExpression>of(m().Literal(TypeTags.BOOLEAN, 1));
+            return List.<JCExpression>nil();
         }
 
         VarSymbol varSym(Name varName) {
@@ -1631,10 +1649,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         @Override
         protected List<JCExpression> completeTranslatedConstructorArgs() {
             List<JCExpression> translated = translatedConstructorArgs();
-            if (tree.getClassBody() != null || types.isJFXClass(idSym)) {
-                assert translated.size() == 0 : "should not be args for JavaFX class constructors";
-                translated = translated.append(m().Literal(TypeTags.BOOLEAN, 1));
-            }
             if (tree.getClassBody() != null &&
                     tree.getClassBody().sym != null && toJava.hasOuters.contains(tree.getClassBody().sym) ||
                     idSym != null && toJava.hasOuters.contains(idSym)) {

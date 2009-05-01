@@ -63,6 +63,7 @@ public class JavafxDefs {
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
+    public static final String completeNameString ="complete$";
     public static final String getMethodNameString = "get";
     public static final String setMethodNameString ="set";
     public static final String setDefaultMethodNameString = "setDefault";
@@ -168,6 +169,7 @@ public class JavafxDefs {
     final Name mainName;
     final Name receiverName;
     final Name initializeName;
+    final Name completeName;
     final Name getMethodName;
     final Name attributeSetMethodParamName;
     final Name getSliceMethodName;
@@ -294,6 +296,7 @@ public class JavafxDefs {
         mainName = names.fromString("main");
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
+        completeName = names.fromString(completeNameString);
         getMethodName = names.fromString(getMethodNameString);
         attributeSetMethodParamName = names.fromString("value");
         getSliceMethodName = names.fromString("getSlice");
