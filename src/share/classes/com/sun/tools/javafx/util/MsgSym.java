@@ -315,7 +315,8 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_LOOSE_EXPRESSIONS = "javafx.loose.expressions";
     public static final String MESSAGE_JAVAFX_RUN_FUNCTION_SINGLE = "javafx.run.function.single";
     public static final String MESSAGE_JAVAFX_RUN_FUNCTION_PARAM = "javafx.run.function.param";
-    public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found"; 
+    public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found";
+    public static final String MESSAGE_JAVAFX_KEYFRAME_LIT = "javafx.keyframe.literal";
     public static final String MESSAGE_JAVAFX_SEQ_OR_ARRAY = "javafx.seq.or.array";
     public static final String MESSAGE_JAVAFX_LOOSE_IN_LIB = "javafx.loose.expr.in.lib";
     public static final String MESSAGE_JAVAFX_LOOSE_IN_RUN = "javafx.loose.expr.in.run";

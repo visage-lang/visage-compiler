@@ -83,6 +83,7 @@ public class JavafxAttr implements JavafxVisitor {
     private final JavafxSymtab syms;
     private final JavafxCheck chk;
     private final JavafxMemberEnter memberEnter;
+    private final JCDiagnostic.Factory diags;
     private final JavafxTreeMaker fxmake;
     private final ConstFold cfolder;
     private final JavafxEnter enter;
@@ -114,6 +115,7 @@ public class JavafxAttr implements JavafxVisitor {
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         names = Name.Table.instance(context);
         log = Log.instance(context);
+        diags = JCDiagnostic.Factory.instance(context);
         rs = JavafxResolve.instance(context);
         chk = JavafxCheck.instance(context);
         memberEnter = JavafxMemberEnter.instance(context);
@@ -3963,6 +3965,11 @@ public class JavafxAttr implements JavafxVisitor {
     */
 
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+        if (this.inBindContext) {
+            log.error(tree.pos(),
+                    MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT,
+                    diags.fragment(MsgSym.MESSAGE_JAVAFX_KEYFRAME_LIT));
+        }
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);
         localEnv.outer = env;
         attribExpr(tree.start, localEnv);
