@@ -1,6 +1,3 @@
-x on replace: false
-s on replace: false
-o on replace: false
 x init: false
 s init: false
 o init: false
