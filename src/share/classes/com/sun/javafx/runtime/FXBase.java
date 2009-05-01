@@ -26,7 +26,7 @@ package com.sun.javafx.runtime;
 import com.sun.javafx.runtime.location.*;
 
 /**
- * Base class for most FX classes.  The exception being classes that inherit from java classes.
+ * Base class for most FX classes.  The exception being classes that inherit from Java classes.
  *
  * @author Jim Laskey
  */
@@ -35,21 +35,47 @@ public class FXBase implements FXObject {
     public static int VBASE$ = 0;
     public static int VCNT$ = 0;
 
-    public FXBase()              { this(false); }
+    /**
+     * Constructor called from Java or from object literal with no instance variable initializers
+     */
+    public FXBase() {}
+
+    /**
+     * Constructor called for a (non-empty) JavaFX object literal.
+     * @param dummy Marker only. Ignored.
+     */
     public FXBase(boolean dummy) {}
-    
-    public void initialize$ () {
+
+    public void initialize$() {
         addTriggers$();
         applyDefaults$();
+        complete$();
+    }
+
+    public void complete$() {
         userInit$();
         postInit$();
     }
-    
+
+    public void applyDefaults$new() {
+        int cnt = count$();
+        for (int inx = 0; inx < cnt; inx += 1) { 
+            applyDefaults$(inx);
+        }
+    }
+
+    public static void applyDefaults$base(FXObject rcvr) {
+        int cnt = rcvr.count$();
+        for (int inx = 0; inx < cnt; inx += 1) {
+            rcvr.applyDefaults$(inx);
+        }
+    }
+
     public void addTriggers$  () {}
     public void applyDefaults$() {}
     public void userInit$     () {}
     public void postInit$     () {}
-    
+
     public int      count$()                         { return 0; }
     public boolean  applyDefaults$(final int varNum) { return false; }
     public boolean  isInitialized$(final int varNum) { return true; }

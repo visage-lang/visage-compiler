@@ -228,7 +228,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<VarInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
         List<VarInfo> staticAttributeInfos = analysis.staticAttributeInfos();
         List<MethodSymbol> needDispatch = analysis.needDispatch();
-        ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+        ClassSymbol fxSuperClassSym = analysis.getFXSuperClassSym();
         List<ClassSymbol> superClasses = analysis.getSuperClasses();
         List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
         List<ClassSymbol> allMixinClasses = analysis.getAllMixins();
@@ -236,6 +236,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isMixinClass = cDecl.isMixinClass();
         boolean isScriptClass = cDecl.isScriptClass;
         boolean isAnonClass = analysis.isAnonClass();
+        boolean hasFxSuper = fxSuperClassSym != null;
         
         // Have to populate the var map for anon classes.
         // TODO: figure away to avoid this if not used (needs global knowledge.)
@@ -266,6 +267,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, initMap));
             cDefinitions.append    (makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
+            if (!hasFxSuper) {
+                // Has a non-JavaFX super, so we can't use FXBase, add the complete$ and initialize$ methods
+ //               cDefinitions.append(makeInitializeMethod(diagPos));
+                cDefinitions.append(makeCompleteMethod(diagPos));
+//                           cDefinitions.appendList(javaCodeMaker.makeGeneralApplyDefaults());
+            }
+
             if (outerTypeSym == null) {
                 cDefinitions.append(makeJavaEntryConstructor(diagPos));
             } else {
@@ -273,9 +281,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
             }
 
-            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
             cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
-            cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, superClassSym != null));
+            cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, hasFxSuper));
         } else {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
             iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
@@ -287,7 +295,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
         }
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
 
@@ -298,7 +306,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDefinitions.toList(),
                 makeAdditionalImports(diagPos, cDecl, immediateMixinClasses),
                 superType,
-                superClassSym,
+                fxSuperClassSym,
                 superClasses,
                 immediateMixinClasses,
                 allMixinClasses);
@@ -422,9 +430,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    
     /**
      * Make a constructor to be called by Java code.
-     * It differs by calling the initialize$ method (that is explicitly called
-     * by FX code).
+     * Simply pass up to super, unless this is the last JavaFX class, in which case add object initialization
      * @param diagPos
+     * @param superIsFX true if there is a super class (in the generated code) and it is a JavaFX class
      * @return the constructor
      */
     private JCMethodDecl makeJavaEntryConstructor(DiagnosticPosition diagPos) {
@@ -447,7 +455,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      */
     private JCMethodDecl makeFXEntryConstructor(DiagnosticPosition diagPos, ClassSymbol outerTypeSym, boolean superIsFX) {    
         Name dummyParamName = names.fromString("dummy");
-        make.at(diagPos);     
+        make.at(diagPos);
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         if (superIsFX) {
             // call the FX version of the constructor
@@ -617,30 +625,26 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
         // Add calls to do the the default value initialization and user init code (validation for example.)
-        
+
         // "addTriggers$(this);"
         stmts.append( callStatement(
-               diagPos, 
-               null,
+               diagPos,
                defs.addTriggersName));
 
         // "applDefaults$();"
         stmts.append(callStatement(
-                diagPos, 
-                null,
-                defs.applyDefaultsPrefixName, 
+                diagPos,
+                defs.applyDefaultsPrefixName,
                 List.<JCExpression>nil()));
-        
+
         // "userInit$(this);"
         stmts.append(callStatement(
-                diagPos, 
-                null,
+                diagPos,
                 defs.userInitName));
-        
+
         // "postInit$(this);"
         stmts.append(callStatement(
                 diagPos,
-                null,
                 defs.postInitName));
 
         JCBlock initializeBlock = make.Block(0L, stmts.toList());
@@ -648,12 +652,42 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 make.Modifiers(Flags.PUBLIC),
                 defs.initializeName,
                 makeTypeTree( null,syms.voidType),
-                List.<JCTypeParameter>nil(), 
-                List.<JCVariableDecl>nil(), 
-                List.<JCExpression>nil(), 
+                List.<JCTypeParameter>nil(),
+                List.<JCVariableDecl>nil(),
+                List.<JCExpression>nil(),
                 initializeBlock, null);
     }
-    
+
+       /**
+     * Generated only when there is a Java super class
+     * @param diagPos
+     * @return
+     */
+    private JCMethodDecl makeCompleteMethod(DiagnosticPosition diagPos) {
+        // Add calls to do the JavaFX-style initialization completeion
+        //     public void complete$() {
+        //         postInit$();
+        //         postInit$();
+        //     }
+        return makeInitMethod(diagPos, defs.completeName, syms.voidType, List.of(
+                callStatement(diagPos, defs.userInitName),
+                callStatement(diagPos, defs.postInitName)));
+    }
+
+    private JCMethodDecl makeInitMethod(DiagnosticPosition diagPos, Name name, Type retType, List<JCStatement> stmts) {
+        make.at(diagPos);
+        JCBlock initializeBlock = make.Block(0L, stmts);
+        return make.MethodDef(
+                make.Modifiers(Flags.PUBLIC),
+                name,
+                makeTypeTree(diagPos, retType),
+                List.<JCTypeParameter>nil(),
+                List.<JCVariableDecl>nil(),
+                List.<JCExpression>nil(),
+                initializeBlock,
+                null);
+    }
+
     /**
      * Construct the static block for setting defaults
      * */
@@ -723,7 +757,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             // Super still classified as empty.
             emptySize = stmts.size();
-            
+
             // JFXC-2822 - Triggers need to work from mixins.
             for (ClassSymbol cSym : immediateMixinClasses) {
                 stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, isMixinClass));
@@ -1435,6 +1469,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return methods.toList();
         }
         
+        public List<JCTree> makeGeneralApplyDefaults() {
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            stmts.append(callStatement(currentPos, makeType(syms.javafx_FXBaseType), names.fromString(defs.applyDefaultsPrefixName + "base"), m().Ident(names._this)));
+            JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                    syms.voidType,
+                    defs.applyDefaultsPrefixName,
+                    List.<JCVariableDecl>nil(),
+                    stmts);
+            return List.<JCTree>of(method);
+        }
+
         //
         // This methods generates the applDefaults$ methods for this class.  The first method
         // Is a blanket apply all defaults.  The second methods is the default apply default

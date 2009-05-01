@@ -667,6 +667,14 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Exec(callExpression(diagPos, receiver, methodName, args));
     }
 
+    JCStatement callStatement(DiagnosticPosition diagPos, Name methodName) {
+        return callStatement(diagPos, null, methodName, null);
+    }
+
+    JCStatement callStatement(DiagnosticPosition diagPos, Name methodName, Object args) {
+        return make.at(diagPos).Exec(callExpression(diagPos, null, methodName, args));
+    }
+
     JCStatement callStatement(DiagnosticPosition diagPos, JCExpression receiver, String method) {
         return callStatement(diagPos, receiver, method, null);
     }
@@ -917,7 +925,11 @@ public abstract class JavafxTranslationSupport {
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {
-        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.FINAL), getSyntheticName(rootName), makeTypeTree(diagPos, type), value);
+        return makeTmpVar(diagPos, getSyntheticName(rootName), type, value);
+    }
+
+    JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Name tmpName, Type type, JCExpression value) {
+        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.FINAL), tmpName, makeTypeTree(diagPos, type), value);
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Type type, JCExpression value) {
