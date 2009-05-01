@@ -711,8 +711,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
         boolean isMixinClass = cDecl.isMixinClass();
 
-        // Capture the number of statements prior to adding triggers.
-        int priorSize = stmts.size();
+        // Capture the number of statements prior to adding relevant triggers.
+        int emptySize = stmts.size();
 
         // Supers will be called when inserted into real classes.
         if (!isMixinClass) {
@@ -721,7 +721,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, isMixinClass));
             }
             
-            priorSize = stmts.size();
+            // Super still classified as empty.
+            emptySize = stmts.size();
             
             // JFXC-2822 - Triggers need to work from mixins.
             for (ClassSymbol cSym : immediateMixinClasses) {
@@ -750,7 +751,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         // Only generate method if necessary.
-        if (stmts.size() != priorSize || isMixinClass || superClassSym == null) {
+        if (stmts.size() != emptySize || isMixinClass || superClassSym == null) {
             methods.append(make.at(diagPos).MethodDef(
                     make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
                     defs.addTriggersName,
