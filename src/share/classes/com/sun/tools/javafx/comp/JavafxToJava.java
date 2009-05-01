@@ -146,7 +146,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     // Stack used to track literal symbols for the current class.
-    LiteralInitClassMap literalInitClassMap = new LiteralInitClassMap();
+    LiteralInitClassMap literalInitClassMap = null;
 
     private TranslationState translationState = null; // should be set before use
 
@@ -1063,6 +1063,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         try {
             DiagnosticPosition diagPos = tree.pos();
+            if (tree.isScriptClass) literalInitClassMap = new LiteralInitClassMap();
 
             attrEnv.enclClass = tree;
 
