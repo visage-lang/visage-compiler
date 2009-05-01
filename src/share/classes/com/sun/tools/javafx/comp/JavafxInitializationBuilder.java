@@ -262,7 +262,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(analysis.getCurrentClassSymbol(), varMap) : null;
             
-            cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethods(instanceAttributeInfos));
             cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, initMap));
             cDefinitions.append    (makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
 
@@ -284,7 +284,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
             }    
 
-            cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethods(instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
             cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, superClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
@@ -542,61 +542,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return members.toList();
     }
 
-    /**
-     * Construct the applyDefaults methods
-     */
-    private List<JCTree> makeApplyDefaultsMethods(DiagnosticPosition diagPos,
-            JFXClassDeclaration cDecl,
-            List<? extends VarInfo> attrInfos) {
-        boolean isMixinClass = cDecl.isMixinClass();
-        ListBuffer<JCTree> methods = ListBuffer.lb();
-        for (VarInfo ai : attrInfos) {
-            boolean hasDefault = ai.getDefaultInitStatement() != null;
-            
-            if (ai.needsCloning() || hasDefault) {
-                VarSymbol varSym = ai.getSymbol();
-                Name methodName = attributeApplyDefaultsName(varSym);
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
-                List<JCVariableDecl> args;
-                
-                // Only need receiver arg if a mixin.
-                if (isMixinClass) {
-                    // Don't override someone elses default.
-                    if (cDecl.sym != varSym.owner && !hasDefault) continue;
-                    args = List.<JCVariableDecl>of(makeReceiverParam(cDecl));
-                } else {
-                    args = List.<JCVariableDecl>nil();
-                    // Compensate with a local receiver.
-                    stmts.append(makeReceiverLocal(cDecl));
-                }
-
-                if (hasDefault) {
-                     // a default exists, either on the direct attribute or on an override
-                    stmts.append(ai.getDefaultInitStatement());
-                } else if (ai.isMixinVar() && !isMixinClass) {
-                    // Include defaults for mixins into real classes.
-                    stmts.append(makeSuperCall(diagPos, (ClassSymbol)varSym.owner, methodName, isMixinClass));
-                }
-                
-                JCBlock statBlock = make.at(diagPos).Block(0L, stmts.toList());
-
-                // Add the method for this class' attributes
-                JCModifiers mods = make.Modifiers(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L) );
-                methods.append(make.at(diagPos).MethodDef(
-                        mods,
-                        methodName,
-                        makeTypeTree( null,syms.voidType),
-                        List.<JCTypeParameter>nil(),
-                        args,
-                        List.<JCExpression>nil(),
-                        statBlock,
-                        null));
-                optStat.recordProxyMethod();
-            }
-        }
-        return methods.toList();
-    }
-    
     private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName, boolean fromMixin) {
         if ((cSym.flags() & JavafxFlags.MIXIN) != 0) {
             // call to a mixin super, use local static reference
@@ -949,7 +894,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the getter method for the specified attribute.
         //
         //     type get$var() {
-        //         return location$var != null ? location$var.getAsType() : value$var;
+        //         return loc$var != null ? loc$var.getAsType() : $var;
         //     }
         //     
         private JCTree makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
@@ -971,22 +916,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 switch (varInfo.representation()) {
                     case SlackerLocation: {
-                        // Construct and add: return location$var != null ? location$var.getAsType() : value$var;
+                        // Construct and add: return loc$var != null ? loc$var.getAsType() : $var;
 
                         // Get the location accessor method name.
                         Name getMethodName = defs.locationGetMethodName[typeKind];
 
-                        // location$var
+                        // loc$var
                         JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                        // location$var.getAsType
+                        // loc$var.getAsType
                         JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
-                        // location$var.getAsType()
+                        // loc$var.getAsType()
                         JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
-                        // value$var
+                        // $var
                         JCExpression valueExp = Id(attributeValueName(proxyVarSym));
-                        // location$var != null
+                        // loc$var != null
                         JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
-                        // location$var != null ? location$var.getAsType() : value$var
+                        // loc$var != null ? loc$var.getAsType() : $var
                         stmts.append(m().If(condition, m().Return(getCall), m().Return(valueExp)));
                         break;
                     }
@@ -994,20 +939,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Get the location accessor method name.
                         Name getMethodName = defs.locationGetMethodName[typeKind];
 
-                        // location$var
+                        // loc$var
                         JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                        // location$var.getAsType
+                        // loc$var.getAsType
                         JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
-                        // location$var.getAsType()
+                        // loc$var.getAsType()
                         JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
 
                         stmts.append(m().Return(getCall));
                         break;
                     }
                     case NeverLocation: {
-                        // value$var
+                        // $var
                         JCExpression valueExp = Id(attributeValueName(proxyVarSym));
-                        // Construct and add: return value$var;
+                        // Construct and add: return $var;
                         stmts.append(m().Return(valueExp));
                         break;
                     }
@@ -1026,10 +971,79 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This method constructs the getter method for the specified attribute.
+        // This method returns the actual set statement used in the setter method.
+        //
+        private JCStatement makeSetterStatement(VarInfo varInfo, boolean fromSetter) {
+             // Symbol used when accessing the variable.
+            VarSymbol proxyVarSym = varInfo.proxyVarSym();
+                
+            // $var
+            JCExpression valueExp = Id(attributeValueName(proxyVarSym));
+            // Arg value, if not from setter use the default value for the type.
+            JCExpression argExp = fromSetter ? Id(defs.attributeSetMethodParamName) : makeDefaultValue(currentPos, varInfo.getVMI());
+            // $var = value
+            JCExpression assignExp = m().Assign(valueExp, argExp);
+            
+            int typeKind = varInfo.getVMI().getTypeKind();
+
+            switch (varInfo.representation()) {
+                case SlackerLocation: {
+                    // Construct and add: if (loc$var != null) return loc$var.setAsType(value) else return $var = value
+
+                    // Get the location accessor method name.
+                    Name setMethodName = defs.locationSetMethodName[typeKind];
+
+                    // loc$var
+                    JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
+                    // loc$var.setAsType
+                    JCFieldAccess setSelect = m().Select(locationExp, setMethodName);
+                    // loc$var.setAsType(value)
+                    JCExpression setCall = m().Apply(null, setSelect, List.<JCExpression>of(argExp));
+                    // loc$var != null
+                    JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
+                    
+                    if (fromSetter) {
+                        // if (loc$var != null) return loc$var.setAsType(value) else return $var = value
+                        return m().If(condition, m().Return(setCall), m().Return(assignExp));
+                    } else {
+                        // if (loc$var != null) loc$var.setAsType(value)
+                        return m().If(condition, m().Exec(setCall), null);
+                    }
+                }
+                case AlwaysLocation: {
+                    // Construct and add: loc$var.setAsType(value)
+
+                    // Get the location accessor method name.
+                    Name setMethodName = defs.locationSetMethodName[typeKind];
+
+                    // loc$var
+                    JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
+                    // loc$var.setAsType
+                    JCFieldAccess setSelect = m().Select(locationExp, setMethodName);
+                    // loc$var.setAsType(value)
+                    JCExpression setCall = m().Apply(null, setSelect, List.<JCExpression>of(argExp));
+                    if (fromSetter) {
+                        // return loc$var.setAsType(value);
+                        return m().Return(setCall);
+                    } else {
+                        // loc$var.setAsType(value);
+                        return m().Exec(setCall);
+                    }
+                }
+                case NeverLocation: {
+                    // return $var = value;
+                    return fromSetter ? m().Return(assignExp) : null;
+                }
+            }
+            
+            return null;
+        }
+        
+        //
+        // This method constructs the setter method for the specified attribute.
         //
         //     type set$var(type value) {
-        //         return location$var != null ? location$var.setAsType(value) : value$var = value;
+        //         return loc$var != null ? loc$var.setAsType(value) : $var = value;
         //     }
         //     
         private JCTree makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
@@ -1044,9 +1058,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (needsBody) {
                 // Prepare to accumulate statements.
                 stmts = ListBuffer.lb();
-                
-                 // Symbol used when accessing the variable.
-                VarSymbol proxyVarSym = varInfo.proxyVarSym();
                 
                 // Script vars don't need flags.
                 if (!varInfo.isStatic()) {
@@ -1064,56 +1075,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     stmts.append(bitsStmt);
                 }
                 
-                // value$var
-                JCExpression valueExp = Id(attributeValueName(proxyVarSym));
-                // Arg value
-                JCExpression argExp = Id(defs.attributeSetMethodParamName);
-                // value$var = value
-                JCExpression assignExp = m().Assign(valueExp, argExp);
-                
-                int typeKind = varInfo.getVMI().getTypeKind();
-
-                switch (varInfo.representation()) {
-                    case SlackerLocation: {
-                        // Construct and add: if (location$var != null) return location$var.setAsType(value) else return value$var = value
-
-                        // Get the location accessor method name.
-                        Name setMethodName = defs.locationSetMethodName[typeKind];
-
-                        // location$var
-                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                        // location$var.setAsType
-                        JCFieldAccess setSelect = m().Select(locationExp, setMethodName);
-                        // location$var.setAsType(value)
-                        JCExpression setCall = m().Apply(null, setSelect, List.<JCExpression>of(argExp));
-                        // location$var != null
-                        JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
-                        // if (location$var != null) return location$var.setAsType(value) else return value$var = value
-                        stmts.append(m().If(condition, m().Return(setCall), m().Return(assignExp)));
-                        break;
-                    }
-                    case AlwaysLocation: {
-                        // Construct and add: location$var.setAsType(value)
-
-                        // Get the location accessor method name.
-                        Name setMethodName = defs.locationSetMethodName[typeKind];
-
-                        // location$var
-                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                        // location$var.setAsType
-                        JCFieldAccess setSelect = m().Select(locationExp, setMethodName);
-                        // location$var.setAsType(value)
-                        JCExpression setCall = m().Apply(null, setSelect, List.<JCExpression>of(argExp));
-
-                        stmts.append(m().Return(setCall));
-                        break;
-                    }
-                    case NeverLocation: {
-                        // Construct and add: return value$var = value;
-                        stmts.append(m().Return(assignExp));
-                        break;
-                    }
-                }
+                // Add set statement.
+                stmts.append(makeSetterStatement(varInfo, true));
             }
         
             // Set up value arg.
@@ -1136,7 +1099,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the get location method for the specified attribute.
         //
         //     Location loc$var() {
-        //         return location$var;
+        //         return loc$var;
         //     }
         //
         // Or:
@@ -1144,7 +1107,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //         if (loc$var == null) {
         //             loc$var = XXXVariable.makeWithDefault($var));
         //         }
-        //         return location$var);
+        //         return loc$var;
         //     }
         //     
         private JCTree makeGetLocationAccessorMethod(VarInfo varInfo, boolean needsBody) {
@@ -1157,34 +1120,34 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (needsBody) {
                 // Prepare to accumulate statements.
                 stmts = ListBuffer.lb();
-                // value$var
+                // $var
                 Name valueName = attributeValueName(varSym);
-                // location$var
+                // loc$var
                 Name locationName = attributeLocationName(varSym);
 
                 switch (varInfo.representation()) {
                     case SlackerLocation: {
-                        // XXXVariable.makeWithDefault(value$var)
+                        // XXXVariable.makeWithDefault($var)
                         JCExpression initExpr = makeLocationWithDefault(varInfo.getVMI(), varInfo.pos(), Id(valueName));
-                        // location$var = XXXVariable.makeWithDefault(value$var)
+                        // loc$var = XXXVariable.makeWithDefault($var)
                         JCStatement assignExpr = m().Exec(m().Assign(Id(locationName), initExpr));
-                        // location$var == null
+                        // loc$var == null
                         JCExpression nullCheck = m().Binary(JCTree.EQ, Id(locationName), makeNull());
                         //
                         stmts.append(m().If(nullCheck, assignExpr, null));
-                        // Construct and add: return location$var)
+                        // Construct and add: return loc$var)
                         stmts.append(m().Return(Id(locationName)));
                         break;
                     }
                     case AlwaysLocation: {
-                        // Construct and add: return location$var)
+                        // Construct and add: return loc$var)
                         stmts.append(m().Return(Id(locationName)));
                         break;
                     }
                     case NeverLocation: {
-                        // new ConstantLocation<T>(value$var)
+                        // new ConstantLocation<T>($var)
                         JCExpression locationExpr = makeUnboundLocation(currentPos, varInfo.getVMI(), Id(valueName));
-                        // Construct and add: return new ConstantLocation<T>(value$var);
+                        // Construct and add: return new ConstantLocation<T>($var);
                         stmts.append(m().Return(locationExpr));
                         break;
                     }
@@ -1435,6 +1398,70 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return methods.toList();
         }
         
+        // 
+        // This method constructs an applyDefaults method for each attribute.
+        // 
+        private List<JCTree> makeApplyDefaultsMethods(List<? extends VarInfo> attrInfos) {
+            // Mixin vars always have applyDefaults.
+            boolean isMixinClass = analysis.isMixinClass();
+            // Prepare to accumulate methods.
+            ListBuffer<JCTree> methods = ListBuffer.lb();
+            
+            for (VarInfo ai : attrInfos) {
+                // True if the the user specified a default.
+                boolean hasDefault = ai.getDefaultInitStatement() != null;
+                
+                // If the var is defined in the current class or it has a (override) default.
+                if (ai.needsCloning() || hasDefault) {
+                    // Set diagnostic position for attribute.
+                    setCurrentPos(ai.pos());
+                    // Fetch the attribute symbol.
+                    VarSymbol varSym = ai.getSymbol();
+                    // Construct the name of the method.
+                    Name methodName = attributeApplyDefaultsName(varSym);
+                    // Prepare to accumulate statements.
+                    ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                    
+                    // Only need receiver arg if a mixin.
+                    List<JCVariableDecl> args;
+                    if (isMixinClass) {
+                        // Don't override someone elses default.
+                        if (analysis.getCurrentClassSymbol() != varSym.owner && !hasDefault) continue;
+                        // Use a receiver arg.
+                        args = List.<JCVariableDecl>of(makeReceiverParam(analysis.getCurrentClassDecl()));
+                    } else {
+                        // No arguments.
+                        args = List.<JCVariableDecl>nil();
+                        // Compensate with a local receiver.
+                        stmts.append(makeReceiverLocal(analysis.getCurrentClassDecl()));
+                    }
+    
+                    if (hasDefault) {
+                         // a default exists, either on the direct attribute or on an override
+                        stmts.append(ai.getDefaultInitStatement());
+                    } else if (!isMixinClass) {
+                        if (ai.isMixinVar()) {
+                            // Include defaults for mixins into real classes.
+                            stmts.append(makeSuperCall((ClassSymbol)varSym.owner, methodName, List.<JCExpression>of(Id(names._this))));
+                        } else if (ai instanceof TranslatedVarInfo) {
+                            // Just set directly (without clearing initialize bit) to fire trigger.
+                            JCStatement setter = makeSetterStatement(ai, false);
+                            if (setter != null) stmts.append(makeSetterStatement(ai, false));
+                        }
+                    }
+                    
+                    // Construct method.
+                    JCMethodDecl method = makeMethod(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L),
+                                                     syms.voidType,
+                                                     methodName,
+                                                     args,
+                                                     stmts);
+                    methods.append(method);
+                }
+            }
+            return methods.toList();
+        }
+    
         //
         // This methods generates the applDefaults$ methods for this class.  The first method
         // Is a blanket apply all defaults.  The second methods is the default apply default
