@@ -265,11 +265,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethods(instanceAttributeInfos));
             cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, initMap));
-            cDefinitions.append    (makeInitializeMethod(diagPos));
+            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+            cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
+            cDefinitions.append(makeInitializeMethod(diagPos)); //TODO: this should be in the if below, but jfxc933.fx fails ???
 
             if (!hasFxSuper) {
                 // Has a non-JavaFX super, so we can't use FXBase, add the complete$ and initialize$ methods
- //               cDefinitions.append(makeInitializeMethod(diagPos));
                 cDefinitions.append(makeCompleteMethod(diagPos));
 //                           cDefinitions.appendList(javaCodeMaker.makeGeneralApplyDefaults());
             }
@@ -281,8 +282,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
             }
 
-            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
-            cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
             cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, hasFxSuper));
         } else {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
