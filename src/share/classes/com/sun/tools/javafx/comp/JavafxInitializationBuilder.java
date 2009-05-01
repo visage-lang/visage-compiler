@@ -265,7 +265,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             cDefinitions.appendList(makeApplyDefaultsMethods(diagPos, cDecl, instanceAttributeInfos));
             cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, initMap));
-            cDefinitions.append    (makeInitializeMethod(diagPos, instanceAttributeInfos, cDecl));
+            cDefinitions.append    (makeInitializeMethod(diagPos));
 
             if (!hasFxSuper) {
                 // Has a non-JavaFX super, so we can't use FXBase, add the complete$ and initialize$ methods
@@ -436,15 +436,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * @return the constructor
      */
     private JCMethodDecl makeJavaEntryConstructor(DiagnosticPosition diagPos) {
-        // call the FX (basic) version of the constructor
-        JCStatement thisCall = make.at(diagPos).Exec(make.at(diagPos).Apply(null,
-                make.at(diagPos).Ident(names._this),
-                List.<JCExpression>of(make.at(diagPos).Literal(TypeTags.BOOLEAN, 0))));
-        // then call the initialize$ method
-        JCStatement initCall = make.at(diagPos).Exec(make.at(diagPos).Apply(null,
-                make.at(diagPos).Ident(defs.initializeName),
-                List.<JCExpression>nil()));
-        return makeConstructor(diagPos, List.<JCVariableDecl>nil(), List.of(thisCall, initCall));
+        make.at(diagPos);
+
+        //    public Foo() {
+        //        this(false);
+        //        initialize$();
+        //    }
+        return makeConstructor(diagPos, List.<JCVariableDecl>nil(), List.of(
+                callStatement(diagPos, names._this, make.Literal(TypeTags.BOOLEAN, 0)),
+                callStatement(diagPos, defs.initializeName)));
     }
 
     /**
@@ -454,28 +454,31 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
      * @return the constructor
      */
     private JCMethodDecl makeFXEntryConstructor(DiagnosticPosition diagPos, ClassSymbol outerTypeSym, boolean superIsFX) {    
-        Name dummyParamName = names.fromString("dummy");
         make.at(diagPos);
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        Name dummyParamName = names.fromString("dummy");
+
+        // call the FX version of the constructor in the superclass
+        //    public Foo(boolean dummy) {
+        //        super(dummy);
+        //    }
         if (superIsFX) {
-            // call the FX version of the constructor
-            stmts.append(make.Exec(make.Apply(null,
-                    make.Ident(names._super),
-                    List.<JCExpression>of(make.Ident(dummyParamName)))));
+            stmts.append(callStatement(diagPos,
+                names._super,
+                List.<JCExpression>of(make.Ident(dummyParamName))));
         }
+
+        // Construct the parameters
         ListBuffer<JCVariableDecl> params = ListBuffer.lb();
         if (outerTypeSym != null) {
                // add a parameter and a statement to constructor for the outer instance reference
-                params.append( make.VarDef(make.Modifiers(0L), outerAccessorFieldName, make.Ident(outerTypeSym), null) );
+                params.append( makeParam(diagPos, outerAccessorFieldName, make.Ident(outerTypeSym)) );
                 JCFieldAccess cSelect = make.Select(make.Ident(names._this), outerAccessorFieldName);
                 JCAssign assignStat = make.Assign(cSelect, make.Ident(outerAccessorFieldName));
                 stmts.append(make.Exec(assignStat));            
         }
-        params.append( make.at(diagPos).VarDef(
-                make.Modifiers(Flags.PARAMETER),
-                dummyParamName,
-                makeTypeTree( diagPos,syms.booleanType),
-                null) );
+        params.append( makeParam(diagPos, dummyParamName, syms.booleanType) );
+
         return makeConstructor(diagPos, params.toList(), stmts.toList());
     }
     
@@ -618,47 +621,27 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
     }
 
-    private JCMethodDecl makeInitializeMethod(DiagnosticPosition diagPos,
-            List<VarInfo> attrInfos,
-            JFXClassDeclaration cDecl) {
-        boolean classIsFinal = (cDecl.getModifiers().flags & Flags.FINAL) != 0;
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
+    /**
+     * Generated only when there is a Java super class
+     * @param diagPos
+     * @return
+     */
+    private JCMethodDecl makeInitializeMethod(DiagnosticPosition diagPos) {
+        make.at(diagPos);
 
-        // Add calls to do the the default value initialization and user init code (validation for example.)
-
-        // "addTriggers$(this);"
-        stmts.append( callStatement(
-               diagPos,
-               defs.addTriggersName));
-
-        // "applDefaults$();"
-        stmts.append(callStatement(
-                diagPos,
-                defs.applyDefaultsPrefixName,
-                List.<JCExpression>nil()));
-
-        // "userInit$(this);"
-        stmts.append(callStatement(
-                diagPos,
-                defs.userInitName));
-
-        // "postInit$(this);"
-        stmts.append(callStatement(
-                diagPos,
-                defs.postInitName));
-
-        JCBlock initializeBlock = make.Block(0L, stmts.toList());
-        return make.MethodDef(
-                make.Modifiers(Flags.PUBLIC),
-                defs.initializeName,
-                makeTypeTree( null,syms.voidType),
-                List.<JCTypeParameter>nil(),
-                List.<JCVariableDecl>nil(),
-                List.<JCExpression>nil(),
-                initializeBlock, null);
+        // Add calls to do the Java-style initialization
+        //     public void initialize$() {
+        //         addTriggers$();
+        //         applyDefaults$();
+        //         complete$();
+        //     }
+        return makeInitMethod(diagPos, defs.initializeName, syms.voidType, List.of(
+                callStatement(diagPos, defs.addTriggersName),
+                callStatement(diagPos, defs.applyDefaultsPrefixName),
+                callStatement(diagPos, defs.completeName)));
     }
 
-       /**
+    /**
      * Generated only when there is a Java super class
      * @param diagPos
      * @return
@@ -687,7 +670,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 initializeBlock,
                 null);
     }
-
+    
     /**
      * Construct the static block for setting defaults
      * */
