@@ -404,6 +404,10 @@ public class FXLocal {
             }
             return result.toArray(new Method[0]);
         }
+        
+        static final String[] SYSTEM_METHOD_EXCLUDES = { "userInit$", "postInit$", "addTriggers$", "initialize$", "isInitialized$", "javafx$run$", "count$"};
+        static final String[] SYSTEM_METHOD_PREFIXES = { "get$", "set$", "loc$", "applyDefaults$", "GETMAP$" };
+        static final String[] SYSTEM_METHOD_SUFFIXES = { "$impl"};
 
         protected void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result) {
             Class cls = refClass;
@@ -414,27 +418,27 @@ public class FXLocal {
             } catch (SecurityException e) {
                 methods = filter(cls.getMethods(), cls);
             }
-            for (int i = 0;  i < methods.length;  i++) {
+            skip: for (int i = 0;  i < methods.length;  i++) {
                 Method m = methods[i];
                 if (m.isSynthetic())
                     continue;
                 if (m.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null)
-                continue;
+                    continue;
                 String mname = m.getName();
-                if ("userInit$".equals(mname) ||
-                    "postInit$".equals(mname) ||
-                    "addTriggers$".equals(mname) ||
-                    "initialize$".equals(mname) ||
-                    "javafx$run$".equals(mname))
-                    continue;
-                if (mname.endsWith("$impl"))
-                    continue;
-                if (    mname.startsWith(FXClassType.GETTER_PREFIX) ||
-                        mname.startsWith(FXClassType.SETTER_PREFIX) ||
-                        mname.startsWith(FXClassType.LOCATION_GETTER_PREFIX) ||
-                        mname.startsWith("applyDefaults$")) {
-                    continue;
+                    
+                for (String exclude : SYSTEM_METHOD_EXCLUDES) {
+                    if (mname.equals(exclude))
+                        continue skip;
                 }
+                for (String prefix : SYSTEM_METHOD_PREFIXES) {
+                    if (mname.startsWith(prefix))
+                        continue skip;
+                }
+                for (String suffix : SYSTEM_METHOD_SUFFIXES) {
+                    if (mname.endsWith(suffix))
+                        continue skip;
+                }
+
                 if (isMixin()) {
                     try {
                         m = refInterface.getDeclaredMethod(m.getName(), m.getParameterTypes());
@@ -499,7 +503,7 @@ public class FXLocal {
             return deflt;
         }
 
-        static final String[] SYSTEM_PREFIXES = {"VBASE$", "VCNT$", "VFLGS$", "VOFF$", "MAP$"};
+        static final String[] SYSTEM_VAR_PREFIXES = {"VBASE$", "VCNT$", "VFLGS$", "VOFF$", "MAP$"};
 
         protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
             Context ctxt = getReflectionContext();
@@ -530,7 +534,7 @@ public class FXLocal {
                 SourceName sourceName = fld.getAnnotation(SourceName.class);
                 String sname = sourceName != null ? sourceName.value() : fname;
                 
-                for (String prefix : SYSTEM_PREFIXES) {
+                for (String prefix : SYSTEM_VAR_PREFIXES) {
                     if (sname.startsWith(prefix)) {
                         continue fieldLoop;
                     }
