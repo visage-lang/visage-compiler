@@ -52,6 +52,7 @@ public class JavafxScriptClassBuilder {
     private final JavafxDefs defs;
     private Table names;
     private JavafxTreeMaker fxmake;
+    private JCDiagnostic.Factory diags;
     private Log log;
     private JavafxSymtab syms;
     private Set<Name> reservedTopLevelNamesSet;
@@ -77,6 +78,7 @@ public class JavafxScriptClassBuilder {
         defs = JavafxDefs.instance(context);
         names = Table.instance(context);
         fxmake = (JavafxTreeMaker)JavafxTreeMaker.instance(context);
+        diags = JCDiagnostic.Factory.instance(context);
         log = Log.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         pseudoSourceFile = names.fromString("__SOURCE_FILE__");
@@ -324,7 +326,10 @@ public class JavafxScriptClassBuilder {
                 default: {
                     // loose expressions, if allowed, get added to the statements/value
                     if (isLibrary && !looseExpressionsSeen) {
-                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_LOOSE_EXPRESSIONS);
+                        JCDiagnostic reason = externalAccessFound ?
+                            diags.fragment(MsgSym.MESSAGE_JAVAFX_LOOSE_IN_LIB) :
+                            diags.fragment(MsgSym.MESSAGE_JAVAFX_LOOSE_IN_RUN);
+                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_LOOSE_EXPRESSIONS, reason);
                     }
                     looseExpressionsSeen = true;
                     value = (JFXExpression) tree;
