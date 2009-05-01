@@ -25,11 +25,14 @@ package com.sun.javafx.runtime;
 
 /**
  * Primitive class to support javafx.lang.Duration
- * 
+ *
  * @author Tom Ball
  */
 public class Duration implements Comparable {
     protected double millis;
+    // this is a singleton Duration that is of indefinite length.
+    // It is treated as positive infinity for comparison purposes.
+    protected static Duration indefinite;
     private static Duration ZERO;
     private static Duration ONE;
     private static Class<?> fxClass;
@@ -39,25 +42,33 @@ public class Duration implements Comparable {
             fxClass = Class.forName("javafx.lang.Duration");
             ZERO = (Duration) realMake(0);
             ONE = (Duration) realMake(1);
+            indefinite = (Duration)realMake(Double.POSITIVE_INFINITY);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     protected void setMillis(double millis) {
         this.millis = millis;
     }
-    
+
+    protected boolean isIndefinite() {
+        return this == indefinite;
+    }
+
     /** hack to workaround issue with static functions in FX that invoke an instance of their class. */
     protected static Object make(double ms) throws Exception {
-        if (ms == 0)
+        if (ms == 0) {
             return ZERO;
-        else if (ms == 1)
-            return ONE;
-        else {
-            return realMake(ms);
         }
+        if (ms == 1) {
+            return ONE;
+        }
+        if (ms == Double.POSITIVE_INFINITY) {
+            return indefinite;
+        }
+        return realMake(ms);
     }
 
     private static Object realMake(double ms) throws Exception {
@@ -69,6 +80,15 @@ public class Duration implements Comparable {
     @Override
     public int compareTo(Object obj) {
         Duration d = (Duration)obj;
+        if (this == d) {
+            return 0;
+        }
+        if (d.isIndefinite()) {
+            return -1;
+        }
+        if (isIndefinite()) {
+            return 1;
+        }
         double cmp = millis - d.millis;
         return cmp < 0 ? -1 : cmp > 0 ? 1 : 0;
     }
@@ -77,6 +97,12 @@ public class Duration implements Comparable {
     public boolean equals(Object obj) {
         if (obj instanceof Duration) {
             Duration d = (Duration)obj;
+            if (this == d) {
+                return true;
+            }
+            if (isIndefinite() || d.isIndefinite()) {
+                return false;
+            }
             return d.millis == millis;
         }
         return false;
@@ -84,6 +110,10 @@ public class Duration implements Comparable {
 
     @Override
     public int hashCode() {
+        if (this == indefinite) {
+            // some unlikely value
+            return Integer.MIN_VALUE + 89;
+        }
         long value = (long)millis;            // from java.lang.Double.longValue()
         return (int)(value ^ (value >>> 32)); // from java.lang.Long.hashCode()
     }

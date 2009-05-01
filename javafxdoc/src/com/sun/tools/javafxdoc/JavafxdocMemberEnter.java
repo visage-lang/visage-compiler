@@ -35,7 +35,7 @@ import com.sun.tools.javafx.comp.JavafxMemberEnter;
  *  Javadoc's own memberEnter phase does a few things above and beyond that
  *  done by javac.
  */
-class JavafxdocMemberEnter extends JavafxMemberEnter {
+public class JavafxdocMemberEnter extends JavafxMemberEnter {
     public static JavafxdocMemberEnter instance0(Context context) {
         JavafxMemberEnter instance = context.get(javafxMemberEnterKey);
         if (instance == null)

@@ -272,9 +272,10 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
                         types.isSameType(exp.type, syms.javafx_DurationType)) {
                     texp = m().Apply(null,
                             m().Select(translateArg(exp),
-                            names.fromString("toDate")),
+                            names.fromString("toMillis")),
                             List.<JCExpression>nil());
-                    sb.append(format.length() == 0 ? "%tQms" : format);
+                    texp = typeCast(diagPos, syms.javafx_LongType, syms.javafx_DoubleType, texp);
+                    sb.append(format.length() == 0 ? "%dms" : format);
                 } else {
                     texp = translateArg(exp);
                     sb.append(format.length() == 0 ? "%s" : format);

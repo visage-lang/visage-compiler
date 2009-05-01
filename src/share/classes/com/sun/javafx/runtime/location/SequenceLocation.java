@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.TypeInfo;
  *
  * @author Brian Goetz
  */
-public interface SequenceLocation<T> extends Location, Iterable<T>, ObjectLocation<Sequence<T>> {
+public interface SequenceLocation<T> extends Location, ObjectLocation<Sequence<T>> {
     
     T get(int position);
 
@@ -69,23 +69,7 @@ public interface SequenceLocation<T> extends Location, Iterable<T>, ObjectLocati
 
     public void insert(Sequence<? extends T> values);
 
-    public void insertFirst(T value);
-
-    public void insertFirst(Sequence<? extends T> values);
-
     public void insertBefore(T value, int position);
 
-    public void insertBefore(T value, SequencePredicate<T> predicate);
-
     public void insertBefore(Sequence<? extends T> values, int position);
-
-    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> predicate);
-
-    public void insertAfter(T value, int position);
-
-    public void insertAfter(T value, SequencePredicate<T> predicate);
-
-    public void insertAfter(Sequence<? extends T> values, int position);
-
-    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> predicate);
 }

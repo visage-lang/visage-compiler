@@ -23,8 +23,6 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.Iterator;
-
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 import com.sun.javafx.runtime.TypeInfo;
@@ -269,10 +267,6 @@ public class SequenceVariable<T>
         return getAsSequenceRaw().toString();
     }
 
-    public Iterator<T> iterator() {
-        return getAsSequenceRaw().iterator();
-    }
-
     public void replaceWithDefault() {
         replaceValue(typeInfo.emptySequence);
     }
@@ -411,17 +405,6 @@ public class SequenceVariable<T>
         SequenceMutator.insert($value, mutationListener, values);
     }
 
-    public void insertFirst(T value) {
-        ensureNotBound();
-        SequenceMutator.insertFirst($value, mutationListener, value);
-    }
-
-    @Override
-    public void insertFirst(Sequence<? extends T> values) {
-        ensureNotBound(values);
-        SequenceMutator.insertFirst($value, mutationListener, values);
-    }
-
     @Override
     public void insertBefore(T value, int position) {
         ensureNotBound();
@@ -429,45 +412,9 @@ public class SequenceVariable<T>
     }
 
     @Override
-    public void insertBefore(T value, SequencePredicate<T> sequencePredicate) {
-        ensureNotBound();
-        SequenceMutator.insertBefore($value, mutationListener, value, sequencePredicate);
-    }
-
-    @Override
     public void insertBefore(Sequence<? extends T> values, int position) {
         ensureNotBound(values);
         SequenceMutator.insertBefore($value, mutationListener, values, position);
-    }
-
-    @Override
-    public void insertBefore(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        ensureNotBound(values);
-        SequenceMutator.insertBefore($value, mutationListener, values, sequencePredicate);
-    }
-
-    @Override
-    public void insertAfter(T value, int position) {
-        ensureNotBound();
-        SequenceMutator.insertAfter($value, mutationListener, value, position);
-    }
-
-    @Override
-    public void insertAfter(T value, SequencePredicate<T> sequencePredicate) {
-        ensureNotBound();
-        SequenceMutator.insertAfter($value, mutationListener, value, sequencePredicate);
-    }
-
-    @Override
-    public void insertAfter(Sequence<? extends T> values, int position) {
-        ensureNotBound(values);
-        SequenceMutator.insertAfter($value, mutationListener, values, position);
-    }
-
-    @Override
-    public void insertAfter(Sequence<? extends T> values, SequencePredicate<T> sequencePredicate) {
-        ensureNotBound(values);
-        SequenceMutator.insertAfter($value, mutationListener, values, sequencePredicate);
     }
 
     private class BoundLocationInfo {
