@@ -28,6 +28,7 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
 import com.sun.tools.javafx.util.MsgSym;
 
 /**
@@ -40,13 +41,17 @@ public class JavafxOptimizationStatistics {
     private final Log log;
 
     private int instanceVarLocationCount;
+    private int instanceVarSlackerCount;
     private int instanceVarDirectCount;
     private int instanceDefLocationCount;
+    private int instanceDefSlackerCount;
     private int instanceDefDirectCount;
 
     private int scriptVarLocationCount;
+    private int scriptVarSlackerCount;
     private int scriptVarDirectCount;
     private int scriptDefLocationCount;
+    private int scriptDefSlackerCount;
     private int scriptDefDirectCount;
 
     private int localBoundVarLocationCount;
@@ -81,13 +86,17 @@ public class JavafxOptimizationStatistics {
         log = Log.instance(context);
 
         instanceVarLocationCount = 0;
+        instanceVarSlackerCount = 0;
         instanceVarDirectCount = 0;
         instanceDefLocationCount = 0;
+        instanceDefSlackerCount = 0;
         instanceDefDirectCount = 0;
 
         scriptVarLocationCount = 0;
+        scriptVarSlackerCount = 0;
         scriptVarDirectCount = 0;
         scriptDefLocationCount = 0;
+        scriptDefSlackerCount = 0;
         scriptDefDirectCount = 0;
 
         localBoundVarLocationCount = 0;
@@ -105,11 +114,27 @@ public class JavafxOptimizationStatistics {
 
     }
 
-    public void recordClassVar(VarSymbol vsym, boolean isLocation) {
+    public void recordClassVar(VarSymbol vsym, VarRepresentation varRep) {
         long flags = vsym.flags();
         boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
         boolean isScript = (flags & Flags.STATIC) != 0;
-        if (isLocation) {
+        switch (varRep) {
+            case SlackerLocation:
+            if (isScript) {
+                if (isDef) {
+                    ++scriptDefSlackerCount;
+                } else {
+                    ++scriptVarSlackerCount;
+                }
+            } else {
+                if (isDef) {
+                    ++instanceDefSlackerCount;
+                } else {
+                    ++instanceVarSlackerCount;
+                }
+            }
+            break;
+            case AlwaysLocation:
             if (isScript) {
                 if (isDef) {
                     ++scriptDefLocationCount;
@@ -123,7 +148,8 @@ public class JavafxOptimizationStatistics {
                     ++instanceVarLocationCount;
                 }
             }
-        } else {
+            break;
+            case NeverLocation:
             if (isScript) {
                 if (isDef) {
                     ++scriptDefDirectCount;
@@ -137,6 +163,7 @@ public class JavafxOptimizationStatistics {
                     ++instanceVarDirectCount;
                 }
             }
+            break;
         }
     }
 
@@ -189,36 +216,44 @@ public class JavafxOptimizationStatistics {
     private void printInstanceVariableData() {
         int instanceVariableLocationCount = instanceVarLocationCount + instanceDefLocationCount;
         int instanceVariableDirectCount = instanceVarDirectCount + instanceDefDirectCount;
-        int instanceVariableCount = instanceVariableLocationCount + instanceVariableDirectCount;
+        int instanceVariableSlackerCount = instanceVarSlackerCount + instanceDefSlackerCount;
+        int instanceVariableCount = instanceVariableLocationCount + instanceVariableDirectCount + instanceVariableSlackerCount;
 
         show("Instance variable count", instanceVariableCount);
         show("Instance variable Location count", instanceVariableLocationCount);
+        show("Instance variable Slacker count", instanceVariableSlackerCount);
         show("Instance variable direct count", instanceVariableDirectCount);
         
-        show("Instance 'var' count", (instanceVarLocationCount + instanceVarDirectCount));
+        show("Instance 'var' count", (instanceVarLocationCount + instanceVarSlackerCount + instanceVarDirectCount));
         show("Instance 'var' Location count", instanceVarLocationCount);
+        show("Instance 'var' Slacker count", instanceVarSlackerCount);
         show("Instance 'var' direct count", instanceVarDirectCount);
         
-        show("Instance 'def' count", (instanceDefLocationCount + instanceDefDirectCount));
+        show("Instance 'def' count", (instanceDefLocationCount + instanceDefSlackerCount + instanceDefDirectCount));
         show("Instance 'def' Location count", instanceDefLocationCount);
+        show("Instance 'def' Slacker count", instanceDefSlackerCount);
         show("Instance 'def' direct count", instanceDefDirectCount);
     }
     
     private void printScriptVariableData() {
         int scriptVariableLocationCount = scriptVarLocationCount + scriptDefLocationCount;
         int scriptVariableDirectCount = scriptVarDirectCount + scriptDefDirectCount;
-        int scriptVariableCount = scriptVariableLocationCount + scriptVariableDirectCount;
+        int scriptVariableSlackerCount = scriptVarSlackerCount + scriptDefSlackerCount;
+        int scriptVariableCount = scriptVariableLocationCount + scriptVariableDirectCount + scriptVariableSlackerCount;
 
         show("Script variable count", scriptVariableCount);
         show("Script variable Location count", scriptVariableLocationCount);
+        show("Script variable Slacker count", scriptVariableSlackerCount);
         show("Script variable direct count", scriptVariableDirectCount);
         
-        show("Script 'var' count", (scriptVarLocationCount + scriptVarDirectCount));
+        show("Script 'var' count", (scriptVarLocationCount + scriptVarSlackerCount + scriptVarDirectCount));
         show("Script 'var' Location count", scriptVarLocationCount);
+        show("Script 'var' Slacker count", scriptVarSlackerCount);
         show("Script 'var' direct count", scriptVarDirectCount);
         
-        show("Script 'def' count", (scriptDefLocationCount + scriptDefDirectCount));
+        show("Script 'def' count", (scriptDefLocationCount + scriptDefSlackerCount + scriptDefDirectCount));
         show("Script 'def' Location count", scriptDefLocationCount);
+        show("Script 'def' Slacker count", scriptDefSlackerCount);
         show("Script 'def' direct count", scriptDefDirectCount);
     }
     

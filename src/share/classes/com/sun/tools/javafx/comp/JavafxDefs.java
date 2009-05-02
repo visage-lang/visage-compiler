@@ -43,12 +43,12 @@ public class JavafxDefs {
      */
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
-    public static final String attributeGetLocationMethodNamePrefix = "location$";
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
+    public static final String attributeGetLocationMethodNamePrefix = "loc$";
+    public static final String attributeCountMethodString = "count$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
-    public static final String needsDefaultSuffix = "$needs_default$";
     public static final String mixinSuffix = "$Mixin";
     public static final String deprecatedInterfaceSuffix = "$Intf";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
@@ -63,6 +63,7 @@ public class JavafxDefs {
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
     public static final String initializeNameString ="initialize$";
+    public static final String completeNameString ="complete$";
     public static final String getMethodNameString = "get";
     public static final String setMethodNameString ="set";
     public static final String setDefaultMethodNameString = "setDefault";
@@ -70,7 +71,7 @@ public class JavafxDefs {
     public static final String addStaticDependentNameString = "addStaticDependent";
     public static final String addDynamicDependentNameString = "addDynamicDependent";
     public static final String clearDynamicDependenciesNameString = "clearDynamicDependencies";
-    public static final String trySetFromLiteralMethodNameString = "needDefault";
+    public static final String needDefaultMethodNameString = "needDefault";
     public static final String makeAttributeMethodNameString = "makeAttribute";
     public static final String makeMethodNameString = "make";
     public static final String makeWithDefaultMethodNameString = "makeWithDefault";
@@ -84,12 +85,14 @@ public class JavafxDefs {
     public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
     
-    public static final String varOffsetString = "$VAR_OFFSET_";
-    public static final String varBaseString = "$VAR_BASE";
-    public static final String varCountString = "$VAR_COUNT";
-    public static final String varBitsString = "$VAR_BITS_";
-    public static final String varValueString = "value$";
-    public static final String varLocationString = "location$";
+    public static final String varOffsetString = "VOFF$";
+    public static final String varBaseString = "VBASE$";
+    public static final String varCountString = "VCNT$";
+    public static final String varBitsString = "VFLGS$";
+    public static final String varValueString = "$";
+    public static final String varLocationString = "loc$";
+    public static final String varMapString = "MAP$";
+    public static final String varGetMapString = "GETMAP$";
     
     public  static final String javaLangPackageNameString = "java.lang";
     public  static final String runtimePackageNameString = "com.sun.javafx.runtime";
@@ -104,14 +107,6 @@ public class JavafxDefs {
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
     private static final String cLocations = locationPackageNameString + ".Locations";
 
-    static final String[] milieuNames = { "", "FromLiteral" };
-    public static String getMilieuName(int index) { return milieuNames[index]; }
-    
-    static final int VANILLA_MILIEU = 0;
-    static final int FROM_DEFAULT_MILIEU = 0;  // for now, same as vanilla
-    static final int FROM_LITERAL_MILIEU = 1;
-    static final int MILIEU_COUNT = 2;
-    
     public char typeCharToEscape = '.';
     public char escapeTypeChar = '_';
 
@@ -174,6 +169,7 @@ public class JavafxDefs {
     final Name mainName;
     final Name receiverName;
     final Name initializeName;
+    final Name completeName;
     final Name getMethodName;
     final Name attributeSetMethodParamName;
     final Name getSliceMethodName;
@@ -202,6 +198,7 @@ public class JavafxDefs {
     final Name bindingIdName;
     final Name getStaticDependentsMethodName;
     final Name computeMethodName;
+    final Name varOffsetName;
     final Name varBaseName;
     final Name varCountName;
     final Name toTestName;
@@ -227,6 +224,8 @@ public class JavafxDefs {
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name applyDefaultsPrefixName;
+    final Name getLocationPrefixName;
+    final Name attributeCountMethodName;
     final Name isInitializedPrefixName;
     final Name setDefaultMethodName;
     final Name noteSharedMethodName;
@@ -238,9 +237,8 @@ public class JavafxDefs {
     final Name getAsSequenceRawMethodName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
-    final Name[][] locationSetMilieuMethodName;
-    final Name[] locationBindMilieuMethodName;
-    final Name[] locationBijectiveBindMilieuMethodName;
+    final Name locationBindMethodName;
+    final Name locationBijectiveBindMethodName;
     
 	public final Name runtimePackageName;
 	public final Name annotationPackageName;
@@ -251,7 +249,6 @@ public class JavafxDefs {
     public final Name[] locationVariableName;
     public final Name[] locationInterfaceName;
     public final Name implFunctionSuffixName;
-    public final Name needsDefaultSuffixName;
     
     public Type delocationize(Name flatname) {
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
@@ -300,6 +297,7 @@ public class JavafxDefs {
         mainName = names.fromString("main");
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
+        completeName = names.fromString(completeNameString);
         getMethodName = names.fromString(getMethodNameString);
         attributeSetMethodParamName = names.fromString("value");
         getSliceMethodName = names.fromString("getSlice");
@@ -311,7 +309,7 @@ public class JavafxDefs {
         addStaticDependentName = names.fromString(addStaticDependentNameString);
         addDynamicDependentName = names.fromString(addDynamicDependentNameString);
         clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);
-        needDefaultsMethodName = names.fromString(trySetFromLiteralMethodNameString);
+        needDefaultsMethodName = names.fromString(needDefaultMethodNameString);
         makeAttributeMethodName = names.fromString(makeAttributeMethodNameString);
         makeMethodName = names.fromString(makeMethodNameString);
         makeWithDefaultMethodName = names.fromString(makeWithDefaultMethodNameString);
@@ -329,6 +327,7 @@ public class JavafxDefs {
         bindingIdName = names.fromString(bindingIdString);
         getStaticDependentsMethodName = names.fromString(getStaticDependentsMethodString);
         computeMethodName = names.fromString(computeMethodString);
+        varOffsetName = names.fromString(varOffsetString);
         varBaseName = names.fromString(varBaseString);
         varCountName = names.fromString(varCountString);
         toTestName = names.fromString("toTest");
@@ -358,11 +357,13 @@ public class JavafxDefs {
         onReplaceArgNameLastIndex = names.fromString("$lastIndex$");
         onReplaceArgNameNewElements = names.fromString("$newElements$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
-        needsDefaultSuffixName = names.fromString(needsDefaultSuffix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
-        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
+        getLocationPrefixName = names.fromString(attributeGetLocationMethodNamePrefix);
+        attributeCountMethodName = names.fromString(attributeCountMethodString);
+        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);       
+        
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);
 		javaLangPackageName = names.fromString(javaLangPackageNameString);
@@ -372,7 +373,6 @@ public class JavafxDefs {
         setDefaultMethodName  = names.fromString(setDefaultMethodNameString);
         locationGetMethodName = new Name[TYPE_KIND_COUNT];
         locationSetMethodName = new Name[TYPE_KIND_COUNT];
-        locationSetMilieuMethodName = new Name[TYPE_KIND_COUNT][MILIEU_COUNT];
         locationVariableName = new Name[TYPE_KIND_COUNT];
         locationInterfaceName = new Name[TYPE_KIND_COUNT];
 
@@ -402,24 +402,18 @@ public class JavafxDefs {
         BoundSequences_upcast = new RuntimeMethod(names, cBoundSequences, "upcast");
         BoundSequences_convertNumberSequence = new RuntimeMethod(names, cBoundSequences, "convertNumberSequence");
 
-        // Initialize per Kind / Milieu names and types
+        // Initialize per Kind names and types
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
-            for (int m = 0; m < MILIEU_COUNT; ++m) {
-                locationSetMilieuMethodName[kind][m] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(kind) + milieuNames[m]);
-            }
             locationGetMethodName[kind] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(kind));
-            locationSetMethodName[kind] = locationSetMilieuMethodName[kind][VANILLA_MILIEU];
+            locationSetMethodName[kind] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(kind));
             
             String typePrefix = locationPackageNameString + "." + JavafxVarSymbol.getTypePrefix(kind);
             locationVariableName[kind] = names.fromString(typePrefix + "Variable");
             locationInterfaceName[kind] = names.fromString(typePrefix + "Location");
         }
-        locationBindMilieuMethodName = new Name[MILIEU_COUNT];
-        locationBijectiveBindMilieuMethodName = new Name[MILIEU_COUNT];
-        for (int m = 0; m < MILIEU_COUNT; ++m) {
-            locationBindMilieuMethodName[m] = names.fromString("bind" + milieuNames[m]);
-            locationBijectiveBindMilieuMethodName[m] = names.fromString("bijectiveBind" + milieuNames[m]);
-        }
+        locationBindMethodName = names.fromString("bind");
+        locationBijectiveBindMethodName = names.fromString("bijectiveBind");
+
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
         realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;

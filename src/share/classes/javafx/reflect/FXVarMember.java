@@ -36,6 +36,9 @@ public abstract class FXVarMember implements FXMember {
 
     public abstract FXType getType();
 
+    /** Get the offset of the attribute. */
+    public abstract int getOffset();
+
     /** Get the value of the attribute in a specified object. */
     public abstract FXValue getValue(FXObjectValue obj);
 

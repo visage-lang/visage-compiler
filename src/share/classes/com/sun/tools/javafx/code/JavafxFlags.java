@@ -68,9 +68,6 @@ public class JavafxFlags {
     public static final long VARUSE_COMPLEX_INITIAL_VALUE
                                                      = FIRST_VARUSE_FLAG << 10; // the initial value is stateful or has side-effects
     public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 11; // temp flag, set while inside var's initializing expression
-    public static final long VARUSE_NEED_LOCATION    = FIRST_VARUSE_FLAG << 12; // var should be represented by a Location
-    public static final long VARUSE_NEED_LOCATION_DETERMINED
-                                                     = FIRST_VARUSE_FLAG << 13; // NEED_LOCATION has been computed and set
     // This last shift + the last for modifiers must be < 24 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags

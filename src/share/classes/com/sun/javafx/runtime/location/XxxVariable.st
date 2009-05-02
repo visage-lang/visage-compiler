@@ -48,11 +48,11 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> impl
         return new $T.Variable$(value);
     }
 
-    public static $T.Variable$ make(boolean lazy, BindingExpression binding, Location... dependencies) {
+    public static $T.Variable$ make(boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         return new $T.Variable$(lazy, binding, dependencies);
     }
 
-    public static $T.Variable$ make(BindingExpression binding, Location... dependencies) {
+    public static $T.Variable$ make(BindingExpression binding, DependencySource... dependencies) {
         return new $T.Variable$(false, binding, dependencies);
     }
 
@@ -71,7 +71,7 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> impl
         setValid();
     }
 
-    protected $T.Variable$(boolean lazy, BindingExpression binding, Location... dependencies) {
+    protected $T.Variable$(boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         this();
         bind(lazy, binding);
         addDependency(dependencies);
@@ -111,15 +111,6 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> impl
             throw new AssignToBoundException("Cannot assign to bound variable");
         else
             return replaceValue(value);
-    }
-
-    public $T.prim$ setAs$PREFIX$FromLiteral(final $T.prim$ value) {
-        setDeferredLiteral(new DeferredInitializer() {
-            public void apply() {
-                setAs$PREFIX$(value);
-            }
-        });
-        return value;
     }
 
     public void setDefault() {

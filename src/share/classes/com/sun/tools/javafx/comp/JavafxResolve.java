@@ -486,21 +486,21 @@ public class JavafxResolve {
             if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }
 
-        // We failed to find the field in the single Java class supertype of the 
-        // Javafx class.
-        // Now try to find the filed in all of the Javafx supertypes.
-        if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
-            List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
-            for (Type tp : supertypes) {
-                if (tp != null && tp.tag == CLASS) {
-                    sym = findField(env, site, name, tp.tsym);
-                    if (sym.kind < bestSoFar.kind) bestSoFar = sym;
-                    if (bestSoFar.kind < AMBIGUOUS) {
-                        break;
-                    }
-                }
-            }
-        }
+//         // We failed to find the field in the single Java class supertype of the 
+//         // Javafx class.
+//         // Now try to find the filed in all of the Javafx supertypes.
+//         if (bestSoFar.kind > AMBIGUOUS && c instanceof JavafxClassSymbol) {
+//             List<Type> supertypes = ((JavafxClassSymbol)c).getSuperTypes();
+//             for (Type tp : supertypes) {
+//                 if (tp != null && tp.tag == CLASS) {
+//                     sym = findField(env, site, name, tp.tsym);
+//                     if (sym.kind < bestSoFar.kind) bestSoFar = sym;
+//                     if (bestSoFar.kind < AMBIGUOUS) {
+//                         break;
+//                     }
+//                 }
+//             }
+//         }
 
         for (List<Type> l = types.interfaces(c.type);
              bestSoFar.kind != AMBIGUOUS && l.nonEmpty();

@@ -24,6 +24,9 @@
 package com.sun.tools.javafx.comp;
 
 import java.util.IdentityHashMap;
+import java.util.Set;
+import java.util.HashSet;
+
 import javax.tools.JavaFileObject;
 import com.sun.tools.javac.jvm.ClassReader;
 import com.sun.tools.javac.code.*;
@@ -564,6 +567,7 @@ public class JavafxClassReader extends ClassReader {
             }
             boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
+            Set<Name> priorNames = new HashSet<Name>();
             handleSyms:
             for (List<Symbol> l = symlist; l.nonEmpty(); l=l.tail) {
                 Symbol memsym = l.head;
@@ -595,10 +599,15 @@ public class JavafxClassReader extends ClassReader {
                 }
                 if (memsym instanceof MethodSymbol) {
                     if (! sawSourceNameAnnotation &&
-                            (name == defs.internalRunFunctionName || name == defs.initializeName ||
+                            (name == defs.internalRunFunctionName || 
+                            name == defs.initializeName ||
+                            name == defs.completeName ||
                             name == defs.postInitName || name == defs.userInitName ||
                             name == defs.addTriggersName ||
                             name == names.clinit ||
+                            name.startsWith(defs.varOffsetName) ||
+                            name.startsWith(defs.varCountName) ||
+                            name.startsWith(defs.varBaseName) ||
                             name.startsWith(defs.attributeGetPrefixName) ||
                             name.startsWith(defs.attributeSetPrefixName) ||
                             name.startsWith(defs.applyDefaultsPrefixName)))
@@ -621,21 +630,20 @@ public class JavafxClassReader extends ClassReader {
                     csym.members_field.enter(m);
                 }
                 else if (memsym instanceof VarSymbol) {
-                    if (name.endsWith(defs.needsDefaultSuffixName))
+                    // Eliminate any duplicate value/location.
+                    if (priorNames.contains(name))
                         continue;
+                    // Filter out synthetic vars.
+                    String nameString = name.toString();
+                    if (nameString.startsWith(defs.varBaseString)) continue;
+                    if (nameString.startsWith(defs.varBitsString)) continue;
+                    if (nameString.startsWith(defs.varMapString)) continue;
+
                     Type otype = memsym.type;
-                    if (otype.tag == CLASS) {
-                        TypeSymbol tsym = otype.tsym;
-                        Name flatname = ((ClassSymbol) tsym).flatname;
-                        Type deloc = defs.delocationize(flatname);
-                        if (deloc != null) {
-                            flags |= JavafxFlags.VARUSE_NEED_LOCATION;
-                        }
-                    }
-                    flags |= JavafxFlags.VARUSE_NEED_LOCATION_DETERMINED;
                     Type type = translateType(otype);
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
                     csym.members_field.enter(v);
+                    priorNames.add(name);
                 }
                 else {
                     memsym.flags_field = flags;

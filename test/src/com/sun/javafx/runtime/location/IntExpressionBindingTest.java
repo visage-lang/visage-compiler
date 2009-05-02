@@ -276,7 +276,7 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
         final IntVariable b = IntVariable.make();
 
         a.bind(false, new IntBindingExpression() {
-            protected Location[] getStaticDependents() {
+            protected DependencySource[] getStaticDependents() {
                 return new Location[] { b };
             }
 
