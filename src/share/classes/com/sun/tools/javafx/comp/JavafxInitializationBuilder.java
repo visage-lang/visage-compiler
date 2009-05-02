@@ -1479,10 +1479,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (ai.isMixinVar()) {
                             // Include defaults for mixins into real classes.
                             stmts.append(makeSuperCall((ClassSymbol)varSym.owner, methodName, List.<JCExpression>of(Id(names._this))));
-//                       } else if (ai instanceof TranslatedVarInfo) {
-//                            // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
-//                            JCStatement setter = makeSetDefaultStatement(ai);
-//                            if (setter != null) stmts.append(setter);
+                       } else if (ai instanceof TranslatedVarInfo) {
+                            //TODO: see SequenceVariable.setDefault() and JFXC-885
+                            // setDefault() isn't really done for sequences
+                            if (!ai.isSequence()) {
+                                // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
+                                JCStatement setter = makeSetDefaultStatement(ai);
+                                if (setter != null) {
+                                    stmts.append(setter);
+                                }
+                            }
                         }
                     }
 
