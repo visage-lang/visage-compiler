@@ -813,7 +813,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Construct the variable itself.
             JCVariableDecl var = m().VarDef(mods, name, type, varInit);
              // Update the statistics.
-            optStat.recordClassVar(varInfo.getSymbol(), false);
+            optStat.recordClassVar(varInfo.getSymbol(), varInfo.representation());
             optStat.recordConcreteField();
 
             return var;
