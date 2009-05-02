@@ -29,11 +29,11 @@ import com.sun.javafx.runtime.location.*;
  * Base class for most FX classes.  The exception being classes that inherit from Java classes.
  *
  * @author Jim Laskey
+ * @author Robert Field
  */
 public class FXBase implements FXObject {
-    // First class base and count.
-    public static int VBASE$ = 0;
-    public static int VCNT$ = 0;
+    // First class base.
+    public static final int VBASE$ = 0;
 
     /**
      * Constructor called from Java or from object literal with no instance variable initializers
@@ -70,13 +70,15 @@ public class FXBase implements FXObject {
             rcvr.applyDefaults$(inx);
         }
     }
+    
+    public static int VCNT$() { return VBASE$ + 0; }
 
     public void addTriggers$  () {}
     public void applyDefaults$() {}
     public void userInit$     () {}
     public void postInit$     () {}
 
-    public int      count$()                         { return 0; }
+    public int      count$()                         { return VCNT$(); }
     public boolean  applyDefaults$(final int varNum) { return false; }
     public boolean  isInitialized$(final int varNum) { return true; }
     public Location loc$(final int varNum)           { return null; }

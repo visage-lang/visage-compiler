@@ -405,9 +405,28 @@ public class FXLocal {
             return result.toArray(new Method[0]);
         }
         
-        static final String[] SYSTEM_METHOD_EXCLUDES = { "userInit$", "postInit$", "addTriggers$", "initialize$", "isInitialized$", "javafx$run$", "count$"};
-        static final String[] SYSTEM_METHOD_PREFIXES = { "get$", "set$", "loc$", "applyDefaults$", "GETMAP$" };
-        static final String[] SYSTEM_METHOD_SUFFIXES = { "$impl"};
+        static final String[] SYSTEM_METHOD_EXCLUDES = {
+            "userInit$",
+            "postInit$",
+            "addTriggers$",
+            "initialize$",
+            "isInitialized$",
+            "javafx$run$",
+            "count$",
+            "VCNT$",
+            "VBASE$"
+        };
+        static final String[] SYSTEM_METHOD_PREFIXES = {
+            "get$",
+            "set$",
+            "loc$",
+            "applyDefaults$",
+            "GETMAP$",
+            "VOFF$"
+        };
+        static final String[] SYSTEM_METHOD_SUFFIXES = {
+            "$impl"
+        };
 
         protected void getFunctions(FXMemberFilter filter, SortedMemberArray<? super FXFunctionMember> result) {
             Class cls = refClass;
@@ -479,7 +498,7 @@ public class FXLocal {
         static protected java.lang.reflect.Method getMethodOrNull(Class cls, String name, Class... types) {
             java.lang.reflect.Method method = null;
             try {
-              method = cls.getMethod(name, types);
+                method = cls.getMethod(name, types);
             } catch (Throwable ex) {
             }
             return method;
@@ -488,7 +507,7 @@ public class FXLocal {
         static protected java.lang.reflect.Field getFieldOrNull(Class cls, String name) {
             java.lang.reflect.Field field = null;
             try {
-              field = cls.getField(name);
+                field = cls.getField(name);
             } catch (Throwable ex) {
             }
             return field;
@@ -496,14 +515,28 @@ public class FXLocal {
 
         static protected int getFieldIntOrDefault(Class cls, String name, int deflt) {
             try {
-              java.lang.reflect.Field field = cls.getField(name);
-              deflt = field.getInt(null);
+                java.lang.reflect.Field field = cls.getField(name);
+                deflt = field.getInt(null);
             } catch (Throwable ex) {
             }
             return deflt;
         }
+        
+        static protected int callMethodIntOrDefault(java.lang.reflect.Method method, int deflt) {
+            if (method != null) {
+                try {
+                    deflt = ((Integer)method.invoke(null)).intValue();
+                } catch (Throwable ex) {
+                }
+            }
+            return deflt;
+        }
 
-        static final String[] SYSTEM_VAR_PREFIXES = {"VBASE$", "VCNT$", "VFLGS$", "VOFF$", "MAP$"};
+        static final String[] SYSTEM_VAR_PREFIXES = {
+            "VBASE$",
+            "VFLGS$",
+            "MAP$"
+        };
 
         protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
             Context ctxt = getReflectionContext();
@@ -546,7 +579,8 @@ public class FXLocal {
                     
                 java.lang.reflect.Type gtype = fld.getGenericType();
                 FXType tr = ctxt.makeTypeRef(gtype);
-                int offset = getFieldIntOrDefault(cls, "VOFF" + fname, -1);
+                java.lang.reflect.Method offsetMeth = getMethodOrNull(cls, "VOFF" + fname);
+                int offset = callMethodIntOrDefault(offsetMeth, -1);
                 VarMember ref = new VarMember(sname, this, tr, offset);
                 ref.fld = fld;
                 if (!isMixin()) {
