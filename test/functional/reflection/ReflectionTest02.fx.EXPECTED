@@ -1,8 +1,10 @@
 About class ReflectionTest02
 class ReflectionTest02
-  Super classes of ReflectionTest02:[class ReflectionTest02, class java.lang.Object]
+  Super classes of ReflectionTest02:[class ReflectionTest02, class com.sun.javafx.runtime.FXBase, class java.lang.Object]
   Mixin class: false
   JavaFX Type: true
+  class com.sun.javafx.runtime.FXBase is assignable from class ReflectionTest02
+  class ReflectionTest02 is not assignable from class com.sun.javafx.runtime.FXBase
   class java.lang.Object is assignable from class ReflectionTest02
   class ReflectionTest02 is not assignable from class java.lang.Object
 MEMBERS of class ReflectionTest02
@@ -63,11 +65,13 @@ FUNCTIONS of class ReflectionTest02
 ___________________________________________________________
 About class ReflectionTest02.TestClass
 class ReflectionTest02.TestClass
-  Super classes of ReflectionTest02.TestClass:[class ReflectionTest02.BaseTestClass, class ReflectionTest02.TestClass, class java.lang.Object]
+  Super classes of ReflectionTest02.TestClass:[class ReflectionTest02.BaseTestClass, class ReflectionTest02.TestClass, class com.sun.javafx.runtime.FXBase, class java.lang.Object]
   Mixin class: false
   JavaFX Type: true
   class ReflectionTest02.BaseTestClass is assignable from class ReflectionTest02.TestClass
   class ReflectionTest02.TestClass is not assignable from class ReflectionTest02.BaseTestClass
+  class com.sun.javafx.runtime.FXBase is assignable from class ReflectionTest02.TestClass
+  class ReflectionTest02.TestClass is not assignable from class com.sun.javafx.runtime.FXBase
   class java.lang.Object is assignable from class ReflectionTest02.TestClass
   class ReflectionTest02.TestClass is not assignable from class java.lang.Object
 MEMBERS of class ReflectionTest02.TestClass

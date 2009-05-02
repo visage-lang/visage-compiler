@@ -412,6 +412,8 @@ public class FXLocal {
             "initialize$",
             "isInitialized$",
             "javafx$run$",
+            "complete$",
+            "makeInitMap$",
             "count$",
             "VCNT$",
             "VBASE$"
