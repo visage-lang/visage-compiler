@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.InitHelper;
 import com.sun.javafx.runtime.JavaFXTestCase;
 import framework.FXObjectFactory;
 
@@ -104,7 +103,6 @@ public class InitializationTest extends JavaFXTestCase {
 
         public void initialize$() {
             initAttributes$(this);
-            InitHelper.finish(attributes);
         }
     }
 
@@ -177,7 +175,6 @@ public class InitializationTest extends JavaFXTestCase {
 
         public void initialize$() {
             initAttributes$(this);
-            InitHelper.finish(attributes);
         }
     }
 
@@ -263,7 +260,6 @@ public class InitializationTest extends JavaFXTestCase {
 
         public void initialize$() {
             initAttributes$(this);
-            InitHelper.finish(attributes);
         }
     }
 
