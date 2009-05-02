@@ -1046,36 +1046,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method returns a .setDefault() call (if appropriate)
-        //
-        private JCStatement makeSetDefaultStatement(VarInfo varInfo) {
-            // Symbol used when accessing the variable.
-            VarSymbol proxyVarSym = varInfo.proxyVarSym();
-
-            // loc$var.setDefault()
-            JCStatement setDefaultCall = callStatement(currentPos, Id(attributeLocationName(proxyVarSym)), defs.setDefaultMethodName);
-
-            switch (varInfo.representation()) {
-                case SlackerLocation: {
-                    // loc$var != null
-                    JCExpression condition = m().Binary(JCTree.NE, Id(attributeLocationName(proxyVarSym)), makeNull());
-
-                    // if (loc$var != null) loc$var.setDefault()
-                    return m().If(condition, setDefaultCall, null);
-                }
-                case AlwaysLocation: {
-                    // loc$var.setDefault()
-                    return setDefaultCall;
-                }
-                case NeverLocation: {
-                    // Not a location
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        //
         // This method constructs the setter method for the specified attribute.
         //
         //     type set$var(type value) {
@@ -1131,6 +1101,36 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return method;
         }
         
+        //
+        // This method returns a .setDefault() call (if appropriate)
+        //
+        private JCStatement makeSetDefaultStatement(VarInfo varInfo) {
+            // Symbol used when accessing the variable.
+            VarSymbol proxyVarSym = varInfo.proxyVarSym();
+
+            // loc$var.setDefault()
+            JCStatement setDefaultCall = callStatement(currentPos, Id(attributeLocationName(proxyVarSym)), defs.setDefaultMethodName);
+
+            switch (varInfo.representation()) {
+                case SlackerLocation: {
+                    // loc$var != null
+                    JCExpression condition = m().Binary(JCTree.NE, Id(attributeLocationName(proxyVarSym)), makeNull());
+
+                    // if (loc$var != null) loc$var.setDefault()
+                    return m().If(condition, setDefaultCall, null);
+                }
+                case AlwaysLocation: {
+                    // loc$var.setDefault()
+                    return setDefaultCall;
+                }
+                case NeverLocation: {
+                    // Not a location
+                    return null;
+                }
+            }
+            return null;
+        }
+
         //
         // This method constructs the get location method for the specified attribute.
         //
@@ -1479,10 +1479,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (ai.isMixinVar()) {
                             // Include defaults for mixins into real classes.
                             stmts.append(makeSuperCall((ClassSymbol)varSym.owner, methodName, List.<JCExpression>of(Id(names._this))));
-                       } else if (ai instanceof TranslatedVarInfo) {
-                            // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
-                            JCStatement setter = makeSetDefaultStatement(ai);
-//                          if (setter != null) stmts.append(setter);
+//                       } else if (ai instanceof TranslatedVarInfo) {
+//                            // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
+//                            JCStatement setter = makeSetDefaultStatement(ai);
+//                            if (setter != null) stmts.append(setter);
                         }
                     }
 
