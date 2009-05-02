@@ -356,7 +356,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
                 try {
                     importFrom(tsym);
-                    if (!found) {
+                    if (!found) { 
                         log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE_LOCATION,
                                   JCDiagnostic.fragment(MsgSym.KINDNAME_STATIC),
                                   name, "", "", JavafxResolve.typeKindName(tsym.type),
@@ -700,12 +700,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     @Override
     public void visitClassDeclaration(JFXClassDeclaration that) {
         for (JFXExpression superClass : that.getSupertypes()) {
-            Type superType = attr.attribType(superClass, env);
-            if (that.sym != null && that.sym instanceof JavafxClassSymbol) {
-                if (superType != null && superType != Type.noType) {
-                    ((JavafxClassSymbol)that.sym).addSuperType(superType);
-                }
-            }
+            attr.attribType(superClass, env);
         }
     }
     
@@ -818,10 +813,14 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                     supertype = Type.noType;
                 } else {
                     supertype = syms.javafx_FXBaseType;
-                    ((JavafxClassSymbol)sym).addSuperType(supertype);
                 }
             }
             ct.supertype_field = supertype;
+            if (sym != null && sym instanceof JavafxClassSymbol) {
+                if (supertype != null && supertype != Type.noType) {
+                    ((JavafxClassSymbol)sym).addSuperType(supertype);
+                }
+            }
 
             // Determine interfaces.
             List<JFXExpression> interfaceTrees = tree.getImplementing();
@@ -842,9 +841,19 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                     chk.checkNotRepeated(iface.pos(), types.erasure(i), interfaceSet);
                 }
             }
-            if ((c.flags_field & ANNOTATION) != 0)
+            if ((c.flags_field & ANNOTATION) != 0) {
                 ct.interfaces_field = List.of(syms.annotationType);
-            else
+            } else {
+                ct.interfaces_field = interfaces.toList();
+                for (Type intf : interfaces.toList()) {
+                    if (sym != null && sym instanceof JavafxClassSymbol) {
+                        if (intf != null && intf != Type.noType) {
+                            ((JavafxClassSymbol)sym).addSuperType(intf);
+                        }
+                    }
+                }
+            }
+
                 ct.interfaces_field = interfaces.toList();
 
             if (c.fullname == names.java_lang_Object) {

@@ -1532,18 +1532,10 @@ public class JavafxAttr implements JavafxVisitor {
                 // always need to be static, because they will have generated static members
                 cdef.mods.flags |= STATIC;
 
-//              now handled in class processing
-//                if (clazztype.tsym.isInterface()) {
-//                    cdef.implementing = List.of(clazz);
-//                } else {
-//                    cdef.extending = clazz;
-//                }
-
                 if (cdef.sym == null)
                     enter.classEnter(cdef, env);
 
-                 attribDecl(cdef, localEnv);
-                 attribClass(cdef.pos(), null, cdef.sym);
+                attribDecl(cdef, localEnv);
 
                 // Reassign clazztype and recompute constructor.
                 clazztype = cdef.sym.type;
@@ -2899,7 +2891,6 @@ public class JavafxAttr implements JavafxVisitor {
         }
 
         Symbol javaSupertypeSymbol = null;
-        boolean addToSuperTypes = true;
 
         for (JFXExpression superClass : tree.getSupertypes()) {
             Type supType = superClass.type == null ? attribType(superClass, env)
@@ -2945,7 +2936,6 @@ public class JavafxAttr implements JavafxVisitor {
 
                     if (hasNonParamCtor) {
                         ((ClassType)javafxClassSymbol.type).supertype_field = supType;
-                        addToSuperTypes = false;
                     }
                     else {
                         log.error(superClass.pos(), MsgSym.MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR, supType.tsym.name);
@@ -2957,13 +2947,7 @@ public class JavafxAttr implements JavafxVisitor {
                     log.error(superClass.pos(), MsgSym.MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED, supType.tsym.name);
                 }
             }
-
-            if (addToSuperTypes && javafxClassSymbol != null) {
-                javafxClassSymbol.addSuperType(supType);
-            }
-            addToSuperTypes = true;
         }
-
     }
 
     @Override
