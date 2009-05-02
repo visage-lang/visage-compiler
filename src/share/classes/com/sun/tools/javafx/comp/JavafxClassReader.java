@@ -605,6 +605,9 @@ public class JavafxClassReader extends ClassReader {
                             name == defs.postInitName || name == defs.userInitName ||
                             name == defs.addTriggersName ||
                             name == names.clinit ||
+                            name.startsWith(defs.varOffsetName) ||
+                            name.startsWith(defs.varCountName) ||
+                            name.startsWith(defs.varBaseName) ||
                             name.startsWith(defs.attributeGetPrefixName) ||
                             name.startsWith(defs.attributeSetPrefixName) ||
                             name.startsWith(defs.applyDefaultsPrefixName)))
@@ -632,9 +635,7 @@ public class JavafxClassReader extends ClassReader {
                         continue;
                     // Filter out synthetic vars.
                     String nameString = name.toString();
-                    if (nameString.startsWith(defs.varOffsetString)) continue;
                     if (nameString.startsWith(defs.varBaseString)) continue;
-                    if (nameString.startsWith(defs.varCountString)) continue;
                     if (nameString.startsWith(defs.varBitsString)) continue;
                     if (nameString.startsWith(defs.varMapString)) continue;
 
