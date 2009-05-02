@@ -9,7 +9,7 @@ class A {
     public var a = "A";
 
     function testA_meth() {
-        Object.toString(); //invalid
+        super.toString();
     }
 
     function testA_field() {
