@@ -255,7 +255,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeBlanketApplyDefaults());
             cDefinitions.appendList(javaCodeMaker.makeSpecificApplyDefaults());
             cDefinitions.appendList(javaCodeMaker.makeGetDependency());
-            cDefinitions.append    (javaCodeMaker.makeCount());
             
             if (isScriptClass) {
                 cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
@@ -1069,14 +1068,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (!varInfo.isStatic()) {
                     // Get the var enumeration.
                     int enumeration = varInfo.getEnumeration();
-                    // Which VFLGS$_ word.
+                    // Which VFLGS$ word.
                     int word = enumeration >> 5;
-                    // Which VFLGS$_ bit.
+                    // Which VFLGS$ bit.
                     int bit = 1 << (enumeration & 31);
             
-                    // VFLGS$_word
+                    // VFLGS$word
                     JCExpression bitsIdent = Id(attributeBitsName(word));
-                    // VFLGS$_word |= bit;
+                    // VFLGS$word |= bit;
                     JCStatement bitsStmt = m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
                     stmts.append(bitsStmt);
                 }
@@ -1253,8 +1252,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // of the class.
         //
         public List<JCTree> makeAttributeNumbers(LiteralInitVarMap varMap) {
-            // Buffer for new vars.
-            ListBuffer<JCTree> vars = ListBuffer.lb();
+            // Buffer for new members.
+            ListBuffer<JCTree> members = ListBuffer.lb();
             // Reset diagnostic position to current class.
             resetCurrentPos();
             // Get the list of instance attributes.
@@ -1263,29 +1262,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // See if there is a javafx super class.
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             
-            // Construct a variable for the base offset.
-            if (superClassSym != null) {
-                // supername
-                JCExpression superType = makeType(superClassSym.type);
-                // supername.VCNT$
-                JCExpression select = m().Select(superType, defs.varCountName);
-                // Construct and add: public static int VBASE$ = supername.VCNT$;
-                vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varBaseName, select));
-            } else {
-                // Construct and add: public final static int VBASE$ = 0;
-                vars.append(addSimpleIntVariable(Flags.FINAL | Flags.STATIC | Flags.PUBLIC, defs.varBaseName, 0));
-            }
+            // Construct a base offset cache (VBASE$)
+            members.append(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.varBaseName, -1));
             
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
+            // Construct a base offset accessor method (VBASE$)
+            members.append(makeVBASE$());
             
-            // public static int VCNT$ = VBASE$ + count;
-            {
-                // VBASE$ + enumeration
-                JCExpression sum = m().Binary(JCTree.PLUS,  Id(defs.varBaseName), makeInt(count));
-                // Construct and add: public static int VCNT$ = VBASE$ + count;
-                vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, defs.varCountName, sum));
-            }
+            // Construct a static count accessor method (VCNT$)
+            members.append(makeVCNT$());
+            
+            // Construct a virtual count accessor method (count$)
+            members.append(makecount$());
             
             // Accumulate variable numbering.
             for (VarInfo ai : attrInfos) {
@@ -1293,49 +1280,145 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (ai.needsDeclaration()) {
                     // Set diagnostic position for attribute.
                     setCurrentPos(ai.pos());
+                    
                     // Construct enumeration var.
                     Name name = attributeOffsetName(ai.getSymbol());
-                    // VBASE$ + enumeration
-                    JCExpression sum = m().Binary(JCTree.PLUS, Id(defs.varBaseName), makeInt(ai.getEnumeration()));
-                    // Construct and add: public static int VOFF$_name = VBASE$ + enumeration;
-                    vars.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, name, sum));
+                    // Construct and add: public static int VOFF$name() {}
+                    members.append(makeVOFF$(name, ai.getEnumeration()));
                 }
                 
                 // Add to var map if an anon class.
                 if (varMap != null) varMap.addVar(ai.getSymbol());
             }
     
-            // private int VFLGS$_0 = 0; private int VFLGS$_1 = 0; ...
+            // private int VFLGS$0 = 0; private int VFLGS$1 = 0; ...
             {
+                // Number of variables in current class.
+                int count = analysis.getVarCount();
+            
                 // Number of words needed to manage initialization bitmaps.
                 int words = (count + 31) >> 5;
                 
                 // Allocate bit map words.
                 for (int word = 0; word < words; word++) {
-                    // Construct and add: private int VFLGS$_0 = 0;
-                    vars.append(addSimpleIntVariable(0, attributeBitsName(word), 0));
+                    // Construct and add: private int VFLGS$0 = 0;
+                    members.append(addSimpleIntVariable(0, attributeBitsName(word), 0));
                 }
             }
              
-            return vars.toList();
+            return members.toList();
         }
     
         //
-        // The methods constructs the count method for the current class.
+        // The method constructs the VBASE$ method for the current class.
         //
-        public JCTree makeCount() {
+        public JCTree makeVBASE$() {
             // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Reset diagnostic position to current class.
             resetCurrentPos();
             
-            // Construct and add: return VCNT$;
-            stmts.append(m().Return(Id(defs.varCountName)));
+            // See if there is a javafx super class.
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            
+            // Get the count from the super class.
+            JCExpression superBaseExpr;
+            if (superClassSym != null) {
+                // super.VCNT$
+                JCExpression selectExpr = m().Select(makeType(superClassSym.type, false), defs.varCountName);
+                // super.VCNT$()
+                superBaseExpr = m().Apply(null, selectExpr, List.<JCExpression>nil());
+            } else {
+                // 0
+                superBaseExpr = makeInt(0);
+            }
+            
+            // VBASE$ = super.VCNT$()
+            JCExpression assignExpr = m().Assign(Id(defs.varBaseName), superBaseExpr);
+            // (VBASE$ == -1)
+            JCExpression condition = m().Binary(JCTree.EQ, Id(defs.varBaseName), makeInt(-1));
+            // (VBASE$ == -1) ? (VBASE$ = SUPER.VCNT$()) : VBASE$
+            JCExpression resultExpr = m().Conditional(condition, assignExpr, Id(defs.varBaseName));
+            // Construct and add: return (VBASE$ == -1) ? (VBASE$ = SUPER.VCNT$()) : VBASE$;
+            stmts.append(m().Return(resultExpr));
+            
+            // Construct method.
+            JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
+                                             syms.intType,
+                                             defs.varBaseName,
+                                             List.<JCVariableDecl>nil(),
+                                             stmts);
+            return method;
+        }
+
+        //
+        // The method constructs the VCNT$ method for the current class.
+        //
+        public JCTree makeVCNT$() {
+            // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            
+            // VBASE$()
+            JCExpression baseExpr = m().Apply(null, Id(defs.varBaseName), List.<JCExpression>nil());
+            // VBASE$() + n
+            JCExpression countExpr = m().Binary(JCTree.PLUS, baseExpr, makeInt(analysis.getVarCount()));
+            // Construct and add: return VBASE$() + n;
+            stmts.append(m().Return(countExpr));
+            
+            // Construct method.
+            JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
+                                             syms.intType,
+                                             defs.varCountName,
+                                             List.<JCVariableDecl>nil(),
+                                             stmts);
+            return method;
+        }
+
+        //
+        // The method constructs the count$ method for the current class.
+        //
+        public JCTree makecount$() {
+            // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            
+            // VCNT$()
+            JCExpression countExpr = m().Apply(null, Id(defs.varCountName), List.<JCExpression>nil());
+            // Construct and add: return VCNT$();
+            stmts.append(m().Return(countExpr));
             
             // Construct method.
             JCMethodDecl method = makeMethod(Flags.PUBLIC,
                                              syms.intType,
                                              defs.attributeCountMethodName,
+                                             List.<JCVariableDecl>nil(),
+                                             stmts);
+            return method;
+        }
+
+        //
+        // The method constructs a VOFF$ method for the specified var.
+        //
+        public JCTree makeVOFF$(Name name, int offset) {
+            // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            
+            // VBASE$()
+            JCExpression baseExpr = m().Apply(null, Id(defs.varBaseName), List.<JCExpression>nil());
+            // VBASE$() + n
+            JCExpression offsetExpr = m().Binary(JCTree.PLUS, baseExpr, makeInt(offset));
+            // Construct and add: return VBASE$() + n;
+            stmts.append(m().Return(offsetExpr));
+            
+            // Construct method.
+            JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
+                                             syms.intType,
+                                             name,
                                              List.<JCVariableDecl>nil(),
                                              stmts);
             return method;
@@ -1395,11 +1478,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 for (int i = words - 1; 0 < i; i--) {
                     // varlocalNum < (i*32)
                     JCExpression condition = m().Binary(JCTree.LT, Id(varLocalNumName), makeInt(i * 32));
-                    // varlocalNum < (i*32) ? VFLGS$_(i-1) : VFLGS$_(i)
+                    // varlocalNum < (i*32) ? VFLGS$(i-1) : VFLGS$(i)
                     varWordExp = m().Conditional(condition, Id(attributeBitsName(i-1)), varWordExp);
                 }
                 
-                // Construct and add: int varWord = ...varlocalNum < (i*32) ? VFLGS$_(i) : VFLGS$_(i+1)...
+                // Construct and add: int varWord = ...varlocalNum < (i*32) ? VFLGS$(i) : VFLGS$(i+1)...
                 stmts.append(makeVariable(Flags.FINAL, syms.intType, varWordName, varWordExp));
                 
                 // 1 << varBit
@@ -1558,7 +1641,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                             // Don't generate for overrides
                             if (enumeration >= 0) {
-                                // Which VFLGS$_(word) to use.
+                                // Which VFLGS$(word) to use.
                                 int word = enumeration >> 5;
                                 // Which bit to use.
                                 int bit = enumeration & 31;
@@ -1567,7 +1650,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
                                 // (varWord & (1 << varBit)) == 0
                                 JCExpression condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
-                                // Construct and add: if ((VFLGS$_(word) & (1 << bit)) == 0) { applyDefaults$var(); }
+                                // Construct and add: if ((VFLGS$(word) & (1 << bit)) == 0) { applyDefaults$var(); }
                                 stmts.append(m().If(condition, applyDefaultsCall, null));
                             }
                         } else {
@@ -1765,18 +1848,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
              // Build up the argument list for the call.
             ListBuffer<JCExpression> args = ListBuffer.lb();
-            // X.VCNT$
-            args.append(m().Select(makeType(cSym.type), defs.varCountName));
+            // X.VCNT$()
+            args.append(m().Apply(null, m().Select(makeType(cSym.type), defs.varCountName), List.<JCExpression>nil()));
             
             // For each var declared in order (to make the switch tags align to the vars.)
             for (VarSymbol vSym : varMap.varList.toList()) {
-                // ..., X.VOFF$x, ...
-                args.append(m().Select(makeType(cSym.type), attributeOffsetName(vSym)));
+                // ..., X.VOFF$x(), ...
+                
+                args.append(m().Apply(null, m().Select(makeType(cSym.type), attributeOffsetName(vSym)), List.<JCExpression>nil()));
             }
             
             // FXBase.makeInitMap$
             JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
-            // FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)
+            // FXBase.makeInitMap$(X.VCNT$(), X.VOFF$a(), ...)
             return m().Apply(null, methExpr, args.toList());
         }
         
@@ -1800,7 +1884,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             resetCurrentPos();
             // Fetch name of map.
             Name mapName = varMapName(cSym);
-            // Map$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...);
+            // Map$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...);
             return m().Exec(m().Assign(Id(mapName), makeInitVarMapExpression(cSym, varMap)));
         }
          
@@ -1831,9 +1915,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 } else {
                     // MAP$X == null
                     JCExpression condition = m().Binary(JCTree.EQ, Id(mapName), makeNull());
-                    // MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...)
+                    // MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)
                     JCExpression assignExpr = m().Assign(Id(mapName), makeInitVarMapExpression(cSym, varMap));
-                    // Construct and add: return MAP$X == null ? (MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$_a, ...)) : MAP$X;
+                    // Construct and add: return MAP$X == null ? (MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)) : MAP$X;
                     stmts.append(m().Return(m().Conditional(condition, assignExpr, Id(mapName))));
                 }
                 

@@ -198,6 +198,7 @@ public class JavafxDefs {
     final Name bindingIdName;
     final Name getStaticDependentsMethodName;
     final Name computeMethodName;
+    final Name varOffsetName;
     final Name varBaseName;
     final Name varCountName;
     final Name toTestName;
@@ -326,6 +327,7 @@ public class JavafxDefs {
         bindingIdName = names.fromString(bindingIdString);
         getStaticDependentsMethodName = names.fromString(getStaticDependentsMethodString);
         computeMethodName = names.fromString(computeMethodString);
+        varOffsetName = names.fromString(varOffsetString);
         varBaseName = names.fromString(varBaseString);
         varCountName = names.fromString(varCountString);
         toTestName = names.fromString("toTest");
@@ -360,7 +362,8 @@ public class JavafxDefs {
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         getLocationPrefixName = names.fromString(attributeGetLocationMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
-        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
+        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);       
+        
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);
 		javaLangPackageName = names.fromString(javaLangPackageNameString);
