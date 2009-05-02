@@ -83,8 +83,6 @@ public class FXBase implements FXObject {
     public boolean  isInitialized$(final int varNum) { return true; }
     public Location loc$(final int varNum)           { return null; }
     
-    public String toString() { return super.toString(); }
-    
     //
     // makeInitMap$ constructs a field mapping table used in the switch portion
     // of a object literal initialization.  Each entry in the table represents
