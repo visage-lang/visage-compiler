@@ -57,19 +57,22 @@ public class FXBase implements FXObject {
         postInit$();
     }
 
-    public void applyDefaults$new() {
+/*** For use instead of generating applyDefaults$()
+
+    public void applyDefaults$() {
         int cnt = count$();
         for (int inx = 0; inx < cnt; inx += 1) { 
             applyDefaults$(inx);
         }
     }
 
-    public static void applyDefaults$base(FXObject rcvr) {
+    public static void applyDefaults$base$(FXObject rcvr) {
         int cnt = rcvr.count$();
         for (int inx = 0; inx < cnt; inx += 1) {
             rcvr.applyDefaults$(inx);
         }
     }
+****/
     
     public static int VCNT$() { return VBASE$ + 0; }
 
