@@ -28,7 +28,6 @@ import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
@@ -1315,7 +1314,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
 
             public JCExpression transMeth() {
                 assert !useInvoke;
-                JCExpression transMeth = toJava.translateAsUnconvertedValue(meth);
                 JCExpression expr = null;
                 
                 if (superToStatic || msym.isStatic()) {
@@ -1323,15 +1321,16 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 } else if (renameToSuper || superCall) {
                     expr = m().Ident(names._super);
                 } else if (renameToThis || thisCall) {
-                    expr = m().Ident(names._this);
-                } else if (callBound) {
+                    expr = null;
+                } else {
+                    JCExpression transMeth = toJava.translateAsUnconvertedValue(meth);
                     expr = (transMeth instanceof JCFieldAccess)? 
                           ((JCFieldAccess) transMeth).getExpression()
-                        : m().Ident(names._this);
+                        : null;
                 }
                 
                 Name name = functionName(msym, superToStatic, callBound);
-                return expr == null ? transMeth : m().Select(expr, name);
+                return expr == null ? m().Ident(name) : m().Select(expr, name);
             }
 
         }).doit());
