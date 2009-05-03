@@ -1918,8 +1918,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
    JCExpression makeFunctionValue (JCExpression meth, JFXFunctionDefinition def, DiagnosticPosition diagPos, MethodType mtype) {
         ListBuffer<JCTree> members = new ListBuffer<JCTree>();
-        if (def != null)
-            members.append(translate(def));
+        if (def != null) {
+            // Translate the definition, maintaining the current inInstanceContext
+            members.append( new FunctionTranslator(def, true).doit() );
+        }
         JCExpression encl = null;
         int nargs = mtype.argtypes.size();
         Type ftype = syms.javafx_FunctionTypes[nargs];
@@ -1975,66 +1977,99 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 && (sym.flags() & Flags.SYNTHETIC) == 0;
    }
 
-   /**
-    * Translate JavaFX a class definition into a Java static implementation method.
-    */
-   @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        if (isInnerFunction(tree.sym)) {
-            // If tree's context is not a class, then translate:
-            //   function foo(args) { body }
-            // to: final var foo = function(args) { body };
-            // A probably cleaner and possibly more efficient solution would
-            // be to create an anonymous class containing the function as
-            // a method; closed-over local variables become fields.
-            // That would have the advantage that calling the function directly
-            // translates into a direct method call, rather than going via
-            // Function's invoke method, which implies extra casts, possibly
-            // boxing, etc.  FIXME
-            DiagnosticPosition diagPos = tree.pos();
-            MethodType mtype = (MethodType) tree.type;
-            JCExpression typeExpression = makeTypeTree( diagPos,syms.makeFunctionType(mtype), true);
-            JFXFunctionDefinition def = new JFXFunctionDefinition(fxmake.Modifiers(Flags.SYNTHETIC), tree.name, tree.operation);
-            def.type = mtype;
-            def.sym = new MethodSymbol(0, def.name, mtype, tree.sym.owner.owner);
-            JCExpression init =
-               makeFunctionValue(make.Ident(tree.name), def, tree.pos(), mtype);
-            JCModifiers mods = make.at(diagPos).Modifiers(Flags.FINAL);
-            result = make.at(diagPos).VarDef(mods, tree.name, typeExpression, init);
-            return;
+    private class FunctionTranslator extends Translator {
+
+        final JFXFunctionDefinition tree;
+        final boolean maintainContext;
+        final MethodType mtype;
+        final MethodSymbol sym;
+        final Symbol owner;
+        final Name name;
+        final boolean isBound;
+        final boolean isRunMethod;
+        final boolean isAbstract;
+        final boolean isStatic;
+        final boolean isSynthetic;
+        final boolean isInstanceFunction;
+        final boolean isInstanceFunctionAsStaticMethod;
+        final boolean isMixinClass;
+
+        FunctionTranslator(JFXFunctionDefinition tree, boolean maintainContext) {
+            super(tree.pos());
+            this.tree = tree;
+            this.maintainContext = maintainContext;
+            this.mtype = (MethodType) tree.type;
+            this.sym = (MethodSymbol) tree.sym;
+            this.owner = sym.owner;
+            this.name = tree.name;
+            this.isBound = (sym.flags() & JavafxFlags.BOUND) != 0;
+            this.isRunMethod = syms.isRunMethod(tree.sym);
+            this.isMixinClass = currentClass.isMixinClass();
+            long originalFlags = tree.mods.flags;
+            this.isAbstract = (originalFlags & Flags.ABSTRACT) != 0L;
+            this.isSynthetic = (originalFlags & Flags.SYNTHETIC) != 0L;
+            this.isStatic = (originalFlags & Flags.STATIC) != 0L;
+            this.isInstanceFunction = !isAbstract && !isStatic && !isSynthetic;
+            this.isInstanceFunctionAsStaticMethod = isInstanceFunction && isMixinClass;
         }
 
-        boolean isBound = (tree.sym.flags() & JavafxFlags.BOUND) != 0;
-        TranslationState prevZ = translationState;
-        translationState = null; //should be explicitly set
-        ReceiverContext prevContext = inInstanceContext;
+        private JCBlock makeRunMethodBody(JFXBlock bexpr) {
+            final JFXExpression value = bexpr.value;
+            JCBlock block;
+            if (value == null || value.type == syms.voidType) {
+                // the block has no value: translate as simple statement and add a null return
+                block = asBlock(translateToStatement(bexpr));
+                block.stats = block.stats.append(make.Return(make.at(diagPos).Literal(TypeTags.BOT, null)));
+            } else {
+                // block has a value, return it
+                block = asBlock(translateToStatement(bexpr, value.type));
+                final Type valueType = value.type;
+                if (valueType != null && valueType.isPrimitive()) {
+                    // box up any primitives returns so they return Object -- the return type of the run method
+                    new TreeTranslator() {
 
-        try {
-            boolean isMixinClass = currentClass.isMixinClass();
-            // Made all the operations public. Per Brian's spec.
-            // If they are left package level it interfere with Multiple Inheritance
-            // The interface methods cannot be package level and an error is reported.
-            long flags = tree.mods.flags;
-            long originalFlags = flags;
-            flags &= ~Flags.PROTECTED;
-            if ((tree.mods.flags & Flags.PRIVATE) == 0)
-                flags |=  Flags.PUBLIC;
-            if (((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) && isMixinClass) {
-                flags |= Flags.STATIC;
+                        @Override
+                        public void visitReturn(JCReturn tree) {
+                            tree.expr = makeBox(tree.expr.pos(), tree.expr, valueType);
+                            result = tree;
+                        }
+                        // do not descend into inner classes
+
+                        @Override
+                        public void visitClassDef(JCClassDecl tree) {
+                            result = tree;
+                        }
+                    }.translate(block);
+                }
             }
-            flags &= ~Flags.SYNTHETIC;
-            JCModifiers mods = make.Modifiers(flags);
-            final boolean isRunMethod = syms.isRunMethod(tree.sym);
-            final boolean isImplMethod = (originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0L && !isRunMethod && isMixinClass;
-            inInstanceContext = (originalFlags & (Flags.STATIC)) != 0L ?
-                ReceiverContext.ScriptAsStatic :
-                isImplMethod ?
-                    ReceiverContext.InstanceAsStatic :
-                    ReceiverContext.InstanceAsInstance;
+            return block;
+        }
 
-            DiagnosticPosition diagPos = tree.pos();
-            MethodType mtype = (MethodType)tree.type;
+        private long methodFlags() {
+            long methodFlags = tree.mods.flags;
+            methodFlags &= ~Flags.PROTECTED;
+            methodFlags &= ~Flags.SYNTHETIC;
+            methodFlags |= Flags.PUBLIC;
+            if (isInstanceFunctionAsStaticMethod) {
+                methodFlags |= Flags.STATIC;
+            }
+            return methodFlags;
+        }
 
+        private List<JCVariableDecl> methodParameters() {
+            ListBuffer<JCVariableDecl> params = ListBuffer.lb();
+            if (isInstanceFunctionAsStaticMethod) {
+                // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
+                params.prepend(makeReceiverParam(currentClass));
+            }
+            for (JFXVar fxVar : tree.getParams()) {
+                JCVariableDecl var = (JCVariableDecl) translate(fxVar);
+                params.append(var);
+            }
+            return params.toList();
+        }
+
+        private JCBlock methodBody() {
             // construct the body of the translated function
             JFXBlock bexpr = tree.getBodyExpression();
             JCBlock body;
@@ -2042,9 +2077,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 body = null; // null if no block expression
             } else if (isBound) {
                 // Build the body of a bound function by treating it as a bound expression
-                // TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented -- it is, so it should be
+                //TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented -- it is, so it should be
                 JCExpression expr = toBound.translateAsLocation(bexpr, JavafxBindStatus.UNIDIBIND, typeMorpher.varMorphInfo(tree.sym));
-                body = asBlock(make.at(diagPos).Return(expr));
+                body = asBlock(m().Return(expr));
             } else if (isRunMethod) {
                 // it is a module level run method, do special translation
                 body = makeRunMethodBody(bexpr);
@@ -2053,47 +2088,62 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 body = asBlock(translateToStatement(bexpr, mtype.getReturnType()));
             }
 
-            ListBuffer<JCVariableDecl> params = ListBuffer.lb();
-            if ((originalFlags & (Flags.STATIC | Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
-                if (!isMixinClass) {
-                    // all implementation code is generated assuming a receiver parameter.
-                    // in the final class case, there is no receiver param, so allow generated code
-                    // to function by adding:   var receiver = this;
-                    body.stats = body.stats.prepend(
-                            make.at(diagPos).VarDef(
-                            make.at(diagPos).Modifiers(Flags.FINAL),
-                            defs.receiverName,
-                            make.Ident(initBuilder.interfaceName(currentClass)),
-                            make.at(diagPos).Ident(names._this))
-                            );
-                } else {
-                    // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
-                    params.prepend(makeReceiverParam(currentClass));
-                }
+            if (isInstanceFunction && !isMixinClass) {
+                //TODO: unfortunately, some generated code still expects a receiver$ to always be present.
+                // In the instance as instance case, there is no receiver param, so allow generated code
+                // to function by adding:   var receiver = this;
+                //TODO: this should go away
+                body.stats = body.stats.prepend( m().VarDef(
+                        m().Modifiers(Flags.FINAL),
+                        defs.receiverName,
+                        m().Ident(interfaceName(currentClass)),
+                        m().Ident(names._this)));
             }
-            for (JFXVar fxVar : tree.getParams()) {
-                JCVariableDecl var = (JCVariableDecl)translate(fxVar);
-                params.append(var);
-            }
+            return body;
+        }
 
-            mods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, mods);
-
-            result = make.at(diagPos).MethodDef(
-                    mods,
-                    functionName(tree.sym, isImplMethod,  isBound),
-                    makeReturnTypeTree(diagPos, tree.sym, isBound),
-                    make.at(diagPos).TypeParams(mtype.getTypeArguments()),
-                    params.toList(),
-                    make.at(diagPos).Types(mtype.getThrownTypes()),  // makeThrows(diagPos), //
+        private JCMethodDecl makeMethod(long flags, JCBlock body, List<JCVariableDecl> params) {
+            JCMethodDecl meth = m().MethodDef(
+                    addAccessAnnotationModifiers(diagPos, tree.mods.flags, m().Modifiers(flags)),
+                    functionName(sym, isInstanceFunctionAsStaticMethod, isBound),
+                    makeReturnTypeTree(diagPos, sym, isBound),
+                    m().TypeParams(mtype.getTypeArguments()),
+                    params,
+                    m().Types(mtype.getThrownTypes()), // makeThrows(diagPos), //
                     body,
                     null);
-            ((JCMethodDecl)result).sym = tree.sym;
-            result.type = tree.type;
+            meth.sym = sym;
+            meth.type = tree.type;
+            return meth;
         }
-        finally {
-            translationState = prevZ;
-            inInstanceContext = prevContext;
+
+        protected JCTree doit() {
+            TranslationState prevZ = translationState;
+            translationState = null; //should be explicitly set
+            ReceiverContext prevContext = inInstanceContext;
+            if (!maintainContext) {
+                inInstanceContext = isStatic?
+                    ReceiverContext.ScriptAsStatic :
+                    isInstanceFunctionAsStaticMethod ?
+                        ReceiverContext.InstanceAsStatic :
+                        ReceiverContext.InstanceAsInstance;
+            }
+
+            try {
+                return makeMethod(methodFlags(), methodBody(), methodParameters());
+            } finally {
+                translationState = prevZ;
+                inInstanceContext = prevContext;
+            }
         }
+    }
+
+   /**
+    * Translate JavaFX a class definition into a Java static implementation method.
+    */
+    @Override
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        result = new FunctionTranslator(tree, false).doit();
     }
 
     public void visitBlockExpression(JFXBlock tree) {
@@ -3679,37 +3729,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
      * Utilities
      *
      */
-
-    private JCBlock makeRunMethodBody(JFXBlock bexpr) {
-        DiagnosticPosition diagPos = bexpr.pos();
-        final JFXExpression value = bexpr.value;
-        JCBlock block;
-        if (value == null || value.type == syms.voidType) {
-            // the block has no value: translate as simple statement and add a null return
-            block = asBlock(translateToStatement(bexpr));
-            block.stats = block.stats.append(make.Return(make.at(diagPos).Literal(TypeTags.BOT, null)));
-        } else {
-            // block has a value, return it
-            block = asBlock(translateToStatement(bexpr, value.type));
-            final Type valueType = value.type;
-            if (valueType != null && valueType.isPrimitive()) {
-                // box up any primitives returns so they return Object -- the return type of the run method
-                new TreeTranslator() {
-                    @Override
-                    public void visitReturn(JCReturn tree) {
-                        tree.expr = makeBox(tree.expr.pos(), tree.expr, valueType);
-                        result = tree;
-                    }
-                    // do not descend into inner classes
-                    @Override
-                    public void visitClassDef(JCClassDecl tree) {
-                        result = tree;
-                    }
-                }.translate(block);
-            }
-        }
-        return block;
-    }
 
     protected String getSyntheticPrefix() {
         return "jfx$";
