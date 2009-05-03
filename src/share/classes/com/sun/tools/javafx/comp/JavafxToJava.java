@@ -1476,8 +1476,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             initInstanceVariables(tmpVarName);  // Must preceed varSyms.nonEmpty() test
 
             JCExpression instExpression;
-            if (varSyms.nonEmpty() || cdef != null) {
-                // it is a instanciation of a JavaFX class which has instance variable initializers (or is anonymous)
+            if (varSyms.nonEmpty() || (isFX && newClassArgs.nonEmpty()) || cdef != null) {
+                // it is a instanciation of a JavaFX class which has instance variable initializers
+                // (or is anonymous, or has an outer class argument)
                 //
                 //   {
                 //       final X jfx$0objlit = new X(true);
