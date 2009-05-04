@@ -996,9 +996,16 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         TypeMorphInfo tmiResult = typeMorpher.typeMorphInfo(resultType);
         if (tmiResult.isSequence()) {
             // the lazy approach won't work for sequences
+            
+            //TODO: revisit this.  
+            /*
+             * We want to have this method to be not
+             * dependent of current state. For now, using
+             * "tmiTarget" from state to fix JFXC-3038.
+             */
             return makeBoundSequenceConditional(diagPos,
                     resultType,
-                    tmiResult,
+                    (tmiTarget != null)? tmiTarget : tmiResult,
                     condExpr,
                     trueExpr,
                     falseExpr);
