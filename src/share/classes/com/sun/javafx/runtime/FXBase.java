@@ -32,8 +32,8 @@ import com.sun.javafx.runtime.location.*;
  * @author Robert Field
  */
 public class FXBase implements FXObject {
-    // First class base.
-    public static final int VBASE$ = 0;
+    // First class count.
+    public static final int VCNT$ = 0;
 
     /**
      * Constructor called from Java or from object literal with no instance variable initializers
@@ -74,7 +74,7 @@ public class FXBase implements FXObject {
     }
 ****/
     
-    public static int VCNT$() { return VBASE$ + 0; }
+    public static int VCNT$() { return VCNT$; }
 
     public void addTriggers$  () {}
     public void applyDefaults$() {}

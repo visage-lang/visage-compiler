@@ -415,8 +415,7 @@ public class FXLocal {
             "complete$",
             "makeInitMap$",
             "count$",
-            "VCNT$",
-            "VBASE$"
+            "VCNT$"
         };
         static final String[] SYSTEM_METHOD_PREFIXES = {
             "get$",
@@ -535,8 +534,9 @@ public class FXLocal {
         }
 
         static final String[] SYSTEM_VAR_PREFIXES = {
-            "VBASE$",
             "VFLGS$",
+            "VCNT$",
+            "VOFF$",
             "MAP$"
         };
 

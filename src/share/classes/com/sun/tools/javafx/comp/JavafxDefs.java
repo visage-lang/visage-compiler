@@ -86,7 +86,6 @@ public class JavafxDefs {
     public static final String computeMethodString = "compute";
     
     public static final String varOffsetString = "VOFF$";
-    public static final String varBaseString = "VBASE$";
     public static final String varCountString = "VCNT$";
     public static final String varBitsString = "VFLGS$";
     public static final String varValueString = "$";
@@ -199,7 +198,6 @@ public class JavafxDefs {
     final Name getStaticDependentsMethodName;
     final Name computeMethodName;
     final Name varOffsetName;
-    final Name varBaseName;
     final Name varCountName;
     final Name toTestName;
     final Name toBeCastName;
@@ -328,7 +326,6 @@ public class JavafxDefs {
         getStaticDependentsMethodName = names.fromString(getStaticDependentsMethodString);
         computeMethodName = names.fromString(computeMethodString);
         varOffsetName = names.fromString(varOffsetString);
-        varBaseName = names.fromString(varBaseString);
         varCountName = names.fromString(varCountString);
         toTestName = names.fromString("toTest");
         toBeCastName = names.fromString("toBeCast");

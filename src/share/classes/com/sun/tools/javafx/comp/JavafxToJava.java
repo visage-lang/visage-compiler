@@ -1441,8 +1441,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
                 VarSymbol varSym = varSyms.first();
-                JCExpression varOffsetMethod = m().Select(toJava.makeTypeTree(diagPos, classType, false), toJava.attributeOffsetName(varSym));
-                JCExpression varOffsetExpr = m().Apply(null, varOffsetMethod, List.<JCExpression>nil()); 
+                JCExpression varOffsetExpr = m().Select(toJava.makeTypeTree(diagPos, classType, false), toJava.attributeOffsetName(varSym));
                 JCVariableDecl offsetVar = toJava.makeTmpVar(diagPos, "off", syms.intType, varOffsetExpr);
                 stats.append(offsetVar);
                 JCExpression condition = m().Binary(JCTree.EQ, m().Ident(loopName), m().Ident(offsetVar.name));
