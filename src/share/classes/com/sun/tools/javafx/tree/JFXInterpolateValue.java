@@ -34,12 +34,14 @@ import com.sun.tools.javac.code.Symbol;
 public class JFXInterpolateValue extends JFXExpression implements InterpolateValueTree {
     public final JFXExpression attribute;
     public JFXExpression value;
+    public JFXExpression funcValue;
     public final JFXExpression interpolation;
     public Symbol sym;
     
     public JFXInterpolateValue(JFXExpression attr, JFXExpression v, JFXExpression interp) {
         attribute = attr;
         value = v;
+        funcValue = null;
         interpolation = interp;
         sym = null;
     }
