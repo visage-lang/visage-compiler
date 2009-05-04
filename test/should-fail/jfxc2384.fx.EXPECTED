@@ -1,3 +1,6 @@
+test/should-fail/jfxc2384.fx:25: The type-qualifier Object cannot be used in this context; the qualifier must denote a direct superclass of jfxc2384.M.
+        Object.toString(); //invalid
+              ^
 test/should-fail/jfxc2384.fx:38: The type-qualifier Object cannot be used in this context; the qualifier must denote a direct superclass of jfxc2384.B.
         Object.toString(); //invalid
               ^
@@ -16,4 +19,4 @@ test/should-fail/jfxc2384.fx:64: The type-qualifier jfxc2384.A cannot be used in
 test/should-fail/jfxc2384.fx:66: The type-qualifier jfxc2384.M cannot be used in this context; the qualifier must denote a direct superclass of jfxc2384.C.
         M.m; //invalid
          ^
-6 errors
+7 errors

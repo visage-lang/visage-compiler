@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,18 +21,17 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.AbstractVariable;
+package com.sun.javafx.runtime.location;
 
 /**
- * Helper methods for initializing JavaFX instances 
+ * DependencySource
+ *
+ * The exposed type of a dependency
  *
  * @author Brian Goetz
  */
-public class InitHelper {
-    public static void finish(AbstractVariable[] attributes) {
-        for (AbstractVariable v : attributes)
-            v.initialize();
-    }
+public interface DependencySource {
+    /** Record a location as depending on this location -- for internal use only!  */
+    void addDependentLocation(WeakLocation location);
 }

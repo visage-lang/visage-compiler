@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.InitHelper;
 import com.sun.javafx.runtime.JavaFXTestCase;
 import framework.FXObjectFactory;
 
@@ -104,7 +103,6 @@ public class InitializationTest extends JavaFXTestCase {
 
         public void initialize$() {
             initAttributes$(this);
-            InitHelper.finish(attributes);
         }
     }
 
@@ -116,18 +114,20 @@ public class InitializationTest extends JavaFXTestCase {
         instance.get$a().setAsInt(4);
         assertEquals(4, instance.get$a().getAsInt());
 
-        // Test that literal is applied if present
+        /*
+         // Test that literal is applied if present
         instance = new SimpleAttribute();
         instance.get$a().setAsIntFromLiteral(4);
         instance.initialize$();
         assertEquals(4, instance.get$a().getAsInt());
-
+        
         // Test that literal is applied even if overwritten by trigger
         instance = new SimpleAttribute();
         instance.get$a().setAsIntFromLiteral(4);
         instance.get$a().set(666);
         instance.initialize$();
         assertEquals(4, instance.get$a().getAsInt());
+         */
 
         // Test that default is not applied if written by trigger
         instance = new SimpleAttribute();
@@ -175,7 +175,6 @@ public class InitializationTest extends JavaFXTestCase {
 
         public void initialize$() {
             initAttributes$(this);
-            InitHelper.finish(attributes);
         }
     }
 
@@ -192,6 +191,7 @@ public class InitializationTest extends JavaFXTestCase {
         assertEquals(60, instance.f);
         assertEquals(15, instance.c);
 
+        /**
         // F from literal only
         instance = new Temperature();
         instance.get$f().setAsIntFromLiteral(50);
@@ -213,6 +213,7 @@ public class InitializationTest extends JavaFXTestCase {
         instance.initialize$();
         assertEquals(50, instance.f);
         assertEquals(10, instance.c);
+         * ***/
     }
 
     private static class ThreeAttributes {
@@ -259,7 +260,6 @@ public class InitializationTest extends JavaFXTestCase {
 
         public void initialize$() {
             initAttributes$(this);
-            InitHelper.finish(attributes);
         }
     }
 
@@ -269,6 +269,7 @@ public class InitializationTest extends JavaFXTestCase {
         instance.initialize$();
         assertEquals("[a:1, b:0, c:0]", instance.list.toString());
 
+        /**
         // A from literal
         instance = new ThreeAttributes();
         instance.get$a().setAsIntFromLiteral(4);
@@ -281,15 +282,18 @@ public class InitializationTest extends JavaFXTestCase {
         instance.get$c().setAsIntFromLiteral(0);
         instance.initialize$();
         assertEquals("[a:1, b:0, c:0]", instance.list.toString());
+         * ***/
     }
 
     public void testBijection() {
+        /***
         ThreeAttributes instance = new ThreeAttributes();
         instance.get$a().setAsIntFromLiteral(3);
         instance.get$b().bijectiveBindFromLiteral(instance.get$a());
         instance.initialize$();
         assertEquals(3, instance.get$a().getAsInt());
         assertEquals(3, instance.get$b().getAsInt());
+         * **/
     }
 
     interface MyObject extends FXObject {
@@ -324,6 +328,7 @@ public class InitializationTest extends JavaFXTestCase {
     };
 
     public void testSimulatedInitialization() {
+        /***
         MyObject o = myObjectFactory.make();
         o.get$a().setAsIntFromLiteral(3);
         o.get$b().setAsIntFromLiteral(4);
@@ -339,5 +344,6 @@ public class InitializationTest extends JavaFXTestCase {
         o.initialize$();
         assertEquals(9, o.get$a().getAsInt());
         assertEquals(10, o.get$b().getAsInt());
+         * ***/
     }
 }

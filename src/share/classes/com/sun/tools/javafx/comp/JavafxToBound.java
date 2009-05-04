@@ -28,7 +28,6 @@ import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Type.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.*;
@@ -48,6 +47,7 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
+import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 
 public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVisitor {
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
@@ -568,14 +568,14 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             result = convert(tree.type, toJava.translateAsLocation(tree)); //TODO -- for now punt, translate like normal case
             return;
         }
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(tree.sym);
         DiagnosticPosition diagPos = tree.pos();
 
-        Symbol owner = tree.sym.owner;
-        if (types.isJFXClass(owner) && typeMorpher.requiresLocation(tree.sym)) {
+        if (vmi.isFXMemberVariable() && vmi.representation().possiblyLocation()) {
             if (tree.sym.isStatic()) {
                 // if this is a static reference to an attribute, eg.   MyClass.myAttribute
                 JCExpression classRef = makeTypeTree( diagPos,types.erasure(tree.sym.owner.type), false);
-                result = convert(tree.type, make.at(diagPos).Select(classRef, attributeFieldName(tree.sym)));
+                result = convert(tree.type, callExpression(diagPos, classRef, attributeGetLocationName(tree.sym)));
             } else {
                 // this is a dynamic reference to an attribute
                 final JFXExpression expr = tree.getExpression();
@@ -922,7 +922,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
         JCExpression transIndex = make.at(tree.pos()).Ident(indexVarName(tree.fname));
         VarSymbol vsym = (VarSymbol)tree.clause.getVar().sym;
-        if (toJava.requiresLocation(vsym)) {
+        if (toJava.representation(vsym) == AlwaysLocation) {
             // from inside the bind, already a Location
             result = convert(tree.type, transIndex);
         } else {
@@ -1293,7 +1293,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                                 if (rcvrField == null) {
                                     Type rcvrType = getAttrEnv().enclClass.sym.type;
                                     rcvrField = new FieldInfo(JavafxDefs.receiverNameString, typeMorpher.typeMorphInfo(rcvrType), false, ArgKind.BOUND);
-                                    return buildArgField(toJava.makeReceiver(diagPos, msym, getAttrEnv().enclClass.sym), rcvrField);
+                                    return buildArgField(toJava.makeReceiver(diagPos, msym), rcvrField);
                                 } else {
                                     return rcvrField.makeGetField();
                                 }
@@ -1321,7 +1321,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
 
             public JCExpression transMeth() {
                 assert !useInvoke;
-                JCExpression transMeth = toJava.translateAsUnconvertedValue(meth);
                 JCExpression expr = null;
                 
                 if (superToStatic || msym.isStatic()) {
@@ -1329,13 +1328,16 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 } else if (renameToSuper || superCall) {
                     expr = m().Ident(names._super);
                 } else if (renameToThis || thisCall) {
-                    expr = m().Ident(names._this);
-                } else if (callBound) {
-                    expr = ((JCFieldAccess) transMeth).getExpression();
+                    expr = null;
+                } else {
+                    JCExpression transMeth = toJava.translateAsUnconvertedValue(meth);
+                    expr = (transMeth instanceof JCFieldAccess)? 
+                          ((JCFieldAccess) transMeth).getExpression()
+                        : null;
                 }
                 
                 Name name = functionName(msym, superToStatic, callBound);
-                return expr == null ? transMeth : m().Select(expr, name);
+                return expr == null ? m().Ident(name) : m().Select(expr, name);
             }
 
         }).doit());

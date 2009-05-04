@@ -391,13 +391,13 @@ public class BoundComprehensionTest extends JavaFXTestCase {
             private SequenceLocation<String> xform$attr;
 
             @Override
-            protected Location[] getStaticDependents() {
+            protected DependencySource[] getStaticDependents() {
                 return new Location[]{xform$attr};
             }
 
             public Foo computeValue() {
                 final Foo foo = fooFactory.make();
-                foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
+                foo.get$x().setAsSequence(xform$attr.getAsSequence());  //Was: setAsSequenceFromLiteral
                 foo.initialize$();
                 return foo;
             }
@@ -432,13 +432,13 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                     private SequenceLocation<String> xform$attr;
 
                                                     @Override
-                                                    protected Location[] getStaticDependents() {
+                                                    protected DependencySource[] getStaticDependents() {
                                                         return new Location[]{xform$attr};
                                                     }
 
                                                     public Foo computeValue() {
                                                         final Foo foo = fooFactory.make();
-                                                        foo.get$x().setAsSequenceFromLiteral(xform$attr.getAsSequence());
+                                                        foo.get$x().setAsSequence(xform$attr.getAsSequence());  //Was: setAsSequenceFromLiteral
                                                         foo.initialize$();
                                                         return foo;
                                                     }

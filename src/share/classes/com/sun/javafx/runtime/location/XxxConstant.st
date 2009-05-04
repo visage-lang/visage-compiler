@@ -52,10 +52,6 @@ public class $T.Constant$ extends AbstractConstantLocation<$T.boxed$> implements
         throw new UnsupportedOperationException();
     }
 
-    public $T.prim$ setAs$PREFIX$FromLiteral($T.prim$ value) {
-        throw new UnsupportedOperationException();
-    }
-
 $if(NUMERIC)$
     public byte getAsByte() { return (byte) \$value; }
     public short getAsShort() { return (short) \$value; }

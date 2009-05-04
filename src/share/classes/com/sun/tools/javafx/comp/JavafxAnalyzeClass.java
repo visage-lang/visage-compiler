@@ -41,6 +41,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.javac.code.Flags.*;
@@ -165,6 +166,8 @@ class JavafxAnalyzeClass {
         public Type getVariableType() { return vmi.getVariableType(); }
         public Type getLocationType() { return vmi.getLocationType(); }
         public Type getElementType()  { return vmi.getElementType(); }
+        public VarRepresentation representation() { return vmi.representation(); }
+        public boolean useAccessors() { return vmi.useAccessors(); }
 
         // Return var name.
         public Name getName() { return name; }
@@ -228,9 +231,6 @@ class JavafxAnalyzeClass {
         // Return true if the var needs to be declared in the current class.
         public boolean needsDeclaration() { return needsCloning() && !hasProxyVar(); }
 
-        // Return true if the var needs to accessors in the current class.
-        public boolean needsAccessors() { return needsCloning(); }
-
         // Return true if the var needs to be instance declared in the current class.
         public boolean needsInstanceDeclaration() { return needsDeclaration() && !isStatic(); }
 
@@ -243,6 +243,7 @@ class JavafxAnalyzeClass {
         // Useful diagnostic tool. 
         public void printInfo() {
             System.out.println("    " + getSymbol() +
+                               ", type=" + getRealType() +
                                ", owner=" + getSymbol().owner +
                                ", static=" + isStatic() +
                                ", enum=" + getEnumeration() +
@@ -347,9 +348,6 @@ class JavafxAnalyzeClass {
     // declared in the same compile unit or read in from a .class file.
     //
     static class MixinClassVarInfo extends VarInfo {
-        // Reference to the var information the override overshadows.
-        private VarInfo proxyVar;
-        
         MixinClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
         }
@@ -406,6 +404,11 @@ class JavafxAnalyzeClass {
     // Returns the current class decl.
     //
     public JFXClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
+    
+    //
+    // Returns true if the current class is a script.
+    //
+    public boolean isScriptClass() { return currentClassDecl.isScriptClass; }
     
     //
     // Returns the current class symbol.
@@ -485,14 +488,25 @@ class JavafxAnalyzeClass {
     //
     // Returns true if the class is a Interface.
     //
-    private boolean isInterface(Symbol cSym) {
+    public boolean isInterface(Symbol cSym) {
         return (cSym.flags() & Flags.INTERFACE) != 0;
+    }
+    
+    //
+    // Returns true if the class is anon (synthetic.)
+    //
+    public boolean isAnonClass() {
+        return isAnonClass(currentClassSym);
+    }
+    public boolean isAnonClass(Symbol cSym) {
+        final long flags = (Flags.SYNTHETIC | Flags.FINAL);
+        return (cSym.flags() & flags) == flags;
     }
     
     //
     // Returns null or the superclass symbol if it is a javafx class.
     //
-    public ClassSymbol getSuperClassSym() { return superClassSym; }
+    public ClassSymbol getFXSuperClassSym() { return superClassSym; }
     
     //
     // Returns resulting list of all superclasses in top down order.
@@ -603,7 +617,8 @@ class JavafxAnalyzeClass {
             addedBaseClasses.add(cSym);
             
             // Only continue cloning up the hierarchy if this is a mixin class.
-            needsCloning = needsCloning && isMixinClass(cSym);
+            boolean isMixinClass = isMixinClass(cSym);
+            needsCloning = needsCloning && isMixinClass;
 
             // Process up the super class chain first.
             Type superType = cSym.getSuperclass();
@@ -625,14 +640,15 @@ class JavafxAnalyzeClass {
                     for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                         reversed.prepend(e.sym);
                     }
-                    
+
                     // Scan attribute/method members. 
                     for (Symbol mem : reversed) {
                         if (mem.kind == Kinds.MTH) {
                             // Method member.
                             MethodSymbol meth = (MethodSymbol) mem;
                             
-                            // Workaround for JFXC-3040 - Compile failure building runtime/javafx-ui-controls/javafx/scene/control/Button.fx
+                            // Workaround for JFXC-3040 - Compile failure building
+                            // runtime/javafx-ui-controls/javafx/scene/control/Button.fx
                             if (!needsCloning) continue;
         
                             // Filter out methods generated by the javac compiler.
@@ -650,14 +666,13 @@ class JavafxAnalyzeClass {
                 // Lastly, insert any mixin vars and methods from the interfaces.
                 for (Type supertype : cSym.getInterfaces()) {
                     ClassSymbol iSym = (ClassSymbol) supertype.tsym;
-                    analyzeClass(iSym, false, needsCloning);
+                    analyzeClass(iSym, isImmediateSuper && isMixinClass, needsCloning);
                 }
             } else {
                 // Class is in current compile unit.
-                
+
                 // Scan attribute/method members. 
                 for (JFXTree def : cDecl.getMembers()) {
-                    
                     if (def.getFXTag() == JavafxTag.VAR_DEF) {
                         // Attribute member.
                         VarSymbol var = (VarSymbol)((JFXVar)def).sym;
@@ -671,10 +686,10 @@ class JavafxAnalyzeClass {
                 
                 // Lastly, insert any mixin vars and methods from the interfaces.
                 for (JFXExpression supertype : cDecl.getSupertypes()) {
-                    analyzeClass(supertype.type.tsym, false, needsCloning);
+                    analyzeClass(supertype.type.tsym, isImmediateSuper && isMixinClass, needsCloning);
                 }
             }
-            
+             
             // Record the superclass in top down order.
             recordClass(cSym, isImmediateSuper);
         }
