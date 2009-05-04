@@ -348,9 +348,6 @@ class JavafxAnalyzeClass {
     // declared in the same compile unit or read in from a .class file.
     //
     static class MixinClassVarInfo extends VarInfo {
-        // Reference to the var information the override overshadows.
-        private VarInfo proxyVar;
-        
         MixinClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
         }

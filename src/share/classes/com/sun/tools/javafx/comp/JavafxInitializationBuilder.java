@@ -289,13 +289,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             if (isScriptClass) {
                 cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
-            }    
+            }
+
+            // Static(script) vars are exposed in class
+            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
+            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, null));
 
             cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethods(instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
             cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
         }
+        
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
 
         return new JavafxClassModel(
