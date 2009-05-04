@@ -27,12 +27,15 @@ import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.Log;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javafx.main.JavafxCompiler;
 import com.sun.tools.javafx.main.Main;
 import com.sun.tools.javafx.tree.JavaPretty;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -42,7 +45,8 @@ import java.io.StringWriter;
  * @author Robert Field
  */
 public class JavafxBackendLog extends Log {
-
+    private String crashFileName;
+    private PrintWriter crashFileWriter;
     final Context context;
     final Context fxContext;
     public Env<AttrContext> env;
@@ -53,6 +57,13 @@ public class JavafxBackendLog extends Log {
         this.context = context;
         this.fxContext = fxContext;
         this.dumpOccurred = false; // Only once
+        
+        /* This is a writer for writing the javadump to a file instead of to the default output.
+         * We init it to the default output, and then if we actually have to write a dump,
+         * we create the file and the PrintWriter for it at that time.  This avoids creating
+         * a file we don't need.
+         */
+        crashFileWriter = getWriterForDiagnosticType(JCDiagnostic.DiagnosticType.ERROR);
     }
 
     public static void preRegister(final Context context, final Context fxContext) {
@@ -64,8 +75,40 @@ public class JavafxBackendLog extends Log {
         });
     }
 
+    private void createCrashFile() {
+        if (crashFileName == null) {
+            // we haven't created the crashFileWriter
+            try {
+                // Create temp file writer if we can.
+                File crashFile = File.createTempFile("javafx_err_", ".txt");
+                crashFileWriter = new PrintWriter(crashFile);
+                crashFileName = crashFile.getCanonicalPath();
+            } catch (Exception e) {
+                // Otherwise, we just have to use the default output.
+            }
+        }
+    }
+
+    private void writeToCrashFile(String extra) {
+        Log fxLog = Log.instance(fxContext);
+        if (crashFileName == null) {
+            fxLog.note(MsgSym.MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR2);
+        } else {
+            fxLog.note(MsgSym.MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR, crashFileName);
+        }
+        Log.printLines(crashFileWriter, Main.getJavafxLocalizedString(
+                                    "compiler.note." + MsgSym.MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR1,
+                                    JavafxCompiler.fullVersion(), 
+                                    System.getProperty("java.vm.version"),
+                                    System.getProperty("java.runtime.version"),
+                                    System.getProperty("os.name"),
+                                    System.getProperty("os.arch"),
+                                    extra));
+        crashFileWriter.flush();
+    }
+
     private void errorPreface() {
-        if (env != null) {  // Only add prefix where wanted
+        if (!dumpOccurred && env != null) {  // Only add prefix where wanted
             JCTree tree = null;
             if (env.tree != null) {
                 tree = env.tree;
@@ -89,34 +132,39 @@ public class JavafxBackendLog extends Log {
                     dumpOccurred = true;
                 }
             }
-
-            Log fxLog = Log.instance(fxContext);
-            fxLog.note(
-                    MsgSym.MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR,
-                    JavafxCompiler.fullVersion(),
-                    sw.toString());
+            writeToCrashFile(sw.toString());
         }
     }
 
-    /** Report an error, unless another error was already reported at same
-     *  source position.
-     *  @param pos    The source position at which to report the error.
-     *  @param key    The key for the localized error message.
-     *  @param args   Fields of the error message.
-     */
-    public void error(DiagnosticPosition pos, String key, Object ... args) {
-        errorPreface();
-        super.error(pos, key, args);
-    }
+    @Override
+    protected void writeDiagnostic(JCDiagnostic diagnostic) {
+        // See jfxc-507.  Don't output NOTEs; let javac do it.  
+        if (diagnostic.getType() == JCDiagnostic.DiagnosticType.ERROR) {
+            createCrashFile();
+            // write the dump if there is one 
+            errorPreface();
 
-    /** Report an error, unless another error was already reported at same
-     *  source position.
-     *  @param pos    The source position at which to report the error.
-     *  @param key    The key for the localized error message.
-     *  @param args   Fields of the error message.
+            // Write the error msg to the file.  Unfortunately, the source line
+            // doesn't get written.
+            if (crashFileName != null) {
+                Log.printLines(crashFileWriter, diagnostic.toString());
+                crashFileWriter.flush();
+            }
+
+            // Write the error to stdout using the standard javac logger
+            Log.instance(fxContext).report(diagnostic);
+            nerrors++;
+        }
+    }
+    /*
+     * In the future, we might want to consider doing something like this and call it
+     * from the Main.java error routines to get stack traces written into the crash file 
+     * instead of stdout.
      */
-    public void error(int pos, String key, Object ... args) {
-        errorPreface();
-        super.error(pos, key, args);
+    public void printStackTrace(Throwable ex) {
+        createCrashFile();
+        writeToCrashFile(null);
+        ex.printStackTrace(crashFileWriter);
+        crashFileWriter.flush();
     }
 }

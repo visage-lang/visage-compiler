@@ -30,6 +30,16 @@ var x:Object = null;
 ([(x as ArrayList)] == (x as HashSet));
 ([(x as ArrayList)] == [(x as HashSet)]);
 
+(a == (x as ArrayList));
+([a] == (x as ArrayList));
+(a == [(x as ArrayList)]);
+([a] == [(x as ArrayList)]);
+
+((x as ArrayList) == a);
+([(x as ArrayList)] == a);
+((x as ArrayList) == [a]);
+([(x as ArrayList)] == [a]);
+
 //primitives
 
 System.out.println(1 == false);

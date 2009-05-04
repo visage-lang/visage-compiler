@@ -26,6 +26,8 @@ package com.sun.tools.javafx.util;
 public class MsgSym {
     public static final String MESSAGE_JAVAFX_MSG_BUG = "javafx.msg.bug";
     public static final String MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR = "javafx.internal.error";
+    public static final String MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR1 = "javafx.internal.error1";
+    public static final String MESSAGE_JAVAFX_NOTE_INTERNAL_ERROR2 = "javafx.internal.error2";
     public static final String MESSAGE_JAVAFX_OPT_ARG_NAME = "javafx.opt.arg.name"; 
     public static final String MESSAGE_JAVAFX_OPT_PLATFORM = "javafx.opt.platform"; 
 
@@ -315,8 +317,11 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_LOOSE_EXPRESSIONS = "javafx.loose.expressions";
     public static final String MESSAGE_JAVAFX_RUN_FUNCTION_SINGLE = "javafx.run.function.single";
     public static final String MESSAGE_JAVAFX_RUN_FUNCTION_PARAM = "javafx.run.function.param";
-    public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found"; 
+    public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found";
+    public static final String MESSAGE_JAVAFX_KEYFRAME_LIT = "javafx.keyframe.literal";
     public static final String MESSAGE_JAVAFX_SEQ_OR_ARRAY = "javafx.seq.or.array";
+    public static final String MESSAGE_JAVAFX_LOOSE_IN_LIB = "javafx.loose.expr.in.lib";
+    public static final String MESSAGE_JAVAFX_LOOSE_IN_RUN = "javafx.loose.expr.in.run";
     public static final String MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE = "javafx.cannot.infer.return.type"; 
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL = "javafx.type.infer.cycle.fun.decl";
     public static final String MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_DECL = "javafx.type.infer.cycle.var.decl";

@@ -3831,6 +3831,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         InterpolateValueTranslator(JFXInterpolateValue tree, JavafxToJava toJava) {
             super(tree.pos(), toJava.syms.javafx_KeyValueType, toJava);
             this.tree = tree;
+            this.tree.value = tree.funcValue;
         }
 
         protected abstract JCExpression translateTarget();
