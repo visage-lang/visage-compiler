@@ -138,9 +138,10 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> impl
     private void notifyListeners(final $T.prim$ oldValue, final $T.prim$ newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasChildren(CHILD_KIND_TRIGGER))
-            iterateChildren(new DependencyIterator<ChangeListener<$T.boxed$>>(CHILD_KIND_TRIGGER) {
-                public void onAction(ChangeListener<$T.boxed$> listener) {
+        if (hasChildren(CHILD_KIND_TRIGGER)) {
+            for (LocationDependency cur = children; cur != null; cur = cur.getNext()) {
+                if (cur.getDependencyKind() == CHILD_KIND_TRIGGER) {
+                    ChangeListener<$T.boxed$> listener = (ChangeListener<$T.boxed$>) cur;
                     try {
                         listener.onChange(oldValue, newValue);
                     }
@@ -148,7 +149,8 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> impl
                         ErrorHandler.triggerException(e);
                     }
                 }
-            });
+            }
+        }
     }
 
 $if(NUMERIC)$

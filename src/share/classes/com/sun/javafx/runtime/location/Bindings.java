@@ -94,6 +94,7 @@ public class Bindings {
     }
 
     static boolean isPeerLocation(Location a, Location b) {
+        // FIXME pretty expensive way of doing things ...
         Collection<Location> aPeers = getPeerLocations(a);
         while (b.isViewLocation())
             b = b.getUnderlyingLocation();
@@ -163,16 +164,13 @@ public class Bindings {
         }
 
         public static List<Location> getDirectPeers(final Location loc) {
-            class DirectPeerClosure extends DependencyIterator<InvalidationListener> {
-                List<Location> list = null;
+            List<Location> list = null;
 
-                public DirectPeerClosure() {
-                    super(AbstractLocation.CHILD_KIND_CHANGE_LISTENER);
-                }
-
-                public void onAction(InvalidationListener element) {
-                    if (element instanceof BijectiveInvalidationListener) {
-                        BijectiveBinding<?, ?> bb = ((BijectiveInvalidationListener) element).getBijectiveBinding();
+            AbstractLocation aloc = (AbstractLocation) loc;
+            if (aloc.hasChildren(AbstractLocation.CHILD_KIND_CHANGE_LISTENER)) {
+                for (LocationDependency cur = aloc.children; cur != null; cur = cur.getNext()) {
+                    if (cur instanceof BijectiveInvalidationListener) {
+                        BijectiveBinding<?, ?> bb = ((BijectiveInvalidationListener) cur).getBijectiveBinding();
                         ObjectLocation<?> a = (ObjectLocation) bb.aRef.get();
                         ObjectLocation<?> b = (ObjectLocation) bb.bRef.get();
                         if (a != null && a != loc) {
@@ -188,11 +186,8 @@ public class Bindings {
                     }
                 }
             }
-
-            DirectPeerClosure closure = new DirectPeerClosure();
-            loc.iterateChildren(closure);
-            if (closure.list != null)
-                return closure.list;
+            if (list != null)
+                return list;
             else
                 return Collections.emptyList();
         }

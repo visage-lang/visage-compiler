@@ -226,9 +226,10 @@ public class SequenceVariable<T>
                                    boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasChildren(CHILD_KIND_TRIGGER))
-            iterateChildren(new DependencyIterator<ChangeListener<T>>(CHILD_KIND_TRIGGER) {
-                public void onAction(ChangeListener<T> listener) {
+        if (hasChildren(CHILD_KIND_TRIGGER)) {
+            for (LocationDependency cur = children; cur != null; cur = cur.getNext()) {
+                if (cur.getDependencyKind() == CHILD_KIND_TRIGGER) {
+                    ChangeListener<T> listener = (ChangeListener<T>) cur;
                     try {
                         listener.onChange(startPos, endPos, newElements, oldValue, newValue);
                     }
@@ -236,7 +237,8 @@ public class SequenceVariable<T>
                         ErrorHandler.triggerException(e);
                     }
                 }
-            });
+            }
+        }
     }
 
     @Override
