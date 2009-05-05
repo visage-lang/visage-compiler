@@ -420,8 +420,20 @@
     <target name="generate-templates" depends="-pre-compile">
         <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
             <arg value="${build.generated.dir}" />
+            <arg value="com/sun/javafx/runtime/location/XxxTemplate.stg" />
             <arg value="com/sun/javafx/runtime/location" />
-            <arg line="XxxConstant XxxLocation XxxVariable" />
+            <arg line="XxxConstant XxxLocation XxxVariable SequenceVariable" />
+           <classpath>
+                <pathelement location="${build.buildtools.dir}"/>
+                <path refid="antlr.class.path" />
+                <pathelement location="${src.classes.dir}" />
+            </classpath>
+        </java>
+        <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
+            <arg value="${build.generated.dir}" />
+            <arg value="com/sun/javafx/runtime/location/XxxTemplate.stg" />
+            <arg value="com/sun/javafx/runtime/sequence" />
+            <arg line="AbstractSequence Sequences" />
            <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
                 <path refid="antlr.class.path" />
