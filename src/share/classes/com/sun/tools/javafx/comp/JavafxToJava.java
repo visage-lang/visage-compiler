@@ -66,6 +66,7 @@ import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.STranslator;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
@@ -156,7 +157,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     /*
      * static information
      */
-    private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.ArraySequence";
+    private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.ObjectArraySequence";
     private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundSequenceBuilder";
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
@@ -2819,7 +2820,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
 
-        return new UseSequenceBuilder(diagPos, elemType, sequenceBuilderString) {
+        return new UseSequenceBuilder(diagPos, elemType, null) {
 
             JCStatement addElement(JFXExpression exprToAdd) {
                 JCExpression expr = translateAsValue(exprToAdd, targetType(exprToAdd));
@@ -2873,6 +2874,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         final String seqBuilder;
 
         Name sbName;
+        boolean addTypeInfoArg = true;
 
         private UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, String seqBuilder) {
             this.diagPos = diagPos;
@@ -2891,9 +2893,27 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
 
         JCStatement makeBuilderVar() {
+            String seqBuilder = this.seqBuilder;
+            boolean primitive = false;
+            if (seqBuilder == null) {
+                if (elemType.isPrimitive()) {
+                    primitive = true;
+                    addTypeInfoArg = false;
+                    int kind = typeMorpher.kindFromPrimitiveType(elemType.tsym);
+                    seqBuilder = "com.sun.javafx.runtime.sequence." + JavafxVarSymbol.getTypePrefix(kind) + "ArraySequence";
+                }
+                else
+                    seqBuilder = sequenceBuilderString;
+            }
             JCExpression builderTypeExpr = makeQualifiedTree(diagPos, seqBuilder);
-            List<JCExpression> btargs = List.of(makeTypeTree(diagPos, elemType));
-            builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr, btargs);
+            JCExpression builderClassExpr = makeQualifiedTree(diagPos, seqBuilder);
+            if (! primitive) {
+                builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr,
+                        List.of(makeTypeTree(diagPos, elemType)));
+                // class name -- SequenceBuilder<elemType>
+                builderClassExpr = make.at(diagPos).TypeApply(builderClassExpr,
+                        List.<JCExpression>of(makeTypeTree(diagPos, elemType)));
+            }
 
             // Sequence builder temp var name "sb"
             sbName = getSyntheticName("sb");
@@ -2902,9 +2922,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             JCExpression newExpr = make.at(diagPos).NewClass(
                 null,                               // enclosing
                 List.<JCExpression>nil(),           // type args
-                make.at(diagPos).TypeApply(         // class name -- SequenceBuilder<elemType>
-                     makeQualifiedTree(diagPos, seqBuilder),
-                     List.<JCExpression>of(makeTypeTree(diagPos, elemType))),
+                builderClassExpr, // class name -- SequenceBuilder<elemType>
                 makeConstructorArgs(),              // args
                 null                                // empty body
                 );
@@ -3002,7 +3020,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
             // Compute the element type from the sequence type
             assert tree.type.getTypeArguments().size() == 1;
-            Type elemType = types.boxedElementType(tree.type);
+            Type elemType = types.elementType(tree.type);
 
             UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType);
             stmts.append(builder.makeBuilderVar());

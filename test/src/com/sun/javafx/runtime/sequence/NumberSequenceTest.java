@@ -42,7 +42,6 @@ public class NumberSequenceTest extends JavaFXTestCase {
     static final boolean NOT_LAZY = false;
 
     private final Sequence<Float> EMPTY_SEQUENCE = TypeInfo.Float.emptySequence;
-    private final Sequence<Float> ZERO_SEQUENCE = new ArraySequence<Float>(TypeInfo.Float, 0.0f).noteShared();
 
     /** Test ranges, including skip ranges and backwards ranges */
     public void testRange() {
@@ -252,8 +251,8 @@ public class NumberSequenceTest extends JavaFXTestCase {
     public void testMixedConcat () {
         TypeInfo<Number, ?> NumberTypeInfo = TypeInfo.<Number>makeTypeInfo(0);
 
-        Sequence<Integer> sI1 = new ArraySequence<Integer>(TypeInfo.Integer, 1, 2).noteShared();
-        Sequence<Double> sD1 = new ArraySequence<Double>(TypeInfo.Double, 1.5, 2.5).noteShared();
+        Sequence<Integer> sI1 = new IntArraySequence(TypeInfo.Integer, 1, 2).noteShared();
+        Sequence<Double> sD1 = new DoubleArraySequence(TypeInfo.Double, 1.5, 2.5).noteShared();
         Sequence<Number> sN1 = Sequences.concatenate(NumberTypeInfo, sI1, sD1);
         Sequences.noteShared(sN1);
         assertEquals(sN1, 1, 2, 1.5, 2.5);

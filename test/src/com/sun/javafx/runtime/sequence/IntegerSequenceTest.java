@@ -38,9 +38,9 @@ public class IntegerSequenceTest extends JavaFXTestCase {
     private static final int A = 3;
     private static final int B = 5;
     private static final int C = 7;
-  private final Sequence<Integer> EMPTY_SEQUENCE = TypeInfo.Integer.emptySequence;
-    private final Sequence<Integer> ONE_SEQUENCE = new ArraySequence<Integer>(TypeInfo.Integer, A).noteShared();
-    private final Sequence<Integer> TWO_SEQUENCE = new ArraySequence<Integer>(TypeInfo.Integer, A, B).noteShared();
+    private final Sequence<Integer> EMPTY_SEQUENCE = TypeInfo.Integer.emptySequence;
+    private final Sequence<Integer> ONE_SEQUENCE = new IntArraySequence(TypeInfo.Integer, A).noteShared();
+    private final Sequence<Integer> TWO_SEQUENCE = new IntArraySequence(TypeInfo.Integer, A, B).noteShared();
 
     private final SequencePredicate<Integer> nullMatcher = new SequencePredicate<Integer>() {
         public boolean matches(Sequence<? extends Integer> sequence, int index, Integer value) {
@@ -77,14 +77,6 @@ public class IntegerSequenceTest extends JavaFXTestCase {
             return value == 1;
         }
     };
-
-    /**
-     * Helper method for asserting the depth of a Sequence
-     */
-    private <T> void assertDepth(int depth, Sequence<T> seq) {
-        assertEquals(depth, seq.getDepth());
-    }
-
 
     /**
      * Assert various properties of a supposedly empty sequence
@@ -135,7 +127,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(2, seq.size());
         assertFalse(seq.isEmpty());
         assertEquals(seq, seq);
-        assertEquals(seq, new ArraySequence<Integer>(TypeInfo.Integer, seq.get(0), seq.get(1)));
+        assertEquals(seq, new IntArraySequence(TypeInfo.Integer, seq.get(0), seq.get(1)));
         assertEquals("[ " + a + ", " + b + " ]", seq.toString());
         assertEquals(Integer.valueOf(0), seq.get(-1));
         assertEquals(a, seq.get(0));
@@ -207,7 +199,6 @@ public class IntegerSequenceTest extends JavaFXTestCase {
 
         assertEquals(Sequences.reverse(seq), value);
         assertEquals(Sequences.flatten(seq), value);
-        assertDepth(0, Sequences.flatten(seq));
     }
 
     private void twoElementHelper(Sequence<Integer> seq, Integer a, Integer b) {
@@ -231,7 +222,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertOneElement(Sequences.delete(seq, lastMatcher), a);
 
         // Test positional insertion
-        Sequence<Integer> cc = new ArraySequence<Integer>(TypeInfo.Integer, C, C).noteShared();
+        Sequence<Integer> cc = new IntArraySequence(TypeInfo.Integer, C, C).noteShared();
         assertEquals(Sequences.insert(seq, C), a, b, C);
         assertEquals(Sequences.insert(seq, cc), a, b, C, C);
         assertEquals(Sequences.insertBefore(seq, C, 0), C, a, b);
@@ -251,27 +242,16 @@ public class IntegerSequenceTest extends JavaFXTestCase {
 
         assertTwoElements(Sequences.reverse(seq), b, a);
         assertEquals(Sequences.flatten(seq), a, b);
-        assertDepth(0, Sequences.flatten(seq));
     }
 
     /**
      * Generate empty sequences as many ways as we can think of and test their emptiness
      */
     public void testEmptySequence() {
-        emptyHelper(new ArraySequence<Integer>(TypeInfo.Integer, EMPTY_SEQUENCE).noteShared());
-        emptyHelper(new ArraySequence<Integer>(TypeInfo.Integer, new Integer[0]).noteShared());
+        emptyHelper(new IntArraySequence(EMPTY_SEQUENCE));
+        emptyHelper(new IntArraySequence(new int[0], 0, 0));
 
         emptyHelper(Sequences.rangeExclusive(0, 0));
-
-        emptyHelper(new CompositeSequence<Integer>(TypeInfo.Integer));
-        emptyHelper(new CompositeSequence<Integer>(TypeInfo.Integer, EMPTY_SEQUENCE));
-        emptyHelper(new CompositeSequence<Integer>(TypeInfo.Integer, EMPTY_SEQUENCE, EMPTY_SEQUENCE));
-        emptyHelper(Sequences.concatenate(TypeInfo.Integer));
-        emptyHelper(Sequences.concatenate(TypeInfo.Integer, EMPTY_SEQUENCE));
-        emptyHelper(Sequences.concatenate(TypeInfo.Integer, EMPTY_SEQUENCE, EMPTY_SEQUENCE));
-
-        emptyHelper(new FilterSequence<Integer>(EMPTY_SEQUENCE, new BitSet()));
-        emptyHelper(new FilterSequence<Integer>(ONE_SEQUENCE, new BitSet()));
         emptyHelper(Sequences.filter(EMPTY_SEQUENCE, new BitSet()));
         emptyHelper(Sequences.filter(ONE_SEQUENCE, new BitSet()));
     }
@@ -280,7 +260,7 @@ public class IntegerSequenceTest extends JavaFXTestCase {
      * Generate single-element sequences as many ways as we can think of and test their singularity
      */
     public void testOneElementSequence() {
-        oneElementHelper(new ArraySequence<Integer>(TypeInfo.Integer, 1).noteShared(), 1);
+        oneElementHelper(new IntArraySequence(TypeInfo.Integer, 1).noteShared(), 1);
 
         oneElementHelper(new SingletonSequence<Integer>(TypeInfo.Integer, 3), 3);
 
@@ -644,37 +624,6 @@ public class IntegerSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.replaceSlice(three, 0, 2, x), 0);
         assertEquals(Sequences.replaceSlice(three, 0, 3, x), 0);
         assertEquals(Sequences.replaceSlice(three, 0, 4, x), 0);
-    }
-
-    /**
-     * Tests properties of the SequenceHelper methods, which optimize certain common cases such as concatenating an
-     * empty sequence, or extracting the entire sequence (or an empty sequence) using subsequence, or filtering
-     * a sequence where all or none of the bits are set.
-     */
-    public void testDepths() {
-        assertDepth(0, EMPTY_SEQUENCE);
-        assertDepth(0, ONE_SEQUENCE);
-        assertDepth(0, new SingletonSequence<Integer>(TypeInfo.Integer, 1));
-        assertDepth(0, new ArraySequence<Integer>(TypeInfo.Integer, 1));
-        assertDepth(0, new IntRangeSequence(0, 1));
-        assertDepth(1, new CompositeSequence<Integer>(TypeInfo.Integer));
-        assertDepth(1, new CompositeSequence<Integer>(TypeInfo.Integer, EMPTY_SEQUENCE));
-        assertDepth(1, new CompositeSequence<Integer>(TypeInfo.Integer, ONE_SEQUENCE, ONE_SEQUENCE));
-        assertDepth(1, new FilterSequence<Integer>(EMPTY_SEQUENCE, new BitSet()));
-        assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, new BitSet()));
-
-        assertDepth(1, new CompositeSequence<Integer>(TypeInfo.Integer, ONE_SEQUENCE, ONE_SEQUENCE));
-        assertDepth(0, Sequences.concatenate(TypeInfo.Integer, ONE_SEQUENCE, ONE_SEQUENCE));
-        assertDepth(0, Sequences.concatenate(TypeInfo.Integer, EMPTY_SEQUENCE, ONE_SEQUENCE));
-        assertDepth(0, Sequences.concatenate(TypeInfo.Integer, ONE_SEQUENCE, EMPTY_SEQUENCE));
-
-        assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, ONE_SEQUENCE.getBits(nullMatcher)));
-        assertDepth(1, new FilterSequence<Integer>(ONE_SEQUENCE, ONE_SEQUENCE.getBits(allMatcher)));
-        assertDepth(0, Sequences.filter(ONE_SEQUENCE, ONE_SEQUENCE.getBits(nullMatcher)));
-        assertDepth(0, Sequences.filter(ONE_SEQUENCE, ONE_SEQUENCE.getBits(allMatcher)));
-        assertDepth(0, Sequences.filter(TWO_SEQUENCE, TWO_SEQUENCE.getBits(nullMatcher)));
-        assertDepth(0, Sequences.filter(TWO_SEQUENCE, TWO_SEQUENCE.getBits(allMatcher)));
-        assertDepth(0, Sequences.filter(TWO_SEQUENCE, TWO_SEQUENCE.getBits(firstMatcher)));
     }
 
     public void testUpcast() {

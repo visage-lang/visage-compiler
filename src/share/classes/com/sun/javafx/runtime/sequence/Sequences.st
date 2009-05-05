@@ -46,9 +46,9 @@ public final class Sequences extends SequenceConversions {
     // Inhibit instantiation
     private Sequences() { }
 
-    static<T> ArraySequence<T> asNonSharedArraySequence(Object value) {
-        if (value instanceof ArraySequence) {
-            ArraySequence<T> arr = (ArraySequence) value;
+    static<T> ObjectArraySequence<T> asNonSharedArraySequence(Object value) {
+        if (value instanceof ObjectArraySequence) {
+	    ObjectArraySequence<T> arr = (ObjectArraySequence) value;
             if (! arr.isShared())
                 return arr;
         }
@@ -79,7 +79,7 @@ public final class Sequences extends SequenceConversions {
         if (values == null || values.length == 0)
             return ti.emptySequence;
         else
-            return new ArraySequence<T>(ti, values);
+            return new ObjectArraySequence<T>(ti, values);
     }
 
     /** Factory for simple sequence generation */
@@ -87,11 +87,11 @@ public final class Sequences extends SequenceConversions {
         if (values == null || size <= 0)
             return ti.emptySequence;
         else
-            return new ArraySequence<T>(ti, values, size);
+            return new ObjectArraySequence<T>(ti, values, 0, size);
     }
 
     public static<T> Sequence<T> makeViaHandoff(TypeInfo<T, ?> ti, T[] values) {
-        return new ArraySequence<T>(ti, values, true);
+        return new ObjectArraySequence<T>(ti, values, true);
     }
 
     /** Factory for simple sequence generation */
@@ -99,7 +99,7 @@ public final class Sequences extends SequenceConversions {
         if (values == null || values.size() == 0)
             return ti.emptySequence;
         else
-            return new ArraySequence<T>(ti, values);
+            return new ObjectArraySequence<T>(ti, values);
     }
 
     /** Many sequences are represented as trees to reduce copying costs; if the current sequence has depth > 0,
@@ -109,7 +109,7 @@ public final class Sequences extends SequenceConversions {
         if (seq.getDepth() == 0) {
             return seq;
         } else {
-            return new ArraySequence<T>(seq.getElementType(), seq);
+            return new ObjectArraySequence<T>(seq.getElementType(), seq);
         }
     }
     
@@ -135,23 +135,6 @@ public final class Sequences extends SequenceConversions {
             return Sequences.upcast(second);
         else if (size2 == 0)
             return Sequences.upcast(first);
-        else if ((arr = asNonSharedArraySequence(first)) != null) {
-            ArraySequence<T> arr2;
-            if (size1 < size2 && (arr2 = asNonSharedArraySequence(second)) != null) {
-                arr2.insert(first, size1, 0);
-                return arr2;
-            }
-            else {
-                arr.insert(second, size2, size1);
-                return arr;
-            }
-        }
-        else if ((arr = asNonSharedArraySequence(second)) != null) {
-            arr.insert(first, size1, 0);
-            return arr;
-        }
-        else if (size1 + size2 <= FLATTENING_THRESHOLD)
-            return new ArraySequence<T>(ti, first, second);
         else
             return new CompositeSequence<T>(ti, first, second);
     }
@@ -161,11 +144,7 @@ public final class Sequences extends SequenceConversions {
         int size = 0;
         for (Sequence i : seqs)
             size += Sequences.size(i);
-        // OPT: for small sequences, just copy the elements
-        if (size <= FLATTENING_THRESHOLD)
-            return new ArraySequence<T>(ti, seqs);
-        else
-            return new CompositeSequence<T>(ti, seqs);
+        return new CompositeSequence<T>(ti, seqs);
     }
 
     /** Create an Integer range sequence ranging from lower to upper inclusive. */
@@ -298,7 +277,7 @@ public final class Sequences extends SequenceConversions {
         if (values == null)
             return ti.emptySequence;
         // OPT: Use handoff, pre-size array
-        return new ArraySequence<T>(ti, (T[]) values.toArray());
+        return new ObjectArraySequence<T>(ti, (T[]) values.toArray());
     }
 
     public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, int endPos, Sequence<? extends T> replacement) {
@@ -320,22 +299,11 @@ public final class Sequences extends SequenceConversions {
         final int seqSize = Sequences.size(sequence);
         startPos = Math.min (Math.max (0, startPos), seqSize);       // 0 <= startPos <= size
         endPos = Math.min (Math.max (startPos, endPos), seqSize);    // startPos <= endPos <= size
-        ArraySequence<T> arr;
-        if ((arr = asNonSharedArraySequence(sequence)) != null) {
-            arr.replace(startPos, endPos, value);
-            return arr;
-        }
         return new ElementReplacementSequence<T>(sequence, startPos, endPos, value);
     }
     
     public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, T value) {
-      ArraySequence arr;
-      if ((arr = asNonSharedArraySequence(sequence)) != null) {
-          arr.replace(startPos, value);
-          return arr;
-      }
-      else
-          return new ReplacementSequence<T>(sequence, startPos, value);
+        return new ReplacementSequence<T>(sequence, startPos, value);
     }
     
 
@@ -362,7 +330,7 @@ public final class Sequences extends SequenceConversions {
         for (V val : seq) {
             toArray[i++] = toType.asPreferred(fromType, val);
         }
-        return new ArraySequence<T>(toType, toArray, length);
+        return new ObjectArraySequence<T>(toType, toArray, 0, length);
     }
 
     /** How large is this sequence?  Can be applied to any object.  */
@@ -846,5 +814,4 @@ public final class Sequences extends SequenceConversions {
         Collections.shuffle(list);
         return Sequences.make(seq.getElementType(), list);
     }
-    
 }
