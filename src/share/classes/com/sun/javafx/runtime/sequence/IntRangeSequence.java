@@ -65,10 +65,18 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
     }
 
     @Override
-    public Integer get(int position) {
+    public int getAsInt(int position) {
         if (position < 0 || position >= size)
             return 0;
         else 
+            return (start + position * step);
+    }
+
+    @Override
+    public Integer get(int position) {
+        if (position < 0 || position >= size)
+            return 0;
+        else
             return (start + position * step);
     }
 

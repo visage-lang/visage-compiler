@@ -892,7 +892,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 ListBuffer<JCExpression> typeParams = ListBuffer.lb();
                 typeParams.append( makeExpression(tmiInduction.getRealBoxedType()) );
                 typeParams.append( makeExpression(tmiInduction.getLocationType()) );
-                typeParams.append( makeExpression(resultElementType) );
+                typeParams.append(makeExpression(types.boxedTypeOrType(resultElementType)));
                 clazz = m().TypeApply(clazz, typeParams.toList());
                 return m().NewClass(null,
                         typeArgs,

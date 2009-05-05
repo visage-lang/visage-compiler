@@ -150,31 +150,11 @@ public class JavafxTypeMorpher {
             this.realType = symType;
 
             if (symType.isPrimitive()) {
-                if (realTsym == syms.booleanType.tsym) {
-                    typeKind = TYPE_KIND_BOOLEAN;
-                } else if (realTsym == syms.charType.tsym) {
-                    typeKind = TYPE_KIND_CHAR;
-                } else if (realTsym == syms.byteType.tsym) {
-                    typeKind = TYPE_KIND_BYTE;
-                } else if (realTsym == syms.shortType.tsym) {
-                    typeKind = TYPE_KIND_SHORT;
-                } else if (realTsym == syms.intType.tsym) {
-                    typeKind = TYPE_KIND_INT;
-                } else if (realTsym == syms.longType.tsym) {
-                    typeKind = TYPE_KIND_LONG;
-                } else if (realTsym == syms.floatType.tsym) {
-                    typeKind = TYPE_KIND_FLOAT;
-                } else if (realTsym == syms.doubleType.tsym) {
-                    typeKind = TYPE_KIND_DOUBLE;
-                } else {
-                    assert false : "should not reach here";
-                    elementType = realType;
-                    typeKind = TYPE_KIND_OBJECT;
-                }
+                typeKind = kindFromPrimitiveType(realTsym);
             } else {
                 if (isSequence()) {
                     typeKind = TYPE_KIND_SEQUENCE;
-                    elementType = types.boxedElementType(symType);
+                    elementType = types.elementType(symType);
                 } else {
                     typeKind = TYPE_KIND_OBJECT;
                     elementType = realType;
@@ -256,6 +236,19 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_FLOAT] = (float)0.0;
         defaultValueByKind[TYPE_KIND_DOUBLE] = 0.0;
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; // Empty sequence done programatically
+    }
+
+    public int kindFromPrimitiveType(TypeSymbol tsym) {
+        if (tsym == syms.booleanType.tsym) return TYPE_KIND_BOOLEAN;
+        if (tsym == syms.charType.tsym) return TYPE_KIND_CHAR;
+        if (tsym == syms.byteType.tsym) return TYPE_KIND_BYTE;
+        if (tsym == syms.shortType.tsym) return TYPE_KIND_SHORT;
+        if (tsym == syms.intType.tsym) return TYPE_KIND_INT;
+        if (tsym == syms.longType.tsym) return TYPE_KIND_LONG;
+        if (tsym == syms.floatType.tsym) return TYPE_KIND_FLOAT;
+        if (tsym == syms.doubleType.tsym) return TYPE_KIND_DOUBLE;
+        assert false : "should not reach here";
+        return TYPE_KIND_OBJECT;
     }
 
     private VarRepresentation computeRepresentation(Symbol sym) {
@@ -377,6 +370,8 @@ public class JavafxTypeMorpher {
                 /* handles library which doesn't have element type */
                 elemType = syms.objectType;
             }
+            else
+                elemType = types.boxedTypeOrType(elemType);
             List<Type> actuals = List.of(elemType);
             Type clazzOuter = variableType(tmi.getTypeKind()).getEnclosingType();
 
