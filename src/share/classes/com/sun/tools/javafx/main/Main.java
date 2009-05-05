@@ -329,6 +329,8 @@ public class Main {
 
         // Tranfer the name table -- must be done before any initialization
         backEndContext.put(Name.Table.namesKey, Name.Table.instance(context));
+
+        // Msgs written to the backendContext will get forwarded to the context
         backEndContext.put(DiagnosticListener.class, new DiagnosticForwarder(context));
 
         // add -target flag to backEndContext, if specified
@@ -749,6 +751,9 @@ public class Main {
             otherContext = context;
         }
 
+        // Log.java writeDiagnostic comes here.   Why doesn't Log.report recurse?
+        // otherContext is the fxContext. AND fxContext has NO listener so we
+        // don't come back here.
         public void report(Diagnostic diag) {
             Log log = Log.instance(otherContext);
             log.report((JCDiagnostic)diag);

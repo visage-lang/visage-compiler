@@ -8,6 +8,7 @@ Simpl.super (inherited also):
   class MyCanvasItem
   class MyRect
   class MyShape
+  class com.sun.javafx.runtime.FXBase
   class java.lang.Object
 clsString=class java.lang.String jfx-class:false mixin:false
 String .super (direct only):
@@ -134,6 +135,7 @@ myAnonRectRef.super (inherited also):
   class MyCanvasItem
   class MyRect
   class MyShape
+  class com.sun.javafx.runtime.FXBase
   class java.lang.Object
 Main.getFunction("repeat"): function Main.repeat(Integer,java.lang.String):java.lang.String
 Bar.getFunctions(false): [function Bar.convert(JavaArray<java.lang.Object>):JavaArray<java.lang.Object>]

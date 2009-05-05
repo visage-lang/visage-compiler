@@ -83,6 +83,7 @@ public class JavafxAttr implements JavafxVisitor {
     private final JavafxSymtab syms;
     private final JavafxCheck chk;
     private final JavafxMemberEnter memberEnter;
+    private final JCDiagnostic.Factory diags;
     private final JavafxTreeMaker fxmake;
     private final ConstFold cfolder;
     private final JavafxEnter enter;
@@ -114,6 +115,7 @@ public class JavafxAttr implements JavafxVisitor {
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         names = Name.Table.instance(context);
         log = Log.instance(context);
+        diags = JCDiagnostic.Factory.instance(context);
         rs = JavafxResolve.instance(context);
         chk = JavafxCheck.instance(context);
         memberEnter = JavafxMemberEnter.instance(context);
@@ -1532,18 +1534,10 @@ public class JavafxAttr implements JavafxVisitor {
                 // always need to be static, because they will have generated static members
                 cdef.mods.flags |= STATIC;
 
-//              now handled in class processing
-//                if (clazztype.tsym.isInterface()) {
-//                    cdef.implementing = List.of(clazz);
-//                } else {
-//                    cdef.extending = clazz;
-//                }
-
                 if (cdef.sym == null)
                     enter.classEnter(cdef, env);
 
-                 attribDecl(cdef, localEnv);
-                 attribClass(cdef.pos(), null, cdef.sym);
+                attribDecl(cdef, localEnv);
 
                 // Reassign clazztype and recompute constructor.
                 clazztype = cdef.sym.type;
@@ -2899,7 +2893,6 @@ public class JavafxAttr implements JavafxVisitor {
         }
 
         Symbol javaSupertypeSymbol = null;
-        boolean addToSuperTypes = true;
 
         for (JFXExpression superClass : tree.getSupertypes()) {
             Type supType = superClass.type == null ? attribType(superClass, env)
@@ -2945,7 +2938,6 @@ public class JavafxAttr implements JavafxVisitor {
 
                     if (hasNonParamCtor) {
                         ((ClassType)javafxClassSymbol.type).supertype_field = supType;
-                        addToSuperTypes = false;
                     }
                     else {
                         log.error(superClass.pos(), MsgSym.MESSAGE_JAVAFX_BASE_JAVA_CLASS_NON_PAPAR_CTOR, supType.tsym.name);
@@ -2957,13 +2949,7 @@ public class JavafxAttr implements JavafxVisitor {
                     log.error(superClass.pos(), MsgSym.MESSAGE_JAVAFX_ONLY_ONE_BASE_JAVA_CLASS_ALLOWED, supType.tsym.name);
                 }
             }
-
-            if (addToSuperTypes && javafxClassSymbol != null) {
-                javafxClassSymbol.addSuperType(supType);
-            }
-            addToSuperTypes = true;
         }
-
     }
 
     @Override
@@ -3919,13 +3905,21 @@ public class JavafxAttr implements JavafxVisitor {
         tree.sym = JavafxTreeInfo.symbol(tree.attribute);
 
         //TODO: this is evil
-        // wrap it in a function
-        tree.value = fxmake.at(tree.pos()).FunctionValue(fxmake.at(tree.pos()).TypeUnknown(), 
+        //wrap it in a function
+        /* 
+         * JFXC-3133 -- previously, we filled "tree.value" with anon
+         * FunctionValue. But, if this JFXInterpolateValue tree is
+         * attributed twice, on the second visit, tree.value would
+         * be a function value and so would fail with type check.
+         * Now, we use tree.funcValue. Translation will copy the
+         * "tree.funcValue" to "tree.value".
+         */
+        tree.funcValue = fxmake.at(tree.pos()).FunctionValue(fxmake.at(tree.pos()).TypeUnknown(),
                                                          List.<JFXVar>nil(),
-                                                         fxmake.at(tree.pos()).Block(0L,
-                                                                                     List.<JFXExpression>nil(),
-                                                                                     tree.value));    
-        attribExpr(tree.value, env);
+                                                         fxmake.at(tree.pos()).Block(0L, 
+     List.<JFXExpression>nil(), 
+     tree.value));
+        attribExpr(tree.funcValue, env);
         result = check(tree, syms.javafx_KeyValueType, VAL, pkind, pt, pSequenceness);
         this.inBindContext = wasInBindContext;
     }
@@ -3963,6 +3957,11 @@ public class JavafxAttr implements JavafxVisitor {
     */
 
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+        if (this.inBindContext) {
+            log.error(tree.pos(),
+                    MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT,
+                    diags.fragment(MsgSym.MESSAGE_JAVAFX_KEYFRAME_LIT));
+        }
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree);
         localEnv.outer = env;
         attribExpr(tree.start, localEnv);

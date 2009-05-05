@@ -1,5 +1,5 @@
 Reflecting class ReflectionTest.TypeInference3
-Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference, class ReflectionTest.TypeInference2, class ReflectionTest.TypeInference3, class java.lang.Object]
+Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference, class ReflectionTest.TypeInference2, class ReflectionTest.TypeInference3, class com.sun.javafx.runtime.FXBase, class java.lang.Object]
  Type of anotherAttr is inferred as class java.lang.String
  Type of attr1 is inferred as class java.lang.Object
  Type of booleanAttr1 is inferred as Boolean

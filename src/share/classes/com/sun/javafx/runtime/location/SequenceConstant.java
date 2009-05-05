@@ -64,10 +64,6 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> i
         throw new UnsupportedOperationException();
     }
 
-    public Sequence<T> setAsSequenceFromLiteral(Sequence<? extends T> value) {
-        throw new UnsupportedOperationException();
-    }
-
     public void addSequenceChangeListener(ChangeListener<T> listener) { }
 
     public void removeSequenceChangeListener(ChangeListener<T> listener) { }

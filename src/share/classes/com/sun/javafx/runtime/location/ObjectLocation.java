@@ -35,9 +35,6 @@ public interface ObjectLocation<T> extends Location {
     /** Modify the value associated with this Location */
     public T set(T value);
 
-    /** Special version of set for use from object literals during initialization */
-    public T setFromLiteral(T value);
-
     /** Set this location to its default value */
     public void setDefault();
 

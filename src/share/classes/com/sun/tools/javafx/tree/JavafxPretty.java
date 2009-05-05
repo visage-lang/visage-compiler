@@ -136,7 +136,8 @@ public class JavafxPretty implements JavafxVisitor {
     /** Print string, replacing all non-ascii character with unicode escapes.
      */
     public void print(Object s) throws IOException {
-        out.write(Convert.escapeUnicode(s.toString()));
+        // s may be null for CATCH in "try {} catch() {}"
+        out.write(Convert.escapeUnicode((s != null) ? s.toString() : ""));
     }
 
     /** Print new line.

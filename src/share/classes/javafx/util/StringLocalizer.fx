@@ -134,6 +134,8 @@ public class StringLocalizer {
 
             if (className.startsWith("javafx.util.StringLocalizer")) {
                 foundMe = true;
+            } else if (className.startsWith("com.sun.javafx.runtime")) {
+                continue;  // ignore runtime frames
             } else if (foundMe) {
                 // this should be the caller's stack
                 break;

@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.javafx.runtime.FXObject;
-import com.sun.javafx.runtime.InitHelper;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.location.*;
 
@@ -96,7 +95,6 @@ public abstract class FXObjectFactory<T extends FXObject> {
                                                           }
                                                           init((T) proxy);
                                                           postInit((T) proxy);
-                                                          InitHelper.finish(vars.toArray(new AbstractVariable[vars.size()]));
                                                       }
                                                       else if (method.getName().startsWith("get$")) {
                                                           return locs.get(method.getName().substring("get$".length()));

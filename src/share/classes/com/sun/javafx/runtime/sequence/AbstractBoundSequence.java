@@ -190,15 +190,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         throw new UnsupportedOperationException();
     }
 
-    public Sequence<T> setFromLiteral(Sequence<T> value) {
-        throw new UnsupportedOperationException();
-    }
-
     public Sequence<T> setAsSequence(Sequence<? extends T> value) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Sequence<T> setAsSequenceFromLiteral(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 

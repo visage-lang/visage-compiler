@@ -18,16 +18,6 @@ var b:B = c;
 var a:A = c;
 var x:ArrayList = new ArrayList();
 
-System.out.println(a == (x as ArrayList));
-System.out.println([a] == (x as ArrayList));
-System.out.println(a == [(x as ArrayList)]);
-System.out.println([a] == [(x as ArrayList)]);
-
-System.out.println((x as ArrayList) == a);
-System.out.println([(x as ArrayList)] == a);
-System.out.println((x as ArrayList) == [a]);
-System.out.println([(x as ArrayList)] == [a]);
-
 System.out.println(a == (x as List));
 System.out.println([a] == (x as List));
 System.out.println(a == [(x as List)]);

@@ -47,8 +47,6 @@ public interface SequenceLocation<T> extends Location, ObjectLocation<Sequence<T
 
     public Sequence<T> setAsSequence(Sequence<? extends T> value);
 
-    public Sequence<T> setAsSequenceFromLiteral(Sequence<? extends T> value);
-
     public T set(int position, T value);
 
     public Sequence<T> getSlice(int startPos, int endPos);

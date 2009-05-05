@@ -30,7 +30,7 @@ import com.sun.javafx.runtime.location.*;
  *
  * @author Brian Goetz
  */
-public class PointerFactory implements FXObject {
+public class PointerFactory extends FXBase implements FXObject {
     
     public PointerFactory() {
         this(false);
@@ -40,7 +40,11 @@ public class PointerFactory implements FXObject {
     public PointerFactory(boolean dummy) {
     }
 
-    public void initialize$() { }
+    public void initialize$() {
+        addTriggers$();
+        applyDefaults$();
+        complete$();
+    }
 
     public ObjectVariable<Pointer> make$$bound$byte(ByteLocation location) {
         return ObjectVariable.make(Pointer.make(location));

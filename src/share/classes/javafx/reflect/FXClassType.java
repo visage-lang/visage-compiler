@@ -48,6 +48,7 @@ public abstract class FXClassType extends FXType implements FXMember {
             "com.sun.javafx.functions.Function";
     public static final String GETTER_PREFIX = "get$";
     public static final String SETTER_PREFIX = "set$";
+    public static final String LOCATION_GETTER_PREFIX = "loc$";
 
     protected FXClassType(FXContext context, int modifiers) {
         this.context = context;
@@ -85,6 +86,7 @@ public abstract class FXClassType extends FXType implements FXMember {
         return (modifiers & FX_MIXIN) != 0;
     }
 
+    @Override
     public boolean isJfxType() {
         return (modifiers & FX_CLASS) != 0;
     }

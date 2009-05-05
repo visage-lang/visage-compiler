@@ -54,11 +54,11 @@ public class ObjectVariable<T>
         return new ObjectVariable<T>(value);
     }
 
-    public static<T> ObjectVariable<T> make(boolean lazy, BindingExpression binding, Location... dependencies) {
+    public static<T> ObjectVariable<T> make(boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         return new ObjectVariable<T>(null, lazy, binding, dependencies);
     }
 
-    public static<T> ObjectVariable<T> make(T dflt, boolean lazy, BindingExpression binding, Location... dependencies) {
+    public static<T> ObjectVariable<T> make(T dflt, boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         return new ObjectVariable<T>(dflt, lazy, binding, dependencies);
     }
 
@@ -77,7 +77,7 @@ public class ObjectVariable<T>
         setValid();
     }
 
-    protected ObjectVariable(T dflt, boolean lazy, BindingExpression binding, Location... dependencies) {
+    protected ObjectVariable(T dflt, boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         this();
         $default = dflt;
         bind(lazy, binding);

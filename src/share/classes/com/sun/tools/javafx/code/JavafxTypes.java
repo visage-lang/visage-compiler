@@ -262,13 +262,13 @@ public class JavafxTypes extends Types {
 
         boolean isSourceFinal = (source.tsym.flags() & FINAL) != 0;
         boolean isTargetFinal = (target.tsym.flags() & FINAL) != 0;
-        if (isJFXClass(source.tsym) && isJFXClass(target.tsym))
+        if (isMixin(source.tsym) && isMixin(target.tsym))
             return true;
-        else if (isJFXClass(source.tsym) &&
+        else if (isMixin(source.tsym) &&
             !isTargetFinal || 
             target.isInterface())
             return true;
-        else if (isJFXClass(target.tsym) &&
+        else if (isMixin(target.tsym) &&
             !isSourceFinal ||
             target.isInterface())
             return true;

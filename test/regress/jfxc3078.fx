@@ -1,6 +1,6 @@
 /*
  * @test
- * @run/fail
+ * @run
  *
  * mixin A should be initialized just once
  */

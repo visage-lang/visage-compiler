@@ -9,7 +9,7 @@ class A {
     public var a = "A";
 
     function testA_meth() {
-        Object.toString();
+        super.toString();
     }
 
     function testA_field() {
@@ -22,7 +22,7 @@ mixin class M {
     public var m = "M";
 
     function testM_meth() {
-        Object.toString();
+        Object.toString(); //invalid
     }
 
     function testM_field() {
