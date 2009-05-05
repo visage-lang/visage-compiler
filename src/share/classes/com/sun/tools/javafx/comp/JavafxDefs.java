@@ -46,6 +46,7 @@ public class JavafxDefs {
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
+    public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
     public static final String attributeGetLocationMethodNamePrefix = "loc$";
     public static final String attributeCountMethodString = "count$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";

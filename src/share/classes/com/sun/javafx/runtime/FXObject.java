@@ -34,7 +34,7 @@ public interface FXObject {
     public void    initialize$   ();
     public void    addTriggers$  ();
     public void    applyDefaults$();
-    public boolean applyDefaults$(final int varNum);
+    public void    applyDefaults$(final int varNum);
     public void    userInit$     ();
     public void    postInit$     ();
     public void    complete$     ();

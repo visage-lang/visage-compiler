@@ -57,7 +57,7 @@ public class FXBase implements FXObject {
         postInit$();
     }
 
-/*** For use instead of generating applyDefaults$()
+    public void applyDefaults$(final int varNum) {}
 
     public void applyDefaults$() {
         int cnt = count$();
@@ -66,23 +66,20 @@ public class FXBase implements FXObject {
         }
     }
 
-    public static void applyDefaults$base$(FXObject rcvr) {
+    public static void applyDefaults$(FXObject rcvr) {
         int cnt = rcvr.count$();
         for (int inx = 0; inx < cnt; inx += 1) {
             rcvr.applyDefaults$(inx);
         }
     }
-****/
     
     public static int VCNT$() { return VCNT$; }
 
     public void addTriggers$  () {}
-    public void applyDefaults$() {}
     public void userInit$     () {}
     public void postInit$     () {}
 
     public int      count$()                         { return VCNT$(); }
-    public boolean  applyDefaults$(final int varNum) { return false; }
     public boolean  isInitialized$(final int varNum) { return true; }
     public Location loc$(final int varNum)           { return null; }
     
