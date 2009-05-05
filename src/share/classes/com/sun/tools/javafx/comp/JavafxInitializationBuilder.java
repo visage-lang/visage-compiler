@@ -252,8 +252,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(instanceAttributeInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
             cDefinitions.appendList(javaCodeMaker.makeIsInitialized());
-            cDefinitions.appendList(javaCodeMaker.makeBlanketApplyDefaults());
-            cDefinitions.appendList(javaCodeMaker.makeSpecificApplyDefaults());
+            cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
             cDefinitions.appendList(javaCodeMaker.makeGetDependency());
             
             if (isScriptClass) {
@@ -262,7 +261,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(analysis.getCurrentClassSymbol(), varMap) : null;
             
-            cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethods(instanceAttributeInfos));
             cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, initMap));
             cDefinitions.append    (makeInitializeMethod(diagPos));
 
@@ -270,7 +268,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Has a non-JavaFX super, so we can't use FXBase, add the complete$ and initialize$ methods
  //               cDefinitions.append(makeInitializeMethod(diagPos));
                 cDefinitions.append(makeCompleteMethod(diagPos));
-//                           cDefinitions.appendList(javaCodeMaker.makeGeneralApplyDefaults());
             }
 
             if (outerTypeSym == null) {
@@ -296,7 +293,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
             cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, null));
 
-            cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethods(instanceAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeMixinApplyDefaultsMethods(instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
             cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
@@ -1418,11 +1415,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             // Only bother if there are vars.
             if (0 < count) {
-                // varNum - VCNT$;
-                JCExpression localVarNumExp = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varCountName));
-                // varNum - VCNT$ - n
-                localVarNumExp = m().Binary(JCTree.MINUS, localVarNumExp, makeInt(count));
-                // Construct and add: final int varlocalNum = varNum - VCNT$ - n;
+                // VCNT$ - n
+                JCExpression localVarNumExp = m().Binary(JCTree.MINUS, Id(defs.varCountName), makeInt(count));
+                // varNum - (VCNT$ - n)
+                localVarNumExp = m().Binary(JCTree.MINUS, Id(varNumName), localVarNumExp);
+                // Construct and add: final int varlocalNum = varNum - (VCNT$ - n);
                 stmts.append(makeVariable(Flags.FINAL, syms.intType, varLocalNumName, localVarNumExp));
  
                 // Check to see if we need to pass to the super class.
@@ -1494,10 +1491,47 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return methods.toList();
         }
         
+        
         //
-        // This method constructs an applyDefaults method for each attribute.
+        // This method constructs the statements needed to apply defaults to a given var.
         //
-        private List<JCTree> makeApplyDefaultsMethods(List<? extends VarInfo> attrInfos) {
+        private JCStatement makeApplyDefaultsStatement(VarInfo ai, boolean isMixinClass) {
+            // Assume the worst.
+            JCStatement stmt = null;
+            // Get init statement.
+            JCStatement init = ai.getDefaultInitStatement();
+            
+            if (init != null) {
+                // a default exists, either on the direct attribute or on an override
+                stmt = init;
+            } else if (!isMixinClass) {
+                if (ai.isMixinVar()) {
+                    // Fetch the attribute symbol.
+                    VarSymbol varSym = ai.getSymbol();
+                    // Construct the name of the method.
+                    Name methodName = attributeApplyDefaultsName(varSym);
+                    // Include defaults for mixins into real classes.
+                    stmt = makeSuperCall((ClassSymbol)varSym.owner, methodName, List.<JCExpression>of(Id(names._this)));
+               } else if (ai instanceof TranslatedVarInfo) {
+                    //TODO: see SequenceVariable.setDefault() and JFXC-885
+                    // setDefault() isn't really done for sequences
+                    if (!ai.isSequence()) {
+                        // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
+                        JCStatement setter = makeSetDefaultStatement(ai);
+                        if (setter != null) {
+                            stmt = setter;
+                        }
+                    }
+                }
+            }
+                    
+            return stmt;
+        }
+        
+        //
+        // This method constructs an applyDefaults method for each attribute in a mixin.
+        //
+        private List<JCTree> makeMixinApplyDefaultsMethods(List<? extends VarInfo> attrInfos) {
             // Mixin vars always have applyDefaults.
             boolean isMixinClass = analysis.isMixinClass();
             // Prepare to accumulate methods.
@@ -1513,49 +1547,28 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     setCurrentPos(ai.pos());
                     // Fetch the attribute symbol.
                     VarSymbol varSym = ai.getSymbol();
-                    // Construct the name of the method.
-                    Name methodName = attributeApplyDefaultsName(varSym);
+
+                    // Don't override someone elses default.
+                    if (analysis.getCurrentClassSymbol() != varSym.owner && !hasDefault) {
+                        continue;
+                    }
+
                     // Prepare to accumulate statements.
                     ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-                    // Only need receiver arg if a mixin.
-                    List<JCVariableDecl> args;
-                    if (isMixinClass) {
-                        // Don't override someone elses default.
-                        if (analysis.getCurrentClassSymbol() != varSym.owner && !hasDefault) continue;
-                        // Use a receiver arg.
-                        args = List.<JCVariableDecl>of(makeReceiverParam(analysis.getCurrentClassDecl()));
-                    } else {
-                        // No arguments.
-                        args = List.<JCVariableDecl>nil();
-                        // Compensate with a local receiver.
-                        stmts.append(makeReceiverLocal(analysis.getCurrentClassDecl()));
+                    
+                    // Get body of applyDefaults$.
+                    JCStatement deflt = makeApplyDefaultsStatement(ai, true);
+                    if (deflt != null) {
+                        stmts.append(deflt);
                     }
 
-                    if (hasDefault) {
-                         // a default exists, either on the direct attribute or on an override
-                        stmts.append(ai.getDefaultInitStatement());
-                    } else if (!isMixinClass) {
-                        if (ai.isMixinVar()) {
-                            // Include defaults for mixins into real classes.
-                            stmts.append(makeSuperCall((ClassSymbol)varSym.owner, methodName, List.<JCExpression>of(Id(names._this))));
-                       } else if (ai instanceof TranslatedVarInfo) {
-                            //TODO: see SequenceVariable.setDefault() and JFXC-885
-                            // setDefault() isn't really done for sequences
-                            if (!ai.isSequence()) {
-                                // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
-                                JCStatement setter = makeSetDefaultStatement(ai);
-                                if (setter != null) {
-                                    stmts.append(setter);
-                                }
-                            }
-                        }
-                    }
+                    // Mixins need a receiver arg.
+                    List<JCVariableDecl> args = List.<JCVariableDecl>of(makeReceiverParam(analysis.getCurrentClassDecl()));
 
                     // Construct method.
-                    JCMethodDecl method = makeMethod(Flags.PUBLIC | (isMixinClass ? Flags.STATIC : 0L),
+                    JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
                                                      syms.voidType,
-                                                     methodName,
+                                                     attributeApplyDefaultsName(varSym),
                                                      args,
                                                      stmts);
                     methods.append(method);
@@ -1563,24 +1576,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             return methods.toList();
         }
-
-        public List<JCTree> makeGeneralApplyDefaults() {
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            stmts.append(callStatement(currentPos, makeType(syms.javafx_FXBaseType), names.fromString(defs.applyDefaultsPrefixName + "base"), m().Ident(names._this)));
-            JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                    syms.voidType,
-                    defs.applyDefaultsPrefixName,
-                    List.<JCVariableDecl>nil(),
-                    stmts);
-            return List.<JCTree>of(method);
-        }
-
+        
         //
-        // This methods generates the applDefaults$ methods for this class.  The first method
-        // Is a blanket apply all defaults.  The second methods is the default apply default
-        // of a specific (numbered) var.
+        // This method constructs the current class's applyDefaults$ method.
         //
-        public List<JCTree> makeBlanketApplyDefaults() {
+        public List<JCTree> makeApplyDefaultsMethod() {
             // Buffer for new methods.
             ListBuffer<JCTree> methods = ListBuffer.lb();
             
@@ -1589,29 +1589,35 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             // Grab the super class.                                         
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            // Mixin vars always have applyDefaults.
+            boolean isMixinClass = analysis.isMixinClass();
 
-            // Only bother if there are some vars or no super class.
-            if (0 < count || superClassSym == null) {
-                // Prepare to accumulate statements.
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
-                // Reset diagnostic position to current class.
-                resetCurrentPos();
-            
-                // If present we need to call super.applDefaults$
-                if (superClassSym != null) {
-                    stmts.append(makeSuperCall(superClassSym, defs.applyDefaultsPrefixName));
-                }
+            // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+
+            // Prepare to accumulate cases.
+            ListBuffer<JCCase> cases = ListBuffer.lb();
+             // Prepare to accumulate overrides.
+            ListBuffer<JCStatement> overrides = ListBuffer.lb();
+           
+            // Gather the instance attributes.
+            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+            for (VarInfo ai : attrInfos) {
+                // Only declared attributes with default expressions.
+                if (ai.needsDeclaration()) {
+                    // Get body of applyDefaults$.
+                    JCStatement deflt = makeApplyDefaultsStatement(ai, isMixinClass);
                 
-                // Gather the instance attributes.
-                List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
-                for (VarInfo ai : attrInfos) {
-                    // Only attributes with default expressions.
-                    if (ai.needsDeclaration()) {
-                        // Name of applDefaults$ methods.
-                        Name methodName = attributeApplyDefaultsName(ai.getSymbol());
-                        // applyDefaults$var()
-                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>nil());
+                    // return
+                    JCStatement returnExpr = m().Return(null);
+                    // i:
+                    JCExpression tag = makeInt(ai.getEnumeration() - count);
                     
+                    // Interesting case is when we have a default.
+                    if (deflt != null) {
+                        // Only test init bits for non-defs.
                         if (!ai.isDef()) {
                             // Find the vars enumeration.
                             int enumeration = ai.getEnumeration();
@@ -1627,19 +1633,98 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
                                 // (varWord & (1 << varBit)) == 0
                                 JCExpression condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
-                                // Construct and add: if ((VFLGS$(word) & (1 << bit)) == 0) { applyDefaults$var(); }
-                                stmts.append(m().If(condition, applyDefaultsCall, null));
+                                // if ((VFLGS$(word) & (1 << bit)) == 0) { applyDefaults$var(); }
+                                deflt = m().If(condition, deflt, null);
                             }
-                        } else {
-                            /// Construct and add: applyDefaults$var(this);
-                            stmts.append(applyDefaultsCall);
                         }
+
+                        // i: applyDefaults$var(); return true;
+                        cases.append(m().Case(tag, List.<JCStatement>of(deflt, returnExpr)));
+                    } else {
+                        // i: return true;
+                        cases.append(m().Case(tag, List.<JCStatement>of(returnExpr)));
+                    }
+                } else {
+                    // Get init statement.
+                    JCStatement init = ai.getDefaultInitStatement();
+                    
+                    if (init != null) {
+                        // isInitialized$(varNum)
+                        JCExpression isInitializedExpr = m().Apply(null, Id(defs.isInitializedPrefixName), List.<JCExpression>of(Id(varNumName)));
+                        // !super.isInitialized$(varNum)
+                        JCExpression isNotInitializedExpr = m().Unary(JCTree.NOT, isInitializedExpr);
+                        // varNum == VOFF$var
+                        JCExpression isRightVarExpr = m().Binary(JCTree.EQ, Id(varNumName), Id(attributeOffsetName(ai.getSymbol())));
+                        // if (!super.isInitialized$(varNum)) init
+                        JCStatement secondIfStmt = m().If(isNotInitializedExpr, init, null);
+                        // { if (!super.isInitialized$(VOFF$var)) init; return; }
+                        JCBlock block = m().Block(0, List.<JCStatement>of(secondIfStmt, m().Return(null)));
+                        // if (varNum == VOFF$var) { if (!super.isInitialized$(VOFF$var)) init; return; }
+                        overrides.append(m().If(isRightVarExpr, block, null));
                     }
                 }
+            }
+
+            // Reset diagnostic position to current class.
+            resetCurrentPos();
+            
+            // Has some defaults.
+            boolean hasDefaults = cases.nonEmpty() || overrides.nonEmpty();
+            
+            if (!isMixinClass && hasDefaults) {
+                // Compensate with a local receiver.
+                stmts.append(makeReceiverLocal(analysis.getCurrentClassDecl()));
+            }
+
+            // If there were some location vars.
+            if (cases.nonEmpty()) {
+                // varNum - VCNT$
+                JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varCountName));
+                // Construct and add: switch(varNum - VCNT$) { ... } 
+                stmts.append(m().Switch(tagExpr, cases.toList()));
+            }
+            
+            // Add overrides.
+            stmts.appendList(overrides);
+
+            // generate method if it is worthwhile or we have to.
+            if (hasDefaults || superClassSym == null) {
+                // If there is a super class.
+                if (superClassSym != null) {
+                    // super
+                    JCExpression selector = Id(names._super);
+                    // (varNum)
+                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
+                    // Construct and add: return super.applyDefaults$(varNum);
+                    stmts.append(m().Exec(callExpression(currentPos, selector, defs.applyDefaultsPrefixName, args)));
+                }
     
-                // Reset diagnostic position to current class.
-                resetCurrentPos();
-                
+                // varNum ARG
+                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+                                                              varNumName,
+                                                              makeType(syms.intType),
+                                                              null);
+                // Construct method.
+                JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                                 syms.voidType,
+                                                 defs.applyDefaultsPrefixName,
+                                                 List.<JCVariableDecl>of(arg),
+                                                 stmts);
+                // Add to the methods list.
+                methods.append(method);
+            }
+            
+            // Provide a default applyDefaults method for java based classes.
+            if (superClassSym == null) {
+                // Prepare to accumulate statements.
+                stmts = ListBuffer.lb();
+
+                // Construct and add: FXBase.applyDefaults$(this);
+                stmts.append(m().Exec(callExpression(currentPos,
+                    makeType(syms.javafx_FXBaseType),
+                    defs.applyDefaultsPrefixName,
+                    List.<JCExpression>of(Id(names._this)))));
+              
                 // Construct method.
                 JCMethodDecl method = makeMethod(Flags.PUBLIC,
                                                  syms.voidType,
@@ -1649,86 +1734,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Add to the methods list.
                 methods.append(method);
             }
-            
-            return methods.toList();
-        }
-        public List<JCTree> makeSpecificApplyDefaults() {
-            // Buffer for new methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
-            
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
 
-            // Grab the super class.                                         
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
 
-            // Only bother if there are some vars or no super class.
-            if (0 < count || superClassSym == null) {
-                // Prepare to accumulate statements.
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
-                // Reset diagnostic position to current class.
-                resetCurrentPos();
-
-                // Prepare to accumulate cases.
-                ListBuffer<JCCase> cases = ListBuffer.lb();
-                
-                // Gather the instance attributes.
-                List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
-                for (VarInfo ai : attrInfos) {
-                    // Only attributes with default expressions.
-                    if (ai.needsDeclaration()) {
-                        // Name of applDefaults$ methods.
-                        Name methodName = attributeApplyDefaultsName(ai.getSymbol());
-                        // applyDefaults$var(this)
-                        JCStatement applyDefaultsCall = callStatement(currentPos, null, methodName, List.<JCExpression>nil());
-                        // return true;
-                        JCStatement returnExpr = m().Return(makeBoolean(true));
-                        // i: applyDefaults$var(); return true;
-                        cases.append(m().Case(makeInt(ai.getEnumeration() - count), List.<JCStatement>of(applyDefaultsCall, returnExpr)));
-                    }
-                }
-    
-                // Reset diagnostic position to current class.
-                resetCurrentPos();
-                
-                // If there were some location vars.
-                if (cases.nonEmpty()) {
-                    // varNum - VCNT$
-                    JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varCountName));
-                    // Construct and add: switch(varNum - VCNT$) { ... } 
-                    stmts.append(m().Switch(tagExpr, cases.toList()));
-                }
-
-                // If there is a super class.
-                if (superClassSym != null) {
-                    // super
-                    JCExpression selector = Id(names._super);
-                    // (varNum)
-                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
-                    // super.applyDefaults$(varNum);
-                    JCExpression callExp = callExpression(currentPos, selector, defs.applyDefaultsPrefixName, args);
-                    // Construct and add: return super.applyDefaults$(varNum);
-                    stmts.append(m().Return(callExp));
-                } else {
-                    // Construct and add: return false;
-                    stmts.append(m().Return(makeBoolean(false)));
-                }
-
-                // varNum ARG
-                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
-                                                              varNumName,
-                                                              makeType(syms.intType),
-                                                              null);
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 syms.booleanType,
-                                                 defs.applyDefaultsPrefixName,
-                                                 List.<JCVariableDecl>of(arg),
-                                                 stmts);
-                // Add to the methods list.
-                methods.append(method);
-            }
-            
             return methods.toList();
         }
 
