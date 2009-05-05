@@ -401,7 +401,7 @@ public class Timeline {
     // duration is inferred from time of last key frame in rebuildTargets()
     var timelineDur: Number = -1;
 
-    function sortAndComputeTL(sorted: Boolean):Void {
+    package function sortAndComputeTL(sorted: Boolean):Void {
 	/*
 	if (keyFrames != null) { 
 	    if (not sorted) {

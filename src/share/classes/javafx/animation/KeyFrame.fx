@@ -51,9 +51,10 @@ public class KeyFrame extends Comparable {
      * @defaultvalue 0s
      */
     public var time: Duration on replace {
-	if(owner != null) {
-	    owner.invalidate();
-	}
+        if(owner != null) {
+            owner.sortAndComputeTL(false);
+            owner.invalidate();
+        }
     };
 
     /**
