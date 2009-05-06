@@ -134,9 +134,10 @@ public class ObjectVariable<T>
     private void notifyListeners(final T oldValue, final T newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
-        if (hasChildren(CHILD_KIND_TRIGGER))
-            iterateChildren(new DependencyIterator<ChangeListener<T>>(CHILD_KIND_TRIGGER) {
-                public void onAction(ChangeListener<T> listener) {
+        if (hasChildren(CHILD_KIND_TRIGGER)) {
+            for (LocationDependency cur = children; cur != null; cur = cur.getNext()) {
+                if (cur.getDependencyKind() == CHILD_KIND_TRIGGER) {
+                    ChangeListener<T> listener = (ChangeListener<T>) cur;
                     try {
                         listener.onChange(oldValue, newValue);
                     }
@@ -144,6 +145,7 @@ public class ObjectVariable<T>
                         ErrorHandler.triggerException(e);
                     }
                 }
-            });
+            }
+        }
     }
 }

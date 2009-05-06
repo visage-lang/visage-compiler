@@ -77,23 +77,4 @@ public abstract class Linkables {
         return size;
     }
 
-    public static<T extends Linkable<T>> void iterate(T first, Linkable.IterationClosure<T> closure) {
-        for (T cur = first; cur != null; cur = cur.getNext())
-            closure.action(cur);
-    }
-
-    public static<T extends Linkable<T>> boolean iterate(T first, Linkable.MutativeIterationClosure<T> closure) {
-        boolean removed = false;
-
-        for (T cur = first; cur != null; ) {
-            T next = cur.getNext();
-            if (!closure.action(cur)) {
-                remove(cur);
-                removed = true;
-            }
-            cur = next;
-        }
-
-        return removed;
-    }
 }

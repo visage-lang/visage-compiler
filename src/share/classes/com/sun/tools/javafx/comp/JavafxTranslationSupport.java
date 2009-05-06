@@ -596,8 +596,9 @@ public abstract class JavafxTranslationSupport {
                 typeArgs = List.of(makeTypeTree(diagPos, tmi.getRealType(), true));
                 break;
             case TYPE_KIND_SEQUENCE:
-                typeArgs = List.of(makeTypeTree(diagPos, tmi.getElementType(), true));
-                makeArgs = makeArgs.prepend(makeTypeInfo(diagPos, tmi.getElementType()));
+                Type elemType = types.boxedTypeOrType(tmi.getElementType());
+                typeArgs = List.of(makeTypeTree(diagPos, elemType, true));
+                makeArgs = makeArgs.prepend(makeTypeInfo(diagPos, elemType));
                 break;
         }
         return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);

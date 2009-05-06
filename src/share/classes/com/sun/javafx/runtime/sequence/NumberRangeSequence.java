@@ -86,6 +86,14 @@ class NumberRangeSequence extends AbstractSequence<Float> implements Sequence<Fl
     }
 
     @Override
+    public float getAsFloat(int position) {
+        if (position < 0 || position >= size)
+            return 0.0f;
+        else
+            return (start + position * step);
+    }
+
+    @Override
     public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
         if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size))
             throw new ArrayIndexOutOfBoundsException();

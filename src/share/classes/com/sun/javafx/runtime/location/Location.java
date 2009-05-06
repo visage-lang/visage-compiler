@@ -64,9 +64,6 @@ public interface Location extends DependencySource {
      */
     public void removeInvalidationListener(InvalidationListener listener);
 
-    /** Iterate over the dependent objects, including change listeners, dependencies, triggers, etc */
-    public void iterateChildren(DependencyIterator<? extends LocationDependency> closure);
-
     /** Add this location as a dependency of zero or more other Locations */
     public void addDependency(DependencySource... location);
 

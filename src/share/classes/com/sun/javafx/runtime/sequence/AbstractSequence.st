@@ -27,6 +27,8 @@ import java.util.*;
 
 import com.sun.javafx.runtime.TypeInfo;
 
+$TEMPLATE_FROM$
+
 /**
  * Abstract base class for sequence classes.  A subclass need only define the size() and get() methods; subclasses
  * may also want to provide optimized versions of some other methods, such as toArray() or getBits().  Subclasses that
@@ -48,6 +50,38 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
     }
 
     public abstract T get(int position);
+
+    public boolean getAsBoolean(int position) {
+        return ((Boolean) get(position)).booleanValue();
+    }
+
+    public char getAsChar(int position) {
+        return ((Character) get(position)).charValue();
+    }
+
+    public byte getAsByte(int position) {
+        return ((Number) get(position)).byteValue();
+    }
+
+    public short getAsShort(int position) {
+        return ((Number) get(position)).shortValue();
+    }
+
+    public int getAsInt(int position) {
+        return ((Number) get(position)).intValue();
+    }
+
+    public long getAsLong(int position) {
+        return ((Number) get(position)).longValue();
+    }
+
+    public float getAsFloat(int position) {
+        return ((Number) get(position)).floatValue();
+    }
+
+    public double getAsDouble(int position) {
+        return ((Number) get(position)).doubleValue();
+    }
 
     public Sequence<T> getSlice(int startPos, int endPos) {
         return Sequences.subsequence(this, startPos, endPos+1);
@@ -96,10 +130,16 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         }
     }
     
+$PREFIX:{T|
+    public void toArray(int sourceOffset, int length, $PRIM_MAP.(T)$[] dest, int destOffset) {
+        for (int i = 0;  i < length;  i++)
+            dest[i + destOffset] = getAs$T$(i + sourceOffset);
+    }
+}$
+
     public Sequence<T> get(SequencePredicate<? super T> predicate) {
         return Sequences.filter(this, getBits(predicate));
     }
-
 
     public Iterator<T> iterator() {
         return iterator(0, size()-1);

@@ -61,10 +61,35 @@ public interface Sequence<T> extends Iterable<T> {
     /** Copy a portion of the contents of this sequence to an array, at a specified offset within the destination array */
     public void toArray(int sourceOffset, int length, Object[] array, int destOffset);
 
+    public void toArray(int sourceOffset, int length, char[] dest, int destOffset);
+    public void toArray(int sourceOffset, int length, boolean[] dest, int destOffset);
+    public void toArray(int sourceOffset, int length, byte[] dest, int destOffset);
+    public void toArray(int sourceOffset, int length, short[] dest, int destOffset);
+    public void toArray(int sourceOffset, int length, int[] dest, int destOffset);
+    public void toArray(int sourceOffset, int length, long[] dest, int destOffset);
+    public void toArray(int sourceOffset, int length, float[] dest, int destOffset);
+    public void toArray(int sourceOffset, int length, double[] dest, int destOffset);
+
     /** Extract the element at the specified position.  If the position is out of range, the default value for
      * the element type is returned; either null, zero for Integer or Double sequences, or false for Boolean
      * sequences.  */
     public T get(int position);
+
+    public boolean getAsBoolean(int position);
+
+    public char getAsChar(int position);
+
+    public byte getAsByte(int position);
+
+    public short getAsShort(int position);
+
+    public int getAsInt(int position);
+
+    public long getAsLong(int position);
+
+    public float getAsFloat(int position);
+
+    public double getAsDouble(int position);
     
     /** Extract a slice of the sequence */
     public Sequence<T> getSlice(int startPos, int endPos);

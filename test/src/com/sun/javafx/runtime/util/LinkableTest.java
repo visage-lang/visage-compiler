@@ -11,9 +11,28 @@ import com.sun.javafx.runtime.location.SequenceVariable;
  * @author Brian Goetz
  */
 public class LinkableTest extends JavaFXTestCase {
+    static<T extends Linkable<T>> boolean iterate(T first, Linkable.MutativeIterationClosure<T> closure) {
+        boolean removed = false;
+
+        for (T cur = first; cur != null; ) {
+            T next = cur.getNext();
+            if (!closure.action(cur)) {
+                Linkables.remove(cur);
+                removed = true;
+            }
+            cur = next;
+        }
+
+        return removed;
+    }
+    public static<T extends Linkable<T>> void iterate(T first, Linkable.IterationClosure<T> closure) {
+        for (T cur = first; cur != null; cur = cur.getNext())
+            closure.action(cur);
+    }
+
     private int sum(Holder h) {
         final int[] sum = new int[1];
-        Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
                 sum[0] += element.value;
             }
@@ -24,7 +43,7 @@ public class LinkableTest extends JavaFXTestCase {
     private void assertEquals(Holder h, Integer... values) {
         final SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer);
         assertEquals(values.length, Linkables.size(h.nodes));
-        Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
                 a.insert(element.value);
             }
@@ -42,7 +61,7 @@ public class LinkableTest extends JavaFXTestCase {
 
         final SequenceLocation<Integer> a = SequenceVariable.make(TypeInfo.Integer);
 
-        Linkables.iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
             public boolean action(Node element) {
                 a.insert(element.value);
                 return true;
@@ -50,7 +69,7 @@ public class LinkableTest extends JavaFXTestCase {
         });
         assertEquals(a);
 
-        Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
                 a.insert(element.value);
             }
@@ -66,7 +85,7 @@ public class LinkableTest extends JavaFXTestCase {
         assertTrue(node.next == null);
         assertTrue(node.prev == h);
 
-        Linkables.iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
             public boolean action(Node element) {
                 a.insert(element.value);
                 return true;
@@ -74,7 +93,7 @@ public class LinkableTest extends JavaFXTestCase {
         });
         assertEquals(a, 1);
 
-        Linkables.iterate(h.nodes, new Linkable.IterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.IterationClosure<Node>() {
             public void action(Node element) {
                 a.insert(element.value);
             }
@@ -162,7 +181,7 @@ public class LinkableTest extends JavaFXTestCase {
             assertEquals(4, Linkables.size(h.nodes));
             assertEquals(10, sum(h));
             final int iCopy = i;
-            Linkables.iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
+            iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
                 public boolean action(Node element) {
                     return element.value != iCopy+1;
                 }
@@ -182,7 +201,7 @@ public class LinkableTest extends JavaFXTestCase {
         Linkables.addAtEnd(h, node3);
         Linkables.addAtEnd(h, node4);
         assertEquals(h, 1, 2, 3, 4);
-        Linkables.iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
             public boolean action(Node element) {
                 return element.value <= 2;
             }
@@ -199,7 +218,7 @@ public class LinkableTest extends JavaFXTestCase {
         Linkables.addAtEnd(h, node3);
         Linkables.addAtEnd(h, node4);
         assertEquals(h, 1, 2, 3, 4);
-        Linkables.iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
             public boolean action(Node element) {
                 return element.value > 2;
             }
@@ -216,7 +235,7 @@ public class LinkableTest extends JavaFXTestCase {
         Linkables.addAtEnd(h, node3);
         Linkables.addAtEnd(h, node4);
         assertEquals(h, 1, 2, 3, 4);
-        Linkables.iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
             public boolean action(Node element) {
                 return element.value % 2 == 1;
             }
@@ -233,7 +252,7 @@ public class LinkableTest extends JavaFXTestCase {
         Linkables.addAtEnd(h, node3);
         Linkables.addAtEnd(h, node4);
         assertEquals(h, 1, 2, 3, 4);
-        Linkables.iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
+        iterate(h.nodes, new Linkable.MutativeIterationClosure<Node>() {
             public boolean action(Node element) {
                 return element.value % 2 == 0;
             }

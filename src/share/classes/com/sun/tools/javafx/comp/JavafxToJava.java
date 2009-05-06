@@ -2621,6 +2621,17 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         return translateToExpression(seq, w, null);
     }
 
+    public JCExpression translateSequenceIndexed(DiagnosticPosition diagPos, JFXExpression seq, JCExpression tseq, JCExpression index, Type elementType) {
+        Name getMethodName;
+        boolean primitive = elementType.isPrimitive();
+        
+        if (primitive)
+            getMethodName = defs.locationGetMethodName[typeMorpher.kindFromPrimitiveType(elementType.tsym)];
+        else
+            getMethodName = defs.getMethodName;
+        return callExpression(diagPos, tseq, getMethodName, index);
+    }
+
     @Override
     public void visitSequenceIndexed(final JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
@@ -2629,13 +2640,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         Locationness w;
         if (types.isSequence(seq.type) &&
                 (seq instanceof JFXIdent || seq instanceof JFXSelect)) {
-            Symbol sym = JavafxTreeInfo.symbol(seq);
-            // An optimization of translateSequenceExpression - instead of:
-            // v.getAsSequenceRaw().get(index) we should generate v.get(index)
-            if (sym instanceof VarSymbol && representation(sym).possiblyLocation())
-                w = AsLocation;
-            else
-                w = AsShareSafeValue;
+            w = AsShareSafeValue;
         } else
             w = AsValue;
         JCExpression tseq = translateToExpression(seq, w, null);
@@ -2643,8 +2648,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             result = make.at(diagPos).Indexed(tseq, index);
         }
         else {
-            JCExpression trans = callExpression(diagPos, tseq, defs.getMethodName, index);
-            result = tree.type.isPrimitive()? convertTranslated(trans, diagPos, types.boxedTypeOrType(tree.type), tree.type) : trans;
+            result = translateSequenceIndexed(diagPos, seq, tseq, index, tree.type);
         }
     }
 

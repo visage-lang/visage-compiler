@@ -85,7 +85,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     //     dynamic dependencies (unregister ourselves with any location with which we've registered as a dynamic dependency),
     //     we clear() the weak reference and forget it, which will eventually cause those other locations to forget about us.
     // Elements are differentiated by their dependency kind.
-    private LocationDependency children;
+    protected LocationDependency children;
 
     private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
 
@@ -169,9 +169,29 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         throw new UnsupportedOperationException();
     }
 
-    private void iterateChildren(MutativeIterator<? extends LocationDependency> closure) {
-        if (hasChildren(closure.kind))
-            Linkables.iterate(children, closure);
+    private <T extends LocationDependency> void iterateChildren(MutativeIterator<T> closure) {
+        int kind = closure.kind;
+        if (hasChildren(kind)) {
+            boolean removed = false;
+            int mask = 0;
+            for (LocationDependency cur = children;  cur != null; ) {
+                LocationDependency next = cur.getNext();
+                int curKind = cur.getDependencyKind();
+                handle: {
+                    if (curKind == kind) {
+                        if (! closure.onAction((T) cur)) {
+                            Linkables.remove(cur);
+                            removed = true;
+                            break handle;
+                        }
+                    }
+                    mask |= curKind;
+                }
+                cur = next;
+            }
+            if (removed)
+                childKindMask = (byte) mask;
+        }
     }
 
     static abstract class MutativeIterator<T extends LocationDependency>
@@ -274,11 +294,6 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
 
     public void addDependentLocation(WeakLocation weakLocation) {
         addChild(weakLocation);
-    }
-
-    public void iterateChildren(DependencyIterator<? extends LocationDependency> closure) {
-        if (hasChildren(((DependencyIterator<? extends LocationDependency>) closure).kind))
-            Linkables.iterate(children, closure);
     }
 
     public void addInvalidationListener(InvalidationListener listener) {
