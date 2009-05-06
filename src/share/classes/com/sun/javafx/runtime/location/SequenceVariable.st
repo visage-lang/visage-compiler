@@ -459,21 +459,25 @@ public class SequenceVariable<T>
     }
 
 $PREFIX:{T|
-    public static $PRIM_MAP.(T)$ set(SequenceVariable<$BOXED_MAP.(T)$> var, int position, $PRIM_MAP.(T)$ newValue) {
+    public static $PRIM_MAP.(T)$ set(SequenceLocation<$BOXED_MAP.(T)$> var, int position, $PRIM_MAP.(T)$ newValue) {
         replaceSlice(var, position, position+1, newValue);
         return newValue;
     }
 
-    public static void insert(SequenceVariable<$BOXED_MAP.(T)$> var, $PRIM_MAP.(T)$ value) {
-        int sz = var.\$value.size();
+    public static void insert(SequenceLocation<$BOXED_MAP.(T)$> var, $PRIM_MAP.(T)$ value) {
+        int sz = var.getAsSequence().size();
         replaceSlice(var, sz, sz, value);
     }
 
-    public static void insertBefore(SequenceVariable<$BOXED_MAP.(T)$> var, $PRIM_MAP.(T)$ value, int position) {
+    public static void insertBefore(SequenceLocation<$BOXED_MAP.(T)$> var, $PRIM_MAP.(T)$ value, int position) {
         replaceSlice(var, position, position, value);
     }
 
-    public static void replaceSlice(SequenceVariable<$BOXED_MAP.(T)$> var, int startPos, int endPos, $PRIM_MAP.(T)$ newValue) {
+    public static void replaceSlice(SequenceLocation<$BOXED_MAP.(T)$> loc, int startPos, int endPos, $PRIM_MAP.(T)$ newValue) {
+        if (! (loc instanceof SequenceVariable<?>))
+             throw new UnsupportedOperationException();
+        SequenceVariable<$BOXED_MAP.(T)$> var =
+            (SequenceVariable<$BOXED_MAP.(T)$>) loc;
         Sequence<? extends $BOXED_MAP.(T)$> oldValue = var.\$value;
         int oldSize = oldValue.size();
         if (startPos < 0)
