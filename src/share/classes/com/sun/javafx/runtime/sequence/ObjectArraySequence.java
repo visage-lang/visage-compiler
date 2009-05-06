@@ -79,6 +79,21 @@ public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence
         checkForNulls();
     }
 
+    /*public ObjectArraySequence(TypeInfo<T, ?> ti, Sequence<? extends T>... sequences) {
+        super(ti);
+        int size = 0;
+        for (Sequence<? extends T> seq : sequences)
+            size += seq.size();
+        this.array = Util.<T>newObjectArray(size);
+        int next = 0;
+        for (Sequence<? extends T> seq : sequences) {
+            final int l = seq.size();
+            seq.toArray(0, l, array, next);
+            next += l;
+        }
+        gapStart = gapEnd = size;
+    }*/
+
     public ObjectArraySequence(TypeInfo<T, ?> ti, Sequence<? extends T> seq) {
         super(ti);
         int size = seq.size();
@@ -187,8 +202,7 @@ public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence
     }
 
     /** Add a single element to the sequence, modifying it.
-     * This must only be called when the sequence is unshared.
-     */
+     * This must only be called when the sequence is unshared. */
     public void add(T element) {
         if (element != null) {
             gapReserve(size(), 1);
@@ -197,8 +211,7 @@ public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence
     }
 
     /** Add the contents of an existing sequence to the sequence.
-     * This must only be called when the sequence is unshared.
-     */
+     * This must only be called when the sequence is unshared. */
     @Override
     public void add(Sequence<? extends T> elements) {
         final int length = Sequences.size(elements);
@@ -208,6 +221,17 @@ public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence
             elements.toArray(0, length, array, size);
             gapStart += length;
         }
+    }
+
+    public void add(T[] data, int loIndex, int hiIndex) { // deprecated FIXME
+        addFromArray(data, loIndex, hiIndex);
+        /*
+        int length = hiIndex - loIndex;
+        int size = size();
+        gapReserve(size, length);
+        System.arraycopy(data, loIndex, array, size, length);
+        gapStart += length;
+         * */
     }
 
     /** Internal method to replace a value. */

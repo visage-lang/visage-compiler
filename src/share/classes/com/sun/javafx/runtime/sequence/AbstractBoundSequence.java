@@ -63,32 +63,60 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         setValid();
         if (!Sequences.isEqual(oldValue, newValue)) {
             invalidateDependencies();
-            notifyListeners(0, Sequences.size(oldValue)-1, newValue, oldValue, newValue);
+            notifyListeners(null, 0, Sequences.size(oldValue), newValue, oldValue, newValue);
         }
     }
 
-    protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
+    protected void updateSlice(int startPos, int endPos/*exclusive*/, Sequence<? extends T> newValues) {
         assert !lazy;
-        Sequence<? extends T> oldValue = $value;
-        if (changeListeners != null) {
-            Sequences.noteShared(newValues);
-            Sequences.noteShared(oldValue);
-        }
-        $value = SequenceMutator.<T>replaceSlice(typeInfo, oldValue, null, startPos, endPos, newValues);
+        ArraySequence<T> arr = Sequences.forceNonSharedArraySequence(typeInfo, $value);
+        arr.replace(startPos, endPos, newValues, 0, newValues.size(), true);
+        $value = arr;
         invalidateDependencies();
-        notifyListeners(startPos, endPos, newValues, oldValue, $value);
+        notifyListeners(arr, startPos, endPos, newValues, null, $value);
+        arr.clearOldValues(endPos-startPos);
     }
 
-    protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues, Sequence<? extends T> newSequence) {
+    protected void updateSlice(int startPos, int endPos/*exclusive*/, T newValue) {
         assert !lazy;
-        Sequence<? extends T> oldValue = $value;
-        $value = newSequence;
+        ObjectArraySequence<T> arr = Sequences.forceNonSharedArraySequence(typeInfo, $value);
+        if (newValue == null)
+            arr.replace(startPos, endPos, typeInfo.emptySequence, 0, 0, true);
+        else
+            arr.replace(startPos, endPos, newValue, true);
+        $value = arr;
         invalidateDependencies();
-        notifyListeners(startPos, endPos, newValues, oldValue, newSequence);
+        notifyListeners(arr, startPos, endPos, null, null, $value);
+        arr.clearOldValues(endPos-startPos);
+    }
+
+    protected void updateSlice(int startPos, int endPos,
+            ArraySequence<T> srcBuffer, int srcStart, Sequence<? extends T> newElements) {
+        Sequence<? extends T> srcElements;
+        int srcEnd;
+        if (newElements != null) {
+            srcElements = newElements;
+            srcStart = 0;
+            srcEnd = newElements.size();
+        }
+        else {
+            srcElements = srcBuffer;
+            srcEnd = srcBuffer.gapStart;
+        }
+        ArraySequence<T> arr = Sequences.forceNonSharedArraySequence(typeInfo, $value);
+        arr.replace(startPos, endPos, srcElements, srcStart, srcEnd, true);
+        $value = arr;
+        invalidateDependencies();
+        notifyListeners(arr, startPos, endPos, newElements, null, $value);
+        arr.clearOldValues(endPos-startPos);
     }
 
     protected Sequence<? extends T> getRawValue() {
         return $value;
+    }
+
+    protected void setRawValue(Sequence<? extends T> value) {
+        $value = value;
     }
 
     public Sequence<? extends T> get() {
@@ -104,7 +132,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
             update();
         else
             assert(isValid());
-        Sequences.noteShared($value);
+        $value.incrementSharing();
         return $value;
     }
 
@@ -127,7 +155,8 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
 
     public void addChangeListener(final ChangeListener<Sequence<? extends T>> listener) {
         addSequenceChangeListener(new ChangeListener<T>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
+            public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+                Sequence<? extends T> newValue = buffer != null ? buffer : newElements;
                 listener.onChange(oldValue, newValue);
             }
         });
@@ -144,15 +173,12 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
             changeListeners.remove(listener);
     }
 
-    private void notifyListeners(final int startPos, final int endPos,
-                                 final Sequence<? extends T> newElements,
-                                 final Sequence<? extends T> oldValue, final Sequence<? extends T> newValue) {
+    protected void notifyListeners(ArraySequence<T> buffer, int startPos, int endPos,
+                                 Sequence<? extends T> newElements,
+                                 Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
         if (changeListeners != null) {
-            Sequences.noteShared(newElements);
-            Sequences.noteShared(oldValue);
-            Sequences.noteShared(newValue);
             for (ChangeListener<T> listener : changeListeners)
-                listener.onChange(startPos, endPos, newElements, oldValue, newValue);
+                listener.onChange(buffer, oldValue, startPos, endPos, newElements);
         }
     }
 
@@ -169,7 +195,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
             $value = computeValue();
             setValid();
             if (hasDependencies() && !Sequences.isEqual(oldValue, $value))
-                notifyListeners(0, oldValue.size() - 1, $value, oldValue, $value);
+              notifyListeners(null, 0, oldValue.size(), $value, oldValue, $value);
         }
     }
 
@@ -186,7 +212,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         throw new UnsupportedOperationException();
     }
 
-    public Sequence<? extends T> set(Sequence<? extends T> value) {
+    public Sequence<T> set(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 

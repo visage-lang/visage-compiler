@@ -26,9 +26,7 @@ import com.sun.javafx.runtime.location.*; // FIXME???
 
 import com.sun.javafx.runtime.TypeInfo;
 
-/*
- * WARNING: Automatically generated from the template $TEMPLATE_NAME$; do not edit!
- */
+$TEMPLATE_FROM$
 
 public class $T.ArraySequence$ extends ArraySequence<$T.boxed$> {
     $T.prim$[] array;
@@ -162,4 +160,42 @@ public class $T.ArraySequence$ extends ArraySequence<$T.boxed$> {
     protected void replaceRaw(Sequence<? extends $T.boxed$> values, int sourceOffset, int length, int startPos) {
         values.toArray(sourceOffset, length, array, startPos);
     }
+
+   /*public void replace(int startPos, int endPos, Sequence<? extends $T.boxed$> values, boolean hasTrigger) {
+        int size = size();
+        int nsize = values.size();
+        int delta = nsize - (endPos-startPos);
+        gapReserve(startPos, hasTrigger ? nsize : delta >= 0 ? delta : 0);
+        values.toArray(0, nsize, array, startPos);
+        startPos += nsize;
+        gapStart=startPos;
+        gapEnd = startPos + (array.length - size - delta);
+    }*/
+
+
+    public static $T.prim$ extractOldElement(ArraySequence<$T.boxed$> buffer, Sequence<? extends $T.boxed$> oldValue, int startPos, int endPos, int k) {
+        if (oldValue != null)
+            return oldValue.get(k);
+        if (k >= 0) {
+            if (k >= startPos)
+                k += buffer.gapEnd - endPos;
+            int alen = buffer.getRawArrayLength();
+            if (k < alen) {
+                return buffer.getRawArrayElementAsObject(k);
+            }
+       }
+      return buffer.getDefaultValue();
+  }
+
+  public static $T.prim$ extractNewElement(ArraySequence<$T.boxed$> buffer, int loIndex, Sequence<? extends $T.boxed$> newElements, int k) {
+    if (newElements != null)
+      return newElements.get(k);
+    if (k >= 0) {
+      k = k + loIndex;
+      if (k < buffer.gapStart)
+        return buffer.get(k);
+    }
+    return buffer.getDefaultValue();
+  }
+
 }

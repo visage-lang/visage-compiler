@@ -45,12 +45,16 @@ public abstract class JavaFXTestCase extends TestCase {
     private final Pattern methodWithQualifiers = Pattern.compile("(.*)\\((.*)\\)");
 
     /**
-     * Helper method for asserting that a sequence contains a specific set of values; tests via Object.equals(),
-     * equality of toString(), by iterating the elements, and by toArray
+     * Helper method for asserting that a sequence contains a specific set of values;
+     * test equality of toString(), by iterating the elements, and by toArray
      */
-    protected <T> void assertEquals(Sequence<T> sequence, T... values) {
-        Sequence<T> newSeq = Sequences.<T>make(sequence.getElementType(), values);
-        assertEquals(sequence, newSeq);
+    protected <T> void assertEquals(Sequence<? extends T> sequence, T... values) {
+        final int length = sequence.size();
+        assertEquals(length, values.length);
+        int index = 0;
+        for (T t : sequence) {
+            assertEquals(t, values[index++]);
+        }
 
         StringBuffer sb = new StringBuffer();
         sb.append("[");
@@ -63,12 +67,6 @@ public abstract class JavaFXTestCase extends TestCase {
         sb.append(" ]");
         assertEquals(sb.toString(), sequence.toString());
 
-        int index = 0;
-        for (T t : sequence) {
-            assertEquals(t, values[index++]);
-        }
-
-        final int length = sequence.size();
         T[] array = Util.<T>newObjectArray(length);
         sequence.toArray(0, length, array, 0);
         assertEquals(array.length, values.length);
@@ -76,7 +74,7 @@ public abstract class JavaFXTestCase extends TestCase {
             assertEquals(array[i], values[i]);
     }
 
-    protected void assertEquals(Sequence<Double> sequence, Double... values) {
+    protected void assertEquals(Sequence<? extends Double> sequence, Double... values) {
         assertEquals(sequence.size(), values.length);
         int index = 0;
         for (Double t : sequence) {
@@ -94,7 +92,7 @@ public abstract class JavaFXTestCase extends TestCase {
         }
     }
 
-    protected void assertEquals(Sequence<Float> sequence, Float... values) {
+    protected void assertEquals(Sequence<? extends Float> sequence, Float... values) {
         assertEquals(sequence.size(), values.length);
         int index = 0;
         for (Float f : sequence) {
@@ -112,15 +110,20 @@ public abstract class JavaFXTestCase extends TestCase {
         }
     }
     
-    protected <T> void assertEquals(Sequence<T> sequence, T value) {
-      assertEquals((Object) sequence, (Object) Sequences.singleton(sequence.getElementType(), value));
+    protected <T> void assertEquals(Sequence<? extends T> sequence, T value) {
+        if (value == null)
+            assertEquals(0, sequence.size());
+        else {
+            assertEquals(1, sequence.size());
+            assertEquals(sequence.get(0), value);
+        }
     }
 
-    protected <T> void assertEquals(Sequence<T> sequence, Sequence<T> values) {
+    protected <T> void assertEquals(Sequence<? extends T> sequence, Sequence<? extends T> values) {
       assertEquals((Object) sequence, (Object) values);
     }
 
-    protected <T> void assertEquals(SequenceLocation<T> sequence, T... values) {
+    protected <T> void assertEquals(SequenceLocation<? extends T> sequence, T... values) {
         assertEquals(sequence.getAsSequence(), values);
     }
 

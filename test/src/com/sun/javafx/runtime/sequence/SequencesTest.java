@@ -663,7 +663,7 @@ public class SequencesTest extends JavaFXTestCase {
      * Only tests for the mapping are needed.
      */
     public void testSortComparable() {
-        Sequence<Integer> result;
+        Sequence<? extends Integer> result;
         
         // sort empty sequence
         result = Sequences.sort(emptyInteger);
@@ -698,7 +698,7 @@ public class SequencesTest extends JavaFXTestCase {
      * Only tests for the mapping are needed.
      */
     public void testSortComparator() {
-        Sequence<DummyElement> result;
+        Sequence<? extends DummyElement> result;
                 
         // sort empty sequence
         result = Sequences.sort(emptyElements, comparator);
@@ -716,7 +716,7 @@ public class SequencesTest extends JavaFXTestCase {
         assertEquals(result, element[1], element[2], element[3]);
         
         // sort using natural order
-        Sequence<Integer> resultInt = Sequences.sort(unsortedInteger, null);
+        Sequence<? extends Integer> resultInt = Sequences.sort(unsortedInteger, null);
         assertEquals(unsortedInteger, 3, 1, 2);
         assertEquals(resultInt, 1, 2, 3);
         
@@ -861,24 +861,24 @@ public class SequencesTest extends JavaFXTestCase {
 
         // compare empty sequences
         localSeq = Sequences.emptySequence(DummyElement.class);
-        result = Sequences.sliceEqual(emptyElements, 0, -1, localSeq);
+        result = Sequences.sliceEqual(emptyElements, 0, 0, localSeq);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(Sequences.emptySequence(DummyElement.class), localSeq);
         assertEquals(true, result);
 
         // compare sequence being null
-        result = Sequences.sliceEqual(null, 0, -1, emptyElements);
+        result = Sequences.sliceEqual(null, 0, 0, emptyElements);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(true, result);
 
         // compare slice being null
-        result = Sequences.sliceEqual(emptyElements, 0, -1, null);
+        result = Sequences.sliceEqual(emptyElements, 0, 0, null);
         assertEquals(Sequences.emptySequence(DummyElement.class), emptyElements);
         assertEquals(true, result);
 
         // compare equal sequence
         localSeq = Sequences.make(TypeInfo.<DummyElement>getTypeInfo(), element[3], element[1], element[2]);
-        result = Sequences.sliceEqual(unsortedElements, 0, 2, localSeq);
+        result = Sequences.sliceEqual(unsortedElements, 0, 3, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1], element[2]);
         assertEquals(true, result);
@@ -886,40 +886,40 @@ public class SequencesTest extends JavaFXTestCase {
         // compare sequence unequal by identity but equal by equals()
         DummyElement localElement = new DummyElement(1);
         localSeq = Sequences.make(TypeInfo.<DummyElement>getTypeInfo(), element[3], localElement, element[2]);
-        result = Sequences.sliceEqual(unsortedElements, 0, 2, localSeq);
+        result = Sequences.sliceEqual(unsortedElements, 0, 3, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], localElement, element[2]);
         assertEquals(true, result);
 
         // compare slice at the beginning
         localSeq = Sequences.make(TypeInfo.<DummyElement>getTypeInfo(), element[3], element[1]);
-        result = Sequences.sliceEqual(unsortedElements, 0, 1, localSeq);
+        result = Sequences.sliceEqual(unsortedElements, 0, 2, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[1]);
         assertEquals(true, result);
         
         // compare slice at the end
         localSeq = Sequences.make(TypeInfo.<DummyElement>getTypeInfo(), element[1], element[2]);
-        result = Sequences.sliceEqual(unsortedElements, 1, 2, localSeq);
+        result = Sequences.sliceEqual(unsortedElements, 1, 3, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[1], element[2]);
         assertEquals(true, result);
         
         // compare single-element slice
         localSeq = Sequences.singleton(TypeInfo.<DummyElement>getTypeInfo(), element[3]);
-        result = Sequences.sliceEqual(unsortedElements, 0, 0, localSeq);
+        result = Sequences.sliceEqual(unsortedElements, 0, 1, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3]);
         assertEquals(true, result);
         
         // compare unequal slices
         localSeq = Sequences.singleton(TypeInfo.<DummyElement>getTypeInfo(), element[2]);
-        result = Sequences.sliceEqual(unsortedElements, 0, 0, localSeq);
+        result = Sequences.sliceEqual(unsortedElements, 0, 1, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[2]);
         assertEquals(false, result);
         localSeq = Sequences.make(TypeInfo.<DummyElement>getTypeInfo(), element[3], element[2]);
-        result = Sequences.sliceEqual(unsortedElements, 0, 1, localSeq);
+        result = Sequences.sliceEqual(unsortedElements, 0, 2, localSeq);
         assertEquals(unsortedElements, element[3], element[1], element[2]);
         assertEquals(localSeq, element[3], element[2]);
         assertEquals(false, result);

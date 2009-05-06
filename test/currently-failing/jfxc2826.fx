@@ -6,4 +6,5 @@
 
 var t =[1, 2] on replace jfxc2826 [a..b]=newElements {
     println(t);
+    println(jfxc2826);
 };

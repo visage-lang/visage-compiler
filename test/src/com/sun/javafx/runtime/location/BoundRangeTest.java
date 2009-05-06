@@ -44,7 +44,7 @@ public class BoundRangeTest extends JavaFXTestCase {
         range.addSequenceChangeListener(hl);
 
         assertEquals(range, 10, 11, 12, 13, 14, 15);
-        assertEquals(0, range.get().getDepth());
+//        assertEquals(0, range.get().getDepth());
         hl.clear();
         
         a.set(8);

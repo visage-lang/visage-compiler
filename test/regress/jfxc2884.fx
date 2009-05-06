@@ -1,7 +1,8 @@
 /**
  * currently-failing test for JFXC-2884 : Compiler crash: type inference on first assign breaks on bind
  *
- * @test/fail
+ * @test
+ * @run
  */
 
 var x;

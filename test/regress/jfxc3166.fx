@@ -1,6 +1,6 @@
 /*
  * @test
- * @run/fail
+ * @run
  * 
  */
 
@@ -13,6 +13,8 @@ var value : Byte[] = [120 as Byte, 121 as Byte] as Byte[];
 def binded1 : Byte[] = bind lazy value;
 var binded2 : Byte[] = bind binded1;
 insert 121 into value;
-var trash : Byte[] = binded2;
+var result : Byte[] = binded2;
 def expected : Byte[] = [120 as Byte, 121 as Byte, 121 as Byte] as Byte[];
-if (trash != expected) println("FAILED: expected: {expected} received:{trash}");
+if (result != expected)
+  println("FAILED: expected: {expected} received:{result}")
+else { print("result: "); println(result); }

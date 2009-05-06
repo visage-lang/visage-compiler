@@ -1,7 +1,8 @@
 /**
  * JFXC-2804 : Bind to Cast Sorted sequence causes internal compiler error
  *
- * @test/fail
+ * @test
+ * @run
  */
 
 import java.lang.Comparable;
@@ -9,6 +10,7 @@ import javafx.util.Sequences;
 
 /**
  * @author forsakendaemon
+ * @author Per Bothnner
  */
 
 class MyObject extends Comparable{
@@ -16,16 +18,25 @@ class MyObject extends Comparable{
 
     public override function compareTo(o:Object):Integer {
         if (o.getClass() != this.getClass()) then 0 else
-            return (o as MyObject).attr - this.attr;
+            return this.attr - (o as MyObject).attr;
     }
+
+    public override function toString():String { "<attr:{attr}>" }
 }
 
-var object1:MyObject = MyObject {attr: 1};
-var object2:MyObject = MyObject {attr: 2}
+var object1:MyObject = MyObject {attr: 5};
+var object2:MyObject = MyObject {attr: 3};
+var object3:MyObject = MyObject {attr: 7};
 
 var objects:MyObject[];
 
 insert object1 into objects;
 insert object2 into objects;
+insert object3 into objects;
 
 def sortedObjects:MyObject[] = bind (Sequences.sort(objects) as MyObject[]);
+println("sortedObjects:{for (x in sortedObjects) " {x}"}");
+
+insert MyObject {attr: 6} into objects;
+insert MyObject {attr: 2} into objects;
+println("sortedObjects:{for (x in sortedObjects) " {x}"}");

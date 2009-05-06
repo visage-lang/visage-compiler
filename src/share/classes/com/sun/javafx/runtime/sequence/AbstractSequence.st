@@ -31,13 +31,13 @@ $TEMPLATE_FROM$
 
 /**
  * Abstract base class for sequence classes.  A subclass need only define the size() and get() methods; subclasses
- * may also want to provide optimized versions of some other methods, such as toArray() or getBits().  Subclasses that
- * represent views onto other sequences should also implement the getDepth() method.
+ * may also want to provide optimized versions of some other methods, such as toArray() or getBits().
  *
  * @author Brian Goetz
+ * @author Per Bothner
  */
 public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
-    protected final TypeInfo<T, ?> ti;
+    protected TypeInfo<T, ?> ti;
 
     protected AbstractSequence(TypeInfo<T, ?> ti) {
         this.ti = ti;
@@ -83,8 +83,8 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return ((Number) get(position)).doubleValue();
     }
 
-    public Sequence<? extends T> getSlice(int startPos, int endPos) {
-        return Sequences.subsequence(this, startPos, endPos+1);
+    public Sequence<T> getSlice(int startPos, int endPos) {
+        return Sequences.subsequence(this, startPos, endPos);
     }
 
     public BitSet getBits(SequencePredicate<? super T> predicate) {
@@ -112,24 +112,28 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return (size() == 0);
     }
 
-    public int getDepth() {
-        return 0;
-    }
-
     public void toArray(Object[] dest, int destOffset) {
         toArray(0, size(), dest, destOffset);
     }
     
+    /** Copy a range of our elements into an array.
+     * It is the caller's responsibility to verify that sourceOffset and length are in range.
+     * @param sourceOffset First element to copy from.
+     * @param length Number of elements to copy.
+     * @param dest Target.
+     * @param destOffset Start offset in target.
+     */
     public void toArray(int sourceOffset, int length, Object[] dest, int destOffset) {
-        if (sourceOffset < 0 || (length > 0 && sourceOffset + length > size()))
-            throw new ArrayIndexOutOfBoundsException();
-
+        for (int i = 0;  i < length;  i++)
+            dest[i + destOffset] = get(i + sourceOffset);
+        /*
         int i=0;
         for (Iterator<T> it = iterator(sourceOffset, sourceOffset+length-1); it.hasNext(); i++) {
             dest[i + destOffset] = it.next();
         }
+        */
     }
-    
+
 $PREFIX:{T|
     public void toArray(int sourceOffset, int length, $PRIM_MAP.(T)$[] dest, int destOffset) {
         for (int i = 0;  i < length;  i++)
@@ -145,10 +149,10 @@ $PREFIX:{T|
         return iterator(0, size()-1);
     }
     
-    public Iterator<T> iterator(final int startPos, final int endPos) {
+    public final Iterator<T> iterator(final int startPos, final int lastPos) {
         return new Iterator<T>() {
             private int cur = Math.min(Math.max(0, startPos), size());          // 0 <= cur <= size()
-            final private int last = Math.min(Math.max(cur, endPos+1), size()); // cur <= last <= size()
+            final private int last = Math.min(Math.max(cur, lastPos+1), size()); // cur <= last <= size()
 
             public boolean hasNext() {
                 return cur < last;
@@ -182,6 +186,9 @@ $PREFIX:{T|
         return hash;
     }
 
+    public void incrementSharing() { }
+
+    public void decrementSharing() { }
 
     @Override
     public String toString() {

@@ -1,68 +1,44 @@
 Byte lazy+eager
-FAILED Byte 4
 Byte eager
 Short lazy+eager
-FAILED Short 4
 Short eager
 Character lazy+eager
-FAILED Character 4
 Character eager
-FAILED Character 4B
 Integer lazy+eager
-FAILED Integer 4
 Integer eager
 Long lazy+eager
-FAILED Long 4
 Long eager
 Float lazy+eager
-FAILED Float 4
 Float eager
 Double lazy+eager
-FAILED Double 4
 Double eager
 Number lazy+eager
-FAILED Number 4
 Number eager
 String lazy+eager
-FAILED String 4
 String eager
 Boolean lazy+eager
-FAILED Boolean 4
 Boolean eager
 Duration lazy+eager
-FAILED Duration 4
 Duration eager
 Byte lazy+eager in function
-FAILED Byte 4f
 Byte eager in function
 Short lazy+eager in function
-FAILED Short 4f
 Short eager in function
 Character lazy+eager in function
-FAILED Character 4f
 Character eager in function
-FAILED Character 4Bf
 Integer lazy+eager in function
-FAILED Integer 4f
 Integer eager in function
 Long lazy+eager in function
-FAILED Long 4f
 Long eager in function
 Float lazy+eager in function
-FAILED Float 4f
 Float eager in function
 Double lazy+eager in function
-FAILED Double 4f
 Double eager in function
 Number lazy+eager in function
-FAILED Number 4f
 Number eager in function
 String lazy+eager in function
-FAILED String 4f
 String eager in function
 Boolean lazy+eager in function
-FAILED Boolean 4f
 Boolean eager in function
 Duration lazy+eager in function
-FAILED Duration 4f
 Duration eager in function

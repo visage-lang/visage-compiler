@@ -41,8 +41,8 @@ import com.sun.javafx.runtime.TypeInfo;
  * </ul>
  *
  * An {@code ArraySequence} starts out unshared, and can be set to shared.
- * The compiler inserts calls to {@code noteShared} when "reading" a sequence
- * varianble in a way that may cause it to be shared.  Getting a single
+ * The compiler inserts calls to {@code incrementShared} when "reading" a sequence
+ * variable in a way that may cause it to be shared.  Getting a single
  * item from the sequence does not require {@code shared} to be set.
  * We never go back from shared to unshared.
  *
@@ -63,31 +63,42 @@ public abstract class ArraySequence<T> extends AbstractSequence<T> {
 
     protected final static int DEFAULT_SIZE = 16;
 
-    /** Basically a one-bit reference count.
-     * I.e. false means a single reference, and true means more than one.
-     * If shared is false, there are no "other" references, so operations like
+    /* A simple (conservative) reference count.
+     * If sharing==1, there are no "other" references, so operations like
      * insertion and concatenation can re-use this object, modifying the
      * object in-place.  This leads to major performance improvements - but
-     * the compiler and library must be careful to set shared to true whenever
-     * sharing happens or can happen.  This is done with {@code #noteShared}.
+     * the compiler and library must be careful to set sharing > 1 whenever
+     * sharing happens or can happen.  This is done with {@code #incrementSharing}.
+     * The count is "sticky" once it wraps around.  Of course that's not going
+     * to happen as long as we use an int, but in future if it saves space
+     * we might reduce the number of bits used for {@code sharing}.
      */
-    private boolean shared = false;
+    private int sharing;
 
     protected ArraySequence(TypeInfo<T, ?> ti) {
         super(ti);
     }
 
-    public ArraySequence<T> noteShared() {
-        shared = true;
-        return this;
+    @Override
+    public void incrementSharing() {
+        int sh = sharing + 1;
+        if (sh >= 0)
+            sharing = sh;
+    }
+
+    @Override
+    public void decrementSharing() {
+        int sh = sharing;
+        if (sh > 0)
+            sharing = sh - 1;
     }
 
     public void setMaxShared() {
-        shared = true;
+        sharing = (-1) >>> 1;
     }
 
     public boolean isShared() {
-        return shared;
+        return sharing > 1;
     }
 
     protected abstract Object getRawArray();
@@ -213,7 +224,7 @@ public abstract class ArraySequence<T> extends AbstractSequence<T> {
         StringBuilder sbuf = new StringBuilder();
         int alen = getRawArrayLength();
         int sz = size();
-        sbuf.append("[#"+id+"(shared:"+shared+" gap:"+gapStart+"..<"+gapEnd+" alen:"+alen+" size:"+sz+")");
+        sbuf.append("[#"+id+"(sharing:"+sharing+" gap:"+gapStart+"..<"+gapEnd+" alen:"+alen+" size:"+sz+")");
         if (false) {
             for (int i = 0; i < sz; i++)
                 sbuf.append(" "+get(i));

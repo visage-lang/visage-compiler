@@ -25,8 +25,7 @@ package com.sun.javafx.runtime.location;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
  * SequenceHistoryListener
@@ -36,18 +35,23 @@ import com.sun.javafx.runtime.sequence.Sequences;
 public class HistorySequenceListener<T> extends ChangeListener<T> {
     private List<String> elements = new ArrayList<String>();
 
-    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-        if (endPos == startPos && Sequences.size(newElements) == 1) {
-            elements.add(String.format("r-%d-%s-%s", startPos, oldValue.get(startPos).toString(), newValue.get(startPos).toString()));
+    public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+        int newElementsSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
+        if (endPos == startPos + 1 && newElementsSize == 1) {
+            T oldElement = Sequences.getFromOldValue(buffer, oldValue, startPos, endPos, startPos);
+            T newElement = Sequences.getFromNewElements(buffer, startPos, newElements, 0);
+            if (oldElement == null) System.err.println("oldElement is null");
+            if (newElement == null) System.err.println("newElement is null");
+            elements.add(String.format("r-%d-%s-%s", startPos, oldElement.toString(), newElement.toString()));
         }
         else {
-            for (int i=endPos; i >= startPos; i--) {
-                elements.add(String.format("d-%d-%s", i, oldValue.get(i).toString()));
+            for (int i=endPos; --i >= startPos; ) {
+                T oldElement = Sequences.getFromOldValue(buffer, oldValue, startPos, endPos, i);
+                elements.add(String.format("d-%d-%s", i, oldElement.toString()));
             }
-            int index = startPos;
-            for (T t : newElements) {
-                elements.add(String.format("i-%d-%s", index, t.toString()));
-                index++;
+            for (int i = 0;  i < newElementsSize;  i++) {
+                T newElement = Sequences.getFromNewElements(buffer, startPos, newElements, i);
+                elements.add(String.format("i-%d-%s", i+startPos, newElement.toString()));
             }
         }
     }

@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.ErrorHandler;
  */
 public abstract class AbstractVariable<
         T_VALUE,
-        T_LOCATION extends ObjectLocation<T_VALUE>
+        T_LOCATION extends ObjectLocation<? extends T_VALUE>
         >
         extends AbstractLocation
         implements ObjectLocation<T_VALUE>, BindableLocation<T_VALUE, ChangeListener<T_VALUE>> {

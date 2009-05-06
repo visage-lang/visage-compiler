@@ -173,7 +173,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         protected final Type resultType;
         private final boolean needNullCheck;
         private boolean hasSideEffects;
-        private boolean hse;
         private ListBuffer<JCStatement> tmpVarList;
         protected final Locationness wrapper;
 
@@ -727,8 +726,12 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         private void renameParam(ListBuffer<JCStatement> renamings, Type type, JFXVar var, Name nameDefault) {
             if (var != null) {
-                addRenamingVar(renamings, var.getName(), type, m().TypeCast(this.makeExpression(type), m().Ident(nameDefault)));
+                renameParam(renamings, type, var, m().Ident(nameDefault));
             }
+        }
+
+        private void renameParam(ListBuffer<JCStatement> renamings, Type type, JFXVar var, JCExpression init) {
+            addRenamingVar(renamings, var.getName(), type, m().TypeCast(this.makeExpression(type), init));
         }
 
         /**
@@ -768,25 +771,82 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                     }
                 }
             }
-            JCStatement translatedTriggerBody = translateToStatement(expr);
-            inInstanceContext = prevContext;
 
+            OnReplaceInfo saveOnReplaceInfo = onReplaceInfo;
             // Rename method parameters to the user specified names
             if (isSequence) {
-                Type seqValType = types.sequenceType(valueType, true);
+                OnReplaceInfo info = new OnReplaceInfo();
+                info.onReplace = onReplace;
+                info.outer = onReplaceInfo;
+                onReplaceInfo = info;
+
+                //Type seqValType = types.sequenceType(valueType, false);
+                Type seqWithExtendsType = types.sequenceType(valueType, true);
+                info.seqWithExtendsType = seqWithExtendsType;
+                info.arraySequenceType = types.arraySequenceType(valueType);
+                renameParam(renamings, info.arraySequenceType, null, defs.onReplaceArgNameBuffer);
+                if (onReplace.getOldValue() != null) {
+                    Symbol sym = onReplace.getOldValue().sym;
+                    if ((sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {// optimized away
+                        info.oldValueSym = sym;
+                    }
+                    else {
+                        JCExpression init = callExpression(diagPos, makeTypeTree(diagPos, syms.javafx_SequencesType, false),
+                            "getOldValue",
+                            List.of(make.Ident(defs.onReplaceArgNameBuffer), make.Ident(defs.onReplaceArgNameOld),
+                            make.Ident(defs.onReplaceArgNameFirstIndex), make.Ident(defs.onReplaceArgNameLastIndex)));
+                        renameParam(renamings, seqWithExtendsType, onReplace.getOldValue(), init);
+                    }
+                }
                 renameParam(renamings, syms.intType, onReplace.getFirstIndex(), defs.onReplaceArgNameFirstIndex);
-                renameParam(renamings, syms.intType, onReplace.getLastIndex(), defs.onReplaceArgNameLastIndex);
-                renameParam(renamings, seqValType, onReplace.getNewElements(), defs.onReplaceArgNameNewElements);
-                renameParam(renamings, seqValType, onReplace.getOldValue(), defs.onReplaceArgNameOld);
-                renameParam(renamings, seqValType, null, defs.onReplaceArgNameNew);
+                if (onReplace.getLastIndex() != null) {
+                    JCExpression last = m().Ident(defs.onReplaceArgNameLastIndex);
+                    if (onReplace.getEndKind() == JFXSequenceSlice.END_INCLUSIVE)
+                        last = m().Binary(JCTree.MINUS, last, m().Literal(Integer.valueOf(1)));
+                    renameParam(renamings, syms.intType, onReplace.getLastIndex(), last);
+                }
+                if (onReplace.getNewElements() != null) {
+                    Symbol sym = onReplace.getNewElements().sym;
+                    if ((sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {// optimized away
+                        info.newElementsSym = sym;
+                    }
+                    else {
+                        JCExpression init = callExpression(diagPos, makeTypeTree(diagPos, syms.javafx_SequencesType, false),
+                            "getNewElements",
+                            List.of(make.Ident(defs.onReplaceArgNameBuffer), make.Ident(defs.onReplaceArgNameFirstIndex), make.Ident(defs.onReplaceArgNameNewElements)));
+                        renameParam(renamings, seqWithExtendsType, onReplace.getNewElements(), init);
+                    }
+                }
             } else {
                 renameParam(renamings, valueType, onReplace.getOldValue(), defs.onReplaceArgNameOld);
                 renameParam(renamings, valueType, onReplace.getNewElements(), defs.onReplaceArgNameNew);
             }
 
+            JCStatement translatedTriggerBody = translateToStatement(expr);
+            onReplaceInfo = saveOnReplaceInfo;
+            inInstanceContext = prevContext;
+
             // The resulting embedded trigger block is the translated trigger body prefixed by any renamings
             return m().Block(0L, renamings.toList().append(translatedTriggerBody));
         }
+    }
+
+    static class OnReplaceInfo {
+        public OnReplaceInfo outer;
+        JFXOnReplace onReplace;
+        Symbol newElementsSym;
+        Symbol oldValueSym;
+        Type arraySequenceType;
+        Type seqWithExtendsType;
+    }
+
+    OnReplaceInfo onReplaceInfo;
+
+    OnReplaceInfo findOnReplaceInfo(Symbol sym) {
+        OnReplaceInfo info = onReplaceInfo;
+        while (info != null && sym != info.newElementsSym && sym != info.oldValueSym)
+            info = info.outer;
+        return info;
     }
 
     /**
@@ -882,14 +942,14 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    private JCExpression makeSequenceTypeExpression(DiagnosticPosition diagPos, Type concreteType) {
+    /*private JCExpression makeSequenceTypeExpression(DiagnosticPosition diagPos, Type concreteType) {
         return make.at(diagPos).TypeApply(
                 makeIdentifier(diagPos, JavafxDefs.cSequence),
                 List.<JCExpression>of(
                        concreteType==null?
                            make.at(diagPos).Ident(defs.typeParamName) :
                            makeTypeTree(diagPos, concreteType)));
-    }
+    }*/
 
     private JCExpression makeSequenceWithExtendsTypeExpression(DiagnosticPosition diagPos, Type concreteType) {
         return make.at(diagPos).TypeApply(
@@ -897,6 +957,15 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 List.<JCExpression>of(
                        concreteType==null? 
                            make.at(diagPos).Wildcard(make.at(diagPos).TypeBoundKind(BoundKind.EXTENDS), make.at(diagPos).Ident(defs.typeParamName)) :
+                           makeTypeTree(diagPos, concreteType)));
+    }
+
+    private JCExpression makeArraySequenceTypeExpression(DiagnosticPosition diagPos, Type concreteType) {
+        return make.at(diagPos).TypeApply(
+                makeIdentifier(diagPos, JavafxDefs.arraySequence),
+                List.<JCExpression>of(
+                       concreteType==null?
+                           make.at(diagPos).Ident(defs.typeParamName) :
                            makeTypeTree(diagPos, concreteType)));
     }
 
@@ -931,11 +1000,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             ListBuffer<JCCase> cases) {
         List<JCExpression> superArgs = isSequence?
                 List.<JCExpression>of(
+                    make.Ident(defs.onReplaceArgNameBuffer),
+                    make.Ident(defs.onReplaceArgNameOld),
                     make.Ident(defs.onReplaceArgNameFirstIndex),
                     make.Ident(defs.onReplaceArgNameLastIndex),
-                    make.Ident(defs.onReplaceArgNameNewElements),
-                    make.Ident(defs.onReplaceArgNameOld),
-                    make.Ident(defs.onReplaceArgNameNew))
+                    make.Ident(defs.onReplaceArgNameNewElements))
                 :
                List.<JCExpression>of(
                     make.Ident(defs.onReplaceArgNameOld),
@@ -963,11 +1032,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             Type concreteType) {
         List<JCVariableDecl> onChangeArgs = isSequence?
             List.of(
+                    makeParam(diagPos, defs.onReplaceArgNameBuffer, makeArraySequenceTypeExpression(diagPos, concreteType)),
+                    makeParam(diagPos, defs.onReplaceArgNameOld, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)),
                     makeParam(diagPos, defs.onReplaceArgNameFirstIndex, makeTypeExpression(diagPos, TypeTags.INT, null)),
                     makeParam(diagPos, defs.onReplaceArgNameLastIndex, makeTypeExpression(diagPos, TypeTags.INT, null)),
-                    makeParam(diagPos, defs.onReplaceArgNameNewElements, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)),
-                    makeParam(diagPos, defs.onReplaceArgNameOld, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)),
-                    makeParam(diagPos, defs.onReplaceArgNameNew, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)))
+                    makeParam(diagPos, defs.onReplaceArgNameNewElements, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)))
         :
             List.of(
                     makeParam(diagPos, defs.onReplaceArgNameOld, makeTypeExpression(diagPos, typeTag, concreteType)),
@@ -1045,6 +1114,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         JCExpression pid = straightConvert(tree.pid);
         JCCompilationUnit translated = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, translatedDefinitions.toList());
         translated.sourcefile = tree.sourcefile;
+        //System.err.println("<translated src="+tree.sourcefile+">"); System.err.println(translated); System.err.println("</translated>");
         translated.docComments = null;
         translated.lineMap = tree.lineMap;
         translated.flags = tree.flags;
@@ -2085,7 +2155,14 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 body = makeRunMethodBody(bexpr);
             } else {
                 // the "normal" case
-                body = asBlock(translateToStatement(bexpr, mtype.getReturnType()));
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                for (JFXVar fxVar : tree.getParams()) {
+                    if (types.isSequence(fxVar.sym.type)) {
+                         stmts.append(callStatement(fxVar,  make.at(fxVar).Ident(fxVar.getName()), defs.incrementSharingMethodName));
+                    }
+                }
+                stmts.append(translateToStatement(bexpr, mtype.getReturnType()));
+                body = make.at(bexpr).Block(0L, stmts.toList());
             }
 
             if (isInstanceFunction && !isMixinClass) {
@@ -2242,8 +2319,16 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 }
                 else {
                     JCExpression tseq = translateAsSequenceVariable(seq);
-                    JCFieldAccess select = m().Select(tseq, defs.setMethodName);
-                    List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
+                    List<JCExpression> args;
+                    JCFieldAccess select;
+                    if (types.elementType(seq.type).isPrimitive()) { // KLUDGE
+                        select = m().Select(makeQualifiedTree(diagPos, JavafxDefs.locationPackageNameString+".SequenceVariable"), defs.setMethodName);
+                        args = List.of(tseq, index, buildRHS(rhsTranslated));
+                    }
+                    else {
+                        select = m().Select(tseq, defs.setMethodName);
+                        args = List.of(index, buildRHS(rhsTranslated));
+                    }
                     return postProcess(m().Apply(null, select, args));
                 }
             } else if (!vmi.useAccessors() && vmi.representation() == AlwaysLocation) {
@@ -2254,7 +2339,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 return postProcess(m().Apply(null, setSelect, setArgs));
             } else {
                 final boolean useSetters = vmi.useAccessors();
-
+                // If sequence we need to call incrementShared.  Thus:
+                assert ! types.isSequence(lhs.type);
                 if (lhs.getFXTag() == JavafxTag.SELECT) {
                     final JFXSelect select = (JFXSelect) lhs;
                     return new NullCheckTranslator(diagPos, select.getExpression(), lhs.type, false, AsValue) { //assume assignment doesn't yield Location
@@ -2283,7 +2369,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         JCExpression recv = sym.isStatic()? null : makeReceiver(diagPos, sym, true);
                         return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
                     } else {
-                        return defaultFullExpression(translateToExpression(lhs, AsShareSafeValue, null), rhsTranslated);
+                        return defaultFullExpression(translateToExpression(lhs, AsValue, null), rhsTranslated);
                     }
                 }
             }
@@ -2299,10 +2385,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
             JCExpression rhs = translateAsValue(tree.rhs, si.getSequence().type);
             JCExpression seq = translateAsSequenceVariable(si.getSequence());
-            JCExpression firstIndex = translateAsValue(si.getFirstIndex(), syms.intType);
-            JCExpression lastIndex = makeSliceLastIndex(si);
+            JCExpression startPos = translateAsValue(si.getFirstIndex(), syms.intType);
+            JCExpression endPos = makeSliceEndPos(si);
             JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
-            List<JCExpression> args = List.of(firstIndex, lastIndex, rhs);
+            List<JCExpression> args = List.of(startPos, endPos, rhs);
             result = make.at(diagPos).Apply(null, select, args);
         } else {
             result = new AssignTranslator(diagPos, tree.lhs, tree.rhs) {
@@ -2531,7 +2617,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         ExplicitSequenceTranslator(DiagnosticPosition diagPos, List<JFXExpression> items, Type elemType) {
             super(diagPos);
             this.items = items;
-            this.elemType = elemType; // boxed
+            this.elemType = elemType;
         }
 
         /***
@@ -2568,7 +2654,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = new ExplicitSequenceTranslator(
                 tree.pos(),
                 tree.getItems(),
-                types.boxedElementType(tree.type)
+                types.elementType(tree.type)
         ).doit();
     }
 
@@ -2612,13 +2698,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     public JCExpression translateSequenceExpression (JFXExpression seq) {
-        Locationness w;
-        if (types.isSequence(seq.type) &&
-                (seq instanceof JFXIdent || seq instanceof JFXSelect)) {
-            w = AsShareSafeValue;
-        } else
-            w = AsValue;
-        return translateToExpression(seq, w, null);
+        return translateToExpression(seq, AsValue, null);
     }
 
     public JCExpression translateSequenceIndexed(DiagnosticPosition diagPos, JFXExpression seq, JCExpression tseq, JCExpression index, Type elementType) {
@@ -2629,6 +2709,29 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             getMethodName = defs.locationGetMethodName[typeMorpher.kindFromPrimitiveType(elementType.tsym)];
         else
             getMethodName = defs.getMethodName;
+        if (seq instanceof JFXIdent) {
+            JFXIdent var = (JFXIdent) seq;
+            OnReplaceInfo info = findOnReplaceInfo(var.sym);
+            if (info != null) {
+                String mname = getMethodName.toString();
+                ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+                args.append(make.TypeCast(makeTypeTree(diagPos, info.arraySequenceType, true), make.Ident(defs.onReplaceArgNameBuffer)));
+                if (var.sym == info.oldValueSym) {
+                    mname = mname + "FromOldValue";
+                    args.append(make.TypeCast(makeTypeTree(diagPos, info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameOld)));
+                    args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
+                    args.append(make.Ident(defs.onReplaceArgNameLastIndex));
+                }
+                else { // var.sym == info.newElementsSym
+                    mname = mname + "FromNewElements";
+                    args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
+                    args.append(make.TypeCast(makeTypeTree(diagPos, info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameNewElements)));
+                }
+                args.append(index);
+                return callExpression(diagPos, makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                                      mname, args.toList());
+            }
+        }
         return callExpression(diagPos, tseq, getMethodName, index);
     }
 
@@ -2637,13 +2740,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         DiagnosticPosition diagPos = tree.pos();
         JFXExpression seq = tree.getSequence();
         JCExpression index = translateAsValue(tree.getIndex(), syms.intType);
-        Locationness w;
-        if (types.isSequence(seq.type) &&
-                (seq instanceof JFXIdent || seq instanceof JFXSelect)) {
-            w = AsShareSafeValue;
-        } else
-            w = AsValue;
-        JCExpression tseq = translateToExpression(seq, w, null);
+        JCExpression tseq = translateToExpression(seq, AsValue, null);
         if (seq.type.tag == TypeTags.ARRAY) {
             result = make.at(diagPos).Indexed(tseq, index);
         }
@@ -2657,7 +2754,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seq = translateAsSequenceVariable(tree.getSequence());
         JCExpression firstIndex = translateAsValue(tree.getFirstIndex(), syms.intType);
-        JCExpression lastIndex = makeSliceLastIndex(tree);
+        JCExpression lastIndex = makeSliceEndPos(tree);
         JCFieldAccess select = make.at(diagPos).Select(seq, defs.getSliceMethodName);
         List<JCExpression> args = List.of(firstIndex, lastIndex);
         result = make.at(diagPos).Apply(null, select, args);
@@ -2672,16 +2769,28 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         if (types.isArray(elemType) || types.isSequence(elemType))
             elem = convertTranslated(elem, diagPos, elemType, tree.getSequence().type);
         else
-            elem = convertTranslated(elem, diagPos, elemType, types.boxedElementType(tree.getSequence().type));
+            elem = convertTranslated(elem, diagPos, elemType, types.elementType(tree.getSequence().type));
+        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+        JCExpression receiver;
+        if (elemType.isPrimitive()) {
+            // In this case we call a static method.  Kind of ugly ...
+            receiver = makeQualifiedTree(diagPos, JavafxDefs.locationPackageNameString+".SequenceVariable");
+            args.append(seqLoc);
+        }
+        else
+            receiver = seqLoc;
+        args.append(elem);
+        String method;
         if (tree.getPosition() == null) {
-            result = callStatement(diagPos, seqLoc, "insert", elem);
+            method = "insert";
         } else {
             JCExpression position = translateAsValue(tree.getPosition(), syms.intType);
             if (tree.shouldInsertAfter())
                 position = make.Binary(JCTree.PLUS, position, make.Literal(Integer.valueOf(1)));
-            result = callStatement(diagPos, seqLoc, "insertBefore",
-                    List.of(elem, position));
+            method = "insertBefore";
+            args.append(position);
         }
+        result = callStatement(diagPos, receiver, method, args.toList());
     }
 
     @Override
@@ -2705,8 +2814,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 JFXExpression seqseq = slice.getSequence();
                 JCExpression seqLoc = translateAsSequenceVariable(seqseq);
                 JCExpression first = translateAsValue(slice.getFirstIndex(), syms.intType);
-                JCExpression last = makeSliceLastIndex(slice);
-                result = callStatement(tree.pos(), seqLoc, "deleteSlice", List.of(first, last));
+                JCExpression end = makeSliceEndPos(slice);
+                result = callStatement(tree.pos(), seqLoc, "deleteSlice", List.of(first, end));
             } else if (types.isSequence(seq.type)) {
                 JCExpression seqLoc = translateAsSequenceVariable(seq);
                 result = callStatement(tree.pos(), seqLoc, "deleteAll");
@@ -2721,23 +2830,26 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     /**** utility methods ******/
 
-    JCExpression makeSliceLastIndex(JFXSequenceSlice tree) {
-        JCExpression lastIndex = tree.getLastIndex() == null ?
-                callExpression(tree,
+     JCExpression makeSliceEndPos(JFXSequenceSlice tree) {
+        JCExpression endPos;
+        if (tree.getLastIndex() == null) {
+            endPos = callExpression(tree,
                     translateAsUnconvertedValue(tree.getSequence()),
-                    defs.sizeMethodName) :
-                translateAsValue(tree.getLastIndex(), syms.intType);
-        int decr =
-                (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE ? 1 : 0) +
-                (tree.getLastIndex() == null ? 1 : 0);
-        if (decr > 0) {
-            lastIndex = make.at(tree).Binary(JCTree.MINUS,
-                    lastIndex, make.Literal(TypeTags.INT, decr));
+                    defs.sizeMethodName);
+            if (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE)
+                endPos = make.at(tree).Binary(JCTree.MINUS,
+                        endPos, make.Literal(TypeTags.INT, 1));
         }
-        return lastIndex;
+        else {
+            endPos = translateAsValue(tree.getLastIndex(), syms.intType);
+            if (tree.getEndKind() == SequenceSliceTree.END_INCLUSIVE)
+                endPos = make.at(tree).Binary(JCTree.PLUS,
+                        endPos, make.Literal(TypeTags.INT, 1));
+        }
+        return endPos;
     }
 
-    JCMethodDecl makeMainMethod(DiagnosticPosition diagPos, Name className) {
+   JCMethodDecl makeMainMethod(DiagnosticPosition diagPos, Name className) {
         List<JCStatement> mainStats;
         if (!attrEnv.toplevel.isRunnable) {
             List<JCExpression> newClassArgs = List.<JCExpression>of(make.at(diagPos).Literal(TypeTags.CLASS, className.toString()));
@@ -2818,7 +2930,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
-
         return new UseSequenceBuilder(diagPos, elemType, null) {
 
             JCStatement addElement(JFXExpression exprToAdd) {
@@ -2831,7 +2942,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 if (initLength != -1) {
                     lb.append(make.at(diagPos).Literal(Integer.valueOf(initLength)));
                 }
-                lb.append(makeTypeInfo(diagPos, elemType));
+                if (addTypeInfoArg)
+                    lb.append(makeTypeInfo(diagPos, elemType));
                 return lb.toList();
             }
 
@@ -2861,7 +2973,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 if (initLength != -1) {
                     lb.append(make.at(diagPos).Literal(Integer.valueOf(initLength)));
                 }
-                lb.append(makeTypeInfo(diagPos, elemType));
+                if (addTypeInfoArg)
+                    lb.append(makeTypeInfo(diagPos, elemType));
                 return lb.toList();
             }
         };
@@ -3062,18 +3175,20 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         final Type type;                            // type of the induction variable
         final JCVariableDecl inductionVar;          // generated induction variable
         JCStatement body;                           // statement being generated by wrapping
+        boolean indexedLoop;
 
         InClauseTranslator(JFXForExpressionInClause clause, JCStatement coreStmt) {
             super(clause);
             this.clause = clause;
             this.var = clause.getVar();
             this.type = var.type;
-            this.inductionVar = makeVar("ind", null);
             this.body = coreStmt;
-        }
-
-        private JCVariableDecl makeVar(String id, JCExpression initialValue) {
-            return makeVar(id, type, initialValue);
+            JFXExpression seq = clause.seqExpr;
+            this.indexedLoop =
+                    (seq.getFXTag() == JavafxTag.SEQUENCE_SLICE ||
+                     (seq.getFXTag() != JavafxTag.SEQUENCE_RANGE &&
+                      types.isSequence(seq.type)));
+            this.inductionVar = makeVar("ind", indexedLoop ? syms.intType : type, null);
         }
 
         private JCVariableDecl makeVar(String id, Type varType, JCExpression initialValue) {
@@ -3156,6 +3271,65 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 default:
                     throw new AssertionError("unexpected literal kind " + this);
             }
+        }
+
+        /**
+         * Generate the loop for a slice sequence.  Loop wraps the current body.
+         * For the loop:
+         *    for (x in seq[lo..<hi]) body
+         * Generate:
+         *     for (int $i = max(lo,0);  i++; $i < min(hi,seq.size())) { def x = seq[$i]; body }
+         * (We may need to put seq and/or hi in a temporary variable first.)
+         */
+        void translateSliceInClause(JFXExpression seq, JFXExpression first, JFXExpression last, int endKind, JCVariableDecl seqVar) {
+            // Collect all the loop initializing statements (variable declarations)
+            ListBuffer<JCStatement> tinits = ListBuffer.lb();
+            if (! (seq instanceof JFXIdent) || findOnReplaceInfo(((JFXIdent) seq).sym) == null)
+                tinits.append(seqVar);
+            JCExpression init = translateAsValue(first, syms.intType);
+            boolean maxForStartNeeded = true;
+            if (first == null)
+                init = make.Literal(TypeTags.INT, 0);
+            else {
+                if (first.getFXTag() == JavafxTag.LITERAL && ! isNegative(first))
+                    maxForStartNeeded = false;
+                // FIXME set maxForStartNeeded false if first is replace-trigger startPos and seq is oldValue
+                if (maxForStartNeeded)
+                    init = callExpression(first,
+                           makeQualifiedTree(first, "java.lang.Math"), "max",
+                           List.of(init, make.Literal(TypeTags.INT, 0)));
+            }
+            inductionVar.init = init;
+            tinits.append(inductionVar);
+            JCExpression sizeExpr = translateSizeof(diagPos, seq, ident(seqVar));
+            //callExpression(diagPos, ident(seqVar), "size");
+            JCExpression limitExpr;
+            // Compare the logic in makeSliceEndPos.
+            if (last == null) {
+                limitExpr = sizeExpr;
+                if (endKind == SequenceSliceTree.END_EXCLUSIVE)
+                    limitExpr = make.at(diagPos).Binary(JCTree.MINUS,
+                        limitExpr, make.Literal(TypeTags.INT, 1));
+            }
+            else {
+                limitExpr = translateAsValue(last, syms.intType);
+                if (endKind == SequenceSliceTree.END_INCLUSIVE)
+                    limitExpr = make.at(last).Binary(JCTree.PLUS,
+                        limitExpr, make.Literal(TypeTags.INT, 1));
+                // FIXME can optimize if last is replace-trigger endPos and seq is oldValue
+                if (true)
+                    limitExpr = callExpression(last,
+                           makeQualifiedTree(last, "java.lang.Math"), "min",
+                           List.of(limitExpr, sizeExpr));
+            }
+            JCVariableDecl limitVar = makeFinalVar("limit", syms.intType, limitExpr);
+            tinits.append(limitVar);
+            // The condition that will be tested each time through the loop
+            JCExpression tcond = make.Binary(JCTree.LT, ident(inductionVar), ident(limitVar));
+            // Generate the step statement as: x += 1
+            List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, ident(inductionVar), m().Literal(TypeTags.INT, 1))));
+            tinits.append(m().ForLoop(List.<JCStatement>nil(), tcond, tstep, body));
+            body = make.Block(0L, tinits.toList());
         }
 
         /**
@@ -3244,6 +3418,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             //     body;
             //   }
             JCVariableDecl incrementingIndexVar = null;
+            JFXExpression seq = clause.seqExpr;
+            JCVariableDecl seqVar = null;
             {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 diagPos = var;
@@ -3255,17 +3431,34 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                             m().Unary(JCTree.POSTINC, ident(incrementingIndexVar)));
                     stmts.append(finalIndexVar);
                 }
-                stmts.append(makeFinalVar(var.getName(), ident(inductionVar)));
+                JCExpression varInit;     // Initializer for var.
+
+                if (indexedLoop) {
+                    JFXExpression sseq;
+                    if (clause.seqExpr instanceof JFXSequenceSlice)
+                        sseq = ((JFXSequenceSlice) clause.seqExpr).getSequence();
+                    else
+                       sseq = clause.seqExpr;
+                    seqVar = makeFinalVar("seq", seq.type, translateAsValue(sseq, seq.type));
+                    varInit = translateSequenceIndexed(diagPos, sseq, ident(seqVar), ident(inductionVar), type);
+                }
+                else
+                    varInit = ident(inductionVar);
+
+                stmts.append(makeFinalVar(var.getName(), varInit));
                 stmts.append(body);
                 body = m().Block(0L, stmts.toList());
             }
 
             // Translate the sequence into the loop
-            JFXExpression seq = clause.seqExpr;
             diagPos = seq;
             if (seq.getFXTag() == JavafxTag.SEQUENCE_RANGE) {
                 // Iterating over a range sequence
                 translateRangeInClause();
+            } else if (seq.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
+                JFXSequenceSlice slice = (JFXSequenceSlice) clause.seqExpr;
+                translateSliceInClause(slice.getSequence(), slice.getFirstIndex(), slice.getLastIndex(),
+                        slice.getEndKind(), seqVar);
             } else {
                 // We will be using the sequence as a whole, so translate it
                 JCExpression tseq = translateAsUnconvertedValue(seq);
@@ -3274,7 +3467,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                     tseq = runtime(diagPos,
                             defs.Sequences_forceNonNull,
                             List.of(makeTypeInfo(diagPos, type), tseq));
-                    body = m().ForeachLoop(inductionVar, tseq, body);
+                    translateSliceInClause(seq, null, null, SequenceSliceTree.END_INCLUSIVE, seqVar);
+                    //body = m().ForeachLoop(inductionVar, tseq, body);
                 } else if (seq.type.tag == TypeTags.ARRAY ||
                              types.asSuper(seq.type, syms.iterableType.tsym) != null) {
                     // Iterating over an array or iterable type, use a foreach loop
@@ -3676,7 +3870,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         if (expr.type.tag == TypeTags.ARRAY) {
                             return m().Select(transExpr, defs.lengthName);
                         }
-                        return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
+                        return translateSizeof(diagPos, expr, transExpr);
                     case REVERSE:
                         if (types.isSequence(expr.type)) {
                             // call runtime reverse of a sequence
@@ -3706,6 +3900,30 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }).doit();
     }
 
+    JCExpression translateSizeof(DiagnosticPosition diagPos, JFXExpression expr, JCExpression transExpr) {
+        if (expr instanceof JFXIdent) {
+            JFXIdent var = (JFXIdent) expr;
+            OnReplaceInfo info = findOnReplaceInfo(var.sym);
+            if (info != null) {
+                String mname;
+                ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+                args.append(make.Ident(defs.onReplaceArgNameBuffer));
+                if (var.sym == info.oldValueSym) {
+                    mname = "sizeOfOldValue";
+                    args.append(make.Ident(defs.onReplaceArgNameOld));
+                    args.append(make.Ident(defs.onReplaceArgNameLastIndex));
+                }
+                else { // var.sym == info.newElementsSym
+                    mname = "sizeOfNewElements";
+                    args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
+                    args.append(make.Ident(defs.onReplaceArgNameNewElements));
+                }
+                return callExpression(diagPos, makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                        mname, args.toList());
+            }
+        }
+        return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
+    }
 
     @Override
     public void visitWhileLoop(JFXWhileLoop tree) {
@@ -3786,13 +4004,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             if (!vmi.useAccessors()) {
                 if (vmi.representation() == AlwaysLocation && wrapper != AsLocation) {
                     // Anything still in the form of a Location (and that isn't what we want), get the value
-                    if (isSequence) {
-                        if (wrapper == AsShareSafeValue) {
-                            expr = callExpression(diagPos, expr, defs.getAsSequenceRawMethodName);
-                        } else {
-                            expr = getLocationValue(diagPos, expr, typeKind);
-                        }
-                    } else if (!isClassVar) {
+                    if (isSequence || !isClassVar) {
                         expr = getLocationValue(diagPos, expr, typeKind);
                     }
                 } else if (vmi.representation() == NeverLocation && wrapper == AsLocation) {

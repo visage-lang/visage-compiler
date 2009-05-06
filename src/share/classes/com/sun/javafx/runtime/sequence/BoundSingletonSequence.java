@@ -44,7 +44,7 @@ class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> im
         addTriggers();
     }
 
-    protected Sequence<? extends T> computeValue() {
+    protected Sequence<T> computeValue() {
         return Sequences.singleton(getElementType(), location.get());
     }
 
@@ -54,7 +54,7 @@ class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> im
         else
             location.addChangeListener(new ChangeListener<V>() {
                 public void onChange(V oldValue, V newValue) {
-                    updateSlice(0, getRawValue().size() - 1, Sequences.singleton(getElementType(), newValue));
+                    updateSlice(0, getRawValue().size(), newValue);
                 }
             });
     }

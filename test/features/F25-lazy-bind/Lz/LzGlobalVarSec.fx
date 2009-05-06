@@ -125,7 +125,7 @@ insert 61 into valueCharacter;
 checkFlag(false, "Character 2");
 var trashCharacter : Character[] = bindedCharacter;
 checkFlag(true, "Character 3");
-if (trashCharacter != [62, 64, 61, 61]) println("FAILED Character 4");
+if (trashCharacter != ([62 as Character, 64 as Character, 61 as Character, 61 as Character] as Character[])) println("FAILED Character 4");
 resetFlag();
 
 println("Character eager");
@@ -144,7 +144,7 @@ checkFlag(true, "Character 2B");
 resetFlag();
 var trashBdCharacter : Character[] = bindedBdCharacter;
 checkFlag(false, "Character 3B");
-if (trashBdCharacter != [62, 64, 61, 61]) println("FAILED Character 4B");
+if (trashBdCharacter != [62 as Character, 64 as Character, 61 as Character, 61 as Character]) println("FAILED Character 4B");
 resetFlag();
 
 /***** Integer *****/
@@ -576,7 +576,7 @@ function testGlobalFuncSec() {
     checkFlag(false, "Character 2f");
     var trashFuncCharacter : Character[] = bindedFuncCharacter;
     checkFlag(true, "Character 3f");
-    if (trashFuncCharacter != [62, 64, 61, 61]) println("FAILED Character 4f");
+    if (trashFuncCharacter != [62 as Character, 64 as Character, 61 as Character, 61 as Character]) println("FAILED Character 4f");
     resetFlag();
 
     println("Character eager in function");
@@ -595,7 +595,7 @@ function testGlobalFuncSec() {
     resetFlag();
     var trashFuncBdCharacter : Character[] = bindedFuncBdCharacter;
     checkFlag(false, "Character 3Bf");
-    if (trashFuncBdCharacter != [62, 64, 61, 61]) println("FAILED Character 4Bf");
+    if (trashFuncBdCharacter != [62 as Character, 64 as Character, 61 as Character, 61 as Character]) println("FAILED Character 4Bf");
     resetFlag();
 
     /***** Integer[] *****/

@@ -82,31 +82,35 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
             sequenceLocation.addInvalidationListener(new InvalidateMeListener());
         else
             sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
+                public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
                     // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
                     // trailing segment of the comprehension, so not only do we recompute the affected segment, but also
                     // the whole rest of the sequence too.
 
-                    int directlyAffectedSize = Sequences.size(newElements);
-                    int elementsAdded = directlyAffectedSize - (endPos - startPos + 1);
+                    int directlyAffectedSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
+                    int elementsAdded = directlyAffectedSize - (endPos - startPos);
+                    Sequence<? extends T> real = Sequences.getNewElements(buffer, startPos, newElements);
+                    int oldValueSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
                     boolean updateTrailingElements = dependsOnIndex
                             && (elementsAdded != 0)
-                            && (endPos + 1 < Sequences.size(oldValue));
-                    int indirectlyAffectedStart=0, indirectlyAffectedEnd=-1, indirectlyAffectedSize=0;
+                            && (endPos < oldValueSize);
+                    int indirectlyAffectedStart=0, indirectlyAffectedEnd=0, indirectlyAffectedSize=0;
                     if (updateTrailingElements) {
-                        indirectlyAffectedStart = endPos + 1;
-                        indirectlyAffectedEnd = oldValue.size() - 1;
-                        indirectlyAffectedSize = indirectlyAffectedEnd - indirectlyAffectedStart + 1;
+                        indirectlyAffectedStart = endPos;
+                        indirectlyAffectedEnd = oldValueSize;
+                        indirectlyAffectedSize = indirectlyAffectedEnd - indirectlyAffectedStart;
                     }
                     V[] ourNewElements = Util.<V>newObjectArray(directlyAffectedSize + indirectlyAffectedSize);
-                    int i = 0;
-                    for (Iterator<? extends T> it = Sequences.iterator(newElements); it.hasNext(); i++) {
-                        ourNewElements[i] = computeElement$(it.next(), dependsOnIndex ? startPos + i : -1);
+                    for (int i = 0;  i < directlyAffectedSize;  i++) {
+                      T newElement = Sequences.getFromNewElements(buffer, endPos, newElements, i);
+                      ourNewElements[i] = computeElement$(newElement, dependsOnIndex ? startPos + i : -1);
                     }
-                    i = 0;
-                    for (Iterator<? extends T> it = Sequences.iterator(oldValue, indirectlyAffectedStart, indirectlyAffectedEnd); it.hasNext(); i++) {
+                    for (int i = 0;  i < indirectlyAffectedSize;  i++) {
+                        T oldElement = Sequences.getFromOldValue(buffer, oldValue, startPos, endPos,
+                            indirectlyAffectedStart + i);
                         ourNewElements[directlyAffectedSize + i]
-                                = computeElement$(it.next(), indirectlyAffectedStart + i + elementsAdded);
+
+                                = computeElement$(oldElement, startPos + directlyAffectedSize + i);
                     }
 
                     Sequence<? extends V> vSequence = Sequences.make(getElementType(), ourNewElements);

@@ -31,7 +31,9 @@ import org.junit.Assert;
  * @author Michael Heinrichs
  */
 public class SliceReplacementSequenceTest extends JavaFXTestCase {
-    
+  public void testDummy() { }
+  /* ??? HOW MUCH OF THIS CAN BE RE_USED?
+
     private Sequence<Integer> EMPTY_REPLACES_EMPTY;
     private Sequence<Integer> SINGLETON_REPLACES_EMPTY;
     private Sequence<Integer> THREE_ELEMENT_REPLACES_EMPTY;
@@ -67,8 +69,6 @@ public class SliceReplacementSequenceTest extends JavaFXTestCase {
     private Sequence<Integer> THREE_ELEMENT_REPLACES_LAST_THREE_ELEMENT;
     private Sequence<Integer> THREE_ELEMENT_REPLACES_ALL_THREE_ELEMENT;
     private Sequence<Integer> THREE_ELEMENT_APPENDED_THREE_ELEMENT;
-
-    
 
     @Override
     protected void setUp() {
@@ -161,13 +161,6 @@ public class SliceReplacementSequenceTest extends JavaFXTestCase {
         testGetHelper(THREE_ELEMENT_REPLACES_LAST_THREE_ELEMENT, 1, 2, 21, 22, 23);
         testGetHelper(THREE_ELEMENT_REPLACES_ALL_THREE_ELEMENT, 21, 22, 23);
         testGetHelper(THREE_ELEMENT_APPENDED_THREE_ELEMENT, 1, 2, 3, 21, 22, 23);
-    }
-    
-    public void testGetDepth() {
-        assertEquals(1, SINGLETON_REPLACES_SINGLETON.getDepth());
-        assertEquals(0, TypeInfo.Integer.emptySequence.getDepth());
-        assertEquals(2, new SliceReplacementSequence(SINGLETON_REPLACES_SINGLETON, 0, 1, TypeInfo.Integer.emptySequence).getDepth());
-        assertEquals(2, new SliceReplacementSequence(TypeInfo.Integer.emptySequence, 0, 0, SINGLETON_REPLACES_SINGLETON).getDepth());
     }
     
     public void testToArray() {
@@ -373,5 +366,5 @@ public class SliceReplacementSequenceTest extends JavaFXTestCase {
         Assert.assertArrayEquals(new Object[] {2, 3}, actuals);
         assertEquals(THREE_ELEMENT_REPLACES_MIDDLE_THREE_ELEMENT, 1, 21, 22, 23, 3);
     }
-    
+  */    
 }
