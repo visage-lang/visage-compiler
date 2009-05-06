@@ -773,11 +773,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
             // Rename method parameters to the user specified names
             if (isSequence) {
-                Type seqValType = types.sequenceType(valueType, false);
-                Type seqWithExtendsType = types.sequenceType(valueType, true);
+                Type seqValType = types.sequenceType(valueType, true);
                 renameParam(renamings, syms.intType, onReplace.getFirstIndex(), defs.onReplaceArgNameFirstIndex);
                 renameParam(renamings, syms.intType, onReplace.getLastIndex(), defs.onReplaceArgNameLastIndex);
-                renameParam(renamings, seqWithExtendsType, onReplace.getNewElements(), defs.onReplaceArgNameNewElements);
+                renameParam(renamings, seqValType, onReplace.getNewElements(), defs.onReplaceArgNameNewElements);
                 renameParam(renamings, seqValType, onReplace.getOldValue(), defs.onReplaceArgNameOld);
                 renameParam(renamings, seqValType, null, defs.onReplaceArgNameNew);
             } else {
@@ -967,8 +966,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                     makeParam(diagPos, defs.onReplaceArgNameFirstIndex, makeTypeExpression(diagPos, TypeTags.INT, null)),
                     makeParam(diagPos, defs.onReplaceArgNameLastIndex, makeTypeExpression(diagPos, TypeTags.INT, null)),
                     makeParam(diagPos, defs.onReplaceArgNameNewElements, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)),
-                    makeParam(diagPos, defs.onReplaceArgNameOld, makeSequenceTypeExpression(diagPos, concreteType)),
-                    makeParam(diagPos, defs.onReplaceArgNameNew, makeSequenceTypeExpression(diagPos, concreteType)))
+                    makeParam(diagPos, defs.onReplaceArgNameOld, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)),
+                    makeParam(diagPos, defs.onReplaceArgNameNew, makeSequenceWithExtendsTypeExpression(diagPos, concreteType)))
         :
             List.of(
                     makeParam(diagPos, defs.onReplaceArgNameOld, makeTypeExpression(diagPos, typeTag, concreteType)),

@@ -44,7 +44,7 @@ class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> im
         addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    protected Sequence<? extends T> computeValue() {
         return Sequences.singleton(getElementType(), location.get());
     }
 

@@ -92,10 +92,10 @@ public interface Sequence<T> extends Iterable<T> {
     public double getAsDouble(int position);
     
     /** Extract a slice of the sequence */
-    public Sequence<T> getSlice(int startPos, int endPos);
+    public Sequence<? extends T> getSlice(int startPos, int endPos);
 
     /** Select elements from the sequence matching the specified predicate. */
-    public Sequence<T> get(SequencePredicate<? super T> predicate);
+    public Sequence<? extends T> get(SequencePredicate<? super T> predicate);
 
     /**
      * Returns the number of levels of sequence objects between this Sequence object and the deepest data.

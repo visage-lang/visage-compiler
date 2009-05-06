@@ -85,8 +85,8 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     }
 
-    protected Sequence<V> computeValue() {
-        Sequence<T> sequence = sequenceLocation.getAsSequence();
+    protected Sequence<? extends V> computeValue() {
+        Sequence<? extends T> sequence = sequenceLocation.getAsSequence();
         dmState = new DumbMutableSequence<State<T, L, V>>(sequence.size());
         SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(sequence.size());
         State<T, L, V>[] newStates = State.newArray(sequence.size());
@@ -127,13 +127,13 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
         }
         else {
             underlying.addSequenceChangeListener(new ChangeListener<V>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
+                public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<? extends V> oldValue, Sequence<? extends V> newValue) {
                     AbstractBoundComprehension.this.updateSlice(startPos, endPos, newElements);
                 }
             });
 
             sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
                     int insertedCount = Sequences.size(newElements);
                     int deletedCount = endPos - startPos + 1;
                     int netAdded = insertedCount - deletedCount;

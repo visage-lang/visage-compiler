@@ -53,7 +53,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
         addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    protected Sequence<? extends T> computeValue() {
         computeBounds(true, true);
         return sequenceLoc.get().getSlice(lower, upper);
     }
@@ -83,7 +83,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
         }
     }
 
-    protected Sequence<T> computeFull(int lower, int upper) {
+    protected Sequence<? extends T> computeFull(int lower, int upper) {
         return sequenceLoc.getSlice(lower, upper);
     }
                     
@@ -98,10 +98,10 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
             sequenceLoc.addSequenceChangeListener(new ChangeListener<T>() {
 
                 @Override
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
                     computeBounds(true, true);
 
-                    Sequence<T> newSeq = newValue.getSlice(lower, upper);
+                    Sequence<? extends T> newSeq = newValue.getSlice(lower, upper);
                     updateSlice(0, size == 0 ? 0 : size - 1, newSeq, newSeq);
                 }
             });

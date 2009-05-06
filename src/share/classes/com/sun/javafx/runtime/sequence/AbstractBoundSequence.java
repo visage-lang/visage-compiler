@@ -39,7 +39,7 @@ import com.sun.javafx.runtime.location.*;
 public abstract class AbstractBoundSequence<T> extends AbstractLocation implements SequenceLocation<T> {
     protected final TypeInfo<T, ?> typeInfo;
     private List<ChangeListener<T>> changeListeners;
-    private Sequence<T> $value;
+    private Sequence<? extends T> $value;
     protected final boolean lazy;
 
     // Currently, no support for lazy binding.
@@ -50,13 +50,13 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         this.$value = typeInfo.emptySequence;
     }
 
-    protected abstract Sequence<T> computeValue();
+    protected abstract Sequence<? extends T> computeValue();
 
-    protected void setInitialValue(Sequence<T> initialValue) {
+    protected void setInitialValue(Sequence<? extends T> initialValue) {
         if (isValid())
             throw new IllegalStateException("Cannot call setInitialValue more than once");
-        Sequence<T> oldValue = $value;
-        Sequence<T> newValue = initialValue;
+        Sequence<? extends T> oldValue = $value;
+        Sequence<? extends T> newValue = initialValue;
         if (newValue == null)
             newValue = typeInfo.emptySequence;
         $value = newValue;
@@ -69,29 +69,29 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
 
     protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
         assert !lazy;
-        Sequence<T> oldValue = $value;
+        Sequence<? extends T> oldValue = $value;
         if (changeListeners != null) {
             Sequences.noteShared(newValues);
             Sequences.noteShared(oldValue);
         }
-        $value = Sequences.replaceSlice(oldValue, startPos, endPos, newValues);
+        $value = SequenceMutator.<T>replaceSlice(typeInfo, oldValue, null, startPos, endPos, newValues);
         invalidateDependencies();
         notifyListeners(startPos, endPos, newValues, oldValue, $value);
     }
 
-    protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues, Sequence<T> newSequence) {
+    protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues, Sequence<? extends T> newSequence) {
         assert !lazy;
-        Sequence<T> oldValue = $value;
+        Sequence<? extends T> oldValue = $value;
         $value = newSequence;
         invalidateDependencies();
         notifyListeners(startPos, endPos, newValues, oldValue, newSequence);
     }
 
-    protected Sequence<T> getRawValue() {
+    protected Sequence<? extends T> getRawValue() {
         return $value;
     }
 
-    public Sequence<T> get() {
+    public Sequence<? extends T> get() {
         return getAsSequence();
     }
 
@@ -99,7 +99,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return getAsSequence().get(position);
     }
 
-    public Sequence<T> getAsSequence() {
+    public Sequence<? extends T> getAsSequence() {
         if (lazy)
             update();
         else
@@ -112,7 +112,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return typeInfo;
     }
 
-    public Sequence<T> getSlice(int startPos, int endPos) {
+    public Sequence<? extends T> getSlice(int startPos, int endPos) {
         return getAsSequence().getSlice(startPos, endPos);
     }
 
@@ -125,9 +125,9 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return super.hasDependencies() || changeListeners.size() > 0;
     }
 
-    public void addChangeListener(final ChangeListener<Sequence<T>> listener) {
+    public void addChangeListener(final ChangeListener<Sequence<? extends T>> listener) {
         addSequenceChangeListener(new ChangeListener<T>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
                 listener.onChange(oldValue, newValue);
             }
         });
@@ -146,7 +146,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
 
     private void notifyListeners(final int startPos, final int endPos,
                                  final Sequence<? extends T> newElements,
-                                 final Sequence<T> oldValue, final Sequence<T> newValue) {
+                                 final Sequence<? extends T> oldValue, final Sequence<? extends T> newValue) {
         if (changeListeners != null) {
             Sequences.noteShared(newElements);
             Sequences.noteShared(oldValue);
@@ -165,7 +165,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     @Override
     public void update() {
         if (lazy) {
-            Sequence<T> oldValue = $value;
+            Sequence<? extends T> oldValue = $value;
             $value = computeValue();
             setValid();
             if (hasDependencies() && !Sequences.isEqual(oldValue, $value))
@@ -186,11 +186,11 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         throw new UnsupportedOperationException();
     }
 
-    public Sequence<T> set(Sequence<T> value) {
+    public Sequence<? extends T> set(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 
-    public Sequence<T> setAsSequence(Sequence<? extends T> value) {
+    public Sequence<? extends T> setAsSequence(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 

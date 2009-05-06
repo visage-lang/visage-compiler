@@ -34,7 +34,7 @@ import com.sun.javafx.runtime.TypeInfo;
  */
 public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T> {
 
-    private final SequenceLocation<V> sequence;
+  private final SequenceLocation<V> sequence;
 
     public BoundUpcastSequence(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<V> sequence) {
         super(lazy, typeInfo);
@@ -44,13 +44,13 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
         addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    protected Sequence<? extends T> computeValue() {
         return Sequences.<T>upcast(sequence.get());
     }
 
     private void addTriggers() {
         sequence.addSequenceChangeListener(new ChangeListener<V>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
+            public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<? extends V> oldValue, Sequence<? extends V> newValue) {
                 updateSlice(startPos, endPos, newElements, Sequences.<T>upcast(newValue));
             }
         });

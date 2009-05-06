@@ -23,7 +23,7 @@ class BoundNumericConversion<T extends Number, V extends Number> extends Abstrac
         if (!lazy) {
             setInitialValue(convert(sequence.get()));
             sequence.addSequenceChangeListener(new ChangeListener<V>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
+                public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<? extends V> oldValue, Sequence<? extends V> newValue) {
                     updateSlice(startPos, endPos, convert(Sequences.upcast(newElements)), convert(newValue));
                 }
             });
@@ -34,11 +34,11 @@ class BoundNumericConversion<T extends Number, V extends Number> extends Abstrac
     }
 
     @Override
-    protected Sequence<T> computeValue() {
+    protected Sequence<? extends T> computeValue() {
         return convert(sequence.get());
     }
 
-    private Sequence<T> convert(Sequence<V> seq) {
+    private Sequence<T> convert(Sequence<? extends V> seq) {
         return Sequences.<T, V>convertNumberSequence(toType, fromType, seq);
     }
 }

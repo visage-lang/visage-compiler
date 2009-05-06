@@ -285,7 +285,7 @@ public class FX {
      * </ul>
      * @profile common
      */
-    public static Sequence<String> getArguments() {
+    public static Sequence<? extends String> getArguments() {
         return Entry.getArguments();
     }
 

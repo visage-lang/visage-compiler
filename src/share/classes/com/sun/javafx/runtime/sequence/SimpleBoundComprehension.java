@@ -66,8 +66,8 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
 
     protected abstract V computeElement$(T element, int index);
 
-    protected Sequence<V> computeValue() {
-        Sequence<T> sequence = sequenceLocation.getAsSequence();
+    protected Sequence<? extends V> computeValue() {
+        Sequence<? extends T> sequence = sequenceLocation.getAsSequence();
         V[] intermediateResults = Util.<V>newObjectArray(sequence.size());
         int i = 0;
         for (T val : sequence) {
@@ -82,7 +82,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
             sequenceLocation.addInvalidationListener(new InvalidateMeListener());
         else
             sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
                     // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
                     // trailing segment of the comprehension, so not only do we recompute the affected segment, but also
                     // the whole rest of the sequence too.
@@ -109,7 +109,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
                                 = computeElement$(it.next(), indirectlyAffectedStart + i + elementsAdded);
                     }
 
-                    Sequence<V> vSequence = Sequences.make(getElementType(), ourNewElements);
+                    Sequence<? extends V> vSequence = Sequences.make(getElementType(), ourNewElements);
                     updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
                 }
             });

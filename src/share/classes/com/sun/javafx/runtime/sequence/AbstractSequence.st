@@ -83,7 +83,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return ((Number) get(position)).doubleValue();
     }
 
-    public Sequence<T> getSlice(int startPos, int endPos) {
+    public Sequence<? extends T> getSlice(int startPos, int endPos) {
         return Sequences.subsequence(this, startPos, endPos+1);
     }
 

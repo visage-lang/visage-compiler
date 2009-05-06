@@ -37,8 +37,8 @@ import com.sun.javafx.runtime.TypeInfo;
 public class SequenceMutator {
 
     public interface Listener<T> {
-        public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue);
-        public void onReplaceElement(int startPos, int endPos, T newElement, Sequence<T> oldValue, Sequence<T> newValue);
+        public void onReplaceSlice(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue);
+        public void onReplaceElement(int startPos, int endPos, T newElement, Sequence<? extends T> oldValue, Sequence<? extends T> newValue);
     }
 
     // Inhibit instantiation
@@ -64,10 +64,9 @@ public class SequenceMutator {
      * @param newValues Values to be inserted, may be null
      * @return The new sequence.
      */
-    public static <T> Sequence<T> replaceSlice(Sequence<T> target, Listener<T> listener,
+  public static <T> Sequence<? extends T> replaceSlice(TypeInfo<T,?> elementType, Sequence<? extends T> target, Listener<T> listener,
                                                int startPos, int endPos, Sequence<? extends T> newValues) {
-        Sequence<T> result;
-        TypeInfo<T, ?> elementType = target.getElementType();
+        Sequence<? extends T> result;
         final int size = Sequences.size(target);
 
         if (startPos > size || startPos < 0)
@@ -113,9 +112,6 @@ public class SequenceMutator {
         else
             throw new IllegalArgumentException();
 
-        if (result != target && Sequences.shouldFlatten(result))
-            result = Sequences.flatten(result);
-
         if (result != target && listener != null)
             listener.onReplaceSlice(startPos, endPos, newValues, target, result);
         return result;
@@ -130,22 +126,20 @@ public class SequenceMutator {
      * @param newValue The single replement value - null is treated like deletion
      * @return The new sequence.
        */
-    public static <T> Sequence<T> replaceSlice(Sequence<T> target, Listener<T> listener,
+  public static <T> Sequence<? extends T> replaceSlice(TypeInfo<T,?> typeInfo, Sequence<? extends T> target, Listener<T> listener,
                                                int startPos, int endPos, T newValue) {
         final int size = Sequences.size(target);
         if (startPos > size || startPos < 0 || endPos >= size)
             return target;
         if (newValue == null)
-            return replaceSlice(target, listener, startPos, endPos, target.getEmptySequence());
+            return replaceSlice(typeInfo, target, listener, startPos, endPos, target.getEmptySequence());
 
-        Sequence<T> result;
+        Sequence<? extends T> result;
         if (startPos == endPos) {
             result = Sequences.replace(target, startPos, newValue);
         } else {
             result = Sequences.replace(target, startPos, endPos+1, newValue);
         }
-        if (Sequences.shouldFlatten(result))
-            result = Sequences.flatten(result);
         if (listener != null) {
             listener.onReplaceElement(startPos, endPos, newValue, target, result);
         }
@@ -156,38 +150,38 @@ public class SequenceMutator {
      * Modify the element at the specified position.  If the position is out of range, the sequence is not
      * modified.
      */
-    public static <T> Sequence<T> set(Sequence<T> target, Listener<T> listener, int position, T value) {
-        return replaceSlice(target, listener, position, position, value);
+    public static <T> Sequence<? extends T> set(TypeInfo<T,?> typeInfo, Sequence<? extends T> target, Listener<T> listener, int position, T value) {
+        return replaceSlice(typeInfo, target, listener, position, position, value);
     }
 
     /**
      * Delete the element at the specified position.  If the position is out of range, the sequence is not modified.
      */
-    public static <T> Sequence<T> delete(Sequence<T> target, Listener<T> listener, int position) {
-        return replaceSlice(target, listener, position, position, target.getEmptySequence());
+    public static <T> Sequence<? extends T> delete(TypeInfo<T,?> typeInfo, Sequence<? extends T> target, Listener<T> listener, int position) {
+        return replaceSlice(typeInfo, target, listener, position, position, target.getEmptySequence());
     }
 
     /**
      * Insert the specified value at the end of the sequence
      */
-    public static <T> Sequence<T> insert(Sequence<T> target, Listener<T> listener, T value) {
+    public static <T> Sequence<? extends T> insert(TypeInfo<T,?> typeInfo, Sequence<? extends T> target, Listener<T> listener, T value) {
         int tsize = target.size();
-        return replaceSlice(target, listener, tsize, tsize-1, value);
+        return replaceSlice(typeInfo, target, listener, tsize, tsize-1, value);
     }
 
     /**
      * Insert the specified values at the end of the sequence
      */
-    public static <T> Sequence<T> insert(Sequence<T> target, Listener<T> listener, Sequence<? extends T> values) {
+    public static <T> Sequence<? extends T> insert(TypeInfo<T,?> typeInfo, Sequence<? extends T> target, Listener<T> listener, Sequence<? extends T> values) {
         int tsize = target.size();
-        return replaceSlice(target, listener, tsize, tsize-1, values);
+        return replaceSlice(typeInfo, target, listener, tsize, tsize-1, values);
     }
 
     /**
      * Insert the specified value before the specified position.  If the position is negative, it is inserted before
      * element zero; if it is greater than or equal to the size of the sequence, it is inserted at the end.
      */
-    public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
+    public static <T> Sequence<? extends T> insertBefore(TypeInfo<T,?> typeInfo, Sequence<? extends T> target, Listener<T> listener,
                                                T value, int position) {
         if (position < 0)
             position = 0;
@@ -196,14 +190,14 @@ public class SequenceMutator {
             if (position > size)
                 position = size;
         }
-        return replaceSlice(target, listener, position, position-1, value);
+        return replaceSlice(typeInfo, target, listener, position, position-1, value);
     }
 
     /**
      * Insert the specified values before the specified position.  If the position is negative, they are inserted before
      * element zero; if it is greater than or equal to the size of the sequence, they are inserted at the end.
      */
-    public static <T> Sequence<T> insertBefore(Sequence<T> target, Listener<T> listener,
+    public static <T> Sequence<? extends T> insertBefore(TypeInfo<T,?> typeInfo, Sequence<? extends T> target, Listener<T> listener,
                                                Sequence<? extends T> values, int position) {
         if (position < 0)
             position = 0;
@@ -212,28 +206,28 @@ public class SequenceMutator {
             if (position > size)
                 position = size;
         }
-        return replaceSlice(target, listener, position, position-1, values);
+        return replaceSlice(typeInfo, target, listener, position, position-1, values);
     }
 
     /**
      * Delete the elements matching the specified predicate.
      */
-    public static <T> Sequence<T> delete(Sequence<T> target, Listener<T> listener,
+    public static <T> Sequence<? extends T> delete(TypeInfo<T,?> typeInfo, Sequence<? extends T> target, Listener<T> listener,
                                          SequencePredicate<? super T> predicate) {
         BitSet bits = target.getBits(predicate);
         if (bits.cardinality() == 0)
             return target;
         bits.flip(0, target.size());
-        Sequence<T> result = Sequences.filter(target, bits);
+        Sequence<? extends T> result = Sequences.filter(target, bits);
         if (listener != null) {
-            Sequence<T> lastValue = target;
+            Sequence<? extends T> lastValue = target;
             BitSet partialBits = new BitSet(target.size());
             partialBits.flip(0, target.size());
             for (int i = target.size() - 1; i >= 0; i--) {
                 // @@@ OPT: Collapse adjacent bits into ranges
                 if (!bits.get(i)) {
                     partialBits.flip(i);
-                    Sequence<T> nextValue = Sequences.filter(target, partialBits);
+                    Sequence<? extends T> nextValue = Sequences.filter(target, partialBits);
                     listener.onReplaceSlice(i, i, target.getEmptySequence(), lastValue, nextValue);
                     lastValue = nextValue;
                 }

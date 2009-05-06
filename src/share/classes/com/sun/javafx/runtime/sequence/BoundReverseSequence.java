@@ -43,7 +43,7 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
         addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    protected Sequence<? extends T> computeValue() {
         return Sequences.reverse(location.getAsSequence());
     }
 
@@ -52,7 +52,7 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
             location.addInvalidationListener(new InvalidateMeListener());
         else
             location.addSequenceChangeListener(new ChangeListener<T>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
                     int sliceSize = endPos - startPos;
                     int actualStart = oldValue.size() - startPos - (sliceSize + 1);
                     int actualEnd = actualStart + sliceSize;

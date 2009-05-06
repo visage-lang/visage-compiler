@@ -31,7 +31,7 @@ import com.sun.javafx.runtime.TypeInfo;
  *
  * @author Brian Goetz
  */
-class SingletonSequence<T> extends AbstractSequence<T> implements Sequence<T> {
+class SingletonSequence<T> extends AbstractSequence<T> {
     private final T value;
 
     public SingletonSequence(TypeInfo<T, ?> ti, T value) {

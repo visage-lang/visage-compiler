@@ -33,11 +33,11 @@ import com.sun.javafx.runtime.TypeInfo;
  *
  * @author Brian Goetz
  */
-public interface SequenceLocation<T> extends Location, ObjectLocation<Sequence<T>> {
+public interface SequenceLocation<T> extends Location, ObjectLocation<Sequence<? extends T>> {
     
     T get(int position);
 
-    Sequence<T> getAsSequence();
+    Sequence<? extends T> getAsSequence();
 
     public TypeInfo<T, ?> getElementType();
 
@@ -45,11 +45,11 @@ public interface SequenceLocation<T> extends Location, ObjectLocation<Sequence<T
 
     public void removeSequenceChangeListener(ChangeListener<T> listener);
 
-    public Sequence<T> setAsSequence(Sequence<? extends T> value);
+    public Sequence<? extends T> setAsSequence(Sequence<? extends T> value);
 
     public T set(int position, T value);
 
-    public Sequence<T> getSlice(int startPos, int endPos);
+    public Sequence<? extends T> getSlice(int startPos, int endPos);
 
     public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newValues);
 

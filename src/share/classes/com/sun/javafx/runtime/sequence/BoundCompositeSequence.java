@@ -81,7 +81,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         return (Info<T>[]) new Info[len];
     }
 
-    protected Sequence<T> computeValue() {
+    protected Sequence<? extends T> computeValue() {
         Sequence<? extends T>[] sequences = Util.newSequenceArray(infos.length);
         for (int i = 0, offset = 0; i < infos.length; i++) {
             sequences[i] = infos[i].location.getAsSequence();
@@ -136,7 +136,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             newSize += sz;
             infos[i + startPos].addListener(new MyListener<T>(i + startPos));
         }
-        Sequence<T> newSlice = Sequences.concatenate(getElementType(), sequences);
+        Sequence<? extends T> newSlice = Sequences.concatenate(getElementType(), sequences);
         int deltaElements = newSize - (affectedEnd - affectedStart + 1);
         for (int i = endPos + deltaLocations + 1; i < infos.length; i++) {
             infos[i].startPosition += deltaElements;
@@ -177,7 +177,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         }
 
         public void onChange(int startPos, int endPos, Sequence<? extends V> newElements,
-                              Sequence<V> oldValue, Sequence<V> newValue) {
+                              Sequence<? extends V> oldValue, Sequence<? extends V> newValue) {
             int actualStart = infos[index].startPosition + startPos;
             int actualEnd = infos[index].startPosition + endPos;
             infos[index].size = newValue.size();

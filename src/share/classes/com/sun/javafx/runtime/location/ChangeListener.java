@@ -13,7 +13,7 @@ public class ChangeListener<T> extends AbstractLocationDependency {
         throw new UnsupportedOperationException();
     }
 
-    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
         throw new UnsupportedOperationException();
     }
     
