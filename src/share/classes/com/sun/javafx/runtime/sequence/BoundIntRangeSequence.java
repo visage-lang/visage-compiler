@@ -114,25 +114,25 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
                 Sequence<Integer> newElements;
 
                 if (oldSize == 0) {
-                    updateSlice(0, -1, computeFull(lower, upper, step));
+                    updateSlice(0, 0, computeFull(lower, upper, step));
                 }
                 else if (oldSize < size) {
 
                     if (((newValue - oldValue) % step) == 0) {
-                        updateSlice(0, -1, Sequences.rangeExclusive(lower, oldValue, step));
+                        updateSlice(0, 0, Sequences.rangeExclusive(lower, oldValue, step));
                     }
                     else {
                         newElements = computeFull(lower, upper, step);
-                        updateSlice(0, oldSize - 1, newElements, newElements);
+                        updateSlice(0, oldSize, newElements);
                     }
                 }
                 else if (oldSize >= size) {
                     if (((newValue - oldValue) % step) == 0) {
-                        updateSlice(0, oldSize - size - 1, TypeInfo.Integer.emptySequence);
+                        updateSlice(0, oldSize - size, TypeInfo.Integer.emptySequence);
                     }
                     else {
                         newElements = computeFull(lower, upper, step);
-                        updateSlice(0, oldSize - 1, newElements, newElements);
+                        updateSlice(0, oldSize, newElements);
                     }
                 }
             }
@@ -150,14 +150,14 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
                     return;
                 }
                 else if (oldSize == 0) {
-                    updateSlice(0, -1, computeFull(lower, upper, step));
+                    updateSlice(0, 0, computeFull(lower, upper, step));
                 }
                 else if (oldSize < size) {
                     int startPos = lower + oldSize * step;
-                    updateSlice(oldSize, oldSize - 1, computeFull(startPos, upper, step));
+                    updateSlice(oldSize, oldSize, computeFull(startPos, upper, step));
                 }
                 else if (oldSize > size) {
-                    updateSlice(size, oldSize - 1, TypeInfo.Integer.emptySequence);
+                    updateSlice(size, oldSize, TypeInfo.Integer.emptySequence);
                 }
             }
         });
@@ -172,7 +172,7 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
                 computeBounds(lower, upper, newValue);
 
                 Sequence<Integer> newSeq = computeFull(lower, upper, step);
-                updateSlice(0, oldSize - 1, newSeq, newSeq);
+                updateSlice(0, oldSize, newSeq);
             }
         });
     }

@@ -666,7 +666,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
         return BooleanVariable.make(lazy, new AbstractBindingExpression() {
             public void compute() {
                 T aVal = a.get();
-                Sequence<V> bVal = b.getAsSequence();
+                Sequence<? extends V> bVal = b.getAsSequence();
                 switch (op) {
                     case CMP_EQ:
                         pushValue((aVal == null ? (Sequences.size(bVal) == 0) : bVal.size() == 1 && bVal.get(0).equals(aVal))); break;
@@ -692,8 +692,8 @@ public class BoundComprehensionTest extends JavaFXTestCase {
     public static<T, V> BooleanLocation cmp_other(final boolean lazy, final SequenceLocation<T> a, final SequenceLocation<V> b, final Operator op) {
         return BooleanVariable.make(lazy, new AbstractBindingExpression() {
             public void compute() {
-                Sequence<T> aVal = a.getAsSequence();
-                Sequence<V> bVal = b.getAsSequence();
+                Sequence<? extends T> aVal = a.getAsSequence();
+                Sequence<? extends V> bVal = b.getAsSequence();
                 switch (op) {
                     case CMP_EQ: pushValue((aVal == null ? (Sequences.size(bVal) == 0) : aVal.equals(bVal))); break;
                     case CMP_NE: pushValue((aVal == null ? (Sequences.size(bVal) != 0) : !aVal.equals(bVal))); break;

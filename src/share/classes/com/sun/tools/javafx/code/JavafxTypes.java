@@ -87,6 +87,15 @@ public class JavafxTypes extends Types {
         return new ClassType(clazzOuter, actuals, seqtype.tsym);
     }
 
+     public Type arraySequenceType(Type elemType) {
+        if (elemType.isPrimitive())
+            elemType = boxedClass(elemType).type;
+        Type seqtype = syms.javafx_ArraySequenceType;
+        List<Type> actuals = List.of(elemType);
+        Type clazzOuter = seqtype.getEnclosingType();
+        return new ClassType(clazzOuter, actuals, seqtype.tsym);
+    }
+
     public Type boxedElementType(Type seqType) {
         Type elemType = seqType.getTypeArguments().head;
         if (elemType instanceof CapturedType)

@@ -23,8 +23,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
  * CountingSequenceListener
@@ -33,24 +32,27 @@ import com.sun.javafx.runtime.sequence.Sequences;
  */
 class CountingSequenceListener extends ChangeListener<Integer> {
     int changeCount, insertCount, deleteCount, replaceCount;
-    Sequence<Integer> inserted = TypeInfo.Integer.emptySequence;
-    Sequence<Integer> deleted = TypeInfo.Integer.emptySequence;
+    Sequence<? extends Integer> inserted = TypeInfo.Integer.emptySequence;
+    Sequence<? extends Integer> deleted = TypeInfo.Integer.emptySequence;
 
-    public void onChange(int startPos, int endPos, Sequence<? extends Integer> newElements, Sequence<Integer> oldValue, Sequence<Integer> newValue) {
-        if (endPos == startPos && Sequences.size(newElements) == 1) {
+    public void onChange(ArraySequence<Integer> buffer, Sequence<? extends Integer> oldValue, int startPos, int endPos, Sequence<? extends Integer> newElements) {
+        int newElementsSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
+        if (endPos == startPos + 1 && newElementsSize == 1) {
             ++replaceCount;
             ++changeCount;
         }
         else {
-            for (int i=endPos; i >= startPos; i--) {
+            for (int i=endPos; --i >= startPos; ) {
                 ++deleteCount;
                 ++changeCount;
-                deleted = Sequences.insert(deleted, oldValue.get(i));
+                Integer old = Sequences.getFromOldValue(buffer, oldValue, startPos, endPos, i);
+                deleted = Sequences.insert(TypeInfo.Integer, deleted, old);
             }
-            for (Integer t : newElements) {
+            for (int i = 0;  i < newElementsSize;  i++) {
+                Integer newElement = Sequences.getFromNewElements(buffer, startPos, newElements, i);
                 ++insertCount;
                 ++changeCount;
-                inserted = Sequences.insert(inserted, t);
+                inserted = Sequences.insert(TypeInfo.Integer, inserted, newElement);
             }
         }
     }

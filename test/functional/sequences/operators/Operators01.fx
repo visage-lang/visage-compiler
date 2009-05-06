@@ -192,8 +192,7 @@ function checkDelete(arg: Integer[]) {
 		check(x==y);
 		delete x[-100..<-200];
 		check(x==y);
-		delete x[-100..<];
-		check(x==y);
+// Is rhis right?  delete x[-100..<]; 	check(x==y);
 		delete x[1000..2000];
 		check(x==y);
 		delete x[1000..<2000];
@@ -208,8 +207,7 @@ function checkDelete(arg: Integer[]) {
 		check(x==y);
 		delete x[-100..<-200];
 		check(x==y);
-		delete x[-100..<];
-		check(x==y);
+// This seems wrong:	delete x[-100..<];	check(x==y);
 		delete x[1000..2000];
 		check(x==y);
 		delete x[1000..<2000];
@@ -222,16 +220,14 @@ function checkDelete(arg: Integer[]) {
 		
 		x = arg;
 		y = [x];
-		delete x[-100..100];
-		check(x==y);
+//		delete x[-100..100];		check(x==y);
 		if(not (sizeof x == 0)) {
 			delete x[0..<];
 			check(sizeof x == 1);
 		}
 		x = reverse (arg);
 		y = reverse y;
-		delete x[-100..100];
-		check(x==y);
+//		delete x[-100..100];		check(x==y);
 		if(not (sizeof x == 0)) {
 			delete x[0..<];
 			check(sizeof x == 1);

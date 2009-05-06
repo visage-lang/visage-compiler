@@ -128,7 +128,7 @@ public class Entry {
         namedArgProvider = provider;
     }
 
-    public static Sequence<String> getArguments() {
+    public static Sequence<? extends String> getArguments() {
         return Sequences.make(TypeInfo.String, commandLineArgs);
     }
 

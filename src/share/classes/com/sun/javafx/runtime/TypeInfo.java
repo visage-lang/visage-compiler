@@ -29,8 +29,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import com.sun.javafx.runtime.location.*;
-import com.sun.javafx.runtime.sequence.AbstractSequence;
-import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
  * TypeInfo
@@ -40,43 +39,30 @@ import com.sun.javafx.runtime.sequence.Sequence;
 public class TypeInfo<T, L extends ObjectLocation<T>> {
     public final T defaultValue;
     public final Types type;
-    public final Sequence<T> emptySequence;
+    public final ArraySequence<T> emptySequence;
 
     public enum Types { INT, FLOAT, OBJECT, DOUBLE, BOOLEAN, LONG, SHORT, BYTE, CHAR, OTHER }
 
-    private static Iterator<?> emptyIterator = new Iterator() {
-        public boolean hasNext() {
-            return false;
-        }
+    private static final Object[] emptyArray = new Object[0];
 
-        public Object next() {
-            throw new NoSuchElementException();
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    };
-    
     protected TypeInfo(T defaultValue, Types type) {
-        // This is a fragile pattern; we are passing this to a superclass ctor before this is fully initialized.
-        // Relying on the superclass ctor to not do anything other than copy the reference.
         this.defaultValue = defaultValue;
         this.type = type;
-        this.emptySequence = new AbstractSequence<T>(this) {
-            public int size() {
-                return 0;
-            }
-
-            public T get(int position) {
-                return TypeInfo.this.defaultValue;
-            }
-
-            @SuppressWarnings("unchecked")
-            public Iterator<T> iterator() {
-                return (Iterator<T>) emptyIterator;
-            }
-        };
+        ArraySequence<?> empty;
+        switch (type) {
+            case BOOLEAN: empty = new BooleanArraySequence(0, (TypeInfo<Boolean, ?>) this); break;
+            case CHAR:empty = new CharArraySequence(0, (TypeInfo<Character, ?>) this); break;
+            case BYTE: empty = new ByteArraySequence(0, (TypeInfo<Byte, ?>) this); break;
+            case SHORT: empty = new ShortArraySequence(0, (TypeInfo<Short, ?>) this); break;
+            case INT: empty = new IntArraySequence(0, (TypeInfo<Integer, ?>) this); break;
+            case LONG: empty = new LongArraySequence(0, (TypeInfo<Long, ?>) this); break;
+            case FLOAT: empty = new FloatArraySequence(0, (TypeInfo<Float, ?>) this); break;
+            case DOUBLE: empty = new DoubleArraySequence(0, (TypeInfo<Double, ?>) this); break;
+            default:
+                empty = new ObjectArraySequence<T>(this, (T[]) emptyArray, true);
+        }
+        empty.setMaxShared();
+        this.emptySequence = (ArraySequence<T>) empty;
     }
 
     // This ugly and not typesafe construct eliminates lots of small classes, which add a lot to our static footprint.

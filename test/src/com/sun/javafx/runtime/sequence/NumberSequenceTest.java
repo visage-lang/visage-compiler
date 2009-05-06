@@ -42,7 +42,7 @@ public class NumberSequenceTest extends JavaFXTestCase {
     static final boolean NOT_LAZY = false;
 
     private final Sequence<Float> EMPTY_SEQUENCE = TypeInfo.Float.emptySequence;
-    private final Sequence<Float> ZERO_SEQUENCE = new ArraySequence<Float>(TypeInfo.Float, 0.0f).noteShared();
+    //private final Sequence<Float> ZERO_SEQUENCE = Sequences.incrementSharing(new FloatArraySequence(TypeInfo.Float, 0.0f));
 
     /** Test ranges, including skip ranges and backwards ranges */
     public void testRange() {
@@ -249,32 +249,42 @@ public class NumberSequenceTest extends JavaFXTestCase {
         }
     }
 
+    public static <T> Sequence<? extends T> concatenate(TypeInfo<T, ?> ti, Sequence<? extends T>... sequences) {
+        int size = 0;
+        for (Sequence<? extends T> seq : sequences)
+            size += seq.size();
+        ObjectArraySequence<T> arr = new ObjectArraySequence(size, ti);
+        for (Sequence<? extends T> seq : sequences) {
+            arr.add(seq);
+        }
+        return arr;
+    }
+
     public void testMixedConcat () {
         TypeInfo<Number, ?> NumberTypeInfo = TypeInfo.<Number>makeTypeInfo(0);
 
-        Sequence<Integer> sI1 = new ArraySequence<Integer>(TypeInfo.Integer, 1, 2).noteShared();
-        Sequence<Double> sD1 = new ArraySequence<Double>(TypeInfo.Double, 1.5, 2.5).noteShared();
-        Sequence<Number> sN1 = Sequences.concatenate(NumberTypeInfo, sI1, sD1);
-        Sequences.noteShared(sN1);
+        Sequence<Integer> sI1 = new IntArraySequence(TypeInfo.Integer, 1, 2);
+        Sequence<Double> sD1 = new DoubleArraySequence(TypeInfo.Double, 1.5, 2.5);
+        Sequence<? extends Number> sN1 = concatenate(NumberTypeInfo, sI1, sD1);
         assertEquals(sN1, 1, 2, 1.5, 2.5);
-        assertEquals(Sequences.concatenate(TypeInfo.Integer, sI1, sI1), 1, 2, 1, 2);
+        assertEquals(concatenate(TypeInfo.Integer, sI1, sI1), 1, 2, 1, 2);
 
-        Sequence<Number> sN2 = Sequences.concatenate(NumberTypeInfo, sD1, sD1);
+        Sequence<? extends Number> sN2 = concatenate(NumberTypeInfo, sD1, sD1);
         assertEquals(sN2, 1.5, 2.5, 1.5, 2.5);
 
-        Sequence<Double> sD2 = Sequences.concatenate(TypeInfo.Double, sD1, sD1);
+        Sequence<? extends Double> sD2 = concatenate(TypeInfo.Double, sD1, sD1);
         assertEquals(sD2, 1.5, 2.5, 1.5, 2.5);
 
-        sN2 = Sequences.concatenate(NumberTypeInfo, sI1, sD1);
+        sN2 = concatenate(NumberTypeInfo, sI1, sD1);
         assertEquals(sN2, 1, 2, 1.5, 2.5);
 
-        sN2 = Sequences.concatenate(NumberTypeInfo, sD1, sI1);
+        sN2 = concatenate(NumberTypeInfo, sD1, sI1);
         assertEquals(sN2, 1.5, 2.5, 1, 2);
 
-        sN2 = Sequences.concatenate(NumberTypeInfo, sN1, sI1);
+        sN2 = concatenate(NumberTypeInfo, sN1, sI1);
         assertEquals(sN2, 1, 2, 1.5, 2.5, 1, 2);
 
-        sN2 = Sequences.concatenate(NumberTypeInfo, sD1, sN1);
+        sN2 = concatenate(NumberTypeInfo, sD1, sN1);
         assertEquals(sN2, 1.5, 2.5, 1, 2, 1.5, 2.5);
     }
 
@@ -389,12 +399,13 @@ public class NumberSequenceTest extends JavaFXTestCase {
                 converted[i][j] = BoundSequences.convertNumberSequence(NOT_LAZY, tis[i], tis[j], locs[j]);
                 final int j1 = j;
                 converted[i][j].addSequenceChangeListener(new ChangeListener() {
-                    public void onChange(int startPos, int endPos, Sequence newElements, Sequence oldValue, Sequence newValue) {
+                    public void onChange(ArraySequence buffer, Sequence oldValue, int startPos, int endPos, Sequence newElements) {
                         count.incrementAndGet();
-                        assertEquals(1, newElements.size());
+                        assertEquals(1, Sequences.sizeOfNewElements(buffer, startPos, newElements));
                         assertEquals(3, startPos);
-                        assertEquals(2, endPos);
-                        assertEquals(4, tis[j1].intValue((Number) newValue.get(3)));
+                        assertEquals(3, endPos);
+                        assertEquals(4, tis[j1].intValue((Number) Sequences.getFromNewElements(buffer, startPos, newElements, 0)));
+
                     }
                 });
             }

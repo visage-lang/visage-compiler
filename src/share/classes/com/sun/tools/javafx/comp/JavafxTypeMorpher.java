@@ -293,7 +293,10 @@ public class JavafxTypeMorpher {
             }
             if (types.isSequence(sym.type)) {
                 // for a sequence to be modified it must be a Location
-                //TODO: check for sequence variables which are never modifier (no insert, delete, assignment, etc)
+                //TODO: check for sequence variables which are never modified (no insert, delete, assignment, etc)
+                //NOTE: If we do optimize the never-modified case, then we need
+                //   to explicitly do incrementSharing() on initialization.
+
                 return AlwaysLocation;
             }
             if (sym.type instanceof MethodType) {

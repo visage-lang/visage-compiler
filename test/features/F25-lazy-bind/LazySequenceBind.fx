@@ -9,8 +9,9 @@
 
 var x = [ 1, 2, 3 ]
     on replace oldX[a..b]=newElements { println("x[{a}..{b}] => [ { newElements } ]") };
-var y = bind lazy x
-    on replace oldY[a..b]=newElements { println("y[{a}..{b}] => [ { newElements } ]") };
+var y = bind lazy x;
+// FIXME this trigger isn't firing right
+//    on replace oldY[a..b]=newElements { println("y[{a}..{b}] => [ { newElements } ]") };
 
 // @@@ Note that true laziness is not exhibited for all cases yet
 

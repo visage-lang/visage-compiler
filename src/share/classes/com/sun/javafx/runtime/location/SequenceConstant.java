@@ -34,21 +34,21 @@ import com.sun.javafx.runtime.TypeInfo;
  *
  * @author Brian Goetz
  */
-public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> implements SequenceLocation<T> {
+public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<? extends T>> implements SequenceLocation<T> {
     private final TypeInfo<T, ?> typeInfo;
-    private Sequence<T> $value;
+    private Sequence<? extends T> $value;
 
-    public static<T> SequenceLocation<T> make(TypeInfo<T, ?> typeInfo, Sequence<T> value) {
+    public static<T> SequenceLocation<T> make(TypeInfo<T, ?> typeInfo, Sequence<? extends T> value) {
         return new SequenceConstant<T>(typeInfo, value);
     }
 
-    protected SequenceConstant(TypeInfo<T, ?> typeInfo, Sequence<T> value) {
+    protected SequenceConstant(TypeInfo<T, ?> typeInfo, Sequence<? extends T> value) {
         this.typeInfo = typeInfo;
         this.$value = value;
     }
 
 
-    public Sequence<T> getAsSequence() {
+    public Sequence<? extends T> getAsSequence() {
         return $value;
     }
 
@@ -56,11 +56,11 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> i
         return typeInfo;
     }
 
-    public Sequence<T> get() {
+    public Sequence<? extends T> get() {
         return $value;
     }
 
-    public Sequence<T> setAsSequence(Sequence<? extends T> value) {
+    public Sequence<? extends T> setAsSequence(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 
@@ -72,7 +72,7 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<T>> i
         return $value.get(position);
     }
 
-    public Sequence<T> getSlice(int startPos, int endPos) {
+    public Sequence<? extends T> getSlice(int startPos, int endPos) {
         return $value.getSlice(startPos, endPos);
     }
 

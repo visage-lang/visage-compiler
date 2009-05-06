@@ -36,5 +36,5 @@ public abstract class SequenceBindingExpression<T> extends AbstractBindingExpres
         pushValue(computeValue());
     }
 
-    public abstract Sequence<T> computeValue();
+    public abstract Sequence<? extends T> computeValue();
 }

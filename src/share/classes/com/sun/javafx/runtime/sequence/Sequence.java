@@ -92,17 +92,10 @@ public interface Sequence<T> extends Iterable<T> {
     public double getAsDouble(int position);
     
     /** Extract a slice of the sequence */
-    public Sequence<T> getSlice(int startPos, int endPos);
+    public Sequence<? extends T> getSlice(int startPos, int lastPos);
 
     /** Select elements from the sequence matching the specified predicate. */
-    public Sequence<T> get(SequencePredicate<? super T> predicate);
-
-    /**
-     * Returns the number of levels of sequence objects between this Sequence object and the deepest data.
-     * Leaf classes (e.g., ArraySequence, IntRangeSequence) have a depth of zero; composite classes have a depth
-     * one greater than their deepest leaf.
-     */
-    public int getDepth();
+    public Sequence<? extends T> get(SequencePredicate<? super T> predicate);
 
     /**
      * Return a BitSet indicating which elements of the sequence match the given predicate.  AbstractSequence
@@ -117,4 +110,8 @@ public interface Sequence<T> extends Iterable<T> {
     T getDefaultValue();
 
     Sequence<T> getEmptySequence();
+
+    public void incrementSharing();
+
+    public void decrementSharing();
 }

@@ -588,7 +588,7 @@ public abstract class JavafxTranslationSupport {
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
                                   Name makeMethod,
-                                  JCExpression locationTypeExp) {
+                                  JCExpression locationTypeExp, boolean primitiveSequence) {
         JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethod);
         List<JCExpression> typeArgs = null;
         switch (tmi.getTypeKind()) {
@@ -608,16 +608,20 @@ public abstract class JavafxTranslationSupport {
                                   DiagnosticPosition diagPos,
                                   List<JCExpression> makeArgs,
                                   Name makeMethod) {
-        Name locName = typeMorpher.variableNCT[tmi.getTypeKind()].name;
+        int kind = tmi.getTypeKind();
+        Name locName = typeMorpher.variableNCT[kind].name;
+        boolean primitiveSequence = kind == TYPE_KIND_SEQUENCE && tmi.getElementType().isPrimitive();
+        if (false && primitiveSequence)
+            locName = ((ClassSymbol) tmi.getVariableType().tsym).fullname;
         JCExpression locationTypeExp = makeIdentifier(diagPos, locName);
-        return makeLocation(tmi, diagPos, makeArgs, makeMethod, locationTypeExp);
+        return makeLocation(tmi, diagPos, makeArgs, makeMethod, locationTypeExp, primitiveSequence);
     }
 
     JCExpression makeConstantLocation(DiagnosticPosition diagPos, Type type, JCExpression expr) {
         TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
         List<JCExpression> makeArgs = List.of(expr);
         JCExpression locationTypeExp = makeTypeTree( diagPos,tmi.getConstantLocationType(), true);
-        return makeLocation(tmi, diagPos, makeArgs, defs.makeMethodName, locationTypeExp);
+        return makeLocation(tmi, diagPos, makeArgs, defs.makeMethodName, locationTypeExp, false);
     }
 
     JCExpression makeUnboundLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi, JCExpression expr) {

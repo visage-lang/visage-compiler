@@ -44,15 +44,18 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
         addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
-        return Sequences.<T>upcast(sequence.get());
+    protected Sequence<? extends T> computeValue() {
+        return sequence.get();
     }
 
     private void addTriggers() {
         sequence.addSequenceChangeListener(new ChangeListener<V>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
-                updateSlice(startPos, endPos, newElements, Sequences.<T>upcast(newValue));
-            }
+            public void onChange(ArraySequence<V> buffer, Sequence<? extends V> oldValue, int startPos, int endPos, Sequence<? extends V> newElements) {
+                // FIXME inefficient - better to copy newElements into ArraySequence.
+                // For that use a  version of updateSlice that also passes the buffer.
+                newElements = Sequences.getNewElements(buffer, startPos, newElements);
+                updateSlice(startPos, endPos, newElements);
+             }
         });
     }
 }

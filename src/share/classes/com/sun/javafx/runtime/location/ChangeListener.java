@@ -1,6 +1,6 @@
 package com.sun.javafx.runtime.location;
 
-import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
  * ChangeListener
@@ -13,7 +13,16 @@ public class ChangeListener<T> extends AbstractLocationDependency {
         throw new UnsupportedOperationException();
     }
 
-    public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+    /** Listener for when a sequence location changes.
+     * @param buffer If non-null, an ArraySequence that was modified in-place.
+     * @param oldValue If non-null, the old sequence values.
+     * @param startPos The index of the start of the modification.
+     * @param endPos The index (exclusive) of the of the modification.
+     *   This is one position past the last replaced element in oldValue.
+     * @param newElements If non-null, the replacment values.
+     * Either buffer must be non-null, or both oldValues and newElements must be non-null.
+     */
+    public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
         throw new UnsupportedOperationException();
     }
     

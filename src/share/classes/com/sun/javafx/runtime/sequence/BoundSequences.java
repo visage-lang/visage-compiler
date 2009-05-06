@@ -53,15 +53,15 @@ public class BoundSequences {
         return new BoundCompositeSequence<T>(lazy, typeInfo, locations, size);
     }
 
-    /**
+    /* *
      * Construct a bound sequence of the form
      *   bind a
      * where a is a sequence location of a subtype of the desired element type
      *
-     */
+     * /
     public static <T, V extends T> SequenceLocation<T> upcast(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<V> location) {
         return new BoundUpcastSequence<T, V>(lazy, typeInfo, location);
-    }
+    }*/
 
     /** Construct a bound sequence of the form
      *   bind reverse x

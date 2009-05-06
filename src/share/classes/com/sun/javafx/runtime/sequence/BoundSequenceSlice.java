@@ -39,7 +39,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
     private final IntLocation lowerLoc;
     private final IntLocation upperLoc;
     private final boolean isExclusive;
-    private int lower, upper;
+    private int lower, upper/*exclusive*/;
     private int size;
 
     BoundSequenceSlice(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<T> sequenceLoc, IntLocation lowerLoc, IntLocation upperLoc, boolean isExclusive) {
@@ -53,7 +53,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
         addTriggers();
     }
 
-    protected Sequence<T> computeValue() {
+    protected Sequence<? extends T> computeValue() {
         computeBounds(true, true);
         return sequenceLoc.get().getSlice(lower, upper);
     }
@@ -62,7 +62,7 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
      * adjust for exclusive upper bound
      */
     private int adjusted(int upperValue) {
-        return (isExclusive ? -1 : 0) + upperValue;
+        return (isExclusive ? 0 : 1) + upperValue;
     }
 
     private void computeBounds(boolean updateLower, boolean updateUpper) {
@@ -78,15 +78,11 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
         if (seqSize == 0) {
             size = 0;
         } else {
-            int range = ((upper >= seqSize)? seqSize-1:upper) - ((lower<0)? 0: lower);
-            size = (range >= 0) ? range + 1 : 0;
+            int range = ((upper > seqSize)? seqSize:upper) - ((lower<0)? 0: lower);
+            size = (range >= 0) ? range : 0;
         }
     }
-
-    protected Sequence<T> computeFull(int lower, int upper) {
-        return sequenceLoc.getSlice(lower, upper);
-    }
-                    
+          
     private void addTriggers() {
         if (lazy) {
             sequenceLoc.addInvalidationListener(new InvalidateMeListener());
@@ -98,11 +94,13 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
             sequenceLoc.addSequenceChangeListener(new ChangeListener<T>() {
 
                 @Override
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+                public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+                    int oldSize = size;
                     computeBounds(true, true);
 
-                    Sequence<T> newSeq = newValue.getSlice(lower, upper);
-                    updateSlice(0, size == 0 ? 0 : size - 1, newSeq, newSeq);
+                    Sequence<? extends T> newValue = buffer != null ? buffer : newElements;
+                    Sequence<? extends T> newSeq = newValue.getSlice(lower, upper);
+                    updateSlice(0, oldSize, newSeq); // FIXME inefficient for whole-sequence replacement
                 }
             });
             lowerLoc.addChangeListener(new ChangeListener<Integer>() {
@@ -117,12 +115,12 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
                         if (size > oldSize) {
                             updateSlice(
                                     0,
-                                    -1,
-                                    sequenceLoc.getSlice(newValue, (oldSize == 0) ? upper : (oldValue - 1)));
+                                    0,
+                                    sequenceLoc.getSlice(newValue, (oldSize == 0) ? upper : oldValue));
                         } else {
                             updateSlice(
                                     0,
-                                    oldSize - size - 1,
+                                    oldSize - size,
                                     sequenceLoc.getAsSequence().getEmptySequence());
                         }
                     }
@@ -142,12 +140,12 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
                                 int oldUpper = adjusted(oldValue);
                                 updateSlice(
                                         oldSize,
-                                        oldSize - 1,
-                                        sequenceLoc.getSlice((oldUpper >= lower) ? oldUpper + 1 : lower, upper));
+                                        oldSize,
+                                        sequenceLoc.getSlice((oldUpper >= lower) ? oldUpper : lower, upper));
                             } else {
                                 updateSlice(
                                         size,
-                                        oldSize - 1,
+                                        oldSize,
                                         sequenceLoc.getAsSequence().getEmptySequence());
                             }
                         }

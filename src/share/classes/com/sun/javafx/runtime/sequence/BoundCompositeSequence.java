@@ -37,27 +37,43 @@ import com.sun.javafx.runtime.location.SequenceLocation;
 public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
     private Info<T>[] infos;
 
-    static class Info<T> {
-        private final SequenceLocation<? extends T> location;
-        private int startPosition, size;
-        private IndexListener listener;
+    class Info<V extends T> extends ChangeListener<V> {
+        private final SequenceLocation<V> location;
+        private int startPosition, size, index;
 
-        public Info(SequenceLocation<? extends T> location) {
+        public Info(int index, SequenceLocation<V> location) {
             this.location = location;
+            this.index = index;
         }
 
-        public void addListener(IndexListener<T> listener) {
-            this.listener = listener;
-            location.addSequenceChangeListener(this.listener);
-        }
-
-        public void addListener(InvalidationListener listener) {
-            location.addInvalidationListener(listener);
+        public void addListener() {
+            location.addSequenceChangeListener(this);
         }
 
         public void removeListener() {
-            location.removeSequenceChangeListener(this.listener);
-            this.listener = null;
+            location.removeSequenceChangeListener(this);
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public void onChange(ArraySequence<V> buffer, Sequence<? extends V> oldValue,
+                int startPos, int endPos, Sequence<? extends V> newElements) {
+            int actualStart = startPosition + startPos;
+            int actualEnd = startPosition + endPos;
+            int insertedSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
+            int oldSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
+            int delta = insertedSize - (endPos - startPos);
+            size = oldSize + delta;
+            if (delta != 0) {
+                Info<T>[] tinfos = infos;
+                int ninfos = tinfos.length;
+                for (int i = index + 1; i < ninfos; i++)
+                    tinfos[i].startPosition += delta;
+            }
+            updateSlice(actualStart, actualEnd, (ArraySequence<T>) buffer, startPos, newElements);
         }
     }
 
@@ -69,80 +85,89 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         super(lazy, typeInfo);
         this.infos = newInfoArray(size);
         for (int i = 0; i < size; i++)
-            infos[i] = new Info<T>(locations[i]);
-
+            infos[i] = new Info(i, locations[i]);
         if (!lazy)
             setInitialValue(computeValue());
         addTriggers();
     }
 
     @SuppressWarnings("unchecked")
-    private Info<T>[] newInfoArray(int len) {
-        return (Info<T>[]) new Info[len];
+    private Info[] newInfoArray(int len) {
+        return (Info[]) new Info[len];
     }
 
-    protected Sequence<T> computeValue() {
-        Sequence<? extends T>[] sequences = Util.newSequenceArray(infos.length);
+    protected Sequence<? extends T> computeValue() {
+       ObjectArraySequence<T> buffer = new ObjectArraySequence(getElementType());
         for (int i = 0, offset = 0; i < infos.length; i++) {
-            sequences[i] = infos[i].location.getAsSequence();
+            Sequence<? extends T> seq = infos[i].location.getAsSequence();
             infos[i].startPosition = offset;
-            infos[i].size = sequences[i].size();
-            offset += sequences[i].size();
+            int ssize = seq.size();
+            infos[i].size = ssize;
+            offset += ssize;
+            buffer.add(seq);
         }
-        return Sequences.concatenate(getElementType(), sequences);
+        return buffer;
     }
 
     private void addTriggers() {
+        InvalidateMeListener invalidate = null;
         for (int i = 0; i < infos.length; i++) {
-            if (lazy)
-                infos[i].addListener(new InvalidateMeListener());
+            if (lazy) {
+                if (invalidate == null)
+                     invalidate = new InvalidateMeListener();
+            }
             else
-                infos[i].addListener(new MyListener<T>(i));
+                infos[i].addListener();
         }
     }
 
     public void replaceSlice(int startPos, int endPos, SequenceLocation<? extends T>[] newValues) {
-        Sequence<? extends T>[] sequences = Util.newSequenceArray(newValues.length);
+        int insertedCount = newValues.length;
         int affectedStart, affectedEnd;
         if (startPos < infos.length) {
             affectedStart = infos[startPos].startPosition;
-            affectedEnd = (endPos >= 0) ? (infos[endPos].startPosition + infos[endPos].size - 1) : affectedStart - 1;
+            affectedEnd = (endPos > 0) ? (infos[endPos-1].startPosition + infos[endPos-1].size) : 0;
         }
         else {
             affectedStart = getRawValue().size();
-            affectedEnd = affectedStart - 1;
+            affectedEnd = affectedStart;
         }
-        for (int i = startPos; i <= endPos; i++)
+        for (int i = startPos; i < endPos; i++)
             infos[i].removeListener();
-        int insertedCount = newValues.length;
-        int deletedCount = endPos - startPos + 1;
+        int deletedCount = endPos - startPos;
         int deltaLocations = insertedCount - deletedCount;
         if (deltaLocations != 0) {
             @SuppressWarnings("unchecked")
             Info<T>[] temp = (Info<T>[]) new Info[infos.length + deltaLocations];
             System.arraycopy(infos, 0, temp, 0, startPos);
-            System.arraycopy(infos, endPos + 1, temp, startPos + insertedCount, infos.length - (endPos + 1));
+            System.arraycopy(infos, endPos, temp, startPos + insertedCount, infos.length - endPos);
             infos = temp;
         }
         int offset = affectedStart;
         int newSize = 0;
+        ObjectArraySequence<T> arr = Sequences.forceNonSharedArraySequence(typeInfo, getRawValue());
         for (int i = 0; i < insertedCount; i++) {
-            infos[i + startPos] = new Info<T>(newValues[i]);
-            sequences[i] = newValues[i].getAsSequence();
-            infos[i + startPos].startPosition = offset;
-            int sz = sequences[i].size();
-            infos[i + startPos].size = sz;
+            int index = i + startPos;
+            infos[index] = new Info(index, newValues[i]);
+            Sequence<? extends T> seq = newValues[i].getAsSequence();
+            infos[index].startPosition = offset;
+            int sz = seq.size();
+            arr.insert(seq, sz, offset);
+            infos[index].size = sz;
             offset += sz;
             newSize += sz;
-            infos[i + startPos].addListener(new MyListener<T>(i + startPos));
+            infos[index].addListener();
         }
-        Sequence<T> newSlice = Sequences.concatenate(getElementType(), sequences);
-        int deltaElements = newSize - (affectedEnd - affectedStart + 1);
-        for (int i = endPos + deltaLocations + 1; i < infos.length; i++) {
+        int deltaElements = newSize - (affectedEnd - affectedStart);
+        for (int i = endPos + deltaLocations; i < infos.length; i++) {
             infos[i].startPosition += deltaElements;
-            infos[i].listener.setIndex(i);
+            infos[i].setIndex(i);
         }
-        updateSlice(affectedStart, affectedEnd, newSlice);
+        arr.replace(affectedStart+newSize, affectedEnd+newSize, typeInfo.emptySequence, 0, 0, true);
+        setRawValue(arr);
+        invalidateDependencies();
+        notifyListeners(arr, affectedStart, affectedEnd, null, null, arr);
+        arr.clearOldValues(affectedEnd-affectedStart);
     }
 
     public void validate() {
@@ -159,33 +184,5 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 //            offset += info.size;
 //        }
 //        Assert.assertEquals(offset, value().size());
-    }
-
-    private static abstract class IndexListener<T> extends ChangeListener<T> {
-        public abstract void setIndex(int index);
-    }
-
-    private class MyListener<V extends T> extends  IndexListener<V> {
-        private int index;
-
-        private MyListener(int index) {
-            this.index = index;
-        }
-
-        public void setIndex(int index) {
-            this.index = index;
-        }
-
-        public void onChange(int startPos, int endPos, Sequence<? extends V> newElements,
-                              Sequence<V> oldValue, Sequence<V> newValue) {
-            int actualStart = infos[index].startPosition + startPos;
-            int actualEnd = infos[index].startPosition + endPos;
-            infos[index].size = newValue.size();
-            int delta = Sequences.size(newElements) - (endPos - startPos + 1);
-            if (delta != 0)
-                for (int i = index + 1; i < infos.length; i++)
-                    infos[i].startPosition += delta;
-            updateSlice(actualStart, actualEnd, newElements);
-        }
     }
 }

@@ -119,26 +119,26 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
                 Sequence<Float> newElements;
 
                 if (oldSize == 0) {
-                    updateSlice(0, -1, computeFull(lower, upper, step));
+                    updateSlice(0, 0, computeFull(lower, upper, step));
                 }
                 else if (oldSize < size) {
 
                     if (((newValue - oldValue) % step) == 0) {
-                        updateSlice(0, -1, Sequences.rangeExclusive(lower, oldValue, step));
+                        updateSlice(0, 0, Sequences.rangeExclusive(lower, oldValue, step));
                     }
                     else {
                         newElements = computeFull(lower, upper, step);
-                        updateSlice(0, oldSize - 1, newElements, newElements);
+                        updateSlice(0, oldSize, newElements);
                     }
                 }
                 else if (oldSize >= size) {
                     if (((newValue - oldValue) % step) == 0) {
                         
-                        updateSlice(0, oldSize - size - 1, TypeInfo.Float.emptySequence);
+                        updateSlice(0, oldSize - size, TypeInfo.Float.emptySequence);
                     }
                     else {
                         newElements = computeFull(lower, upper, step);
-                        updateSlice(0, oldSize - 1, newElements, newElements);
+                        updateSlice(0, oldSize, newElements);
                     }
                 }
             }
@@ -155,13 +155,13 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
                     return;
                 }
                 else if (oldSize == 0) {
-                    updateSlice(0, -1, computeFull(lower, upper, step));
+                    updateSlice(0, 0, computeFull(lower, upper, step));
                 }
                 else if (oldSize < size) {
-                   updateSlice(oldSize, oldSize - 1, computeFull(lower+oldSize*step, upper, step));
+                   updateSlice(oldSize, oldSize, computeFull(lower+oldSize*step, upper, step));
                 }
                 else if (oldSize > size) {
-                    updateSlice(size, oldSize - 1, TypeInfo.Float.emptySequence);
+                    updateSlice(size, oldSize, TypeInfo.Float.emptySequence);
                 }
             }
         });
@@ -175,7 +175,7 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
                 computeBounds(lower, upper, newValue);
 
                 Sequence<Float> newSeq = computeFull(lower, upper, step);
-                updateSlice(0, oldSize - 1, newSeq, newSeq);
+                updateSlice(0, oldSize, newSeq);
             }
         });
     }

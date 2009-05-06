@@ -44,6 +44,7 @@ TYPEINFO_MAP ::= [
 T ::= [
     "prim":"<PRIM_MAP.(PREFIX)>",
     "boxed":"<BOXED_MAP.(PREFIX)>",
+    "ArraySequence":"<PREFIX>ArraySequence",
     "Location":"<PREFIX>Location",
     "Variable":"<PREFIX>Variable",
     "Constant":"<PREFIX>Constant",

@@ -296,7 +296,13 @@ public class JavafxClassReader extends ClassReader {
                         if (deloc.isPrimitive()) {
                             return deloc;
                         }
-                        if (ctype.typarams_field != null && ctype.typarams_field.size() == 1) {
+                        if (ctype.typarams_field == null || ctype.typarams_field.size() == 0) {
+                            // FIXME - move to defs.
+                            Name sequenceVariableName = names.fromString("SequenceVariable");
+                            if (flatname.endsWith(sequenceVariableName))
+                                return deloc;
+                        }
+                        else if (ctype.typarams_field.size() == 1) {
                             if (deloc == syms.objectType) {
                                 return translateType(ctype.typarams_field.head);
                             }

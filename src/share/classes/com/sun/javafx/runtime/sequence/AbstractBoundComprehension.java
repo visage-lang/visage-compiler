@@ -85,13 +85,13 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     }
 
-    protected Sequence<V> computeValue() {
-        Sequence<T> sequence = sequenceLocation.getAsSequence();
+    protected Sequence<? extends V> computeValue() {
+        Sequence<? extends T> sequence = sequenceLocation.getAsSequence();
         dmState = new DumbMutableSequence<State<T, L, V>>(sequence.size());
         SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(sequence.size());
         State<T, L, V>[] newStates = State.newArray(sequence.size());
         fillInNewValues(sequence, newStates, locationsArray, 0);
-        dmState.replaceSlice(0, -1, newStates);
+        dmState.replaceSlice(0, 0, newStates);
         underlying = new BoundCompositeSequence<V>(lazy, getElementType(), locationsArray);
         return underlying.getAsSequence();
     }
@@ -127,31 +127,36 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
         }
         else {
             underlying.addSequenceChangeListener(new ChangeListener<V>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends V> newElements, Sequence<V> oldValue, Sequence<V> newValue) {
-                    AbstractBoundComprehension.this.updateSlice(startPos, endPos, newElements);
+                public void onChange(ArraySequence<V> buffer, Sequence<? extends V> oldValue, int startPos, int endPos, Sequence<? extends V> newElements) {
+                    AbstractBoundComprehension.this.updateSlice(startPos, endPos, buffer, startPos, newElements);
                 }
             });
 
             sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
-                public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-                    int insertedCount = Sequences.size(newElements);
-                    int deletedCount = endPos - startPos + 1;
+                public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+                    int insertedCount = Sequences.sizeOfNewElements(buffer, startPos, newElements);
+                    int deletedCount = endPos - startPos;
                     int netAdded = insertedCount - deletedCount;
                     if (netAdded == 0) {
-                        int i = startPos;
-                        for (Iterator<? extends T> it = Sequences.iterator(newElements); it.hasNext(); i++) {
-                            dmState.get(i).element.set(it.next());
+                        for (int i = 0;  i < insertedCount;  i++) {
+                            T value = Sequences.getFromNewElements(buffer, startPos, newElements, i);
+                            dmState.get(startPos+i).element.set(value);
                         }
                     }
                     else {
-                        SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(newElements.size());
-                        State<T, L, V>[] newStates = State.newArray(newElements.size());
-                        fillInNewValues(newElements, newStates, locationsArray, startPos);
+                        SequenceLocation<V>[] locationsArray = Util.newSequenceLocationArray(insertedCount);
+                        State<T, L, V>[] newStates = State.newArray(insertedCount);
+                        for (int i = 0;  i < insertedCount;  i++) {
+                            T value = Sequences.getFromNewElements(buffer, startPos, newElements, i);
+                            State<T, L, V> stateElt = makeState(startPos+i, value);
+                            newStates[i] = stateElt;
+                            locationsArray[i] = stateElt.mapped;
+                        }
                         underlying.replaceSlice(startPos, endPos, locationsArray);
                         dmState.replaceSlice(startPos, endPos, newStates);
                         if (useIndex) {
                             final int length = dmState.size();
-                            for (int i = endPos + 1 + netAdded; i < length; i++)
+                            for (int i = endPos + netAdded; i < length; i++)
                                 dmState.get(i).index.set(i);
                         }
                     }

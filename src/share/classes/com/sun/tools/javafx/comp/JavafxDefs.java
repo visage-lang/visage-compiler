@@ -104,6 +104,7 @@ public class JavafxDefs {
     public  static final String cChangeListener = locationPackageNameString + ".ChangeListener";
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
+    public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
     private static final String cLocations = locationPackageNameString + ".Locations";
 
@@ -227,13 +228,13 @@ public class JavafxDefs {
     final Name attributeCountMethodName;
     final Name isInitializedPrefixName;
     final Name setDefaultMethodName;
-    final Name noteSharedMethodName;
+    final Name incrementSharingMethodName;
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
+    final Name onReplaceArgNameBuffer;
     final Name onReplaceArgNameFirstIndex;
     final Name onReplaceArgNameLastIndex;
     final Name onReplaceArgNameNewElements;
-    final Name getAsSequenceRawMethodName;
     final Name[] locationGetMethodName;
     final Name[] locationSetMethodName;
     final Name locationBindMethodName;
@@ -301,7 +302,6 @@ public class JavafxDefs {
         attributeSetMethodParamName = names.fromString("value");
         getSliceMethodName = names.fromString("getSlice");
         replaceSliceMethodName = names.fromString("replaceSlice");
-        getAsSequenceRawMethodName = names.fromString("getAsSequenceRaw");
         setMethodName = names.fromString(setMethodNameString);
         sizeMethodName = names.fromString(sizeMethodNameString);
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
@@ -348,7 +348,8 @@ public class JavafxDefs {
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
-        noteSharedMethodName = names.fromString("noteShared");
+        incrementSharingMethodName = names.fromString("incrementSharing");
+        onReplaceArgNameBuffer = names.fromString("$buffer$");
         onReplaceArgNameOld = names.fromString("$oldValue");
         onReplaceArgNameNew = names.fromString("$newValue");
         onReplaceArgNameFirstIndex = names.fromString("$index$");

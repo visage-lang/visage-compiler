@@ -32,9 +32,9 @@ import org.junit.Assert;
  * @author Michael Heinrichs
  */
 public class ArraySequenceTest extends JavaFXTestCase {
-    private Sequence<Integer> EMPTY = new ArraySequence(TypeInfo.Integer, new Integer[0], true);
-    private Sequence<Integer> SINGLETON = new ArraySequence(TypeInfo.Integer, new Integer[] {1}, true);
-    private Sequence<Integer> THREE_ELEMENTS = new ArraySequence(TypeInfo.Integer, new Integer[] {1, 2, 3}, true);
+    private Sequence<Integer> EMPTY = new ObjectArraySequence(TypeInfo.Integer, new Integer[0], true);
+    private Sequence<Integer> SINGLETON = new ObjectArraySequence(TypeInfo.Integer, new Integer[] {1}, true);
+    private Sequence<Integer> THREE_ELEMENTS = new ObjectArraySequence(TypeInfo.Integer, new Integer[] {1, 2, 3}, true);
 
     public void testToArray() {
         Object[] actuals = new Object[0];
