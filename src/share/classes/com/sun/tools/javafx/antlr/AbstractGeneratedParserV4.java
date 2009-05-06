@@ -749,15 +749,21 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             mb.append(getTokenErrorDisplay(uwt));
 
             TokenClassification tokenClass = classifyToken(e.token);
-            if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+
+            // Don't ramble by repeating things like "...extra identifier, which is an identifier that should not be there"
+            //
+            if (       tokenClass != TokenClassification.UNKNOWN
+                    && tokenClass != TokenClassification.OPERATOR
+                    && !(posDescription.equalsIgnoreCase(tokenClass.forHumans()))
+               ) {
                 mb.append(" which is ");
                 mb.append(tokenClass.forHumans());
             }
             
             mb.append(" that should not be there");
 
-            // Work out what our start and end point should be for the error. WHen we have an extar
-            // token in this language, it is quote often because the source code is coming from
+            // Work out what our start and end point should be for the error. When we have an extar
+            // token in this language, it is quite often because the source code is coming from
             // the net beans (or other) IDE and the user is typing some new definition, viz:
             //
             // var
@@ -765,7 +771,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             //
             // In such a case, we would throw the error at the second instance of var, but
             // it is more useful for the IDE if we throw the error at the first instance
-            // (for various reasons). Henece we do a check here to see if the prior token is the
+            // (for various reasons). Hence we do a check here to see if the prior token is the
             // same type as the current token. If it is, then we report the error with
             // reference to the prior token. Note that we have already consumed the token
             // when we get here bceause this is an error that is not sent back to the parser
@@ -793,18 +799,27 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             // Say what we think is missing
             //
             mb.append(" but I got confused because ");
-            
-            if  (mte.expecting == Token.EOF)
+
+            TokenClassification tokenClass = classifyToken(mte.expecting);
+            if  (posDescription.equalsIgnoreCase(tokenClass.forHumans())) {
+
+                mb.append("you seem to have omitted this");
+            }
+            else if  (mte.expecting == Token.EOF)
             {
                 mb.append("I was looking for the end of the script here");
                 
-            } else {
+            }
+            else {
                 
                 mb.append("you seem to have missed out '");
                 mb.append(tokenNames[mte.expecting]);
                 mb.append("'");
-                TokenClassification tokenClass = classifyToken(mte.expecting);
-                if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+                
+                if (       tokenClass != TokenClassification.UNKNOWN
+                        && tokenClass != TokenClassification.OPERATOR
+                        && !posDescription.equalsIgnoreCase(tokenClass.forHumans())
+                   ) {
                     mb.append(" which is ");
                     mb.append(tokenClass.forHumans());
                 }
@@ -843,7 +858,10 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 mb.append(getTokenErrorDisplay(e.token));
             
 
-                if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+                if (       tokenClass != TokenClassification.UNKNOWN
+                        && tokenClass != TokenClassification.OPERATOR
+                        && !posDescription.equalsIgnoreCase(tokenClass.forHumans())
+                   ) {
                     mb.append(" which is ");
                     mb.append(tokenClass.forHumans());
                 }
@@ -892,7 +910,10 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
                 mb.append(getTokenErrorDisplay(e.token));
 
 
-                if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+                if (       tokenClass != TokenClassification.UNKNOWN
+                        && tokenClass != TokenClassification.OPERATOR
+                        && !posDescription.equalsIgnoreCase(tokenClass.forHumans())
+                   ) {
                     mb.append(" which is ");
                     mb.append(tokenClass.forHumans());
                 }
@@ -917,7 +938,10 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             mb.append(" but I got confused when I saw ");
             mb.append(getTokenErrorDisplay(e.token));
             TokenClassification tokenClass = classifyToken(e.token);
-            if (tokenClass != TokenClassification.UNKNOWN && tokenClass != TokenClassification.OPERATOR) {
+            if (       tokenClass != TokenClassification.UNKNOWN
+                    && tokenClass != TokenClassification.OPERATOR
+                    && !posDescription.equalsIgnoreCase(tokenClass.forHumans())
+               ) {
                 mb.append(" which is ");
                 mb.append(tokenClass.forHumans());
             }
