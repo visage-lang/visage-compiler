@@ -581,8 +581,7 @@ public class FXLocal {
                     
                 java.lang.reflect.Type gtype = fld.getGenericType();
                 FXType tr = ctxt.makeTypeRef(gtype);
-                java.lang.reflect.Method offsetMeth = getMethodOrNull(cls, "VOFF" + fname);
-                int offset = callMethodIntOrDefault(offsetMeth, -1);
+                int offset  = getFieldIntOrDefault(cls, "VOFF" + fname, -1);
                 VarMember ref = new VarMember(sname, this, tr, offset);
                 ref.fld = fld;
                 if (!isMixin()) {
@@ -836,6 +835,52 @@ public class FXLocal {
                     : fld.getModifiers();
             return (mods & Modifier.STATIC) != 0;
         }
+        
+        private Location getLoc(FXObjectValue obj) {
+            Object robj = obj == null ? null : ((ObjectValue) obj).obj;
+            return robj != null && offset != -1 ? ((FXObject)robj).loc$(offset) : null;
+        }
+        
+        public FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener) {
+            FXChangeListenerID id = new LocationChangeListener(listener);
+            Location location = getLoc(instance);
+            if (location == null || !(location instanceof AbstractVariable)) {
+                throw new RuntimeException("Cannot attach listener to field: " + name);
+            }
+            ((AbstractVariable)location).addChangeListener(id);
+            return id;
+        }
+        
+        public void removeChangeListener(FXObjectValue instance, FXChangeListenerID id) {
+            Location location = getLoc(instance);
+            if (location == null || !(location instanceof AbstractVariable) ||
+               !(id instanceof LocationChangeListener)) {
+                throw new RuntimeException("Cannot remove listener from field: " + name);
+            }
+            ((AbstractVariable)location).removeChangeListener(id);
+        }
+    }
+
+    /**
+     *
+     * @profile desktop
+     */
+    static class LocationChangeListener extends ChangeListener<Object> implements FXChangeListenerID {
+        FXChangeListener listener;
+        
+        LocationChangeListener(FXChangeListener listener) {
+            this.listener = listener;
+        }
+        
+        public void onChange(Object oldValue, Object newValue) {
+            onChange();
+        }
+        
+        void onChange() {
+            if (listener != null) {
+                listener.onChange();
+            }
+        }
     }
 
     static class FunctionMember extends FXFunctionMember {
@@ -943,6 +988,8 @@ public class FXLocal {
         public ObjectValue(Object obj, ClassType type) {
             this.type = type;
             this.obj = obj;
+            if (obj instanceof FXObject) 
+                count = ((FXObject) obj).count$();
         }
 
         public FXClassType getType() {
@@ -984,17 +1031,14 @@ public class FXLocal {
                     instance.addTriggers$();
                     
                     for (int offset = 0; offset < count; offset++ ) {
-                        if (!instance.isInitialized$(offset)) {
-                            if (initMembers[offset] != null) {
-                                initMembers[offset].setValue(this, initValues[offset]);
-                            } else {
-                                instance.applyDefaults$(offset);
-                            }
+                        if (initMembers[offset] != null) {
+                            initMembers[offset].setValue(this, initValues[offset]);
+                        } else if (!instance.isInitialized$(offset)) {
+                            instance.applyDefaults$(offset);
                         }
                     }
                     
-                    instance.userInit$();
-                    instance.postInit$();
+                    instance.complete$();
                 }
             }
             return this;
