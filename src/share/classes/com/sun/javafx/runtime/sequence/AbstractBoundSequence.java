@@ -39,7 +39,7 @@ import com.sun.javafx.runtime.location.*;
 public abstract class AbstractBoundSequence<T> extends AbstractLocation implements SequenceLocation<T> {
     protected final TypeInfo<T, ?> typeInfo;
     private List<ChangeListener<T>> changeListeners;
-    private Sequence<T> $value;
+    private Sequence<? extends T> $value;
     protected final boolean lazy;
 
     // Currently, no support for lazy binding.
@@ -50,48 +50,76 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         this.$value = typeInfo.emptySequence;
     }
 
-    protected abstract Sequence<T> computeValue();
+    protected abstract Sequence<? extends T> computeValue();
 
-    protected void setInitialValue(Sequence<T> initialValue) {
+    protected void setInitialValue(Sequence<? extends T> initialValue) {
         if (isValid())
             throw new IllegalStateException("Cannot call setInitialValue more than once");
-        Sequence<T> oldValue = $value;
-        Sequence<T> newValue = initialValue;
+        Sequence<? extends T> oldValue = $value;
+        Sequence<? extends T> newValue = initialValue;
         if (newValue == null)
             newValue = typeInfo.emptySequence;
         $value = newValue;
         setValid();
         if (!Sequences.isEqual(oldValue, newValue)) {
             invalidateDependencies();
-            notifyListeners(0, Sequences.size(oldValue)-1, newValue, oldValue, newValue);
+            notifyListeners(null, 0, Sequences.size(oldValue), newValue, oldValue, newValue);
         }
     }
 
-    protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues) {
+    protected void updateSlice(int startPos, int endPos/*exclusive*/, Sequence<? extends T> newValues) {
         assert !lazy;
-        Sequence<T> oldValue = $value;
-        if (changeListeners != null) {
-            Sequences.noteShared(newValues);
-            Sequences.noteShared(oldValue);
+        ArraySequence<T> arr = Sequences.forceNonSharedArraySequence(typeInfo, $value);
+        arr.replace(startPos, endPos, newValues, 0, newValues.size(), true);
+        $value = arr;
+        invalidateDependencies();
+        notifyListeners(arr, startPos, endPos, newValues, null, $value);
+        arr.clearOldValues(endPos-startPos);
+    }
+
+    protected void updateSlice(int startPos, int endPos/*exclusive*/, T newValue) {
+        assert !lazy;
+        ObjectArraySequence<T> arr = Sequences.forceNonSharedArraySequence(typeInfo, $value);
+        if (newValue == null)
+            arr.replace(startPos, endPos, typeInfo.emptySequence, 0, 0, true);
+        else
+            arr.replace(startPos, endPos, newValue, true);
+        $value = arr;
+        invalidateDependencies();
+        notifyListeners(arr, startPos, endPos, null, null, $value);
+        arr.clearOldValues(endPos-startPos);
+    }
+
+    protected void updateSlice(int startPos, int endPos,
+            ArraySequence<T> srcBuffer, int srcStart, Sequence<? extends T> newElements) {
+        Sequence<? extends T> srcElements;
+        int srcEnd;
+        if (newElements != null) {
+            srcElements = newElements;
+            srcStart = 0;
+            srcEnd = newElements.size();
         }
-        $value = Sequences.replaceSlice(oldValue, startPos, endPos, newValues);
+        else {
+            srcElements = srcBuffer;
+            srcEnd = srcBuffer.gapStart;
+        }
+        ArraySequence<T> arr = Sequences.forceNonSharedArraySequence(typeInfo, $value);
+        arr.replace(startPos, endPos, srcElements, srcStart, srcEnd, true);
+        $value = arr;
         invalidateDependencies();
-        notifyListeners(startPos, endPos, newValues, oldValue, $value);
+        notifyListeners(arr, startPos, endPos, newElements, null, $value);
+        arr.clearOldValues(endPos-startPos);
     }
 
-    protected void updateSlice(int startPos, int endPos, Sequence<? extends T> newValues, Sequence<T> newSequence) {
-        assert !lazy;
-        Sequence<T> oldValue = $value;
-        $value = newSequence;
-        invalidateDependencies();
-        notifyListeners(startPos, endPos, newValues, oldValue, newSequence);
-    }
-
-    protected Sequence<T> getRawValue() {
+    protected Sequence<? extends T> getRawValue() {
         return $value;
     }
 
-    public Sequence<T> get() {
+    protected void setRawValue(Sequence<? extends T> value) {
+        $value = value;
+    }
+
+    public Sequence<? extends T> get() {
         return getAsSequence();
     }
 
@@ -99,12 +127,12 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return getAsSequence().get(position);
     }
 
-    public Sequence<T> getAsSequence() {
+    public Sequence<? extends T> getAsSequence() {
         if (lazy)
             update();
         else
             assert(isValid());
-        Sequences.noteShared($value);
+        $value.incrementSharing();
         return $value;
     }
 
@@ -112,7 +140,7 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return typeInfo;
     }
 
-    public Sequence<T> getSlice(int startPos, int endPos) {
+    public Sequence<? extends T> getSlice(int startPos, int endPos) {
         return getAsSequence().getSlice(startPos, endPos);
     }
 
@@ -125,9 +153,10 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         return super.hasDependencies() || changeListeners.size() > 0;
     }
 
-    public void addChangeListener(final ChangeListener<Sequence<T>> listener) {
+    public void addChangeListener(final ChangeListener<Sequence<? extends T>> listener) {
         addSequenceChangeListener(new ChangeListener<T>() {
-            public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
+            public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+                Sequence<? extends T> newValue = buffer != null ? buffer : newElements;
                 listener.onChange(oldValue, newValue);
             }
         });
@@ -144,15 +173,12 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
             changeListeners.remove(listener);
     }
 
-    private void notifyListeners(final int startPos, final int endPos,
-                                 final Sequence<? extends T> newElements,
-                                 final Sequence<T> oldValue, final Sequence<T> newValue) {
+    protected void notifyListeners(ArraySequence<T> buffer, int startPos, int endPos,
+                                 Sequence<? extends T> newElements,
+                                 Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
         if (changeListeners != null) {
-            Sequences.noteShared(newElements);
-            Sequences.noteShared(oldValue);
-            Sequences.noteShared(newValue);
             for (ChangeListener<T> listener : changeListeners)
-                listener.onChange(startPos, endPos, newElements, oldValue, newValue);
+                listener.onChange(buffer, oldValue, startPos, endPos, newElements);
         }
     }
 
@@ -165,11 +191,11 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     @Override
     public void update() {
         if (lazy) {
-            Sequence<T> oldValue = $value;
+            Sequence<? extends T> oldValue = $value;
             $value = computeValue();
             setValid();
             if (hasDependencies() && !Sequences.isEqual(oldValue, $value))
-                notifyListeners(0, oldValue.size() - 1, $value, oldValue, $value);
+              notifyListeners(null, 0, oldValue.size(), $value, oldValue, $value);
         }
     }
 
@@ -186,11 +212,11 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         throw new UnsupportedOperationException();
     }
 
-    public Sequence<T> set(Sequence<T> value) {
+    public Sequence<T> set(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 
-    public Sequence<T> setAsSequence(Sequence<? extends T> value) {
+    public Sequence<? extends T> setAsSequence(Sequence<? extends T> value) {
         throw new UnsupportedOperationException();
     }
 

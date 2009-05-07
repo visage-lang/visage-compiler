@@ -51,9 +51,8 @@ class BoundSequenceElement<T> extends ObjectVariable<T> implements ObjectLocatio
     }
 
     private class MySequenceListener extends ChangeListener<T> {
-        @Override
-        public void onChange(int startPos, int endPos, Sequence<? extends T> newElements, Sequence<T> oldValue, Sequence<T> newValue) {
-            int deltaSize = (endPos-startPos+1) - Sequences.size(newElements);
+        public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            int deltaSize = (endPos-startPos) - Sequences.sizeOfNewElements(buffer, startPos, newElements);
             if (deltaSize != 0) {
                 if (startPos <= lastIndex)
                     invalidate();

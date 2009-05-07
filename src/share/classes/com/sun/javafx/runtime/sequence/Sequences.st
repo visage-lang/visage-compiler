@@ -41,31 +41,34 @@ import com.sun.javafx.runtime.util.MathUtil;
  */
 public final class Sequences extends SequenceConversions {
 
-    public static final int FLATTENING_THRESHOLD = 16;
-
     // Inhibit instantiation
     private Sequences() { }
 
-    static<T> ArraySequence<T> asNonSharedArraySequence(Object value) {
-        if (value instanceof ArraySequence) {
-            ArraySequence<T> arr = (ArraySequence) value;
-            if (! arr.isShared())
-                return arr;
+    @SuppressWarnings("unchecked")
+    public static<T> ObjectArraySequence<T> forceNonSharedArraySequence(TypeInfo<T,?> typeInfo, Sequence<? extends T> value) {
+        ObjectArraySequence<T> arr;
+        block: {
+            if (value instanceof ObjectArraySequence) {
+                arr = (ObjectArraySequence) value;
+                if (! arr.isShared()) {
+                    // FIXME: arr.setElementType(typeInfo);
+                    return arr;
+                }
+                // Special case - we might as well re-use an empty array.
+                if (arr.array.length == 0) {
+                    arr = new ObjectArraySequence(typeInfo, arr.array, true);
+                    break block;
+                }
+            }
+            arr = new ObjectArraySequence(typeInfo, value);
         }
-        return null;
+        arr.incrementSharing();
+        return arr;
     }
 
-    public static<T> T noteShared(T value) {
-        ArraySequence<T> arr = asNonSharedArraySequence(value);
-        if (arr != null)
-            arr.noteShared();
-        return value;
-    }
-
-    public static<T> Sequence<? extends T> noteShared(Sequence<? extends T> value) {
-        ArraySequence<T> arr = asNonSharedArraySequence(value);
-        if (arr != null)
-            arr.noteShared();
+    public static<T> T incrementSharing(T value) {
+        if (value instanceof ArraySequence)
+            ((ArraySequence) value).incrementSharing();
         return value;
     }
 
@@ -79,7 +82,7 @@ public final class Sequences extends SequenceConversions {
         if (values == null || values.length == 0)
             return ti.emptySequence;
         else
-            return new ArraySequence<T>(ti, values);
+            return new ObjectArraySequence<T>(ti, values);
     }
 
     /** Factory for simple sequence generation */
@@ -87,11 +90,11 @@ public final class Sequences extends SequenceConversions {
         if (values == null || size <= 0)
             return ti.emptySequence;
         else
-            return new ArraySequence<T>(ti, values, size);
+            return new ObjectArraySequence<T>(ti, values, 0, size);
     }
 
     public static<T> Sequence<T> makeViaHandoff(TypeInfo<T, ?> ti, T[] values) {
-        return new ArraySequence<T>(ti, values, true);
+        return new ObjectArraySequence<T>(ti, values, true);
     }
 
     /** Factory for simple sequence generation */
@@ -99,73 +102,7 @@ public final class Sequences extends SequenceConversions {
         if (values == null || values.size() == 0)
             return ti.emptySequence;
         else
-            return new ArraySequence<T>(ti, values);
-    }
-
-    /** Many sequences are represented as trees to reduce copying costs; if the current sequence has depth > 0,
--     * copy the elements into a new sequence of depth == 0.
--     */
-    static<T> Sequence<T> flatten(Sequence<T> seq) {
-        if (seq.getDepth() == 0) {
-            return seq;
-        } else {
-            return new ArraySequence<T>(seq.getElementType(), seq);
-        }
-    }
-    
-    static<T> boolean shouldFlatten(Sequence<T> sequence) {
-        // If the sequence is short or if the sequence is is too thin,
-        // then copy it.
-        int size = size(sequence);
-        return ((0 < size) && (size <= FLATTENING_THRESHOLD))
-                || (sequence.getDepth() > MathUtil.log2(size));
-    }
-
-
-
-    /** Concatenate two sequences into a new sequence.  */
-    @SuppressWarnings("unchecked")
-    public static<T> Sequence<T> concatenate(TypeInfo<T, ?> ti, Sequence<? extends T> first, Sequence<? extends T> second) {
-        int size1 = Sequences.size(first);
-        int size2 = Sequences.size(second);
-        ArraySequence<T> arr;
-
-        // OPT: for small sequences, just copy the elements
-        if (size1 == 0)
-            return Sequences.upcast(second);
-        else if (size2 == 0)
-            return Sequences.upcast(first);
-        else if ((arr = asNonSharedArraySequence(first)) != null) {
-            ArraySequence<T> arr2;
-            if (size1 < size2 && (arr2 = asNonSharedArraySequence(second)) != null) {
-                arr2.insert(first, size1, 0);
-                return arr2;
-            }
-            else {
-                arr.insert(second, size2, size1);
-                return arr;
-            }
-        }
-        else if ((arr = asNonSharedArraySequence(second)) != null) {
-            arr.insert(first, size1, 0);
-            return arr;
-        }
-        else if (size1 + size2 <= FLATTENING_THRESHOLD)
-            return new ArraySequence<T>(ti, first, second);
-        else
-            return new CompositeSequence<T>(ti, first, second);
-    }
-
-    /** Concatenate zero or more sequences into a new sequence.  */
-    public static<T> Sequence<T> concatenate(TypeInfo<T, ?> ti, Sequence<? extends T>... seqs) {
-        int size = 0;
-        for (Sequence i : seqs)
-            size += Sequences.size(i);
-        // OPT: for small sequences, just copy the elements
-        if (size <= FLATTENING_THRESHOLD)
-            return new ArraySequence<T>(ti, seqs);
-        else
-            return new CompositeSequence<T>(ti, seqs);
+            return new ObjectArraySequence<T>(ti, values);
     }
 
     /** Create an Integer range sequence ranging from lower to upper inclusive. */
@@ -211,18 +148,16 @@ public final class Sequences extends SequenceConversions {
      * of another sequence, in the same order as that sequence.  If bit n is set in the BitSet, then the element
      * at position n of the original sequence appears in the filtered sequence.  */
     public static<T> Sequence<T> filter(Sequence<T> seq, BitSet bits) {
-        // OPT: for small sequences, just copy the elements
-        if (bits.cardinality() == seq.size() && bits.nextClearBit(0) == seq.size())
-            return seq;
-        else if (bits.cardinality() == 0)
+        int cardinality = bits.cardinality();
+        if (cardinality == 0)
             return seq.getEmptySequence();
+        else if (cardinality == seq.size() && bits.nextClearBit(0) == seq.size())
+            return seq;
         else {
-            Sequence<T> result = new FilterSequence<T>(seq, bits);
-            if (shouldFlatten(result)) {
-                return flatten(result);
-            } else {
-                return result;
-            }
+            ObjectArraySequence<T> result = new ObjectArraySequence(cardinality, seq.getElementType());
+            for (int i = bits.nextSetBit(0), next = 0; i >= 0; i = bits.nextSetBit(i + 1))
+                result.add(seq.get(i));
+            return result;
         }
     }
 
@@ -298,46 +233,8 @@ public final class Sequences extends SequenceConversions {
         if (values == null)
             return ti.emptySequence;
         // OPT: Use handoff, pre-size array
-        return new ArraySequence<T>(ti, (T[]) values.toArray());
+        return new ObjectArraySequence<T>(ti, (T[]) values.toArray());
     }
-
-    public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, int endPos, Sequence<? extends T> replacement) {
-        final int seqSize = Sequences.size(sequence);
-        startPos = Math.min (Math.max (0, startPos), seqSize);       // 0 <= startPos <= size
-        endPos = Math.min (Math.max (startPos, endPos), seqSize);    // startPos <= endPos <= size
-        return new SliceReplacementSequence<T>(sequence, startPos, endPos, replacement);
-    }
-
-    /**
-     * Create a sequences by replacing a slice.
-     * @param sequence The sequence in which the slice is being replaced
-     * @param startPos Starting position of the slice, inclusive, may be 0..size
-     * @param endPos Ending position of the slice, exclusive, may be startPos..size
-     * @param value The single replement value - must be non-null
-     * @return The new sequence.
-     */
-    public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, int endPos, T value) {
-        final int seqSize = Sequences.size(sequence);
-        startPos = Math.min (Math.max (0, startPos), seqSize);       // 0 <= startPos <= size
-        endPos = Math.min (Math.max (startPos, endPos), seqSize);    // startPos <= endPos <= size
-        ArraySequence<T> arr;
-        if ((arr = asNonSharedArraySequence(sequence)) != null) {
-            arr.replace(startPos, endPos, value);
-            return arr;
-        }
-        return new ElementReplacementSequence<T>(sequence, startPos, endPos, value);
-    }
-    
-    public static<T> Sequence<T> replace(Sequence<T> sequence, int startPos, T value) {
-      ArraySequence arr;
-      if ((arr = asNonSharedArraySequence(sequence)) != null) {
-          arr.replace(startPos, value);
-          return arr;
-      }
-      else
-          return new ReplacementSequence<T>(sequence, startPos, value);
-    }
-    
 
     /**********************************************/
     /* Utility methods for dealing with sequences */
@@ -352,7 +249,7 @@ public final class Sequences extends SequenceConversions {
 
     /** Convert any numeric sequence to any other numeric sequence */
     public static<T extends Number, V extends Number>
-    Sequence<T> convertNumberSequence(NumericTypeInfo<T, ?> toType, NumericTypeInfo<V, ?> fromType, Sequence<V> seq) {
+    Sequence<T> convertNumberSequence(NumericTypeInfo<T, ?> toType, NumericTypeInfo<V, ?> fromType, Sequence<? extends V> seq) {
         if (Sequences.size(seq) == 0)
             return toType.emptySequence;
 
@@ -362,7 +259,7 @@ public final class Sequences extends SequenceConversions {
         for (V val : seq) {
             toArray[i++] = toType.asPreferred(fromType, val);
         }
-        return new ArraySequence<T>(toType, toArray, length);
+        return new ObjectArraySequence<T>(toType, toArray, 0, length);
     }
 
     /** How large is this sequence?  Can be applied to any object.  */
@@ -422,18 +319,25 @@ public final class Sequences extends SequenceConversions {
             return true;
         }
     }
-    
-    public static<T> boolean sliceEqual(Sequence<T> seq, int startPos, int endPos, Sequence<? extends T> slice) {
-        if (endPos - startPos + 1 != size(slice))
+
+    public static<T> boolean sliceEqual(Sequence<? extends T> seq, int startPos, int endPos/*exclusive*/, Sequence<? extends T> slice) {
+        int size = size(slice);
+        if (endPos - startPos != size)
             return false;
-        Iterator<T> seqIterator = iterator(seq, startPos, endPos);
+        /* For most (but not all) Sequences types, indexing is faster.
+        Iterator<? extends T> seqIterator = iterator(seq, startPos, endPos-1);
         for (Iterator<? extends T> sliceIterator = iterator(slice); sliceIterator.hasNext(); ) {
             if (!seqIterator.next().equals(sliceIterator.next())) {
                 return false;
             }
         }
+        */
+        for (int i = 0;  i < size;  i++) {
+            if (!seq.get(startPos+i).equals(slice.get(i)))
+                return false;
+        }
         return true;
-    }     
+    }
 
     public static<T> Sequence<? extends T> forceNonNull(TypeInfo<T, ?> typeInfo, Sequence<? extends T> seq) {
         return seq == null ? typeInfo.emptySequence : seq;
@@ -756,14 +660,14 @@ public final class Sequences extends SequenceConversions {
      * @param seq The sequence to be sorted.
      * @return The sorted sequence.
      */
-    public static <T extends Comparable> Sequence<T> sort (Sequence<T> seq) {
+    public static <T extends Comparable> Sequence<? extends T> sort (Sequence<T> seq) {
         if (seq.isEmpty())
             return seq.getEmptySequence();
         final int length = seq.size();
         T[] array = Util.newComparableArray(length);
         seq.toArray(0, length, array, 0);
         Arrays.sort(array);
-        return Sequences.make(seq.getElementType(), array);
+        return Sequences.<T>make(seq.getElementType(), array);
     }
     
     /**
@@ -790,61 +694,107 @@ public final class Sequences extends SequenceConversions {
      *          should be used.
      * @return The sorted sequence.
      */
-    public static <T> Sequence<T> sort (Sequence<T> seq, Comparator<? super T> c) {
+    public static <T> Sequence<? extends T> sort (Sequence<T> seq, Comparator<? super T> c) {
         if (seq.isEmpty())
             return seq.getEmptySequence();
         final int length = seq.size();
         T[] array = Util.<T>newObjectArray(length);
         seq.toArray(0, length, array, 0);
         Arrays.sort(array, c);
-        return Sequences.make(seq.getElementType(), array);
+        return Sequences.<T>make(seq.getElementType(), array);
     }
 
-
-    /***********************************************/
-    /* Sequence manipulations -- insert and delete */
-    /***********************************************/
-
-    public static<T> Sequence<T> insert(Sequence<T> sequence, T value) {
-        return SequenceMutator.insert(sequence, (SequenceMutator.Listener<T>) null, value);
+    /* Only used by the testing framework - should be moved.  FIXME */
+    public static<T> Sequence<? extends T> insert(TypeInfo<T,?> typeInfo, Sequence<? extends T> sequence, T value) {
+        ObjectArraySequence<T> arr = forceNonSharedArraySequence(typeInfo, sequence);
+        arr.add(value);
+        return arr;
     }
 
-    public static<T> Sequence<T> insert(Sequence<T> sequence, Sequence<? extends T> values) {
-        return SequenceMutator.insert(sequence, (SequenceMutator.Listener<T>) null, values);
-    }
-
-    public static<T> Sequence<T> insertBefore(Sequence<T> sequence, T value, int position) {
-        return SequenceMutator.insertBefore(sequence, null, value, position);
-    }
-
-    public static<T> Sequence<T> insertBefore(Sequence<T> sequence, Sequence<? extends T> values, int position) {
-        return SequenceMutator.<T>insertBefore(sequence, null, values, position);
-    }
-
-    public static<T> Sequence<T> delete(Sequence<T> sequence, int position) {
-        return SequenceMutator.delete(sequence, null, position);
-    }
-
-    public static<T> Sequence<T> delete(Sequence<T> sequence, SequencePredicate<? super T> predicate) {
-        return SequenceMutator.delete(sequence, (SequenceMutator.Listener<T>) null, predicate);
-    }
-
-    public static<T> Sequence<T> set(Sequence<T> sequence, int position, T value) {
-        return SequenceMutator.set(sequence, null, position, value);
-    }
-
-    public static<T> Sequence<T> replaceSlice(Sequence<T> sequence, int startPos, int endPos, Sequence<? extends T> newValues) {
-        return SequenceMutator.replaceSlice(sequence, null, startPos, endPos, newValues);
-    }
-
-    /* Returns a new sequence containing the randomly shuffled
+    /** Returns a new sequence containing the randomly shuffled
      * contents of the existing sequence
-     */
+     * */
     public static <T> Sequence<T> shuffle (Sequence<T> seq) {
         T[] array = Sequences.toArray(seq);
-        List<T> list = Arrays.asList(array);
+        List<? extends T> list = Arrays.asList(array);
         Collections.shuffle(list);
         return Sequences.make(seq.getElementType(), list);
     }
-    
+
+    public static <T> int sizeOfOldValue(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int hiIndex/*exclusive*/) {
+        if (oldValue != null)
+            return oldValue.size();
+        return buffer.getRawArrayLength() - buffer.gapEnd + hiIndex;
+    }
+
+    public static <T> int sizeOfNewElements(ArraySequence<T> buffer, int loIndex, Sequence<? extends T> newElements) {
+        if (newElements != null)
+            return newElements.size();
+        return buffer.gapStart - loIndex;
+    }
+
+    public static <T> T getFromOldValue(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, int k) {
+        if (oldValue != null)
+            return oldValue.get(k);
+        if (k >= 0) {
+            if (k >= startPos)
+                k += buffer.gapEnd - endPos;
+            int alen = buffer.getRawArrayLength();
+            if (k < alen) {
+                return buffer.getRawArrayElementAsObject(k);
+            }
+        }
+        return buffer.getDefaultValue();
+    }
+
+    public static <T> T getFromNewElements(ArraySequence<T> buffer, int loIndex, Sequence<? extends T> newElements, int k) {
+        if (newElements != null)
+            return newElements.get(k);
+        if (k >= 0) {
+            k = k + loIndex;
+            if (k < buffer.gapStart)
+                return buffer.get(k);
+        }
+        return buffer.getDefaultValue();
+    }
+
+$PREFIX:{T|
+    public static $PRIM_MAP.(T)$ getAs$T$FromOldValue(ArraySequence<$BOXED_MAP.(T)$> buffer, Sequence<? extends $BOXED_MAP.(T)$> oldValue, int startPos, int endPos, int k) {
+        if (oldValue != null)
+            return oldValue.get(k);
+        if (k >= 0) {
+            if (k >= startPos)
+                k += buffer.gapEnd - endPos;
+            int alen = buffer.getRawArrayLength();
+            if (k < alen) {
+                return buffer.getRawArrayElementAsObject(k);
+            }
+        }
+        return buffer.getDefaultValue();
+    }
+
+    public static $PRIM_MAP.(T)$ getAs$T$FromNewElements(ArraySequence<$BOXED_MAP.(T)$> buffer, int loIndex, Sequence<? extends $BOXED_MAP.(T)$> newElements, int k) {
+        if (newElements != null)
+            return newElements.get(k);
+        if (k >= 0) {
+            k = k + loIndex;
+            if (k < buffer.gapStart)
+                return buffer.get(k);
+        }
+        return buffer.getDefaultValue();
+    }
+}$
+
+    public static <T> Sequence<? extends T> getOldValue(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int loIndex, int hiIndex/*exclusive*/) {
+        if (oldValue != null)
+            return oldValue;
+        return buffer.extractOldValue(loIndex, hiIndex);
+    }
+
+    public static <T> Sequence<? extends T> getNewElements(ArraySequence<T> buffer, int startPos, Sequence<? extends T> newElements) {
+        if (newElements != null)
+            return newElements;
+        buffer.incrementSharing();
+        return Sequences.subsequence(buffer, startPos, buffer.gapStart);
+    }
 }

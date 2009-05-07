@@ -79,6 +79,7 @@ class SubSequence<T> extends AbstractSequence<T> {
             step = sseq.step * step;
             sequence = sseq.sequence;
         }
+        sequence.incrementSharing();
         return new SubSequence(sequence, size, start, step);
     }
 

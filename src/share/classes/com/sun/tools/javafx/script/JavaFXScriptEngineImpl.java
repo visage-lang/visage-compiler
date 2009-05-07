@@ -100,6 +100,8 @@ public class JavaFXScriptEngineImpl extends AbstractScriptEngine
                         if (key.indexOf('.') >= 0)
                             continue; // Kludge FIXME
                         Symbol sym = compiled.lookup(key);
+                        if (sym == null)
+                            continue;
                         if (compiled.scriptScope.lookup(sym.name).sym == sym)
                             continue;
                         scontext.setVarValue(sym, entry.getValue());

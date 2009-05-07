@@ -33,7 +33,7 @@ import com.sun.javafx.runtime.Util;
  * @author Brian Goetz
  */
 public class ObjectVariable<T>
-        extends AbstractVariable<T, ObjectLocation<T>>
+        extends AbstractVariable<T, ObjectLocation<? extends T>>
         implements ObjectLocation<T> {
 
     protected T $value;
@@ -84,7 +84,7 @@ public class ObjectVariable<T>
         addDependency(dependencies);
     }
 
-    protected BindingExpression makeBindingExpression(final ObjectLocation<T> otherLocation) {
+    protected BindingExpression makeBindingExpression(final ObjectLocation<? extends T> otherLocation) {
         return new AbstractBindingExpression() {
             public void compute() { pushValue(otherLocation.get()); }
         };

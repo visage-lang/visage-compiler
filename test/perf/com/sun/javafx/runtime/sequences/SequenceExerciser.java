@@ -438,7 +438,7 @@ class IterationAfterWrite1 implements SequenceOpGenerator {
                 seq.set(SequenceExerciser.nextRandom(size), SequenceExerciser.nextRandom(10000));
             }
             
-            Iterator<Integer> it = seq.get().iterator();
+            Iterator<? extends Integer> it = seq.get().iterator();
             while (it.hasNext()) {
                 sum += it.next();
             }
@@ -471,7 +471,7 @@ class IterationAfterWrite implements SequenceOpGenerator {
                 seq.replaceSlice(pos, pos+chunkSize, Sequences.rangeExclusive(value, value+chunkSize));
             }
             
-            Iterator<Integer> it = seq.get().iterator();
+            Iterator<? extends Integer> it = seq.get().iterator();
             while (it.hasNext()) {
                 sum += it.next();
             }
@@ -500,7 +500,7 @@ class IterationAfterInsertAndDelete1 implements SequenceOpGenerator {
                 seq.insertBefore(SequenceExerciser.nextRandom(10000), SequenceExerciser.nextRandom(size));
             }
             
-            Iterator<Integer> it = seq.get().iterator();
+            Iterator<? extends Integer> it = seq.get().iterator();
             while (it.hasNext()) {
                 sum += it.next();
             }
@@ -537,7 +537,7 @@ class IterationAfterInsertAndDelete implements SequenceOpGenerator {
                 seq.insertBefore(Sequences.range(value, value+chunkSize), position);
             }
             
-            Iterator<Integer> it = seq.get().iterator();
+            Iterator<? extends Integer> it = seq.get().iterator();
             while (it.hasNext()) {
                 sum += it.next();
             }

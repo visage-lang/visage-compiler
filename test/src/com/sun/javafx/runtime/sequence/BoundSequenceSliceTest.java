@@ -157,15 +157,15 @@ public class BoundSequenceSliceTest extends JavaFXTestCase {
         
         a.set(10);
         assertEquals(slice, 13, 16);
-        assertEqualsAndClear(hl, "[0, 1] => [ 13, 16 ]");
+        assertEqualsAndClear(hl, "[0, 3] => [ 13, 16 ]");
         
         a.set(19);
         assertEquals(slice);
-        assertEqualsAndClear(hl, "[0, 0] => [ ]");
+        assertEqualsAndClear(hl, "[0, 1] => [ ]");
         
         b.set(34);
         assertEquals(slice, 22, 25, 28, 31);
-        assertEqualsAndClear(hl, "[0, 3] => [ 22, 25, 28, 31 ]");
+        assertEqualsAndClear(hl, "[0, -1] => [ 22, 25, 28, 31 ]");
                 
         b.set(40);
         assertEquals(slice, 22, 25, 28, 31);
@@ -173,10 +173,10 @@ public class BoundSequenceSliceTest extends JavaFXTestCase {
         
         b.set(26);
         assertEquals(slice, 22, 25);
-        assertEqualsAndClear(hl, "[0, 1] => [ 22, 25 ]");
+        assertEqualsAndClear(hl, "[0, 3] => [ 22, 25 ]");
         
         b.set(15);
         assertEquals(slice);
-        assertEqualsAndClear(hl, "[0, 0] => [ ]");
+        assertEqualsAndClear(hl, "[0, 1] => [ ]");
     }
 }

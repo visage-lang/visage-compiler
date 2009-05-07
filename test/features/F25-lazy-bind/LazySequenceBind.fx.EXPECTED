@@ -1,14 +1,12 @@
 x[0..-1] => [ 123 ]
 ==simple sequence bind
 reading y
-y[0..-1] => [ 123 ]
 y:123
 reading y
 y:123
 modify x
 x[3..2] => [ 4 ]
 reading y
-y[0..2] => [ 1234 ]
 y:1234
 reading y
 y:1234
@@ -55,7 +53,6 @@ reading fS
 fS:1234
 assign foo.seq[0]
 reading fS
-fS[0..3] => [ 9234 ]
 fS:9234
 assign foo.seq
 reading fS

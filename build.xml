@@ -433,7 +433,7 @@
             <arg value="${build.generated.dir}" />
             <arg value="com/sun/javafx/runtime/location/XxxTemplate.stg" />
             <arg value="com/sun/javafx/runtime/sequence" />
-            <arg line="AbstractSequence Sequences" />
+            <arg line="AbstractSequence Sequences XxxArraySequence" />
            <classpath>
                 <pathelement location="${build.buildtools.dir}"/>
                 <path refid="antlr.class.path" />

@@ -73,14 +73,14 @@ public class DumbMutableSequence<T> implements Iterable<T> {
             array[i] = value;
     }
 
-    public void replaceSlice(int startPos, int endPos, T[] newElements) {
+    public void replaceSlice(int startPos, int endPos/*exclusive*/, T[] newElements) {
         int insertedCount = newElements.length;
-        int deletedCount = endPos - startPos + 1;
+        int deletedCount = endPos - startPos;
         int netAdded = insertedCount - deletedCount;
         if (netAdded == 0)
             System.arraycopy(newElements, 0, array, startPos, insertedCount);
         else if (size + netAdded < array.length) {
-            System.arraycopy(array, endPos + 1, array, endPos + 1 + netAdded, size - (endPos + 1));
+            System.arraycopy(array, endPos, array, endPos + netAdded, size - endPos);
             System.arraycopy(newElements, 0, array, startPos, insertedCount);
             if (netAdded < 0)
                 Arrays.fill(array, size + netAdded, size, null);
@@ -91,13 +91,13 @@ public class DumbMutableSequence<T> implements Iterable<T> {
             T[] temp = Util.<T>newObjectArray(Util.powerOfTwo(size, newSize));
             System.arraycopy(array, 0, temp, 0, startPos);
             System.arraycopy(newElements, 0, temp, startPos, insertedCount);
-            System.arraycopy(array, endPos + 1, temp, startPos + insertedCount, size - (endPos + 1));
+            System.arraycopy(array, endPos, temp, startPos + insertedCount, size - endPos);
             array = temp;
             size = newSize;
         }
     }
 
-    public Sequence<? extends T> replaceSlice(int startPos, int endPos, Sequence<? extends T> newElements) {
+    public Sequence<? extends T> replaceSlice(int startPos, int endPos/*exclusive*/, Sequence<? extends T> newElements) {
         final int length = Sequences.size(newElements);
         T[] temp = Util.<T>newObjectArray(length);
         newElements.toArray(0, length, temp, 0);

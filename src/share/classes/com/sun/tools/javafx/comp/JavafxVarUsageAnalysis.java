@@ -38,7 +38,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     protected static final Context.Key<JavafxVarUsageAnalysis> varUsageKey =
             new Context.Key<JavafxVarUsageAnalysis>();
     
-    private final JavafxTypeMorpher typeMorpher;
     private boolean inLHS;
     private boolean inInitBlock;
     private boolean inBindContext;
@@ -53,7 +52,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     JavafxVarUsageAnalysis(Context context) {
         context.put(varUsageKey, this);
         
-        this.typeMorpher = JavafxTypeMorpher.instance(context);
         inLHS = false;
         inInitBlock = false;
         inBindContext = false;
@@ -85,6 +83,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                     mark(sym, VARUSE_SELF_REFERENCE);
                 }
             }
+            sym.flags_field &= ~VARUSE_OPT_TRIGGER;
         }
     }
 
@@ -145,6 +144,15 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             mark(tree.sym, VARUSE_HAS_ON_REPLACE);
             scan(tree.getOnReplace());
         }
+    }
+
+    @Override
+    public void visitOnReplace(JFXOnReplace tree) {
+        if (tree.getOldValue() != null)
+            mark(tree.getOldValue().sym, VARUSE_OPT_TRIGGER);
+        if (tree.getNewElements() != null)
+            mark(tree.getNewElements().sym, VARUSE_OPT_TRIGGER);
+        super.visitOnReplace(tree);
     }
 
     @Override
@@ -256,6 +264,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     @Override
     public void visitUnary(JFXUnary tree) {
         boolean wasLHS = inLHS;
+        Symbol sym = null;
+        boolean restoreOptTrigger = false;
         switch (tree.getFXTag()) {
             case PREINC:
             case PREDEC:
@@ -263,8 +273,16 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             case POSTDEC:
                 inLHS = true;
                 break;
+            case SIZEOF:
+               if (tree.arg instanceof JFXIdent) {
+                   sym = ((JFXIdent) tree.arg).sym;
+                   restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
+               }
         }
         scan(tree.arg);
+        if (restoreOptTrigger) {
+             sym.flags_field |= VARUSE_OPT_TRIGGER;
+        }
         inLHS = wasLHS;
     }
 
@@ -314,7 +332,20 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         boolean wasLHS = inLHS;
         inLHS = false;
-        super.visitSequenceIndexed(tree);
+        Symbol sym;
+        boolean restoreOptTrigger;
+        if (tree.getSequence() instanceof JFXIdent) {
+            sym = ((JFXIdent) tree.getSequence()).sym;
+            restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
+        }
+        else {
+            sym = null;
+            restoreOptTrigger = false;
+        }
+        scan(tree.getSequence());
+        if (restoreOptTrigger)
+            sym.flags_field |= VARUSE_OPT_TRIGGER;
+        scan(tree.getIndex());
         inLHS = wasLHS;
     }
 
@@ -324,6 +355,30 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         inLHS = false;
         super.visitSequenceSlice(tree);
         inLHS = wasLHS;
+    }
+
+    @Override
+    public void visitForExpressionInClause(JFXForExpressionInClause that) {
+        scan(that.getVar());
+        Symbol sym = null;
+        boolean restoreOptTrigger = false;
+        JFXExpression seq = that.getSequenceExpression();
+        if (seq instanceof JFXIdent) {
+            sym = ((JFXIdent) seq).sym;
+            restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
+        }
+        else if (seq instanceof JFXSequenceSlice) {
+            JFXSequenceSlice slice = (JFXSequenceSlice) seq;
+            JFXExpression sseq = slice.getSequence();
+            if (sseq instanceof JFXIdent) {
+                sym = ((JFXIdent) sseq).sym;
+                restoreOptTrigger = (sym.flags_field & VARUSE_OPT_TRIGGER) != 0;
+            }
+        }
+        scan(seq);
+        if (restoreOptTrigger)
+            sym.flags_field |= VARUSE_OPT_TRIGGER;
+        scan(that.getWhereExpression());
     }
 
     //TODO: cloned from JavafxTranslationSupport, common locaion is needed
@@ -336,6 +391,11 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             default:
                 return null;
         }
+    }
+
+    JFXOnReplace findOnReplace(Symbol sym, JFXOnReplace current) {
+        //for
+        return null;
     }
 
 }
