@@ -32,9 +32,6 @@ public class FXTestCase extends TestCase {
     init {
        try {
            var codebase = getClass().getProtectionDomain().getCodeSource().getLocation().toString();
-           if (codebase.endsWith(".jar")) {
-               codebase = "{codebase}/";
-           }
            SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
 	} catch (ignored : NullPointerException) {
 	   // just in case the code source is null
