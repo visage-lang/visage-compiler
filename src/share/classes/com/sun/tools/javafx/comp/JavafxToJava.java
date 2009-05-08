@@ -2366,7 +2366,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 } else {
                     // not SELECT
                     if (useSetters) {
-                        JCExpression recv = sym.isStatic()? null : makeReceiver(diagPos, sym, true);
+                        JCExpression recv = sym.isStatic()? 
+                            makeTypeTree(diagPos, sym.owner.type, false) :
+                            makeReceiver(diagPos, sym, true);
                         return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
                     } else {
                         return defaultFullExpression(translateToExpression(lhs, AsValue, null), rhsTranslated);

@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.TypeInfo;
+import java.lang.ref.WeakReference;
 
 /**
  * @author Brian Goetz
@@ -42,26 +43,6 @@ public class Locations {
                                                                 final ObjectLocation<T> elseLoc) {
         final L loc = typeInfo.makeLocation();
 
-        class ArmInvalidationListener extends InvalidationListener {
-            private final ObjectLocation<T> branch;
-
-            ArmInvalidationListener(ObjectLocation<T> branch) {
-                this.branch = branch;
-            }
-
-            @Override
-            public boolean onChange() {
-                if (conditional.getAsBoolean()) {
-                    if (branch == thenLoc)
-                        loc.invalidate();
-                }
-                else {
-                    if (branch == elseLoc)
-                        loc.invalidate();
-                }
-                return true;
-            }
-        }
 
         BindingExpression bindingExpression = new AbstractBindingExpression() {
             public void compute() {
@@ -70,10 +51,34 @@ public class Locations {
         };
         ((BindableLocation<T, ?>) loc).bind(lazy, bindingExpression, conditional);
 
-        elseLoc.addInvalidationListener(new ArmInvalidationListener(elseLoc));
-        thenLoc.addInvalidationListener(new ArmInvalidationListener(thenLoc));
+        elseLoc.addInvalidationListener(new ArmInvalidationListener(loc, conditional, false));
+        thenLoc.addInvalidationListener(new ArmInvalidationListener(loc, conditional, true));
 
         return loc;
+    }
+
+    private static class ArmInvalidationListener<T, L extends ObjectLocation<T>> extends InvalidationListener {
+        private final boolean desiredCondition;
+        private final BooleanLocation conditional;
+        private final WeakReference<L> targetLocation;
+
+        ArmInvalidationListener(L targetLocation, BooleanLocation conditional, boolean desiredCondition) {
+            this.targetLocation = new WeakReference<L>(targetLocation);
+            this.conditional = conditional;
+            this.desiredCondition = desiredCondition;
+        }
+
+        @Override
+        public boolean onChange() {
+            L target = targetLocation.get();
+            if (target == null)
+                return false;
+            else {
+                if (conditional.getAsBoolean() == desiredCondition)
+                    target.invalidate();
+                return true;
+            }
+        }
     }
 
     // @@@ This can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
@@ -142,13 +147,9 @@ public class Locations {
         final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
         final L loc = typeInfo.makeLocation();
         final L defaultConstant = typeInfo.makeDefaultConstant();
-        final ObjectVariable<L> lastAdotBLoc = makeIndirectHelper(lazy, loc, makeSelectBindingExpression(receiver, selector, defaultConstant),
-                                                                  defaultConstant);
-        ((BindableLocation<T, ?>) loc).bind(lazy, new AbstractBindingExpression() {
-            public void compute() {
-                pushFrom(typeInfo, lastAdotBLoc.get());
-            }
-        });
+        final ObjectVariable<L> lastADotB = makeIndirectHelper(lazy, loc, makeSelectBindingExpression(receiver, selector, defaultConstant),
+                                                               defaultConstant, receiver);
+        ((BindableLocation<T, ?>) loc).bind(lazy, makeBindingExpression(typeInfo, lastADotB));
         return loc;
     }
 
@@ -169,39 +170,40 @@ public class Locations {
     private static<T, L extends ObjectLocation<T>>
     ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
         final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
-        helpedLocation.addDependency(helper);
+        helpedLocation.addDependency(dependencies);
+        if (!lazy) {
+            L initialValue = helper.get();
+            helpedLocation.addDynamicDependency(initialValue);
+            ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
+        }
+        helper.addChangeListener(new IndirectChangeListener<T, L>(helpedLocation));
+        return helper;
+    }
 
-        class IndirectInvalidationListener extends InvalidationListener {
-            private final L attachedTo;
+    private static class IndirectChangeListener<T, L extends ObjectLocation<T>> extends ChangeListener<L> {
+        private final WeakReference<L> helpedLocationHolder;
 
-            IndirectInvalidationListener(L attachedTo) {
-                this.attachedTo = attachedTo;
-            }
-
-            @Override
-            public boolean onChange() {
-                if (helper.get() == attachedTo)
-                    helpedLocation.invalidate();
-                return true;
-            }
+        public IndirectChangeListener(L helpedLocation) {
+            this.helpedLocationHolder = new WeakReference<L>(helpedLocation);
         }
 
-        ChangeListener<L> changeListener = new ChangeListener<L>() {
-            IndirectInvalidationListener listener;
-
-            @Override
-            public void onChange(L oldLoc, L newLoc) {
-                if (listener != null)
-                    listener.attachedTo.removeInvalidationListener(listener);
-                listener = new IndirectInvalidationListener(newLoc);
-                newLoc.addInvalidationListener(listener);
+        @Override
+        public void onChange(L oldLoc, L newLoc) {
+            L helpedLocation = helpedLocationHolder.get();
+            if (helpedLocation != null) {
+                helpedLocation.clearDynamicDependencies();
+                helpedLocation.addDynamicDependency(newLoc);
                 ((AbstractLocation) helpedLocation).setUnderlyingLocation(newLoc);
             }
+        }
+    }
+
+    private static<V, T extends ObjectLocation<V>> BindingExpression makeBindingExpression(final TypeInfo<V, ?> ti, final ObjectLocation<T> helper) {
+        return new AbstractBindingExpression() {
+            public void compute() {
+                pushFrom(ti, helper.get());
+            }
         };
-        helper.addChangeListener(changeListener);
-        if (!lazy)
-            changeListener.onChange(null, helper.get());
-        return helper;
     }
 
     private static<T> SequenceLocation<T> makeIndirectSequenceLocation(final TypeInfo<T, ?> typeInfo,

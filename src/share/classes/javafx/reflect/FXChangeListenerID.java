@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,26 +21,12 @@
  * have any questions.
  */
 
-package com.sun.javafx.runtime;
+package javafx.reflect;
 
-import com.sun.javafx.runtime.location.*;
-
-/**
- * All FX classes must extend FXObject; it acts as a marker interface, and also includes methods required for
- * object lifecyle.
+/** Identifier for a FXChangeListener.
  *
- * @author Brian Goetz
  * @author Jim Laskey
+ * @profile desktop
  */
-public interface FXObject {
-    public void     initialize$   ();
-    public void     addTriggers$  ();
-    public void     applyDefaults$();
-    public void     applyDefaults$(final int varNum);
-    public void     userInit$     ();
-    public void     postInit$     ();
-    public void     complete$     ();
-    public int      count$        ();
-    public boolean  isInitialized$(final int varNum);
-    public Location loc$          (final int varNum);
+public interface FXChangeListenerID {
 }

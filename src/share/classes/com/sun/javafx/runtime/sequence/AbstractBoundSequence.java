@@ -150,7 +150,8 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
 
     @Override
     protected boolean hasDependencies() {
-        return super.hasDependencies() || changeListeners.size() > 0;
+        return super.hasDependencies() ||
+            (changeListeners != null && changeListeners.size() > 0);
     }
 
     public void addChangeListener(final ChangeListener<Sequence<? extends T>> listener) {

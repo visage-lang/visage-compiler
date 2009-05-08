@@ -53,6 +53,12 @@ public abstract class FXVarMember implements FXMember {
     protected abstract void initVar(FXObjectValue instance, FXValue value);
     public abstract void initValue(FXObjectValue obj, FXValue ref);
     
+    /** Add an on replace listener to the objects var. **/
+    public abstract FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener);
+    
+    /** Remove an on replace listener from the objects var. **/
+    public abstract void removeChangeListener(FXObjectValue instance, FXChangeListenerID id);
+    
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("var ");
