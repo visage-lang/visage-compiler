@@ -135,7 +135,7 @@ public class JavafxTypeMorpher {
         TypeMorphInfo(Type symType) {
             TypeSymbol realTsym = symType.tsym;
             //check if symbol is already a Location, needed for source class
-            assert 
+            assert
                 (realTsym != variableNCT[TYPE_KIND_OBJECT].sym) &&
                 (realTsym != variableNCT[TYPE_KIND_BOOLEAN].sym) &&
                 (realTsym != variableNCT[TYPE_KIND_CHAR].sym) &&
@@ -146,7 +146,7 @@ public class JavafxTypeMorpher {
                 (realTsym != variableNCT[TYPE_KIND_FLOAT].sym) &&
                 (realTsym != variableNCT[TYPE_KIND_DOUBLE].sym) &&
                 (realTsym != variableNCT[TYPE_KIND_SEQUENCE].sym) : "Locations should have been converted";
-            
+
             this.realType = symType;
 
             if (symType.isPrimitive()) {
@@ -281,8 +281,8 @@ public class JavafxTypeMorpher {
                 // vars which are defined by a bind could be slackers but it seems a bad bet, so make it always
                 return AlwaysLocation;
             }
-            if( (flags & VARUSE_HAS_ON_REPLACE) != 0 ) {
-                //TODO: Optimize these away, but, for now, always need to be Locations
+            if( (flags & VARUSE_HAS_ON_REPLACE) != 0 && !isClassVar) {
+                // Local vars with on-replace always need to be Locations, member vars have on-replace in-lined
                 return AlwaysLocation;
             }
             if( (flags & VARUSE_USED_IN_BIND) != 0 ) {

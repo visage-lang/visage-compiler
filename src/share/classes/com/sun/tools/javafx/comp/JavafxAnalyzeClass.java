@@ -58,52 +58,52 @@ import java.util.Set;
  * @author Jim Laskey
  */
 class JavafxAnalyzeClass {
-    
-    // Position in the current javafx class source. 
+
+    // Position in the current javafx class source.
     private final DiagnosticPosition diagPos;
-    
+
     // Current class decl.
     private final JFXClassDeclaration currentClassDecl;
-    
+
     // Current class symbol.
     private final ClassSymbol currentClassSym;
-    
+
     // Null or symbol for the immediate super class (if a javafx class.)
     private ClassSymbol superClassSym;
-    
+
     // Resulting list of all superclasses in top down order.
     private ListBuffer<ClassSymbol> superClasses = ListBuffer.lb();
-    
+
     // Resulting list of immediate mixin classes in left to right order.
     private ListBuffer<ClassSymbol> immediateMixins = ListBuffer.lb();
-    
+
     // Resulting list of all mixin classes in top down order.
     private ListBuffer<ClassSymbol> allMixins = ListBuffer.lb();
-    
+
     // Number of vars in the current class (includes mixins.)
     private int varCount;
-    
+
     // Resulting list of relevant attributes.
     private final ListBuffer<VarInfo> attributeInfos = ListBuffer.lb();
-    
+
     // List of all attributes.  Used to track overridden and mixin attributes.
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
     private final Map<String, MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
-    
+
     // List of all methods.  Used to track whether a mixin method should be included.
     private final Map<String, MethodSymbol> visitedMethods = new HashMap<String, MethodSymbol>();
-    
+
     // List of classes encountered.  Used to prevent duplication.
     private final Set<Symbol> addedBaseClasses = new HashSet<Symbol>();
-    
+
     // List of vars (attributes) found in the current javafx class (supplied by JavafxInitializationBuilder.)
     private final List<TranslatedVarInfo> translatedAttrInfo;
-    
+
     // List of overriding vars (attributes) found in the current javafx class (supplied by JavafxInitializationBuilder.)
     private final List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo;
-    
+
     // Global names table (supplied by JavafxInitializationBuilder.)
     private final Name.Table names;
 
@@ -112,7 +112,7 @@ class JavafxAnalyzeClass {
 
     // Class reader used to fetch superclass .class files (supplied by JavafxInitializationBuilder.)
     private final JavafxClassReader reader;
-    
+
     // Javafx to Java type translator (supplied by JavafxInitializationBuilder.)
     private final JavafxTypeMorpher typeMorpher;
 
@@ -121,28 +121,28 @@ class JavafxAnalyzeClass {
     // JavafxInitializationBuilder.
     //
     static abstract class VarInfo {
-        // Position of the var declaration or current javafx class if read from superclass. 
+        // Position of the var declaration or current javafx class if read from superclass.
         private final DiagnosticPosition diagPos;
-        
+
         // Var symbol (unique to symbol.)
         private final VarSymbol sym;
-        
+
         // Translated type information.
         private final VarMorphInfo vmi;
-        
+
         // Name of the var (is it the same as sym.name?)
         private final Name name;
-        
+
         // Null or code for initializing the var.
         private final JCStatement initStmt;
-        
+
         // Predicate whether the initialize is overshadowed by a subclass.
         private boolean initOverridden;
-        
+
         // The class local enumeration value for this var.
         private int enumeration;
-        
-        
+
+
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
             this.diagPos = diagPos;
@@ -177,55 +177,58 @@ class JavafxAnalyzeClass {
 
         // Return modifier flags from the symbol.
         public long getFlags() { return sym.flags(); }
-        
+
         // Generally means that the var needs to be included in the current method.
         public boolean needsCloning() { return false; }
-        
-        // A proxy var serves several roles, but generally means that the proxy's 
+
+        // A proxy var serves several roles, but generally means that the proxy's
         // qualified name should be used in place of the current var's qualified name.
         public VarInfo proxyVar() { return null; }
         public boolean hasProxyVar() { return proxyVar() != null; }
-        
+
         // Convenience method to return the current symbol to be used for qualified name.
         public VarSymbol proxyVarSym() { return hasProxyVar() ? proxyVar().sym : sym; }
 
         // Predicate for static var test.
         public boolean isStatic() { return (getFlags() & Flags.STATIC) != 0; }
-        
+
         // Predicate for private var test.
         public boolean isPrivateAccess() { return (getFlags() & Flags.PRIVATE) != 0L; }
 
         // Predicate for def (constant) var.
         public boolean isDef() { return (getFlags() & JavafxFlags.IS_DEF) != 0; }
-        
+
         // Predicate whether the var came from a mixin.
         public boolean isMixinVar() { return isMixinClass(sym.owner); }
 
-        // Predicate whether the var came from the current javafx class. 
+        // Predicate whether the var came from the current javafx class.
         public boolean isDirectOwner() { return false; }
-        
+
         // Predicate to test for sequence.
         public boolean isSequence() {
             return vmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE;
         }
-        
+
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
-        
+
         // Indicate that the initialization code is supplied by another var.
         public void setIsInitOverridden(boolean initOverridden) { this.initOverridden = initOverridden; }
-        
+
         // Predicate for testing if the initialization code is supplied by another var.
         public boolean isInitOverridden() { return initOverridden; }
-        
+
         // Class local enumeration accessors.
         public int  getEnumeration()                { return enumeration; }
         public void setEnumeration(int enumeration) { this.enumeration = enumeration; }
-        
-        // Return null or javafx code for the var's 'on replace'.
+
+        // null or javafx tree for the var's 'on replace'.
         public JFXOnReplace onReplace() { return null; }
-        
-        // Return null or java code for the var's 'on replace'.
+
+        // null or Java tree for var's on-replace for use in a setter.
+        public JCStatement onReplaceAsInline() { return null; }
+
+        // null or Java tree for var's on-replace for use in change listeber.
         public JCStatement onReplaceAsListenerInstanciation() { return null; }
 
         // Return true if the var needs to be declared in the current class.
@@ -239,8 +242,8 @@ class JavafxAnalyzeClass {
 
         @Override
         public String toString() { return getNameString(); }
-        
-        // Useful diagnostic tool. 
+
+        // Useful diagnostic tool.
         public void printInfo() {
             System.out.println("    " + getSymbol() +
                                ", type=" + getRealType() +
@@ -248,7 +251,7 @@ class JavafxAnalyzeClass {
                                ", static=" + isStatic() +
                                ", enum=" + getEnumeration() +
                                ", isPrivateAccess=" + isPrivateAccess() +
-                               ", needsCloning=" + needsCloning() + 
+                               ", needsCloning=" + needsCloning() +
                                ", isDef=" + isDef() +
                                ", getDefaultInitStatement=" + (getDefaultInitStatement() != null) +
                                ", isInitOverridden=" + initOverridden +
@@ -256,79 +259,87 @@ class JavafxAnalyzeClass {
                                ", class=" + getClass().getName());
         }
     }
-        
+
     //
     // This base class is used for vars declared in the current javafx class..
     //
     static abstract class TranslatedVarInfoBase extends VarInfo {
         // Null or javafx code for the var's on replace.
         private final JFXOnReplace onReplace;
-        
-        // Null or java code for the var's on replace.
+
+        // Null or java code for the var's on replace inlined in setter.
+        private final JCStatement onReplaceAsInline;
+
+        // Null or java code for the var's on replace in a change listener.
         private final JCStatement onReplaceAsListenerInstanciation;
-        
+
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
+                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
             super(diagPos, name, attrSym, vmi, initStmt);
             this.onReplace = onReplace;
+            this.onReplaceAsInline = onReplaceAsInline;
             this.onReplaceAsListenerInstanciation = onReplaceAsListenerInstanciation;
         }
-        
+
         // Possible javafx code for the var's 'on replace'.
         @Override
         public JFXOnReplace onReplace() { return onReplace; }
-        
-        // Possible java code for the var's 'on replace'.
+
+        // Possible java code for the var's 'on replace' in setter.
+        @Override
+        public JCStatement onReplaceAsInline() { return onReplaceAsInline; }
+
+        // Possible java code for the var's 'on replace' in a change listener.
         @Override
         public JCStatement onReplaceAsListenerInstanciation() { return onReplaceAsListenerInstanciation; }
-        
+
         // This var is in the current javafx class so it has to be cloned into the java class.
         @Override
         public boolean needsCloning() { return true; }
-        
+
         // Has to be the current javafx class.
         @Override
         public boolean isDirectOwner() { return true; }
     }
-        
+
     //
     // This class is used for basic vars declared in the current javafx class.
     //
     static class TranslatedVarInfo extends TranslatedVarInfoBase {
         // Tree for the javafx var.
         private final JFXVar var;
-        
+
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
-            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, onReplace, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
+            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
             this.var = var;
         }
-        
+
         // Returns the tree for the javafx var.
         public JFXVar jfxVar() { return var; }
-    }  
-  
+    }
+
     //
     // This class represents a var override declared in the current javafx class.
     //
     static class TranslatedOverrideClassVarInfo extends TranslatedVarInfoBase {
         // Reference to the var information the override overshadows.
         private VarInfo proxyVar;
-        
+
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, onReplace, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
+            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
         }
-        
+
         // Returns the var information the override overshadows.
         @Override
         public VarInfo proxyVar() { return proxyVar; }
-        
+
         // Setter for the proxy var information.
         public void setProxyVar(VarInfo proxyVar) { this.proxyVar = proxyVar; }
     }
-    
+
     //
     // This class represents a var that is declared in a superclass.  This var may be
     // declared in the same compile unit or read in from a .class file.
@@ -337,12 +348,12 @@ class JavafxAnalyzeClass {
         SuperClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
         }
-        
+
         // Superclass vars are never cloned.
         @Override
         public boolean needsCloning() { return false; }
     }
-    
+
     //
     // This class represents a var that is declared in a mixin superclass.  This var may be
     // declared in the same compile unit or read in from a .class file.
@@ -351,12 +362,12 @@ class JavafxAnalyzeClass {
         MixinClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
         }
-         
+
         // Mixin vars are always cloned.
         @Override
         public boolean needsCloning() { return true; }
     }
-    
+
     //
     // Set up the analysis.
     //
@@ -378,10 +389,10 @@ class JavafxAnalyzeClass {
         this.translatedAttrInfo = translatedAttrInfo;
         this.translatedOverrideAttrInfo = translatedOverrideAttrInfo;
         this.varCount = 0;
-        
+
         // Start by analyzing the current class.
         analyzeCurrentClass();
-        
+
         // Assign var enumeration.
         for (VarInfo ai : attributeInfos) {
             // Only variables actually declared.
@@ -390,7 +401,7 @@ class JavafxAnalyzeClass {
                 ai.setEnumeration(varCount++);
             }
         }
-         
+
         // Useful debugging tool.
         // printAnalysis(false);
     }
@@ -399,17 +410,17 @@ class JavafxAnalyzeClass {
     // Returns the current class position.
     //
     public DiagnosticPosition getCurrentClassPos() { return diagPos; }
-    
+
     //
     // Returns the current class decl.
     //
     public JFXClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
-    
+
     //
     // Returns true if the current class is a script.
     //
     public boolean isScriptClass() { return currentClassDecl.isScriptClass; }
-    
+
     //
     // Returns the current class symbol.
     //
@@ -419,7 +430,7 @@ class JavafxAnalyzeClass {
     // Returns the var count for the current class.
     //
     public int getVarCount() { return varCount; }
-    
+
     //
     // Returns the translatedAttrInfo for the current class.
     //
@@ -444,14 +455,14 @@ class JavafxAnalyzeClass {
     //
     public List<VarInfo> staticAttributeInfos() {
         ListBuffer<VarInfo> ais = ListBuffer.lb();
-        
+
         // Select just the static vars from the current javafx class.
         for (VarInfo ai : translatedAttrInfo) {
             if (ai.isStatic()) {
                 ais.append( ai );
             }
         }
-        
+
         return ais.toList();
     }
 
@@ -460,21 +471,21 @@ class JavafxAnalyzeClass {
     //
     public List<MethodSymbol> needDispatch() {
         ListBuffer<MethodSymbol> meths = ListBuffer.lb();
-        
+
         for (MethodSymbol mSym : needDispatchMethods.values()) {
             meths.append( mSym );
         }
-        
+
         return meths.toList();
     }
-    
+
     //
     // Returns true if the type is a valid class worthy of analysis.
     //
     private boolean isValidClass(Type type) {
         return type != null && type.tsym != null && type.tsym.kind == Kinds.TYP;
     }
-    
+
     //
     // Returns true if the class (or current class) is a mixin.
     //
@@ -484,14 +495,14 @@ class JavafxAnalyzeClass {
     public static boolean isMixinClass(Symbol cSym) {
         return (cSym.flags() & JavafxFlags.MIXIN) != 0;
     }
-    
+
     //
     // Returns true if the class is a Interface.
     //
     public boolean isInterface(Symbol cSym) {
         return (cSym.flags() & Flags.INTERFACE) != 0;
     }
-    
+
     //
     // Returns true if the class is anon (synthetic.)
     //
@@ -502,44 +513,44 @@ class JavafxAnalyzeClass {
         final long flags = (Flags.SYNTHETIC | Flags.FINAL);
         return (cSym.flags() & flags) == flags;
     }
-    
+
     //
     // Returns null or the superclass symbol if it is a javafx class.
     //
     public ClassSymbol getFXSuperClassSym() { return superClassSym; }
-    
+
     //
     // Returns resulting list of all superclasses in top down order.
     //
     public List<ClassSymbol> getSuperClasses() { return superClasses.toList(); }
-    
+
     //
     // Returns resulting list of immediate mixin classes in left to right order.
     //
     public List<ClassSymbol> getImmediateMixins() { return immediateMixins.toList(); }
-    
+
     //
     // Returns resulting list of all mixin classes in top down order.
     //
     public List<ClassSymbol> getAllMixins() { return allMixins.toList(); }
 
     //
-    // This method analyzes the current javafx class. 
+    // This method analyzes the current javafx class.
     //
     private void analyzeCurrentClass() {
         // Make sure we don't recursively redo this class.
         addedBaseClasses.add(currentClassSym);
-        
+
         // Process up the super class chain first.
         Type superType = currentClassSym.getSuperclass();
-        
+
         // Make sure the super is a valid java class (is this always true?)
         if (isValidClass(superType)) {
             // Analyze the super class, but note that we don't want to clone
             // anything in the super chain.
             analyzeClass(superType.tsym, true, false);
         }
-        
+
         // Track the current vars to the instance attribute results.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
             // Only look at instance vars.
@@ -548,30 +559,30 @@ class JavafxAnalyzeClass {
                 visitedAttributes.put(tai.getName(), tai);
             }
         }
-        
+
         // Track the override vars to the instance attribute results.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
             // Only look at instance vars.
             if (!tai.isStatic()) {
                 // Find the overridden var.
                 VarInfo oldVarInfo = visitedAttributes.get(tai.getName());
-               
+
                 // Test because it's possible to find the override before the mixin.
                 if (oldVarInfo != null) {
                     // Proxy to the overridden var.
                     tai.setProxyVar(oldVarInfo);
-                    
+
                     // If the override has an init then ignore the overridden var's init.
                     if (tai.getDefaultInitStatement() != null) {
                         oldVarInfo.setIsInitOverridden(true);
                     }
                 }
-                
+
                 // Track the var for overrides and mixin duplication.
                 visitedAttributes.put(tai.getName(), tai);
             }
         }
-        
+
         // Map the current methods so they are filtered out of the results.
         for (JFXTree def : currentClassDecl.getMembers()) {
             // Only the method members.
@@ -580,14 +591,14 @@ class JavafxAnalyzeClass {
                 visitedMethods.put(methodSignature(method), method);
             }
         }
-        
+
         // Lastly, insert any mixin vars and methods from the interfaces.
         for (JFXExpression supertype : currentClassDecl.getSupertypes()) {
             // This will technically only analyze mixin classes.
             // We also want to clone all mixin vars amnd methods.
             analyzeClass(supertype.type.tsym, true, true);
         }
-        
+
         // Add the current vars to the instance attribute results.
         // JFXC-3043 - This needs to be done after mixins.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
@@ -597,7 +608,7 @@ class JavafxAnalyzeClass {
                 attributeInfos.append(tai);
             }
         }
-        
+
         // Add the override vars to the instance attribute results.
         // JFXC-3043 - This needs to be done after mixins.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
@@ -615,7 +626,7 @@ class JavafxAnalyzeClass {
             // Get the current class symbol and add it to the visited map.
             ClassSymbol cSym = (ClassSymbol) sym;
             addedBaseClasses.add(cSym);
-            
+
             // Only continue cloning up the hierarchy if this is a mixin class.
             boolean isMixinClass = isMixinClass(cSym);
             needsCloning = needsCloning && isMixinClass;
@@ -627,7 +638,7 @@ class JavafxAnalyzeClass {
                 // anything in the super chain.
                 analyzeClass(superType.tsym, false, false);
             }
- 
+
             // Get the class decl.  This will be null if read from a .class file.
             JFXClassDeclaration cDecl = types.getFxClass(cSym);
 
@@ -641,16 +652,16 @@ class JavafxAnalyzeClass {
                         reversed.prepend(e.sym);
                     }
 
-                    // Scan attribute/method members. 
+                    // Scan attribute/method members.
                     for (Symbol mem : reversed) {
                         if (mem.kind == Kinds.MTH) {
                             // Method member.
                             MethodSymbol meth = (MethodSymbol) mem;
-                            
+
                             // Workaround for JFXC-3040 - Compile failure building
                             // runtime/javafx-ui-controls/javafx/scene/control/Button.fx
                             if (!needsCloning) continue;
-        
+
                             // Filter out methods generated by the javac compiler.
                             if (filterMethods(meth)) {
                                 processMethod(meth, needsCloning);
@@ -662,7 +673,7 @@ class JavafxAnalyzeClass {
                         }
                     }
                 }
-                
+
                 // Lastly, insert any mixin vars and methods from the interfaces.
                 for (Type supertype : cSym.getInterfaces()) {
                     ClassSymbol iSym = (ClassSymbol) supertype.tsym;
@@ -671,7 +682,7 @@ class JavafxAnalyzeClass {
             } else {
                 // Class is in current compile unit.
 
-                // Scan attribute/method members. 
+                // Scan attribute/method members.
                 for (JFXTree def : cDecl.getMembers()) {
                     if (def.getFXTag() == JavafxTag.VAR_DEF) {
                         // Attribute member.
@@ -683,13 +694,13 @@ class JavafxAnalyzeClass {
                         processMethod(meth, needsCloning);
                     }
                 }
-                
+
                 // Lastly, insert any mixin vars and methods from the interfaces.
                 for (JFXExpression supertype : cDecl.getSupertypes()) {
                     analyzeClass(supertype.type.tsym, isImmediateSuper && isMixinClass, needsCloning);
                 }
             }
-             
+
             // Record the superclass in top down order.
             recordClass(cSym, isImmediateSuper);
         }
@@ -703,7 +714,7 @@ class JavafxAnalyzeClass {
         Name name = meth.name;
         return name != names.init;
     }
-    
+
     //
     // Record the superclasses and mixins in top down order.
     //
@@ -714,7 +725,7 @@ class JavafxAnalyzeClass {
             if (isImmediateSuper) {
                 immediateMixins.append(cSym);
             }
-            
+
             // Record all mixin classes in top down order.
             allMixins.append(cSym);
         } else {
@@ -722,20 +733,20 @@ class JavafxAnalyzeClass {
             if (isImmediateSuper) {
                 superClassSym = cSym;
             }
-            
+
             // Record all superclasses in top down order.
             superClasses.append(cSym);
         }
     }
-    
-    
+
+
     //
     // This method determines if a method should be added to the list of methods
     // needing $impl dispatch.  This method is only called for inherited methods.
     //
     private void processMethod(MethodSymbol newMethod, boolean needsCloning) {
         long flags = newMethod.flags();
-        
+
         // Only look at real instance methods.
         if ((flags & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0) {
             // Generate a name/signature string for uniqueness.
@@ -746,7 +757,7 @@ class JavafxAnalyzeClass {
             boolean newIsMixin = isMixinClass(newMethod.owner);
             // See if the previous methods is a mixin.
             boolean oldIsMixin = oldMethod != null && isMixinClass(oldMethod.owner);
-            
+
             // Are we are still cloning this far up the hierarchy?
             if (needsCloning) {
                 // If the method didn't occur before or is a real method overshadowing a prior mixin.
@@ -755,7 +766,7 @@ class JavafxAnalyzeClass {
                     needDispatchMethods.put(nameSig, newMethod);
                 }
             }
-            
+
             // Map the fact we've seen this name/signature.
             visitedMethods.put(nameSig, newMethod);
         }
@@ -768,13 +779,13 @@ class JavafxAnalyzeClass {
     private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean needsCloning) {
         long flags = var.flags();
         boolean isStatic = (var.flags() & Flags.STATIC) != 0;
-        
+
         // If the var is in a class and not a static (ie., an instance attribute.)
         if (var.owner.kind == Kinds.TYP && !isStatic) {
             // See if we've seen this class before.
             Name attrName = var.name;
             VarInfo oldVarInfo = visitedAttributes.get(attrName);
-            
+
             // If we've seen this class before, it must be the same symbol and type,
             // otherwise in doesn't conflict.
             if (oldVarInfo != null &&
@@ -782,7 +793,7 @@ class JavafxAnalyzeClass {
                  oldVarInfo.getSymbol().type != var.type)) {
                 oldVarInfo = null;
             }
-            
+
             // Is the var in a mixin class and needs cloning.
             boolean newIsMixin = isMixinClass(var.owner);
             if (newIsMixin && needsCloning) {
@@ -798,13 +809,13 @@ class JavafxAnalyzeClass {
             } else {
                 // Construct a new superclass VarInfo.
                 SuperClassVarInfo newVarInfo = new SuperClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
-                
+
                 // If encountered before.
                 if (oldVarInfo != null) {
                     // Indicate the init is overridden.
                     oldVarInfo.setIsInitOverridden(true);
                 }
-                
+
                 // Add the new superclass VarInfo to the result list.
                 attributeInfos.append(newVarInfo);
                 // Map the fact we've seen this var.
@@ -829,7 +840,7 @@ class JavafxAnalyzeClass {
         }
         return nameSigBld.toString();
     }
-    
+
     //
     // This method can be used to dump the state of a VarInfo or subclass.
     // The before flag cam be used to dump the VarInfo supplied by the
@@ -837,14 +848,14 @@ class JavafxAnalyzeClass {
     //
     private void printAnalysis(boolean before) {
         System.out.println("Analyzed : " + currentClassSym);
-        
+
         if (before) {
             System.out.println("  translatedAttrInfo");
             for (TranslatedVarInfo ai : translatedAttrInfo) ai.printInfo();
             System.out.println("  translatedOverrideAttrInfo");
             for (TranslatedOverrideClassVarInfo ai : translatedOverrideAttrInfo) ai.printInfo();
         }
-        
+
         System.out.println("  superClass");
         System.out.println("    " + superClassSym);
         System.out.println("  superClasses");
@@ -853,7 +864,7 @@ class JavafxAnalyzeClass {
         for (ClassSymbol cs : immediateMixins) System.out.println("    " + cs);
          System.out.println("  all mixins");
         for (ClassSymbol cs : allMixins) System.out.println("    " + cs);
-        
+
         System.out.println("  attributeInfos");
         for (VarInfo ai : attributeInfos) ai.printInfo();
         System.out.println("  needDispatchMethods");
@@ -863,5 +874,5 @@ class JavafxAnalyzeClass {
         System.out.println();
         System.out.println();
     }
-    
+
 }

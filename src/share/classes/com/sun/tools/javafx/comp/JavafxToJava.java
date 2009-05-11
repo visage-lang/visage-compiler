@@ -575,7 +575,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 }
 
                 if ((var != null) && var.isBound()) {
-                    translated = getLocationValue(diagPos, translated, 
+                    translated = getLocationValue(diagPos, translated,
                         TYPE_KIND_OBJECT);
                 }
                 return make.at(diagPos).Return(convertTranslated(translated, diagPos, expr.type, targetType));
@@ -850,6 +850,16 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     /**
+     * Make a version of the on-replace to be used in inline in a setter.
+     */
+    JCStatement makeOnReplaceAsInline(VarSymbol vsym, JFXOnReplace onReplace) {
+        if (onReplace == null) return null;
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        if (vmi.representation() == VarRepresentation.AlwaysLocation) return null;
+        return translateToStatement(onReplace.getBody());
+    }
+
+    /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
     JCStatement makeInstanciateChangeListener(VarSymbol vsym, JFXOnReplace onReplace) {
@@ -955,7 +965,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         return make.at(diagPos).TypeApply(
                 makeIdentifier(diagPos, JavafxDefs.cSequence),
                 List.<JCExpression>of(
-                       concreteType==null? 
+                       concreteType==null?
                            make.at(diagPos).Wildcard(make.at(diagPos).TypeBoundKind(BoundKind.EXTENDS), make.at(diagPos).Ident(defs.typeParamName)) :
                            makeTypeTree(diagPos, concreteType)));
     }
@@ -981,8 +991,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             case TypeTags.BOOLEAN:
                 return make.at(diagPos).TypeIdent(typeTag);
             case TypeTags.CLASS:
-                return 
-                       concreteType==null? 
+                return
+                       concreteType==null?
                            make.at(diagPos).Ident(defs.typeParamName) :
                            makeTypeTree(diagPos, concreteType);
             default:
@@ -993,6 +1003,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     /**
      * construct a change listener method for insertion in a listener class from a list of cases clauses.
      */
+    //TODO: this is evil there are two, almost identical, versions of this method
     private JCMethodDecl makeChangeListenerMethod(
             DiagnosticPosition diagPos,
             boolean isSequence,
@@ -1126,7 +1137,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         JFXClassDeclaration prevClass = currentClass;
         JFXClassDeclaration prevEnclClass = getAttrEnv().enclClass;
         currentClass = tree;
-        
+
         if (tree.isScriptClass) {
             scriptBegin();
         }
@@ -1178,6 +1189,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     typeMorpher.varMorphInfo(attrDef.sym),
                                     init,
                                     attrDef.getOnReplace(),
+                                    makeOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace()),
                                     makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -1195,6 +1207,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     typeMorpher.varMorphInfo(override.sym),
                                     init,
                                     override.getOnReplace(),
+                                    makeOnReplaceAsInline(override.sym, override.getOnReplace()),
                                     makeInstanciateChangeListener(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -1241,16 +1254,16 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             }
 
             translatedDefs.appendList(model.additionalClassMembers);
-            
+
             ClassSymbol superClassSym = model.superClassSym;
             List<ClassSymbol> immediateMixins = model.immediateMixins;
             boolean forceInit = !immediateMixins.isEmpty() || superClassSym == null || isMixinClass;
-          
+
             if (forceInit || !translatedInitBlocks.isEmpty()) {
                 // Add the userInit$ method
                 List<JCVariableDecl> receiverVarDeclList = isMixinClass? List.of(makeReceiverParam(tree)) : List.<JCVariableDecl>nil();
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
- 
+
                 // Mixin super calls will be handled when inserted into real classes.
                 if (!isMixinClass) {
                     //TODO:
@@ -1269,7 +1282,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         //args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(names._this)));
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, names._super), defs.userInitName, args1));
                     }
-                     
+
                     for (ClassSymbol mixinClassSym : immediateMixins) {
                         String mixinName = mixinClassSym.fullname.toString();
                         List<JCExpression> args1 = List.nil();
@@ -1277,9 +1290,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, mixinName), defs.userInitName, args1));
                     }
                 }
-                
+
                 initStats.appendList(translatedInitBlocks);
-                
+
                 // Only create method if necessary (rely on FXBase.)
                 if (initStats.nonEmpty() || isMixinClass || superClassSym == null) {
                     JCBlock userInitBlock = make.Block(0L, initStats.toList());
@@ -1294,12 +1307,12 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                             null));
                 }
             }
-            
+
             if (forceInit || !translatedPostInitBlocks.isEmpty()) {
                 // Add the userPostInit$ method
                 List<JCVariableDecl> receiverVarDeclList = isMixinClass? List.of(makeReceiverParam(tree)) : List.<JCVariableDecl>nil();
                 ListBuffer<JCStatement> initStats = ListBuffer.lb();
-                
+
                 // Mixin super calls will be handled when inserted into real classes.
                 if (!isMixinClass) {
                     //TODO:
@@ -1318,7 +1331,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         //args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(names._this)));
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, names._super), defs.postInitName, args1));
                     }
-                     
+
                     for (ClassSymbol mixinClassSym : immediateMixins) {
                         String mixinName = mixinClassSym.fullname.toString();
                         List<JCExpression> args1 = List.nil();
@@ -1326,7 +1339,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                         initStats = initStats.append(callStatement(tree.pos(), makeIdentifier(diagPos, mixinName), defs.postInitName, args1));
                     }
                 }
-                
+
                 initStats.appendList(translatedPostInitBlocks);
 
                 // Only create method if necessary (rely on FXBase.)
@@ -1346,16 +1359,16 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
             if (tree.isScriptClass) {
                 if (!isMixinClass) {
-                   // JFXC-1888: Do *not* add main method! 
-                   // com.sun.javafx.runtime.Main has the 
+                   // JFXC-1888: Do *not* add main method!
+                   // com.sun.javafx.runtime.Main has the
                    // "main" that will call Entry.start().
                    // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
                 }
-                
+
                 // Add binding support
                 translatedDefs.appendList(scriptComplete(tree.pos()));
             }
-            
+
             // build the list of implemented interfaces
             List<JCExpression> implementing = model.interfaces;
 
@@ -1400,7 +1413,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             translatedBlocks.append(stmt);
         }
     }
-
+    
     @Override
     public void visitInitDefinition(JFXInitDefinition tree) {
         assert false : "should be processed by class tree";
@@ -3007,20 +3020,20 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
 
         JCStatement makeBuilderVar() {
-            String seqBuilder = this.seqBuilder;
+            String localSeqBuilder = this.seqBuilder;
             boolean primitive = false;
-            if (seqBuilder == null) {
+            if (localSeqBuilder == null) {
                 if (elemType.isPrimitive()) {
                     primitive = true;
                     addTypeInfoArg = false;
                     int kind = typeMorpher.kindFromPrimitiveType(elemType.tsym);
-                    seqBuilder = "com.sun.javafx.runtime.sequence." + JavafxVarSymbol.getTypePrefix(kind) + "ArraySequence";
+                    localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxVarSymbol.getTypePrefix(kind) + "ArraySequence";
                 }
                 else
-                    seqBuilder = sequenceBuilderString;
+                    localSeqBuilder = sequenceBuilderString;
             }
-            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, seqBuilder);
-            JCExpression builderClassExpr = makeQualifiedTree(diagPos, seqBuilder);
+            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, localSeqBuilder);
+            JCExpression builderClassExpr = makeQualifiedTree(diagPos, localSeqBuilder);
             if (! primitive) {
                 builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr,
                         List.of(makeTypeTree(diagPos, elemType)));
