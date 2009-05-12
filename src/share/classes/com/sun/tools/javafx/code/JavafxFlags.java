@@ -69,6 +69,8 @@ public class JavafxFlags {
                                                      = FIRST_VARUSE_FLAG << 10; // the initial value is stateful or has side-effects
     public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 11; // temp flag, set while inside var's initializing expression
     public static final long VARUSE_OPT_TRIGGER      = FIRST_VARUSE_FLAG << 12;
+    public static final long VARUSE_INIT_HAS_SIDE_EFFECTS
+                                                     = FIRST_VARUSE_FLAG << 13; // the init expression for this var has side-effects
     // This last shift + the last for modifiers must be < 24 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags

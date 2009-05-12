@@ -933,6 +933,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
                 int typeKind = varInfo.getVMI().getTypeKind();
 
+                // $var
+                JCExpression valueExp = Id(attributeValueName(proxyVarSym));
+
+                if (varInfo.getterInit() != null) {
+                    // This is a Slacker Bind -- has_not_been_set_test? bound_expression_in_line : $var
+                    valueExp = m().Conditional(makeIsInitializedTest(varInfo), varInfo.getterInit(), valueExp);
+                }
+
                 switch (varInfo.representation()) {
                     case SlackerLocation: {
                         // Construct and add: return loc$var != null ? loc$var.getAsType() : $var;
@@ -946,8 +954,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
                         // loc$var.getAsType()
                         JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
-                        // $var
-                        JCExpression valueExp = Id(attributeValueName(proxyVarSym));
                         // loc$var != null
                         JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
                         // loc$var != null ? loc$var.getAsType() : $var
@@ -969,8 +975,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         break;
                     }
                     case NeverLocation: {
-                        // $var
-                        JCExpression valueExp = Id(attributeValueName(proxyVarSym));
                         // Construct and add: return $var;
                         stmts.append(m().Return(valueExp));
                         break;
@@ -1496,6 +1500,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the statements needed to apply defaults to a given var.
         //
         private JCStatement makeApplyDefaultsStatement(VarInfo ai, boolean isMixinClass) {
+            if ((ai.getFlags() & JavafxFlags.VARUSE_BOUND_INIT) != 0L && ai.representation() != AlwaysLocation) {
+                // Slacker bind, don't set in applyDefaults$
+                return null;
+            }
+
             // Assume the worst.
             JCStatement stmt = null;
             // Get init statement.
@@ -1532,8 +1541,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs an applyDefaults method for each attribute in a mixin.
         //
         private List<JCTree> makeMixinApplyDefaultsMethods(List<? extends VarInfo> attrInfos) {
-            // Mixin vars always have applyDefaults.
-            boolean isMixinClass = analysis.isMixinClass();
             // Prepare to accumulate methods.
             ListBuffer<JCTree> methods = ListBuffer.lb();
 
@@ -1624,17 +1631,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                             // Don't generate for overrides
                             if (enumeration >= 0) {
-                                // Which VFLGS$(word) to use.
-                                int word = enumeration >> 5;
-                                // Which bit to use.
-                                int bit = enumeration & 31;
-
-                                // (varWord & (1 << varBit))
-                                JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
-                                // (varWord & (1 << varBit)) == 0
-                                JCExpression condition = m().Binary(JCTree.EQ, maskExpr, makeInt(0));
                                 // if ((VFLGS$(word) & (1 << bit)) == 0) { applyDefaults$var(); }
-                                deflt = m().If(condition, deflt, null);
+                                deflt = m().If(makeIsInitializedTest(ai), deflt, null);
                             }
                         }
 
@@ -1737,6 +1735,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
 
             return methods.toList();
+        }
+
+        private JCExpression makeIsInitializedTest(VarInfo ai) {
+            // Find the vars enumeration.
+            int enumeration = ai.getEnumeration();
+            // Which VFLGS$(word) to use.
+            int word = enumeration >> 5;
+            // Which bit to use.
+            int bit = enumeration & 31;
+
+            // (varWord & (1 << varBit))
+            JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
+            // (varWord & (1 << varBit)) == 0
+            return m().Binary(JCTree.EQ, maskExpr, makeInt(0));
         }
 
         //

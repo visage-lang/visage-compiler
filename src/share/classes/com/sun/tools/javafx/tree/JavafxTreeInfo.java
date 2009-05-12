@@ -31,7 +31,6 @@ import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.tree.JCTree;
 
 import com.sun.tools.javafx.code.JavafxFlags;
-import static com.sun.tools.javac.code.Flags.*;
 
 /** Utility class containing inspector methods for trees.
  *

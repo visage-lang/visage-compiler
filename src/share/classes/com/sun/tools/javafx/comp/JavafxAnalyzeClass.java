@@ -31,6 +31,7 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javac.util.List;
@@ -222,6 +223,9 @@ class JavafxAnalyzeClass {
         public int  getEnumeration()                { return enumeration; }
         public void setEnumeration(int enumeration) { this.enumeration = enumeration; }
 
+        // Null or java code for the var's bound value for retrieval from getter.
+        public JCExpression getterInit() { return null; }
+
         // null or javafx tree for the var's 'on replace'.
         public JFXOnReplace onReplace() { return null; }
 
@@ -264,6 +268,10 @@ class JavafxAnalyzeClass {
     // This base class is used for vars declared in the current javafx class..
     //
     static abstract class TranslatedVarInfoBase extends VarInfo {
+
+        // Null or java code for the var's bound value for retrieval from getter.
+        private final JCExpression getterInit;
+
         // Null or javafx code for the var's on replace.
         private final JFXOnReplace onReplace;
 
@@ -274,12 +282,17 @@ class JavafxAnalyzeClass {
         private final JCStatement onReplaceAsListenerInstanciation;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
+                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
             super(diagPos, name, attrSym, vmi, initStmt);
+            this.getterInit = getterInit;
             this.onReplace = onReplace;
             this.onReplaceAsInline = onReplaceAsInline;
             this.onReplaceAsListenerInstanciation = onReplaceAsListenerInstanciation;
         }
+
+        // Null or java code for the var's bound value for retrieval from getter.
+        @Override
+        public JCExpression getterInit() { return getterInit; }
 
         // Possible javafx code for the var's 'on replace'.
         @Override
@@ -310,8 +323,8 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
-            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
+            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, getterInit, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
             this.var = var;
         }
 
@@ -328,8 +341,8 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
+            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, getterInit, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
         }
 
         // Returns the var information the override overshadows.

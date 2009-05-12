@@ -852,7 +852,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     /**
      * Make a version of the on-replace to be used in inline in a setter.
      */
-    JCStatement makeOnReplaceAsInline(VarSymbol vsym, JFXOnReplace onReplace) {
+    private JCStatement translateOnReplaceAsInline(VarSymbol vsym, JFXOnReplace onReplace) {
         if (onReplace == null) return null;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         if (vmi.representation() == VarRepresentation.AlwaysLocation) return null;
@@ -862,7 +862,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     /**
      * Non-destructive creation of "on change" change listener set-up call.
      */
-    JCStatement makeInstanciateChangeListener(VarSymbol vsym, JFXOnReplace onReplace) {
+    private JCStatement makeInstanciateChangeListener(VarSymbol vsym, JFXOnReplace onReplace) {
         if (onReplace == null) return null;
         DiagnosticPosition diagPos = onReplace.pos();
         final boolean isSequence = types.isSequence(vsym.type);
@@ -1188,8 +1188,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     attrDef,
                                     typeMorpher.varMorphInfo(attrDef.sym),
                                     init,
+                                    getterInit(attrDef.sym, attrDef.getInitializer()),
                                     attrDef.getOnReplace(),
-                                    makeOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace()),
+                                    translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace()),
                                     makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -1206,8 +1207,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
                                     init,
+                                    getterInit(override.sym, override.getInitializer()),
                                     override.getOnReplace(),
-                                    makeOnReplaceAsInline(override.sym, override.getOnReplace()),
+                                    translateOnReplaceAsInline(override.sym, override.getOnReplace()),
                                     makeInstanciateChangeListener(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -1413,7 +1415,19 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             translatedBlocks.append(stmt);
         }
     }
-    
+    //where
+    private JCExpression getterInit(VarSymbol vsym, JFXExpression expr) {
+        if (expr == null) {
+            return null;
+        }
+        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+        if ((vsym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 && vmi.representation() != VarRepresentation.AlwaysLocation) {
+            // This is a Slacker Binding, translate for the in-lined getter
+            return translateAsValue(expr, vmi.getRealType());
+        }
+        return null;
+    }
+
     @Override
     public void visitInitDefinition(JFXInitDefinition tree) {
         assert false : "should be processed by class tree";

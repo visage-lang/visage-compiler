@@ -98,6 +98,72 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         mark(sym, VARUSE_OBJ_LIT_INIT);
     }
 
+
+    //TODO: merge with side-effect scanner in JavafxTranslationSupport
+    boolean hasSideEffects(JFXExpression expr) {
+        class SideEffectScanner extends JavafxTreeScanner {
+
+            boolean hse = false;
+
+            private void markSideEffects() {
+                hse = true;
+            }
+
+            @Override
+            public void visitUnary(JFXUnary tree) {
+                switch (tree.getFXTag()) {
+                    case POSTINC:           // _ ++
+                    case POSTDEC:           // _ --
+                    case PREINC:            // ++ _
+                    case PREDEC:            // -- _
+                        markSideEffects();
+                        break;
+                    default:
+                        super.visitUnary(tree);
+                        break;
+                }
+            }
+
+            @Override
+            public void visitAssign(JFXAssign tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitAssignop(JFXAssignOp tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitInstanciate(JFXInstanciate tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitSequenceInsert(JFXSequenceInsert tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitSequenceDelete(JFXSequenceDelete tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitOnReplace(JFXOnReplace tree) {
+                markSideEffects();
+            }
+        }
+        SideEffectScanner scanner = new SideEffectScanner();
+        scanner.scan(expr);
+        return scanner.hse;
+    }
+
     @Override
     public void visitScript(JFXScript tree) {
        inInitBlock = false;
@@ -122,6 +188,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
         if (tree.getInitializer() != null && tree.getInitializer().getFXTag() != JavafxTag.LITERAL) {
             mark(tree.sym, VARUSE_COMPLEX_INITIAL_VALUE);
+        }
+        if (tree.isBidiBind() || tree.getInitializer() != null && hasSideEffects(tree.getInitializer())) {
+            mark(tree.sym, VARUSE_INIT_HAS_SIDE_EFFECTS);
         }
         inBindContext = wasInBindContext;
         if (tree.getOnReplace() != null) {

@@ -35,6 +35,7 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 
+import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
@@ -255,19 +256,28 @@ public class JavafxTypeMorpher {
         if (sym.kind == Kinds.VAR) {
             final Symbol owner = sym.owner;
             final long flags = sym.flags();
-            final boolean isClassVar = owner.kind == Kinds.TYP;
+            final boolean isMemberVar = owner.kind == Kinds.TYP;
+            final boolean isLocalVar = !isMemberVar;
             final boolean isAssignedTo = (flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0;
             final boolean isParameter = (flags & Flags.PARAMETER) != 0;
+            final boolean isStatic = (flags & Flags.STATIC) != 0;
             final boolean hasInnerAccess = (flags & VARUSE_INNER_ACCESS) != 0;
+            final boolean hasOnReplace = (flags & VARUSE_HAS_ON_REPLACE) != 0;
+            final boolean usedInBind = (flags & VARUSE_USED_IN_BIND) != 0;
+            final boolean canWriteOutsideScript = (flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) != 0L && (flags & IS_DEF) == 0L;
+            final boolean canOverrideOutsideScript = canWriteOutsideScript;
+            final boolean isOverriden = (flags & VARUSE_OVERRIDDEN) != 0L;
+            final boolean hasSideEffects = (flags & VARUSE_INIT_HAS_SIDE_EFFECTS) != 0L;
+            final boolean readIsScriptPrivate = (flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L;
 
             if (sym.flatName() == names._super || sym.flatName() == names._this) {
                 // 'this' and 'super' can't be made into Locations
                 return NeverLocation;
             }
-            if (isClassVar && !types.isJFXClass(owner)) {
+            if (isMemberVar && !types.isJFXClass(owner)) {
                 return NeverLocation;
             }
-            if (!isParameter && !isClassVar && hasInnerAccess) {
+            if (!isParameter && !isMemberVar && hasInnerAccess) {
                 // Local variables must be Locations if they are accessed within an inner class
                 // Because of proper sequencing, this is true even if the var isn't assigned to
                 //TODO: optimize the cases where the initializer does not depend on other local vars
@@ -277,15 +287,12 @@ public class JavafxTypeMorpher {
                 // Otherwise parameters are Locations only if in bound contexts, for-loops induction vars, bound function params
                 return (flags & VARUSE_BOUND_INIT) != 0? AlwaysLocation : NeverLocation;
             }
-            if( (flags & VARUSE_BOUND_INIT) != 0 ) {
-                // vars which are defined by a bind could be slackers but it seems a bad bet, so make it always
-                return AlwaysLocation;
-            }
-            if( (flags & VARUSE_HAS_ON_REPLACE) != 0 && !isClassVar) {
+//Jim: replace with this for in-lined on-replace            if(hasOnReplace && !isClassVar) {
+            if (hasOnReplace) {
                 // Local vars with on-replace always need to be Locations, member vars have on-replace in-lined
                 return AlwaysLocation;
             }
-            if( (flags & VARUSE_USED_IN_BIND) != 0 ) {
+            if (usedInBind) {
                 // This is a choice.  If the choice is changed, then some of the NeverLocations below have to be conditionally SlackerLocation.
                 //TODO: Once the bind translation is smart about collapsing expressions, then making unchanging values Locations is wrong.
                 // vars which are used in a bind should be Locations (even if never changed) since otherwise they will dynamically be turned to Locations
@@ -308,8 +315,17 @@ public class JavafxTypeMorpher {
                 // To be able to use isInitialized()  requires a Location.
                 return AlwaysLocation;
             }
+            if ((flags & VARUSE_BOUND_INIT) != 0) {
+                if (isStatic || hasSideEffects || hasOnReplace || usedInBind || isOverriden || (flags & VARUSE_OBJ_LIT_INIT) != 0L || canOverrideOutsideScript || isLocalVar) {
+                    return AlwaysLocation;
+                } else if (readIsScriptPrivate) {
+                    return NeverLocation;
+                } else {
+                    return AlwaysLocation; //TODO: SlackerLocation;
+                }
+            }
 
-            if (isClassVar) {  // class or script var
+            if (isMemberVar) {  // class or script var
                 /*
                 To be able to elide member vars we need to know that
                 (1) the var will not be defined by a bound expression
@@ -331,7 +347,7 @@ public class JavafxTypeMorpher {
 
                 // (3a) check.  Not used in bind has already been checked (above).
                 // Check that it is not accessible outside the script (so noone else can bind it).
-                if ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L) {
+                if (readIsScriptPrivate) {
                     return NeverLocation;
                 }
 
@@ -339,9 +355,7 @@ public class JavafxTypeMorpher {
                 // permissions such that this can't be done externally, or it is a 'def'.
                 //JFXC-2026 : Elide unassigned and externally unassignable member vars
                 //JFXC-2103 -- allow public-init
-                if (!isAssignedTo &&
-                        ((flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) == 0L ||
-                        (flags & IS_DEF) != 0L)) {
+                if (!isAssignedTo && !canWriteOutsideScript) {
                     return NeverLocation;
                 }
 
