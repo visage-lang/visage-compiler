@@ -853,6 +853,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
      * Make a version of the on-replace to be used in inline in a setter.
      */
     JCStatement makeOnReplaceAsInline(VarSymbol vsym, JFXOnReplace onReplace) {
+if (onReplace != null) return null;
         if (onReplace == null) return null;
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         if (vmi.representation() == VarRepresentation.AlwaysLocation) return null;

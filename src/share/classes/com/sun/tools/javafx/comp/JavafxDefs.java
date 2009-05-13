@@ -299,7 +299,7 @@ public class JavafxDefs {
         initializeName = names.fromString(initializeNameString);
         completeName = names.fromString(completeNameString);
         getMethodName = names.fromString(getMethodNameString);
-        attributeSetMethodParamName = names.fromString("value");
+        attributeSetMethodParamName = names.fromString("value$");
         getSliceMethodName = names.fromString("getSlice");
         replaceSliceMethodName = names.fromString("replaceSlice");
         setMethodName = names.fromString(setMethodNameString);
@@ -343,7 +343,7 @@ public class JavafxDefs {
         startName = names.fromString("start");
         valuesName = names.fromString("values");
         targetName = names.fromString("target");
-        valueName = names.fromString("value");
+        valueName = names.fromString("value$");
         interpolateName = names.fromString("interpolate");
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");
