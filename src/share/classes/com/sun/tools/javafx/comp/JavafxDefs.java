@@ -343,7 +343,7 @@ public class JavafxDefs {
         startName = names.fromString("start");
         valuesName = names.fromString("values");
         targetName = names.fromString("target");
-        valueName = names.fromString("value$");
+        valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");
         addTriggersName = names.fromString("addTriggers$");
         userInitName = names.fromString("userInit$");

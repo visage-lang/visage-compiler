@@ -698,10 +698,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         for (TranslatedVarInfo info : translatedAttrInfo) {
             if (!info.isStatic()) {
                 JCStatement stat = info.onReplaceAsListenerInstanciation();
-                // We only need to add a trigger if we know it is always a lcoation.
-                if (stat != null &&
-                    (info.representation() == AlwaysLocation ||
-                     info.onReplaceAsInline() == null)) {
+                // We only need to add a trigger we can't inline it.
+                if (stat != null && info.onReplaceAsInline() == null) {
                     stmts.append(stat);
                 }
             }
@@ -711,10 +709,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         for (TranslatedOverrideClassVarInfo info : translatedTriggerInfo) {
             if (!info.isStatic()) {
                 JCStatement stat = info.onReplaceAsListenerInstanciation();
-                // We only need to add a trigger if we know it is always a lcoation.
-                if (stat != null &&
-                    (info.representation() == AlwaysLocation ||
-                     info.onReplaceAsInline() == null)) {
+                // We only need to add a trigger we can't inline it.
+                if (stat != null && info.onReplaceAsInline() == null) {
                     stmts.append(stat);
                 }
             }
@@ -1043,7 +1039,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             // If there is a value and is has on replace trigger.
-            if (varRep != AlwaysLocation && onReplace != null) {
+            if (onReplace != null) {
                 JFXVar oldVar = varInfo.onReplace().getOldValue();
                 
                  // Check to see if the on replace has an old value.
