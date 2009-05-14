@@ -257,6 +257,7 @@ public class JavafxTypeMorpher {
             final Symbol owner = sym.owner;
             final long flags = sym.flags();
             final boolean isMemberVar = owner.kind == Kinds.TYP;
+            final boolean isMixinVar = isMemberVar && (owner.flags() & MIXIN) != 0;
             final boolean isLocalVar = !isMemberVar;
             final boolean isAssignedTo = (flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0;
             final boolean isParameter = (flags & Flags.PARAMETER) != 0;
@@ -287,7 +288,7 @@ public class JavafxTypeMorpher {
                 // Otherwise parameters are Locations only if in bound contexts, for-loops induction vars, bound function params
                 return (flags & VARUSE_BOUND_INIT) != 0? AlwaysLocation : NeverLocation;
             }
-            if(hasOnReplace && !isMemberVar) {
+            if(hasOnReplace && (!isMemberVar || isStatic || isMixinVar)) {
                 // Local vars with on-replace always need to be Locations, member vars have on-replace in-lined
                 return AlwaysLocation;
             }

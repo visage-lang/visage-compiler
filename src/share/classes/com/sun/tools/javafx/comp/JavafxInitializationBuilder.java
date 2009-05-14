@@ -1002,6 +1002,28 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
+        // This method returns a statement to set the correct bit in the VFLG$.
+        //
+        JCStatement makeSetVFLG$(VarInfo varInfo, boolean override) {
+            // Script vars don't need flags.
+            if (!override && !varInfo.isStatic()) {
+                // Get the var enumeration.
+                int enumeration = varInfo.getEnumeration();
+                // Which VFLGS$ word.
+                int word = enumeration >> 5;
+                // Which VFLGS$ bit.
+                int bit = 1 << (enumeration & 31);
+        
+                // VFLGS$word
+                JCExpression bitsIdent = Id(attributeBitsName(word));
+                // VFLGS$word |= bit;
+                return m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
+            }
+            
+            return null;
+        }   
+        
+        //
         // This method returns the actual set statement used in the setter method.
         //
         private ListBuffer<JCStatement> makeSetterStatements(VarInfo varInfo, boolean override) {
@@ -1031,62 +1053,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Need to capture init state if has trigger.
             if (onReplace != null) {
                 // T varOldValue$ = $var;
-                stmts.append(makeVariable(0, type, varOldValueName, Id(varName)));
+                stmts.append(makeVariable(Flags.FINAL, type, varOldValueName, Id(varName)));
                 
                 if (override) {
                     // isInitialized$(VOFF$var)
                     JCExpression isInitializedExpr = m().Apply(null, Id(defs.isInitializedPrefixName), List.<JCExpression>of(Id(varOffName)));
                     // boolean varNeedsInit$ = !isInitialized$(VOFF$var);
-                    stmts.append(makeVariable(0, syms.booleanType, varIsInitName, isInitializedExpr));
+                    stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varIsInitName, isInitializedExpr));
                     // We need to add to the trigger test.
                     hasInitTest = true;
                 } else if (!varInfo.isStatic()) {
                     // boolean varNeedsInit$ = !((varBits$0 & bit) == 0);
-                    stmts.append(makeVariable(0, syms.booleanType, varIsInitName, makeIsInitializedTest(varInfo, true)));
+                    stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varIsInitName, makeIsInitializedTest(varInfo, true)));
                     // We need to add to the trigger test.
                     hasInitTest = true;
                 }
             }
 
-            // Script vars don't need flags.
-            if (!override && !varInfo.isStatic()) {
-                // Get the var enumeration.
-                int enumeration = varInfo.getEnumeration();
-                // Which VFLGS$ word.
-                int word = enumeration >> 5;
-                // Which VFLGS$ bit.
-                int bit = 1 << (enumeration & 31);
-        
-                // VFLGS$word
-                JCExpression bitsIdent = Id(attributeBitsName(word));
-                // VFLGS$word |= bit;
-                JCStatement bitsStmt = m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
-                stmts.append(bitsStmt);
-            }
-            
-            // If potentially has a location.
-            if (varRep != NeverLocation) {
-                // Get the location accessor method name.
-                int typeKind = varInfo.getVMI().getTypeKind();
-                Name setMethodName = defs.locationSetMethodName[typeKind];
-
-                // loc$var.setAsType(value)
-                JCExpression setCall = m().Apply(null, m().Select(Id(varLocName), setMethodName),
-                                                 List.<JCExpression>of(Id(varNewValueName)));
-    
-                // Handle cases when there is a location.
-                if (varRep == SlackerLocation) {
-                    // loc$var != null
-                    JCExpression condition = m().Binary(JCTree.NE, Id(varLocName), makeNull());
-                        
-                    // if (loc$var != null) return loc$var.setAsType(value)
-                    stmts.append(m().If(condition, m().Return(setCall), null));
-                } else if (varRep == AlwaysLocation) { 
-                    // return loc$var.setAsType(value)
-                    stmts.append(m().Return(setCall));
-                }
-            }
-            
             // If it is an override var then call super set$.
             if (override) {
                 // super.set$var(value);
@@ -1119,23 +1102,64 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                  // Check to see if the on replace has an old value.
                 if (oldVar != null) {
                     // T oldValue = $var
-                    stmts.append(makeVariable(0, type, oldVar.getName(), Id(varOldValueName)));
+                    stmts.append(makeVariable(Flags.FINAL, type, oldVar.getName(), Id(varOldValueName)));
                 }
                 
                  // Check to see if the on replace has a new value.
                 if (newVar != null) {
                     // T newValue = value
-                    stmts.append(makeVariable(0, type, newVar.getName(), Id(varNewValueName)));
+                    stmts.append(makeVariable(Flags.FINAL, type, newVar.getName(), Id(varNewValueName)));
+                }
+                
+                // Need a receiver under some circumstances.
+                if (!varInfo.isStatic()) {
+                    // T receiver$ = this.
+                    stmts.append(makeVariable(Flags.FINAL, analysis.getCurrentClassSymbol().type, defs.receiverName, Id(names._this)));
                 }
             
                 // Insert the trigger.
                 stmts.append(onReplace);
-            }
                 
-            if (varRep != AlwaysLocation) {
-                // return $var 
-                stmts.append(m().Return(Id(varName)));
+                // $varNewValue = $var
+                stmts.append(m().Exec(m().Assign(Id(varNewValueName), Id(varName))));
             }
+            
+             // If potentially has a location.
+            if (varRep != NeverLocation) {
+                // Get the location accessor method name.
+                int typeKind = varInfo.getVMI().getTypeKind();
+                Name setMethodName = defs.locationSetMethodName[typeKind];
+
+                // loc$var.setAsType(value)
+                JCExpression setCall = m().Apply(null, m().Select(Id(varLocName), setMethodName),
+                                                 List.<JCExpression>of(Id(varNewValueName)));
+                // $varNewValue = loc$var.setAsType(value)                                 
+                JCExpression assignExpr = m().Assign(Id(varNewValueName), setCall);
+    
+                // Handle cases when there is a location.
+                if (varRep == SlackerLocation) {
+                    // loc$var != null
+                    JCExpression condition = m().Binary(JCTree.NE, Id(varLocName), makeNull());
+                    // Move assignment to block (for readability.)
+                    JCBlock trueBlock =  m().Block(0, List.<JCStatement>of(m().Exec(assignExpr)));
+                    // Move other statements into a block.
+                    JCBlock falseBlock = m().Block(0, stmts.toList());
+                    // Restart statement buffer.
+                    stmts = ListBuffer.lb();
+                    // if (loc$var != null) { $varNewValue = loc$var.setAsType(value)
+                    stmts.append(m().If(condition, trueBlock, falseBlock));
+                } else if (varRep == AlwaysLocation) { 
+                    // $varNewValue = loc$var.setAsType(value)
+                    stmts.append(m().Exec(assignExpr));
+                }
+            }
+
+            // Get the set VFLG$ statement.
+            JCStatement setInit = makeSetVFLG$(varInfo, override);
+            if (setInit != null) stmts.append(setInit);
+                
+            // return $varNewValue
+            stmts.append(m().Return(Id(varNewValueName)));
             
             return stmts;
         }
@@ -1187,13 +1211,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // loc$var.setDefault()
             JCStatement setDefaultCall = callStatement(currentPos, Id(attributeLocationName(proxyVarSym)), defs.setDefaultMethodName);
 
+            // set$var($var)
+            JCStatement setSelfCall = callStatement(currentPos, null, attributeSetterName(proxyVarSym), List.<JCExpression>of(Id(attributeValueName(proxyVarSym))));
+            
             switch (varInfo.representation()) {
                 case SlackerLocation: {
                     // loc$var != null
                     JCExpression condition = m().Binary(JCTree.NE, Id(attributeLocationName(proxyVarSym)), makeNull());
 
                     // if (loc$var != null) loc$var.setDefault()
-                    return m().If(condition, setDefaultCall, null);
+                    return m().If(condition, setDefaultCall, setSelfCall);
                 }
                 case AlwaysLocation: {
                     // loc$var.setDefault()
@@ -1201,7 +1228,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
                 case NeverLocation: {
                     // Not a location
-                    return null;
+                    return setSelfCall;
                 }
             }
             return null;
@@ -1832,7 +1859,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return methods.toList();
         }
 
-        private JCExpression makeIsInitializedTest(VarInfo ai, boolean invert) {
+        private JCExpression makeIsInitializedTest(VarInfo ai, boolean testIsSet) {
             // Find the vars enumeration.
             int enumeration = ai.getEnumeration();
             // Which VFLGS$(word) to use.
@@ -1843,7 +1870,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // (varWord & (1 << varBit))
             JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
             // (varWord & (1 << varBit)) == 0
-            return m().Binary(invert ? JCTree.NE : JCTree.EQ, maskExpr, makeInt(0));
+            return m().Binary(testIsSet ? JCTree.NE : JCTree.EQ, maskExpr, makeInt(0));
         }
 
         //
