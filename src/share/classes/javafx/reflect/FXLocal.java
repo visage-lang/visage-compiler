@@ -723,8 +723,9 @@ public class FXLocal {
                         val = getter.invoke(robj, new Object[0]);
                     else if (loc_getter != null)
                         val = loc_getter.invoke(robj, new Object[0]);
-                    else
+                    else {
                         val = fld.get(robj);
+                    }
                     if (val instanceof ObjectLocation)
                         val = ((ObjectLocation) val).get();
                     else if (val instanceof SequenceLocation)

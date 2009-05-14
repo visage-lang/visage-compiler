@@ -287,8 +287,7 @@ public class JavafxTypeMorpher {
                 // Otherwise parameters are Locations only if in bound contexts, for-loops induction vars, bound function params
                 return (flags & VARUSE_BOUND_INIT) != 0? AlwaysLocation : NeverLocation;
             }
-//Jim: replace with this for in-lined on-replace            if(hasOnReplace && !isClassVar) {
-            if (hasOnReplace) {
+            if(hasOnReplace && !isMemberVar) {
                 // Local vars with on-replace always need to be Locations, member vars have on-replace in-lined
                 return AlwaysLocation;
             }
