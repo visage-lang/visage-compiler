@@ -659,7 +659,7 @@ public class Timeline {
             return;
         }
 
-	    timelineDur = sortedFrames[sortedFrames.size()-1].time.toMillis();
+	    timelineDur = sortedFrames[sortedFrames.size()-1].time.toMillis() as Number;
 
         var zeroFrame:KeyFrame;
         if (sortedFrames[0].time == 0s) {
@@ -738,7 +738,7 @@ public class Timeline {
         var cycle:Integer;
 
         // if position has been modified externally, reposition the playhead   
-        var timeInMillis = time.toMillis();
+        var timeInMillis = time.toMillis() as Number;
         var playheadUpdated: Boolean = false;
         
         if(curPos != timeInMillis) {
@@ -861,7 +861,7 @@ public class Timeline {
             while (iter.hasNext()) {
                 var pairlist = iter.next() as KFPairList;
                 var kfpair1 = pairlist.get(0);
-                var leftT = kfpair1.frame.time.toMillis();
+                var leftT = kfpair1.frame.time.toMillis() as Number;
                 
                 if (curT < leftT) {
                     // haven't yet reached the first key frame
@@ -876,7 +876,7 @@ public class Timeline {
                 for (j in [1..<pairlist.size()]) {
                     // find keyframes on either side of the curT value
                     var kfpair2 = pairlist.get(j);
-                    var rightT = kfpair2.frame.time.toMillis();
+                    var rightT = kfpair2.frame.time.toMillis() as Number;
                     if (curT < rightT) {
                         v1 = kfpair1.value;
                         v2 = kfpair2.value;
@@ -884,7 +884,7 @@ public class Timeline {
                         break;
                     } 
                     kfpair1 = kfpair2;
-                    leftT = kfpair1.frame.time.toMillis();
+                    leftT = kfpair1.frame.time.toMillis() as Number;
                 }
                 if (segT == 0.0 or segT == 1.0) {
                     continue;
@@ -913,8 +913,8 @@ public class Timeline {
         // now we need to recalculate frameIndex
         frameIndex = 0;
         for(kf: KeyFrame in sortedFrames) {
-            if(curT <= kf.time.toMillis()) {
-                if(not forward and curT == kf.time.toMillis()) {
+            if(curT <= (kf.time.toMillis() as Number)) {
+                if(not forward and curT == (kf.time.toMillis() as Number)) {
                     frameIndex ++;
                 }
                 break;
@@ -949,10 +949,10 @@ public class Timeline {
             var i2 = sortedFrames.size()-1;
             for (fi in [i1..i2]) {
                 var kf = sortedFrames[fi];
-                if (curT >= kf.time.toMillis()) {
+                if (curT >= (kf.time.toMillis() as Number)) {
                     if (not (catchingUp and kf.canSkip)) {
                         kf.visit();
-                        if(time.toMillis() != curPos) {
+                        if((time.toMillis() as Number) != curPos) {
                             return false;
                         }
                     } 
@@ -966,10 +966,10 @@ public class Timeline {
             var i2 = 0;
             for (fi in [i1..i2 step -1]) {
                 var kf = sortedFrames[fi];
-                if (curT <= kf.time.toMillis()) {
+                if (curT <= (kf.time.toMillis() as Number)) {
                     if (not (catchingUp and kf.canSkip)) {
                         kf.visit();
-                        if(time.toMillis() != curPos) {
+                        if((time.toMillis() as Number) != curPos) {
                             return false;
                         }
                     }
@@ -1007,7 +1007,7 @@ public class Timeline {
                      * and intends to move forward, treat it as a completed
                      * forward cycle.
                      */
-                    if(time.toMillis() == timelineDur) {
+                    if((time.toMillis() as Number) == timelineDur) {
                         durOffset = -timelineDur;
                         curPos = timelineDur;
                         cycleIndex ++;
@@ -1027,7 +1027,7 @@ public class Timeline {
                         if(autoReverse) {
                             forward = not forward;
                         }
-                    } else if(time.toMillis() == timelineDur) {
+                    } else if((time.toMillis() as Number) == timelineDur) {
                         // play backward from the end of timeline
                         curPos = 0.0;
                         time = 0ms;
@@ -1071,7 +1071,7 @@ public class Timeline {
                 durOffset = 0.0;
 
                 var dur = getTotalDur();
-                if(time.toMillis() != dur or
+                if((time.toMillis() as Number) != dur or
                 /* INDEFINITE duration timeline can never reach to the end, must be explicit stop */
                    dur < 0) {
                     curPos = 0.0;
