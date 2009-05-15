@@ -167,7 +167,7 @@ public abstract class FXClassType extends FXType implements FXMember {
         filter.setAttributesAccepted(true);
         filter.setRequiredName(name);
         List<FXVarMember> attrs = getVariables(filter, true);
-        return attrs.isEmpty() ? null : attrs.get(0);
+        return attrs.isEmpty() ? null : attrs.get(attrs.size() - 1);
     }
 
     /** Find the function that (best) matches the name and argument types. */

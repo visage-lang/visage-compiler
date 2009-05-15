@@ -99,7 +99,7 @@ public abstract class AbstractVariable<
         return this;
     }
 
-    protected boolean isUnidirectionallyBound() {
+    public boolean isUnidirectionallyBound() {
         return state == STATE_UNI_BOUND || state == STATE_UNI_BOUND_LAZY;
     }
 
