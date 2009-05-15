@@ -561,8 +561,7 @@ public class FXLocal {
                 fields = filter(cls.getFields(), cls);
             }
             fieldLoop: for (java.lang.reflect.Field fld : fields) {
-                if (fld.isSynthetic() ||
-                    fld.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null) {
+                if (fld.isSynthetic()) {
                     continue;
                 }
                 String fname = fld.getName();
@@ -574,14 +573,24 @@ public class FXLocal {
                 }
                 
                 SourceName sourceName = fld.getAnnotation(SourceName.class);
-                String sname = sourceName != null ? sourceName.value() : fname;
-                
-                for (String prefix : SYSTEM_VAR_PREFIXES) {
-                    if (sname.startsWith(prefix)) {
-                        continue fieldLoop;
+                String sname;
+                if (sourceName == null) {
+                    int dollar = fname.lastIndexOf('$');
+                    if (dollar == -1) {
+                        sname = fname;
+                    } else {
+                        for (String prefix : SYSTEM_VAR_PREFIXES) {
+                            if (fname.startsWith(prefix)) {
+                                continue fieldLoop;
+                            }
+                        }
+                        
+                        sname = fname.substring(dollar + 1);
                     }
+                } else {
+                    sname = sourceName.value();
                 }
-             
+               
                 if (requiredName != null && !requiredName.equals(sname)) {
                     continue;
                 }
@@ -603,7 +612,7 @@ public class FXLocal {
                     ref.loc_getter = getMethodOrNull(cls, "loc" + fname);
                     ref.locfield = getFieldOrNull(cls, "loc" + fname);
                 }
-                
+               
                 if (filter != null && filter.accept(ref))
                     result.insert(ref);
             }
