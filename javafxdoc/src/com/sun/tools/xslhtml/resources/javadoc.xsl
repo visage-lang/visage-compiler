@@ -45,9 +45,9 @@
     </xsl:template>
     
     <xsl:template name="add-copyright-link">
-        <i>Copyright 2008</i><br/>
+        <i>Copyright 2008-2009</i><br/>
         <i>Sun Microsystems, Inc.</i><br/>
-        <i>Use is subject to <a href="http://java.sun.com/javafx/1/docs/apis/license.html">license terms</a>.</i><br/>
+        <i>Use is subject to <a href="http://java.sun.com/javafx/1.2/docs/api/license.html">license terms</a>.</i><br/>
     </xsl:template>
     
 <!-- starter template -->    
