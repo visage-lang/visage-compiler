@@ -64,9 +64,6 @@ package function getInterpolatorFactory():InterpolatorFactory {
 class CurrentKeyValue extends KeyValue {
 }
 
-// TODO: Temporary constant awaiting for Duration.INDEFINITE
-protected def Duration_INDEFINITE = -1ms;
-
 /**
  * Used to specify an animation that repeats indefinitely (until
  * the {@code stop()} method is called).
@@ -118,6 +115,9 @@ public def INDEFINITE = -1;
  */
 
 public class Timeline {
+    // NOTE: We use a private instance def rather than directly using Duration.INDEFINITE
+    // to workaround compiler bug JFXC-3248 which was causing a memory leak.
+    def DURATION_INDEFINITE: Duration = Duration.INDEFINITE;
 
     /**
      * Defines the direction/speed at which the {@code Timeline} is expected to
@@ -206,7 +206,7 @@ public class Timeline {
      * @defaultvalue 0ms
      */
     public-read var totalDuration:Duration = bind
-	if (repeatCount == Timeline.INDEFINITE) then Duration_INDEFINITE else repeatCount * cycleDuration;						 
+        if (repeatCount == Timeline.INDEFINITE) then DURATION_INDEFINITE else repeatCount * cycleDuration;
 
     /**
      * Defines {@code Timeline}'s play head position.
