@@ -28,14 +28,15 @@ import java.lang.Object;
 import javafx.lang.Duration;
 
 /**
- * Defines a key timing and values that can be interpolated along the {@link Timeline}.
+ * Defines target values at a specified point in time for a set of variables
+ * that are interpolated along a {@link Timeline}.
  *
  * <p>
- * The developer can control the timing and/or motion behavior
- * for a particular interval by providing target values and {@link Interpolator}
- * associated to each value. The values are interpolated along the particular
- * interval and reach the target value at specified timing. Also, {@link #action}
- * function is invoked at the particular timing if provided.
+ * The developer controls the interpolation of a set of variables for the
+ * interval between successive key frames by providing a target value and
+ * an {@link Interpolator} associated with each variable. The variables are
+ * interpolated such that they will reach their target value at the specified time.
+ * An {@link #action} function is invoked on each KeyFrame if one is provided.
  *
  * @profile common
  * @see Timeline
