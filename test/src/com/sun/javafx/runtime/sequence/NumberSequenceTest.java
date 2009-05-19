@@ -298,10 +298,10 @@ public class NumberSequenceTest extends JavaFXTestCase {
         assertEquals(Sequences.fromArray(new float[] { 1.0f, 2.0f, 3.0f }), 1.0f, 2.0f, 3.0f);
         assertEquals(Sequences.fromArray(new boolean[] { true, false, true } ), true, false, true);
 
-        assertEquals(Sequences.toArray(Sequences.range(1, 3)), 1, 2, 3);
+        assertEquals(Sequences.toIntArray(Sequences.range(1, 3)), 1, 2, 3);
         assertEquals(Sequences.toDoubleArray(Sequences.range(1.0f, 3.0f)), 1.0f, 2.0f, 3.0f);
-        assertEquals(Sequences.toArray(Sequences.fromArray(new boolean[] { true, false })), true, false);
-        assertEquals(Sequences.toArray(Sequences.fromArray(new long[] { 1, 2, 3})), 1L, 2L, 3L);
+        assertEquals(Sequences.toBooleanArray(Sequences.fromArray(new boolean[] { true, false })), true, false);
+        assertEquals(Sequences.toLongArray(Sequences.fromArray(new long[] { 1, 2, 3})), 1L, 2L, 3L);
     }
 
     public void testOverflow() {
