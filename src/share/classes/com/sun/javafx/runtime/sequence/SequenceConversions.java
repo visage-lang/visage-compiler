@@ -100,7 +100,7 @@ public class SequenceConversions {
     }
 
     /** Convert a Sequence<T> to an array */
-    public static<T> T[] toArray(Sequence<T> seq) {
+    public static<T> T[] toArray(Sequence<? extends T> seq) {
         T[] unboxed = Util.<T>newObjectArray(seq.size());
         int i=0;
         for (T val : seq) {
@@ -110,7 +110,7 @@ public class SequenceConversions {
     }
 
     /** Convert a Sequence<Long> to an array */
-    public static long[] toArray(Sequence<Long> seq) {
+    public static long[] toLongArray(Sequence<? extends Number> seq) {
         int size = seq.size();
         long[] unboxed = new long[size];
         for (int i = size;  --i >= 0; )
@@ -119,7 +119,7 @@ public class SequenceConversions {
     }
 
     /** Convert a Sequence<Integer> to an array */
-    public static int[] toArray(Sequence<Integer> seq) {
+    public static int[] toIntArray(Sequence<? extends Number> seq) {
         int size = seq.size();
         int[] unboxed = new int[size];
         for (int i = size;  --i >= 0; )
@@ -146,7 +146,7 @@ public class SequenceConversions {
     }
 
     /** Convert a Sequence<Boolean> to an array */
-    public static boolean[] toArray(Sequence<Boolean> seq) {
+    public static boolean[] toBooleanArray(Sequence<? extends Boolean> seq) {
         int size = seq.size();
         boolean[] unboxed = new boolean[size];
         for (int i = size;  --i >= 0; )
