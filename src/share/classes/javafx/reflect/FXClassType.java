@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -167,7 +167,7 @@ public abstract class FXClassType extends FXType implements FXMember {
         filter.setAttributesAccepted(true);
         filter.setRequiredName(name);
         List<FXVarMember> attrs = getVariables(filter, true);
-        return attrs.isEmpty() ? null : attrs.get(0);
+        return attrs.isEmpty() ? null : attrs.get(attrs.size() - 1);
     }
 
     /** Find the function that (best) matches the name and argument types. */

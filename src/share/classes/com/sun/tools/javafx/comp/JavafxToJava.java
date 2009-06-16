@@ -336,12 +336,19 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             Type elemType = types.elemtype(targetType);
             if (sourceIsSequence) {
                 if (elemType.isPrimitive()) {
-                    String mname = "toArray";
-                    if (elemType == syms.floatType) {
+                    String mname;
+                    if (elemType == syms.intType)
+                        mname = "toIntArray";
+                    else if (elemType == syms.longType)
+                        mname = "toLongArray";
+                    else if (elemType == syms.floatType)
                         mname = "toFloatArray";
-                    } else if (elemType == syms.doubleType) {
+                    else if (elemType == syms.doubleType)
                         mname = "toDoubleArray";
-                    }
+                    else if (elemType == syms.booleanType)
+                        mname = "toBooleanArray";
+                    else
+                        mname = "toArray";
                     return callExpression(diagPos, makeTypeTree(diagPos, syms.javafx_SequencesType, false),
                             mname, translated);
                 }

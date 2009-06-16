@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@ package javafx.animation;
 import java.lang.Object;
 
 /**
- * A SimpleIterator is defined in terms of a "curve".
+ * A SimpleInterpolator is defined in terms of a "curve".
  * It can be used for any value type that either implements Interpolatable
  * or that extends java.lang.Number.
  *
