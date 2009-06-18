@@ -3894,15 +3894,23 @@ public class JavafxAttr implements JavafxVisitor {
 
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
         dupEnv.outer = env;
-        Type instType = attribTree(tree.attribute, dupEnv, VAR, Type.noType);
-        if (instType == null || instType == syms.javafx_UnspecifiedType) {
-            instType = Type.noType;
+        JavafxTag tag = JavafxTreeInfo.skipParens(tree.attribute).getFXTag();
+        Type instType;
+        if (tag == JavafxTag.IDENT || tag == JavafxTag.SELECT) {
+            instType = attribTree(tree.attribute, dupEnv, VAR, Type.noType);
+            tree.sym = JavafxTreeInfo.symbol(tree.attribute);
+            if (instType == null || instType == syms.javafx_UnspecifiedType)
+                instType = Type.noType;
         }
+        else {
+            instType = Type.noType;
+            log.error(tree.pos(), MsgSym.MESSAGE_UNEXPECTED_TYPE,
+                    Resolve.kindNames(VAR), Resolve.kindName(VAL));
+        }
+        
         attribExpr(tree.value, dupEnv, instType);
         if (tree.interpolation != null)
             attribExpr(tree.interpolation, dupEnv);
-
-        tree.sym = JavafxTreeInfo.symbol(tree.attribute);
 
         //TODO: this is evil
         //wrap it in a function
