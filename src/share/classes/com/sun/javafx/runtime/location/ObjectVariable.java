@@ -54,6 +54,12 @@ public class ObjectVariable<T>
         return new ObjectVariable<T>(value);
     }
 
+    public static<T> ObjectVariable<T> makeWithDefault(T deflt, T value) {
+        ObjectVariable<T> result = new ObjectVariable<T>(value);
+        result.$default = deflt;
+        return result;
+    }
+
     public static<T> ObjectVariable<T> make(boolean lazy, BindingExpression binding, DependencySource... dependencies) {
         return new ObjectVariable<T>(null, lazy, binding, dependencies);
     }

@@ -341,8 +341,8 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, getterInit, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
+            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, getterInit, onReplace, null, onReplaceAsListenerInstanciation);
         }
 
         // Returns the var information the override overshadows.
@@ -790,7 +790,6 @@ class JavafxAnalyzeClass {
     // This method is only called for inherited attributes.
     //
     private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean needsCloning) {
-        long flags = var.flags();
         boolean isStatic = (var.flags() & Flags.STATIC) != 0;
 
         // If the var is in a class and not a static (ie., an instance attribute.)

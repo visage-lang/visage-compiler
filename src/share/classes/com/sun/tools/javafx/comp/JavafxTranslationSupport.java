@@ -555,8 +555,14 @@ public abstract class JavafxTranslationSupport {
         return makeLocationVariable(tmi, diagPos, makeArgs, defs.makeMethodName);
     }
 
-    JCExpression makeLocationAttributeVariable(TypeMorphInfo tmi,
+    JCExpression makeLocationWithDefault(TypeMorphInfo tmi,
                                   DiagnosticPosition diagPos) {
+        return makeLocationWithDefault(tmi, diagPos, null);
+    }
+
+    JCExpression makeLocationWithDefault(TypeMorphInfo tmi,
+                                  DiagnosticPosition diagPos,
+                                  JCExpression expr) {
         List<JCExpression> makeArgs;
         Name makeMethod;
         if (tmi.getTypeKind() == TYPE_KIND_OBJECT && 
@@ -569,17 +575,8 @@ public abstract class JavafxTranslationSupport {
             makeArgs = List.<JCExpression>nil();
             makeMethod = defs.makeMethodName;
         }
-        return makeLocationVariable(tmi, diagPos, makeArgs, makeMethod);
-    }
-
-    JCExpression makeLocationWithDefault(TypeMorphInfo tmi, DiagnosticPosition diagPos, JCExpression expr) {
-        List<JCExpression> makeArgs = List.<JCExpression>of(expr);
-        Name makeMethod;
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT && 
-                (tmi.getRealType() == syms.javafx_StringType || tmi.getRealType() == syms.javafx_DurationType)) {
-            makeMethod = defs.makeWithDefaultMethodName;
-        } else {
-            makeMethod = defs.makeMethodName;
+        if (expr != null) {
+            makeArgs = makeArgs.append(expr);
         }
         return makeLocationVariable(tmi, diagPos, makeArgs, makeMethod);
     }
