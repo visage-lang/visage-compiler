@@ -61,17 +61,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final JavafxOptimizationStatistics optStat;
     
     private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
-    Name outerAccessorName;
-    Name outerAccessorFieldName;
-    Name makeInitMap;
     
-    Name varNumName;
-    Name varLocalNumName;
-    Name varWordName;
-    Name varBitName;
-    Name varIsInitName;
-    Name varOldValueName;
-    Name varNewValueName;
+    private Name outerAccessorFieldName;
+    private Name makeInitMap;
+    
+    private Name varNumName;
+    private Name varLocalNumName;
+    private Name varWordName;
+    private Name varBitName;
+    private Name varChangedName;
+    private Name varOldValueName;
+    private Name varNewValueName;
     
     final Type initHelperType;
     final Type abstractVariableType;
@@ -135,7 +135,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
         
-        outerAccessorName = names.fromString("accessOuter$");
         outerAccessorFieldName = names.fromString("accessOuterField$");
         makeInitMap = names.fromString("makeInitMap$");
         
@@ -143,7 +142,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         varLocalNumName = names.fromString("varLocalNum$");
         varWordName = names.fromString("varWord$");
         varBitName = names.fromString("varBit$");
-        varIsInitName = names.fromString("varIsInit$");
+        varChangedName = names.fromString("varChanged$");
         varOldValueName =  names.fromString("varOldValue$");
         varNewValueName =  names.fromString("varNewValue$");
 
@@ -532,7 +531,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         JCIdent retIdent = make.Ident(vs);
         JCStatement retRet = make.Return(retIdent);
         List<JCStatement> mStats = List.of(retRet);
-        return make.MethodDef(make.Modifiers(Flags.PUBLIC), outerAccessorName, make.Ident(outerTypeSym), List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
+        return make.MethodDef(make.Modifiers(Flags.PUBLIC), defs.outerAccessorName, make.Ident(outerTypeSym), List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
                 List.<JCExpression>nil(), make.Block(0L, mStats), null);
     }
 
@@ -549,7 +548,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 ClassSymbol returnSym = typeMorpher.reader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
                 JCMethodDecl accessorMethod = make.MethodDef(
                         make.Modifiers(Flags.PUBLIC), 
-                        outerAccessorName, 
+                        defs.outerAccessorName,
                         make.Ident(returnSym), 
                         List.<JCTypeParameter>nil(), 
                         List.<JCVariableDecl>nil(),
@@ -655,7 +654,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // If the static variable is represented with a Location, initialize it
                         Name locName = attributeLocationName(tai.getSymbol());
                         JCStatement initvar = callStatement(diagPos, make.at(diagPos).Ident(locName), defs.locationInitializeName);
-                        JCExpression nullCheck = make.at(diagPos).Binary(JCTree.NE, make.at(diagPos).Ident(locName), make.at(diagPos).Literal(TypeTags.BOT, null));
+                        JCExpression nullCheck = make.at(diagPos).Binary(JCTree.NE, make.at(diagPos).Ident(locName), makeNull(diagPos));
                         stmts.append(make.at(diagPos).If(nullCheck, initvar, null));
                     }
                 }
@@ -886,7 +885,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // If a Location might be needed, build the field
                     if (ai.representation() != NeverLocation) {
                         // TODO - switch over to using NULL.
-                        JCExpression initialValue = ai.representation()==AlwaysLocation ? makeLocationAttributeVariable(ai.getVMI(), currentPos) : null;
+                        JCExpression initialValue = ai.representation()==AlwaysLocation ? makeLocationWithDefault(ai.getVMI(), currentPos) : null;
                         // Construct the location field.
                         vars.append(makeVariableField(ai, mods, ai.getVariableType(), attributeLocationName(varSym), initialValue));
                     }
@@ -1004,9 +1003,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method returns a statement to set the correct bit in the VFLG$.
         //
-        JCStatement makeSetVFLG$(VarInfo varInfo, boolean override) {
+        JCStatement makeSetVFLG$(VarInfo varInfo) {
             // Script vars don't need flags.
-            if (!override && !varInfo.isStatic()) {
+            if (!varInfo.isStatic()) {
                 // Get the var enumeration.
                 int enumeration = varInfo.getEnumeration();
                 // Which VFLGS$ word.
@@ -1021,12 +1020,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             return null;
-        }   
-        
+        }
+
         //
         // This method returns the actual set statement used in the setter method.
         //
-        private ListBuffer<JCStatement> makeSetterStatements(VarInfo varInfo, boolean override) {
+        private ListBuffer<JCStatement> makeSetterStatements(VarInfo varInfo) {
             // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
@@ -1036,8 +1035,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             Name varLocName = attributeLocationName(proxyVarSym);
             // $var
             Name varName = attributeValueName(proxyVarSym);
-            // VOFF$var
-            Name varOffName = attributeOffsetName(proxyVarSym);
             
             // Determine representation.
             JavafxTypeMorpher.VarRepresentation varRep = varInfo.representation();
@@ -1047,81 +1044,68 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Fetch the on replace statement or null.
             JCStatement onReplace = varRep != AlwaysLocation ? varInfo.onReplaceAsInline() : null;
             
-            // Was there an init test.
-            boolean hasInitTest = false;
-            
             // Need to capture init state if has trigger.
             if (onReplace != null) {
                 // T varOldValue$ = $var;
                 stmts.append(makeVariable(Flags.FINAL, type, varOldValueName, Id(varName)));
                 
-                if (override) {
-                    // isInitialized$(VOFF$var)
-                    JCExpression isInitializedExpr = m().Apply(null, Id(defs.isInitializedPrefixName), List.<JCExpression>of(Id(varOffName)));
-                    // boolean varNeedsInit$ = !isInitialized$(VOFF$var);
-                    stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varIsInitName, isInitializedExpr));
-                    // We need to add to the trigger test.
-                    hasInitTest = true;
-                } else if (!varInfo.isStatic()) {
-                    // boolean varNeedsInit$ = !((varBits$0 & bit) == 0);
-                    stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varIsInitName, makeIsInitializedTest(varInfo, true)));
-                    // We need to add to the trigger test.
-                    hasInitTest = true;
-                }
-            }
+                // varOldValue$ != varNewValue$
+                // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
+                JCExpression testExpr = type.isPrimitive() ?
+                    m().Binary(JCTree.NE, Id(varOldValueName), Id(varNewValueName))
+                  : m().Unary(JCTree.NOT, runtime(currentPos,
+                        defs.Util_isEqual,
+                        List.of(Id(varOldValueName), Id(varNewValueName))));
 
-            // If it is an override var then call super set$.
-            if (override) {
-                // super.set$var(value);
-                stmts.append(callStatement(currentPos,
-                                           Id(names._super),
-                                           attributeSetterName(varInfo.getSymbol()),
-                                           List.<JCExpression>of(Id(varNewValueName))));
-            } else if (varRep != AlwaysLocation) {
+                // If we need to test init.
+                if (!varInfo.isStatic()) {
+                    // varOldValue$ != varNewValue$ || ((varBits$0 & bit) == 0)
+                    testExpr = m().Binary(JCTree.OR, testExpr, makeIsInitializedTest(varInfo, false));
+                }
+
+                // Set boolean to indicate if this variable has been changed
+                stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varChangedName, testExpr));
+
                 // $var = value
                 stmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
-            }
 
-           // If it has an on replace trigger.
-            if (onReplace != null) {
-                // varOldValue$ == varNewValue$
-                JCExpression testExpr = m().Binary(JCTree.EQ, Id(varOldValueName), Id(varNewValueName));
-                
-                // If we need to test init.
-                if (hasInitTest) {
-                    // varOldValue$ == varNewValue$ && varNeedsInit$
-                    testExpr = m().Binary(JCTree.AND, testExpr, Id(varIsInitName));
-                }
-                
-                // if (varOldValue$ == varNewValue$ && varNeedsInit$) return $var
-                stmts.append(m().If(testExpr, m().Return(Id(varName)), null));
-            
+                // Prepare to accumulate trigger statements.
+                ListBuffer<JCStatement> trigStmts = ListBuffer.lb();
+
                 JFXVar oldVar = varInfo.onReplace().getOldValue();
                 JFXVar newVar = varInfo.onReplace().getNewElements();
                 
                  // Check to see if the on replace has an old value.
                 if (oldVar != null) {
                     // T oldValue = $var
-                    stmts.append(makeVariable(Flags.FINAL, type, oldVar.getName(), Id(varOldValueName)));
+                    trigStmts.append(makeVariable(Flags.FINAL, type, oldVar.getName(), Id(varOldValueName)));
                 }
                 
                  // Check to see if the on replace has a new value.
                 if (newVar != null) {
                     // T newValue = value
-                    stmts.append(makeVariable(Flags.FINAL, type, newVar.getName(), Id(varNewValueName)));
+                    trigStmts.append(makeVariable(Flags.FINAL, type, newVar.getName(), Id(varNewValueName)));
                 }
                 
                 // Need a receiver under some circumstances.
                 if (!varInfo.isStatic()) {
                     // T receiver$ = this.
-                    stmts.append(makeVariable(Flags.FINAL, analysis.getCurrentClassSymbol().type, defs.receiverName, Id(names._this)));
+                    trigStmts.append(makeVariable(Flags.FINAL, analysis.getCurrentClassSymbol().type, defs.receiverName, Id(names._this)));
                 }
             
                 // Insert the trigger.
-                stmts.append(onReplace);
-                
-                // $varNewValue = $var
-                stmts.append(m().Exec(m().Assign(Id(varNewValueName), Id(varName))));
+                trigStmts.append(onReplace);
+
+                // In case trigger has changed the value, save it away
+                trigStmts.append(m().Exec(m().Assign(Id(varNewValueName), Id(varName))));
+
+                // if (varOldValue$ != varNewValue$) { ... trigger  code ... }
+                stmts.append(m().If(Id(varChangedName), m().Block(0L, trigStmts.toList()), null));
+            } else {
+                if (varRep != AlwaysLocation) {
+                    // $var = value
+                    stmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
+                }
             }
             
              // If potentially has a location.
@@ -1131,17 +1115,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 Name setMethodName = defs.locationSetMethodName[typeKind];
 
                 // loc$var.setAsType(value)
-                JCExpression setCall = m().Apply(null, m().Select(Id(varLocName), setMethodName),
-                                                 List.<JCExpression>of(Id(varNewValueName)));
+                JCExpression setCall = callExpression(currentPos, Id(varLocName), setMethodName, Id(varNewValueName));
                 // $varNewValue = loc$var.setAsType(value)                                 
-                JCExpression assignExpr = m().Assign(Id(varNewValueName), setCall);
+                JCStatement setStmt = m().Exec(m().Assign(Id(varNewValueName), setCall));
     
                 // Handle cases when there is a location.
                 if (varRep == SlackerLocation) {
                     // loc$var != null
                     JCExpression condition = m().Binary(JCTree.NE, Id(varLocName), makeNull());
                     // Move assignment to block (for readability.)
-                    JCBlock trueBlock =  m().Block(0, List.<JCStatement>of(m().Exec(assignExpr)));
+                    JCBlock trueBlock =  m().Block(0, List.<JCStatement>of(setStmt));
                     // Move other statements into a block.
                     JCBlock falseBlock = m().Block(0, stmts.toList());
                     // Restart statement buffer.
@@ -1150,12 +1133,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     stmts.append(m().If(condition, trueBlock, falseBlock));
                 } else if (varRep == AlwaysLocation) { 
                     // $varNewValue = loc$var.setAsType(value)
-                    stmts.append(m().Exec(assignExpr));
+                    stmts.append(setStmt);
                 }
             }
 
             // Get the set VFLG$ statement.
-            JCStatement setInit = makeSetVFLG$(varInfo, override);
+            JCStatement setInit = makeSetVFLG$(varInfo);
             if (setInit != null) stmts.append(setInit);
                 
             // return $varNewValue
@@ -1171,7 +1154,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //         return loc$var != null ? loc$var.setAsType(value) : $var = value;
         //     }
         //     
-        private JCTree makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody, boolean override) {
+        private JCTree makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
             setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
@@ -1182,11 +1165,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
  
             if (needsBody) {
                 // Prepare to accumulate statements.
-                stmts = makeSetterStatements(varInfo, override);
+                stmts = makeSetterStatements(varInfo);
             }
 
             // Set up value arg.
-            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
+            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.PARAMETER),
                                                           varNewValueName,
                                                           makeType(type),
                                                           null);
@@ -1253,6 +1236,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
+            VarMorphInfo vmi = varInfo.getVMI();
             // Assume no body.
             ListBuffer<JCStatement> stmts = null;
             
@@ -1279,12 +1263,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                        attributeGetLocationName(varSym),
                                                        List.<JCExpression>nil()));
                         } else {
-                            // XXXVariable.makeWithDefault($var)
-                            JCExpression initExpr = makeLocationWithDefault(varInfo.getVMI(), varInfo.pos(), Id(valueName));
-                            // loc$var = XXXVariable.makeWithDefault($var)
+                            // loc$var = var_initialized? XXXVariable.make($var) :  XXXVariable.make()
+                            JCExpression initExpr = varInfo.isStatic()?
+                                  makeLocationWithDefault(vmi, varInfo.pos(), Id(valueName))
+                                : m().Conditional(
+                                    makeIsInitializedTest(varInfo, true), 
+                                    makeLocationWithDefault(vmi, varInfo.pos(), Id(valueName)),
+                                    makeLocationWithDefault(vmi, varInfo.pos()));
                             stmts.append(m().Exec(m().Assign(Id(locationName), initExpr)));
                         }
-                        
+
+                        // $var = null;
+                        if (!vmi.getRealType().isPrimitive()) {
+                            stmts.append(m().Exec(m().Assign(Id(valueName), makeNull())));
+                        }
+
                         // See if we need to add a trigger.
                         JCStatement onReplace = varInfo.onReplaceAsListenerInstanciation();
                         if (onReplace != null) {
@@ -1302,7 +1295,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     case NeverLocation: {
                         // new ConstantLocation<T>($var)
-                        JCExpression locationExpr = makeUnboundLocation(currentPos, varInfo.getVMI(), Id(valueName));
+                        JCExpression locationExpr = makeUnboundLocation(currentPos, vmi, Id(valueName));
                         // Construct and add: return new ConstantLocation<T>($var);
                         stmts.append(m().Return(locationExpr));
                         break;
@@ -1334,17 +1327,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     if (ai.useAccessors()) {
                         accessors.append(makeGetterAccessorMethod(ai, true));
-                        accessors.append(makeSetterAccessorMethod(ai, true, false));
+                        accessors.append(makeSetterAccessorMethod(ai, true));
                     }                
                     accessors.append(makeGetLocationAccessorMethod(ai, true, false));
-                } else if (ai.onReplaceAsInline() != null) {
-                    // TODO - mixins are excluded.
-                    if (ai.isMixinVar()) continue;
-                    
-                    if (ai.useAccessors()) {
-                        accessors.append(makeSetterAccessorMethod(ai, true, true));
-                    }
-                    accessors.append(makeGetLocationAccessorMethod(ai, true, true));
                 }
             }
             
@@ -1368,7 +1353,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     if (ai.useAccessors()) {
                         accessors.append(makeGetterAccessorMethod(ai, false));
-                        accessors.append(makeSetterAccessorMethod(ai, false, false));
+                        accessors.append(makeSetterAccessorMethod(ai, false));
                     }                    
                     accessors.append(makeGetLocationAccessorMethod(ai, false, false));
                 }

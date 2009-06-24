@@ -313,7 +313,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         //TODO: handle array initializers (but, really, shouldn't that be somewhere else?)
         JCExpression init;
         if (tree.init == null) {
-            init = makeLocationAttributeVariable(vmi, diagPos);
+            init = makeLocationWithDefault(vmi, diagPos);
         } else {
             init = translate(tree.init, vmi.getRealFXType());
         }

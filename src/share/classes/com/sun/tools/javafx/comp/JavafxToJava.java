@@ -1216,7 +1216,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     init,
                                     getterInit(override.sym, override.getInitializer()),
                                     override.getOnReplace(),
-                                    translateOnReplaceAsInline(override.sym, override.getOnReplace()),
                                     makeInstanciateChangeListener(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -1974,7 +1973,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             if (requiresLocation) {
                 // location types: XXXVariable.make()
                 optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), true);
-                init = makeLocationAttributeVariable(vmi, diagPos);
+                init = makeLocationWithDefault(vmi, diagPos);
             } else {
                 optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
                 if ((modFlags & Flags.FINAL) != 0) {
@@ -4121,7 +4120,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 siteCursor = siteOwner;
                 while (numOfOuters > 0) {
                     if (siteCursor.kind == Kinds.TYP) {
-                        ret = callExpression(diagPos, ret, initBuilder.outerAccessorName);
+                        ret = callExpression(diagPos, ret, defs.outerAccessorName);
                         ret.type = siteCursor.type;
                     }
 
