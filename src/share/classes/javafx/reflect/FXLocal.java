@@ -202,13 +202,15 @@ public class FXLocal {
                     rawName.endsWith(VARIABLE_STRING)) {
                 rawName = rawName.substring(LOCATION_PREFIX_LENGTH,
                         rawLength-VARIABLE_STRING_LENGTH);
-                int sequenceIndex = rawName.indexOf("Sequence");
-                boolean isSequence = sequenceIndex == rawName.length() - 8;
-                if (isSequence) {
-                    FXType ptype = getPrimitiveType(rawName.substring(0, sequenceIndex));
-                    if (ptype != null)
-                        return new FXSequenceType(ptype);
-                }
+                
+                if (rawName.endsWith("Sequence")) { 
+                    int newLength = rawName.length() - "Sequence".length(); 
+                    if (newLength != 0) rawName = rawName.substring(0, newLength - 1); 
+                    FXType ptype = getPrimitiveType(rawName); 
+                    if (ptype != null) 
+                        return new FXSequenceType(ptype); 
+                } 
+
                 FXType ptype = getPrimitiveType(rawName);
                 if (ptype != null)
                     return ptype;
