@@ -690,6 +690,10 @@ public class DocEnv {
         ClassSymbol cls = sym instanceof ClassSymbol ? (ClassSymbol)sym : sym.enclClass();
         return types.isJFXClass(cls);
     }
+
+    protected boolean isMixin(ClassSymbol tsym) {
+        return types.isMixin(tsym);
+    }
     
     protected boolean isSequence(Symbol sym) {
         return sym != null && types.isSequence(sym.type);

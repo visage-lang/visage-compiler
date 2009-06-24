@@ -1188,6 +1188,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
             if (    type == v4Parser.WS         || type == v4Parser.ABSTRACT    || type == v4Parser.BOUND 
                  || type == v4Parser.OVERRIDE   || type == v4Parser.PACKAGE     || type == v4Parser.PROTECTED 
                  || type == v4Parser.PUBLIC     || type == v4Parser.PUBLIC_READ || type == v4Parser.PUBLIC_INIT 
+                 || type == v4Parser.MIXIN
                  
                  //TODO: deprecated -- remove this at some point
                  //

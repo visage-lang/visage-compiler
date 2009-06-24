@@ -505,6 +505,11 @@ public class XMLDoclet {
             hd.startElement("", "", "read-only", attrs);
             hd.endElement("", "", "read-only");
         }
+        if (element instanceof ClassDoc &&
+            isMixin((ClassDoc)element)) {
+            hd.startElement("", "", "mixin", attrs);
+            hd.endElement("", "", "mixin");
+        }
         /***
         if (element.isNative()) {
             hd.startElement("", "", "native", attrs);
@@ -869,6 +874,10 @@ public class XMLDoclet {
     
     private static boolean isJFXClass(ClassDoc clsDoc) {
         return probe(clsDoc, "isJFXClass");
+    }
+
+    private static boolean isMixin(ClassDoc clsDoc) {
+        return probe(clsDoc, "isMixin");
     }
     
     private static boolean isSequence(ClassDoc clsDoc) {

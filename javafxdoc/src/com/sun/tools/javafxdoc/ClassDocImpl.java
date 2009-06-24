@@ -383,9 +383,10 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
      */
     @Override
     public String modifiers() {
-        return (isInterface() || isAnnotationType())
+        String result = (isInterface() || isAnnotationType())
                 ? modifiers(getFlags() & ~Modifier.ABSTRACT)
                 : super.modifiers();
+        return isMixin()? result + " mixin" : result;
     }
 
     /**
@@ -1218,6 +1219,10 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
     
     public boolean isJFXClass() {
         return env.isJFXSymbol(tsym);
+    }
+
+    public boolean isMixin() {
+        return env.isMixin(tsym);
     }
     
     public boolean isSequence() {
