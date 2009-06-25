@@ -3049,8 +3049,10 @@ public class JavafxAttr implements JavafxVisitor {
     @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         JFXExpression seq = tree.getSequence();
-        Type seqType = attribExpr(seq, env, Type.noType, Sequenceness.REQUIRED);
-
+         // Attribute as a tree so we can check that target is assignable
+         // when pkind is VAR
+         //
+         Type seqType = attribTree(seq, env, pkind, Type.noType, Sequenceness.REQUIRED);
         attribExpr(tree.getFirstIndex(), env, syms.javafx_IntegerType);
         if (tree.getLastIndex() != null) {
             attribExpr(tree.getLastIndex(), env, syms.javafx_IntegerType);
