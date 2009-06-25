@@ -28,6 +28,8 @@ import java.lang.reflect.*;
 import com.sun.tools.javafx.code.*;
 import com.sun.javafx.runtime.location.*;
 import java.util.*;
+import java.lang.ref.*;
+import javafx.reflect.*;
 //import com.sun.tools.javac.code.*;
 
 /**
@@ -72,30 +74,38 @@ public class JavaFXScriptContext {
         }
     }
 
-   /* public Method getMethod (Symbol sym) {
-        Class clazz = loadSymbolClass(sym);
-    }*/
-
-    public Object getVarValue (Symbol sym)  {
+    FXVarMember reflectSymbol (Symbol sym) {
+        SoftReference<FXVarMember> ref = symbolMap.get(sym);
+        if (ref != null) {
+            FXVarMember rvar = ref.get();
+            if (rvar != null)
+                return rvar;
+        }
         String cname = ((Symbol.ClassSymbol) sym.owner).flatname.toString();
         String sname = sym.getSimpleName().toString();
-        Class clazz = loadSymbolClass(sym);
-        Field fld;
+        Class clazz;
         try {
-            fld = clazz.getField("$"+sname);
+            clazz = loader.loadClass(cname);
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("no class "+cname+" for "+sname, ex);
+        }
+        try {
+            FXLocal.Context rcontext = FXLocal.getContext();
+            FXLocal.ClassType rclass = rcontext.makeClassRef(clazz);
+            FXVarMember rvar = rclass.getVariable(sname);
+            ref = new SoftReference(rvar);
+            symbolMap.put(sym, ref);
+            return rvar;
         }
         catch (Exception ex) {
             throw new RuntimeException("no field in "+cname+" for "+sname, ex);
         }
-        try {
-            Object value = fld.get(null);
-            if (value instanceof ObjectLocation)
-                value = ((ObjectLocation) value).get();
-            return value;
-        }
-        catch (Exception ex) {
-            throw new RuntimeException("no field in "+cname+" for "+sname, ex);
-        }
+    }
+
+    public Object getVarValue (Symbol sym)  {
+        FXVarMember rvar = reflectSymbol(sym);
+        FXValue rvalue = rvar.getValue(null);
+        return ((FXLocal.Value) rvalue).asObject();
     }
 
     public Object getVarValue(Name name) {
@@ -109,32 +119,13 @@ public class JavaFXScriptContext {
         return getVarValue(entry.sym); // FIXME check for errors
     }
 
+    static WeakHashMap<Symbol,SoftReference<FXVarMember>> symbolMap =
+        new WeakHashMap<Symbol,SoftReference<FXVarMember>>();
+
     public void setVarValue(Symbol sym, Object newValue) {
-        String cname = ((JavafxClassSymbol) sym.owner).flatname.toString();
-        String sname = sym.getSimpleName().toString();
-        Class clazz;
-        try {
-            clazz = loader.loadClass(cname);
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException("no class "+cname+" for "+sname, ex);
-        }
-        Field fld;
-        try {
-            fld = clazz.getField("$"+sname);
-        }
-        catch (Exception ex) {
-            throw new RuntimeException("no field in "+cname+" for "+sname, ex);
-        }
-        try {
-            Object value = fld.get(null);
-            if (value instanceof ObjectLocation)
-                ((ObjectLocation) value).set(newValue);
-            else
-                fld.set(null, newValue);
-        }
-        catch (Exception ex) {
-            throw new RuntimeException("no field in "+cname+" for "+sname, ex);
-        }
+        FXVarMember rvar = reflectSymbol(sym);
+        FXLocal.Context rcontext = FXLocal.getContext();
+        rvar.setValue(null, rcontext.mirrorOf(newValue));
     }
 
     public void setVarValue(Name name, Object newValue) {
