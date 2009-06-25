@@ -546,7 +546,8 @@ public abstract class JavafxTranslationSupport {
      */
     JCExpression makeLit(DiagnosticPosition diagPos, Type type, Object value) {
         int tag = value==null? TypeTags.BOT : type.tag;
-        return make.at(diagPos).Literal(tag, value).setType(type.constType(value));
+        return make.at(diagPos).Literal(tag, value).setType(
+            tag == TypeTags.BOT? syms.botType : type.constType(value)); 
     }
 
     JCExpression makeLocationLocalVariable(TypeMorphInfo tmi,
