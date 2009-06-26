@@ -20,6 +20,8 @@ done
 # detect Darwin and Cygwin environments
 darwin=false;
 cygwin=false;
+linux=false;
+solaris=false;
 case "`uname`" in
   Darwin*) darwin=true;
            if [ -z "$JAVA_HOME" ] ; then
@@ -27,6 +29,8 @@ case "`uname`" in
            fi
            ;;
   CYGWIN*) cygwin=true;;
+  Linux*)  linux=true;;
+  SunOS*)  solaris=true;;
 esac
 
 if [ -n "$JAVA_HOME"  ] ; then
@@ -157,6 +161,21 @@ if [ -n "${execute_bootnativelibpath}" ]; then
         execute_bootnativelibpath=`cygpath --path --windows "$execute_nativelibpath"`
     fi
     jargs="$jargs \"-Dsun.boot.library.path=${execute_bootnativelibpath}\""
+fi
+if [ -n "${execute_vmargs_macos}" -a "$darwin" = "true" ]; then
+    jargs="$jargs ${execute_vmargs_macos}"
+fi
+if [ -n "${execute_vmargs_windows}" -a "$cygwin" = "true" ]; then
+    jargs="$jargs ${execute_vmargs_windows}"
+fi
+if [ -n "${execute_vmargs_linux}" -a "$linux" = "true" ]; then
+    jargs="$jargs ${execute_vmargs_linux}"
+fi
+if [ -n "${execute_vmargs_solaris}" -a "$solaris" = "true" ]; then
+    jargs="$jargs ${execute_vmargs_solaris}"
+fi
+if [ -n "${execute_vmargs_common}" ]; then
+    jargs="$jargs ${execute_vmargs_common}"
 fi
 if [ -n "$lastarg" ]; then
     jargs="$jargs -classpath '"$classpath"' $lastarg"

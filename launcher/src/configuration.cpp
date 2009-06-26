@@ -37,6 +37,7 @@ Configuration::Configuration(const std::string& prefix)
         profile_bootclasspath_append(""), 
         profile_nativelibpath(""),
         profile_bootnativelibpath(""),
+        profile_vmargs(""),
         device_profile("desktop"),
         profile_filename("desktop.properties") {
 }
@@ -146,7 +147,7 @@ int Configuration::readConfigFile() {
                 continue;
             }
             value = line.substr (start, end - start + 1);
-            
+
             // evaluate key/value-pair
             if (key == "classpath") {
                 profile_classpath = value;
@@ -165,6 +166,12 @@ int Configuration::readConfigFile() {
             } else
             if (key == "bootnativelibpath") {
                 profile_bootnativelibpath = value;
+            } else
+            if (key == "vmargs_common") {
+                profile_vmargs += value + " ";
+            } else
+            if (key == "vmargs_windows") {
+                profile_vmargs += value + " ";
             };
         }
     }
