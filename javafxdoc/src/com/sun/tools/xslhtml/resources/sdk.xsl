@@ -261,7 +261,7 @@
                                                 <xsl:apply-templates select="docComment/inlineTags" mode="packages-overview"/>
                                                 <xsl:apply-templates select="docComment/seeTags" mode="package-overview"/>
                                                 <xsl:apply-templates select="docComment/tags/needsreview"/>
-                                                &amp;nbsp;
+                                                &#160;
                                             </div>
                                         </xsl:if>
                                     </xsl:if>

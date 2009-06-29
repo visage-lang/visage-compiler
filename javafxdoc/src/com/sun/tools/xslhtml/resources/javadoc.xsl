@@ -811,7 +811,7 @@
                             <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
                             <div class="long-desc">
                                 <xsl:call-template name="var-full-description"/>
-                                &amp;nbsp;
+                                &#160;
                             </div>
                         </xsl:if>
                     </xsl:if>
@@ -982,7 +982,7 @@
                         <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
                         <div class="long-desc">
                             <xsl:call-template name="method-like-full-description"/>
-                            &amp;nbsp;
+                            &#160;
                         </div>
                         <!--
                     </xsl:if>
