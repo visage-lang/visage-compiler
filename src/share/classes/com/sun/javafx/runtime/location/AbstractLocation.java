@@ -87,7 +87,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     // Elements are differentiated by their dependency kind.
     protected LocationDependency children;
 
-    private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
+    protected static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
 
 
     public boolean isValid() {
