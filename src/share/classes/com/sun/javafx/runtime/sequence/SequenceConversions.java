@@ -127,6 +127,24 @@ public class SequenceConversions {
         return unboxed;
     }
 
+    /** Convert a Sequence<Short> to an array */
+    public static short[] toShortArray(Sequence<? extends Number> seq) {
+        int size = seq.size();
+        short[] unboxed = new short[size];
+        for (int i = size;  --i >= 0; )
+            unboxed[i] = seq.getAsShort(i);
+        return unboxed;
+    }
+
+    /** Convert a Sequence<Byte> to an array */
+    public static byte[] toByteArray(Sequence<? extends Number> seq) {
+        int size = seq.size();
+        byte[] unboxed = new byte[size];
+        for (int i = size;  --i >= 0; )
+            unboxed[i] = seq.getAsByte(i);
+        return unboxed;
+    }
+
     /** Convert a Sequence<Double> to a double array */
     public static double[] toDoubleArray(Sequence<? extends Number> seq) {
         int size = seq.size();

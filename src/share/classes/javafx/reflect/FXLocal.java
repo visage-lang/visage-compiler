@@ -333,7 +333,7 @@ public class FXLocal {
          * @return the hash-code of the name.
          */
         public int hashCode() {
-            return name.hashCode();
+            return (name != null ? name : refClass.getName()).hashCode();
         }
     
         public boolean equals (Object obj) {

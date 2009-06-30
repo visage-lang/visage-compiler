@@ -85,7 +85,7 @@
             <arg value="root.filename=${doc.name}"/>
             <arg value="chunk.section.depth=1"/>
             <arg value="chunk.first.sections=1"/>
-            <arg value="draft.mode=yes"/>
+            <arg value="draft.mode=no"/>
 <!--         <arg value="navig.graphics=1"/>-->
         </java>
 

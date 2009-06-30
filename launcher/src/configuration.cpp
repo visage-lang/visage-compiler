@@ -210,19 +210,19 @@ int Configuration::parseArgs(int argc, char** argv) {
             vmargs += " \"";
             vmargs += arg+2;    // skip first two characters "-J"
             vmargs += "\"";
-        } else if (islauncher && 0 == strcmp("-version", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-version", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -version";
             return (EXIT_SUCCESS);
-        } else if (islauncher && 0 == strcmp("-fullversion", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-fullversion", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -fullversion";
             return (EXIT_SUCCESS);
-        } else if (islauncher && 0 == strcmp("-help", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-help", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
-        } else if (islauncher && 0 == strcmp("-?", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-?", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
-        } else if (islauncher && 0 == strcmp("-X", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-X", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -helpx";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strncmp("-", arg, 1)) {

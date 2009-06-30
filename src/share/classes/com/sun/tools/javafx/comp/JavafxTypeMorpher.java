@@ -117,7 +117,7 @@ public class JavafxTypeMorpher {
         }
 
         boolean isMemberVariable() {
-            return sym.owner.kind == Kinds.TYP;
+            return sym.owner.kind == Kinds.TYP && sym.name != names._class;
         }
 
         boolean isFXMemberVariable() {
@@ -345,18 +345,25 @@ public class JavafxTypeMorpher {
                 The (1) and (2) checks are handled by general checks (above).
                 */
 
-                // (3a) check.  Not used in bind has already been checked (above).
-                // Check that it is not accessible outside the script (so noone else can bind it).
-                if (readIsScriptPrivate) {
-                    return NeverLocation;
-                }
+                // Overridden variables need to have Locations since overridden on-replace expects it.
+                // It is OK that the overridden analsysis is across all files in the compile since
+                // this is moot for script-private and unwritable-outside-script variables cannot be
+                // overridden except in the script.
+                if (!isOverriden) {
 
-                // (3b) check.  No assignments ((no longer) except in init{}) and
-                // permissions such that this can't be done externally, or it is a 'def'.
-                //JFXC-2026 : Elide unassigned and externally unassignable member vars
-                //JFXC-2103 -- allow public-init
-                if (!isAssignedTo && !canWriteOutsideScript) {
-                    return NeverLocation;
+                    // (3a) check.  Not used in bind has already been checked (above).
+                    // Check that it is not accessible outside the script (so noone else can bind it).
+                    if (readIsScriptPrivate) {
+                        return NeverLocation;
+                    }
+
+                    // (3b) check.  No assignments ((no longer) except in init{}) and
+                    // permissions such that this can't be done externally, or it is a 'def'.
+                    //JFXC-2026 : Elide unassigned and externally unassignable member vars
+                    //JFXC-2103 -- allow public-init
+                    if (!isAssignedTo && !canWriteOutsideScript) {
+                        return NeverLocation;
+                    }
                 }
 
                 return SlackerLocation;

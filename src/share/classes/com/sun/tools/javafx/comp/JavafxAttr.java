@@ -3049,8 +3049,10 @@ public class JavafxAttr implements JavafxVisitor {
     @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         JFXExpression seq = tree.getSequence();
-        Type seqType = attribExpr(seq, env, Type.noType, Sequenceness.REQUIRED);
-
+         // Attribute as a tree so we can check that target is assignable
+         // when pkind is VAR
+         //
+         Type seqType = attribTree(seq, env, pkind, Type.noType, Sequenceness.REQUIRED);
         attribExpr(tree.getFirstIndex(), env, syms.javafx_IntegerType);
         if (tree.getLastIndex() != null) {
             attribExpr(tree.getLastIndex(), env, syms.javafx_IntegerType);
@@ -3894,15 +3896,23 @@ public class JavafxAttr implements JavafxVisitor {
 
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
         dupEnv.outer = env;
-        Type instType = attribTree(tree.attribute, dupEnv, VAR, Type.noType);
-        if (instType == null || instType == syms.javafx_UnspecifiedType) {
-            instType = Type.noType;
+        JavafxTag tag = JavafxTreeInfo.skipParens(tree.attribute).getFXTag();
+        Type instType;
+        if (tag == JavafxTag.IDENT || tag == JavafxTag.SELECT) {
+            instType = attribTree(tree.attribute, dupEnv, VAR, Type.noType);
+            tree.sym = JavafxTreeInfo.symbol(tree.attribute);
+            if (instType == null || instType == syms.javafx_UnspecifiedType)
+                instType = Type.noType;
         }
+        else {
+            instType = Type.noType;
+            log.error(tree.pos(), MsgSym.MESSAGE_UNEXPECTED_TYPE,
+                    Resolve.kindNames(VAR), Resolve.kindName(VAL));
+        }
+        
         attribExpr(tree.value, dupEnv, instType);
         if (tree.interpolation != null)
             attribExpr(tree.interpolation, dupEnv);
-
-        tree.sym = JavafxTreeInfo.symbol(tree.attribute);
 
         //TODO: this is evil
         //wrap it in a function

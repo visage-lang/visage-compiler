@@ -337,7 +337,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             if (sourceIsSequence) {
                 if (elemType.isPrimitive()) {
                     String mname;
-                    if (elemType == syms.intType)
+                    if (elemType == syms.byteType)
+                        mname = "toByteArray";
+                    else if (elemType == syms.shortType)
+                        mname = "toShortArray";
+                    else if (elemType == syms.intType)
                         mname = "toIntArray";
                     else if (elemType == syms.longType)
                         mname = "toLongArray";
@@ -1216,7 +1220,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     init,
                                     getterInit(override.sym, override.getInitializer()),
                                     override.getOnReplace(),
-                                    translateOnReplaceAsInline(override.sym, override.getOnReplace()),
                                     makeInstanciateChangeListener(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -1974,7 +1977,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             if (requiresLocation) {
                 // location types: XXXVariable.make()
                 optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), true);
-                init = makeLocationAttributeVariable(vmi, diagPos);
+                init = makeLocationWithDefault(vmi, diagPos);
             } else {
                 optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
                 if ((modFlags & Flags.FINAL) != 0) {
@@ -4121,7 +4124,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 siteCursor = siteOwner;
                 while (numOfOuters > 0) {
                     if (siteCursor.kind == Kinds.TYP) {
-                        ret = callExpression(diagPos, ret, initBuilder.outerAccessorName);
+                        ret = callExpression(diagPos, ret, defs.outerAccessorName);
                         ret.type = siteCursor.type;
                     }
 

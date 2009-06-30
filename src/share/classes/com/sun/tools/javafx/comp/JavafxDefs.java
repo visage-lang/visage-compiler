@@ -107,6 +107,7 @@ public class JavafxDefs {
     public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
     private static final String cLocations = locationPackageNameString + ".Locations";
+    private static final String cUtil = runtimePackageNameString + ".Util";
 
     public char typeCharToEscape = '.';
     public char escapeTypeChar = '_';
@@ -149,6 +150,8 @@ public class JavafxDefs {
     final RuntimeMethod BoundSequences_sliceExclusive;
     final RuntimeMethod BoundSequences_upcast;
 
+    final RuntimeMethod Util_isEqual;
+
     /**
      * Name definitions
      */
@@ -171,6 +174,7 @@ public class JavafxDefs {
     final Name receiverName;
     final Name initializeName;
     final Name completeName;
+    final Name outerAccessorName;
     final Name getMethodName;
     final Name attributeSetMethodParamName;
     final Name getSliceMethodName;
@@ -298,6 +302,7 @@ public class JavafxDefs {
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         completeName = names.fromString(completeNameString);
+        outerAccessorName = names.fromString("accessOuter$");
         getMethodName = names.fromString(getMethodNameString);
         attributeSetMethodParamName = names.fromString("value$");
         getSliceMethodName = names.fromString("getSlice");
@@ -400,6 +405,7 @@ public class JavafxDefs {
         BoundSequences_sliceExclusive = new RuntimeMethod(names, cBoundSequences, "sliceExclusive");
         BoundSequences_upcast = new RuntimeMethod(names, cBoundSequences, "upcast");
         BoundSequences_convertNumberSequence = new RuntimeMethod(names, cBoundSequences, "convertNumberSequence");
+        Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
 
         // Initialize per Kind names and types
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {

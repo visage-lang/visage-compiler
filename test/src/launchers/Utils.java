@@ -293,7 +293,7 @@ public class Utils {
         return true;
     }
 
-    static boolean checkExec(List<String> cmds, String[] expectedArgs)
+    static boolean checkExec(List<String> cmds, String... expectedArgs) 
             throws IOException {
         if (!verifyArguments(getArgumentsFromFx(cmds), expectedArgs)) {
             return false;
