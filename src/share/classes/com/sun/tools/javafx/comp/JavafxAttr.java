@@ -2209,7 +2209,7 @@ public class JavafxAttr implements JavafxVisitor {
                 attribExpr(l.head, env, argtype);
             else
                 argtype = chk.checkNonVoid(l.head.pos(),
-                        types.upperBound(attribTree(l.head, env, VAL, Infer.anyPoly)));
+                        types.upperBound(attribTree(l.head, env, VAL, Infer.anyPoly, Sequenceness.PERMITTED)));
             argtypebuffer.append(argtype);
         }
         List<Type> argtypes = argtypebuffer.toList();
