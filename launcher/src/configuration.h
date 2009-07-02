@@ -41,6 +41,7 @@ public:
     std::string profile_bootclasspath_append;
     std::string profile_nativelibpath;
     std::string profile_bootnativelibpath;
+    std::string profile_vmargs;
     bool        is_desktop() { return device_profile == "desktop"; };
     bool        is_mobile()  { return device_profile == "mobile" ; };
     
