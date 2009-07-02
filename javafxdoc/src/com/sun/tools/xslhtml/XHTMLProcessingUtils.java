@@ -567,9 +567,7 @@ public class XHTMLProcessingUtils {
         if(examples != null & examples.getLength() > 0) {
             for(int i=0; i<examples.getLength(); i++) {
                 Element example = (Element) examples.item(i);
-                // TODO: Change the last parameter of the following call
-                // from false back to true when JFXC-3303 is fixed
-                processExampleCode(example, packageDir, clazz, i, false);
+                processExampleCode(example, packageDir, clazz, i, true);
             }
         }
         NodeList highlights = clazz.getElementsByTagName("highlight");
