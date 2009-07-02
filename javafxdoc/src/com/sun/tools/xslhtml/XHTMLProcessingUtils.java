@@ -26,6 +26,7 @@ package com.sun.tools.xslhtml;
 import com.sun.tools.javafx.script.JavaFXScriptEngineFactory;
 import com.sun.tools.xmldoclet.Util;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -581,35 +582,25 @@ public class XHTMLProcessingUtils {
     private static void processExampleCode(Element example, File packageDir, Element clazz, int i, boolean renderScreenshot) throws DOMException {
         //p(INFO, MessageFormat.format(getString("processing.example"), clazz.getAttribute("name")));
         //p(INFO, example.getTextContent());
-        try {
-            //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
-            String script = example.getTextContent();
-            StringBuffer out = new StringBuffer();
-            out.append("<p>the code:</p>");
-            out.append("<pre class='example-code'><code>");
-            String styledScript = highlight(script);
-            out.append(styledScript);
-            out.append("</code></pre>");
-            if(renderScreenshot) {
-                try {
-                    File imgFile = new File(packageDir, clazz.getAttribute("name") + i + ".png");
-                    renderScriptToImage(imgFile, script);
-                    out.append("<p>produces:</p>");
-                    out.append("<p>");
-                    out.append("<img class='example-screenshot' src='" + imgFile.getName() + "'/>");
-                    out.append("</p>");
-                } catch (Throwable ex) {
-                    System.out.println("error processing code: " + clazz.getAttribute("name"));
-                    System.out.println("error processing: " + example.getTextContent());
-                    ex.printStackTrace();
-                }
+        //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
+        String script = example.getTextContent();
+        StringBuffer out = new StringBuffer();
+        out.append("<p>the code:</p>");
+        out.append("<pre class='example-code'><code>");
+        String styledScript = highlight(script);
+        out.append(styledScript);
+        out.append("</code></pre>");
+        if(renderScreenshot) {
+            File imgFile = new File(packageDir, clazz.getAttribute("name") + i + ".png");
+            boolean success = renderScriptToImageAsync(imgFile, script, clazz.getAttribute("name"));
+            if (success) {
+                out.append("<p>produces:</p>");
+                out.append("<p>");
+                out.append("<img class='example-screenshot' src='" + imgFile.getName() + "'/>");
+                out.append("</p>");
             }
-            example.setTextContent(out.toString());
-        } catch (Exception ex) {
-            System.out.println("error processing code: " + clazz.getAttribute("name"));
-            System.out.println("error processing: " + example.getTextContent());
-            ex.printStackTrace();
         }
+        example.setTextContent(out.toString());
     }
 
     private static String highlight(String text) {
@@ -633,7 +624,34 @@ public class XHTMLProcessingUtils {
         //        text +"</body></html>";
         return text;
     }
-    
+   
+    private static boolean renderScriptToImageAsync(final File imgFile, 
+                                                 final String script,
+                                                 final String name) {
+        final boolean[] result = new boolean[1];
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                public void run() {
+                    try {
+                        renderScriptToImage(imgFile, script);
+                        result[0] = true;
+                    } catch (Throwable ex) {
+                        System.out.println("error processing code: " + name);
+                        System.out.println("error processing : " + script);
+                        ex.printStackTrace();
+                        result[0] = false;
+                    }
+                }
+            });
+        } catch (Throwable ex) {
+            System.out.println("error processing code: " + name);
+            System.out.println("error processing : " + script);
+            ex.printStackTrace();
+            result[0] = false;
+        }
+        return result[0];
+    }
+
     @SuppressWarnings("unchecked")
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
         ScriptEngineFactory factory = new JavaFXScriptEngineFactory();
