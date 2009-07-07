@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.functions.Function0;
+import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.TypeInfo;
 import java.lang.ref.WeakReference;
 
@@ -153,7 +154,47 @@ public class Locations {
         return loc;
     }
 
-    public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
+   public static<T, L extends ObjectLocation<T>> L makeBoundSelect(final TypeInfo<T, L> typeInfo,
+                                                                                   final ObjectLocation<? extends FXObject> receiver,
+                                                                                   final int varNum) {
+       final L loc = typeInfo.makeLocation();
+       ((BindableLocation<T, ?>) loc).bind(false, makeBoundSelectBE(typeInfo, receiver, varNum));
+       return loc;
+    }
+
+   public static<T, L extends ObjectLocation<T>, R extends FXObject> BindingExpression makeBoundSelectBE(final TypeInfo<T, L> typeInfo,
+                                                                                   final ObjectLocation<R> receiver,
+                                                                                   final int varNum) {
+       return new AbstractBindingExpression() {
+           L lastL = null;
+           StaticDependentLocation weakMe;
+
+           @Override
+           public void setLocation(Location location) {
+               super.setLocation(location);
+               addStaticDependent(receiver);
+               weakMe = new StaticDependentLocation(location);
+           }
+
+           public void compute() {
+               R rcvr = receiver.get();
+               L thisL = rcvr==null? 
+                   typeInfo.makeDefaultConstant() : 
+                   (L) rcvr.loc$(varNum);
+               if (thisL != lastL) {
+                   if (lastL != null && lastL instanceof AbstractLocation)
+                       ((AbstractLocation) lastL).removeChild(weakMe);
+                   if (thisL instanceof AbstractLocation)
+                       ((AbstractLocation) thisL).addChild(weakMe);
+                   ((AbstractLocation) location).setUnderlyingLocation(thisL);
+                   lastL = thisL;
+               }
+               pushFrom(typeInfo, thisL);
+           }
+       };
+   }
+
+   public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
                                                                     boolean lazy,
                                                                     final SBECL selector) {
         final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
