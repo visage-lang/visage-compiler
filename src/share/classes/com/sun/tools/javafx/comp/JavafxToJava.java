@@ -1451,10 +1451,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         // Statements for the initialization steps.
         protected ListBuffer<JCStatement> stats = ListBuffer.lb();
-        
+
         // Statements to set symbols with initial values.
         protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
-        
+
         // Symbols corresponding to caseStats.
         protected ListBuffer<VarSymbol> varSyms = ListBuffer.lb();
 
@@ -1498,52 +1498,52 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         void setInstanceVariable(Name instName, VarSymbol vsym, JFXExpression init) {
             setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
         }
-        
+
         void makeInitSupportCall(Name methName, Name receiverName) {
             JCExpression receiver = m().Ident(receiverName);
             JCStatement callExec = toJava.callStatement(diagPos, receiver, methName, List.<JCExpression>nil());
             stats.append(callExec);
         }
-        
+
         void makeInitApplyDefaults(Type classType, Name receiverName) {
             ClassSymbol classSym = (ClassSymbol)classType.tsym;
             int count = varSyms.size();
-        
+
             JCVariableDecl loopVar = toJava.makeTmpLoopVar(diagPos, 0);
             Name loopName = loopVar.name;
             JCExpression loopLimit = m().Apply(null, m().Select(m().Ident(receiverName), names.fromString(attributeCountMethodString)),
-                                               List.<JCExpression>nil()); 
+                                               List.<JCExpression>nil());
             JCVariableDecl loopLimitVar = toJava.makeTmpVar(diagPos, "count", syms.intType, loopLimit);
             stats.append(loopLimitVar);
             JCExpression loopTest = m().Binary(JCTree.LT, m().Ident(loopName), m().Ident(loopLimitVar.name));
             List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, m().Ident(loopName), m().Literal(TypeTags.INT, 1))));
             JCStatement loopBody;
-            
+
             List<JCExpression> args = List.<JCExpression>of(m().Ident(loopName));
             JCStatement applyDefaultsExpr = toJava.callStatement(diagPos, m().Ident(receiverName), defs.applyDefaultsPrefixName, args);
-            
+
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
                 JCExpression getmapExpr = m().Apply(null, m().Ident(toJava.varGetMapName(classSym)), List.<JCExpression>nil());
                 JCVariableDecl mapVar = toJava.makeTmpVar(diagPos, "map", syms.javafx_ShortArray, getmapExpr);
                 stats.append(mapVar);
-                
+
                 LiteralInitVarMap varMap = toJava.literalInitClassMap.getVarMap(classSym);
                 int[] tags = new int[count];
-            
+
                 int index = 0;
                 for (VarSymbol varSym : varSyms.toList()) {
                     tags[index++] = varMap.addVar(varSym);
                 }
-            
+
                 ListBuffer<JCCase> cases = ListBuffer.lb();
                 index = 0;
                 for (JCStatement varInit : varInits) {
                     cases.append(m().Case(m().Literal(TypeTags.INT, tags[index++]), List.<JCStatement>of(varInit, m().Break(null))));
                 }
-                
+
                 cases.append(m().Case(null, List.<JCStatement>of(applyDefaultsExpr, m().Break(null))));
-                
+
                 JCExpression mapExpr = m().Indexed(m().Ident(mapVar.name), m().Ident(loopName));
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
@@ -1554,7 +1554,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 JCExpression condition = m().Binary(JCTree.EQ, m().Ident(loopName), m().Ident(offsetVar.name));
                 loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
             }
-                        
+
             stats.append(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
         }
 
@@ -2403,7 +2403,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 } else {
                     // not SELECT
                     if (useSetters) {
-                        JCExpression recv = sym.isStatic()? 
+                        JCExpression recv = sym.isStatic()?
                             makeTypeTree(diagPos, sym.owner.type, false) :
                             makeReceiver(diagPos, sym, true);
                         return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
@@ -2505,7 +2505,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     class SelectTranslator extends NullCheckTranslator {
-        
+
         protected final Symbol sym;
         protected final boolean isFunctionReference;
         protected final boolean staticReference;
@@ -2530,7 +2530,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             } else if (expr instanceof JFXIdent) {
                 JFXIdent ident = (JFXIdent)expr;
                 Symbol identSym = ident.sym;
-                
+
                 if (identSym != null && types.isJFXClass(identSym)) {
                     if ((identSym.flags_field & JavafxFlags.MIXIN) != 0) {
                         translatedSelected = m().Ident(defs.receiverName);
@@ -2624,7 +2624,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             // make class-based direct static reference:   Foo.x
             convert = make.at(diagPos).Select(makeTypeTree(diagPos, tree.sym.owner.type, false), tree.name);
         } else {
-            if ((kind == Kinds.VAR || kind == Kinds.MTH) && 
+            if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                     tree.sym.owner.kind == Kinds.TYP) {
                 // it is a non-static attribute or function class member
                 // reference it through the receiver
@@ -2743,7 +2743,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     public JCExpression translateSequenceIndexed(DiagnosticPosition diagPos, JFXExpression seq, JCExpression tseq, JCExpression index, Type elementType) {
         Name getMethodName;
         boolean primitive = elementType.isPrimitive();
-        
+
         if (primitive)
             getMethodName = defs.locationGetMethodName[typeMorpher.kindFromPrimitiveType(elementType.tsym)];
         else
@@ -2992,7 +2992,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             }
         };
     }
-    
+
     UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
         return useSequenceBuilder(diagPos, elemType, -1);
     }
@@ -3018,7 +3018,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             }
         };
     }
-    
+
     abstract class UseSequenceBuilder {
         final DiagnosticPosition diagPos;
         final Type elemType;
@@ -3091,7 +3091,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         abstract JCStatement addElement(JFXExpression expr);
 
         abstract List<JCExpression> makeConstructorArgs();
-        
+
         JCStatement makeAdd(JCExpression expr) {
             JCMethodInvocation addCall = make.Apply(
                     List.<JCExpression>nil(),
@@ -3531,7 +3531,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 // indexof is used, define the index counter variable at the top of everything
                 body = m().Block(0L, List.of(incrementingIndexVar, body));
             }
-            
+
             return body;
         }
     }
@@ -3818,7 +3818,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             // This is for calls from non-bound contexts (code for true bound calls is in JavafxToBound)
             JCExpression makeBoundCall(JCExpression applyExpression) {
                 JavafxTypeMorpher.TypeMorphInfo tmi = typeMorpher.typeMorphInfo(msym.getReturnType());
-                if (wrapper == AsLocation) { 
+                if (wrapper == AsLocation) {
                     return applyExpression;
                 } else {
                     return callExpression(diagPos,
@@ -4031,7 +4031,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             int typeKind = vmi.getTypeKind();
             boolean isSequence = vmi.isSequence();
             boolean isClassVar = vmi.isFXMemberVariable();
- 
+
             if (isClassVar) {
                 // this is a reference to a JavaFX class variable, use getter
                 Name accessName = ((wrapper == AsLocation) || isSequence)? attributeGetLocationName(vsym) : attributeGetterName(vsym);
@@ -4053,7 +4053,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 }
             }
         }
-        
+
         return expr;
     }
     //where
