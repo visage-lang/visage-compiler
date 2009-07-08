@@ -621,7 +621,15 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                     treeVMI.representation().possiblyLocation())) {
                 // this is a dynamic reference to an attribute
                 final JCExpression transSelector = translate(selector);
-                if (bindStatus.isLazy() || types.isSequence(tree.type) || tmiTarget != null && !types.isSameType(tree.type, tmiTarget.getRealType())) {
+                // Punt to the old implementation if:
+                // - this is a lazy bind              //TODO: optimize this too
+                // - this is a sequence bind
+                // - this bind does type conversion   //TODO: optimize this too
+                // - the selector is a mixin (so doesn't have attribute offsets)
+                if (bindStatus.isLazy() || 
+                        types.isSequence(tree.type) ||
+                        tmiTarget != null && !types.isSameType(tree.type, tmiTarget.getRealType()) ||
+                        types.isMixin(selector.type.tsym)) {
                     result = new BoundResult(makeBoundSelect(diagPos,
                             tree.type,
                             new BindingExpressionClosureTranslator(diagPos, typeMorpher.baseLocation.type) {
