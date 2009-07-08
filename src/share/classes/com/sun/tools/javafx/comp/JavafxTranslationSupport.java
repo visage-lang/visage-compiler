@@ -273,10 +273,14 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, Name methName, List<JCStatement> stmts, List<JCVariableDecl> params, Type returnType, long flags) {
+        return makeMethod(diagPos, methName, stmts, params, makeTypeTree(diagPos, returnType, true), flags);
+    }
+
+    protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, Name methName, List<JCStatement> stmts, List<JCVariableDecl> params, JCExpression typeExpression, long flags) {
         return make.at(diagPos).MethodDef(
                 make.at(diagPos).Modifiers(flags),
                 methName,
-                makeTypeTree(diagPos, returnType, true),
+                typeExpression,
                 List.<JCTypeParameter>nil(),
                 params == null ? List.<JCVariableDecl>nil() : params,
                 List.<JCExpression>nil(),

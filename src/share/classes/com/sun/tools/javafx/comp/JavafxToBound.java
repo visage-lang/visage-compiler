@@ -106,10 +106,9 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
 
     private class BoundResult {
         final JCExpression locationExpression;
-        BindingExpressionClosureTranslator translator;
-        JCExpression instanciateBE;
+        BindingExpressionClosureTranslator translator = null;
+        JCExpression instanciateBE = null;
         BoundResult(JCExpression locationExpression) {
-            this.translator = null;
             this.locationExpression = locationExpression;
         }
         JCExpression asLocation() {
@@ -120,10 +119,12 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
     // External translation entry-point
     JCExpression translateAsLocationOrBE(JFXExpression tree, JavafxBindStatus bindStatus, TypeMorphInfo tmi) {
         BoundResult res = translateAsResult(tree, bindStatus, tmi);
-        if (res.translator != null) {
+        if (res.instanciateBE != null) {
             // There is a binding expression we can return, so do so
             // Mark the BE as un-absorbed since we are using it explicitly
-            res.translator.absorbed = false;
+            if (res.translator != null) {
+                res.translator.absorbed = false;
+            }
             return res.instanciateBE;
         } else
             // no binding expression, return a Location
@@ -619,21 +620,48 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                     types.getFxClass((ClassSymbol) sym.owner) == null ||
                     treeVMI.representation().possiblyLocation())) {
                 // this is a dynamic reference to an attribute
-                result = new BoundResult(makeBoundSelect(diagPos,
-                        tree.type,
-                        new BindingExpressionClosureTranslator(diagPos, typeMorpher.baseLocation.type) {
+                final JCExpression transSelector = translate(selector);
+                // Punt to the old implementation if:
+                // - this is a lazy bind              //TODO: optimize this too
+                // - this is a sequence bind
+                // - this bind does type conversion   //TODO: optimize this too
+                // - the selector is a mixin (so doesn't have attribute offsets)
+                if (bindStatus.isLazy() || 
+                        types.isSequence(tree.type) ||
+                        tmiTarget != null && !types.isSameType(tree.type, tmiTarget.getRealType()) ||
+                        types.isMixin(selector.type.tsym)) {
+                    result = new BoundResult(makeBoundSelect(diagPos,
+                            tree.type,
+                            new BindingExpressionClosureTranslator(diagPos, typeMorpher.baseLocation.type) {
 
-                            protected JCExpression makePushExpression() {
-                                return convert(tree.type, toJava.convertVariableReference(diagPos,
-                                        m().Select(
-                                        buildArgField(
-                                        translate(selector),
-                                        new FieldInfo("selector", selector.type, ArgKind.DEPENDENT)),
-                                        tree.getIdentifier()),
-                                        sym,
-                                        Locationness.AsLocation)).asLocation();
-                            }
-                        }));
+                                protected JCExpression makePushExpression() {
+                                    return convert(tree.type, toJava.convertVariableReference(diagPos,
+                                            m().Select(
+                                            buildArgField(
+                                            transSelector,
+                                            new FieldInfo("selector", selector.type, ArgKind.DEPENDENT)),
+                                            tree.getIdentifier()),
+                                            sym,
+                                            Locationness.AsLocation)).asLocation();
+                                }
+                            }));
+                } else {
+                    JCExpression varOffsetExpr = make.at(diagPos).Select(makeTypeTree(diagPos, selector.type, false), attributeOffsetName(sym));
+                    List<JCExpression> args = List.of(
+                            makeTypeInfo(diagPos, tree.type),
+                            transSelector,
+                            varOffsetExpr);
+                    JCExpression loc = runtime(
+                            diagPos,
+                            defs.Locations_makeBoundSelect,
+                            args);
+                    JCExpression bindExpr = runtime(
+                            diagPos,
+                            defs.Locations_makeBoundSelectBE,
+                            args);
+                    result = new BoundResult(loc);
+                    result.instanciateBE = bindExpr;
+                }
             } else {
                 // This is a dynamic reference to a Java member or elided member
                 result = new BindingExpressionClosureTranslator(diagPos, tree.type) {
