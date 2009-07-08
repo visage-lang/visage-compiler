@@ -593,7 +593,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                     selectorName == names._this ||
                     selectorName == names._super ||
                     isKnown && isDef && !isDefinedBound || // unbound def
-                    isKnown && !selectorWritable && !isAssignedTo; // never reassigned
+                    isKnown && !selectorWritable && !isAssignedTo && !isDefinedBound; // never reassigned
         } else {
             selectorImmutable = false;
         }
