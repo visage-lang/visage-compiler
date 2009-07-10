@@ -27,6 +27,8 @@ window.addEvent('domready', function(){
 	attachSliders();
 	
 	attachDescOpen();	
+
+ 	attachCollapseExpand();
 	
 	initProfile();
 
@@ -84,6 +86,22 @@ function attachDescOpen() {
 			e.stop();
 		});
 	});
+}
+
+var collapsed = true;
+function attachCollapseExpand() {
+        $$('#collapse-expand-link').addEvent('click', function(e) {
+                // toggle collapsed state
+                collapsed = !collapsed;
+                $$('.long-desc-open').each(function(lnk,index) {
+                        try {
+                                lnk.fireEvent("click");
+                        } catch (ignored) {}
+                });
+                var linktext = collapsed? "expand all" : "collapse all";
+                $$('#collapse-expand-link').setProperty("text", linktext);
+        });
+
 }
 
 function initProfile() {

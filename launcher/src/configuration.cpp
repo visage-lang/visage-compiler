@@ -37,6 +37,7 @@ Configuration::Configuration(const std::string& prefix)
         profile_bootclasspath_append(""), 
         profile_nativelibpath(""),
         profile_bootnativelibpath(""),
+        profile_vmargs(""),
         device_profile("desktop"),
         profile_filename("desktop.properties") {
 }
@@ -146,7 +147,7 @@ int Configuration::readConfigFile() {
                 continue;
             }
             value = line.substr (start, end - start + 1);
-            
+
             // evaluate key/value-pair
             if (key == "classpath") {
                 profile_classpath = value;
@@ -165,6 +166,12 @@ int Configuration::readConfigFile() {
             } else
             if (key == "bootnativelibpath") {
                 profile_bootnativelibpath = value;
+            } else
+            if (key == "vmargs_common") {
+                profile_vmargs += value + " ";
+            } else
+            if (key == "vmargs_windows") {
+                profile_vmargs += value + " ";
             };
         }
     }
@@ -210,19 +217,19 @@ int Configuration::parseArgs(int argc, char** argv) {
             vmargs += " \"";
             vmargs += arg+2;    // skip first two characters "-J"
             vmargs += "\"";
-        } else if (islauncher && 0 == strcmp("-version", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-version", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -version";
             return (EXIT_SUCCESS);
-        } else if (islauncher && 0 == strcmp("-fullversion", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-fullversion", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -fullversion";
             return (EXIT_SUCCESS);
-        } else if (islauncher && 0 == strcmp("-help", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-help", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
-        } else if (islauncher && 0 == strcmp("-?", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-?", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -help";
             return (EXIT_SUCCESS);
-        } else if (islauncher && 0 == strcmp("-X", arg)) {
+        } else if (islauncher && !seen_main && 0 == strcmp("-X", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -helpx";
             return (EXIT_SUCCESS);
         } else if (islauncher && !seen_main && 0 == strncmp("-", arg, 1)) {
