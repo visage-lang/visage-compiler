@@ -713,7 +713,7 @@ public class JavafxCheck {
                     if (warn && base instanceof JFXIdent) {
                         long flags = sym.flags();
                         boolean isDef = (flags & JavafxFlags.IS_DEF) != 0L;
-                        boolean isBindInit = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0L;
+                        boolean isBindInit = (flags & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L;
                         boolean targetFinal = isDef && !isBindInit;
                         warn = !targetFinal;
                     }
