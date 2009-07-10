@@ -1026,26 +1026,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method returns the actual set statement used in the setter method.
+        // This method returns the set statements used to set using value (not Location)
         //
-        private ListBuffer<JCStatement> makeSetterStatements(VarInfo varInfo) {
+        private ListBuffer<JCStatement> makeValueSetterStatements(VarInfo varInfo) {
             // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
             // Symbol used when accessing the variable.
             VarSymbol proxyVarSym = varInfo.proxyVarSym();
-            // loc$var
-            Name varLocName = attributeLocationName(proxyVarSym);
+
             // $var
             Name varName = attributeValueName(proxyVarSym);
 
-            // Determine representation.
-            JavafxTypeMorpher.VarRepresentation varRep = varInfo.representation();
             // Var real type.
             Type type = varInfo.getVMI().getRealType();
 
             // Fetch the on replace statement or null.
-            JCStatement onReplace = varRep != AlwaysLocation ? varInfo.onReplaceAsInline() : null;
+            JCStatement onReplace = varInfo.onReplaceAsInline();
 
             // Need to capture init state if has trigger.
             if (onReplace != null) {
@@ -1071,6 +1068,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 // $var = value
                 stmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
+
+                JCStatement setInit = makeSetVFLG$(varInfo, VFLAG_IS_INITIALIZED);
+                if (setInit != null) {
+                    // VFLGS$0 |= ###;   // Set VFLG$ bit.
+                    stmts.append(setInit);
+                }
 
                 // Prepare to accumulate trigger statements.
                 ListBuffer<JCStatement> trigStmts = ListBuffer.lb();
@@ -1099,63 +1102,100 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Insert the trigger.
                 trigStmts.append(onReplace);
 
-                // In case trigger has changed the value, save it away
-                trigStmts.append(m().Exec(m().Assign(Id(varNewValueName), Id(varName))));
-
                 // if (varOldValue$ != varNewValue$) { ... trigger  code ... }
                 stmts.append(m().If(Id(varChangedName), m().Block(0L, trigStmts.toList()), null));
             } else {
-                if (varRep != AlwaysLocation) {
-                    // $var = value
-                    stmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
+                // $var = value
+                JCExpression assign = m().Assign(Id(varName), Id(varNewValueName));
+
+                JCStatement setInit = makeSetVFLG$(varInfo, VFLAG_IS_INITIALIZED);
+                if (setInit != null) {
+                    // $var = value;
+                    // VFLGS$0 |= ###;   // Set VFLG$ bit.
+                    stmts.append(m().Exec(assign));
+                    stmts.append(setInit);
+                    // fall through
+                } else {
+                    // return $var = value;
+                    stmts.append(m().Return(assign));
+                    return stmts;
                 }
             }
 
-             // If potentially has a location.
-            if (varRep != NeverLocation) {
-                // Get the location accessor method name.
-                int typeKind = varInfo.getVMI().getTypeKind();
-                Name setMethodName = defs.locationSetMethodName[typeKind];
+            // return $var;
+            stmts.append(m().Return(Id(varName)));
 
-                // loc$var.setAsType(value)
-                JCExpression setCall = callExpression(currentPos, Id(varLocName), setMethodName, Id(varNewValueName));
-                // $varNewValue = loc$var.setAsType(value)
-                JCStatement setStmt = m().Exec(m().Assign(Id(varNewValueName), setCall));
+            return stmts;
+        }
 
-                // Handle cases when there is a location.
-                if (varRep == SlackerLocation) {
+        //
+        // This method returns the set statements used in the setter method -- for a Location set case.
+        //
+        private ListBuffer<JCStatement> makeLocationSetterStatements(VarInfo varInfo) {
+            // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+            // Symbol used when accessing the variable.
+            VarSymbol proxyVarSym = varInfo.proxyVarSym();
+            // loc$var
+            Name varLocName = attributeLocationName(proxyVarSym);
+
+            // Get the location accessor method name.
+            int typeKind = varInfo.getVMI().getTypeKind();
+            Name setMethodName = defs.locationSetMethodName[typeKind];
+
+            // $varNewValue = loc$var.setAsType($varNewValue)
+            JCExpression setCall = callExpression(currentPos, Id(varLocName), setMethodName, Id(varNewValueName));
+
+            JCStatement setInit = makeSetVFLG$(varInfo, VFLAG_IS_INITIALIZED);
+            if (setInit != null) {
+                // $varNewValue = loc$var.setAsType($varNewValue)
+                // VFLGS$0 |= ###;   // Set VFLG$ bit.
+                // return $varNewValue
+                stmts.append(m().Exec(m().Assign(Id(varNewValueName), setCall)));
+                stmts.append(setInit);
+                stmts.append(m().Return(Id(varNewValueName)));
+            } else {
+                // return loc$var.setAsType($varNewValue)
+                stmts.append(m().Return(setCall));
+            }
+            return stmts;
+        }
+
+        //
+        // This method returns the actual set statements used in the setter method.
+        //
+        private ListBuffer<JCStatement> makeSetterStatements(VarInfo varInfo) {
+            switch (varInfo.representation()) {
+                case NeverLocation:
+                    return makeValueSetterStatements(varInfo);
+                case AlwaysLocation:
+                    return makeLocationSetterStatements(varInfo);
+                case SlackerLocation: {
+                    // Symbol used when accessing the variable.
+                    VarSymbol proxyVarSym = varInfo.proxyVarSym();
+                    // loc$var
+                    Name varLocName = attributeLocationName(proxyVarSym);
+
                     JCExpression locRef = Id(varLocName);
                     if (varInfo.isSlackerBind()) {
-                        // Come in here on a slacker bind that has not been overridden, just to throw a bindingExpression
-                        // Inflate location so this works, making the code below:
+                        // Come in here on a slacker bind that has not been overridden, just to throw a
+                        // BindingExpression inflate location so this works, making the code below:
                         // if ((defaultsApplied? loc$x() : loc$x) != null) ...
                         JCExpression callLoc = callExpression(currentPos, null, attributeGetLocationName(proxyVarSym));
                         locRef = m().Conditional(makeFlagTest(varInfo, VFLAG_DEFAULTS_APPLIED, true), callLoc, locRef);
                     }
                     // loc$var != null
                     JCExpression condition = m().Binary(JCTree.NE, locRef, makeNull());
-                    // Move assignment to block (for readability.)
-                    JCBlock trueBlock =  m().Block(0, List.<JCStatement>of(setStmt));
-                    // Move other statements into a block.
-                    JCBlock falseBlock = m().Block(0, stmts.toList());
-                    // Restart statement buffer.
-                    stmts = ListBuffer.lb();
-                    // if (loc$var != null) { $varNewValue = loc$var.setAsType(value)
-                    stmts.append(m().If(condition, trueBlock, falseBlock));
-                } else if (varRep == AlwaysLocation) {
-                    // $varNewValue = loc$var.setAsType(value)
-                    stmts.append(setStmt);
+
+                    // if (loc$var != null) { location-code } else { value-code }
+                    JCStatement stmt = m().If(condition,
+                            m().Block(0L, makeLocationSetterStatements(varInfo).toList()),
+                            m().Block(0L, makeValueSetterStatements(varInfo).toList()));
+                    return ListBuffer.<JCStatement>lb().append(stmt);
                 }
             }
-
-            // Get the set VFLG$ statement.
-            JCStatement setInit = makeSetVFLG$(varInfo, VFLAG_IS_INITIALIZED);
-            if (setInit != null) stmts.append(setInit);
-
-            // return $varNewValue
-            stmts.append(m().Return(Id(varNewValueName)));
-
-            return stmts;
+            throw new RuntimeException("Should not reach here");
         }
 
         //
