@@ -1431,7 +1431,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             return null;
         }
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        if ((vsym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 && vmi.representation() != VarRepresentation.AlwaysLocation) {
+        if ((vsym.flags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0 && vmi.representation() != VarRepresentation.AlwaysLocation) {
             // This is a Slacker Binding, translate for the in-lined getter
             return translateAsValue(expr, vmi.getRealType());
         }
@@ -1837,7 +1837,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         if (bindStatus.isUnidiBind()) {
             return toBound.translateAsLocationOrBE(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
-            assert vmi.representation() == AlwaysLocation;
             // Bi-directional bind translate so it stays in a Location
             return translateAsLocation(init);
         } else {
@@ -1864,7 +1863,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
+    //TODO: make this private again
+    JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             Name instanceName) {
         if (init == null) {

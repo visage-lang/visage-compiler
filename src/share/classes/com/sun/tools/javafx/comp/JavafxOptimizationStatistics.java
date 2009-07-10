@@ -216,7 +216,7 @@ public class JavafxOptimizationStatistics {
     private void printInstanceVariableData() {
         int instanceVariableLocationCount = instanceVarLocationCount + instanceDefLocationCount;
         int instanceVariableDirectCount = instanceVarDirectCount + instanceDefDirectCount;
-        int instanceVariableSlackerCount = instanceVarSlackerCount + instanceDefSlackerCount;
+        int instanceVariableSlackerCount = instanceVarSlackerCount/2 + instanceDefSlackerCount/2;
         int instanceVariableCount = instanceVariableLocationCount + instanceVariableDirectCount + instanceVariableSlackerCount;
 
         show("Instance variable count", instanceVariableCount);
@@ -224,21 +224,21 @@ public class JavafxOptimizationStatistics {
         show("Instance variable Slacker count", instanceVariableSlackerCount);
         show("Instance variable direct count", instanceVariableDirectCount);
         
-        show("Instance 'var' count", (instanceVarLocationCount + instanceVarSlackerCount + instanceVarDirectCount));
+        show("Instance 'var' count", (instanceVarLocationCount + instanceVarSlackerCount/2 + instanceVarDirectCount));
         show("Instance 'var' Location count", instanceVarLocationCount);
-        show("Instance 'var' Slacker count", instanceVarSlackerCount);
+        show("Instance 'var' Slacker count", instanceVarSlackerCount/2);
         show("Instance 'var' direct count", instanceVarDirectCount);
         
-        show("Instance 'def' count", (instanceDefLocationCount + instanceDefSlackerCount + instanceDefDirectCount));
+        show("Instance 'def' count", (instanceDefLocationCount + instanceDefSlackerCount/2 + instanceDefDirectCount));
         show("Instance 'def' Location count", instanceDefLocationCount);
-        show("Instance 'def' Slacker count", instanceDefSlackerCount);
+        show("Instance 'def' Slacker count", instanceDefSlackerCount/2);
         show("Instance 'def' direct count", instanceDefDirectCount);
     }
     
     private void printScriptVariableData() {
         int scriptVariableLocationCount = scriptVarLocationCount + scriptDefLocationCount;
         int scriptVariableDirectCount = scriptVarDirectCount + scriptDefDirectCount;
-        int scriptVariableSlackerCount = scriptVarSlackerCount + scriptDefSlackerCount;
+        int scriptVariableSlackerCount = scriptVarSlackerCount/2 + scriptDefSlackerCount/2;
         int scriptVariableCount = scriptVariableLocationCount + scriptVariableDirectCount + scriptVariableSlackerCount;
 
         show("Script variable count", scriptVariableCount);
@@ -246,14 +246,14 @@ public class JavafxOptimizationStatistics {
         show("Script variable Slacker count", scriptVariableSlackerCount);
         show("Script variable direct count", scriptVariableDirectCount);
         
-        show("Script 'var' count", (scriptVarLocationCount + scriptVarSlackerCount + scriptVarDirectCount));
+        show("Script 'var' count", (scriptVarLocationCount + scriptVarSlackerCount/2 + scriptVarDirectCount));
         show("Script 'var' Location count", scriptVarLocationCount);
-        show("Script 'var' Slacker count", scriptVarSlackerCount);
+        show("Script 'var' Slacker count", scriptVarSlackerCount/2);
         show("Script 'var' direct count", scriptVarDirectCount);
         
-        show("Script 'def' count", (scriptDefLocationCount + scriptDefSlackerCount + scriptDefDirectCount));
+        show("Script 'def' count", (scriptDefLocationCount + scriptDefSlackerCount/2 + scriptDefDirectCount));
         show("Script 'def' Location count", scriptDefLocationCount);
-        show("Script 'def' Slacker count", scriptDefSlackerCount);
+        show("Script 'def' Slacker count", scriptDefSlackerCount/2);
         show("Script 'def' direct count", scriptDefDirectCount);
     }
     

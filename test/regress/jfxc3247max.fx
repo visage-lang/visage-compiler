@@ -1,8 +1,10 @@
 /**
- * JFXC-3317 : Optimize bound JavaFX var select with mutable selectors
+ * JFXC-3247 : Slacker Binding: general case
  *
- * Set a high max for memory use of a linked list with bound select covered by JFXC-3317.
+ * Set a high max for memory use of a linked list with bound select covered by JFXC-3247.
  * Fail if it goes over or if there is an apparent leak.
+ *
+ * Note: this differs from jfxc3317Max.fx by only an on-replace, which allows this to slacker
  *
  * @test
  * @run
@@ -10,13 +12,13 @@
 
 import java.lang.management.*;
 
-def MAX_MEM : Long = 4000000;  // On Vista 64 - July 9, 2009 : 2992424
+def MAX_MEM : Long = 750000;  // On Vista 64 - July 9, 2009 : 512176
 var initialMem : Long;
 
 class Links {
   public var next : Links;
   public var ool : Boolean;
-  public def bb = bind next.ool on replace { ool = not ool };
+  public def bb = bind next.ool;
 }
 
 function memUsed() : Long {

@@ -923,7 +923,7 @@ public class JavafxAttr implements JavafxVisitor {
                 boolean wasInBindContext = this.inBindContext;
                 this.inBindContext |= tree.isBound();
                 if (this.inBindContext) {
-                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT | JavafxFlags.VARUSE_BOUND_DEFINITION;
                 }
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
