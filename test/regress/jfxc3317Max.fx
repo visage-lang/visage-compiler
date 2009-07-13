@@ -10,7 +10,7 @@
 
 import java.lang.management.*;
 
-def MAX_MEM : Long = 4000000;  // On Vista 64 - July 9, 2009 : 2992424
+def MAX_MEM : Long = 7500000;  // On Max OS X - July 13, 2009 : 5747016
 var initialMem : Long;
 
 class Links {
