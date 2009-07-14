@@ -414,10 +414,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             }
         }
 
-        // Convert primitive types
+        // Convert primitive/Object types
         Type unboxedTargetType = targetType.isPrimitive() ? targetType : types.unboxedType(targetType);
         Type unboxedSourceType = sourceType.isPrimitive() ? sourceType : types.unboxedType(sourceType);
         if (unboxedTargetType != Type.noType && unboxedSourceType != Type.noType) {
+            // (boxed or unboxed) primitive to (boxed or unboxed) primitive
             if (!sourceType.isPrimitive()) {
                 // unboxed source if sourceboxed
                 translated = make.at(diagPos).TypeCast(unboxedSourceType, translated);
@@ -433,10 +434,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, targetType, false), translated);
                 sourceType = targetType;
             }
-        }
-
-        if (sourceType.isCompound()) {
-            translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, types.erasure(targetType), true), translated);
+        } else {
+            if (sourceType.isCompound() || sourceType.isPrimitive()) {
+                translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, types.erasure(targetType), true), translated);
+            }
         }
         // We should add a cast "when needed".  Then visitTypeCast would just
         // call this function, and not need to call makeTypeCast on the result.
@@ -2311,9 +2312,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             super(diagPos);
             this.lhs = lhs;
             this.rhs = rhs;
-            this.rhsTranslated = convertNullability(diagPos, translateAsValue(rhs, rhsType()), rhs, rhsType());
             this.sym = expressionSymbol(lhs);
             this.vmi = sym==null? null : typeMorpher.varMorphInfo(sym);
+            this.rhsTranslated = convertNullability(diagPos, translateAsValue(rhs, rhsType()), rhs, rhsType());
         }
 
         abstract JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated);
@@ -2324,7 +2325,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
          * Override to change the translation type of the right-hand side
          */
         protected Type rhsType() {
-            return lhs.type;
+            return sym==null? lhs.type : sym.type; // Handle type inferencing not reseting the ident type
         }
 
         /**
