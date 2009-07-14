@@ -260,7 +260,7 @@ public class Entry {
             Method loadMethod = loaderClass.getMethod(loadMethodName,
                     Class.class,
                     ClassLoader.class);
-            ClassLoader cl = Entry.class.getClassLoader();
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
             Object result = loadMethod.invoke(null, RuntimeProvider.class, cl);
 
             // For java.util.ServiceLoader, we have to call another

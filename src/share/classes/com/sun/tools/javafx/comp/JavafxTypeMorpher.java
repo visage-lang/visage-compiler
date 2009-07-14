@@ -116,7 +116,7 @@ public class JavafxTypeMorpher {
         }
 
         boolean isMemberVariable() {
-            return sym.owner.kind == Kinds.TYP;
+            return sym.owner.kind == Kinds.TYP && sym.name != names._class;
         }
 
         boolean isFXMemberVariable() {

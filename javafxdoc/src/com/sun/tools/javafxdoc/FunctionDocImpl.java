@@ -100,7 +100,7 @@ public class FunctionDocImpl
     
     public com.sun.tools.javac.code.Type rawReturnType() {
         sym.complete();
-        return sym.type; 
+        return sym.type.getReturnType();
     }
 
     /**

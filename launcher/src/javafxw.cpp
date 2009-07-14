@@ -55,6 +55,9 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE previnst, LPSTR cmdline, int cmdsho
     if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
     }
+    if (! config.profile_vmargs.empty()) {
+        cmd += config.profile_vmargs + " ";
+    }
     if (! config.profile_nativelibpath.empty()) {
         cmd += "-Djava.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
     }
