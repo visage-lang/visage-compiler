@@ -1,0 +1,54 @@
+/**
+ * JFXC-3315 : Optimize away bound select processing when selector is immutable
+ *
+ * Set a high max for memory use of a linked list with bound local variable select covered by JFXC-3315.
+ * Fail if it goes over.
+ *
+ * @test
+ * @run
+ */
+
+import java.lang.management.*;
+
+def MAX_MEM : Long = 2000000;  // On Vista 64 - July 13, 2009 : 1273968
+
+var initialMem : Long;
+
+class Links {
+  public var next : Links;
+  public var ool : Boolean;
+  public var furb : Number;
+}
+
+function memUsed() : Long {
+  java.lang.System.gc();
+  ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+}
+
+function checkMemory(maximum : Long, msg : String) : Void {
+  def used = memUsed() - initialMem;
+  if (used > maximum) {
+    println("{msg}: {used}");
+  }
+}
+
+function run() {
+  initialMem = memUsed();
+  var top : Links = Links {};
+  for (m in [1..10]) {
+    for (n in [1..1000]) {
+      var current = top;
+      top = Links {
+        next: top
+        furb: bind current.furb
+      }
+      0;
+    }
+
+    checkMemory(MAX_MEM, "A lot of memory used");
+  }
+
+  top = null;
+  // Allow 10% growth
+  checkMemory(initialMem/10, "Possible leak");
+}

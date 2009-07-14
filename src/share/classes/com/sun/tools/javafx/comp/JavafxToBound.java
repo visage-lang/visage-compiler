@@ -581,8 +581,8 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             JFXIdent id = (JFXIdent) selector;
             Symbol selectorSym = id.sym;
             Symbol owner = selectorSym.owner;
-            boolean isMember = owner.kind != Kinds.TYP;
-            boolean isKnown = !isMember || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
+            boolean isLocal = owner.kind != Kinds.TYP;
+            boolean isKnown = isLocal || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
             long selectorFlags = selectorSym.flags();
             Name selectorName = id.getName();
             boolean selectorWritable = (selectorFlags & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS)) != 0L;
@@ -646,11 +646,23 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                                 }
                             }));
                 } else {
+                    // Foo.VOFF$x
                     JCExpression varOffsetExpr = make.at(diagPos).Select(makeTypeTree(diagPos, selector.type, false), attributeOffsetName(sym));
+
+                    // Make sure VOFF$x is initialized by calling the class' VCNT$() which initializes VOFF$xyz
+                    // Foo.VCNT$() * 0 + Foo.VOFF$x
+                    varOffsetExpr = make.at(diagPos).Binary(JCTree.PLUS,
+                            make.at(diagPos).Binary(JCTree.MUL,
+                                callExpression(diagPos, makeTypeTree(diagPos, selector.type, false), defs.varCountName),
+                                make.at(diagPos).Literal(0)),
+                            varOffsetExpr);
+
+                    // (TypeInfo.___, receiverLocation, Foo.VCNT$() * 0 + Foo.VOFF$x)
                     List<JCExpression> args = List.of(
                             makeTypeInfo(diagPos, tree.type),
                             transSelector,
                             varOffsetExpr);
+
                     JCExpression loc = runtime(
                             diagPos,
                             defs.Locations_makeBoundSelect,
@@ -659,6 +671,8 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                             diagPos,
                             defs.Locations_makeBoundSelectBE,
                             args);
+
+                    // Locations.makeBoundSelect(TypeInfo.___, receiverLocation, Foo.VCNT$() * 0 + Foo.VOFF$x)
                     result = new BoundResult(loc);
                     result.instanciateBE = bindExpr;
                 }
