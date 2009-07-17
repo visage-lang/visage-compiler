@@ -3,8 +3,8 @@
     <property name="builddir" location="${basedir}/../../build/buildtools/fxtracker"/>
     <property name="javafx.home" location="${basedir}/../../../artifacts/sdk"/>
     <property name="srcdir"   location="${basedir}/src"/>
-    <property name="ensemble" location="${basedir}/../../../runtime/demos/Ensemble/dist/Ensemble.jar"/>
-    
+    <property name="target.jar" location="${basedir}/../../../samples/SmokeParticles/dist/SmokeParticles.jar"/>
+
     <target name="clean">
         <delete dir="${builddir}"/>
     </target>
@@ -33,7 +33,7 @@
             <sysproperty key="btrace.home" value="${btrace.home}"/>
             <sysproperty key="base.dir"   value="${basedir}"/>
             <arg value="--jar"/>
-            <arg value="${ensemble}"/>
+            <arg value="${target.jar}"/>
         </java>
     </target>
 </project>
