@@ -26,7 +26,6 @@ package com.sun.tools.javafx.comp;
 import java.io.OutputStreamWriter;
 
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.javac.code.BoundKind;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
@@ -66,6 +65,7 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import java.util.Set;
 
 /**
  * Common support routines needed for translation
@@ -130,6 +130,100 @@ public abstract class JavafxTranslationSupport {
         return false;
     }
 
+    boolean isImmutable(Symbol sym, Name name) {
+        Symbol owner = sym.owner;
+        boolean isLocal = owner.kind != Kinds.TYP;
+        boolean isKnown = isLocal || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
+        long flags = sym.flags();
+        boolean isWritable = (flags & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS)) != 0L;
+        boolean isAssignedTo = (flags & (JavafxFlags.VARUSE_INIT_ASSIGNED_TO | JavafxFlags.VARUSE_ASSIGNED_TO)) != 0;
+        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
+        boolean isDefinedBound = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0;
+        return
+                    name == names._this ||
+                    name == names._super ||
+                    isKnown && isDef && !isDefinedBound || // unbound def
+                    isKnown && !isWritable && !isAssignedTo && !isDefinedBound; // never reassigned
+     }
+
+    boolean isImmutable(JFXIdent tree) {
+        return isImmutable(tree.sym, tree.getName());
+    }
+
+    boolean isImmutable(final JFXSelect tree) {
+        return isImmutableSelector(tree) && isImmutable(tree.sym, tree.getIdentifier());
+    }
+
+    boolean isImmutableSelector(final JFXSelect tree) {
+        if (tree.sym.isStatic()) {
+            // If the symbol is static, no matter what the selector is, the selectot is immutable
+            return true;
+        }
+        final JFXExpression selector = tree.getExpression();
+        if (selector instanceof JFXIdent) {
+            return isImmutable((JFXIdent) selector);
+        } else if (selector instanceof JFXSelect) {
+            return isImmutable((JFXSelect) selector);
+        } else {
+            return false;
+        }
+    }
+
+    boolean hasDependencies(JFXExpression expr, final Set<Symbol> exclusions) {
+        class DependencyScanner extends JavafxTreeScanner {
+
+            boolean hasDependencies = false;
+
+            private void markHasDependencies() {
+                hasDependencies = true;
+            }
+
+            @Override
+            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                Symbol sym = JavafxTreeInfo.symbol(tree.getMethodSelect());
+                if (sym == null || (sym.flags() & JavafxFlags.BOUND) != 0L) {
+                    markHasDependencies();
+                } else {
+                    super.visitFunctionInvocation(tree);
+                }
+            }
+
+            @Override
+            public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+                if (!tree.isBound()) {
+                    super.visitObjectLiteralPart(tree);
+                }
+            }
+
+            @Override
+            public void visitIdent(JFXIdent tree) {
+                if (!exclusions.contains(tree.sym) && !isImmutable(tree)) {
+                    markHasDependencies();
+                }
+            }
+
+            @Override
+            public void visitSelect(JFXSelect tree) {
+                if (!isImmutable(tree)) {
+                    markHasDependencies();
+                }
+            }
+
+            @Override
+            public void visitInterpolateValue(JFXInterpolateValue that) {
+                markHasDependencies(); // errr, umm, better safe than sorry
+            }
+
+            @Override
+            public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
+                markHasDependencies(); // errr, umm, better safe than sorry
+            }
+        }
+        DependencyScanner scanner = new DependencyScanner();
+        scanner.scan(expr);
+        return scanner.hasDependencies;
+    }
+
     boolean hasSideEffects(JFXExpression expr) {
         class SideEffectScanner extends JavafxTreeScanner {
 
@@ -179,38 +273,6 @@ public abstract class JavafxTranslationSupport {
         SideEffectScanner scanner = new SideEffectScanner();
         scanner.scan(expr);
         return scanner.hse;
-    }
-
-    /**
-     * Special handling for Strings and Durations. If a value assigned to one of these is null,
-     * the default value for the type must be substituted.
-     * inExpr is the input expression.  outType is the desired result type.
-     * expr is the result value to use in the normal case.
-     * This doesn't handle the case   var ss: String = if (true) null else "Hi there, sailor"
-     * But it does handle nulls coming in from Java method returns, and variables.
-     */
-    protected JCExpression convertNullability(final DiagnosticPosition diagPos, final JCExpression expr, 
-                                              final JFXExpression inExpr, final Type outType) {
-        if (outType != syms.stringType && outType != syms.javafx_DurationType) {
-            return expr;
-        }
-
-        final Type inType = inExpr.type;
-        if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
-            return makeDefaultValue(diagPos, outType);
-        } 
-
-        if (!types.isSameType(inType, outType) || isValueFromJava(inExpr)) {
-            JCVariableDecl daVar = makeTmpVar(diagPos, outType, expr);
-            JCExpression toTest = make.at(diagPos).Ident(daVar.name);
-            JCExpression cond = make.at(diagPos).Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
-            JCExpression ret = make.at(diagPos).Conditional(
-                                                        cond,
-                                                        make.at(diagPos).Ident(daVar.name),
-                                                        makeDefaultValue(diagPos, outType));
-            return makeBlockExpression(diagPos, List.<JCStatement>of(daVar), ret);
-        }
-        return expr;
     }
 
     /**
