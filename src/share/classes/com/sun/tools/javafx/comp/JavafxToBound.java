@@ -50,6 +50,8 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
+import java.util.HashSet;
+import java.util.Set;
 import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 
 public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVisitor {
@@ -67,11 +69,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
      * modules imported by context
      */
     private final JavafxOptimizationStatistics optStat;
-
-    /*
-     * other instance information
-     */
-    private final Name computeElementsName;
 
     /*
      * State
@@ -100,8 +97,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         context.put(jfxToBoundKey, this);
 
         optStat = JavafxOptimizationStatistics.instance(context);
-
-        computeElementsName = names.fromString("computeElements$");
     }
 
     private class BoundResult {
@@ -576,27 +571,6 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         final Symbol sym = tree.sym;
         VarMorphInfo treeVMI = typeMorpher.varMorphInfo(sym);
         final JFXExpression selector = tree.getExpression();
-        boolean selectorImmutable;
-        if (selector instanceof JFXIdent) {
-            JFXIdent id = (JFXIdent) selector;
-            Symbol selectorSym = id.sym;
-            Symbol owner = selectorSym.owner;
-            boolean isLocal = owner.kind != Kinds.TYP;
-            boolean isKnown = isLocal || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
-            long selectorFlags = selectorSym.flags();
-            Name selectorName = id.getName();
-            boolean selectorWritable = (selectorFlags & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS)) != 0L;
-            boolean isAssignedTo = (selectorFlags & (JavafxFlags.VARUSE_INIT_ASSIGNED_TO | JavafxFlags.VARUSE_ASSIGNED_TO)) != 0;
-            boolean isDef = (selectorFlags & JavafxFlags.IS_DEF) != 0;
-            boolean isDefinedBound = (selectorFlags & JavafxFlags.VARUSE_BOUND_INIT) != 0;
-            selectorImmutable =
-                    selectorName == names._this ||
-                    selectorName == names._super ||
-                    isKnown && isDef && !isDefinedBound || // unbound def
-                    isKnown && !selectorWritable && !isAssignedTo && !isDefinedBound; // never reassigned
-        } else {
-            selectorImmutable = false;
-        }
 
         if (sym.isStatic()) {
             if (treeVMI.isFXMemberVariable() && treeVMI.representation().possiblyLocation()) {
@@ -607,7 +581,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 // This is a static reference to a Java member or elided member e.g. System.out -- do unbound translation, then wrap
                 result = new BoundResult(makeUnboundLocation(diagPos, targetType(tree.type), toJava.translateAsUnconvertedValue(tree)));
             }
-        } else if (selectorImmutable) {
+      } else if (isImmutableSelector(tree)) {
             // The selector won't change on us, so just translate to a reference
             JCExpression rawTrans = toJava.translateAsLocation(tree);
             result = convert(tree.type, rawTrans, targetType(tree.type));
@@ -913,16 +887,8 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             private JCTree makeComputeElementsMethod(JFXForExpressionInClause clause, JCExpression inner, TypeMorphInfo tmiInduction) {
                 Type iVarType;
                 Type idxVarType;
-                Name computeName;
-                if  (isSimple) {
-                   iVarType = tmiInduction.getRealFXType();
-                   idxVarType = syms.intType;
-                   computeName = computeElementsName;
-                } else {
-                   iVarType = tmiInduction.getLocationType();
-                   idxVarType = typeMorpher.locationType(TYPE_KIND_INT);
-                   computeName = computeElementsName;
-                }
+                iVarType = tmiInduction.getLocationType();
+                idxVarType = typeMorpher.locationType(TYPE_KIND_INT);
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 Name ivarName = clause.getVar().name;
                 stmts.append(m().Return( inner ));
@@ -932,7 +898,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                         );
                 return m().MethodDef(
                         m().Modifiers(Flags.PROTECTED),
-                        computeName,
+                        defs.computeElementsMethodName,
                         makeExpression( resultSequenceLocationType ),
                         List.<JCTypeParameter>nil(),
                         params,

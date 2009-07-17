@@ -38,7 +38,6 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
-import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageNameString;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 import static com.sun.tools.javac.code.Flags.*;
 
@@ -75,10 +74,7 @@ public class JavafxTypeMorpher {
             type = sym.type;
         }
         private LocationNameSymType(String which) {
-            this(locationPackageNameString, which);
-        }
-        private LocationNameSymType(String pkg, String which) {
-            this(names.fromString(pkg + "." + which));
+            this(names.fromString(locationPackageNameString + "." + which));
         }
     }
 
@@ -215,7 +211,7 @@ public class JavafxTypeMorpher {
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
-        abstractBoundComprehension = new LocationNameSymType(sequencePackageNameString, "AbstractBoundComprehension");
+        abstractBoundComprehension = new LocationNameSymType(defs.cAbstractBoundComprehensionName);
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(defs.locationVariableName[kind]);
