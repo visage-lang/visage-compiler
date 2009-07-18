@@ -270,7 +270,8 @@ public class FxTrackerRunner {
         cmdsList.add("-D" + JPSMARKER + FXTRACKER_NAME);
         cmdsList.add("-D" + FXTRACKER_NAME + ".interval=" + interval);
         String vmProps = System.getProperty(FXTRACKER_NAME + ".vmoptions");
-        if (vmProps != null) {
+        // ant could pass the property itself if undefined, ignore it.
+        if (vmProps != null && !vmProps.contains(FXTRACKER_NAME + ".vmoptions")) {
             String vmOpts[] = vmProps.split(",\\s");
             for (String x : vmOpts) {
                 cmdsList.add(x);
@@ -384,16 +385,12 @@ public class FxTrackerRunner {
         }
         ProcessBuilder pb = new ProcessBuilder(cmds);
         pb = pb.directory(new File(BUILD_DIR));
+        pb.redirectErrorStream(true);
         FileReader      fr = null;
         BufferedReader  rdr = null;
         try {
             final Process p = pb.start();
-            pb.redirectErrorStream(true);
-            // On windows we have to read the stderr despite the redirection,
-            // and heaven knows why, otherwise the process hangs trying to
-            // flush the stderr
-            InputStream is = (isWindows) ? p.getErrorStream() : p.getInputStream();
-            rdr = new BufferedReader(new InputStreamReader(is));
+            rdr = new BufferedReader(new InputStreamReader(p.getInputStream()));
             // note: its a good idea to read the whole stream, half baked
             // reads can cause undesired side-effects.
             Timer timer = new Timer();
@@ -412,10 +409,10 @@ public class FxTrackerRunner {
                 System.out.println("---output---");
             }
             while (in != null) {
-                if (debug) {
-                    System.out.println(in + " ");
-                }
-                System.out.println("");
+//                if (debug) {
+//                    System.out.println(in + " ");
+//                }
+//                System.out.println("");
                 in = rdr.readLine();
             }
             p.waitFor();
