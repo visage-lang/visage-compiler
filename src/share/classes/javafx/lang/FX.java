@@ -137,6 +137,8 @@ public class FX {
      *     <td><code>User's language</code></td></tr>
      * <tr><td><code>javafx.region</code></td>
      *     <td><code>User's region</code></td></tr>    
+     * <tr><td><code>javafx.variant</code></td>
+     *     <td><code>User's variant</code></td></tr>    
      * <tr><td><code>javafx.encoding</code></td>
      *     <td><code>User's encoding</code></td></tr>     
      * </table>
