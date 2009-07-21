@@ -923,8 +923,17 @@ public class JavafxAttr implements JavafxVisitor {
                 initEnv.info.enclVar = v;
                 boolean wasInBindContext = this.inBindContext;
                 this.inBindContext |= tree.isBound();
+                //TODO: (below)
+                /***
+                 * inBindContext is not implemented correctly here since things are not walked in tree order in finish*.
+                 *
                 if (this.inBindContext) {
                     v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT | JavafxFlags.VARUSE_BOUND_DEFINITION;
+                }
+                 * For the purpose of Check just do this for now:
+                 */
+                if (tree.isBound()) {
+                    v.flags_field |= JavafxFlags.VARUSE_BOUND_DEFINITION;
                 }
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
@@ -1054,9 +1063,14 @@ public class JavafxAttr implements JavafxVisitor {
 
         boolean wasInBindContext = this.inBindContext;
         this.inBindContext |= tree.isBound();
-        if (this.inBindContext) {
-            v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
-        }
+        //TODO: (below)
+        /***
+         * inBindContext is not implemented correctly here since things are not walked in tree order in finish*.
+         *
+            if (this.inBindContext) {
+                v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+            }
+         * */
         try {
             JFXExpression init = tree.getInitializer();
             if (init != null) {
