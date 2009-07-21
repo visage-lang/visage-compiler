@@ -153,6 +153,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     protected JavafxEnv<JavafxAttrContext> attrEnv;
     private Target target;
+    boolean inOverrideInstanceVariableDefinition = false;
 
     /*
      * static information
@@ -1240,9 +1241,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
                             inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             JCStatement init;
+                            inOverrideInstanceVariableDefinition = true;
                             init = translateDefinitionalAssignmentToSet(override.pos(),
                                     override.getInitializer(), override.getBindStatus(), override.sym,
                                     isStatic ? null : defs.receiverName);
+                            inOverrideInstanceVariableDefinition = false;
                             overrideInfo.append(new TranslatedOverrideClassVarInfo(
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),

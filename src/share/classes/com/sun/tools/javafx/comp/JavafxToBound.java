@@ -581,7 +581,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 // This is a static reference to a Java member or elided member e.g. System.out -- do unbound translation, then wrap
                 result = new BoundResult(makeUnboundLocation(diagPos, targetType(tree.type), toJava.translateAsUnconvertedValue(tree)));
             }
-      } else if (isImmutableSelector(tree)) {
+      } else if (isImmutableSelector(tree) && !isForwardReference(tree)) {
             // The selector won't change on us, so just translate to a reference
             JCExpression rawTrans = toJava.translateAsLocation(tree);
             result = convert(tree.type, rawTrans, targetType(tree.type));
@@ -686,6 +686,38 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 }.result();
             }
         }
+    }
+    //where
+    private boolean isForwardReference(JFXSelect tree) {
+        if (toJava.inOverrideInstanceVariableDefinition) {
+            // This can happen with an override, so assume the worst
+            return true;
+        }
+        final JFXExpression selector = tree.getExpression();
+        final Symbol sym = expressionSymbol(selector);
+        if (!(sym instanceof VarSymbol)) {
+            // What is this? Assume the worst
+            return true;
+        }
+        VarSymbol vsym = (VarSymbol) sym;
+        if (vsym.owner.kind != Kinds.TYP) {
+            // Local variable
+            return false;
+        }
+        ClassSymbol owner = (ClassSymbol) (vsym.owner);
+        JFXClassDeclaration encl = toJava.attrEnv.enclClass;
+        if (encl == null) {
+            // What is this? Assume the worst
+            return true;
+        }
+        Type selectorOwnerType = owner.type;
+        Type codeOwnerType = encl.type;
+        if (types.isSameType(selectorOwnerType, codeOwnerType)) {
+            // In the same class, make sure it is not a forward-reference in the class
+            // Based on source position (Attr does this)
+            return (vsym.pos > tree.pos);
+        }
+        return false;
     }
 
     @Override
