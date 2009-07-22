@@ -106,6 +106,7 @@ public class JavafxDefs {
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
+    private static final String cAbstractBoundComprehension = sequencePackageNameString + ".AbstractBoundComprehension";
     private static final String cLocations = locationPackageNameString + ".Locations";
     private static final String cUtil = runtimePackageNameString + ".Util";
 
@@ -135,6 +136,7 @@ public class JavafxDefs {
 
     final RuntimeMethod Locations_makeBoundSequenceSelect;
     final RuntimeMethod Locations_makeBoundSelect;
+    final RuntimeMethod Locations_makeBoundSelectBE;
     final RuntimeMethod Locations_makeBoundIf;
     final RuntimeMethod Locations_upcast;
 
@@ -243,6 +245,8 @@ public class JavafxDefs {
     final Name[] locationSetMethodName;
     final Name locationBindMethodName;
     final Name locationBijectiveBindMethodName;
+    final Name computeElementsMethodName;
+    final Name cAbstractBoundComprehensionName;
     
 	public final Name runtimePackageName;
 	public final Name annotationPackageName;
@@ -366,8 +370,9 @@ public class JavafxDefs {
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         getLocationPrefixName = names.fromString(attributeGetLocationMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
-        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);       
-        
+        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
+        computeElementsMethodName = names.fromString("computeElements$");
+
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);
 		javaLangPackageName = names.fromString(javaLangPackageNameString);
@@ -379,6 +384,7 @@ public class JavafxDefs {
         locationSetMethodName = new Name[TYPE_KIND_COUNT];
         locationVariableName = new Name[TYPE_KIND_COUNT];
         locationInterfaceName = new Name[TYPE_KIND_COUNT];
+        cAbstractBoundComprehensionName = names.fromString(cAbstractBoundComprehension);
 
         // Initialize RuntimeMethods
         TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");
@@ -392,6 +398,7 @@ public class JavafxDefs {
 
         Locations_makeBoundSequenceSelect = new RuntimeMethod(names, cLocations, "makeBoundSequenceSelect");
         Locations_makeBoundSelect = new RuntimeMethod(names, cLocations, "makeBoundSelect");
+        Locations_makeBoundSelectBE = new RuntimeMethod(names, cLocations, "makeBoundSelectBE");
         Locations_makeBoundIf = new RuntimeMethod(names, cLocations, "makeBoundIf");
         Locations_upcast = new RuntimeMethod(names, cLocations, "upcast");
         BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");

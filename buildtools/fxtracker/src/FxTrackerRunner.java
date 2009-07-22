@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -130,17 +131,13 @@ public class FxTrackerRunner {
     
     static final String msg[] = { "--jar path_to_your_jar",
                                   "(optional) --main entry-point",
-                                  "(optional) --interval 20 (in msecs)",
-                                  "(optional) --duration 100 (in msecs)"};
+                                  "(optional) --interval " + interval + " (in msecs)",
+                                  "(optional) --duration " + duration + " (in msecs)"};
 
     public static void main(String... args) {
         init(args);
-        if (isWindows) {
-            logger.severe("Windows not supported exiting...");  
-        } else {
             doRun();
             System.exit(0);
-        }
     }
     
     static void init(String[] args) {
@@ -273,7 +270,8 @@ public class FxTrackerRunner {
         cmdsList.add("-D" + JPSMARKER + FXTRACKER_NAME);
         cmdsList.add("-D" + FXTRACKER_NAME + ".interval=" + interval);
         String vmProps = System.getProperty(FXTRACKER_NAME + ".vmoptions");
-        if (vmProps != null) {
+        // ant could pass the property itself if undefined, ignore it.
+        if (vmProps != null && !vmProps.contains(FXTRACKER_NAME + ".vmoptions")) {
             String vmOpts[] = vmProps.split(",\\s");
             for (String x : vmOpts) {
                 cmdsList.add(x);
@@ -285,12 +283,25 @@ public class FxTrackerRunner {
         cmdsList.add(TOOLS_JAR + File.pathSeparator + appClasspath);
         cmdsList.add(mainClass);
         startTestApplication(cmdsList);
-        String appId = getAppPid(FXTRACKER_NAME);
-        doExec("kill", "-15", appId);
         CsvToHtml.csvToHtml(PROFILE_CSV, PROFILE_HTML);
     }
    
-    
+    static void killTestApplication() {
+        List<String> cmdsList = new ArrayList<String>();
+        String appId = getAppPid(FXTRACKER_NAME);
+        cmdsList.clear();
+
+        if (isWindows) {
+            cmdsList.add("taskkill");
+            cmdsList.add("-PID");
+        } else {
+            cmdsList.add("kill");
+            cmdsList.add("-15");
+        }
+        cmdsList.add(appId);
+        doExec(cmdsList);
+    }
+
     static List<String> doExec(String... cmds) {
         List<String> cmdsList = new ArrayList<String>();
         for (String x : cmds) {
@@ -374,17 +385,36 @@ public class FxTrackerRunner {
         }
         ProcessBuilder pb = new ProcessBuilder(cmds);
         pb = pb.directory(new File(BUILD_DIR));
+        pb.redirectErrorStream(true);
+        FileReader      fr = null;
+        BufferedReader  rdr = null;
         try {
             final Process p = pb.start();
-            pb.redirectErrorStream(true);
+            rdr = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            // note: its a good idea to read the whole stream, half baked
+            // reads can cause undesired side-effects.
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
                 public void run() {
-                    if (debug)
+                    if (debug) {
                         System.out.println("----Destroying test process----");
+                    }
+                    killTestApplication();
                     p.destroy();
                 }
-            }, duration);               
+            }, duration);
+
+            String in = rdr.readLine();
+            if (debug) {
+                System.out.println("---output---");
+            }
+            while (in != null) {
+//                if (debug) {
+//                    System.out.println(in + " ");
+//                }
+//                System.out.println("");
+                in = rdr.readLine();
+            }
             p.waitFor();
             return;
         } catch (Exception ex) {

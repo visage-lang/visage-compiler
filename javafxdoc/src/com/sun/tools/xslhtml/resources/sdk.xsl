@@ -162,6 +162,7 @@
         <div id="top-header">
         <h1><a href="{$root-path}index.html">Java<b>FX</b>: <i>Bringing Rich Experiences To All the Screens Of Your Life</i></a></h1>
         <h3 id="master-index-link"><a href="{$root-path}master-index.html">master index</a></h3>
+        <h3 id="collapse-expand-switcher"><a href="#" id="collapse-expand-link">expand all</a></h3>
         <h3 id="profile-switcher">Profile: <a href="#" id="select-desktop-profile">desktop</a>, <a href="#" id="select-common-profile">common</a></h3>
         </div>
         

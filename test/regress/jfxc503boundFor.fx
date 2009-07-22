@@ -6,8 +6,6 @@
 
 import java.lang.System;
 
-var enableBindingOverhaul;
-
 function xxxxx() {
   var modvalue = 2;
   var xs = [1..5];

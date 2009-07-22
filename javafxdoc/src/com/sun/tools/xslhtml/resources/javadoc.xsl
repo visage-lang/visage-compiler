@@ -763,7 +763,7 @@
     <!-- summary line -->
 <!--    <xsl:template match="$foo and var[]" mode="toc"><tr><td>skipping because it's a common one</td></tr></xsl:template>-->
     <xsl:template match="field | var | script-var" mode="toc">
-        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <xsl:if test="not(docComment/tags/treatasprivate) and ($profiles-enabled='false' or docComment/tags/profile/text()=$target-profile)">
             <tr>
                 <xsl:attribute name="class">
                     <xsl:text>var </xsl:text>
@@ -885,7 +885,7 @@
     
     <!-- full description -->
     <xsl:template match="field | var | script-var ">
-        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <xsl:if test="not(docComment/tags/treatasprivate) and ($profiles-enabled='false' or docComment/tags/profile/text()=$target-profile)">
         <div>
             
             <!-- class attribute of div -->
@@ -943,7 +943,7 @@
 
     <!-- summary line -->
     <xsl:template name="method-like-toc">
-        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <xsl:if test="not(docComment/tags/treatasprivate) and ($profiles-enabled='false' or docComment/tags/profile/text()=$target-profile)">
         <!-- signature anchor point -->
         <xsl:if test="$inline-descriptions='true'">
         <a>
@@ -996,7 +996,7 @@
     
     <!-- full description -->
     <xsl:template name="method-like">
-        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <xsl:if test="not(docComment/tags/treatasprivate) and ($profiles-enabled='false' or docComment/tags/profile/text()=$target-profile)">
         <div>
             <!-- div's class attribute -->
             <xsl:attribute name="class">

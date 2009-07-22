@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -923,7 +924,7 @@ public class JavafxAttr implements JavafxVisitor {
                 boolean wasInBindContext = this.inBindContext;
                 this.inBindContext |= tree.isBound();
                 if (this.inBindContext) {
-                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT | JavafxFlags.VARUSE_BOUND_DEFINITION;
                 }
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
@@ -3903,6 +3904,14 @@ public class JavafxAttr implements JavafxVisitor {
             tree.sym = JavafxTreeInfo.symbol(tree.attribute);
             if (instType == null || instType == syms.javafx_UnspecifiedType)
                 instType = Type.noType;
+
+            if (tag == JavafxTag.SELECT) {
+                JFXSelect select = (JFXSelect) tree.attribute;
+                if (chk.checkBidiSelect(select, env, pt))
+                    log.warning(select.getExpression().pos(),
+                        MsgSym.MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_ANIM,
+                        select.getExpression(), select.name);
+            }
         }
         else {
             instType = Type.noType;

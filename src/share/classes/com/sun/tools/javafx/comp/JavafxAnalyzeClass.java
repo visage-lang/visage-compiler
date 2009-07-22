@@ -210,6 +210,18 @@ class JavafxAnalyzeClass {
             return vmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE;
         }
 
+        public boolean hasBoundDefinition() {
+            return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L;
+        }
+
+        public boolean isInlinedBind() {
+            return hasBoundDefinition() && representation() == VarRepresentation.NeverLocation;
+        }
+
+        public boolean isSlackerBind() {
+            return hasBoundDefinition() && representation() == VarRepresentation.SlackerLocation;
+        }
+
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
 

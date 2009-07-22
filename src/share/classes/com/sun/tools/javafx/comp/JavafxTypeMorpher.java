@@ -35,11 +35,9 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 
-import com.sun.tools.javafx.tree.JavafxTreeInfo;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
-import static com.sun.tools.javafx.comp.JavafxDefs.sequencePackageNameString;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 import static com.sun.tools.javac.code.Flags.*;
 
@@ -76,10 +74,7 @@ public class JavafxTypeMorpher {
             type = sym.type;
         }
         private LocationNameSymType(String which) {
-            this(locationPackageNameString, which);
-        }
-        private LocationNameSymType(String pkg, String which) {
-            this(names.fromString(pkg + "." + which));
+            this(names.fromString(locationPackageNameString + "." + which));
         }
     }
 
@@ -216,7 +211,7 @@ public class JavafxTypeMorpher {
         variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
         constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
-        abstractBoundComprehension = new LocationNameSymType(sequencePackageNameString, "AbstractBoundComprehension");
+        abstractBoundComprehension = new LocationNameSymType(defs.cAbstractBoundComprehensionName);
 
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             variableNCT[kind] = new LocationNameSymType(defs.locationVariableName[kind]);
@@ -264,11 +259,10 @@ public class JavafxTypeMorpher {
             final boolean isStatic = (flags & Flags.STATIC) != 0;
             final boolean hasInnerAccess = (flags & VARUSE_INNER_ACCESS) != 0;
             final boolean hasOnReplace = (flags & VARUSE_HAS_ON_REPLACE) != 0;
-            final boolean usedInBind = (flags & VARUSE_USED_IN_BIND) != 0;
+            final boolean usedInBind = (flags & (VARUSE_USED_IN_BIND|VARUSE_BOUND_INIT)) != 0;
             final boolean canWriteOutsideScript = (flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) != 0L && (flags & IS_DEF) == 0L;
             final boolean canOverrideOutsideScript = canWriteOutsideScript;
             final boolean isOverriden = (flags & VARUSE_OVERRIDDEN) != 0L;
-            final boolean hasSideEffects = (flags & VARUSE_INIT_HAS_SIDE_EFFECTS) != 0L;
             final boolean readIsScriptPrivate = (flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L;
 
             if (sym.flatName() == names._super || sym.flatName() == names._this) {
@@ -276,6 +270,7 @@ public class JavafxTypeMorpher {
                 return NeverLocation;
             }
             if (isMemberVar && !types.isJFXClass(owner)) {
+                // Java fields are never Locations
                 return NeverLocation;
             }
             if (!isParameter && !isMemberVar && hasInnerAccess) {
@@ -286,16 +281,10 @@ public class JavafxTypeMorpher {
             }
             if (isParameter) {
                 // Otherwise parameters are Locations only if in bound contexts, for-loops induction vars, bound function params
-                return (flags & VARUSE_BOUND_INIT) != 0? AlwaysLocation : NeverLocation;
+                return (flags & VARUSE_BOUND_DEFINITION) != 0? AlwaysLocation : NeverLocation;
             }
             if(hasOnReplace && (!isMemberVar || isStatic || isMixinVar)) {
                 // Local vars with on-replace always need to be Locations, member vars have on-replace in-lined
-                return AlwaysLocation;
-            }
-            if (usedInBind) {
-                // This is a choice.  If the choice is changed, then some of the NeverLocations below have to be conditionally SlackerLocation.
-                //TODO: Once the bind translation is smart about collapsing expressions, then making unchanging values Locations is wrong.
-                // vars which are used in a bind should be Locations (even if never changed) since otherwise they will dynamically be turned to Locations
                 return AlwaysLocation;
             }
             if (types.isSequence(sym.type)) {
@@ -315,13 +304,13 @@ public class JavafxTypeMorpher {
                 // To be able to use isInitialized()  requires a Location.
                 return AlwaysLocation;
             }
-            if ((flags & VARUSE_BOUND_INIT) != 0) {
-                if (isStatic || hasSideEffects || hasOnReplace || usedInBind || isOverriden || (flags & VARUSE_OBJ_LIT_INIT) != 0L || canOverrideOutsideScript || isLocalVar) {
+            if ((flags & VARUSE_BOUND_DEFINITION) != 0) {
+                if (isStatic || hasOnReplace || isLocalVar || isMixinVar || (flags & (VARUSE_SELF_REFERENCE | VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY)) != 0L) {
                     return AlwaysLocation;
-                } else if (readIsScriptPrivate) {
+                } else if (readIsScriptPrivate && !isOverriden && !canOverrideOutsideScript && (flags & (VARUSE_USED_IN_BIND | VARUSE_OBJ_LIT_INIT)) == 0L ) {
                     return NeverLocation;
                 } else {
-                    return AlwaysLocation; //TODO: SlackerLocation;
+                    return SlackerLocation;
                 }
             }
 
@@ -349,7 +338,9 @@ public class JavafxTypeMorpher {
                 // It is OK that the overridden analsysis is across all files in the compile since
                 // this is moot for script-private and unwritable-outside-script variables cannot be
                 // overridden except in the script.
-                if (!isOverriden) {
+                //TODO: Once the bind translation is smart about collapsing expressions, then making unchanging values Locations is wrong.
+                // vars which are used in a bind should be Locations (even if never changed) since otherwise they will dynamically be turned to Locations
+                if (!isOverriden && !usedInBind) {
 
                     // (3a) check.  Not used in bind has already been checked (above).
                     // Check that it is not accessible outside the script (so noone else can bind it).

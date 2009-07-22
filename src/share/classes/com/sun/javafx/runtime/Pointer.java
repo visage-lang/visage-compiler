@@ -92,8 +92,6 @@ public class Pointer implements KeyValueTarget {
     }
 
     private Pointer(Location location, Type type) {
-        while (location.isViewLocation())
-            location = location.getUnderlyingLocation();
         this.location = location;
         this.type = type;
     }
@@ -171,22 +169,11 @@ public class Pointer implements KeyValueTarget {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        else
-            return (o instanceof Pointer)
-                    && getUnderlyingLocation(location) == getUnderlyingLocation(((Pointer) o).location);
+        return o instanceof Pointer && location == ((Pointer) o).location;
     }
 
     @Override
     public int hashCode() {
-        Location loc = getUnderlyingLocation(location);
-        return loc != null ? loc.hashCode() : 0;
-    }
-
-    private static Location getUnderlyingLocation(Location loc) {
-        while (loc.isViewLocation())
-            loc = loc.getUnderlyingLocation();
-        return loc;
+        return location.hashCode();
     }
 }

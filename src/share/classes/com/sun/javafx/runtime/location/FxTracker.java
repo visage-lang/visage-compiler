@@ -297,8 +297,6 @@ class HistoData {
                     loc.countChildren(AbstractLocation.CHILD_KIND_CHANGE_LISTENER);
             trigger +=
                     loc.countChildren(AbstractLocation.CHILD_KIND_TRIGGER);
-            view_location +=
-                    loc.countChildren(AbstractLocation.CHILD_KIND_VIEW_LOCATION);
             weak_location +=
                     loc.countChildren(AbstractLocation.CHILD_KIND_WEAK_LOCATION);
             weak_me_holder +=

@@ -57,10 +57,6 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
         return false;
     }
 
-    public Location getUnderlyingLocation() {
-        return this;
-    }
-
     public void update() { }
 
     public void addInvalidationListener(InvalidationListener listener) { }

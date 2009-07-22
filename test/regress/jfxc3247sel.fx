@@ -1,0 +1,38 @@
+/**
+ * JFXC-3247 : Slacker Binding: general case
+ *
+ * @test
+ * @run
+ */
+
+public class jfxc3247sel {
+  public var x = "borbok";
+  public var v = this;
+  function foo(z : String) : String { z }
+  public def a = bind v.x;
+  public def e = bind v.x;
+  public def f = bind v.x;
+  public def g = bind v.x;
+  def be = bind e;
+  def bf = bind f on replace { println("bf onr: {bf}") }
+  def bg = bind foo(g);
+
+  function show() {
+    println("x = {x}");
+    println("a = {a}");
+    println("e = {e}");
+    println("f = {f}");
+    println("g = {g}");
+    println("be = {be}");
+    println("bf = {bf}");
+    println("bg = {bg}");
+  }
+}
+
+function run() {
+  def z = jfxc3247sel{}
+  z.show();
+  println("-----");
+  z.x = "weeb";
+  z.show();
+}
