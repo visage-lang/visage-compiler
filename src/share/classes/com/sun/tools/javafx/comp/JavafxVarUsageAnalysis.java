@@ -78,10 +78,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                         mark(sym, VARUSE_ASSIGNED_TO);
                     }
                 }
-                if ((sym.flags_field & VARUSE_TMP_IN_INIT_EXPR) != 0) {
-                    // this is a reference to this variable from within its own initializer
-                    mark(sym, VARUSE_SELF_REFERENCE);
-                }
+            }
+            if ((sym.flags_field & VARUSE_TMP_IN_INIT_EXPR) != 0) {
+                // this is a reference to this variable from within its own initializer
+                mark(sym, VARUSE_SELF_REFERENCE);
             }
             sym.flags_field &= ~VARUSE_OPT_TRIGGER;
         }

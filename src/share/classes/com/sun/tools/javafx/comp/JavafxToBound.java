@@ -50,8 +50,6 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
-import java.util.HashSet;
-import java.util.Set;
 import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 
 public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVisitor {
@@ -712,15 +710,25 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             return true;
         }
         final JFXExpression selector = tree.getExpression();
+        if (selector instanceof JFXSelect) {
+            if (isForwardReference((JFXSelect)selector)) {
+                return true;
+            }
+        }
         final Symbol sym = expressionSymbol(selector);
         if (!(sym instanceof VarSymbol)) {
             // What is this? Assume the worst
             return true;
         }
         VarSymbol vsym = (VarSymbol) sym;
+        if ((vsym.flags() & JavafxFlags.VARUSE_SELF_REFERENCE) != 0L ) {
+            // Run screaming -- everything referenced from a self-reference is a forward reference
+            // because nothing has been initialized
+            return true;
+        }
         if (vsym.owner.kind != Kinds.TYP) {
-            // Local variable
-            return false;
+            // Local variable -- this could be a forward reference too
+            return (vsym.pos > tree.pos);
         }
         ClassSymbol owner = (ClassSymbol) (vsym.owner);
         JFXClassDeclaration encl = toJava.attrEnv.enclClass;
