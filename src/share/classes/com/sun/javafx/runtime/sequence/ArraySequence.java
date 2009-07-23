@@ -183,7 +183,7 @@ public abstract class ArraySequence<T> extends AbstractSequence<T> {
     }
 
     @Override
-    public T get(int position) { // FIXME move to ArraySequence
+    public T get(int position) {
         if (position >= gapStart)
             position += gapEnd - gapStart;
         if (position < 0 || position >= getRawArrayLength())

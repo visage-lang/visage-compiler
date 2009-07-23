@@ -137,6 +137,14 @@ public class JavaFXScriptEngineTest {
     }
     
     @Test
+    public void scriptSequenceVarResult() throws Exception {
+        Object ret = engine.eval("var elements:String[] = [ 'abc' ]; elements[0]");
+        assertNotNull(ret);
+        assertEquals(ret, "abc");        
+        assertEquals(engine.get("elements").toString(), "[ abc ]");
+    }
+
+    @Test
     public void compiledScript() throws Exception {
         engine.put("who", "world");
         CompiledScript script = engine.compile(

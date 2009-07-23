@@ -338,7 +338,11 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             if (sourceIsSequence) {
                 if (elemType.isPrimitive()) {
                     String mname;
-                    if (elemType == syms.intType)
+                    if (elemType == syms.byteType)
+                        mname = "toByteArray";
+                    else if (elemType == syms.shortType)
+                        mname = "toShortArray";
+                    else if (elemType == syms.intType)
                         mname = "toIntArray";
                     else if (elemType == syms.longType)
                         mname = "toLongArray";

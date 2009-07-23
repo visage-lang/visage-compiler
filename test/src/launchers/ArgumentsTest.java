@@ -169,7 +169,40 @@ public class ArgumentsTest  extends TestCase {
         }
 
         assertTrue(Utils.checkExec(cmdsList, appargs));
-   
+        
+        // pass -version to the app itself
+        cmdsList.clear();
+        cmdsList.add("-cp");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+        cmdsList.add("-version");
+        assertTrue(Utils.checkExec(cmdsList, "-version"));
+
+        // pass -fullversion to the app itself
+        cmdsList.clear();
+        cmdsList.add("-cp");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+        cmdsList.add("-fullversion");
+        assertTrue(Utils.checkExec(cmdsList, "-fullversion"));
+
+
+        // pass -help to the app itself
+        cmdsList.clear();
+        cmdsList.add("-cp");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+        cmdsList.add("-help");
+        assertTrue(Utils.checkExec(cmdsList, "-help"));
+
+        // pass -X to the app itself
+        cmdsList.clear();
+        cmdsList.add("-cp");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+        cmdsList.add("-X");
+        assertTrue(Utils.checkExec(cmdsList, "-X"));
+
         // use classpath
         cmdsList.clear();
         cmdsList.add("-classpath");
@@ -181,6 +214,39 @@ public class ArgumentsTest  extends TestCase {
         }
         assertTrue(Utils.checkExec(cmdsList, appargs));
 
+        // pass -version to the app itself
+        cmdsList.clear();
+        cmdsList.add("-classpath");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+        cmdsList.add("-version");
+        assertTrue(Utils.checkExec(cmdsList, "-version"));
+
+        // pass -fullversion to the app itself
+        cmdsList.clear();
+        cmdsList.add("-classpath");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+        cmdsList.add("-fullversion");
+        assertTrue(Utils.checkExec(cmdsList, "-fullversion"));
+        
+        
+        // pass -help to the app itself
+        cmdsList.clear();
+        cmdsList.add("-classpath");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+        cmdsList.add("-help");
+        assertTrue(Utils.checkExec(cmdsList, "-help"));
+        
+        // pass -X to the app itself
+        cmdsList.clear();
+        cmdsList.add("-classpath");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("ArgsTest");
+        cmdsList.add("-X");
+        assertTrue(Utils.checkExec(cmdsList, "-X"));
+        
         // use jar cmd
         cmdsList.clear();
         cmdsList.add("-jar");
@@ -190,6 +256,34 @@ public class ArgumentsTest  extends TestCase {
             cmdsList.add(x);
         }
         assertTrue(Utils.checkExec(cmdsList, appargs));
+        
+        // pass -version to the app itself
+        cmdsList.clear();
+        cmdsList.add("-jar");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("-version");
+        assertTrue(Utils.checkExec(cmdsList, "-version"));
+        
+        // pass -fullversion to the app itself
+        cmdsList.clear();
+        cmdsList.add("-jar");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("-fullversion");
+        assertTrue(Utils.checkExec(cmdsList, "-fullversion"));
+        
+        
+        // pass -help to the app itself
+        cmdsList.clear();
+        cmdsList.add("-jar");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("-help");
+        assertTrue(Utils.checkExec(cmdsList, "-help"));
+        
+        // pass -X to the app itself
+        cmdsList.clear();
+        cmdsList.add("-jar");
+        cmdsList.add("ArgsTest.jar");
+        cmdsList.add("-X");
+        assertTrue(Utils.checkExec(cmdsList, "-X"));
     }
 }
-

@@ -186,7 +186,6 @@ public class Locations {
                        ((AbstractLocation) lastL).removeChild(weakMe);
                    if (thisL instanceof AbstractLocation)
                        ((AbstractLocation) thisL).addChild(weakMe);
-                   ((AbstractLocation) location).setUnderlyingLocation(thisL);
                    lastL = thisL;
                }
                pushFrom(typeInfo, thisL);
@@ -215,7 +214,6 @@ public class Locations {
         if (!lazy) {
             L initialValue = helper.get();
             helpedLocation.addDynamicDependency(initialValue);
-            ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
         }
         helper.addChangeListener(new IndirectChangeListener<T, L>(helpedLocation));
         return helper;
@@ -234,7 +232,6 @@ public class Locations {
             if (helpedLocation != null) {
                 helpedLocation.clearDynamicDependencies();
                 helpedLocation.addDynamicDependency(newLoc);
-                ((AbstractLocation) helpedLocation).setUnderlyingLocation(newLoc);
             }
         }
     }
