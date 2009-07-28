@@ -912,7 +912,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                                     syms.booleanType,
                                     where,
                                     whereTest, //TODO: should be translated for conditional
-                                    makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)));
+                                    makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0))).asLocation();
                         }
                     }
                 }
@@ -932,7 +932,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                             whereTest,
                             tbody,
                             runtime(diagPos, defs.BoundSequences_empty, List.of(makeLaziness(diagPos), makeTypeInfo(diagPos, resultElementType)))
-                          );
+                          ).asLocation();
                 }
                 return tbody;
             }
@@ -1041,7 +1041,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
      * @param condExpr conditional expression  branch, already translated
      * @return
      */
-    private JCExpression makeBoundSequenceConditional(final DiagnosticPosition diagPos,
+    private BoundResult makeBoundSequenceConditional(final DiagnosticPosition diagPos,
             final Type resultType,
             final TypeMorphInfo tmiResult,
             final JCExpression condExpr,
@@ -1053,7 +1053,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 condExpr,
                 makeFunction0(resultType, trueExpr),
                 makeFunction0(resultType, falseExpr));
-        return runtime(diagPos, defs.Locations_makeBoundIf, args);
+        return new BoundResult(runtime(diagPos, defs.Locations_makeBoundIf, args));
     }
 
     private JCExpression makeFunction0(
@@ -1088,7 +1088,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }).doit();
     }
 
-    private JCExpression makeBoundConditional(final DiagnosticPosition diagPos,
+    private BoundResult makeBoundConditional(final DiagnosticPosition diagPos,
             final Type resultType,
             final JCExpression condExpr,
             final JCExpression trueExpr,
@@ -1116,17 +1116,20 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 condExpr,
                 trueExpr,
                 falseExpr);
-        return runtime(diagPos, defs.Locations_makeBoundIf, args);
+        JCExpression loc = runtime(diagPos, defs.Locations_makeBoundIf, args);
+        BoundResult res = new BoundResult(loc);
+        res.instanciateBE = runtime(diagPos, defs.Locations_makeBoundIfBE, args);
+        return res;
     }
 
     @Override
     public void visitIfExpression(final JFXIfExpression tree) {
         Type targetType = targetType(tree.type);
-        result = new BoundResult(makeBoundConditional(tree.pos(),
+        result = makeBoundConditional(tree.pos(),
                 targetType,
                 translate(tree.getCondition()) ,
                 translateForConditional(tree.getTrueExpression(), targetType),
-                translateForConditional(tree.getFalseExpression(), targetType)));
+                translateForConditional(tree.getFalseExpression(), targetType));
     }
 
     @Override
@@ -1434,18 +1437,18 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         DiagnosticPosition diagPos = tree.pos();
         switch (tree.getFXTag()) {
             case AND:
-                result = new BoundResult(makeBoundConditional(diagPos,
+                result = makeBoundConditional(diagPos,
                         syms.booleanType,
                         translate(tree.lhs, syms.booleanType),
                         translateForConditional(tree.rhs, syms.booleanType),
-                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0))));
+                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)));
                 break;
             case OR:
-                result = new BoundResult(makeBoundConditional(diagPos,
+                result = makeBoundConditional(diagPos,
                         syms.booleanType,
                         translate(tree.lhs, syms.booleanType),
                         makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
-                        translateForConditional(tree.rhs, syms.booleanType)));
+                        translateForConditional(tree.rhs, syms.booleanType));
                 break;
             default:
                 result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
