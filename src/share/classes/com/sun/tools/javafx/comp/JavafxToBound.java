@@ -1118,6 +1118,12 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 falseExpr);
         JCExpression loc = runtime(diagPos, defs.Locations_makeBoundIf, args);
         BoundResult res = new BoundResult(loc);
+        // lazy flag is not needed for making BindingExpression
+        args = List.of(
+                makeTypeInfo(diagPos, resultType),
+                condExpr,
+                trueExpr,
+                falseExpr);
         res.instanciateBE = runtime(diagPos, defs.Locations_makeBoundIfBE, args);
         return res;
     }

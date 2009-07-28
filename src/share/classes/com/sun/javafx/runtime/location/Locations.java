@@ -43,13 +43,13 @@ public class Locations {
                                                                 final ObjectLocation<T> thenLoc,
                                                                 final ObjectLocation<T> elseLoc) {
         final L loc = typeInfo.makeLocation();
-        ((BindableLocation<T, ?>) loc).bind(lazy, makeBoundIfBE(typeInfo, lazy, conditional, thenLoc, elseLoc));
+        ((BindableLocation<T, ?>) loc).bind(lazy, makeBoundIfBE(typeInfo, conditional, thenLoc, elseLoc));
         return loc;
     }
 
     public static<T, L extends ObjectLocation<T>> BindingExpression makeBoundIfBE(
             final TypeInfo<T, L> typeInfo, 
-            final boolean lazy, final BooleanLocation conditional,
+            final BooleanLocation conditional,
             final ObjectLocation<T> thenLoc, final ObjectLocation<T> elseLoc) {
         return new AbstractBindingExpression() {
             StaticDependentLocation weakMe;
