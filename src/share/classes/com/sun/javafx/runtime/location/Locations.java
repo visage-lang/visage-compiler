@@ -26,6 +26,7 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.util.Linkables;
 import java.lang.ref.WeakReference;
 
 /**
@@ -78,6 +79,80 @@ public class Locations {
             }
         };
     }
+
+    public static BooleanLocation makeBoundOr(boolean lazy,
+                                              BooleanLocation leftLoc,
+                                              BooleanLocation rightLoc) {
+        final BooleanLocation loc = TypeInfo.Boolean.makeLocation();
+
+        ((BindableLocation<Boolean, ?>) loc).bind(lazy, makeBoundOrBE(leftLoc, rightLoc));
+        return loc;
+    }
+
+    public static BindingExpression makeBoundOrBE(final BooleanLocation leftLoc, final BooleanLocation rightLoc) {
+        return new AbstractBindingExpression() {
+            StaticDependentLocation weakMe;
+
+            @Override
+            public void setLocation(Location location) {
+                super.setLocation(location);
+                addStaticDependent(leftLoc);
+                weakMe = new StaticDependentLocation(location);
+            }
+
+            public void compute() {
+                boolean c = leftLoc.getAsBoolean();
+                if (c) {
+                    if (!Linkables.<LocationDependency>isUnused(weakMe))
+                        ((AbstractLocation) rightLoc).removeChild(weakMe);
+                    pushValue(true);
+                }
+                else {
+                    if (Linkables.<LocationDependency>isUnused(weakMe) && rightLoc instanceof AbstractLocation)
+                        ((AbstractLocation) rightLoc).addChild(weakMe);
+                    pushFrom(TypeInfo.Boolean, rightLoc);
+                }
+            }
+        };
+    }
+
+
+    public static BooleanLocation makeBoundAnd(boolean lazy,
+                                               BooleanLocation leftLoc,
+                                               BooleanLocation rightLoc) {
+        final BooleanLocation loc = TypeInfo.Boolean.makeLocation();
+        ((BindableLocation<Boolean, ?>) loc).bind(lazy, makeBoundAndBE(leftLoc, rightLoc));
+        return loc;
+    }
+
+    public static BindingExpression makeBoundAndBE(
+            final BooleanLocation leftLoc, final BooleanLocation rightLoc) {
+        return new AbstractBindingExpression() {
+            StaticDependentLocation weakMe;
+
+            @Override
+            public void setLocation(Location location) {
+                super.setLocation(location);
+                addStaticDependent(leftLoc);
+                weakMe = new StaticDependentLocation(location);
+            }
+
+            public void compute() {
+                boolean c = leftLoc.getAsBoolean();
+                if (! c) {
+                    if (!Linkables.<LocationDependency>isUnused(weakMe))
+                        ((AbstractLocation) rightLoc).removeChild(weakMe);
+                    pushValue(false);
+                }
+                else {
+                    if (Linkables.<LocationDependency>isUnused(weakMe) && rightLoc instanceof AbstractLocation)
+                        ((AbstractLocation) rightLoc).addChild(weakMe);
+                    pushFrom(TypeInfo.Boolean, rightLoc);
+                }
+            }
+        };
+    }
+
 
     // @@@ This can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
     private static<T> BindingExpression wrap(final Function0<SequenceLocation<T>> fun) {

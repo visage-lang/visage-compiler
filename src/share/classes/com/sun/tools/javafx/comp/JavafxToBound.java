@@ -1128,6 +1128,40 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         return res;
     }
 
+    private BoundResult makeBoundOr(final DiagnosticPosition diagPos,
+            final JCExpression leftExpr,
+            final JCExpression rightExpr) {
+        List<JCExpression> args = List.of(
+                makeLaziness(diagPos),
+                leftExpr,
+                rightExpr);
+        JCExpression loc = runtime(diagPos, defs.Locations_makeBoundOr, args);
+        BoundResult res = new BoundResult(loc);
+        // lazy flag is not needed for making BindingExpression
+        args = List.of(
+                leftExpr,
+                rightExpr);
+        res.instanciateBE = runtime(diagPos, defs.Locations_makeBoundOrBE, args);
+        return res;
+    }
+
+    private BoundResult makeBoundAnd(final DiagnosticPosition diagPos,
+            final JCExpression leftExpr,
+            final JCExpression rightExpr) {
+        List<JCExpression> args = List.of(
+                makeLaziness(diagPos),
+                leftExpr,
+                rightExpr);
+        JCExpression loc = runtime(diagPos, defs.Locations_makeBoundAnd, args);
+        BoundResult res = new BoundResult(loc);
+        // lazy flag is not needed for making BindingExpression
+        args = List.of(
+                leftExpr,
+                rightExpr);
+        res.instanciateBE = runtime(diagPos, defs.Locations_makeBoundAndBE, args);
+        return res;
+    }
+
     @Override
     public void visitIfExpression(final JFXIfExpression tree) {
         Type targetType = targetType(tree.type);
@@ -1443,17 +1477,13 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         DiagnosticPosition diagPos = tree.pos();
         switch (tree.getFXTag()) {
             case AND:
-                result = makeBoundConditional(diagPos,
-                        syms.booleanType,
+                result = makeBoundAnd(diagPos,
                         translate(tree.lhs, syms.booleanType),
-                        translateForConditional(tree.rhs, syms.booleanType),
-                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 0)));
+                        translateForConditional(tree.rhs, syms.booleanType));
                 break;
             case OR:
-                result = makeBoundConditional(diagPos,
-                        syms.booleanType,
+                result = makeBoundOr(diagPos,
                         translate(tree.lhs, syms.booleanType),
-                        makeConstantLocation(diagPos, syms.booleanType, makeLit(diagPos, syms.booleanType, 1)),
                         translateForConditional(tree.rhs, syms.booleanType));
                 break;
             default:
