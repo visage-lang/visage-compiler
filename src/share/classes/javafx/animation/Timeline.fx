@@ -714,7 +714,7 @@ public class Timeline {
         if(curPos != timeInMillis) {
             // external time change is limited to the current cycle's bounds
             timeInMillis = Math.min(timelineDur, Math.max(timeInMillis, 0));
-            time = time.valueOf(timeInMillis);
+            time = makeDur(timeInMillis);
 
             // update the base values
             baseTick = lastTick;
@@ -877,7 +877,6 @@ public class Timeline {
         return true;
     }
 
-
     // track last visited frame to avoid double visiting it on external time
     // change in the direction opposite to the current value of {@code forward}
     var lastKF = -1;
@@ -976,12 +975,14 @@ public class Timeline {
                 paused = false;
                 isReverse = false;
                 stopping = false;
-
                 cycleIndex = 0;
                 forward = (rate >= 0);
+                lastKF = -1;
+
                 lastTick = 0.0;
                 baseTick = 0.0;
                 baseElapsed = 0.0;
+
                 var totalDur = getTotalDur();
 
                 if(forward) {
