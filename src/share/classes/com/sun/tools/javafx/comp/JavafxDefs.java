@@ -138,6 +138,11 @@ public class JavafxDefs {
     final RuntimeMethod Locations_makeBoundSelect;
     final RuntimeMethod Locations_makeBoundSelectBE;
     final RuntimeMethod Locations_makeBoundIf;
+    final RuntimeMethod Locations_makeBoundIfBE;
+    final RuntimeMethod Locations_makeBoundOr;
+    final RuntimeMethod Locations_makeBoundOrBE;
+    final RuntimeMethod Locations_makeBoundAnd;
+    final RuntimeMethod Locations_makeBoundAndBE;
     final RuntimeMethod Locations_upcast;
 
     final RuntimeMethod BoundSequences_convertNumberSequence;
@@ -400,6 +405,11 @@ public class JavafxDefs {
         Locations_makeBoundSelect = new RuntimeMethod(names, cLocations, "makeBoundSelect");
         Locations_makeBoundSelectBE = new RuntimeMethod(names, cLocations, "makeBoundSelectBE");
         Locations_makeBoundIf = new RuntimeMethod(names, cLocations, "makeBoundIf");
+        Locations_makeBoundIfBE = new RuntimeMethod(names, cLocations, "makeBoundIfBE");
+        Locations_makeBoundOr = new RuntimeMethod(names, cLocations, "makeBoundOr");
+        Locations_makeBoundOrBE = new RuntimeMethod(names, cLocations, "makeBoundOrBE");
+        Locations_makeBoundAnd = new RuntimeMethod(names, cLocations, "makeBoundAnd");
+        Locations_makeBoundAndBE = new RuntimeMethod(names, cLocations, "makeBoundAndBE");
         Locations_upcast = new RuntimeMethod(names, cLocations, "upcast");
         BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
         BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");
