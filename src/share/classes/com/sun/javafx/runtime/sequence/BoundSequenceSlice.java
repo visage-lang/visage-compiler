@@ -26,6 +26,7 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.location.IntLocation;
 import com.sun.javafx.runtime.location.ChangeListener;
+import com.sun.javafx.runtime.location.InvalidateMeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -85,10 +86,10 @@ class BoundSequenceSlice<T> extends AbstractBoundSequence<T> implements Sequence
           
     private void addTriggers() {
         if (lazy) {
-            sequenceLoc.addInvalidationListener(new InvalidateMeListener());
-            lowerLoc.addInvalidationListener(new InvalidateMeListener());
+            sequenceLoc.addInvalidationListener(new InvalidateMeListener(this));
+            lowerLoc.addInvalidationListener(new InvalidateMeListener(this));
             if (upperLoc != null)
-                upperLoc.addInvalidationListener(new InvalidateMeListener());
+                upperLoc.addInvalidationListener(new InvalidateMeListener(this));
         }
         else {
             sequenceLoc.addSequenceChangeListener(new ChangeListener<T>() {

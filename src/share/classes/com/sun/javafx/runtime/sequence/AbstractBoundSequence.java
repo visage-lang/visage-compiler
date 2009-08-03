@@ -260,12 +260,4 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     public void insertBefore(Sequence<? extends T> values, int position) {
         throw new UnsupportedOperationException();
     }
-
-    protected class InvalidateMeListener extends InvalidationListener {
-        @Override
-        public boolean onChange() {
-            invalidate();
-            return true;
-        }
-    }
 }

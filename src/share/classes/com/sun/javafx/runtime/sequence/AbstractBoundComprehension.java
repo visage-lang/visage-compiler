@@ -122,8 +122,8 @@ public abstract class AbstractBoundComprehension<T, L extends ObjectLocation<T>,
 
     private void addTriggers() {
         if (lazy) {
-            underlying.addInvalidationListener(new InvalidateMeListener());
-            sequenceLocation.addInvalidationListener(new InvalidateMeListener());
+            underlying.addInvalidationListener(new InvalidateMeListener(this));
+            sequenceLocation.addInvalidationListener(new InvalidateMeListener(this));
         }
         else {
             underlying.addSequenceChangeListener(new ChangeListener<V>() {

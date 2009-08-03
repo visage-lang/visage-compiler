@@ -24,9 +24,9 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.InvalidationListener;
 import com.sun.javafx.runtime.location.ChangeListener;
+import com.sun.javafx.runtime.location.InvalidateMeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -114,7 +114,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         for (int i = 0; i < infos.length; i++) {
             if (lazy) {
                 if (invalidate == null)
-                     invalidate = new InvalidateMeListener();
+                     invalidate = new InvalidateMeListener(this);
             }
             else
                 infos[i].addListener();

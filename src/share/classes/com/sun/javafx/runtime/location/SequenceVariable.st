@@ -534,7 +534,7 @@ $PREFIX:{T|
         }
 
         void bind() {
-            invalidationListener = new InvalidationListener() {
+            invalidationListener = new AbstractInvalidationListener() {
                 public boolean onChange() {
                     // @@@ This probably means we invalidate dependencies twice if we are lazy
                     if (lazy)
