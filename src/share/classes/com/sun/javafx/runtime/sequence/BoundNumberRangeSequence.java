@@ -104,9 +104,9 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
 
     private void addTriggers() {
         if (lazy) {
-            lowerLoc.addInvalidationListener(new InvalidateMeListener());
-            upperLoc.addInvalidationListener(new InvalidateMeListener());
-            stepLoc.addInvalidationListener(new InvalidateMeListener());
+            lowerLoc.addInvalidationListener(new InvalidateMeListener(this));
+            upperLoc.addInvalidationListener(new InvalidateMeListener(this));
+            stepLoc.addInvalidationListener(new InvalidateMeListener(this));
             return;
         }
         lowerLoc.addChangeListener(new ChangeListener<Float>() {

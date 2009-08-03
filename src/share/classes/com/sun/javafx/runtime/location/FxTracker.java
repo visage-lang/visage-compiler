@@ -294,7 +294,7 @@ class HistoData {
             binding_expression +=
                     loc.countChildren(AbstractLocation.CHILD_KIND_BINDING_EXPRESSION);
             change_listener +=
-                    loc.countChildren(AbstractLocation.CHILD_KIND_CHANGE_LISTENER);
+                    loc.countChildren(AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER);
             trigger +=
                     loc.countChildren(AbstractLocation.CHILD_KIND_TRIGGER);
             weak_location +=

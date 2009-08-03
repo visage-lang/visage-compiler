@@ -23,11 +23,11 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import java.util.Iterator;        
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.ChangeListener;
+import com.sun.javafx.runtime.location.InvalidateMeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
 /**
@@ -79,7 +79,7 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
 
     private void addTriggers() {
         if (lazy)
-            sequenceLocation.addInvalidationListener(new InvalidateMeListener());
+            sequenceLocation.addInvalidationListener(new InvalidateMeListener(this));
         else
             sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
                 public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {

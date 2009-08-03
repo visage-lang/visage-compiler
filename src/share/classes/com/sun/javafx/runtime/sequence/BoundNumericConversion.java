@@ -3,6 +3,7 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.NumericTypeInfo;
+import com.sun.javafx.runtime.location.InvalidateMeListener;
 
 /**
  * BoundNumericConversion
@@ -30,7 +31,7 @@ class BoundNumericConversion<T extends Number, V extends Number> extends Abstrac
             });
         }
         else {
-            sequence.addInvalidationListener(new InvalidateMeListener());
+            sequence.addInvalidationListener(new InvalidateMeListener(this));
         }
     }
 

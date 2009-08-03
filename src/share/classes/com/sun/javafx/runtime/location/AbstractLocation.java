@@ -44,7 +44,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     private static final byte INUSE_UNINFLATED = 1;
     private static final byte INUSE_INFLATED = 2;
 
-    static final int CHILD_KIND_CHANGE_LISTENER = 1;
+    static final int CHILD_KIND_INVALIDATION_LISTENER = 1;
     static final int CHILD_KIND_WEAK_LOCATION = 2;
     static final int CHILD_KIND_TRIGGER = 4;
     static final int CHILD_KIND_BINDING_EXPRESSION = 8;
@@ -73,7 +73,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     private byte childKindMask;
 
     // This list contains several kinds of ancillary objects, including dependencies:
-    //   Change listeners (really invalidation listeners): called when this location is invalidated
+    //   Invalidation listeners: called when this location is invalidated
     //   Dependent locations: invalidated when this location is invalidated
     //   Value triggers: invoked when the new value is known (might not happen at invalidation time, as with lazy
     //                   binding.)
@@ -132,7 +132,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     }
 
     protected boolean hasDependencies() {
-        return hasChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_CHANGE_LISTENER | CHILD_KIND_TRIGGER);
+        return hasChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_INVALIDATION_LISTENER | CHILD_KIND_TRIGGER);
     }
 
     protected void enqueueChild(LocationDependency dep) {
@@ -213,7 +213,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     }
 
     private static MutativeIterator<InvalidationListener> CALL_LISTENER_CLOSURE
-            = new MutativeIterator<InvalidationListener>(CHILD_KIND_CHANGE_LISTENER) {
+            = new MutativeIterator<InvalidationListener>(CHILD_KIND_INVALIDATION_LISTENER) {
         public boolean onAction(InvalidationListener element) {
             try {
                 return element.onChange();
@@ -246,7 +246,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
      * methods, and is also used at object initialization time to defer notification of changes until the values
      * provided in the object literal are all set. */
     protected void invalidateDependencies() {
-        if (hasChildren(CHILD_KIND_CHANGE_LISTENER | CHILD_KIND_WEAK_LOCATION)) {
+        if (hasChildren(CHILD_KIND_INVALIDATION_LISTENER | CHILD_KIND_WEAK_LOCATION)) {
             beginUpdate();
             try {
                 // @@@ We're iterating twice, this is to preserve listener ordering for now
@@ -352,7 +352,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
 
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
-        return countChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_CHANGE_LISTENER | CHILD_KIND_TRIGGER);
+        return countChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_INVALIDATION_LISTENER | CHILD_KIND_TRIGGER);
     }
 
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
@@ -516,4 +516,3 @@ abstract class DependencyIterator<T extends LocationDependency> implements Linka
             onAction((T) element);
     }
 }
-

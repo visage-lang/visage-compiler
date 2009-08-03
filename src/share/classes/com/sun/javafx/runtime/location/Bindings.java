@@ -163,7 +163,7 @@ public class Bindings {
             List<Location> list = null;
 
             AbstractLocation aloc = (AbstractLocation) loc;
-            if (aloc.hasChildren(AbstractLocation.CHILD_KIND_CHANGE_LISTENER)) {
+            if (aloc.hasChildren(AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER)) {
                 for (LocationDependency cur = aloc.children; cur != null; cur = cur.getNext()) {
                     if (cur instanceof BijectiveInvalidationListener) {
                         BijectiveBinding<?, ?> bb = ((BijectiveInvalidationListener) cur).getBijectiveBinding();
@@ -188,7 +188,7 @@ public class Bindings {
                 return Collections.emptyList();
         }
 
-        private static abstract class BijectiveInvalidationListener extends InvalidationListener {
+        private static abstract class BijectiveInvalidationListener extends AbstractInvalidationListener {
             public abstract BijectiveBinding getBijectiveBinding();
         }
     }
