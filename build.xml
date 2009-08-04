@@ -362,7 +362,7 @@
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4l.file}" />
-            <jvmarg value="-Xmx256m"/>
+            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
 	    <arg value="-Xconversiontimeout" />
@@ -371,7 +371,7 @@
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4p.file}" />
-            <jvmarg value="-Xmx256m"/>
+            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
         </java>
         <property name="parserv4.uptodate" value="true" />
     </target>
@@ -384,7 +384,7 @@
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4l.file}" />
-            <jvmarg value="-Xmx256m"/>
+            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
         </java>
         <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
 	    <arg value="-Xconversiontimeout" />
@@ -393,7 +393,7 @@
             <arg value="-o" />
             <arg value="${antlr.generated.dir}" />
             <arg value="${antlr.grammarv4p.file}" />
-            <jvmarg value="-Xmx256m"/>
+            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
         </java>
     </target>
 
@@ -413,7 +413,7 @@
             <arg value="-o" />
             <arg value="${syntax.diagrams.dir}" />
             <arg value="-verbose"/>
-            <jvmarg value="-Xmx256m"/>
+            <jvmarg value="-Xmx${jfx.antlr.max.memory}"/>
         </java>
 
 		-->
@@ -561,7 +561,7 @@
             </classpath>
             <jvmarg value="-Xbootclasspath/p:${bootjars}"/>
             <jvmarg value="-Djava.awt.headless=true"/>
-            <jvmarg value="-Xmx256m"/>
+            <jvmarg value="-Xmx${jfx.javadoc.max.memory}"/>
             <arg value="-o"/> <arg value="build/docs/fxcode.xml"/>
             <arg value="-nohtml"/>
             <arg value="-sourcepath"/> <arg value="${srcpathprop}"/>
@@ -585,7 +585,7 @@
             </classpath>
             <jvmarg value="-Xbootclasspath/p:${bootjars}"/>
             <jvmarg value="-Djava.awt.headless=true"/>
-            <jvmarg value="-Xmx256m"/>
+            <jvmarg value="-Xmx${jfx.javadoc.max.memory}"/>
             <arg line="${javafxdoc.packages}"/>
         </java>
         
