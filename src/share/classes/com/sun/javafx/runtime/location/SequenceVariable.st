@@ -534,17 +534,15 @@ $PREFIX:{T|
         }
 
         void bind() {
-            invalidationListener = new AbstractInvalidationListener() {
-                public boolean onChange() {
-                    // @@@ This probably means we invalidate dependencies twice if we are lazy
-                    if (lazy)
+            if (lazy) {
+                invalidationListener = new AbstractInvalidationListener() {
+                    public boolean onChange() {
                         invalidate();
-                    invalidateDependencies();
-                    return true;
-                }
-            };
-            otherLocation.addInvalidationListener(invalidationListener);
-            if (!lazy) {
+                        return true;
+                    }
+                 };
+                 otherLocation.addInvalidationListener(invalidationListener);
+            } else {
                 sequenceChangeListener = new ChangeListener<T>() {
                     @Override
                     public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
@@ -561,7 +559,8 @@ $PREFIX:{T|
         }
 
         void unbind() {
-            otherLocation.removeInvalidationListener(invalidationListener);
+            if (invalidationListener != null)
+                otherLocation.removeInvalidationListener(invalidationListener);
             if (sequenceChangeListener != null)
                 otherLocation.removeSequenceChangeListener(sequenceChangeListener);
             invalidationListener = null;
