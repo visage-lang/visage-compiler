@@ -107,76 +107,124 @@ class BoundNumberRangeSequence extends AbstractBoundSequence<Float> implements S
             lowerLoc.addInvalidationListener(new InvalidateMeListener(this));
             upperLoc.addInvalidationListener(new InvalidateMeListener(this));
             stepLoc.addInvalidationListener(new InvalidateMeListener(this));
-            return;
+        } else {
+            lowerLoc.addChangeListener(new LowerLimitChangeListener(this));
+            upperLoc.addChangeListener(new UpperLimitChangeListener(this));
+            stepLoc.addChangeListener(new StepChangeListener(this));
         }
-        lowerLoc.addChangeListener(new ChangeListener<Float>() {
-            @Override
-            public void onChange(float oldValue, float newValue) {
-                
-                assert oldValue != newValue;
-                int oldSize = size;
-                computeBounds(newValue, upper, step);
+    }
+
+    private static class LowerLimitChangeListener extends WeakMeChangeListener<Float> {
+        LowerLimitChangeListener(BoundNumberRangeSequence bnc) {
+            super(bnc);
+        }
+
+        @Override
+        public void onChange(float oldValue, float newValue) {
+            onChangeB(oldValue, newValue);
+        }
+
+        @Override
+        public boolean onChangeB(float oldValue, float newValue) {
+             assert oldValue != newValue;
+             BoundNumberRangeSequence bnrs = (BoundNumberRangeSequence) get();
+             if (bnrs != null) {
+                int oldSize = bnrs.size;
+                bnrs.computeBounds(newValue, bnrs.upper, bnrs.step);
                 Sequence<Float> newElements;
 
                 if (oldSize == 0) {
-                    updateSlice(0, 0, computeFull(lower, upper, step));
+                    bnrs.updateSlice(0, 0, bnrs.computeFull(bnrs.lower, bnrs.upper, bnrs.step));
                 }
-                else if (oldSize < size) {
+                else if (oldSize < bnrs.size) {
 
-                    if (((newValue - oldValue) % step) == 0) {
-                        updateSlice(0, 0, Sequences.rangeExclusive(lower, oldValue, step));
+                    if (((newValue - oldValue) % bnrs.step) == 0) {
+                        bnrs.updateSlice(0, 0, Sequences.rangeExclusive(bnrs.lower, oldValue, bnrs.step));
                     }
                     else {
-                        newElements = computeFull(lower, upper, step);
-                        updateSlice(0, oldSize, newElements);
+                        newElements = bnrs.computeFull(bnrs.lower, bnrs.upper, bnrs.step);
+                        bnrs.updateSlice(0, oldSize, newElements);
                     }
                 }
-                else if (oldSize >= size) {
-                    if (((newValue - oldValue) % step) == 0) {
-                        
-                        updateSlice(0, oldSize - size, TypeInfo.Float.emptySequence);
+                else if (oldSize >= bnrs.size) {
+                    if (((newValue - oldValue) % bnrs.step) == 0) {
+
+                        bnrs.updateSlice(0, oldSize - bnrs.size, TypeInfo.Float.emptySequence);
                     }
                     else {
-                        newElements = computeFull(lower, upper, step);
-                        updateSlice(0, oldSize, newElements);
+                        newElements = bnrs.computeFull(bnrs.lower, bnrs.upper, bnrs.step);
+                        bnrs.updateSlice(0, oldSize, newElements);
                     }
                 }
+                return true;
+            } else {
+                return false;
             }
-        });
-        upperLoc.addChangeListener(new ChangeListener<Float>() {
-            @Override
-            public void onChange(float oldValue, float newValue) {
-                
-                assert oldValue != newValue;         
-                int oldSize = size;
-                computeBounds(lower, newValue, step);
+        }
+    }
 
-                if (size == oldSize) {
-                    return;
+    private static class UpperLimitChangeListener extends WeakMeChangeListener<Float> {
+        UpperLimitChangeListener(BoundNumberRangeSequence bnrs) {
+            super(bnrs);
+        }
+
+        @Override
+        public void onChange(float oldValue, float newValue) {
+            onChangeB(oldValue, newValue);
+        }
+
+        @Override
+        public boolean onChangeB(float oldValue, float newValue) {
+            assert oldValue != newValue;
+            BoundNumberRangeSequence bnrs = (BoundNumberRangeSequence) get();
+            if (bnrs != null) {
+                int oldSize = bnrs.size;
+                bnrs.computeBounds(bnrs.lower, newValue, bnrs.step);
+
+                if (bnrs.size == oldSize) {
+                    return true;
                 }
                 else if (oldSize == 0) {
-                    updateSlice(0, 0, computeFull(lower, upper, step));
+                    bnrs.updateSlice(0, 0, bnrs.computeFull(bnrs.lower, bnrs.upper, bnrs.step));
                 }
-                else if (oldSize < size) {
-                   updateSlice(oldSize, oldSize, computeFull(lower+oldSize*step, upper, step));
+                else if (oldSize < bnrs.size) {
+                    bnrs.updateSlice(oldSize, oldSize, bnrs.computeFull(bnrs.lower+oldSize*bnrs.step, bnrs.upper, bnrs.step));
                 }
-                else if (oldSize > size) {
-                    updateSlice(size, oldSize, TypeInfo.Float.emptySequence);
+                else if (oldSize > bnrs.size) {
+                    bnrs.updateSlice(bnrs.size, oldSize, TypeInfo.Float.emptySequence);
                 }
-            }
-        });
 
-        stepLoc.addChangeListener(new ChangeListener<Float>() {
-            @Override
-            public void onChange(float oldValue, float newValue) {
-                
-                assert oldValue != newValue;                                  
-                int oldSize = size;
-                computeBounds(lower, upper, newValue);
-
-                Sequence<Float> newSeq = computeFull(lower, upper, step);
-                updateSlice(0, oldSize, newSeq);
+                return true;
+            } else {
+                return false;
             }
-        });
+        }
+    }
+
+    private static class StepChangeListener extends WeakMeChangeListener<Float> {
+        StepChangeListener(BoundNumberRangeSequence bnrs) {
+            super(bnrs);
+        }
+
+        @Override
+        public void onChange(float oldValue, float newValue) {
+            onChangeB(oldValue, newValue);
+        }
+
+        @Override
+        public boolean onChangeB(float oldValue, float newValue) {
+            assert oldValue != newValue;
+            BoundNumberRangeSequence bnrs = (BoundNumberRangeSequence) get();
+            if (bnrs != null) {
+                int oldSize = bnrs.size;
+                bnrs.computeBounds(bnrs.lower, bnrs.upper, newValue);
+
+                Sequence<Float> newSeq = bnrs.computeFull(bnrs.lower, bnrs.upper, bnrs.step);
+                bnrs.updateSlice(0, oldSize, newSeq);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

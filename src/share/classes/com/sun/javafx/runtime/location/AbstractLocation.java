@@ -70,7 +70,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     /** As we add and remove dependencies, we maintain a mask of the kinds of things on the dependency list, so we can
      * quickly answer questions like "do we have any X's"
      */
-    private byte childKindMask;
+        private byte childKindMask;
 
     // This list contains several kinds of ancillary objects, including dependencies:
     //   Invalidation listeners: called when this location is invalidated
@@ -113,6 +113,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         for (LocationDependency cur = children; cur != null; cur = cur.getNext())
             mask |= cur.getDependencyKind();
         childKindMask = (byte) mask;
+    }
+
+    protected void setChildKindMask(byte mask) {
+        childKindMask = mask;
     }
 
     protected int countChildren(int mask) {
@@ -168,6 +172,15 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * The logic in this method is inlined in 3 other places! If you make change,
+     * please keep the logic in sync in XxxVariable.st, equenceVariable.st and
+     * ObjectVariable.java. Inlining was done to avoid creating an instance
+     * of subclass of MutativeIterator for every iteration. Note that this method
+     * is called in this file by passing static iterator objects. In the other
+     * places mentioned, we could not do so. Hence, the logic of iteration is
+     * inlined with closure.onAction() replaced with ChangeListener calls.
+     */
     private <T extends LocationDependency> void iterateChildren(MutativeIterator<T> closure) {
         int kind = closure.kind;
         if (hasChildren(kind)) {

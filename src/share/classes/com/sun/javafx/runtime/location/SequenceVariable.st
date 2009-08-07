@@ -23,13 +23,14 @@
 
 package com.sun.javafx.runtime.location;
 
-import java.util.Iterator;
+import java.lang.ref.WeakReference;
 import java.util.BitSet;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.sequence.*;
+import com.sun.javafx.runtime.util.Linkables;
 
 /**
  * SequenceVariable
@@ -42,7 +43,7 @@ public class SequenceVariable<T>
 
     private final TypeInfo<T, ?> typeInfo;
     public/*protected*/ Sequence<? extends T> \$value;
-    private BoundLocationInfo boundLocation;
+    private BoundLocationInfo<T> boundLocation;
 
 
     public static <T> SequenceVariable<T> make(TypeInfo<T, ?> typeInfo) {
@@ -132,14 +133,28 @@ public class SequenceVariable<T>
 
     @Override
     public void addChangeListener(final ChangeListener<Sequence<? extends T>> listener) {
-        addSequenceChangeListener(new ChangeListener<T>() {
-            @Override
-            public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
-                Sequence<? extends T> newValue = buffer != null ? buffer : newElements;
-                listener.onChange(oldValue, newValue);
-            }
-        });
+        addSequenceChangeListener(new WrappedChangeListener<T>(listener));
     }
+
+    private static class WrappedChangeListener<T> extends ChangeListener<T> {
+        private ChangeListener<Sequence<? extends T>> listener;
+
+        WrappedChangeListener(ChangeListener<Sequence<? extends T>> listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+
+        @Override
+        public boolean onChangeB(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            Sequence<? extends T> newValue = buffer != null ? buffer : newElements;
+            return listener.onChangeB(oldValue, newValue);
+        }
+    };
+
 
     public /*protected*/ void notifyListeners(ArraySequence<T> buffer,
                                    Sequence<? extends T> oldValue,
@@ -149,25 +164,45 @@ public class SequenceVariable<T>
         if (invalidateDependencies)
             invalidateDependencies();
 
+        // Ugly: the logic below was cut-pasted and edited from "iterateChildren"
+        // method of AbstractLocation to avoid creating an instance of iteration
+        // closure class for every iteration.
+
         if (hasChildren(CHILD_KIND_TRIGGER)) {
-            for (LocationDependency cur = children; cur != null; cur = cur.getNext()) {
-                if (cur.getDependencyKind() == CHILD_KIND_TRIGGER) {
-                    ChangeListener<T> listener = (ChangeListener<T>) cur;
-                    try {
-                        listener.onChange(buffer, oldValue, startPos, endPos, newElements);
+            boolean removed = false;
+            int mask = 0;
+            for (LocationDependency cur = children;  cur != null; ) {
+                LocationDependency next = cur.getNext();
+                int curKind = cur.getDependencyKind();
+                handle: {
+                    if (curKind == CHILD_KIND_TRIGGER) {
+                        boolean keep;
+                        try {
+                            keep = ((ChangeListener<T>)cur).onChangeB(buffer, oldValue, startPos, endPos, newElements);
+                        } catch (RuntimeException e) {
+                            ErrorHandler.triggerException(e);
+                            keep = true;
+                        }
+
+                        if (! keep) {
+                            Linkables.remove(cur);
+                            removed = true;
+                            break handle;
+                        }
                     }
-                    catch (RuntimeException e) {
-                        ErrorHandler.triggerException(e);
-                    }
+                    mask |= curKind;
                 }
+                cur = next;
             }
+            if (removed)
+                setChildKindMask((byte) mask);
         }
     }
 
     @Override
     public SequenceVariable<T> bind(boolean lazy, SequenceLocation<? extends T> otherLocation) {
         ensureBindable();
-        boundLocation = new BoundLocationInfo(lazy, otherLocation);
+        boundLocation = new BoundLocationInfo<T>(this, lazy, otherLocation);
         boundLocation.bind();
         if (lazy)
             invalidate();
@@ -514,31 +549,40 @@ $PREFIX:{T|
 
 
 }$
-    private class BoundLocationInfo {
+    private static class BoundLocationInfo<T> extends WeakReference<SequenceVariable<T>> {
         public final SequenceLocation<T> otherLocation;
         public InvalidationListener invalidationListener;
         public ChangeListener<T> sequenceChangeListener;
         public final boolean lazy;
 
-        BoundLocationInfo(boolean lazy, SequenceLocation<? extends T> otherLocation) {
+        BoundLocationInfo(SequenceVariable me, boolean lazy, SequenceLocation<? extends T> otherLocation) {
+            super(me);
             this.otherLocation = (SequenceLocation<T>) otherLocation; // KLUDGE
             this.lazy = lazy;
         }
 
         void update() {
-            Sequence<? extends T> oldValue = \$value;
-            \$value = otherLocation.getAsSequence();
-            setValid();
-            if (hasDependencies() && !Sequences.isEqual(oldValue, \$value))
-              notifyListeners(null, oldValue, 0, oldValue.size(), \$value, true);
+            SequenceVariable<T> seq = get();
+            if (seq != null) {
+                Sequence<? extends T> oldValue = seq.\$value;
+                seq.\$value = otherLocation.getAsSequence();
+                seq.setValid();
+                if (seq.hasDependencies() && !Sequences.isEqual(oldValue, seq.\$value))
+                    seq.notifyListeners(null, oldValue, 0, oldValue.size(), seq.\$value, true);
+            }
         }
 
         void bind() {
             if (lazy) {
                 invalidationListener = new AbstractInvalidationListener() {
                     public boolean onChange() {
-                        invalidate();
-                        return true;
+                        SequenceVariable<T> seq = get();
+                        if (seq != null) {
+                            seq.invalidate();
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
                  };
                  otherLocation.addInvalidationListener(invalidationListener);
@@ -546,16 +590,29 @@ $PREFIX:{T|
                 sequenceChangeListener = new ChangeListener<T>() {
                     @Override
                     public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
-                        // Don't need to check lazy, since we're never called if binding is lazy
-                        \$value = buffer != null ? buffer : newElements;
-                        setValid();
-                        // JFXC-2627 - changed updateDependencies to true
-                        notifyListeners(buffer, oldValue, startPos, endPos, newElements, true);
+                        onChangeB(buffer, oldValue, startPos, endPos, newElements);
+                    }
+                    
+                    @Override
+                    public boolean onChangeB(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+                        SequenceVariable<T> seq = get();
+                        if (seq != null) {
+                            // Don't need to check lazy, since we're never called if binding is lazy
+                            seq.\$value = buffer != null ? buffer : newElements;
+                            seq.setValid();
+                            // JFXC-2627 - changed updateDependencies to true
+                            seq.notifyListeners(buffer, oldValue, startPos, endPos, newElements, true);
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
                 };
                 otherLocation.addSequenceChangeListener(sequenceChangeListener);
             }
-            state = lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND;
+            SequenceVariable<T> seq = get();
+            if (seq != null)
+                seq.state = lazy ? STATE_UNI_BOUND_LAZY : STATE_UNI_BOUND;
         }
 
         void unbind() {
@@ -565,7 +622,9 @@ $PREFIX:{T|
                 otherLocation.removeSequenceChangeListener(sequenceChangeListener);
             invalidationListener = null;
             sequenceChangeListener = null;
-            state = STATE_UNBOUND;
+            SequenceVariable<T> seq = get();
+            if (seq != null)
+               seq.state = STATE_UNBOUND;
         }
     }
 }

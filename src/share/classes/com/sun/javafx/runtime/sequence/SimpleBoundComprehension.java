@@ -26,7 +26,6 @@ package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.InvalidateMeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
@@ -81,41 +80,58 @@ public abstract class SimpleBoundComprehension<T, V> extends AbstractBoundSequen
         if (lazy)
             sequenceLocation.addInvalidationListener(new InvalidateMeListener(this));
         else
-            sequenceLocation.addSequenceChangeListener(new ChangeListener<T>() {
-                public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
-                    // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
-                    // trailing segment of the comprehension, so not only do we recompute the affected segment, but also
-                    // the whole rest of the sequence too.
+            sequenceLocation.addSequenceChangeListener(new UnderlyingSequenceChangeListener<T, V>(this));
+    }
 
-                    int directlyAffectedSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
-                    int elementsAdded = directlyAffectedSize - (endPos - startPos);
-                    Sequence<? extends T> real = Sequences.getNewElements(buffer, startPos, newElements);
-                    int oldValueSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
-                    boolean updateTrailingElements = dependsOnIndex
+    private static class UnderlyingSequenceChangeListener<T, V> extends WeakMeChangeListener<T> {
+        UnderlyingSequenceChangeListener(SimpleBoundComprehension<T, V> sbc) {
+            super(sbc);
+        }
+
+        @Override
+        public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+
+        @Override
+        public boolean onChangeB(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            SimpleBoundComprehension<T, V> sbc = (SimpleBoundComprehension<T, V>) get();
+            if (sbc != null) {
+                // IF the closure depends on index, then an insertion or deletion causes recomputation of the whole
+                // trailing segment of the comprehension, so not only do we recompute the affected segment, but also
+                // the whole rest of the sequence too.
+
+                int directlyAffectedSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
+                int elementsAdded = directlyAffectedSize - (endPos - startPos);
+                Sequence<? extends T> real = Sequences.getNewElements(buffer, startPos, newElements);
+                int oldValueSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
+                boolean updateTrailingElements = sbc.dependsOnIndex
                             && (elementsAdded != 0)
                             && (endPos < oldValueSize);
-                    int indirectlyAffectedStart=0, indirectlyAffectedEnd=0, indirectlyAffectedSize=0;
-                    if (updateTrailingElements) {
-                        indirectlyAffectedStart = endPos;
-                        indirectlyAffectedEnd = oldValueSize;
-                        indirectlyAffectedSize = indirectlyAffectedEnd - indirectlyAffectedStart;
-                    }
-                    V[] ourNewElements = Util.<V>newObjectArray(directlyAffectedSize + indirectlyAffectedSize);
-                    for (int i = 0;  i < directlyAffectedSize;  i++) {
-                      T newElement = Sequences.getFromNewElements(buffer, endPos, newElements, i);
-                      ourNewElements[i] = computeElement$(newElement, dependsOnIndex ? startPos + i : -1);
-                    }
-                    for (int i = 0;  i < indirectlyAffectedSize;  i++) {
-                        T oldElement = Sequences.getFromOldValue(buffer, oldValue, startPos, endPos,
-                            indirectlyAffectedStart + i);
-                        ourNewElements[directlyAffectedSize + i]
-
-                                = computeElement$(oldElement, startPos + directlyAffectedSize + i);
-                    }
-
-                    Sequence<? extends V> vSequence = Sequences.make(getElementType(), ourNewElements);
-                    updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
+                int indirectlyAffectedStart=0, indirectlyAffectedEnd=0, indirectlyAffectedSize=0;
+                if (updateTrailingElements) {
+                    indirectlyAffectedStart = endPos;
+                    indirectlyAffectedEnd = oldValueSize;
+                    indirectlyAffectedSize = indirectlyAffectedEnd - indirectlyAffectedStart;
                 }
-            });
+                V[] ourNewElements = Util.<V>newObjectArray(directlyAffectedSize + indirectlyAffectedSize);
+                for (int i = 0;  i < directlyAffectedSize;  i++) {
+                     T newElement = Sequences.getFromNewElements(buffer, endPos, newElements, i);
+                     ourNewElements[i] = sbc.computeElement$(newElement, sbc.dependsOnIndex ? startPos + i : -1);
+                }
+                for (int i = 0;  i < indirectlyAffectedSize;  i++) {
+                     T oldElement = Sequences.getFromOldValue(buffer, oldValue, startPos, endPos,
+                            indirectlyAffectedStart + i);
+                     ourNewElements[directlyAffectedSize + i]
+                         = sbc.computeElement$(oldElement, startPos + directlyAffectedSize + i);
+                }
+
+                Sequence<? extends V> vSequence = Sequences.make(sbc.getElementType(), ourNewElements);
+                sbc.updateSlice(startPos, updateTrailingElements ? indirectlyAffectedEnd : endPos, vSequence);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

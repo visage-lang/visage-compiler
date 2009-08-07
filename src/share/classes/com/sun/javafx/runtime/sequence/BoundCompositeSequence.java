@@ -24,8 +24,6 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.location.InvalidationListener;
-import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.InvalidateMeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
@@ -35,13 +33,14 @@ import com.sun.javafx.runtime.location.SequenceLocation;
  * @author Brian Goetz
  */
 public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
-    private Info<T>[] infos;
+    private Info<T, ? extends T>[] infos;
 
-    class Info<V extends T> extends ChangeListener<V> {
+    private static class Info<T, V extends T> extends WeakMeChangeListener<V> {
         private final SequenceLocation<V> location;
         private int startPosition, size, index;
 
-        public Info(int index, SequenceLocation<V> location) {
+        public Info(BoundCompositeSequence<T> bcs, int index, SequenceLocation<V> location) {
+            super(bcs);
             this.location = location;
             this.index = index;
         }
@@ -61,19 +60,31 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         @Override
         public void onChange(ArraySequence<V> buffer, Sequence<? extends V> oldValue,
                 int startPos, int endPos, Sequence<? extends V> newElements) {
-            int actualStart = startPosition + startPos;
-            int actualEnd = startPosition + endPos;
-            int insertedSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
-            int oldSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
-            int delta = insertedSize - (endPos - startPos);
-            size = oldSize + delta;
-            if (delta != 0) {
-                Info<T>[] tinfos = infos;
-                int ninfos = tinfos.length;
-                for (int i = index + 1; i < ninfos; i++)
-                    tinfos[i].startPosition += delta;
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+
+        @Override
+        public boolean onChangeB(ArraySequence<V> buffer, Sequence<? extends V> oldValue,
+                int startPos, int endPos, Sequence<? extends V> newElements) {
+            BoundCompositeSequence<T> bcs = (BoundCompositeSequence<T>) get();
+            if (bcs != null) {
+                int actualStart = startPosition + startPos;
+                int actualEnd = startPosition + endPos;
+                int insertedSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
+                int oldSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
+                int delta = insertedSize - (endPos - startPos);
+                size = oldSize + delta;
+                if (delta != 0) {
+                    Info<T, ? extends T>[] tinfos = bcs.infos;
+                    int ninfos = tinfos.length;
+                    for (int i = index + 1; i < ninfos; i++)
+                        tinfos[i].startPosition += delta;
+                }
+                bcs.updateSlice(actualStart, actualEnd, (ArraySequence<T>) buffer, startPos, newElements);
+                return true;
+            } else {
+                return false;
             }
-            updateSlice(actualStart, actualEnd, (ArraySequence<T>) buffer, startPos, newElements);
         }
     }
 
@@ -85,7 +96,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         super(lazy, typeInfo);
         this.infos = newInfoArray(size);
         for (int i = 0; i < size; i++)
-            infos[i] = new Info(i, locations[i]);
+            infos[i] = new Info(this, i, locations[i]);
         if (!lazy)
             setInitialValue(computeValue());
         addTriggers();
@@ -138,7 +149,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         int deltaLocations = insertedCount - deletedCount;
         if (deltaLocations != 0) {
             @SuppressWarnings("unchecked")
-            Info<T>[] temp = (Info<T>[]) new Info[infos.length + deltaLocations];
+            Info<T, ? extends T>[] temp = (Info<T, ? extends T>[]) new Info[infos.length + deltaLocations];
             System.arraycopy(infos, 0, temp, 0, startPos);
             System.arraycopy(infos, endPos, temp, startPos + insertedCount, infos.length - endPos);
             infos = temp;
@@ -148,7 +159,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         ObjectArraySequence<T> arr = Sequences.forceNonSharedArraySequence(typeInfo, getRawValue());
         for (int i = 0; i < insertedCount; i++) {
             int index = i + startPos;
-            infos[index] = new Info(index, newValues[i]);
+            infos[index] = new Info(this, index, newValues[i]);
             Sequence<? extends T> seq = newValues[i].getAsSequence();
             infos[index].startPosition = offset;
             int sz = seq.size();

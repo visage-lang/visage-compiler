@@ -26,6 +26,7 @@ package com.sun.javafx.runtime.location;
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.util.Linkables;
 
 /**
  * ObjectVariable
@@ -140,18 +141,39 @@ public class ObjectVariable<T>
     private void notifyListeners(final T oldValue, final T newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
+
+        // Ugly: the logic below was cut-pasted and edited from "iterateChildren"
+        // method of AbstractLocation to avoid creating an instance of iteration
+        // closure class for every iteration.
+
         if (hasChildren(CHILD_KIND_TRIGGER)) {
-            for (LocationDependency cur = children; cur != null; cur = cur.getNext()) {
-                if (cur.getDependencyKind() == CHILD_KIND_TRIGGER) {
-                    ChangeListener<T> listener = (ChangeListener<T>) cur;
-                    try {
-                        listener.onChange(oldValue, newValue);
+            boolean removed = false;
+            int mask = 0;
+            for (LocationDependency cur = children;  cur != null; ) {
+                LocationDependency next = cur.getNext();
+                int curKind = cur.getDependencyKind();
+                handle: {
+                    if (curKind == CHILD_KIND_TRIGGER) {
+                        boolean keep;
+                        try {
+                            keep = ((ChangeListener<T>)cur).onChangeB(oldValue, newValue);
+                        } catch (RuntimeException e) {
+                            ErrorHandler.triggerException(e);
+                            keep = true;
+                        }
+
+                        if (! keep) {
+                            Linkables.remove(cur);
+                            removed = true;
+                            break handle;
+                        }
                     }
-                    catch (RuntimeException e) {
-                        ErrorHandler.triggerException(e);
-                    }
+                    mask |= curKind;
                 }
+                cur = next;
             }
+            if (removed)
+                setChildKindMask((byte) mask);
         }
     }
 }
