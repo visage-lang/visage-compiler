@@ -44,7 +44,7 @@ public class SequenceConstant<T> extends AbstractConstantLocation<Sequence<? ext
 
     protected SequenceConstant(TypeInfo<T, ?> typeInfo, Sequence<? extends T> value) {
         this.typeInfo = typeInfo;
-        this.$value = value;
+        this.$value = (value != null)? value : typeInfo.emptySequence;
     }
 
 

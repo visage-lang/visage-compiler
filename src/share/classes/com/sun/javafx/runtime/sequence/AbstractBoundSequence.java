@@ -23,8 +23,10 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.location.*;
@@ -155,12 +157,25 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
     }
 
     public void addChangeListener(final ChangeListener<Sequence<? extends T>> listener) {
-        addSequenceChangeListener(new ChangeListener<T>() {
-            public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
-                Sequence<? extends T> newValue = buffer != null ? buffer : newElements;
-                listener.onChange(oldValue, newValue);
-            }
-        });
+        addSequenceChangeListener(new WrappedChangeListener<T>(listener));
+    }
+
+    private static class WrappedChangeListener<T> extends ChangeListener<T> {
+        private ChangeListener<Sequence<? extends T>> listener;
+        WrappedChangeListener(ChangeListener<Sequence<? extends T>> listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+
+        @Override
+        public boolean onChangeB(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            Sequence<? extends T> newValue = buffer != null ? buffer : newElements;
+            return listener.onChangeB(oldValue, newValue);
+        }
     }
 
     public void addSequenceChangeListener(ChangeListener<T> listener) {
@@ -178,8 +193,14 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
                                  Sequence<? extends T> newElements,
                                  Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
         if (changeListeners != null) {
-            for (ChangeListener<T> listener : changeListeners)
-                listener.onChange(buffer, oldValue, startPos, endPos, newElements);
+            ListIterator<ChangeListener<T>> listItr = changeListeners.listIterator();
+            while (listItr.hasNext()) {
+                ChangeListener<T> listener = listItr.next();
+                boolean keep = listener.onChangeB(buffer, oldValue, startPos, endPos, newElements);
+                if (! keep) {
+                    listItr.remove();
+                }
+            }
         }
     }
 
@@ -261,11 +282,15 @@ public abstract class AbstractBoundSequence<T> extends AbstractLocation implemen
         throw new UnsupportedOperationException();
     }
 
-    protected class InvalidateMeListener extends InvalidationListener {
-        @Override
-        public boolean onChange() {
-            invalidate();
-            return true;
+    protected static class WeakMeChangeListener<T> extends ChangeListener<T> {
+        private WeakReference<AbstractBoundSequence> weakMe;
+
+        protected WeakMeChangeListener(AbstractBoundSequence me) {
+            this.weakMe = new WeakReference<AbstractBoundSequence>(me);
+        }
+
+        protected AbstractBoundSequence get() {
+            return weakMe.get();
         }
     }
 }

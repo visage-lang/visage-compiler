@@ -27,7 +27,7 @@ package com.sun.javafx.runtime.location;
  *
  * @author Brian Goetz
  */
-class CountingListener extends InvalidationListener {
+class CountingListener extends AbstractInvalidationListener {
     public int count;
 
     public boolean onChange() {

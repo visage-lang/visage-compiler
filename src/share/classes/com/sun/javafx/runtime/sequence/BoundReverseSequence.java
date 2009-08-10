@@ -24,7 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.ChangeListener;
+import com.sun.javafx.runtime.location.InvalidateMeListener;
 
 /**
  * BoundReverseSequence
@@ -49,18 +49,36 @@ class BoundReverseSequence<T> extends AbstractBoundSequence<T> implements Sequen
 
     private void addTriggers() {
         if (lazy)
-            location.addInvalidationListener(new InvalidateMeListener());
+            location.addInvalidationListener(new InvalidateMeListener(this));
         else
-            location.addSequenceChangeListener(new ChangeListener<T>() {
-                public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
-                    newElements = Sequences.getNewElements(buffer, startPos, newElements);
-                    int sliceSize = endPos - startPos;
-                    int oldSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
-                    int actualStart = oldSize - startPos - sliceSize;
-                    int actualEnd = actualStart + sliceSize;
-                    Sequence<? extends T> reverseElements = Sequences.reverse(newElements);
-                    updateSlice(actualStart, actualEnd, reverseElements);
-                }
-            });
+            location.addSequenceChangeListener(new UnderlyingSequenceChangeListener<T>(this));
+    }
+
+    private static class UnderlyingSequenceChangeListener<T> extends WeakMeChangeListener<T> {
+        UnderlyingSequenceChangeListener(BoundReverseSequence<T> brs) {
+            super(brs);
+        }
+
+        @Override
+        public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+
+        @Override
+        public boolean onChangeB(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            BoundReverseSequence<T> brs = (BoundReverseSequence<T>) get();
+            if (brs != null) {
+                newElements = Sequences.getNewElements(buffer, startPos, newElements);
+                int sliceSize = endPos - startPos;
+                int oldSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
+                int actualStart = oldSize - startPos - sliceSize;
+                int actualEnd = actualStart + sliceSize;
+                Sequence<? extends T> reverseElements = Sequences.reverse(newElements);
+                brs.updateSlice(actualStart, actualEnd, reverseElements);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

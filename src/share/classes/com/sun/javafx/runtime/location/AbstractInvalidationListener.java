@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,17 +24,14 @@
 package com.sun.javafx.runtime.location;
 
 /**
- * InvalidationListeners are notified when a Location's value may have changed.
+ * Abstract invalidation listener that correctly implements getDependencyKind.
  *
- * @see Location
- * @author Brian Goetz
+ * @author A. Sundararajan
  */
-public interface InvalidationListener extends LocationDependency {
-    /** Notifies the listener that the contents of the location may have changed.
-     *
-     * @return a boolean value indicating whether this listener is still valid.  Returning false will cause the
-     * listener to be removed from the listener list.  For listeners that do their own weak reference management,
-     * they should return false when the relevant weak references have been reported as cleared.
-     */
-    public abstract boolean onChange();
+public abstract class AbstractInvalidationListener extends AbstractLocationDependency
+        implements InvalidationListener {
+    @Override
+    public int getDependencyKind() {
+        return AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER;
+    }
 }

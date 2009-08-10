@@ -1,7 +1,7 @@
 /*
  * Timeline_TS020_01.fx
  * @test
- * @run
+ * was: 'at' run
  */
 
 /**

@@ -36,9 +36,9 @@ import com.sun.javafx.runtime.util.Linkables;
  * @author Brian Goetz
  */
 public class StaticDependentLocation extends WeakReference<Location> implements WeakLocation {
-    /*[*/ static ReferenceQueue<Location> refQ = new ReferenceQueue<Location>(); /*]*/
-    LocationDependency next;
-    Linkable<LocationDependency> prev;
+    /*[*/ private static ReferenceQueue<Location> refQ = new ReferenceQueue<Location>(); /*]*/
+    private LocationDependency next;
+    private Linkable<LocationDependency> prev;
 
     StaticDependentLocation(Location referent) {
         super(referent /*[*/ , refQ /*]*/ );
