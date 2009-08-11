@@ -1750,7 +1750,7 @@ public class JavafxCheck {
 	    MethodSymbol undef = null;
 	    // Do not bother to search in classes that are not abstract,
 	    // since they cannot have abstract members.
-	    if (c == impl || (c.flags() & (ABSTRACT | INTERFACE)) != 0) {
+	    if (c == impl || (c.flags() & (ABSTRACT | INTERFACE | MIXIN)) != 0) {
 		Scope s = c.members();
 		for (Scope.Entry e = s.elems;
 		     undef == null && e != null;
