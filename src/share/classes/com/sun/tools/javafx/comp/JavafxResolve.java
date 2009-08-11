@@ -536,7 +536,7 @@ public class JavafxResolve {
      *  @param env     The current environment.
      *  @param name    The name of the variable or field.
      */
-    Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
+    Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected, boolean boxingEnabled, boolean varargsEnabled) {
         Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : varNotFound;
         Symbol sym;
         JavafxEnv<JavafxAttrContext> env1 = env;
@@ -566,12 +566,7 @@ public class JavafxResolve {
                 //first try resolution without boxing
                 sym = findMember(env1, envClass, name,
                         expected,
-                        false, false, false);
-                //if not resolved yet, retry with boxing enabled
-                if (sym.kind >= WRONG_MTHS)
-                    sym = findMember(env1, envClass, name,
-                            expected,
-                            true, false, false);
+                        boxingEnabled, varargsEnabled, false);
 
                 if (sym.exists()) {
                     if (staticOnly) {
@@ -623,8 +618,8 @@ public class JavafxResolve {
                 else //method
                     return selectBest(env, origin, mtype,
                                            e.sym, bestSoFar,
-                                           true,
-                                           false,
+                                           boxingEnabled,
+                                           varargsEnabled,
                                            false);
             }
         }
@@ -646,8 +641,8 @@ public class JavafxResolve {
                 else //method
                     bestSoFar = selectBest(env, origin.type, mtype,
                                            e.sym, bestSoFar,
-                                           true,
-                                           false,
+                                           boxingEnabled,
+                                           varargsEnabled,
                                            false);
             }
         }
@@ -1224,8 +1219,10 @@ public class JavafxResolve {
     Symbol findIdent(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
         Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : typeNotFound;
         Symbol sym;
-        if ((kind & (VAR|MTH)) != 0) {
-            sym = findVar(env, name, kind, expected);
+         if ((kind & (VAR|MTH)) != 0) {
+            sym = findVar(env, name, kind, expected, false, false);
+            if (sym.kind >= WRONG_MTHS)
+                sym = findVar(env, name, kind, expected, true, false);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }
