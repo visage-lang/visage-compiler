@@ -720,6 +720,8 @@ public class JavafxAttr implements JavafxVisitor {
 
         env.info.selectSuper = selectSuperPrev;
         result = checkId(tree, site, sym, env, pkind, pt, pSequenceness, varArgs);
+        if (tree.sym.kind == MTH && result instanceof FunctionType)
+            tree.sym = new MethodSymbol(sym.flags_field, sym.name, ((FunctionType)result).mtype, sym.owner);
         env.info.tvars = List.nil();
     }
     //where
@@ -3361,7 +3363,7 @@ public class JavafxAttr implements JavafxVisitor {
                 }
                 break;
             case MTH: {
-                owntype = sym.type;
+                owntype = types.memberType(types.erasure(site), sym);
                 // This is probably wrong now that we have function expressions.
                 // Instead, we should checkMethod in visitFunctionInvocation.
                 // In that case we should also handle FunctionType. FIXME.
