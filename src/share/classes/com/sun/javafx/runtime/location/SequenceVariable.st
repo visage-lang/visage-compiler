@@ -123,6 +123,13 @@ public class SequenceVariable<T>
         };
     }
 
+    public SequenceLocation<T> bijectiveBind(SequenceVariable<T> other) {
+        ensureBindable();
+        resetState(STATE_BIDI_BOUND);
+        Bindings.bijectiveBind(this, other);
+        return this;
+    }
+
     public void addSequenceChangeListener(ChangeListener listener) {
         addChild(listener);
     }
