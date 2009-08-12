@@ -2190,7 +2190,7 @@ public class JavafxAttr implements JavafxVisitor {
             } else if (tree.expr == null) {
                 if (enclBlock.type == syms.javafx_UnspecifiedType)
                     enclBlock.type = syms.javafx_VoidType;
-                else
+                else if (enclBlock.type != syms.javafx_VoidType)
                     log.error(tree.pos(), MsgSym.MESSAGE_MISSING_RET_VAL);
             } else {
                 if (enclBlock.type.tag == VOID) {
