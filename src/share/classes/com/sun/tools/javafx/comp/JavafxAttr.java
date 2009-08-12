@@ -1852,6 +1852,13 @@ public class JavafxAttr implements JavafxVisitor {
                         log.error(body.value.pos(),
                                 MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
                     }
+                    /*
+                     * We are going to rewrite blocks value as an expression instead
+                     * of original return statement. So, we better save the original
+                     * return statement so that we can present it to external tree
+                     * walkers, if needed.
+                     */
+                    body.returnStatement = (JFXReturn) body.value;
                     body.value = ((JFXReturn) body.value).expr;
                 }
                 // Attribute method bodyExpression
