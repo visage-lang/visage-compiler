@@ -338,6 +338,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_UNSUPPORTED_TARGET_IN_BIND = "javafx.unsupported.target.in.bind";
     public static final String MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_TRIGGER = "javafx.unsupported.type.in.trigger";
     public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
+    public static final String MESSAGE_JAVAFX_BOUND_VAR_IN_BIDI_BIND = "javafx.bound.var.in.bidi.bind";
     public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND = "javafx.select.target.not.reevaluated.for.bidi.bind";
     public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_ANIM = "javafx.select.target.not.reevaluated.for.anim";
     public static final String MESSAGE_JAVAFX_BOUND_OVERRIDE_METH = "javafx.bound.override.meth";

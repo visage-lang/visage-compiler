@@ -987,6 +987,9 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE, (flags & JavafxFlags.IS_DEF) == 0 ? "var" : "def", tree.getName());
             return;
         }
+        if (this.inBindContext || tree.isBound())
+            sym.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+
         sym.complete();
         
         boolean isClassVar = env.info.scope.owner.kind == TYP;
@@ -994,7 +997,7 @@ public class JavafxAttr implements JavafxVisitor {
             // Check that instance variables don't override
             chk.checkVarOverride(tree, (VarSymbol)sym);
         }
-        
+
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
             if (inBindContext) {

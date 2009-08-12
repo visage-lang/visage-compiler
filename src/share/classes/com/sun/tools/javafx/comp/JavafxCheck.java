@@ -756,7 +756,11 @@ public class JavafxCheck {
                 }
             }
             if (initSym instanceof VarSymbol) {
-                if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
+                if ((initSym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0) {
+                    log.error(init.pos(),
+                              MsgSym.MESSAGE_JAVAFX_BOUND_VAR_IN_BIDI_BIND);
+                }
+                else if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
                     log.error(init.pos(), 
                               MsgSym.MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND,
                               types.toJavaFXString(initSym.type),
