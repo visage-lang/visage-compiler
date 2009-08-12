@@ -74,6 +74,7 @@ public class JavafxCheck {
     private final JavafxDefs defs;
     private final Name.Table names;
     private final Log log;
+    private final JCDiagnostic.Factory diags;
     private final Messages messages;
     private final JavafxSymtab syms;
     private final Infer infer;
@@ -117,6 +118,7 @@ public class JavafxCheck {
         defs = JavafxDefs.instance(context);
         names = Name.Table.instance(context);
         log = Log.instance(context);
+        diags = JCDiagnostic.Factory.instance(context);
         messages = Messages.instance(context);
         syms = (JavafxSymtab) Symtab.instance(context);
         infer = Infer.instance(context);
@@ -224,6 +226,19 @@ public class JavafxCheck {
         String requiredAsJavaFXType = types.toJavaFXString(req);
 	log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsJavaFXType, requiredAsJavaFXType);
 	return syms.errType;
+    }
+
+    Type typeError(DiagnosticPosition pos, Object problem, Object found, Object req) {
+        Object requiredAsJavaFXType = req;
+        if (req instanceof Type) {
+            requiredAsJavaFXType = types.toJavaFXString((Type) requiredAsJavaFXType);
+        }
+        Object foundAsJavaFXType = found;
+        if (foundAsJavaFXType instanceof Type) {
+            foundAsJavaFXType = types.toJavaFXString((Type) foundAsJavaFXType);
+        }
+        log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsJavaFXType, requiredAsJavaFXType);
+        return syms.errType;
     }
 
     Type typeError(DiagnosticPosition pos, String problem, Type found, Type req, Object explanation) {
@@ -710,7 +725,12 @@ public class JavafxCheck {
     }
 
     void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env, Type pt) {
-        if (bindStatus.isBidiBind()) {
+        if (init.type != null && types.isArray(init.type) && bindStatus.isBound()) {
+                JCDiagnostic err = diags.fragment(MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TARGET_IN_BIND);
+                typeError(init, err, init.type, messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
+                        MsgSym.MESSAGE_JAVAFX_OBJ_OR_SEQ));
+        }
+        else if (bindStatus.isBidiBind()) {
             Symbol initSym = null;
             JFXTree base = null;
             Type site = null;

@@ -83,6 +83,7 @@ public class JavafxAttr implements JavafxVisitor {
     private final JavafxResolve rs;
     private final JavafxSymtab syms;
     private final JavafxCheck chk;
+    private final Messages messages;
     private final JavafxMemberEnter memberEnter;
     private final JCDiagnostic.Factory diags;
     private final JavafxTreeMaker fxmake;
@@ -117,6 +118,7 @@ public class JavafxAttr implements JavafxVisitor {
         names = Name.Table.instance(context);
         log = Log.instance(context);
         diags = JCDiagnostic.Factory.instance(context);
+        messages = Messages.instance(context);
         rs = JavafxResolve.instance(context);
         chk = JavafxCheck.instance(context);
         memberEnter = JavafxMemberEnter.instance(context);
@@ -957,6 +959,14 @@ public class JavafxAttr implements JavafxVisitor {
             if (declType == syms.javafx_UnspecifiedType && v.type == null)
                 result = tree.type = v.type = types.upperBound(initType);
             //chk.validateAnnotations(tree.mods.annotations, v);
+            if (types.isArray(v.type) &&
+                    (tree.isBound() ||
+                    tree.getOnReplaceTree() != null)) {
+                String key = tree.isBound() ? "bind" : "trigger";
+                JCDiagnostic err = diags.fragment("javafx.unsupported.type.in." + key);
+                chk.typeError(tree, err, v.type, messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
+                        MsgSym.MESSAGE_JAVAFX_OBJ_OR_SEQ));
+            }
         }
         finally {
             chk.setLint(prevLint);

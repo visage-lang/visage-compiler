@@ -320,6 +320,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_INDEXOF_NOT_FOUND = "javafx.indexof.not.found";
     public static final String MESSAGE_JAVAFX_KEYFRAME_LIT = "javafx.keyframe.literal";
     public static final String MESSAGE_JAVAFX_SEQ_OR_ARRAY = "javafx.seq.or.array";
+    public static final String MESSAGE_JAVAFX_OBJ_OR_SEQ = "javafx.obj.or.seq";
     public static final String MESSAGE_JAVAFX_LOOSE_IN_LIB = "javafx.loose.expr.in.lib";
     public static final String MESSAGE_JAVAFX_LOOSE_IN_RUN = "javafx.loose.expr.in.run";
     public static final String MESSAGE_JAVAFX_CANNOT_INFER_RETURN_TYPE = "javafx.cannot.infer.return.type"; 
@@ -333,6 +334,9 @@ public class MsgSym {
     public static final String MESSAGE_NEW_FX_CLASS_NO_ARGS = "new.fxclass.no.args";
     public static final String MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT = "javafx.not.allowed.in.bind.context";
     public static final String MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND = "javafx.expr.unsupported.for.bidi.bind";
+    public static final String MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_BIND = "javafx.unsupported.type.in.bind";
+    public static final String MESSAGE_JAVAFX_UNSUPPORTED_TARGET_IN_BIND = "javafx.unsupported.target.in.bind";
+    public static final String MESSAGE_JAVAFX_UNSUPPORTED_TYPE_IN_TRIGGER = "javafx.unsupported.type.in.trigger";
     public static final String MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND = "javafx.wrong.type.for.bidi.bind";
     public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_BIDI_BIND = "javafx.select.target.not.reevaluated.for.bidi.bind";
     public static final String MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_ANIM = "javafx.select.target.not.reevaluated.for.anim";
