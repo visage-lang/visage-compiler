@@ -24,7 +24,6 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
@@ -36,57 +35,30 @@ import com.sun.javafx.runtime.location.SequenceLocation;
  * @author Brian Goetz
  */
 public class BoundSequenceBuilder<T> {
-    private static final int DEFAULT_SIZE = 8;
-
-    private final TypeInfo<T, ?> typeInfo;
-    private final boolean lazy;
-    private SequenceLocation<? extends T>[] array;
-    private int size;
+    private BoundCompositeSequence<T> result;
 
     public BoundSequenceBuilder(boolean lazy, TypeInfo<T, ?> typeInfo) {
-        this(lazy, DEFAULT_SIZE, typeInfo);
+        result = new BoundCompositeSequence<T>(lazy, typeInfo);
     }
 
     public BoundSequenceBuilder(boolean lazy, int initialSize, TypeInfo<T, ?> typeInfo) {
-        this.typeInfo = typeInfo;
-        this.lazy = lazy;
-        array = Util.newSequenceLocationArray(Util.powerOfTwo(1, initialSize));
-    }
-
-    private void ensureSize(int newSize) {
-        if (array.length < newSize) {
-            int newCapacity = Util.powerOfTwo(array.length, newSize);
-            SequenceLocation<? extends T>[] newArray = Util.newSequenceLocationArray(newCapacity);
-            System.arraycopy(array, 0, newArray, 0, size);
-            array = newArray;
-        }
-    }
-
-    /** Get the current size of the sequence being constructed */
-    public int size() {
-        return size;
+        result = new BoundCompositeSequence<T>(lazy, initialSize, typeInfo);
     }
 
     /** Add an existing SequenceLocation, which will be flattened */
     public void add(SequenceLocation<? extends T> seq) {
-        ensureSize(size + 1);
-        array[size++] = seq;
+        result.add(seq);
     }
 
     /** Add an instance location to the sequence */
     public void add(ObjectLocation<? extends T> singleton) {
-        add(BoundSequences.singleton(lazy, typeInfo, singleton));
-    }
-
-    /** Erase the current contents */
-    public void clear() {
-        array = Util.newObjectArray(Util.powerOfTwo(1, DEFAULT_SIZE));
-        size = 0;
+        result.add(singleton);
     }
 
     /** Convert to a SequenceLocation.  The elements will be copied to a new sequence, and will remain
      * in the builder */
     public SequenceLocation<T> toSequence() {
-        return BoundSequences.concatenate(lazy, typeInfo, array, size);
+        result.toSequence();
+        return result;
     }
 }
