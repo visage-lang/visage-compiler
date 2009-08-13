@@ -1613,10 +1613,9 @@ public class JavafxCheck {
 	    Type st1 = null;
 	    if (s1.kind != MTH || s1.name == defs.internalRunFunctionName ||
                     !s1.isInheritedIn(site.tsym, types)) continue;
-            Symbol impl = types.implementation((MethodSymbol)s1, site.tsym, false);
-            if (impl != null && (impl.flags() & ABSTRACT) == 0) continue;
 	    for (Scope.Entry e2 = t2.tsym.members().lookup(s1.name); e2.scope != null; e2 = e2.next()) {
 		Symbol s2 = e2.sym;
+                s2.complete();
 		if (s1 == s2) continue;
 		if (s2.kind != MTH || !s2.isInheritedIn(site.tsym, types)) continue;
 		if (st1 == null) st1 = types.memberType(t1, s1);
