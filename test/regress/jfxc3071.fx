@@ -1,0 +1,15 @@
+/**
+ * Regress test for JFXC-3071: mixins: found FloatVariable required IntVariable
+ *
+ * @test
+ */
+
+class A {
+    public var a:Integer;
+}
+
+mixin class B {
+    public var a:Integer;
+}
+
+class C extends A, B{}

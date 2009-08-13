@@ -1551,9 +1551,15 @@ public class JavafxCheck {
             Type site) {
         Symbol sym = firstIncompatibility(t1, t2, site);
         if (sym != null) {
-            log.error(pos, MsgSym.MESSAGE_TYPES_INCOMPATIBLE_DIFF_RET,
-                    t1, t2, sym.name +
-                    "(" + types.memberType(t2, sym).getParameterTypes() + ")");
+            if (sym.kind == VAR) {
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_TYPES_INCOMPATIBLE_VARS,
+                    t1, t2, sym.name);
+            }
+            else {
+                log.error(pos, MsgSym.MESSAGE_TYPES_INCOMPATIBLE_DIFF_RET,
+                        t1, t2, sym.name +
+                        "(" + types.memberType(t2, sym).getParameterTypes() + ")");
+            }
             return false;
         }
         return true;
@@ -1608,6 +1614,16 @@ public class JavafxCheck {
 
     /** Return the first method in t2 that conflicts with a method from t1. */
     private Symbol firstDirectIncompatibility(Type t1, Type t2, Type site) {
+        Symbol s = firstDirectMethodIncompatibility(t1, t2, site);
+        if (s != null) {
+            return s;
+        }
+        else {
+            return firstDirectVarIncompatibility(t1, t2, site);
+        }
+    }
+
+    private Symbol firstDirectMethodIncompatibility(Type t1, Type t2, Type site) {
 	for (Scope.Entry e1 = t1.tsym.members().elems; e1 != null; e1 = e1.sibling) {
 	    Symbol s1 = e1.sym;
 	    Type st1 = null;
@@ -1635,6 +1651,24 @@ public class JavafxCheck {
 	    }
 	}
 	return null;
+    }
+
+    private Symbol firstDirectVarIncompatibility(Type t1, Type t2, Type site) {
+        for (Scope.Entry e1 = t1.tsym.members().elems; e1 != null; e1 = e1.sibling) {
+            Symbol s1 = e1.sym;
+            Type st1 = null;
+            if (s1.kind != VAR ||
+                    !s1.isInheritedIn(site.tsym, types)) continue;
+            for (Scope.Entry e2 = t2.tsym.members().lookup(s1.name); e2.scope != null; e2 = e2.next()) {
+                Symbol s2 = e2.sym;
+                if (s1 == s2) continue;
+                if (s2.kind != VAR || !s2.isInheritedIn(site.tsym, types)) continue;
+                if (!types.isSameType(s1.type, s2.type)) {
+                    return s2;
+                }
+            }
+        }
+        return null;
     }
 
     /** Check that a given method conforms with any method it overrides.
