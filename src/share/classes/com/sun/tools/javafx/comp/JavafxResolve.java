@@ -507,12 +507,22 @@ public class JavafxResolve {
              l = l.tail) {
             sym = findField(env, site, name, l.head.tsym);
             if (bestSoFar.kind < AMBIGUOUS && sym.kind < AMBIGUOUS &&
-                sym.owner != bestSoFar.owner)
+                sym.owner != bestSoFar.owner && !mixableIn(bestSoFar, sym, site))
                 bestSoFar = new AmbiguityError(bestSoFar, sym);
             else if (sym.kind < bestSoFar.kind)
                 bestSoFar = sym;
         }
         return bestSoFar;
+    }
+    //where
+    boolean mixableIn(Symbol s1, Symbol s2, Type site) {
+        if (!types.isMixin(s1.owner) &&
+                !types.isMixin(s2.owner))
+            return false;
+        List<Type> supertypes = types.interfaces(site).prepend(types.supertype(site)).prepend(site);
+        int i1 = supertypes.indexOf(s1.owner.type);
+        int i2 = supertypes.indexOf(s2.owner.type);
+        return i1 <= i2 && i1 != -1 && i2 != -1;
     }
 
     /** Resolve a field identifier, throw a fatal error if not found.
@@ -796,7 +806,7 @@ public class JavafxResolve {
                 if (m2Abstract && !m1Abstract) return m1;
                 // both abstract or both concrete
                 if (!m1Abstract && !m2Abstract)
-                    return new AmbiguityError(m1, m2);
+                    return !mixableIn(m2, m1, site) ? new AmbiguityError(m1, m2) : m2;
                 // check for same erasure
                 if (!types.isSameType(m1.erasure(types), m2.erasure(types)))
                     return new AmbiguityError(m1, m2);
@@ -940,7 +950,7 @@ public class JavafxResolve {
                     // No argument list to disambiguate.
                     if (bestSoFar.kind == ABSENT_VAR || bestSoFar.kind == ABSENT_MTH)
                         bestSoFar = e.sym;
-                    else if (e.sym != bestSoFar)
+                    else if (e.sym != bestSoFar && !mixableIn(bestSoFar, e.sym, site))
                         bestSoFar = new AmbiguityError(bestSoFar, e.sym);
                 }
                 else if (e.sym.kind == MTH) {                    
