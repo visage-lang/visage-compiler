@@ -23,14 +23,14 @@
 
 package com.sun.tools.javafx.code;
 
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.code.Type.ErrorType;
-import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.Types;
+import com.sun.tools.mjavac.code.Type.ErrorType;
+import com.sun.tools.mjavac.code.Type.ClassType;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Marker wrapper on class: this is a JavaFX class

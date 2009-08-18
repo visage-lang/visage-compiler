@@ -383,7 +383,7 @@ public final class Sequences extends SequenceConversions {
         if (seq.isEmpty())
             return -1;
         final int length = seq.size();
-        T[] array = Util.newComparableArray(length);
+        T[] array = Util.<T>newComparableArray(length);
         seq.toArray(0, length, array, 0);
         return Arrays.binarySearch(array, key);
     }
@@ -664,7 +664,7 @@ public final class Sequences extends SequenceConversions {
         if (seq.isEmpty())
             return seq.getEmptySequence();
         final int length = seq.size();
-        T[] array = Util.newComparableArray(length);
+        T[] array = Util.<T>newComparableArray(length);
         seq.toArray(0, length, array, 0);
         Arrays.sort(array);
         return Sequences.<T>make(seq.getElementType(), array);

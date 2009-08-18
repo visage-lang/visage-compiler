@@ -24,15 +24,15 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.source.tree.TreeVisitor;
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCStatement;
-import com.sun.tools.javac.tree.Pretty;
-import com.sun.tools.javac.tree.TreeScanner;
-import com.sun.tools.javac.tree.TreeTranslator;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree.JCExpression;
+import com.sun.tools.mjavac.tree.JCTree.JCStatement;
+import com.sun.tools.mjavac.tree.Pretty;
+import com.sun.tools.mjavac.tree.TreeScanner;
+import com.sun.tools.mjavac.tree.TreeTranslator;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.comp.BlockExprAttr;
 import com.sun.tools.javafx.comp.BlockExprEnter;
 import com.sun.tools.javafx.comp.BlockExprMemberEnter;

@@ -477,7 +477,6 @@
             <classpath>
                 <path path="${javac.classpath}"/>
             </classpath>
-            <compilerarg value="-J-Xbootclasspath/p:${basedir}${file.separator}lib${file.separator}javac.jar"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <copy todir="${build.classes.dir}">

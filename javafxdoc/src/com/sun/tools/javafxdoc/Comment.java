@@ -25,7 +25,7 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.mjavac.util.ListBuffer;
 
 /**
  * Comment contains all information in comment part.

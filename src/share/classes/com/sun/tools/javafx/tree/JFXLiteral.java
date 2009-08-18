@@ -26,8 +26,8 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.TypeTags;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.TypeTags;
 
 /**
  * A constant value given literally.

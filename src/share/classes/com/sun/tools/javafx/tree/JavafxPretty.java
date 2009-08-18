@@ -31,17 +31,17 @@ import java.util.Map;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.javafx.api.tree.InterpolateValueTree;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.util.Convert;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.TypeTags;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.util.Convert;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
 import java.util.Iterator;
 
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 /** Prints out a tree as an indented Java source program.
  *

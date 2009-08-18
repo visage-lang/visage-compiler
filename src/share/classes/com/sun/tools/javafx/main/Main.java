@@ -34,12 +34,12 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
-import com.sun.tools.javac.code.Source;
-import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.jvm.Target;
-import com.sun.tools.javac.jvm.ClassReader;
+import com.sun.tools.mjavac.code.Source;
+import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.jvm.Target;
+import com.sun.tools.mjavac.jvm.ClassReader;
 import com.sun.tools.javafx.main.JavafxOption.Option;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.util.*;
 import com.sun.tools.javafx.main.RecognizedOptions.OptionHelper;
 import com.sun.tools.javafx.util.JavafxFileManager;
 import com.sun.tools.javafx.util.PlatformPlugin;
@@ -62,7 +62,7 @@ public class Main {
         ClassLoader loader = Main.class.getClassLoader();
         if (loader != null) {
             loader.setPackageAssertionStatus("com.sun.tools.javafx", true);
-            loader.setPackageAssertionStatus("com.sun.tools.javac", true);
+            loader.setPackageAssertionStatus("com.sun.tools.mjavac", true);
         }
     }
 
@@ -737,7 +737,7 @@ public class Main {
     }
 
     private static final String javacBundleName =
-        "com.sun.tools.javac.resources.javac";
+        "com.sun.tools.mjavac.resources.javac";
 
     private static final String javafxBundleName =
         "com.sun.tools.javafx.resources.javafxcompiler";

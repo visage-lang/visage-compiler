@@ -24,7 +24,7 @@
 package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.SourcePosition;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.util.Position;
 
 import java.io.File;
 

@@ -24,9 +24,9 @@
 package com.sun.tools.javafx.tree;
 
 
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.tree.JCTree.JCIdent;
 import com.sun.tools.javafx.comp.BlockExprAttr;
 
 public class AugmentedJCIdent extends JCIdent {

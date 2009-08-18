@@ -24,9 +24,9 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.runtime.Entry;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;

@@ -23,9 +23,9 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Creates a copy of a tree, using a given TreeMaker.

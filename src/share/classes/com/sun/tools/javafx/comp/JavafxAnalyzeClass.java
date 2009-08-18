@@ -23,20 +23,20 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Scope.Entry;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCStatement;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.mjavac.code.Scope.Entry;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.tree.JCTree.JCExpression;
+import com.sun.tools.mjavac.tree.JCTree.JCStatement;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
@@ -45,7 +45,7 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
 import com.sun.tools.javafx.tree.*;
 
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 import java.util.HashMap;
 import java.util.HashSet;

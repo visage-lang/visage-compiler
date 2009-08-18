@@ -25,10 +25,10 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.Tree;
 import java.util.Map;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.tree.JCTree;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 

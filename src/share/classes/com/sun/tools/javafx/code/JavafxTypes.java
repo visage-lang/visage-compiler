@@ -22,15 +22,15 @@
  */
 
 package com.sun.tools.javafx.code;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.Type.*;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.code.Type.*;
 import java.util.HashMap;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.code.Symbol.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.TypeTags.*;
+import com.sun.tools.mjavac.code.Symbol.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
 import java.util.HashSet;
 import java.util.Set;
 /**

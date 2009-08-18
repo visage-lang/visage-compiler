@@ -26,7 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Flags;
+import com.sun.tools.mjavac.code.Flags;
 import javax.lang.model.element.Modifier;
 import java.util.Set;
 

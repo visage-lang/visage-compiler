@@ -33,10 +33,10 @@ import java.util.Set;
 import javax.lang.model.SourceVersion;
 import javax.tools.*;
 
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JavacFileManager;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JavacFileManager;
+import com.sun.tools.mjavac.util.Log;
+import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.javafx.main.JavafxOption;
 import com.sun.tools.javafx.main.Main;
 import com.sun.tools.javafx.main.RecognizedOptions.GrumpyHelper;

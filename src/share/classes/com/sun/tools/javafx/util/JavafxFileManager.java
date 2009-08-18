@@ -23,11 +23,11 @@
 
 package com.sun.tools.javafx.util;
 
-import com.sun.tools.javac.util.BaseFileObject;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JavacFileManager;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.mjavac.util.BaseFileObject;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JavacFileManager;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

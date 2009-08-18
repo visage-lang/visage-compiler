@@ -23,8 +23,8 @@
 
 package com.sun.tools.javafx.code;
 
-import com.sun.tools.javac.code.Lint;
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.code.Lint;
+import com.sun.tools.mjavac.util.Context;
 
 /**
  * JavaFX Script version of javac's Lint service.

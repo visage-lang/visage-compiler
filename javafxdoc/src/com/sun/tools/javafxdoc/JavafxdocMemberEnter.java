@@ -23,11 +23,11 @@
 
 package com.sun.tools.javafxdoc;
 
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Position;
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Position;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxMemberEnter;
 

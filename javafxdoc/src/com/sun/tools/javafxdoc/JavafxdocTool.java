@@ -27,11 +27,11 @@ import java.io.*;
 
 import java.util.Collection;
 
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.parser.DocCommentScanner;
-import com.sun.tools.javac.util.Paths;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.parser.DocCommentScanner;
+import com.sun.tools.mjavac.util.Paths;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.util.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.util.JavafxFileManager;

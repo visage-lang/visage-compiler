@@ -34,16 +34,16 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.JavaFileObject;
 
-import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.TypeSymbol;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Pair;
+import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.PackageSymbol;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Log;
+import com.sun.tools.mjavac.util.Pair;
 import com.sun.tools.javafx.comp.JavafxAttr;
 import com.sun.tools.javafx.comp.JavafxAttrContext;
 import com.sun.tools.javafx.comp.JavafxEnter;
@@ -201,9 +201,9 @@ public class JavafxcTrees {
     public boolean isAccessible(Scope scope, Element member, DeclaredType type) {
         if (scope instanceof JavafxcScope
                 && member instanceof Symbol
-                && type instanceof com.sun.tools.javac.code.Type) {
+                && type instanceof com.sun.tools.mjavac.code.Type) {
             JavafxEnv<JavafxAttrContext> env = ((JavafxcScope) scope).env;
-            return resolve.isAccessible(env, (com.sun.tools.javac.code.Type)type, (Symbol)member);
+            return resolve.isAccessible(env, (com.sun.tools.mjavac.code.Type)type, (Symbol)member);
         } else
             return false;
     }

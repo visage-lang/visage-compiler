@@ -25,13 +25,13 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 
 import com.sun.tools.javafx.tree.JFXTree;
 
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.util.Position;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import java.lang.reflect.Modifier;

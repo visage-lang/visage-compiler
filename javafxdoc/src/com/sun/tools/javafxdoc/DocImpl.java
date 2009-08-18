@@ -28,7 +28,7 @@ import com.sun.javadoc.*;
 import java.io.InputStream;
 import java.io.IOException;
 import java.text.CollationKey;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.util.Position;
 
 /**
  * abstract base class of all Doc classes.  Doc item's are representations

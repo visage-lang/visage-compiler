@@ -66,9 +66,9 @@ options {
 
 package com.sun.tools.javafx.antlr;
 
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Convert;
-import com.sun.tools.javac.util.Log;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Convert;
+import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.javafx.util.MsgSym;
 
 }
