@@ -610,6 +610,18 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                     types.getFxClass((ClassSymbol) sym.owner) == null ||
                     treeVMI.representation().possiblyLocation())) {
                 // this is a dynamic reference to an attribute
+
+                // If this is of the form OuterClass.memberName or MixinClass.memberName
+                // then treat it like identifier with appropriate symbol and type.
+                Symbol selectorSym = expressionSymbol(selector);
+                if (selectorSym != null && selectorSym.kind == Kinds.TYP) {
+                    JFXIdent ident = fxmake.at(tree.pos()).Ident(tree.getIdentifier());
+                    ident.sym = tree.sym;
+                    ident.type = tree.type;
+                    visitIdent(ident);
+                    return;
+                }
+
                 final JCExpression transSelector = translate(selector);
                 // Punt to the old implementation if:
                 // - this is a lazy bind              //TODO: optimize this too

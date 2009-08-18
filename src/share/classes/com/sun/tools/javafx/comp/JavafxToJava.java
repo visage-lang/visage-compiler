@@ -2427,6 +2427,12 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
                         @Override
                         JCExpression fullExpression( JCExpression mungedToCheckTranslated) {
+                            Symbol selectorSym = expressionSymbol(select.getExpression());
+                            // If LHS is OuterClass.memberName or MixinClass.memberName, then
+                            // we want to create expression to get the proper receiver.
+                            if (!sym.isStatic() && selectorSym != null && selectorSym.kind == Kinds.TYP) {
+                                mungedToCheckTranslated = makeReceiver(diagPos, sym);
+                            }
                             if (useSetters) {
                                 return postProcess(buildSetter(mungedToCheckTranslated, buildRHS(rhsTranslatedPreserved)));
                             } else {
@@ -2583,6 +2589,12 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         @Override
         protected JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
+            Symbol selectorSym = (toCheck != null)? expressionSymbol(toCheck) : null;
+            // If this is OuterClass.memberName or MixinClass.memberName, then
+            // we want to create expression to get the proper receiver.
+            if (!staticReference && selectorSym != null && selectorSym.kind == Kinds.TYP) {
+                mungedToCheckTranslated = makeReceiver(diagPos, sym);
+            }
             if (isFunctionReference) {
                 MethodType mtype = (MethodType) sym.type;
                 JCExpression tc = staticReference?
@@ -3744,6 +3756,16 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                             //TODO: clean this up -- handles referencing a static function via an instance
                             trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
                         } else {
+                            if (selector != null && msym != null && !msym.isStatic()) {
+                                Symbol selectorSym = expressionSymbol(selector);
+                                // If this is OuterClass.memberName() then we want to
+                                // to create expression to get the proper receiver.
+                                if (selectorSym != null && selectorSym.kind == Kinds.TYP) {
+                                    trans = makeReceiver(diagPos, msym);
+                                    return trans;
+                                }
+                            }
+
                             trans = translateAsUnconvertedValue(expr);
                             if (expr.type.isPrimitive()) {
                                 // Java doesn't allow calls directly on a primitive, wrap it
@@ -4194,6 +4216,15 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             public void visitIdent(JFXIdent tree) {
                 super.visitIdent(tree);
                 if (currentClass != null && tree.sym.kind != Kinds.TYP) {
+                    addOutersForOuterAccess(tree.sym, currentClass.sym);
+                }
+            }
+
+            @Override
+            public void visitSelect(JFXSelect tree) {
+                super.visitSelect(tree);
+                Symbol sym = expressionSymbol(tree.selected);
+                if (currentClass != null && sym != null && sym.kind == Kinds.TYP) {
                     addOutersForOuterAccess(tree.sym, currentClass.sym);
                 }
             }
