@@ -452,6 +452,9 @@ public class JavafxCheck {
         if (types.isAssignable(foundUnboxed, reqUnboxed, convertWarner(pos, found, req))) {
             Type foundElem = types.elementTypeOrType(found);
             Type reqElem = types.elementTypeOrType(req);
+            if (foundElem.tag == VOID && reqElem.tag != VOID) {
+                return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
+            }
             if (reqElem.tag <= LONG && foundElem.tag >= FLOAT && foundElem.tag <= DOUBLE && giveWarnings) {
                 // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
                 String foundAsJavaFXType = types.toJavaFXString(foundUnboxed);
@@ -475,6 +478,9 @@ public class JavafxCheck {
         Type reqElem = types.elementTypeOrType(req);
 
         if (foundElem.tag <= DOUBLE && reqElem.tag <= DOUBLE) {
+            if (foundElem.tag == VOID && reqElem.tag != VOID) {
+                return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
+            }
             if (giveWarnings) {
                 String foundAsJavaFXType = types.toJavaFXString(found);
                 String requiredAsJavaFXType = types.toJavaFXString(req);
