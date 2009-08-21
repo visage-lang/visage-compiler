@@ -63,18 +63,9 @@ public abstract class AbstractBindingExpression extends AbstractLocationDependen
         return null;
     }
 
-    protected <T extends DependencySource> T addDynamicDependent(T dep) {
-        location.addDynamicDependency(dep);
-        return dep;
-    }
-
     protected <T extends DependencySource> T addStaticDependent(T dep) {
         location.addDependency(dep);
         return dep;
-    }
-
-    protected void clearDynamicDependencies() {
-        location.clearDynamicDependencies();
     }
 
     // These unsafe casts are done to avoid the need to have a separate class for each return type.  Ugly, but reduces footprint.

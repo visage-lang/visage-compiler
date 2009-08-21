@@ -283,28 +283,29 @@ public class Locations {
     ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
         final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
         helpedLocation.addDependency(dependencies);
+        IndirectChangeListener<T, L> listener = new IndirectChangeListener<T, L>(helpedLocation);
         if (!lazy) {
             L initialValue = helper.get();
-            helpedLocation.addDynamicDependency(initialValue);
+            if (initialValue instanceof AbstractLocation)
+                ((AbstractLocation) initialValue).addChild(listener.helpedLocationHolder);
         }
-        helper.addChangeListener(new IndirectChangeListener<T, L>(helpedLocation));
+        helper.addChangeListener(listener);
         return helper;
     }
 
     private static class IndirectChangeListener<T, L extends ObjectLocation<T>> extends ChangeListener<L> {
-        private final WeakReference<L> helpedLocationHolder;
+        final StaticDependentLocation helpedLocationHolder;
 
         public IndirectChangeListener(L helpedLocation) {
-            this.helpedLocationHolder = new WeakReference<L>(helpedLocation);
+            this.helpedLocationHolder = new StaticDependentLocation(helpedLocation);
         }
 
         @Override
         public void onChange(L oldLoc, L newLoc) {
-            L helpedLocation = helpedLocationHolder.get();
-            if (helpedLocation != null) {
-                helpedLocation.clearDynamicDependencies();
-                helpedLocation.addDynamicDependency(newLoc);
-            }
+            if (oldLoc instanceof AbstractLocation)
+                ((AbstractLocation) oldLoc).removeChild(helpedLocationHolder);
+            if (newLoc instanceof AbstractLocation)
+                ((AbstractLocation) newLoc).addChild(helpedLocationHolder);
         }
     }
 

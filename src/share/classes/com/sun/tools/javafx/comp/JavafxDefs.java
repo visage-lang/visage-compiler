@@ -70,8 +70,6 @@ public class JavafxDefs {
     public static final String setDefaultMethodNameString = "setDefault";
     public static final String sizeMethodNameString ="size";
     public static final String addStaticDependentNameString = "addStaticDependent";
-    public static final String addDynamicDependentNameString = "addDynamicDependent";
-    public static final String clearDynamicDependenciesNameString = "clearDynamicDependencies";
     public static final String needDefaultMethodNameString = "needDefault";
     public static final String makeAttributeMethodNameString = "makeAttribute";
     public static final String makeMethodNameString = "make";
@@ -190,8 +188,6 @@ public class JavafxDefs {
     final Name sizeMethodName;
     final Name defaultingTypeInfoFieldName;
     final Name addStaticDependentName;
-    final Name addDynamicDependentName;
-    final Name clearDynamicDependenciesName;
     final Name needDefaultsMethodName;
     final Name makeAttributeMethodName;
     final Name makeMethodName;
@@ -320,8 +316,6 @@ public class JavafxDefs {
         sizeMethodName = names.fromString(sizeMethodNameString);
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
         addStaticDependentName = names.fromString(addStaticDependentNameString);
-        addDynamicDependentName = names.fromString(addDynamicDependentNameString);
-        clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);
         needDefaultsMethodName = names.fromString(needDefaultMethodNameString);
         makeAttributeMethodName = names.fromString(makeAttributeMethodNameString);
         makeMethodName = names.fromString(makeMethodNameString);

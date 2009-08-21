@@ -69,10 +69,4 @@ public interface Location extends DependencySource {
 
     /** Add this location as a dependency of another Location */
     public void addDependency(DependencySource location);
-
-    /** Add this location as a dynamic dependency of zero or more other Locations */
-    public void addDynamicDependency(DependencySource location);
-
-    /** Remove this location as a dynamic dependency of any Location it was previously registered with */
-    public void clearDynamicDependencies();
 }

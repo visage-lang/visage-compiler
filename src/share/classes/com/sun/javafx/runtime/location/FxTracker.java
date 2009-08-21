@@ -198,9 +198,6 @@ public class FxTracker {
     public static long getWeakLocationCount() {
         return (hData.size() > 0) ? hData.lastElement().weak_location : 0;
     }
-    public static long getWeakMeHolderCount() {
-        return (hData.size() > 0) ? hData.lastElement().weak_me_holder : 0;
-    }   
     public static long getTotalChildrenCount() {
         return (hData.size() > 0) ? hData.lastElement().total_children : 0;
     }
@@ -225,7 +222,6 @@ class HistoData {
     long  trigger                = 0;
     long  view_location          = 0;
     long  weak_location          = 0;
-    long  weak_me_holder         = 0;
     long  total_children         = 0;
     long  loc_mapsize            = 0;
     long  iterator_count         = 0;
@@ -267,8 +263,6 @@ class HistoData {
         sb.append(FxTracker.CSEP);
         sb.append(weak_location);
         sb.append(FxTracker.CSEP);
-        sb.append(weak_me_holder);
-        sb.append(FxTracker.CSEP);
         sb.append(total_children);
         sb.append(FxTracker.CSEP);
         sb.append(loc_mapsize);
@@ -299,10 +293,8 @@ class HistoData {
                     loc.countChildren(AbstractLocation.CHILD_KIND_TRIGGER);
             weak_location +=
                     loc.countChildren(AbstractLocation.CHILD_KIND_WEAK_LOCATION);
-            weak_me_holder +=
-                    loc.countChildren(AbstractLocation.CHILD_KIND_WEAK_ME_HOLDER);
             total_children += binding_expression + change_listener + trigger +
-                    view_location + weak_location + weak_me_holder;
+                    view_location + weak_location;
             iterator_count +=
                     AbstractLocation.iterationData.get(loc) != null ? 1 : 0;
             listener_count += loc.getListenerCount();
