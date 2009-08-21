@@ -137,7 +137,12 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     }
 
     protected void enqueueChild(LocationDependency dep) {
-        Linkables.addAtEnd(this, dep);
+        /* FUTURE:
+        LocationDependency head = children;
+        if (head != null)
+            Linkables.addAfter(head, dep);
+        else */
+            Linkables.addAtEnd(this, dep);
         orChildMask(dep.getDependencyKind());
     }
 
