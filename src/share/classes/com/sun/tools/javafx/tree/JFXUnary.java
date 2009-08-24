@@ -78,7 +78,7 @@ public class JFXUnary extends JFXExpression implements UnaryTree, Tree {
         }
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitUnary(this, data);
     }

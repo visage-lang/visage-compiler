@@ -67,7 +67,7 @@ public class JFXTypeClass extends JFXType implements TypeClassTree {
         return JavaFXKind.TYPE_CLASS;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTypeClass(this, d);
     }

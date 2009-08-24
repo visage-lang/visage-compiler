@@ -92,7 +92,8 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
                 int delta = insertedSize - replacedSize;
                 size = insertedSize;
                 if (delta != 0) {
-                    Info<T, ? extends T>[] tinfos = bcs.infos;
+                    @SuppressWarnings("unchecked")
+                    Info<T, ? extends T>[] tinfos = (Info[])bcs.infos;
                     int ninfos = bcs.numinfos;
                     for (int i = index + 1; i < ninfos; i++)
                         tinfos[i].startPosition += delta;
@@ -123,7 +124,8 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
                 int delta = insertedSize - (endPos - startPos);
                 size = oldSize + delta;
                 if (delta != 0) {
-                    Info<T, ? extends T>[] tinfos = bcs.infos;
+                    @SuppressWarnings("unchecked")
+                    Info<T, ? extends T>[] tinfos = (Info[])bcs.infos;
                     int ninfos = bcs.numinfos;
                     for (int i = index + 1; i < ninfos; i++)
                         tinfos[i].startPosition += delta;
@@ -247,7 +249,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         int deltaLocations = insertedCount - deletedCount;
         if (deltaLocations != 0) {
             @SuppressWarnings("unchecked")
-            Info<T, ? extends T>[] temp = (Info<T, ? extends T>[]) new Info[numinfos + deltaLocations];
+            Info<T, ? extends T>[] temp = (Info[]) new Info[numinfos + deltaLocations];
             System.arraycopy(infos, 0, temp, 0, startPos);
             System.arraycopy(infos, endPos, temp, startPos + insertedCount, numinfos - endPos);
             infos = temp;

@@ -552,7 +552,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitUnary(JFXUnary tree) {
         try {
            if (tree.getFXTag() == JavafxTag.SIZEOF) {
@@ -953,7 +953,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
     
-    @Override
+    //@Override
     public void visitSequenceInsert(JFXSequenceInsert that) {
         try {
             print("insert ");
@@ -966,7 +966,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
     
-    @Override
+    //@Override
     public void visitSequenceDelete(JFXSequenceDelete that) {
         try {
             print("delete ");
@@ -982,7 +982,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitStringExpression(JFXStringExpression tree) {
         try {
             int i;
@@ -1096,7 +1096,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitTypeArray(JFXTypeArray tree) {
         try {
             print("nativearray of ");
@@ -1125,7 +1125,7 @@ public class JavafxPretty implements JavafxVisitor {
         return "";
     }
 
-    @Override
+    //@Override
     public void visitVarScriptInit(JFXVarScriptInit tree) {
         // REMOVE
         try {
@@ -1170,7 +1170,7 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         try {
             print("override attribute ");
@@ -1188,7 +1188,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
   
     
-    @Override
+    //@Override
     public void visitOnReplace(JFXOnReplace tree) {
         try {
             print(" on replace");
@@ -1219,7 +1219,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
     
     
-    @Override
+    //@Override
     public void visitForExpression(JFXForExpression tree) {
         try {
             boolean first = true;
@@ -1292,7 +1292,7 @@ public class JavafxPretty implements JavafxVisitor {
         }      
     }
 
-    @Override
+    //@Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         try {
 

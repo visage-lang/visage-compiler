@@ -54,7 +54,7 @@ public class JFXContinue extends JFXExpression implements ContinueTree {
         return label;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitContinue(this, d);
     }

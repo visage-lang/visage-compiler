@@ -42,7 +42,7 @@ public class JavafxLint extends Lint{
     
     public static void preRegister(final Context context) {
         context.put(lintKey, new Context.Factory<Lint>() {
-            @Override
+            //@Override
             public Lint make() {
                 return new JavafxLint(context);
             }

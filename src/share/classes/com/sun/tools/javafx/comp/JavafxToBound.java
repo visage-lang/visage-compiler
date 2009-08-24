@@ -437,7 +437,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }.buildClosure();
     }
 
-    @Override
+    //@Override
     public void visitInstanciate(final JFXInstanciate tree) {
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
@@ -480,7 +480,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }.result();
     }
 
-    @Override
+    //@Override
     public void visitStringExpression(final JFXStringExpression tree) {
         result = new BindingExpressionClosureTranslator(tree.pos(), syms.stringType) {
 
@@ -495,7 +495,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }.result();
     }
 
-    @Override
+    //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
         result = new BoundResult(makeConstantLocation(
@@ -533,7 +533,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 translate(value, tmiTarget).asLocation() ));
     }
 
-    @Override
+    //@Override
     public void visitAssign(JFXAssign tree) {
         //TODO: this should probably not be allowed
         // log.error(tree.pos(), "javafx.not.allowed.in.bind.context", "=");
@@ -556,7 +556,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 make.at(diagPos).Ident(varDecl.name)));
     }
 
-    @Override
+    //@Override
     public void visitAssignop(JFXAssignOp tree) {
         // should have caught this in attribution
         assert false : "Assignment operator in bind context";
@@ -577,7 +577,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 args);
     }
 
-    @Override
+    //@Override
     public void visitSelect(final JFXSelect tree) {
         final DiagnosticPosition diagPos = tree.pos();
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
@@ -758,14 +758,14 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         return false;
     }
 
-    @Override
+    //@Override
     public void visitIdent(JFXIdent tree)   {  //TODO: don't use toJava
        // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.requiresLocation(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;
         JCExpression transId = toJava.translateAsLocation(tree);
         result = convert(tree.type, transId );
     }
 
-    @Override
+    //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) { //done
         DiagnosticPosition diagPos = tree.pos();
         ListBuffer<JCStatement> stmts = ListBuffer.lb();
@@ -778,7 +778,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         result = new BoundResult(makeBlockExpression(diagPos, stmts, builder.makeToSequence()));
     }
 
-    @Override
+    //@Override
     public void visitSequenceRange(JFXSequenceRange tree) { //done: except for step and exclusive
         DiagnosticPosition diagPos = tree.pos();
         Type elemType = syms.javafx_IntegerType;
@@ -804,7 +804,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         result = convert(types.sequenceType(elemType), runtime(diagPos, rm, args.toList()));
     }
 
-    @Override
+    //@Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) { //done
         DiagnosticPosition diagPos = tree.pos();
         if (types.isSequence(tree.type)) {
@@ -815,7 +815,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }
     }
 
-    @Override
+    //@Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {   //done
         DiagnosticPosition diagPos = tree.pos();
         result = convert(
@@ -831,7 +831,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
               );
     }
 
-    @Override
+    //@Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {    //done
         DiagnosticPosition diagPos = tree.pos();
         result = new BoundResult(runtime(diagPos,
@@ -863,7 +863,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         };
      *
      * **/
-    @Override
+    //@Override
     public void visitForExpression(final JFXForExpression tree) {
         result = new BoundResult((new Translator( tree.pos() ) {
 
@@ -1174,7 +1174,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         return res;
     }
 
-    @Override
+    //@Override
     public void visitIfExpression(final JFXIfExpression tree) {
         Type targetType = targetType(tree.type);
         result = makeBoundConditional(tree.pos(),
@@ -1184,13 +1184,13 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 translateForConditional(tree.getFalseExpression(), targetType));
     }
 
-    @Override
+    //@Override
     public void visitParens(JFXParens tree) { //done
         JCExpression expr = translate(tree.expr);
         result = new BoundResult(make.at(tree.pos).Parens(expr));
     }
 
-    @Override
+    //@Override
     public void visitInstanceOf(final JFXInstanceOf tree) {
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
@@ -1205,7 +1205,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }.result();
     }
 
-    @Override
+    //@Override
     public void visitTypeCast(final JFXTypeCast tree) {
         result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
 
@@ -1216,7 +1216,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }.result();
     }
 
-    @Override
+    //@Override
     public void visitLiteral(final JFXLiteral tree) {
         final DiagnosticPosition diagPos = tree.pos();
         final Type targetType = targetType(tree.type);
@@ -1323,7 +1323,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }
     }
 
-    @Override
+    //@Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         //TODO: painfully in need of refactoring
         result = new BoundResult((new FunctionCallTranslator(tree) {
@@ -1484,7 +1484,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }).doit());
     }
 
-    @Override
+    //@Override
     public void visitBinary(final JFXBinary tree) {
         DiagnosticPosition diagPos = tree.pos();
         switch (tree.getFXTag()) {
@@ -1554,7 +1554,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         }
     }
 
-    @Override
+    //@Override
     public void visitUnary(final JFXUnary tree) {
         DiagnosticPosition diagPos = tree.pos();
         final JFXExpression expr = tree.getExpression();
@@ -1623,7 +1623,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         result = convert(tree.type, res);
     }
 
-    @Override
+    //@Override
     public void visitTimeLiteral(JFXTimeLiteral tree) {
         //TODO: code should be something like the below, but this requires a similar change to visitInterpolateValue
         /***
@@ -1685,58 +1685,58 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
      *
      */
 
-    @Override
+    //@Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         assert false : "should be processed by parent tree";
     }
 
-    @Override
+    //@Override
     public void visitModifiers(JFXModifiers tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitSkip(JFXSkip tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitThrow(JFXThrow tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitTry(JFXTry tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitWhileLoop(JFXWhileLoop tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitOnReplace(JFXOnReplace tree) {
         assert false : "should not be processed as part of a binding";
     }
 
 
-    @Override
+    //@Override
     public void visitScript(JFXScript tree) {
         assert false : "should not be processed as part of a binding";
    }
 
-    @Override
+    //@Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitInitDefinition(JFXInitDefinition tree) {
         assert false : "should not be processed as part of a binding";
     }
@@ -1745,93 +1745,93 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         assert false : "should not be processed as part of a binding";
     }
 
-   @Override
+   //@Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitContinue(JFXContinue tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitReturn(JFXReturn tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitImport(JFXImport tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitBreak(JFXBreak tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitCatch(JFXCatch tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitTypeAny(JFXTypeAny that) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitTypeClass(JFXTypeClass that) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitTypeFunctional(JFXTypeFunctional that) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitTypeArray(JFXTypeArray tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitTypeUnknown(JFXTypeUnknown that) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitVarScriptInit(JFXVarScriptInit tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitVar(JFXVar tree) {
         // this is handled in translarVar
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
         assert false : "should not be processed as part of a binding";
     }
 
-    @Override
+    //@Override
     public void visitErroneous(JFXErroneous tree) {
         assert false : "erroneous nodes shouldn't have gotten this far";
     }

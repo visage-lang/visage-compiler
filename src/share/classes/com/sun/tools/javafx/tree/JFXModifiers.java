@@ -52,7 +52,7 @@ public class JFXModifiers extends JFXTree implements ModifiersTree {
         return Flags.asModifierSet(flags);
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitModifiers(this, d);
     }

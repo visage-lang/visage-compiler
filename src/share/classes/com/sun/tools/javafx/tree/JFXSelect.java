@@ -61,7 +61,7 @@ public class JFXSelect extends JFXExpression implements MemberSelectTree {
         return selected;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitMemberSelect(this, d);
     }

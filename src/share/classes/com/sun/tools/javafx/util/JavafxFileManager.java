@@ -361,7 +361,7 @@ public class JavafxFileManager extends JavacFileManager {
             return isFXSourceFile ? JavaFileObject.Kind.SOURCE : delegate.getKind();
         }
 
-        @Override
+        //@Override
         public boolean isNameCompatible(String cn, Kind kind) {
             cn.getClass(); // null check
             if (kind == Kind.OTHER && getKind() != kind)

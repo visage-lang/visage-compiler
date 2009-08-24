@@ -75,7 +75,7 @@ public final class JavafxcTool implements JavafxCompiler {
         return new JavafxcTool();
     }
 
-    @Override
+    //@Override
     public int run(InputStream in, OutputStream out, OutputStream err, String... arguments) {
         if (err == null)
             err = System.err;
@@ -84,13 +84,13 @@ public final class JavafxcTool implements JavafxCompiler {
         return com.sun.tools.javafx.Main.compile(arguments, new PrintWriter(err, true));
     }
 
-    @Override
+    //@Override
     public Set<SourceVersion> getSourceVersions() {
         return Collections.unmodifiableSet(EnumSet.range(SourceVersion.RELEASE_3,
                                                          SourceVersion.latest()));
     }
 
-    @Override
+    //@Override
     public JavacFileManager getStandardFileManager(
         DiagnosticListener<? super JavaFileObject> diagnosticListener,
         Locale locale,
@@ -102,7 +102,7 @@ public final class JavafxcTool implements JavafxCompiler {
         return new JavafxFileManager(context, true, charset);
     }
 
-    @Override
+    //@Override
     public JavafxcTask getTask(Writer out,
                              JavaFileManager fileManager,
                              DiagnosticListener<? super JavaFileObject> diagnosticListener,
@@ -197,7 +197,7 @@ public final class JavafxcTool implements JavafxCompiler {
         }
     }
 
-    @Override
+    //@Override
     public int isSupportedOption(String option) {
         JavafxOption[] recognizedOptions =
             RecognizedOptions.getJavacToolOptions(new GrumpyHelper());

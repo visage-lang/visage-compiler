@@ -90,7 +90,7 @@ public class JFXLiteral extends JFXExpression implements LiteralTree {
         }
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitLiteral(this, d);
     }

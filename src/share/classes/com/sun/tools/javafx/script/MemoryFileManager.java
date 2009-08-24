@@ -92,7 +92,7 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
             this.binaryName = binaryName;
         }
 
-        @Override
+        //@Override
         public Kind getKind() {
             return Kind.CLASS;
         }
@@ -101,64 +101,64 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
             return binaryName;
 	}
         
-        @Override
+        //@Override
         public String getName() {
             return getBinaryName();
         }
         
-        @Override
+        //@Override
         public boolean isNameCompatible(String simpleName,
                          JavaFileObject.Kind kind) {
             return (kind == Kind.CLASS) && 
                     url.toString().endsWith("/" + simpleName + ".class");    
         }
         
-        @Override
+        //@Override
         public boolean delete() {
             return false;
         }
         
-        @Override
+        //@Override
         public long getLastModified() {
             return 0L;
         }
         
-        @Override
+        //@Override
         public Writer openWriter() throws IOException {
             throw new UnsupportedOperationException("openWriter");
         }
         
-        @Override
+        //@Override
         public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
             throw new UnsupportedOperationException("getCharContent");
         }
         
-        @Override
+        //@Override
         public OutputStream openOutputStream() throws IOException {
             throw new UnsupportedOperationException("openOutputStream");
         }
         
-        @Override
+        //@Override
         public InputStream openInputStream() throws IOException {
             return url.openStream();
         }
         
-        @Override
+        //@Override
         public URI toUri() {
             return toURI(url);
         }
         
-        @Override
+        //@Override
         public NestingKind getNestingKind() { 
             return null; 
         }
 
-        @Override
+        //@Override
         public Modifier getAccessLevel() { 
             return null; 
         }
 
-        @Override
+        //@Override
         public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
             return new InputStreamReader(openInputStream(), getDecoder(ignoreEncodingErrors));
         }

@@ -50,7 +50,7 @@ public class JFXErroneous extends JFXExpression implements ErroneousTree {
         return errs;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitErroneous(this, d);
     }

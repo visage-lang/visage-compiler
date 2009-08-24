@@ -46,7 +46,7 @@ public class JFXTypeUnknown extends JFXType implements TypeUnknownTree {
         return JavafxTag.TYPEUNKNOWN;
     }
 
-    @Override
+    //@Override
     public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
         return v.visitTypeUnknown(this, d);
     }

@@ -68,7 +68,7 @@ public class JFXTypeFunctional extends JFXType implements TypeFunctionalTree {
         return JavafxTag.TYPEFUNC;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTypeFunctional(this, d);
     }

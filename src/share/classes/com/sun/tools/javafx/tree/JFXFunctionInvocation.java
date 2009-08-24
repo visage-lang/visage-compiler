@@ -69,7 +69,7 @@ public class JFXFunctionInvocation extends JFXExpression implements FunctionInvo
         return args;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitMethodInvocation(this, d);
     }

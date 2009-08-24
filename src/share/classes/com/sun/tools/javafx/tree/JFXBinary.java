@@ -69,7 +69,7 @@ public class JFXBinary extends JFXExpression implements BinaryTree {
         return operator;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitBinary(this, d);
     }

@@ -64,7 +64,7 @@ public class JFXTry extends JFXExpression implements TryTree {
         return finalizer;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTry(this, d);
     }
