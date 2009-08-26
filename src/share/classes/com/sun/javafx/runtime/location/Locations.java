@@ -294,7 +294,7 @@ public class Locations {
     }
 
     private static class IndirectChangeListener<T, L extends ObjectLocation<T>> extends ChangeListener<L> {
-        final StaticDependentLocation helpedLocationHolder;
+        StaticDependentLocation helpedLocationHolder;
 
         public IndirectChangeListener(L helpedLocation) {
             this.helpedLocationHolder = new StaticDependentLocation(helpedLocation);
@@ -304,6 +304,8 @@ public class Locations {
         public void onChange(L oldLoc, L newLoc) {
             if (oldLoc instanceof AbstractLocation)
                 ((AbstractLocation) oldLoc).removeChild(helpedLocationHolder);
+            L helpedLocation = (L) helpedLocationHolder.get();
+            this.helpedLocationHolder = new StaticDependentLocation(helpedLocation);
             if (newLoc instanceof AbstractLocation)
                 ((AbstractLocation) newLoc).addChild(helpedLocationHolder);
         }
