@@ -53,14 +53,30 @@ public class Locations {
             final BooleanLocation conditional,
             final ObjectLocation<T> thenLoc, final ObjectLocation<T> elseLoc) {
         return new AbstractBindingExpression() {
-            StaticDependentLocation weakMe;
+            StaticDependentLocation weakThenMe;
+            StaticDependentLocation weakElseMe;
+
             ObjectLocation<T> lastArm;
+            boolean lastValue;
 
             @Override
             public void setLocation(Location location) {
                 super.setLocation(location);
                 addStaticDependent(conditional);
-                weakMe = new StaticDependentLocation(location);
+            }
+
+            private StaticDependentLocation weakThenMe() {
+                if (weakThenMe == null) {
+                    weakThenMe = new StaticDependentLocation(location);
+                }
+                return weakThenMe;
+            }
+
+            private StaticDependentLocation weakElseMe() {
+                if (weakElseMe == null) {
+                    weakElseMe = new StaticDependentLocation(location);
+                }
+                return weakElseMe;
             }
 
             @Override
@@ -69,11 +85,15 @@ public class Locations {
                 ObjectLocation<T> thisArm = c ? thenLoc : elseLoc;
                 if (thisArm != lastArm) {
                     if (lastArm != null && lastArm instanceof AbstractLocation) {
+                        StaticDependentLocation weakMe = lastValue? weakThenMe() : weakElseMe();
                         ((AbstractLocation) lastArm).removeChild(weakMe);
                     }
-                    if (thisArm instanceof AbstractLocation)
+                    if (thisArm instanceof AbstractLocation) {
+                        StaticDependentLocation weakMe = c? weakThenMe() : weakElseMe();
                         ((AbstractLocation) thisArm).addChild(weakMe);
+                    }
                     lastArm = thisArm;
+                    lastValue = c;
                 }
                 pushFrom(typeInfo, thisArm);
             }
