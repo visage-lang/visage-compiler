@@ -91,6 +91,7 @@ import static java.util.logging.Level.*;
  */
 public class XHTMLProcessingUtils {
 
+    private static PrintWriter pw = null;
     private static ResourceBundle messageRB = null;
     private static Logger logger = Logger.getLogger(XHTMLProcessingUtils.class.getName());;
     private static boolean SDK_THEME = true;
@@ -656,7 +657,9 @@ public class XHTMLProcessingUtils {
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
         ScriptEngineFactory factory = new JavaFXScriptEngineFactory();
         ScriptEngine scrEng = factory.getScriptEngine();
-        PrintWriter pw = new PrintWriter(System.err);
+        if (pw == null) {
+            pw = new PrintWriter(System.err);
+        }
         scrEng.getContext().setErrorWriter(pw);
         try {
             Object ret = scrEng.eval(script); 
@@ -672,6 +675,7 @@ public class XHTMLProcessingUtils {
                     scene = fxStageClass.getMethod("get$scene").invoke(ret); 
                 } catch (Exception ex) {
                     ex.printStackTrace(pw);
+                    pw.flush();
                     return;
                 }
             } else if (fxNodeClass.isInstance(ret)) {
@@ -694,6 +698,7 @@ public class XHTMLProcessingUtils {
             } else {
                 Object fxclass = ret.getClass();
                 pw.println("ERROR: Unrecongized JavaFX class: " + fxclass); 
+                pw.flush();
                 return;
             } 
             try {
@@ -713,7 +718,6 @@ public class XHTMLProcessingUtils {
             pw.println("cause = " + ex.getCause());
         } finally {
             pw.flush();
-            pw.close();
         }
     }
 }
