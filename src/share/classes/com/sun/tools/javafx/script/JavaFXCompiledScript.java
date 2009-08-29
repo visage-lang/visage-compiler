@@ -22,14 +22,14 @@
  */
 
 package com.sun.tools.javafx.script;
-import com.sun.tools.javac.code.*;
+import com.sun.tools.mjavac.code.*;
 import java.lang.reflect.*;
 import com.sun.javafx.runtime.TypeInfo;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  *

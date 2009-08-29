@@ -42,7 +42,7 @@ public class NumericTypeInfo<T extends Number, L extends ObjectLocation<T>> exte
     }
 
     public T[] makeArray(int size) {
-        return Util.newNumberArray(size);
+        return Util.<T>newNumberArray(size);
     }
 
     // This ugly and not typesafe construct eliminates lots of small classes, which add a lot to our static footprint.

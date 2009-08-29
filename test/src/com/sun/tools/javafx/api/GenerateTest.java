@@ -1,7 +1,7 @@
 package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
-import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.mjavac.util.JavacFileManager;
 import com.sun.tools.javafx.api.JavafxcTool;
 
 import javax.tools.Diagnostic;

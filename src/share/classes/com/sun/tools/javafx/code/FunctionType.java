@@ -23,9 +23,9 @@
 
 package com.sun.tools.javafx.code;
 
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.Symbol.TypeSymbol;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 
 /**
  *

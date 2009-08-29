@@ -25,15 +25,15 @@ package com.sun.tools.javafx.antlr;
 
 import java.util.HashMap;
 
-import com.sun.tools.javac.code.Source;
+import com.sun.tools.mjavac.code.Source;
 
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Log;
+import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.tree.JCTree;
 
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.javafx.tree.JFXInterpolateValue;
 import com.sun.tools.javafx.tree.JFXTree;
 import com.sun.tools.javafx.tree.JFXErroneous;
@@ -1226,7 +1226,7 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * @param tree The AST node that we wish to create an endpos for
      * @param list A list of interpolation value AST nodes.
      */
-    void endPos(JCTree tree, com.sun.tools.javac.util.List<JFXInterpolateValue> list) {
+    void endPos(JCTree tree, com.sun.tools.mjavac.util.List<JFXInterpolateValue> list) {
         if (genEndPos) {
             int endLast = endPositions.get(list.last());
             endPositions.put(tree, endLast);

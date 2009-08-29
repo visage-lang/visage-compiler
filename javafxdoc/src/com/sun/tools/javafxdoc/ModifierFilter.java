@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafxdoc;
 
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**
@@ -31,7 +31,7 @@ import static com.sun.tools.javafx.code.JavafxFlags.*;
  *   Filtering is done by returning boolean values.
  *   Classes, methods and fields can be filtered, or filtering
  *   can be done directly on modifier bits.
- *   @see com.sun.tools.javac.code.Flags;
+ *   @see com.sun.tools.mjavac.code.Flags;
  *   @author Robert Field
  */
 

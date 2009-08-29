@@ -56,7 +56,7 @@ public class JFXInstanceOf extends JFXExpression implements InstanceOfTree {
         return expr;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitInstanceOf(this, d);
     }

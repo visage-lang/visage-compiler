@@ -37,8 +37,8 @@ public class MsgSymTest {
     public void checkSymbolToMessageEN() {
         // get English resource-bundles
         LinkedList<ResourceBundle> resources = new LinkedList<ResourceBundle>();
-        resources.add(ResourceBundle.getBundle("com.sun.tools.javac.resources.javac"));
-        resources.add(ResourceBundle.getBundle("com.sun.tools.javac.resources.compiler"));
+        resources.add(ResourceBundle.getBundle("com.sun.tools.mjavac.resources.javac"));
+        resources.add(ResourceBundle.getBundle("com.sun.tools.mjavac.resources.compiler"));
         resources.add(ResourceBundle.getBundle("com.sun.tools.javafx.resources.javafxcompiler"));
         
         // general test

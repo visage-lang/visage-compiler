@@ -14,7 +14,7 @@
             <available file="${jdk.langtools.dir}"/>
         </condition>
     </target>
-    
+
     <target name="init" depends="check-langtools-dir">
         <fail unless="has-langtools-dir" message="OpenJDK langtools directory not found"/>
     </target>
@@ -25,12 +25,19 @@
             <property name="javac.target" value="1.5"/>
             <property name="javac.debuglevel" value="lines,vars,source"/>
         </ant>
-        <copy file="${langtools.dist.lib.dir}/javac.jar" todir="../lib"/>
-        <copy file="${langtools.dist.lib.dir}/javadoc.jar" todir="../lib"/>
+        <ant antfile="renamer/build.xml" inheritall="false" target="run-renamer">
+            <property name="in.jar" location="${langtools.dist.lib.dir}/javac.jar"/>
+            <property name="out.jar" location="../lib/javac.jar"/>
+        </ant>
+        <ant antfile="renamer/build.xml" inheritall="false" target="run-renamer">
+            <property name="in.jar" location="${langtools.dist.lib.dir}/javadoc.jar"/>
+            <property name="out.jar" location="../lib/javadoc.jar"/>
+        </ant>
     </target>
     
     <target name="clean" depends="init" description="Deletes all generated files and directories.">
         <ant antfile="${langtools.build.xml}" target="clean" inheritall="false"/>
+        <ant antfile="renamer/build.xml" inheritall="false" target="clean"/>
     </target>
     
 </project>

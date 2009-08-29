@@ -26,7 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol;
 
 /**
  * An assignment with "+=", "|=" ...
@@ -66,7 +66,7 @@ public class JFXAssignOp extends JFXExpression implements CompoundAssignmentTree
         return operator;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitCompoundAssignment(this, d);
     }

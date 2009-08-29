@@ -56,7 +56,7 @@ public class JFXTypeCast extends JFXExpression implements TypeCastTree {
         return expr;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTypeCast(this, d);
     }

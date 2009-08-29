@@ -26,7 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.util.List;
 
 /**
  * A "try { } catch ( ) { } finally { }" block.
@@ -64,7 +64,7 @@ public class JFXTry extends JFXExpression implements TryTree {
         return finalizer;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitTry(this, d);
     }

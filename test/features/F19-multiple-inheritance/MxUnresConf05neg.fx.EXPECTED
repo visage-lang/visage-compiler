@@ -1,6 +1,4 @@
-test/features/F19-multiple-inheritance/MxUnresConf05neg.fx:15: foo(int) in MxUnresConf05neg.Mixee cannot override foo(int) in MxUnresConf05neg.Super; attempting to use incompatible return type
-found   : java.lang.String
-required: int
-class Mixee extends Super, Mixin {
+test/features/F19-multiple-inheritance/MxUnresConf05neg.fx:16: types MxUnresConf05neg.Mixin and MxUnresConf05neg.Super are incompatible; both define foo(int), but with unrelated return types
+class Mixee extends Super, Mixin {}
 ^
 1 error

@@ -23,10 +23,10 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Log;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
 import com.sun.tools.javafx.util.MsgSym;

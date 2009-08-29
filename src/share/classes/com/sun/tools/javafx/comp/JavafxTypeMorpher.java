@@ -26,10 +26,10 @@ package com.sun.tools.javafx.comp;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Type.ClassType;
+import com.sun.tools.mjavac.code.Type.MethodType;
+import com.sun.tools.mjavac.util.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
@@ -39,7 +39,7 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 
 /**

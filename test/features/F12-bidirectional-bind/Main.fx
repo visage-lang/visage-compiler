@@ -45,3 +45,19 @@ System.out.println("{ah.a} == {tr}");
 tr = 11111;
 System.out.println("{ah.a} == {tr}");
 
+var aseq : Integer[] = [10, 11, 12, 13]
+    on replace oldValue[indx  .. lastIndex]=newElements
+    { print("on replace aseq bounds: {indx}..{lastIndex} -> "); println(aseq) };
+
+var bseq : Integer[] = bind aseq with inverse
+    on replace oldValue[indx  .. lastIndex]=newElements
+    { print("on replace bseq bounds: {indx}..{lastIndex} -> "); println(bseq) };
+
+insert 101 into aseq;
+insert 102 into bseq;
+aseq[2]=22;
+bseq[1]=11;
+print("aseq "); println(aseq);
+print("bseq "); println(bseq);
+
+

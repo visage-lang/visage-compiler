@@ -25,7 +25,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import com.sun.tools.javac.code.Type;
+import com.sun.tools.mjavac.code.Type;
 
 /**
  * A return statement.
@@ -52,7 +52,7 @@ public class JFXReturn extends JFXExpression implements ReturnTree {
         return expr;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitReturn(this, d);
     }

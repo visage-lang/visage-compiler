@@ -24,7 +24,7 @@
 package com.sun.tools.javafx.main;
 
 /**
- * TODO: describe com.sun.tools.javac.main.OptionName
+ * TODO: describe com.sun.tools.mjavac.main.OptionName
  *
  * <p><b>This is NOT part of any API supported by Sun Microsystems.
  * If you write code that depends on this, you do so at your own

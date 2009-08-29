@@ -1,4 +1,4 @@
-test/features/F19-multiple-inheritance/MxUnresConf03neg.fx:17: reference to bar is ambiguous, both variable bar in MxUnresConf03neg.Mixin1 and variable bar in MxUnresConf03neg.Mixin2 match
-    var far = bar;
-              ^
+test/features/F19-multiple-inheritance/MxUnresConf03neg.fx:16: types MxUnresConf03neg.Mixin2 and MxUnresConf03neg.Mixin1 are incompatible; both define bar, but with unrelated types
+class Mixee extends Mixin1, Mixin2 {
+^
 1 error

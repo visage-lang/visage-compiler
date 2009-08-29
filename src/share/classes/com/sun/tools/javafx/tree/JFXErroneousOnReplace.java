@@ -30,7 +30,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.util.List;
 
 public class JFXErroneousOnReplace extends JFXOnReplace {
     

@@ -23,9 +23,9 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.tree.*;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.tree.*;
+import com.sun.tools.mjavac.tree.JCTree.*;
+import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
 import java.util.HashSet;
 import java.util.Set;

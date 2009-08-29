@@ -23,8 +23,8 @@
 
 package com.sun.tools.javafxdoc;
 
-import com.sun.tools.javac.comp.*;
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.comp.*;
+import com.sun.tools.mjavac.util.*;
 
 /**
  *  Javadoc's own todo queue doesn't queue its inputs, as javadoc

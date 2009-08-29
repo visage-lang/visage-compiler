@@ -22,8 +22,6 @@
  */
 
 package com.sun.javafx.runtime.location;
-
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,7 +46,6 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     static final int CHILD_KIND_WEAK_LOCATION = 2;
     static final int CHILD_KIND_TRIGGER = 4;
     static final int CHILD_KIND_BINDING_EXPRESSION = 8;
-    static final int CHILD_KIND_WEAK_ME_HOLDER = 16;
 
     // Space is at a premium; FX classes use a *lot* of locations.
     // We've currently got four byte-size fields here already; we rely on the VM packing byte-size fields
@@ -140,7 +137,12 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     }
 
     protected void enqueueChild(LocationDependency dep) {
-        Linkables.addAtEnd(this, dep);
+        /* FUTURE:
+        LocationDependency head = children;
+        if (head != null)
+            Linkables.addAfter(head, dep);
+        else */
+            Linkables.addAtEnd(this, dep);
         orChildMask(dep.getDependencyKind());
     }
 
@@ -328,33 +330,6 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
             location.addDependentLocation(new StaticDependentLocation(this));
     }
 
-    public void addDynamicDependency(DependencySource location) {
-        WeakMeHolder weakMeHolder = (WeakMeHolder) findChildByKind(CHILD_KIND_WEAK_ME_HOLDER);
-        if (weakMeHolder == null) {
-            weakMeHolder = new WeakMeHolder(this);
-            enqueueChild(weakMeHolder);
-        }
-        // Good time to clear dead dependencies
-        if (location instanceof AbstractLocation)
-            ((AbstractLocation) location).purgeDeadDependencies();
-        location.addDependentLocation(new DynamicDependentLocation(weakMeHolder.weakMe));
-    }
-
-    public void clearDynamicDependencies() {
-        WeakMeHolder weakMeHolder = (WeakMeHolder) findChildByKind(CHILD_KIND_WEAK_ME_HOLDER);
-        if (weakMeHolder != null) {
-            weakMeHolder.weakMe.clear();
-            // Hint to poll at reference queue
-            StaticDependentLocation.purgeDeadLocations(null);
-            dequeueChild(weakMeHolder);
-        }
-    }
-
-    public <T extends DependencySource> T addDynamicDependent(T dep) {
-        addDynamicDependency(dep);
-        return dep;
-    }
-
     public <T extends DependencySource> T addStaticDependent(T dep) {
         addDependency(dep);
         return dep;
@@ -477,18 +452,6 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
                 for (LocationDependency loc : toRemove)
                     target.dequeueChild(loc);
             }
-        }
-    }
-
-    private static class WeakMeHolder extends AbstractLocationDependency {
-        final WeakReference<Location> weakMe;
-
-        WeakMeHolder(Location loc) {
-            this.weakMe = StaticDependentLocation.makeWeakReference(loc);
-        }
-
-        public int getDependencyKind() {
-            return CHILD_KIND_WEAK_ME_HOLDER;
         }
     }
 }

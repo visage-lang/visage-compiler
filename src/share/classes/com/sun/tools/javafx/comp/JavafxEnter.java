@@ -23,16 +23,16 @@
 
 package com.sun.tools.javafx.comp;
 
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.code.Type.ErrorType;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Type.*;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type.ClassType;
+import com.sun.tools.mjavac.code.Type.ErrorType;
+import com.sun.tools.mjavac.jvm.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.*;

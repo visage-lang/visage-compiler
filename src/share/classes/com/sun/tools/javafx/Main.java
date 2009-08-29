@@ -46,8 +46,8 @@ public class Main {
 	    loader.setPackageAssertionStatus("com.sun.tools.javafx", true);
             
             //workaround for JFXC-964, so compiler works when IDE enables all assertions
-	    loader.setClassAssertionStatus("com.sun.tools.javac.code.Symbol", false);
-            loader.setClassAssertionStatus("com.sun.tools.javac.jvm.Code", false);
+	    loader.setClassAssertionStatus("com.sun.tools.mjavac.code.Symbol", false);
+            loader.setClassAssertionStatus("com.sun.tools.mjavac.jvm.Code", false);
         }
     }
 

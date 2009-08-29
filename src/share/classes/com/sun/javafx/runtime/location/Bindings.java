@@ -28,6 +28,7 @@ import java.util.*;
 
 import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.CircularBindingException;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
  * Bindings -- helper class for setting up bijective bindings.
@@ -64,6 +65,53 @@ public class Bindings {
     public static <T> void bijectiveBind(ObjectLocation<T> a, ObjectLocation<T> b) {
         Bijection<T, T> id = identityBinding();
         bijectiveBind(a, b, id);
+    }
+
+    static class SequenceBijectiveListener<T> extends ChangeListener<T> {
+        WeakReference<SequenceVariable<T>> srcRef, dstRef;
+        boolean active; // used to avoid a trigger cycle.
+        public SequenceBijectiveListener (WeakReference<SequenceVariable<T>> srcRef, WeakReference<SequenceVariable<T>> dstRef) {
+            this.srcRef = srcRef;
+            this.dstRef = dstRef;
+        }
+        public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+        public boolean onChangeB(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            SequenceVariable<T> src = srcRef.get();
+            SequenceVariable<T> dst = dstRef.get();
+            if (dst == null || src == null)
+                return false;
+            dst.$value = src.$value;
+            if (dst.hasDependencies() && ! active) {
+                try {
+                    active = true;
+                    dst.notifyListeners(buffer, oldValue, startPos, endPos, newElements, true);
+                }
+                finally {
+                    active = false;
+                }
+            }
+            return true;
+        }
+    }
+
+    /** Create a bijective binding between objects of type T and U */
+    public static <T> void bijectiveBind(final SequenceVariable<T> a, final SequenceVariable<T> b) {
+        Bijection<Sequence<? extends T>, Sequence<? extends T>> id = identityBinding();
+        if (!(a.isMutable()) || !(b.isMutable()))
+            throw new BindingException("Both components of bijective bind must be mutable");
+
+        // Set A before setting up the new listeners
+        Sequence<? extends T> oldValue = a.$value;
+        int oldSize = oldValue == null ? 0 : oldValue.size();
+        a.$value = b.$value;
+        a.notifyListeners(null, oldValue, 0, oldSize, a.$value, true);
+
+        WeakReference<SequenceVariable<T>> aRef = new WeakReference<SequenceVariable<T>>(a);
+        WeakReference<SequenceVariable<T>> bRef = new WeakReference<SequenceVariable<T>>(b);
+        a.addSequenceChangeListener(new SequenceBijectiveListener<T>(aRef, bRef));
+        b.addSequenceChangeListener(new SequenceBijectiveListener<T>(bRef, aRef));
     }
 
     /** Create a new location that is bidirectionally bound to another */
@@ -109,7 +157,7 @@ public class Bindings {
                 throw new BindingException("Both components of bijective bind must be mutable");
             if (isPeerLocation(a, b))
                 throw new CircularBindingException("Binding circularity detected");
-            
+
             this.aRef = new WeakReference<ObjectLocation<T>>(a);
             this.bRef = new WeakReference<ObjectLocation<U>>(b);
             this.mapper = mapper;

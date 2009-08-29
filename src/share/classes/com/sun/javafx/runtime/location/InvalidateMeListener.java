@@ -43,7 +43,7 @@ public class InvalidateMeListener extends StaticDependentLocation implements Inv
         return AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER;
     }
 
-    @Override
+    //@Override
     public boolean onChange() {
         Location loc = get();
         if (loc != null) {

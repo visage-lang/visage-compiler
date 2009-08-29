@@ -77,7 +77,7 @@ public class Duration implements Comparable {
         return dur;
     }
 
-    @Override
+    //@Override
     public int compareTo(Object obj) {
         Duration d = (Duration)obj;
         if (this == d) {

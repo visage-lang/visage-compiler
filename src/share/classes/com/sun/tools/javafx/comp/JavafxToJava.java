@@ -31,37 +31,37 @@ import java.util.Set;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import com.sun.tools.javac.code.*;
-import static com.sun.tools.javac.code.Flags.*;
-import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.jvm.Target;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCAnnotation;
-import com.sun.tools.javac.tree.JCTree.JCBlock;
-import com.sun.tools.javac.tree.JCTree.JCCase;
-import com.sun.tools.javac.tree.JCTree.JCCatch;
-import com.sun.tools.javac.tree.JCTree.JCClassDecl;
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
-import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
-import com.sun.tools.javac.tree.JCTree.JCIdent;
-import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
-import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
-import com.sun.tools.javac.tree.JCTree.JCReturn;
-import com.sun.tools.javac.tree.JCTree.JCStatement;
-import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
-import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
-import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.tree.TreeTranslator;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.code.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import com.sun.tools.mjavac.code.Type.MethodType;
+import com.sun.tools.mjavac.jvm.Target;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree.JCAnnotation;
+import com.sun.tools.mjavac.tree.JCTree.JCBlock;
+import com.sun.tools.mjavac.tree.JCTree.JCCase;
+import com.sun.tools.mjavac.tree.JCTree.JCCatch;
+import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
+import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.mjavac.tree.JCTree.JCExpression;
+import com.sun.tools.mjavac.tree.JCTree.JCExpressionStatement;
+import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.mjavac.tree.JCTree.JCIdent;
+import com.sun.tools.mjavac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.mjavac.tree.JCTree.JCMethodInvocation;
+import com.sun.tools.mjavac.tree.JCTree.JCModifiers;
+import com.sun.tools.mjavac.tree.JCTree.JCReturn;
+import com.sun.tools.mjavac.tree.JCTree.JCStatement;
+import com.sun.tools.mjavac.tree.JCTree.JCTypeParameter;
+import com.sun.tools.mjavac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.mjavac.tree.TreeInfo;
+import com.sun.tools.mjavac.tree.TreeMaker;
+import com.sun.tools.mjavac.tree.TreeTranslator;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
@@ -159,7 +159,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
      * static information
      */
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.ObjectArraySequence";
-    private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundSequenceBuilder";
+    private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundCompositeSequence";
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
@@ -537,7 +537,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             return null;
         }
         for (List<TFX> l = trees; l.nonEmpty(); l = l.tail) {
-            TC tree = translateGeneric(l.head);
+            TC tree = this.<TFX, TC>translateGeneric(l.head);
             if (tree != null) {
                 translated.append(tree);
             }
@@ -1136,7 +1136,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitScript(JFXScript tree) {
         // add to the hasOuters set the class symbols for classes that need a reference to the outer class
         fillClassesWithOuters(tree);
@@ -1177,7 +1177,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = translated;
     }
 
-    @Override
+    //@Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         JFXClassDeclaration prevClass = currentClass;
         JFXClassDeclaration prevEnclClass = getAttrEnv().enclClass;
@@ -1474,7 +1474,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         return null;
     }
 
-    @Override
+    //@Override
     public void visitInitDefinition(JFXInitDefinition tree) {
         assert false : "should be processed by class tree";
     }
@@ -1814,7 +1814,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitInstanciate(JFXInstanciate tree) {
         JFXExpression texp = tree.getIdentifier();
         Type type = texp.type;
@@ -1844,7 +1844,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         prependToStatements = prevPrependToStatements;
     }
 
-    @Override
+    //@Override
     public void visitStringExpression(JFXStringExpression tree) {
         result = new StringExpressionTranslator(tree) {
             protected JCExpression translateArg(JFXExpression arg) {
@@ -1964,7 +1964,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         return callExpression(diagPos, varRef, methName, args);
     }
 
-    @Override
+    //@Override
     public void visitVarScriptInit(JFXVarScriptInit tree) {
         DiagnosticPosition diagPos = tree.pos();
         JFXModifiers mods = tree.getModifiers();
@@ -1980,7 +1980,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = translateDefinitionalAssignmentToSetExpression(diagPos, var.init, var.getBindStatus(), vmi, null);
     }
 
-    @Override
+    //@Override
     public void visitVar(JFXVar tree) {
         DiagnosticPosition diagPos = tree.pos();
         JFXModifiers mods = tree.getModifiers();
@@ -2042,18 +2042,18 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         assert false : "should be processed by parent tree";
     }
 
-    @Override
+    //@Override
     public void visitOnReplace(JFXOnReplace tree) {
         assert false : "should be processed by parent tree";
     }
 
 
-    @Override
+    //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
         result = makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type);
@@ -2291,7 +2291,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
    /**
     * Translate JavaFX a class definition into a Java static implementation method.
     */
-    @Override
+    //@Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         result = new FunctionTranslator(tree, false).doit();
     }
@@ -2427,6 +2427,12 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
                         @Override
                         JCExpression fullExpression( JCExpression mungedToCheckTranslated) {
+                            Symbol selectorSym = expressionSymbol(select.getExpression());
+                            // If LHS is OuterClass.memberName or MixinClass.memberName, then
+                            // we want to create expression to get the proper receiver.
+                            if (!sym.isStatic() && selectorSym != null && selectorSym.kind == Kinds.TYP) {
+                                mungedToCheckTranslated = makeReceiver(diagPos, sym);
+                            }
                             if (useSetters) {
                                 return postProcess(buildSetter(mungedToCheckTranslated, buildRHS(rhsTranslatedPreserved)));
                             } else {
@@ -2451,7 +2457,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitAssign(final JFXAssign tree) {
         DiagnosticPosition diagPos = tree.pos();
 
@@ -2479,7 +2485,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitAssignop(final JFXAssignOp tree) {
         result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
@@ -2583,6 +2589,12 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         @Override
         protected JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
+            Symbol selectorSym = (toCheck != null)? expressionSymbol(toCheck) : null;
+            // If this is OuterClass.memberName or MixinClass.memberName, then
+            // we want to create expression to get the proper receiver.
+            if (!staticReference && selectorSym != null && selectorSym.kind == Kinds.TYP) {
+                mungedToCheckTranslated = makeReceiver(diagPos, sym);
+            }
             if (isFunctionReference) {
                 MethodType mtype = (MethodType) sym.type;
                 JCExpression tc = staticReference?
@@ -2616,7 +2628,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = new SelectTranslator(this, tree, wrapper).doit();
     }
 
-    @Override
+    //@Override
     public void visitIdent(JFXIdent tree) {
         Locationness wrapper = translationState.wrapper;
 
@@ -2724,7 +2736,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         result = new ExplicitSequenceTranslator(
                 tree.pos(),
@@ -2733,7 +2745,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         ).doit();
     }
 
-    @Override
+    //@Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         DiagnosticPosition diagPos = tree.pos();
         RuntimeMethod rm  = tree.isExclusive()?
@@ -2761,7 +2773,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 tree.type);
     }
 
-    @Override
+    //@Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         if (types.isSequence(tree.type)) {
             Type elemType = types.boxedElementType(tree.type);
@@ -2810,7 +2822,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         return callExpression(diagPos, tseq, getMethodName, index);
     }
 
-    @Override
+    //@Override
     public void visitSequenceIndexed(final JFXSequenceIndexed tree) {
         DiagnosticPosition diagPos = tree.pos();
         JFXExpression seq = tree.getSequence();
@@ -2824,7 +2836,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seq = translateAsSequenceVariable(tree.getSequence());
@@ -2835,7 +2847,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = make.at(diagPos).Apply(null, select, args);
     }
 
-    @Override
+    //@Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seqLoc = translateAsSequenceVariable(tree.getSequence());
@@ -2868,7 +2880,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = callStatement(diagPos, receiver, method, args.toList());
     }
 
-    @Override
+    //@Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         JFXExpression seq = tree.getSequence();
 
@@ -3153,7 +3165,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
        return make.TypeCast(makeTypeTree(arg.pos(), types.boxedTypeOrType(castType)), arg);
     }
 
-    @Override
+    //@Override
     public void visitBinary(final JFXBinary tree) {
         result = (new BinaryOperationTranslator(tree.pos(), tree) {
 
@@ -3189,7 +3201,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
      *   }
      *
      * **/
-    @Override
+    //@Override
     public void visitForExpression(JFXForExpression tree) {
         Type targetType = translationState.targetType;
         Yield yield = translationState.yield;
@@ -3586,7 +3598,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitIfExpression(JFXIfExpression tree) {
         Yield yield = translationState.yield;
 
@@ -3609,18 +3621,18 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitContinue(JFXContinue tree) {
         result = make.at(tree.pos).Continue(tree.label);
     }
 
-    @Override
+    //@Override
     public void visitErroneous(JFXErroneous tree) {
         List<? extends JCTree> errs = translateGeneric(tree.getErrorTrees());
         result = make.at(tree.pos).Erroneous(errs);
     }
 
-    @Override
+    //@Override
     public void visitReturn(JFXReturn tree) {
         JFXExpression exp = tree.getExpression();
         if (exp == null) {
@@ -3630,7 +3642,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitParens(JFXParens tree) {
         Type targetType = translationState.targetType;
         Yield yield = translationState.yield;
@@ -3643,14 +3655,14 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitImport(JFXImport tree) {
         //JCTree qualid = straightConvert(tree.qualid);
         //result = make.at(tree.pos).Import(qualid, tree.staticImport);
         assert false : "should be processed by parent tree";
     }
 
-    @Override
+    //@Override
     public void visitInstanceOf(JFXInstanceOf tree) {
         Type type = types.boxedTypeOrType(tree.clazz.type);
         JCTree clazz = this.makeTypeTree( tree, type);
@@ -3665,7 +3677,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = make.at(tree.pos).TypeTest(expr, clazz);
     }
 
-    @Override
+    //@Override
     public void visitTypeCast(final JFXTypeCast tree) {
         final DiagnosticPosition diagPos = tree.pos();
 
@@ -3678,7 +3690,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = convertNullability(diagPos, ret, tree.expr, tree.clazz.type);
     }
 
-    @Override
+    //@Override
     public void visitLiteral(JFXLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
             Type elemType = types.boxedElementType(tree.type);
@@ -3689,7 +3701,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    @Override
+    //@Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         final Locationness wrapper = translationState.wrapper;
 
@@ -3744,6 +3756,16 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                             //TODO: clean this up -- handles referencing a static function via an instance
                             trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
                         } else {
+                            if (selector != null && msym != null && !msym.isStatic()) {
+                                Symbol selectorSym = expressionSymbol(selector);
+                                // If this is OuterClass.memberName() then we want to
+                                // to create expression to get the proper receiver.
+                                if (selectorSym != null && selectorSym.kind == Kinds.TYP) {
+                                    trans = makeReceiver(diagPos, msym);
+                                    return trans;
+                                }
+                            }
+
                             trans = translateAsUnconvertedValue(expr);
                             if (expr.type.isPrimitive()) {
                                 // Java doesn't allow calls directly on a primitive, wrap it
@@ -3866,23 +3888,23 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }).doit();
     }
 
-    @Override
+    //@Override
     public void visitModifiers(JFXModifiers tree) {
         result = make.at(tree.pos).Modifiers(tree.flags, List.<JCAnnotation>nil());
     }
 
-    @Override
+    //@Override
     public void visitSkip(JFXSkip tree) {
         result = make.at(tree.pos).Skip();
     }
 
-    @Override
+    //@Override
     public void visitThrow(JFXThrow tree) {
         JCTree expr = translateAsUnconvertedValue(tree.expr);
         result = make.at(tree.pos).Throw(expr);
     }
 
-    @Override
+    //@Override
     public void visitTry(JFXTry tree) {
         JCBlock body = translateBlockExpressionToBlock(tree.body);
         List<JCCatch> catchers = translateCatchers(tree.catchers);
@@ -3890,7 +3912,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         result = make.at(tree.pos).Try(body, catchers, finalizer);
     }
 
-    @Override
+    //@Override
     public void visitUnary(final JFXUnary tree) {
         final Locationness wrapper = translationState.wrapper;
 
@@ -4000,7 +4022,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
     }
 
-    @Override
+    //@Override
     public void visitWhileLoop(JFXWhileLoop tree) {
         JCStatement body = translateToStatement(tree.body);
         JCExpression cond = translateAsUnconvertedValue(tree.cond);
@@ -4025,7 +4047,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         assert false : "should be processed by parent tree";
     }
 
-    @Override
+    //@Override
     public void visitTypeArray(JFXTypeArray tree) {
         assert false : "should be processed by parent tree";
     }
@@ -4198,6 +4220,15 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 }
             }
 
+            @Override
+            public void visitSelect(JFXSelect tree) {
+                super.visitSelect(tree);
+                Symbol sym = expressionSymbol(tree.selected);
+                if (currentClass != null && sym != null && sym.kind == Kinds.TYP) {
+                    addOutersForOuterAccess(tree.sym, currentClass.sym);
+                }
+            }
+
             @Override // Need this because JavafxTreeScanner is not visiting the args of the JFXInstanciate tree. Starting to visit them generate tons of errors.
             public void visitInstanciate(JFXInstanciate tree) {
                 super.visitInstanciate(tree);
@@ -4236,7 +4267,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         new FillClassesWithOuters().scan(tree);
     }
 
-    @Override
+    //@Override
     public void visitTimeLiteral(JFXTimeLiteral tree) {
         //TODO: code should be something like the below, but this requires a similar change to visitInterpolateValue
         /***

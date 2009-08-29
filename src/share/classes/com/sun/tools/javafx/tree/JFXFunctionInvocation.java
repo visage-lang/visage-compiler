@@ -26,8 +26,8 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.util.List;
 
 /**
  * A method invocation
@@ -69,7 +69,7 @@ public class JFXFunctionInvocation extends JFXExpression implements FunctionInvo
         return args;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitMethodInvocation(this, d);
     }

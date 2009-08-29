@@ -64,7 +64,7 @@ public class JFXIfExpression extends JFXExpression implements ConditionalExpress
         return falsepart;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitConditionalExpression(this, d);
     }

@@ -30,9 +30,9 @@ import java.util.MissingResourceException;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.util.Context;
 
-import com.sun.tools.javac.util.Log;  // Access to 'javac' output streams
+import com.sun.tools.mjavac.util.Log;  // Access to 'javac' output streams
 
 /**
  * Utility for integrating with javadoc tools and for localization.

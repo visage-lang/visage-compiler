@@ -25,25 +25,25 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.Position;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.mjavac.code.TypeTags;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.Type.ClassType;
+import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.*;
 
 
 import com.sun.tools.javafx.comp.JavafxAttrContext;
 import com.sun.tools.javafx.comp.JavafxEnv;
 import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
 
 import java.io.File;
 import java.util.Set;
@@ -1229,13 +1229,13 @@ public class ClassDocImpl extends ProgramElementDocImpl implements ClassDoc {
         return env.isSequence(tsym);
     }
     
-    public String simpleFunctionalTypeName(com.sun.tools.javac.code.Type rawType) {
+    public String simpleFunctionalTypeName(com.sun.tools.mjavac.code.Type rawType) {
         return env.simpleFunctionalTypeName(rawType);
     }
     
-    public com.sun.javadoc.Type sequenceType(com.sun.tools.javac.code.Type rawType) {
+    public com.sun.javadoc.Type sequenceType(com.sun.tools.mjavac.code.Type rawType) {
         if (isSequence()) {
-            com.sun.tools.javac.code.Type rawSeqType = env.sequenceType(rawType);
+            com.sun.tools.mjavac.code.Type rawSeqType = env.sequenceType(rawType);
             com.sun.javadoc.Type seqType = TypeMaker.getType(env, rawSeqType, false);
             return seqType;
         }

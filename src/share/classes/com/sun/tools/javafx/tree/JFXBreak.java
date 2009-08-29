@@ -25,7 +25,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * A break from a loop or switch.
@@ -53,7 +53,7 @@ public class JFXBreak extends JFXExpression implements BreakTree {
         return label;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitBreak(this, d);
     }

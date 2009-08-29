@@ -26,7 +26,7 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.code.Type;
+import com.sun.tools.mjavac.code.Type;
 
 
 /**
