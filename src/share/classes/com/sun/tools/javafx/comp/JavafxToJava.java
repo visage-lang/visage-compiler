@@ -159,7 +159,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
      * static information
      */
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.ObjectArraySequence";
-    private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundCompositeSequence";
+    private static final String boundSequenceBuilderString = "com.sun.javafx.runtime.sequence.BoundSequenceBuilder";
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";

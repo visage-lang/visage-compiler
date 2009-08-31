@@ -25,9 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.location.InvalidateMeListener;
-import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.Util;
 
 /**
  * BoundCompositeSequence
@@ -35,74 +33,28 @@ import com.sun.javafx.runtime.Util;
  * @author Brian Goetz
  */
 public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implements SequenceLocation<T> {
-    private static final int DEFAULT_SIZE = 8;
     private Info<T, ? extends T>[] infos;
-    int numinfos;
 
     private static class Info<T, V extends T> extends WeakMeChangeListener<V> {
-        // Exactly one of location or location1 is non-null.
         private final SequenceLocation<V> location;
-        // An optimization - instead of using a BoundSingletonSequence.
-        private final ObjectLocation<V> location1;
         private int startPosition, size, index;
 
         public Info(BoundCompositeSequence<T> bcs, int index, SequenceLocation<V> location) {
             super(bcs);
             this.location = location;
-            this.location1 = null;
-            this.index = index;
-        }
-
-        public Info(BoundCompositeSequence<T> bcs, int index, ObjectLocation<V> location) {
-            super(bcs);
-            this.location1 = location;
-            this.location = null;
             this.index = index;
         }
 
         public void addListener() {
-            if (location1 != null)
-                location1.addChangeListener(this);
-            else
-                location.addSequenceChangeListener(this);
+            location.addSequenceChangeListener(this);
         }
 
         public void removeListener() {
-            // Only called from replaceSlice, which is only called from
-            // AbstractBoundComprehension - i.e. we know location!=null.
             location.removeSequenceChangeListener(this);
         }
 
         public void setIndex(int index) {
             this.index = index;
-        }
-
-        @Override
-        public void onChange(V oldValue, V newValue) {
-            onChangeB(oldValue, newValue);
-        }
-
-        @Override
-        public boolean onChangeB(V oldValue, V newValue) {
-            BoundCompositeSequence<T> bcs = (BoundCompositeSequence<T>) get();
-            if (bcs != null) {
-                int actualStart = startPosition;
-                int replacedSize = oldValue == null ? 0 : 1;
-                int insertedSize = newValue == null ? 0 : 1;
-                int delta = insertedSize - replacedSize;
-                size = insertedSize;
-                if (delta != 0) {
-                    @SuppressWarnings("unchecked")
-                    Info<T, ? extends T>[] tinfos = (Info[])bcs.infos;
-                    int ninfos = bcs.numinfos;
-                    for (int i = index + 1; i < ninfos; i++)
-                        tinfos[i].startPosition += delta;
-                }
-                bcs.updateSlice(actualStart, actualStart+replacedSize, newValue);
-                return true;
-            } else {
-                return false;
-            }
         }
 
         @Override
@@ -118,7 +70,6 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             if (bcs != null) {
                 int actualStart = startPosition + startPos;
                 int actualEnd = startPosition + endPos;
-
                 int insertedSize = Sequences.sizeOfNewElements(buffer, startPos, newElements);
                 int oldSize = Sequences.sizeOfOldValue(buffer, oldValue, endPos);
                 int delta = insertedSize - (endPos - startPos);
@@ -126,7 +77,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
                 if (delta != 0) {
                     @SuppressWarnings("unchecked")
                     Info<T, ? extends T>[] tinfos = (Info[])bcs.infos;
-                    int ninfos = bcs.numinfos;
+                    int ninfos = tinfos.length;
                     for (int i = index + 1; i < ninfos; i++)
                         tinfos[i].startPosition += delta;
                 }
@@ -138,15 +89,6 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         }
     }
 
-    public BoundCompositeSequence(boolean lazy, TypeInfo<T, ?> typeInfo) {
-        this(lazy, DEFAULT_SIZE, typeInfo);
-    }
-
-    public BoundCompositeSequence(boolean lazy, int initialSize, TypeInfo<T, ?> typeInfo) {
-        super(lazy, typeInfo);
-        this.infos = newInfoArray(initialSize);
-    }
-
     public BoundCompositeSequence(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>... locations) {
         this(lazy, typeInfo, locations, locations.length);
     }
@@ -154,42 +96,11 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     public BoundCompositeSequence(boolean lazy, TypeInfo<T, ?> typeInfo, SequenceLocation<? extends T>[] locations, int size) {
         super(lazy, typeInfo);
         this.infos = newInfoArray(size);
-        this.numinfos = size;
         for (int i = 0; i < size; i++)
             infos[i] = new Info(this, i, locations[i]);
-        toSequence();
-    }
-
-    private void ensureSize(int newSize) {
-        if (infos.length < newSize) {
-            int newCapacity = Util.powerOfTwo(numinfos, newSize);
-            Info<T, ? extends T>[] newArray = newInfoArray(newCapacity);
-            System.arraycopy(infos, 0, newArray, 0, numinfos);
-            infos = newArray;
-        }
-    }
-
-    /** Add an existing SequenceLocation, which will be flattened */
-    public void add(SequenceLocation<? extends T> seq) {
-        int i = numinfos;
-        ensureSize(i + 1);
-        infos[i] = new Info(this, i, seq);
-        numinfos = i+1;
-    }
-
-    /** Add an instance location to the sequence */
-    public void add(ObjectLocation<? extends T> singleton) {
-        int i = numinfos;
-        ensureSize(i + 1);
-        infos[i] = new Info(this, i, singleton);
-        numinfos = i+1;
-    }
-
-    public SequenceLocation<T> toSequence() {
         if (!lazy)
             setInitialValue(computeValue());
         addTriggers();
-        return this;
     }
 
     @SuppressWarnings("unchecked")
@@ -199,30 +110,20 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
 
     protected Sequence<? extends T> computeValue() {
        ObjectArraySequence<T> buffer = new ObjectArraySequence(getElementType());
-        for (int i = 0, offset = 0; i < numinfos; i++) {
-            Info<T, ? extends T> info = infos[i];
-            info.startPosition = offset;
-            if (info.location != null) {
-                Sequence<? extends T> seq = info.location.getAsSequence();
-                int ssize = seq.size();
-                info.size = ssize;
-                offset += ssize;
-                buffer.add(seq);
-            }
-            else { // Singleton
-                T val = info.location1.get();
-                int ssize = val == null ? 0 : 1;
-                info.size = ssize;
-                offset += ssize;
-                buffer.add(val);
-            }
+        for (int i = 0, offset = 0; i < infos.length; i++) {
+            Sequence<? extends T> seq = infos[i].location.getAsSequence();
+            infos[i].startPosition = offset;
+            int ssize = seq.size();
+            infos[i].size = ssize;
+            offset += ssize;
+            buffer.add(seq);
         }
         return buffer;
     }
 
     private void addTriggers() {
         InvalidateMeListener invalidate = null;
-        for (int i = 0; i < numinfos; i++) {
+        for (int i = 0; i < infos.length; i++) {
             if (lazy) {
                 if (invalidate == null)
                      invalidate = new InvalidateMeListener(this);
@@ -235,7 +136,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     public void replaceSlice(int startPos, int endPos, SequenceLocation<? extends T>[] newValues) {
         int insertedCount = newValues.length;
         int affectedStart, affectedEnd;
-        if (startPos < numinfos) {
+        if (startPos < infos.length) {
             affectedStart = infos[startPos].startPosition;
             affectedEnd = (endPos > 0) ? (infos[endPos-1].startPosition + infos[endPos-1].size) : 0;
         }
@@ -249,11 +150,10 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
         int deltaLocations = insertedCount - deletedCount;
         if (deltaLocations != 0) {
             @SuppressWarnings("unchecked")
-            Info<T, ? extends T>[] temp = (Info[]) new Info[numinfos + deltaLocations];
+            Info<T, ? extends T>[] temp = (Info[]) new Info[infos.length + deltaLocations];
             System.arraycopy(infos, 0, temp, 0, startPos);
-            System.arraycopy(infos, endPos, temp, startPos + insertedCount, numinfos - endPos);
+            System.arraycopy(infos, endPos, temp, startPos + insertedCount, infos.length - endPos);
             infos = temp;
-            numinfos = numinfos + deltaLocations;
         }
         int offset = affectedStart;
         int newSize = 0;
@@ -271,7 +171,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
             infos[index].addListener();
         }
         int deltaElements = newSize - (affectedEnd - affectedStart);
-        for (int i = endPos + deltaLocations; i < numinfos; i++) {
+        for (int i = endPos + deltaLocations; i < infos.length; i++) {
             infos[i].startPosition += deltaElements;
             infos[i].setIndex(i);
         }
@@ -285,7 +185,7 @@ public class BoundCompositeSequence<T> extends AbstractBoundSequence<T> implemen
     public void validate() {
         // Uncomment for debugging
 //        int offset = 0;
-//        for (int i=0; i<numinfos; i++) {
+//        for (int i=0; i<infos.length; i++) {
 //            Info info = infos[i];
 //            Assert.assertEquals(offset, info.startPosition);
 //            Assert.assertTrue(info.startPosition >= 0);

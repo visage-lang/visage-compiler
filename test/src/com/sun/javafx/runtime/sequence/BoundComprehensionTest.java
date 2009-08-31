@@ -403,7 +403,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
             }
 
             {
-                BoundCompositeSequence<String> jfx$$1sb = new BoundCompositeSequence<String>(NOT_LAZY, TypeInfo.String);
+                BoundSequenceBuilder<String> jfx$$1sb = new BoundSequenceBuilder<String>(NOT_LAZY, TypeInfo.String);
                 jfx$$1sb.add(firstElement);
                 xform$attr = jfx$$1sb.toSequence();
                 // @@@ Sequence loc is built in initially-lazy mode !
@@ -444,7 +444,7 @@ public class BoundComprehensionTest extends JavaFXTestCase {
                                                     }
 
                                                     {
-                                                        BoundCompositeSequence<String> jfx$$1sb = new BoundCompositeSequence<String>(NOT_LAZY, TypeInfo.String);
+                                                        BoundSequenceBuilder<String> jfx$$1sb = new BoundSequenceBuilder<String>(NOT_LAZY, TypeInfo.String);
                                                         jfx$$1sb.add(textStr);
                                                         xform$attr = jfx$$1sb.toSequence();
                                                     }
