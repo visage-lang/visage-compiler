@@ -53,14 +53,30 @@ public class Locations {
             final BooleanLocation conditional,
             final ObjectLocation<T> thenLoc, final ObjectLocation<T> elseLoc) {
         return new AbstractBindingExpression() {
-            StaticDependentLocation weakMe;
+            StaticDependentLocation weakThenMe;
+            StaticDependentLocation weakElseMe;
+
             ObjectLocation<T> lastArm;
+            boolean lastValue;
 
             @Override
             public void setLocation(Location location) {
                 super.setLocation(location);
                 addStaticDependent(conditional);
-                weakMe = new StaticDependentLocation(location);
+            }
+
+            private StaticDependentLocation weakThenMe() {
+                if (weakThenMe == null) {
+                    weakThenMe = new StaticDependentLocation(location);
+                }
+                return weakThenMe;
+            }
+
+            private StaticDependentLocation weakElseMe() {
+                if (weakElseMe == null) {
+                    weakElseMe = new StaticDependentLocation(location);
+                }
+                return weakElseMe;
             }
 
             @Override
@@ -69,11 +85,15 @@ public class Locations {
                 ObjectLocation<T> thisArm = c ? thenLoc : elseLoc;
                 if (thisArm != lastArm) {
                     if (lastArm != null && lastArm instanceof AbstractLocation) {
+                        StaticDependentLocation weakMe = lastValue? weakThenMe() : weakElseMe();
                         ((AbstractLocation) lastArm).removeChild(weakMe);
                     }
-                    if (thisArm instanceof AbstractLocation)
+                    if (thisArm instanceof AbstractLocation) {
+                        StaticDependentLocation weakMe = c? weakThenMe() : weakElseMe();
                         ((AbstractLocation) thisArm).addChild(weakMe);
+                    }
                     lastArm = thisArm;
+                    lastValue = c;
                 }
                 pushFrom(typeInfo, thisArm);
             }
@@ -283,28 +303,31 @@ public class Locations {
     ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
         final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
         helpedLocation.addDependency(dependencies);
+        IndirectChangeListener<T, L> listener = new IndirectChangeListener<T, L>(helpedLocation);
         if (!lazy) {
             L initialValue = helper.get();
-            helpedLocation.addDynamicDependency(initialValue);
+            if (initialValue instanceof AbstractLocation)
+                ((AbstractLocation) initialValue).addChild(listener.helpedLocationHolder);
         }
-        helper.addChangeListener(new IndirectChangeListener<T, L>(helpedLocation));
+        helper.addChangeListener(listener);
         return helper;
     }
 
     private static class IndirectChangeListener<T, L extends ObjectLocation<T>> extends ChangeListener<L> {
-        private final WeakReference<L> helpedLocationHolder;
+        StaticDependentLocation helpedLocationHolder;
 
         public IndirectChangeListener(L helpedLocation) {
-            this.helpedLocationHolder = new WeakReference<L>(helpedLocation);
+            this.helpedLocationHolder = new StaticDependentLocation(helpedLocation);
         }
 
         @Override
         public void onChange(L oldLoc, L newLoc) {
-            L helpedLocation = helpedLocationHolder.get();
-            if (helpedLocation != null) {
-                helpedLocation.clearDynamicDependencies();
-                helpedLocation.addDynamicDependency(newLoc);
-            }
+            if (oldLoc instanceof AbstractLocation)
+                ((AbstractLocation) oldLoc).removeChild(helpedLocationHolder);
+            L helpedLocation = (L) helpedLocationHolder.get();
+            this.helpedLocationHolder = new StaticDependentLocation(helpedLocation);
+            if (newLoc instanceof AbstractLocation)
+                ((AbstractLocation) newLoc).addChild(helpedLocationHolder);
         }
     }
 

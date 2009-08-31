@@ -3,4 +3,7 @@ found   : String
 required: void
     override public function foo() : String { "x" }
     ^
-1 error
+test/features/F19-multiple-inheritance/MxUnresConf04neg.fx:12: MxUnresConf04neg.Mixee is not abstract and does not override abstract method foo() in MxUnresConf04neg.Mixin
+public class Mixee extends Mixin {
+^
+2 errors

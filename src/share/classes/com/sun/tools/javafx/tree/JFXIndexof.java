@@ -56,7 +56,7 @@ public class JFXIndexof extends JFXExpression implements IndexofTree {
         return JavaFXKind.INDEXOF;
     }
 
-    @Override
+    //@Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitIndexof(this, data);
     }

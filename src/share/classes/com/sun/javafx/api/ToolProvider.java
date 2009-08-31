@@ -51,7 +51,7 @@ public class ToolProvider {
         try {
             URL[] urls = new URL[] {
                 getPath("com.sun.tools.javafx.api.JavafxcTool"),
-                getPath("com.sun.tools.javac.util.Context")
+                getPath("com.sun.tools.mjavac.util.Context")
             };
             ClassLoader cl = createPrivilegedClassLoader(urls);
             Class<?> cls = Class.forName("com.sun.tools.javafx.api.JavafxcTool", false, cl);
@@ -71,7 +71,7 @@ public class ToolProvider {
         try {
             URL[] urls = new URL[] {
                 getPath("com.sun.tools.javafx.script.JavaFXScriptEngineImpl"),
-                getPath("com.sun.tools.javac.util.Context")
+                getPath("com.sun.tools.mjavac.util.Context")
             };
             ClassLoader cl = createPrivilegedClassLoader(urls);
             Class<?> cls = Class.forName("com.sun.tools.javafx.script.JavaFXScriptEngineImpl", false, cl);

@@ -23,17 +23,17 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.comp.AttrContext;
+import com.sun.tools.mjavac.comp.Env;
 import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.tree.JCTree.*;
-import com.sun.tools.javac.comp.MemberEnter;
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.tree.JCTree.*;
+import com.sun.tools.mjavac.comp.MemberEnter;
+import com.sun.tools.mjavac.tree.JCTree;
 
 
-import static com.sun.tools.javac.tree.JCTree.*;
+import static com.sun.tools.mjavac.tree.JCTree.*;
 
 /** This is the second phase of Enter, in which classes are completed
  *  by entering their members into the class scope using

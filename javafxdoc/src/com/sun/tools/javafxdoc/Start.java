@@ -25,11 +25,11 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.main.CommandLine;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.main.CommandLine;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Options;
 
 import java.io.IOException;
 import java.io.File;
@@ -40,7 +40,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**

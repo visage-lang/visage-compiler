@@ -24,10 +24,10 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.util.Context;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**

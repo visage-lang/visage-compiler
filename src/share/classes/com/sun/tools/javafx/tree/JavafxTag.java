@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree;
 
     /* Tree tag values, identifying kinds of trees */
 public enum JavafxTag {

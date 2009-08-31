@@ -22,7 +22,7 @@
  */
 
 package com.sun.tools.javafx.code;
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 /**
  * Some Javafx-specific flags for {@code Symbols}'s {@code flags_field}.

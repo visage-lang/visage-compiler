@@ -46,7 +46,7 @@ public class JFXTypeAny extends JFXType implements TypeAnyTree {
         return JavafxTag.TYPEANY;
     }
 
-    @Override
+    //@Override
     public <R,D> R accept(JavaFXTreeVisitor<R,D> v, D d) {
         return v.visitTypeAny(this, d);
     }

@@ -25,7 +25,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 
-import com.sun.tools.javac.code.Type;
+import com.sun.tools.mjavac.code.Type;
 
 public abstract class JFXExpression extends JFXTree implements ExpressionTree {
     

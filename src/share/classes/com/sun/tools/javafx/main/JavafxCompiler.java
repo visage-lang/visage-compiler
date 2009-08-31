@@ -36,16 +36,16 @@ import javax.tools.JavaFileObject;
 import com.sun.javafx.api.JavafxTaskEvent;
 import com.sun.javafx.api.JavafxTaskListener;
 import com.sun.source.util.TaskEvent;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.code.*;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.mjavac.jvm.*;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javafx.comp.*;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.util.MsgSym;
-import static com.sun.tools.javac.util.ListBuffer.lb;
+import static com.sun.tools.mjavac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
 import com.sun.tools.javafx.util.PlatformPlugin;
 import java.util.MissingResourceException;
@@ -1105,7 +1105,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     public static void enableLogging() {
-        Logger logger = Logger.getLogger(com.sun.tools.javac.Main.class.getPackage().getName());
+        Logger logger = Logger.getLogger(com.sun.tools.mjavac.Main.class.getPackage().getName());
         logger.setLevel(Level.ALL);
         for (Handler h : logger.getParent().getHandlers()) {
             h.setLevel(Level.ALL);

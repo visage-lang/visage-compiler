@@ -123,6 +123,13 @@ public class SequenceVariable<T>
         };
     }
 
+    public SequenceLocation<T> bijectiveBind(SequenceVariable<T> other) {
+        ensureBindable();
+        resetState(STATE_BIDI_BOUND);
+        Bindings.bijectiveBind(this, other);
+        return this;
+    }
+
     public void addSequenceChangeListener(ChangeListener listener) {
         addChild(listener);
     }
@@ -169,33 +176,38 @@ public class SequenceVariable<T>
         // closure class for every iteration.
 
         if (hasChildren(CHILD_KIND_TRIGGER)) {
-            boolean removed = false;
-            int mask = 0;
-            for (LocationDependency cur = children;  cur != null; ) {
-                LocationDependency next = cur.getNext();
-                int curKind = cur.getDependencyKind();
-                handle: {
-                    if (curKind == CHILD_KIND_TRIGGER) {
-                        boolean keep;
-                        try {
-                            keep = ((ChangeListener<T>)cur).onChangeB(buffer, oldValue, startPos, endPos, newElements);
-                        } catch (RuntimeException e) {
-                            ErrorHandler.triggerException(e);
-                            keep = true;
-                        }
+            beginUpdate();
+            try {
+                boolean removed = false;
+                int mask = 0;
+                for (LocationDependency cur = children;  cur != null; ) {
+                    LocationDependency next = cur.getNext();
+                    int curKind = cur.getDependencyKind();
+                    handle: {
+                        if (curKind == CHILD_KIND_TRIGGER) {
+                            boolean keep;
+                            try {
+                                keep = ((ChangeListener<T>)cur).onChangeB(buffer, oldValue, startPos, endPos, newElements);
+                            } catch (RuntimeException e) {
+                                ErrorHandler.triggerException(e);
+                                keep = true;
+                            }
 
-                        if (! keep) {
-                            Linkables.remove(cur);
-                            removed = true;
-                            break handle;
+                            if (! keep) {
+                                Linkables.remove(cur);
+                                removed = true;
+                                break handle;
+                            }
                         }
+                        mask |= curKind;
                     }
-                    mask |= curKind;
+                    cur = next;
                 }
-                cur = next;
+                if (removed)
+                    setChildKindMask((byte) mask);
+            } finally {
+                endUpdate();
             }
-            if (removed)
-                setChildKindMask((byte) mask);
         }
     }
 
@@ -323,7 +335,7 @@ public class SequenceVariable<T>
         return newValue;
     }
 
-    @Override
+    //@Override
     public T set(int position, T newValue) {
         replaceSlice(position, position+1, newValue);
         return newValue;
@@ -363,7 +375,7 @@ public class SequenceVariable<T>
             setValid();
     }
 
-    @Override
+    //@Override
     public Sequence<? extends T> replaceSlice(int startPos, int endPos/*exclusive*/, Sequence<? extends T> newValues) {
         if (newValues == null)
             newValues = typeInfo.emptySequence;
@@ -409,17 +421,17 @@ public class SequenceVariable<T>
         return newValues;
     }
 
-    @Override
+    //@Override
     public void delete(int position) {
         replaceSlice(position, position+1, (Sequence<? extends T>) null);
     }
 
-    @Override
+    //@Override
     public void deleteSlice(int startPos, int endPos/* exclusive */) {
         replaceSlice(startPos, endPos, (Sequence<? extends T>) null);
     }
 
-    @Override
+    //@Override
     public void delete(SequencePredicate<T> sequencePredicate) {
         ensureNotBound();
         Sequence<? extends T> oldValue = \$value;
@@ -454,13 +466,13 @@ public class SequenceVariable<T>
         */
     }
 
-    @Override
+    //@Override
     public void deleteAll() {
         ensureNotBound();
         setAsSequence(typeInfo.emptySequence);
     }
 
-    @Override
+    //@Override
     public void deleteValue(final T targetValue) {
         delete(new SequencePredicate<T>() {
             public boolean matches(Sequence<? extends T> sequence, int index, T value) {
@@ -471,24 +483,24 @@ public class SequenceVariable<T>
         });
     }
 
-    @Override
+    //@Override
     public void insert(T value) {
         int sz = \$value.size();
         replaceSlice(sz, sz, value);
     }
 
-    @Override
+    //@Override
     public void insert(Sequence<? extends T> values) {
         int sz = \$value.size();
         replaceSlice(sz, sz, values);
     }
 
-    @Override
+    //@Override
     public void insertBefore(T value, int position) {
         replaceSlice(position, position, value);
     }
 
-    @Override
+    //@Override
     public void insertBefore(Sequence<? extends T> values, int position) {
         replaceSlice(position, position, values);
     }

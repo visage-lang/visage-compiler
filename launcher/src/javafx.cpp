@@ -46,7 +46,13 @@ int main(int argc, char** argv) {
         cmd += config.profile_vmargs + " ";
     }
     if (! config.profile_nativelibpath.empty()) {
-        cmd += "-Djava.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
+        if (config.librarypath.empty()) {
+            cmd += "-Djava.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
+        } else {
+            cmd += "-Djava.library.path=\"" + config.librarypath + ";" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
+        }
+    } else if (! config.librarypath.empty()) {
+        cmd += "-Djava.library.path=\"" + config.librarypath  + "\" ";
     }
     if (! config.profile_bootnativelibpath.empty()) {
         cmd += "-Dsun.boot.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_bootnativelibpath + "\" ");

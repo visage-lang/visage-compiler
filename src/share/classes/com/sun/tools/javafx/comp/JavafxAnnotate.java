@@ -23,9 +23,9 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Symbol.*;
 
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 

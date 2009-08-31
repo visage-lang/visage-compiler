@@ -28,26 +28,26 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Lint.LintCategory;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.code.Type.ErrorType;
-import com.sun.tools.javac.code.Type.ForAll;
-import com.sun.tools.javac.code.Type.TypeVar;
-import com.sun.tools.javac.code.Type.MethodType;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Lint.LintCategory;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type.ClassType;
+import com.sun.tools.mjavac.code.Type.ErrorType;
+import com.sun.tools.mjavac.code.Type.ForAll;
+import com.sun.tools.mjavac.code.Type.TypeVar;
+import com.sun.tools.mjavac.code.Type.MethodType;
 
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
-import static com.sun.tools.javac.code.TypeTags.WILDCARD;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
+import static com.sun.tools.mjavac.code.TypeTags.WILDCARD;
 
-import com.sun.tools.javac.comp.Infer;
-import com.sun.tools.javac.jvm.ByteCodes;
-import com.sun.tools.javac.jvm.ClassReader;
-import com.sun.tools.javac.jvm.Target;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.comp.Infer;
+import com.sun.tools.mjavac.jvm.ByteCodes;
+import com.sun.tools.mjavac.jvm.ClassReader;
+import com.sun.tools.mjavac.jvm.Target;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -74,6 +74,7 @@ public class JavafxCheck {
     private final JavafxDefs defs;
     private final Name.Table names;
     private final Log log;
+    private final JCDiagnostic.Factory diags;
     private final Messages messages;
     private final JavafxSymtab syms;
     private final Infer infer;
@@ -117,6 +118,7 @@ public class JavafxCheck {
         defs = JavafxDefs.instance(context);
         names = Name.Table.instance(context);
         log = Log.instance(context);
+        diags = JCDiagnostic.Factory.instance(context);
         messages = Messages.instance(context);
         syms = (JavafxSymtab) Symtab.instance(context);
         infer = Infer.instance(context);
@@ -224,6 +226,19 @@ public class JavafxCheck {
         String requiredAsJavaFXType = types.toJavaFXString(req);
 	log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsJavaFXType, requiredAsJavaFXType);
 	return syms.errType;
+    }
+
+    Type typeError(DiagnosticPosition pos, Object problem, Object found, Object req) {
+        Object requiredAsJavaFXType = req;
+        if (req instanceof Type) {
+            requiredAsJavaFXType = types.toJavaFXString((Type) requiredAsJavaFXType);
+        }
+        Object foundAsJavaFXType = found;
+        if (foundAsJavaFXType instanceof Type) {
+            foundAsJavaFXType = types.toJavaFXString((Type) foundAsJavaFXType);
+        }
+        log.error(pos, MsgSym.MESSAGE_PROB_FOUND_REQ, problem, foundAsJavaFXType, requiredAsJavaFXType);
+        return syms.errType;
     }
 
     Type typeError(DiagnosticPosition pos, String problem, Type found, Type req, Object explanation) {
@@ -437,6 +452,9 @@ public class JavafxCheck {
         if (types.isAssignable(foundUnboxed, reqUnboxed, convertWarner(pos, found, req))) {
             Type foundElem = types.elementTypeOrType(found);
             Type reqElem = types.elementTypeOrType(req);
+            if (foundElem.tag == VOID && reqElem.tag != VOID) {
+                return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
+            }
             if (reqElem.tag <= LONG && foundElem.tag >= FLOAT && foundElem.tag <= DOUBLE && giveWarnings) {
                 // FUTURE/FIXME: return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
                 String foundAsJavaFXType = types.toJavaFXString(foundUnboxed);
@@ -460,6 +478,9 @@ public class JavafxCheck {
         Type reqElem = types.elementTypeOrType(req);
 
         if (foundElem.tag <= DOUBLE && reqElem.tag <= DOUBLE) {
+            if (foundElem.tag == VOID && reqElem.tag != VOID) {
+                return typeError(pos, JCDiagnostic.fragment(MsgSym.MESSAGE_INCOMPATIBLE_TYPES), found, req);
+            }
             if (giveWarnings) {
                 String foundAsJavaFXType = types.toJavaFXString(found);
                 String requiredAsJavaFXType = types.toJavaFXString(req);
@@ -710,7 +731,12 @@ public class JavafxCheck {
     }
 
     void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env, Type pt) {
-        if (bindStatus.isBidiBind()) {
+        if (init.type != null && types.isArray(init.type) && bindStatus.isBound()) {
+                JCDiagnostic err = diags.fragment(MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TARGET_IN_BIND);
+                typeError(init, err, init.type, messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
+                        MsgSym.MESSAGE_JAVAFX_OBJ_OR_SEQ));
+        }
+        else if (bindStatus.isBidiBind()) {
             Symbol initSym = null;
             JFXTree base = null;
             Type site = null;
@@ -736,7 +762,11 @@ public class JavafxCheck {
                 }
             }
             if (initSym instanceof VarSymbol) {
-                if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
+                if ((initSym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0) {
+                    log.error(init.pos(),
+                              MsgSym.MESSAGE_JAVAFX_BOUND_VAR_IN_BIDI_BIND);
+                }
+                else if (pt != null && bindStatus.isBidiBind() && !types.isSameType(pt, initSym.type)) {
                     log.error(init.pos(), 
                               MsgSym.MESSAGE_JAVAFX_WRONG_TYPE_FOR_BIDI_BIND,
                               types.toJavaFXString(initSym.type),
@@ -1527,9 +1557,15 @@ public class JavafxCheck {
             Type site) {
         Symbol sym = firstIncompatibility(t1, t2, site);
         if (sym != null) {
-            log.error(pos, MsgSym.MESSAGE_TYPES_INCOMPATIBLE_DIFF_RET,
-                    t1, t2, sym.name +
-                    "(" + types.memberType(t2, sym).getParameterTypes() + ")");
+            if (sym.kind == VAR) {
+                log.error(pos, MsgSym.MESSAGE_JAVAFX_TYPES_INCOMPATIBLE_VARS,
+                    t1, t2, sym.name);
+            }
+            else {
+                log.error(pos, MsgSym.MESSAGE_TYPES_INCOMPATIBLE_DIFF_RET,
+                        t1, t2, sym.name +
+                        "(" + types.memberType(t2, sym).getParameterTypes() + ")");
+            }
             return false;
         }
         return true;
@@ -1584,15 +1620,24 @@ public class JavafxCheck {
 
     /** Return the first method in t2 that conflicts with a method from t1. */
     private Symbol firstDirectIncompatibility(Type t1, Type t2, Type site) {
+        Symbol s = firstDirectMethodIncompatibility(t1, t2, site);
+        if (s != null) {
+            return s;
+        }
+        else {
+            return firstDirectVarIncompatibility(t1, t2, site);
+        }
+    }
+
+    private Symbol firstDirectMethodIncompatibility(Type t1, Type t2, Type site) {
 	for (Scope.Entry e1 = t1.tsym.members().elems; e1 != null; e1 = e1.sibling) {
 	    Symbol s1 = e1.sym;
 	    Type st1 = null;
 	    if (s1.kind != MTH || s1.name == defs.internalRunFunctionName ||
                     !s1.isInheritedIn(site.tsym, types)) continue;
-            Symbol impl = types.implementation((MethodSymbol)s1, site.tsym, false);
-            if (impl != null && (impl.flags() & ABSTRACT) == 0) continue;
 	    for (Scope.Entry e2 = t2.tsym.members().lookup(s1.name); e2.scope != null; e2 = e2.next()) {
 		Symbol s2 = e2.sym;
+                s2.complete();
 		if (s1 == s2) continue;
 		if (s2.kind != MTH || !s2.isInheritedIn(site.tsym, types)) continue;
 		if (st1 == null) st1 = types.memberType(t1, s1);
@@ -1612,6 +1657,24 @@ public class JavafxCheck {
 	    }
 	}
 	return null;
+    }
+
+    private Symbol firstDirectVarIncompatibility(Type t1, Type t2, Type site) {
+        for (Scope.Entry e1 = t1.tsym.members().elems; e1 != null; e1 = e1.sibling) {
+            Symbol s1 = e1.sym;
+            Type st1 = null;
+            if (s1.kind != VAR ||
+                    !s1.isInheritedIn(site.tsym, types)) continue;
+            for (Scope.Entry e2 = t2.tsym.members().lookup(s1.name); e2.scope != null; e2 = e2.next()) {
+                Symbol s2 = e2.sym;
+                if (s1 == s2) continue;
+                if (s2.kind != VAR || !s2.isInheritedIn(site.tsym, types)) continue;
+                if (!types.isSameType(s1.type, s2.type)) {
+                    return s2;
+                }
+            }
+        }
+        return null;
     }
 
     /** Check that a given method conforms with any method it overrides.
@@ -1636,7 +1699,7 @@ public class JavafxCheck {
                     e.sym.complete();
                     if (types.overrides(m, e.sym, origin, false)) {
                         checkOverride(tree, m, (MethodSymbol)e.sym, origin);
-                        doesOverride = true;
+                        doesOverride = !e.sym.type.getReturnType().isErroneous();
                     }
                     e = e.next();
                 }
@@ -1750,7 +1813,7 @@ public class JavafxCheck {
 	    MethodSymbol undef = null;
 	    // Do not bother to search in classes that are not abstract,
 	    // since they cannot have abstract members.
-	    if (c == impl || (c.flags() & (ABSTRACT | INTERFACE)) != 0) {
+	    if (c == impl || (c.flags() & (ABSTRACT | INTERFACE | MIXIN)) != 0) {
 		Scope s = c.members();
 		for (Scope.Entry e = s.elems;
 		     undef == null && e != null;

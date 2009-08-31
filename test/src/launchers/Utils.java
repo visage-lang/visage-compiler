@@ -323,6 +323,7 @@ public class Utils {
      */
     static List<String> doExec(List<String> cmds, File testOutput) {
         if (debug) {
+            System.out.println("CWD: " + workingDir);
             System.out.println("----Execution args----");
             for (String x : cmds) {
                 System.out.println(x);
@@ -479,6 +480,23 @@ public class Utils {
         return sw.toString();
     }
 
+    static String emitPropsTestJava(String classname, File outFile) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        if (outFile != null) {
+            pw.println("var ps = new java.io.PrintStream(\"" +
+                    outFile.getName() + "\");");
+            pw.println("java.lang.System.setOut(ps);");
+        }
+        pw.println("FX.println(\"SYSTEM-PROPERTIES-START\");");
+        pw.println("FX.println(java.lang.System.getProperties());");
+        pw.println("FX.println(\"SYSTEM-PROPERTIES-END\");");
+        if (outFile != null) {
+            pw.println("ps.close();");
+        }
+        return sw.toString();       
+    }
+
     /* NOTE:
      * usage args = "-cp" | "-classpath", "jar-file", "main-class", "app-args....."
      * OR
@@ -541,6 +559,47 @@ public class Utils {
         createJar(false, jarFilename, testOutput);
     }
 
+    static void createFxJar(File jarFilename, String testSrc) throws IOException {
+        String filename = null;
+        String jarfilename = jarFilename.getName();
+        if (!jarfilename.endsWith(".jar")) {
+            throw new RuntimeException("jarFilename: does not end with .jar");
+        } else {
+            filename = jarfilename.substring(0, jarfilename.indexOf(".jar"));
+        }
+
+        // delete any stray files lying around
+        deleteAllFiles();
+
+        PrintStream ps = new PrintStream(new FileOutputStream(
+                new File(workingDir, filename + ".fx")));
+        ps.println(testSrc);
+        ps.close();
+        ArrayList<String> cmdsList = new ArrayList<String>();
+        cmdsList.add(javafxcExe.toString());
+        cmdsList.add(filename + ".fx");
+        List<String> fxcList = doExec(cmdsList);
+        if (fxcList == null) {
+            throw new RuntimeException("FX compilation failed " + filename + ".java");
+        }
+        String jarArgs[] = {
+            (debug) ? "cvfe" : "cfe",
+            jarFilename.getAbsolutePath(),
+            filename,
+            "-C",
+            workingDir.getAbsolutePath(),
+            "."
+        };
+
+        sun.tools.jar.Main jarTool =
+                new sun.tools.jar.Main(System.out, System.err, "JarCreator");
+        if (!jarTool.run(jarArgs)) {
+            throw new RuntimeException("jar creation failed " + jarFilename);
+        }
+        // delete left over class files
+        deleteClassFiles();
+    }
+    
     private static void createJar(boolean isFx, File jarFilename, File testOutput) throws IOException {
         String filename = null;
         String jarfilename = jarFilename.getName();

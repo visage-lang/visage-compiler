@@ -232,6 +232,9 @@ int Configuration::parseArgs(int argc, char** argv) {
         } else if (islauncher && !seen_main && 0 == strcmp("-X", arg)) {
             fxargs = "com.sun.javafx.runtime.LauncherHelper -helpx";
             return (EXIT_SUCCESS);
+        } else if (islauncher && 0 == strncmp(arg, "-Djava.library.path", strlen("-Djava.library.path"))) {
+            librarypath = arg;
+            librarypath.erase(0, strlen("-Djava.library.path="));
         } else if (islauncher && !seen_main && 0 == strncmp("-", arg, 1)) {
             vmargs += " \"";
             vmargs += arg;

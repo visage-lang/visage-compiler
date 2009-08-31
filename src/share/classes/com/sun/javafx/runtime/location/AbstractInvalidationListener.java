@@ -30,7 +30,7 @@ package com.sun.javafx.runtime.location;
  */
 public abstract class AbstractInvalidationListener extends AbstractLocationDependency
         implements InvalidationListener {
-    @Override
+    //@Override
     public int getDependencyKind() {
         return AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER;
     }

@@ -23,10 +23,10 @@
 
 package com.sun.tools.javafxdoc;
 
-import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.jvm.ClassReader;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.mjavac.code.Symbol.PackageSymbol;
+import com.sun.tools.mjavac.jvm.ClassReader;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JavacFileManager;
 
 import java.io.File;
 import java.util.EnumSet;
@@ -66,7 +66,7 @@ class JavafxdocClassReader extends ClassReader {
     @Override
     @SuppressWarnings("deprecation")
     protected void extraFileActions(PackageSymbol pack, JavaFileObject fo) {
-        CharSequence fileName = com.sun.tools.javac.util.Old199.getName(fo);
+        CharSequence fileName = com.sun.tools.mjavac.util.Old199.getName(fo);
         if (docenv != null && fileName.equals("package.html")) {
             if (fo instanceof JavacFileManager.ZipFileObject) {
                 JavacFileManager.ZipFileObject zfo = (JavacFileManager.ZipFileObject) fo;
@@ -89,7 +89,7 @@ class JavafxdocClassReader extends ClassReader {
                 docenv.getPackageDoc(pack).setDocPath(zipName, classPathName);
             }
             else {
-                File fileDir = new File(com.sun.tools.javac.util.Old199.getPath(fo)).getParentFile();
+                File fileDir = new File(com.sun.tools.mjavac.util.Old199.getPath(fo)).getParentFile();
                 docenv.getPackageDoc(pack).setDocPath(fileDir.getAbsolutePath());
             }
         }

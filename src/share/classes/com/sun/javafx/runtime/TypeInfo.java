@@ -124,7 +124,7 @@ public class TypeInfo<T, L extends ObjectLocation<T>> {
 
     @SuppressWarnings("unchecked")
     public static<T> TypeInfo<T, ObjectLocation<T>> getTypeInfo() {
-        return (TypeInfo<T, ObjectLocation<T>>) (TypeInfo<T, ?>) (TypeInfo<?, ?>) Object;
+        return (TypeInfo)Object;
     }
 
     @SuppressWarnings("unchecked")
