@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@ package com.sun.tools.xslhtml;
 import com.sun.tools.javafx.script.JavaFXScriptEngineFactory;
 import com.sun.tools.xmldoclet.Util;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -581,35 +582,25 @@ public class XHTMLProcessingUtils {
     private static void processExampleCode(Element example, File packageDir, Element clazz, int i, boolean renderScreenshot) throws DOMException {
         //p(INFO, MessageFormat.format(getString("processing.example"), clazz.getAttribute("name")));
         //p(INFO, example.getTextContent());
-        try {
-            //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
-            String script = example.getTextContent();
-            StringBuffer out = new StringBuffer();
-            out.append("<p>the code:</p>");
-            out.append("<pre class='example-code'><code>");
-            String styledScript = highlight(script);
-            out.append(styledScript);
-            out.append("</code></pre>");
-            if(renderScreenshot) {
-                try {
-                    File imgFile = new File(packageDir, clazz.getAttribute("name") + i + ".png");
-                    renderScriptToImage(imgFile, script);
-                    out.append("<p>produces:</p>");
-                    out.append("<p>");
-                    out.append("<img class='example-screenshot' src='" + imgFile.getName() + "'/>");
-                    out.append("</p>");
-                } catch (Throwable ex) {
-                    System.out.println("error processing code: " + clazz.getAttribute("name"));
-                    System.out.println("error processing: " + example.getTextContent());
-                    ex.printStackTrace();
-                }
+        //String script = "import javafx.gui.*; CubicCurve { x1: 0  y1: 50  ctrlX1: 25  ctrlY1: 0 ctrlX2: 75  ctrlY2: 100   x2: 100  y2: 50 fill:Color.RED }";
+        String script = example.getTextContent();
+        StringBuffer out = new StringBuffer();
+        out.append("<p>the code:</p>");
+        out.append("<pre class='example-code'><code>");
+        String styledScript = highlight(script);
+        out.append(styledScript);
+        out.append("</code></pre>");
+        if(renderScreenshot) {
+            File imgFile = new File(packageDir, clazz.getAttribute("name") + i + ".png");
+            boolean success = renderScriptToImageAsync(imgFile, script, clazz.getAttribute("name"));
+            if (success) {
+                out.append("<p>produces:</p>");
+                out.append("<p>");
+                out.append("<img class='example-screenshot' src='" + imgFile.getName() + "'/>");
+                out.append("</p>");
             }
-            example.setTextContent(out.toString());
-        } catch (Exception ex) {
-            System.out.println("error processing code: " + clazz.getAttribute("name"));
-            System.out.println("error processing: " + example.getTextContent());
-            ex.printStackTrace();
         }
+        example.setTextContent(out.toString());
     }
 
     private static String highlight(String text) {
@@ -633,54 +624,85 @@ public class XHTMLProcessingUtils {
         //        text +"</body></html>";
         return text;
     }
-    
+   
+    private static boolean renderScriptToImageAsync(final File imgFile, 
+                                                 final String script,
+                                                 final String name) {
+        final boolean[] result = new boolean[1];
+        try {
+            EventQueue.invokeAndWait(new Runnable() {
+                public void run() {
+                    try {
+                        renderScriptToImage(imgFile, script);
+                        result[0] = true;
+                    } catch (Throwable ex) {
+                        System.out.println("error processing code: " + name);
+                        System.out.println("error processing : " + script);
+                        ex.printStackTrace();
+                        result[0] = false;
+                    }
+                }
+            });
+        } catch (Throwable ex) {
+            System.out.println("error processing code: " + name);
+            System.out.println("error processing : " + script);
+            ex.printStackTrace();
+            result[0] = false;
+        }
+        return result[0];
+    }
+
     @SuppressWarnings("unchecked")
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
         ScriptEngineFactory factory = new JavaFXScriptEngineFactory();
         ScriptEngine scrEng = factory.getScriptEngine();
         PrintWriter pw = new PrintWriter(System.err);
         scrEng.getContext().setErrorWriter(pw);
-        //p(INFO, getString("processing.example") + '\n' + script);
         try {
-            //System.err.println("evalling: -" + script+"-");
-        Object ret = scrEng.eval(script);
-        Class fxclass = ret.getClass();
-        Rectangle2D bounds = null;
-        Method paintMethod = null;
-        Object drawObject = null;
-
-        try { 
-            Method component_method = fxclass.getMethod("getJComponent");
-            JComponent component = (JComponent) component_method.invoke(ret);
-            component.validate();
-            component.setSize(component.getPreferredSize());
-            bounds = component.getBounds();
-            drawObject = component;
-            paintMethod = drawObject.getClass().getMethod("paint",Graphics.class);
-        } catch (NoSuchMethodException ex) {
-            Method method = fxclass.getMethod("impl_getFXNode");
-            drawObject = method.invoke(ret);
-            Method getBounds = drawObject.getClass().getMethod("getBounds");
-            bounds = (Rectangle2D) getBounds.invoke(drawObject);
-            paintMethod = drawObject.getClass().getMethod("render", Graphics2D.class);
-        }
-
-        
-        BufferedImage img = new BufferedImage(
-                (int)bounds.getWidth(), 
-                (int)bounds.getHeight(), 
-                BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = img.createGraphics();
-        //let the scenegraph decide if AA should be on or not
-        //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-        //        RenderingHints.VALUE_ANTIALIAS_ON
-        //        );
-        g2.setPaint(Color.WHITE);
-        g2.fillRect(0, 0, img.getWidth(), img.getHeight());
-        g2.translate(-bounds.getX(), -bounds.getY());
-        paintMethod.invoke(drawObject, g2);
-        g2.dispose();
-        ImageIO.write(img, "png", imgFile);
+            Object ret = scrEng.eval(script); 
+            // FIXME: should we use javafx.reflect here?
+            Class fxStageClass = Class.forName("javafx.stage.Stage"); 
+            Class fxSceneClass = Class.forName("javafx.scene.Scene"); 
+            Class fxNodeClass = Class.forName("javafx.scene.Node"); 
+            Object scene = null;
+            if (fxSceneClass.isInstance(ret)) { 
+                scene = ret; 
+            } else if (fxStageClass.isInstance(ret)) {
+                try {
+                    scene = fxStageClass.getMethod("get$scene").invoke(ret); 
+                } catch (Exception ex) {
+                    ex.printStackTrace(pw);
+                    return;
+                }
+            } else if (fxNodeClass.isInstance(ret)) {
+                try {
+                    scene = fxNodeClass.getMethod("get$scene").invoke(ret); 
+                } catch (Exception ex) {
+                    ex.printStackTrace(pw);
+                }
+                if (scene == null) {
+                   // Node is not added to a scene. Create a scene with this
+                   // node as "content" of it. Need to change file name to
+                   // get proper "eval" return value!
+                   scrEng.put(ScriptEngine.FILENAME, "___SCENE_WRAPPER___.fx");
+                   scrEng.put("node", ret);
+                   scene = scrEng.eval(
+                       "javafx.scene.Scene { " +
+                           " content: [ node as javafx.scene.Node ] " +
+                       "}");
+                }
+            } else {
+                Object fxclass = ret.getClass();
+                pw.println("ERROR: Unrecongized JavaFX class: " + fxclass); 
+                return;
+            } 
+            try {
+                Method renderToImage = fxSceneClass.getMethod("renderToImage", Object.class);
+                BufferedImage img = (BufferedImage) renderToImage.invoke(scene, (Object)null); 
+                ImageIO.write(img, "png", imgFile); 
+            } catch (Exception ex) {
+                ex.printStackTrace(pw);
+            }
         } catch (javax.script.ScriptException ex) {
             pw.println(ex.getMessage());
             pw.println(" at: line = " + ex.getLineNumber() + " column = " + ex.getColumnNumber());
@@ -694,5 +716,4 @@ public class XHTMLProcessingUtils {
             pw.close();
         }
     }
-    
 }

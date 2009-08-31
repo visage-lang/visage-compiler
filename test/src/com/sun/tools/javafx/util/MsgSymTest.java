@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 1999-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -37,8 +37,8 @@ public class MsgSymTest {
     public void checkSymbolToMessageEN() {
         // get English resource-bundles
         LinkedList<ResourceBundle> resources = new LinkedList<ResourceBundle>();
-        resources.add(ResourceBundle.getBundle("com.sun.tools.javac.resources.javac"));
-        resources.add(ResourceBundle.getBundle("com.sun.tools.javac.resources.compiler"));
+        resources.add(ResourceBundle.getBundle("com.sun.tools.mjavac.resources.javac"));
+        resources.add(ResourceBundle.getBundle("com.sun.tools.mjavac.resources.compiler"));
         resources.add(ResourceBundle.getBundle("com.sun.tools.javafx.resources.javafxcompiler"));
         
         // general test

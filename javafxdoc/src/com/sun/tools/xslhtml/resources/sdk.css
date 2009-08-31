@@ -1,5 +1,5 @@
 /* 
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved. 
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved. 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER. 
  * 
  * This code is free software; you can redistribute it and/or modify it 
@@ -37,6 +37,8 @@ html, body { padding: 0px; margin: 0px; height: 100%; }
 #master-index-link 				{ text-indent: 4px; }
 #profile-switcher 				{ position: absolute; bottom: 0; right: 10px; color: #aaadaf; }
 #profile-switcher .selected 	{ color: #fff; }
+#collapse-expand-switcher 				{ position: absolute; bottom: 0; right: 180px; color: #aaadaf; }
+#collapse-expand-switcher .selected 	{ color: #fff; }
 
 
 /* ============= classes list ============== */

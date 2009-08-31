@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,14 +27,14 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashSet;
 
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCAnnotation;
-import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
-import com.sun.tools.javac.tree.JCTree.JCImport;
-import com.sun.tools.javac.tree.Pretty;
-import com.sun.tools.javac.tree.TreeInfo;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree.JCAnnotation;
+import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
+import com.sun.tools.mjavac.tree.JCTree.JCImport;
+import com.sun.tools.mjavac.tree.Pretty;
+import com.sun.tools.mjavac.tree.TreeInfo;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.comp.JavafxDefs;
 
 /** Prints out a tree as an indented Java source program.

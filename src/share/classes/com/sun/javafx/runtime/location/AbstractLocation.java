@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,8 +22,6 @@
  */
 
 package com.sun.javafx.runtime.location;
-
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,12 +42,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     private static final byte INUSE_UNINFLATED = 1;
     private static final byte INUSE_INFLATED = 2;
 
-    static final int CHILD_KIND_CHANGE_LISTENER = 1;
+    static final int CHILD_KIND_INVALIDATION_LISTENER = 1;
     static final int CHILD_KIND_WEAK_LOCATION = 2;
     static final int CHILD_KIND_TRIGGER = 4;
     static final int CHILD_KIND_BINDING_EXPRESSION = 8;
-    static final int CHILD_KIND_WEAK_ME_HOLDER = 16;
-    static final int CHILD_KIND_VIEW_LOCATION = 32;
 
     // Space is at a premium; FX classes use a *lot* of locations.
     // We've currently got four byte-size fields here already; we rely on the VM packing byte-size fields
@@ -71,10 +67,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     /** As we add and remove dependencies, we maintain a mask of the kinds of things on the dependency list, so we can
      * quickly answer questions like "do we have any X's"
      */
-    private byte childKindMask;
+        private byte childKindMask;
 
     // This list contains several kinds of ancillary objects, including dependencies:
-    //   Change listeners (really invalidation listeners): called when this location is invalidated
+    //   Invalidation listeners: called when this location is invalidated
     //   Dependent locations: invalidated when this location is invalidated
     //   Value triggers: invoked when the new value is known (might not happen at invalidation time, as with lazy
     //                   binding.)
@@ -87,7 +83,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     // Elements are differentiated by their dependency kind.
     protected LocationDependency children;
 
-    private static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
+    protected static final Map<Location, IterationData> iterationData = new HashMap<Location, IterationData>();
 
 
     public boolean isValid() {
@@ -116,6 +112,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         childKindMask = (byte) mask;
     }
 
+    protected void setChildKindMask(byte mask) {
+        childKindMask = mask;
+    }
+
     protected int countChildren(int mask) {
         int count = 0;
         for (LocationDependency cur = children; cur != null; cur = cur.getNext())
@@ -133,11 +133,16 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     }
 
     protected boolean hasDependencies() {
-        return hasChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_CHANGE_LISTENER | CHILD_KIND_TRIGGER);
+        return hasChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_INVALIDATION_LISTENER | CHILD_KIND_TRIGGER);
     }
 
     protected void enqueueChild(LocationDependency dep) {
-        Linkables.addAtEnd(this, dep);
+        /* FUTURE:
+        LocationDependency head = children;
+        if (head != null)
+            Linkables.addAfter(head, dep);
+        else */
+            Linkables.addAtEnd(this, dep);
         orChildMask(dep.getDependencyKind());
     }
 
@@ -169,6 +174,15 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * The logic in this method is inlined in 3 other places! If you make change,
+     * please keep the logic in sync in XxxVariable.st, equenceVariable.st and
+     * ObjectVariable.java. Inlining was done to avoid creating an instance
+     * of subclass of MutativeIterator for every iteration. Note that this method
+     * is called in this file by passing static iterator objects. In the other
+     * places mentioned, we could not do so. Hence, the logic of iteration is
+     * inlined with closure.onAction() replaced with ChangeListener calls.
+     */
     private <T extends LocationDependency> void iterateChildren(MutativeIterator<T> closure) {
         int kind = closure.kind;
         if (hasChildren(kind)) {
@@ -214,7 +228,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     }
 
     private static MutativeIterator<InvalidationListener> CALL_LISTENER_CLOSURE
-            = new MutativeIterator<InvalidationListener>(CHILD_KIND_CHANGE_LISTENER) {
+            = new MutativeIterator<InvalidationListener>(CHILD_KIND_INVALIDATION_LISTENER) {
         public boolean onAction(InvalidationListener element) {
             try {
                 return element.onChange();
@@ -247,7 +261,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
      * methods, and is also used at object initialization time to defer notification of changes until the values
      * provided in the object literal are all set. */
     protected void invalidateDependencies() {
-        if (hasChildren(CHILD_KIND_CHANGE_LISTENER | CHILD_KIND_WEAK_LOCATION)) {
+        if (hasChildren(CHILD_KIND_INVALIDATION_LISTENER | CHILD_KIND_WEAK_LOCATION)) {
             beginUpdate();
             try {
                 // @@@ We're iterating twice, this is to preserve listener ordering for now
@@ -316,33 +330,6 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
             location.addDependentLocation(new StaticDependentLocation(this));
     }
 
-    public void addDynamicDependency(DependencySource location) {
-        WeakMeHolder weakMeHolder = (WeakMeHolder) findChildByKind(CHILD_KIND_WEAK_ME_HOLDER);
-        if (weakMeHolder == null) {
-            weakMeHolder = new WeakMeHolder(this);
-            enqueueChild(weakMeHolder);
-        }
-        // Good time to clear dead dependencies
-        if (location instanceof AbstractLocation)
-            ((AbstractLocation) location).purgeDeadDependencies();
-        location.addDependentLocation(new DynamicDependentLocation(weakMeHolder.weakMe));
-    }
-
-    public void clearDynamicDependencies() {
-        WeakMeHolder weakMeHolder = (WeakMeHolder) findChildByKind(CHILD_KIND_WEAK_ME_HOLDER);
-        if (weakMeHolder != null) {
-            weakMeHolder.weakMe.clear();
-            // Hint to poll at reference queue
-            StaticDependentLocation.purgeDeadLocations(null);
-            dequeueChild(weakMeHolder);
-        }
-    }
-
-    public <T extends DependencySource> T addDynamicDependent(T dep) {
-        addDynamicDependency(dep);
-        return dep;
-    }
-
     public <T extends DependencySource> T addStaticDependent(T dep) {
         addDependency(dep);
         return dep;
@@ -351,33 +338,9 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     public void update() {
     }
 
-    public boolean isViewLocation() {
-        return hasChildren(CHILD_KIND_VIEW_LOCATION);
-    }
-
-    public Location getUnderlyingLocation() {
-        if (isViewLocation()) {
-            ViewLocationHolder vlh = (ViewLocationHolder) findChildByKind(CHILD_KIND_VIEW_LOCATION);
-            return vlh.underlyingLocation;
-        }
-        else
-            return this;
-    }
-
-    protected void setUnderlyingLocation(Location loc) {
-        if (isViewLocation()) {
-            ViewLocationHolder vlh = (ViewLocationHolder) findChildByKind(CHILD_KIND_VIEW_LOCATION);
-            vlh.underlyingLocation = loc;
-        }
-        else {
-            ViewLocationHolder vlh = new ViewLocationHolder(loc);
-            enqueueChild(vlh);
-        }
-    }
-
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
     int getListenerCount() {
-        return countChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_CHANGE_LISTENER | CHILD_KIND_TRIGGER);
+        return countChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_INVALIDATION_LISTENER | CHILD_KIND_TRIGGER);
     }
 
     // For testing -- returns count of listeners plus dependent locations -- the "number of things depending on us"
@@ -393,7 +356,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         return id;
     }
     
-    private void beginUpdate() {
+    protected void beginUpdate() {
         switch (inUse) {
             case INUSE_NOT:
                 inUse = INUSE_UNINFLATED;
@@ -428,7 +391,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         }
     }
 
-    private void endUpdate() {
+    protected void endUpdate() {
         switch (inUse) {
             case INUSE_NOT:
                 assert(false);
@@ -491,30 +454,6 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
             }
         }
     }
-
-    private static class WeakMeHolder extends AbstractLocationDependency {
-        final WeakReference<Location> weakMe;
-
-        WeakMeHolder(Location loc) {
-            this.weakMe = StaticDependentLocation.makeWeakReference(loc);
-        }
-
-        public int getDependencyKind() {
-            return CHILD_KIND_WEAK_ME_HOLDER;
-        }
-    }
-
-    private static class ViewLocationHolder extends AbstractLocationDependency {
-        Location underlyingLocation;
-
-        private ViewLocationHolder(Location underlyingLocation) {
-            this.underlyingLocation = underlyingLocation;
-        }
-
-        public int getDependencyKind() {
-            return CHILD_KIND_VIEW_LOCATION;
-        }
-    }
 }
 
 abstract class AbstractLocationDependency implements LocationDependency {
@@ -553,4 +492,3 @@ abstract class DependencyIterator<T extends LocationDependency> implements Linka
             onAction((T) element);
     }
 }
-

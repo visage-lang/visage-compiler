@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -124,7 +124,7 @@ public class TypeInfo<T, L extends ObjectLocation<T>> {
 
     @SuppressWarnings("unchecked")
     public static<T> TypeInfo<T, ObjectLocation<T>> getTypeInfo() {
-        return (TypeInfo<T, ObjectLocation<T>>) (TypeInfo<T, ?>) (TypeInfo<?, ?>) Object;
+        return (TypeInfo)Object;
     }
 
     @SuppressWarnings("unchecked")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,8 +23,8 @@
 
 package com.sun.tools.javafx.code;
 
-import com.sun.tools.javac.code.Lint;
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.code.Lint;
+import com.sun.tools.mjavac.util.Context;
 
 /**
  * JavaFX Script version of javac's Lint service.
@@ -42,7 +42,7 @@ public class JavafxLint extends Lint{
     
     public static void preRegister(final Context context) {
         context.put(lintKey, new Context.Factory<Lint>() {
-            @Override
+            //@Override
             public Lint make() {
                 return new JavafxLint(context);
             }

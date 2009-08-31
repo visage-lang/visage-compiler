@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -137,6 +137,8 @@ public class FX {
      *     <td><code>User's language</code></td></tr>
      * <tr><td><code>javafx.region</code></td>
      *     <td><code>User's region</code></td></tr>    
+     * <tr><td><code>javafx.variant</code></td>
+     *     <td><code>User's variant</code></td></tr>    
      * <tr><td><code>javafx.encoding</code></td>
      *     <td><code>User's encoding</code></td></tr>     
      * </table>

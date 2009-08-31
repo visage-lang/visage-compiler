@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,7 +22,7 @@
  */
 
 package com.sun.tools.javafx.code;
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 /**
  * Some Javafx-specific flags for {@code Symbols}'s {@code flags_field}.
@@ -64,13 +64,12 @@ public class JavafxFlags {
     public static final long VARUSE_INNER_ACCESS     = FIRST_VARUSE_FLAG << 7;  // var accessed within an inner class
     public static final long VARUSE_SELF_REFERENCE   = FIRST_VARUSE_FLAG << 8;  // the initializing expression references the var
     public static final long VARUSE_IS_INITIALIZED_USED
-                                                     = FIRST_VARUSE_FLAG << 9;  // the initializing expression references the var
-    public static final long VARUSE_COMPLEX_INITIAL_VALUE
-                                                     = FIRST_VARUSE_FLAG << 10; // the initial value is stateful or has side-effects
+                                                     = FIRST_VARUSE_FLAG << 9;  // isInitialized is called on the var
+    public static final long VARUSE_BOUND_DEFINITION = FIRST_VARUSE_FLAG << 10; // the initializing expression in the var definition is bound
     public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 11; // temp flag, set while inside var's initializing expression
     public static final long VARUSE_OPT_TRIGGER      = FIRST_VARUSE_FLAG << 12;
-    public static final long VARUSE_INIT_HAS_SIDE_EFFECTS
-                                                     = FIRST_VARUSE_FLAG << 13; // the init expression for this var has side-effects
+    public static final long VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY              // the init expression for this var has side-effects,
+                                                     = FIRST_VARUSE_FLAG << 13; // or it is bidirectionally bound, or otherwise nasty
     // This last shift + the last for modifiers must be < 24 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags

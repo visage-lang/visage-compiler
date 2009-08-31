@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,16 +27,16 @@ import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.javafx.api.tree.SyntheticTree.SynthType;
 
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
 
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.util.List;
 
 //TODO for now we need this or classes like DiagnosticPosition are unhappy
-import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.source.tree.TreeVisitor;
 
 
@@ -157,7 +157,7 @@ public abstract class JFXTree extends JCTree implements SyntheticTree, Tree, Clo
     public abstract JavaFXKind getJavaFXKind();
     
     @SuppressWarnings("unchecked")
-    public static <T> java.util.List<T> convertList(Class<T> klass, com.sun.tools.javac.util.List<?> list) {
+    public static <T> java.util.List<T> convertList(Class<T> klass, com.sun.tools.mjavac.util.List<?> list) {
 	if (list == null)
 	    return null;
 	for (Object o : list)

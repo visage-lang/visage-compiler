@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,20 +23,20 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Scope.Entry;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCStatement;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.mjavac.code.Scope.Entry;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.tree.JCTree.JCExpression;
+import com.sun.tools.mjavac.tree.JCTree.JCStatement;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
@@ -45,7 +45,7 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
 import com.sun.tools.javafx.tree.*;
 
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -210,6 +210,18 @@ class JavafxAnalyzeClass {
             return vmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE;
         }
 
+        public boolean hasBoundDefinition() {
+            return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L;
+        }
+
+        public boolean isInlinedBind() {
+            return hasBoundDefinition() && representation() == VarRepresentation.NeverLocation;
+        }
+
+        public boolean isSlackerBind() {
+            return hasBoundDefinition() && representation() == VarRepresentation.SlackerLocation;
+        }
+
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
 
@@ -341,8 +353,8 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, getterInit, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
+            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, getterInit, onReplace, null, onReplaceAsListenerInstanciation);
         }
 
         // Returns the var information the override overshadows.
@@ -790,7 +802,6 @@ class JavafxAnalyzeClass {
     // This method is only called for inherited attributes.
     //
     private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean needsCloning) {
-        long flags = var.flags();
         boolean isStatic = (var.flags() & Flags.STATIC) != 0;
 
         // If the var is in a class and not a static (ie., an instance attribute.)

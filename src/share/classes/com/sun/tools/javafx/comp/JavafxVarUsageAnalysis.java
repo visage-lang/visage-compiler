@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,10 +24,10 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.util.Context;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.util.Context;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**
@@ -78,29 +78,24 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                         mark(sym, VARUSE_ASSIGNED_TO);
                     }
                 }
-                if ((sym.flags_field & VARUSE_TMP_IN_INIT_EXPR) != 0) {
-                    // this is a reference to this variable from within its own initializer
-                    mark(sym, VARUSE_SELF_REFERENCE);
-                }
+            }
+            if ((sym.flags_field & VARUSE_TMP_IN_INIT_EXPR) != 0) {
+                // this is a reference to this variable from within its own initializer
+                mark(sym, VARUSE_SELF_REFERENCE);
             }
             sym.flags_field &= ~VARUSE_OPT_TRIGGER;
         }
     }
 
-    private void markDefinition(Symbol sym) {
+    private void markInit(Symbol sym) {
         if (inBindContext) {
             mark(sym, VARUSE_BOUND_INIT);
         }
     }
 
-    private void markInit(Symbol sym) {
-        markDefinition(sym);
-        mark(sym, VARUSE_OBJ_LIT_INIT);
-    }
-
 
     //TODO: merge with side-effect scanner in JavafxTranslationSupport
-    boolean hasSideEffects(JFXExpression expr) {
+    boolean hasSideEffectsOrLengthy(JFXExpression expr) {
         class SideEffectScanner extends JavafxTreeScanner {
 
             boolean hse = false;
@@ -140,6 +135,11 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             }
 
             @Override
+            public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
+                markSideEffects();
+            }
+
+            @Override
             public void visitFunctionInvocation(JFXFunctionInvocation tree) {
                 markSideEffects();
             }
@@ -156,6 +156,26 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
             @Override
             public void visitOnReplace(JFXOnReplace tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitReturn(JFXReturn tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitThrow(JFXThrow tree) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitForExpression(JFXForExpression that) {
+                markSideEffects();
+            }
+
+            @Override
+            public void visitWhileLoop(JFXWhileLoop tree) {
                 markSideEffects();
             }
         }
@@ -182,15 +202,14 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         // any changes here should also go into visitOverrideClassVar
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();
-        markDefinition(tree.sym);
+        if (inBindContext) {
+            mark(tree.sym, VARUSE_BOUND_DEFINITION | VARUSE_BOUND_INIT);
+        }
         tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
         scan(tree.getInitializer());
         tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
-        if (tree.getInitializer() != null && tree.getInitializer().getFXTag() != JavafxTag.LITERAL) {
-            mark(tree.sym, VARUSE_COMPLEX_INITIAL_VALUE);
-        }
-        if (tree.isBidiBind() || tree.getInitializer() != null && hasSideEffects(tree.getInitializer())) {
-            mark(tree.sym, VARUSE_INIT_HAS_SIDE_EFFECTS);
+        if (tree.isBidiBind() || tree.getInitializer() != null && hasSideEffectsOrLengthy(tree.getInitializer())) {
+            mark(tree.sym, VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY);
         }
         inBindContext = wasInBindContext;
         if (tree.getOnReplace() != null) {
@@ -203,11 +222,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();
-        markDefinition(tree.sym);
         mark(tree.sym, VARUSE_OVERRIDDEN);
-        tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
-        scan(tree.getInitializer());
-        tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
+        if (tree.getInitializer() != null) {
+            markInit(tree.sym);
+            tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
+            scan(tree.getInitializer());
+            tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
+        }
         inBindContext = wasInBindContext;
         if (tree.getOnReplace() != null) {
             mark(tree.sym, VARUSE_HAS_ON_REPLACE);
@@ -297,6 +318,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         // Locations are needed for updating bound object literals
         inBindContext |= tree.isBound();
         markInit(tree.sym);
+        mark(tree.sym, VARUSE_OBJ_LIT_INIT);
         scan(tree.getExpression());
 
         inBindContext = wasInBindContext;
@@ -380,6 +402,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         inBindContext = true;
 
         markInit(tree.sym);
+        mark(tree.sym, VARUSE_OBJ_LIT_INIT);
         super.visitInterpolateValue(tree);
 
         inBindContext = wasInBindContext;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -42,8 +42,17 @@ int main(int argc, char** argv) {
     if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
     }
+    if (! config.profile_vmargs.empty()) {
+        cmd += config.profile_vmargs + " ";
+    }
     if (! config.profile_nativelibpath.empty()) {
-        cmd += "-Djava.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
+        if (config.librarypath.empty()) {
+            cmd += "-Djava.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
+        } else {
+            cmd += "-Djava.library.path=\"" + config.librarypath + ";" + util.evaluatePath(config.javafxpath, config.profile_nativelibpath) + "\" ";
+        }
+    } else if (! config.librarypath.empty()) {
+        cmd += "-Djava.library.path=\"" + config.librarypath  + "\" ";
     }
     if (! config.profile_bootnativelibpath.empty()) {
         cmd += "-Dsun.boot.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_bootnativelibpath + "\" ");

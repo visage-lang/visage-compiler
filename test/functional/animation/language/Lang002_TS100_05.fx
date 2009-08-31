@@ -35,6 +35,8 @@ class XYZ {
 
 var xyz = XYZ{};
 
+function mod_xyz() : Void { xyz = XYZ{}; }
+
 var t = Timeline {
     repeatCount: 1
     autoReverse: false
@@ -96,3 +98,5 @@ var t = Timeline {
 }
 
 t.play();
+if (i > 140000)
+  mod_xyz();

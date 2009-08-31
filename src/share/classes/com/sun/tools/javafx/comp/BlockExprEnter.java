@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,25 +23,25 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Scope;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.PackageSymbol;
-import com.sun.tools.javac.code.Symbol.TypeSymbol;
-import com.sun.tools.javac.code.Type.ClassType;
-import com.sun.tools.javac.code.Type.ErrorType;
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Enter;
-import com.sun.tools.javac.comp.Env;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCClassDecl;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Symbol.PackageSymbol;
+import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
+import com.sun.tools.mjavac.code.Type.ClassType;
+import com.sun.tools.mjavac.code.Type.ErrorType;
+import com.sun.tools.mjavac.comp.AttrContext;
+import com.sun.tools.mjavac.comp.Enter;
+import com.sun.tools.mjavac.comp.Env;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
 import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
 
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
 
 public class BlockExprEnter extends Enter {
     public static Enter instance0(Context context) {

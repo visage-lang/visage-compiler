@@ -1,8 +1,8 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.location.SequenceLocation;
-import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.NumericTypeInfo;
+import com.sun.javafx.runtime.location.InvalidateMeListener;
 
 /**
  * BoundNumericConversion
@@ -22,15 +22,33 @@ class BoundNumericConversion<T extends Number, V extends Number> extends Abstrac
 
         if (!lazy) {
             setInitialValue(convert(sequence.get()));
-            sequence.addSequenceChangeListener(new ChangeListener<V>() {
-                public void onChange(ArraySequence<V> buffer, Sequence<? extends V> oldValue, int startPos, int endPos, Sequence<? extends V> newElements) {
-                    newElements = Sequences.getNewElements(buffer, startPos, newElements);
-                    updateSlice(startPos, endPos, convert(newElements));
-                }
-            });
+            sequence.addSequenceChangeListener(new UnderlyingSequenceChangeListener<T, V>(this));
         }
         else {
-            sequence.addInvalidationListener(new InvalidateMeListener());
+            sequence.addInvalidationListener(new InvalidateMeListener(this));
+        }
+    }
+
+    private static class UnderlyingSequenceChangeListener<T extends Number, V extends Number> extends WeakMeChangeListener<V> {
+        UnderlyingSequenceChangeListener(BoundNumericConversion<T, V> bnc) {
+            super(bnc);
+        }
+
+        @Override
+        public void onChange(ArraySequence<V> buffer, Sequence<? extends V> oldValue, int startPos, int endPos, Sequence<? extends V> newElements) {
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+
+        @Override
+        public boolean onChangeB(ArraySequence<V> buffer, Sequence<? extends V> oldValue, int startPos, int endPos, Sequence<? extends V> newElements) {
+            BoundNumericConversion<T, V> bnc = (BoundNumericConversion<T, V>) get();
+            if (bnc != null) {
+                newElements = Sequences.getNewElements(buffer, startPos, newElements);
+                bnc.updateSlice(startPos, endPos, bnc.convert(newElements));
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,8 +23,8 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.code.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.code.*;
 
 /** Contains information specific to the attribute and enter
  *  passes, to be used in place of the generic field in environments.

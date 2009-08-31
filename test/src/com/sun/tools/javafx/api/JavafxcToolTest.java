@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@ package com.sun.tools.javafx.api;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.mjavac.util.JavacFileManager;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;

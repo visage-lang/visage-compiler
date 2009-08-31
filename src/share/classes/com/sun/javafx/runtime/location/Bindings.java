@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@ import java.util.*;
 
 import com.sun.javafx.runtime.BindingException;
 import com.sun.javafx.runtime.CircularBindingException;
+import com.sun.javafx.runtime.sequence.*;
 
 /**
  * Bindings -- helper class for setting up bijective bindings.
@@ -66,6 +67,53 @@ public class Bindings {
         bijectiveBind(a, b, id);
     }
 
+    static class SequenceBijectiveListener<T> extends ChangeListener<T> {
+        WeakReference<SequenceVariable<T>> srcRef, dstRef;
+        boolean active; // used to avoid a trigger cycle.
+        public SequenceBijectiveListener (WeakReference<SequenceVariable<T>> srcRef, WeakReference<SequenceVariable<T>> dstRef) {
+            this.srcRef = srcRef;
+            this.dstRef = dstRef;
+        }
+        public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+        public boolean onChangeB(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            SequenceVariable<T> src = srcRef.get();
+            SequenceVariable<T> dst = dstRef.get();
+            if (dst == null || src == null)
+                return false;
+            dst.$value = src.$value;
+            if (dst.hasDependencies() && ! active) {
+                try {
+                    active = true;
+                    dst.notifyListeners(buffer, oldValue, startPos, endPos, newElements, true);
+                }
+                finally {
+                    active = false;
+                }
+            }
+            return true;
+        }
+    }
+
+    /** Create a bijective binding between objects of type T and U */
+    public static <T> void bijectiveBind(final SequenceVariable<T> a, final SequenceVariable<T> b) {
+        Bijection<Sequence<? extends T>, Sequence<? extends T>> id = identityBinding();
+        if (!(a.isMutable()) || !(b.isMutable()))
+            throw new BindingException("Both components of bijective bind must be mutable");
+
+        // Set A before setting up the new listeners
+        Sequence<? extends T> oldValue = a.$value;
+        int oldSize = oldValue == null ? 0 : oldValue.size();
+        a.$value = b.$value;
+        a.notifyListeners(null, oldValue, 0, oldSize, a.$value, true);
+
+        WeakReference<SequenceVariable<T>> aRef = new WeakReference<SequenceVariable<T>>(a);
+        WeakReference<SequenceVariable<T>> bRef = new WeakReference<SequenceVariable<T>>(b);
+        a.addSequenceChangeListener(new SequenceBijectiveListener<T>(aRef, bRef));
+        b.addSequenceChangeListener(new SequenceBijectiveListener<T>(bRef, aRef));
+    }
+
     /** Create a new location that is bidirectionally bound to another */
     public static<T> ObjectLocation<T> makeBijectiveBind(ObjectLocation<T> other) {
         ObjectVariable<T> me = ObjectVariable.make();
@@ -83,8 +131,6 @@ public class Bindings {
         LinkedList<Location> toExplore = new LinkedList<Location>(newLocs);
         while (toExplore.size() > 0) {
             Location loc = toExplore.removeFirst();
-            while (loc.isViewLocation())
-                loc = loc.getUnderlyingLocation();
             if (!knownLocs.contains(loc) && loc != location) {
                 knownLocs.add(loc);
                 toExplore.addAll(BijectiveBinding.getDirectPeers(loc));
@@ -96,8 +142,6 @@ public class Bindings {
     static boolean isPeerLocation(Location a, Location b) {
         // FIXME pretty expensive way of doing things ...
         Collection<Location> aPeers = getPeerLocations(a);
-        while (b.isViewLocation())
-            b = b.getUnderlyingLocation();
         return (aPeers != null && aPeers.contains(b));
     }
 
@@ -113,7 +157,7 @@ public class Bindings {
                 throw new BindingException("Both components of bijective bind must be mutable");
             if (isPeerLocation(a, b))
                 throw new CircularBindingException("Binding circularity detected");
-            
+
             this.aRef = new WeakReference<ObjectLocation<T>>(a);
             this.bRef = new WeakReference<ObjectLocation<U>>(b);
             this.mapper = mapper;
@@ -167,7 +211,7 @@ public class Bindings {
             List<Location> list = null;
 
             AbstractLocation aloc = (AbstractLocation) loc;
-            if (aloc.hasChildren(AbstractLocation.CHILD_KIND_CHANGE_LISTENER)) {
+            if (aloc.hasChildren(AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER)) {
                 for (LocationDependency cur = aloc.children; cur != null; cur = cur.getNext()) {
                     if (cur instanceof BijectiveInvalidationListener) {
                         BijectiveBinding<?, ?> bb = ((BijectiveInvalidationListener) cur).getBijectiveBinding();
@@ -192,7 +236,7 @@ public class Bindings {
                 return Collections.emptyList();
         }
 
-        private static abstract class BijectiveInvalidationListener extends InvalidationListener {
+        private static abstract class BijectiveInvalidationListener extends AbstractInvalidationListener {
             public abstract BijectiveBinding getBijectiveBinding();
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 
 package com.sun.javafx.runtime.sequence;
 
+import java.lang.ref.WeakReference;
 import com.sun.javafx.runtime.location.*;
 
 /**
@@ -47,19 +48,37 @@ class BoundSequenceElement<T> extends ObjectVariable<T> implements ObjectLocatio
                 pushValue(BoundSequenceElement.this.seq.getAsSequence().get(lastIndex));
             }
         }, index);
-        seq.addSequenceChangeListener(new MySequenceListener());
+        seq.addSequenceChangeListener(new MySequenceListener<T>(this));
     }
 
-    private class MySequenceListener extends ChangeListener<T> {
+    private static class MySequenceListener<T> extends ChangeListener<T> {
+        private WeakReference<BoundSequenceElement<T>> weakMe;
+
+        MySequenceListener(BoundSequenceElement bse) {
+            this.weakMe = new WeakReference<BoundSequenceElement<T>>(bse);
+        }
+
+        @Override
         public void onChange(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
-            int deltaSize = (endPos-startPos) - Sequences.sizeOfNewElements(buffer, startPos, newElements);
-            if (deltaSize != 0) {
-                if (startPos <= lastIndex)
-                    invalidate();
-            }
-            else {
-                if (startPos <= lastIndex && lastIndex <= endPos)
-                    invalidate();
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+
+        @Override
+        public boolean onChangeB(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, Sequence<? extends T> newElements) {
+            BoundSequenceElement<T> bse = (BoundSequenceElement<T>) weakMe.get();
+            if (bse != null) {
+                int deltaSize = (endPos-startPos) - Sequences.sizeOfNewElements(buffer, startPos, newElements);
+                if (deltaSize != 0) {
+                    if (startPos <= bse.lastIndex)
+                        bse.invalidate();
+                }
+                else {
+                    if (startPos <= bse.lastIndex && bse.lastIndex <= endPos)
+                        bse.invalidate();
+                }
+                return true;
+            } else {
+                return false;
             }
         }
     }

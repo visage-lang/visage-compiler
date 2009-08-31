@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,14 +23,14 @@
 
 package com.sun.tools.javafx.util;
 
-import com.sun.tools.javac.comp.AttrContext;
-import com.sun.tools.javac.comp.Env;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JCDiagnostic;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.comp.AttrContext;
+import com.sun.tools.mjavac.comp.Env;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JCDiagnostic;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.util.Log;
+import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.javafx.main.JavafxCompiler;
 import com.sun.tools.javafx.main.Main;
 import com.sun.tools.javafx.tree.JavaPretty;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,9 +24,9 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.runtime.Entry;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
@@ -70,8 +70,6 @@ public class JavafxDefs {
     public static final String setDefaultMethodNameString = "setDefault";
     public static final String sizeMethodNameString ="size";
     public static final String addStaticDependentNameString = "addStaticDependent";
-    public static final String addDynamicDependentNameString = "addDynamicDependent";
-    public static final String clearDynamicDependenciesNameString = "clearDynamicDependencies";
     public static final String needDefaultMethodNameString = "needDefault";
     public static final String makeAttributeMethodNameString = "makeAttribute";
     public static final String makeMethodNameString = "make";
@@ -106,7 +104,9 @@ public class JavafxDefs {
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
     private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
+    private static final String cAbstractBoundComprehension = sequencePackageNameString + ".AbstractBoundComprehension";
     private static final String cLocations = locationPackageNameString + ".Locations";
+    private static final String cUtil = runtimePackageNameString + ".Util";
 
     public char typeCharToEscape = '.';
     public char escapeTypeChar = '_';
@@ -134,7 +134,13 @@ public class JavafxDefs {
 
     final RuntimeMethod Locations_makeBoundSequenceSelect;
     final RuntimeMethod Locations_makeBoundSelect;
+    final RuntimeMethod Locations_makeBoundSelectBE;
     final RuntimeMethod Locations_makeBoundIf;
+    final RuntimeMethod Locations_makeBoundIfBE;
+    final RuntimeMethod Locations_makeBoundOr;
+    final RuntimeMethod Locations_makeBoundOrBE;
+    final RuntimeMethod Locations_makeBoundAnd;
+    final RuntimeMethod Locations_makeBoundAndBE;
     final RuntimeMethod Locations_upcast;
 
     final RuntimeMethod BoundSequences_convertNumberSequence;
@@ -148,6 +154,8 @@ public class JavafxDefs {
     final RuntimeMethod BoundSequences_slice;
     final RuntimeMethod BoundSequences_sliceExclusive;
     final RuntimeMethod BoundSequences_upcast;
+
+    final RuntimeMethod Util_isEqual;
 
     /**
      * Name definitions
@@ -171,6 +179,7 @@ public class JavafxDefs {
     final Name receiverName;
     final Name initializeName;
     final Name completeName;
+    final Name outerAccessorName;
     final Name getMethodName;
     final Name attributeSetMethodParamName;
     final Name getSliceMethodName;
@@ -179,8 +188,6 @@ public class JavafxDefs {
     final Name sizeMethodName;
     final Name defaultingTypeInfoFieldName;
     final Name addStaticDependentName;
-    final Name addDynamicDependentName;
-    final Name clearDynamicDependenciesName;
     final Name needDefaultsMethodName;
     final Name makeAttributeMethodName;
     final Name makeMethodName;
@@ -239,6 +246,8 @@ public class JavafxDefs {
     final Name[] locationSetMethodName;
     final Name locationBindMethodName;
     final Name locationBijectiveBindMethodName;
+    final Name computeElementsMethodName;
+    final Name cAbstractBoundComprehensionName;
     
 	public final Name runtimePackageName;
 	public final Name annotationPackageName;
@@ -298,6 +307,7 @@ public class JavafxDefs {
         receiverName = names.fromString(receiverNameString);
         initializeName = names.fromString(initializeNameString);
         completeName = names.fromString(completeNameString);
+        outerAccessorName = names.fromString("accessOuter$");
         getMethodName = names.fromString(getMethodNameString);
         attributeSetMethodParamName = names.fromString("value$");
         getSliceMethodName = names.fromString("getSlice");
@@ -306,8 +316,6 @@ public class JavafxDefs {
         sizeMethodName = names.fromString(sizeMethodNameString);
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
         addStaticDependentName = names.fromString(addStaticDependentNameString);
-        addDynamicDependentName = names.fromString(addDynamicDependentNameString);
-        clearDynamicDependenciesName = names.fromString(clearDynamicDependenciesNameString);
         needDefaultsMethodName = names.fromString(needDefaultMethodNameString);
         makeAttributeMethodName = names.fromString(makeAttributeMethodNameString);
         makeMethodName = names.fromString(makeMethodNameString);
@@ -361,8 +369,9 @@ public class JavafxDefs {
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         getLocationPrefixName = names.fromString(attributeGetLocationMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
-        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);       
-        
+        isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
+        computeElementsMethodName = names.fromString("computeElements$");
+
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);
 		javaLangPackageName = names.fromString(javaLangPackageNameString);
@@ -374,6 +383,7 @@ public class JavafxDefs {
         locationSetMethodName = new Name[TYPE_KIND_COUNT];
         locationVariableName = new Name[TYPE_KIND_COUNT];
         locationInterfaceName = new Name[TYPE_KIND_COUNT];
+        cAbstractBoundComprehensionName = names.fromString(cAbstractBoundComprehension);
 
         // Initialize RuntimeMethods
         TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");
@@ -387,7 +397,13 @@ public class JavafxDefs {
 
         Locations_makeBoundSequenceSelect = new RuntimeMethod(names, cLocations, "makeBoundSequenceSelect");
         Locations_makeBoundSelect = new RuntimeMethod(names, cLocations, "makeBoundSelect");
+        Locations_makeBoundSelectBE = new RuntimeMethod(names, cLocations, "makeBoundSelectBE");
         Locations_makeBoundIf = new RuntimeMethod(names, cLocations, "makeBoundIf");
+        Locations_makeBoundIfBE = new RuntimeMethod(names, cLocations, "makeBoundIfBE");
+        Locations_makeBoundOr = new RuntimeMethod(names, cLocations, "makeBoundOr");
+        Locations_makeBoundOrBE = new RuntimeMethod(names, cLocations, "makeBoundOrBE");
+        Locations_makeBoundAnd = new RuntimeMethod(names, cLocations, "makeBoundAnd");
+        Locations_makeBoundAndBE = new RuntimeMethod(names, cLocations, "makeBoundAndBE");
         Locations_upcast = new RuntimeMethod(names, cLocations, "upcast");
         BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
         BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");
@@ -400,6 +416,7 @@ public class JavafxDefs {
         BoundSequences_sliceExclusive = new RuntimeMethod(names, cBoundSequences, "sliceExclusive");
         BoundSequences_upcast = new RuntimeMethod(names, cBoundSequences, "upcast");
         BoundSequences_convertNumberSequence = new RuntimeMethod(names, cBoundSequences, "convertNumberSequence");
+        Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
 
         // Initialize per Kind names and types
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {

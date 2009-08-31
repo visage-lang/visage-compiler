@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,11 +23,11 @@
 
 package com.sun.tools.javafx.util;
 
-import com.sun.tools.javac.util.BaseFileObject;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JavacFileManager;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
+import com.sun.tools.mjavac.util.BaseFileObject;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JavacFileManager;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -361,7 +361,7 @@ public class JavafxFileManager extends JavacFileManager {
             return isFXSourceFile ? JavaFileObject.Kind.SOURCE : delegate.getKind();
         }
 
-        @Override
+        //@Override
         public boolean isNameCompatible(String cn, Kind kind) {
             cn.getClass(); // null check
             if (kind == Kind.OTHER && getKind() != kind)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -45,14 +45,24 @@ public class FXConversionDelegate implements ConversionDelegate {
 
     // Need to know about certain primitive types
     private FXType booleanType;
+    private FXType charType;
+    private FXType byteType;
+    private FXType shortType;
     private FXType integerType;
-    private FXType numberType;
+    private FXType longType;
+    private FXType floatType;
+    private FXType doubleType;
 
     public FXConversionDelegate(Bridge bridge) {
         this.bridge = bridge;
         booleanType = context.getBooleanType();
+        charType = context.getCharacterType();
+        byteType = context.getByteType();
+        shortType = context.getShortType();
         integerType = context.getIntegerType();
-        numberType = context.getNumberType();
+        longType = context.getLongType();
+        floatType = context.getFloatType();
+        doubleType = context.getDoubleType();
     }
 
     public int conversionCost(Object arg, Object toType) {
@@ -71,14 +81,29 @@ public class FXConversionDelegate implements ConversionDelegate {
 
         // Primitive value conversions
         if (targetType instanceof FXPrimitiveType) {
-            if (targetType.equals(numberType)) {
+            if (targetType.equals(floatType)) {
+                if (arg instanceof Float)
+                    return 0;
+            } else if (targetType.equals(doubleType)) {
                 if (arg instanceof Double)
+                    return 0;
+            } else if (targetType.equals(booleanType)) {
+                if (arg instanceof Boolean)
                     return 0;
             } else if (targetType.equals(integerType)) {
                 if (arg instanceof Integer)
                     return 0;
-            } else if (targetType.equals(booleanType)) {
-                if (arg instanceof Boolean)
+            } else if (targetType.equals(longType)) {
+                if (arg instanceof Long)
+                    return 0;
+            } else if (targetType.equals(shortType)) {
+                if (arg instanceof Short)
+                    return 0;
+            } else if (targetType.equals(byteType)) {
+                if (arg instanceof Byte)
+                    return 0;
+            } else if (targetType.equals(charType)) {
+                if (arg instanceof Character)
                     return 0;
             }
             if (arg instanceof String ||
@@ -163,7 +188,21 @@ public class FXConversionDelegate implements ConversionDelegate {
         if (targetType instanceof FXPrimitiveType) {
             boolean isNumber = obj instanceof Number;
 
-            if (targetType.equals(numberType)) {
+            if (targetType.equals(floatType)) {
+                if (isNumber) {
+                    result[0] = context.mirrorOf(((Number) obj).floatValue());
+                    return true;
+                } else if (obj instanceof String) {
+                    result[0] = context.mirrorOf(Float.valueOf((String) obj));
+                    return true;
+                } else if (obj instanceof Boolean) {
+                  result[0] = context.mirrorOf(((Boolean) obj).booleanValue() ? (float) 1.0 : (float) 0.0);
+                    return true;
+                } else if (obj instanceof Character) {
+                  result[0] = context.mirrorOf((float) ((Character) obj).charValue());
+                    return true;
+                }
+            } else if (targetType.equals(doubleType)) {
                 if (isNumber) {
                     result[0] = context.mirrorOf(((Number) obj).doubleValue());
                     return true;
@@ -174,7 +213,7 @@ public class FXConversionDelegate implements ConversionDelegate {
                     result[0] = context.mirrorOf(((Boolean) obj).booleanValue() ? 1.0 : 0.0);
                     return true;
                 } else if (obj instanceof Character) {
-                    result[0] = context.mirrorOf(((Character) obj).charValue());
+                  result[0] = context.mirrorOf((double) ((Character) obj).charValue());
                     return true;
                 }
             } else if (targetType.equals(integerType)) {
@@ -188,10 +227,51 @@ public class FXConversionDelegate implements ConversionDelegate {
                     result[0] = context.mirrorOf(((Boolean) obj).booleanValue() ? 1 : 0);
                     return true;
                 } else if (obj instanceof Character) {
-                    result[0] = context.mirrorOf(((Character) obj).charValue());
+                  result[0] = context.mirrorOf((int) ((Character) obj).charValue());
                     return true;
                 }
-                throw inconvertible(obj, targetType);
+            } else if (targetType.equals(longType)) {
+                if (isNumber) {
+                    result[0] = context.mirrorOf(((Number) obj).longValue());
+                    return true;
+                } else if (obj instanceof String) {
+                    result[0] = context.mirrorOf(Long.valueOf((String) obj));
+                    return true;
+                } else if (obj instanceof Boolean) {
+                    result[0] = context.mirrorOf(((Boolean) obj).booleanValue() ? 1L : 0L);
+                    return true;
+                } else if (obj instanceof Character) {
+                  result[0] = context.mirrorOf((long) ((Character) obj).charValue());
+                    return true;
+                }
+            } else if (targetType.equals(shortType)) {
+                if (isNumber) {
+                    result[0] = context.mirrorOf(((Number) obj).shortValue());
+                    return true;
+                } else if (obj instanceof String) {
+                    result[0] = context.mirrorOf(Short.valueOf((String) obj));
+                    return true;
+                } else if (obj instanceof Boolean) {
+                  result[0] = context.mirrorOf(((Boolean) obj).booleanValue() ? (short) 1 : (short) 0);
+                    return true;
+                } else if (obj instanceof Character) {
+                  result[0] = context.mirrorOf((short) ((Character) obj).charValue());
+                    return true;
+                }
+            } else if (targetType.equals(byteType)) {
+                if (isNumber) {
+                    result[0] = context.mirrorOf(((Number) obj).byteValue());
+                    return true;
+                } else if (obj instanceof String) {
+                    result[0] = context.mirrorOf(Byte.valueOf((String) obj));
+                    return true;
+                } else if (obj instanceof Boolean) {
+                  result[0] = context.mirrorOf(((Boolean) obj).booleanValue() ? (byte) 1 : (byte) 0);
+                    return true;
+                } else if (obj instanceof Character) {
+                  result[0] = context.mirrorOf((byte) ((Character) obj).charValue());
+                    return true;
+                }
             } else if (targetType.equals(booleanType)) {
                 if (obj instanceof Boolean) {
                     result[0] = context.mirrorOf(((Boolean) obj).booleanValue());
@@ -200,18 +280,10 @@ public class FXConversionDelegate implements ConversionDelegate {
                     // Conversion as per Core JavaScript Guide 1.5
                     // FIXME: intermediate conversion to double may be a mistake
                     double d = ((Number) obj).doubleValue();
-                    if (Double.isNaN(d) || d == 0) {
-                        result[0] = context.mirrorOf(false);
-                    } else {
-                        result[0] = context.mirrorOf(true);
-                    }
+                    result[0] = context.mirrorOf(! (Double.isNaN(d) || d == 0));
                     return true;
                 } else if (obj instanceof String) {
-                    if (((String) obj).length() == 0) {
-                        result[0] = context.mirrorOf(false);
-                    } else {
-                        result[0] = context.mirrorOf(true);
-                    }
+                    result[0] = context.mirrorOf(((String) obj).length() != 0);
                     return true;
                 } else if (obj instanceof Character) {
                     result[0] = context.mirrorOf(((Character) obj).charValue() != 0);

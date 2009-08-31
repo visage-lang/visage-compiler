@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -136,6 +136,14 @@ public class JavaFXScriptEngineTest {
         assertEquals(((Number)ret).intValue(), 3);        
     }
     
+    @Test
+    public void scriptSequenceVarResult() throws Exception {
+        Object ret = engine.eval("var elements:String[] = [ 'abc' ]; elements[0]");
+        assertNotNull(ret);
+        assertEquals(ret, "abc");        
+        assertEquals(engine.get("elements").toString(), "[ abc ]");
+    }
+
     @Test
     public void compiledScript() throws Exception {
         engine.put("who", "world");

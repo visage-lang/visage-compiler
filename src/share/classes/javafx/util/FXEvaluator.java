@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -66,17 +66,6 @@ public class FXEvaluator {
      * sophisticated scripting applications, use the Java Scripting API
      * (<code>javax.script</code>).
      * </p>
-     * <p>
-     * Note: On Mac platform, javafxc.jar, javafxrt.jar and script-api.jar 
-     * have to be prefixed in bootclasspath for this API to work. This is 
-     * because on Mac, javac classes are in bootclasspath. But, javafxc 
-     * re-implements certain javac classes differently. The version of javac 
-     * classes from javafxc.jar should take precedence over the ones from
-     * the platform javac's jar. The javafx command line goes like:
-     * </p>
-     * <code>
-     *     javafxc -Xbootclasspath/p:&lt;javafxc.jar-path&gt;:&lt;javafxrt.jar-path&gt;:&lt;script-api.jar-path&gt; -cp &lt;app-class-path&gt; &lt;app-main-class&gt;
-     * </code>
      * 
      * @param script the JavaFX Script source to evaluate
      * @return the results from evaluating the script, or null if no results

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,16 +23,16 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Type.*;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.jvm.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type.*;
 
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -100,7 +100,7 @@ public class SequenceConversions {
     }
 
     /** Convert a Sequence<T> to an array */
-    public static<T> T[] toArray(Sequence<T> seq) {
+    public static<T> T[] toArray(Sequence<? extends T> seq) {
         T[] unboxed = Util.<T>newObjectArray(seq.size());
         int i=0;
         for (T val : seq) {
@@ -110,7 +110,7 @@ public class SequenceConversions {
     }
 
     /** Convert a Sequence<Long> to an array */
-    public static long[] toArray(Sequence<Long> seq) {
+    public static long[] toLongArray(Sequence<? extends Number> seq) {
         int size = seq.size();
         long[] unboxed = new long[size];
         for (int i = size;  --i >= 0; )
@@ -119,11 +119,29 @@ public class SequenceConversions {
     }
 
     /** Convert a Sequence<Integer> to an array */
-    public static int[] toArray(Sequence<Integer> seq) {
+    public static int[] toIntArray(Sequence<? extends Number> seq) {
         int size = seq.size();
         int[] unboxed = new int[size];
         for (int i = size;  --i >= 0; )
             unboxed[i] = seq.getAsInt(i);
+        return unboxed;
+    }
+
+    /** Convert a Sequence<Short> to an array */
+    public static short[] toShortArray(Sequence<? extends Number> seq) {
+        int size = seq.size();
+        short[] unboxed = new short[size];
+        for (int i = size;  --i >= 0; )
+            unboxed[i] = seq.getAsShort(i);
+        return unboxed;
+    }
+
+    /** Convert a Sequence<Byte> to an array */
+    public static byte[] toByteArray(Sequence<? extends Number> seq) {
+        int size = seq.size();
+        byte[] unboxed = new byte[size];
+        for (int i = size;  --i >= 0; )
+            unboxed[i] = seq.getAsByte(i);
         return unboxed;
     }
 
@@ -146,7 +164,7 @@ public class SequenceConversions {
     }
 
     /** Convert a Sequence<Boolean> to an array */
-    public static boolean[] toArray(Sequence<Boolean> seq) {
+    public static boolean[] toBooleanArray(Sequence<? extends Boolean> seq) {
         int size = seq.size();
         boolean[] unboxed = new boolean[size];
         for (int i = size;  --i >= 0; )

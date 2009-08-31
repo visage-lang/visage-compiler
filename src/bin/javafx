@@ -16,17 +16,21 @@ while [ -h "$PRG" ]; do
 	PRG="`dirname "$PRG"`/$link"
     fi
 done
-
+PATHSEP=":"
 # detect Darwin and Cygwin environments
 darwin=false;
 cygwin=false;
+linux=false;
+solaris=false;
 case "`uname`" in
   Darwin*) darwin=true;
            if [ -z "$JAVA_HOME" ] ; then
               JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
            fi
            ;;
-  CYGWIN*) cygwin=true;;
+  CYGWIN*) cygwin=true ; PATHSEP=";";;
+  Linux*)  linux=true;;
+  SunOS*)  solaris=true;;
 esac
 
 if [ -n "$JAVA_HOME"  ] ; then
@@ -56,6 +60,7 @@ classpath="$USER_CP"
 args=""
 jargs=""
 profile="desktop"
+USER_LIBPATH=""
 
 parse_args() {
 while [ $# -gt 0 ] ; do
@@ -63,12 +68,41 @@ while [ $# -gt 0 ] ; do
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs \"$jopt\"";;
         -jar) shift; args="$args \"$1\""; classpath="$1"; seen_main=true ;;
         -cp | -classpath) shift; classpath="$classpath:$1";;
-        -version) args="com.sun.javafx.runtime.LauncherHelper -version"; break;;
-        -fullversion) args="com.sun.javafx.runtime.LauncherHelper -fullversion"; break;;
-        -X) args="com.sun.javafx.runtime.LauncherHelper -helpx"; break;;
-        -help | -\? ) args="com.sun.javafx.runtime.LauncherHelper -help"; break;;
+        -version)
+            if [ ! -n "$seen_main" ]; then
+               lastarg="com.sun.javafx.runtime.LauncherHelper -version"
+               break
+            else
+               args="$args \"$1\""
+            fi
+            ;;
+        -fullversion)
+            if [ ! -n "$seen_main" ]; then
+               lastarg="com.sun.javafx.runtime.LauncherHelper -fullversion"
+               break
+            else
+               args="$args \"$1\""
+            fi
+            ;;
+        -X)
+            if [ ! -n "$seen_main" ]; then
+               lastarg="com.sun.javafx.runtime.LauncherHelper -helpx"
+               break
+            else
+               args="$args \"$1\""
+            fi
+            ;;
+        -help | -\? )
+            if [ ! -n "$seen_main" ]; then
+               lastarg="com.sun.javafx.runtime.LauncherHelper -help"
+               break
+            else
+               args="$args \"$1\""
+            fi
+            ;;
         -profile) shift; profile="$1";;
-        -*) if [ "x$seen_main" = "x" ]; then
+        -Djava.library.path*) USER_LIBPATH=`echo $1 | cut -d= -f2`;;
+        -*) if [ ! -n "$seen_main" ]; then
                jargs="$jargs \"$1\""
             else 
                args="$args \"$1\"" 
@@ -122,7 +156,13 @@ if [ -n "${execute_nativelibpath}" ]; then
     if $cygwin ; then
         execute_nativelibpath=`cygpath --path --windows "$execute_nativelibpath"`
     fi
-    jargs="$jargs \"-Djava.library.path=${execute_nativelibpath}\""
+    if [ -n "$USER_LIBPATH" ]; then
+        jargs="$jargs \"-Djava.library.path=${USER_LIBPATH}${PATHSEP}${execute_nativelibpath}\""
+    else
+        jargs="$jargs \"-Djava.library.path=${execute_nativelibpath}\""
+    fi
+elif [ -n "$USER_LIBPATH" ]; then
+    jargs="$jargs \"-Djava.library.path=${USER_LIBPATH}\""
 fi
 if [ -n "${execute_bootnativelibpath}" ]; then
     if $cygwin ; then
@@ -130,9 +170,28 @@ if [ -n "${execute_bootnativelibpath}" ]; then
     fi
     jargs="$jargs \"-Dsun.boot.library.path=${execute_bootnativelibpath}\""
 fi
-jargs="$jargs -classpath '"$classpath"' com.sun.javafx.runtime.Main"
-if [ -n "$args" ]; then
-    jargs="$jargs $args"
+if [ -n "${execute_vmargs_macos}" -a "$darwin" = "true" ]; then
+    jargs="$jargs ${execute_vmargs_macos}"
+fi
+if [ -n "${execute_vmargs_windows}" -a "$cygwin" = "true" ]; then
+    jargs="$jargs ${execute_vmargs_windows}"
+fi
+if [ -n "${execute_vmargs_linux}" -a "$linux" = "true" ]; then
+    jargs="$jargs ${execute_vmargs_linux}"
+fi
+if [ -n "${execute_vmargs_solaris}" -a "$solaris" = "true" ]; then
+    jargs="$jargs ${execute_vmargs_solaris}"
+fi
+if [ -n "${execute_vmargs_common}" ]; then
+    jargs="$jargs ${execute_vmargs_common}"
+fi
+if [ -n "$lastarg" ]; then
+    jargs="$jargs -classpath '"$classpath"' $lastarg"
+else
+    jargs="$jargs -classpath '"$classpath"' com.sun.javafx.runtime.Main"
+    if [ -n "$args" ]; then
+       jargs="$jargs $args"
+    fi
 fi
 
 eval '"$JAVA_CMD"' "$jargs"

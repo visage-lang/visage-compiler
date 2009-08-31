@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -239,8 +239,7 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
     }
     
     public R visitBlockExpression(BlockExpressionTree node, P p) {
-        R r = scan(node.getStatements(), p);
-        return scanAndReduce(node.getValue(), p, r);
+        return scan(node.getStatements(), p);
     }
 
     public R visitClassDeclaration(ClassDeclarationTree node, P p) {

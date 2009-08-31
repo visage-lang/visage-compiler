@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 
 /**
  * ParameterImpl information.
@@ -55,7 +55,7 @@ public class ParameterImpl implements Parameter {
         return type;
     }
     
-    public com.sun.tools.javac.code.Type rawType() {
+    public com.sun.tools.mjavac.code.Type rawType() {
         sym.complete();
         return sym.type; 
     }

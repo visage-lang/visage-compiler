@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -32,21 +33,21 @@ import javax.tools.JavaFileObject;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
-import com.sun.tools.javac.code.*;
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Flags.ANNOTATION;
-import static com.sun.tools.javac.code.Flags.BLOCK;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.Kinds.ERRONEOUS;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Type.*;
-import static com.sun.tools.javac.code.TypeTags.*;
-import static com.sun.tools.javac.code.TypeTags.WILDCARD;
-import com.sun.tools.javac.comp.*;
-import com.sun.tools.javac.jvm.ByteCodes;
-import com.sun.tools.javac.jvm.Target;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.ANNOTATION;
+import static com.sun.tools.mjavac.code.Flags.BLOCK;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.Kinds.ERRONEOUS;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
+import static com.sun.tools.mjavac.code.TypeTags.WILDCARD;
+import com.sun.tools.mjavac.comp.*;
+import com.sun.tools.mjavac.jvm.ByteCodes;
+import com.sun.tools.mjavac.jvm.Target;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
@@ -82,6 +83,7 @@ public class JavafxAttr implements JavafxVisitor {
     private final JavafxResolve rs;
     private final JavafxSymtab syms;
     private final JavafxCheck chk;
+    private final Messages messages;
     private final JavafxMemberEnter memberEnter;
     private final JCDiagnostic.Factory diags;
     private final JavafxTreeMaker fxmake;
@@ -116,6 +118,7 @@ public class JavafxAttr implements JavafxVisitor {
         names = Name.Table.instance(context);
         log = Log.instance(context);
         diags = JCDiagnostic.Factory.instance(context);
+        messages = Messages.instance(context);
         rs = JavafxResolve.instance(context);
         chk = JavafxCheck.instance(context);
         memberEnter = JavafxMemberEnter.instance(context);
@@ -448,7 +451,7 @@ public class JavafxAttr implements JavafxVisitor {
         return localEnv;
     }
 
-    @Override
+    //@Override
     public void visitTypeCast(JFXTypeCast tree) {
         Type clazztype = attribType(tree.clazz, env);  
         Type exprtype = attribExpr(tree.expr, env);
@@ -458,7 +461,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, capture(owntype), VAL, pkind, pt, Sequenceness.DISALLOWED);
     }
 
-    @Override
+    //@Override
     public void visitInstanceOf(JFXInstanceOf tree) {
         Type exprtype = attribExpr(tree.expr, env);
         Type type = attribType(tree.clazz, env);
@@ -494,7 +497,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitIdent(JFXIdent tree) {
         Symbol sym;
         boolean varArgs = false;
@@ -569,7 +572,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = checkId(tree, env1.enclClass.sym.type, sym, env, pkind, pt, pSequenceness, varArgs);
     }
 
-    @Override
+    //@Override
     public void visitSelect(JFXSelect tree) {
         // Determine the expected kind of the qualifier expression.
         int skind = 0;
@@ -719,6 +722,8 @@ public class JavafxAttr implements JavafxVisitor {
 
         env.info.selectSuper = selectSuperPrev;
         result = checkId(tree, site, sym, env, pkind, pt, pSequenceness, varArgs);
+        if (tree.sym.kind == MTH && result instanceof FunctionType)
+            tree.sym = new MethodSymbol(sym.flags_field, sym.name, ((FunctionType)result).mtype, sym.owner);
         env.info.tvars = List.nil();
     }
     //where
@@ -808,7 +813,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
 
 
-    @Override
+    //@Override
     public void visitParens(JFXParens tree) {
         Type owntype = attribTree(tree.expr, env, pkind, pt);
         result = check(tree, owntype, pkind, pkind, pt, pSequenceness);
@@ -817,7 +822,7 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(tree.pos(), MsgSym.MESSAGE_ILLEGAL_START_OF_TYPE);
     }
 
-    @Override
+    //@Override
     public void visitAssign(JFXAssign tree) {
         Type owntype = null;
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
@@ -922,8 +927,17 @@ public class JavafxAttr implements JavafxVisitor {
                 initEnv.info.enclVar = v;
                 boolean wasInBindContext = this.inBindContext;
                 this.inBindContext |= tree.isBound();
+                //TODO: (below)
+                /***
+                 * inBindContext is not implemented correctly here since things are not walked in tree order in finish*.
+                 *
                 if (this.inBindContext) {
-                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT | JavafxFlags.VARUSE_BOUND_DEFINITION;
+                }
+                 * For the purpose of Check just do this for now:
+                 */
+                if (tree.isBound()) {
+                    v.flags_field |= JavafxFlags.VARUSE_BOUND_DEFINITION;
                 }
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
@@ -945,6 +959,14 @@ public class JavafxAttr implements JavafxVisitor {
             if (declType == syms.javafx_UnspecifiedType && v.type == null)
                 result = tree.type = v.type = types.upperBound(initType);
             //chk.validateAnnotations(tree.mods.annotations, v);
+            if (types.isArray(v.type) &&
+                    (tree.isBound() ||
+                    tree.getOnReplaceTree() != null)) {
+                String key = tree.isBound() ? "bind" : "trigger";
+                JCDiagnostic err = diags.fragment("javafx.unsupported.type.in." + key);
+                chk.typeError(tree, err, v.type, messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
+                        MsgSym.MESSAGE_JAVAFX_OBJ_OR_SEQ));
+            }
         }
         finally {
             chk.setLint(prevLint);
@@ -952,12 +974,12 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitVarScriptInit(JFXVarScriptInit tree) {
         result = tree.type = attribExpr(tree.getVar(), env);
     }
             
-    @Override
+    //@Override
     public void visitVar(JFXVar tree) {
         long flags = tree.getModifiers().flags;
         Symbol sym = tree.sym;
@@ -965,6 +987,9 @@ public class JavafxAttr implements JavafxVisitor {
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_VAR_NOT_SUPPORTED_HERE, (flags & JavafxFlags.IS_DEF) == 0 ? "var" : "def", tree.getName());
             return;
         }
+        if (this.inBindContext || tree.isBound())
+            sym.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+
         sym.complete();
         
         boolean isClassVar = env.info.scope.owner.kind == TYP;
@@ -972,7 +997,7 @@ public class JavafxAttr implements JavafxVisitor {
             // Check that instance variables don't override
             chk.checkVarOverride(tree, (VarSymbol)sym);
         }
-        
+
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
             if (inBindContext) {
@@ -1053,9 +1078,14 @@ public class JavafxAttr implements JavafxVisitor {
 
         boolean wasInBindContext = this.inBindContext;
         this.inBindContext |= tree.isBound();
-        if (this.inBindContext) {
-            v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
-        }
+        //TODO: (below)
+        /***
+         * inBindContext is not implemented correctly here since things are not walked in tree order in finish*.
+         *
+            if (this.inBindContext) {
+                v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
+            }
+         * */
         try {
             JFXExpression init = tree.getInitializer();
             if (init != null) {
@@ -1082,7 +1112,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         //TODO: handle static triggers
         JFXIdent id = tree.getId();
@@ -1120,7 +1150,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitOnReplace(JFXOnReplace tree) {
         Scope localScope = new Scope(new MethodSymbol(BLOCK, defs.lambdaName, null, env.enclClass.sym));
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(localScope));        
@@ -1156,7 +1186,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     private ArrayList<JFXForExpressionInClause> forClauses = null;
 
-    @Override
+    //@Override
     public void visitForExpression(JFXForExpression tree) {
         JavafxEnv<JavafxAttrContext> forExprEnv =
             env.dup(tree, env.info.dup(env.info.scope.dup()));
@@ -1259,7 +1289,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
-    @Override
+    //@Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         // Do not assert that we cannot reach here as this unit can
         // be visited by virtue of visiting JFXErronous which
@@ -1300,13 +1330,13 @@ public class JavafxAttr implements JavafxVisitor {
                 pkind, pt, pSequenceness);
     }
 
-    @Override
+    //@Override
     public void visitSkip(JFXSkip tree) {
         result = syms.voidType;
         tree.type = result;
     }
 
-    @Override
+    //@Override
     public void visitBlockExpression(JFXBlock tree) {
         // Create a new local environment with a local scope.
         JavafxEnv<JavafxAttrContext> localEnv;
@@ -1376,7 +1406,7 @@ public class JavafxAttr implements JavafxVisitor {
     /**
      * @param tree
      */
-    @Override
+    //@Override
     public void visitWhileLoop(JFXWhileLoop tree) {
         attribExpr(tree.cond, env, syms.booleanType);
         attribExpr(tree.body, env.dup(tree));
@@ -1384,7 +1414,7 @@ public class JavafxAttr implements JavafxVisitor {
         tree.type = result;
     }
 
-    @Override
+    //@Override
     public void visitInstanciate(JFXInstanciate tree) {
         Type owntype = syms.errType;
 
@@ -1619,7 +1649,7 @@ public class JavafxAttr implements JavafxVisitor {
         return tree;
     }
 
-    @Override
+    //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = new JFXFunctionDefinition(fxmake.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
         def.pos = tree.pos;
@@ -1631,7 +1661,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = check(tree, syms.makeFunctionType((MethodType) def.type), VAL, pkind, pt, pSequenceness);
     }
 
-    @Override
+    //@Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         
         // Tree may come in paritally complete or in error from IDE and so we protect
@@ -1835,6 +1865,13 @@ public class JavafxAttr implements JavafxVisitor {
                         log.error(body.value.pos(),
                                 MsgSym.MESSAGE_CANNOT_RET_VAL_FROM_METH_DECL_VOID);
                     }
+                    /*
+                     * We are going to rewrite blocks value as an expression instead
+                     * of original return statement. So, we better save the original
+                     * return statement so that we can present it to external tree
+                     * walkers, if needed.
+                     */
+                    body.returnStatement = (JFXReturn) body.value;
                     body.value = ((JFXReturn) body.value).expr;
                 }
                 // Attribute method bodyExpression
@@ -1906,7 +1943,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitTry(JFXTry tree) {
         boolean canReturn = false;
         // Attribute body
@@ -1946,7 +1983,7 @@ public class JavafxAttr implements JavafxVisitor {
         tree.type = result;
     }
 
-    @Override
+    //@Override
     public void visitIfExpression(JFXIfExpression tree) {
         attribExpr(tree.cond, env, syms.booleanType);
         attribTree(tree.truepart, env, VAL, pt, pSequenceness);
@@ -2084,13 +2121,13 @@ public class JavafxAttr implements JavafxVisitor {
             return types.lub(type1.baseType(), type2.baseType());
         }
 
-    @Override
+    //@Override
     public void visitBreak(JFXBreak tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getFXTag(), tree.label, env);
         result = tree.type = syms.unreachableType;
     }
 
-    @Override
+    //@Override
     public void visitContinue(JFXContinue tree) {
         tree.target = findJumpTarget(tree.pos(), tree.getFXTag(), tree.label, env);
         result = tree.type = syms.unreachableType;
@@ -2135,7 +2172,7 @@ public class JavafxAttr implements JavafxVisitor {
             return null;
         }
 
-    @Override
+    //@Override
     public void visitReturn(JFXReturn tree) {
         if (env.enclFunction == null) {
             log.error(tree.pos(), MsgSym.MESSAGE_RETURN_OUTSIDE_METH);
@@ -2156,7 +2193,7 @@ public class JavafxAttr implements JavafxVisitor {
             } else if (tree.expr == null) {
                 if (enclBlock.type == syms.javafx_UnspecifiedType)
                     enclBlock.type = syms.javafx_VoidType;
-                else
+                else if (enclBlock.type != syms.javafx_VoidType)
                     log.error(tree.pos(), MsgSym.MESSAGE_MISSING_RET_VAL);
             } else {
                 if (enclBlock.type.tag == VOID) {
@@ -2169,7 +2206,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = syms.unreachableType;
     }
 
-    @Override
+    //@Override
     public void visitThrow(JFXThrow tree) {
         if  (tree.expr != null && !(tree.expr instanceof JFXErroneous)) {
             attribExpr(tree.expr, env, syms.throwableType);
@@ -2185,7 +2222,7 @@ public class JavafxAttr implements JavafxVisitor {
         // Otherwise, leave paramTypes[i]==null.
     }
 
-    @Override
+    //@Override
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
         // The local environment of a method application is
         // a new environment nested in the current one.
@@ -2209,7 +2246,7 @@ public class JavafxAttr implements JavafxVisitor {
                 attribExpr(l.head, env, argtype);
             else
                 argtype = chk.checkNonVoid(l.head.pos(),
-                        types.upperBound(attribTree(l.head, env, VAL, Infer.anyPoly)));
+                        types.upperBound(attribTree(l.head, env, VAL, Infer.anyPoly, Sequenceness.PERMITTED)));
             argtypebuffer.append(argtype);
         }
         List<Type> argtypes = argtypebuffer.toList();
@@ -2337,7 +2374,7 @@ public class JavafxAttr implements JavafxVisitor {
         chk.validate(tree.typeargs);
     }
 
-    @Override
+    //@Override
     public void visitAssignop(JFXAssignOp tree) {
         if (this.inBindContext) {
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "compound assignment");
@@ -2402,7 +2439,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitUnary(JFXUnary tree) {
         switch (tree.getFXTag()) {
             case SIZEOF: {
@@ -2541,7 +2578,7 @@ public class JavafxAttr implements JavafxVisitor {
         return rs.resolveBinaryOperator(pos, tag, env, leftUnboxed, rightUnboxed);
     }
 
-    @Override
+    //@Override
     public void visitBinary(JFXBinary tree) {
         // Attribute arguments.
         Type left = chk.checkNonVoid(tree.lhs.pos(), attribExpr(tree.lhs, env));
@@ -2648,7 +2685,7 @@ public class JavafxAttr implements JavafxVisitor {
                  ((ClassSymbol) pt.tsym).fullname == syms.boxedName[tag]);
     }
 
-    @Override
+    //@Override
     public void visitLiteral(JFXLiteral tree) {
         if (tree.typetag == TypeTags.BOT && types.isSequence(pt))
             result = tree.type = pt;
@@ -2729,7 +2766,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitErroneous(JFXErroneous tree) {
       //  if (tree.getErrorTrees() != null)
        //     for (JFXTree err : tree.getErrorTrees())
@@ -2858,7 +2895,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
 // Begin JavaFX trees
-    @Override
+    //@Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         boolean wasInBindContext = this.inBindContext;
         this.inBindContext = false;
@@ -2952,7 +2989,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitInitDefinition(JFXInitDefinition that) {
         Symbol symOwner = env.info.scope.owner;
         try {
@@ -2983,7 +3020,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         boolean isSeq = types.isSequence(pt);
         Type owntype = pt.tag == NONE || pt.tag == UNKNOWN ? syms.javafx_EmptySequenceType :
@@ -2991,7 +3028,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, owntype, VAL, pkind, Type.noType, pSequenceness);
     }
 
-    @Override
+    //@Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         Type lowerType =  attribExpr(tree.getLower(), env);
         Type upperType = attribExpr(tree.getUpper(), env);
@@ -3023,7 +3060,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = check(tree, owntype, VAL, pkind, pt, pSequenceness);
     }
 
-    @Override
+    //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         Type elemType = null;
         Type expected = pt;
@@ -3046,11 +3083,13 @@ public class JavafxAttr implements JavafxVisitor {
          }
     }
 
-    @Override
+    //@Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         JFXExpression seq = tree.getSequence();
-        Type seqType = attribExpr(seq, env, Type.noType, Sequenceness.REQUIRED);
-
+         // Attribute as a tree so we can check that target is assignable
+         // when pkind is VAR
+         //
+         Type seqType = attribTree(seq, env, pkind, Type.noType, Sequenceness.REQUIRED);
         attribExpr(tree.getFirstIndex(), env, syms.javafx_IntegerType);
         if (tree.getLastIndex() != null) {
             attribExpr(tree.getLastIndex(), env, syms.javafx_IntegerType);
@@ -3058,7 +3097,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, seqType, VAR, pkind, pt, pSequenceness);
     }
 
-    @Override
+    //@Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         JFXExpression seq = tree.getSequence();
 
@@ -3077,7 +3116,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     }
 
-    @Override
+    //@Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         JFXExpression seq = tree.getSequence();
         Type seqType = attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED);
@@ -3089,7 +3128,7 @@ public class JavafxAttr implements JavafxVisitor {
         tree.type = result;
     }
 
-    @Override
+    //@Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         JFXExpression seq = tree.getSequence();
         if (tree.getElement() == null) {
@@ -3124,7 +3163,7 @@ public class JavafxAttr implements JavafxVisitor {
         tree.type = result;
     }
 
-    @Override
+    //@Override
     public void visitStringExpression(JFXStringExpression tree) {
         List<JFXExpression> parts = tree.getParts();
         attribExpr(parts.head, env, syms.javafx_StringType);
@@ -3143,7 +3182,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = check(tree, syms.javafx_StringType, VAL, pkind, pt, pSequenceness);
     }
 
-    @Override
+    //@Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
         
         // Note that this method can be reached legitimately if visitErroneous is
@@ -3153,12 +3192,12 @@ public class JavafxAttr implements JavafxVisitor {
         result = syms.errType;
     }
 
-    @Override
+    //@Override
     public void visitTypeAny(JFXTypeAny tree) {
         assert false : "MUST IMPLEMENT";
     }
 
-    @Override
+    //@Override
     public void visitTypeClass(JFXTypeClass tree) {
         JFXExpression classNameExpr = ((JFXTypeClass) tree).getClassName();
         Type type = attribType(classNameExpr, env);
@@ -3174,7 +3213,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = type;
     }
 
-    @Override
+    //@Override
     public void visitTypeFunctional(JFXTypeFunctional tree) {
         Type restype = attribType(tree.restype, env);
         if (restype == syms.unknownType)
@@ -3207,7 +3246,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = type;
     }
 
-    @Override
+    //@Override
     public void visitTypeArray(JFXTypeArray tree) {
         //TODO: Do the right thing here
         Type etype = attribType(tree.getElementType(), env);
@@ -3216,7 +3255,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = type;
     }
 
-    @Override
+    //@Override
     public void visitTypeUnknown(JFXTypeUnknown tree) {
         result = tree.type = syms.javafx_UnspecifiedType;
     }
@@ -3344,7 +3383,7 @@ public class JavafxAttr implements JavafxVisitor {
                 }
                 break;
             case MTH: {
-                owntype = sym.type;
+                owntype = types.memberType(types.erasure(site), sym);
                 // This is probably wrong now that we have function expressions.
                 // Instead, we should checkMethod in visitFunctionInvocation.
                 // In that case we should also handle FunctionType. FIXME.
@@ -3649,7 +3688,7 @@ public class JavafxAttr implements JavafxVisitor {
         }
     }
 
-    @Override
+    //@Override
     public void visitImport(JFXImport tree) {
         // nothing to do
     }
@@ -3805,7 +3844,15 @@ public class JavafxAttr implements JavafxVisitor {
                 while (e.scope != null) {
                     e.sym.complete();
                     if (m.overrides(e.sym, origin, types, false)) {
-                        if (fixOverride(tree, m, (MethodSymbol) e.sym, origin)) {
+                        //if other has an uninferred return type we should report an error
+                        if (e.sym.type.asMethodType().restype == syms.javafx_UnspecifiedType) {
+                            log.note(tree, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, e.sym.name);
+                            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, e.sym.name);
+                            //set a dummy return type for other so that javafxc is happy
+                            ((MethodType)e.sym.type).restype = syms.errType;
+                            break;
+                        }
+                        else if (fixOverride(tree, m, (MethodSymbol) e.sym, origin)) {
                             break;
                         }
                     }
@@ -3830,7 +3877,7 @@ public class JavafxAttr implements JavafxVisitor {
 	List<Type> otvars = ot.getTypeArguments();
 	Type mtres = mt.getReturnType();
 	Type otres = types.subst(ot.getReturnType(), otvars, mtvars);
-
+        
 	boolean resultTypesOK =
 	    types.returnTypeSubstitutable(mt, ot, otres, noteWarner);
 	if (!resultTypesOK) {
@@ -3894,15 +3941,31 @@ public class JavafxAttr implements JavafxVisitor {
 
         JavafxEnv<JavafxAttrContext> dupEnv = env.dup(tree);
         dupEnv.outer = env;
-        Type instType = attribTree(tree.attribute, dupEnv, VAR, Type.noType);
-        if (instType == null || instType == syms.javafx_UnspecifiedType) {
-            instType = Type.noType;
+        JavafxTag tag = JavafxTreeInfo.skipParens(tree.attribute).getFXTag();
+        Type instType;
+        if (tag == JavafxTag.IDENT || tag == JavafxTag.SELECT) {
+            instType = attribTree(tree.attribute, dupEnv, VAR, Type.noType);
+            tree.sym = JavafxTreeInfo.symbol(tree.attribute);
+            if (instType == null || instType == syms.javafx_UnspecifiedType)
+                instType = Type.noType;
+
+            if (tag == JavafxTag.SELECT) {
+                JFXSelect select = (JFXSelect) tree.attribute;
+                if (chk.checkBidiSelect(select, env, pt))
+                    log.warning(select.getExpression().pos(),
+                        MsgSym.MESSAGE_SELECT_TARGET_NOT_REEVALUATED_FOR_ANIM,
+                        select.getExpression(), select.name);
+            }
         }
+        else {
+            instType = Type.noType;
+            log.error(tree.pos(), MsgSym.MESSAGE_UNEXPECTED_TYPE,
+                    Resolve.kindNames(VAR), Resolve.kindName(VAL));
+        }
+        
         attribExpr(tree.value, dupEnv, instType);
         if (tree.interpolation != null)
             attribExpr(tree.interpolation, dupEnv);
-
-        tree.sym = JavafxTreeInfo.symbol(tree.attribute);
 
         //TODO: this is evil
         //wrap it in a function

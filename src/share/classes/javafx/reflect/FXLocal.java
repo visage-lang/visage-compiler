@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -202,13 +202,15 @@ public class FXLocal {
                     rawName.endsWith(VARIABLE_STRING)) {
                 rawName = rawName.substring(LOCATION_PREFIX_LENGTH,
                         rawLength-VARIABLE_STRING_LENGTH);
-                int sequenceIndex = rawName.indexOf("Sequence");
-                boolean isSequence = sequenceIndex == rawName.length() - 8;
-                if (isSequence) {
-                    FXType ptype = getPrimitiveType(rawName.substring(0, sequenceIndex));
-                    if (ptype != null)
-                        return new FXSequenceType(ptype);
-                }
+                
+                if (rawName.endsWith("Sequence")) { 
+                    int newLength = rawName.length() - "Sequence".length(); 
+                    if (newLength != 0) rawName = rawName.substring(0, newLength - 1); 
+                    FXType ptype = getPrimitiveType(rawName); 
+                    if (ptype != null) 
+                        return new FXSequenceType(ptype); 
+                } 
+
                 FXType ptype = getPrimitiveType(rawName);
                 if (ptype != null)
                     return ptype;
@@ -331,7 +333,7 @@ public class FXLocal {
          * @return the hash-code of the name.
          */
         public int hashCode() {
-            return name.hashCode();
+            return (name != null ? name : refClass.getName()).hashCode();
         }
     
         public boolean equals (Object obj) {
@@ -561,8 +563,7 @@ public class FXLocal {
                 fields = filter(cls.getFields(), cls);
             }
             fieldLoop: for (java.lang.reflect.Field fld : fields) {
-                if (fld.isSynthetic() ||
-                    fld.getAnnotation(com.sun.javafx.runtime.annotation.Inherited.class) != null) {
+                if (fld.isSynthetic()) {
                     continue;
                 }
                 String fname = fld.getName();
@@ -574,14 +575,24 @@ public class FXLocal {
                 }
                 
                 SourceName sourceName = fld.getAnnotation(SourceName.class);
-                String sname = sourceName != null ? sourceName.value() : fname;
-                
-                for (String prefix : SYSTEM_VAR_PREFIXES) {
-                    if (sname.startsWith(prefix)) {
-                        continue fieldLoop;
+                String sname;
+                if (sourceName == null) {
+                    int dollar = fname.lastIndexOf('$');
+                    if (dollar == -1) {
+                        sname = fname;
+                    } else {
+                        for (String prefix : SYSTEM_VAR_PREFIXES) {
+                            if (fname.startsWith(prefix)) {
+                                continue fieldLoop;
+                            }
+                        }
+                        
+                        sname = fname.substring(dollar + 1);
                     }
+                } else {
+                    sname = sourceName.value();
                 }
-             
+               
                 if (requiredName != null && !requiredName.equals(sname)) {
                     continue;
                 }
@@ -603,7 +614,7 @@ public class FXLocal {
                     ref.loc_getter = getMethodOrNull(cls, "loc" + fname);
                     ref.locfield = getFieldOrNull(cls, "loc" + fname);
                 }
-                
+               
                 if (filter != null && filter.accept(ref))
                     result.insert(ref);
             }

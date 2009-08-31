@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,17 +23,17 @@
 
 package com.sun.tools.javafx.main;
 
-import com.sun.tools.javac.code.Source;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.jvm.Target;
+import com.sun.tools.mjavac.code.Source;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.jvm.Target;
 import com.sun.tools.javafx.main.JavafxOption.HiddenOption;
 import com.sun.tools.javafx.main.JavafxOption.Option;
 import com.sun.tools.javafx.main.JavafxOption.XOption;
 import com.sun.tools.javafx.util.MsgSym;
-import com.sun.tools.javac.util.List;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Log;
+import com.sun.tools.mjavac.util.Options;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -44,7 +44,7 @@ import javax.lang.model.SourceVersion;
 import static com.sun.tools.javafx.main.OptionName.*;
 
 /**
- * TODO: describe com.sun.tools.javac.main.RecognizedOptions
+ * TODO: describe com.sun.tools.mjavac.main.RecognizedOptions
  *
  * <p><b>This is NOT part of any API supported by Sun Microsystems.
  * If you write code that depends on this, you do so at your own

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafxdoc;
 
-import static com.sun.tools.javac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /**
@@ -31,7 +31,7 @@ import static com.sun.tools.javafx.code.JavafxFlags.*;
  *   Filtering is done by returning boolean values.
  *   Classes, methods and fields can be filtered, or filtering
  *   can be done directly on modifier bits.
- *   @see com.sun.tools.javac.code.Flags;
+ *   @see com.sun.tools.mjavac.code.Flags;
  *   @author Robert Field
  */
 

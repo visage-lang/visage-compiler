@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -51,7 +51,7 @@ public class ToolProvider {
         try {
             URL[] urls = new URL[] {
                 getPath("com.sun.tools.javafx.api.JavafxcTool"),
-                getPath("com.sun.tools.javac.util.Context")
+                getPath("com.sun.tools.mjavac.util.Context")
             };
             ClassLoader cl = createPrivilegedClassLoader(urls);
             Class<?> cls = Class.forName("com.sun.tools.javafx.api.JavafxcTool", false, cl);
@@ -71,7 +71,7 @@ public class ToolProvider {
         try {
             URL[] urls = new URL[] {
                 getPath("com.sun.tools.javafx.script.JavaFXScriptEngineImpl"),
-                getPath("com.sun.tools.javac.util.Context")
+                getPath("com.sun.tools.mjavac.util.Context")
             };
             ClassLoader cl = createPrivilegedClassLoader(urls);
             Class<?> cls = Class.forName("com.sun.tools.javafx.script.JavaFXScriptEngineImpl", false, cl);

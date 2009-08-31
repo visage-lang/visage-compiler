@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,19 +23,19 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.comp.*;
-import com.sun.tools.javac.util.*;
-import com.sun.tools.javac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.jvm.*;
-import com.sun.tools.javac.tree.*;
+import com.sun.tools.mjavac.comp.*;
+import com.sun.tools.mjavac.util.*;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.jvm.*;
+import com.sun.tools.mjavac.tree.*;
 
-import com.sun.tools.javac.code.Type.*;
-import com.sun.tools.javac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type.*;
+import com.sun.tools.mjavac.code.Symbol.*;
 
-import static com.sun.tools.javac.code.Flags.*;
-import static com.sun.tools.javac.code.Kinds.*;
-import static com.sun.tools.javac.code.TypeTags.*;
+import static com.sun.tools.mjavac.code.Flags.*;
+import static com.sun.tools.mjavac.code.Kinds.*;
+import static com.sun.tools.mjavac.code.TypeTags.*;
 import javax.lang.model.element.ElementVisitor;
 
 import com.sun.tools.javafx.code.*;
@@ -507,12 +507,22 @@ public class JavafxResolve {
              l = l.tail) {
             sym = findField(env, site, name, l.head.tsym);
             if (bestSoFar.kind < AMBIGUOUS && sym.kind < AMBIGUOUS &&
-                sym.owner != bestSoFar.owner)
+                sym.owner != bestSoFar.owner && !mixableIn(bestSoFar, sym, site))
                 bestSoFar = new AmbiguityError(bestSoFar, sym);
             else if (sym.kind < bestSoFar.kind)
                 bestSoFar = sym;
         }
         return bestSoFar;
+    }
+    //where
+    boolean mixableIn(Symbol s1, Symbol s2, Type site) {
+        if (!types.isMixin(s1.owner) &&
+                !types.isMixin(s2.owner))
+            return false;
+        List<Type> supertypes = types.interfaces(site).prepend(types.supertype(site)).prepend(site);
+        int i1 = supertypes.indexOf(s1.owner.type);
+        int i2 = supertypes.indexOf(s2.owner.type);
+        return i1 <= i2 && i1 != -1 && i2 != -1;
     }
 
     /** Resolve a field identifier, throw a fatal error if not found.
@@ -536,7 +546,7 @@ public class JavafxResolve {
      *  @param env     The current environment.
      *  @param name    The name of the variable or field.
      */
-    Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
+    Symbol findVar(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected, boolean boxingEnabled, boolean varargsEnabled) {
         Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : varNotFound;
         Symbol sym;
         JavafxEnv<JavafxAttrContext> env1 = env;
@@ -566,12 +576,7 @@ public class JavafxResolve {
                 //first try resolution without boxing
                 sym = findMember(env1, envClass, name,
                         expected,
-                        false, false, false);
-                //if not resolved yet, retry with boxing enabled
-                if (sym.kind >= WRONG_MTHS)
-                    sym = findMember(env1, envClass, name,
-                            expected,
-                            true, false, false);
+                        boxingEnabled, varargsEnabled, false);
 
                 if (sym.exists()) {
                     if (staticOnly) {
@@ -623,8 +628,8 @@ public class JavafxResolve {
                 else //method
                     return selectBest(env, origin, mtype,
                                            e.sym, bestSoFar,
-                                           true,
-                                           false,
+                                           boxingEnabled,
+                                           varargsEnabled,
                                            false);
             }
         }
@@ -646,8 +651,8 @@ public class JavafxResolve {
                 else //method
                     bestSoFar = selectBest(env, origin.type, mtype,
                                            e.sym, bestSoFar,
-                                           true,
-                                           false,
+                                           boxingEnabled,
+                                           varargsEnabled,
                                            false);
             }
         }
@@ -801,7 +806,7 @@ public class JavafxResolve {
                 if (m2Abstract && !m1Abstract) return m1;
                 // both abstract or both concrete
                 if (!m1Abstract && !m2Abstract)
-                    return new AmbiguityError(m1, m2);
+                    return !mixableIn(m2, m1, site) ? new AmbiguityError(m1, m2) : m2;
                 // check for same erasure
                 if (!types.isSameType(m1.erasure(types), m2.erasure(types)))
                     return new AmbiguityError(m1, m2);
@@ -945,7 +950,7 @@ public class JavafxResolve {
                     // No argument list to disambiguate.
                     if (bestSoFar.kind == ABSENT_VAR || bestSoFar.kind == ABSENT_MTH)
                         bestSoFar = e.sym;
-                    else if (e.sym != bestSoFar)
+                    else if (e.sym != bestSoFar && !mixableIn(bestSoFar, e.sym, site))
                         bestSoFar = new AmbiguityError(bestSoFar, e.sym);
                 }
                 else if (e.sym.kind == MTH) {                    
@@ -1224,8 +1229,10 @@ public class JavafxResolve {
     Symbol findIdent(JavafxEnv<JavafxAttrContext> env, Name name, int kind, Type expected) {
         Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : typeNotFound;
         Symbol sym;
-        if ((kind & (VAR|MTH)) != 0) {
-            sym = findVar(env, name, kind, expected);
+         if ((kind & (VAR|MTH)) != 0) {
+            sym = findVar(env, name, kind, expected, false, false);
+            if (sym.kind >= WRONG_MTHS)
+                sym = findVar(env, name, kind, expected, true, false);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }

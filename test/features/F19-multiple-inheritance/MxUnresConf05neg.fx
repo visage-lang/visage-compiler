@@ -2,10 +2,7 @@
  * Test for unresolvable conflicts.
  * Super and Mixin declare an override-incompatible function.
  *
- * NOTE: please change the test tag to (at)test/compile-error and
- *       check the expected output when JFXC-3127 is fixed.
- *
- * @test/fail
+ * @test/compile-error
  */
 
 public mixin class Mixin {

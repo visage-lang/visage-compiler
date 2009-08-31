@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -34,6 +34,7 @@ public:
     std::string classpath;
     std::string vmargs;
     std::string fxargs;
+    std::string librarypath;
     
     std::string profile_classpath;
     std::string profile_bootclasspath;
@@ -41,6 +42,7 @@ public:
     std::string profile_bootclasspath_append;
     std::string profile_nativelibpath;
     std::string profile_bootnativelibpath;
+    std::string profile_vmargs;
     bool        is_desktop() { return device_profile == "desktop"; };
     bool        is_mobile()  { return device_profile == "mobile" ; };
     

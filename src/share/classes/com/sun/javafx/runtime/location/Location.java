@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -69,16 +69,4 @@ public interface Location extends DependencySource {
 
     /** Add this location as a dependency of another Location */
     public void addDependency(DependencySource location);
-
-    /** Add this location as a dynamic dependency of zero or more other Locations */
-    public void addDynamicDependency(DependencySource location);
-
-    /** Remove this location as a dynamic dependency of any Location it was previously registered with */
-    public void clearDynamicDependencies();
-
-    /** Does this location represent a "view" of another location? */
-    public boolean isViewLocation();
-
-    /** Get the location for which this location represents a view */
-    public Location getUnderlyingLocation();
 }

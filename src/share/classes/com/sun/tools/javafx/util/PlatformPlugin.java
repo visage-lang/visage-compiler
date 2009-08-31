@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,11 +23,11 @@
 
 package com.sun.tools.javafx.util;
 
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Options;
-import com.sun.tools.javac.util.ListBuffer;
-import com.sun.tools.javac.util.Log;
+import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Options;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Log;
 
 /**
  * JavaFX Script compiler platform plug-in.

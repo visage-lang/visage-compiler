@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
 
-import com.sun.tools.javac.code.Type;
+import com.sun.tools.mjavac.code.Type;
 
 public abstract class JFXExpression extends JFXTree implements ExpressionTree {
     

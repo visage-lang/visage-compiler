@@ -1,1 +1,1 @@
-com.sun.tools.javac.api.JavacTool
+com.sun.tools.mjavac.api.JavacTool

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,9 +29,9 @@ import java.lang.reflect.*;
 import java.util.*;
 import javax.script.*;
 import javax.tools.*;
-import com.sun.tools.javac.util.Name;
+import com.sun.tools.mjavac.util.Name;
 import com.sun.javafx.api.JavaFXScriptEngine;
-import com.sun.tools.javac.code.*;
+import com.sun.tools.mjavac.code.*;
 
 /**
  * This is script engine for the JavaFX Script language, based on

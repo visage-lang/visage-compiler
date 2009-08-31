@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.ErrorHandler;
+import com.sun.javafx.runtime.util.Linkables;
 
 /*
  * WARNING: Automatically generated from the template $TEMPLATE_NAME$; do not edit!
@@ -138,17 +139,43 @@ public class $T.Variable$ extends AbstractVariable<$T.boxed$, $T.Location$> impl
     private void notifyListeners(final $T.prim$ oldValue, final $T.prim$ newValue, boolean invalidateDependencies) {
         if (invalidateDependencies)
             invalidateDependencies();
+
+        // Ugly: the logic below was cut-pasted and edited from "iterateChildren"
+        // method of AbstractLocation to avoid creating an instance of iteration
+        // closure class for every iteration.
+
         if (hasChildren(CHILD_KIND_TRIGGER)) {
-            for (LocationDependency cur = children; cur != null; cur = cur.getNext()) {
-                if (cur.getDependencyKind() == CHILD_KIND_TRIGGER) {
-                    ChangeListener<$T.boxed$> listener = (ChangeListener<$T.boxed$>) cur;
-                    try {
-                        listener.onChange(oldValue, newValue);
+            beginUpdate();
+            try {
+                boolean removed = false;
+                int mask = 0;
+                for (LocationDependency cur = children;  cur != null; ) {
+                    LocationDependency next = cur.getNext();
+                    int curKind = cur.getDependencyKind();
+                    handle: {
+                        if (curKind == CHILD_KIND_TRIGGER) {
+                            boolean keep;
+                            try {
+                                keep = ((ChangeListener<$T.boxed$>)cur).onChangeB(oldValue, newValue);
+                            } catch (RuntimeException e) {
+                                ErrorHandler.triggerException(e);
+                                keep = true;
+                            }
+
+                            if (! keep) {
+                                Linkables.remove(cur);
+                                removed = true;
+                                break handle;
+                            }
+                        }
+                        mask |= curKind;
                     }
-                    catch (RuntimeException e) {
-                        ErrorHandler.triggerException(e);
-                    }
+                    cur = next;
                 }
+                if (removed)
+                    setChildKindMask((byte) mask);
+            } finally {
+                endUpdate();
             }
         }
     }

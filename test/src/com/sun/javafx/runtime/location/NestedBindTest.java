@@ -22,7 +22,7 @@ public class NestedBindTest extends JavaFXTestCase {
     private ObjectLocation<Foo> makeFunctionNode(final IntLocation n) {
         return ObjectVariable.make(false, new ObjectBindingExpression<Foo>() {
             public Foo computeValue() {
-                clearDynamicDependencies();
+                //getLocation().clearDynamicDependencies();
                 return new Foo(n.get());
             }
         }, n);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,7 +23,6 @@
 
 package com.sun.javafx.runtime.sequence;
 
-import com.sun.javafx.runtime.location.ChangeListener;
 import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.TypeInfo;
 
@@ -49,13 +48,31 @@ public class BoundUpcastSequence<T, V extends T> extends AbstractBoundSequence<T
     }
 
     private void addTriggers() {
-        sequence.addSequenceChangeListener(new ChangeListener<V>() {
-            public void onChange(ArraySequence<V> buffer, Sequence<? extends V> oldValue, int startPos, int endPos, Sequence<? extends V> newElements) {
+        sequence.addSequenceChangeListener(new UnderlyingSequenceChangeListener<T, V>(this));
+    }
+
+    private static class UnderlyingSequenceChangeListener<T, V extends T> extends WeakMeChangeListener<V> {
+        UnderlyingSequenceChangeListener(BoundUpcastSequence<T, V> bus) {
+            super(bus);
+        }
+
+        @Override
+        public void onChange(ArraySequence<V> buffer, Sequence<? extends V> oldValue, int startPos, int endPos, Sequence<? extends V> newElements) {
+            onChangeB(buffer, oldValue, startPos, endPos, newElements);
+        }
+
+        @Override
+        public boolean onChangeB(ArraySequence<V> buffer, Sequence<? extends V> oldValue, int startPos, int endPos, Sequence<? extends V> newElements) {
+           BoundUpcastSequence<T, V> bus = (BoundUpcastSequence<T, V>) get();
+           if (bus != null) {
                 // FIXME inefficient - better to copy newElements into ArraySequence.
                 // For that use a  version of updateSlice that also passes the buffer.
                 newElements = Sequences.getNewElements(buffer, startPos, newElements);
-                updateSlice(startPos, endPos, newElements);
-             }
-        });
+                bus.updateSlice(startPos, endPos, newElements);
+                return true;
+           } else {
+               return false;
+           }
+        }
     }
 }

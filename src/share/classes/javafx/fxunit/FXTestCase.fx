@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -32,9 +32,6 @@ public class FXTestCase extends TestCase {
     init {
        try {
            var codebase = getClass().getProtectionDomain().getCodeSource().getLocation().toString();
-           if (codebase.endsWith(".jar")) {
-               codebase = "{codebase}/";
-           }
            SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
 	} catch (ignored : NullPointerException) {
 	   // just in case the code source is null

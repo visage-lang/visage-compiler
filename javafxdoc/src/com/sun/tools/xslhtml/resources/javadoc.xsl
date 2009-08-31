@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 
  This code is free software; you can redistribute it and/or modify it
@@ -45,9 +45,9 @@
     </xsl:template>
     
     <xsl:template name="add-copyright-link">
-        <i>Copyright 2008</i><br/>
+        <i>Copyright 2008-2009</i><br/>
         <i>Sun Microsystems, Inc.</i><br/>
-        <i>Use is subject to <a href="http://java.sun.com/javafx/1/docs/apis/license.html">license terms</a>.</i><br/>
+        <i>Use is subject to <a href="http://java.sun.com/javafx/1.2/docs/api/license.html">license terms</a>.</i><br/>
     </xsl:template>
     
 <!-- starter template -->    
@@ -763,7 +763,7 @@
     <!-- summary line -->
 <!--    <xsl:template match="$foo and var[]" mode="toc"><tr><td>skipping because it's a common one</td></tr></xsl:template>-->
     <xsl:template match="field | var | script-var" mode="toc">
-        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <xsl:if test="not(docComment/tags/treatasprivate) and ($profiles-enabled='false' or docComment/tags/profile/text()=$target-profile)">
             <tr>
                 <xsl:attribute name="class">
                     <xsl:text>var </xsl:text>
@@ -811,7 +811,7 @@
                             <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
                             <div class="long-desc">
                                 <xsl:call-template name="var-full-description"/>
-                                &amp;nbsp;
+                                &#160;
                             </div>
                         </xsl:if>
                     </xsl:if>
@@ -885,7 +885,7 @@
     
     <!-- full description -->
     <xsl:template match="field | var | script-var ">
-        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <xsl:if test="not(docComment/tags/treatasprivate) and ($profiles-enabled='false' or docComment/tags/profile/text()=$target-profile)">
         <div>
             
             <!-- class attribute of div -->
@@ -943,7 +943,7 @@
 
     <!-- summary line -->
     <xsl:template name="method-like-toc">
-        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <xsl:if test="not(docComment/tags/treatasprivate) and ($profiles-enabled='false' or docComment/tags/profile/text()=$target-profile)">
         <!-- signature anchor point -->
         <xsl:if test="$inline-descriptions='true'">
         <a>
@@ -982,7 +982,7 @@
                         <a href="#" class="long-desc-open"><img src="../images/JFX_arrow_right.png"/></a>
                         <div class="long-desc">
                             <xsl:call-template name="method-like-full-description"/>
-                            &amp;nbsp;
+                            &#160;
                         </div>
                         <!--
                     </xsl:if>
@@ -996,7 +996,7 @@
     
     <!-- full description -->
     <xsl:template name="method-like">
-        <xsl:if test="$profiles-enabled='false' or docComment/tags/profile/text()=$target-profile">
+        <xsl:if test="not(docComment/tags/treatasprivate) and ($profiles-enabled='false' or docComment/tags/profile/text()=$target-profile)">
         <div>
             <!-- div's class attribute -->
             <xsl:attribute name="class">

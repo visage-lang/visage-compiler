@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,11 +25,11 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.code.*;
-import com.sun.tools.javac.code.Symbol.*;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.TypeTags;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.TypeTags;
+import com.sun.tools.mjavac.util.Position;
 
 import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import java.lang.reflect.Modifier;
@@ -98,9 +98,9 @@ public class FunctionDocImpl
         return TypeMaker.getType(env, sym.type.getReturnType(), false);
     }
     
-    public com.sun.tools.javac.code.Type rawReturnType() {
+    public com.sun.tools.mjavac.code.Type rawReturnType() {
         sym.complete();
-        return sym.type; 
+        return sym.type.getReturnType();
     }
 
     /**
@@ -157,7 +157,7 @@ public class FunctionDocImpl
             return null;
         }
 
-        // Derived from  com.sun.tools.javac.comp.Check.checkOverride .
+        // Derived from  com.sun.tools.mjavac.comp.Check.checkOverride .
 
         ClassSymbol origin = (ClassSymbol)sym.owner;
         for (Type t = env.types.supertype(origin.type);

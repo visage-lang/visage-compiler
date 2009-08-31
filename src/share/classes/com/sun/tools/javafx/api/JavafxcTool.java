@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -33,10 +33,10 @@ import java.util.Set;
 import javax.lang.model.SourceVersion;
 import javax.tools.*;
 
-import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.JavacFileManager;
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JavacFileManager;
+import com.sun.tools.mjavac.util.Log;
+import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.javafx.main.JavafxOption;
 import com.sun.tools.javafx.main.Main;
 import com.sun.tools.javafx.main.RecognizedOptions.GrumpyHelper;
@@ -75,7 +75,7 @@ public final class JavafxcTool implements JavafxCompiler {
         return new JavafxcTool();
     }
 
-    @Override
+    //@Override
     public int run(InputStream in, OutputStream out, OutputStream err, String... arguments) {
         if (err == null)
             err = System.err;
@@ -84,13 +84,13 @@ public final class JavafxcTool implements JavafxCompiler {
         return com.sun.tools.javafx.Main.compile(arguments, new PrintWriter(err, true));
     }
 
-    @Override
+    //@Override
     public Set<SourceVersion> getSourceVersions() {
         return Collections.unmodifiableSet(EnumSet.range(SourceVersion.RELEASE_3,
                                                          SourceVersion.latest()));
     }
 
-    @Override
+    //@Override
     public JavacFileManager getStandardFileManager(
         DiagnosticListener<? super JavaFileObject> diagnosticListener,
         Locale locale,
@@ -102,7 +102,7 @@ public final class JavafxcTool implements JavafxCompiler {
         return new JavafxFileManager(context, true, charset);
     }
 
-    @Override
+    //@Override
     public JavafxcTask getTask(Writer out,
                              JavaFileManager fileManager,
                              DiagnosticListener<? super JavaFileObject> diagnosticListener,
@@ -197,7 +197,7 @@ public final class JavafxcTool implements JavafxCompiler {
         }
     }
 
-    @Override
+    //@Override
     public int isSupportedOption(String option) {
         JavafxOption[] recognizedOptions =
             RecognizedOptions.getJavacToolOptions(new GrumpyHelper());

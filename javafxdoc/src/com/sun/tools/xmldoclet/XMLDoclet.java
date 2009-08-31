@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -505,6 +505,11 @@ public class XMLDoclet {
             hd.startElement("", "", "read-only", attrs);
             hd.endElement("", "", "read-only");
         }
+        if (element instanceof ClassDoc &&
+            isMixin((ClassDoc)element)) {
+            hd.startElement("", "", "mixin", attrs);
+            hd.endElement("", "", "mixin");
+        }
         /***
         if (element.isNative()) {
             hd.startElement("", "", "native", attrs);
@@ -580,7 +585,7 @@ public class XMLDoclet {
     }
     
     private void generateTypeRef(Type type, String kind, 
-                                 com.sun.tools.javac.code.Type rawType) throws SAXException {
+                                 com.sun.tools.mjavac.code.Type rawType) throws SAXException {
         if (type != null) {
             attrs.clear();
             ClassDoc cd = type.asClassDoc();
@@ -870,6 +875,10 @@ public class XMLDoclet {
     private static boolean isJFXClass(ClassDoc clsDoc) {
         return probe(clsDoc, "isJFXClass");
     }
+
+    private static boolean isMixin(ClassDoc clsDoc) {
+        return probe(clsDoc, "isMixin");
+    }
     
     private static boolean isSequence(ClassDoc clsDoc) {
         return probe(clsDoc, "isSequence");
@@ -886,24 +895,24 @@ public class XMLDoclet {
         }
     }
     
-    private static com.sun.tools.javac.code.Type rawType(FieldDoc field) {
+    private static com.sun.tools.mjavac.code.Type rawType(FieldDoc field) {
         return rawType(field, "rawType");
     }
     
-    private static com.sun.tools.javac.code.Type rawType(Parameter param) {
+    private static com.sun.tools.mjavac.code.Type rawType(Parameter param) {
         return rawType(param, "rawType");
     }
     
-    private static com.sun.tools.javac.code.Type rawReturnType(MethodDoc method) {
+    private static com.sun.tools.mjavac.code.Type rawReturnType(MethodDoc method) {
         return rawType(method, "rawReturnType");
     }
     
-    private static com.sun.tools.javac.code.Type rawType(Object o, String method) {
+    private static com.sun.tools.mjavac.code.Type rawType(Object o, String method) {
         try {
             Class<?> cls = o.getClass();
             Method m = cls.getDeclaredMethod(method);
             Object result = m.invoke(o);
-            return (com.sun.tools.javac.code.Type)result;
+            return (com.sun.tools.mjavac.code.Type)result;
         } catch (Exception e) {
             return null;
         }
@@ -951,10 +960,10 @@ public class XMLDoclet {
         return getBooleanFlag(doc, "isAbstract");
     }
     
-    private static Type sequenceType(ClassDoc cd, com.sun.tools.javac.code.Type rawType) {
+    private static Type sequenceType(ClassDoc cd, com.sun.tools.mjavac.code.Type rawType) {
         try {
             Class<?> cls = cd.getClass();
-            Method m = cls.getDeclaredMethod("sequenceType", com.sun.tools.javac.code.Type.class);
+            Method m = cls.getDeclaredMethod("sequenceType", com.sun.tools.mjavac.code.Type.class);
             final Type result = (Type)m.invoke(cd, (Object)rawType);
             return new Type() {
                 public String typeName() {
@@ -993,10 +1002,10 @@ public class XMLDoclet {
         }
     }
     
-    private static String simpleFunctionalTypeName(ClassDoc cd, com.sun.tools.javac.code.Type rawType) {
+    private static String simpleFunctionalTypeName(ClassDoc cd, com.sun.tools.mjavac.code.Type rawType) {
         try {
             Class<?> cls = cd.getClass();
-            Method m = cls.getDeclaredMethod("simpleFunctionalTypeName", com.sun.tools.javac.code.Type.class);
+            Method m = cls.getDeclaredMethod("simpleFunctionalTypeName", com.sun.tools.mjavac.code.Type.class);
             Object result = m.invoke(cd, (Object)rawType);
             return (String)result;
         } catch (Exception e) {

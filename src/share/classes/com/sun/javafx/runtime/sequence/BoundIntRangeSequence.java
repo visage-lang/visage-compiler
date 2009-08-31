@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -98,82 +98,126 @@ class BoundIntRangeSequence extends AbstractBoundSequence<Integer> implements Se
 
     private void addTriggers() {
         if (lazy) {
-            lowerLoc.addInvalidationListener(new InvalidateMeListener());
-            upperLoc.addInvalidationListener(new InvalidateMeListener());
-            stepLoc.addInvalidationListener(new InvalidateMeListener());
-            return;
+            lowerLoc.addInvalidationListener(new InvalidateMeListener(this));
+            upperLoc.addInvalidationListener(new InvalidateMeListener(this));
+            stepLoc.addInvalidationListener(new InvalidateMeListener(this));
+        } else {
+            lowerLoc.addChangeListener(new LowerLimitChangeListener(this));
+            upperLoc.addChangeListener(new UpperLimitChangeListener(this));
+            stepLoc.addChangeListener(new StepChangeListener(this));
         }
-        lowerLoc.addChangeListener(new ChangeListener<Integer>() {
-            @Override
-            public void onChange(int oldValue, int newValue) {
+    }
 
-                assert oldValue != newValue;
-                
-                int oldSize = size;
-                computeBounds(newValue, upper, step);
+    private static class LowerLimitChangeListener extends WeakMeChangeListener<Integer> {
+        LowerLimitChangeListener(BoundIntRangeSequence birs) {
+            super(birs);
+        }
+
+        @Override
+        public void onChange(int oldValue, int newValue) {
+            onChangeB(oldValue, newValue);
+        }
+
+        @Override
+        public boolean onChangeB(int oldValue, int newValue) {
+            assert oldValue != newValue;
+            BoundIntRangeSequence birs = (BoundIntRangeSequence) get();
+            if (birs != null) {
+                int oldSize = birs.size;
+                birs.computeBounds(newValue, birs.upper, birs.step);
                 Sequence<Integer> newElements;
 
                 if (oldSize == 0) {
-                    updateSlice(0, 0, computeFull(lower, upper, step));
+                    birs.updateSlice(0, 0, birs.computeFull(birs.lower, birs.upper, birs.step));
                 }
-                else if (oldSize < size) {
+                else if (oldSize < birs.size) {
 
-                    if (((newValue - oldValue) % step) == 0) {
-                        updateSlice(0, 0, Sequences.rangeExclusive(lower, oldValue, step));
+                    if (((newValue - oldValue) % birs.step) == 0) {
+                        birs.updateSlice(0, 0, Sequences.rangeExclusive(birs.lower, oldValue, birs.step));
                     }
                     else {
-                        newElements = computeFull(lower, upper, step);
-                        updateSlice(0, oldSize, newElements);
+                        newElements = birs.computeFull(birs.lower, birs.upper, birs.step);
+                        birs.updateSlice(0, oldSize, newElements);
                     }
                 }
-                else if (oldSize >= size) {
-                    if (((newValue - oldValue) % step) == 0) {
-                        updateSlice(0, oldSize - size, TypeInfo.Integer.emptySequence);
+                else if (oldSize >= birs.size) {
+                    if (((newValue - oldValue) % birs.step) == 0) {
+                        birs.updateSlice(0, oldSize - birs.size, TypeInfo.Integer.emptySequence);
                     }
                     else {
-                        newElements = computeFull(lower, upper, step);
-                        updateSlice(0, oldSize, newElements);
+                        newElements = birs.computeFull(birs.lower, birs.upper, birs.step);
+                        birs.updateSlice(0, oldSize, newElements);
                     }
                 }
+                return true;
+            } else { // sequence is null
+                return false;
             }
-        });
-        upperLoc.addChangeListener(new ChangeListener<Integer>() {
-            @Override
-            public void onChange(int oldValue, int newValue) {
-                
-                assert oldValue != newValue;
-                
-                int oldSize = size;
-                computeBounds(lower, newValue, step);
+        }
+    }
 
-                if (size == oldSize) {
-                    return;
+    private static class UpperLimitChangeListener extends WeakMeChangeListener<Integer> {
+        UpperLimitChangeListener(BoundIntRangeSequence birs) {
+            super(birs);
+        }
+
+        @Override
+        public void onChange(int oldValue, int newValue) {
+            onChangeB(oldValue, newValue);
+        }
+
+        @Override
+        public boolean onChangeB(int oldValue, int newValue) {
+            assert oldValue != newValue;
+            BoundIntRangeSequence birs = (BoundIntRangeSequence) get();
+            if (birs != null) {
+                int oldSize = birs.size;
+                birs.computeBounds(birs.lower, newValue, birs.step);
+
+                if (birs.size == oldSize) {
+                    return true;
                 }
                 else if (oldSize == 0) {
-                    updateSlice(0, 0, computeFull(lower, upper, step));
+                    birs.updateSlice(0, 0, birs.computeFull(birs.lower, birs.upper, birs.step));
                 }
-                else if (oldSize < size) {
-                    int startPos = lower + oldSize * step;
-                    updateSlice(oldSize, oldSize, computeFull(startPos, upper, step));
+                else if (oldSize < birs.size) {
+                    int startPos = birs.lower + oldSize * birs.step;
+                    birs.updateSlice(oldSize, oldSize, birs.computeFull(startPos, birs.upper, birs.step));
                 }
-                else if (oldSize > size) {
-                    updateSlice(size, oldSize, TypeInfo.Integer.emptySequence);
+                else if (oldSize > birs.size) {
+                    birs.updateSlice(birs.size, oldSize, TypeInfo.Integer.emptySequence);
                 }
+                return true;
+            } else {
+                return false;
             }
-        });
+        }
+    }
 
-        stepLoc.addChangeListener(new ChangeListener<Integer>() {
-            @Override
-            public void onChange(int oldValue, int newValue) {
-                
-                assert oldValue != newValue;
-                
-                int oldSize = size;
-                computeBounds(lower, upper, newValue);
+    private static class StepChangeListener extends WeakMeChangeListener<Integer> {
+        StepChangeListener(BoundIntRangeSequence birs) {
+            super(birs);
+        }
 
-                Sequence<Integer> newSeq = computeFull(lower, upper, step);
-                updateSlice(0, oldSize, newSeq);
+        @Override
+        public void onChange(int oldValue, int newValue) {
+            onChangeB(oldValue, newValue);
+        }
+
+        @Override
+        public boolean onChangeB(int oldValue, int newValue) {
+            assert oldValue != newValue;
+            BoundIntRangeSequence birs= (BoundIntRangeSequence) get();
+            if (birs != null) {
+                int oldSize = birs.size;
+                birs.computeBounds(birs.lower, birs.upper, newValue);
+
+                Sequence<Integer> newSeq = birs.computeFull(birs.lower, birs.upper, birs.step);
+                birs.updateSlice(0, oldSize, newSeq);
+                return true;
+            } else {
+                return false;
             }
-        });
+        }
     }
 }

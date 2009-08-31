@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -70,9 +70,6 @@ public class Entry {
 			    // TODO: make this not get set for webstart case, 
 			    // perhaps move to usesRuntimeLibrary
             		    String codebase = app.getProtectionDomain().getCodeSource().getLocation().toString();
-            		    if (codebase.endsWith(".jar")) {
-            		        codebase += '/';
-            		    }
             		    SystemProperties.setFXProperty(SystemProperties.codebase, codebase);
 			} catch (NullPointerException ignored) {
 	    		    // just in case the codesource is null
@@ -263,7 +260,7 @@ public class Entry {
             Method loadMethod = loaderClass.getMethod(loadMethodName,
                     Class.class,
                     ClassLoader.class);
-            ClassLoader cl = Entry.class.getClassLoader();
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
             Object result = loadMethod.invoke(null, RuntimeProvider.class, cl);
 
             // For java.util.ServiceLoader, we have to call another

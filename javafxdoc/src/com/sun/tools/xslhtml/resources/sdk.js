@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,6 +27,8 @@ window.addEvent('domready', function(){
 	attachSliders();
 	
 	attachDescOpen();	
+
+ 	attachCollapseExpand();
 	
 	initProfile();
 
@@ -84,6 +86,22 @@ function attachDescOpen() {
 			e.stop();
 		});
 	});
+}
+
+var collapsed = true;
+function attachCollapseExpand() {
+        $$('#collapse-expand-link').addEvent('click', function(e) {
+                // toggle collapsed state
+                collapsed = !collapsed;
+                $$('.long-desc-open').each(function(lnk,index) {
+                        try {
+                                lnk.fireEvent("click");
+                        } catch (ignored) {}
+                });
+                var linktext = collapsed? "expand all" : "collapse all";
+                $$('#collapse-expand-link').setProperty("text", linktext);
+        });
+
 }
 
 function initProfile() {

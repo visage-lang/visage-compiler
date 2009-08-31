@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2007-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -110,16 +110,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.io.OutputStreamWriter;
 
-import com.sun.tools.javac.tree.*;
+import com.sun.tools.mjavac.tree.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.*;
 
-import com.sun.tools.javac.util.*;
+import com.sun.tools.mjavac.util.*;
 import com.sun.tools.javafx.util.MsgSym;
 
-import com.sun.tools.javac.code.*;
+import com.sun.tools.mjavac.code.*;
 import com.sun.tools.javafx.code.JavafxFlags;
-import static com.sun.tools.javac.util.ListBuffer.lb;
+import static com.sun.tools.mjavac.util.ListBuffer.lb;
 import com.sun.javafx.api.JavafxBindStatus;
 
 import static com.sun.javafx.api.JavafxBindStatus.*;

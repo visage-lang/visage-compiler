@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -57,10 +57,6 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
         return false;
     }
 
-    public Location getUnderlyingLocation() {
-        return this;
-    }
-
     public void update() { }
 
     public void addInvalidationListener(InvalidationListener listener) { }
@@ -74,10 +70,6 @@ public abstract class AbstractConstantLocation<T> implements ObjectLocation<T> {
     public void addDependency(DependencySource... location) { }
 
     public void addDependency(DependencySource location) { }
-
-    public void addDynamicDependency(DependencySource location) { }
-
-    public void clearDynamicDependencies() { }
 
     public void addChangeListener(ChangeListener<T> listener) { }
 }

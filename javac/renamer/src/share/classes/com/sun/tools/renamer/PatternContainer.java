@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,28 +20,44 @@
  * CA 95054 USA or visit www.sun.com if you need additional information or
  * have any questions.
  */
-
-package com.sun.javafx.runtime.location;
-
-import java.lang.ref.WeakReference;
+package com.sun.tools.renamer;
+import java.util.regex.Pattern;
 
 /**
- * WeakMeLocation
  *
- * @author Brian Goetz
+ * @author ksrini
  */
-class DynamicDependentLocation extends AbstractLocationDependency implements WeakLocation {
-    private final WeakReference<Location> weakRef;
 
-    DynamicDependentLocation(WeakReference<Location> weakRef) {
-        this.weakRef = weakRef;
+public class PatternContainer {
+    Pattern spattern;
+    String  source;
+    String  target;
+
+    PatternContainer(String source, String target) {
+        this.source = source;
+        this.target = target;
+        spattern = Pattern.compile(source);
     }
 
-    public int getDependencyKind() {
-        return AbstractLocation.CHILD_KIND_WEAK_LOCATION;
+    Pattern getPattern() {
+        return this.spattern;
     }
 
-    public Location get() {
-        return weakRef.get();
+    String getSource() {
+        return this.source;
+    }
+
+    String getTarget() {
+        return this.target;
+    }
+
+    public boolean equals(Object o) {
+        if (o instanceof PatternContainer) {
+            PatternContainer that = (PatternContainer)o;
+            if (this.source.equals(that.source) && this.target.equals(that.target)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

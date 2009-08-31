@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,7 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javafx.tree.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;

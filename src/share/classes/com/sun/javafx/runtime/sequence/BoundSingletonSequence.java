@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,7 +24,7 @@
 package com.sun.javafx.runtime.sequence;
 
 import com.sun.javafx.runtime.TypeInfo;
-import com.sun.javafx.runtime.location.ChangeListener;
+import com.sun.javafx.runtime.location.InvalidateMeListener;
 import com.sun.javafx.runtime.location.ObjectLocation;
 import com.sun.javafx.runtime.location.SequenceLocation;
 
@@ -50,12 +50,30 @@ class BoundSingletonSequence<T, V extends T> extends AbstractBoundSequence<T> im
 
     private void addTriggers() {
         if (lazy)
-            location.addInvalidationListener(new InvalidateMeListener());
+            location.addInvalidationListener(new InvalidateMeListener(this));
         else
-            location.addChangeListener(new ChangeListener<V>() {
-                public void onChange(V oldValue, V newValue) {
-                    updateSlice(0, getRawValue().size(), newValue);
-                }
-            });
+            location.addChangeListener(new ElementChangeListener<T, V>(this));
+    }
+
+    private static class ElementChangeListener<T, V extends T> extends WeakMeChangeListener<V> {
+        ElementChangeListener(BoundSingletonSequence<T, V> bss) {
+            super(bss);
+        }
+
+        @Override
+        public void onChange(V oldValue, V newValue) {
+            onChangeB(oldValue, newValue);
+        }
+
+        @Override
+        public boolean onChangeB(V oldValue, V newValue) {
+            BoundSingletonSequence<T, V> bss = (BoundSingletonSequence<T, V>) get();
+            if (bss != null) {
+                bss.updateSlice(0, bss.getRawValue().size(), newValue);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

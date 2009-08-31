@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,12 +23,12 @@
 
 package com.sun.tools.javafx.main;
 
-import com.sun.tools.javac.util.Log;
-import com.sun.tools.javac.util.Options;
+import com.sun.tools.mjavac.util.Log;
+import com.sun.tools.mjavac.util.Options;
 import java.io.PrintWriter;
 
 /**
- * TODO: describe com.sun.tools.javac.main.JavacOption
+ * TODO: describe com.sun.tools.mjavac.main.JavacOption
  *
  * <p><b>This is NOT part of any API supported by Sun Microsystems.
  * If you write code that depends on this, you do so at your own

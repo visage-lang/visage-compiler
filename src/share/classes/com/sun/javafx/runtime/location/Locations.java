@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,7 +24,9 @@
 package com.sun.javafx.runtime.location;
 
 import com.sun.javafx.functions.Function0;
+import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.TypeInfo;
+import com.sun.javafx.runtime.util.Linkables;
 import java.lang.ref.WeakReference;
 
 /**
@@ -42,44 +44,135 @@ public class Locations {
                                                                 final ObjectLocation<T> thenLoc,
                                                                 final ObjectLocation<T> elseLoc) {
         final L loc = typeInfo.makeLocation();
-
-
-        BindingExpression bindingExpression = new AbstractBindingExpression() {
-            public void compute() {
-                pushFrom(typeInfo, conditional.getAsBoolean() ? thenLoc : elseLoc);
-            }
-        };
-        ((BindableLocation<T, ?>) loc).bind(lazy, bindingExpression, conditional);
-
-        elseLoc.addInvalidationListener(new ArmInvalidationListener(loc, conditional, false));
-        thenLoc.addInvalidationListener(new ArmInvalidationListener(loc, conditional, true));
-
+        ((BindableLocation<T, ?>) loc).bind(lazy, makeBoundIfBE(typeInfo, conditional, thenLoc, elseLoc));
         return loc;
     }
 
-    private static class ArmInvalidationListener<T, L extends ObjectLocation<T>> extends InvalidationListener {
-        private final boolean desiredCondition;
-        private final BooleanLocation conditional;
-        private final WeakReference<L> targetLocation;
+    public static<T, L extends ObjectLocation<T>> BindingExpression makeBoundIfBE(
+            final TypeInfo<T, L> typeInfo, 
+            final BooleanLocation conditional,
+            final ObjectLocation<T> thenLoc, final ObjectLocation<T> elseLoc) {
+        return new AbstractBindingExpression() {
+            StaticDependentLocation weakThenMe;
+            StaticDependentLocation weakElseMe;
 
-        ArmInvalidationListener(L targetLocation, BooleanLocation conditional, boolean desiredCondition) {
-            this.targetLocation = new WeakReference<L>(targetLocation);
-            this.conditional = conditional;
-            this.desiredCondition = desiredCondition;
-        }
+            ObjectLocation<T> lastArm;
+            boolean lastValue;
 
-        @Override
-        public boolean onChange() {
-            L target = targetLocation.get();
-            if (target == null)
-                return false;
-            else {
-                if (conditional.getAsBoolean() == desiredCondition)
-                    target.invalidate();
-                return true;
+            @Override
+            public void setLocation(Location location) {
+                super.setLocation(location);
+                addStaticDependent(conditional);
             }
-        }
+
+            private StaticDependentLocation weakThenMe() {
+                if (weakThenMe == null) {
+                    weakThenMe = new StaticDependentLocation(location);
+                }
+                return weakThenMe;
+            }
+
+            private StaticDependentLocation weakElseMe() {
+                if (weakElseMe == null) {
+                    weakElseMe = new StaticDependentLocation(location);
+                }
+                return weakElseMe;
+            }
+
+            @Override
+            public void compute() {
+                boolean c = conditional.getAsBoolean();
+                ObjectLocation<T> thisArm = c ? thenLoc : elseLoc;
+                if (thisArm != lastArm) {
+                    if (lastArm != null && lastArm instanceof AbstractLocation) {
+                        StaticDependentLocation weakMe = lastValue? weakThenMe() : weakElseMe();
+                        ((AbstractLocation) lastArm).removeChild(weakMe);
+                    }
+                    if (thisArm instanceof AbstractLocation) {
+                        StaticDependentLocation weakMe = c? weakThenMe() : weakElseMe();
+                        ((AbstractLocation) thisArm).addChild(weakMe);
+                    }
+                    lastArm = thisArm;
+                    lastValue = c;
+                }
+                pushFrom(typeInfo, thisArm);
+            }
+        };
     }
+
+    public static BooleanLocation makeBoundOr(boolean lazy,
+                                              BooleanLocation leftLoc,
+                                              BooleanLocation rightLoc) {
+        final BooleanLocation loc = TypeInfo.Boolean.makeLocation();
+
+        ((BindableLocation<Boolean, ?>) loc).bind(lazy, makeBoundOrBE(leftLoc, rightLoc));
+        return loc;
+    }
+
+    public static BindingExpression makeBoundOrBE(final BooleanLocation leftLoc, final BooleanLocation rightLoc) {
+        return new AbstractBindingExpression() {
+            StaticDependentLocation weakMe;
+
+            @Override
+            public void setLocation(Location location) {
+                super.setLocation(location);
+                addStaticDependent(leftLoc);
+                weakMe = new StaticDependentLocation(location);
+            }
+
+            public void compute() {
+                boolean c = leftLoc.getAsBoolean();
+                if (c) {
+                    if (!Linkables.<LocationDependency>isUnused(weakMe))
+                        ((AbstractLocation) rightLoc).removeChild(weakMe);
+                    pushValue(true);
+                }
+                else {
+                    if (Linkables.<LocationDependency>isUnused(weakMe) && rightLoc instanceof AbstractLocation)
+                        ((AbstractLocation) rightLoc).addChild(weakMe);
+                    pushFrom(TypeInfo.Boolean, rightLoc);
+                }
+            }
+        };
+    }
+
+
+    public static BooleanLocation makeBoundAnd(boolean lazy,
+                                               BooleanLocation leftLoc,
+                                               BooleanLocation rightLoc) {
+        final BooleanLocation loc = TypeInfo.Boolean.makeLocation();
+        ((BindableLocation<Boolean, ?>) loc).bind(lazy, makeBoundAndBE(leftLoc, rightLoc));
+        return loc;
+    }
+
+    public static BindingExpression makeBoundAndBE(
+            final BooleanLocation leftLoc, final BooleanLocation rightLoc) {
+        return new AbstractBindingExpression() {
+            StaticDependentLocation weakMe;
+
+            @Override
+            public void setLocation(Location location) {
+                super.setLocation(location);
+                addStaticDependent(leftLoc);
+                weakMe = new StaticDependentLocation(location);
+            }
+
+            public void compute() {
+                boolean c = leftLoc.getAsBoolean();
+                if (! c) {
+                    if (!Linkables.<LocationDependency>isUnused(weakMe))
+                        ((AbstractLocation) rightLoc).removeChild(weakMe);
+                    pushValue(false);
+                }
+                else {
+                    if (Linkables.<LocationDependency>isUnused(weakMe) && rightLoc instanceof AbstractLocation)
+                        ((AbstractLocation) rightLoc).addChild(weakMe);
+                    pushFrom(TypeInfo.Boolean, rightLoc);
+                }
+            }
+        };
+    }
+
 
     // @@@ This can go away once we switch to the makeBoundIf(TypeInfo, ...) version vvv
     private static<T> BindingExpression wrap(final Function0<SequenceLocation<T>> fun) {
@@ -153,7 +246,46 @@ public class Locations {
         return loc;
     }
 
-    public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
+   public static<T, L extends ObjectLocation<T>> L makeBoundSelect(final TypeInfo<T, L> typeInfo,
+                                                                                   final ObjectLocation<? extends FXObject> receiver,
+                                                                                   final int varNum) {
+       final L loc = typeInfo.makeLocation();
+       ((BindableLocation<T, ?>) loc).bind(false, makeBoundSelectBE(typeInfo, receiver, varNum));
+       return loc;
+    }
+
+   public static<T, L extends ObjectLocation<T>, R extends FXObject> BindingExpression makeBoundSelectBE(final TypeInfo<T, L> typeInfo,
+                                                                                   final ObjectLocation<R> receiver,
+                                                                                   final int varNum) {
+       return new AbstractBindingExpression() {
+           L lastL = null;
+           StaticDependentLocation weakMe;
+
+           @Override
+           public void setLocation(Location location) {
+               super.setLocation(location);
+               addStaticDependent(receiver);
+               weakMe = new StaticDependentLocation(location);
+           }
+
+           public void compute() {
+               R rcvr = receiver.get();
+               L thisL = rcvr==null? 
+                   typeInfo.makeDefaultConstant() : 
+                   (L) rcvr.loc$(varNum);
+               if (thisL != lastL) {
+                   if (lastL != null && lastL instanceof AbstractLocation)
+                       ((AbstractLocation) lastL).removeChild(weakMe);
+                   if (thisL instanceof AbstractLocation)
+                       ((AbstractLocation) thisL).addChild(weakMe);
+                   lastL = thisL;
+               }
+               pushFrom(typeInfo, thisL);
+           }
+       };
+   }
+
+   public static<T, U> SequenceLocation<U> makeBoundSequenceSelect(final TypeInfo<U, ?> typeInfo,
                                                                     boolean lazy,
                                                                     final SBECL selector) {
         final ObjectLocation<?> receiver = (ObjectLocation<?>) selector.arg0();
@@ -171,30 +303,31 @@ public class Locations {
     ObjectVariable<L> makeIndirectHelper(boolean lazy, final L helpedLocation, BindingExpression binding, L defaultLocationValue, Location... dependencies) {
         final ObjectVariable<L> helper = ObjectVariable.make(defaultLocationValue, lazy, binding, dependencies);
         helpedLocation.addDependency(dependencies);
+        IndirectChangeListener<T, L> listener = new IndirectChangeListener<T, L>(helpedLocation);
         if (!lazy) {
             L initialValue = helper.get();
-            helpedLocation.addDynamicDependency(initialValue);
-            ((AbstractLocation) helpedLocation).setUnderlyingLocation(initialValue);
+            if (initialValue instanceof AbstractLocation)
+                ((AbstractLocation) initialValue).addChild(listener.helpedLocationHolder);
         }
-        helper.addChangeListener(new IndirectChangeListener<T, L>(helpedLocation));
+        helper.addChangeListener(listener);
         return helper;
     }
 
     private static class IndirectChangeListener<T, L extends ObjectLocation<T>> extends ChangeListener<L> {
-        private final WeakReference<L> helpedLocationHolder;
+        StaticDependentLocation helpedLocationHolder;
 
         public IndirectChangeListener(L helpedLocation) {
-            this.helpedLocationHolder = new WeakReference<L>(helpedLocation);
+            this.helpedLocationHolder = new StaticDependentLocation(helpedLocation);
         }
 
         @Override
         public void onChange(L oldLoc, L newLoc) {
-            L helpedLocation = helpedLocationHolder.get();
-            if (helpedLocation != null) {
-                helpedLocation.clearDynamicDependencies();
-                helpedLocation.addDynamicDependency(newLoc);
-                ((AbstractLocation) helpedLocation).setUnderlyingLocation(newLoc);
-            }
+            if (oldLoc instanceof AbstractLocation)
+                ((AbstractLocation) oldLoc).removeChild(helpedLocationHolder);
+            L helpedLocation = (L) helpedLocationHolder.get();
+            this.helpedLocationHolder = new StaticDependentLocation(helpedLocation);
+            if (newLoc instanceof AbstractLocation)
+                ((AbstractLocation) newLoc).addChild(helpedLocationHolder);
         }
     }
 

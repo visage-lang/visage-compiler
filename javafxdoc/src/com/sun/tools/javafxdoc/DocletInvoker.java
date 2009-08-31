@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,7 +27,7 @@ import com.sun.javadoc.*;
 
 import static com.sun.javadoc.LanguageVersion.*;
 
-import com.sun.tools.javac.util.List;
+import com.sun.tools.mjavac.util.List;
 
 import java.net.*;
 import java.lang.reflect.Method;

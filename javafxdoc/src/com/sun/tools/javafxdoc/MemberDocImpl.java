@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,9 +25,9 @@ package com.sun.tools.javafxdoc;
 
 import com.sun.javadoc.*;
 
-import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.javafx.tree.JFXTree;
-import com.sun.tools.javac.util.Position;
+import com.sun.tools.mjavac.util.Position;
 
 /**
  * Represents a member of a java class: field, constructor, or method.
