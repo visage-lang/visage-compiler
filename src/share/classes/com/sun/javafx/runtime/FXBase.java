@@ -36,15 +36,163 @@ public class FXBase implements FXObject {
     public static final int VCNT$ = 0;
 
     /**
+     * Number of bits needed for each var.  Must be non-final for binary compatibility.
+     */
+    public static int VFLGS$BITS_PER_VAR = 4;
+    
+    /**
+     * Number of bits needed for each var.  Must be non-final for binary compatibility.
+     */
+    public static int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
+    
+    /**
+     * Var is initialized flag.  Must be non-final for binary compatibility.
+     */
+    public static final int VFLGS$IS_INITIALIZED = 0;
+    
+    /**
+     * Var is defaults applied flag.  Must be non-final for binary compatibility.
+     */
+    public static final int VFLGS$IS_DEFAULTS_APPLIED = 1;
+    
+    /**
+     * Var is valid value applied flag.  Must be non-final for binary compatibility.
+     */
+    public static final int VFLGS$IS_VALID_VALUE = 2;
+   
+    /**
+     * Var has dependents flag.  Must be non-final for binary compatibility.
+     */
+    public static final int VFLGS$HAS_DEPENDENTS = 3;
+    
+    /**
+     * Status bits for vars.  Array is for bits greater than 32, null if not needed.
+     */
+    public int   VFLGS$small;
+    public int[] VFLGS$large;
+    
+    /**
+     * Allocate var status bits.
+     */
+    void allocateVarBits$() {
+      int count = count$();
+      
+      if (count > VFLGS$VARS_PER_WORD) {
+        int length = (((count * VFLGS$BITS_PER_VAR) + 31) >> 5) - 1;
+        VFLGS$large = new int[length];
+      }
+    }
+    
+    /**
+     * Test a var status bit.
+     * @param varNum var identifying offset.
+     * @param varBit var status bit number.
+     */
+    boolean isVarBitSet$(final int varNum, final int varBit) {
+      int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
+      int shift = bit & 31;
+      int word;
+      
+      if (bit >= 32) {
+        int index = (bit >> 5) - 1;
+        word = VFLGS$large[index];
+      } else {
+        word = VFLGS$small;
+      }
+      
+      return ((word >> shift) & 1) != 0;
+    }
+    
+    /**
+     * Set a var status bit.  Returns old state.
+     * @param varNum var identifying offset.
+     * @param varBit var status bit number.
+     */
+    boolean setVarBit$(final int varNum, final int varBit) {
+      int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
+      int shift = bit & 31;
+      int word;
+      
+      if (bit >= 32) {
+        int index = (bit >> 5) - 1;
+        word = VFLGS$large[index];
+        VFLGS$large[index] = word | (1 << shift);
+      } else {
+        word = VFLGS$small;
+      }
+      
+      return ((word >> shift) & 1) != 0;
+    }
+    
+    /**
+     * Clear a var status bit.  Returns old state.
+     * @param varNum var identifying offset.
+     * @param varBit var status bit number.
+     */
+    boolean clearVarBit$(final int varNum, final int varBit) {
+      int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
+      int shift = bit & 31;
+      int word;
+      
+      if (bit >= 32) {
+        int index = (bit >> 5) - 1;
+        word = VFLGS$large[index];
+        VFLGS$large[index] = word & ~(1 << shift);
+      } else {
+        word = VFLGS$small;
+      }
+      
+      return ((word >> shift) & 1) != 0;
+    }
+
+    public boolean isInitialized$(final int varNum) {
+      return isVarBitSet$(varNum, VFLGS$IS_INITIALIZED);
+    }
+    public boolean setInitialized$(final int varNum) {
+      return setVarBit$(varNum, VFLGS$IS_INITIALIZED);
+    }
+
+    public boolean isDefaultsApplied$(final int varNum) {
+      return isVarBitSet$(varNum, VFLGS$IS_DEFAULTS_APPLIED);
+    }
+    public boolean setDefaultsApplied$(final int varNum) {
+      return setVarBit$(varNum, VFLGS$IS_DEFAULTS_APPLIED);
+    }
+
+    public boolean isValidValue$(final int varNum) {
+      return isVarBitSet$(varNum, VFLGS$IS_VALID_VALUE);
+    }
+    public boolean setValidValue$(final int varNum) {
+      return setVarBit$(varNum, VFLGS$IS_VALID_VALUE);
+    }
+    public boolean clearValidValue$(final int varNum) {
+      return clearVarBit$(varNum, VFLGS$IS_VALID_VALUE);
+    }
+
+    public boolean hasDependents$(final int varNum) {
+      return isVarBitSet$(varNum, VFLGS$HAS_DEPENDENTS);
+    }
+    public boolean setHasDependents$(final int varNum) {
+      return setVarBit$(varNum, VFLGS$HAS_DEPENDENTS);
+    }
+    public boolean clearHasDependents$(final int varNum) {
+      return clearVarBit$(varNum, VFLGS$HAS_DEPENDENTS);
+    }
+
+    /**
      * Constructor called from Java or from object literal with no instance variable initializers
      */
-    public FXBase() {}
+    public FXBase() {
+      this(false);
+    }
 
     /**
      * Constructor called for a (non-empty) JavaFX object literal.
      * @param dummy Marker only. Ignored.
      */
-    public FXBase(boolean dummy) {}
+    public FXBase(boolean dummy) {
+      allocateVarBits$();
+    }
 
     public void initialize$() {
         addTriggers$();
@@ -80,7 +228,6 @@ public class FXBase implements FXObject {
     public void postInit$     () {}
 
     public int      count$()                         { return VCNT$(); }
-    public boolean  isInitialized$(final int varNum) { return true; }
     public Location loc$(final int varNum)           { return null; }
     
     //
