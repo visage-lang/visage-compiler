@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="JavaFX Compiler" default="binaries" basedir=".">
     <description>Builds, tests, and runs the openjfx-compiler project.</description>
-    <!-- TEST -->
 
     <property name="build.defs" value="../build-defs.xml"/>
     <condition property="build.defs.missing">
