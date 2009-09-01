@@ -1699,7 +1699,7 @@ public class JavafxCheck {
                     e.sym.complete();
                     if (types.overrides(m, e.sym, origin, false)) {
                         checkOverride(tree, m, (MethodSymbol)e.sym, origin);
-                        doesOverride = true;
+                        doesOverride = !e.sym.type.getReturnType().isErroneous();
                     }
                     e = e.next();
                 }

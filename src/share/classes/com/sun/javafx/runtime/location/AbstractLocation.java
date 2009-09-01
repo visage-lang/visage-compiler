@@ -356,7 +356,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         return id;
     }
     
-    private void beginUpdate() {
+    protected void beginUpdate() {
         switch (inUse) {
             case INUSE_NOT:
                 inUse = INUSE_UNINFLATED;
@@ -391,7 +391,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         }
     }
 
-    private void endUpdate() {
+    protected void endUpdate() {
         switch (inUse) {
             case INUSE_NOT:
                 assert(false);

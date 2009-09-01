@@ -176,33 +176,38 @@ public class SequenceVariable<T>
         // closure class for every iteration.
 
         if (hasChildren(CHILD_KIND_TRIGGER)) {
-            boolean removed = false;
-            int mask = 0;
-            for (LocationDependency cur = children;  cur != null; ) {
-                LocationDependency next = cur.getNext();
-                int curKind = cur.getDependencyKind();
-                handle: {
-                    if (curKind == CHILD_KIND_TRIGGER) {
-                        boolean keep;
-                        try {
-                            keep = ((ChangeListener<T>)cur).onChangeB(buffer, oldValue, startPos, endPos, newElements);
-                        } catch (RuntimeException e) {
-                            ErrorHandler.triggerException(e);
-                            keep = true;
-                        }
+            beginUpdate();
+            try {
+                boolean removed = false;
+                int mask = 0;
+                for (LocationDependency cur = children;  cur != null; ) {
+                    LocationDependency next = cur.getNext();
+                    int curKind = cur.getDependencyKind();
+                    handle: {
+                        if (curKind == CHILD_KIND_TRIGGER) {
+                            boolean keep;
+                            try {
+                                keep = ((ChangeListener<T>)cur).onChangeB(buffer, oldValue, startPos, endPos, newElements);
+                            } catch (RuntimeException e) {
+                                ErrorHandler.triggerException(e);
+                                keep = true;
+                            }
 
-                        if (! keep) {
-                            Linkables.remove(cur);
-                            removed = true;
-                            break handle;
+                            if (! keep) {
+                                Linkables.remove(cur);
+                                removed = true;
+                                break handle;
+                            }
                         }
+                        mask |= curKind;
                     }
-                    mask |= curKind;
+                    cur = next;
                 }
-                cur = next;
+                if (removed)
+                    setChildKindMask((byte) mask);
+            } finally {
+                endUpdate();
             }
-            if (removed)
-                setChildKindMask((byte) mask);
         }
     }
 

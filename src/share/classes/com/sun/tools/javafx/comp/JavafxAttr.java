@@ -3844,7 +3844,15 @@ public class JavafxAttr implements JavafxVisitor {
                 while (e.scope != null) {
                     e.sym.complete();
                     if (m.overrides(e.sym, origin, types, false)) {
-                        if (fixOverride(tree, m, (MethodSymbol) e.sym, origin)) {
+                        //if other has an uninferred return type we should report an error
+                        if (e.sym.type.asMethodType().restype == syms.javafx_UnspecifiedType) {
+                            log.note(tree, MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_FUN_DECL, e.sym.name);
+                            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_TYPE_INFER_CYCLE_VAR_REF, e.sym.name);
+                            //set a dummy return type for other so that javafxc is happy
+                            ((MethodType)e.sym.type).restype = syms.errType;
+                            break;
+                        }
+                        else if (fixOverride(tree, m, (MethodSymbol) e.sym, origin)) {
                             break;
                         }
                     }
@@ -3869,7 +3877,7 @@ public class JavafxAttr implements JavafxVisitor {
 	List<Type> otvars = ot.getTypeArguments();
 	Type mtres = mt.getReturnType();
 	Type otres = types.subst(ot.getReturnType(), otvars, mtvars);
-
+        
 	boolean resultTypesOK =
 	    types.returnTypeSubstitutable(mt, ot, otres, noteWarner);
 	if (!resultTypesOK) {

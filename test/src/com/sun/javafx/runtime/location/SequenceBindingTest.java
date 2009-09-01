@@ -603,7 +603,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
     }
 
     public void testBoundSequenceBuilder() {
-        BoundCompositeSequence<Integer> sb = new BoundCompositeSequence<Integer>(NOT_LAZY, TypeInfo.Integer);
+        BoundSequenceBuilder<Integer> sb = new BoundSequenceBuilder<Integer>(NOT_LAZY, TypeInfo.Integer);
         IntLocation a = IntVariable.make(1);
         final SequenceLocation<Integer> b = SequenceVariable.make(TypeInfo.Integer, Sequences.make(TypeInfo.Integer, 4, 5, 6));
         IntLocation c = IntVariable.make(10);
@@ -626,7 +626,7 @@ public class SequenceBindingTest extends JavaFXTestCase {
         // was: assertEqualsAndClear(hl, "[0, -1] => [ 1, 4, 5, 6, 10, 3 ]");
 
         b.insert(7);
-        assertEquals(derived, 1, 4, 5, 6, 7, 10, 4); //EXPECTED 6     BUT WAS 7
+        assertEquals(derived, 1, 4, 5, 6, 7, 10, 4);
         assertEqualsAndClear(hl, "[5, 5] => [ 4 ]", "[4, 3] => [ 7 ]");
 
         b.delete(0);

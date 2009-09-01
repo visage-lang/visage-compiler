@@ -34,6 +34,7 @@ public:
     std::string classpath;
     std::string vmargs;
     std::string fxargs;
+    std::string librarypath;
     
     std::string profile_classpath;
     std::string profile_bootclasspath;
