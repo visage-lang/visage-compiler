@@ -259,9 +259,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected JavafxTaskListener taskListener;
 
-    protected JavafxSyntacticAnalysis syntacticAnalysis;
-    protected JavafxVarUsageAnalysis varUsageAnalysis;
-    protected JavafxToJava jfxToJava;
+    protected final JavafxSyntacticAnalysis syntacticAnalysis;
+    protected final JavafxDecompose decomposeBindExpressions;
+    protected final JavafxVarUsageAnalysis varUsageAnalysis;
+    protected final JavafxToJava jfxToJava;
 
     /**
      * Flag set if any implicit source files read.
@@ -290,6 +291,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         fileManager = context.get(JavaFileManager.class);
 
         syntacticAnalysis = JavafxSyntacticAnalysis.instance(context);
+        decomposeBindExpressions = JavafxDecompose.instance(context);
         varUsageAnalysis = JavafxVarUsageAnalysis.instance(context);
         jfxToJava = JavafxToJava.instance(context);
         prepForBackEnd = JavafxPrepForBackEnd.instance(context);
@@ -576,6 +578,30 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
     }
 
+    /** Emit pretty=printed fx source corresponding to post-processed
+     */
+    void printJavafxSourceLate(JFXScript cu) {
+        String dump = options.get("dumppost");
+        BufferedWriter out = null;
+        if (dump != null) {
+            try {
+                try {
+                    String fn = cu.sourcefile.toString().replace(".fx", ".fxdump");
+                    File outFile = new File(dump, (new File(fn)).getName());
+                    FileWriter fw = new FileWriter(outFile);
+                    out = new BufferedWriter(fw);
+                    new JavafxPretty(out, true).printUnit(cu);
+                } finally {
+                    if (out != null) {
+                        out.close();
+                    }
+                }
+            } catch (IOException ex) {
+                System.err.println("Exception thrown in JavaFX pretty printing: " + ex);
+            }
+        }
+    }
+
     /** Complete compiling a source file that has been accessed
      *  by the class file reader.
      *  @param c          The class the source file of which needs to be compiled.
@@ -762,16 +788,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(todo))))), results);
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(todo))))), results);
                 break;
 
             case BY_FILE: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
-                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(attribute(todo)))).values())
+                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(attribute(todo))))).values())
                     envbuff.appendList(prepForBackEnd(list));
                 backEnd(envbuff.toList(), results);
                 break;
@@ -782,7 +808,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     envbuff.append(attribute(todo.next()));
                 }
 
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(stopIfError(envbuff)))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(stopIfError(envbuff))))), results);
                 break;
             }
             default:
@@ -889,7 +915,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Check for errors -- called by JavafxTaskImpl.
      */
     public void errorCheck() throws IOException {
-        backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), null);
+        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(todo))))), null);
     }
 
     /**
@@ -946,6 +972,26 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
 
         return env;
+    }
+
+    public List<JavafxEnv<JavafxAttrContext>> decomposeBinds(List<JavafxEnv<JavafxAttrContext>> envs) {
+        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+            decomposeBinds(l.head);
+        }
+        return envs;
+    }
+
+    protected void decomposeBinds(JavafxEnv<JavafxAttrContext> env) {
+        try {
+            decomposeBindExpressions.decompose(env);
+            printJavafxSourceLate(env.toplevel);
+        } catch (RuntimeException ex) {
+            if (env.where != null) {
+                log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR,
+                        JavafxCompiler.fullVersion());
+            }
+            throw ex;
+        }
     }
 
     /**
