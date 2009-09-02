@@ -42,7 +42,6 @@ import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxToJava.UseSequenceBuilder;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.FunctionCallTranslator;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Locationness;
 import com.sun.tools.javafx.comp.JavafxToJava.InstanciateTranslator;
 import com.sun.tools.javafx.comp.JavafxToJava.InterpolateValueTranslator;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
@@ -79,6 +78,10 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
      * static information
      */
     private static final String cFunction0 = functionsPackageNameString + ".Function0";
+
+    JCExpression TODO() {
+        throw new RuntimeException("Not yet implemented");
+    }
 
     public static JavafxToBound instance(Context context) {
         JavafxToBound instance = context.get(jfxToBoundKey);
@@ -581,7 +584,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
     public void visitSelect(final JFXSelect tree) {
         final DiagnosticPosition diagPos = tree.pos();
         if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-            result = convert(tree.type, toJava.translateAsLocation(tree)); //TODO -- for now punt, translate like normal case
+            result = convert(tree.type, TODO()); //TODO -- for now punt, translate like normal case
             return;
         }
         final Symbol sym = tree.sym;
@@ -628,7 +631,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 // - this is a sequence bind
                 // - this bind does type conversion   //TODO: optimize this too
                 // - the selector is a mixin (so doesn't have attribute offsets)
-                if (bindStatus.isLazy() || 
+                if (bindStatus.isLazy() ||
                         types.isSequence(tree.type) ||
                         tmiTarget != null && !types.isSameType(tree.type, tmiTarget.getRealType()) ||
                         types.isMixin(selector.type.tsym)) {
@@ -1500,7 +1503,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                 break;
             default:
                 result = new BindingExpressionClosureTranslator(tree.pos(), tree.type) {
-                    // if this binary expression can be collapsed, 
+                    // if this binary expression can be collapsed,
                     // this is set to non-null.
                     private JCExpression intermediateExpression;
 
@@ -1526,6 +1529,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                                 }
                             }
 
+                    @Override
                             public JCExpression doit() {
                                 JCExpression res = super.doit();
                                 if (intermediateExprCount == 2) {
@@ -1542,6 +1546,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                         return resExpr;
                     }
 
+            @Override
                     BoundResult result() {
                         BoundResult bres = super.result();
                         if (this.intermediateExpression != null) {
@@ -1598,6 +1603,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                         }
                     }
 
+            @Override
                     BoundResult result() {
                         BoundResult bres = super.result();
                         if (this.intermediateExpression != null) {
