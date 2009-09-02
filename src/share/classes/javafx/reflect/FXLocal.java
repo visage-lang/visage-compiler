@@ -856,8 +856,7 @@ public class FXLocal {
         }
         
         private Location getLoc(FXObjectValue obj) {
-            Object robj = obj == null ? null : ((ObjectValue) obj).obj;
-            return robj != null && offset != -1 ? ((FXObject)robj).loc$(offset) : null;
+            return null;  //HACK
         }
         
         public FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener) {

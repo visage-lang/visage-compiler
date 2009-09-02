@@ -2018,7 +2018,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
 
                 // If there is a super class.
-                if (superClassSym != null) {
+                if (false && superClassSym != null) {  //HACK
                     // super
                     JCExpression selector = Id(names._super);
                     // (varNum)

@@ -228,7 +228,6 @@ public class FXBase implements FXObject {
     public void postInit$     () {}
 
     public int      count$()                         { return VCNT$(); }
-    public Location loc$(final int varNum)           { return null; }
     
     //
     // makeInitMap$ constructs a field mapping table used in the switch portion

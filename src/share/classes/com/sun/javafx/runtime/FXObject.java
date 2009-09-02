@@ -42,5 +42,4 @@ public interface FXObject {
     public void     complete$     ();
     public int      count$        ();
     public boolean  isInitialized$(final int varNum);
-    public Location loc$          (final int varNum);
 }

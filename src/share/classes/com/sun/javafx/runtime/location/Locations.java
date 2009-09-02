@@ -270,9 +270,7 @@ public class Locations {
 
            public void compute() {
                R rcvr = receiver.get();
-               L thisL = rcvr==null? 
-                   typeInfo.makeDefaultConstant() : 
-                   (L) rcvr.loc$(varNum);
+               L thisL = typeInfo.makeDefaultConstant(); //HACK
                if (thisL != lastL) {
                    if (lastL != null && lastL instanceof AbstractLocation)
                        ((AbstractLocation) lastL).removeChild(weakMe);
