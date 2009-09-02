@@ -925,8 +925,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         JCExpression varRef;
         if (vsym.owner.kind == Kinds.TYP) {
             // on replace is on class variable
-            varRef = makeAttributeAccess(diagPos, vsym,
-                    inInstanceContext==ReceiverContext.InstanceAsStatic? defs.receiverName : null);
+            varRef = null; //varRef = makeAttributeAccess(diagPos, vsym,
+            //        inInstanceContext==ReceiverContext.InstanceAsStatic? defs.receiverName : null);
         } else {
             // on replace is on local variable
             varRef = make.at(diagPos).Ident(vsym.name);
@@ -1933,9 +1933,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             JCExpression tc = instanceName == null ? null : make.at(diagPos).Ident(instanceName);
             return callExpression(diagPos, tc, attributeSetterName(vsym), nonNullInit);
         }
-        final JCExpression varRef = isLocal ?
+        final JCExpression varRef = //TODO: fix me
                   make.at(diagPos).Ident(vsym) // It is a local variable
-                : makeAttributeAccess(diagPos, vsym, instanceName);     // It is a member variable
+                ;
         if (vmi.representation() == NeverLocation) {
             // It is a local variable which is not a Location, just assign to it
             return make.at(diagPos).Assign(varRef, nonNullInit);
@@ -4080,7 +4080,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
             if (isClassVar) {
                 // this is a reference to a JavaFX class variable, use getter
-                Name accessName = (isSequence)? attributeGetLocationName(vsym) : attributeGetterName(vsym);
+                Name accessName = attributeGetterName(vsym);
                 JCExpression accessFunc = switchName(diagPos, varRef, accessName);
                 List<JCExpression> emptyArgs = List.nil();
                 expr = make.at(diagPos).Apply(null, accessFunc, emptyArgs);

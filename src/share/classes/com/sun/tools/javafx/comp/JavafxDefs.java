@@ -47,7 +47,6 @@ public class JavafxDefs {
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
-    public static final String attributeGetLocationMethodNamePrefix = "loc$";
     public static final String attributeCountMethodString = "count$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
     public static final String mixinSuffix = "$Mixin";
@@ -56,7 +55,7 @@ public class JavafxDefs {
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
     public static final String baseBindingListenerClassString = "com.sun.javafx.runtime.location.SBECL";
-    
+
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String fxMixinString = "com.sun.javafx.runtime.FXMixin";
     public static final String fxBaseString = "com.sun.javafx.runtime.FXBase";
@@ -83,15 +82,14 @@ public class JavafxDefs {
     public static final String bindingIdString = "id";
     public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
-    
+
     public static final String varOffsetString = "VOFF$";
     public static final String varCountString = "VCNT$";
     public static final String varBitsString = "VFLGS$";
     public static final String varValueString = "$";
-    public static final String varLocationString = "loc$";
     public static final String varMapString = "MAP$";
     public static final String varGetMapString = "GETMAP$";
-    
+
     public  static final String javaLangPackageNameString = "java.lang";
     public  static final String runtimePackageNameString = "com.sun.javafx.runtime";
     public  static final String annotationPackageNameString = "com.sun.javafx.runtime.annotation";
@@ -231,10 +229,8 @@ public class JavafxDefs {
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name applyDefaultsPrefixName;
-    final Name getLocationPrefixName;
     final Name attributeCountMethodName;
     final Name isInitializedPrefixName;
-    final Name setDefaultMethodName;
     final Name incrementSharingMethodName;
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
@@ -248,7 +244,7 @@ public class JavafxDefs {
     final Name locationBijectiveBindMethodName;
     final Name computeElementsMethodName;
     final Name cAbstractBoundComprehensionName;
-    
+
 	public final Name runtimePackageName;
 	public final Name annotationPackageName;
 	public final Name locationPackageName;
@@ -258,7 +254,7 @@ public class JavafxDefs {
     public final Name[] locationVariableName;
     public final Name[] locationInterfaceName;
     public final Name implFunctionSuffixName;
-    
+
     public Type delocationize(Name flatname) {
         for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
             if (flatname == locationVariableName[kind] || flatname == locationInterfaceName[kind]) {
@@ -367,7 +363,6 @@ public class JavafxDefs {
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
-        getLocationPrefixName = names.fromString(attributeGetLocationMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
         computeElementsMethodName = names.fromString("computeElements$");
@@ -378,7 +373,6 @@ public class JavafxDefs {
 		locationPackageName = names.fromString(locationPackageNameString);
 		sequencePackageName = names.fromString(sequencePackageNameString);
 		functionsPackageName = names.fromString(functionsPackageNameString);
-        setDefaultMethodName  = names.fromString(setDefaultMethodNameString);
         locationGetMethodName = new Name[TYPE_KIND_COUNT];
         locationSetMethodName = new Name[TYPE_KIND_COUNT];
         locationVariableName = new Name[TYPE_KIND_COUNT];
@@ -387,7 +381,6 @@ public class JavafxDefs {
 
         // Initialize RuntimeMethods
         TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");
-
 
         Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
         Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
@@ -422,7 +415,7 @@ public class JavafxDefs {
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
             locationGetMethodName[kind] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(kind));
             locationSetMethodName[kind] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(kind));
-            
+
             String typePrefix = locationPackageNameString + "." + JavafxVarSymbol.getTypePrefix(kind);
             locationVariableName[kind] = names.fromString(typePrefix + "Variable");
             locationInterfaceName[kind] = names.fromString(typePrefix + "Location");

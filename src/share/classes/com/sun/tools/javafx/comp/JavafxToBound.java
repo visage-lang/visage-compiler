@@ -595,7 +595,7 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
             if (treeVMI.isFXMemberVariable() && treeVMI.representation().possiblyLocation()) {
                 // if this is a static reference to an attribute, eg.   MyClass.myAttribute
                 JCExpression classRef = makeTypeTree(diagPos, types.erasure(tree.sym.owner.type), false);
-                result = convert(tree.type, callExpression(diagPos, classRef, attributeGetLocationName(tree.sym)));
+                //result = convert(tree.type, callExpression(diagPos, classRef, attributeGetLocationName(tree.sym)));
             } else {
                 // This is a static reference to a Java member or elided member e.g. System.out -- do unbound translation, then wrap
                 result = new BoundResult(makeUnboundLocation(diagPos, targetType(tree.type), toJava.translateAsUnconvertedValue(tree)));

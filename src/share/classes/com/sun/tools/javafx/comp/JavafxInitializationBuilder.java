@@ -261,7 +261,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
             cDefinitions.appendList(javaCodeMaker.makeIsInitialized());
             cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
-            cDefinitions.appendList(javaCodeMaker.makeGetLocation());
 
             if (isScriptClass) {
                 cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
@@ -653,13 +652,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (tai.getDefaultInitStatement() != null) {
                         stmts.append(tai.getDefaultInitStatement());
                     }
-                    if (tai.representation().possiblyLocation()) {  //TODO: this goes away
-                        // If the static variable is represented with a Location, initialize it
-                        Name locName = attributeLocationName(tai.getSymbol());
-                        JCStatement initvar = callStatement(diagPos, make.at(diagPos).Ident(locName), defs.locationInitializeName);
-                        JCExpression nullCheck = make.at(diagPos).Binary(JCTree.NE, make.at(diagPos).Ident(locName), makeNull(diagPos));
-                        stmts.append(make.at(diagPos).If(nullCheck, initvar, null));
-                    }
                 }
                 JCStatement stat = tai.onReplaceAsListenerInstanciation();
                 if (stat != null) {
@@ -883,15 +875,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (ai.representation() != AlwaysLocation) {
                         vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
                                 makeDefaultValue(currentPos, ai.getVMI())));
-                    }
-
-                    // If a Location might be needed, build the field
-                    if (ai.representation() != NeverLocation) {
-                        // TODO - switch over to using NULL.
-                        JCExpression initialValue = ai.representation()==AlwaysLocation ? makeLocationWithDefault(ai.getVMI(), currentPos) : null;
-                        // Construct the location field.
-                        vars.append(makeVariableField(ai, mods, ai.getVariableType(), attributeLocationName(varSym), initialValue));
-                    }
+                }
                 }
             }
 
@@ -951,45 +935,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     valueExp = m().Conditional(makeIsInitializedTest(varInfo, false), varInfo.getterInit(), valueExp);
                 }
 
-                switch (varInfo.representation()) {
-                    case SlackerLocation: {
-                        // Construct and add: return loc$var != null ? loc$var.getAsType() : $var;
-
-                        // Get the location accessor method name.
-                        Name getMethodName = defs.locationGetMethodName[typeKind];
-
-                        // loc$var
-                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                        // loc$var.getAsType
-                        JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
-                        // loc$var.getAsType()
-                        JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
-                        // loc$var != null
-                        JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
-                        // loc$var != null ? loc$var.getAsType() : $var
-                        stmts.append(m().If(condition, m().Return(getCall), m().Return(valueExp)));
-                        break;
-                    }
-                    case AlwaysLocation: {
-                        // Get the location accessor method name.
-                        Name getMethodName = defs.locationGetMethodName[typeKind];
-
-                        // loc$var
-                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                        // loc$var.getAsType
-                        JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
-                        // loc$var.getAsType()
-                        JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
-
-                        stmts.append(m().Return(getCall));
-                        break;
-                    }
-                    case NeverLocation: {
-                        // Construct and add: return $var;
-                        stmts.append(m().Return(valueExp));
-                        break;
-                    }
-                }
+                // Construct and add: return $var;
+                stmts.append(m().Return(valueExp));
             }
 
             // Construct method.
@@ -1129,73 +1076,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method returns the set statements used in the setter method -- for a Location set case.
-        //
-        private ListBuffer<JCStatement> makeLocationSetterStatements(VarInfo varInfo) {
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-            // Symbol used when accessing the variable.
-            VarSymbol proxyVarSym = varInfo.proxyVarSym();
-            // loc$var
-            Name varLocName = attributeLocationName(proxyVarSym);
-
-            // Get the location accessor method name.
-            int typeKind = varInfo.getVMI().getTypeKind();
-            Name setMethodName = defs.locationSetMethodName[typeKind];
-
-            // $varNewValue = loc$var.setAsType($varNewValue)
-            JCExpression setCall = callExpression(currentPos, Id(varLocName), setMethodName, Id(varNewValueName));
-
-            JCStatement setInit = makeSetVFLG$(varInfo, VFLAG_IS_INITIALIZED);
-            if (setInit != null) {
-                // $varNewValue = loc$var.setAsType($varNewValue)
-                // VFLGS$0 |= ###;   // Set VFLG$ bit.
-                // return $varNewValue
-                stmts.append(m().Exec(m().Assign(Id(varNewValueName), setCall)));
-                stmts.append(setInit);
-                stmts.append(m().Return(Id(varNewValueName)));
-            } else {
-                // return loc$var.setAsType($varNewValue)
-                stmts.append(m().Return(setCall));
-            }
-            return stmts;
-        }
-
-        //
         // This method returns the actual set statements used in the setter method.
         //
         private ListBuffer<JCStatement> makeSetterStatements(VarInfo varInfo) {
-            switch (varInfo.representation()) {
-                case NeverLocation:
-                    return makeValueSetterStatements(varInfo);
-                case AlwaysLocation:
-                    return makeLocationSetterStatements(varInfo);
-                case SlackerLocation: {
-                    // Symbol used when accessing the variable.
-                    VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                    // loc$var
-                    Name varLocName = attributeLocationName(proxyVarSym);
-
-                    JCExpression locRef = Id(varLocName);
-                    if (varInfo.isSlackerBind()) {
-                        // Come in here on a slacker bind that has not been overridden, just to throw a
-                        // BindingExpression inflate location so this works, making the code below:
-                        // if ((defaultsApplied? loc$x() : loc$x) != null) ...
-                        JCExpression callLoc = callExpression(currentPos, null, attributeGetLocationName(proxyVarSym));
-                        locRef = m().Conditional(makeFlagTest(varInfo, VFLAG_DEFAULTS_APPLIED, true), callLoc, locRef);
-                    }
-                    // loc$var != null
-                    JCExpression condition = m().Binary(JCTree.NE, locRef, makeNull());
-
-                    // if (loc$var != null) { location-code } else { value-code }
-                    JCStatement stmt = m().If(condition,
-                            m().Block(0L, makeLocationSetterStatements(varInfo).toList()),
-                            m().Block(0L, makeValueSetterStatements(varInfo).toList()));
-                    return ListBuffer.<JCStatement>lb().append(stmt);
-                }
-            }
-            throw new RuntimeException("Should not reach here");
+            return makeValueSetterStatements(varInfo);
         }
 
         //
@@ -1236,162 +1120,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method returns a .setDefault() call (if appropriate)
-        //
-        private JCStatement makeSetDefaultStatement(VarInfo varInfo) {
-            // Symbol used when accessing the variable.
-            VarSymbol proxyVarSym = varInfo.proxyVarSym();
-
-            // loc$var.setDefault()
-            JCStatement setDefaultCall = callStatement(currentPos, Id(attributeLocationName(proxyVarSym)), defs.setDefaultMethodName);
-
-            // set$var($var)
-            JCStatement setSelfCall = callStatement(currentPos, null, attributeSetterName(proxyVarSym), List.<JCExpression>of(Id(attributeValueName(proxyVarSym))));
-
-            switch (varInfo.representation()) {
-                case SlackerLocation: {
-                    // loc$var != null
-                    JCExpression condition = m().Binary(JCTree.NE, Id(attributeLocationName(proxyVarSym)), makeNull());
-
-                    // if (loc$var != null) loc$var.setDefault()
-                    return m().If(condition, setDefaultCall, setSelfCall);
-                }
-                case AlwaysLocation: {
-                    // loc$var.setDefault()
-                    return setDefaultCall;
-                }
-                case NeverLocation: {
-                    // Not a location
-                    return setSelfCall;
-                }
-            }
-            return null;
-        }
-
-        //
-        // This method constructs the get location method for the specified attribute.
-        //
-        //     Location loc$var() {
-        //         return loc$var;
-        //     }
-        //
-        // Or:
-        //     Location loc$var() {
-        //         if (loc$var != null) return loc$var;
-        //         loc$var = XXXVariable.makeWithDefault($var));
-        //         // trigger
-        //         return loc$var;
-        //     }
-        //
-        private JCTree makeGetLocationAccessorMethod(VarInfo varInfo, boolean needsBody, boolean override) {
-            setCurrentPos(varInfo);
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            VarMorphInfo vmi = varInfo.getVMI();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
-
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-                // $var
-                Name valueName = attributeValueName(varSym);
-                // loc$var
-                Name locationName = attributeLocationName(varSym);
-
-                switch (varInfo.representation()) {
-                    case SlackerLocation: {
-                         // loc$var != null
-                        JCExpression nullCheck = m().Binary(JCTree.NE, Id(locationName), makeNull());
-                        // if (loc$var != null) return loc$var
-                        stmts.append(m().If(nullCheck, m().Return(Id(locationName)), null));
-
-                        // if an override var.
-                        if (override) {
-                            // super.loc$var();
-                            stmts.append(callStatement(currentPos,
-                                                       Id(names._super),
-                                                       attributeGetLocationName(varSym),
-                                                       List.<JCExpression>nil()));
-                        } else {
-                            JCStatement build;
-                            JCExpression locWithValue = makeLocationWithDefault(vmi, varInfo.pos(), Id(valueName));
-                            JCExpression locNoValue = makeLocationWithDefault(vmi, varInfo.pos());
-                            if (varInfo.isSlackerBind()) {
-                                // Slacker bind, may have to dynamically bind the created Location
-                                // if (var_initialized)
-                                //    loc$var = XXXVariable.make($var);
-                                // else {
-                                //    loc$var = XXXVariable.make();
-                                //    if (beyond applyDefaults for var)
-                                //        loc$var.bind(...);
-                                // }
-                                JFXVar attrDef = ((TranslatedVarInfo)varInfo).jfxVar();
-                                JCStatement binding = toJava.translateDefinitionalAssignmentToSet(
-                                        attrDef.pos(),
-                                        attrDef.getInitializer(),
-                                        attrDef.getBindStatus(),
-                                        attrDef.sym,
-                                        null);
-                                JCStatement setUp = m().If(makeFlagTest(varInfo, VFLAG_DEFAULTS_APPLIED, true), binding, null);
-                                build = m().Block(0L, List.<JCStatement>of(m().Exec(m().Assign(Id(locationName), locNoValue)), setUp));
-                                if (!varInfo.isStatic()) {
-                                    build = m().If(makeIsInitializedTest(varInfo, true), m().Exec(m().Assign(Id(locationName), locWithValue)), build);
-                                }
-                            } else {
-                                // loc$var = var_initialized? XXXVariable.make($var) :  XXXVariable.make()
-                                JCExpression initExpr = varInfo.isStatic() ? locWithValue
-                                    : m().Conditional(
-                                        makeIsInitializedTest(varInfo, true),
-                                        locWithValue,
-                                        locNoValue);
-                                build = m().Exec(m().Assign(Id(locationName), initExpr));
-                            }
-                            stmts.append(build);
-                        }
-
-                        // $var = null;
-                        if (!vmi.getRealType().isPrimitive()) {
-                            stmts.append(m().Exec(m().Assign(Id(valueName), makeNull())));
-                        }
-
-                        // See if we need to add a trigger.
-                        JCStatement onReplace = varInfo.onReplaceAsListenerInstanciation();
-                        if (onReplace != null) {
-                            stmts.append(onReplace);
-                        }
-
-                        // Construct and add: return loc$var.
-                        stmts.append(m().Return(Id(locationName)));
-                        break;
-                    }
-                    case AlwaysLocation: {
-                        // Construct and add: return loc$var)
-                        stmts.append(m().Return(Id(locationName)));
-                        break;
-                    }
-                    case NeverLocation: {
-                        // new ConstantLocation<T>($var)
-                        JCExpression locationExpr = makeUnboundLocation(currentPos, vmi, Id(valueName));
-                        // Construct and add: return new ConstantLocation<T>($var);
-                        stmts.append(m().Return(locationExpr));
-                        break;
-                    }
-                }
-            }
-
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             varInfo.getVariableType(),
-                                             attributeGetLocationName(varSym),
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
-        }
-
-        //
         // This method constructs the getter/setter/location accessor methods for each attribute.
         //
         public List<JCTree> makeAttributeAccessorMethods(List<VarInfo> attrInfos) {
@@ -1406,7 +1134,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         accessors.append(makeGetterAccessorMethod(ai, true));
                         accessors.append(makeSetterAccessorMethod(ai, true));
                     }
-                    accessors.append(makeGetLocationAccessorMethod(ai, true, false));
                 }
             }
 
@@ -1432,7 +1159,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         accessors.append(makeGetterAccessorMethod(ai, false));
                         accessors.append(makeSetterAccessorMethod(ai, false));
                     }
-                    accessors.append(makeGetLocationAccessorMethod(ai, false, false));
                 }
             }
             return accessors.toList();
@@ -1708,6 +1434,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                } else if (ai instanceof TranslatedVarInfo) {
                     //TODO: see SequenceVariable.setDefault() and JFXC-885
                     // setDefault() isn't really done for sequences
+                   /**
                     if (!ai.isSequence()) {
                         // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
                         JCStatement setter = makeSetDefaultStatement(ai);
@@ -1715,6 +1442,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             stmt = setter;
                         }
                     }
+                    * ***/
                 }
             }
 
@@ -1818,26 +1546,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 deflt = m().If(makeIsInitializedTest(ai, false), deflt, null);
                             }
                         }
-                        
-                        // If this is a slacker bind, only set-up the bind if it is already a Location
-                        if (ai.isSlackerBind()) {
-                            // loc$var
-                            Name locationName = attributeLocationName(ai.getSymbol());
 
-                            // loc$var != null
-                            JCExpression nullCheck = m().Binary(JCTree.NE, Id(locationName), makeNull());
-
-                            // if (loc$var != null) ... applyDefaults$var(); ...
-                            deflt = m().If(nullCheck, deflt, null);
-
-                            // mark that applyDefaults have been set
-                            caseStmts.append(this.makeSetVFLG$(ai, VFLAG_DEFAULTS_APPLIED));
-                        }
-
-                        // applyDefaults$var(); 
+                        // applyDefaults$var();
                         caseStmts.append(deflt);
                     }
-                    
+
                     // Build the case
                     {
                         // return
@@ -1962,92 +1675,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
             // (varWord & (1 << varBit)) == 0
             return m().Binary(testIsSet ? JCTree.NE : JCTree.EQ, maskExpr, makeInt(0));
-        }
-
-        //
-        // This method generates the loc$ method for this class.
-        //
-        public List<JCTree> makeGetLocation() {
-            // Buffer for new methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
-
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Reset diagnostic position to current class.
-            resetCurrentPos();
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
-
-            // Prepare to accumulate cases.
-            ListBuffer<JCCase> cases = ListBuffer.lb();
-
-            // Gather this class' instance attributes.
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
-            for (VarInfo ai : attrInfos) {
-                // Only process attributes declared in this class (includes mixins.)
-                if (ai.needsDeclaration()) {
-                    // Set the current diagnostic position.
-                    setCurrentPos(ai);
-                    // Grab the variable symbol.
-                    VarSymbol varSym = ai.getSymbol();
-
-                    // getDependency$var()
-                    JCExpression callExp = callExpression(currentPos, null, attributeGetLocationName(varSym));
-                    // (Location)getDependency$var()
-                    JCExpression castExpr = m().TypeCast(makeType(locationType), callExp);
-                    // return (Location)getDependency$var()
-                    JCStatement returnStmt = m().Return(castExpr);
-                    // i: return (Location)getDependency$var();
-                    cases.append(m().Case(makeInt(ai.getEnumeration() - count), List.<JCStatement>of(returnStmt)));
-                }
-            }
-
-            // Reset diagnostic position to current class.
-            resetCurrentPos();
-            // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-
-            // Only bother if there are location vars or no super class.
-            if (cases.nonEmpty() || superClassSym == null) {
-                // If there were some location vars.
-                if (cases.nonEmpty()) {
-                    // varNum - VCNT$
-                    JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varCountName));
-                    // Construct and add: switch(varNum - VCNT$) { ... }
-                    stmts.append(m().Switch(tagExpr, cases.toList()));
-                }
-
-                // If there is a super class.
-                if (false && superClassSym != null) {  //HACK
-                    // super
-                    JCExpression selector = Id(names._super);
-                    // (varNum)
-                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
-                    // super.getDependency$(varNum);
-                    JCExpression callExp = callExpression(currentPos, selector, defs.getLocationPrefixName, args);
-                    // Construct and add: return super.getDependency$(varNum);
-                    stmts.append(m().Return(callExp));
-                } else {
-                    // Construct and add: return null;
-                    stmts.append(m().Return(makeNull()));
-                }
-
-                // varNum ARG
-                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
-                                                              varNumName,
-                                                              makeType(syms.intType),
-                                                              null);
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 locationType,
-                                                 defs.getLocationPrefixName,
-                                                 List.<JCVariableDecl>of(arg),
-                                                 stmts);
-                // Add to the methods list.
-                methods.append(method);
-            }
-
-            return methods.toList();
         }
 
         //

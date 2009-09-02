@@ -807,10 +807,6 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, varValueString);
     }
 
-    Name attributeLocationName(Symbol sym) {
-        return prefixedAttributeName(sym, varLocationString);
-    }
-
     Name attributeGetterName(Symbol sym) {
         return prefixedAttributeName(sym, attributeGetMethodNamePrefix);
     }
@@ -819,10 +815,6 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, attributeSetMethodNamePrefix);
     }
     
-    Name attributeGetLocationName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeGetLocationMethodNamePrefix);
-    }
- 
     Name attributeApplyDefaultsName(Symbol sym) {
         return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
     }
@@ -954,17 +946,6 @@ public abstract class JavafxTranslationSupport {
     JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, int typeKind) {
         return callExpression(diagPos, expr, defs.locationGetMethodName[typeKind]);
     }
-
-    /**
-     * For an attribute "attr" make an access to it via the provided receiver and getter
-     *      "receiver.get$attr()"
-     * Or direct (prefixed) access is static.
-     * If receiver is null, use direct access.
-     * */
-   JCExpression makeAttributeAccess(DiagnosticPosition diagPos, Symbol attribSym, Name instanceName) {
-       JCExpression instanceIdent = instanceName == null? null : make.at(diagPos).Ident(instanceName);
-       return callExpression(diagPos, instanceIdent, attributeGetLocationName(attribSym));
-   }
 
     JCIdent makeIdentOfPresetKind(DiagnosticPosition diagPos, Name name, int pkind) {
         AugmentedJCIdent id = new AugmentedJCIdent(name, pkind);
