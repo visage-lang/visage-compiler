@@ -23,8 +23,6 @@
 
 package javafx.lang;
 
-import com.sun.javafx.runtime.location.BindableLocation;
-
 /**
  * These functions are automaticlly imported for
  * all JavaFX Scripts to use
@@ -82,6 +80,6 @@ public class Builtins {
      * @return true if the object has been initialized already
      */
     public static boolean isInitialized(Object varRef) {
-        return ((BindableLocation) varRef).isInitialized();
+        return false; // FIXME: yet to be implemented for compiled binds
     }
 }

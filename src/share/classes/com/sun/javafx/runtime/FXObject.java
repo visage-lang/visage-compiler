@@ -23,7 +23,6 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.*;
 
 /**
  * All FX classes must extend FXObject; it acts as a marker interface, and also includes methods required for

@@ -37,9 +37,9 @@ $TEMPLATE_FROM$
  * @author Per Bothner
  */
 public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
-    protected TypeInfo<T, ?> ti;
+    protected TypeInfo<T> ti;
 
-    protected AbstractSequence(TypeInfo<T, ?> ti) {
+    protected AbstractSequence(TypeInfo<T> ti) {
         this.ti = ti;
     }
 
@@ -96,7 +96,7 @@ public abstract class AbstractSequence<T> implements Sequence<T>, Formattable {
         return bits;
     }
 
-    public TypeInfo<T, ?> getElementType() {
+    public TypeInfo<T> getElementType() {
         return ti;
     }
 

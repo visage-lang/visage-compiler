@@ -23,12 +23,13 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.*;
 
 /**
  * PointerFactory
  *
  * @author Brian Goetz
+ *
+ * FIXME: yet to be implemented for compiled binds
  */
 public class PointerFactory extends FXBase implements FXObject {
     
@@ -44,41 +45,5 @@ public class PointerFactory extends FXBase implements FXObject {
         addTriggers$();
         applyDefaults$();
         complete$();
-    }
-
-    public ObjectVariable<Pointer> make$$bound$byte(ByteLocation location) {
-        return ObjectVariable.make(Pointer.make(location));
-    }
-
-    public ObjectVariable<Pointer> make$$bound$short(ShortLocation location) {
-        return ObjectVariable.make(Pointer.make(location));
-    }
-
-    public ObjectVariable<Pointer> make$$bound$int(IntLocation location) {
-        return ObjectVariable.make(Pointer.make(location));
-    }
-
-    public ObjectVariable<Pointer> make$$bound$long(LongLocation location) {
-        return ObjectVariable.make(Pointer.make(location));
-    }
-
-    public ObjectVariable<Pointer> make$$bound$float(FloatLocation location) {
-        return ObjectVariable.make(Pointer.make(location));
-    }
-
-    public ObjectVariable<Pointer> make$$bound$double(DoubleLocation location) {
-        return ObjectVariable.make(Pointer.make(location));
-    }
-
-    public ObjectVariable<Pointer> make$$bound$boolean(BooleanLocation location) {
-        return ObjectVariable.make(Pointer.make(location));
-    }
-
-    public <T> ObjectVariable<Pointer> make$$bound$java_lang_Object(ObjectLocation<T> location) {
-        return ObjectVariable.make(Pointer.make(location));
-    }
-
-    public <T> ObjectVariable<Pointer> make$$bound$com_sun_javafx_runtime_sequence_Sequence(SequenceLocation<T> location) {
-        return ObjectVariable.make(Pointer.make(location));
     }
 }

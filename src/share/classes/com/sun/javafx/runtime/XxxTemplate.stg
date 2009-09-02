@@ -45,12 +45,7 @@ T ::= [
     "prim":"<PRIM_MAP.(PREFIX)>",
     "boxed":"<BOXED_MAP.(PREFIX)>",
     "ArraySequence":"<PREFIX>ArraySequence",
-    "Location":"<PREFIX>Location",
-    "Variable":"<PREFIX>Variable",
-    "Constant":"<PREFIX>Constant",
-    "TypeInfo":"<TYPEINFO_MAP.(PREFIX)>",
-    "BindingExpression":"<PREFIX>BindingExpression",
-    "IndirectExpression":"Indirect<PREFIX>Expression"
+    "TypeInfo":"<TYPEINFO_MAP.(PREFIX)>"
 ]
 V ::= [
     "default":"<DEFAULT_MAP.(PREFIX)>"

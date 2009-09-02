@@ -23,7 +23,6 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.*;
 
 /**
  * Base class for most FX classes.  The exception being classes that inherit from Java classes.

@@ -423,18 +423,7 @@
     <target name="generate-templates" depends="-pre-compile">
         <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
             <arg value="${build.generated.dir}" />
-            <arg value="com/sun/javafx/runtime/location/XxxTemplate.stg" />
-            <arg value="com/sun/javafx/runtime/location" />
-            <arg line="XxxConstant XxxLocation XxxVariable SequenceVariable" />
-           <classpath>
-                <pathelement location="${build.buildtools.dir}"/>
-                <path refid="antlr.class.path" />
-                <pathelement location="${src.classes.dir}" />
-            </classpath>
-        </java>
-        <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
-            <arg value="${build.generated.dir}" />
-            <arg value="com/sun/javafx/runtime/location/XxxTemplate.stg" />
+            <arg value="com/sun/javafx/runtime/XxxTemplate.stg" />
             <arg value="com/sun/javafx/runtime/sequence" />
             <arg line="AbstractSequence Sequences XxxArraySequence" />
            <classpath>
@@ -496,6 +485,16 @@
         <!-- compiles the fx files in the compiler workspace. These are the runtime
              files shipped with the compiler (not related to the JavaFX Runtime
              project). -->
+
+        <!--
+
+        FIXME: yet to be implemented for compiled binds
+
+        ****BROKEN WORLD BEGINS****
+
+        // We can't build arbitrary JavaFX code as of now. uncomment after
+        // some progress and see if we can build runtime JavaFX libraray!
+
         <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
@@ -512,6 +511,7 @@
                  classpath="${build.classes.dir}:${javac.test.classpath}"
                  compilerclasspath="${build.classes.dir}:${javac.classpath}">
         </javafxc>
+        -->
     </target>
 
     <target depends="init,javafxdoc" name="-javadoc-build">

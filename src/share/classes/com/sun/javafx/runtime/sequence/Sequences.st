@@ -45,7 +45,7 @@ public final class Sequences extends SequenceConversions {
     private Sequences() { }
 
     @SuppressWarnings("unchecked")
-    public static<T> ObjectArraySequence<T> forceNonSharedArraySequence(TypeInfo<T,?> typeInfo, Sequence<? extends T> value) {
+    public static<T> ObjectArraySequence<T> forceNonSharedArraySequence(TypeInfo<T> typeInfo, Sequence<? extends T> value) {
         ObjectArraySequence<T> arr;
         block: {
             if (value instanceof ObjectArraySequence) {
@@ -78,7 +78,7 @@ public final class Sequences extends SequenceConversions {
 
 
     /** Factory for simple sequence generation */
-    public static<T> Sequence<T> make(TypeInfo<T, ?> ti, T... values) {
+    public static<T> Sequence<T> make(TypeInfo<T> ti, T... values) {
         if (values == null || values.length == 0)
             return ti.emptySequence;
         else
@@ -86,19 +86,19 @@ public final class Sequences extends SequenceConversions {
     }
 
     /** Factory for simple sequence generation */
-    public static<T> Sequence<T> make(TypeInfo<T, ?> ti, T[] values, int size) {
+    public static<T> Sequence<T> make(TypeInfo<T> ti, T[] values, int size) {
         if (values == null || size <= 0)
             return ti.emptySequence;
         else
             return new ObjectArraySequence<T>(ti, values, 0, size);
     }
 
-    public static<T> Sequence<T> makeViaHandoff(TypeInfo<T, ?> ti, T[] values) {
+    public static<T> Sequence<T> makeViaHandoff(TypeInfo<T> ti, T[] values) {
         return new ObjectArraySequence<T>(ti, values, true);
     }
 
     /** Factory for simple sequence generation */
-    public static<T> Sequence<T> make(TypeInfo<T, ?> ti, List<? extends T> values) {
+    public static<T> Sequence<T> make(TypeInfo<T> ti, List<? extends T> values) {
         if (values == null || values.size() == 0)
             return ti.emptySequence;
         else
@@ -209,7 +209,7 @@ public final class Sequences extends SequenceConversions {
     */
 
     /** Create a sequence containing a single element, the specified value */
-    public static<T> Sequence<T> singleton(TypeInfo<T, ?> ti, T t) {
+    public static<T> Sequence<T> singleton(TypeInfo<T> ti, T t) {
         if (t == null)
             return ti.emptySequence;
         else
@@ -229,7 +229,7 @@ public final class Sequences extends SequenceConversions {
 
     /** Convert a Collection<T> to a Sequence<T> */
     @SuppressWarnings("unchecked")
-    public static<T> Sequence<T> fromCollection(TypeInfo<T, ?> ti, Collection<T> values) {
+    public static<T> Sequence<T> fromCollection(TypeInfo<T> ti, Collection<T> values) {
         if (values == null)
             return ti.emptySequence;
         // OPT: Use handoff, pre-size array
@@ -249,7 +249,7 @@ public final class Sequences extends SequenceConversions {
 
     /** Convert any numeric sequence to any other numeric sequence */
     public static<T extends Number, V extends Number>
-    Sequence<T> convertNumberSequence(NumericTypeInfo<T, ?> toType, NumericTypeInfo<V, ?> fromType, Sequence<? extends V> seq) {
+    Sequence<T> convertNumberSequence(NumericTypeInfo<T> toType, NumericTypeInfo<V> fromType, Sequence<? extends V> seq) {
         if (Sequences.size(seq) == 0)
             return toType.emptySequence;
 
@@ -339,7 +339,7 @@ public final class Sequences extends SequenceConversions {
         return true;
     }
 
-    public static<T> Sequence<? extends T> forceNonNull(TypeInfo<T, ?> typeInfo, Sequence<? extends T> seq) {
+    public static<T> Sequence<? extends T> forceNonNull(TypeInfo<T> typeInfo, Sequence<? extends T> seq) {
         return seq == null ? typeInfo.emptySequence : seq;
     }
     
@@ -705,7 +705,7 @@ public final class Sequences extends SequenceConversions {
     }
 
     /* Only used by the testing framework - should be moved.  FIXME */
-    public static<T> Sequence<? extends T> insert(TypeInfo<T,?> typeInfo, Sequence<? extends T> sequence, T value) {
+    public static<T> Sequence<? extends T> insert(TypeInfo<T> typeInfo, Sequence<? extends T> sequence, T value) {
         ObjectArraySequence<T> arr = forceNonSharedArraySequence(typeInfo, sequence);
         arr.add(value);
         return arr;

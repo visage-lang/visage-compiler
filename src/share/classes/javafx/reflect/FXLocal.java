@@ -34,7 +34,6 @@ import com.sun.javafx.functions.*;
 import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.annotation.SourceName;
-import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 
@@ -737,10 +736,7 @@ public class FXLocal {
                     else {
                         val = fld.get(robj);
                     }
-                    if (val instanceof ObjectLocation)
-                        val = ((ObjectLocation) val).get();
-                    else if (val instanceof SequenceLocation)
-                        val = ((SequenceLocation) val).get();
+                    // FIXME: yet to be implemented for compiled binds
                     return context.mirrorOf(val, type);
                 }
             }
@@ -787,46 +783,7 @@ public class FXLocal {
                         } else if (fld != null) {
                             loc = fld.get(robj);
                         }
-                        if (loc instanceof IntVariable) {
-                            ((IntVariable) loc).setAsInt(((FXIntegerValue) value).intValue());
-                            return;
-                        }
-                        if (loc instanceof BooleanVariable) {
-                            ((BooleanVariable) loc).setAsBoolean(((FXBooleanValue) value).booleanValue());
-                            return;
-                        }
-                        if (loc instanceof CharVariable) {
-                            ((CharVariable) loc).setAsChar((char) ((FXIntegerValue) value).intValue());
-                            return;
-                        }
-                        if (loc instanceof ByteVariable) {
-                            ((ByteVariable) loc).setAsByte((byte) ((FXIntegerValue) value).intValue());
-                            return;
-                        }
-                        if (loc instanceof ShortVariable) {
-                            ((ShortVariable) loc).setAsShort((short) ((FXIntegerValue) value).intValue());
-                            return;
-                        }
-                        if (loc instanceof LongVariable) {
-                            ((LongVariable) loc).setAsLong(((FXLongValue) value).longValue());
-                            return;
-                        }
-                        if (loc instanceof FloatVariable) {
-                            ((FloatVariable) loc).setAsFloat(((FXFloatValue) value).floatValue());
-                            return;
-                        }
-                        if (loc instanceof DoubleVariable) {
-                            ((DoubleVariable) loc).setAsDouble(((FXDoubleValue) value).doubleValue());
-                            return;
-                        }
-                        if (loc instanceof SequenceVariable) {
-                            ((SequenceVariable) loc).setAsSequence(((SequenceValue) value).asObject());
-                            return;
-                        }
-                        if (loc instanceof AbstractVariable) {
-                            ((AbstractVariable) loc).set(((Value) value).asObject());
-                            return;
-                        }
+                        // FIXME: yet to be implemented for compiled binds
                         if (fld != null) {
                             fld.set(robj, value);
                             return;
@@ -854,50 +811,14 @@ public class FXLocal {
                     : fld.getModifiers();
             return (mods & Modifier.STATIC) != 0;
         }
-        
-        private Location getLoc(FXObjectValue obj) {
-            return null;  //HACK
-        }
-        
+         
         public FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener) {
-            FXChangeListenerID id = new LocationChangeListener(listener);
-            Location location = getLoc(instance);
-            if (location == null || !(location instanceof AbstractVariable)) {
-                throw new RuntimeException("Cannot attach listener to field: " + name);
-            }
-            ((AbstractVariable)location).addChangeListener(id);
-            return id;
+            // FIXME: yet to be implemented for compiled binds
+            return null;
         }
         
         public void removeChangeListener(FXObjectValue instance, FXChangeListenerID id) {
-            Location location = getLoc(instance);
-            if (location == null || !(location instanceof AbstractVariable) ||
-               !(id instanceof LocationChangeListener)) {
-                throw new RuntimeException("Cannot remove listener from field: " + name);
-            }
-            ((AbstractVariable)location).removeChangeListener(id);
-        }
-    }
-
-    /**
-     *
-     * @profile desktop
-     */
-    static class LocationChangeListener extends ChangeListener<Object> implements FXChangeListenerID {
-        FXChangeListener listener;
-        
-        LocationChangeListener(FXChangeListener listener) {
-            this.listener = listener;
-        }
-        
-        public void onChange(Object oldValue, Object newValue) {
-            onChange();
-        }
-        
-        void onChange() {
-            if (listener != null) {
-                listener.onChange();
-            }
+            // FIXME: yet to be implemented for compiled binds
         }
     }
 
@@ -1207,22 +1128,7 @@ public class FXLocal {
             this.var = var;
         }
 
-        public AbstractVariable getAbstractVariable(FXObjectValue obj) {
-            try {
-                Object robj = obj == null ? null : ((ObjectValue) obj).obj;
-                if (var.getter != null) {
-                    Object val = var.getter.invoke(robj, new Object[0]);
-                    if (val instanceof AbstractVariable)
-                        return (AbstractVariable) val;
-                }
-                return null;
-            }
-            catch (RuntimeException ex) {
-                throw ex;
-            }
-            catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        }
+        // FIXME: yet to be implemented for compiled binds
+        //    public AbstractVariable getAbstractVariable(FXObjectValue obj) {...}
     }
 }

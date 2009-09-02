@@ -25,8 +25,6 @@ package com.sun.tools.javafx.script;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.code.*;
 import java.lang.reflect.*;
-import com.sun.tools.javafx.code.*;
-import com.sun.javafx.runtime.location.*;
 import java.util.*;
 import java.lang.ref.*;
 import javafx.reflect.*;
