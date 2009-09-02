@@ -2610,8 +2610,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 return convertVariableReference(
                         diagPos,
                         translated,
-                        sym,
-                        wrapper);
+                        sym);
             }
         }
     }
@@ -2628,8 +2627,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     //@Override
     public void visitIdent(JFXIdent tree) {
-        Locationness wrapper = translationState.wrapper;
-
         DiagnosticPosition diagPos = tree.pos();
         if (substitute(tree.sym)) {
             return;
@@ -2687,8 +2684,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         result = convertVariableReference(diagPos,
                 convert,
-                tree.sym,
-                wrapper);
+                tree.sym);
     }
 
     private class ExplicitSequenceTranslator extends Translator {
@@ -4073,37 +4069,37 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     JCExpression convertVariableReference(DiagnosticPosition diagPos,
-                                                 JCExpression varRef, Symbol sym,
-                                                 Locationness wrapper) {
+                                                 JCExpression varRef, Symbol sym) {
         JCExpression expr = varRef;
 
         if (sym instanceof VarSymbol) {
             final VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            int typeKind = vmi.getTypeKind();
             boolean isSequence = vmi.isSequence();
             boolean isClassVar = vmi.isFXMemberVariable();
 
             if (isClassVar) {
                 // this is a reference to a JavaFX class variable, use getter
-                Name accessName = ((wrapper == AsLocation) || isSequence)? attributeGetLocationName(vsym) : attributeGetterName(vsym);
+                Name accessName = (isSequence)? attributeGetLocationName(vsym) : attributeGetterName(vsym);
                 JCExpression accessFunc = switchName(diagPos, varRef, accessName);
                 List<JCExpression> emptyArgs = List.nil();
                 expr = make.at(diagPos).Apply(null, accessFunc, emptyArgs);
             }
-
+/***
             if (!vmi.useAccessors()) {
+                int typeKind = vmi.getTypeKind();
                 if (vmi.representation() == AlwaysLocation && wrapper != AsLocation) {
                     // Anything still in the form of a Location (and that isn't what we want), get the value
                     if (isSequence || !isClassVar) {
                         expr = getLocationValue(diagPos, expr, typeKind);
-        }
+                    }
                 } else if (vmi.representation() == NeverLocation && wrapper == AsLocation) {
                     // We are directly accessing a non-Location local, a Location is wanted, wrap it
                     assert !isClassVar;
                     expr = makeUnboundLocation(diagPos, vmi, expr);
                 }
             }
+ ****/
         }
 
         return expr;

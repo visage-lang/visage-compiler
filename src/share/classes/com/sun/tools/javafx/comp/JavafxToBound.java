@@ -646,8 +646,9 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                                             transSelector,
                                             new FieldInfo("selector", selector.type, ArgKind.DEPENDENT)),
                                             tree.getIdentifier()),
-                                            sym,
-                                            Locationness.AsLocation)).asLocation();
+                                            sym//,
+                                            //Locationness.AsLocation
+                                            )).asLocation();
                                 }
                             }));
                 } else {
@@ -698,8 +699,9 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
                         // construct the actual select
                         JCExpression selectExpr = toJava.convertVariableReference(diagPos,
                                 m().Select(transSelector, tree.getIdentifier()),
-                                sym,
-                                Locationness.AsValue);
+                                sym//,
+                                //Locationness.AsValue
+                                );
 
                         // test the selector for null before attempting to select the field
                         // if it would dereference null, then instead give the default value

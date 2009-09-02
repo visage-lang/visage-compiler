@@ -54,6 +54,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         Result(ListBuffer<JCStatement> buf, JCExpression value) {
             this(buf.toList(), value);
         }
+        Result(JCExpression value) {
+            this(List.<JCStatement>nil(), value);
+        }
     }
 
     public static JavafxTranslateBind instance(Context context) {
@@ -156,9 +159,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     public void visitIdent(JFXIdent tree) {
+        // Just translate to get
+        result = new Result(toJava.translateAsUnconvertedValue(tree));
     }
 
     public void visitLiteral(JFXLiteral tree) {
+        // Just translate to literal value
+        result = new Result(toJava.translateAsUnconvertedValue(tree));
     }
     
     //@Override

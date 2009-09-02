@@ -96,7 +96,7 @@ public class JavafxTypeMorpher {
         VarMorphInfo(Symbol sym) {
             super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
             this.sym = sym;
-            this.representation = computeRepresentation(sym);
+            this.representation = NeverLocation; // computeRepresentation(sym);
         }
 
         Symbol getSymbol() {
@@ -108,7 +108,7 @@ public class JavafxTypeMorpher {
         }
 
         boolean useAccessors() {
-            return isFXMemberVariable() && !isSequence();
+            return true;
         }
 
         boolean isMemberVariable() {
