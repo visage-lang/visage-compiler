@@ -168,6 +168,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     /** Class symbols for classes that need a reference to the outer class. */
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
 
+    JCExpression TODO() {
+        throw new RuntimeException("Not yet implemented");
+    }
+
     abstract class NullCheckTranslator extends Translator {
 
         protected final JFXExpression toCheck;
@@ -285,9 +289,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                     // if it would dereference null, then the full expression instead yields the default value
                     TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(resultType);
                     JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
-                    if (wrapper == AsLocation) {
-                        defaultExpr = makeUnboundLocation(diagPos, returnTypeInfo, defaultExpr);
-                    }
                     full = m().Conditional(cond, full, defaultExpr);
                 }
                 if (tmpVarList.nonEmpty()) {
@@ -669,10 +670,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
-    private boolean substitute(Symbol sym, Locationness wrapper) {
-        if (wrapper == AsLocation) {
-            return false;
-        }
+    private boolean substitute(Symbol sym) {
         Name name = substitutionMap.get(sym);
         if (name == null) {
             return false;
@@ -1874,7 +1872,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             return toBound.translateAsLocationOrBE(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
             // Bi-directional bind translate so it stays in a Location
-            return translateAsLocation(init);
+            return TODO();
         } else {
             // normal init -- unbound
             return translateNonBoundInit(diagPos, init, vmi);
@@ -1891,7 +1889,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         } else if (bindStatus.isBidiBind()) {
             assert vmi.representation() == AlwaysLocation;
             // Bi-directional bind translate so it stays in a Location
-            return makeLocationVariable(vmi, diagPos, List.of(translateAsLocation(init)), defs.makeBijectiveMethodName);
+            return TODO();
         } else if (vmi.representation() == AlwaysLocation) {
             return makeLocationVariable(vmi, diagPos, List.of(translateAsLocation(init)), defs.makeMethodName);
         } else {
@@ -2622,7 +2620,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     public void visitSelect(JFXSelect tree) {
         Locationness wrapper = translationState.wrapper;
 
-        if (substitute(tree.sym, wrapper)) {
+        if (substitute(tree.sym)) {
             return;
         }
         result = new SelectTranslator(this, tree, wrapper).doit();
@@ -2633,16 +2631,13 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         Locationness wrapper = translationState.wrapper;
 
         DiagnosticPosition diagPos = tree.pos();
-        if (substitute(tree.sym, wrapper)) {
+        if (substitute(tree.sym)) {
             return;
         }
 
         if (tree.name == names._this) {
             // in the static implementation method, "this" becomes "receiver$"
             JCExpression rcvr = makeReceiver(diagPos, tree.sym);
-            if (wrapper == AsLocation) {
-                rcvr = makeConstantLocation(diagPos, tree.type, rcvr);
-            }
             result = rcvr;
             return;
         } else if (tree.name == names._super) {
@@ -3828,7 +3823,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                                 types.isSequence(formal.head) ||
                                                 formal.head == syms.objectType // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
                                                 ) {
-                                            targs.append(translateAsLocation(arg));
+                                            TODO();
                                             break;
                                         }
                                     //TODO: handle sequence subclasses
@@ -3860,7 +3855,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                 JCExpression targ;
                                 if (magicIsInitializedFunction) {
                                     //TODO: in theory, this could have side-effects (but only in theory)
-                                    targ = translateAsLocation(l.head);
+                                    //TODO: Lombard
+                                    targ = translateAsValue(l.head, formal);
                                 } else {
                                     targ = preserveSideEffects(formal, l.head, translateAsValue(l.head, formal));
                                 }
@@ -3876,9 +3872,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             // This is for calls from non-bound contexts (code for true bound calls is in JavafxToBound)
             JCExpression makeBoundCall(JCExpression applyExpression) {
                 JavafxTypeMorpher.TypeMorphInfo tmi = typeMorpher.typeMorphInfo(msym.getReturnType());
-                if (wrapper == AsLocation) {
-                    return applyExpression;
-                } else {
+                {
                     return callExpression(diagPos,
                         m().Parens(applyExpression),
                         defs.locationGetMethodName[tmi.getTypeKind()]);
@@ -3923,7 +3917,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 return translateSequenceExpression(expr);
             }
             private final JCExpression transExpr =
-                    tree.getFXTag() == JavafxTag.SIZEOF && wrapper == AsValue &&
+                    tree.getFXTag() == JavafxTag.SIZEOF &&
                 (expr instanceof JFXIdent || expr instanceof JFXSelect) ? translateForSizeof(expr)
                 : translateAsUnconvertedValue(expr);
 
@@ -4103,7 +4097,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                     // Anything still in the form of a Location (and that isn't what we want), get the value
                     if (isSequence || !isClassVar) {
                         expr = getLocationValue(diagPos, expr, typeKind);
-                    }
+        }
                 } else if (vmi.representation() == NeverLocation && wrapper == AsLocation) {
                     // We are directly accessing a non-Location local, a Location is wanted, wrap it
                     assert !isClassVar;
