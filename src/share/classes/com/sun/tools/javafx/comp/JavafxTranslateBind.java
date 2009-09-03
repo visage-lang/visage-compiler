@@ -124,12 +124,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
     public void visitIdent(JFXIdent tree) {
         // Just translate to get
-        result = new Result(toJava.translateAsUnconvertedValue(tree));
+        result = new Result(translateIdent(tree));
     }
 
     public void visitLiteral(JFXLiteral tree) {
         // Just translate to literal value
-        result = new Result(toJava.translateAsUnconvertedValue(tree));
+        result = new Result(translateLiteral(tree));
     }
     
     //@Override
