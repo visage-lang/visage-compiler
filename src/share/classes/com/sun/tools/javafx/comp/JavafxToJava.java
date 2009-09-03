@@ -93,7 +93,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     /*
      * modules imported by context
      */
-    private final JavafxToBound toBound;
     private final JavafxInitializationBuilder initBuilder;
 
     /*
@@ -306,7 +305,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
         context.put(jfxToJavaKey, this);
 
-        toBound = JavafxToBound.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
         target = Target.instance(context);
     }
@@ -924,7 +922,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
     void scriptBegin() {
         triggers = ListBuffer.lb();
-        toBound.scriptBeginBinding();
     }
 
 
@@ -1101,7 +1098,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
      * @return
      */
     List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
-        if (!toBound.hasScriptBinding() && !hasScriptTriggers()) {
+        if (!hasScriptTriggers()) {
             return List.nil();
         } else {
             JCExpression scriptClosureClass = make.at(diagPos).TypeApply(
@@ -1109,7 +1106,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     List.<JCExpression>of(make.at(diagPos).Ident(defs.typeParamName)));
             JCTypeParameter typeParam = make.at(diagPos).TypeParameter(defs.typeParamName, List.<JCExpression>nil());
 
-            List<JCTree> bindingMembers = toBound.scriptCompleteBinding(diagPos);
             List<JCTree> triggerMembers = scriptCompleteTriggers(diagPos);
             JCClassDecl bindingClass = make.at(diagPos).ClassDef(
                     make.at(diagPos).Modifiers(Flags.PRIVATE | Flags.STATIC),
@@ -1117,7 +1113,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     List.of(typeParam),
                     scriptClosureClass,
                     List.<JCExpression>nil(),
-                    bindingMembers.appendList(triggerMembers));
+                    triggerMembers);
             return List.<JCTree>of(bindingClass);
         }
     }
@@ -1857,7 +1853,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     private JCExpression translateDefinitionalAssignmentToValueArg(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
         if (bindStatus.isUnidiBind()) {
-            return toBound.translateAsLocationOrBE(init, bindStatus, vmi);
+            return TODO(); // toBound.translateAsLocationOrBE(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
             // Bi-directional bind translate so it stays in a Location
             return TODO();
@@ -1873,7 +1869,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         assert !vmi.isMemberVariable();
         assert vmi.representation() == SlackerLocation;
         if (bindStatus.isUnidiBind()) {
-            return toBound.translateAsLocationOrBE(init, bindStatus, vmi);
+            return TODO(); // toBound.translateAsLocationOrBE(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
             assert vmi.representation() == AlwaysLocation;
             // Bi-directional bind translate so it stays in a Location
@@ -2205,10 +2201,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             if (bexpr == null) {
                 body = null; // null if no block expression
             } else if (isBound) {
-                // Build the body of a bound function by treating it as a bound expression
-                //TODO: Remove entry in findbugs-exclude.xml if permeateBind is implemented -- it is, so it should be
-                JCExpression expr = toBound.translateAsLocation(bexpr, JavafxBindStatus.UNIDIBIND, typeMorpher.varMorphInfo(tree.sym));
-                body = asBlock(m().Return(expr));
+                TODO();
+                body = null;
             } else if (isRunMethod) {
                 // it is a module level run method, do special translation
                 body = makeRunMethodBody(bexpr);
@@ -3022,28 +3016,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
     UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
         return useSequenceBuilder(diagPos, elemType, -1);
-    }
-
-
-    UseSequenceBuilder useBoundSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final JCExpression laziness, final int initLength) {
-        return new UseSequenceBuilder(diagPos, elemType, boundSequenceBuilderString) {
-
-            JCStatement addElement(JFXExpression exprToAdd) {
-                JCExpression expr = toBound.translate(exprToAdd, targetType(exprToAdd));
-                return makeAdd(expr);
-            }
-
-            List<JCExpression> makeConstructorArgs() {
-                ListBuffer<JCExpression> lb = ListBuffer.lb();
-                lb.append(laziness);
-                if (initLength != -1) {
-                    lb.append(make.at(diagPos).Literal(Integer.valueOf(initLength)));
-                }
-                if (addTypeInfoArg)
-                    lb.append(makeTypeInfo(diagPos, elemType));
-                return lb.toList();
-            }
-        };
     }
 
     abstract class UseSequenceBuilder {
