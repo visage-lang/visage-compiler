@@ -51,21 +51,11 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 
-public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVisitor {
+public class JavafxToBound extends JavafxAbstractTranslation<JavafxToBound.BoundResult> implements JavafxVisitor {
     protected static final Context.Key<JavafxToBound> jfxToBoundKey =
         new Context.Key<JavafxToBound>();
 
     static final boolean SEQUENCE_CONDITIONAL_INLINE = true;
-
-    /*
-     * the result of translating a tree by a visit method
-     */
-    BoundResult result;
-
-    /*
-     * modules imported by context
-     */
-    private final JavafxOptimizationStatistics optStat;
 
     /*
      * State
@@ -96,11 +86,9 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         super(context, toJava);
 
         context.put(jfxToBoundKey, this);
-
-        optStat = JavafxOptimizationStatistics.instance(context);
     }
 
-    private class BoundResult {
+    public class BoundResult {
         final JCExpression locationExpression;
         // intermediate expression that can be absorbed in "containing"
         // expression to avoid intermediate location creation.

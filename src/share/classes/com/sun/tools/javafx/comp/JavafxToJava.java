@@ -86,21 +86,15 @@ import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Locationness.*
  * @author Per Bothner
  * @author Lubo Litchev
  */
-public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVisitor {
+public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
         new Context.Key<JavafxToJava>();
-
-    /*
-     * the result of translating a tree by a visit method
-     */
-    JCTree result;
 
     /*
      * modules imported by context
      */
     private final JavafxToBound toBound;
     private final JavafxInitializationBuilder initBuilder;
-    private final JavafxOptimizationStatistics optStat;
 
     /*
      * Buffers holding definitions waiting to be prepended to the current list of definitions.
@@ -151,7 +145,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
     private TranslationState translationState = null; // should be set before use
 
-    protected JavafxEnv<JavafxAttrContext> attrEnv;
     private Target target;
     boolean inOverrideInstanceVariableDefinition = false;
 
@@ -315,7 +308,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         toBound = JavafxToBound.instance(context);
         initBuilder = JavafxInitializationBuilder.instance(context);
-        optStat = JavafxOptimizationStatistics.instance(context);
         target = Target.instance(context);
     }
 
@@ -519,10 +511,6 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     }
 
     private JCCompilationUnit translate(JFXScript tree) {
-        return translateGeneric(tree);
-    }
-
-    private JCTree translate(JFXTree tree) {
         return translateGeneric(tree);
     }
 

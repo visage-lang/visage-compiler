@@ -63,6 +63,7 @@ import com.sun.tools.javafx.tree.JFXVar;
 import com.sun.tools.javafx.tree.JavafxTag;
 import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.tree.JavafxTreeScanner;
+import com.sun.tools.javafx.tree.JavafxVisitor;
 import com.sun.tools.javafx.util.MsgSym;
 import java.util.HashSet;
 import java.util.Set;
@@ -74,13 +75,59 @@ import javax.lang.model.type.TypeKind;
  *
  * @author Robert Field
  */
-public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport {
+public abstract class JavafxAbstractTranslation<R> 
+                             extends JavafxTranslationSupport
+                             implements JavafxVisitor {
+
+    /*
+     * the result of translating a tree by a visit method
+     */
+    R result;
+
+    final JavafxOptimizationStatistics optStat;
+
+    protected JavafxEnv<JavafxAttrContext> attrEnv;
 
     JavafxToJava toJava; //TODO: this should go away
 
     protected JavafxAbstractTranslation(Context context, JavafxToJava toJava) {
         super(context);
+        optStat = JavafxOptimizationStatistics.instance(context);
         this.toJava = toJava==null? (JavafxToJava)this : toJava;  //TODO: temp hack
+    }
+
+    /** Translate a single expression.
+     */
+    R translate(JFXTree tree) {
+        R ret;
+
+        if (tree == null) {
+            ret = null;
+        } else {
+            JFXTree prevWhere = getAttrEnv().where;
+            toJava.attrEnv.where = tree;
+            tree.accept(this);
+            toJava.attrEnv.where = prevWhere;
+            ret = this.result;
+            this.result = null;
+        }
+        return ret;
+    }
+
+    /** Translate a list of expressions.
+     */
+    <T extends JFXTree> List<R> translate(List<T> trees) {
+        ListBuffer<R> translated = ListBuffer.lb();
+        if (trees == null) {
+            return null;
+        }
+        for (List<T> l = trees; l.nonEmpty(); l = l.tail) {
+            R tree = translate(l.head);
+            if (tree != null) {
+                translated.append(tree);
+            }
+        }
+        return translated.toList();
     }
 
     private static final Pattern DATETIME_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT]");

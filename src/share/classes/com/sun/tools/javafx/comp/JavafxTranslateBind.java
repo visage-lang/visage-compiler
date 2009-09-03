@@ -35,16 +35,12 @@ import com.sun.tools.mjavac.util.Context;
  * 
  * @author Robert Field
  */
-public class JavafxTranslateBind extends JavafxAbstractTranslation implements JavafxVisitor {
+public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTranslateBind.Result> implements JavafxVisitor {
 
     protected static final Context.Key<JavafxTranslateBind> jfxBoundTranslation =
         new Context.Key<JavafxTranslateBind>();
 
-    private final JavafxOptimizationStatistics optStat;
-
-    private Result result;
-
-    class Result {
+    public class Result {
         final List<JCStatement> stmts;
         final JCExpression value;
         Result(List<JCStatement> stmts, JCExpression value) {
@@ -72,43 +68,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         super(context, toJava);
 
         context.put(jfxBoundTranslation, this);
-
-        optStat = JavafxOptimizationStatistics.instance(context);
-    }
-
-    /** Translate a single expression.
-     */
-    private Result translate(JFXExpression tree) {
-        Result ret;
-
-        if (tree == null) {
-            ret = null;
-        } else {
-            JFXTree prevWhere = getAttrEnv().where;
-            toJava.attrEnv.where = tree;
-            tree.accept(this);
-            toJava.attrEnv.where = prevWhere;
-            ret = this.result;
-            this.result = null;
-        }
-        return ret;
-    }
-
-    /** Translate a list of expressions.
-     */
-    public void translate(List<? extends JFXExpression> trees) {
-        if (trees != null) {
-            for (List<? extends JFXExpression> l = trees; l.nonEmpty(); l = l.tail) {
-                translate(l.head);
-            }
-        }
     }
 
 /* ***************************************************************************
  * Visitor methods
  ****************************************************************************/
-    
-
 
     public void visitIfExpression(JFXIfExpression tree) {
         translate(tree.cond);
