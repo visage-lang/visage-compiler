@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
@@ -104,8 +105,17 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
     }
 
     public void visitBinary(JFXBinary tree) {
-        translate(tree.lhs);
-        translate(tree.rhs);
+        final ListBuffer<JCStatement> preface = ListBuffer.lb();
+        JCExpression value = (new BinaryOperationTranslator(tree.pos(), tree) {
+
+            protected JCExpression translateArg(JFXExpression arg, Type type) {
+                Result res = translate(arg);
+                //TODO: convert type
+                preface.appendList(res.stmts);
+                return res.value;
+            }
+        }).doit();
+        result = new Result(preface.toList(), value);
     }
 
     public void visitTypeCast(JFXTypeCast tree) {
