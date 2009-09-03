@@ -141,7 +141,10 @@ public class Timeline {
      * @defaultvalue 1.0
      */
 
-    public var rate: Number = 1.0 on replace old {
+    public var rate: Number = 1.0;
+    /*
+        FIXME: yet to be implemented.
+        on replace old {
         var newSpeed = Math.abs(rate);
         if(rate == 0) {
             stop();
@@ -162,7 +165,7 @@ public class Timeline {
         if (running) {
             rateChanged = true;
         }
-    }
+    }*/
 
     /**
      * Read-only variable to indicate current direction/speed at which the
@@ -204,10 +207,13 @@ public class Timeline {
      * @profile common
      * @defaultvalue 0ms
      */
-    public-read var totalDuration:Duration = bind
-        if (repeatCount == Timeline.INDEFINITE) 
+    public-read var totalDuration:Duration; 
+    /* 
+        FIXME: yet to be implemented
+        = bind if (repeatCount == Timeline.INDEFINITE)
             then DURATION_INDEFINITE
             else repeatCount * cycleDuration;
+    */
 
     /**
      * Defines the {@code Timeline}'s play head position.
@@ -251,11 +257,14 @@ public class Timeline {
      * @defaultvalue 1.0
      *
      */
-    public var repeatCount: Number = 1 on replace = newVal {
+    public var repeatCount: Number = 1;
+    /*
+        FIXME: yet to be implemented.
+        on replace = newVal {
         if (newVal < INDEFINITE) {
             repeatCount = INDEFINITE;
         }
-    }
+    }*/
 
 
     /**
@@ -281,13 +290,16 @@ public class Timeline {
      *
      * @profile common
      */
-    public var keyFrames: KeyFrame[] on replace oldValues = newValues {
+    public var keyFrames: KeyFrame[];
+    /*
+        FIXME: yet to be implemented.
+        on replace oldValues = newValues {
         for(keyFrame: KeyFrame in newValues) {
             keyFrame.owner = this;
         }
         invalidate();
     	sortAndComputeTL(false);
-    };
+    };*/
 
     /**
      * Read-only var that indicates whether the animation is
@@ -342,11 +354,14 @@ public class Timeline {
      * is moving forward when animation is started by default.
      * <p>
      */
-    var forward: Boolean = true on replace {
+    var forward: Boolean = true;
+    /*
+        FIXME:yet to be implemented.
+        on replace {
         if(currentRate != 0) {
             currentRate = -currentRate;
         }
-    }
+    }*/
 
     /**
      * {@code curPos} tracks the current play head position internally, so
@@ -662,7 +677,9 @@ public class Timeline {
                             var value = keyValue.target.get();
                             value: function() { value }
                         }
-                        insert kv into initialKeyValues;
+                        // FIXME: yet to be implemented.
+                        // Back-end crashes with no "insert()" method.
+                        // insert kv into initialKeyValues;
                         var kfp = KFPair {
                             value: kv
                             frame: zeroFrame

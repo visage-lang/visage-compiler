@@ -114,13 +114,16 @@ public class StringLocalizer {
      * @needsreview
      * @readonly
      */
-    public def localizedString : String = bind {
+    public def localizedString : String = StringLocalization.getLocalizedString(propertiesName, key, key, locale);
+    /*
+        FIXME: yet to be implemented.
+        bind {
         if ("".equals(defaultString)) {
             StringLocalization.getLocalizedString(propertiesName, key, key, locale);
         } else {
             StringLocalization.getLocalizedString(propertiesName, key, defaultString, locale);
         }
-    }
+    }*/
 
     function getDefaultPropertiesName() : String {
         var elements : StackTraceElement[] = Thread.currentThread().getStackTrace();

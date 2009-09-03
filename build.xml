@@ -486,15 +486,6 @@
              files shipped with the compiler (not related to the JavaFX Runtime
              project). -->
 
-        <!--
-
-        FIXME: yet to be implemented for compiled binds
-
-        ****BROKEN WORLD BEGINS****
-
-        // We can't build arbitrary JavaFX code as of now. uncomment after
-        // some progress and see if we can build runtime JavaFX libraray!
-
         <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
@@ -511,7 +502,6 @@
                  classpath="${build.classes.dir}:${javac.test.classpath}"
                  compilerclasspath="${build.classes.dir}:${javac.classpath}">
         </javafxc>
-        -->
     </target>
 
     <target depends="init,javafxdoc" name="-javadoc-build">
