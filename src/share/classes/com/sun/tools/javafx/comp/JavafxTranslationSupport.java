@@ -799,10 +799,6 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, varOffsetString);
     }
     
-    Name attributeBitsName(int word) {
-        return names.fromString(varBitsString + word);
-    }
-
     Name attributeValueName(Symbol sym) {
         return prefixedAttributeName(sym, varValueString);
     }

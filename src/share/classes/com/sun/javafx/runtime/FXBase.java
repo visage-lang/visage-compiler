@@ -33,53 +33,31 @@ package com.sun.javafx.runtime;
 public class FXBase implements FXObject {
     // First class count.
     public static final int VCNT$ = 0;
+    public int count$() { return VCNT$(); }
 
-    /**
-     * Number of bits needed for each var.  Must be non-final for binary compatibility.
-     */
-    public static int VFLGS$BITS_PER_VAR = 4;
-    
-    /**
-     * Number of bits needed for each var.  Must be non-final for binary compatibility.
-     */
-    public static int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
-    
-    /**
-     * Var is initialized flag.  Must be non-final for binary compatibility.
-     */
-    public static final int VFLGS$IS_INITIALIZED = 0;
-    
-    /**
-     * Var is defaults applied flag.  Must be non-final for binary compatibility.
-     */
-    public static final int VFLGS$IS_DEFAULTS_APPLIED = 1;
-    
-    /**
-     * Var is valid value applied flag.  Must be non-final for binary compatibility.
-     */
-    public static final int VFLGS$IS_VALID_VALUE = 2;
-   
-    /**
-     * Var has dependents flag.  Must be non-final for binary compatibility.
-     */
-    public static final int VFLGS$HAS_DEPENDENTS = 3;
-    
     /**
      * Status bits for vars.  Array is for bits greater than 32, null if not needed.
      */
     public int   VFLGS$small;
     public int[] VFLGS$large;
+    public int   getVFLGS$small()            { return VFLGS$small; }
+    public void  setVFLGS$small(int small)   { VFLGS$small = small; }
+    public int[] getVFLGS$large()            { return VFLGS$large; }
+    public void  setVFLGS$large(int[] large) { VFLGS$large = large; }
     
     /**
      * Allocate var status bits.
      */
-    void allocateVarBits$() {
-      int count = count$();
+    public void allocateVarBits$() {
+        allocateVarBits$(this);
+    }
+    public static void allocateVarBits$(FXObject obj) {
+        int count = obj.count$();
       
-      if (count > VFLGS$VARS_PER_WORD) {
-        int length = (((count * VFLGS$BITS_PER_VAR) + 31) >> 5) - 1;
-        VFLGS$large = new int[length];
-      }
+        if (count > VFLGS$VARS_PER_WORD) {
+            int length = (((count * VFLGS$BITS_PER_VAR) + 31) >> 5) - 1;
+            obj.setVFLGS$large(new int[length]);
+        }
     }
     
     /**
@@ -87,19 +65,23 @@ public class FXBase implements FXObject {
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    boolean isVarBitSet$(final int varNum, final int varBit) {
-      int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
-      int shift = bit & 31;
-      int word;
+    public boolean isVarBitSet$(final int varNum, final int varBit) {
+        return isVarBitSet$(this, varNum, varBit);
+    }
+    public static boolean isVarBitSet$(FXObject obj, final int varNum, final int varBit) {
+        int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
+        int shift = bit & 31;
+        int word;
       
-      if (bit >= 32) {
-        int index = (bit >> 5) - 1;
-        word = VFLGS$large[index];
-      } else {
-        word = VFLGS$small;
-      }
+        if (bit >= 32) {
+            int index = (bit >> 5) - 1;
+            int[] large = obj.getVFLGS$large();
+            word = large[index];
+        } else {
+            word = obj.getVFLGS$small();
+        }
       
-      return ((word >> shift) & 1) != 0;
+        return ((word >> shift) & 1) != 0;
     }
     
     /**
@@ -107,20 +89,25 @@ public class FXBase implements FXObject {
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    boolean setVarBit$(final int varNum, final int varBit) {
-      int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
-      int shift = bit & 31;
-      int word;
+    public boolean setVarBit$(final int varNum, final int varBit) {
+        return setVarBit$(this, varNum, varBit);
+    }
+    public static boolean setVarBit$(FXObject obj, final int varNum, final int varBit) {
+        int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
+        int shift = bit & 31;
+        int word;
       
-      if (bit >= 32) {
-        int index = (bit >> 5) - 1;
-        word = VFLGS$large[index];
-        VFLGS$large[index] = word | (1 << shift);
-      } else {
-        word = VFLGS$small;
-      }
+        if (bit >= 32) {
+            int index = (bit >> 5) - 1;
+            int[] large = obj.getVFLGS$large();
+            word = large[index];
+            large[index] = word | (1 << shift);
+        } else {
+            word = obj.getVFLGS$small();
+            obj.setVFLGS$small(word | (1 << shift));
+        }
       
-      return ((word >> shift) & 1) != 0;
+        return ((word >> shift) & 1) != 0;
     }
     
     /**
@@ -128,55 +115,91 @@ public class FXBase implements FXObject {
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    boolean clearVarBit$(final int varNum, final int varBit) {
+    public boolean clearVarBit$(final int varNum, final int varBit) {
+        return clearVarBit$(this, varNum, varBit);
+    }
+    public static boolean clearVarBit$(FXObject obj, final int varNum, final int varBit) {
       int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
       int shift = bit & 31;
       int word;
       
-      if (bit >= 32) {
-        int index = (bit >> 5) - 1;
-        word = VFLGS$large[index];
-        VFLGS$large[index] = word & ~(1 << shift);
-      } else {
-        word = VFLGS$small;
-      }
+        if (bit >= 32) {
+            int index = (bit >> 5) - 1;
+            int[] large = obj.getVFLGS$large();
+            word = large[index];
+            large[index] = word & ~(1 << shift);
+        } else {
+            word = obj.getVFLGS$small();
+            obj.setVFLGS$small(word & ~(1 << shift));
+        }
       
       return ((word >> shift) & 1) != 0;
     }
 
     public boolean isInitialized$(final int varNum) {
-      return isVarBitSet$(varNum, VFLGS$IS_INITIALIZED);
+        return isInitialized$(this, varNum);
+    }
+    public static boolean isInitialized$(FXObject obj, final int varNum) {
+        return isVarBitSet$(obj, varNum, VFLGS$IS_INITIALIZED);
     }
     public boolean setInitialized$(final int varNum) {
-      return setVarBit$(varNum, VFLGS$IS_INITIALIZED);
+        return setInitialized$(this, varNum);
     }
-
+    public static boolean setInitialized$(FXObject obj, final int varNum) {
+        return setVarBit$(obj, varNum, VFLGS$IS_INITIALIZED);
+    }
+    
     public boolean isDefaultsApplied$(final int varNum) {
-      return isVarBitSet$(varNum, VFLGS$IS_DEFAULTS_APPLIED);
+        return isDefaultsApplied$(this, varNum);
+    }
+    public static boolean isDefaultsApplied$(FXObject obj, final int varNum) {
+        return isVarBitSet$(obj, varNum, VFLGS$IS_DEFAULTS_APPLIED);
     }
     public boolean setDefaultsApplied$(final int varNum) {
-      return setVarBit$(varNum, VFLGS$IS_DEFAULTS_APPLIED);
+        return setDefaultsApplied$(this, varNum);
+    }
+    public static boolean setDefaultsApplied$(FXObject obj, final int varNum) {
+        return setVarBit$(obj, varNum, VFLGS$IS_DEFAULTS_APPLIED);
     }
 
     public boolean isValidValue$(final int varNum) {
-      return isVarBitSet$(varNum, VFLGS$IS_VALID_VALUE);
+        return isValidValue$(this, varNum);
+    }
+    public static boolean isValidValue$(FXObject obj, final int varNum) {
+        return isVarBitSet$(obj, varNum, VFLGS$IS_VALID_VALUE);
     }
     public boolean setValidValue$(final int varNum) {
-      return setVarBit$(varNum, VFLGS$IS_VALID_VALUE);
+        return setValidValue$(this, varNum);
+    }
+    public static boolean setValidValue$(FXObject obj, final int varNum) {
+        return setVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE);
     }
     public boolean clearValidValue$(final int varNum) {
-      return clearVarBit$(varNum, VFLGS$IS_VALID_VALUE);
+        return clearValidValue$(this, varNum);
+    }
+    public static boolean clearValidValue$(FXObject obj, final int varNum) {
+        return clearVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE);
     }
 
-    public boolean hasDependents$(final int varNum) {
-      return isVarBitSet$(varNum, VFLGS$HAS_DEPENDENTS);
+    public boolean isBindee$(final int varNum) {
+        return isBindee$(this, varNum);
     }
-    public boolean setHasDependents$(final int varNum) {
-      return setVarBit$(varNum, VFLGS$HAS_DEPENDENTS);
+    public static boolean isBindee$(FXObject obj, final int varNum) {
+        return isVarBitSet$(obj, varNum, VFLGS$IS_BINDEE);
     }
-    public boolean clearHasDependents$(final int varNum) {
-      return clearVarBit$(varNum, VFLGS$HAS_DEPENDENTS);
+    public boolean setBindee$(final int varNum) {
+        return setBindee$(this, varNum);
     }
+    public static boolean setBindee$(FXObject obj, final int varNum) {
+        return setVarBit$(obj, varNum, VFLGS$IS_BINDEE);
+    }
+    public boolean clearBindee$(final int varNum) {
+        return clearBindee$(this, varNum);
+    }
+    public static boolean clearBindee$(FXObject obj, final int varNum) {
+        return clearVarBit$(obj, varNum, VFLGS$IS_BINDEE);
+    }
+    
 
     /**
      * Constructor called from Java or from object literal with no instance variable initializers
@@ -190,7 +213,7 @@ public class FXBase implements FXObject {
      * @param dummy Marker only. Ignored.
      */
     public FXBase(boolean dummy) {
-      allocateVarBits$();
+        allocateVarBits$();
     }
 
     public void initialize$() {
@@ -198,13 +221,23 @@ public class FXBase implements FXObject {
         applyDefaults$();
         complete$();
     }
+    public static void initialize$(FXObject obj) {
+        obj.addTriggers$();
+        obj.applyDefaults$();
+        obj.complete$();
+    }
 
     public void complete$() {
         userInit$();
         postInit$();
     }
+    public static void complete$(FXObject obj) {
+        obj.userInit$();
+        obj.postInit$();
+    }
 
     public void applyDefaults$(final int varNum) {}
+    public static void applyDefaults$(FXObject obj, final int varNum) {}
 
     public void applyDefaults$() {
         int cnt = count$();
@@ -212,11 +245,10 @@ public class FXBase implements FXObject {
             applyDefaults$(inx);
         }
     }
-
-    public static void applyDefaults$(FXObject rcvr) {
-        int cnt = rcvr.count$();
-        for (int inx = 0; inx < cnt; inx += 1) {
-            rcvr.applyDefaults$(inx);
+    public static void applyDefaults$(FXObject obj) {
+        int cnt = obj.count$();
+        for (int inx = 0; inx < cnt; inx += 1) { 
+            obj.applyDefaults$(inx);
         }
     }
     
@@ -225,8 +257,6 @@ public class FXBase implements FXObject {
     public void addTriggers$  () {}
     public void userInit$     () {}
     public void postInit$     () {}
-
-    public int      count$()                         { return VCNT$(); }
     
     //
     // makeInitMap$ constructs a field mapping table used in the switch portion

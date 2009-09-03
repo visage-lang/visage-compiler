@@ -85,8 +85,15 @@ public class JavafxDefs {
 
     public static final String varOffsetString = "VOFF$";
     public static final String varCountString = "VCNT$";
-    public static final String varBitsString = "VFLGS$";
     public static final String varValueString = "$";
+    public static final String varFlagActionTest = "is";
+    public static final String varFlagActionSet = "set";
+    public static final String varFlagActionClear = "clear";
+    public static final String varFlagInitialized = "Initialized$";
+    public static final String varFlagDefaultsApplied = "DefaultsApplied$";
+    public static final String varFlagValid = "ValidValue$";
+    public static final String varFlagHasDependents = "Bindee$";
+    public static final String varLocationString = "loc$";
     public static final String varMapString = "MAP$";
     public static final String varGetMapString = "GETMAP$";
 

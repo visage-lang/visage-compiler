@@ -573,6 +573,10 @@ public class JavafxClassReader extends ClassReader {
             }
             boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
+            boolean isFXBase = csym == ((JavafxSymtab) syms).javafx_FXBaseType.tsym;
+            boolean isFXObject = csym == ((JavafxSymtab) syms).javafx_FXObjectType.tsym;
+            boolean isRootClass = isFXBase || isFXObject;
+
             Set<Name> priorNames = new HashSet<Name>();
             handleSyms:
             for (List<Symbol> l = symlist; l.nonEmpty(); l=l.tail) {
@@ -605,6 +609,7 @@ public class JavafxClassReader extends ClassReader {
                 }
                 if (memsym instanceof MethodSymbol) {
                     if (! sawSourceNameAnnotation &&
+                            !isRootClass &&
                             (name == defs.internalRunFunctionName || 
                             name == defs.initializeName ||
                             name == defs.completeName ||
@@ -638,11 +643,11 @@ public class JavafxClassReader extends ClassReader {
                     // Eliminate any duplicate value/location.
                     if (priorNames.contains(name))
                         continue;
-                    // Filter out synthetic vars.
-                    String nameString = name.toString();
-                    if (nameString.startsWith(defs.varBitsString)) continue;
-                    if (nameString.startsWith(defs.varMapString)) continue;
-
+                    if (!isRootClass) {
+                        // Filter out synthetic vars.
+                        String nameString = name.toString();
+                        if (nameString.startsWith(defs.varMapString)) continue;
+                    }
                     Type otype = memsym.type;
                     Type type = translateType(otype);
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
