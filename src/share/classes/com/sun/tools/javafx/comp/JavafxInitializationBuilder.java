@@ -491,6 +491,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             stmts.append(callStatement(diagPos,
                 names._super,
                 List.<JCExpression>of(make.Ident(dummyParamName))));
+        } else {
+            stmts.append(callStatement(diagPos,
+                defs.initFXBaseName,
+                List.<JCExpression>nil()));
         }
 
         // Construct the parameters
@@ -859,7 +863,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Construct the value field unless it will always be a Location
                     if (ai.representation() != AlwaysLocation) {
                         vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
-                                makeDefaultValue(currentPos, ai.getVMI())));
+                                needsDefaultValue(ai.getVMI()) ? makeDefaultValue(currentPos, ai.getVMI()) : null));
                 }
                 }
             }
@@ -1164,7 +1168,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Construct offset var.
                     Name name = attributeOffsetName(ai.getSymbol());
                     // Construct and add: public static int VOFF$name = n;
-                    members.append(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, name, ai.getEnumeration()));
+                    members.append(makeVariable(Flags.STATIC | Flags.PUBLIC, syms.intType, name, null));
                 }
 
                 // Add to var map if an anon class.
@@ -1208,8 +1212,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 setVCNT$Expr = m().Binary(JCTree.PLUS, applyExpr, makeInt(count));
             }
 
-            // VCNT$ = super.VCNT$() + n;
-            ifStmts.append(m().Exec(m().Assign(Id(defs.varCountName), setVCNT$Expr)));
+            Name countName = names.fromString("$count");
+            // final int $count = VCNT$ = super.VCNT$() + n;
+            ifStmts.append(makeVariable(Flags.FINAL, syms.intType, countName, m().Assign(Id(defs.varCountName), setVCNT$Expr)));
 
             for (VarInfo ai : attrInfos) {
                 // Only variables actually declared.
@@ -1219,7 +1224,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Offset var name.
                     Name name = attributeOffsetName(ai.getSymbol());
                     // VCNT$ - n + i;
-                    JCExpression setVOFF$Expr = m().Binary(JCTree.PLUS, Id(defs.varCountName), makeInt(ai.getEnumeration() - count));
+                    JCExpression setVOFF$Expr = m().Binary(JCTree.PLUS, Id(countName), makeInt(ai.getEnumeration() - count));
                     // VOFF$var = VCNT$ - n + i;
                     ifStmts.append(m().Exec(m().Assign(Id(name), setVOFF$Expr)));
                 }

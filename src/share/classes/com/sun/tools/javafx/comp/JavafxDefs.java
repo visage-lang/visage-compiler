@@ -234,6 +234,7 @@ public class JavafxDefs {
     final Name targetName;
     final Name interpolateName;
     final Name addTriggersName;
+    final Name initFXBaseName;
     final Name userInitName;
     final Name postInitName;
     final Name attributeGetPrefixName;
@@ -360,6 +361,7 @@ public class JavafxDefs {
         valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");
         addTriggersName = names.fromString("addTriggers$");
+        initFXBaseName = names.fromString("initFXBase$");
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
         incrementSharingMethodName = names.fromString("incrementSharing");

@@ -31,6 +31,16 @@ package com.sun.javafx.runtime;
  * @author Robert Field
  */
 public class FXBase implements FXObject {
+    /**
+     * Initialize for FXBase.
+     */
+    public void initFXBase$() {
+        initFXBase$(this);
+    }
+    public static void initFXBase$(FXObject obj) {
+        allocateVarBits$(obj);
+    }
+
     // First class count.
     public static final int VCNT$ = 0;
     public int count$() { return VCNT$(); }
@@ -48,10 +58,10 @@ public class FXBase implements FXObject {
     /**
      * Allocate var status bits.
      */
-    public void allocateVarBits$() {
+    private void allocateVarBits$() {
         allocateVarBits$(this);
     }
-    public static void allocateVarBits$(FXObject obj) {
+    private static void allocateVarBits$(FXObject obj) {
         int count = obj.count$();
       
         if (count > VFLGS$VARS_PER_WORD) {
@@ -65,10 +75,10 @@ public class FXBase implements FXObject {
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    public boolean isVarBitSet$(final int varNum, final int varBit) {
+    private boolean isVarBitSet$(final int varNum, final int varBit) {
         return isVarBitSet$(this, varNum, varBit);
     }
-    public static boolean isVarBitSet$(FXObject obj, final int varNum, final int varBit) {
+    private static boolean isVarBitSet$(FXObject obj, final int varNum, final int varBit) {
         int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
         int shift = bit & 31;
         int word;
@@ -89,10 +99,10 @@ public class FXBase implements FXObject {
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    public boolean setVarBit$(final int varNum, final int varBit) {
+    private boolean setVarBit$(final int varNum, final int varBit) {
         return setVarBit$(this, varNum, varBit);
     }
-    public static boolean setVarBit$(FXObject obj, final int varNum, final int varBit) {
+    private static boolean setVarBit$(FXObject obj, final int varNum, final int varBit) {
         int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
         int shift = bit & 31;
         int word;
@@ -115,10 +125,10 @@ public class FXBase implements FXObject {
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    public boolean clearVarBit$(final int varNum, final int varBit) {
+    private boolean clearVarBit$(final int varNum, final int varBit) {
         return clearVarBit$(this, varNum, varBit);
     }
-    public static boolean clearVarBit$(FXObject obj, final int varNum, final int varBit) {
+    private static boolean clearVarBit$(FXObject obj, final int varNum, final int varBit) {
       int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
       int shift = bit & 31;
       int word;
@@ -213,7 +223,7 @@ public class FXBase implements FXObject {
      * @param dummy Marker only. Ignored.
      */
     public FXBase(boolean dummy) {
-        allocateVarBits$();
+        initFXBase$();
     }
 
     public void initialize$() {

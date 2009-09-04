@@ -62,14 +62,12 @@ public interface FXObject {
      */
     public static final int VFLGS$IS_BINDEE = 3;
     
+    public void     initFXBase$     ();
+    
     public int      getVFLGS$small  ();
     public void     setVFLGS$small  (final int small);
     public int[]    getVFLGS$large  ();
     public void     setVFLGS$large  (final int[] large);
-    public void     allocateVarBits$();
-    public boolean  isVarBitSet$    (final int varNum, final int varBit);
-    public boolean  setVarBit$      (final int varNum, final int varBit);
-    public boolean  clearVarBit$    (final int varNum, final int varBit);
 
     public boolean  isInitialized$     (final int varNum);
     public boolean  setInitialized$    (final int varNum);

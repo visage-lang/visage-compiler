@@ -586,6 +586,12 @@ public abstract class JavafxTranslationSupport {
                 make.Ident(interfaceName(cDecl)),
                 make.Ident(names._this));
     }
+    
+    boolean needsDefaultValue(TypeMorphInfo tmi) {
+        return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ||
+               tmi.getRealType() == syms.javafx_StringType ||
+               tmi.getRealType() == syms.javafx_DurationType;
+    }
 
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
         return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ?
