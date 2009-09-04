@@ -242,7 +242,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<ClassSymbol> allMixinClasses = analysis.getAllMixins();
 
         boolean isMixinClass = cDecl.isMixinClass();
-        boolean isScriptClass = cDecl.isScriptClass;
+        boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = analysis.isAnonClass();
         boolean hasFxSuper = fxSuperClassSym != null;
 
@@ -263,6 +263,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (isScriptClass) {
                 cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+                cDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(cDecl));
             }
 
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(analysis.getCurrentClassSymbol(), varMap) : null;
@@ -1832,6 +1833,40 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return stmts;
         }
 
+        // Add definitions to class to access the script-level sole instance
+        private List<JCTree> makeScriptLevelAccess(JFXClassDeclaration cDecl) {
+            ListBuffer<JCTree> mems = ListBuffer.lb();
+            final JFXScript module = cDecl.scriptClassModule;
+            final JFXClassDeclaration scriptLevel = module.scriptLevelClass;
+            if (scriptLevel != null) {
+                // sole instance field
+                mems.append(makeVariable(Flags.PRIVATE | Flags.STATIC, scriptLevel.type, defs.scriptLevelAccessField, null));
+                //sole instance lazy creation method
+                JCExpression condition = m().Binary(JCTree.EQ, Id(defs.scriptLevelAccessField), makeNull());
+                JCExpression assignExpr = m().Assign(
+                        Id(defs.scriptLevelAccessField),
+                        m().NewClass(null, null, m().Type(scriptLevel.type), List.<JCExpression>nil(), null));
+                List<JCStatement> stmts = List.<JCStatement>of(
+                        m().If(condition, m().Exec(assignExpr), null),
+                        m().Return(Id(defs.scriptLevelAccessField)));
+                mems.append(makeMethod(Flags.PUBLIC | Flags.STATIC, scriptLevel.type, defs.scriptLevelAccessMethod, null, stmts));
+                // If module is runnable, create a run method that redirects to the sole instance version
+                if (module.isRunnable) {
+                    mems.append(makeMethod(
+                            Flags.PUBLIC | Flags.STATIC,
+                            syms.objectType,
+                            defs.internalRunFunctionName,
+                            List.<JCVariableDecl>of(m().Param(defs.arg0Name, types.sequenceType(syms.stringType), null)),
+                            List.<JCStatement>of(m().Return(callExpression(
+                                currentPos,
+                                callExpression(currentPos, null, defs.scriptLevelAccessMethod),
+                                defs.internalRunFunctionName,
+                                Id(defs.arg0Name))))));
+                }
+            }
+            return mems.toList();
+        }
+
         //
         // This method is a convenience routine to simplify making runtime methods.
         //
@@ -1839,6 +1874,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                         List<JCVariableDecl> args, ListBuffer<JCStatement> stmts) {
 
             JCBlock body = stmts != null ? m().Block(0L, stmts.toList()) : null;
+            List<JCVariableDecl> params = args==null? List.<JCVariableDecl>nil() : args;
 
             // Construct the method.
             JCMethodDecl method = m().MethodDef(
@@ -1846,7 +1882,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 name,                                          // Name
                 makeType(type),                                // Return type
                 List.<JCTypeParameter>nil(),                   // Argument types
-                args,                                          // Argument variables
+                params,                                          // Argument variables
                 List.<JCExpression>nil(),                      // Throws
                 body,                                          // Body
                 null);                                         // Default
@@ -1856,7 +1892,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private JCMethodDecl makeMethod(long modifiers, Type type, Name name,
                                         List<JCVariableDecl> args, ListBuffer<JCStatement> stmts) {
 
-            JCBlock body = stmts != null ? m().Block(0L, stmts.toList()) : null;
+            return makeMethod(modifiers, type, name, args, stmts.toList());
+        }
+        private JCMethodDecl makeMethod(long modifiers, Type type, Name name,
+                                        List<JCVariableDecl> args, List<JCStatement> stmts) {
+
+            JCBlock body = stmts != null ? m().Block(0L, stmts) : null;
+            List<JCVariableDecl> params = args==null? List.<JCVariableDecl>nil() : args;
 
             // Construct the method.
             JCMethodDecl method = m().MethodDef(
@@ -1864,7 +1906,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 name,                                          // Name
                 makeType(type),                                // Return type
                 List.<JCTypeParameter>nil(),                   // Argument types
-                args,                                          // Argument variables
+                params,                                          // Argument variables
                 List.<JCExpression>nil(),                      // Throws
                 body,                                          // Body
                 null);                                         // Default

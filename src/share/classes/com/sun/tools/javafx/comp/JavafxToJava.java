@@ -61,6 +61,7 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
+import static com.sun.tools.javafx.code.JavafxFlags.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.STranslator;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
@@ -1147,13 +1148,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         JFXClassDeclaration prevEnclClass = getAttrEnv().enclClass;
         currentClass = tree;
 
-        if (tree.isScriptClass) {
+        if (tree.isScriptClass()) {
             scriptBegin();
         }
 
         try {
             DiagnosticPosition diagPos = tree.pos();
-            if (tree.isScriptClass) literalInitClassMap = new LiteralInitClassMap();
+            if (tree.isScriptClass()) literalInitClassMap = new LiteralInitClassMap();
 
             attrEnv.enclClass = tree;
 
@@ -1186,22 +1187,24 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                         }
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
-                            boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                            inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
-                            JCStatement init = (!isStatic || getAttrEnv().toplevel.isLibrary)?
-                                translateDefinitionalAssignmentToSet(attrDef.pos(),
-                                attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
-                                isStatic? null : defs.receiverName)
-                                : null;
-                            attrInfo.append(new TranslatedVarInfo(
-                                    attrDef,
-                                    typeMorpher.varMorphInfo(attrDef.sym),
-                                    init,
-                                    getterInit(attrDef.sym, attrDef.getInitializer()),
-                                    attrDef.getOnReplace(),
-                                    translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace()),
-                                    makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace())));
-                            inInstanceContext = ReceiverContext.Oops;
+                            boolean isScriptClone = (attrDef.getModifiers().flags & SCRIPT_LEVEL_SYNTH_STATIC) != 0;
+                            if (!isScriptClone) {
+                                boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
+                                inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
+                                JCStatement init = (!isStatic || getAttrEnv().toplevel.isLibrary) ? translateDefinitionalAssignmentToSet(attrDef.pos(),
+                                        attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
+                                        isStatic ? null : defs.receiverName)
+                                        : null;
+                                attrInfo.append(new TranslatedVarInfo(
+                                        attrDef,
+                                        typeMorpher.varMorphInfo(attrDef.sym),
+                                        init,
+                                        getterInit(attrDef.sym, attrDef.getInitializer()),
+                                        attrDef.getOnReplace(),
+                                        translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace()),
+                                        makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace())));
+                                inInstanceContext = ReceiverContext.Oops;
+                            }
                             break;
                         }
                         case OVERRIDE_ATTRIBUTE_DEF: {
@@ -1226,7 +1229,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                         }
                        case FUNCTION_DEF : {
                            JFXFunctionDefinition funcDef = (JFXFunctionDefinition) def;
-                           translatedDefs.append(translate(funcDef));
+                           boolean isScriptClone = (funcDef.getModifiers().flags & SCRIPT_LEVEL_SYNTH_STATIC) != 0;
+                           if (!isScriptClone) {
+                               translatedDefs.append(translate(funcDef));
+                           }
                            break;
                         }
                         default: {
@@ -1369,7 +1375,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 }
             }
 
-            if (tree.isScriptClass) {
+            if (tree.isScriptClass()) {
                 if (!isMixinClass) {
                    // JFXC-1888: Do *not* add main method!
                    // com.sun.javafx.runtime.Main has the
@@ -1931,14 +1937,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     //@Override
     public void visitVarScriptInit(JFXVarScriptInit tree) {
         DiagnosticPosition diagPos = tree.pos();
-        JFXModifiers mods = tree.getModifiers();
-        long modFlags = mods.flags | Flags.FINAL;
         VarSymbol vsym = tree.getSymbol();
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JFXVar var = tree.getVar();
-        assert vsym.owner.kind == Kinds.TYP : "this should just be for script-level variables";
-        assert (modFlags & Flags.STATIC) != 0;
-        assert (modFlags & JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC) != 0;
         assert !attrEnv.toplevel.isLibrary;
 
         result = translateDefinitionalAssignmentToSetExpression(diagPos, var.init, var.getBindStatus(), vmi, null);

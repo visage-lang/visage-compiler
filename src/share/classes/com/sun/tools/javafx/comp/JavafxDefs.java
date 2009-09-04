@@ -51,6 +51,7 @@ public class JavafxDefs {
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
     public static final String mixinSuffix = "$Mixin";
     public static final String deprecatedInterfaceSuffix = "$Intf";
+    public static final String scriptClassSuffix = "$Script";
     public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
     public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
     public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
@@ -170,6 +171,8 @@ public class JavafxDefs {
     public final Name fxBaseName;
     public final Name mixinSuffixName;
     public final Name deprecatedInterfaceSuffixName;
+    final Name scriptLevelAccessField;
+    final Name scriptLevelAccessMethod;
     final Name durOpAdd;
     final Name durOpSub;
     final Name durOpMul;
@@ -373,6 +376,8 @@ public class JavafxDefs {
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
         computeElementsMethodName = names.fromString("computeElements$");
+        scriptLevelAccessField = names.fromString("$scriptLevel$");
+        scriptLevelAccessMethod = names.fromString("access$scriptLevel$");
 
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);

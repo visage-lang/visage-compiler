@@ -68,6 +68,7 @@ public class JFXScript extends JFXTree implements UnitTree {
     public Position.LineMap lineMap = null;
     public Map<JCTree, String> docComments = null;
     public Map<JCTree, Integer> endPositions = null;
+    public JFXClassDeclaration scriptLevelClass = null;
 
     protected JFXScript(
             JFXExpression pid,

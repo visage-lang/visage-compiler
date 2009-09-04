@@ -444,7 +444,7 @@ class JavafxAnalyzeClass {
     //
     // Returns true if the current class is a script.
     //
-    public boolean isScriptClass() { return currentClassDecl.isScriptClass; }
+    public boolean isScriptClass() { return currentClassDecl.isScriptClass(); }
 
     //
     // Returns the current class symbol.
