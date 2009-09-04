@@ -674,6 +674,7 @@ public class XHTMLProcessingUtils {
                 try {
                     scene = fxStageClass.getMethod("get$scene").invoke(ret); 
                 } catch (Exception ex) {
+                    pw.println("javafxdoc: Exception while processing " + imgFile);
                     ex.printStackTrace(pw);
                     pw.flush();
                     return;
@@ -682,6 +683,7 @@ public class XHTMLProcessingUtils {
                 try {
                     scene = fxNodeClass.getMethod("get$scene").invoke(ret); 
                 } catch (Exception ex) {
+                    pw.println("javafxdoc: Exception while processing " + imgFile);
                     ex.printStackTrace(pw);
                 }
                 if (scene == null) {
@@ -706,9 +708,11 @@ public class XHTMLProcessingUtils {
                 BufferedImage img = (BufferedImage) renderToImage.invoke(scene, (Object)null); 
                 ImageIO.write(img, "png", imgFile); 
             } catch (Exception ex) {
+                pw.println("javafxdoc: Exception while processing " + imgFile);
                 ex.printStackTrace(pw);
             }
         } catch (javax.script.ScriptException ex) {
+            pw.println("javafxdoc: Exception while processing " + imgFile);
             pw.println(ex.getMessage());
             pw.println(" at: line = " + ex.getLineNumber() + " column = " + ex.getColumnNumber());
             pw.println("file = " + ex.getFileName());
