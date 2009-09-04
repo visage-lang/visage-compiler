@@ -262,9 +262,14 @@ public class FXBase implements FXObject {
         }
     }
     
+    public void addTriggers$() {
+        addTriggers$(this);
+    }
+    public static void addTriggers$(FXObject obj) {
+    }
+    
     public static int VCNT$() { return VCNT$; }
 
-    public void addTriggers$  () {}
     public void userInit$     () {}
     public void postInit$     () {}
     

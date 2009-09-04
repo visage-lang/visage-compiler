@@ -712,7 +712,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         // Only generate method if necessary.
-        if (stmts.size() != emptySize || isMixinClass || superClassSym == null) {
+        if (stmts.size() != emptySize || isMixinClass) {
             methods.append(make.at(diagPos).MethodDef(
                     make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
                     defs.addTriggersName,
