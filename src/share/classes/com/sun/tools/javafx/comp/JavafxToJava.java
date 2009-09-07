@@ -1081,7 +1081,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
      * @return
      */
     List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
-        if (!hasScriptTriggers()) {
+        // TODO();
+        if (!hasScriptTriggers() || true) {
             return List.nil();
         } else {
             JCExpression scriptClosureClass = make.at(diagPos).TypeApply(
