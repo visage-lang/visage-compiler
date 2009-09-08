@@ -83,7 +83,7 @@ public interface FXObject {
     
     // dependents management
     public DependentsManager getDependentsManager$();
-    public void     setDependentsManager$(DependentsManager depMgr);
+    public void     setDependentsManager$(final DependentsManager depMgr);
     public void     addDependent$      (final int varNum, FXObject dep);
     public void     removeDependent$   (final int varNum, FXObject dep);
     public void     notifyDependents$  (final int varNum);
