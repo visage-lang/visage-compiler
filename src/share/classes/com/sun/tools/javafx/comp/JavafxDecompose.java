@@ -395,21 +395,24 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitVar(JFXVar tree) {
-        boolean wasInUniBind = inUniBind;
-        inUniBind |= tree.isUnidiBind();
         Symbol prevOwner = owner;
         owner = tree.sym.owner;
+        boolean wasInUniBind = inUniBind;
+        // on-replace is always unbound
+        inUniBind = false;
+        JFXOnReplace onReplace = decompose(tree.getOnReplace());
+        // bound if was bind context or is bound variable
+        inUniBind = wasInUniBind | tree.isUnidiBind();
         Name name = tree.name;
         JFXType type = tree.getJFXType();
         JFXModifiers mods = tree.getModifiers();
-        JFXExpression init = decompose(tree.getInitializer());
-        JFXOnReplace onReplace = decompose(tree.getOnReplace());
+        JFXExpression initializer = decompose(tree.getInitializer());
         JFXVar res = fxmake.at(tree.pos).Var(name, type, mods,
-                                        init, tree.getBindStatus(), onReplace);
+                                        initializer, tree.getBindStatus(), onReplace);
         res.sym = tree.sym;
-        result = res;
         inUniBind = wasInUniBind;
         owner = prevOwner;
+        result = res;
     }
 
     public void visitOnReplace(JFXOnReplace tree) {
@@ -501,18 +504,20 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        boolean wasInUniBind = inUniBind;
-        inUniBind |= tree.isUnidiBind();
         Symbol prevOwner = owner;
         owner = tree.sym.owner;
-        JFXIdent expr = decompose(tree.getId());
+        boolean wasInUniBind = inUniBind;
+        // on-replace is always unbound
+        inUniBind = false;
+        JFXOnReplace onReplace = decompose(tree.getOnReplace());
+        // bound if was bind context or is bound variable
+        inUniBind = wasInUniBind | tree.isUnidiBind();
         JFXExpression initializer = decompose(tree.getInitializer());
-        JFXOnReplace onr = decompose(tree.getOnReplace());
-        JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(expr, initializer, tree.getBindStatus(), onr);
+        JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getId(), initializer, tree.getBindStatus(), onReplace);
         res.sym = tree.sym;
-        result = res;
         inUniBind = wasInUniBind;
         owner = prevOwner;
+        result = res;
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {

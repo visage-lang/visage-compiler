@@ -3691,18 +3691,17 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
     //@Override
     public void visitUnary(final JFXUnary tree) {
-        final Locationness wrapper = translationState.wrapper;
-
         result = (new Translator( tree.pos() ) {
             private final JFXExpression expr = tree.getExpression();
 
-            private JCExpression translateForSizeof(JFXExpression expr) {
-                return translateSequenceExpression(expr);
-            }
             private final JCExpression transExpr =
                     tree.getFXTag() == JavafxTag.SIZEOF &&
                 (expr instanceof JFXIdent || expr instanceof JFXSelect) ? translateForSizeof(expr)
                 : translateAsUnconvertedValue(expr);
+
+            private JCExpression translateForSizeof(JFXExpression expr) {
+                return translateSequenceExpression(expr);
+            }
 
             private JCExpression doIncDec(final int binaryOp, final boolean postfix) {
                 return (JCExpression) new AssignTranslator(diagPos, expr, fxm().Literal(1)) {
