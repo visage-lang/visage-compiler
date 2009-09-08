@@ -1842,10 +1842,12 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     private JCExpression translateDefinitionalAssignmentToValueArg(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
         if (bindStatus.isUnidiBind()) {
-            return TODO(); // toBound.translateAsLocationOrBE(init, bindStatus, vmi);
+            return translateNonBoundInit(diagPos, init, vmi);
+            // return TODO(); // toBound.translateAsLocationOrBE(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
             // Bi-directional bind translate so it stays in a Location
-            return TODO();
+            return translateNonBoundInit(diagPos, init, vmi);
+           //  return TODO();
         } else {
             // normal init -- unbound
             return translateNonBoundInit(diagPos, init, vmi);
