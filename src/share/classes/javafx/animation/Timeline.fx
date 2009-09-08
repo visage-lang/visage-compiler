@@ -865,16 +865,18 @@ public class Timeline {
         }
         curPos = cycleT;
         time = makeDur(cycleT);
+        prepareForNextCycle();
+        return true;
+    }
 
-        // prepare for the next cycle
+    function prepareForNextCycle() {
         if (autoReverse) {
             forward = not forward;
         } else {
             frameIndex = if (forward) 0 else sortedFrames.size() - 1;
             curPos = if (forward) 0 else timelineDur;
-            time = makeDur(cycleT);
+            time = makeDur(curPos);
         }
-        return true;
     }
 
     // track last visited frame to avoid double visiting it on external time
@@ -952,20 +954,47 @@ public class Timeline {
             var kfMillis = kf.time.toMillis() as Number;
 
             if (not (catchingUp and kf.canSkip) or kfMillis == toTime) {
-                var savedTime = time.toMillis() as Number;
-                var savedCurRate = currentRate;
                 curPos = kfMillis;
+                time = makeDur(curPos);
+                var savedTime = curPos;
+                var savedCurRate = currentRate;
                 kf.visit();
                 var timeChanged = savedTime != (time.toMillis() as Number);
+                if (not timeChanged) {
+                    time = makeDur(curPos);
+                }
                 if (timeChanged or savedCurRate != currentRate or stopping) {
                     // if time, speed or direction has been changed at the kf's action,
                     // or the timeline has been stopped, abort further visiting
                     return false;
                 }
-                time = makeDur(curPos);
             }
         }
         return true;
+    }
+
+    function updateFrameIndex() {
+        var fi = frameIndex;
+        if (forward) {
+            for (i in [0 .. < sortedFrames.size()]) {
+                fi = i;
+                if (sortedFrames[i].time >= time) {
+                    break;
+                }
+            }
+        } else {
+            for (i in [sortedFrames.size() - 1 .. 0 step -1]) {
+                fi = i;
+                if (sortedFrames[i].time <= time) {
+                    break;
+                }
+            }
+        }
+        frameIndex = fi;
+    }
+
+    function updateCurrentRate() {
+        currentRate = if (forward) Math.abs(rate) else -Math.abs(rate);
     }
 
     function createAdapter():TimingTarget {
@@ -981,49 +1010,36 @@ public class Timeline {
 
                 lastTick = 0.0;
                 baseTick = 0.0;
-                baseElapsed = 0.0;
 
-                var totalDur = getTotalDur();
+                curPos = Math.min(timelineDur, Math.max(time.toMillis() as Number, 0)) as Number;
+                time = makeDur(curPos);
 
                 if(forward) {
-                    lastElapsed = 0;
+                    lastElapsed = curPos;
                     /**
                      * If timeline already reaches the end before it even starts,
                      * and intends to move forward, treat it as a completed
                      * forward cycle.
                      */
                     if((time.toMillis() as Number) >= timelineDur) {
-                        baseElapsed = timelineDur;
                         cycleIndex ++;
-                        if(autoReverse) {
-                            forward = not forward;
+                        prepareForNextCycle();
                         }
-                    }
                 } else {
-                    lastElapsed = totalDur;
+                    lastElapsed = timelineDur - curPos;
                     /**
                      * If timeline is at initial position and intends to move backward,
                      * treat it as a completed backward cycle.
                      */
                     if(time <= 0ms) {
-                        baseElapsed = timelineDur;
                         cycleIndex ++;
-                        if(autoReverse) {
-                            forward = not forward;
-                        }
+                        prepareForNextCycle();
                     }
                 }
+                baseElapsed = lastElapsed;
 
-                if(forward) {
-                    time = 0s;
-                    frameIndex = 0;
-                    currentRate = Math.abs(rate);
-                } else {
-                    time = Duration.valueOf(timelineDur);
-                    frameIndex = sortedFrames.size() - 1;
-                    currentRate = - Math.abs(rate);
-                }
-                curPos = time.toMillis() as Number;
+                updateFrameIndex();
+                updateCurrentRate();
             }
 
             override function timingEvent(fraction, totalElapsed) : Void {
@@ -1037,12 +1053,8 @@ public class Timeline {
 
             override function resume() : Void {
                 paused = false;
-                if(forward) {
-                    currentRate = Math.abs(rate);
-                } else {
-                    currentRate = - Math.abs(rate);
+                updateCurrentRate();
                 }
-            }
 
             override function end() : Void {
                 running = false;
