@@ -88,6 +88,9 @@ package com.sun.javafx.runtime;
 //
 //       public int addIt$(int n);
 //
+// All supplementary initialization for FXBAse objects should be added to
+// the static version of initFXBase$.
+// 
 
 /**
  * Base class for most FX classes.  The exception being classes that inherit from Java classes.
