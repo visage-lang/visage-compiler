@@ -23,6 +23,71 @@
 
 package com.sun.javafx.runtime;
 
+//
+// CODING/NAMING RESTRICTIONS - In a perfect world, all FX classes would inherit 
+// from FXBase.  However, this is not the case.  It's also possible to inherit
+// from pure java classes. To accommodate this requirement, FXBase and FXObject
+// are under some strict coding conventions.
+//
+// When an FX class inherits from a java class, then all instance fields from
+// FXBase are cloned into the FX class, and accessor functions constructed for
+// them.  Therefore;
+//
+//   - All non-static fields defined in FXBase should have a '$' in the name.
+//     That '$' must not be the first character, to avoid conflict with user
+//     vars.
+//   - All non-static fields must have accessor methods defined in FXBase.
+//     The names of the accessors must be in the form 'get' + fieldName and
+//     'set' + varName.
+//   - The accessor method declarations should be added to FXObject, so that 
+//     java inheriting classes can define their own interface implementations.
+//
+//  Ex.
+//      
+//    In FXBase we define;
+//      
+//       MyClass myField$;
+//      
+//       public MyClass getmyField$() {
+//           return myField$;
+//       }
+//      
+//       public void setmyField$(final MyClass value) {
+//           myField$ = value;
+//       }
+//
+//     In FXObject we declare;
+//
+//       public MyClass getmyField$();
+//       public void setmyField$(final MyClass value);
+//
+// When an FX class inherits from a java class, all non-static methods are 
+// cloned into the FX class, with bodies that call the FXBase static version of
+// method, inserting 'this' as the first argument.  Therefore;
+//
+//   - All functionality in FXBase should be defined in static methods, 
+//     manipulating an FXObject.  The declaration of the method should have an
+//     an FXObject first argument.  '$' naming conventions apply.
+//   - A non-static method should be defined to relay 'this' and remaining 
+//     arguments thru to the static methods.
+//   - The declaration of the non-static method should be added to FXObject.
+//
+//  Ex.
+//      
+//    In FXBase we define;
+//      
+//       public int addIt$(int n) {
+//           return addIt$(this, n);
+//       }
+//
+//       public static int addIt$(FXObject obj, int n) {
+//           return obj.count$() + n;
+//       }
+//
+//     In FXObject we declare;
+//
+//       public int addIt$(int n);
+//
 
 /**
  * Base class for most FX classes.  The exception being classes that inherit from Java classes.
@@ -30,7 +95,7 @@ package com.sun.javafx.runtime;
  * @author Jim Laskey
  * @author Robert Field
  */
-public class FXBase implements FXObject {
+ public class FXBase implements FXObject {
     /**
      * Initialize for FXBase.
      */

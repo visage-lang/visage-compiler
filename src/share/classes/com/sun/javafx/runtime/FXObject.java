@@ -23,6 +23,7 @@
 
 package com.sun.javafx.runtime;
 
+// CODING/NAMING RESTRICTIONS - see FXBase for explanation.
 
 /**
  * All FX classes must extend FXObject; it acts as a marker interface, and also includes methods required for
