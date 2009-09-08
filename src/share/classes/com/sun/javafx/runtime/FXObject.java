@@ -79,6 +79,16 @@ public interface FXObject {
     public boolean  isBindee$          (final int varNum);
     public boolean  setBindee$         (final int varNum);
     public boolean  clearBindee$       (final int varNum);
+    
+    // dependents management
+    public DependentsManager getDependentsManager$();
+    public void     setDependentsManager$(DependentsManager depMgr);
+    public void     addDependent$      (final int varNum, FXObject dep);
+    public void     removeDependent$   (final int varNum, FXObject dep);
+    public void     notifyDependents$  (final int varNum);
+    public void     update$ (final FXObject src, final int varNum);
+    // for testing - the listener count is the number of distinct {varNum, dep} pairs
+    public int      getListenerCount$();
 
     public void     initialize$   ();
     public void     addTriggers$  ();

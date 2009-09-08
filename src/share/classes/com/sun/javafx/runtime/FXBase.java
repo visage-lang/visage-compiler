@@ -209,8 +209,44 @@ public class FXBase implements FXObject {
     public static boolean clearBindee$(FXObject obj, final int varNum) {
         return clearVarBit$(obj, varNum, VFLGS$IS_BINDEE);
     }
-    
 
+    // dependents management
+    private DependentsManager depMgr;
+    public DependentsManager getDependentsManager$() {
+        return depMgr;
+    }
+    public void setDependentsManager$(DependentsManager depMgr) {
+        this.depMgr = depMgr;
+    }
+    public void addDependent$(final int varNum, FXObject dep) {
+        addDependent$(this, varNum, dep);
+    }
+    public static void addDependent$(FXObject src, final int varNum, FXObject dep) {
+        assert varNum > -1 && varNum < src.count$() : "invalid varNum: " + varNum;
+        DependentsManager.get(src).addDependent(src, varNum, dep);
+    }
+    public void removeDependent$(final int varNum, FXObject dep) {
+        removeDependent$(this, varNum, dep);
+    }
+    public static void removeDependent$(FXObject src, final int varNum, FXObject dep) {
+        assert varNum > -1 && varNum < src.count$() : "invalid varNum: " + varNum;
+        DependentsManager.get(src).removeDependent(src, varNum, dep);
+    }
+    public void notifyDependents$(final int varNum) {
+        notifyDependents$(this, varNum);
+    }
+    public static void notifyDependents$(FXObject src, final int varNum) {
+        assert varNum > -1 && varNum < src.count$() : "invalid varNum: " + varNum;
+        DependentsManager.get(src).notifyDependents(src, varNum);
+    }
+    public void update$(FXObject src, final int varNum) {}
+    public int getListenerCount$() {
+        return getListenerCount$(this);
+    }
+    public static int getListenerCount$(FXObject src) {
+        return DependentsManager.get(src).getListenerCount(src);
+    }
+    
     /**
      * Constructor called from Java or from object literal with no instance variable initializers
      */
