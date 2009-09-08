@@ -88,7 +88,7 @@ package com.sun.javafx.runtime;
 //
 //       public int addIt$(int n);
 //
-// All supplementary initialization for FXBAse objects should be added to
+// All supplementary initialization for FXBase objects should be added to
 // the static version of initFXBase$.
 // 
 

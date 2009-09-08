@@ -925,18 +925,26 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 // Symbol used when accessing the variable.
                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                int typeKind = varInfo.getVMI().getTypeKind();
-
-                // $var
-                JCExpression valueExp = Id(attributeValueName(proxyVarSym));
+                // Name of variable.
+                Name name = attributeValueName(proxyVarSym);
 
                 if (varInfo.getterInit() != null) {
-                    // This is a Slacker Bind -- has_not_been_set_test? bound_expression_in_line : $var
-                    valueExp = m().Conditional(NOT(makeFlagExpression(varInfo, varFlagActionTest, varFlagInitialized)), varInfo.getterInit(), valueExp);
+                    // !isInitialized$(VOFF$var) or !isValidValue$(VOFF$var)
+                    JCExpression condition = NOT(makeFlagExpression(varInfo, varFlagActionTest,
+                                                  varInfo.isBound() ? varFlagValid : varFlagInitialized));
+                    
+                    // Prepare to accumulate body of if.
+                    ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
+                    
+                    // set$(init/bound expression)
+                    ifStmts.append(m().Exec(m().Apply(null, Id(attributeSetterName(varSym)), List.<JCExpression>of(varInfo.getterInit()))));
+                  
+                    // if (!isValidValue$(VOFF$var)) { var$ = init/bound expression; }
+                    stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
                 }
 
                 // Construct and add: return $var;
-                stmts.append(m().Return(valueExp));
+                stmts.append(m().Return(Id(name)));
             }
 
             // Construct method.

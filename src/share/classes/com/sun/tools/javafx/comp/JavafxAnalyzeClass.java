@@ -178,7 +178,13 @@ class JavafxAnalyzeClass {
 
         // Return modifier flags from the symbol.
         public long getFlags() { return sym.flags(); }
-
+        
+        // Return true if the var is bound.
+        public boolean isBound() { return (sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0; }
+        
+        // Return true if the var is bound.
+        public boolean isUsedBound() { return (sym.flags() & JavafxFlags.VARUSE_USED_IN_BIND) != 0; }
+        
         // Generally means that the var needs to be included in the current method.
         public boolean needsCloning() { return false; }
 
