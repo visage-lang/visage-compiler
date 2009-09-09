@@ -39,10 +39,10 @@ public class DependentsTest extends JavaFXTestCase {
     }
 
     public void testUpdate() {
-        // create an object with one variable
+        // create an object with two variables
         FXBase src = new FXBase() {
             @Override
-            public int count$() { return 1; }
+            public int count$() { return 2; }
         };
 
         // check that update$ method is called as expected
@@ -79,5 +79,86 @@ public class DependentsTest extends JavaFXTestCase {
         // dep2's update$ should have been called
         assertEquals(1, numTimesDep1Updated[0]);
         assertEquals(1, numTimesDep2Updated[0]);
+    }
+
+    public void testAddDuringNotification() {
+        // create an object with two variables
+        final FXBase src = new FXBase() {
+            @Override
+            public int count$() { return 2; }
+        };
+
+        // check that update$ method is called as expected
+        final int[] numTimesDep1Updated = new int[1];
+        // create two dependents and register for different 'varNum's.
+        final FXBase dep1 = new FXBase() {
+            @Override
+            public void update$(FXObject src, int varNum) {
+                numTimesDep1Updated[0]++;
+                assertEquals(0, varNum);
+            }
+        };
+        final int[] numTimesDep2Updated = new int[1];
+        final FXBase dep2 = new FXBase() {
+            @Override
+            public void update$(FXObject src, int varNum) {
+                src.addDependent$(0, dep1);
+                numTimesDep2Updated[0]++;
+                assertEquals(1, varNum);
+            }
+        };
+
+        src.addDependent$(1, dep2);
+        src.notifyDependents$(1);
+        assertEquals(0, numTimesDep1Updated[0]);
+        assertEquals(1, numTimesDep2Updated[0]);
+
+        // dep2's update adds dep1 as dependent
+        src.notifyDependents$(0);
+        assertEquals(1, numTimesDep1Updated[0]);
+        assertEquals(1, numTimesDep2Updated[0]);
+    }
+
+    public void testRemoveDuringNotification() {
+        // create an object with two variables
+        final FXBase src = new FXBase() {
+            @Override
+            public int count$() { return 2; }
+        };
+
+        // check that update$ method is called as expected
+        final int[] numTimesDep1Updated = new int[1];
+        // create two dependents and register for different 'varNum's.
+        final FXBase dep1 = new FXBase() {
+            @Override
+            public void update$(FXObject src, int varNum) {
+                numTimesDep1Updated[0]++;
+                assertEquals(0, varNum);
+            }
+        };
+        final int[] numTimesDep2Updated = new int[1];
+        final FXBase dep2 = new FXBase() {
+            @Override
+            public void update$(FXObject src, int varNum) {
+                src.removeDependent$(0, dep1);
+                numTimesDep2Updated[0]++;
+                assertEquals(1, varNum);
+            }
+        };
+
+        src.addDependent$(0, dep1);
+        src.addDependent$(1, dep2);
+
+        src.notifyDependents$(0);
+        src.notifyDependents$(1);
+        assertEquals(1, numTimesDep1Updated[0]);
+        assertEquals(1, numTimesDep2Updated[0]);
+
+        // dep2's update removed dep1 as listener
+        // so, we should not get dep1.update$ call
+        src.notifyDependents$(0);
+        src.notifyDependents$(1);
+        assertEquals(1, numTimesDep1Updated[0]);
+        assertEquals(2, numTimesDep2Updated[0]);
     }
 }
