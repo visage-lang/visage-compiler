@@ -739,20 +739,26 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXOverrideClassVar TriggerWrapper(JFXIdent expr, JFXOnReplace onr) {
-        JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, null, null, onr, null);
+    public JFXOverrideClassVar TriggerWrapper(JFXIdent expr, JFXOnReplace onReplace, JFXOnReplace onInvalidate) {
+        JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, null, null, onReplace, onInvalidate, null);
         tree.pos = pos;
         return tree;
     }
     
    public JFXOnReplace ErroneousOnReplace(List<? extends JFXTree> errs) {
-        JFXOnReplace tree = new JFXErroneousOnReplace(errs);
+        JFXOnReplace tree = new JFXErroneousOnReplace(errs, JFXOnReplace.Kind.ONREPLACE);
+        tree.pos = pos;
+        return tree;
+    }
+
+   public JFXOnReplace ErroneousOnInvalidate(List<? extends JFXTree> errs) {
+        JFXOnReplace tree = new JFXErroneousOnReplace(errs, JFXOnReplace.Kind.ONINVALIDATE);
         tree.pos = pos;
         return tree;
     }
 
     public JFXOnReplace OnReplace(JFXVar oldValue, JFXBlock body) {
-        JFXOnReplace tree = new JFXOnReplace(oldValue, body);
+        JFXOnReplace tree = new JFXOnReplace(oldValue, body, JFXOnReplace.Kind.ONREPLACE);
         tree.pos = pos;
         return tree;
     }
@@ -766,7 +772,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
              JFXVar lastIndex, int endKind, JFXVar newElements, JFXBlock body) {
          JFXOnReplace tree = new JFXOnReplace(oldValue, firstIndex, lastIndex,
-                 endKind, newElements, body);
+                 endKind, newElements, body, JFXOnReplace.Kind.ONREPLACE);
+        tree.pos = pos;
+        return tree;
+    }
+
+     public JFXOnReplace OnInvalidate(JFXBlock body) {
+        JFXOnReplace tree = new JFXOnReplace(null, body, JFXOnReplace.Kind.ONINVALIDATE);
         tree.pos = pos;
         return tree;
     }
@@ -782,18 +794,20 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             JFXModifiers mods,
             JFXExpression initializer,
             JavafxBindStatus bindStatus,
-            JFXOnReplace onReplace) {
+            JFXOnReplace onReplace,
+            JFXOnReplace onInvalidate) {
             JFXVar tree = new JFXVar(name, type,
-               mods, initializer, bindStatus, onReplace, null);
+               mods, initializer, bindStatus, onReplace, onInvalidate, null);
         tree.pos = pos;
         return tree;
     }
     public JFXOverrideClassVar OverrideClassVar(JFXIdent expr,
             JFXExpression initializer,
             JavafxBindStatus bindStatus,
-            JFXOnReplace onr) {
+            JFXOnReplace onReplace,
+            JFXOnReplace onInvalidate) {
         JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, initializer,
-                bindStatus, onr, null);
+                bindStatus, onReplace, onInvalidate, null);
         tree.pos = pos;
         return tree;
     }
@@ -801,7 +815,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     public JFXVar Param(Name name,
             JFXType type) {
         JFXVar tree = new JFXVar(name, type,
-                Modifiers(Flags.PARAMETER), null, JavafxBindStatus.UNBOUND, null, null);
+                Modifiers(Flags.PARAMETER), null, JavafxBindStatus.UNBOUND, null, null, null);
         tree.pos = pos;
         return tree;
     }

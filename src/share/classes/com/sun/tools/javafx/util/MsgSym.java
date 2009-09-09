@@ -424,6 +424,7 @@ public class MsgSym {
     public static final String MESSAGE_JAVAFX_ALREADY_DEFINED_OBJECT_LITERAL = "javafx.already.defined.object.literal";
     public static final String MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL = "javafx.cannot.init.static.object.literal";
     public static final String MESSAGE_JAVAFX_REPEATED_MIXIN = "javafx.repeated.mixin";
+    public static final String MESSAGE_JAVAFX_DUPLICATE_TRIGGER_DEF = "javafx.duplicate.trigger.def";
     public static final String MESSAGE_JAVAFX_PURE_MIXIN = "javafx.pure.mixin";
     public static final String MESSAGE_JAVAFX_ONLY_MIXINS_AND_INTERFACES = "javafx.only.mixins.and.interfaces";
     public static final String MESSAGE_JAVAFX_MIXIN_CANNOT_BE_INSTANTIATED = "javafx.mixin.cant.be.instantiated";

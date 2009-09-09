@@ -48,5 +48,6 @@ public interface VariableTree extends ExpressionTree {
     ExpressionTree getInitializer();
     JFXType getJFXType();
     OnReplaceTree getOnReplaceTree();
+    OnReplaceTree getOnInvalidateTree();
     JavafxBindStatus getBindStatus();
 }

@@ -1412,9 +1412,21 @@ variableDeclaration [ JFXModifiers mods, int pos ]
     //
     JFXExpression bValue = null;
 
+    // does thie variable have an on-replace trigger?
+    //
+    boolean seenOnReplace = false;
+
+    // does thie variable have an on-invalidate trigger?
+    //
+    boolean seenOnInvalidate = false;
+
     // ONReplace clause if present
     //
-    JFXOnReplace  oValue = null;
+    JFXOnReplace  onReplaceValue = null;
+
+    // ONInvalidate clause if present
+    //
+    JFXOnReplace  onInvalidateValue = null;
  
 	// Used to accumulate a list of anything that we manage to build up in the parse
 	// in case of error.
@@ -1469,13 +1481,31 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 			  }
         )
         
-        (
-            (ON)=>onReplaceClause
+        (: (ON REPLACE)=>onReplaceClause
                 {
-                    oValue = $onReplaceClause.value;
+                    onReplaceValue = $onReplaceClause.value;
+                    if (seenOnReplace) {
+                       log.error(onReplaceValue.pos(), MsgSym.MESSAGE_JAVAFX_DUPLICATE_TRIGGER_DEF);
+                    }
+                    else {
+                        seenOnReplace = true;
+                    }
                     errNodes.append($onReplaceClause.value);
                 }
-        )?
+        
+        |
+        (ON INVALIDATE)=>onInvalidateClause
+                {
+                    onInvalidateValue = $onInvalidateClause.value;
+                    if (seenOnInvalidate) {
+                       log.error(onInvalidateValue.pos(), MsgSym.MESSAGE_JAVAFX_DUPLICATE_TRIGGER_DEF);
+                    }
+                    else {
+                        seenOnInvalidate = true;
+                    }
+                    errNodes.append($onInvalidateClause.value);
+                }
+        )*
 	
 		{
 			// Add in the modifier flags accumulated by the label type
@@ -1504,7 +1534,8 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 							part,
 							bValue,
 							bStatus,
-							oValue
+							onReplaceValue,
+                                                        onInvalidateValue
 						);
 						
 					// Need to check that the override did not specify at type as
@@ -1524,7 +1555,8 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 			    					$mods,
 			    					bValue,
 			    					bStatus,
-			    					oValue
+			    					onReplaceValue,
+                                                                onInvalidateValue
 			    				);
 			    }
 	    	}
@@ -2032,7 +2064,7 @@ onReplaceClause
 	//
 	int	rPos	= pos();
 }
-	: ON REPLACE oldv=paramNameOpt 
+	: ON REPLACE oldv=paramNameOpt
 						{ 
 							if	($oldv.var != null)
 							{
@@ -2089,6 +2121,54 @@ catch [RecognitionException re] {
 	$value = F.at(rPos).ErroneousOnReplace(errNodes.elems);
 	endPos($value);
 	
+}
+
+// -----------
+// ON INVALIDATE.
+// Parse an ON INVALIDATE clause which is an optional element of variable
+// declarations and OVERRIDEs.
+//
+onInvalidateClause
+
+	returns [JFXOnReplace value]	// onReplace has its own JFX Tree node type
+
+@init
+{
+	// Used to accumulate a list of anything that we manage to build up in the parse
+	// in case of error.
+	//
+	ListBuffer<JFXTree> errNodes = new ListBuffer<JFXTree>();
+
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
+}
+	: ON INVALIDATE block [ -1 ]
+		{
+			// Build the appropriate AST
+			//
+			$value = F.at(pos($ON)).OnInvalidate($block.value);
+			endPos($value);
+		}
+	;
+// Catch an error. We create an erroneous node for anything that was at the start
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+
+	// Construct an erroneous version of the expected class
+	//
+	$value = F.at(rPos).ErroneousOnInvalidate(errNodes.elems);
+	endPos($value);
+
 }
  
 // ------------------
@@ -6437,7 +6517,7 @@ keyword
     : FIRST     | IN    | INIT      | INTO
     | INVERSE   | LAST  | ON        | POSTINIT      
     | REPLACE   | STEP  | TRIGGER   | TWEEN
-    | WHERE     | WITH
+    | WHERE     | WITH  | INVALIDATE
     ;
 
 // --------------

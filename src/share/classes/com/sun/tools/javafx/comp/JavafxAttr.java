@@ -998,6 +998,9 @@ public class JavafxAttr implements JavafxVisitor {
             chk.checkVarOverride(tree, (VarSymbol)sym);
         }
 
+        if (tree.getOnInvalidate() != null) {
+            throw new AssertionError("Unsupported trigger kind: " + tree.getOnInvalidate().getTriggerKind());
+        }
         JFXOnReplace onReplace = tree.getOnReplace();
         if (onReplace != null) {
             if (inBindContext) {
@@ -1117,6 +1120,9 @@ public class JavafxAttr implements JavafxVisitor {
         //TODO: handle static triggers
         JFXIdent id = tree.getId();
         JFXOnReplace onr = tree.getOnReplace();
+        if (tree.getOnInvalidate() != null) {
+            throw new AssertionError("Unsupported trigger kind: " + tree.getOnInvalidate().getTriggerKind());
+        }
 
         // let the owner of the environment be a freshly
         // created BLOCK-method.
@@ -1152,6 +1158,9 @@ public class JavafxAttr implements JavafxVisitor {
 
     //@Override
     public void visitOnReplace(JFXOnReplace tree) {
+        if (tree.getTriggerKind() != JFXOnReplace.Kind.ONREPLACE) {
+            throw new AssertionError("Unsupported trigger kind: " + tree.getTriggerKind());
+        }
         Scope localScope = new Scope(new MethodSymbol(BLOCK, defs.lambdaName, null, env.enclClass.sym));
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(localScope));        
         localEnv.outer = env;

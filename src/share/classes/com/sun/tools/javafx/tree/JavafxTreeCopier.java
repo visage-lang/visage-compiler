@@ -271,8 +271,9 @@ public class JavafxTreeCopier implements JavafxVisitor {
         JFXModifiers mods = copy(tree.getModifiers());
         JFXExpression init = copy(tree.getInitializer());
         JFXOnReplace onReplace = copy(tree.getOnReplace());
+        JFXOnReplace onInvalidate = copy(tree.getOnInvalidate());
         result = maker.at(tree.pos).Var(name, type, mods, 
-                                        init, tree.getBindStatus(), onReplace);
+                                        init, tree.getBindStatus(), onReplace, onInvalidate);
     }
 
     public void visitOnReplace(JFXOnReplace tree) {
@@ -364,8 +365,9 @@ public class JavafxTreeCopier implements JavafxVisitor {
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         JFXIdent expr = copy(tree.getId());
         JFXExpression initializer = copy(tree.getInitializer());
-        JFXOnReplace onr = copy(tree.getOnReplace());
-        result = maker.at(tree.pos).OverrideClassVar(expr, initializer, tree.getBindStatus(), onr);
+        JFXOnReplace onReplace = copy(tree.getOnReplace());
+        JFXOnReplace onInvalidate = copy(tree.getOnInvalidate());
+        result = maker.at(tree.pos).OverrideClassVar(expr, initializer, tree.getBindStatus(), onReplace, onInvalidate);
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
