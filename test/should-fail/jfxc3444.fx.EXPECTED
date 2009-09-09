@@ -1,0 +1,8 @@
+test/should-fail/jfxc3444.fx:9: cannot invalidate unbound variable y
+invalidate y; //cannot invalidate non-bound vars
+           ^
+test/should-fail/jfxc3444.fx:10: unexpected type
+required: variable
+found   : value
+invalidate 1; //invalidate argument must be a var
+           ^

@@ -3182,9 +3182,12 @@ public class JavafxAttr implements JavafxVisitor {
 
     //@Override
     public void visitInvalidate(JFXInvalidate tree) {
-        //perform basic attribution - needed to pass regression test
-        attribExpr(tree.getVariable(), env);
-        //compilation will fail on translation with an AssertionError
+        //the target expr should be a variable
+        attribTree(tree.getVariable(), env, VAR, Type.noType);
+        VarSymbol var = (VarSymbol)JavafxTreeInfo.symbol(tree.getVariable());
+        if ((var.flags_field & JavafxFlags.VARUSE_BOUND_DEFINITION) == 0)
+            log.error(tree.getVariable().pos(), MsgSym.MESSAGE_CANNOT_INVALIDATE_UNBOUND_VAR, var);
+        result = tree.type = syms.voidType;
     }
 
     //@Override
