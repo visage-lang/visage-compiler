@@ -101,7 +101,17 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
     }
 
     public void visitUnary(JFXUnary tree) {
-        translate(tree.arg);
+        final ListBuffer<JCStatement> preface = ListBuffer.lb();
+        JCExpression value = (new UnaryOperationTranslator(tree) {
+
+            JCExpression translateExpression(JFXExpression expr, Type type) {
+                Result res = translate(expr);
+                //TODO: convert type
+                preface.appendList(res.stmts);
+                return res.value;
+            }
+        }).doit();
+        result = new Result(preface.toList(), value);
     }
 
     public void visitBinary(JFXBinary tree) {
