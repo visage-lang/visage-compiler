@@ -109,7 +109,17 @@ public class JFXOnReplace extends JFXTree implements OnReplaceTree {
     }
 
     public enum Kind {
-        ONREPLACE,
-        ONINVALIDATE;
+        ONREPLACE("on replace"),
+        ONINVALIDATE("on invalidate");
+
+        String displayName;
+
+        Kind(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String toString() {
+            return displayName;
+        }
     }
 }

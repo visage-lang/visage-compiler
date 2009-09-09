@@ -997,40 +997,45 @@ public class JavafxAttr implements JavafxVisitor {
             // Check that instance variables don't override
             chk.checkVarOverride(tree, (VarSymbol)sym);
         }
+        
+        for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
+            JFXOnReplace trigger = tree.getTrigger(triggerKind);
+            if (trigger != null) {
+                if (inBindContext) {
+                    log.error(trigger.pos(), MsgSym.MESSAGE_TRIGGER_IN_BIND_NOT_ALLOWED, triggerKind);
+                }
 
-        if (tree.getOnInvalidate() != null) {
-            throw new AssertionError("Unsupported trigger kind: " + tree.getOnInvalidate().getTriggerKind());
-        }
-        JFXOnReplace onReplace = tree.getOnReplace();
-        if (onReplace != null) {
-            if (inBindContext) {
-                log.error(onReplace.pos(), MsgSym.MESSAGE_ON_REPLACE_IN_BIND_NOT_ALLOWED);
-            }
-            JFXVar oldValue = onReplace.getOldValue();
-            if (oldValue != null && oldValue.type == null) {
-                    oldValue.type =  tree.type;
-            }
-
-            JFXVar newElements = onReplace.getNewElements();
-            if (newElements != null && newElements.type == null)
-                newElements.type = tree.type;
-
-
-            if (isClassVar) {
-                    // let the owner of the environment be a freshly
-                    // created BLOCK-method.
-                    JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
-                    if ((flags & STATIC) != 0) {
-                        localEnv.info.staticLevel++;
+                if (triggerKind == JFXOnReplace.Kind.ONREPLACE) {
+                    JFXVar oldValue = trigger.getOldValue();
+                    if (oldValue != null && oldValue.type == null) {
+                            oldValue.type =  tree.type;
                     }
-                    attribDecl(onReplace, localEnv);
-            } else {
-                    // Create a new local environment with a local scope.
-                    JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dup()));
-                    attribDecl(onReplace, localEnv);
-                    localEnv.info.scope.leave();
-            }
 
+                    JFXVar newElements = trigger.getNewElements();
+                    if (newElements != null && newElements.type == null)
+                        newElements.type = tree.type;
+                } else if (triggerKind == JFXOnReplace.Kind.ONINVALIDATE) {
+                     if ((sym.flags_field & JavafxFlags.VARUSE_BOUND_INIT) == 0) {
+                        log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
+                     }
+                }
+
+                if (isClassVar) {
+                        // let the owner of the environment be a freshly
+                        // created BLOCK-method.
+                        JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+                        if ((flags & STATIC) != 0) {
+                            localEnv.info.staticLevel++;
+                        }
+                        attribDecl(trigger, localEnv);
+                } else {
+                        // Create a new local environment with a local scope.
+                        JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dup()));
+                        attribDecl(trigger, localEnv);
+                        localEnv.info.scope.leave();
+                }
+
+            }
         }
         warnOnStaticUse(tree.pos(), tree.getModifiers(), sym);        
         result = /*tree.isBound()? syms.voidType : */ tree.type;
@@ -1158,9 +1163,6 @@ public class JavafxAttr implements JavafxVisitor {
 
     //@Override
     public void visitOnReplace(JFXOnReplace tree) {
-        if (tree.getTriggerKind() != JFXOnReplace.Kind.ONREPLACE) {
-            throw new AssertionError("Unsupported trigger kind: " + tree.getTriggerKind());
-        }
         Scope localScope = new Scope(new MethodSymbol(BLOCK, defs.lambdaName, null, env.enclClass.sym));
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(localScope));        
         localEnv.outer = env;
