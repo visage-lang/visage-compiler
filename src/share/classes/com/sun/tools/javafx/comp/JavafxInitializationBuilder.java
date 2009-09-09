@@ -36,6 +36,7 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
+import com.sun.tools.javafx.comp.JavafxTranslateBind.Result;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -59,6 +60,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         new Context.Key<JavafxInitializationBuilder>();
 
     private final JavafxToJava toJava;
+    private final JavafxTranslateBind translateBind;
     private final JavafxClassReader reader;
     private final JavafxOptimizationStatistics optStat;
 
@@ -136,6 +138,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         context.put(javafxInitializationBuilderKey, this);
 
         toJava = JavafxToJava.instance(context);
+        translateBind = JavafxTranslateBind.instance(context);
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
 
@@ -928,7 +931,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Name of variable.
                 Name name = attributeValueName(proxyVarSym);
 
-                if (varInfo.getterInit() != null) {
+                if ((varSym.flags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L) {
+                    assert varInfo.init() != null;
+
                     // !isInitialized$(VOFF$var) or !isValidValue$(VOFF$var)
                     JCExpression condition = NOT(makeFlagExpression(varInfo, varFlagActionTest,
                                                   varInfo.isBound() ? varFlagValid : varFlagInitialized));
@@ -937,11 +942,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
                     
                     // set$(init/bound expression)
-                    ifStmts.append(m().Exec(m().Apply(null, Id(attributeSetterName(varSym)), List.<JCExpression>of(varInfo.getterInit()))));
+                    Result tinit = translateBind.translate(varInfo.init());
+                    ifStmts.appendList(tinit.stmts);
+                    ifStmts.append(m().Exec(m().Apply(null, Id(attributeSetterName(varSym)), List.<JCExpression>of(tinit.value))));
                   
                     // if (!isValidValue$(VOFF$var)) { var$ = init/bound expression; }
                     stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
-                }
+                } 
 
                 // Construct and add: return $var;
                 stmts.append(m().Return(Id(name)));

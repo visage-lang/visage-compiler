@@ -1200,7 +1200,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                         attrDef,
                                         typeMorpher.varMorphInfo(attrDef.sym),
                                         init,
-                                        getterInit(attrDef.sym, attrDef.getInitializer()),
                                         attrDef.getOnReplace(),
                                         translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace()),
                                         makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace())));
@@ -1222,7 +1221,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
                                     init,
-                                    getterInit(override.sym, override.getInitializer()),
                                     override.getOnReplace(),
                                     makeInstanciateChangeListener(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
@@ -1431,18 +1429,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         if (stmt != null) {
             translatedBlocks.append(stmt);
         }
-    }
-    //where
-    private JCExpression getterInit(VarSymbol vsym, JFXExpression expr) {
-        if (expr == null) {
-            return null;
-        }
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        if ((vsym.flags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0 && vmi.representation() != VarRepresentation.AlwaysLocation) {
-            // This is a Slacker Binding, translate for the in-lined getter
-            return translateAsValue(expr, vmi.getRealType());
-        }
-        return null;
     }
 
     //@Override
