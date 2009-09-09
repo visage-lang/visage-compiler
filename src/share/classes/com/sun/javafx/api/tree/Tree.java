@@ -147,6 +147,11 @@ public interface Tree {
         VARIABLE(VariableTree.class),
 
         /**
+         * Used for instances of {@link VariableInvalidateTree}.
+         */
+        VARIABLE_INVALIDATE(VariableInvalidateTree.class),
+
+        /**
          * Used for instances of {@link WhileLoopTree}.
          */
         WHILE_LOOP(WhileLoopTree.class),

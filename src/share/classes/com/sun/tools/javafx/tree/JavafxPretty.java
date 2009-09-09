@@ -983,6 +983,17 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
+    public void visitInvalidate(JFXInvalidate that) {
+        try {
+            print("invalidate ");
+            printExpr(that.getVariable());
+            print("; ");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    //@Override
     public void visitStringExpression(JFXStringExpression tree) {
         try {
             int i;

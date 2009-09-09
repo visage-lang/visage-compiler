@@ -340,6 +340,11 @@ public class JavafxTreeCopier implements JavafxVisitor {
         result = maker.at(tree.pos).SequenceDelete(sequence, element);
     }
 
+    public void visitInvalidate(JFXInvalidate tree) {
+       JFXExpression variable = copy(tree.getVariable());
+       result = maker.at(tree.pos).Invalidate(variable);
+    }
+
     public void visitForExpression(JFXForExpression tree) {
         List<JFXForExpressionInClause> inClauses = copy(tree.inClauses);
         JFXExpression bodyExpr = copy(tree.bodyExpr);

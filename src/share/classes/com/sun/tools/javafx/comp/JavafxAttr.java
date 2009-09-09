@@ -2466,6 +2466,9 @@ public class JavafxAttr implements JavafxVisitor {
                 result = check(tree, owntype, VAL, pkind, pt, Sequenceness.REQUIRED);
                 return;
             }
+            case INVALIDATE: {
+                throw new AssertionError("Usupported unary operator: "+ tree.getFXTag());
+            }
         }
         boolean isIncDec = tree.getFXTag().isIncDec();
 
@@ -3173,6 +3176,13 @@ public class JavafxAttr implements JavafxVisitor {
         }
         result = syms.voidType;
         tree.type = result;
+    }
+
+    //@Override
+    public void visitInvalidate(JFXInvalidate tree) {
+        //perform basic attribution - needed to pass regression test
+        attribExpr(tree.getVariable(), env);
+        //compilation will fail on translation with an AssertionError
     }
 
     //@Override

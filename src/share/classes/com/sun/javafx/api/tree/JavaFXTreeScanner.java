@@ -355,6 +355,10 @@ public class JavaFXTreeScanner<R,P> implements JavaFXTreeVisitor<R,P> {
         return scanAndReduce(node.getStepOrNull(), p, r);
     }
 
+    public R visitVariableInvalidate(VariableInvalidateTree node, P p) {
+        return scan(node.getVariable(), p);
+    }
+
     public R visitStringExpression(StringExpressionTree node, P p) {
         return scan(node.getPartList(), p);
     }

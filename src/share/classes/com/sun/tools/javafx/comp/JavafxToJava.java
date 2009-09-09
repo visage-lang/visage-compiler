@@ -2618,6 +2618,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
+    public void visitInvalidate(JFXInvalidate tree) {
+       throw new AssertionError("Unsupported AST node: " + tree.getJavaFXKind());
+    }
 
     public void visitSelect(JFXSelect tree) {
         Locationness wrapper = translationState.wrapper;

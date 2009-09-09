@@ -74,6 +74,7 @@ public interface JavafxVisitor {
     public void visitSequenceSlice(JFXSequenceSlice tree);
     public void visitSequenceInsert(JFXSequenceInsert tree);
     public void visitSequenceDelete(JFXSequenceDelete tree);
+    public void visitInvalidate(JFXInvalidate tree);
     public void visitForExpression(JFXForExpression tree);
     public void visitForExpressionInClause(JFXForExpressionInClause tree);
     public void visitIndexof(JFXIndexof tree);

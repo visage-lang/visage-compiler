@@ -232,6 +232,10 @@ public enum JavafxTag {
      */
     INSERT,
 
+    /** invalidate statement
+     */
+    INVALIDATE,
+
     /** delete statement
      */
     DELETE,

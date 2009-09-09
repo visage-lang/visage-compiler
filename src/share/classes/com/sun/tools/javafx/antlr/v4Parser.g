@@ -2002,11 +2002,11 @@ catch [RecognitionException re] {
 // conditionally optional, such as the last statement of the script or
 // brace block.
 //
-statement 
+statement
 
 
 	returns [JFXExpression value] // All statements return an expression tree
-	
+
 @init
 {	
 	// Start of rule for error node production/
@@ -2016,6 +2016,7 @@ statement
 	: insertStatement		{ $value = $insertStatement.value; 								}
 	| deleteStatement		{ $value = $deleteStatement.value; 								}
  	| whileStatement		{ $value = $whileStatement.value; 								}
+        | (INVALIDATE expression)=>invalidateStatement		{ $value = $invalidateStatement.value; 								}
 	| BREAK    				{ $value = F.at(pos($BREAK)).Break(null); 		endPos($value); }
 	| CONTINUE  	 	 	{ $value = F.at(pos($CONTINUE)).Continue(null);	endPos($value); }
     | throwStatement	   	{ $value = $throwStatement.value; 								}
@@ -2572,6 +2573,46 @@ catch [RecognitionException re] {
 	// Create the erroneous node
 	//
 	$value = F.at(rPos).Erroneous(errNodes.elems);
+	endPos($value);
+ }
+
+// -----------------
+// INVALIDATE statement.
+// Parse the INVALIDATE statement forms and return the appropriate AST
+//
+invalidateStatement
+
+	returns [JFXExpression value]	// Delete returns a JFX Expression tree
+
+@init
+{
+
+	// Start of rule for error node production/
+	//
+	int	rPos	= pos();
+}
+	: INVALIDATE e1=expression
+
+            {
+                    $value = F.at(pos($INVALIDATE)).Invalidate($e1.value);
+            }
+	;
+// Catch an error. We create an erroneous node for anything that was at the start
+// up to wherever we made sense of the input.
+//
+catch [RecognitionException re] {
+
+  	// First, let's report the error as the user needs to know about it
+  	//
+    reportError(re);
+
+	// Now we perform standard ANTLR recovery here
+	//
+	recover(input, re);
+
+	// Create the erroneous node
+	//
+	$value = F.at(rPos).Erroneous();
 	endPos($value);
  }
  

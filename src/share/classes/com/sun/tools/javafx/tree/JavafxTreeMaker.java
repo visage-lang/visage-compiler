@@ -888,6 +888,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
+
+    public JFXInvalidate Invalidate(JFXExpression var) {
+        JFXInvalidate tree = new JFXInvalidate(var);
+        tree.pos = pos;
+        return tree;
+    }
      
     public JFXIndexof Indexof (JFXIdent name) {
         JFXIndexof tree = new JFXIndexof(name);
