@@ -214,6 +214,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         if (tree.isBidiBind() || tree.getInitializer() != null && hasSideEffectsOrLengthy(tree.getInitializer())) {
             mark(tree.sym, VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY);
         }
+        if (tree.isBidiBind()) {
+            mark(tree.sym, VARUSE_BOUND_BIDIRECTIONAL);
+        }
         inBindContext = wasInBindContext;
         if (tree.getOnReplace() != null) {
             mark(tree.sym, VARUSE_HAS_ON_REPLACE);

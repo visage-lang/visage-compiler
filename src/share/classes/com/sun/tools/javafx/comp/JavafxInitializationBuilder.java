@@ -67,7 +67,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private static final int VFLAG_IS_INITIALIZED = 0;
     private static final int VFLAG_DEFAULTS_APPLIED = 1;
     private static final int VFLAG_BITS_PER_VAR = 2;
-    private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
 
     private Name outerAccessorFieldName;
     private Name makeInitMap;
@@ -79,10 +78,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private Name varOldValueName;
     private Name varNewValueName;
 
-    final Type initHelperType;
-    final Type abstractVariableType;
-    final Type locationDependencyType;
-    final Type locationType;
+    final Type assignBindExceptionType;
+    final Type assignDefExceptionType;
 
     public static class LiteralInitVarMap {
         private int count = 1;
@@ -153,24 +150,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         varNewValueName =  names.fromString("varNewValue$");
 
         {
-            Name name = names.fromString(initHelperClassName);
+            Name name = names.fromString(runtimePackageNameString + ".AssignToBoundException");
             ClassSymbol sym = reader.enterClass(name);
-            initHelperType = sym.type;
+            assignBindExceptionType = types.erasure( sym.type );
         }
+        
         {
-            Name name = names.fromString(locationPackageNameString + ".AbstractVariable");
+            Name name = names.fromString(runtimePackageNameString + ".AssignToDefException");
             ClassSymbol sym = reader.enterClass(name);
-            abstractVariableType = types.erasure( sym.type );
-        }
-        {
-            Name name = names.fromString(locationPackageNameString + ".LocationDependency");
-            ClassSymbol sym = reader.enterClass(name);
-            locationDependencyType = types.erasure( sym.type );
-        }
-        {
-            Name name = names.fromString(locationPackageNameString + ".Location");
-            ClassSymbol sym = reader.enterClass(name);
-            locationType = types.erasure( sym.type );
+            assignDefExceptionType = types.erasure( sym.type );
         }
     }
 
@@ -786,6 +774,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private JCExpression makeInt(int value)         { return m().Literal(TypeTags.INT, value); }
         private JCExpression makeBoolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
         private JCExpression makeNull()                 { return m().Literal(TypeTags.BOT, null); }
+        private JCExpression makeString(String str)     { return m().Literal(TypeTags.BOT, str); }
 
         //
         // This method simplifies Ident declaration.
@@ -796,6 +785,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method simplifies NOT expressions.
         //
         private JCExpression NOT(JCExpression expr) { return m().Unary(JCTree.NOT, expr); }
+        
+        
+        //
+        // This method simplifies throw statements.
+        //
+        private JCStatement Throw(Type type, String message) {
+            if (message != null) {
+                return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>of(makeString(message)), null));
+            } else {
+                return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>nil(), null));
+            }
+        }
+        private JCStatement Throw(Type type) {
+            return Throw(type, null);
+        }
 
         //
         // This method makes a type tree using the current diagnosic position.
@@ -907,64 +911,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return mods;
         }
 
-        // This method constructs the getter method for the specified attribute.
-        //
-        //     type get$var() {
-        //         return loc$var != null ? loc$var.getAsType() : $var;
-        //     }
-        //
-        private JCTree makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            setCurrentPos(varInfo);
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Real type for var.
-            Type type = varInfo.getRealType();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
-
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-
-                // Symbol used when accessing the variable.
-                VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                // Name of variable.
-                Name name = attributeValueName(proxyVarSym);
-
-                if ((varSym.flags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L) {
-                    assert varInfo.init() != null;
-
-                    // !isInitialized$(VOFF$var) or !isValidValue$(VOFF$var)
-                    JCExpression condition = NOT(makeFlagExpression(varInfo, varFlagActionTest,
-                                                  varInfo.isBound() ? varFlagValid : varFlagInitialized));
-                    
-                    // Prepare to accumulate body of if.
-                    ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
-                    
-                    // set$(init/bound expression)
-                    Result tinit = translateBind.translate(varInfo.init());
-                    ifStmts.appendList(tinit.stmts);
-                    ifStmts.append(m().Exec(m().Apply(null, Id(attributeSetterName(varSym)), List.<JCExpression>of(tinit.value))));
-                  
-                    // if (!isValidValue$(VOFF$var)) { var$ = init/bound expression; }
-                    stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
-                } 
-
-                // Construct and add: return $var;
-                stmts.append(m().Return(Id(name)));
-            }
-
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             type,
-                                             attributeGetterName(varSym),
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
-        }
-
         //
         // This method returns an expression for testing/setting/clearing a var flag.
         //
@@ -986,108 +932,61 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method returns the set statements used to set using value (not Location)
+        // This method constructs the getter method for the specified attribute.
         //
-        private ListBuffer<JCStatement> makeValueSetterStatements(VarInfo varInfo) {
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        private JCTree makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            setCurrentPos(varInfo);
+            // Symbol used on the method.
+            VarSymbol varSym = varInfo.getSymbol();
+            // Real type for var.
+            Type type = varInfo.getRealType();
+            // Assume no body.
+            ListBuffer<JCStatement> stmts = null;
 
-            // Symbol used when accessing the variable.
-            VarSymbol proxyVarSym = varInfo.proxyVarSym();
+            if (needsBody) {
+                // Prepare to accumulate statements.
+                stmts = ListBuffer.lb();
 
-            // $var
-            Name varName = attributeValueName(proxyVarSym);
+                // Symbol used when accessing the variable.
+                VarSymbol proxyVarSym = varInfo.proxyVarSym();
+                // Name of variable.
+                Name name = attributeValueName(proxyVarSym);
 
-            // Var real type.
-            Type type = varInfo.getVMI().getRealType();
+                if (varInfo.hasBoundDefinition()) {
+                    assert varInfo.init() != null;
 
-            // Fetch the on replace statement or null.
-            JCStatement onReplace = varInfo.onReplaceAsInline();
+                    // !isValidValue$(VOFF$var)
+                    JCExpression condition = NOT(makeFlagExpression(varInfo, varFlagActionTest, varFlagValid));
+                    
+                    // Prepare to accumulate body of if.
+                    ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
+                    
+                    // set$var(init/bound expression)
+                    Result tinit = translateBind.translate(varInfo.init());
+                    ifStmts.appendList(tinit.stmts);
+                    ifStmts.append(m().Exec(m().Apply(null, Id(attributeBeName(varSym)), List.<JCExpression>of(tinit.value))));
+                  
+                    // if (!isValidValue$(VOFF$var)) { set$var(init/bound expression); }
+                    stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
+                } 
 
-            // Need to capture init state if has trigger.
-            if (onReplace != null) {
-                // T varOldValue$ = $var;
-                stmts.append(makeVariable(Flags.FINAL, type, varOldValueName, Id(varName)));
-
-                // varOldValue$ != varNewValue$
-                // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
-                JCExpression testExpr = type.isPrimitive() ?
-                    m().Binary(JCTree.NE, Id(varOldValueName), Id(varNewValueName))
-                  : NOT(runtime(currentPos, defs.Util_isEqual, List.of(Id(varOldValueName), Id(varNewValueName))));
-
-                // If we need to test init.
-                if (!varInfo.isStatic()) {
-                    // varOldValue$ != varNewValue$ || !isInitialized(VOFF$var))
-                    testExpr = m().Binary(JCTree.OR, testExpr, NOT(makeFlagExpression(varInfo, varFlagActionTest, varFlagInitialized)));
-                }
-
-                // Set boolean to indicate if this variable has been changed
-                stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varChangedName, testExpr));
-
-                // $var = value
-                stmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
-
-                // setIsInitialized(VOFF$var);
-                stmts.append(makeFlagStatement(varInfo, varFlagActionSet, varFlagInitialized));
-
-                // Prepare to accumulate trigger statements.
-                ListBuffer<JCStatement> trigStmts = ListBuffer.lb();
-
-                JFXVar oldVar = varInfo.onReplace().getOldValue();
-                JFXVar newVar = varInfo.onReplace().getNewElements();
-
-                 // Check to see if the on replace has an old value.
-                if (oldVar != null) {
-                    // T oldValue = $var
-                    trigStmts.append(makeVariable(Flags.FINAL, type, oldVar.getName(), Id(varOldValueName)));
-                }
-
-                 // Check to see if the on replace has a new value.
-                if (newVar != null) {
-                    // T newValue = value
-                    trigStmts.append(makeVariable(Flags.FINAL, type, newVar.getName(), Id(varNewValueName)));
-                }
-
-                // Need a receiver under some circumstances.
-                if (!varInfo.isStatic()) {
-                    // T receiver$ = this.
-                    trigStmts.append(makeVariable(Flags.FINAL, analysis.getCurrentClassSymbol().type, defs.receiverName, Id(names._this)));
-                }
-
-                // Insert the trigger.
-                trigStmts.append(onReplace);
-
-                // if (varOldValue$ != varNewValue$) { ... trigger  code ... }
-                stmts.append(m().If(Id(varChangedName), m().Block(0L, trigStmts.toList()), null));
-            } else {
-                // $var = value
-                JCExpression assign = m().Assign(Id(varName), Id(varNewValueName));
-
-                // $var = value;
-                stmts.append(m().Exec(assign));
-                // setIsInitialized(VOFF$var);
-                stmts.append(makeFlagStatement(varInfo, varFlagActionSet, varFlagInitialized));
+                // Construct and add: return $var;
+                stmts.append(m().Return(Id(name)));
             }
 
-            // return $var;
-            stmts.append(m().Return(Id(varName)));
+            // Construct method.
+            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
+                                             type,
+                                             attributeGetterName(varSym),
+                                             List.<JCVariableDecl>nil(),
+                                             stmts);
+            optStat.recordProxyMethod();
 
-            return stmts;
-        }
-
-        //
-        // This method returns the actual set statements used in the setter method.
-        //
-        private ListBuffer<JCStatement> makeSetterStatements(VarInfo varInfo) {
-            return makeValueSetterStatements(varInfo);
+            return method;
         }
 
         //
         // This method constructs the setter method for the specified attribute.
-        //
-        //     type set$var(type value) {
-        //         return loc$var != null ? loc$var.setAsType(value) : $var = value;
-        //     }
         //
         private JCTree makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
             setCurrentPos(varInfo);
@@ -1100,7 +999,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (needsBody) {
                 // Prepare to accumulate statements.
-                stmts = makeSetterStatements(varInfo);
+                stmts = ListBuffer.lb();
+                
+                if (varInfo.hasBoundDefinition() && !varInfo.hasBiDiBoundDefinition()) {
+                    stmts.append(Throw(assignBindExceptionType));
+                } else if (varInfo.isDef()) {
+                    stmts.append(Throw(assignDefExceptionType));
+                } else {
+                    // Symbol used when accessing the variable.
+                    VarSymbol proxyVarSym = varInfo.proxyVarSym();
+                    // $var
+                    Name varName = attributeValueName(proxyVarSym);
+                    // set$var(value)
+                    stmts.append(m().Exec(m().Apply(null, Id(attributeBeName(varSym)), List.<JCExpression>of(Id(varNewValueName)))));
+                    // return $var;
+                    stmts.append(m().Return(Id(varName)));
+                }
             }
 
             // Set up value arg.
@@ -1112,6 +1026,113 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
                                              type,
                                              attributeSetterName(varSym),
+                                             List.<JCVariableDecl>of(arg),
+                                             stmts);
+            optStat.recordProxyMethod();
+
+            return method;
+        }
+
+        //
+        // This method constructs the be method for the specified attribute.
+        //
+        private JCTree makeBeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            setCurrentPos(varInfo);
+            // Symbol used on the method.
+            VarSymbol varSym = varInfo.getSymbol();
+            // Real type for var.
+            Type type = varInfo.getRealType();
+            // Assume no body.
+            ListBuffer<JCStatement> stmts = null;
+
+            if (needsBody) {
+                // Prepare to accumulate statements.
+                stmts = ListBuffer.lb();
+
+                // Symbol used when accessing the variable.
+                VarSymbol proxyVarSym = varInfo.proxyVarSym();
+    
+                // $var
+                Name varName = attributeValueName(proxyVarSym);
+    
+                // Fetch the on replace statement or null.
+                JCStatement onReplace = varInfo.onReplaceAsInline();
+    
+                // Need to capture init state if has trigger.
+                if (onReplace != null) {
+                    // T varOldValue$ = $var;
+                    stmts.append(makeVariable(Flags.FINAL, type, varOldValueName, Id(varName)));
+    
+                    // varOldValue$ != varNewValue$
+                    // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
+                    JCExpression testExpr = type.isPrimitive() ?
+                        m().Binary(JCTree.NE, Id(varOldValueName), Id(varNewValueName))
+                      : NOT(runtime(currentPos, defs.Util_isEqual, List.of(Id(varOldValueName), Id(varNewValueName))));
+    
+                    // If we need to test init.
+                    if (!varInfo.isStatic()) {
+                        // varOldValue$ != varNewValue$ || !isInitialized(VOFF$var))
+                        testExpr = m().Binary(JCTree.OR, testExpr, NOT(makeFlagExpression(varInfo, varFlagActionTest, varFlagInitialized)));
+                    }
+    
+                    // Set boolean to indicate if this variable has been changed
+                    stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varChangedName, testExpr));
+    
+                    // $var = value
+                    stmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
+    
+                    // setIsInitialized(VOFF$var);
+                    stmts.append(makeFlagStatement(varInfo, varFlagActionSet, varFlagInitialized));
+    
+                    // Prepare to accumulate trigger statements.
+                    ListBuffer<JCStatement> trigStmts = ListBuffer.lb();
+    
+                    JFXVar oldVar = varInfo.onReplace().getOldValue();
+                    JFXVar newVar = varInfo.onReplace().getNewElements();
+    
+                     // Check to see if the on replace has an old value.
+                    if (oldVar != null) {
+                        // T oldValue = $var
+                        trigStmts.append(makeVariable(Flags.FINAL, type, oldVar.getName(), Id(varOldValueName)));
+                    }
+    
+                     // Check to see if the on replace has a new value.
+                    if (newVar != null) {
+                        // T newValue = value
+                        trigStmts.append(makeVariable(Flags.FINAL, type, newVar.getName(), Id(varNewValueName)));
+                    }
+    
+                    // Need a receiver under some circumstances.
+                    if (!varInfo.isStatic()) {
+                        // T receiver$ = this.
+                        trigStmts.append(makeVariable(Flags.FINAL, analysis.getCurrentClassSymbol().type, defs.receiverName, Id(names._this)));
+                    }
+    
+                    // Insert the trigger.
+                    trigStmts.append(onReplace);
+    
+                    // if (varOldValue$ != varNewValue$) { ... trigger  code ... }
+                    stmts.append(m().If(Id(varChangedName), m().Block(0L, trigStmts.toList()), null));
+                } else {
+                    // $var = value
+                    JCExpression assign = m().Assign(Id(varName), Id(varNewValueName));
+    
+                    // $var = value;
+                    stmts.append(m().Exec(assign));
+                    // setIsInitialized(VOFF$var);
+                    stmts.append(makeFlagStatement(varInfo, varFlagActionSet, varFlagInitialized));
+                }
+            }
+
+            // Set up value arg.
+            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.PARAMETER),
+                                                          varNewValueName,
+                                                          makeType(type),
+                                                          null);
+            // Construct method.
+            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
+                                             syms.voidType,
+                                             attributeBeName(varSym),
                                              List.<JCVariableDecl>of(arg),
                                              stmts);
             optStat.recordProxyMethod();
@@ -1133,6 +1154,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (ai.useAccessors()) {
                         accessors.append(makeGetterAccessorMethod(ai, true));
                         accessors.append(makeSetterAccessorMethod(ai, true));
+                        accessors.append(makeBeAccessorMethod(ai, true));
                     }
                 }
             }
@@ -1158,6 +1180,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (ai.useAccessors()) {
                         accessors.append(makeGetterAccessorMethod(ai, false));
                         accessors.append(makeSetterAccessorMethod(ai, false));
+                        accessors.append(makeBeAccessorMethod(ai, false));
                     }
                 }
             }

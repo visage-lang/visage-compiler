@@ -219,6 +219,10 @@ class JavafxAnalyzeClass {
         public boolean hasBoundDefinition() {
             return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L;
         }
+        
+        public boolean hasBiDiBoundDefinition() {
+            return (getFlags() & JavafxFlags.VARUSE_BOUND_BIDIRECTIONAL) != 0L;
+        }
 
         public boolean isInlinedBind() {
             return hasBoundDefinition() && representation() == VarRepresentation.NeverLocation;

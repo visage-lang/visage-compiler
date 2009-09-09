@@ -45,6 +45,7 @@ public class JavafxDefs {
     public static final String implFunctionSuffix = "$impl";
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
+    public static final String attributeBeMethodNamePrefix = "be$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
     public static final String attributeCountMethodString = "count$";
@@ -239,6 +240,7 @@ public class JavafxDefs {
     final Name postInitName;
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
+    final Name attributeBePrefixName;
     final Name applyDefaultsPrefixName;
     final Name attributeCountMethodName;
     final Name isInitializedPrefixName;
@@ -374,6 +376,7 @@ public class JavafxDefs {
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
+        attributeBePrefixName = names.fromString(attributeBeMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);

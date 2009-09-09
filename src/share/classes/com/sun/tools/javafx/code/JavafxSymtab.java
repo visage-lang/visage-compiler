@@ -88,8 +88,6 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_KeyFrameType;
     public final Type javafx_KeyValueTargetType;
     public final Type javafx_PointerType;
-    public final Type javafx_LocationType;
-    public final Type javafx_AbstractVariableType;
 
     public final Type javafx_privateAnnotationType;
     public final Type javafx_protectedAnnotationType;
@@ -193,8 +191,6 @@ public class JavafxSymtab extends Symtab {
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");
         javafx_KeyValueTargetType = enterClass("javafx.animation.KeyValueTarget");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
-        javafx_LocationType = enterClass(JavafxDefs.locationPackageNameString + ".Location");
-        javafx_AbstractVariableType = enterClass(JavafxDefs.locationPackageNameString + ".AbstractVariable");
         javafx_privateAnnotationType = enterClass(privateAnnotationClassNameString);
         javafx_protectedAnnotationType = enterClass(protectedAnnotationClassNameString);
         javafx_packageAnnotationType = enterClass(packageAnnotationClassNameString);
