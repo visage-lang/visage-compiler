@@ -1587,7 +1587,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
         if (!bindStatus.isBound() && vmi.useAccessors()) {
             JCExpression tc = instanceName == null ? null : make.at(diagPos).Ident(instanceName);
-            return callExpression(diagPos, tc, attributeSetterName(vsym), nonNullInit);
+            return callExpression(diagPos, tc, attributeBeName(vsym), nonNullInit);
         }
         final JCExpression varRef = //TODO: fix me
                   make.at(diagPos).Ident(vsym) // It is a local variable
@@ -2683,7 +2683,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     op = JCTree.LE;
                 }
             }
-            return m().Binary(op, ident(inductionVar), ident(upperVar));
+            return m().Binary(op, id(inductionVar), id(upperVar));
         }
 
         /**
@@ -2741,7 +2741,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             }
             inductionVar.init = init;
             tinits.append(inductionVar);
-            JCExpression sizeExpr = translateSizeof(diagPos, seq, ident(seqVar));
+            JCExpression sizeExpr = translateSizeof(diagPos, seq, id(seqVar));
             //callExpression(diagPos, ident(seqVar), "size");
             JCExpression limitExpr;
             // Compare the logic in makeSliceEndPos.
@@ -2765,9 +2765,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JCVariableDecl limitVar = makeFinalVar("limit", syms.intType, limitExpr);
             tinits.append(limitVar);
             // The condition that will be tested each time through the loop
-            JCExpression tcond = make.Binary(JCTree.LT, ident(inductionVar), ident(limitVar));
+            JCExpression tcond = make.Binary(JCTree.LT, id(inductionVar), id(limitVar));
             // Generate the step statement as: x += 1
-            List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, ident(inductionVar), m().Literal(TypeTags.INT, 1))));
+            List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(inductionVar), m().Literal(TypeTags.INT, 1))));
             tinits.append(m().ForLoop(List.<JCStatement>nil(), tcond, tstep, body));
             body = make.Block(0L, tinits.toList());
         }
@@ -2814,10 +2814,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     // Arbitrary step expression, do all the madness shown in the method comment
                     JCVariableDecl stepVar = makeFinalVar("step", stepVal);
                     tinits.append(stepVar);
-                    tstepIncrExpr = ident(stepVar);
-                    JCVariableDecl negativeVar = makeFinalVar("negative", syms.booleanType, m().Binary(JCTree.LT, ident(stepVar), m().Literal(type.tag, 0)));
+                    tstepIncrExpr = id(stepVar);
+                    JCVariableDecl negativeVar = makeFinalVar("negative", syms.booleanType, m().Binary(JCTree.LT, id(stepVar), m().Literal(type.tag, 0)));
                     tinits.append(negativeVar);
-                    tcond = m().Conditional(ident(negativeVar), condTest(range, true, upperVar), condTest(range, false, upperVar));
+                    tcond = m().Conditional(id(negativeVar), condTest(range, true, upperVar), condTest(range, false, upperVar));
                 }
             } else {
                 // No step expression, use one as the increment
@@ -2825,16 +2825,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 tcond = condTest(range, false, upperVar);
             }
             // Generate the step statement as: x += x$step
-            List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, ident(inductionVar), tstepIncrExpr)));
+            List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(inductionVar), tstepIncrExpr)));
             // Finally, build the for loop
             body = m().ForLoop(tinits.toList(), tcond, tstep, body);
-        }
-
-        /**
-         * Make an identifier which references the specified variable declaration
-         */
-        private JCIdent ident(JCVariableDecl aVar) {
-            return m().Ident(aVar.name);
         }
 
         /**
@@ -2868,7 +2861,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     JCVariableDecl finalIndexVar = makeFinalVar(
                             indexVarName(clause),
                             syms.javafx_IntegerType,
-                            m().Unary(JCTree.POSTINC, ident(incrementingIndexVar)));
+                            m().Unary(JCTree.POSTINC, id(incrementingIndexVar)));
                     stmts.append(finalIndexVar);
                 }
                 JCExpression varInit;     // Initializer for var.
@@ -2880,10 +2873,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     else
                        sseq = clause.seqExpr;
                     seqVar = makeFinalVar("seq", seq.type, translateAsValue(sseq, seq.type));
-                    varInit = translateSequenceIndexed(diagPos, sseq, ident(seqVar), ident(inductionVar), type);
+                    varInit = translateSequenceIndexed(diagPos, sseq, id(seqVar), id(inductionVar), type);
                 }
                 else
-                    varInit = ident(inductionVar);
+                    varInit = id(inductionVar);
 
                 stmts.append(makeFinalVar(var.getName(), varInit));
                 stmts.append(body);
@@ -2917,7 +2910,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     // The "sequence" isn't aactually a sequence, treat it as a singleton.
                     // Compile: { var tmp = seq; if (tmp!=null) body; }
                     if (!type.isPrimitive()) {
-                        body = m().If(m().Binary(JCTree.NE, ident(inductionVar),
+                        body = m().If(m().Binary(JCTree.NE, id(inductionVar),
                                 m().Literal(TypeTags.BOT, null)),
                                 body, null);
                     }

@@ -962,7 +962,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
                     
                     // set$var(init/bound expression)
-                    Result tinit = translateBind.translate(varInfo.init());
+                    Result tinit = translateBind.translate(varInfo.init(), varSym);
                     ifStmts.appendList(tinit.stmts);
                     ifStmts.append(m().Exec(m().Apply(null, Id(attributeBeName(varSym)), List.<JCExpression>of(tinit.value))));
                   

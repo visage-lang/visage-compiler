@@ -268,6 +268,20 @@ public abstract class JavafxAbstractTranslation<R>
         }
 
         /**
+         * Make an identifier which references the specified variable declaration
+         */
+        protected JCIdent id(JCVariableDecl aVar) {
+            return id(aVar.name);
+        }
+
+        /**
+         * Make an identifier of the given name
+         */
+        protected JCIdent id(Name name) {
+            return m().Ident(name);
+        }
+
+        /**
          * Convert type to JCExpression
          */
         protected JCExpression makeExpression(Type type) {
@@ -890,7 +904,7 @@ public abstract class JavafxAbstractTranslation<R>
                                 return postProcess(buildSetter(mungedToCheckTranslated, buildRHS(rhsTranslatedPreserved)));
                             } else {
                                 //TODO: possibly should use, or be unified with convertVariableReference
-                                JCFieldAccess fa = m().Select(mungedToCheckTranslated, attributeFieldName(select.sym));
+                                JCFieldAccess fa = m().Select(mungedToCheckTranslated, attributeValueName(select.sym));
                                 return defaultFullExpression(fa, rhsTranslatedPreserved);
                             }
                         }
