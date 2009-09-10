@@ -70,6 +70,7 @@ public class JavafxFlags {
     public static final long VARUSE_OPT_TRIGGER      = FIRST_VARUSE_FLAG << 12;
     public static final long VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY              // the init expression for this var has side-effects,
                                                      = FIRST_VARUSE_FLAG << 13; // or it is bidirectionally bound, or otherwise nasty
+    public static final long VARUSE_HAS_ON_INVALIDATE= FIRST_VARUSE_FLAG << 14;  // has 'on invalidate' either in definition or override
     // This last shift + the last for modifiers must be < 24 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags

@@ -259,6 +259,7 @@ public class JavafxTypeMorpher {
             final boolean isStatic = (flags & Flags.STATIC) != 0;
             final boolean hasInnerAccess = (flags & VARUSE_INNER_ACCESS) != 0;
             final boolean hasOnReplace = (flags & VARUSE_HAS_ON_REPLACE) != 0;
+            final boolean hasOnInvalidate = (flags & VARUSE_HAS_ON_INVALIDATE) != 0;
             final boolean usedInBind = (flags & (VARUSE_USED_IN_BIND|VARUSE_BOUND_INIT)) != 0;
             final boolean canWriteOutsideScript = (flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) != 0L && (flags & IS_DEF) == 0L;
             final boolean canOverrideOutsideScript = canWriteOutsideScript;
@@ -305,7 +306,7 @@ public class JavafxTypeMorpher {
                 return AlwaysLocation;
             }
             if ((flags & VARUSE_BOUND_DEFINITION) != 0) {
-                if (isStatic || hasOnReplace || isLocalVar || isMixinVar || (flags & (VARUSE_SELF_REFERENCE | VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY)) != 0L) {
+                if (isStatic || hasOnInvalidate || hasOnReplace || isLocalVar || isMixinVar || (flags & (VARUSE_SELF_REFERENCE | VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY)) != 0L) {
                     return AlwaysLocation;
                 } else if (readIsScriptPrivate && !isOverriden && !canOverrideOutsideScript && (flags & (VARUSE_USED_IN_BIND | VARUSE_OBJ_LIT_INIT)) == 0L ) {
                     return NeverLocation;

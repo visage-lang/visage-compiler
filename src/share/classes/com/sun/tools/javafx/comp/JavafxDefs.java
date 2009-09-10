@@ -100,6 +100,7 @@ public class JavafxDefs {
     public  static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
 
     public  static final String cChangeListener = locationPackageNameString + ".ChangeListener";
+    public  static final String cInvalidationListener = locationPackageNameString + ".AbstractInvalidationListener";
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
@@ -195,6 +196,7 @@ public class JavafxDefs {
     final Name makeBijectiveMethodName;
     final Name onChangeMethodName;
     final Name addChangeListenerName;
+    final Name addInvalidationListenerName;
     final Name addSequenceChangeListenerName;
     final Name locationInitializeName;
     final Name invokeName;
@@ -214,6 +216,7 @@ public class JavafxDefs {
     final Name arg0Name;
     final Name arg1Name;
     final Name moreArgsName;
+    final Name invalidation;
     final Name dependentsName;
     final Name typeParamName;
     final Name initDefName;
@@ -323,6 +326,7 @@ public class JavafxDefs {
         makeBijectiveMethodName = names.fromString(makeBijectiveMethodNameString);
         onChangeMethodName = names.fromString("onChange");
         addChangeListenerName = names.fromString("addChangeListener");
+        addInvalidationListenerName = names.fromString("addInvalidationListener");
         addSequenceChangeListenerName = names.fromString("addSequenceChangeListener");
         locationInitializeName = names.fromString("initialize");
         invokeName = names.fromString(invokeNameString);
@@ -342,6 +346,7 @@ public class JavafxDefs {
         arg0Name = names.fromString("arg$0");
         arg1Name = names.fromString("arg$1");
         moreArgsName = names.fromString("moreArgs");
+        invalidation = names.fromString("invalidation");
         dependentsName = names.fromString("dependents");
         typeParamName = names.fromString("T");
         initDefName = names.fromString("$init$def$name");

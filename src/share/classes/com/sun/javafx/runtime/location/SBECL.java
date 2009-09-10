@@ -32,7 +32,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
  *
  * @author Robert Field
  */
-public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpression {
+public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpression, InvalidationListener {
     protected final int id;
     protected final Object arg$0;
     protected final Object arg$1;
@@ -62,13 +62,15 @@ public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpre
      * ChangeListener constructor
      * @param id
      */
-    public SBECL(int id) {
+    public SBECL(int id, boolean invalidation) {
         this.id = id;
         this.arg$0 = null;
         this.arg$1 = null;
         this.moreArgs = null;
         this.dependents = 0;
-        this.childKind = AbstractLocation.CHILD_KIND_TRIGGER;
+        this.childKind = invalidation ?
+            AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER :
+            AbstractLocation.CHILD_KIND_TRIGGER;
     }
 
     /**
@@ -78,13 +80,15 @@ public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpre
      * @param arg1
      * @param moreArgs
      */
-    public SBECL(int id, Object arg0, Object arg1, Object[] moreArgs) {
+    public SBECL(int id, Object arg0, Object arg1, Object[] moreArgs, boolean invalidation) {
         this.id = id;
         this.arg$0 = arg0;
         this.arg$1 = arg1;
         this.moreArgs = moreArgs;
         this.dependents = 0;
-        this.childKind = AbstractLocation.CHILD_KIND_TRIGGER;
+        this.childKind = invalidation ?
+            AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER :
+            AbstractLocation.CHILD_KIND_TRIGGER;
     }
 
     @Override
@@ -144,4 +148,7 @@ public abstract class SBECL<T> extends ChangeListener<T> implements BindingExpre
 
     public abstract void compute();
 
+    public boolean onChange() {
+        throw new UnsupportedOperationException();
+    }
 }

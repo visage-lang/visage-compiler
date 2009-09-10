@@ -247,6 +247,12 @@ class JavafxAnalyzeClass {
         // null or Java tree for var's on-replace for use in change listeber.
         public JCStatement onReplaceAsListenerInstanciation() { return null; }
 
+        // null or javafx tree for the var's 'on invalidate'.
+        public JFXOnReplace onInvalidate() { return null; }
+
+        // null or Java tree for var's on-invalidate for use in change listeber.
+        public JCStatement onInvalidateAsListenerInstanciation() { return null; }
+
         // Return true if the var needs to be declared in the current class.
         public boolean needsDeclaration() { return needsCloning() && !hasProxyVar(); }
 
@@ -293,13 +299,22 @@ class JavafxAnalyzeClass {
         // Null or java code for the var's on replace in a change listener.
         private final JCStatement onReplaceAsListenerInstanciation;
 
+        // Null or javafx code for the var's on replace.
+        private final JFXOnReplace onInvalidate;
+
+        // Null or java code for the var's on replace in a change listener.
+        private final JCStatement onInvalidateAsListenerInstanciation;
+
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
-                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
+                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsListenerInstanciation) {
             super(diagPos, name, attrSym, vmi, initStmt);
             this.getterInit = getterInit;
             this.onReplace = onReplace;
             this.onReplaceAsInline = onReplaceAsInline;
             this.onReplaceAsListenerInstanciation = onReplaceAsListenerInstanciation;
+            this.onInvalidate = onInvalidate;
+            this.onInvalidateAsListenerInstanciation = onInvalidateAsListenerInstanciation;
         }
 
         // Null or java code for the var's bound value for retrieval from getter.
@@ -318,6 +333,14 @@ class JavafxAnalyzeClass {
         @Override
         public JCStatement onReplaceAsListenerInstanciation() { return onReplaceAsListenerInstanciation; }
 
+        // Possible javafx code for the var's 'on invalidate'.
+        @Override
+        public JFXOnReplace onInvalidate() { return onInvalidate; }
+
+        // Possible java code for the var's 'on invalidate' in a change listener.
+        @Override
+        public JCStatement onInvalidateAsListenerInstanciation() { return onInvalidateAsListenerInstanciation; }
+
         // This var is in the current javafx class so it has to be cloned into the java class.
         @Override
         public boolean needsCloning() { return true; }
@@ -335,8 +358,10 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
-            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, getterInit, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsListenerInstanciation) {
+            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, getterInit, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation,
+                    onInvalidate, onInvalidateAsListenerInstanciation);
             this.var = var;
         }
 
@@ -353,8 +378,10 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, getterInit, onReplace, null, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsListenerInstanciation) {
+            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, getterInit, onReplace, null, onReplaceAsListenerInstanciation,
+                    onInvalidate, onInvalidateAsListenerInstanciation);
         }
 
         // Returns the var information the override overshadows.

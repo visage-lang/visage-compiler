@@ -1124,10 +1124,6 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         //TODO: handle static triggers
         JFXIdent id = tree.getId();
-        JFXOnReplace onr = tree.getOnReplace();
-        if (tree.getOnInvalidate() != null) {
-            throw new AssertionError("Unsupported trigger kind: " + tree.getOnInvalidate().getTriggerKind());
-        }
 
         // let the owner of the environment be a freshly
         // created BLOCK-method.
@@ -1137,16 +1133,23 @@ public class JavafxAttr implements JavafxVisitor {
         tree.type = type;
         Symbol sym = id.sym;
 
-        if (onr != null) {
-            JFXVar oldValue = onr.getOldValue();
-            if (oldValue != null && oldValue.type == null) {
-                oldValue.type = type;
+        for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
+            JFXOnReplace trigger = tree.getTrigger(triggerKind);
+            if (trigger != null) {
+                if (triggerKind == JFXOnReplace.Kind.ONINVALIDATE && !tree.isBound()) {
+                    log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
+                }
+
+                JFXVar oldValue = trigger.getOldValue();
+                if (oldValue != null && oldValue.type == null) {
+                    oldValue.type = type;
+                }
+                JFXVar newElements = trigger.getNewElements();
+                if (newElements != null && newElements.type == null) {
+                    newElements.type = type;
+                }
+                attribDecl(trigger, localEnv);
             }
-            JFXVar newElements = onr.getNewElements();
-            if (newElements != null && newElements.type == null) {
-                newElements.type = type;
-            }
-            attribDecl(onr, localEnv);
         }
 
         // Must reference an attribute
@@ -3185,7 +3188,10 @@ public class JavafxAttr implements JavafxVisitor {
         //the target expr should be a variable
         attribTree(tree.getVariable(), env, VAR, Type.noType);
         VarSymbol var = (VarSymbol)JavafxTreeInfo.symbol(tree.getVariable());
-        if ((var.flags_field & JavafxFlags.VARUSE_BOUND_DEFINITION) == 0)
+        //non-static vars can be overridden with a bound init - other cases
+        //are handled at runtime (exception)
+        if ((var.flags_field & JavafxFlags.VARUSE_BOUND_DEFINITION) == 0 &&
+                var.isStatic())
             log.error(tree.getVariable().pos(), MsgSym.MESSAGE_CANNOT_INVALIDATE_UNBOUND_VAR, var);
         result = tree.type = syms.voidType;
     }
