@@ -282,6 +282,68 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
         result = new Result(translateIdent(tree));
     }
 
+    /**
+     * Translate if-expression
+     *
+     * bind if (cond) foo else bar
+     *
+     * becomes preface statements:
+     *
+     *   T res;
+     *   cond.preface;
+     *   if (cond) {
+     *     foo.preface;
+     *     res = foo;
+     *   } else {
+     *     bar.preface;
+     *     res = bar;
+     *   }
+     *
+     * result value:
+     *
+     *   res
+     *
+     */
+    private class IfExpressionTranslator extends Translator {
+
+        private final JFXIfExpression tree;
+        private final Type targetType;
+        private final JCVariableDecl resVar;
+
+        IfExpressionTranslator(JFXIfExpression tree) {
+            super(tree.pos());
+            this.tree = tree;
+            this.targetType = tree.type;
+            this.resVar = makeTmpVar(diagPos, getSyntheticName("res"), targetType, null);
+        }
+
+        JCStatement side(JFXExpression expr) {
+            Result res = translate(expr, targetType);
+            return m().Block(0L, res.stmts.append(m().Exec(m().Assign(id(resVar), res.value))));
+        }
+
+        protected JCStatement doit() {
+            assert false : "should not reach here";
+            return null;
+        }
+
+        Result result() {
+            Result cond = translate(tree.getCondition());
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            stmts.append(resVar);
+            stmts.appendList(cond.stmts);
+            stmts.append(make.at(diagPos).If(
+                    cond.value,
+                    side(tree.getTrueExpression()),
+                    side(tree.getFalseExpression())));
+            return new Result(stmts.toList(), id(resVar));
+        }
+    }
+
+    public void visitIfExpression(JFXIfExpression tree) {
+        result = new IfExpressionTranslator(tree).result();
+    }
+
     public void visitLiteral(JFXLiteral tree) {
         // Just translate to literal value
         result = new Result(translateLiteral(tree));
@@ -309,12 +371,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 /* ***************************************************************************
  * Visitor methods -- NOT implemented yet
  ****************************************************************************/
-
-    public void visitIfExpression(JFXIfExpression tree) {
-        translate(tree.cond);
-        translate(tree.truepart);
-        translate(tree.falsepart);
-    }
 
     public void visitAssign(JFXAssign tree) {
         translate(tree.lhs);

@@ -97,7 +97,7 @@ public abstract class JavafxAbstractTranslation<R>
         this.target = Target.instance(context);
     }
 
-    /** Translate a single expression.
+    /** Translate a single tree.
      */
     R translate(JFXTree tree) {
         R ret;
@@ -113,6 +113,12 @@ public abstract class JavafxAbstractTranslation<R>
             this.result = null;
         }
         return ret;
+    }
+
+    /** Translate a single expression.
+     */
+    R translate(JFXExpression expr, Type type) {
+        return translate(expr);
     }
 
     /** Translate a list of expressions.
