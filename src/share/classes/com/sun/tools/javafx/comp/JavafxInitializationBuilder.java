@@ -39,7 +39,6 @@ import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -822,7 +821,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Construct the variable itself.
             JCVariableDecl var = m().VarDef(mods, name, type, varInit);
              // Update the statistics.
-            optStat.recordClassVar(varInfo.getSymbol(), varInfo.representation());
+            optStat.recordClassVar(varInfo.getSymbol());
             optStat.recordConcreteField();
 
             return var;
@@ -912,11 +911,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         mods = addInheritedAnnotationModifiers(currentPos, varSym.flags(), mods);
                     }
 
-                    // Construct the value field unless it will always be a Location
-                    if (ai.representation() != AlwaysLocation) {
-                        vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
+                    // Construct the value field 
+                    vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
                                 needsDefaultValue(ai.getVMI()) ? makeDefaultValue(currentPos, ai.getVMI()) : null));
-                }
                 }
             }
 
@@ -1542,7 +1539,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the statements needed to apply defaults to a given var.
         //
         private JCStatement makeApplyDefaultsStatement(VarInfo ai, boolean isMixinClass) {
-            if (ai.isInlinedBind()) {
+            if (ai.isInlinedBind()) { //TODO: Lombard
                 // Inlined bind, don't set in applyDefaults$
                 return null;
             }

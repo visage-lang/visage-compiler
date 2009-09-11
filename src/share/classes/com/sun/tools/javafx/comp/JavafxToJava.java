@@ -71,8 +71,6 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
-import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.comp.JavafxToJava.Yield.*;
 
@@ -476,7 +474,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 // Fetch any references to local variables from the instance parameters
                 if (expr != null) {
                     for (VarSymbol vsym : localVars(onReplace)) {
-                        renamingVar(renamings, vsym.name, vsym.name, vsym.type, representation(vsym)==AlwaysLocation);
+                        renamingVar(renamings, vsym.name, vsym.name, vsym.type, false);
                     }
                 }
             }
@@ -563,8 +561,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
      */
     private JCStatement translateOnReplaceAsInline(VarSymbol vsym, JFXOnReplace onReplace) {
         if (onReplace == null) return null;
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        if (vmi.representation() == VarRepresentation.AlwaysLocation) return null;
         return translateToStatement(onReplace.getBody());
     }
 
@@ -1543,15 +1539,11 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         assert !vmi.isMemberVariable();
-        assert vmi.representation() == SlackerLocation;
         if (bindStatus.isUnidiBind()) {
             return TODO(); // toBound.translateAsLocationOrBE(init, bindStatus, vmi);
         } else if (bindStatus.isBidiBind()) {
-            assert vmi.representation() == AlwaysLocation;
             // Bi-directional bind translate so it stays in a Location
             return TODO();
-        } else if (vmi.representation() == AlwaysLocation) {
-            return makeLocationVariable(vmi, diagPos, List.of(translateAsLocation(init)), defs.makeMethodName);
         } else {
             return translateNonBoundInit(diagPos, init, vmi);
         }
@@ -1596,33 +1588,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         final JCExpression varRef = //TODO: fix me
                   make.at(diagPos).Ident(vsym) // It is a local variable
                 ;
-        if (vmi.representation() == NeverLocation) {
-            // It is a local variable which is not a Location, just assign to it
-            return make.at(diagPos).Assign(varRef, nonNullInit);
-        } else {
-            return makeLocation(diagPos, varRef, nonNullInit, bindStatus, vmi);
-        }
+        return make.at(diagPos).Assign(varRef, nonNullInit);
     }
 
-    private JCExpression makeLocation(DiagnosticPosition diagPos, JCExpression varRef,
-            JCExpression init, JavafxBindStatus bindStatus,
-            VarMorphInfo vmi) {
-        Name methName;
-        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-        if (bindStatus.isUnidiBind()) {
-            methName = defs.locationBindMethodName;
-            args.append(makeLaziness(diagPos, bindStatus));
-        } else if (bindStatus.isBidiBind()) {
-            methName = defs.locationBijectiveBindMethodName;
-        } else {
-            methName = defs.locationSetMethodName[vmi.getTypeKind()];
-        }
-        args.append(init);
-
-        return callExpression(diagPos, varRef, methName, args);
-    }
-
-    //@Override
     public void visitVarScriptInit(JFXVarScriptInit tree) {
         DiagnosticPosition diagPos = tree.pos();
         VarSymbol vsym = tree.getSymbol();
@@ -1641,17 +1609,11 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         final VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here";
         final long flags = vsym.flags();
-        final boolean requiresLocation = representation(vsym).possiblyLocation();
         final boolean isParameter = (flags & Flags.PARAMETER) != 0;
         final boolean hasInnerAccess = (flags & JavafxFlags.VARUSE_INNER_ACCESS) != 0;
-        final long modFlags = (mods.flags & ~Flags.FINAL) | ((hasInnerAccess | requiresLocation | isParameter)? Flags.FINAL : 0L);
+        final long modFlags = (mods.flags & ~Flags.FINAL) | ((hasInnerAccess | isParameter)? Flags.FINAL : 0L);
         final JCModifiers tmods = make.at(diagPos).Modifiers(modFlags);
-        final Type type =
-                requiresLocation?
-                    (isParameter?
-                        vmi.getLocationType() :
-                        vmi.getVariableType()) :
-                    tree.type;
+        final Type type = tree.type;
         final JCExpression typeExpression = makeTypeTree(diagPos, type, true);
 
         // for class vars, initialization happens during class init, so set to
@@ -1663,25 +1625,18 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             result = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
         } else {
             // create a blank variable declaration and move the declaration to the beginning of the block
-            if (requiresLocation) {
-                // location types: XXXVariable.make()
-                optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), true);
-                init = makeLocationWithDefault(vmi, diagPos);
-            } else {
-                optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
-                if ((modFlags & Flags.FINAL) != 0) {
-                    //TODO: this case probably won't be used any more, but it will
-                    // be again if we optimize the case for initializer which don't reference locals
-                    init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
-                            tree.getBindStatus(), vsym);
-                    JCStatement var = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
-                    prependToStatements.append(var);
-                    result = make.at(diagPos).Skip();
-                    return;
-                }
-                // non location types:
-                init = makeDefaultValue(diagPos, vmi);
+            optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
+            if ((modFlags & Flags.FINAL) != 0) {
+                //TODO: this case probably won't be used any more, but it will
+                // be again if we optimize the case for initializer which don't reference locals
+                init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
+                        tree.getBindStatus(), vsym);
+                JCStatement var = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
+                prependToStatements.append(var);
+                result = make.at(diagPos).Skip();
+                return;
             }
+            init = makeDefaultValue(diagPos, vmi);
             prependToStatements.prepend(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));
 
             // create change Listener and append it to the beginning of the block after the blank variable declaration
@@ -2937,15 +2892,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     public void visitIndexof(JFXIndexof tree) {
         final DiagnosticPosition diagPos = tree.pos();
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
-        JCExpression transIndex = make.at(diagPos).Ident(indexVarName(tree.fname));
-        VarSymbol vsym = (VarSymbol)tree.clause.getVar().sym;
-        if (representation(vsym).possiblyLocation()) {
-            // from inside the bind, its a Location, convert to value
-            result = getLocationValue(diagPos, transIndex, TYPE_KIND_INT);
-        } else {
-            // it came from outside of the bind, not a Location
-            result = transIndex;
-        }
+        result = make.at(diagPos).Ident(indexVarName(tree.fname));
     }
 
     //@Override
@@ -3333,10 +3280,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
     protected String getSyntheticPrefix() {
         return "jfx$";
-    }
-
-   VarRepresentation representation(Symbol sym) {
-        return sym == null? NeverLocation : typeMorpher.varMorphInfo(sym).representation();
     }
 
     JCBlock translatedOnReplaceBody(JFXOnReplace onr) {

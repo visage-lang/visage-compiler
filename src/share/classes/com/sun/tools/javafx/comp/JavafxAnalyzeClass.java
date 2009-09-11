@@ -43,7 +43,6 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxTranslateBind.Result;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.mjavac.code.Flags.*;
@@ -168,7 +167,6 @@ class JavafxAnalyzeClass {
         public Type getVariableType() { return vmi.getVariableType(); }
         public Type getLocationType() { return vmi.getLocationType(); }
         public Type getElementType()  { return vmi.getElementType(); }
-        public VarRepresentation representation() { return vmi.representation(); }
         public boolean useAccessors() { return vmi.useAccessors(); }
 
         // Return var name.
@@ -226,11 +224,7 @@ class JavafxAnalyzeClass {
         }
 
         public boolean isInlinedBind() {
-            return hasBoundDefinition() && representation() == VarRepresentation.NeverLocation;
-        }
-
-        public boolean isSlackerBind() {
-            return hasBoundDefinition() && representation() == VarRepresentation.SlackerLocation;
+            return hasBoundDefinition();
         }
 
         // Returns null or the code for var initialization.

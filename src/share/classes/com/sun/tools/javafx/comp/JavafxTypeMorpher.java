@@ -36,10 +36,8 @@ import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
-import static com.sun.tools.mjavac.code.Flags.*;
 
 
 /**
@@ -78,33 +76,18 @@ public class JavafxTypeMorpher {
         }
     }
 
-    enum VarRepresentation {
-        NeverLocation,
-        SlackerLocation,
-        AlwaysLocation;
-
-        boolean isSlacker() { return this==SlackerLocation; }
-        boolean possiblyLocation() { return this!=NeverLocation; }
-    }
-
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
 
     public class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
-        private final VarRepresentation representation;
 
         VarMorphInfo(Symbol sym) {
             super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
             this.sym = sym;
-            this.representation = NeverLocation; // computeRepresentation(sym);
         }
 
         Symbol getSymbol() {
             return sym;
-        }
-
-        VarRepresentation representation() {
-            return representation;
         }
 
         boolean useAccessors() {
@@ -248,122 +231,6 @@ public class JavafxTypeMorpher {
         if (tsym == syms.doubleType.tsym) return TYPE_KIND_DOUBLE;
         assert false : "should not reach here";
         return TYPE_KIND_OBJECT;
-    }
-
-    private VarRepresentation computeRepresentation(Symbol sym) {
-        if (sym.kind == Kinds.VAR) {
-            final Symbol owner = sym.owner;
-            final long flags = sym.flags();
-            final boolean isMemberVar = owner.kind == Kinds.TYP;
-            final boolean isMixinVar = isMemberVar && (owner.flags() & MIXIN) != 0;
-            final boolean isLocalVar = !isMemberVar;
-            final boolean isAssignedTo = (flags & (VARUSE_INIT_ASSIGNED_TO | VARUSE_ASSIGNED_TO)) != 0;
-            final boolean isParameter = (flags & Flags.PARAMETER) != 0;
-            final boolean isStatic = (flags & Flags.STATIC) != 0;
-            final boolean hasInnerAccess = (flags & VARUSE_INNER_ACCESS) != 0;
-            final boolean hasOnReplace = (flags & VARUSE_HAS_ON_REPLACE) != 0;
-            final boolean usedInBind = (flags & (VARUSE_USED_IN_BIND|VARUSE_BOUND_INIT)) != 0;
-            final boolean canWriteOutsideScript = (flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS)) != 0L && (flags & IS_DEF) == 0L;
-            final boolean canOverrideOutsideScript = canWriteOutsideScript;
-            final boolean isOverriden = (flags & VARUSE_OVERRIDDEN) != 0L;
-            final boolean readIsScriptPrivate = (flags & (PUBLIC | PROTECTED | PACKAGE_ACCESS | PUBLIC_READ | PUBLIC_INIT)) == 0L;
-
-            if (sym.flatName() == names._super || sym.flatName() == names._this) {
-                // 'this' and 'super' can't be made into Locations
-                return NeverLocation;
-            }
-            if (isMemberVar && !types.isJFXClass(owner)) {
-                // Java fields are never Locations
-                return NeverLocation;
-            }
-            if (!isParameter && !isMemberVar && hasInnerAccess) {
-                // Local variables must be Locations if they are accessed within an inner class
-                // Because of proper sequencing, this is true even if the var isn't assigned to
-                //TODO: optimize the cases where the initializer does not depend on other local vars
-                return AlwaysLocation;
-            }
-            if (isParameter) {
-                // Otherwise parameters are Locations only if in bound contexts, for-loops induction vars, bound function params
-                return (flags & VARUSE_BOUND_DEFINITION) != 0? AlwaysLocation : NeverLocation;
-            }
-            if(hasOnReplace && (!isMemberVar || isStatic || isMixinVar)) {
-                // Local vars with on-replace always need to be Locations, member vars have on-replace in-lined
-                return AlwaysLocation;
-            }
-            if (types.isSequence(sym.type)) {
-                // for a sequence to be modified it must be a Location
-                //TODO: check for sequence variables which are never modified (no insert, delete, assignment, etc)
-                //NOTE: If we do optimize the never-modified case, then we need
-                //   to explicitly do incrementSharing() on initialization.
-
-                return AlwaysLocation;
-            }
-            if (sym.type instanceof MethodType) {
-                // Function values have wierd behavior, we just don't want to go there
-                return AlwaysLocation;
-            }
-            if( (flags & (VARUSE_SELF_REFERENCE | VARUSE_IS_INITIALIZED_USED)) != 0 ) {
-                // Reference to the var within its own initializer requires a Location.
-                // To be able to use isInitialized()  requires a Location.
-                return AlwaysLocation;
-            }
-            if ((flags & VARUSE_BOUND_DEFINITION) != 0) {
-                if (isStatic || hasOnReplace || isLocalVar || isMixinVar || (flags & (VARUSE_SELF_REFERENCE | VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY)) != 0L) {
-                    return AlwaysLocation;
-                } else if (readIsScriptPrivate && !isOverriden && !canOverrideOutsideScript && (flags & (VARUSE_USED_IN_BIND | VARUSE_OBJ_LIT_INIT)) == 0L ) {
-                    return NeverLocation;
-                } else {
-                    return SlackerLocation;
-                }
-            }
-
-            if (isMemberVar) {  // class or script var
-                /*
-                To be able to elide member vars we need to know that
-                (1) the var will not be defined by a bound expression
-                (2) it will not have an 'on replace' on its definition/override
-                (3a) it will either never be used in a bind or
-                (3b) its value will not change after initialization.
-
-                For (1) and (2) the var must not, within the script, be defined by a bound expression or have an 'on replace'
-                and, so that these cannot occur outside the script, its base access must be script-private (it can be
-                public-read or public-init) or it must be a 'def'
-
-                Additionally, for (3), either (3a) must hold by virtue of it not being used in a bind within the script and
-                its access is script-private (no public-* either)
-                or, (3b) holds, the value isn't assigned by the script after initialization and the access prevents this
-                from occurring externally ('def' or script-private with optional public-read or public-init).
-
-                The (1) and (2) checks are handled by general checks (above).
-                */
-
-                // Overridden variables need to have Locations since overridden on-replace expects it.
-                // It is OK that the overridden analsysis is across all files in the compile since
-                // this is moot for script-private and unwritable-outside-script variables cannot be
-                // overridden except in the script.
-                //TODO: Once the bind translation is smart about collapsing expressions, then making unchanging values Locations is wrong.
-                // vars which are used in a bind should be Locations (even if never changed) since otherwise they will dynamically be turned to Locations
-                if (!isOverriden && !usedInBind) {
-
-                    // (3a) check.  Not used in bind has already been checked (above).
-                    // Check that it is not accessible outside the script (so noone else can bind it).
-                    if (readIsScriptPrivate) {
-                        return NeverLocation;
-                    }
-
-                    // (3b) check.  No assignments ((no longer) except in init{}) and
-                    // permissions such that this can't be done externally, or it is a 'def'.
-                    //JFXC-2026 : Elide unassigned and externally unassignable member vars
-                    //JFXC-2103 -- allow public-init
-                    if (!isAssignedTo && !canWriteOutsideScript) {
-                        return NeverLocation;
-                    }
-                }
-
-                return SlackerLocation;
-            }
-        }
-        return NeverLocation;
     }
 
     Type variableType(int typeKind) {
