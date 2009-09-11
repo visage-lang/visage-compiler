@@ -661,9 +661,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         stmts.append(make.at(diagPos).If(nullCheck, initvar, null));
                     }
                 }
-                JCStatement stat = tai.onReplaceAsListenerInstanciation();
-                if (stat != null) {
-                    stmts.append(stat);
+                JCStatement onReplace = tai.onReplaceAsListenerInstanciation();
+                if (onReplace != null) {
+                    stmts.append(onReplace);
+                }
+                JCStatement onInvalidate = tai.onInvalidateAsListenerInstanciation();
+                if (onInvalidate != null) {
+                    stmts.append(onInvalidate);
                 }
             }
         }
@@ -705,10 +709,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // add change listeners for triggers on instance var definitions
         for (TranslatedVarInfo info : translatedAttrInfo) {
             if (!info.isStatic()) {
-                JCStatement stat = info.onReplaceAsListenerInstanciation();
+                JCStatement onReplace = info.onReplaceAsListenerInstanciation();
                 // We only need to add a trigger we can't inline it.
-                if (stat != null && info.onReplaceAsInline() == null) {
-                    stmts.append(stat);
+                if (onReplace != null && info.onReplaceAsInline() == null) {
+                    stmts.append(onReplace);
+                }
+                JCStatement onInvalidate = info.onInvalidateAsListenerInstanciation();
+                // On invalidate trigggers shouldn't be inlined
+                if (onInvalidate != null) {
+                    stmts.append(onInvalidate);
                 }
             }
         }
@@ -716,10 +725,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // add change listeners for on replace on overridden vars
         for (TranslatedOverrideClassVarInfo info : translatedTriggerInfo) {
             if (!info.isStatic()) {
-                JCStatement stat = info.onReplaceAsListenerInstanciation();
+                JCStatement onReplace = info.onReplaceAsListenerInstanciation();
                 // We only need to add a trigger we can't inline it.
-                if (stat != null && info.onReplaceAsInline() == null) {
-                    stmts.append(stat);
+                if (onReplace != null && info.onReplaceAsInline() == null) {
+                    stmts.append(onReplace);
+                }
+                JCStatement onInvalidate = info.onInvalidateAsListenerInstanciation();
+                // On invalidate trigggers shouldn't be inlined
+                if (onInvalidate != null) {
+                    stmts.append(onInvalidate);
                 }
             }
         }
@@ -1359,6 +1373,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCStatement onReplace = varInfo.onReplaceAsListenerInstanciation();
                         if (onReplace != null) {
                             stmts.append(onReplace);
+                        }
+                        JCStatement onInvalidate = varInfo.onInvalidateAsListenerInstanciation();
+                        if (onInvalidate != null) {
+                            stmts.append(onInvalidate);
                         }
 
                         // Construct and add: return loc$var.

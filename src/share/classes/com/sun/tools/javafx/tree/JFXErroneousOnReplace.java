@@ -42,7 +42,8 @@ public class JFXErroneousOnReplace extends JFXOnReplace {
      */
     private JFXErroneous errNode;
 
-    protected JFXErroneousOnReplace(List<? extends JFXTree> errs) {
+    protected JFXErroneousOnReplace(List<? extends JFXTree> errs, Kind triggerKind) {
+        super(triggerKind);
         errNode = new JFXErroneous(errs);
     }
     

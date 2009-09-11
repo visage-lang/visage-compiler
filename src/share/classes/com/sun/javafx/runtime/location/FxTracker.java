@@ -51,6 +51,9 @@ public class FxTracker {
     static final Map<FXObject, Boolean> fxo_map =
             Collections.synchronizedMap(new WeakHashMap<FXObject, Boolean>());
 
+    static final Map<StaticDependentLocation, Boolean> sdl_map =
+            Collections.synchronizedMap(new WeakHashMap<StaticDependentLocation, Boolean>());
+
     private static Vector<HistoData> hData = new Vector<HistoData>();
 
     static Timer timer;
@@ -68,13 +71,16 @@ public class FxTracker {
             ps.print("TRIGGER" + CSEP);
             ps.print("VIEW_LOCATION" + CSEP);
             ps.print("WEAK_LOCATION" + CSEP);
-            ps.print("WEAK_ME_HOLDER" + CSEP);
-            ps.print("Location MapSize" + CSEP);
-            ps.print("Iterator Count: ");
+            ps.print("Total Children" + CSEP);
+            ps.print("Location Map size" +  CSEP);
+            ps.print("Location Change" + CSEP);
+            ps.print("Iterator Count" + CSEP);
             ps.print("Listener Count" + CSEP);
-            ps.print("Location Change");
-            ps.print("FXBase Mapsize" + CSEP);
-            ps.print("FXBase Change");
+            ps.print("FXBase Map size" + CSEP);
+            ps.print("FXBase Change" + CSEP);
+            ps.print("SDL Map size" + CSEP);
+            ps.print("SDL Change" + CSEP);
+            ps.print("SDL Null referent count");
             ps.println();
 
             int i = 0;
@@ -160,6 +166,8 @@ public class FxTracker {
             loc_map.put((AbstractLocation)obj, tracker);
         } else if (obj instanceof FXObject) {
             fxo_map.put((FXObject)obj, tracker);
+        } else if (obj instanceof StaticDependentLocation) {
+            sdl_map.put((StaticDependentLocation)obj, tracker);
         }
     }
 
@@ -170,13 +178,10 @@ public class FxTracker {
             hd = new HistoData();
         } else {
             HistoData last = hData.lastElement();
-            hd = new HistoData(last.loc_mapsize, last.fxo_mapsize);
+            hd = new HistoData(last);
         }
-        System.gc();
-        synchronized (loc_map) {
-            hd.gatherCounts();
-            hData.add(hd);
-        }
+        hd.gatherCounts();
+        hData.add(hd);
         System.err.println("done.");
     }
     
@@ -213,6 +218,9 @@ public class FxTracker {
     public static long getFxObjectCount() {
        return (hData.size() > 0) ? hData.lastElement().fxo_mapsize : 0;
     }
+    public static long getSdlNullReferentCount() {
+        return (hData.size() > 0 ) ? hData.lastElement().sdl_null_referent_count : 0;
+    }
 }
 
 class HistoData {
@@ -229,8 +237,13 @@ class HistoData {
     long  loc_prev_size          = 0;
 
     // FXObject statistics
-    long fxo_mapsize            = 0;
-    long fxo_prev_size          = 0;
+    long fxo_mapsize             = 0;
+    long fxo_prev_size           = 0;
+
+    // SDL statistics
+    long sdl_mapsize             = 0;
+    long sdl_prev_size           = 0;
+    long sdl_null_referent_count = 0;
 
     final Map<String, Long> loc_class_type_table =
             new HashMap<String, Long>();
@@ -240,9 +253,12 @@ class HistoData {
 
 
     public HistoData() {}
-    HistoData(long loc_prev_size, long fxo_prev_size) {
-        this.loc_prev_size = loc_prev_size;
-        this.fxo_prev_size = fxo_prev_size;
+    HistoData(HistoData previous) {
+        if (previous != null) {
+            this.loc_prev_size = previous.loc_mapsize;
+            this.fxo_prev_size = previous.fxo_mapsize;
+            this.sdl_prev_size = previous.sdl_mapsize;
+        }
     }
 
     static void keepClassTally(Map<String, Long> m, String key) {
@@ -267,43 +283,69 @@ class HistoData {
         sb.append(FxTracker.CSEP);
         sb.append(loc_mapsize);
         sb.append(FxTracker.CSEP);
+        sb.append(loc_mapsize - loc_prev_size);
+        sb.append(FxTracker.CSEP);
         sb.append(iterator_count);
         sb.append(FxTracker.CSEP);
         sb.append(listener_count);
         sb.append(FxTracker.CSEP);
-        sb.append(loc_mapsize - loc_prev_size);
-        sb.append(FxTracker.CSEP);
         sb.append(fxo_mapsize);
         sb.append(FxTracker.CSEP);
         sb.append(fxo_mapsize - fxo_prev_size);
+        sb.append(FxTracker.CSEP);
+        sb.append(sdl_mapsize);
+        sb.append(FxTracker.CSEP);
+        sb.append(sdl_mapsize - sdl_prev_size);
+        sb.append(FxTracker.CSEP);
+        sb.append(sdl_null_referent_count);
         return sb.toString();
     }
  
     public void gatherCounts() {
         // do the locations work
-        loc_mapsize = FxTracker.loc_map.size();
+        System.gc();
+        synchronized (FxTracker.loc_map) {
+            System.gc();
 
-        for (AbstractLocation loc : FxTracker.loc_map.keySet()) {
-            keepClassTally(loc_class_type_table, loc.getClass().getName());
-            binding_expression +=
-                    loc.countChildren(AbstractLocation.CHILD_KIND_BINDING_EXPRESSION);
-            change_listener +=
-                    loc.countChildren(AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER);
-            trigger +=
-                    loc.countChildren(AbstractLocation.CHILD_KIND_TRIGGER);
-            weak_location +=
-                    loc.countChildren(AbstractLocation.CHILD_KIND_WEAK_LOCATION);
-            total_children += binding_expression + change_listener + trigger +
-                    view_location + weak_location;
-            iterator_count +=
-                    AbstractLocation.iterationData.get(loc) != null ? 1 : 0;
-            listener_count += loc.getListenerCount();
+            for (AbstractLocation loc : FxTracker.loc_map.keySet()) {
+                keepClassTally(loc_class_type_table, loc.getClass().getName());
+                binding_expression +=
+                        loc.countChildren(AbstractLocation.CHILD_KIND_BINDING_EXPRESSION);
+                change_listener +=
+                        loc.countChildren(AbstractLocation.CHILD_KIND_INVALIDATION_LISTENER);
+                trigger +=
+                        loc.countChildren(AbstractLocation.CHILD_KIND_TRIGGER);
+                weak_location +=
+                        loc.countChildren(AbstractLocation.CHILD_KIND_WEAK_LOCATION);
+                total_children = binding_expression + change_listener + trigger +
+                        view_location + weak_location;
+                iterator_count +=
+                        AbstractLocation.iterationData.get(loc) != null ? 1 : 0;
+                listener_count += loc.getListenerCount();
+                loc_mapsize++;
+            }
         }
 
         // now we do the fxobjects
-        fxo_mapsize = FxTracker.fxo_map.size();
-        for (FXObject fxo : FxTracker.fxo_map.keySet()) {
-            keepClassTally(fxo_class_type_table, fxo.getClass().getName());
+        System.gc();
+        synchronized (FxTracker.fxo_map) {
+            System.gc();
+            for (FXObject fxo : FxTracker.fxo_map.keySet()) {
+                keepClassTally(fxo_class_type_table, fxo.getClass().getName());
+                fxo_mapsize++;
+            }
+        }
+
+        // now for the SDL
+        System.gc();
+        synchronized (FxTracker.sdl_map) {
+            System.gc();
+            for (StaticDependentLocation sdl : FxTracker.sdl_map.keySet()) {
+                if (sdl.get() == null) {
+                    sdl_null_referent_count++;
+                }
+                sdl_mapsize++;
+            }
         }
     }
 }

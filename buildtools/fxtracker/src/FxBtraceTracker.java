@@ -67,8 +67,11 @@ import com.sun.javafx.runtime.location.*;
     private static long listenerCount = 0;
     @Property
     private static long fxObjectCount = 0;
+    @Property
+    private static long sdlNullReferentCount = 0;
 
-    // insert new ctors and update tracking data
+
+    // insert new ctors and update tracking data for AbstractLocation
     @OnMethod(
 	clazz="com.sun.javafx.runtime.location.AbstractLocation",
         method="<init>"
@@ -85,6 +88,7 @@ import com.sun.javafx.runtime.location.*;
         iteratorCount = FxTracker.getIteratorCount();
         listenerCount = FxTracker.getListenerCount();
         fxObjectCount = FxTracker.getFxObjectCount();
+        sdlNullReferentCount = FxTracker.getSdlNullReferentCount();
         String cn = name(classOf(obj));
         AtomicInteger ai = get(histo, cn);
         if (ai == null) {
@@ -95,7 +99,7 @@ import com.sun.javafx.runtime.location.*;
         }     
     }
 
-    // insert new ctors and update tracking data
+    // insert new ctors and update tracking data for FXBase
     @OnMethod(
 	clazz="com.sun.javafx.runtime.FXBase",
         method="<init>"
@@ -112,6 +116,7 @@ import com.sun.javafx.runtime.location.*;
         iteratorCount = FxTracker.getIteratorCount();
         listenerCount = FxTracker.getListenerCount();
         fxObjectCount = FxTracker.getFxObjectCount();
+        sdlNullReferentCount = FxTracker.getSdlNullReferentCount();
         String cn = name(classOf(obj));
         AtomicInteger ai = get(histo, cn);
         if (ai == null) {
@@ -121,6 +126,35 @@ import com.sun.javafx.runtime.location.*;
             incrementAndGet(ai);
         }     
     }
+
+    // insert new ctors and update tracking data for StaticDependentLocation
+    @OnMethod(
+	clazz="com.sun.javafx.runtime.location.StaticDependentLocation",
+        method="<init>"
+    )
+    public static void onnewObject(@Self Object obj, com.sun.javafx.runtime.location.Location r) {
+        FxTracker.track(obj);
+        bindingExpressionCount = FxTracker.getBindingExpressionCount();
+        changeListenerCount =  FxTracker.getChangeListenerCount();
+        triggerCount = FxTracker.getTriggerCount();
+        viewLocationCount = FxTracker.getViewLocationCount();
+        weakLocationCount = FxTracker.getWeakLocationCount();
+        totalChildrenCount = FxTracker.getTotalChildrenCount();
+        locationMapSize = FxTracker.getLocationMapSize();
+        iteratorCount = FxTracker.getIteratorCount();
+        listenerCount = FxTracker.getListenerCount();
+        fxObjectCount = FxTracker.getFxObjectCount();
+        sdlNullReferentCount = FxTracker.getSdlNullReferentCount();
+        String cn = name(classOf(obj));
+        AtomicInteger ai = get(histo, cn);
+        if (ai == null) {
+            ai = newAtomicInteger(1);
+            put(histo, cn, ai);
+        } else {
+            incrementAndGet(ai);
+        }
+    }
+
     @OnTimer(4000) 
     public static void print() {
         if (size(histo) != 0) {

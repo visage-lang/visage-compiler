@@ -43,11 +43,10 @@ public class JFXVar extends JFXExpression implements VariableTree {
     public VarSymbol sym;
     private JFXType jfxtype;
     private final JavafxBindStatus bindStatus;
-    private final JFXOnReplace onReplace;
+    private final JFXOnReplace[] triggers;
 
     protected JFXVar() {
-
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     protected JFXVar(Name name,
@@ -56,6 +55,7 @@ public class JFXVar extends JFXExpression implements VariableTree {
             JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
+            JFXOnReplace onInvalidate,
             VarSymbol sym) {
             this.mods = mods;
             this.name = name;
@@ -63,7 +63,9 @@ public class JFXVar extends JFXExpression implements VariableTree {
             this.sym = sym;
         this.jfxtype = jfxtype;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
-        this.onReplace = onReplace;
+        this.triggers = new JFXOnReplace[JFXOnReplace.Kind.values().length];
+        this.triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()] = onReplace;
+        this.triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()] = onInvalidate;
         this.sym = sym;
     }
     
@@ -97,11 +99,27 @@ public class JFXVar extends JFXExpression implements VariableTree {
     }
     
     public OnReplaceTree getOnReplaceTree() {
-        return onReplace;        
+        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
     }
     
     public JFXOnReplace getOnReplace() {
-        return onReplace;
+        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
+    }
+
+    public OnReplaceTree getOnInvalidateTree() {
+        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
+    }
+
+    public JFXOnReplace getOnInvalidate() {
+        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
+    }
+    
+    public OnReplaceTree getTriggerTree(JFXOnReplace.Kind triggerKind) {
+        return triggers[triggerKind.ordinal()];
+    }
+
+    public JFXOnReplace getTrigger(JFXOnReplace.Kind triggerKind) {
+        return triggers[triggerKind.ordinal()];
     }
 
     public JavafxBindStatus getBindStatus() {

@@ -758,6 +758,10 @@ public class JavafxToBound extends JavafxAbstractTranslation implements JavafxVi
         return false;
     }
 
+    public void visitInvalidate(JFXInvalidate tree) {
+       throw new AssertionError("Unsupported AST node: " + tree.getJavaFXKind());
+    }
+
     //@Override
     public void visitIdent(JFXIdent tree)   {  //TODO: don't use toJava
        // assert (tree.sym.flags() & Flags.PARAMETER) != 0 || tree.name == names._this || tree.sym.isStatic() || toJava.requiresLocation(typeMorpher.varMorphInfo(tree.sym)) : "we are bound, so should have been marked to morph: " + tree;

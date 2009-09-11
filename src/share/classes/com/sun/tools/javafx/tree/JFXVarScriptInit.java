@@ -79,6 +79,14 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
         return var.getOnReplace();
     }
 
+    public OnReplaceTree getOnInvalidateTree() {
+        return var.getOnInvalidateTree();
+    }
+
+    public JFXOnReplace getOnInvalidate() {
+        return var.getOnInvalidate();
+    }
+
     public JavafxBindStatus getBindStatus() {
         return var.getBindStatus();
     }

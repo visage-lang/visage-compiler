@@ -983,6 +983,17 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
+    public void visitInvalidate(JFXInvalidate that) {
+        try {
+            print("invalidate ");
+            printExpr(that.getVariable());
+            print("; ");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    //@Override
     public void visitStringExpression(JFXStringExpression tree) {
         try {
             int i;
@@ -1161,6 +1172,9 @@ public class JavafxPretty implements JavafxVisitor {
             if (tree.getOnReplace() != null) {
                 printExpr(tree.getOnReplace());
             }
+            if (tree.getOnInvalidate() != null) {
+                printExpr(tree.getOnInvalidate());
+            }
             print(";");
             if (variableScope == SCOPE_OUTER || variableScope == SCOPE_CLASS) {
                 println();
@@ -1181,7 +1195,12 @@ public class JavafxPretty implements JavafxVisitor {
             }
             print(" ");
             align();
-            printExpr(tree.getOnReplace());
+            if (tree.getOnReplace() != null) {
+                printExpr(tree.getOnReplace());
+            }
+            if (tree.getOnInvalidate() != null) {
+                printExpr(tree.getOnInvalidate());
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -1191,7 +1210,9 @@ public class JavafxPretty implements JavafxVisitor {
     //@Override
     public void visitOnReplace(JFXOnReplace tree) {
         try {
-            print(" on replace");
+            String triggerKind = tree.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE ?
+                "replace" : "invalidate";
+            print(" on " + triggerKind);
             if (tree.getOldValue() != null) {
                 print(" ");
                 printExpr(tree.getOldValue());

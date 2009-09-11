@@ -69,6 +69,14 @@ public class JavafxAttrContext {
      */
     Symbol enclVar = null;
 
+    /**
+     * Is this context nested inside an on-invalidate trigger? Used in
+     * conjuction with the above symbol in order to determine whether the
+     * target var of an on-invalidate trigger is being referenced from the
+     * trigger itself. Such access should be considered illegal.
+     */
+    boolean inInvalidate = false;
+
     
     public boolean inSelect = false;
 
@@ -84,6 +92,7 @@ public class JavafxAttrContext {
         info.tvars = tvars;
         info.lint = lint;
         info.enclVar = enclVar;
+        info.inInvalidate = inInvalidate;
         return info;
     }
 
