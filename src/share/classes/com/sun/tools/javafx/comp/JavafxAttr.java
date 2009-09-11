@@ -563,6 +563,11 @@ public class JavafxAttr implements JavafxVisitor {
             checkInit(tree, env, v);
             checkForward(tree, env, v);
 
+            if (env.info.inInvalidate &&
+                    sym == env.info.enclVar) {
+                log.error(tree.pos(), MsgSym.MESSAGE_CANNOT_REF_INVALIDATE_VAR, sym);
+            }
+
             // If we are expecting a variable (as opposed to a value), check
             // that the variable is assignable in the current environment.
             if (pkind == VAR)
@@ -997,9 +1002,10 @@ public class JavafxAttr implements JavafxVisitor {
             // Check that instance variables don't override
             chk.checkVarOverride(tree, (VarSymbol)sym);
         }
-        
+
         for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
             JFXOnReplace trigger = tree.getTrigger(triggerKind);
+            boolean inInvalidate = triggerKind == JFXOnReplace.Kind.ONINVALIDATE;
             if (trigger != null) {
                 if (inBindContext) {
                     log.error(trigger.pos(), MsgSym.MESSAGE_TRIGGER_IN_BIND_NOT_ALLOWED, triggerKind);
@@ -1015,15 +1021,19 @@ public class JavafxAttr implements JavafxVisitor {
                     if (newElements != null && newElements.type == null)
                         newElements.type = tree.type;
                 } else if (triggerKind == JFXOnReplace.Kind.ONINVALIDATE) {
-                     if ((sym.flags_field & JavafxFlags.VARUSE_BOUND_INIT) == 0) {
+                    if ((sym.flags_field & JavafxFlags.VARUSE_BOUND_INIT) == 0) {
                         log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
-                     }
+                    }
                 }
 
                 if (isClassVar) {
                         // let the owner of the environment be a freshly
                         // created BLOCK-method.
                         JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
+                        localEnv.info.inInvalidate = inInvalidate;
+                        if (inInvalidate) {
+                            localEnv.info.enclVar = sym;
+                        }
                         if ((flags & STATIC) != 0) {
                             localEnv.info.staticLevel++;
                         }
@@ -1031,6 +1041,10 @@ public class JavafxAttr implements JavafxVisitor {
                 } else {
                         // Create a new local environment with a local scope.
                         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(env.info.scope.dup()));
+                        localEnv.info.inInvalidate = inInvalidate;
+                        if (inInvalidate) {
+                            localEnv.info.enclVar = sym;
+                        }
                         attribDecl(trigger, localEnv);
                         localEnv.info.scope.leave();
                 }
@@ -1136,8 +1150,12 @@ public class JavafxAttr implements JavafxVisitor {
         for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
             JFXOnReplace trigger = tree.getTrigger(triggerKind);
             if (trigger != null) {
-                if (triggerKind == JFXOnReplace.Kind.ONINVALIDATE && !tree.isBound()) {
-                    log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
+                if (triggerKind == JFXOnReplace.Kind.ONINVALIDATE) {
+                    localEnv.info.inInvalidate = true;
+                    localEnv.info.enclVar = sym;
+                    if (!tree.isBound()) {
+                        log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
+                    }
                 }
 
                 JFXVar oldValue = trigger.getOldValue();
