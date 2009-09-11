@@ -1198,6 +1198,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // clearValidValue$(VOFF$var);
                 ifStmts.append(makeFlagStatement(varInfo, varFlagActionClear, varFlagValid));
                 
+                // Handle binders.
+                if (varInfo instanceof TranslatedVarInfoBase) {
+                    for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
+                        // invalidate$var();
+                        ifStmts.append(Call(attributeInvalidateName(otherVarSym)));
+                    }
+                }
+                
                 // notifyDependents(VOFF$var););
                 ifStmts.append(Call(defs.attributeNotifyDependentsName, Id(attributeOffsetName(varSym))));
                 
@@ -1208,16 +1216,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 stmts.append(m().If(test, m().Block(0L, ifStmts.toList()), null));
             }
 
-            // Set up value arg.
-            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.PARAMETER),
-                                                          varNewValueName,
-                                                          makeType(type),
-                                                          null);
             // Construct method.
             JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
                                              syms.voidType,
                                              attributeInvalidateName(varSym),
-                                             List.<JCVariableDecl>of(arg),
+                                             List.<JCVariableDecl>nil(),
                                              stmts);
             optStat.recordProxyMethod();
 

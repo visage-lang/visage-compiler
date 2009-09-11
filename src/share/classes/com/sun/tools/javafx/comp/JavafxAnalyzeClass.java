@@ -179,11 +179,20 @@ class JavafxAnalyzeClass {
         public long getFlags() { return sym.flags(); }
         
         // Return true if the var is bound.
-        public boolean isBound() { return (sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0; }
+        public boolean isBound() { return (getFlags() & JavafxFlags.VARUSE_BOUND_INIT) != 0L; }
         
-        // Return true if the var is bound.
-        public boolean isUsedBound() { return (sym.flags() & JavafxFlags.VARUSE_USED_IN_BIND) != 0; }
+        // Return true if the var is used in a bind.
+        public boolean isUsedBound() { return (getFlags() & JavafxFlags.VARUSE_USED_IN_BIND) != 0L; }
         
+        // Return true if the var has a bound definition.
+        public boolean hasBoundDefinition() { return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L; }
+        
+        // Return true if the var has a bidirectional bind.
+        public boolean hasBiDiBoundDefinition() { return (getFlags() & JavafxFlags.VARUSE_BOUND_BIDIRECTIONAL) != 0L; }
+        
+        // Return true if the var is an inline bind.
+        public boolean isInlinedBind() { return hasBoundDefinition(); }
+
         // Generally means that the var needs to be included in the current method.
         public boolean needsCloning() { return false; }
 
@@ -214,19 +223,6 @@ class JavafxAnalyzeClass {
         public boolean isSequence() {
             return vmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE;
         }
-
-        public boolean hasBoundDefinition() {
-            return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L;
-        }
-        
-        public boolean hasBiDiBoundDefinition() {
-            return (getFlags() & JavafxFlags.VARUSE_BOUND_BIDIRECTIONAL) != 0L;
-        }
-
-        public boolean isInlinedBind() {
-            return hasBoundDefinition();
-        }
-
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
 
@@ -306,6 +302,9 @@ class JavafxAnalyzeClass {
 
         // Result of bind translation
         private final Result bindOrNull;
+        
+        // Inversion of boundBindees.
+        private ListBuffer<VarSymbol> bindersOrNull;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt, Result bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
@@ -324,9 +323,12 @@ class JavafxAnalyzeClass {
         @Override
         public List<JCStatement> boundPreface() { return bindOrNull==null? List.<JCStatement>nil() : bindOrNull.stmts; }
 
-        // Null or variable symbols on which this variable depends
+        // Variable symbols on which this variable depends
         @Override
         public List<VarSymbol> boundBindees() { return bindOrNull==null? List.<VarSymbol>nil() : bindOrNull.bindees; }
+
+        // Bound variable symbols on which this variable is used.
+        public List<VarSymbol> boundBinders() { return bindersOrNull==null? List.<VarSymbol>nil() : bindersOrNull.toList(); }
 
         // Possible javafx code for the var's 'on replace'.
         @Override
@@ -440,12 +442,39 @@ class JavafxAnalyzeClass {
         // Start by analyzing the current class.
         analyzeCurrentClass();
 
-        // Assign var enumeration.
+        // Assign var enumeration and handle binders.
         for (VarInfo ai : attributeInfos) {
             // Only variables actually declared.
             if (ai.needsDeclaration()) {
                 // Assign the vars enumeration.
                 ai.setEnumeration(varCount++);
+            }
+            
+            // Only look at translated vars.
+            if (ai instanceof TranslatedVarInfoBase) {
+                TranslatedVarInfoBase tai = (TranslatedVarInfoBase)ai;
+                
+                // If the var has a bind 
+                if (tai.boundInit() != null) {
+                    // Check each of the bindees.
+                    for (VarSymbol bindeeSym : tai.boundBindees()) {
+                        // Find the varInfo
+                        VarInfo bindee = visitedAttributes.get(bindeeSym.name);
+                        
+                        // If an interesting var.
+                        if (bindee instanceof TranslatedVarInfoBase) {
+                            TranslatedVarInfoBase bindeeTAI = (TranslatedVarInfoBase)bindee;
+                            
+                            // Add a symbol buffer if necessary.
+                            if (bindeeTAI.bindersOrNull == null) {
+                                bindeeTAI.bindersOrNull = ListBuffer.lb();
+                            }
+                            
+                            // Add bunder.
+                            bindeeTAI.bindersOrNull.append(tai.getSymbol());
+                        }
+                    }
+                }
             }
         }
 
