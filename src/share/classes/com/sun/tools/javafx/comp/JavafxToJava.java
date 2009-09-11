@@ -91,6 +91,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
      * modules imported by context
      */
     private final JavafxInitializationBuilder initBuilder;
+    private final JavafxTranslateBind translateBind;
 
     /*
      * Buffers holding definitions waiting to be prepended to the current list of definitions.
@@ -158,6 +159,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         context.put(jfxToJavaKey, this);
 
         initBuilder = JavafxInitializationBuilder.instance(context);
+        translateBind = JavafxTranslateBind.instance(context);
     }
 
     /** Visitor method: Translate a single node.
@@ -887,14 +889,15 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                             if (!isScriptClone) {
                                 boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
                                 inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
-                                JCStatement init = (!isStatic || getAttrEnv().toplevel.isLibrary) ? translateDefinitionalAssignmentToSet(attrDef.pos(),
+                                JCStatement initStmt = (!isStatic || getAttrEnv().toplevel.isLibrary) ? translateDefinitionalAssignmentToSet(attrDef.pos(),
                                         attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
                                         isStatic ? null : defs.receiverName)
                                         : null;
                                 attrInfo.append(new TranslatedVarInfo(
                                         attrDef,
                                         typeMorpher.varMorphInfo(attrDef.sym),
-                                        init,
+                                        initStmt,
+                                        attrDef.isBound()? translateBind.translate(attrDef.getInitializer(), attrDef.sym) : null,
                                         attrDef.getOnReplace(),
                                         translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace()),
                                         makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace())));
@@ -906,16 +909,17 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
                             inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
-                            JCStatement init;
+                            JCStatement initStmt;
                             inOverrideInstanceVariableDefinition = true;
-                            init = translateDefinitionalAssignmentToSet(override.pos(),
+                            initStmt = translateDefinitionalAssignmentToSet(override.pos(),
                                     override.getInitializer(), override.getBindStatus(), override.sym,
                                     isStatic ? null : defs.receiverName);
                             inOverrideInstanceVariableDefinition = false;
                             overrideInfo.append(new TranslatedOverrideClassVarInfo(
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
-                                    init,
+                                    initStmt,
+                                    override.isBound()? translateBind.translate(override.getInitializer(), override.sym) : null,
                                     override.getOnReplace(),
                                     makeInstanciateChangeListener(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;

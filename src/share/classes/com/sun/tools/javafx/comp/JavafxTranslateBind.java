@@ -27,6 +27,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.tree.JCTree;
@@ -51,15 +52,17 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
     public class Result {
         final List<JCStatement> stmts;
         final JCExpression value;
-        Result(List<JCStatement> stmts, JCExpression value) {
+        final List<VarSymbol> bindees;
+        Result(List<JCStatement> stmts, JCExpression value, List<VarSymbol> bindees) {
             this.stmts = stmts;
             this.value = value;
+            this.bindees = bindees;
         }
-        Result(ListBuffer<JCStatement> buf, JCExpression value) {
-            this(buf.toList(), value);
+        Result(ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<VarSymbol> bindees) {
+            this(buf.toList(), value, bindees.toList());
         }
         Result(JCExpression value) {
-            this(List.<JCStatement>nil(), value);
+            this(List.<JCStatement>nil(), value, List.<VarSymbol>nil());
         }
     }
 
@@ -89,21 +92,24 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
     public void visitBinary(JFXBinary tree) {
         final ListBuffer<JCStatement> preface = ListBuffer.lb();
+        final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
         JCExpression value = (new BinaryOperationTranslator(tree.pos(), tree) {
 
             protected JCExpression translateArg(JFXExpression arg, Type type) {
                 Result res = translate(arg);
                 //TODO: convert type
                 preface.appendList(res.stmts);
+                bindees.appendList(res.bindees);
                 return res.value;
             }
         }).doit();
-        result = new Result(preface.toList(), value);
+        result = new Result(preface, value, bindees);
     }
 
     //TODO: merge with JavafxToJava version
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         final ListBuffer<JCStatement> preface = ListBuffer.lb();
+        final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
         JCExpression value = (new FunctionCallTranslator(tree) {
             private Name funcName = null;
 
@@ -236,6 +242,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                                         JCVariableDecl newVar = makeTmpVar(diagPos, getSyntheticName("new"), formal, callExpression(diagPos, null, attributeGetterName(sym)));
                                         preface.append(oldVar);
                                         preface.append(newVar);
+                                        bindees.append((VarSymbol)sym);
 
                                         // oldArg != newArg
                                         JCExpression compare = m().Binary(JCTree.NE, id(oldVar), id(newVar));
@@ -274,12 +281,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
             }
 
         }).doit();
-        result = new Result(preface.toList(), value);
+        result = new Result(preface, value, bindees);
     }
 
     public void visitIdent(JFXIdent tree) {
         // Just translate to get
-        result = new Result(translateIdent(tree));
+        result = new Result(List.<JCStatement>nil(), translateIdent(tree), (tree.sym instanceof VarSymbol)? List.<VarSymbol>of((VarSymbol)tree.sym) : List.<VarSymbol>nil());
     }
 
     /**
@@ -309,6 +316,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
         private final JFXIfExpression tree;
         private final Type targetType;
         private final JCVariableDecl resVar;
+        private final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
 
         IfExpressionTranslator(JFXIfExpression tree) {
             super(tree.pos());
@@ -319,6 +327,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
         JCStatement side(JFXExpression expr) {
             Result res = translate(expr, targetType);
+            bindees.appendList(res.bindees);
             return m().Block(0L, res.stmts.append(m().Exec(m().Assign(id(resVar), res.value))));
         }
 
@@ -329,6 +338,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
         Result result() {
             Result cond = translate(tree.getCondition());
+            bindees.appendList(cond.bindees);
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             stmts.append(resVar);
             stmts.appendList(cond.stmts);
@@ -336,7 +346,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                     cond.value,
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
-            return new Result(stmts.toList(), id(resVar));
+            return new Result(stmts, id(resVar), bindees);
         }
     }
 
@@ -355,16 +365,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
     public void visitUnary(JFXUnary tree) {
         final ListBuffer<JCStatement> preface = ListBuffer.lb();
+        final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
         JCExpression value = (new UnaryOperationTranslator(tree) {
 
             JCExpression translateExpression(JFXExpression expr, Type type) {
                 Result res = translate(expr);
                 //TODO: convert type
                 preface.appendList(res.stmts);
+                bindees.appendList(res.bindees);
                 return res.value;
             }
         }).doit();
-        result = new Result(preface.toList(), value);
+        result = new Result(preface, value, bindees);
     }
 
 

@@ -36,7 +36,6 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
-import com.sun.tools.javafx.comp.JavafxTranslateBind.Result;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -60,7 +59,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         new Context.Key<JavafxInitializationBuilder>();
 
     private final JavafxToJava toJava;
-    private final JavafxTranslateBind translateBind;
     private final JavafxClassReader reader;
     private final JavafxOptimizationStatistics optStat;
 
@@ -135,7 +133,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         context.put(javafxInitializationBuilderKey, this);
 
         toJava = JavafxToJava.instance(context);
-        translateBind = JavafxTranslateBind.instance(context);
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
 
@@ -999,9 +996,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
                     
                     // set$var(init/bound expression)
-                    Result tinit = translateBind.translate(varInfo.init(), varSym);
-                    ifStmts.appendList(tinit.stmts);
-                    ifStmts.append(Call(attributeBeName(varSym), tinit.value));
+                    ifStmts.appendList(varInfo.boundPreface());
+                    ifStmts.append(Call(attributeBeName(varSym), varInfo.boundInit()));
                   
                     // if (!isValidValue$(VOFF$var)) { set$var(init/bound expression); }
                     stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
