@@ -39,6 +39,9 @@ public interface BindableLocation<T_VALUE, T_LISTENER> extends ObjectLocation<T_
     /** Has the variable ever been initialized?  Initialization includes assigning it a value or binding it. */
     boolean isInitialized();
 
+    /** Does the variable have a class lireal init? */
+    boolean hasAnInitializer();
+
     void addChangeListener(T_LISTENER listener);
 
     void removeChangeListener(T_LISTENER listener);

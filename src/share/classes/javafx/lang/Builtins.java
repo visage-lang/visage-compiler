@@ -84,4 +84,14 @@ public class Builtins {
     public static boolean isInitialized(Object varRef) {
         return ((BindableLocation) varRef).isInitialized();
     }
+
+    /**
+     * Test if an instance variable has a class literal init.
+     *
+     * @param varRef The variable to be tested.
+     * @return true if the object has been initialized already
+     */
+    public static boolean hasAnInitializer(Object varRef) {
+        return ((BindableLocation)varRef).hasAnInitializer();
+    }
 }

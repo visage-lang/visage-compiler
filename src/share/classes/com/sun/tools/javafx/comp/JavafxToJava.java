@@ -1578,6 +1578,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         // Statements to set symbols with initial values.
         protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
 
+        // Statements to set init state for the initialized location.
+        protected ListBuffer<JCStatement> varStateInits = ListBuffer.lb();
+
         // Symbols corresponding to caseStats.
         protected ListBuffer<VarSymbol> varSyms = ListBuffer.lb();
 
@@ -1603,8 +1606,13 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
             //TODO: should not be calling definitionalAssignmentToSetExpression, instead should be translateDefinitionalAssignmentToSetExpression
-            varInits.append(m().Exec( toJava.definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, instName,
-                                                     toJava.typeMorpher.varMorphInfo(vsym)) ) );
+            VarMorphInfo vmi = toJava.typeMorpher.varMorphInfo(vsym);
+            varInits.append(m().Exec( toJava.definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, instName, vmi)));
+            JCExpression varRef = !vmi.isMemberVariable() ?
+                  m().at(diagPos).Ident(vsym) :// It is a local variable
+                  toJava.makeAttributeAccess(diagPos, vsym, instName); // It is a member variable
+            JCExpression varLoc = m().TypeCast(toJava.makeIdentifier(diagPos, defs.cAbstractLocation),varRef);
+            varStateInits.append(toJava.callStatement(diagPos, varLoc, "setInitMask", m().Literal(syms.byteType.tag, 1)));
             varSyms.append(vsym);
         }
 
@@ -1675,7 +1683,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 JCVariableDecl offsetVar = toJava.makeTmpVar(diagPos, "off", syms.intType, varOffsetExpr);
                 stats.append(offsetVar);
                 JCExpression condition = m().Binary(JCTree.EQ, m().Ident(loopName), m().Ident(offsetVar.name));
-                loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
+                loopBody = m().If(condition, m().Block(0, List.of(varInits.first(), varStateInits.first())), applyDefaultsExpr);
             }
 
             stats.append(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
@@ -3951,7 +3959,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     }
                                 }
                                 JCExpression targ;
-                                if (magicIsInitializedFunction) {
+                                if (magicIsInitializedFunction ||
+                                        magicHasAnInitializerFunction) {
                                     //TODO: in theory, this could have side-effects (but only in theory)
                                     targ = translateAsLocation(l.head);
                                 } else {

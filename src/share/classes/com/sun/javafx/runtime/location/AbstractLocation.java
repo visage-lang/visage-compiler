@@ -47,6 +47,9 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     static final int CHILD_KIND_TRIGGER = 4;
     static final int CHILD_KIND_BINDING_EXPRESSION = 8;
 
+    static final byte INITIALIZER_NO = 0;
+    static final byte INITIALIZER_YES = 1;
+
     // Space is at a premium; FX classes use a *lot* of locations.
     // We've currently got four byte-size fields here already; we rely on the VM packing byte-size fields
     // together. If we need to add more, we could compress isValid into a bit in state.
@@ -58,6 +61,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     /** For use by subclasses */
     protected byte state;
 
+    /** The initState flag means that the location has been initialized from
+     * a class literal expression. */
+    protected byte initState;
+
     /** The inUse flag indicates that we are currently traversing our listener lists, and therefore need to defer
      * modifying the lists until we're done traversing.  It serves as a two-bit reference count; if we "enter" the list
      * more than once, we'll observe that the list is already in use, and lazily inflate a structure to hold the count
@@ -67,7 +74,7 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
     /** As we add and remove dependencies, we maintain a mask of the kinds of things on the dependency list, so we can
      * quickly answer questions like "do we have any X's"
      */
-        private byte childKindMask;
+    private byte childKindMask;
 
     // This list contains several kinds of ancillary objects, including dependencies:
     //   Invalidation listeners: called when this location is invalidated
@@ -116,6 +123,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
         childKindMask = mask;
     }
 
+    public void setInitMask(byte mask) {
+        initState = mask;
+    }
+
     protected int countChildren(int mask) {
         int count = 0;
         for (LocationDependency cur = children; cur != null; cur = cur.getNext())
@@ -134,6 +145,10 @@ public abstract class AbstractLocation implements Location, Linkable<LocationDep
 
     protected boolean hasDependencies() {
         return hasChildren(CHILD_KIND_WEAK_LOCATION | CHILD_KIND_INVALIDATION_LISTENER | CHILD_KIND_TRIGGER);
+    }
+
+    public boolean hasAnInitializer() {
+        return (initState != 0);
     }
 
     protected void enqueueChild(LocationDependency dep) {

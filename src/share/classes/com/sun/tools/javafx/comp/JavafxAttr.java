@@ -2368,8 +2368,11 @@ public class JavafxAttr implements JavafxVisitor {
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
                 (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym ||
                  msym.owner.type.tsym == syms.javafx_FXRuntimeType.tsym) &&
-                methName == defs.isInitializedName) {
-            msym.flags_field |= JavafxFlags.FUNC_IS_INITIALIZED;
+                (methName == defs.isInitializedName ||
+                methName == defs.hasAnInitializerName)) {
+            msym.flags_field |= methName == defs.isInitializedName ?
+                JavafxFlags.FUNC_IS_INITIALIZED :
+                JavafxFlags.FUNC_HAS_AN_INITIALIZER;
             for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
                 JFXExpression arg = l.head;
                 Symbol asym = JavafxTreeInfo.symbol(arg);
@@ -2379,8 +2382,10 @@ public class JavafxAttr implements JavafxVisitor {
                             (arg.getFXTag() != JavafxTag.IDENT && arg.getFXTag() != JavafxTag.SELECT) ||
                             (asym.flags() & JavafxFlags.IS_DEF) != 0 ||
                             asym.owner == null ||
-                            asym.owner.kind != TYP) {
-                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR, defs.isInitializedName);
+                            asym.owner.kind != TYP ||
+                            (msym.flags() & JavafxFlags.FUNC_HAS_AN_INITIALIZER) != 0 &&
+                            asym.isStatic()) {
+                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR, methName);
                     } else {
                         // check that we have write access
                         // unless it is a public-init or public-read var, that was already handled 
