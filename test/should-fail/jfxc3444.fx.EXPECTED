@@ -6,3 +6,7 @@ required: variable
 found   : value
 invalidate 1; //invalidate argument must be a var
            ^
+test/should-fail/jfxc3444.fx:15: cannot invalidate unbound variable x
+   invalidate(x); //cannot invalidate local non-bound var
+              ^
+3 errors

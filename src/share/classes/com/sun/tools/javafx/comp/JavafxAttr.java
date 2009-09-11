@@ -3210,12 +3210,15 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitInvalidate(JFXInvalidate tree) {
         //the target expr should be a variable
         attribTree(tree.getVariable(), env, VAR, Type.noType);
-        VarSymbol var = (VarSymbol)JavafxTreeInfo.symbol(tree.getVariable());
-        //non-static vars can be overridden with a bound init - other cases
-        //are handled at runtime (exception)
-        if ((var.flags_field & JavafxFlags.VARUSE_BOUND_DEFINITION) == 0 &&
-                var.isStatic())
-            log.error(tree.getVariable().pos(), MsgSym.MESSAGE_CANNOT_INVALIDATE_UNBOUND_VAR, var);
+        Symbol varSym = JavafxTreeInfo.symbol(tree.getVariable());
+        if (varSym != null &&
+                varSym.kind == VAR) {
+            //non-static/local vars can be overridden with a bound init - other cases
+            //are handled at runtime (exception)
+            if ((varSym.flags_field & JavafxFlags.VARUSE_BOUND_DEFINITION) == 0 &&
+                    (varSym.isStatic() || varSym.owner.kind != TYP))
+                log.error(tree.getVariable().pos(), MsgSym.MESSAGE_CANNOT_INVALIDATE_UNBOUND_VAR, varSym);
+        }
         result = tree.type = syms.voidType;
     }
 
