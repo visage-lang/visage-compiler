@@ -3125,10 +3125,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                     //System.err.println("Not match: " + arg.type + " vs " + formal.head);
                                     // Otherwise, fall-through, presumably a conversion will work.
                                     default: {
-                                        targs.append(makeUnboundLocation(
-                                                arg.pos(),
-                                                typeMorpher.typeMorphInfo(formal.head),
-                                                translateAsValue(arg, arg.type)));
+                                        targs.append(translateAsValue(arg, arg.type));
                                     }
                                 }
                                 formal = formal.tail;

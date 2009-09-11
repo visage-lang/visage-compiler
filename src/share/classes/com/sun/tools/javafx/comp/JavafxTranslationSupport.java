@@ -25,7 +25,6 @@ package com.sun.tools.javafx.comp;
 
 import java.io.OutputStreamWriter;
 
-import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.mjavac.code.BoundKind;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
@@ -40,7 +39,6 @@ import static com.sun.tools.mjavac.code.Flags.STATIC;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.JCAnnotation;
 import com.sun.tools.mjavac.tree.JCTree.JCExpression;
-import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.mjavac.tree.JCTree.JCIdent;
 import com.sun.tools.mjavac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCMethodInvocation;
@@ -622,87 +620,6 @@ public abstract class JavafxTranslationSupport {
             tag == TypeTags.BOT? syms.botType : type.constType(value)); 
     }
 
-    JCExpression makeLocationLocalVariable(TypeMorphInfo tmi,
-                                  DiagnosticPosition diagPos,
-                                  List<JCExpression> makeArgs) {
-        return makeLocationVariable(tmi, diagPos, makeArgs, defs.makeMethodName);
-    }
-
-    JCExpression makeLocationWithDefault(TypeMorphInfo tmi,
-                                  DiagnosticPosition diagPos) {
-        return makeLocationWithDefault(tmi, diagPos, null);
-    }
-
-    JCExpression makeLocationWithDefault(TypeMorphInfo tmi,
-                                  DiagnosticPosition diagPos,
-                                  JCExpression expr) {
-        List<JCExpression> makeArgs;
-        Name makeMethod;
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT && 
-                (tmi.getRealType() == syms.javafx_StringType || tmi.getRealType() == syms.javafx_DurationType)) {
-            // This is an object type for which the default is something other than null
-            // construct it specifying the default
-            makeArgs = List.<JCExpression>of(makeDefaultValue(diagPos, tmi));
-            makeMethod = defs.makeWithDefaultMethodName;
-        } else {
-            makeArgs = List.<JCExpression>nil();
-            makeMethod = defs.makeMethodName;
-        }
-        if (expr != null) {
-            makeArgs = makeArgs.append(expr);
-        }
-        return makeLocationVariable(tmi, diagPos, makeArgs, makeMethod);
-    }
-    
-    JCExpression makeLocation(TypeMorphInfo tmi,
-                                  DiagnosticPosition diagPos,
-                                  List<JCExpression> makeArgs,
-                                  Name makeMethod,
-                                  JCExpression locationTypeExp, boolean primitiveSequence) {
-        JCFieldAccess makeSelect = make.at(diagPos).Select(locationTypeExp, makeMethod);
-        List<JCExpression> typeArgs = null;
-        switch (tmi.getTypeKind()) {
-            case TYPE_KIND_OBJECT:
-                typeArgs = List.of(makeTypeTree(diagPos, tmi.getRealType(), true));
-                break;
-            case TYPE_KIND_SEQUENCE:
-                Type elemType = types.boxedTypeOrType(tmi.getElementType());
-                typeArgs = List.of(makeTypeTree(diagPos, elemType, true));
-                makeArgs = makeArgs.prepend(makeTypeInfo(diagPos, elemType));
-                break;
-        }
-        return make.at(diagPos).Apply(typeArgs, makeSelect, makeArgs);
-    }
-
-    JCExpression makeLocationVariable(TypeMorphInfo tmi,
-                                  DiagnosticPosition diagPos,
-                                  List<JCExpression> makeArgs,
-                                  Name makeMethod) {
-        int kind = tmi.getTypeKind();
-        Name locName = typeMorpher.variableNCT[kind].name;
-        boolean primitiveSequence = kind == TYPE_KIND_SEQUENCE && tmi.getElementType().isPrimitive();
-        if (false && primitiveSequence)
-            locName = ((ClassSymbol) tmi.getVariableType().tsym).fullname;
-        JCExpression locationTypeExp = makeIdentifier(diagPos, locName);
-        return makeLocation(tmi, diagPos, makeArgs, makeMethod, locationTypeExp, primitiveSequence);
-    }
-
-    JCExpression makeConstantLocation(DiagnosticPosition diagPos, Type type, JCExpression expr) {
-        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
-        List<JCExpression> makeArgs = List.of(expr);
-        JCExpression locationTypeExp = makeTypeTree( diagPos,tmi.getConstantLocationType(), true);
-        return makeLocation(tmi, diagPos, makeArgs, defs.makeMethodName, locationTypeExp, false);
-    }
-
-    JCExpression makeUnboundLocation(DiagnosticPosition diagPos, TypeMorphInfo tmi, JCExpression expr) {
-        List<JCExpression> makeArgs = List.of(expr);
-        return makeLocationLocalVariable(tmi, diagPos, makeArgs);
-    }
-
-    protected JCExpression makeUnboundLocation(DiagnosticPosition diagPos, Type type, JCExpression expr) {
-        return makeUnboundLocation(diagPos, typeMorpher.typeMorphInfo(type), expr);
-    }
-
     JCExpression runtime(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> args) {
         return runtime(diagPos, meth, null, args);
     }
@@ -967,10 +884,6 @@ public abstract class JavafxTranslationSupport {
 
     BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, ListBuffer<JCStatement> stmts, JCExpression value) {
         return makeBlockExpression(diagPos, stmts.toList(), value);
-    }
-
-    JCExpression makeLaziness(DiagnosticPosition diagPos, JavafxBindStatus bindStatus) {
-        return make.at(diagPos).Literal(TypeTags.BOOLEAN, bindStatus.isLazy()? 1 : 0);
     }
 
     JCVariableDecl makeTmpLoopVar(DiagnosticPosition diagPos, int initValue) {
