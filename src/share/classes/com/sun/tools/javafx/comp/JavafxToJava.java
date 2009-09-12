@@ -3006,27 +3006,23 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     toCheckOrNull = meth;
                     funcName = defs.invokeName;
                     knownNonNull = false;
-                } else if (selector == null) {
-                    // This is not an function var call and not a selector, so we assume it is a simple foo()
-                    if (meth.getFXTag() == JavafxTag.IDENT) {
-                        JFXIdent fr = fxm().Ident(functionName(msym, superToStatic, callBound));
+                } else {
+                    Name convName = functionName(msym, superToStatic, callBound);
+                    if (selector == null) {
+                        // This is not an function var call and not a selector, so we assume it is a simple foo()
+                        assert (meth.getFXTag() != JavafxTag.IDENT) : "Should never get here";
+                        JFXIdent fr = fxm().Ident(convName);
                         fr.type = meth.type;
                         fr.sym = msym;
                         toCheckOrNull = fr;
                         funcName = null;
                         knownNonNull = true;
                     } else {
-                        // Should never get here
-                        assert false : meth;
-                        toCheckOrNull = meth;
-                        funcName = null;
-                        knownNonNull = true;
+                        // Regular selector call  foo.bar() -- so, check the selector not the whole meth
+                        toCheckOrNull = selector;
+                        funcName = convName;
+                        knownNonNull = selector.type.isPrimitive() || !selectorMutable;
                     }
-                } else {
-                    // Regular selector call  foo.bar() -- so, check the selector not the whole meth
-                    toCheckOrNull = selector;
-                    funcName = functionName(msym, superToStatic, callBound);
-                    knownNonNull =  selector.type.isPrimitive() || !selectorMutable;
                 }
 
                 return new NullCheckTranslator(diagPos, toCheckOrNull, returnType, knownNonNull) {

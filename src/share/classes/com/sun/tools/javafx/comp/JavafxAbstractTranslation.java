@@ -373,7 +373,6 @@ public abstract class JavafxAbstractTranslation<R>
 
         protected final JFXExpression meth;
         protected final JFXExpression selector;
-        private final Name selectorIdName;
         protected final boolean thisCall;
         protected final boolean superCall;
         protected final MethodSymbol msym;
@@ -396,7 +395,7 @@ public abstract class JavafxAbstractTranslation<R>
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
             Symbol sym = toJava.expressionSymbol(meth);
             msym = (sym instanceof MethodSymbol) ? (MethodSymbol) sym : null;
-            selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
+            Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
             thisCall = selectorIdName == toJava.names._this;
             superCall = selectorIdName == toJava.names._super;
             ClassSymbol csym = toJava.getAttrEnv().enclClass.sym;
@@ -1238,51 +1237,37 @@ public abstract class JavafxAbstractTranslation<R>
     }
 
     JCExpression convertVariableReference(DiagnosticPosition diagPos,
-                                                 JCExpression varRef, Symbol sym) {
+            JCExpression varRef, Symbol sym) {
         JCExpression expr = varRef;
 
         if (sym instanceof VarSymbol) {
             final VarSymbol vsym = (VarSymbol) sym;
             VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            boolean isSequence = vmi.isSequence();
-            boolean isClassVar = vmi.isFXMemberVariable();
+            boolean isFXMemberVar = vmi.isFXMemberVariable();
 
-            if (isClassVar) {
+            if (isFXMemberVar) {
                 // this is a reference to a JavaFX class variable, use getter
-                Name accessName = attributeGetterName(vsym);
-                JCExpression accessFunc = switchName(diagPos, varRef, accessName);
-                List<JCExpression> emptyArgs = List.nil();
-                expr = make.at(diagPos).Apply(null, accessFunc, emptyArgs);
-            }
-/***
-            if (!vmi.useAccessors()) {
-                int typeKind = vmi.getTypeKind();
-                if (vmi.representation() == AlwaysLocation && wrapper != AsLocation) {
-                    // Anything still in the form of a Location (and that isn't what we want), get the value
-                    if (isSequence || !isClassVar) {
-                        expr = getLocationValue(diagPos, expr, typeKind);
-                    }
-                } else if (vmi.representation() == NeverLocation && wrapper == AsLocation) {
-                    // We are directly accessing a non-Location local, a Location is wanted, wrap it
-                    assert !isClassVar;
-                    expr = makeUnboundLocation(diagPos, vmi, expr);
+                JCExpression instance;
+                // find referenced instance, null for current
+                switch (expr.getTag()) {
+                    case JCTree.IDENT:
+                        instance = null;
+                        break;
+                    case JCTree.SELECT:
+                        instance = ((JCFieldAccess) varRef).getExpression();
+                        break;
+                    default:
+                        throw new AssertionError();
                 }
+                if (vsym.isStatic()) {
+                    // script-level get to instance through script-level accessor
+                    instance = callExpression(diagPos, instance, defs.scriptLevelAccessMethod);
+                }
+                expr = callExpression(diagPos, instance, attributeGetterName(vsym));
             }
- ****/
         }
 
         return expr;
-    }
-    //where
-    private JCExpression switchName(DiagnosticPosition diagPos, JCExpression identOrSelect, Name name) {
-        switch (identOrSelect.getTag()) {
-            case JCTree.IDENT:
-                return make.at(diagPos).Ident(name);
-            case JCTree.SELECT:
-                return make.at(diagPos).Select(((JCFieldAccess)identOrSelect).getExpression(), name);
-            default:
-                throw new AssertionError();
-        }
     }
 
     /** Box up a single primitive expression. */
