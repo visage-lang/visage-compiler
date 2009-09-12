@@ -1459,11 +1459,16 @@ public abstract class JavafxAbstractTranslation<R>
        return make.TypeCast(makeType(arg.pos(), types.boxedTypeOrType(castType)), arg);
     }
 
+   //TODO: hack -- move FunctionTranslator up
+   JCTree translateFunction(JFXFunctionDefinition tree, boolean maintainContext) {
+       return toJava.translateFunction(tree, maintainContext);
+   }
+
    JCExpression makeFunctionValue (JCExpression meth, JFXFunctionDefinition def, DiagnosticPosition diagPos, MethodType mtype) {
         ListBuffer<JCTree> members = new ListBuffer<JCTree>();
         if (def != null) {
             // Translate the definition, maintaining the current inInstanceContext
-            members.append( toJava.translateFunction(def, true) );
+            members.append( translateFunction(def, true) );
         }
         JCExpression encl = null;
         int nargs = mtype.argtypes.size();
