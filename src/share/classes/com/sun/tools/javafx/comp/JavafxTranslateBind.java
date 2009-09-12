@@ -387,27 +387,36 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
  * Visitor methods -- NOT implemented yet
  ****************************************************************************/
 
+    void TODO() {
+        throw new RuntimeException("Not yet implemented bind functionality");
+    }
+
     public void visitAssign(JFXAssign tree) {
+        TODO();
         translate(tree.lhs);
         translate(tree.rhs);
     }
 
     public void visitTypeCast(JFXTypeCast tree) {
+        TODO();
         //(tree.clazz);
         translate(tree.expr);
     }
 
     public void visitInstanceOf(JFXInstanceOf tree) {
+        TODO();
         translate(tree.expr);
         //(tree.clazz);
     }
 
     public void visitSelect(JFXSelect tree) {
+        TODO();
         translate(tree.selected);
     }
 
     //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
+        TODO();
         for (JFXVar param : tree.getParams()) {
             translate(param);
         }
@@ -416,10 +425,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
     //@Override
     public void visitSequenceEmpty(JFXSequenceEmpty that) {
+        TODO();
     }
     
     //@Override
     public void visitSequenceRange(JFXSequenceRange that) {
+        TODO();
         translate( that.getLower() );
         translate( that.getUpper() );
         translate( that.getStepOrNull() );
@@ -427,22 +438,26 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
     
     //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit that) {
+        TODO();
         translate( that.getItems() );
     }
 
     //@Override
     public void visitSequenceIndexed(JFXSequenceIndexed that) {
+        TODO();
         translate(that.getSequence());
         translate(that.getIndex());
     }
     
     public void visitSequenceSlice(JFXSequenceSlice that) {
+        TODO();
         translate(that.getSequence());
         translate(that.getFirstIndex());
         translate(that.getLastIndex());
     }
 
     public void visitStringExpression(JFXStringExpression that) {
+        TODO();
         List<JFXExpression> parts = that.getParts();
         parts = parts.tail;
         while (parts.nonEmpty()) {
@@ -455,6 +470,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
     
     //@Override
     public void visitInstanciate(JFXInstanciate tree) {
+        TODO();
        translate(tree.getIdentifier());
        translate(tree.getArgs());
        translate(tree.getParts());
@@ -465,6 +481,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
     
     //@Override
     public void visitForExpression(JFXForExpression that) {
+        TODO();
         for (ForExpressionInClauseTree cl : that.getInClauses()) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             //(clause);
@@ -474,18 +491,22 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
     //@Override
     public void visitBlockExpression(JFXBlock that) {
+        TODO();
         translate(that.stats);
         translate(that.value);
     }
     
     //@Override
     public void visitIndexof(JFXIndexof that) {
+        TODO();
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {
+        TODO();
     }
 
     public void visitInterpolateValue(JFXInterpolateValue that) {
+        TODO();
         translate(that.attribute);
         translate(that.value);
         if  (that.interpolation != null) {
