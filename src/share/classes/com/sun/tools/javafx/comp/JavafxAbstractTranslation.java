@@ -894,8 +894,8 @@ public abstract class JavafxAbstractTranslation<R>
                 }
             } else {
                 final boolean useSetters = vmi.useAccessors();
-                // If sequence we need to call incrementShared.  Thus:
-                assert ! types.isSequence(lhs.type);
+                //TODO: ??? If sequence we need to call incrementShared.  Thus:
+                // assert ! types.isSequence(lhs.type);
                 if (lhs.getFXTag() == JavafxTag.SELECT) {
                     final JFXSelect select = (JFXSelect) lhs;
                     return new NullCheckTranslator(diagPos, select.getExpression(), lhs.type, false) { 

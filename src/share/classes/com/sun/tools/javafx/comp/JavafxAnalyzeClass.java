@@ -236,9 +236,6 @@ class JavafxAnalyzeClass {
         public int  getEnumeration()                { return enumeration; }
         public void setEnumeration(int enumeration) { this.enumeration = enumeration; }
 
-        // Null or FX code for the var's bound value for retrieval from getter.
-        public JFXExpression init() { return null; }
-
         // null or javafx tree for the var's 'on replace'.
         public JFXOnReplace onReplace() { return null; }
 

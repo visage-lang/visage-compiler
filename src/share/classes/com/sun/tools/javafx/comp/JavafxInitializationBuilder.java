@@ -984,7 +984,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 Name name = attributeValueName(proxyVarSym);
 
                 if (varInfo.hasBoundDefinition()) {
-                    assert varInfo.init() != null;
+                    assert varInfo.boundInit() != null;
 
                     // !isValidValue$(VOFF$var)
                     JCExpression condition = NOT(makeFlagExpression(varInfo, varFlagActionTest, varFlagValid));

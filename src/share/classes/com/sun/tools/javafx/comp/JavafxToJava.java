@@ -3013,7 +3013,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     Name convName = functionName(msym, superToStatic, callBound);
                     if (selector == null) {
                         // This is not an function var call and not a selector, so we assume it is a simple foo()
-                        assert (meth.getFXTag() != JavafxTag.IDENT) : "Should never get here";
+                        assert (meth.getFXTag() == JavafxTag.IDENT) : "Should never get here";
                         JFXIdent fr = fxm().Ident(convName);
                         fr.type = meth.type;
                         fr.sym = msym;
