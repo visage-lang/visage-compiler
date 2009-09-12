@@ -173,10 +173,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                         } else if (renameToThis || thisCall) {
                            trans = m().Ident(names._this);
                         } else if (superToStatic) {
-                            trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
+                            trans = makeTypeExpression(types.erasure(msym.owner.type), false);
                         } else if (selector != null && !useInvoke && msym != null && msym.isStatic()) {
                             //TODO: clean this up -- handles referencing a static function via an instance
-                            trans = makeTypeTree(diagPos, types.erasure(msym.owner.type), false);
+                            trans = makeTypeExpression(types.erasure(msym.owner.type), false);
                         } else {
                             if (selector != null && msym != null && !msym.isStatic()) {
                                 Symbol selectorSym = expressionSymbol(selector);
@@ -286,7 +286,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
     public void visitIdent(JFXIdent tree) {
         // Just translate to get
-        result = new Result(List.<JCStatement>nil(), translateIdent(tree), (tree.sym instanceof VarSymbol)? List.<VarSymbol>of((VarSymbol)tree.sym) : List.<VarSymbol>nil());
+        result = new Result(
+                List.<JCStatement>nil(),
+                new IdentTranslator(tree).doit(),
+                (tree.sym instanceof VarSymbol)? List.<VarSymbol>of((VarSymbol)tree.sym) : List.<VarSymbol>nil());
     }
 
     /**

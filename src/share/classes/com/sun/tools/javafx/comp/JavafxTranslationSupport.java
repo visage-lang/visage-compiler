@@ -333,7 +333,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, Name methName, List<JCStatement> stmts, List<JCVariableDecl> params, Type returnType, long flags) {
-        return makeMethod(diagPos, methName, stmts, params, makeTypeTree(diagPos, returnType, true), flags);
+        return makeMethod(diagPos, methName, stmts, params, makeTypeExpression(diagPos, returnType, true), flags);
     }
 
     protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, Name methName, List<JCStatement> stmts, List<JCVariableDecl> params, JCExpression typeExpression, long flags) {
@@ -417,14 +417,14 @@ public abstract class JavafxTranslationSupport {
      * Convert JavaFX class references to interface references.
      * */
     public JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t) {
-        return makeTypeTree(diagPos, t, true);
+        return makeTypeExpression(diagPos, t, true);
     }
 
     /**
      * Build a Java AST representing the specified type.
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
-    public JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
+    public JCExpression makeTypeExpression(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
         while (t instanceof CapturedType) {
             WildcardType wtype = ((CapturedType) t).wildcard;
             // A kludge for Class.newInstance (and maybe other cases):
@@ -553,10 +553,10 @@ public abstract class JavafxTranslationSupport {
                 castType = types.boxedTypeOrType(castType);
             }
             if (castType.isPrimitive() && exprtype.isPrimitive()) {
-                JCTree clazz = makeTypeTree(diagPos, exprtype, true);
+                JCTree clazz = makeTypeExpression(diagPos, exprtype, true);
                 translatedExpr = make.at(diagPos).TypeCast(clazz, translatedExpr);
             }
-            JCTree clazz = makeTypeTree(diagPos, castType, true);
+            JCTree clazz = makeTypeExpression(diagPos, castType, true);
             return make.at(diagPos).TypeCast(clazz, translatedExpr);
         }
     }
@@ -834,7 +834,7 @@ public abstract class JavafxTranslationSupport {
             return fieldRef;
         } else {
             assert !type.isPrimitive();
-            List<JCExpression> typeArgs = List.of(makeTypeTree(diagPos, type, true));
+            List<JCExpression> typeArgs = List.of(makeTypeExpression(diagPos, type, true));
             return runtime(diagPos, defs.TypeInfo_getTypeInfo, typeArgs, List.<JCExpression>nil());
         }
     }

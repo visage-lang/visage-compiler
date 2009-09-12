@@ -43,8 +43,6 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -74,8 +72,6 @@ public abstract class JavafxAbstractTranslation<R>
     final JavafxOptimizationStatistics optStat;
     final Target target;
 
-    protected JavafxEnv<JavafxAttrContext> attrEnv;
-
     enum ReceiverContext {
         // In a script function or script var init, implemented as a static method
         ScriptAsStatic,
@@ -88,12 +84,12 @@ public abstract class JavafxAbstractTranslation<R>
     }
     ReceiverContext inInstanceContext = ReceiverContext.Oops;
 
-    JavafxToJava toJava; //TODO: this should go away
+    private JavafxToJava toJava; //TODO: this should go away
 
     protected JavafxAbstractTranslation(Context context, JavafxToJava toJava) {
         super(context);
         this.optStat = JavafxOptimizationStatistics.instance(context);
-        this.toJava = toJava==null? (JavafxToJava)this : toJava;  //TODO: temp hack
+        this.toJava = toJava;  //TODO: temp hack
         this.target = Target.instance(context);
     }
 
@@ -106,9 +102,9 @@ public abstract class JavafxAbstractTranslation<R>
             ret = null;
         } else {
             JFXTree prevWhere = getAttrEnv().where;
-            toJava.attrEnv.where = tree;
+            getAttrEnv().where = tree;
             tree.accept(this);
-            toJava.attrEnv.where = prevWhere;
+            getAttrEnv().where = prevWhere;
             ret = this.result;
             this.result = null;
         }
@@ -145,7 +141,7 @@ public abstract class JavafxAbstractTranslation<R>
      * @return the attrEnv
      */
     protected JavafxEnv<JavafxAttrContext> getAttrEnv() {
-        return toJava.attrEnv;
+        return toJava.getAttrEnv();
     }
 
     /**
@@ -217,44 +213,6 @@ public abstract class JavafxAbstractTranslation<R>
         return checker.mustBeInline;
     }
 
-    //TODO: this class should go away in favor of Translator
-    abstract static class STranslator {
-
-        protected DiagnosticPosition diagPos;
-        protected final JavafxToJava toJava;
-        protected final JavafxDefs defs;
-        protected final JavafxTypes types;
-        protected final JavafxSymtab syms;
-        protected final Name.Table names;;
-
-        STranslator(DiagnosticPosition diagPos, JavafxToJava toJava) {
-            this.diagPos = diagPos;
-            this.toJava = toJava;
-            this.defs = toJava.defs;
-            this.types = toJava.types;
-            this.syms = toJava.syms;
-            this.names = toJava.names;
-        }
-
-        protected abstract JCTree doit();
-
-        protected TreeMaker m() {
-            return toJava.make.at(diagPos);
-        }
-
-        protected JavafxTreeMaker fxm() {
-            return toJava.fxmake.at(diagPos);
-        }
-
-        /**
-         * Convert type to JCExpression
-         */
-        protected JCExpression makeExpression(Type type) {
-            return toJava.makeTypeTree(diagPos, type, true);
-        }
-    }
-
-
     protected abstract class Translator {
 
         protected DiagnosticPosition diagPos;
@@ -290,8 +248,12 @@ public abstract class JavafxAbstractTranslation<R>
         /**
          * Convert type to JCExpression
          */
-        protected JCExpression makeExpression(Type type) {
-            return makeTypeTree(diagPos, type, true);
+        protected JCExpression makeTypeExpression(Type type, boolean makeIntf) {
+            return JavafxAbstractTranslation.this.makeTypeExpression(diagPos, type, makeIntf);
+        }
+
+        protected JCExpression makeTypeExpression(Type type) {
+            return makeTypeExpression(type, true);
         }
     }
 
@@ -354,7 +316,7 @@ public abstract class JavafxAbstractTranslation<R>
                     values.prepend(m().Literal(TypeTags.CLASS, tree.translationKey));
                 }
                 String resourceName =
-                        toJava.getAttrEnv().enclClass.sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
+                        getAttrEnv().enclClass.sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
                 values.prepend(m().Literal(TypeTags.CLASS, resourceName));
             } else if (containsDateTimeFormat) {
                 formatMethod = "com.sun.javafx.runtime.util.FXFormatter.sprintf";
@@ -393,15 +355,15 @@ public abstract class JavafxAbstractTranslation<R>
             returnType = tree.type;
             JFXSelect fieldAccess = meth.getFXTag() == JavafxTag.SELECT ? (JFXSelect) meth : null;
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
-            Symbol sym = toJava.expressionSymbol(meth);
+            Symbol sym = expressionSymbol(meth);
             msym = (sym instanceof MethodSymbol) ? (MethodSymbol) sym : null;
             Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
-            thisCall = selectorIdName == toJava.names._this;
-            superCall = selectorIdName == toJava.names._super;
-            ClassSymbol csym = toJava.getAttrEnv().enclClass.sym;
+            thisCall = selectorIdName == names._this;
+            superCall = selectorIdName == names._super;
+            ClassSymbol csym = getAttrEnv().enclClass.sym;
 
             useInvoke = meth.type instanceof FunctionType;
-            Symbol selectorSym = selector != null? toJava.expressionSymbol(selector) : null;
+            Symbol selectorSym = selector != null? expressionSymbol(selector) : null;
             boolean namedSuperCall =
                     msym != null && !msym.isStatic() &&
                     selectorSym instanceof ClassSymbol &&
@@ -453,12 +415,12 @@ public abstract class JavafxAbstractTranslation<R>
             return m().VarDef(
                     m().Modifiers(Flags.PARAMETER | Flags.FINAL),
                     name,
-                    makeExpression(type),
+                    makeTypeExpression(type),
                     null);
         }
 
         protected JCTree makeClosureMethod(Name methName, JCExpression expr, List<JCVariableDecl> params, Type returnType, long flags) {
-            return toJava.makeMethod(diagPos, methName, List.<JCStatement>of((returnType == syms.voidType) ? m().Exec(expr) : m().Return(expr)), params, returnType, flags);
+            return makeMethod(diagPos, methName, List.<JCStatement>of((returnType == syms.voidType) ? m().Exec(expr) : m().Return(expr)), params, returnType, flags);
         }
 
         /**
@@ -561,7 +523,7 @@ public abstract class JavafxAbstractTranslation<R>
             members.append(m().VarDef(
                     m().Modifiers(Flags.PRIVATE),
                     argAccessName(fieldInfo),
-                    makeExpression(fieldInfo.type()),
+                    makeTypeExpression(fieldInfo.type()),
                     null));
         }
 
@@ -638,7 +600,7 @@ public abstract class JavafxAbstractTranslation<R>
                 uncast = m().Indexed(m().Ident(defs.moreArgsName), m().Literal(fieldInfo.num - 2));
             }
             // Cast to their XxxLocation type
-            return m().TypeCast(makeExpression(fieldInfo.type()), uncast);
+            return m().TypeCast(makeTypeExpression(fieldInfo.type()), uncast);
         }
 
         /**
@@ -676,7 +638,7 @@ public abstract class JavafxAbstractTranslation<R>
             }
             // arg: moreArgs
             if (argNum > 2) {
-                args.append(m().NewArray(makeExpression(syms.objectType), List.<JCExpression>nil(), inits));
+                args.append(m().NewArray(makeTypeExpression(syms.objectType), List.<JCExpression>nil(), inits));
             } else {
                 args.append(m().Literal(TypeTags.BOT, null));
             }
@@ -918,7 +880,7 @@ public abstract class JavafxAbstractTranslation<R>
                     // not SELECT
                     if (useSetters) {
                         JCExpression recv = sym.isStatic()?
-                            makeTypeTree(diagPos, sym.owner.type, false) :
+                            makeTypeExpression(sym.owner.type, false) :
                             makeReceiver(diagPos, sym, true);
                         return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
                     } else {
@@ -1342,7 +1304,7 @@ public abstract class JavafxAbstractTranslation<R>
                         mname = "toBooleanArray";
                     else
                         mname = "toArray";
-                    return callExpression(diagPos, makeTypeTree(diagPos, syms.javafx_SequencesType, false),
+                    return callExpression(diagPos, makeTypeExpression(diagPos, syms.javafx_SequencesType, false),
                             mname, translated);
                 }
                 ListBuffer<JCStatement> stats = ListBuffer.lb();
@@ -1351,7 +1313,7 @@ public abstract class JavafxAbstractTranslation<R>
                 JCVariableDecl sizeVar = makeTmpVar(diagPos, syms.intType, callExpression(diagPos, make.at(diagPos).Ident(tmpVar.name), "size"));
                 stats.append(sizeVar);
                 JCVariableDecl arrVar = makeTmpVar(diagPos, "arr", targetType, make.at(diagPos).NewArray(
-                        makeTypeTree(diagPos, elemType, true),
+                        makeTypeExpression(diagPos, elemType, true),
                         List.<JCExpression>of(make.at(diagPos).Ident(sizeVar.name)),
                         null));
                 stats.append(arrVar);
@@ -1375,7 +1337,7 @@ public abstract class JavafxAbstractTranslation<R>
             } else {
                 args = List.of(makeTypeInfo(diagPos, sourceElemType), translated);
             }
-            JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
+            JCExpression cSequences = makeTypeExpression(diagPos, syms.javafx_SequencesType, false);
             return callExpression(diagPos, cSequences, "fromArray", args);
         }
         if (targetIsSequence && ! sourceIsSequence) {
@@ -1386,7 +1348,7 @@ public abstract class JavafxAbstractTranslation<R>
             //    return makeEmptySequenceCreator(diagPos, elemType);
             //}
             Type targetElemType = types.elementType(targetType);
-            JCExpression cSequences = makeTypeTree(diagPos, syms.javafx_SequencesType, false);
+            JCExpression cSequences = makeTypeExpression(diagPos, syms.javafx_SequencesType, false);
             translated = convertTranslated(translated, diagPos, sourceType, targetElemType);
             // This would be redundant, if convertTranslated did a cast if needed.
             translated = makeTypeCast(diagPos, targetElemType, sourceType, translated);
@@ -1424,12 +1386,12 @@ public abstract class JavafxAbstractTranslation<R>
             }
             if (!targetType.isPrimitive()) {
                 // box target if target boxed
-                translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, targetType, false), translated);
+                translated = make.at(diagPos).TypeCast(makeTypeExpression(diagPos, targetType, false), translated);
                 sourceType = targetType;
             }
         } else {
             if (sourceType.isCompound() || sourceType.isPrimitive()) {
-                translated = make.at(diagPos).TypeCast(makeTypeTree(diagPos, types.erasure(targetType), true), translated);
+                translated = make.at(diagPos).TypeCast(makeTypeExpression(diagPos, types.erasure(targetType), true), translated);
             }
         }
         // We should add a cast "when needed".  Then visitTypeCast would just
@@ -1609,57 +1571,63 @@ public abstract class JavafxAbstractTranslation<R>
         return (nullForThis && ret == thisExpr)? null : ret;
     }
 
-    JCExpression translateIdent(JFXIdent tree) {
-        DiagnosticPosition diagPos = tree.pos();
+    class IdentTranslator extends Translator {
+        JFXIdent tree;
+        IdentTranslator(JFXIdent tree) {
+            super(tree.pos());
+            this.tree = tree;
+        }
 
-        if (tree.name == names._this) {
-            // in the static implementation method, "this" becomes "receiver$"
-            return makeReceiver(diagPos, tree.sym);
-        } else if (tree.name == names._super) {
-            if (types.isMixin(tree.type.tsym)) {
-                // "super" becomes just the class where the static implementation method is defined
-                //  the rest of the implementation is in visitFunctionInvocation
-                return make.at(diagPos).Ident(tree.type.tsym.name);
-            } else {
-                // Just use super.
-                return make.at(diagPos).Ident(tree.name);
+        protected JCExpression doit() {
+            if (tree.name == names._this) {
+                // in the static implementation method, "this" becomes "receiver$"
+                return makeReceiver(diagPos, tree.sym);
+            } else if (tree.name == names._super) {
+                if (types.isMixin(tree.type.tsym)) {
+                    // "super" becomes just the class where the static implementation method is defined
+                    //  the rest of the implementation is in visitFunctionInvocation
+                    return id(tree.type.tsym.name);
+                } else {
+                    // Just use super.
+                    return id(tree.name);
+                }
             }
-        }
 
-        int kind = tree.sym.kind;
-        if (kind == Kinds.TYP) {
-            // This is a class name, replace it with the full name (no generics)
-            return makeTypeTree(diagPos, types.erasure(tree.sym.type), false);
-        }
-
-       // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
-       // and possible outer access methods
-        JCExpression convert;
-        boolean isStatic = tree.sym.isStatic();
-        if (isStatic) {
-            // make class-based direct static reference:   Foo.x
-            convert = make.at(diagPos).Select(makeTypeTree(diagPos, tree.sym.owner.type, false), tree.name);
-        } else {
-            if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
-                    tree.sym.owner.kind == Kinds.TYP) {
-                // it is a non-static attribute or function class member
-                // reference it through the receiver
-                JCExpression mRec = makeReceiver(diagPos, tree.sym, true);
-                convert = (mRec==null)? make.at(diagPos).Ident(tree.name) : make.at(diagPos).Select(mRec, tree.name);
-            } else {
-                convert = make.at(diagPos).Ident(tree.name);
+            int kind = tree.sym.kind;
+            if (kind == Kinds.TYP) {
+                // This is a class name, replace it with the full name (no generics)
+                return makeTypeExpression(types.erasure(tree.sym.type), false);
             }
-        }
 
-        if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-            MethodType mtype = (MethodType) tree.sym.type;
-            JFXFunctionDefinition def = null; // FIXME
-            return makeFunctionValue(convert, def, tree.pos(), mtype);
-        }
+            // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
+            // and possible outer access methods
+            JCExpression convert;
+            boolean isStatic = tree.sym.isStatic();
+            if (isStatic) {
+                // make class-based direct static reference:   Foo.x
+                convert = m().Select(makeTypeExpression(tree.sym.owner.type, false), tree.name);
+            } else {
+                if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
+                        tree.sym.owner.kind == Kinds.TYP) {
+                    // it is a non-static attribute or function class member
+                    // reference it through the receiver
+                    JCExpression mRec = makeReceiver(diagPos, tree.sym, true);
+                    convert = (mRec == null) ? id(tree.name) : m().Select(mRec, tree.name);
+                } else {
+                    convert = id(tree.name);
+                }
+            }
 
-        return convertVariableReference(diagPos,
-                convert,
-                tree.sym);
+            if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
+                MethodType mtype = (MethodType) tree.sym.type;
+                JFXFunctionDefinition def = null; // FIXME
+                return makeFunctionValue(convert, def, tree.pos(), mtype);
+            }
+
+            return convertVariableReference(diagPos,
+                    convert,
+                    tree.sym);
+        }
     }
 
     JCExpression translateLiteral(JFXLiteral tree) {
