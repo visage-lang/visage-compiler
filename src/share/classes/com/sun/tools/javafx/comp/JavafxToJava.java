@@ -1677,6 +1677,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 && (sym.flags() & Flags.SYNTHETIC) == 0;
    }
 
+   @Override
    JCTree translateFunction(JFXFunctionDefinition tree, boolean maintainContext) {
        return new FunctionTranslator(tree, maintainContext).doit();
    }
@@ -3354,16 +3355,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
     //@Override
     public void visitTimeLiteral(JFXTimeLiteral tree) {
-        //TODO: code should be something like the below, but this requires a similar change to visitInterpolateValue
-        /***
-           result = makeDurationLiteral(tree.pos(), translate(tree.value));
-         */
-
-        // convert this time literal to a javafx.lang.Duration.valueOf() invocation
-        JFXFunctionInvocation duration = timeLiteralToDuration(tree); // sets result
-
-        // now convert that FX invocation to Java
-        visitFunctionInvocation(duration); // sets result
+        result = makeDurationLiteral(tree.pos(), translateAsUnconvertedValue(tree.value));
    }
 
     abstract class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {

@@ -987,27 +987,9 @@ public abstract class JavafxTranslationSupport {
         }
     }
 
-    // convert time literal to a javafx.lang.Duration object literal
-    //TODO: should be eliminated in favor of makeDurationLiteral -- see visitTimeLiteral
-    protected JFXFunctionInvocation timeLiteralToDuration(JFXTimeLiteral tree) {
-        JFXSelect clsname = (JFXSelect) fxmake.at(tree.pos()).Type(syms.javafx_DurationType);
-        clsname.sym = syms.javafx_DurationType.tsym;
-        Name valueOf = names.fromString("valueOf");
-        JFXSelect meth = fxmake.at(tree.pos).Select(clsname, valueOf);
-        meth.sym = syms.javafx_DurationType.tsym.members().lookup(valueOf).sym;
-        meth.type = meth.sym.type;
-        List<JFXExpression> args = List.<JFXExpression>of(tree.value);
-        JFXFunctionInvocation apply = fxmake.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, args);
-        apply.type = clsname.type;
-        return apply;
-    }
-
     protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
-        JCExpression clsname = makeType(diagPos, syms.javafx_DurationType);
-        Name valueOf = names.fromString("valueOf");
-        JCExpression meth = make.at(diagPos).Select(clsname, valueOf);
-        List<JCExpression> args = List.of(value);
-        JCExpression apply = make.at(diagPos).Apply(List.<JCExpression>nil(), meth, args);
-        return apply;
+        JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
+        JCExpression expr = callExpression(diagPos, durClass, defs.scriptLevelAccessMethod);
+        return callExpression(diagPos, expr, defs.valueOfName, value);
     }
 }

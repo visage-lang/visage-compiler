@@ -958,11 +958,11 @@ public abstract class JavafxAbstractTranslation<R>
         abstract JCExpression translateExpression(JFXExpression expr, Type type);
 
         private JCExpression translateForSizeof(JFXExpression expr) {
-            return null; //TODO -- translateSequenceExpression(expr);
+            return translateExpression(expr, expr.type);
         }
 
-        JCExpression translateSizeof(DiagnosticPosition diagPos, JFXExpression expr, JCExpression transExpr) {
-            return null; //TODO -- translateSequenceExpression(expr);
+        JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
+            return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
         }
 
         private JCExpression doIncDec(final int binaryOp, final boolean postfix) {
@@ -1009,7 +1009,7 @@ public abstract class JavafxAbstractTranslation<R>
                     if (expr.type.tag == TypeTags.ARRAY) {
                         return m().Select(transExpr, defs.lengthName);
                     }
-                    return translateSizeof(diagPos, expr, transExpr);
+                    return translateSizeof(expr, transExpr);
                 case REVERSE:
                     if (types.isSequence(expr.type)) {
                         // call runtime reverse of a sequence

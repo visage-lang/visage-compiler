@@ -233,6 +233,7 @@ public class JavafxDefs {
     final Name javalangThreadName;
     final Name startName;
     final Name timeName;
+    final Name valueOfName;
     final Name valuesName;
     final Name valueName;
     final Name targetName;
@@ -363,6 +364,7 @@ public class JavafxDefs {
         timeName = names.fromString("time");
         javalangThreadName = names.fromString("java.lang.Thread");
         startName = names.fromString("start");
+        valueOfName = names.fromString("valueOf");
         valuesName = names.fromString("values");
         targetName = names.fromString("target");
         valueName = names.fromString("value");
