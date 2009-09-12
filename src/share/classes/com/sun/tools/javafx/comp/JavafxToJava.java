@@ -249,10 +249,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         return translateToExpression(expr, null);
     }
 
-    JCExpression translateAsLocation(JFXExpression expr) {
-        return translateToExpression(expr, null);
-    }
-
     JCExpression translateAsSequenceVariable(JFXExpression expr) {
         return translateToExpression(expr, null);
     }
@@ -2021,7 +2017,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JCExpression translatedSelected = translateAsUnconvertedValue(expr);
 
             if (staticReference) {
-                translatedSelected = makeType(types.erasure(sym.owner.type), false);
+                translatedSelected = staticReference(sym);
             } else if (expr instanceof JFXIdent) {
                 JFXIdent ident = (JFXIdent)expr;
                 Symbol identSym = ident.sym;
@@ -2060,7 +2056,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 if (toCheck.type != null && toCheck.type.isPrimitive()) {  // expr.type is null for package symbols.
                     tc = makeBox(diagPos, tc, toCheck.type);
                 }
-                JCFieldAccess translated = make.at(diagPos).Select(tc, name);
+                JCFieldAccess translated = m().Select(tc, name);
 
                 return convertVariableReference(translated, sym);
             }
@@ -3042,10 +3038,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                         } else if (renameToThis || thisCall) {
                            trans = id(names._this);
                         } else if (superToStatic) {
-                            trans = makeType(types.erasure(msym.owner.type), false);
+                            trans = staticReference(msym);
                         } else if (selector != null && !useInvoke && msym != null && msym.isStatic()) {
                             //TODO: clean this up -- handles referencing a static function via an instance
-                            trans = makeType(types.erasure(msym.owner.type), false);
+                            trans = staticReference(msym);
                         } else {
                             if (selector != null && msym != null && !msym.isStatic()) {
                                 Symbol selectorSym = expressionSymbol(selector);
@@ -3401,7 +3397,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         result = new InterpolateValueTranslator(tree) {
 
             protected JCExpression translateTarget() {
-                JCExpression target = translateAsLocation(tree.attribute);
+                JCExpression target = translateAsUnconvertedValue(tree.attribute);
                 return callExpression(diagPos, makeType(syms.javafx_PointerType), "make", target);
             }
         }.doit();

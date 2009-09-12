@@ -173,10 +173,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                         } else if (renameToThis || thisCall) {
                            trans = id(names._this);
                         } else if (superToStatic) {
-                            trans = makeType(types.erasure(msym.owner.type), false);
+                            trans = staticReference(msym);
                         } else if (selector != null && !useInvoke && msym != null && msym.isStatic()) {
                             //TODO: clean this up -- handles referencing a static function via an instance
-                            trans = makeType(types.erasure(msym.owner.type), false);
+                            trans = staticReference(msym);
                         } else {
                             if (selector != null && msym != null && !msym.isStatic()) {
                                 Symbol selectorSym = expressionSymbol(selector);

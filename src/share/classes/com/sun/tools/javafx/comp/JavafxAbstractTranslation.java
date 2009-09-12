@@ -255,6 +255,23 @@ public abstract class JavafxAbstractTranslation<R>
         protected JCExpression makeType(Type type) {
             return makeType(type, true);
         }
+    }
+
+    protected abstract class MemberReferenceTranslator extends Translator {
+
+        protected MemberReferenceTranslator(DiagnosticPosition diagPos) {
+            super(diagPos);
+        }
+
+        JCExpression staticReference(Symbol sym) {
+            Symbol owner = sym.owner;
+            JCExpression expr = makeType(types.erasure(owner.type), false);
+            if (types.isJFXClass(owner)) {
+                // script-level get to instance through script-level accessor
+                expr = callExpression(diagPos, expr, defs.scriptLevelAccessMethod);
+            }
+            return expr;
+        }
 
         JCExpression convertVariableReference(JCExpression varRef, Symbol sym) {
             JCExpression expr = varRef;
@@ -278,16 +295,13 @@ public abstract class JavafxAbstractTranslation<R>
                         default:
                             throw new AssertionError();
                     }
-                    if (vsym.isStatic()) {
-                        // script-level get to instance through script-level accessor
-                        instance = callExpression(diagPos, instance, defs.scriptLevelAccessMethod);
-                    }
                     expr = callExpression(diagPos, instance, attributeGetterName(vsym));
                 }
             }
 
             return expr;
         }
+
     }
 
     abstract class StringExpressionTranslator extends Translator {
@@ -679,7 +693,8 @@ public abstract class JavafxAbstractTranslation<R>
         }
     }
 
-    abstract class NullCheckTranslator extends Translator {
+    //TODO: this needs to be refactored so it makes sense as a MemberReferenceTranslator
+    abstract class NullCheckTranslator extends MemberReferenceTranslator {
 
         protected final JFXExpression toCheck;
         protected final Type resultType;
@@ -1570,7 +1585,7 @@ public abstract class JavafxAbstractTranslation<R>
         return (nullForThis && ret == thisExpr)? null : ret;
     }
 
-    class IdentTranslator extends Translator {
+    class IdentTranslator extends MemberReferenceTranslator {
         JFXIdent tree;
         IdentTranslator(JFXIdent tree) {
             super(tree.pos());
@@ -1604,7 +1619,7 @@ public abstract class JavafxAbstractTranslation<R>
             boolean isStatic = tree.sym.isStatic();
             if (isStatic) {
                 // make class-based direct static reference:   Foo.x
-                convert = m().Select(makeType(tree.sym.owner.type, false), tree.name);
+                convert = m().Select(staticReference(tree.sym), tree.name);
             } else {
                 if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                         tree.sym.owner.kind == Kinds.TYP) {
