@@ -260,7 +260,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                         JCExpression tc = mungedToCheckTranslated;
                         if (funcName != null) {
                             // add the selector name back
-                            tc = m().Select(tc, funcName);
+                            tc = select(tc, funcName);
                         }
                         JCMethodInvocation app =  m().Apply(translateExpressions(tree.typeargs), tc, targs.toList());
 

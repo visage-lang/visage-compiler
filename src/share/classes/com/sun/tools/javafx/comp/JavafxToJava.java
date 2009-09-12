@@ -1204,7 +1204,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
             JCVariableDecl loopVar = makeTmpLoopVar(diagPos, 0);
             Name loopName = loopVar.name;
-            JCExpression loopLimit = m().Apply(null, m().Select(id(receiverName), names.fromString(attributeCountMethodString)),
+            JCExpression loopLimit = m().Apply(null, select(id(receiverName), names.fromString(attributeCountMethodString)),
                                                List.<JCExpression>nil());
             JCVariableDecl loopLimitVar = makeTmpVar(diagPos, "count", syms.intType, loopLimit);
             stats.append(loopLimitVar);
@@ -1241,7 +1241,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
                 VarSymbol varSym = varSyms.first();
-                JCExpression varOffsetExpr = m().Select(makeType(classType, false), attributeOffsetName(varSym));
+                JCExpression varOffsetExpr = select(makeType(classType, false), attributeOffsetName(varSym));
                 JCVariableDecl offsetVar = makeTmpVar(diagPos, "off", syms.intType, varOffsetExpr);
                 stats.append(offsetVar);
                 JCExpression condition = m().Binary(JCTree.EQ, id(loopName), id(offsetVar.name));
@@ -1947,7 +1947,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JCExpression buildRHS(JCExpression rhsTranslated) {
                 final JCExpression lhsTranslated = translateAsUnconvertedValue(lhs);
                 if (useDurationOperations()) {
-                    JCExpression method = m().Select(lhsTranslated, tree.operator);
+                    JCExpression method = select(lhsTranslated, tree.operator.name);
                     return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
                 } else {
                     JCExpression ret = m().Binary(getBinaryOp(), lhsTranslated, rhsTranslated);
@@ -2050,14 +2050,14 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 JCExpression tc = staticReference?
                     mungedToCheckTranslated :
                     addTempVar(toCheck.type, mungedToCheckTranslated);
-                JCExpression translated = m().Select(tc, name);
+                JCExpression translated = select(tc, name);
                 return makeFunctionValue(translated, null, diagPos, mtype);
             } else {
                 JCExpression tc = mungedToCheckTranslated;
-                if (toCheck.type != null && toCheck.type.isPrimitive()) {  // expr.type is null for package symbols.
+                if (tc != null && toCheck.type != null && toCheck.type.isPrimitive()) {  // expr.type is null for package symbols.
                     tc = makeBox(diagPos, tc, toCheck.type);
                 }
-                JCFieldAccess translated = m().Select(tc, name);
+                JCExpression translated = select(tc, name);
 
                 return convertVariableReference(translated, sym);
             }
@@ -3068,7 +3068,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                         JCExpression tc = mungedToCheckTranslated;
                         if (funcName != null) {
                             // add the selector name back
-                            tc = m().Select(tc, funcName);
+                            tc = select(tc, funcName);
                         }
                         JCMethodInvocation app =  m().Apply(translateExpressions(tree.typeargs), tc, args);
 

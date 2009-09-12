@@ -246,6 +246,13 @@ public abstract class JavafxAbstractTranslation<R>
         }
 
         /**
+         * Make a member select or an identifier depending on the selector
+         */
+        protected JCExpression select(JCExpression selector, Name name) {
+            return (selector==null)? id(name) : m().Select(selector, name);
+        }
+
+        /**
          * Convert type to JCExpression
          */
         protected JCExpression makeType(Type type, boolean makeIntf) {
@@ -265,12 +272,16 @@ public abstract class JavafxAbstractTranslation<R>
 
         JCExpression staticReference(Symbol sym) {
             Symbol owner = sym.owner;
-            JCExpression expr = makeType(types.erasure(owner.type), false);
-            if (types.isJFXClass(owner)) {
-                // script-level get to instance through script-level accessor
-                expr = callExpression(diagPos, expr, defs.scriptLevelAccessMethod);
+            if (false && owner == getAttrEnv().enclClass.sym) {
+                return null;
+            } else {
+                JCExpression expr = makeType(types.erasure(owner.type), false);
+                if (types.isJFXClass(owner)) {
+                    // script-level get to instance through script-level accessor
+                    expr = callExpression(diagPos, expr, defs.scriptLevelAccessMethod);
+                }
+                return expr;
             }
-            return expr;
         }
 
         JCExpression convertVariableReference(JCExpression varRef, Symbol sym) {
@@ -335,7 +346,7 @@ public abstract class JavafxAbstractTranslation<R>
                 if (exp != null &&
                         types.isSameType(exp.type, syms.javafx_DurationType)) {
                     texp = m().Apply(null,
-                            m().Select(translateArg(exp),
+                            select(translateArg(exp),
                             names.fromString("toMillis")),
                             List.<JCExpression>nil());
                     texp = typeCast(diagPos, syms.javafx_LongType, syms.javafx_DoubleType, texp);
@@ -501,7 +512,7 @@ public abstract class JavafxAbstractTranslation<R>
 
         protected JCExpression makeLocationGet(JCExpression locExpr, int typeKind) {
             Name getMethodName = defs.locationGetMethodName[typeKind];
-            JCFieldAccess select = m().Select(locExpr, getMethodName);
+            JCExpression select = select(locExpr, getMethodName);
             return m().Apply(null, select, List.<JCExpression>nil());
         }
 
@@ -864,7 +875,7 @@ public abstract class JavafxAbstractTranslation<R>
 
         private JCExpression buildSetter(JCExpression tc, JCExpression rhsComplete) {
             final Name setter = attributeSetterName(sym);
-            JCExpression toApply = (tc==null)? id(setter) : m().Select(tc, setter);
+            JCExpression toApply = (tc==null)? id(setter) : select(tc, setter);
             return m().Apply(null, toApply, List.of(rhsComplete));
         }
 
@@ -881,13 +892,13 @@ public abstract class JavafxAbstractTranslation<R>
                 else {
                     JCExpression tseq = translateExpression(seq); //TODO
                     List<JCExpression> args;
-                    JCFieldAccess select;
+                    JCExpression select;
                     if (types.elementType(seq.type).isPrimitive()) { // KLUDGE
-                        select = m().Select(makeQualifiedTree(diagPos, JavafxDefs.locationPackageNameString+".SequenceVariable"), defs.setMethodName);
+                        select = select(makeQualifiedTree(diagPos, JavafxDefs.locationPackageNameString+".SequenceVariable"), defs.setMethodName);
                         args = List.of(tseq, index, buildRHS(rhsTranslated));
                     }
                     else {
-                        select = m().Select(tseq, defs.setMethodName);
+                        select = select(tseq, defs.setMethodName);
                         args = List.of(index, buildRHS(rhsTranslated));
                     }
                     return postProcess(m().Apply(null, select, args));
@@ -919,7 +930,7 @@ public abstract class JavafxAbstractTranslation<R>
                                 return postProcess(buildSetter(mungedToCheckTranslated, buildRHS(rhsTranslatedPreserved)));
                             } else {
                                 //TODO: possibly should use, or be unified with convertVariableReference
-                                JCFieldAccess fa = m().Select(mungedToCheckTranslated, attributeValueName(select.sym));
+                                JCExpression fa = select(mungedToCheckTranslated, attributeValueName(select.sym));
                                 return defaultFullExpression(fa, rhsTranslatedPreserved);
                             }
                         }
@@ -1007,7 +1018,7 @@ public abstract class JavafxAbstractTranslation<R>
             switch (tree.getFXTag()) {
                 case SIZEOF:
                     if (expr.type.tag == TypeTags.ARRAY) {
-                        return m().Select(transExpr, defs.lengthName);
+                        return select(transExpr, defs.lengthName);
                     }
                     return translateSizeof(expr, transExpr);
                 case REVERSE:
@@ -1030,7 +1041,7 @@ public abstract class JavafxAbstractTranslation<R>
                     return doIncDec(JCTree.MINUS, true);
                 case NEG:
                     if (types.isSameType(tree.type, syms.javafx_DurationType)) {
-                        return m().Apply(null, m().Select(translateExpression(tree.arg, tree.arg.type), names.fromString("negate")), List.<JCExpression>nil());
+                        return m().Apply(null, select(translateExpression(tree.arg, tree.arg.type), names.fromString("negate")), List.<JCExpression>nil());
                     }
                 default:
                     return m().Unary(tree.getOperatorTag(), transExpr);
@@ -1624,14 +1635,14 @@ public abstract class JavafxAbstractTranslation<R>
             boolean isStatic = tree.sym.isStatic();
             if (isStatic) {
                 // make class-based direct static reference:   Foo.x
-                convert = m().Select(staticReference(tree.sym), tree.name);
+                convert = select(staticReference(tree.sym), tree.name);
             } else {
                 if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                         tree.sym.owner.kind == Kinds.TYP) {
                     // it is a non-static attribute or function class member
                     // reference it through the receiver
                     JCExpression mRec = makeReceiver(diagPos, tree.sym, true);
-                    convert = (mRec == null) ? id(tree.name) : m().Select(mRec, tree.name);
+                    convert = select(mRec, tree.name);
                 } else {
                     convert = id(tree.name);
                 }
