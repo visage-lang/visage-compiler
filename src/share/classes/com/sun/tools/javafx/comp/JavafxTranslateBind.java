@@ -169,14 +169,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                     JCExpression translateToCheck(JFXExpression expr) {
                         JCExpression trans;
                         if (renameToSuper || superCall) {
-                           trans = m().Ident(names._super);
+                           trans = id(names._super);
                         } else if (renameToThis || thisCall) {
-                           trans = m().Ident(names._this);
+                           trans = id(names._this);
                         } else if (superToStatic) {
-                            trans = makeTypeExpression(types.erasure(msym.owner.type), false);
+                            trans = makeType(types.erasure(msym.owner.type), false);
                         } else if (selector != null && !useInvoke && msym != null && msym.isStatic()) {
                             //TODO: clean this up -- handles referencing a static function via an instance
-                            trans = makeTypeExpression(types.erasure(msym.owner.type), false);
+                            trans = makeType(types.erasure(msym.owner.type), false);
                         } else {
                             if (selector != null && msym != null && !msym.isStatic()) {
                                 Symbol selectorSym = expressionSymbol(selector);

@@ -386,7 +386,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             params.append(make.VarDef(
                     make.Modifiers(0L),
                     vsym.name,
-                    makeTypeTree(diagPos, vtype),
+                    makeType(diagPos, vtype),
                     null // no initial value
                      // no initial value
                     ));
@@ -425,11 +425,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         for (JFXExpression intf : cDecl.getImplementing()) {
-            implementing.append(makeTypeExpression(diagPos, intf.type, false));
+            implementing.append(makeType(diagPos, intf.type, false));
         }
 
         for (ClassSymbol baseClass : baseInterfaces) {
-            implementing.append(makeTypeExpression(diagPos, baseClass.type, true));
+            implementing.append(makeType(diagPos, baseClass.type, true));
         }
         return implementing.toList();
     }
@@ -444,8 +444,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     baseClass.type.tsym.packge() != syms.unnamedPackage) {    // Work around javac bug. the visitImport of Attr
                 // is casting to JCFieldAcces, but if you have imported an
                 // JCIdent only a ClassCastException is thrown.
-                additionalImports.append(makeTypeExpression( diagPos,baseClass.type, false));
-                additionalImports.append(makeTypeExpression( diagPos,baseClass.type, true));
+                additionalImports.append(makeType( diagPos,baseClass.type, false));
+                additionalImports.append(makeType( diagPos,baseClass.type, true));
             }
         }
         return additionalImports.toList();
@@ -585,7 +585,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // call to a mixin super, use local static reference
             Name rcvr = fromMixin? defs.receiverName : names._this;
             return callStatement(diagPos,
-                    makeTypeExpression(diagPos, cSym.type, false),
+                    makeType(diagPos, cSym.type, false),
                     methodName, make.at(diagPos).Ident(rcvr));
         } else {
             // call to a non-mixin super, use "super"
@@ -599,7 +599,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return make.MethodDef(
                 make.Modifiers(Flags.PUBLIC),
                 name,
-                makeTypeTree(diagPos, retType),
+                makeType(diagPos, retType),
                 List.<JCTypeParameter>nil(),
                 List.<JCVariableDecl>nil(),
                 List.<JCExpression>nil(),
@@ -703,7 +703,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             methods.append(make.at(diagPos).MethodDef(
                     make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
                     defs.addTriggersName,
-                    makeTypeTree( null,syms.voidType),
+                    makeType( null,syms.voidType),
                     List.<JCTypeParameter>nil(),
                     isMixinClass? List.<JCVariableDecl>of( makeReceiverParam(cDecl) ) : List.<JCVariableDecl>nil(),
                     List.<JCExpression>nil(),
@@ -726,7 +726,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         for (VarSymbol var : mth.params) {
             args.append(make.Ident(var.name));
         }
-        JCExpression receiver = mth.owner == cDecl.sym ? null : makeTypeExpression(cDecl.pos(), mth.owner.type, false);
+        JCExpression receiver = mth.owner == cDecl.sym ? null : makeType(cDecl.pos(), mth.owner.type, false);
         JCExpression expr = callExpression(cDecl.pos(), receiver, functionName(mth, !isStatic, isBound), args);
         JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
         return make.at(cDecl.pos()).Block(0L, List.<JCStatement>of(statement));
@@ -800,8 +800,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method makes a type tree using the current diagnosic position.
         //
-        private JCExpression makeType(Type t)                   { return makeTypeTree(currentPos, t); }
-        private JCExpression makeType(Type t, boolean makeIntf) { return makeTypeExpression(currentPos, t, makeIntf); }
+        private JCExpression makeType(Type t)                   { return JavafxInitializationBuilder.this.makeType(currentPos, t); }
+        private JCExpression makeType(Type t, boolean makeIntf) { return JavafxInitializationBuilder.this.makeType(currentPos, t, makeIntf); }
 
         //
         // This method generates a simple java integer field then adds to the buffer.

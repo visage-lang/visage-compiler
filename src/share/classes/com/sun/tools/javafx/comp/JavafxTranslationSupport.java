@@ -319,7 +319,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, Type type) {
-        return makeParam(diagPos, name, makeTypeTree(diagPos, type));
+        return makeParam(diagPos, name, makeType(diagPos, type));
 
     }
 
@@ -333,7 +333,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, Name methName, List<JCStatement> stmts, List<JCVariableDecl> params, Type returnType, long flags) {
-        return makeMethod(diagPos, methName, stmts, params, makeTypeExpression(diagPos, returnType, true), flags);
+        return makeMethod(diagPos, methName, stmts, params, makeType(diagPos, returnType, true), flags);
     }
 
     protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, Name methName, List<JCStatement> stmts, List<JCVariableDecl> params, JCExpression typeExpression, long flags) {
@@ -416,15 +416,15 @@ public abstract class JavafxTranslationSupport {
      * Build a Java AST representing the specified type.
      * Convert JavaFX class references to interface references.
      * */
-    public JCExpression makeTypeTree(DiagnosticPosition diagPos, Type t) {
-        return makeTypeExpression(diagPos, t, true);
+    public JCExpression makeType(DiagnosticPosition diagPos, Type t) {
+        return makeType(diagPos, t, true);
     }
 
     /**
      * Build a Java AST representing the specified type.
      * If "makeIntf" is set, convert JavaFX class references to interface references.
      * */
-    public JCExpression makeTypeExpression(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
+    public JCExpression makeType(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
         while (t instanceof CapturedType) {
             WildcardType wtype = ((CapturedType) t).wildcard;
             // A kludge for Class.newInstance (and maybe other cases):
@@ -491,7 +491,7 @@ public abstract class JavafxTranslationSupport {
             VarMorphInfo vmi = typeMorpher.varMorphInfo(mth);
             returnType = vmi.getLocationType();
         }
-        return makeTypeTree(diagPos, returnType);
+        return makeType(diagPos, returnType);
     }
 
     JCExpression typeCast(final DiagnosticPosition diagPos, final Type targetType, final Type inType, final JCExpression expr) {
@@ -553,10 +553,10 @@ public abstract class JavafxTranslationSupport {
                 castType = types.boxedTypeOrType(castType);
             }
             if (castType.isPrimitive() && exprtype.isPrimitive()) {
-                JCTree clazz = makeTypeExpression(diagPos, exprtype, true);
+                JCTree clazz = makeType(diagPos, exprtype, true);
                 translatedExpr = make.at(diagPos).TypeCast(clazz, translatedExpr);
             }
-            JCTree clazz = makeTypeExpression(diagPos, castType, true);
+            JCTree clazz = makeType(diagPos, castType, true);
             return make.at(diagPos).TypeCast(clazz, translatedExpr);
         }
     }
@@ -828,13 +828,13 @@ public abstract class JavafxTranslationSupport {
         } else if (types.isSameType(type, syms.javafx_StringType)) {
             return primitiveTypeInfo(diagPos, syms.stringTypeName);
         } else if (types.isSameType(type, syms.javafx_DurationType)) {
-            JCExpression fieldRef = make.at(diagPos).Select(makeTypeTree(diagPos, type), defs.defaultingTypeInfoFieldName);
+            JCExpression fieldRef = make.at(diagPos).Select(makeType(diagPos, type), defs.defaultingTypeInfoFieldName);
             // If TYPE_INFO becomes a Location again, ad back this line
             //    fieldRef = getLocationValue(diagPos, fieldRef, TYPE_KIND_OBJECT);
             return fieldRef;
         } else {
             assert !type.isPrimitive();
-            List<JCExpression> typeArgs = List.of(makeTypeExpression(diagPos, type, true));
+            List<JCExpression> typeArgs = List.of(makeType(diagPos, type, true));
             return runtime(diagPos, defs.TypeInfo_getTypeInfo, typeArgs, List.<JCExpression>nil());
         }
     }
@@ -889,7 +889,7 @@ public abstract class JavafxTranslationSupport {
     JCVariableDecl makeTmpLoopVar(DiagnosticPosition diagPos, int initValue) {
         return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(0),
                                        getSyntheticName("loop"),
-                                       makeTypeTree(diagPos, syms.intType),
+                                       makeType(diagPos, syms.intType),
                                        make.at(diagPos).Literal(TypeTags.INT, initValue));
     }
 
@@ -898,7 +898,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Name tmpName, Type type, JCExpression value) {
-        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.FINAL), tmpName, makeTypeTree(diagPos, type), value);
+        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.FINAL), tmpName, makeType(diagPos, type), value);
     }
 
     JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Type type, JCExpression value) {
@@ -1003,7 +1003,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
-        JCExpression clsname = makeTypeTree(diagPos, syms.javafx_DurationType);
+        JCExpression clsname = makeType(diagPos, syms.javafx_DurationType);
         Name valueOf = names.fromString("valueOf");
         JCExpression meth = make.at(diagPos).Select(clsname, valueOf);
         List<JCExpression> args = List.of(value);
