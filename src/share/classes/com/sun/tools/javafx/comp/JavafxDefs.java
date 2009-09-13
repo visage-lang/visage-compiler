@@ -232,6 +232,7 @@ public class JavafxDefs {
     final Name postInitDefName;
     final Name javalangThreadName;
     final Name startName;
+    final Name scriptClassSuffixName;
     final Name timeName;
     final Name valueOfName;
     final Name valuesName;
@@ -351,6 +352,7 @@ public class JavafxDefs {
         computeMethodName = names.fromString(computeMethodString);
         varOffsetName = names.fromString(varOffsetString);
         varCountName = names.fromString(varCountString);
+        scriptClassSuffixName = names.fromString(scriptClassSuffix);
         toTestName = names.fromString("toTest");
         toBeCastName = names.fromString("toBeCast");
         idName = names.fromString("id");

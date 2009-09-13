@@ -606,7 +606,9 @@ public abstract class JavafxTranslationSupport {
     }
 
     JCExpression makeTimeDefaultValue(DiagnosticPosition diagPos) {
-        return makeDurationLiteral(diagPos, makeLit(diagPos, syms.doubleType, 0));
+        return make.at(diagPos).TypeCast(
+                makeQualifiedTree(diagPos, "javafx.lang.Duration"), 
+                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Duration.ZERO"));
     }
 
     /** Make an attributed tree representing a literal. This will be

@@ -356,8 +356,15 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         return attrEnv;
     }
 
-    public void toJava(JavafxEnv<JavafxAttrContext> attrEnv) {
+    /**
+     * @param attrEnv the attrEnv to set
+     */
+    public void setAttrEnv(JavafxEnv<JavafxAttrContext> attrEnv) {
         this.attrEnv = attrEnv;
+    }
+
+    public void toJava(JavafxEnv<JavafxAttrContext> attrEnv) {
+        this.setAttrEnv(attrEnv);
 
         attrEnv.translatedToplevel = translate(attrEnv.toplevel);
         attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;

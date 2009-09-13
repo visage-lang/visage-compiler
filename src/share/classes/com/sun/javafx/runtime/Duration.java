@@ -33,7 +33,7 @@ public class Duration implements Comparable {
     // this is a singleton Duration that is of indefinite length.
     // It is treated as positive infinity for comparison purposes.
     protected static Duration indefinite;
-    private static Duration ZERO;
+    public  static Duration ZERO;
     private static Duration ONE;
     private static Class<?> fxClass;
 

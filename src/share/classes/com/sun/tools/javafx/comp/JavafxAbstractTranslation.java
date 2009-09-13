@@ -272,7 +272,8 @@ public abstract class JavafxAbstractTranslation<R>
 
         JCExpression staticReference(Symbol sym) {
             Symbol owner = sym.owner;
-            if (false && owner == getAttrEnv().enclClass.sym) {
+            Symbol encl = getAttrEnv().enclClass.sym;
+            if (encl.name.endsWith(defs.scriptClassSuffixName) && owner == encl.owner) {
                 return null;
             } else {
                 JCExpression expr = makeType(types.erasure(owner.type), false);
