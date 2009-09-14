@@ -335,12 +335,10 @@ package com.sun.javafx.runtime;
     }
 
     public void initialize$() {
-        addTriggers$();
         applyDefaults$();
         complete$();
     }
     public static void initialize$(FXObject obj) {
-        obj.addTriggers$();
         obj.applyDefaults$();
         obj.complete$();
     }
@@ -368,12 +366,6 @@ package com.sun.javafx.runtime;
         for (int inx = 0; inx < cnt; inx += 1) { 
             obj.applyDefaults$(inx);
         }
-    }
-    
-    public void addTriggers$() {
-        addTriggers$(this);
-    }
-    public static void addTriggers$(FXObject obj) {
     }
     
     public static int VCNT$() { return VCNT$; }

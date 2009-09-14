@@ -92,7 +92,6 @@ public interface FXObject {
     public int      getListenerCount$();
 
     public void     initialize$   ();
-    public void     addTriggers$  ();
     public void     applyDefaults$();
     public void     applyDefaults$(final int varNum);
     public void     userInit$     ();

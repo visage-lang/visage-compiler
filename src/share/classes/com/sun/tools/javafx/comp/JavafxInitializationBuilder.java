@@ -264,7 +264,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
             }
 
-            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
             cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
             cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, hasFxSuper));
             
@@ -306,7 +305,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeMixinApplyDefaultsMethods(instanceAttributeInfos));
             iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
             iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
         }
 
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
@@ -645,76 +643,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     }
 
     /**
-     * Construct the addTriggers method
-     * */
-    private List<JCTree> makeAddTriggersMethod(DiagnosticPosition diagPos,
-                                               JFXClassDeclaration cDecl,
-                                               ClassSymbol superClassSym,
-                                               List<ClassSymbol> immediateMixinClasses,
-                                               List<TranslatedVarInfo> translatedAttrInfo,
-                                               List<TranslatedOverrideClassVarInfo> translatedTriggerInfo) {
-        ListBuffer<JCTree> methods = ListBuffer.lb();
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        boolean isMixinClass = cDecl.isMixinClass();
-
-        // Capture the number of statements prior to adding relevant triggers.
-        int emptySize = stmts.size();
-
-        // Supers will be called when inserted into real classes.
-        if (!isMixinClass) {
-            // call the super addTriggers
-            if (superClassSym != null) {
-                stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, isMixinClass));
-            }
-
-            // Super still classified as empty.
-            emptySize = stmts.size();
-
-            // JFXC-2822 - Triggers need to work from mixins.
-            for (ClassSymbol cSym : immediateMixinClasses) {
-                stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, isMixinClass));
-            }
-        }
-
-        // add change listeners for triggers on instance var definitions
-        for (TranslatedVarInfo info : translatedAttrInfo) {
-            if (!info.isStatic()) {
-                JCStatement stat = info.onReplaceAsListenerInstanciation();
-                // We only need to add a trigger we can't inline it.
-                if (stat != null && info.onReplaceAsInline() == null) {
-                    stmts.append(stat);
-                }
-            }
-        }
-
-        // add change listeners for on replace on overridden vars
-        for (TranslatedOverrideClassVarInfo info : translatedTriggerInfo) {
-            if (!info.isStatic()) {
-                JCStatement stat = info.onReplaceAsListenerInstanciation();
-                // We only need to add a trigger we can't inline it.
-                if (stat != null && info.onReplaceAsInline() == null) {
-                    stmts.append(stat);
-                }
-            }
-        }
-
-        // Only generate method if necessary.
-        if (stmts.size() != emptySize || isMixinClass) {
-            methods.append(make.at(diagPos).MethodDef(
-                    make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
-                    defs.addTriggersName,
-                    makeType( null,syms.voidType),
-                    List.<JCTypeParameter>nil(),
-                    isMixinClass? List.<JCVariableDecl>of( makeReceiverParam(cDecl) ) : List.<JCVariableDecl>nil(),
-                    List.<JCExpression>nil(),
-                    make.Block(0L, stmts.toList()),
-                    null));
-        }
-
-        return methods.toList();
-    }
-
-    /**
      * Make a method body which redirects to the actual implementation in a static method of the defining class.
      */
     private JCBlock makeDispatchBody(JFXClassDeclaration cDecl, MethodSymbol mth, boolean isBound, boolean isStatic) {
@@ -892,7 +820,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             for (VarInfo ai : attrInfos) {
                 // Only process attributes declared in this class (includes mixins.)
-                if (ai.needsDeclaration()) {
+                if (ai.needsCloning() && !ai.isOverride()) {
                     // Set the current diagnostic position.
                     setCurrentPos(ai);
                     // Grab the variable symbol.
@@ -966,7 +894,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the getter method for the specified attribute.
         //
         private JCTree makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
             // Real type for var.
@@ -1019,7 +946,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the setter method for the specified attribute.
         //
         private JCTree makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
             // Real type for var.
@@ -1067,7 +993,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the be method for the specified attribute.
         //
         private JCTree makeBeAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
             // Real type for var.
@@ -1085,73 +1010,32 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // $var
                 Name varName = attributeValueName(proxyVarSym);
     
-                // Fetch the on replace statement or null.
-                JCStatement onReplace = varInfo.onReplaceAsInline();
-    
-                // Need to capture init state if has trigger.
-                if (onReplace != null) {
-                    // T varOldValue$ = $var;
-                    stmts.append(makeVariable(Flags.FINAL, type, varOldValueName, Id(varName)));
-    
-                    // varOldValue$ != varNewValue$
-                    // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
-                    JCExpression testExpr = type.isPrimitive() ?
-                        m().Binary(JCTree.NE, Id(varOldValueName), Id(varNewValueName))
-                      : NOT(runtime(currentPos, defs.Util_isEqual, List.of(Id(varOldValueName), Id(varNewValueName))));
-    
-                    // If we need to test init.
-                    if (!varInfo.isStatic()) {
-                        // varOldValue$ != varNewValue$ || !isInitialized(VOFF$var))
-                        testExpr = m().Binary(JCTree.OR, testExpr, NOT(makeFlagExpression(varInfo, varFlagActionTest, varFlagInitialized)));
-                    }
-    
-                    // Set boolean to indicate if this variable has been changed
-                    stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varChangedName, testExpr));
-    
-                    // $var = value
-                    stmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
-    
-                    // setIsInitialized(VOFF$var);
-                    stmts.append(makeFlagStatement(varInfo, varFlagActionSet, varFlagInitialized));
-    
-                    // Prepare to accumulate trigger statements.
-                    ListBuffer<JCStatement> trigStmts = ListBuffer.lb();
-    
-                    JFXVar oldVar = varInfo.onReplace().getOldValue();
-                    JFXVar newVar = varInfo.onReplace().getNewElements();
-    
-                     // Check to see if the on replace has an old value.
-                    if (oldVar != null) {
-                        // T oldValue = $var
-                        trigStmts.append(makeVariable(Flags.FINAL, type, oldVar.getName(), Id(varOldValueName)));
-                    }
-    
-                     // Check to see if the on replace has a new value.
-                    if (newVar != null) {
-                        // T newValue = value
-                        trigStmts.append(makeVariable(Flags.FINAL, type, newVar.getName(), Id(varNewValueName)));
-                    }
-    
-                    // Need a receiver under some circumstances.
-                    if (!varInfo.isStatic()) {
-                        // T receiver$ = this.
-                        trigStmts.append(makeVariable(Flags.FINAL, analysis.getCurrentClassSymbol().type, defs.receiverName, Id(names._this)));
-                    }
-    
-                    // Insert the trigger.
-                    trigStmts.append(onReplace);
-    
-                    // if (varOldValue$ != varNewValue$) { ... trigger  code ... }
-                    stmts.append(m().If(Id(varChangedName), m().Block(0L, trigStmts.toList()), null));
-                } else {
-                    // $var = value
-                    JCExpression assign = m().Assign(Id(varName), Id(varNewValueName));
-    
-                    // $var = value;
-                    stmts.append(m().Exec(assign));
-                    // setIsInitialized(VOFF$var);
-                    stmts.append(makeFlagStatement(varInfo, varFlagActionSet, varFlagInitialized));
-                }
+                // T varOldValue$ = $var;
+                stmts.append(makeVariable(Flags.FINAL, type, varOldValueName, Id(varName)));
+
+                // Prepare to accumulate trigger statements.
+                ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
+
+                // $var = value
+                ifStmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
+
+                // invalidate$()
+                ifStmts.append(Call(attributeInvalidateName(varSym)));
+
+                // setIsValidValue(VOFF$var);
+                ifStmts.append(makeFlagStatement(varInfo, varFlagActionSet, varFlagValid));
+
+                // onReplace$(varOldValue$)
+                ifStmts.append(Call(attributeOnReplaceName(varSym), Id(varOldValueName)));
+
+                // varOldValue$ != varNewValue$
+                // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
+                JCExpression testExpr = type.isPrimitive() ?
+                    m().Binary(JCTree.NE, Id(varOldValueName), Id(varNewValueName))
+                  : NOT(runtime(currentPos, defs.Util_isEqual, List.of(Id(varOldValueName), Id(varNewValueName))));
+
+               // if (varOldValue$ != varNewValue$) { handle change }
+                stmts.append(m().If(testExpr, m().Block(0L, ifStmts.toList()), null));
             }
 
             // Set up value arg.
@@ -1174,7 +1058,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the invalidate method for the specified attribute.
         //
         private JCTree makeInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            setCurrentPos(varInfo);
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
             // Real type for var.
@@ -1194,6 +1077,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 // Prepare to accumulate if statements.
                 ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
+                
+                // Call super first.
+                ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+                if (varInfo.isOverride() && superClassSym != null) {
+                    ifStmts.append(makeSuperCall(superClassSym, attributeInvalidateName(varSym)));
+                }
                 
                 // clearValidValue$(VOFF$var);
                 ifStmts.append(makeFlagStatement(varInfo, varFlagActionClear, varFlagValid));
@@ -1228,22 +1117,122 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method constructs the getter/setter/location accessor methods for each attribute.
+        // This method constructs the onreplace$ method for the specified attribute.
+        //
+        private JCTree makeOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            // Symbol used on the method.
+            VarSymbol varSym = varInfo.getSymbol();
+            // Real type for var.
+            Type type = varInfo.getRealType();
+            // Assume no body.
+            ListBuffer<JCStatement> stmts = null;
+            // Assume the onReplace arg name.
+            Name oldValueName = varOldValueName;
+
+            if (needsBody) {
+                // Prepare to accumulate statements.
+                stmts = ListBuffer.lb();
+
+                // Symbol used when accessing the variable.
+                VarSymbol proxyVarSym = varInfo.proxyVarSym();
+    
+                // $var
+                Name varName = attributeValueName(proxyVarSym);
+                
+                // Fetch the on replace statement or null.
+                JCStatement onReplace = varInfo.onReplaceAsInline();
+
+                // Need to capture init state if has trigger.
+                if (onReplace != null) {
+                    // Gather specified var info.
+                    JFXVar oldVar = varInfo.onReplace().getOldValue();
+                    JFXVar newVar = varInfo.onReplace().getNewElements();
+    
+                     // Check to see if the on replace has an old value.
+                    if (oldVar != null) {
+                        // Change the onReplace arg name. 
+                        oldValueName = oldVar.getName();
+                    }
+    
+                     // Check to see if the on replace has a new value.
+                    if (newVar != null) {
+                        // T newValue = value
+                        stmts.append(makeVariable(Flags.FINAL, type, newVar.getName(), Id(varName)));
+                    }
+    
+                    // Need a receiver under some circumstances.
+                    if (!varInfo.isStatic()) {
+                        // T receiver$ = this.
+                        stmts.append(makeVariable(Flags.FINAL, analysis.getCurrentClassSymbol().type, defs.receiverName, Id(names._this)));
+                    }
+    
+                    // Insert the trigger.
+                    stmts.append(onReplace);
+                }
+                
+                // Call super first.
+                ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+                if (varInfo.isOverride() && superClassSym != null) {
+                    stmts.prepend(makeSuperCall(superClassSym, attributeOnReplaceName(varSym), List.<JCExpression>of(Id(oldValueName))));
+                }
+            }
+
+            // Set up value arg.
+            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.PARAMETER),
+                                                          oldValueName,
+                                                          makeType(type),
+                                                          null);
+            // Construct method.
+            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
+                                             syms.voidType,
+                                             attributeOnReplaceName(varSym),
+                                             List.<JCVariableDecl>of(arg),
+                                             stmts);
+            optStat.recordProxyMethod();
+
+            return method;
+        }
+        
+        
+        //
+        // This method constructs the accessor methods for an attribute.
+        //
+        public  List<JCTree> makeAnAttributeAccessorMethods(VarInfo ai, boolean needsBody) {
+            ListBuffer<JCTree> accessors = ListBuffer.lb();
+            setCurrentPos(ai.pos());
+
+            if (ai.useAccessors()) {
+                if (!ai.isOverride()) {
+                    accessors.append(makeGetterAccessorMethod(ai, needsBody));
+                    accessors.append(makeSetterAccessorMethod(ai, needsBody));
+                    accessors.append(makeBeAccessorMethod(ai, needsBody));
+                    accessors.append(makeInvalidateAccessorMethod(ai, needsBody));
+                    accessors.append(makeOnReplaceAccessorMethod(ai, needsBody));
+                } else if (needsBody) {
+                    if (ai.hasBoundDefinition()) {
+                        accessors.append(makeGetterAccessorMethod(ai, needsBody));
+                        accessors.append(makeInvalidateAccessorMethod(ai, needsBody));
+                    }
+                    if (ai.onReplace() != null) {
+                        accessors.append(makeOnReplaceAccessorMethod(ai, needsBody));
+                    }
+                }
+            }
+            
+            return accessors.toList();
+        }
+        
+
+        //
+        // This method constructs the accessor methods for each attribute.
         //
         public List<JCTree> makeAttributeAccessorMethods(List<VarInfo> attrInfos) {
             ListBuffer<JCTree> accessors = ListBuffer.lb();
 
             for (VarInfo ai : attrInfos) {
                 // Only create accessors for declared and proxied vars.
-                if (ai.needsDeclaration()) {
-                    setCurrentPos(ai.pos());
-
-                    if (ai.useAccessors()) {
-                        accessors.append(makeGetterAccessorMethod(ai, true));
-                        accessors.append(makeSetterAccessorMethod(ai, true));
-                        accessors.append(makeBeAccessorMethod(ai, true));
-                        accessors.append(makeInvalidateAccessorMethod(ai, true));
-                    }
+                if (ai.needsCloning()) {
+                    accessors.appendList(makeAnAttributeAccessorMethods(ai, true));
                 }
             }
 
@@ -1251,7 +1240,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method constructs the abstract interfaces for the getters and setters in
+        // This method constructs the abstract interfaces for the accessors in
         // a mixin class.
         //
         public List<JCTree> makeMemberVariableAccessorInterfaceMethods() {
@@ -1263,14 +1252,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Only for vars within the class.
             for (VarInfo ai : translatedAttrInfo) {
                 if (!ai.isStatic()) {
-                    setCurrentPos(ai.pos());
-
-                    if (ai.useAccessors()) {
-                        accessors.append(makeGetterAccessorMethod(ai, false));
-                        accessors.append(makeSetterAccessorMethod(ai, false));
-                        accessors.append(makeBeAccessorMethod(ai, false));
-                        accessors.append(makeInvalidateAccessorMethod(ai, false));
-                    }
+                    accessors.appendList(makeAnAttributeAccessorMethods(ai, false));
                 }
             }
             return accessors.toList();
@@ -1300,7 +1282,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Accumulate variable numbering.
             for (VarInfo ai : attrInfos) {
                 // Only variables actually declared.
-                if (ai.needsDeclaration()) {
+                if (ai.needsCloning() && !ai.isOverride()) {
                     // Set diagnostic position for attribute.
                     setCurrentPos(ai.pos());
 
@@ -1353,7 +1335,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             for (VarInfo ai : attrInfos) {
                 // Only variables actually declared.
-                if (ai.needsDeclaration()) {
+                if (ai.needsCloning() && !ai.isOverride()) {
                     // Set diagnostic position for attribute.
                     setCurrentPos(ai.pos());
                     // Offset var name.
@@ -1657,7 +1639,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
             for (VarInfo ai : attrInfos) {
                 // Only declared attributes with default expressions.
-                if (ai.needsDeclaration()) {
+                if (ai.needsCloning() && !ai.isOverride()) {
                     // Prepare to accumulate case statements.
                     ListBuffer<JCStatement> caseStmts = ListBuffer.lb();
 
@@ -1688,15 +1670,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCStatement init = ai.getDefaultInitStatement();
 
                     if (init != null) {
-                        // !isInitialized$(varNum)
-                        JCExpression isNotInitializedExpr = NOT(Apply(defs.isInitializedPrefixName, Id(varNumName)));
                         // varNum == VOFF$var
                         JCExpression isRightVarExpr = m().Binary(JCTree.EQ, Id(varNumName), Id(attributeOffsetName(ai.getSymbol())));
-                        // if (!super.isInitialized$(varNum)) init
-                        JCStatement secondIfStmt = m().If(isNotInitializedExpr, init, null);
-                        // { if (!super.isInitialized$(VOFF$var)) init; return; }
-                        JCBlock block = m().Block(0, List.<JCStatement>of(secondIfStmt, m().Return(null)));
-                        // if (varNum == VOFF$var) { if (!super.isInitialized$(VOFF$var)) init; return; }
+                        // { init; return; }
+                        JCBlock block = m().Block(0, List.<JCStatement>of(init, m().Return(null)));
+                        // if (varNum == VOFF$var) { init; return; }
                         overrides.append(m().If(isRightVarExpr, block, null));
                     }
                 }
@@ -1707,11 +1685,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             // Has some defaults.
             boolean hasDefaults = cases.nonEmpty() || overrides.nonEmpty();
-
-            if (!isMixinClass && hasDefaults) {
-                // Compensate with a local receiver.
-                stmts.append(makeReceiverLocal(analysis.getCurrentClassDecl()));
-            }
 
             // If there were some location vars.
             if (cases.nonEmpty()) {
@@ -1726,8 +1699,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             // generate method if it is worthwhile or we have to.
             if (hasDefaults || superClassSym == null) {
-               stmts.prepend(m().If(makeFlagExpression(varNumName, varFlagActionTest, varFlagInitialized), m().Return(null), null));
-               
                // If there is a super class.
                 if (superClassSym != null) {
                     // super
