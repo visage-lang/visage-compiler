@@ -341,7 +341,7 @@ class HistoData {
         synchronized (FxTracker.sdl_map) {
             System.gc();
             for (StaticDependentLocation sdl : FxTracker.sdl_map.keySet()) {
-                if (sdl.get() == null) {
+                if (sdl.get() == null && !sdl.isEnqueued()) {
                     sdl_null_referent_count++;
                 }
                 sdl_mapsize++;

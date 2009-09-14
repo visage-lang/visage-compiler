@@ -136,8 +136,8 @@ public class FxTrackerRunner {
 
     public static void main(String... args) {
         init(args);
-            doRun();
-            System.exit(0);
+        doRun();
+        System.exit(0);
     }
     
     static void init(String[] args) {
@@ -408,12 +408,18 @@ public class FxTrackerRunner {
             if (debug) {
                 System.out.println("---output---");
             }
-            while (in != null) {
+            
+            try {
+                while (in != null) {
 //                if (debug) {
 //                    System.out.println(in + " ");
 //                }
 //                System.out.println("");
-                in = rdr.readLine();
+                    in = rdr.readLine();
+                }
+            } catch (IOException ioe) {
+//                ioe.printStackTrace();
+                return;
             }
             p.waitFor();
             return;
