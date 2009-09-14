@@ -137,9 +137,6 @@ class JavafxAnalyzeClass {
         // Null or code for initializing the var.
         private final JCStatement initStmt;
 
-        // Predicate whether the initialize is overshadowed by a subclass.
-        private boolean initOverridden;
-
         // The class local enumeration value for this var.
         private int enumeration;
 
@@ -151,7 +148,6 @@ class JavafxAnalyzeClass {
             this.sym = attrSym;
             this.vmi = vmi;
             this.initStmt = initStmt;
-            this.initOverridden = false;
             this.enumeration = -1;
         }
 
@@ -195,6 +191,9 @@ class JavafxAnalyzeClass {
 
         // Generally means that the var needs to be included in the current method.
         public boolean needsCloning() { return false; }
+        
+        // Return true if the var is an override.
+        public boolean isOverride() { return false; }
 
         // A proxy var serves several roles, but generally means that the proxy's
         // qualified name should be used in place of the current var's qualified name.
@@ -226,12 +225,6 @@ class JavafxAnalyzeClass {
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
 
-        // Indicate that the initialization code is supplied by another var.
-        public void setIsInitOverridden(boolean initOverridden) { this.initOverridden = initOverridden; }
-
-        // Predicate for testing if the initialization code is supplied by another var.
-        public boolean isInitOverridden() { return initOverridden; }
-
         // Class local enumeration accessors.
         public int  getEnumeration()                { return enumeration; }
         public void setEnumeration(int enumeration) { this.enumeration = enumeration; }
@@ -247,15 +240,6 @@ class JavafxAnalyzeClass {
 
         // null or Java tree for var's on-replace for use in change listeber.
         public JCStatement onReplaceAsListenerInstanciation() { return null; }
-
-        // Return true if the var needs to be declared in the current class.
-        public boolean needsDeclaration() { return needsCloning() && !hasProxyVar(); }
-
-        // Return true if the var needs to be instance declared in the current class.
-        public boolean needsInstanceDeclaration() { return needsDeclaration() && !isStatic(); }
-
-        // Return true if the var needs to be static declared in the current class.
-        public boolean needsStaticDeclaration() { return needsDeclaration() && isStatic(); }
 
         // Null or Java code for getter expression of bound variable
         public JCExpression boundInit() { return null; }
@@ -280,7 +264,6 @@ class JavafxAnalyzeClass {
                                ", needsCloning=" + needsCloning() +
                                ", isDef=" + isDef() +
                                ", getDefaultInitStatement=" + (getDefaultInitStatement() != null) +
-                               ", isInitOverridden=" + initOverridden +
                                ", proxy=" + ((proxyVar() == null) ? "" : proxyVar().getSymbol().owner) +
                                ", class=" + getClass().getName());
         }
@@ -377,9 +360,13 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, Result bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, bindOrNull, onReplace, null, onReplaceAsListenerInstanciation);
+                JCStatement initStmt, Result bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation) {
+            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation);
         }
+        
+        // Return true if the var is an override.
+        @Override
+        public boolean isOverride() { return true; }
 
         // Returns the var information the override overshadows.
         @Override
@@ -445,7 +432,7 @@ class JavafxAnalyzeClass {
         // Assign var enumeration and handle binders.
         for (VarInfo ai : attributeInfos) {
             // Only variables actually declared.
-            if (ai.needsDeclaration()) {
+            if (ai.needsCloning() && !ai.isOverride()) {
                 // Assign the vars enumeration.
                 ai.setEnumeration(varCount++);
             }
@@ -647,11 +634,6 @@ class JavafxAnalyzeClass {
                 if (oldVarInfo != null) {
                     // Proxy to the overridden var.
                     tai.setProxyVar(oldVarInfo);
-
-                    // If the override has an init then ignore the overridden var's init.
-                    if (tai.getDefaultInitStatement() != null) {
-                        oldVarInfo.setIsInitOverridden(true);
-                    }
                 }
 
                 // Track the var for overrides and mixin duplication.
@@ -884,13 +866,6 @@ class JavafxAnalyzeClass {
             } else {
                 // Construct a new superclass VarInfo.
                 SuperClassVarInfo newVarInfo = new SuperClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
-
-                // If encountered before.
-                if (oldVarInfo != null) {
-                    // Indicate the init is overridden.
-                    oldVarInfo.setIsInitOverridden(true);
-                }
-
                 // Add the new superclass VarInfo to the result list.
                 attributeInfos.append(newVarInfo);
                 // Map the fact we've seen this var.

@@ -887,7 +887,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                 inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                                 JCStatement initStmt = (!isStatic || getAttrEnv().toplevel.isLibrary) ? translateDefinitionalAssignmentToSet(attrDef.pos(),
                                         attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
-                                        isStatic ? null : defs.receiverName)
+                                        (isStatic || !isMixinClass) ? null : defs.receiverName)
                                         : null;
                                 attrInfo.append(new TranslatedVarInfo(
                                         attrDef,
@@ -909,7 +909,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                             inOverrideInstanceVariableDefinition = true;
                             initStmt = translateDefinitionalAssignmentToSet(override.pos(),
                                     override.getInitializer(), override.getBindStatus(), override.sym,
-                                    isStatic ? null : defs.receiverName);
+                                    (isStatic || !isMixinClass) ? null : defs.receiverName);
                             inOverrideInstanceVariableDefinition = false;
                             overrideInfo.append(new TranslatedOverrideClassVarInfo(
                                     override,
@@ -917,6 +917,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                     initStmt,
                                     override.isBound()? translateBind.translate(override.getInitializer(), override.sym) : null,
                                     override.getOnReplace(),
+                                    translateOnReplaceAsInline(override.sym, override.getOnReplace()),
                                     makeInstanciateChangeListener(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -1276,7 +1277,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 //
                 //   {
                 //       final X jfx$0objlit = new X(true);
-                //       jfx$0objlit.addTriggers$();
                 //       final short[] jfx$0map = GETMAP$X();
                 //
                 //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
@@ -1305,10 +1305,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                         tmpVarName,
                         type,
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
-
-                // addTriggers# to set-up triggers
-                //       jfx$0objlit.addTriggers$();
-                makeInitSupportCall(defs.addTriggersName, tmpVarName);
 
                 // Apply defaults to the instance variables
                 //
@@ -1581,10 +1577,11 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         assert !isLocal || instanceName == null;
         final JCExpression nonNullInit = (init == null) ? makeDefaultValue(diagPos, vmi) : init;  //TODO: is this needed?
 
-        if (!bindStatus.isBound() && vmi.useAccessors()) {
+        if (vmi.useAccessors()) {
             JCExpression tc = instanceName == null ? null : make.at(diagPos).Ident(instanceName);
             return callExpression(diagPos, tc, attributeBeName(vsym), nonNullInit);
         }
+        // TODO: Java inherited.
         final JCExpression varRef = //TODO: fix me
                   make.at(diagPos).Ident(vsym) // It is a local variable
                 ;

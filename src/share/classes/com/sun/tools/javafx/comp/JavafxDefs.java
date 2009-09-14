@@ -47,6 +47,7 @@ public class JavafxDefs {
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeBeMethodNamePrefix = "be$";
     public static final String attributeInvalidateMethodNamePrefix = "invalidate$";
+    public static final String attributeOnReplaceMethodNamePrefix = "onReplace$";
     public static final String attributeNotifyDependentsNameString = "notifyDependents$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
@@ -237,7 +238,6 @@ public class JavafxDefs {
     final Name valueName;
     final Name targetName;
     final Name interpolateName;
-    final Name addTriggersName;
     final Name initFXBaseName;
     final Name userInitName;
     final Name postInitName;
@@ -245,6 +245,7 @@ public class JavafxDefs {
     final Name attributeSetPrefixName;
     final Name attributeBePrefixName;
     final Name attributeInvalidateMethodName;
+    final Name attributeOnReplaceMethodName;
     final Name applyDefaultsPrefixName;
     final Name attributeCountMethodName;
     final Name isInitializedPrefixName;
@@ -367,7 +368,6 @@ public class JavafxDefs {
         targetName = names.fromString("target");
         valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");
-        addTriggersName = names.fromString("addTriggers$");
         initFXBaseName = names.fromString("initFXBase$");
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
@@ -383,6 +383,7 @@ public class JavafxDefs {
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         attributeBePrefixName = names.fromString(attributeBeMethodNamePrefix);
         attributeInvalidateMethodName = names.fromString(attributeInvalidateMethodNamePrefix);
+        attributeOnReplaceMethodName = names.fromString(attributeOnReplaceMethodNamePrefix);
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);

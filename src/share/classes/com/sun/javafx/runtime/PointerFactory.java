@@ -42,7 +42,6 @@ public class PointerFactory extends FXBase implements FXObject {
     }
 
     public void initialize$() {
-        addTriggers$();
         applyDefaults$();
         complete$();
     }

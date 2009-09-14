@@ -416,7 +416,6 @@ public class FXLocal {
         static final String[] SYSTEM_METHOD_EXCLUDES = {
             "userInit$",
             "postInit$",
-            "addTriggers$",
             "initialize$",
             "isInitialized$",
             "javafx$run$",
@@ -428,7 +427,9 @@ public class FXLocal {
         static final String[] SYSTEM_METHOD_PREFIXES = {
             "get$",
             "set$",
-            "loc$",
+            "be$",
+            "invalidate$",
+            "onReplace$",
             "applyDefaults$",
             "GETMAP$",
             "VOFF$"
@@ -967,7 +968,6 @@ public class FXLocal {
                     instance.initialize$();
                 } else {
                     int count = count();
-                    instance.addTriggers$();
                     
                     for (int offset = 0; offset < count; offset++ ) {
                         if (initMembers[offset] != null) {
