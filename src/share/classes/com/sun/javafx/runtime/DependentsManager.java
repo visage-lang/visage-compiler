@@ -23,12 +23,6 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.util.Linkable;
-import com.sun.javafx.runtime.util.Linkables;
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-
 /**
  * Manages dependents of a particular FXObject. Each FXOBject has an instance of
  * dependents manager to which it delegates add/remove/notify/listener-count method
@@ -38,10 +32,10 @@ import java.lang.ref.WeakReference;
  * @author A. Sundararajan
  */
 public abstract class DependentsManager {
-    public abstract void addDependent(FXObject src, final int varNum, FXObject dep);
-    public abstract void removeDependent(FXObject src, final int varNum, FXObject dep);
-    public abstract void notifyDependents(FXObject src, final int varNum);
-    public abstract int getListenerCount(FXObject src);
+    public abstract void addDependent(FXObject bindee, final int varNum, FXObject binder);
+    public abstract void removeDependent(FXObject bindee, final int varNum, FXObject binder);
+    public abstract void notifyDependents(FXObject bindee, final int varNum);
+    public abstract int getListenerCount(FXObject bindee);
 
     /**
      * Returns the dependents manager of a given FXObject. If needed, this method
@@ -54,135 +48,12 @@ public abstract class DependentsManager {
      *
      * @param src FXObject for which dependents manager is returned
      */
-    public static DependentsManager get(FXObject src) {
-        DependentsManager depMgr = src.getDependentsManager$();
+    public static DependentsManager get(FXObject obj) {
+        DependentsManager depMgr = obj.getDependentsManager$();
         if (depMgr == null) {
-            depMgr = new DependentsManagerImpl();
-            src.setDependentsManager$(depMgr);
+            depMgr = new MinimalWeakRefsDependentsManager();
+            obj.setDependentsManager$(depMgr);
         }
         return depMgr;
-    }
-
-    /*
-     * Simple dependents manager implementation. This is straightforward
-     * implementation that maintains a single list of listeners for a FXObject
-     * (listener multiplexing). Also, this implementation create weak references
-     * for each dependent FXObject. If you want to optimize, number of weak
-     * references, either modify here or create a different DependentsManager
-     * implementation class.
-     */
-    private static class DependentsManagerImpl extends DependentsManager {
-        private static final ReferenceQueue<FXObject> refQ = new ReferenceQueue<FXObject>();
-        
-        /*
-         * This method polls the reference queue and deletes dead listeners.
-         * As of now, this is called from add/remove/notify calls. If needed,
-         * we can call this method from a timer to remove dead listeners promptly.
-         */
-        private static void clearDeadDependencies() {
-            Reference<? extends FXObject> ref;
-            while ((ref = refQ.poll()) != null) {
-                if (ref instanceof Dependent) {
-                    Linkables.<Dependent>remove((Dependent)ref);
-                }
-            }
-        }
-
-        static final class Dependent extends WeakReference<FXObject> implements Linkable<Dependent> {
-            private int varNum;
-            private Dependent next;
-            private Linkable<Dependent> prev;
-
-            Dependent(int varNum, FXObject dep) {
-                super(dep, refQ);
-                this.varNum = varNum;
-            }
-
-            public Dependent getNext() {
-                return next;
-            }
-
-            public void setNext(Dependent next) {
-                this.next = next;
-            }
-
-            public Linkable<Dependent> getPrev() {
-                return prev;
-            }
-
-            public void setPrev(Linkable<Dependent> prev) {
-                this.prev = prev;
-            }
-        }
-
-        // list of all dependents
-        private Dependent dependencies;
-        // Are we in the middle of iterating listeners for notification?
-        // FIXME: do we need this? Is it possible to handle remove within
-        // notification loop properly without this?
-        private boolean inIteration;
-
-        @Override
-        public void addDependent(FXObject src, final int varNum, FXObject dep) {
-            Dependent newDep = new Dependent(varNum, dep);
-            if (dependencies == null) {
-                dependencies = newDep;
-            } else {
-                // insert at the start
-                newDep.setNext(dependencies);
-                dependencies.setPrev(newDep);
-                dependencies = newDep;
-            }
-            // tell "src" that there are listeners for "varNum" field
-            src.setBindee$(varNum);
-            if (!inIteration) clearDeadDependencies();
-        }
-
-        @Override
-        public void removeDependent(FXObject src, final int varNum, FXObject dep) {
-            Dependent next = dependencies;
-            while (next != null) {
-                if (varNum == next.varNum && dep == next.get()) {
-                    // we just clear the dependent object ref. We will purge
-                    // link object later. See below.
-                    next.clear();
-                }
-                next = next.getNext();
-            }
-            if (!inIteration) clearDeadDependencies();
-        }
-
-        @Override
-        public void notifyDependents(FXObject src, final int varNum) {
-            try {
-                inIteration = true;
-                Dependent next = dependencies;
-                while (next != null) {
-                    if (varNum == next.varNum) {
-                        FXObject dep = next.get();
-                        if (dep != null) dep.update$(src, varNum);
-                    }
-                    next = next.getNext();
-                }
-            } finally {
-                inIteration = false;
-                clearDeadDependencies();
-            }
-        }
-
-        @Override
-        public int getListenerCount(FXObject src) {
-            int count = 0;
-            Dependent next = dependencies;
-            while (next != null) {
-                // ignore dead listeners for counting purpose
-                FXObject dep = next.get();
-                if (dep != null) {
-                    count++;
-                }
-                next = next.getNext();
-            }
-            return count;
-        }
     }
 }
