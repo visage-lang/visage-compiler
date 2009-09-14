@@ -724,7 +724,27 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         protected List<JCTree> makeBody() {
             resultStatement = makeResultBlock();
             if (generateInLine) {
-                JCTree listenerMethod = makeChangeListenerMethod(diagPos, isSequence, valueType.tag, List.of(resultStatement), valueType);
+                JCTree listenerMethod = null;
+                switch (onReplace.getTriggerKind()) {
+                    case ONREPLACE: {
+                        listenerMethod =
+                                makeChangeListenerMethod(diagPos,
+                                isSequence,
+                                valueType.tag,
+                                List.of(resultStatement),
+                                valueType);
+                        break;
+                    }
+                    case ONINVALIDATE: {
+                        List<JCStatement> stmts =
+                                List.of(resultStatement,
+                                m().Return(m().Literal(syms.booleanType.tag, 1)));
+                        listenerMethod =
+                                makeInvalidationListenerMethod(diagPos,
+                                stmts);
+                        break;
+                    }
+                }
                 members.append(listenerMethod);
                 return completeMembers();
             } else {
@@ -733,14 +753,31 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             }
         }
 
+        @Override
+        JCCase makeCase() {
+            switch (onReplace.getTriggerKind()) {
+                case ONREPLACE: return super.makeCase();
+                case ONINVALIDATE: return m().Case(m().Literal(id), List.<JCStatement>of(
+                    resultStatement,
+                    m().Return(m().Literal(syms.booleanType.tag, 1))));
+                default: return null;
+            }
+        }
+
         /**
          * The class to instanciate that includes the closure
          */
         @Override
         protected JCExpression makeBaseClass() {
-            return m().TypeApply(
+            switch (onReplace.getTriggerKind()) {
+                case ONREPLACE: return m().TypeApply(
                     generateInLine? makeIdentifier(diagPos, JavafxDefs.cChangeListener) : super.makeBaseClass(),
                     List.of(makeTypeTree(diagPos, types.boxedTypeOrType(valueType))));
+                case ONINVALIDATE: return generateInLine ?
+                    makeIdentifier(diagPos, defs.cInvalidationListener) :
+                    m().TypeApply(super.makeBaseClass(), List.of(makeTypeTree(diagPos, types.boxedTypeOrType(valueType))));
+                default: return null;
+            }
         }
 
         @Override
@@ -748,7 +785,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             if (generateInLine) {
                 return List.nil();
             } else {
-                return super.makeConstructorArgs();
+                JCExpression invalidation = onReplace.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE ?
+                    m().Literal(syms.booleanType.tag, 0) :
+                    m().Literal(syms.booleanType.tag, 1);
+                return super.makeConstructorArgs().append(invalidation);
             }
         }
 
@@ -914,12 +954,18 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         Name addListenerName;
         Type valueType;
-        if (isSequence) {
-            addListenerName = defs.addSequenceChangeListenerName;
-            valueType = types.elementType(vsym.type);
-        } else {
-            addListenerName = defs.addChangeListenerName;
-            valueType = vsym.type;
+        if (onReplace.getTriggerKind() == JFXOnReplace.Kind.ONINVALIDATE) {
+            addListenerName = defs.addInvalidationListenerName;
+            valueType = types.elementTypeOrType(vsym.type);
+        }
+        else {
+            if (isSequence) {
+                addListenerName = defs.addSequenceChangeListenerName;
+                valueType = types.elementType(vsym.type);
+            } else {
+                addListenerName = defs.addChangeListenerName;
+                valueType = vsym.type;
+            }
         }
 
         JCExpression onReplaceListener = new OnReplaceClosureTranslator(onReplace, isSequence, valueType).doit();
@@ -949,34 +995,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
     List<JCTree> scriptCompleteTriggers(DiagnosticPosition diagPos) {
         if (triggers.isEmpty()) {
             return List.nil();
-        } else {
-            // Collect all the switch-cases for all the listener types
-            ListBuffer<JCCase> sequenceCases = ListBuffer.lb();
-            ListBuffer<JCCase> otherCases[] = new ListBuffer[TypeTags.CLASS + 1];
-            for (int tag = 0; tag <= TypeTags.CLASS; ++tag) {
-                otherCases[tag] = ListBuffer.lb();
-            }
-            for (OnReplaceClosureTranslator b : triggers) {
-                if (!b.generateInLine) {
-                    if (b.isSequence) {
-                        sequenceCases.append(b.makeCase());
-                    } else {
-                        otherCases[b.valueType.tag].append(b.makeCase());
-                    }
-                }
-            }
-
-            // Make all the onChange methods
-            ListBuffer<JCTree> members = ListBuffer.lb();
-            for (int tag = 0; tag <= TypeTags.CLASS; ++tag) {
-                if (otherCases[tag].nonEmpty()) {
-                    members.append(makeChangeListenerMethod(diagPos, false, tag, otherCases[tag]));
-                }
-            }
-            if (sequenceCases.nonEmpty()) {
-                members.append(makeChangeListenerMethod(diagPos, true, TypeTags.ERROR, sequenceCases));
-            }
-
+        } else {        
+            List<JCTree> members = getMembersForChangeListener(diagPos);
+            members = members.appendList(getMembersForInvalidationListener(diagPos));
             // Make constructor
             Type objectArrayType = new Type.ArrayType(syms.objectType, syms.arrayClass);
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
@@ -984,17 +1005,58 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             params.append(makeParam(diagPos, defs.arg0Name, syms.objectType));
             params.append(makeParam(diagPos, defs.arg1Name, syms.objectType));
             params.append(makeParam(diagPos, defs.moreArgsName, objectArrayType));
+            params.append(makeParam(diagPos, defs.invalidation, syms.booleanType));
             JCStatement cbody = make.Exec(make.Apply(null, make.Ident(names._super), List.<JCExpression>of(
                     make.Ident(defs.idName),
                     make.Ident(defs.arg0Name),
                     make.Ident(defs.arg1Name),
-                    make.Ident(defs.moreArgsName)
+                    make.Ident(defs.moreArgsName),
+                    make.Ident(defs.invalidation)
                     )));
             JCTree constr = makeMethod(diagPos, names.init, List.of(cbody), params.toList(), syms.voidType, Flags.PRIVATE);
-            members.append(constr);
-
-            return members.toList();
+            members = members.append(constr);
+            return members;
         }
+    }
+    //where
+    List<JCTree> getMembersForChangeListener(DiagnosticPosition diagPos) {
+        ListBuffer<JCCase> sequenceCases = ListBuffer.lb();
+        ListBuffer<JCCase> otherCases[] = new ListBuffer[TypeTags.CLASS + 1];
+        // Collect all the switch-cases for all the listener types
+        for (int tag = 0; tag <= TypeTags.CLASS; ++tag) {
+            otherCases[tag] = ListBuffer.lb();
+        }
+        for (OnReplaceClosureTranslator b : triggers) {
+            if (b.onReplace.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE &&
+                    !b.generateInLine) {
+                if (b.isSequence) {
+                    sequenceCases.append(b.makeCase());
+                } else {
+                    otherCases[b.valueType.tag].append(b.makeCase());
+                }
+            }
+        }
+        // Make all the onChange methods
+        ListBuffer<JCTree> members = ListBuffer.lb();
+        for (int tag = 0; tag <= TypeTags.CLASS; ++tag) {
+            if (otherCases[tag].nonEmpty()) {
+                members.append(makeChangeListenerMethod(diagPos, false, tag, otherCases[tag]));
+            }
+        }
+        if (sequenceCases.nonEmpty()) {
+            members.append(makeChangeListenerMethod(diagPos, true, TypeTags.ERROR, sequenceCases));
+        }
+        return members.toList();
+    }
+    //where
+    List<JCTree> getMembersForInvalidationListener(DiagnosticPosition diagPos) {
+        ListBuffer<JCCase> cases = ListBuffer.lb();
+        for (OnReplaceClosureTranslator b : triggers) {
+            if (b.onReplace.getTriggerKind() == JFXOnReplace.Kind.ONINVALIDATE) {
+                cases.append(b.makeCase());
+            }
+        }
+        return List.<JCTree>of(makeInvalidationListenerMethod(diagPos, cases));
     }
 
     /*private JCExpression makeSequenceTypeExpression(DiagnosticPosition diagPos, Type concreteType) {
@@ -1074,6 +1136,27 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 isSequence,
                 typeTag,
                 List.of(swit),
+                null);
+    }
+
+    private JCMethodDecl makeInvalidationListenerMethod(
+            DiagnosticPosition diagPos,
+            ListBuffer<JCCase> cases) {
+        JCStatement swit = make.at(diagPos).Switch(make.at(diagPos).Ident(defs.bindingIdName), cases.toList());
+        return makeInvalidationListenerMethod(diagPos, List.of(swit));
+    }
+
+    private JCMethodDecl makeInvalidationListenerMethod(
+            DiagnosticPosition diagPos,
+            List<JCStatement> stmts) {
+        return make.at(diagPos).MethodDef(
+                make.at(diagPos).Modifiers(Flags.PUBLIC),
+                defs.onChangeMethodName,
+                make.at(diagPos).TypeIdent(TypeTags.BOOLEAN),
+                List.<JCTypeParameter>nil(),
+                List.<JCVariableDecl>nil(),
+                List.<JCExpression>nil(),
+                make.at(diagPos).Block(0L, stmts),
                 null);
     }
 
@@ -1236,7 +1319,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     getterInit(attrDef.sym, attrDef.getInitializer()),
                                     attrDef.getOnReplace(),
                                     translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace()),
-                                    makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace())));
+                                    makeInstanciateChangeListener(attrDef.sym, attrDef.getOnReplace()),
+                                    attrDef.getOnInvalidate(),
+                                    makeInstanciateChangeListener(attrDef.sym, attrDef.getOnInvalidate())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
@@ -1256,7 +1341,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     init,
                                     getterInit(override.sym, override.getInitializer()),
                                     override.getOnReplace(),
-                                    makeInstanciateChangeListener(override.sym, override.getOnReplace())));
+                                    makeInstanciateChangeListener(override.sym, override.getOnReplace()),
+                                    override.getOnInvalidate(),
+                                    makeInstanciateChangeListener(override.sym, override.getOnInvalidate())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
@@ -1491,6 +1578,9 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         // Statements to set symbols with initial values.
         protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
 
+        // Statements to set init state for the initialized location.
+        protected ListBuffer<JCStatement> varStateInits = ListBuffer.lb();
+
         // Symbols corresponding to caseStats.
         protected ListBuffer<VarSymbol> varSyms = ListBuffer.lb();
 
@@ -1516,8 +1606,13 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
             //TODO: should not be calling definitionalAssignmentToSetExpression, instead should be translateDefinitionalAssignmentToSetExpression
-            varInits.append(m().Exec( toJava.definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, instName,
-                                                     toJava.typeMorpher.varMorphInfo(vsym)) ) );
+            VarMorphInfo vmi = toJava.typeMorpher.varMorphInfo(vsym);
+            varInits.append(m().Exec( toJava.definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, instName, vmi)));
+            JCExpression varRef = !vmi.isMemberVariable() ?
+                  m().at(diagPos).Ident(vsym) :// It is a local variable
+                  toJava.makeAttributeAccess(diagPos, vsym, instName); // It is a member variable
+            JCExpression varLoc = m().TypeCast(toJava.makeIdentifier(diagPos, defs.cAbstractLocation),varRef);
+            varStateInits.append(toJava.callStatement(diagPos, varLoc, "setInitMask", m().Literal(syms.byteType.tag, 1)));
             varSyms.append(vsym);
         }
 
@@ -1588,7 +1683,7 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                 JCVariableDecl offsetVar = toJava.makeTmpVar(diagPos, "off", syms.intType, varOffsetExpr);
                 stats.append(offsetVar);
                 JCExpression condition = m().Binary(JCTree.EQ, m().Ident(loopName), m().Ident(offsetVar.name));
-                loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
+                loopBody = m().If(condition, m().Block(0, List.of(varInits.first(), varStateInits.first())), applyDefaultsExpr);
             }
 
             stats.append(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
@@ -2032,10 +2127,12 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
             prependToStatements.prepend(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));
 
             // create change Listener and append it to the beginning of the block after the blank variable declaration
-            JFXOnReplace onReplace = tree.getOnReplace();
-            if ( onReplace != null ) {
-                JCStatement changeListener = makeInstanciateChangeListener(vsym, onReplace);
-                prependToStatements.append(changeListener);
+            for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
+                JFXOnReplace trigger = tree.getTrigger(triggerKind);
+                if ( trigger != null ) {
+                    JCStatement changeListener = makeInstanciateChangeListener(vsym, trigger);
+                    prependToStatements.append(changeListener);
+                }
             }
 
             result = translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), vmi, null);
@@ -2618,6 +2715,10 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
         }
     }
 
+    public void visitInvalidate(JFXInvalidate tree) {
+       JCExpression varLoc = translateAsLocation(tree.getVariable());
+       result = callStatement(tree.pos(), varLoc, "invalidate");
+    }
 
     public void visitSelect(JFXSelect tree) {
         Locationness wrapper = translationState.wrapper;
@@ -3858,7 +3959,8 @@ public class JavafxToJava extends JavafxAbstractTranslation implements JavafxVis
                                     }
                                 }
                                 JCExpression targ;
-                                if (magicIsInitializedFunction) {
+                                if (magicIsInitializedFunction ||
+                                        magicHasAnInitializerFunction) {
                                     //TODO: in theory, this could have side-effects (but only in theory)
                                     targ = translateAsLocation(l.head);
                                 } else {

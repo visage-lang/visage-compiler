@@ -325,6 +325,7 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
         protected final boolean selectorMutable;
         protected final boolean callBound;
         protected final boolean magicIsInitializedFunction;
+        protected final boolean magicHasAnInitializerFunction;
         protected final Type returnType;
 
         FunctionCallTranslator(final JFXFunctionInvocation tree) {
@@ -370,6 +371,8 @@ public abstract class JavafxAbstractTranslation extends JavafxTranslationSupport
 
             magicIsInitializedFunction = (msym != null) &&
                     (msym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
+            magicHasAnInitializerFunction = (msym != null) &&
+                    (msym.flags_field & JavafxFlags.FUNC_HAS_AN_INITIALIZER) != 0;
        }
     }
 

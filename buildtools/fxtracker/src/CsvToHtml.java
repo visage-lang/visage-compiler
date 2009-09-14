@@ -100,14 +100,16 @@ public class CsvToHtml {
             ps.println("     <TD><P><B>TRIGGER</B></P></TD>");
             ps.println("     <TD><P><B>VIEW_LOCATION</B></P></TD>");
             ps.println("     <TD><P><B>WEAK_LOCATION</B></P></TD>");
-            ps.println("     <TD><P><B>WEAK_ME_HOLDER</B></P></TD>");
             ps.println("     <TD><P><B>Total Children</B></P></TD>");
-            ps.println("     <TD><P><B>Location MapSize</B></P></TD>");
+            ps.println("     <TD><P><B>Location Map Size</B></P></TD>");
+            ps.println("     <TD><P><B>Location Map Change</B></P></TD>");
             ps.println("     <TD><P><B>Iterator Count</B></P></TD>");
             ps.println("     <TD><P><B>Listener Count</B></P></TD>");
-            ps.println("     <TD><P><B>Location Change</B></P></TD>");
-            ps.println("     <TD><P><B>FXBase Mapsize</B></P></TD>");
+            ps.println("     <TD><P><B>FXBase Map size</B></P></TD>");
             ps.println("     <TD><P><B>FXBase Change</B></P></TD>");
+            ps.println("     <TD><P><B>SDL Map Size</B></P></TD>");
+            ps.println("     <TD><P><B>SDL Map Change</B></P></TD>");
+            ps.println("     <TD><P><B>SDL Null Referent Count</B></P></TD>");
             ps.println("  </TR>");
             for  (String line : inList.subList(statStart, statEnd)) {
                 String flds[] = line.split(CSEP);

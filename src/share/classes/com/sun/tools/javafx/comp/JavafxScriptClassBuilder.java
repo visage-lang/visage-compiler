@@ -477,7 +477,7 @@ public class JavafxScriptClassBuilder {
             JFXExpression sourceFileVar =
                 fxmake.at(diagPos).Var(pseudoSourceFile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
-                         fxmake.Literal(sourceName), JavafxBindStatus.UNBOUND, null);
+                         fxmake.Literal(sourceName), JavafxBindStatus.UNBOUND, null, null);
             pseudoDefs.append(sourceFileVar);
         }
         if (usesFile || usesDir) {
@@ -492,7 +492,7 @@ public class JavafxScriptClassBuilder {
             JFXExpression fileVar =
                 fxmake.at(diagPos).Var(pseudoFile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
-                         getFileURL, JavafxBindStatus.UNBOUND, null);
+                         getFileURL, JavafxBindStatus.UNBOUND, null, null);
             pseudoDefs.append(fileVar);
 
             if (usesDir) {
@@ -502,7 +502,7 @@ public class JavafxScriptClassBuilder {
                 pseudoDefs.append(
                     fxmake.at(diagPos).Var(pseudoDir, getPseudoVarType(diagPos),
                              fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
-                             getDirURL, JavafxBindStatus.UNBOUND, null));
+                             getDirURL, JavafxBindStatus.UNBOUND, null, null));
             }
         }
 	if (usesProfile) {
@@ -511,7 +511,7 @@ public class JavafxScriptClassBuilder {
            JFXExpression profileVar =
                 fxmake.at(diagPos).Var(pseudoProfile, getPseudoVarType(diagPos),
                          fxmake.at(diagPos).Modifiers(FINAL|STATIC|SCRIPT_LEVEL_SYNTH_STATIC|JavafxFlags.IS_DEF),
-                         getProfileString, JavafxBindStatus.UNBOUND, null);
+                         getProfileString, JavafxBindStatus.UNBOUND, null, null);
             pseudoDefs.append(profileVar);
 	}
         return pseudoDefs.toList();

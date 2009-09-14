@@ -94,6 +94,7 @@ public interface JavaFXTreeVisitor<R,P> {
     R visitSequenceSlice(SequenceSliceTree node, P p);
     R visitSequenceInsert(SequenceInsertTree node, P p);
     R visitSequenceRange(SequenceRangeTree node, P p);
+    R visitVariableInvalidate(VariableInvalidateTree node, P p);
     R visitStringExpression(StringExpressionTree node, P p);
     R visitTimeLiteral(TimeLiteralTree node, P p);
     R visitTrigger(TriggerTree node, P p);
