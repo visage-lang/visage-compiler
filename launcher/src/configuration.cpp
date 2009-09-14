@@ -30,7 +30,7 @@ Configuration::Configuration(const std::string& prefix)
 : prefix(prefix),
         javafxpath(""), 
         classpath("."), 
-        vmargs(""), 
+        vmargs(""),
         profile_classpath(""), 
         profile_bootclasspath(""), 
         profile_bootclasspath_prepend(""), 
@@ -38,6 +38,7 @@ Configuration::Configuration(const std::string& prefix)
         profile_nativelibpath(""),
         profile_bootnativelibpath(""),
         profile_vmargs(""),
+        profile_toolkit(""),
         device_profile("desktop"),
         profile_filename("desktop.properties") {
 }
@@ -120,6 +121,18 @@ int Configuration::readConfigFile() {
     // prepare regular expression
     std::string line, key, value;
     std::string::size_type pos, start, end;
+    // if the toolkit isn't set via -Xtoolkit argument, we search for
+    // default_toolkit which should be the first line in the properties file,
+    // and when we find one we change the prefix to $toolkit_$prefix so that we
+    // only load relevant properties;
+    // if the tookit was set, we set the prefix to be $toolkit_$prefix so the
+    // default_toolkit setting in the property file will be ignored and we
+    // will only load properties starting with $toolkit_$prefix which is what
+    // we want
+    std::string current_prefix =
+        profile_toolkit == "" ?
+            "default_" :
+            profile_toolkit + "_" + prefix;
     
     while (getline (file, line)) {
         // remove comment
@@ -136,10 +149,10 @@ int Configuration::readConfigFile() {
                 continue;
             }
             key   = line.substr (start, end - start + 1);
-            if (key.find(prefix) != 0) {
+            if (key.find(current_prefix) != 0) {
                 continue;
             }
-            key.erase (0, prefix.length());
+            key.erase (0, current_prefix.length());
 
             start = line.find_first_not_of(" \"\t\n\r", pos+1);
             end = line.find_last_not_of(" \"\t\n\r");
@@ -151,6 +164,10 @@ int Configuration::readConfigFile() {
             // evaluate key/value-pair
             if (key == "classpath") {
                 profile_classpath = value;
+            } else
+            if (key == "toolkit") {
+                profile_toolkit = value;
+                current_prefix = profile_toolkit + "_" + prefix;
             } else
             if (key == "bootclasspath") {
                 profile_bootclasspath = value;
@@ -213,6 +230,14 @@ int Configuration::parseArgs(int argc, char** argv) {
                 return (EXIT_FAILURE);
             }
 
+        } else if (0 == strcmp("-Xtoolkit", arg)) {
+            if (argc-- > 0 && (arg = *argv++) != NULL) {
+                std::string toolkit(arg);
+                profile_toolkit = toolkit;
+            } else {
+                fprintf (stderr, "No argument for -Xtoolkit found.");
+                return (EXIT_FAILURE);
+            }
         } else if (0 == strncmp("-J", arg, 2)) {
             vmargs += " \"";
             vmargs += arg+2;    // skip first two characters "-J"
