@@ -291,29 +291,6 @@ public class JavafxClassReader extends ClassReader {
                         break;
                     }
                     Name flatname = ((ClassSymbol) tsym).flatname;
-                    Type deloc = defs.delocationize(flatname);
-                    if (deloc != null) {
-                        if (deloc.isPrimitive()) {
-                            return deloc;
-                        }
-                        if (ctype.typarams_field == null || ctype.typarams_field.size() == 0) {
-                            // FIXME - move to defs.
-                            Name sequenceVariableName = names.fromString("SequenceVariable");
-                            if (flatname.endsWith(sequenceVariableName))
-                                return deloc;
-                        }
-                        else if (ctype.typarams_field.size() == 1) {
-                            if (deloc == syms.objectType) {
-                                return translateType(ctype.typarams_field.head);
-                            }
-                            if (deloc == ((JavafxSymtab) syms).javafx_SequenceType) {
-                                Type tparam = translateType(ctype.typarams_field.head);
-                                WildcardType tpType = new WildcardType(tparam, BoundKind.EXTENDS, tparam.tsym);
-                                t = new ClassType(Type.noType, List.<Type>of(tpType), ((JavafxSymtab) syms).javafx_SequenceType.tsym);
-                                break;
-                            }
-                        }
-                    }
                     if (flatname.startsWith(functionClassPrefixName)
                         && flatname != functionClassPrefixName) {
                             t = ((JavafxSymtab) syms).makeFunctionType(translateTypes(ctype.typarams_field));

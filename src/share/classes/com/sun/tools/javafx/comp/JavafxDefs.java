@@ -28,7 +28,6 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /**
@@ -71,7 +70,6 @@ public class JavafxDefs {
     public static final String completeNameString ="complete$";
     public static final String getMethodNameString = "get";
     public static final String setMethodNameString ="set";
-    public static final String setDefaultMethodNameString = "setDefault";
     public static final String sizeMethodNameString ="size";
     public static final String addStaticDependentNameString = "addStaticDependent";
     public static final String needDefaultMethodNameString = "needDefault";
@@ -98,24 +96,18 @@ public class JavafxDefs {
     public static final String varFlagDefaultsApplied = "DefaultsApplied$";
     public static final String varFlagValid = "ValidValue$";
     public static final String varFlagHasDependents = "Bindee$";
-    public static final String varLocationString = "loc$";
     public static final String varMapString = "MAP$";
     public static final String varGetMapString = "GETMAP$";
 
     public  static final String javaLangPackageNameString = "java.lang";
     public  static final String runtimePackageNameString = "com.sun.javafx.runtime";
     public  static final String annotationPackageNameString = "com.sun.javafx.runtime.annotation";
-    public  static final String locationPackageNameString = "com.sun.javafx.runtime.location";
     public  static final String functionsPackageNameString = "com.sun.javafx.functions";
     public  static final String sequencePackageNameString = "com.sun.javafx.runtime.sequence";
 
-    public  static final String cChangeListener = locationPackageNameString + ".ChangeListener";
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
-    private static final String cBoundSequences = sequencePackageNameString + ".BoundSequences";
-    private static final String cAbstractBoundComprehension = sequencePackageNameString + ".AbstractBoundComprehension";
-    private static final String cLocations = locationPackageNameString + ".Locations";
     private static final String cUtil = runtimePackageNameString + ".Util";
 
     public char typeCharToEscape = '.';
@@ -141,29 +133,6 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_range;
     final RuntimeMethod Sequences_rangeExclusive;
     final RuntimeMethod Sequences_size;
-
-    final RuntimeMethod Locations_makeBoundSequenceSelect;
-    final RuntimeMethod Locations_makeBoundSelect;
-    final RuntimeMethod Locations_makeBoundSelectBE;
-    final RuntimeMethod Locations_makeBoundIf;
-    final RuntimeMethod Locations_makeBoundIfBE;
-    final RuntimeMethod Locations_makeBoundOr;
-    final RuntimeMethod Locations_makeBoundOrBE;
-    final RuntimeMethod Locations_makeBoundAnd;
-    final RuntimeMethod Locations_makeBoundAndBE;
-    final RuntimeMethod Locations_upcast;
-
-    final RuntimeMethod BoundSequences_convertNumberSequence;
-    final RuntimeMethod BoundSequences_element;
-    final RuntimeMethod BoundSequences_empty;
-    final RuntimeMethod BoundSequences_range;
-    final RuntimeMethod BoundSequences_rangeExclusive;
-    final RuntimeMethod BoundSequences_reverse;
-    final RuntimeMethod BoundSequences_singleton;
-    final RuntimeMethod BoundSequences_sizeof;
-    final RuntimeMethod BoundSequences_slice;
-    final RuntimeMethod BoundSequences_sliceExclusive;
-    final RuntimeMethod BoundSequences_upcast;
 
     final RuntimeMethod Util_isEqual;
 
@@ -200,16 +169,9 @@ public class JavafxDefs {
     final Name setMethodName;
     final Name sizeMethodName;
     final Name defaultingTypeInfoFieldName;
-    final Name addStaticDependentName;
     final Name needDefaultsMethodName;
     final Name makeAttributeMethodName;
     final Name makeMethodName;
-    final Name makeWithDefaultMethodName;
-    final Name makeBijectiveMethodName;
-    final Name onChangeMethodName;
-    final Name addChangeListenerName;
-    final Name addSequenceChangeListenerName;
-    final Name locationInitializeName;
     final Name invokeName;
     final Name lambdaName;
     final Name lengthName;
@@ -217,8 +179,6 @@ public class JavafxDefs {
     final Name isInitializedName;
     final Name scriptBindingClassName;
     final Name bindingIdName;
-    final Name getStaticDependentsMethodName;
-    final Name computeMethodName;
     final Name varOffsetName;
     final Name varCountName;
     final Name toTestName;
@@ -258,31 +218,13 @@ public class JavafxDefs {
     final Name onReplaceArgNameFirstIndex;
     final Name onReplaceArgNameLastIndex;
     final Name onReplaceArgNameNewElements;
-    final Name[] locationGetMethodName;
-    final Name[] locationSetMethodName;
-    final Name locationBindMethodName;
-    final Name locationBijectiveBindMethodName;
-    final Name computeElementsMethodName;
-    final Name cAbstractBoundComprehensionName;
 
 	public final Name runtimePackageName;
 	public final Name annotationPackageName;
-	public final Name locationPackageName;
 	public final Name sequencePackageName;
 	public final Name functionsPackageName;
 	public final Name javaLangPackageName;
-    public final Name[] locationVariableName;
-    public final Name[] locationInterfaceName;
     public final Name implFunctionSuffixName;
-
-    public Type delocationize(Name flatname) {
-        for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
-            if (flatname == locationVariableName[kind] || flatname == locationInterfaceName[kind]) {
-                return realTypeByKind[kind];
-            }
-        }
-        return null;
-    }
 
     /**
      * Context set-up
@@ -332,16 +274,9 @@ public class JavafxDefs {
         setMethodName = names.fromString(setMethodNameString);
         sizeMethodName = names.fromString(sizeMethodNameString);
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
-        addStaticDependentName = names.fromString(addStaticDependentNameString);
         needDefaultsMethodName = names.fromString(needDefaultMethodNameString);
         makeAttributeMethodName = names.fromString(makeAttributeMethodNameString);
         makeMethodName = names.fromString(makeMethodNameString);
-        makeWithDefaultMethodName = names.fromString(makeWithDefaultMethodNameString);
-        makeBijectiveMethodName = names.fromString(makeBijectiveMethodNameString);
-        onChangeMethodName = names.fromString("onChange");
-        addChangeListenerName = names.fromString("addChangeListener");
-        addSequenceChangeListenerName = names.fromString("addSequenceChangeListener");
-        locationInitializeName = names.fromString("initialize");
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         lengthName = names.fromString("length");
@@ -349,8 +284,6 @@ public class JavafxDefs {
         isInitializedName = names.fromString(isInitializedNameString);
         scriptBindingClassName = names.fromString(scriptBindingListenerClassString);
         bindingIdName = names.fromString(bindingIdString);
-        getStaticDependentsMethodName = names.fromString(getStaticDependentsMethodString);
-        computeMethodName = names.fromString(computeMethodString);
         varOffsetName = names.fromString(varOffsetString);
         varCountName = names.fromString(varCountString);
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
@@ -391,21 +324,14 @@ public class JavafxDefs {
         applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
-        computeElementsMethodName = names.fromString("computeElements$");
         scriptLevelAccessField = names.fromString("$scriptLevel$");
         scriptLevelAccessMethod = names.fromString("access$scriptLevel$");
 
 		runtimePackageName = names.fromString(runtimePackageNameString);
 		annotationPackageName = names.fromString(annotationPackageNameString);
 		javaLangPackageName = names.fromString(javaLangPackageNameString);
-		locationPackageName = names.fromString(locationPackageNameString);
 		sequencePackageName = names.fromString(sequencePackageNameString);
 		functionsPackageName = names.fromString(functionsPackageNameString);
-        locationGetMethodName = new Name[TYPE_KIND_COUNT];
-        locationSetMethodName = new Name[TYPE_KIND_COUNT];
-        locationVariableName = new Name[TYPE_KIND_COUNT];
-        locationInterfaceName = new Name[TYPE_KIND_COUNT];
-        cAbstractBoundComprehensionName = names.fromString(cAbstractBoundComprehension);
 
         // Initialize RuntimeMethods
         TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");
@@ -416,40 +342,7 @@ public class JavafxDefs {
         Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");
         Sequences_size = new RuntimeMethod(names, cSequences, "size");
 
-        Locations_makeBoundSequenceSelect = new RuntimeMethod(names, cLocations, "makeBoundSequenceSelect");
-        Locations_makeBoundSelect = new RuntimeMethod(names, cLocations, "makeBoundSelect");
-        Locations_makeBoundSelectBE = new RuntimeMethod(names, cLocations, "makeBoundSelectBE");
-        Locations_makeBoundIf = new RuntimeMethod(names, cLocations, "makeBoundIf");
-        Locations_makeBoundIfBE = new RuntimeMethod(names, cLocations, "makeBoundIfBE");
-        Locations_makeBoundOr = new RuntimeMethod(names, cLocations, "makeBoundOr");
-        Locations_makeBoundOrBE = new RuntimeMethod(names, cLocations, "makeBoundOrBE");
-        Locations_makeBoundAnd = new RuntimeMethod(names, cLocations, "makeBoundAnd");
-        Locations_makeBoundAndBE = new RuntimeMethod(names, cLocations, "makeBoundAndBE");
-        Locations_upcast = new RuntimeMethod(names, cLocations, "upcast");
-        BoundSequences_singleton = new RuntimeMethod(names, cBoundSequences, "singleton");
-        BoundSequences_range = new RuntimeMethod(names, cBoundSequences, "range");
-        BoundSequences_rangeExclusive = new RuntimeMethod(names, cBoundSequences, "rangeExclusive");
-        BoundSequences_empty = new RuntimeMethod(names, cBoundSequences, "empty");
-        BoundSequences_sizeof = new RuntimeMethod(names, cBoundSequences, "sizeof");
-        BoundSequences_reverse = new RuntimeMethod(names, cBoundSequences, "reverse");
-        BoundSequences_element = new RuntimeMethod(names, cBoundSequences, "element");
-        BoundSequences_slice = new RuntimeMethod(names, cBoundSequences, "slice");
-        BoundSequences_sliceExclusive = new RuntimeMethod(names, cBoundSequences, "sliceExclusive");
-        BoundSequences_upcast = new RuntimeMethod(names, cBoundSequences, "upcast");
-        BoundSequences_convertNumberSequence = new RuntimeMethod(names, cBoundSequences, "convertNumberSequence");
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
-
-        // Initialize per Kind names and types
-        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
-            locationGetMethodName[kind] = names.fromString("get" + JavafxVarSymbol.getAccessorSuffix(kind));
-            locationSetMethodName[kind] = names.fromString("set" + JavafxVarSymbol.getAccessorSuffix(kind));
-
-            String typePrefix = locationPackageNameString + "." + JavafxVarSymbol.getTypePrefix(kind);
-            locationVariableName[kind] = names.fromString(typePrefix + "Variable");
-            locationInterfaceName[kind] = names.fromString(typePrefix + "Location");
-        }
-        locationBindMethodName = names.fromString("bind");
-        locationBijectiveBindMethodName = names.fromString("bijectiveBind");
 
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;

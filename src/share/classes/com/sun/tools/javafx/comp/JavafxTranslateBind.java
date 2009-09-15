@@ -238,16 +238,16 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                                 } else {
                                     if (arg instanceof JFXIdent) {
                                         Symbol sym = ((JFXIdent) arg).sym;
-                                        JCVariableDecl oldVar = makeTmpVar(diagPos, getSyntheticName("old"), formal, id(attributeValueName(sym)));
-                                        JCVariableDecl newVar = makeTmpVar(diagPos, getSyntheticName("new"), formal, callExpression(diagPos, null, attributeGetterName(sym)));
+                                        JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
+                                        JCVariableDecl newVar = makeTmpVar("new", formal, callExpression(null, attributeGetterName(sym)));
                                         preface.append(oldVar);
                                         preface.append(newVar);
                                         bindees.append((VarSymbol)sym);
 
                                         // oldArg != newArg
-                                        JCExpression compare = m().Binary(JCTree.NE, id(oldVar), id(newVar));
+                                        JCExpression compare = makeNotEqual(id(oldVar), id(newVar));
                                         // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
-                                        condition = condition == null ? compare : m().Binary(JCTree.OR, condition, compare);
+                                        condition = condition == null ? compare : makeBinary(JCTree.OR, condition, compare);
 
                                         targ = id(newVar);
                                     } else {
@@ -325,7 +325,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
             super(tree.pos());
             this.tree = tree;
             this.targetType = tree.type;
-            this.resVar = makeTmpVar(diagPos, getSyntheticName("res"), targetType, null);
+            this.resVar = makeTmpVar("res", targetType, null);
         }
 
         JCStatement side(JFXExpression expr) {

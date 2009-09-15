@@ -37,7 +37,6 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,6 +76,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     final Type assignBindExceptionType;
     final Type assignDefExceptionType;
+
+    void TODO() {
+        throw new RuntimeException("Not yet implemented");
+    }
 
     public static class LiteralInitVarMap {
         private int count = 1;
@@ -378,8 +381,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         for (VarSymbol vsym : sym.getParameters()) {
             Type vtype = vsym.asType();
             if (isBound) {
-                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                vtype = vmi.getLocationType();
+                TODO();
             }
             params.append(make.VarDef(
                     make.Modifiers(0L),
@@ -465,7 +467,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //    }
         return makeConstructor(diagPos, List.<JCVariableDecl>nil(), List.of(
                 callStatement(diagPos, names._this, make.Literal(TypeTags.BOOLEAN, 0)),
-                callStatement(diagPos, defs.initializeName)));
+                callStatement(diagPos, defs.initializeName, List.<JCExpression>nil())));
     }
 
     /**
@@ -563,7 +565,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
 
             if (typeOwner != null) {
-                ClassSymbol returnSym = typeMorpher.reader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
+                ClassSymbol returnSym = reader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
                 JCMethodDecl accessorMethod = make.MethodDef(
                         make.Modifiers(Flags.PUBLIC),
                         defs.outerAccessorName,
@@ -632,10 +634,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (tai.getDefaultInitStatement() != null) {
                         stmts.append(tai.getDefaultInitStatement());
                     }
-                }
-                JCStatement stat = tai.onReplaceAsListenerInstanciation();
-                if (stat != null) {
-                    stmts.append(stat);
                 }
             }
         }

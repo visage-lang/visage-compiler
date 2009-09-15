@@ -35,7 +35,6 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
-import com.sun.tools.mjavac.tree.TreeMaker;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
@@ -177,94 +176,20 @@ public abstract class JavafxAbstractTranslation<R>
         return lb.toList();
     }
 
-    /**
-     * Determine is a local class is referenced, if so need local generation
-     * @param expr Expression to check
-     * @return if must generate locally
-     */
-    boolean mustGenerateInline(JFXTree expr) {
-        class InlineChecker extends JavafxTreeScanner {
+    abstract class Translator extends JavaTreeBuilder {
 
-            boolean mustBeInline = false;
-
-            void checkSymbol(Symbol sym) {
-                if (sym instanceof ClassSymbol) {
-                    ClassSymbol csym = (ClassSymbol) sym;
-                    int ownerKind = csym.owner.kind;
-                    if (ownerKind != Kinds.TYP && ownerKind != Kinds.PCK) {
-                        // Reference to a local class -- can get to it from script class -- so need inline closure
-                        mustBeInline = true;
-                    }
-                }
-            }
-
-            @Override
-            public void visitIdent(JFXIdent tree) {
-                checkSymbol(tree.sym);
-            }
-        }
-        InlineChecker checker = new InlineChecker();
-        checker.scan(expr);
-        for (VarSymbol vsym : localVars(expr)) {
-            checker.checkSymbol(vsym.type.tsym);
-        }
-        checker.checkSymbol(getAttrEnv().enclClass.type.tsym);
-
-        return checker.mustBeInline;
-    }
-
-    protected abstract class Translator {
-
-        protected DiagnosticPosition diagPos;
-
-        protected Translator(DiagnosticPosition diagPos) {
-            this.diagPos = diagPos;
+        Translator(DiagnosticPosition diagPos) {
+            super(diagPos);
         }
 
-        protected abstract JCTree doit();
+        abstract JCTree doit();
 
-        protected TreeMaker m() {
-            return make.at(diagPos);
-        }
-
-        protected JavafxTreeMaker fxm() {
+        JavafxTreeMaker fxm() {
             return fxmake.at(diagPos);
         }
-
-        /**
-         * Make an identifier which references the specified variable declaration
-         */
-        protected JCIdent id(JCVariableDecl aVar) {
-            return id(aVar.name);
-        }
-
-        /**
-         * Make an identifier of the given name
-         */
-        protected JCIdent id(Name name) {
-            return m().Ident(name);
-        }
-
-        /**
-         * Make a member select or an identifier depending on the selector
-         */
-        protected JCExpression select(JCExpression selector, Name name) {
-            return (selector==null)? id(name) : m().Select(selector, name);
-        }
-
-        /**
-         * Convert type to JCExpression
-         */
-        protected JCExpression makeType(Type type, boolean makeIntf) {
-            return JavafxAbstractTranslation.this.makeType(diagPos, type, makeIntf);
-        }
-
-        protected JCExpression makeType(Type type) {
-            return makeType(type, true);
-        }
     }
 
-    protected abstract class MemberReferenceTranslator extends Translator {
+    abstract class MemberReferenceTranslator extends Translator {
 
         protected MemberReferenceTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
@@ -279,7 +204,7 @@ public abstract class JavafxAbstractTranslation<R>
                 JCExpression expr = makeType(types.erasure(owner.type), false);
                 if (types.isJFXClass(owner)) {
                     // script-level get to instance through script-level accessor
-                    expr = callExpression(diagPos, expr, defs.scriptLevelAccessMethod);
+                    expr = callExpression(expr, defs.scriptLevelAccessMethod);
                 }
                 return expr;
             }
@@ -307,7 +232,7 @@ public abstract class JavafxAbstractTranslation<R>
                         default:
                             throw new AssertionError();
                     }
-                    expr = callExpression(diagPos, instance, attributeGetterName(vsym));
+                    expr = callExpression(instance, attributeGetterName(vsym));
                 }
             }
 
@@ -370,7 +295,7 @@ public abstract class JavafxAbstractTranslation<R>
             if (tree.translationKey != null) {
                 formatMethod = "com.sun.javafx.runtime.util.StringLocalization.getLocalizedString";
                 if (tree.translationKey.length() == 0) {
-                    values.prepend(m().Literal(TypeTags.BOT, null));
+                    values.prepend(makeNull());
                 } else {
                     values.prepend(m().Literal(TypeTags.CLASS, tree.translationKey));
                 }
@@ -467,17 +392,6 @@ public abstract class JavafxAbstractTranslation<R>
             super(diagPos);
         }
 
-        /**
-         * Make a method paramter
-         */
-        protected JCVariableDecl makeParam(Type type, Name name) {
-            return m().VarDef(
-                    m().Modifiers(Flags.PARAMETER | Flags.FINAL),
-                    name,
-                    makeType(type),
-                    null);
-        }
-
         protected JCTree makeClosureMethod(Name methName, JCExpression expr, List<JCVariableDecl> params, Type returnType, long flags) {
             return makeMethod(diagPos, methName, List.<JCStatement>of((returnType == syms.voidType) ? m().Exec(expr) : m().Return(expr)), params, returnType, flags);
         }
@@ -511,17 +425,10 @@ public abstract class JavafxAbstractTranslation<R>
             return members.toList();
         }
 
-        protected JCExpression makeLocationGet(JCExpression locExpr, int typeKind) {
-            Name getMethodName = defs.locationGetMethodName[typeKind];
-            JCExpression select = select(locExpr, getMethodName);
-            return m().Apply(null, select, List.<JCExpression>nil());
-        }
-
         class FieldInfo {
             final String desc;
             final int num;
             final TypeMorphInfo tmi;
-            final boolean isLocation;
             final ArgKind kind;
 
             FieldInfo(Type type, ArgKind kind) {
@@ -545,14 +452,9 @@ public abstract class JavafxAbstractTranslation<R>
             }
 
             FieldInfo(String desc, TypeMorphInfo tmi, ArgKind kind) {
-                this(desc, tmi, true, kind);
-            }
-
-            FieldInfo(String desc, TypeMorphInfo tmi, boolean isLocation, ArgKind kind) {
                 this.desc = desc;
                 this.num = argNum++;
                 this.tmi = tmi;
-                this.isLocation = isLocation;
                 this.kind = kind;
             }
 
@@ -561,11 +463,11 @@ public abstract class JavafxAbstractTranslation<R>
             }
 
             JCExpression makeGetField(int typeKind) {
-                return isLocation ? makeLocationGet(makeAccess(this), typeKind) : makeAccess(this);
+                return makeAccess(this);
             }
 
             Type type() {
-                return isLocation ? tmi.getLocationType() : tmi.getRealBoxedType();
+                return tmi.getRealBoxedType();
             }
         }
 
@@ -686,20 +588,20 @@ public abstract class JavafxAbstractTranslation<R>
                 args.append(inits.head);
                 inits = inits.tail;
             } else {
-                args.append(m().Literal(TypeTags.BOT, null));
+                args.append(makeNull());
             }
             // arg: arg$1
             if (argNum > 1) {
                 args.append(inits.head);
                 inits = inits.tail;
             } else {
-                args.append(m().Literal(TypeTags.BOT, null));
+                args.append(makeNull());
             }
             // arg: moreArgs
             if (argNum > 2) {
                 args.append(m().NewArray(makeType(syms.objectType), List.<JCExpression>nil(), inits));
             } else {
-                args.append(m().Literal(TypeTags.BOT, null));
+                args.append(makeNull());
             }
             return args.toList();
         }
@@ -740,7 +642,7 @@ public abstract class JavafxAbstractTranslation<R>
         }
 
         protected JCExpression addTempVar(Type varType, JCExpression trans) {
-            JCVariableDecl tmpVar = makeTmpVar(diagPos, "pse", varType, trans);
+            JCVariableDecl tmpVar = makeTmpVar("pse", varType, trans);
             tmpVarList.append(tmpVar);
             return id(tmpVar.name);
         }
@@ -789,7 +691,7 @@ public abstract class JavafxAbstractTranslation<R>
             if (hasSideEffects) {
                 // if the toCheck sub-expression has side-effects, compute it and stash in a
                 // temp var so we don't invoke it twice.
-                tmpVar = makeTmpVar(diagPos, "toCheck", toCheck.type, mungedToCheckTranslated);
+                tmpVar = makeTmpVar("toCheck", toCheck.type, mungedToCheckTranslated);
                 tmpVarList.append(tmpVar);
                 mungedToCheckTranslated = id(tmpVar.name);
             }
@@ -800,7 +702,7 @@ public abstract class JavafxAbstractTranslation<R>
             // Do a null check
             JCExpression toTest = hasSideEffects ? id(tmpVar.name) : translateToCheck(toCheck);
             // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
-            JCExpression cond = m().Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
+            JCExpression cond = makeNotNullCheck(toTest);
             if (resultType == syms.voidType) {
                 // if this is a void expression, check it with an If-statement
                 JCStatement stmt = m().Exec(full);
@@ -826,7 +728,7 @@ public abstract class JavafxAbstractTranslation<R>
                 if (tmpVarList.nonEmpty()) {
                     // if the selector has side-effects, we created a temp var to hold it
                     // so we need to make a block-expression to include the temp var
-                    full = makeBlockExpression(diagPos, tmpVarList.toList(), full);
+                    full = makeBlockExpression(tmpVarList.toList(), full);
                 }
                 return full;
             }
@@ -892,16 +794,8 @@ public abstract class JavafxAbstractTranslation<R>
                 }
                 else {
                     JCExpression tseq = translateExpression(seq); //TODO
-                    List<JCExpression> args;
-                    JCExpression select;
-                    if (types.elementType(seq.type).isPrimitive()) { // KLUDGE
-                        select = select(makeQualifiedTree(diagPos, JavafxDefs.locationPackageNameString+".SequenceVariable"), defs.setMethodName);
-                        args = List.of(tseq, index, buildRHS(rhsTranslated));
-                    }
-                    else {
-                        select = select(tseq, defs.setMethodName);
-                        args = List.of(index, buildRHS(rhsTranslated));
-                    }
+                    List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
+                    JCExpression select = select(tseq, defs.setMethodName);
                     return postProcess(m().Apply(null, select, args));
                 }
             } else {
@@ -951,7 +845,7 @@ public abstract class JavafxAbstractTranslation<R>
         }
     }
 
-    protected abstract class UnaryOperationTranslator extends Translator {
+    abstract class UnaryOperationTranslator extends Translator {
 
         private final JFXUnary tree;
         private final JFXExpression expr;
@@ -994,7 +888,7 @@ public abstract class JavafxAbstractTranslation<R>
 
                 @Override
                 JCExpression buildRHS(JCExpression rhsTranslated) {
-                    return castIfNeeded(m().Binary(binaryOp, transExpr, rhsTranslated));
+                    return castIfNeeded(makeBinary(binaryOp, transExpr, rhsTranslated));
                 }
 
                 @Override
@@ -1006,7 +900,7 @@ public abstract class JavafxAbstractTranslation<R>
                 protected JCExpression postProcess(JCExpression built) {
                     if (postfix) {
                         // this is a postfix operation, undo the value (not the variable) change
-                        return castIfNeeded(m().Binary(binaryOp, (JCExpression) built, m().Literal(-1)));
+                        return castIfNeeded(makeBinary(binaryOp, (JCExpression) built, m().Literal(-1)));
                     } else {
                         // prefix operation
                         return built;
@@ -1015,7 +909,7 @@ public abstract class JavafxAbstractTranslation<R>
             }.doit();
         }
 
-        public JCExpression doit() {
+        JCExpression doit() {
             switch (tree.getFXTag()) {
                 case SIZEOF:
                     if (expr.type.tag == TypeTags.ARRAY) {
@@ -1025,7 +919,7 @@ public abstract class JavafxAbstractTranslation<R>
                 case REVERSE:
                     if (types.isSequence(expr.type)) {
                         // call runtime reverse of a sequence
-                        return callExpression(diagPos,
+                        return callExpression(
                                 makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                                 "reverse", transExpr);
                     } else {
@@ -1050,7 +944,7 @@ public abstract class JavafxAbstractTranslation<R>
         }
     }
 
-    protected abstract class BinaryOperationTranslator extends Translator {
+    abstract class BinaryOperationTranslator extends Translator {
 
         final JFXBinary tree;
         final Type lhsType;
@@ -1081,13 +975,6 @@ public abstract class JavafxAbstractTranslation<R>
             return rhs(null);
         }
 
-        /**
-         * Compare against null
-         */
-        private JCExpression makeNullCheck(JCExpression targ) {
-            return makeEqEq(targ, makeNull());
-        }
-
         //TODO: after type system is figured out, this needs to be revisited
         /**
          * Check if a primitive has the default value for its type.
@@ -1095,7 +982,7 @@ public abstract class JavafxAbstractTranslation<R>
         private JCExpression makePrimitiveNullCheck(Type argType, JCExpression arg) {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
             JCExpression defaultValue = makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
-            return makeEqEq(arg, defaultValue);
+            return makeEqual(arg, defaultValue);
         }
 
         /**
@@ -1108,21 +995,6 @@ public abstract class JavafxAbstractTranslation<R>
             } else {
                 return makeNullCheck(arg);
             }
-        }
-
-        /*
-         * Do a == compare
-         */
-        private JCExpression makeEqEq(JCExpression arg1, JCExpression arg2) {
-            return makeBinary(JCTree.EQ, arg1, arg2);
-        }
-
-        private JCExpression makeBinary(int tag, JCExpression arg1, JCExpression arg2) {
-            return m().Binary(tag, arg1, arg2);
-        }
-
-        private JCExpression makeNull() {
-            return m().Literal(TypeTags.BOT, null);
         }
 
         private JCExpression callRuntime(String methNameString, List<JCExpression> args) {
@@ -1173,11 +1045,11 @@ public abstract class JavafxAbstractTranslation<R>
                     return makePrimitiveNullCheck(lhsType, lhs(req));
                 } else if (rhsType.isPrimitive()) {
                     // both are primitive, use ==
-                    return makeEqEq(lhs(req), rhs(req));
+                    return makeEqual(lhs(req), rhs(req));
                 } else {
                     // lhs is primitive, rhs is non-primitive, use equals(), but switch them
-                    JCVariableDecl sl = makeTmpVar(diagPos, req!=null? req : lhsType, lhs(req));  // eval first to keep the order correct
-                    return makeBlockExpression(diagPos, List.<JCStatement>of(sl), makeFullCheck(rhs(req), id(sl.name)));
+                    JCVariableDecl sl = makeTmpVar(req!=null? req : lhsType, lhs(req));  // eval first to keep the order correct
+                    return makeBlockExpression(List.<JCStatement>of(sl), makeFullCheck(rhs(req), id(sl.name)));
                 }
             } else {
                 if (rhsType.getKind() == TypeKind.NULL) {
@@ -1191,7 +1063,7 @@ public abstract class JavafxAbstractTranslation<R>
         }
 
         JCExpression op(JCExpression leftSide, Name methodName, JCExpression rightSide) {
-            return callExpression(diagPos, leftSide, methodName, rightSide);
+            return callExpression(leftSide, methodName, rightSide);
         }
 
         boolean isDuration(Type type) {
@@ -1239,7 +1111,7 @@ public abstract class JavafxAbstractTranslation<R>
         /**
          * Translate a binary expressions
          */
-        public JCExpression doit() {
+        JCExpression doit() {
             //TODO: handle <>
             if (tree.getFXTag() == JavafxTag.EQ) {
                 return translateEqualsEquals();
@@ -1293,6 +1165,156 @@ public abstract class JavafxAbstractTranslation<R>
         return rs.resolveInternalConstructor(pos, getAttrEnv(), qual, args, null);
     }
 
+    class TypeConversionTranslator extends Translator {
+
+        final JCExpression translated;
+        final Type sourceType;
+        final Type targetType;
+        final boolean sourceIsSequence;
+        final boolean targetIsSequence;
+        final boolean sourceIsArray;
+        final boolean targetIsArray;
+
+        TypeConversionTranslator(DiagnosticPosition diagPos, JCExpression translated, Type sourceType, Type targetType) {
+            super(diagPos);
+            this.translated = translated;
+            this.sourceType = sourceType;
+            this.targetType = targetType;
+            this.sourceIsSequence = types.isSequence(sourceType);
+            this.targetIsSequence = types.isSequence(targetType);
+            this.sourceIsArray = types.isArray(sourceType);
+            this.targetIsArray = types.isArray(targetType);
+        }
+
+        private JCExpression convertNumericSequence(final DiagnosticPosition diagPos,
+                final JCExpression expr, final Type inElementType, final Type targetElementType) {
+            JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
+            JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
+            return runtime(diagPos,
+                    defs.Sequences_convertNumberSequence,
+                    List.of(targetTypeInfo, inTypeInfo, expr));
+        }
+
+        JCExpression doit() {
+            if (targetIsArray) {
+                Type elemType = types.elemtype(targetType);
+                if (sourceIsSequence) {
+                    if (elemType.isPrimitive()) {
+                        String mname;
+                        if (elemType == syms.byteType) {
+                            mname = "toByteArray";
+                        } else if (elemType == syms.shortType) {
+                            mname = "toShortArray";
+                        } else if (elemType == syms.intType) {
+                            mname = "toIntArray";
+                        } else if (elemType == syms.longType) {
+                            mname = "toLongArray";
+                        } else if (elemType == syms.floatType) {
+                            mname = "toFloatArray";
+                        } else if (elemType == syms.doubleType) {
+                            mname = "toDoubleArray";
+                        } else if (elemType == syms.booleanType) {
+                            mname = "toBooleanArray";
+                        } else {
+                            mname = "toArray";
+                        }
+                        return callExpression(makeType(syms.javafx_SequencesType, false),
+                                mname, translated);
+                    }
+                    ListBuffer<JCStatement> stats = ListBuffer.lb();
+                    JCVariableDecl tmpVar = makeTmpVar(sourceType, translated);
+                    stats.append(tmpVar);
+                    JCVariableDecl sizeVar = makeTmpVar(syms.intType, callExpression(id(tmpVar.name), "size"));
+                    stats.append(sizeVar);
+                    JCVariableDecl arrVar = makeTmpVar("arr", targetType, make.at(diagPos).NewArray(
+                            makeType(elemType, true),
+                            List.<JCExpression>of(id(sizeVar.name)),
+                            null));
+                    stats.append(arrVar);
+                    stats.append(callStatement(id(tmpVar.name), "toArray", List.of(
+                            makeInt(0),
+                            id(sizeVar),
+                            id(arrVar),
+                            makeInt(0))));
+                    return makeBlockExpression(stats, id(arrVar));
+                } else {
+                    //TODO: conversion may be needed here, but this is better than what we had
+                    return translated;
+                }
+            }
+            if (sourceIsArray && targetIsSequence) {
+                Type sourceElemType = types.elemtype(sourceType);
+                List<JCExpression> args;
+                if (sourceElemType.isPrimitive()) {
+                    args = List.of(translated);
+                } else {
+                    args = List.of(makeTypeInfo(diagPos, sourceElemType), translated);
+                }
+                JCExpression cSequences = makeType(syms.javafx_SequencesType, false);
+                return callExpression(cSequences, "fromArray", args);
+            }
+            if (targetIsSequence && !sourceIsSequence) {
+                //if (sourceType.tag == TypeTags.BOT) {
+                //    // it is a null, convert to empty sequence
+                //    //TODO: should we leave this null?
+                //    Type elemType = types.elemtype(type);
+                //    return makeEmptySequenceCreator(diagPos, elemType);
+                //}
+                Type targetElemType = types.elementType(targetType);
+                JCExpression cSequences = makeType(syms.javafx_SequencesType, false);
+                JCExpression res = convertTranslated(translated, diagPos, sourceType, targetElemType);
+                // This would be redundant, if convertTranslated did a cast if needed.
+                res = makeTypeCast(diagPos, targetElemType, sourceType, res);
+                return callExpression(
+                        cSequences,
+                        "singleton",
+                        List.of(makeTypeInfo(diagPos, targetElemType), res));
+            }
+            if (targetIsSequence && sourceIsSequence) {
+                Type sourceElementType = types.elementType(sourceType);
+                Type targetElementType = types.elementType(targetType);
+                if (!types.isSameType(sourceElementType, targetElementType) &&
+                        types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
+                    return convertNumericSequence(diagPos,
+                            translated,
+                            sourceElementType,
+                            targetElementType);
+                }
+            }
+
+            // Convert primitive/Object types
+            Type unboxedTargetType = targetType.isPrimitive() ? targetType : types.unboxedType(targetType);
+            Type unboxedSourceType = sourceType.isPrimitive() ? sourceType : types.unboxedType(sourceType);
+            JCExpression res = translated;
+            Type curType = sourceType;
+            if (unboxedTargetType != Type.noType && unboxedSourceType != Type.noType) {
+                // (boxed or unboxed) primitive to (boxed or unboxed) primitive
+                if (!curType.isPrimitive()) {
+                    // unboxed source if sourceboxed
+                    res = make.at(diagPos).TypeCast(unboxedSourceType, res);
+                    curType = unboxedSourceType;
+                }
+                if (unboxedSourceType != unboxedTargetType) {
+                    // convert as primitive types
+                    res = make.at(diagPos).TypeCast(unboxedTargetType, res);
+                    curType = unboxedTargetType;
+                }
+                if (!targetType.isPrimitive()) {
+                    // box target if target boxed
+                    res = make.at(diagPos).TypeCast(makeType(targetType, false), res);
+                    curType = targetType;
+                }
+            } else {
+                if (curType.isCompound() || curType.isPrimitive()) {
+                    res = make.at(diagPos).TypeCast(makeType(types.erasure(targetType), true), res);
+                }
+            }
+            // We should add a cast "when needed".  Then visitTypeCast would just
+            // call this function, and not need to call makeTypeCast on the result.
+            // However, getting that to work is a pain - giving up for now.  FIXME
+            return res;
+        }
+    }
 
     JCExpression convertTranslated(JCExpression translated, DiagnosticPosition diagPos,
             Type sourceType, Type targetType) {
@@ -1305,134 +1327,7 @@ public abstract class JavafxAbstractTranslation<R>
         if (types.isSameType(targetType, sourceType)) {
             return translated;
         }
-        boolean sourceIsSequence = types.isSequence(sourceType);
-        boolean targetIsSequence = types.isSequence(targetType);
-        boolean sourceIsArray = types.isArray(sourceType);
-        boolean targetIsArray = types.isArray(targetType);
-        if (targetIsArray) {
-            Type elemType = types.elemtype(targetType);
-            if (sourceIsSequence) {
-                if (elemType.isPrimitive()) {
-                    String mname;
-                    if (elemType == syms.byteType)
-                        mname = "toByteArray";
-                    else if (elemType == syms.shortType)
-                        mname = "toShortArray";
-                    else if (elemType == syms.intType)
-                        mname = "toIntArray";
-                    else if (elemType == syms.longType)
-                        mname = "toLongArray";
-                    else if (elemType == syms.floatType)
-                        mname = "toFloatArray";
-                    else if (elemType == syms.doubleType)
-                        mname = "toDoubleArray";
-                    else if (elemType == syms.booleanType)
-                        mname = "toBooleanArray";
-                    else
-                        mname = "toArray";
-                    return callExpression(diagPos, makeType(diagPos, syms.javafx_SequencesType, false),
-                            mname, translated);
-                }
-                ListBuffer<JCStatement> stats = ListBuffer.lb();
-                JCVariableDecl tmpVar = makeTmpVar(diagPos, sourceType, translated);
-                stats.append(tmpVar);
-                JCVariableDecl sizeVar = makeTmpVar(diagPos, syms.intType, callExpression(diagPos, make.at(diagPos).Ident(tmpVar.name), "size"));
-                stats.append(sizeVar);
-                JCVariableDecl arrVar = makeTmpVar(diagPos, "arr", targetType, make.at(diagPos).NewArray(
-                        makeType(diagPos, elemType, true),
-                        List.<JCExpression>of(make.at(diagPos).Ident(sizeVar.name)),
-                        null));
-                stats.append(arrVar);
-                stats.append(callStatement(diagPos, make.at(diagPos).Ident(tmpVar.name), "toArray", List.of(
-                        make.Literal(TypeTags.INT, 0),
-                        make.at(diagPos).Ident(sizeVar.name),
-                        make.at(diagPos).Ident(arrVar.name),
-                        make.at(diagPos).Literal(TypeTags.INT, 0))));
-                JCIdent ident2 = make.at(diagPos).Ident(arrVar.name);
-                return makeBlockExpression(diagPos, stats, ident2);
-            } else {
-                //TODO: conversion may be needed here, but this is better than what we had
-                return translated;
-            }
-        }
-        if (sourceIsArray && targetIsSequence) {
-            Type sourceElemType = types.elemtype(sourceType);
-            List<JCExpression> args;
-            if (sourceElemType.isPrimitive()) {
-                args = List.of(translated);
-            } else {
-                args = List.of(makeTypeInfo(diagPos, sourceElemType), translated);
-            }
-            JCExpression cSequences = makeType(diagPos, syms.javafx_SequencesType, false);
-            return callExpression(diagPos, cSequences, "fromArray", args);
-        }
-        if (targetIsSequence && ! sourceIsSequence) {
-            //if (sourceType.tag == TypeTags.BOT) {
-            //    // it is a null, convert to empty sequence
-            //    //TODO: should we leave this null?
-            //    Type elemType = types.elemtype(type);
-            //    return makeEmptySequenceCreator(diagPos, elemType);
-            //}
-            Type targetElemType = types.elementType(targetType);
-            JCExpression cSequences = makeType(diagPos, syms.javafx_SequencesType, false);
-            translated = convertTranslated(translated, diagPos, sourceType, targetElemType);
-            // This would be redundant, if convertTranslated did a cast if needed.
-            translated = makeTypeCast(diagPos, targetElemType, sourceType, translated);
-            return callExpression(diagPos,
-                    cSequences,
-                    "singleton",
-                    List.of(makeTypeInfo(diagPos, targetElemType), translated));
-        }
-        if (targetIsSequence && sourceIsSequence) {
-            Type sourceElementType = types.elementType(sourceType);
-            Type targetElementType = types.elementType(targetType);
-            if (!types.isSameType(sourceElementType, targetElementType) &&
-                    types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
-                return convertNumericSequence(diagPos,
-                        translated,
-                        sourceElementType,
-                        targetElementType);
-            }
-        }
-
-        // Convert primitive/Object types
-        Type unboxedTargetType = targetType.isPrimitive() ? targetType : types.unboxedType(targetType);
-        Type unboxedSourceType = sourceType.isPrimitive() ? sourceType : types.unboxedType(sourceType);
-        if (unboxedTargetType != Type.noType && unboxedSourceType != Type.noType) {
-            // (boxed or unboxed) primitive to (boxed or unboxed) primitive
-            if (!sourceType.isPrimitive()) {
-                // unboxed source if sourceboxed
-                translated = make.at(diagPos).TypeCast(unboxedSourceType, translated);
-                sourceType = unboxedSourceType;
-            }
-            if (unboxedSourceType != unboxedTargetType) {
-                // convert as primitive types
-                translated = make.at(diagPos).TypeCast(unboxedTargetType, translated);
-                sourceType = unboxedTargetType;
-            }
-            if (!targetType.isPrimitive()) {
-                // box target if target boxed
-                translated = make.at(diagPos).TypeCast(makeType(diagPos, targetType, false), translated);
-                sourceType = targetType;
-            }
-        } else {
-            if (sourceType.isCompound() || sourceType.isPrimitive()) {
-                translated = make.at(diagPos).TypeCast(makeType(diagPos, types.erasure(targetType), true), translated);
-            }
-        }
-        // We should add a cast "when needed".  Then visitTypeCast would just
-        // call this function, and not need to call makeTypeCast on the result.
-        // However, getting that to work is a pain - giving up for now.  FIXME
-        return translated;
-    }
-
-    private JCExpression convertNumericSequence(final DiagnosticPosition diagPos,
-            final JCExpression expr, final Type inElementType, final Type targetElementType) {
-        JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
-        JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
-        return runtime(diagPos,
-                defs.Sequences_convertNumberSequence,
-                List.of(targetTypeInfo, inTypeInfo, expr));
+        return (new TypeConversionTranslator(diagPos, translated, sourceType, targetType)).doit();
     }
 
     /**
@@ -1444,27 +1339,32 @@ public abstract class JavafxAbstractTranslation<R>
      * But it does handle nulls coming in from Java method returns, and variables.
      */
     protected JCExpression convertNullability(final DiagnosticPosition diagPos, final JCExpression expr,
-                                              final JFXExpression inExpr, final Type outType) {
-        if (outType != syms.stringType && outType != syms.javafx_DurationType) {
-            return expr;
-        }
+            final JFXExpression inExpr, final Type outType) {
+        return (new Translator(diagPos) {
 
-        final Type inType = inExpr.type;
-        if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
-            return makeDefaultValue(diagPos, outType);
-        }
+            JCExpression doit() {
+                if (outType != syms.stringType && outType != syms.javafx_DurationType) {
+                    return expr;
+                }
 
-        if (!types.isSameType(inType, outType) || isValueFromJava(inExpr)) {
-            JCVariableDecl daVar = makeTmpVar(diagPos, outType, expr);
-            JCExpression toTest = make.at(diagPos).Ident(daVar.name);
-            JCExpression cond = make.at(diagPos).Binary(JCTree.NE, toTest, make.Literal(TypeTags.BOT, null));
-            JCExpression ret = make.at(diagPos).Conditional(
-                                                        cond,
-                                                        make.at(diagPos).Ident(daVar.name),
-                                                        makeDefaultValue(diagPos, outType));
-            return makeBlockExpression(diagPos, List.<JCStatement>of(daVar), ret);
-        }
-        return expr;
+                final Type inType = inExpr.type;
+                if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
+                    return makeDefaultValue(diagPos, outType);
+                }
+
+                if (!types.isSameType(inType, outType) || isValueFromJava(inExpr)) {
+                    JCVariableDecl daVar = makeTmpVar(outType, expr);
+                    JCExpression toTest = id(daVar.name);
+                    JCExpression cond = makeNotNullCheck(toTest);
+                    JCExpression ret = m().Conditional(
+                            cond,
+                            id(daVar.name),
+                            makeDefaultValue(diagPos, outType));
+                    return makeBlockExpression(List.<JCStatement>of(daVar), ret);
+                }
+                return expr;
+            }
+        }).doit();
     }
 
    JCExpression castFromObject (JCExpression arg, Type castType) {

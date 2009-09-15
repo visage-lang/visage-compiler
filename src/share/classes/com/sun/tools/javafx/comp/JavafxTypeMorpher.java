@@ -27,17 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.tools.mjavac.code.*;
-import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
-import com.sun.tools.javafx.code.JavafxClassSymbol;
 
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
-import static com.sun.tools.javafx.comp.JavafxDefs.locationPackageNameString;
-import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 
 /**
@@ -50,31 +45,10 @@ public class JavafxTypeMorpher {
 
     private final JavafxDefs defs;
     private final Name.Table names;
-    final JavafxClassReader reader;
     private final JavafxSymtab syms;
     private final JavafxTypes types;
 
-    public final LocationNameSymType[] locationNCT;
-    public final LocationNameSymType[] variableNCT;
-    public final LocationNameSymType[] constantLocationNCT;
-    public final LocationNameSymType   baseLocation;
-    public final LocationNameSymType abstractBoundComprehension;
-
     private final Object[] defaultValueByKind;
-
-    public class LocationNameSymType {
-        public final Name name;
-        public final ClassSymbol sym;
-        public final Type type;
-        private LocationNameSymType(Name name) {
-            this.name = name;
-            sym = reader.jreader.enterClass(name);
-            type = sym.type;
-        }
-        private LocationNameSymType(String which) {
-            this(names.fromString(locationPackageNameString + "." + which));
-        }
-    }
 
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
 
@@ -109,25 +83,11 @@ public class JavafxTypeMorpher {
 
     public class TypeMorphInfo {
         private Type realType;
-        private final Type morphedVariableType;
-        private final Type morphedLocationType;
         private int typeKind;
         private Type elementType = null;
 
         TypeMorphInfo(Type symType) {
             TypeSymbol realTsym = symType.tsym;
-            //check if symbol is already a Location, needed for source class
-            assert
-                (realTsym != variableNCT[TYPE_KIND_OBJECT].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_BOOLEAN].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_CHAR].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_BYTE].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_SHORT].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_INT].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_LONG].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_FLOAT].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_DOUBLE].sym) &&
-                (realTsym != variableNCT[TYPE_KIND_SEQUENCE].sym) : "Locations should have been converted";
 
             this.realType = symType;
 
@@ -142,10 +102,6 @@ public class JavafxTypeMorpher {
                     elementType = realType;
                 }
             }
-
-            // must be called AFTER typeKind and realType are set in vsym
-            this.morphedVariableType = symType == syms.voidType ? symType : generifyIfNeeded(variableType(typeKind), this);
-            this.morphedLocationType = symType == syms.voidType ? symType : generifyIfNeeded(locationType(typeKind), this);
         }
 
         protected boolean isSequence() {
@@ -156,9 +112,6 @@ public class JavafxTypeMorpher {
         public Type getRealBoxedType() { return types.boxedTypeOrType(realType); }
         public Type getRealFXType() { return (realType.isPrimitive() && typeKind==TYPE_KIND_OBJECT)? types.boxedTypeOrType(realType) : realType; }
 
-        public Type getLocationType() { return morphedLocationType; }
-        public Type getVariableType() { return morphedVariableType; }
-        public Type getConstantLocationType() { return generifyIfNeeded(constantLocationNCT[typeKind].type, this); }
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
 
@@ -192,20 +145,6 @@ public class JavafxTypeMorpher {
         syms = (JavafxSymtab)(JavafxSymtab.instance(context));
         types = JavafxTypes.instance(context);
         names = Name.Table.instance(context);
-        reader = JavafxClassReader.instance(context);
-
-        variableNCT = new LocationNameSymType[TYPE_KIND_COUNT];
-        locationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
-        constantLocationNCT = new LocationNameSymType[TYPE_KIND_COUNT];
-        abstractBoundComprehension = new LocationNameSymType(defs.cAbstractBoundComprehensionName);
-
-        for (int kind = 0; kind < TYPE_KIND_COUNT; ++kind) {
-            variableNCT[kind] = new LocationNameSymType(defs.locationVariableName[kind]);
-            locationNCT[kind] = new LocationNameSymType(defs.locationInterfaceName[kind]);
-            constantLocationNCT[kind] = new LocationNameSymType(JavafxVarSymbol.getTypePrefix(kind) + "Constant");
-        }
-
-        baseLocation = new LocationNameSymType("Location");
 
         defaultValueByKind = new Object[TYPE_KIND_COUNT];
         defaultValueByKind[TYPE_KIND_OBJECT] = null;
@@ -231,54 +170,5 @@ public class JavafxTypeMorpher {
         if (tsym == syms.doubleType.tsym) return TYPE_KIND_DOUBLE;
         assert false : "should not reach here";
         return TYPE_KIND_OBJECT;
-    }
-
-    Type variableType(int typeKind) {
-        return variableNCT[typeKind].type;
-    }
-
-    Type locationType(int typeKind) {
-        return locationNCT[typeKind].type;
-    }
-
-    /** Add type parameters.
-     * Returns a bogus hybrid front-end/back-end Type that is only meaningful
-     * as an argument to makeTypeTree.
-     * FIXME when translation creates attributes trees.
-     */
-    Type generifyIfNeeded(Type aLocationType, TypeMorphInfo tmi) {
-        Type newType;
-        Type elemType = tmi.getElementType();
-        if ((tmi.getTypeKind() == TYPE_KIND_OBJECT ||
-                tmi.getTypeKind() == TYPE_KIND_SEQUENCE) ) {
-            if (elemType == null) {
-                /* handles library which doesn't have element type */
-                elemType = syms.objectType;
-            }
-            else
-                elemType = types.boxedTypeOrType(elemType);
-            List<Type> actuals = List.of(elemType);
-            Type clazzOuter = variableType(tmi.getTypeKind()).getEnclosingType();
-
-            List<Type> newActuals = List.nil();
-            for (Type t : actuals) {
-                if ((t.tsym instanceof ClassSymbol) &&
-                        (t.tsym.flags_field & MIXIN) != 0) {
-                    String str = t.tsym.name.toString().replace("$", ".");
-                    ClassSymbol csym = new JavafxClassSymbol(0, names.fromString(str), t.tsym.owner);
-                    csym.flags_field |= MIXIN;
-                    Type tp = new ClassType(Type.noType, List.<Type>nil(), csym);
-                    newActuals = newActuals.append(tp);
-                    break;
-                }
-
-                newActuals = newActuals.append(t);
-            }
-
-            newType = new ClassType(clazzOuter, newActuals, aLocationType.tsym);
-        } else {
-            newType = aLocationType;
-        }
-        return newType;
     }
 }

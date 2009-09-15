@@ -61,7 +61,6 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import java.util.Set;
 
@@ -348,14 +347,6 @@ public abstract class JavafxTranslationSupport {
                 null);
     }
 
-    /**
-     * @param diagPos
-     * @return expression representing null
-     */
-    protected JCExpression makeNull(DiagnosticPosition diagPos) {
-        return make.at(diagPos).Literal(TypeTags.BOT, null);
-    }
-
     protected JCExpression makeQualifiedTree(DiagnosticPosition diagPos, String str) {
         JCExpression tree = null;
         int inx;
@@ -487,10 +478,6 @@ public abstract class JavafxTranslationSupport {
      * */
     public JCExpression makeReturnTypeTree(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound) {
         Type returnType = mth.getReturnType();
-        if (isBound) {
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(mth);
-            returnType = vmi.getLocationType();
-        }
         return makeType(diagPos, returnType);
     }
 
@@ -532,7 +519,7 @@ public abstract class JavafxTranslationSupport {
                 //TODO: Use RuntimeMethod
                 return callExpression(diagPos,
                                         makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Util"),
-                                        method,
+                                        names.fromString(method),
                                         expr);
             }
         }
@@ -597,18 +584,14 @@ public abstract class JavafxTranslationSupport {
             tmi.getRealType() == syms.javafx_StringType ?
                 make.Literal("") :
             tmi.getRealType() == syms.javafx_DurationType ?
-                makeTimeDefaultValue(diagPos) :
+                make.at(diagPos).TypeCast(
+                makeQualifiedTree(diagPos, "javafx.lang.Duration"),
+                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Duration.ZERO")) :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
     }
 
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, Type type) {
         return makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(type));
-    }
-
-    JCExpression makeTimeDefaultValue(DiagnosticPosition diagPos) {
-        return make.at(diagPos).TypeCast(
-                makeQualifiedTree(diagPos, "javafx.lang.Duration"), 
-                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Duration.ZERO"));
     }
 
     /** Make an attributed tree representing a literal. This will be
@@ -645,10 +628,6 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, (args == null) ? List.<JCExpression>nil() : (args instanceof List) ? (List<JCExpression>) args : (args instanceof ListBuffer) ? ((ListBuffer<JCExpression>) args).toList() : (args instanceof JCExpression) ? List.<JCExpression>of((JCExpression) args) : null);
     }
 
-    JCMethodInvocation callExpression(DiagnosticPosition diagPos, JCExpression receiver, String method) {
-        return callExpression(diagPos, receiver, method, null);
-    }
-
     JCMethodInvocation callExpression(DiagnosticPosition diagPos, JCExpression receiver, String method, Object args) {
         return callExpression(diagPos, receiver, names.fromString(method), args);
     }
@@ -661,20 +640,8 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Exec(callExpression(diagPos, receiver, methodName, args));
     }
 
-    JCStatement callStatement(DiagnosticPosition diagPos, Name methodName) {
-        return callStatement(diagPos, null, methodName, null);
-    }
-
     JCStatement callStatement(DiagnosticPosition diagPos, Name methodName, Object args) {
         return make.at(diagPos).Exec(callExpression(diagPos, null, methodName, args));
-    }
-
-    JCStatement callStatement(DiagnosticPosition diagPos, JCExpression receiver, String method) {
-        return callStatement(diagPos, receiver, method, null);
-    }
-
-    JCStatement callStatement(DiagnosticPosition diagPos, JCExpression receiver, String method, Object args) {
-        return make.at(diagPos).Exec(callExpression(diagPos, receiver, method, args));
     }
 
     Name functionInterfaceName(MethodSymbol sym, boolean isBound) {
@@ -871,25 +838,10 @@ public abstract class JavafxTranslationSupport {
         return names.fromString("$indexof$" + name.toString());
     }
 
-    // expr.get()
-    JCExpression getLocationValue(DiagnosticPosition diagPos, JCExpression expr, int typeKind) {
-        return callExpression(diagPos, expr, defs.locationGetMethodName[typeKind]);
-    }
-
     JCIdent makeIdentOfPresetKind(DiagnosticPosition diagPos, Name name, int pkind) {
         AugmentedJCIdent id = new AugmentedJCIdent(name, pkind);
         id.pos = (diagPos == null ? Position.NOPOS : diagPos.getStartPosition());
         return id;
-    }
-
-    BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value) {
-        BlockExprJCBlockExpression bexpr = new BlockExprJCBlockExpression(0L, stmts, value);
-        bexpr.pos = (diagPos == null ? Position.NOPOS : diagPos.getStartPosition());
-        return bexpr;
-    }
-
-    BlockExprJCBlockExpression makeBlockExpression(DiagnosticPosition diagPos, ListBuffer<JCStatement> stmts, JCExpression value) {
-        return makeBlockExpression(diagPos, stmts.toList(), value);
     }
 
     JCVariableDecl makeTmpLoopVar(DiagnosticPosition diagPos, int initValue) {
@@ -897,18 +849,6 @@ public abstract class JavafxTranslationSupport {
                                        getSyntheticName("loop"),
                                        makeType(diagPos, syms.intType),
                                        make.at(diagPos).Literal(TypeTags.INT, initValue));
-    }
-
-    JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, String rootName, Type type, JCExpression value) {
-        return makeTmpVar(diagPos, getSyntheticName(rootName), type, value);
-    }
-
-    JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Name tmpName, Type type, JCExpression value) {
-        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.FINAL), tmpName, makeType(diagPos, type), value);
-    }
-
-    JCVariableDecl makeTmpVar(DiagnosticPosition diagPos, Type type, JCExpression value) {
-        return makeTmpVar(diagPos, "tmp", type, value);
     }
 
     protected JCModifiers addAccessAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods, List<JCAnnotation> annotations) {
@@ -997,5 +937,205 @@ public abstract class JavafxTranslationSupport {
         JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
         JCExpression expr = callExpression(diagPos, durClass, defs.scriptLevelAccessMethod);
         return callExpression(diagPos, expr, defs.valueOfName, value);
+    }
+
+    protected class JavaTreeBuilder {
+
+        protected DiagnosticPosition diagPos;
+
+        protected JavaTreeBuilder(DiagnosticPosition diagPos) {
+            this.diagPos = diagPos;
+        }
+
+        protected void setDiagPos(DiagnosticPosition diagPos) {
+            this.diagPos = diagPos;
+        }
+
+        protected TreeMaker m() {
+            return make.at(diagPos);
+        }
+
+        /**
+         * Make an identifier which references the specified variable declaration
+         */
+        protected JCIdent id(JCVariableDecl aVar) {
+            return id(aVar.name);
+        }
+
+        /**
+         * Make an identifier of the given name
+         */
+        protected JCIdent id(Name name) {
+            return m().Ident(name);
+        }
+
+        /**
+         * Make a member select or an identifier depending on the selector
+         */
+        protected JCExpression select(JCExpression selector, Name name) {
+            return (selector==null)? id(name) : m().Select(selector, name);
+        }
+
+        /**
+         * Convert type to JCExpression
+         */
+        protected JCExpression makeType(Type type, boolean makeIntf) {
+            return JavafxTranslationSupport.this.makeType(diagPos, type, makeIntf);
+        }
+
+        protected JCExpression makeType(Type type) {
+            return makeType(type, true);
+        }
+
+        //
+        // Methods to generate simple constants.
+        //
+        protected JCExpression makeInt(int value)         { return m().Literal(TypeTags.INT, value); }
+        protected JCExpression makeBoolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
+        protected JCExpression makeNull()                 { return m().Literal(TypeTags.BOT, null); }
+        protected JCExpression makeString(String str)     { return m().Literal(TypeTags.BOT, str); }
+
+        protected JCExpression makeUnary(int tag, JCExpression arg) {
+            return m().Unary(tag, arg);
+        }
+
+        protected JCExpression makeBinary(int tag, JCExpression arg1, JCExpression arg2) {
+            return m().Binary(tag, arg1, arg2);
+        }
+
+        //
+        // This method simplifies NOT expressions.
+        //
+        protected JCExpression makeNot(JCExpression expr) {
+            return makeUnary(JCTree.NOT, expr);
+        }
+
+        /*
+         * Do a == compare
+         */
+        protected JCExpression makeEqual(JCExpression arg1, JCExpression arg2) {
+            return makeBinary(JCTree.EQ, arg1, arg2);
+        }
+
+        protected JCExpression makeNotEqual(JCExpression arg1, JCExpression arg2) {
+            return makeBinary(JCTree.NE, arg1, arg2);
+        }
+
+        /**
+         * Compare against null
+         */
+        protected JCExpression makeNullCheck(JCExpression targ) {
+            return makeEqual(targ, makeNull());
+        }
+
+        protected JCExpression makeNotNullCheck(JCExpression targ) {
+            return makeNotEqual(targ, makeNull());
+        }
+
+        /**
+         * Make a variable -- final by default
+         */
+
+        protected JCVariableDecl makeVar(Name varName, Type varType, JCExpression value) {
+            return makeVar(Flags.FINAL, varName, varType, value);
+        }
+
+        protected JCVariableDecl makeVar(long flags, Name varName, Type varType, JCExpression initialValue) {
+            return m().VarDef(
+                    m().Modifiers(flags),
+                    varName,
+                    makeType(varType),
+                    initialValue);
+        }
+
+        /**
+         * Make a method paramter
+         */
+        protected JCVariableDecl makeParam(Name varName, Type varType, JCExpression value) {
+            return makeVar(Flags.PARAMETER | Flags.FINAL, varName, varType, value);
+        }
+
+        /**
+         * Make a variable (synthethic name) -- final by default
+         */
+
+        protected JCVariableDecl makeMutableTmpVar(String root, Type varType, JCExpression initialValue) {
+            return makeTmpVar(0L, root, varType, initialValue);
+        }
+
+        protected JCVariableDecl makeTmpVar(Type type, JCExpression value) {
+            return makeTmpVar("tmp", type, value);
+        }
+
+        protected JCVariableDecl makeTmpVar(String root, Type varType, JCExpression value) {
+            return makeTmpVar(Flags.FINAL, root, varType, value);
+        }
+
+        protected JCVariableDecl makeTmpVar(long flags, String root, Type varType, JCExpression initialValue) {
+            return makeVar(flags, getSyntheticName(root), varType, initialValue);
+        }
+
+       /**
+         * Block Expressions
+         */
+
+        BlockExprJCBlockExpression makeBlockExpression(List<JCStatement> stmts, JCExpression value) {
+            BlockExprJCBlockExpression bexpr = new BlockExprJCBlockExpression(0L, stmts, value);
+            bexpr.pos = (diagPos == null ? Position.NOPOS : diagPos.getStartPosition());
+            return bexpr;
+        }
+
+        BlockExprJCBlockExpression makeBlockExpression(ListBuffer<JCStatement> stmts, JCExpression value) {
+            return makeBlockExpression(stmts.toList(), value);
+        }
+
+        /**
+         * Method calls -- returning a JCExpression
+         */
+
+        JCMethodInvocation callExpression(JCExpression receiver, Name methodName) {
+            return callExpression(receiver, methodName, null);
+        }
+
+        JCMethodInvocation callExpression(JCExpression receiver, Name methodName, Object args) {
+            JCExpression expr = select(receiver, methodName);
+            return m().Apply(List.<JCExpression>nil(), expr, (args == null) ? List.<JCExpression>nil() : (args instanceof List) ? (List<JCExpression>) args : (args instanceof ListBuffer) ? ((ListBuffer<JCExpression>) args).toList() : (args instanceof JCExpression) ? List.<JCExpression>of((JCExpression) args) : null);
+        }
+
+        JCMethodInvocation callExpression(JCExpression receiver, String method) {
+            return callExpression(receiver, method, null);
+        }
+
+        JCMethodInvocation callExpression(JCExpression receiver, String method, Object args) {
+            return callExpression(receiver, names.fromString(method), args);
+        }
+
+        /**
+         * Method calls -- returning a JCStatement
+         */
+
+        JCStatement callStatement(JCExpression receiver, Name methodName) {
+            return callStatement(receiver, methodName, null);
+        }
+
+        JCStatement callStatement(JCExpression receiver, Name methodName, Object args) {
+            return m().Exec(callExpression(receiver, methodName, args));
+        }
+
+        JCStatement callStatement(Name methodName) {
+            return callStatement(null, methodName, null);
+        }
+
+        JCStatement callStatement(Name methodName, Object args) {
+            return m().Exec(callExpression(null, methodName, args));
+        }
+
+        JCStatement callStatement(JCExpression receiver, String method) {
+            return callStatement(receiver, method, null);
+        }
+
+        JCStatement callStatement(JCExpression receiver, String method, Object args) {
+            return make.at(diagPos).Exec(callExpression(receiver, method, args));
+        }
     }
 }
