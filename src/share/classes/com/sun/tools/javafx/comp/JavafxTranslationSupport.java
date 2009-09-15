@@ -1340,5 +1340,19 @@ public abstract class JavafxTranslationSupport {
         JCStatement callStatement(String methodString) {
             return makeExec(callExpression((JCExpression)null, names.fromString(methodString), List.<JCExpression>nil()));
         }
+        
+        /**
+         * These methods simplifie throw statements.
+         */
+        JCStatement makeThrow(Type type, String message) {
+            if (message != null) {
+                return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>of(makeString(message)), null));
+            } else {
+                return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>nil(), null));
+            }
+        }
+        JCStatement makeThrow(Type type) {
+            return makeThrow(type, null);
+        }
     }
 }

@@ -682,19 +682,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private void resetDiagPos() { setDiagPos(analysis.getCurrentClassPos()); }
 
         //
-        // This method simplifies throw statements.
-        //
-        private JCStatement Throw(Type type, String message) {
-            if (message != null) {
-                return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>of(makeString(message)), null));
-            } else {
-                return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>nil(), null));
-            }
-        }
-        private JCStatement Throw(Type type) {
-            return Throw(type, null);
-        }
-
         //
         // This method generates a simple java integer field then adds to the buffer.
         //
@@ -866,9 +853,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 stmts = ListBuffer.lb();
                 
                 if (varInfo.hasBoundDefinition() && !varInfo.hasBiDiBoundDefinition()) {
-                    stmts.append(Throw(assignBindExceptionType));
+                    stmts.append(makeThrow(assignBindExceptionType));
                 } else if (varInfo.isDef()) {
-                    stmts.append(Throw(assignDefExceptionType));
+                    stmts.append(makeThrow(assignDefExceptionType));
                 } else {
                     // Symbol used when accessing the variable.
                     VarSymbol proxyVarSym = varInfo.proxyVarSym();
