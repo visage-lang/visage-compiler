@@ -204,7 +204,7 @@ public abstract class JavafxAbstractTranslation<R>
                 JCExpression expr = makeType(types.erasure(owner.type), false);
                 if (types.isJFXClass(owner)) {
                     // script-level get to instance through script-level accessor
-                    expr = callExpression(expr, defs.scriptLevelAccessMethod);
+                    expr = call(expr, defs.scriptLevelAccessMethod);
                 }
                 return expr;
             }
@@ -232,7 +232,7 @@ public abstract class JavafxAbstractTranslation<R>
                         default:
                             throw new AssertionError();
                     }
-                    expr = callExpression(instance, attributeGetterName(vsym));
+                    expr = call(instance, attributeGetterName(vsym));
                 }
             }
 
@@ -919,7 +919,7 @@ public abstract class JavafxAbstractTranslation<R>
                 case REVERSE:
                     if (types.isSequence(expr.type)) {
                         // call runtime reverse of a sequence
-                        return callExpression(
+                        return call(
                                 makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
                                 "reverse", transExpr);
                     } else {
@@ -1063,7 +1063,7 @@ public abstract class JavafxAbstractTranslation<R>
         }
 
         JCExpression op(JCExpression leftSide, Name methodName, JCExpression rightSide) {
-            return callExpression(leftSide, methodName, rightSide);
+            return call(leftSide, methodName, rightSide);
         }
 
         boolean isDuration(Type type) {
@@ -1218,20 +1218,20 @@ public abstract class JavafxAbstractTranslation<R>
                         } else {
                             mname = "toArray";
                         }
-                        return callExpression(makeType(syms.javafx_SequencesType, false),
+                        return call(makeType(syms.javafx_SequencesType, false),
                                 mname, translated);
                     }
                     ListBuffer<JCStatement> stats = ListBuffer.lb();
                     JCVariableDecl tmpVar = makeTmpVar(sourceType, translated);
                     stats.append(tmpVar);
-                    JCVariableDecl sizeVar = makeTmpVar(syms.intType, callExpression(id(tmpVar.name), "size"));
+                    JCVariableDecl sizeVar = makeTmpVar(syms.intType, call(id(tmpVar.name), "size"));
                     stats.append(sizeVar);
                     JCVariableDecl arrVar = makeTmpVar("arr", targetType, make.at(diagPos).NewArray(
                             makeType(elemType, true),
                             List.<JCExpression>of(id(sizeVar.name)),
                             null));
                     stats.append(arrVar);
-                    stats.append(callStatement(id(tmpVar.name), "toArray", List.of(
+                    stats.append(callStmt(id(tmpVar.name), "toArray", List.of(
                             makeInt(0),
                             id(sizeVar),
                             id(arrVar),
@@ -1251,7 +1251,7 @@ public abstract class JavafxAbstractTranslation<R>
                     args = List.of(makeTypeInfo(diagPos, sourceElemType), translated);
                 }
                 JCExpression cSequences = makeType(syms.javafx_SequencesType, false);
-                return callExpression(cSequences, "fromArray", args);
+                return call(cSequences, "fromArray", args);
             }
             if (targetIsSequence && !sourceIsSequence) {
                 //if (sourceType.tag == TypeTags.BOT) {
@@ -1265,7 +1265,7 @@ public abstract class JavafxAbstractTranslation<R>
                 JCExpression res = convertTranslated(translated, diagPos, sourceType, targetElemType);
                 // This would be redundant, if convertTranslated did a cast if needed.
                 res = makeTypeCast(diagPos, targetElemType, sourceType, res);
-                return callExpression(
+                return call(
                         cSequences,
                         "singleton",
                         List.of(makeTypeInfo(diagPos, targetElemType), res));
@@ -1488,7 +1488,7 @@ public abstract class JavafxAbstractTranslation<R>
                 siteCursor = siteOwner;
                 while (numOfOuters > 0) {
                     if (siteCursor.kind == Kinds.TYP) {
-                        ret = callExpression(diagPos, ret, defs.outerAccessorName);
+                        ret = call(diagPos, ret, defs.outerAccessorName);
                         ret.type = siteCursor.type;
                     }
 

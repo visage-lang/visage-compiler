@@ -521,7 +521,7 @@ public abstract class JavafxTranslationSupport {
             }
             if (method != null) {
                 //TODO: Use RuntimeMethod
-                return callExpression(diagPos,
+                return call(diagPos,
                                         makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Util"),
                                         names.fromString(method),
                                         expr);
@@ -618,11 +618,11 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Apply(typeArgs, select, args);
     }
 
-    JCMethodInvocation callExpression(DiagnosticPosition diagPos, JCExpression receiver, Name methodName) {
-        return callExpression(diagPos, receiver, methodName, null);
+    JCMethodInvocation call(DiagnosticPosition diagPos, JCExpression receiver, Name methodName) {
+        return call(diagPos, receiver, methodName, null);
     }
 
-    JCMethodInvocation callExpression(DiagnosticPosition diagPos, JCExpression receiver, Name methodName, Object args) {
+    JCMethodInvocation call(DiagnosticPosition diagPos, JCExpression receiver, Name methodName, Object args) {
         JCExpression expr = null;
         if (receiver == null) {
             expr = make.at(diagPos).Ident(methodName);
@@ -632,20 +632,20 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, (args == null) ? List.<JCExpression>nil() : (args instanceof List) ? (List<JCExpression>) args : (args instanceof ListBuffer) ? ((ListBuffer<JCExpression>) args).toList() : (args instanceof JCExpression) ? List.<JCExpression>of((JCExpression) args) : null);
     }
 
-    JCMethodInvocation callExpression(DiagnosticPosition diagPos, JCExpression receiver, String method, Object args) {
-        return callExpression(diagPos, receiver, names.fromString(method), args);
+    JCMethodInvocation call(DiagnosticPosition diagPos, JCExpression receiver, String method, Object args) {
+        return call(diagPos, receiver, names.fromString(method), args);
     }
 
-    JCStatement callStatement(DiagnosticPosition diagPos, JCExpression receiver, Name methodName) {
-        return callStatement(diagPos, receiver, methodName, null);
+    JCStatement callStmt(DiagnosticPosition diagPos, JCExpression receiver, Name methodName) {
+        return callStmt(diagPos, receiver, methodName, null);
     }
 
-    JCStatement callStatement(DiagnosticPosition diagPos, JCExpression receiver, Name methodName, Object args) {
-        return make.at(diagPos).Exec(callExpression(diagPos, receiver, methodName, args));
+    JCStatement callStmt(DiagnosticPosition diagPos, JCExpression receiver, Name methodName, Object args) {
+        return make.at(diagPos).Exec(call(diagPos, receiver, methodName, args));
     }
 
-    JCStatement callStatement(DiagnosticPosition diagPos, Name methodName, Object args) {
-        return make.at(diagPos).Exec(callExpression(diagPos, null, methodName, args));
+    JCStatement callStmt(DiagnosticPosition diagPos, Name methodName, Object args) {
+        return make.at(diagPos).Exec(call(diagPos, null, methodName, args));
     }
 
     Name functionInterfaceName(MethodSymbol sym, boolean isBound) {
@@ -939,8 +939,8 @@ public abstract class JavafxTranslationSupport {
 
     protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
         JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
-        JCExpression expr = callExpression(diagPos, durClass, defs.scriptLevelAccessMethod);
-        return callExpression(diagPos, expr, defs.valueOfName, value);
+        JCExpression expr = call(diagPos, durClass, defs.scriptLevelAccessMethod);
+        return call(diagPos, expr, defs.valueOfName, value);
     }
 
     protected class JavaTreeBuilder {
@@ -1144,103 +1144,103 @@ public abstract class JavafxTranslationSupport {
             return argBuffer.toList();
         }
 
-        JCExpression callExpression(JCExpression receiver, Name methodName, List<JCExpression> args) {
+        JCExpression call(JCExpression receiver, Name methodName, List<JCExpression> args) {
             JCExpression expr = select(receiver, methodName);
             return m().Apply(List.<JCExpression>nil(), expr, args);
         }
 
-        JCExpression callExpression(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
-            return callExpression(receiver, methodName, args.toList());
+        JCExpression call(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
+            return call(receiver, methodName, args.toList());
         }
 
-        JCExpression callExpression(JCExpression receiver, Name methodName, JCExpression... args) {
-            return callExpression(receiver, methodName, callArgs(args));
+        JCExpression call(JCExpression receiver, Name methodName, JCExpression... args) {
+            return call(receiver, methodName, callArgs(args));
         }
 
-        JCExpression callExpression(JCExpression receiver, Name methodName) {
-            return callExpression(receiver, methodName, List.<JCExpression>nil());
+        JCExpression call(JCExpression receiver, Name methodName) {
+            return call(receiver, methodName, List.<JCExpression>nil());
         }
 
-        JCExpression callExpression(JCExpression receiver, String methodString, List<JCExpression> args) {
-            return callExpression(receiver, names.fromString(methodString), args);
+        JCExpression call(JCExpression receiver, String methodString, List<JCExpression> args) {
+            return call(receiver, names.fromString(methodString), args);
         }
 
-        JCExpression callExpression(JCExpression receiver, String methodString, ListBuffer<JCExpression> args) {
-            return callExpression(receiver, names.fromString(methodString), args.toList());
+        JCExpression call(JCExpression receiver, String methodString, ListBuffer<JCExpression> args) {
+            return call(receiver, names.fromString(methodString), args.toList());
         }
 
-        JCExpression callExpression(JCExpression receiver, String methodString, JCExpression... args) {
-            return callExpression(receiver, names.fromString(methodString), callArgs(args));
+        JCExpression call(JCExpression receiver, String methodString, JCExpression... args) {
+            return call(receiver, names.fromString(methodString), callArgs(args));
         }
 
-        JCExpression callExpression(JCExpression receiver, String methodString) {
-            return callExpression(receiver, names.fromString(methodString), List.<JCExpression>nil());
-        }
-
-
-        JCExpression callExpression(Type selector, Name methodName, List<JCExpression> args) {
-            return callExpression(makeType(selector), methodName, args);
-        }
-
-        JCExpression callExpression(Type selector, Name methodName, ListBuffer<JCExpression> args) {
-            return callExpression(makeType(selector), methodName, args.toList());
-        }
-
-        JCExpression callExpression(Type selector, Name methodName, JCExpression... args) {
-            return callExpression(makeType(selector), methodName, callArgs(args));
-        }
-
-        JCExpression callExpression(Type selector, Name methodName) {
-            return callExpression(makeType(selector), methodName, List.<JCExpression>nil());
-        }
-
-        JCExpression callExpression(Type selector, String methodString, List<JCExpression> args) {
-            return callExpression(makeType(selector), names.fromString(methodString), args);
-        }
-
-        JCExpression callExpression(Type selector, String methodString, ListBuffer<JCExpression> args) {
-            return callExpression(makeType(selector), names.fromString(methodString), args.toList());
-        }
-
-        JCExpression callExpression(Type selector, String methodString, JCExpression... args) {
-            return callExpression(makeType(selector), names.fromString(methodString), callArgs(args));
-        }
-
-        JCExpression callExpression(Type selector, String methodString) {
-            return callExpression(makeType(selector), names.fromString(methodString), List.<JCExpression>nil());
+        JCExpression call(JCExpression receiver, String methodString) {
+            return call(receiver, names.fromString(methodString), List.<JCExpression>nil());
         }
 
 
-        JCExpression callExpression(Name methodName, List<JCExpression> args) {
-            return callExpression((JCExpression)null, methodName, args);
+        JCExpression call(Type selector, Name methodName, List<JCExpression> args) {
+            return call(makeType(selector), methodName, args);
         }
 
-        JCExpression callExpression(Name methodName, ListBuffer<JCExpression> args) {
-            return callExpression((JCExpression)null, methodName, args.toList());
+        JCExpression call(Type selector, Name methodName, ListBuffer<JCExpression> args) {
+            return call(makeType(selector), methodName, args.toList());
         }
 
-        JCExpression callExpression(Name methodName, JCExpression... args) {
-            return callExpression((JCExpression)null, methodName, callArgs(args));
+        JCExpression call(Type selector, Name methodName, JCExpression... args) {
+            return call(makeType(selector), methodName, callArgs(args));
         }
 
-        JCExpression callExpression(Name methodName) {
-            return callExpression((JCExpression)null, methodName, List.<JCExpression>nil());
+        JCExpression call(Type selector, Name methodName) {
+            return call(makeType(selector), methodName, List.<JCExpression>nil());
         }
 
-        JCExpression callExpression(String methodString, List<JCExpression> args) {
-            return callExpression((JCExpression)null, names.fromString(methodString), args);
+        JCExpression call(Type selector, String methodString, List<JCExpression> args) {
+            return call(makeType(selector), names.fromString(methodString), args);
         }
 
-        JCExpression callExpression(String methodString, ListBuffer<JCExpression> args) {
-            return callExpression((JCExpression)null, names.fromString(methodString), args.toList());
+        JCExpression call(Type selector, String methodString, ListBuffer<JCExpression> args) {
+            return call(makeType(selector), names.fromString(methodString), args.toList());
         }
 
-        JCExpression callExpression(String methodString, JCExpression... args) {
-            return callExpression((JCExpression)null, names.fromString(methodString), callArgs(args));
+        JCExpression call(Type selector, String methodString, JCExpression... args) {
+            return call(makeType(selector), names.fromString(methodString), callArgs(args));
         }
 
-        JCExpression callExpression(String methodString) {
-            return callExpression((JCExpression)null, names.fromString(methodString), List.<JCExpression>nil());
+        JCExpression call(Type selector, String methodString) {
+            return call(makeType(selector), names.fromString(methodString), List.<JCExpression>nil());
+        }
+
+
+        JCExpression call(Name methodName, List<JCExpression> args) {
+            return call((JCExpression)null, methodName, args);
+        }
+
+        JCExpression call(Name methodName, ListBuffer<JCExpression> args) {
+            return call((JCExpression)null, methodName, args.toList());
+        }
+
+        JCExpression call(Name methodName, JCExpression... args) {
+            return call((JCExpression)null, methodName, callArgs(args));
+        }
+
+        JCExpression call(Name methodName) {
+            return call((JCExpression)null, methodName, List.<JCExpression>nil());
+        }
+
+        JCExpression call(String methodString, List<JCExpression> args) {
+            return call((JCExpression)null, names.fromString(methodString), args);
+        }
+
+        JCExpression call(String methodString, ListBuffer<JCExpression> args) {
+            return call((JCExpression)null, names.fromString(methodString), args.toList());
+        }
+
+        JCExpression call(String methodString, JCExpression... args) {
+            return call((JCExpression)null, names.fromString(methodString), callArgs(args));
+        }
+
+        JCExpression call(String methodString) {
+            return call((JCExpression)null, names.fromString(methodString), List.<JCExpression>nil());
         }
 
   
@@ -1250,102 +1250,102 @@ public abstract class JavafxTranslationSupport {
          */
 
 
-        JCStatement callStatement(JCExpression receiver, Name methodName, List<JCExpression> args) {
-            return makeExec(callExpression(receiver, methodName, args));
+        JCStatement callStmt(JCExpression receiver, Name methodName, List<JCExpression> args) {
+            return makeExec(call(receiver, methodName, args));
         }
 
-        JCStatement callStatement(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
-            return makeExec(callExpression(receiver, methodName, args.toList()));
+        JCStatement callStmt(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
+            return makeExec(call(receiver, methodName, args.toList()));
         }
 
-        JCStatement callStatement(JCExpression receiver, Name methodName, JCExpression... args) {
-            return makeExec(callExpression(receiver, methodName, callArgs(args)));
+        JCStatement callStmt(JCExpression receiver, Name methodName, JCExpression... args) {
+            return makeExec(call(receiver, methodName, callArgs(args)));
         }
 
-        JCStatement callStatement(JCExpression receiver, Name methodName) {
-            return makeExec(callExpression(receiver, methodName, List.<JCExpression>nil()));
+        JCStatement callStmt(JCExpression receiver, Name methodName) {
+            return makeExec(call(receiver, methodName, List.<JCExpression>nil()));
         }
 
-        JCStatement callStatement(JCExpression receiver, String methodString, List<JCExpression> args) {
-            return makeExec(callExpression(receiver, names.fromString(methodString), args));
+        JCStatement callStmt(JCExpression receiver, String methodString, List<JCExpression> args) {
+            return makeExec(call(receiver, names.fromString(methodString), args));
         }
 
-        JCStatement callStatement(JCExpression receiver, String methodString, ListBuffer<JCExpression> args) {
-            return makeExec(callExpression(receiver, names.fromString(methodString), args.toList()));
+        JCStatement callStmt(JCExpression receiver, String methodString, ListBuffer<JCExpression> args) {
+            return makeExec(call(receiver, names.fromString(methodString), args.toList()));
         }
 
-        JCStatement callStatement(JCExpression receiver, String methodString, JCExpression... args) {
-            return makeExec(callExpression(receiver, names.fromString(methodString), callArgs(args)));
+        JCStatement callStmt(JCExpression receiver, String methodString, JCExpression... args) {
+            return makeExec(call(receiver, names.fromString(methodString), callArgs(args)));
         }
 
-        JCStatement callStatement(JCExpression receiver, String methodString) {
-            return makeExec(callExpression(receiver, names.fromString(methodString), List.<JCExpression>nil()));
-        }
-
-
-        JCStatement callStatement(Type selector, Name methodName, List<JCExpression> args) {
-            return makeExec(callExpression(makeType(selector), methodName, args));
-        }
-
-        JCStatement callStatement(Type selector, Name methodName, ListBuffer<JCExpression> args) {
-            return makeExec(callExpression(makeType(selector), methodName, args.toList()));
-        }
-
-        JCStatement callStatement(Type selector, Name methodName, JCExpression... args) {
-            return makeExec(callExpression(makeType(selector), methodName, callArgs(args)));
-        }
-
-        JCStatement callStatement(Type selector, Name methodName) {
-            return makeExec(callExpression(makeType(selector), methodName, List.<JCExpression>nil()));
-        }
-
-        JCStatement callStatement(Type selector, String methodString, List<JCExpression> args) {
-            return makeExec(callExpression(makeType(selector), names.fromString(methodString), args));
-        }
-
-        JCStatement callStatement(Type selector, String methodString, ListBuffer<JCExpression> args) {
-            return makeExec(callExpression(makeType(selector), names.fromString(methodString), args.toList()));
-        }
-
-        JCStatement callStatement(Type selector, String methodString, JCExpression... args) {
-            return makeExec(callExpression(makeType(selector), names.fromString(methodString), callArgs(args)));
-        }
-
-        JCStatement callStatement(Type selector, String methodString) {
-            return makeExec(callExpression(makeType(selector), names.fromString(methodString), List.<JCExpression>nil()));
+        JCStatement callStmt(JCExpression receiver, String methodString) {
+            return makeExec(call(receiver, names.fromString(methodString), List.<JCExpression>nil()));
         }
 
 
-        JCStatement callStatement(Name methodName, List<JCExpression> args) {
-            return makeExec(callExpression((JCExpression)null, methodName, args));
+        JCStatement callStmt(Type selector, Name methodName, List<JCExpression> args) {
+            return makeExec(call(makeType(selector), methodName, args));
         }
 
-        JCStatement callStatement(Name methodName, ListBuffer<JCExpression> args) {
-            return makeExec(callExpression((JCExpression)null, methodName, args.toList()));
+        JCStatement callStmt(Type selector, Name methodName, ListBuffer<JCExpression> args) {
+            return makeExec(call(makeType(selector), methodName, args.toList()));
         }
 
-        JCStatement callStatement(Name methodName, JCExpression... args) {
-            return makeExec(callExpression((JCExpression)null, methodName, callArgs(args)));
+        JCStatement callStmt(Type selector, Name methodName, JCExpression... args) {
+            return makeExec(call(makeType(selector), methodName, callArgs(args)));
         }
 
-        JCStatement callStatement(Name methodName) {
-            return makeExec(callExpression((JCExpression)null, methodName, List.<JCExpression>nil()));
+        JCStatement callStmt(Type selector, Name methodName) {
+            return makeExec(call(makeType(selector), methodName, List.<JCExpression>nil()));
         }
 
-        JCStatement callStatement(String methodString, List<JCExpression> args) {
-            return makeExec(callExpression((JCExpression)null, names.fromString(methodString), args));
+        JCStatement callStmt(Type selector, String methodString, List<JCExpression> args) {
+            return makeExec(call(makeType(selector), names.fromString(methodString), args));
         }
 
-        JCStatement callStatement(String methodString, ListBuffer<JCExpression> args) {
-            return makeExec(callExpression((JCExpression)null, names.fromString(methodString), args.toList()));
+        JCStatement callStmt(Type selector, String methodString, ListBuffer<JCExpression> args) {
+            return makeExec(call(makeType(selector), names.fromString(methodString), args.toList()));
         }
 
-        JCStatement callStatement(String methodString, JCExpression... args) {
-            return makeExec(callExpression((JCExpression)null, names.fromString(methodString), callArgs(args)));
+        JCStatement callStmt(Type selector, String methodString, JCExpression... args) {
+            return makeExec(call(makeType(selector), names.fromString(methodString), callArgs(args)));
         }
 
-        JCStatement callStatement(String methodString) {
-            return makeExec(callExpression((JCExpression)null, names.fromString(methodString), List.<JCExpression>nil()));
+        JCStatement callStmt(Type selector, String methodString) {
+            return makeExec(call(makeType(selector), names.fromString(methodString), List.<JCExpression>nil()));
+        }
+
+
+        JCStatement callStmt(Name methodName, List<JCExpression> args) {
+            return makeExec(call((JCExpression)null, methodName, args));
+        }
+
+        JCStatement callStmt(Name methodName, ListBuffer<JCExpression> args) {
+            return makeExec(call((JCExpression)null, methodName, args.toList()));
+        }
+
+        JCStatement callStmt(Name methodName, JCExpression... args) {
+            return makeExec(call((JCExpression)null, methodName, callArgs(args)));
+        }
+
+        JCStatement callStmt(Name methodName) {
+            return makeExec(call((JCExpression)null, methodName, List.<JCExpression>nil()));
+        }
+
+        JCStatement callStmt(String methodString, List<JCExpression> args) {
+            return makeExec(call((JCExpression)null, names.fromString(methodString), args));
+        }
+
+        JCStatement callStmt(String methodString, ListBuffer<JCExpression> args) {
+            return makeExec(call((JCExpression)null, names.fromString(methodString), args.toList()));
+        }
+
+        JCStatement callStmt(String methodString, JCExpression... args) {
+            return makeExec(call((JCExpression)null, names.fromString(methodString), callArgs(args)));
+        }
+
+        JCStatement callStmt(String methodString) {
+            return makeExec(call((JCExpression)null, names.fromString(methodString), List.<JCExpression>nil()));
         }
         
         /**
