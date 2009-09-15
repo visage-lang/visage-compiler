@@ -86,6 +86,9 @@ public interface FXObject {
     public void     setDependentsManager$(final DependentsManager depMgr);
     public void     addDependent$      (final int varNum, FXObject dep);
     public void     removeDependent$   (final int varNum, FXObject dep);
+    // Earlier 'this' object was dependent on { oldBindee, varNum }.
+    // Now, change the dependence to { newBindee, varNum }
+    public void     switchDependence$  (final int varNum, FXObject oldBindee, FXObject newBindee);
     public void     notifyDependents$  (final int varNum);
     public void     update$ (final FXObject src, final int varNum);
     // for testing - the listener count is the number of distinct {varNum, dep} pairs

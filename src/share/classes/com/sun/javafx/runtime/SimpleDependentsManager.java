@@ -39,8 +39,6 @@ import java.lang.ref.WeakReference;
 class SimpleDependentsManager extends DependentsManager implements Linkable<Dependent> {
     // list of all dependents
     private Dependent dependencies;
-    // Are we in the middle of iterating listeners for notification?
-    private boolean inIteration;
 
     public Dependent getNext() {
         return dependencies;
@@ -68,12 +66,9 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
             dependencies.setPrev(newDep);
         }
         dependencies = newDep;
-
         // tell "bindee" that there are binders for "varNum" variable
         bindee.setBindee$(varNum);
-        if (! inIteration) {
-            Dependent.clearDeadDependencies();
-        }
+        Dependent.clearDeadDependencies();
     }
 
     @Override
@@ -83,7 +78,7 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
                 // we just clear the dependent object ref. We will purge
                 // link object later.
                 dep.clear();
-                if (! inIteration) {
+                if (! Dependent.inIteration) {
                     Linkables.remove(dep);
                 }
                 return;
@@ -94,8 +89,9 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
 
     @Override
     public void notifyDependents(FXObject bindee, final int varNum) {
+        boolean oldInIteration = Dependent.inIteration;
         try {
-            inIteration = true;
+            Dependent.inIteration = true;
             for (Dependent dep = dependencies; dep != null;) {
                 Dependent next = dep.getNext();
                 FXObject binder = dep.get();
@@ -109,7 +105,7 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
                 dep = next;
             }
         } finally {
-            inIteration = false;
+            Dependent.inIteration = oldInIteration;
         }
     }
 
@@ -129,12 +125,18 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
 }
 
 final class Dependent extends WeakReference<FXObject> implements Linkable<Dependent> {
+    // Are we in the middle of iterating listeners for notification?
+    static volatile boolean inIteration;
+
     /*
      * This method polls the reference queue and deletes dead listeners.
      * As of now, this is called from add/remove/notify calls. If needed,
      * we can call this method from a timer to remove dead listeners promptly.
      */
     static void clearDeadDependencies() {
+        if (Dependent.inIteration) {
+            return;
+        }
         Reference<? extends FXObject> ref;
         while ((ref = refQ.poll()) != null) {
             if (ref instanceof Dependent) {

@@ -36,8 +36,6 @@ import java.lang.ref.WeakReference;
  */
 class MinimalWeakRefsDependentsManager extends DependentsManager implements BinderLinkable {
     private WeakBinderRef thisRef;
-    // See comment for the method Dep.unlinkFromBindee().
-    private boolean inIteration;
     Dep dependencies;
 
     WeakBinderRef getThisRef(FXObject self) {
@@ -56,10 +54,8 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
         dep.linkToBindee(bindee, varNum);
         // tell "bindee" that there are binders for "varNum" variable
         bindee.setBindee$(varNum);
-        if (! inIteration) {
-            // FIXME: revisit this - is this a good time to call cleanup?
-            WeakBinderRef.checkForCleanups();
-        }
+        // FIXME: revisit this - is this a good time to call cleanup?
+        WeakBinderRef.checkForCleanups();
     }
 
     public void removeDependent(FXObject bindee, final int varNum, FXObject binder) {
@@ -68,7 +64,7 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
             if (binderRef != null) {
                 if (varNum == dep.bindeeVarNum && binder == binderRef.get()) {
                     dep.binderRef = null;
-                    if (! inIteration) {
+                    if (! Dep.inIteration) {
                         dep.unlinkFromBindee();
                     }
                     return;
@@ -79,8 +75,9 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
     }
 
     public void notifyDependents(FXObject bindee, final int varNum) {
+        boolean oldInIteration = Dep.inIteration;
         try {
-            inIteration = true;
+            Dep.inIteration = true;
             for (Dep dep = dependencies; dep != null;) {
                 Dep next = dep.nextInBinders;
                 WeakBinderRef binderRef = dep.binderRef;
@@ -100,7 +97,7 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
                 dep = next;
             }
         } finally {
-            inIteration = false;
+            Dep.inIteration = oldInIteration;
         }
     }
 
@@ -132,7 +129,7 @@ class WeakBinderRef extends WeakReference<FXObject> {
     static volatile int unsafeToCleanup;
 
     static void checkForCleanups() {
-        if (unsafeToCleanup > 0) {
+        if (unsafeToCleanup > 0 || Dep.inIteration) {
             return;
         }
         Reference<? extends FXObject> ref;
@@ -158,6 +155,8 @@ class WeakBinderRef extends WeakReference<FXObject> {
 }
 
 class Dep implements BinderLinkable {
+    // See comment for the method Dep.unlinkFromBindee().
+    static volatile boolean inIteration;
     WeakBinderRef binderRef;
     int bindeeVarNum;
     Dep nextInBinders;

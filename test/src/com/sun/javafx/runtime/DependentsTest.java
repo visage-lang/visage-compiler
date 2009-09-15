@@ -209,19 +209,18 @@ public class DependentsTest extends JavaFXTestCase {
     }
 
     public void testRemoveAllDuringNotification() {
-        // create an object with two variables
+        // create an object with one variable
         final FXBase src = new FXBase() {
             @Override
             public int count$() { return 1; }
         };
 
-
-        final boolean[] delete = new boolean[4];
-        final FXBase[] dependents = new FXBase[4];
+        final int[] deleter = new int[1];
+        final FXBase[] dependents = new FXBase[3];
         final FXBase dep0 = new FXBase() {
             @Override
             public void update$(FXObject srcObj, int varNum) {
-                if (delete[0]) {
+                if (deleter[0] == 0) {
                    for (FXBase fx : dependents) {
                        srcObj.removeDependent$(0, fx);
                    }
@@ -231,7 +230,7 @@ public class DependentsTest extends JavaFXTestCase {
         final FXBase dep1 = new FXBase() {
             @Override
             public void update$(FXObject srcObj, int varNum) {
-                if (delete[1]) {
+                if (deleter[0] == 1) {
                    for (FXBase fx : dependents) {
                        srcObj.removeDependent$(0, fx);
                    }
@@ -241,17 +240,7 @@ public class DependentsTest extends JavaFXTestCase {
         final FXBase dep2 = new FXBase() {
             @Override
             public void update$(FXObject srcObj, int varNum) {
-                if (delete[2]) {
-                   for (FXBase fx : dependents) {
-                       srcObj.removeDependent$(0, fx);
-                   }
-                }
-            }
-        };
-        final FXBase dep3 = new FXBase() {
-            @Override
-            public void update$(FXObject srcObj, int varNum) {
-                if (delete[3]) {
+                if (deleter[0] == 2) {
                    for (FXBase fx : dependents) {
                        srcObj.removeDependent$(0, fx);
                    }
@@ -261,58 +250,188 @@ public class DependentsTest extends JavaFXTestCase {
         dependents[0] = dep0;
         dependents[1] = dep1;
         dependents[2] = dep2;
-        dependents[3] = dep3;
 
         src.addDependent$(0, dep0);
         src.addDependent$(0, dep1);
         src.addDependent$(0, dep2);
-        src.addDependent$(0, dep3);
-        assertEquals(4, src.getListenerCount$());
-        // delete all from first inserted dependent
-        delete[0] = true;
-        delete[1] = false;
-        delete[2] = false;
-        delete[3] = false;
+        assertEquals(3, src.getListenerCount$());
+        // remove all from the first inserted dependent
+        deleter[0] = 0;
         src.notifyDependents$(0);
         assertEquals(0, src.getListenerCount$());
 
         src.addDependent$(0, dep0);
         src.addDependent$(0, dep1);
         src.addDependent$(0, dep2);
-        src.addDependent$(0, dep3);
-        assertEquals(4, src.getListenerCount$());
-        // delete all from middle inserted dependent
-        delete[0] = false;
-        delete[1] = true;
-        delete[2] = false;
-        delete[3] = false;
+        assertEquals(3, src.getListenerCount$());
+        // remove all from the second (middle) inserted dependent
+        deleter[0] = 1;
         src.notifyDependents$(0);
         assertEquals(0, src.getListenerCount$());
 
         src.addDependent$(0, dep0);
         src.addDependent$(0, dep1);
         src.addDependent$(0, dep2);
-        src.addDependent$(0, dep3);
-        assertEquals(4, src.getListenerCount$());
-        // delete all from middle inserted dependent
-        delete[0] = false;
-        delete[1] = false;
-        delete[2] = true;
-        delete[3] = false;
-        src.notifyDependents$(0);
-        assertEquals(0, src.getListenerCount$());
-
-        src.addDependent$(0, dep0);
-        src.addDependent$(0, dep1);
-        src.addDependent$(0, dep2);
-        src.addDependent$(0, dep3);
-        assertEquals(4, src.getListenerCount$());
-        // delete all from last inserted dependent
-        delete[0] = false;
-        delete[1] = false;
-        delete[2] = false;
-        delete[3] = true;
+        assertEquals(3, src.getListenerCount$());
+        // removal all from the last inserted dependent
+        deleter[0] = 2;
         src.notifyDependents$(0);
         assertEquals(0, src.getListenerCount$());
     }
+
+    public void testSwitchDependence() {
+        // create an object with one variable
+        final FXBase src1 = new FXBase() {
+            @Override
+            public int count$() { return 1; }
+        };
+
+        // create an object with one variable
+        final FXBase src2 = new FXBase() {
+            @Override
+            public int count$() { return 1; }
+        };
+
+        // check that update$ method is called as expected
+        final int[] numTimesDepUpdated = new int[1];
+        final FXBase dep = new FXBase() {
+            @Override
+            public void update$(FXObject srcObj, int varNum) {
+                numTimesDepUpdated[0]++;
+                assertEquals(0, varNum);
+            }
+        };
+
+        // no listeners for both sources
+        assertEquals(0, src1.getListenerCount$());
+        assertEquals(0, src2.getListenerCount$());
+
+        // add one listener for "src1"
+        src1.addDependent$(0, dep);
+        assertEquals(1, src1.getListenerCount$());
+        src1.notifyDependents$(0);
+        assertEquals(1, numTimesDepUpdated[0]);
+
+        // switch the dependence of "dep" from "src1" to "src2"
+        dep.switchDependence$(0, src1, src2);
+        assertEquals(0, src1.getListenerCount$());
+        assertEquals(1, src2.getListenerCount$());
+
+        src2.notifyDependents$(0);
+        assertEquals(2, numTimesDepUpdated[0]);
+    }
+
+    public void testSwitchCurrentDuringNotification() {
+        final FXBase src1 = new FXBase() {
+            @Override
+            public int count$() { return 1; }
+        };
+
+        final FXBase src2 = new FXBase() {
+            @Override
+            public int count$() { return 1; }
+        };
+
+        final FXBase dep = new FXBase() {
+            @Override
+            public void update$(FXObject srcObj, int varNum) {
+                // switch dependence of current object
+                this.switchDependence$(0, src1, src2);
+            }
+        };
+        src1.addDependent$(0, dep);
+        assertEquals(1, src1.getListenerCount$());
+        assertEquals(0, src2.getListenerCount$());
+        src1.notifyDependents$(0);
+        assertEquals(0, src1.getListenerCount$());
+        assertEquals(1, src2.getListenerCount$());
+    }
+
+    public void testSwitchAllDuringNotification() {
+        final FXBase src1 = new FXBase() {
+            @Override
+            public int count$() { return 1; }
+        };
+        final FXBase src2 = new FXBase() {
+            @Override
+            public int count$() { return 1; }
+        };
+
+        final int[] switcher = new int[1];
+        final FXBase[] dependents = new FXBase[3];
+        final FXBase dep0 = new FXBase() {
+            @Override
+            public void update$(FXObject srcObj, int varNum) {
+                if (switcher[0] == 0) {
+                   for (FXBase fx : dependents) {
+                       fx.switchDependence$(0, src1, src2);
+                   }
+                }
+            }
+        };
+        final FXBase dep1 = new FXBase() {
+            @Override
+            public void update$(FXObject srcObj, int varNum) {
+                if (switcher[0] == 1) {
+                   for (FXBase fx : dependents) {
+                       fx.switchDependence$(0, src1, src2);
+                   }
+                }
+            }
+        };
+        final FXBase dep2 = new FXBase() {
+            @Override
+            public void update$(FXObject srcObj, int varNum) {
+                if (switcher[0] == 2) {
+                   for (FXBase fx : dependents) {
+                       fx.switchDependence$(0, src1, src2);
+                   }
+                }
+            }
+        };
+
+        assertEquals(0, src1.getListenerCount$());
+        assertEquals(0, src2.getListenerCount$());
+
+        dependents[0] = dep0;
+        dependents[1] = dep1;
+        dependents[2] = dep2;
+        src1.addDependent$(0, dep0);
+        src1.addDependent$(0, dep1);
+        src1.addDependent$(0, dep2);
+        assertEquals(3, src1.getListenerCount$());
+        // switch all from the first inserted dependent
+        switcher[0] = 0;
+        src1.notifyDependents$(0);
+        assertEquals(0, src1.getListenerCount$());
+        assertEquals(3, src2.getListenerCount$());
+        for (FXObject d : dependents) {
+            src2.removeDependent$(0, d);
+        }
+
+        src1.addDependent$(0, dep0);
+        src1.addDependent$(0, dep1);
+        src1.addDependent$(0, dep2);
+        assertEquals(3, src1.getListenerCount$());
+        assertEquals(0, src2.getListenerCount$());
+        // switch all from the second (middle) inserted dependent
+        switcher[0] = 1;
+        src1.notifyDependents$(0);
+        assertEquals(0, src1.getListenerCount$());
+        assertEquals(3, src2.getListenerCount$());
+        for (FXObject d : dependents) {
+            src2.removeDependent$(0, d);
+        }
+
+        src1.addDependent$(0, dep0);
+        src1.addDependent$(0, dep1);
+        src1.addDependent$(0, dep2);
+        assertEquals(3, src1.getListenerCount$());
+        // switch all from the last inserted dependent
+        switcher[0] = 2;
+        src1.notifyDependents$(0);
+        assertEquals(0, src1.getListenerCount$());
+        assertEquals(3, src2.getListenerCount$());
+    }
 }
+

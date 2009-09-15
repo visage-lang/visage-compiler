@@ -300,6 +300,15 @@ package com.sun.javafx.runtime;
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
         DependentsManager.get(obj).removeDependent(obj, varNum, dep);
     }
+    public void switchDependence$(final int varNum, FXObject oldBindee, FXObject newBindee) {
+        switchDependence$(this, varNum, oldBindee, newBindee);
+    }
+    public static void switchDependence$(FXObject obj, final int varNum, FXObject oldBindee, FXObject newBindee) {
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        if (oldBindee != newBindee) {
+            DependentsManager.get(obj).switchDependence(obj, varNum, oldBindee, newBindee);
+        }
+    }
     public void notifyDependents$(final int varNum) {
         notifyDependents$(this, varNum);
     }
