@@ -239,7 +239,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                                     if (arg instanceof JFXIdent) {
                                         Symbol sym = ((JFXIdent) arg).sym;
                                         JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
-                                        JCVariableDecl newVar = makeTmpVar("new", formal, callExpression(null, attributeGetterName(sym)));
+                                        JCVariableDecl newVar = makeTmpVar("new", formal, callExpression(attributeGetterName(sym)));
                                         preface.append(oldVar);
                                         preface.append(newVar);
                                         bindees.append((VarSymbol)sym);
