@@ -1021,9 +1021,9 @@ public class JavafxAttr implements JavafxVisitor {
                     if (newElements != null && newElements.type == null)
                         newElements.type = tree.type;
                 } else if (triggerKind == JFXOnReplace.Kind.ONINVALIDATE) {
-                    if ((sym.flags_field & JavafxFlags.VARUSE_BOUND_INIT) == 0) {
-                        log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
-                    }
+//                    if ((sym.flags_field & JavafxFlags.VARUSE_BOUND_INIT) == 0) {
+//                        log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
+//                    }
                 }
 
                 if (isClassVar) {
@@ -1153,9 +1153,9 @@ public class JavafxAttr implements JavafxVisitor {
                 if (triggerKind == JFXOnReplace.Kind.ONINVALIDATE) {
                     localEnv.info.inInvalidate = true;
                     localEnv.info.enclVar = sym;
-                    if (!tree.isBound()) {
-                        log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
-                    }
+//                    if (!tree.isBound()) {
+//                        log.error(trigger.pos(), MsgSym.MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED, sym);
+//                    }
                 }
 
                 JFXVar oldValue = trigger.getOldValue();
@@ -3210,15 +3210,15 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitInvalidate(JFXInvalidate tree) {
         //the target expr should be a variable
         attribTree(tree.getVariable(), env, VAR, Type.noType);
-        Symbol varSym = JavafxTreeInfo.symbol(tree.getVariable());
-        if (varSym != null &&
-                varSym.kind == VAR) {
-            //non-static/local vars can be overridden with a bound init - other cases
-            //are handled at runtime (exception)
-            if ((varSym.flags_field & JavafxFlags.VARUSE_BOUND_DEFINITION) == 0 &&
-                    (varSym.isStatic() || varSym.owner.kind != TYP))
-                log.error(tree.getVariable().pos(), MsgSym.MESSAGE_CANNOT_INVALIDATE_UNBOUND_VAR, varSym);
-        }
+//        Symbol varSym = JavafxTreeInfo.symbol(tree.getVariable());
+//        if (varSym != null &&
+//                varSym.kind == VAR) {
+//            //non-static/local vars can be overridden with a bound init - other cases
+//            //are handled at runtime (exception)
+//            if ((varSym.flags_field & JavafxFlags.VARUSE_BOUND_DEFINITION) == 0 &&
+//                    (varSym.isStatic() || varSym.owner.kind != TYP))
+//                log.error(tree.getVariable().pos(), MsgSym.MESSAGE_CANNOT_INVALIDATE_UNBOUND_VAR, varSym);
+//        }
         result = tree.type = syms.voidType;
     }
 
