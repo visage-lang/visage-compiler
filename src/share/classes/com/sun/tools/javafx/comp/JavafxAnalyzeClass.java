@@ -477,6 +477,11 @@ class JavafxAnalyzeClass {
     public ClassSymbol getCurrentClassSymbol() { return currentClassSym; }
 
     //
+    // Returns true if specified symbol is the current class symbol.
+    //
+    public boolean isCurrentClassSymbol(Symbol sym) { return sym == currentClassSym; }
+
+    //
     // Returns the var count for the current class.
     //
     public int getVarCount() { return varCount; }

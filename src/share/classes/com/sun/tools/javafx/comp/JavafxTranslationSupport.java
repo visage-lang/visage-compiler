@@ -974,6 +974,13 @@ public abstract class JavafxTranslationSupport {
         }
 
         /**
+         * Make an identifier of the given symbol
+         */
+        protected JCIdent id(Symbol sym) {
+            return m().Ident(sym.name);
+        }
+
+        /**
          * Make a member select or an identifier depending on the selector
          */
         protected JCExpression select(JCExpression selector, Name name) {
