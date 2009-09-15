@@ -909,8 +909,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 // Create the new instance, placing it in a temporary variable "jfx$0objlit"
                 //       final X jfx$0objlit = new X(true);
                 stats.append(makeVar(
-                        tmpVarName,
                         type,
+                        tmpVarName,
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
 
                 // Apply defaults to the instance variables
@@ -2228,13 +2228,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         }
 
         private JCVariableDecl makeVar(Name varName, JCExpression value) {
-            return makeVar(varName, type, value);
+            return makeVar(type, varName, value);
         }
 
         @Override
         protected JCVariableDecl makeTmpVar(long flags, String root, Type varType, JCExpression initialValue) {
             Name varName = names.fromString(var.name.toString() + "$" + root);
-            return makeVar(flags, varName, varType, initialValue);
+            return makeVar(flags, varType, varName, initialValue);
         }
 
         /**
@@ -2435,9 +2435,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 if (clause.getIndexUsed()) {
                     incrementingIndexVar = makeMutableTmpVar("incrindex", syms.javafx_IntegerType, makeInt(0));
                     JCVariableDecl finalIndexVar = makeVar(
-                            indexVarName(clause),
+
                             syms.javafx_IntegerType,
-                            m().Unary(JCTree.POSTINC, id(incrementingIndexVar)));
+                            indexVarName(clause),m().Unary(JCTree.POSTINC, id(incrementingIndexVar)));
                     stmts.append(finalIndexVar);
                 }
                 JCExpression varInit;     // Initializer for var.

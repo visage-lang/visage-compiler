@@ -393,7 +393,7 @@ public abstract class JavafxAbstractTranslation<R>
         }
 
         protected JCTree makeClosureMethod(Name methName, JCExpression expr, List<JCVariableDecl> params, Type returnType, long flags) {
-            return makeMethod(diagPos, methName, List.<JCStatement>of((returnType == syms.voidType) ? m().Exec(expr) : m().Return(expr)), params, returnType, flags);
+            return makeMethod(flags, returnType, methName, params,List.<JCStatement>of((returnType == syms.voidType) ? m().Exec(expr) : m().Return(expr)));
         }
 
         /**
