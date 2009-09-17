@@ -712,7 +712,11 @@ public abstract class JavafxTranslationSupport {
     }
     
     Name attributeOnReplaceName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeOnReplaceMethodNamePrefix);
+        return prefixedAttributeName(sym, attributeOnReplaceMethodNamePrefix); 
+    }
+    
+    Name attributeEvaluateName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeEvaluateMethodNamePrefix);
     }
     
     Name attributeApplyDefaultsName(Symbol sym) {
@@ -1070,8 +1074,20 @@ public abstract class JavafxTranslationSupport {
         /**
          * Make a method paramter
          */
-        protected JCVariableDecl makeParam( Type varType,Name varName) {
+        protected JCVariableDecl makeParam(Type varType, Name varName) {
             return makeVar(Flags.PARAMETER | Flags.FINAL, varType, varName, null);
+        }
+
+       /**
+        * Make a receiver parameter.
+        * Its type is that of the corresponding interface and it is a final parameter.
+        * */
+        JCVariableDecl makeReceiverParam(JFXClassDeclaration cDecl) {
+            return make.VarDef(
+                    make.Modifiers(Flags.PARAMETER | Flags.FINAL),
+                    defs.receiverName,
+                    make.Ident(interfaceName(cDecl)),
+                    null);
         }
 
         /**
@@ -1157,10 +1173,6 @@ public abstract class JavafxTranslationSupport {
             return call(receiver, methodName, callArgs(args));
         }
 
-        JCExpression call(JCExpression receiver, Name methodName) {
-            return call(receiver, methodName, List.<JCExpression>nil());
-        }
-
         JCExpression call(JCExpression receiver, String methodString, List<JCExpression> args) {
             return call(receiver, names.fromString(methodString), args);
         }
@@ -1171,10 +1183,6 @@ public abstract class JavafxTranslationSupport {
 
         JCExpression call(JCExpression receiver, String methodString, JCExpression... args) {
             return call(receiver, names.fromString(methodString), callArgs(args));
-        }
-
-        JCExpression call(JCExpression receiver, String methodString) {
-            return call(receiver, names.fromString(methodString), List.<JCExpression>nil());
         }
 
 
@@ -1190,10 +1198,6 @@ public abstract class JavafxTranslationSupport {
             return call(makeType(selector), methodName, callArgs(args));
         }
 
-        JCExpression call(Type selector, Name methodName) {
-            return call(makeType(selector), methodName, List.<JCExpression>nil());
-        }
-
         JCExpression call(Type selector, String methodString, List<JCExpression> args) {
             return call(makeType(selector), names.fromString(methodString), args);
         }
@@ -1204,10 +1208,6 @@ public abstract class JavafxTranslationSupport {
 
         JCExpression call(Type selector, String methodString, JCExpression... args) {
             return call(makeType(selector), names.fromString(methodString), callArgs(args));
-        }
-
-        JCExpression call(Type selector, String methodString) {
-            return call(makeType(selector), names.fromString(methodString), List.<JCExpression>nil());
         }
 
 
@@ -1223,10 +1223,6 @@ public abstract class JavafxTranslationSupport {
             return call((JCExpression)null, methodName, callArgs(args));
         }
 
-        JCExpression call(Name methodName) {
-            return call((JCExpression)null, methodName, List.<JCExpression>nil());
-        }
-
         JCExpression call(String methodString, List<JCExpression> args) {
             return call((JCExpression)null, names.fromString(methodString), args);
         }
@@ -1237,10 +1233,6 @@ public abstract class JavafxTranslationSupport {
 
         JCExpression call(String methodString, JCExpression... args) {
             return call((JCExpression)null, names.fromString(methodString), callArgs(args));
-        }
-
-        JCExpression call(String methodString) {
-            return call((JCExpression)null, names.fromString(methodString), List.<JCExpression>nil());
         }
 
   
@@ -1262,10 +1254,6 @@ public abstract class JavafxTranslationSupport {
             return makeExec(call(receiver, methodName, callArgs(args)));
         }
 
-        JCStatement callStmt(JCExpression receiver, Name methodName) {
-            return makeExec(call(receiver, methodName, List.<JCExpression>nil()));
-        }
-
         JCStatement callStmt(JCExpression receiver, String methodString, List<JCExpression> args) {
             return makeExec(call(receiver, names.fromString(methodString), args));
         }
@@ -1276,10 +1264,6 @@ public abstract class JavafxTranslationSupport {
 
         JCStatement callStmt(JCExpression receiver, String methodString, JCExpression... args) {
             return makeExec(call(receiver, names.fromString(methodString), callArgs(args)));
-        }
-
-        JCStatement callStmt(JCExpression receiver, String methodString) {
-            return makeExec(call(receiver, names.fromString(methodString), List.<JCExpression>nil()));
         }
 
 
@@ -1295,9 +1279,6 @@ public abstract class JavafxTranslationSupport {
             return makeExec(call(makeType(selector), methodName, callArgs(args)));
         }
 
-        JCStatement callStmt(Type selector, Name methodName) {
-            return makeExec(call(makeType(selector), methodName, List.<JCExpression>nil()));
-        }
 
         JCStatement callStmt(Type selector, String methodString, List<JCExpression> args) {
             return makeExec(call(makeType(selector), names.fromString(methodString), args));
@@ -1309,10 +1290,6 @@ public abstract class JavafxTranslationSupport {
 
         JCStatement callStmt(Type selector, String methodString, JCExpression... args) {
             return makeExec(call(makeType(selector), names.fromString(methodString), callArgs(args)));
-        }
-
-        JCStatement callStmt(Type selector, String methodString) {
-            return makeExec(call(makeType(selector), names.fromString(methodString), List.<JCExpression>nil()));
         }
 
 
@@ -1328,9 +1305,6 @@ public abstract class JavafxTranslationSupport {
             return makeExec(call((JCExpression)null, methodName, callArgs(args)));
         }
 
-        JCStatement callStmt(Name methodName) {
-            return makeExec(call((JCExpression)null, methodName, List.<JCExpression>nil()));
-        }
 
         JCStatement callStmt(String methodString, List<JCExpression> args) {
             return makeExec(call((JCExpression)null, names.fromString(methodString), args));
@@ -1343,13 +1317,9 @@ public abstract class JavafxTranslationSupport {
         JCStatement callStmt(String methodString, JCExpression... args) {
             return makeExec(call((JCExpression)null, names.fromString(methodString), callArgs(args)));
         }
-
-        JCStatement callStmt(String methodString) {
-            return makeExec(call((JCExpression)null, names.fromString(methodString), List.<JCExpression>nil()));
-        }
         
         /**
-         * These methods simplifie throw statements.
+         * These methods simplify throw statements.
          */
         JCStatement makeThrow(Type type, String message) {
             if (message != null) {

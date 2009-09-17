@@ -47,6 +47,7 @@ public class JavafxDefs {
     public static final String attributeBeMethodNamePrefix = "be$";
     public static final String attributeInvalidateMethodNamePrefix = "invalidate$";
     public static final String attributeOnReplaceMethodNamePrefix = "onReplace$";
+    public static final String attributeEvaluateMethodNamePrefix = "evaluate$";
     public static final String attributeNotifyDependentsNameString = "notifyDependents$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
@@ -206,9 +207,10 @@ public class JavafxDefs {
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name attributeBePrefixName;
-    final Name attributeInvalidateMethodName;
-    final Name attributeOnReplaceMethodName;
-    final Name applyDefaultsPrefixName;
+    final Name attributeInvalidatePrefixMethodName;
+    final Name attributeOnReplacePrefixMethodName;
+    final Name attributeEvaluatePrefixMethodName;
+    final Name attributeApplyDefaultsPrefixMethodName;
     final Name attributeCountMethodName;
     final Name isInitializedPrefixName;
     final Name incrementSharingMethodName;
@@ -319,19 +321,20 @@ public class JavafxDefs {
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         attributeBePrefixName = names.fromString(attributeBeMethodNamePrefix);
-        attributeInvalidateMethodName = names.fromString(attributeInvalidateMethodNamePrefix);
-        attributeOnReplaceMethodName = names.fromString(attributeOnReplaceMethodNamePrefix);
-        applyDefaultsPrefixName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
+        attributeInvalidatePrefixMethodName = names.fromString(attributeInvalidateMethodNamePrefix);
+        attributeOnReplacePrefixMethodName = names.fromString(attributeOnReplaceMethodNamePrefix);
+        attributeEvaluatePrefixMethodName = names.fromString(attributeEvaluateMethodNamePrefix);
+        attributeApplyDefaultsPrefixMethodName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
         scriptLevelAccessField = names.fromString("$scriptLevel$");
         scriptLevelAccessMethod = names.fromString("access$scriptLevel$");
 
-		runtimePackageName = names.fromString(runtimePackageNameString);
-		annotationPackageName = names.fromString(annotationPackageNameString);
-		javaLangPackageName = names.fromString(javaLangPackageNameString);
-		sequencePackageName = names.fromString(sequencePackageNameString);
-		functionsPackageName = names.fromString(functionsPackageNameString);
+        runtimePackageName = names.fromString(runtimePackageNameString);
+        annotationPackageName = names.fromString(annotationPackageNameString);
+        javaLangPackageName = names.fromString(javaLangPackageNameString);
+        sequencePackageName = names.fromString(sequencePackageNameString);
+        functionsPackageName = names.fromString(functionsPackageNameString);
 
         // Initialize RuntimeMethods
         TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");

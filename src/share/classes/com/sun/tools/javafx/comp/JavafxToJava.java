@@ -816,7 +816,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JCStatement loopBody;
 
             List<JCExpression> args = List.<JCExpression>of(id(loopName));
-            JCStatement applyDefaultsExpr = callStmt(id(receiverName), defs.applyDefaultsPrefixName, args);
+            JCStatement applyDefaultsExpr = callStmt(id(receiverName), defs.attributeApplyDefaultsPrefixMethodName, args);
 
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
@@ -922,7 +922,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 if (varSyms.nonEmpty()) {
                     makeInitApplyDefaults(type, tmpVarName);
                 } else {
-                    makeInitSupportCall(defs.applyDefaultsPrefixName, tmpVarName);
+                    makeInitSupportCall(defs.attributeApplyDefaultsPrefixMethodName, tmpVarName);
                 }
 
                 // Call complete$ to do user's init and postinit blocks
