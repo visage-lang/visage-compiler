@@ -325,9 +325,6 @@
                 <exclude name="com/sun/tools/javafx/**"/>
                 <exclude name="com/sun/javafx/api/**"/>
                 <exclude name="com/sun/javafx/runtime/main/**"/>
-                <patternset id="fxtracker.sources">
-                    <exclude name="**/FxTracker*" unless = "fxtracker.enable"/>
-                </patternset>
             </fileset>
         </jar>
         <zip compress="${jar.compress}" destfile="${dist.javafxrt-main.jar}" >
