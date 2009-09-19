@@ -707,13 +707,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // $var = value
                 ifStmts.append(makeExec(m().Assign(id(varName), id(varNewValueName))));
 
-                // setIsValidValue(VOFF$var); // To make invalidate work
-                ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
-
                 // invalidate$()
                 ifStmts.append(callStmt(getReceiver(), attributeInvalidateName(varSym)));
 
-                // setIsValidValue(VOFF$var); // Finally
+                // setIsValidValue(VOFF$var);
                 ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
 
                 // onReplace$(varOldValue$, varNewValue$)
