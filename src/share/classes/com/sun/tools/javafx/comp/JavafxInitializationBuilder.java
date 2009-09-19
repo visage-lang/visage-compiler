@@ -608,9 +608,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Set to new value.
                     if (varInfo.isMixinVar()) {
                         // Mixin.evaluate$var(this);
-                         ifStmts.append(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
-                         // setIsValidValue(VOFF$var);
-                         ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
+                        ifStmts.append(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
+                        // setIsValidValue(VOFF$var);
+                        ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
                     } else {
                         // set$var(init/bound expression)
                         ifStmts.appendList(varInfo.boundPreface());
