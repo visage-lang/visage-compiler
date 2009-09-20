@@ -1002,6 +1002,10 @@ public abstract class JavafxTranslationSupport {
             return makeType(type, true);
         }
 
+        protected JCExpression makeType(Symbol sym) {
+            return makeType(sym.type, true);
+        }
+
         //
         // Methods to generate simple constants.
         //
@@ -1020,6 +1024,10 @@ public abstract class JavafxTranslationSupport {
 
         protected JCStatement makeExec(JCExpression expr) {
             return m().Exec(expr);
+        }
+
+        protected JCStatement makeReturn(JCExpression expr) {
+            return m().Return(expr);
         }
 
         //
@@ -1055,12 +1063,16 @@ public abstract class JavafxTranslationSupport {
          * Make a variable -- final by default
          */
 
-        protected JCVariableDecl makeVar(long flags, Type varType, Name varName, JCExpression initialValue) {
+        protected JCVariableDecl makeVar(long flags, JCExpression typeExpr, Name varName, JCExpression initialValue) {
             return m().VarDef(
                     m().Modifiers(flags),
                     varName,
-                    makeType(varType),
+                    typeExpr,
                     initialValue);
+        }
+
+        protected JCVariableDecl makeVar(long flags, Type varType, Name varName, JCExpression initialValue) {
+            return makeVar(flags, makeType(varType), varName, initialValue);
         }
 
         protected JCVariableDecl makeVar(Type varType, Name varName, JCExpression value) {

@@ -597,8 +597,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 Name name = attributeValueName(proxyVarSym);
 
                 if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {
-                    assert varInfo.boundInit() != null;
-
                     // !isValidValue$(VOFF$var)
                     JCExpression condition = makeNot(makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid));
                     
@@ -612,6 +610,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // setIsValidValue(VOFF$var);
                         ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
                     } else {
+                        assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
+
                         // set$var(init/bound expression)
                         ifStmts.appendList(varInfo.boundPreface());
                         ifStmts.append(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));

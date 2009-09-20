@@ -42,7 +42,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
-import com.sun.tools.javafx.comp.JavafxTranslateBind.Result;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.mjavac.code.Flags.*;
@@ -276,13 +276,13 @@ class JavafxAnalyzeClass {
         private final JCStatement onReplaceAsInline;
 
         // Result of bind translation
-        private final Result bindOrNull;
+        private final ExpressionResult bindOrNull;
         
         // Inversion of boundBindees.
         private ListBuffer<VarSymbol> bindersOrNull;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
-                JCStatement initStmt, Result bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
+                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
             super(diagPos, name, attrSym, vmi, initStmt);
             this.bindOrNull = bindOrNull;
             this.onReplace = onReplace;
@@ -291,15 +291,15 @@ class JavafxAnalyzeClass {
 
         // Null or Java code for getter expression of bound variable
         @Override
-        public JCExpression boundInit() { return bindOrNull==null? null : bindOrNull.value; }
+        public JCExpression boundInit() { return bindOrNull==null? null : bindOrNull.expr(); }
 
         // Null or Java preface code for getter of bound variable
         @Override
-        public List<JCStatement> boundPreface() { return bindOrNull==null? List.<JCStatement>nil() : bindOrNull.stmts; }
+        public List<JCStatement> boundPreface() { return bindOrNull==null? List.<JCStatement>nil() : bindOrNull.statements(); }
 
         // Variable symbols on which this variable depends
         @Override
-        public List<VarSymbol> boundBindees() { return bindOrNull==null? List.<VarSymbol>nil() : bindOrNull.bindees; }
+        public List<VarSymbol> boundBindees() { return bindOrNull==null? List.<VarSymbol>nil() : bindOrNull.bindees(); }
 
         // Bound variable symbols on which this variable is used.
         public List<VarSymbol> boundBinders() { return bindersOrNull==null? List.<VarSymbol>nil() : bindersOrNull.toList(); }
@@ -329,7 +329,7 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, Result bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
+                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
             super(var.pos(), var.sym.name, var.sym, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline);
             this.var = var;
         }
@@ -347,7 +347,7 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, Result bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
+                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
             super(override.pos(), override.sym.name, override.sym, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline);
         }
         

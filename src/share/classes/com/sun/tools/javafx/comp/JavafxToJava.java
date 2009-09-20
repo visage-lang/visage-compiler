@@ -43,34 +43,31 @@ import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.mjavac.tree.JCTree.JCExpression;
 import com.sun.tools.mjavac.tree.JCTree.JCExpressionStatement;
-import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.mjavac.tree.JCTree.JCIdent;
 import com.sun.tools.mjavac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.mjavac.tree.JCTree.JCModifiers;
-import com.sun.tools.mjavac.tree.JCTree.JCReturn;
 import com.sun.tools.mjavac.tree.JCTree.JCStatement;
 import com.sun.tools.mjavac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.mjavac.tree.JCTree.JCVariableDecl;
-import com.sun.tools.mjavac.tree.TreeTranslator;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Result;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javafx.comp.JavafxToJava.Yield.*;
+import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
 
 /**
  * Translate JavaFX ASTs into Java ASTs
@@ -79,7 +76,7 @@ import static com.sun.tools.javafx.comp.JavafxToJava.Yield.*;
  * @author Per Bothner
  * @author Lubo Litchev
  */
-public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
+public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
         new Context.Key<JavafxToJava>();
 
@@ -103,26 +100,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
     private Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
 
-    enum Yield {
-        ToExpression,
-        ToStatement
-    }
-
-    private static class TranslationState {
-        final Yield yield;
-        final Type targetType;
-        TranslationState(Yield yield, Type targetType) {
-            this.yield = yield;
-            this.targetType = targetType;
-        }
-    }
-
     private JavafxEnv<JavafxAttrContext> attrEnv;
 
     // Stack used to track literal symbols for the current class.
     LiteralInitClassMap literalInitClassMap = null;
-
-    private TranslationState translationState = null; // should be set before use
 
     boolean inOverrideInstanceVariableDefinition = false;
 
@@ -133,7 +114,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
-    JFXClassDeclaration currentClass;  //TODO: this is redundant with attrEnv.enclClass
 
     /** Class symbols for classes that need a reference to the outer class. */
     Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
@@ -156,138 +136,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
         initBuilder = JavafxInitializationBuilder.instance(context);
         translateBind = JavafxTranslateBind.instance(context);
-    }
-
-    /** Visitor method: Translate a single node.
-     */
-    @SuppressWarnings("unchecked")
-    private <TFX extends JFXTree, TC extends JCTree> TC translateGeneric(TFX tree) {
-        if (tree == null) {
-            return null;
-        } else {
-            TC ret;
-            JFXTree prevWhere = getAttrEnv().where;
-            attrEnv.where = tree;
-            tree.accept(this);
-            attrEnv.where = prevWhere;
-            ret = (TC) this.result;
-            this.result = null;
-            return ret;
-        }
-    }
-
-    private JCMethodDecl translate(JFXFunctionDefinition tree) {
-        return translateGeneric(tree);
-    }
-
-    private JCVariableDecl translate(JFXVar tree) {
-        return translateGeneric(tree);
-    }
-
-    private JCCompilationUnit translate(JFXScript tree) {
-        return translateGeneric(tree);
-    }
-
-    private JCStatement translateClassDef(JFXClassDeclaration tree) {
-        return translateGeneric(tree);
-    }
-
-    /** Visitor method: translate a list of nodes.
-     */
-    private <TFX extends JFXTree, TC extends JCTree> List<TC> translateGeneric(List<TFX> trees) {
-        ListBuffer<TC> translated = ListBuffer.lb();
-        if (trees == null) {
-            return null;
-        }
-        for (List<TFX> l = trees; l.nonEmpty(); l = l.tail) {
-            TC tree = this.<TFX, TC>translateGeneric(l.head);
-            if (tree != null) {
-                translated.append(tree);
-            }
-        }
-        return translated.toList();
-    }
-
-    public List<JCExpression> translateExpressions(List<JFXExpression> trees) {
-        return translateGeneric(trees);
-    }
-
-    private List<JCCatch> translateCatchers(List<JFXCatch> trees) {
-        return translateGeneric(trees);
-    }
-
-    private JCBlock translateBlockExpressionToBlock(JFXBlock bexpr) {
-        JCStatement stmt = translateToStatement(bexpr);
-        return stmt==null? null : asBlock(stmt);
-    }
-
-    JCExpression translateToExpression(JFXExpression expr, Type targetType) {
-        if (expr == null) {
-            return null;
-        } else {
-            JFXTree prevWhere = getAttrEnv().where;
-            attrEnv.where = expr;
-            TranslationState prevZ = translationState;
-            translationState = new TranslationState(ToExpression, targetType);
-            expr.accept(this);
-            translationState = prevZ;
-            attrEnv.where = prevWhere;
-            JCExpression ret = (JCExpression)this.result;
-            this.result = null;
-            return (targetType==null)? ret : convertTranslated(ret, expr.pos(), expr.type, targetType);
-        }
-    }
-
-    JCExpression translateAsValue(JFXExpression expr, Type targetType) {
-        return translateToExpression(expr, targetType);
-    }
-
-    JCExpression translateAsUnconvertedValue(JFXExpression expr) {
-        return translateToExpression(expr, null);
-    }
-
-    JCExpression translateAsSequenceVariable(JFXExpression expr) {
-        return translateToExpression(expr, null);
-    }
-
-    private JCStatement translateToStatement(JFXExpression expr, Type targetType) {
-        if (expr == null) {
-            return null;
-        } else {
-            JFXTree prevWhere = getAttrEnv().where;
-            attrEnv.where = expr;
-            TranslationState prevZ = translationState;
-            translationState = new TranslationState(ToStatement, targetType);
-            expr.accept(this);
-            translationState = prevZ;
-            attrEnv.where = prevWhere;
-            JCTree ret = this.result;
-            this.result = null;
-            if (ret instanceof JCStatement) {
-                return (JCStatement) ret; // already converted
-            }
-            JCExpression translated = (JCExpression) ret;
-            DiagnosticPosition diagPos = expr.pos();
-            if (targetType == syms.voidType) {
-                return make.at(diagPos).Exec(translated);
-            } else {
-                JFXVar var = null;
-                if (expr instanceof JFXVar) {
-                    var = (JFXVar)expr;
-                } else if (expr instanceof JFXVarScriptInit) {
-                    var = ((JFXVarScriptInit)expr).getVar();
-                }
-
-                if ((var != null) && var.isBound()) {
-                    translated = TODO(); // getLocationValue(diagPos, translated, TYPE_KIND_OBJECT);
-                }
-                return make.at(diagPos).Return(convertTranslated(translated, diagPos, expr.type, targetType));
-            }
-        }
-    }
-
-    private JCStatement translateToStatement(JFXExpression expr) {
-        return translateToStatement(expr, syms.voidType);
     }
 
     /**
@@ -332,7 +180,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         if (name == null) {
             return false;
         } else {
-            result = make.Ident(name);
+            result = new ExpressionResult(make.Ident(name));
             return true;
         }
     }
@@ -362,7 +210,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     public void toJava(JavafxEnv<JavafxAttrContext> attrEnv) {
         this.setAttrEnv(attrEnv);
 
-        attrEnv.translatedToplevel = translate(attrEnv.toplevel);
+        attrEnv.translatedToplevel = (JCCompilationUnit)((SpecialResult)translate(attrEnv.toplevel)).tree();
         attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;
     }
 
@@ -404,6 +252,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         return List.nil();
     }
 
+
     //@Override
     public void visitScript(JFXScript tree) {
         // add to the hasOuters set the class symbols for classes that need a reference to the outer class
@@ -416,7 +265,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         for (JFXTree def : tree.defs) {
             if (def.getFXTag() != JavafxTag.IMPORT) {
                 // anything but an import
-                translatedDefinitions.append(translate(def));
+                translatedDefinitions.appendList(translate(def).trees());
             }
         }
 
@@ -442,48 +291,44 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         translated.docComments = null;
         translated.lineMap = tree.lineMap;
         translated.flags = tree.flags;
-        result = translated;
+        result = new SpecialResult(translated);
     }
 
-    //@Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
-        JFXClassDeclaration prevClass = currentClass;
-        JFXClassDeclaration prevEnclClass = getAttrEnv().enclClass;
-        currentClass = tree;
+    class ClassDeclarationTranslator extends Translator {
 
-        if (tree.isScriptClass()) {
-            scriptBegin();
+        private final JFXClassDeclaration tree;
+        private final boolean isMixinClass;
+        private final ListBuffer<JCTree> translatedDefs = ListBuffer.lb();
+
+        ClassDeclarationTranslator(JFXClassDeclaration tree) {
+            super(tree.pos());
+            this.tree = tree;
+            isMixinClass = tree.isMixinClass();
         }
 
-        try {
-            DiagnosticPosition diagPos = tree.pos();
-            if (tree.isScriptClass()) literalInitClassMap = new LiteralInitClassMap();
+        protected StatementsResult doit() {
+            final ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.lb();
+            final ListBuffer<JCStatement> translatedPostInitBlocks = ListBuffer.lb();
 
-            attrEnv.enclClass = tree;
-
-            ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.lb();
-            ListBuffer<JCStatement> translatedPostInitBlocks = ListBuffer.lb();
-            ListBuffer<JCTree> translatedDefs = ListBuffer.lb();
             ListBuffer<TranslatedVarInfo> attrInfo = ListBuffer.lb();
             ListBuffer<TranslatedOverrideClassVarInfo> overrideInfo = ListBuffer.lb();
-            boolean isMixinClass = tree.isMixinClass();
 
-           // translate all the definitions that make up the class.
-           // collect any prepended definitions, and prepend then to the tranlations
+            // translate all the definitions that make up the class.
+            // collect any prepended definitions, and prepend then to the tranlations
             ListBuffer<JCStatement> prevPrependToDefinitions = prependToDefinitions;
             ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
             prependToStatements = prependToDefinitions = ListBuffer.lb();
             {
                 for (JFXTree def : tree.getMembers()) {
-                    switch(def.getFXTag()) {
+                    switch (def.getFXTag()) {
                         case INIT_DEF: {
-                            inInstanceContext = isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
+                            inInstanceContext = isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             translateAndAppendStaticBlock(((JFXInitDefinition) def).getBody(), translatedInitBlocks);
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case POSTINIT_DEF: {
-                            inInstanceContext = isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
+                            inInstanceContext = isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             translateAndAppendStaticBlock(((JFXPostInitDefinition) def).getBody(), translatedPostInitBlocks);
                             inInstanceContext = ReceiverContext.Oops;
                             break;
@@ -502,7 +347,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                         attrDef,
                                         typeMorpher.varMorphInfo(attrDef.sym),
                                         initStmt,
-                                        attrDef.isBound()? translateBind.translate(attrDef.getInitializer(), attrDef.sym) : null,
+                                        attrDef.isBound() ? translateBind.translate(attrDef.getInitializer(), attrDef.sym) : null,
                                         attrDef.getOnReplace(),
                                         translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace())));
                                 inInstanceContext = ReceiverContext.Oops;
@@ -512,7 +357,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                         case OVERRIDE_ATTRIBUTE_DEF: {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
-                            inInstanceContext = isStatic? ReceiverContext.ScriptAsStatic : isMixinClass? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
+                            inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             JCStatement initStmt;
                             inOverrideInstanceVariableDefinition = true;
                             initStmt = translateDefinitionalAssignmentToSet(override.pos(),
@@ -523,25 +368,22 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
                                     initStmt,
-                                    override.isBound()? translateBind.translate(override.getInitializer(), override.sym) : null,
+                                    override.isBound() ? translateBind.translate(override.getInitializer(), override.sym) : null,
                                     override.getOnReplace(),
                                     translateOnReplaceAsInline(override.sym, override.getOnReplace())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
-                       case FUNCTION_DEF : {
-                           JFXFunctionDefinition funcDef = (JFXFunctionDefinition) def;
-                           boolean isScriptClone = (funcDef.getModifiers().flags & SCRIPT_LEVEL_SYNTH_STATIC) != 0;
-                           if (!isScriptClone) {
-                               translatedDefs.append(translate(funcDef));
-                           }
-                           break;
+                        case FUNCTION_DEF: {
+                            JFXFunctionDefinition funcDef = (JFXFunctionDefinition) def;
+                            boolean isScriptClone = (funcDef.getModifiers().flags & SCRIPT_LEVEL_SYNTH_STATIC) != 0;
+                            if (!isScriptClone) {
+                                translatedDefs.appendList(translate(funcDef).trees());
+                            }
+                            break;
                         }
                         default: {
-                            JCTree tdef =  translate(def);
-                            if ( tdef != null ) {
-                                translatedDefs.append( tdef );
-                            }
+                            translatedDefs.appendList(translate(def).trees());
                             break;
                         }
                     }
@@ -551,7 +393,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             for (JCTree prepend : prependToDefinitions) {
                 translatedDefs.prepend(prepend);
             }
-            prependToDefinitions = prevPrependToDefinitions ;
+            prependToDefinitions = prevPrependToDefinitions;
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
@@ -581,108 +423,20 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
             if (forceInit || !translatedInitBlocks.isEmpty()) {
                 // Add the userInit$ method
-                List<JCVariableDecl> receiverVarDeclList = isMixinClass? List.of(makeReceiverParam(tree)) : List.<JCVariableDecl>nil();
-                ListBuffer<JCStatement> initStats = ListBuffer.lb();
-
-                // Mixin super calls will be handled when inserted into real classes.
-                if (!isMixinClass) {
-                    //TODO:
-                    // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
-                    //    var receiver = this;
-                    initStats.prepend(
-                            make.at(diagPos).VarDef(
-                            make.at(diagPos).Modifiers(Flags.FINAL),
-                            defs.receiverName,
-                            make.Ident(initBuilder.interfaceName(currentClass)),
-                            make.at(diagPos).Ident(names._this))
-                            );
-
-                    if (superClassSym != null) {
-                        List<JCExpression> args1 = List.nil();
-                        //args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(names._this)));
-                        initStats = initStats.append(callStmt(tree.pos(), makeIdentifier(diagPos, names._super), defs.userInitName, args1));
-                    }
-
-                    for (ClassSymbol mixinClassSym : immediateMixins) {
-                        String mixinName = mixinClassSym.fullname.toString();
-                        List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeType(diagPos, mixinClassSym.type, true), make.Ident(names._this)));
-                        initStats = initStats.append(callStmt(tree.pos(), makeIdentifier(diagPos, mixinName), defs.userInitName, args1));
-                    }
-                }
-
-                initStats.appendList(translatedInitBlocks);
-
-                // Only create method if necessary (rely on FXBase.)
-                if (initStats.nonEmpty() || isMixinClass || superClassSym == null) {
-                    JCBlock userInitBlock = make.Block(0L, initStats.toList());
-                    translatedDefs.append(make.MethodDef(
-                            make.Modifiers(!isMixinClass ? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC)),
-                            defs.userInitName,
-                            makeType( null,syms.voidType),
-                            List.<JCTypeParameter>nil(),
-                            receiverVarDeclList,
-                            List.<JCExpression>nil(),
-                            userInitBlock,
-                            null));
-                }
+                addInitBlockMethod(defs.userInitName, translatedInitBlocks, superClassSym, immediateMixins);
             }
 
-            if (forceInit || !translatedPostInitBlocks.isEmpty()) {
+            if (forceInit || translatedPostInitBlocks.nonEmpty()) {
                 // Add the userPostInit$ method
-                List<JCVariableDecl> receiverVarDeclList = isMixinClass? List.of(makeReceiverParam(tree)) : List.<JCVariableDecl>nil();
-                ListBuffer<JCStatement> initStats = ListBuffer.lb();
-
-                // Mixin super calls will be handled when inserted into real classes.
-                if (!isMixinClass) {
-                    //TODO:
-                    // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
-                    //    var receiver = this;
-                    initStats.prepend(
-                            make.at(diagPos).VarDef(
-                            make.at(diagPos).Modifiers(Flags.FINAL),
-                            defs.receiverName,
-                            make.Ident(initBuilder.interfaceName(currentClass)),
-                            make.at(diagPos).Ident(names._this))
-                            );
-
-                    if (superClassSym != null) {
-                        List<JCExpression> args1 = List.nil();
-                        //args1 = args1.append(make.TypeCast(makeTypeTree(diagPos, superClassSym.type, true), make.Ident(names._this)));
-                        initStats = initStats.append(callStmt(tree.pos(), makeIdentifier(diagPos, names._super), defs.postInitName, args1));
-                    }
-
-                    for (ClassSymbol mixinClassSym : immediateMixins) {
-                        String mixinName = mixinClassSym.fullname.toString();
-                        List<JCExpression> args1 = List.nil();
-                        args1 = args1.append(make.TypeCast(makeType(diagPos, mixinClassSym.type, true), make.Ident(names._this)));
-                        initStats = initStats.append(callStmt(tree.pos(), makeIdentifier(diagPos, mixinName), defs.postInitName, args1));
-                    }
-                }
-
-                initStats.appendList(translatedPostInitBlocks);
-
-                // Only create method if necessary (rely on FXBase.)
-                if (initStats.nonEmpty() || isMixinClass || superClassSym == null) {
-                    JCBlock postInitBlock = make.Block(0L, initStats.toList());
-                    translatedDefs.append(make.MethodDef(
-                            make.Modifiers(!isMixinClass ? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC)),
-                            defs.postInitName,
-                            makeType( null,syms.voidType),
-                            List.<JCTypeParameter>nil(),
-                            receiverVarDeclList,
-                            List.<JCExpression>nil(),
-                            postInitBlock,
-                            null));
-                }
+                addInitBlockMethod(defs.postInitName, translatedPostInitBlocks, superClassSym, immediateMixins);
             }
 
             if (tree.isScriptClass()) {
                 if (!isMixinClass) {
-                   // JFXC-1888: Do *not* add main method!
-                   // com.sun.javafx.runtime.Main has the
-                   // "main" that will call Entry.start().
-                   // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
+                    // JFXC-1888: Do *not* add main method!
+                    // com.sun.javafx.runtime.Main has the
+                    // "main" that will call Entry.start().
+                    // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
                 }
 
                 // Add binding support
@@ -709,28 +463,85 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             classMods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, classMods);
 
             // make the Java class corresponding to this FX class, and return it
-            JCClassDecl res = make.at(diagPos).ClassDef(
+            JCClassDecl res = m().ClassDef(
                     classMods,
                     tree.getName(),
                     List.<JCTypeParameter>nil(), // type parameters
-                    model.superType==null? null : makeType( null,model.superType, false),
+                    model.superType == null ? null : makeType(model.superType, false),
                     implementing,
                     translatedDefs.toList());
             res.sym = tree.sym;
             res.type = tree.type;
-            result = res;
+            return new StatementsResult(res);
         }
-        finally {
-            attrEnv.enclClass = prevEnclClass;
 
-            currentClass = prevClass;
+        private void addInitBlockMethod(Name methName, ListBuffer<JCStatement> translatedInitBlocks, ClassSymbol superClassSym, List<ClassSymbol> immediateMixins) {
+                            List<JCVariableDecl> receiverVarDeclList = isMixinClass ? List.of(makeReceiverParam(tree)) : List.<JCVariableDecl>nil();
+                ListBuffer<JCStatement> initStats = ListBuffer.lb();
+
+                // Mixin super calls will be handled when inserted into real classes.
+                if (!isMixinClass) {
+                    //TODO:
+                    // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
+                    //    var receiver = this;
+                    initStats.prepend(makeVar(
+                            Flags.FINAL,
+                            id(initBuilder.interfaceName(currentClass())),
+                            defs.receiverName,
+                            id(names._this)));
+
+                    if (superClassSym != null) {
+                        initStats = initStats.append(callStmt(id(names._super), methName));
+                    }
+
+                    for (ClassSymbol mixinClassSym : immediateMixins) {
+                        String mixinName = mixinClassSym.fullname.toString();
+                        initStats = initStats.append(callStmt(
+                                makeIdentifier(diagPos, mixinName),
+                                methName,
+                                m().TypeCast(makeType(mixinClassSym), id(names._this))));
+                    }
+                }
+
+                initStats.appendList(translatedInitBlocks);
+
+                // Only create method if necessary (rely on FXBase.)
+                if (initStats.nonEmpty() || isMixinClass || superClassSym == null) {
+                     translatedDefs.append(makeMethod(
+                            !isMixinClass ? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC),
+                            syms.voidType,
+                            methName,
+                            receiverVarDeclList,
+                            initStats.toList()));
+                }
+
+        }
+
+        private void translateAndAppendStaticBlock(JFXBlock block, ListBuffer<JCStatement> translatedBlocks) {
+            JCStatement stmt = translateToStatement(block);
+            if (stmt != null) {
+                translatedBlocks.append(stmt);
+            }
         }
     }
-    //where
-    private void translateAndAppendStaticBlock(JFXBlock block, ListBuffer<JCStatement> translatedBlocks) {
-        JCStatement stmt = translateToStatement(block);
-        if (stmt != null) {
-            translatedBlocks.append(stmt);
+
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
+        JFXClassDeclaration prevClass = currentClass();
+        setCurrentClass(tree);
+
+        if (tree.isScriptClass()) {
+            scriptBegin();
+        }
+
+        try {
+            if (tree.isScriptClass()) {
+                literalInitClassMap = new LiteralInitClassMap();
+            }
+
+            result = new ClassDeclarationTranslator(tree).doit();
+
+        } finally {
+            setCurrentClass(prevClass);
         }
     }
 
@@ -743,10 +554,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         assert false : "should be processed by class tree";
     }
 
-    abstract class NewInstanceTranslator extends Translator {
-
-        // Statements for the initialization steps.
-        protected ListBuffer<JCStatement> stats = ListBuffer.lb();
+    abstract class NewInstanceTranslator extends ExpressionTranslator {
 
         // Statements to set symbols with initial values.
         protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
@@ -771,7 +579,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
         protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
             VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            return translateDefinitionalAssignmentToValueArg(init.pos(), init, bindStatus, vmi);
+            return translateNonBoundInit(init.pos(), init, vmi);
         }
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
@@ -798,7 +606,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         void makeInitSupportCall(Name methName, Name receiverName) {
             JCExpression receiver = id(receiverName);
             JCStatement callExec = callStmt(receiver, methName, List.<JCExpression>nil());
-            stats.append(callExec);
+            addPreface(callExec);
         }
 
         void makeInitApplyDefaults(Type classType, Name receiverName) {
@@ -810,7 +618,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JCExpression loopLimit = m().Apply(null, select(id(receiverName), names.fromString(attributeCountMethodString)),
                                                List.<JCExpression>nil());
             JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
-            stats.append(loopLimitVar);
+            addPreface(loopLimitVar);
             JCExpression loopTest = makeBinary(JCTree.LT, id(loopName), id(loopLimitVar.name));
             List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(loopName), m().Literal(TypeTags.INT, 1))));
             JCStatement loopBody;
@@ -822,7 +630,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 // final short[] jfx$0map = GETMAP$X();
                 JCExpression getmapExpr = m().Apply(null, id(varGetMapName(classSym)), List.<JCExpression>nil());
                 JCVariableDecl mapVar = makeTmpVar("map", syms.javafx_ShortArray, getmapExpr);
-                stats.append(mapVar);
+                addPreface(mapVar);
 
                 LiteralInitVarMap varMap = literalInitClassMap.getVarMap(classSym);
                 int[] tags = new int[count];
@@ -846,12 +654,12 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 VarSymbol varSym = varSyms.first();
                 JCExpression varOffsetExpr = select(makeType(classType, false), attributeOffsetName(varSym));
                 JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
-                stats.append(offsetVar);
+                addPreface(offsetVar);
                 JCExpression condition = makeEqual(id(loopName), id(offsetVar.name));
                 loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
             }
 
-            stats.append(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
+            addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
         }
 
         /**
@@ -861,13 +669,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
          * @param isFX
          * @return
          */
-        protected JCExpression buildInstance(Type declaredType, JFXClassDeclaration cdef, boolean isFX) {
+        protected ExpressionResult buildInstance(Type declaredType, JFXClassDeclaration cdef, boolean isFX) {
             Type type;
 
             if (cdef == null) {
                 type = declaredType;
             } else {
-                stats.append(translateClassDef(cdef));
+                translateStmt(cdef);
                 type = cdef.type;
             }
             JCExpression classTypeExpr = makeType(type, false);
@@ -908,7 +716,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
                 // Create the new instance, placing it in a temporary variable "jfx$0objlit"
                 //       final X jfx$0objlit = new X(true);
-                stats.append(makeVar(
+                addPreface(makeVar(
                         type,
                         tmpVarName,
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
@@ -931,17 +739,14 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
                 // Return the instance from the block expressions
                 //       jfx$0objlit
-                JCExpression instValue = id(tmpVarName);
-
-                // Wrap it in a block expression
-                instExpression = makeBlockExpression(stats, instValue);
+                instExpression = id(tmpVarName);
 
             } else {
                 // this is a Java class or has no instance variable initializers, just instanciate it
                 instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
             }
 
-            return instExpression;
+            return toResult(instExpression);
         }
     }
 
@@ -978,7 +783,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         }
 
         @Override
-        protected JCExpression doit() {
+        protected ExpressionResult doit() {
             return buildInstance(builtIn, null, true);
         }
     }
@@ -1037,14 +842,14 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                             handlingVarargs = true;
                         }
                     }
-                    JCExpression targ = translateAsValue(l.head, formal);
+                    JCExpression targ = translateExpr(l.head, formal);
                     if (targ != null) {
                         translated.append(targ);
                     }
                 }
                 return translated.toList();
             } else {
-                return translateExpressions(args);
+                return translateExprs(args);
             }
         }
 
@@ -1060,7 +865,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             return translated;
         }
 
-        protected JCExpression doit() {
+        protected ExpressionResult doit() {
             for (JFXVar var : tree.getLocalvars()) {
                 // add the variable before the class definition or object litersl assignment
                 processLocalVar(var);
@@ -1071,41 +876,16 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
     //@Override
     public void visitInstanciate(JFXInstanciate tree) {
-        JFXExpression texp = tree.getIdentifier();
-        Type type = texp.type;
-        /* MAYBE FUTURE:
-        if (tree.getJavaFXKind() == JavaFXKind.INSTANTIATE_NEW &&
-                type.tag == TypeTags.ARRAY) {
-            JCExpression elemtype = makeTypeTree(texp, ((Type.ArrayType) type).getComponentType());
-            JCExpression len = translateAsValue(tree.getArgs().head, syms.intType);
-            result = make.at(tree).NewArray(elemtype, List.of(len), null);
-            return;
-        }
-        */
-
-        ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
-        prependToStatements = ListBuffer.lb();
-
         result = new InstanciateTranslator(tree) {
             protected void processLocalVar(JFXVar var) {
-                stats.append(translateToStatement(var));
+                translateStmt(var);
             }
         }.doit();
-
-        if (result instanceof BlockExprJCBlockExpression) {
-            BlockExprJCBlockExpression blockExpr = (BlockExprJCBlockExpression) result;
-            blockExpr.stats = blockExpr.getStatements().prependList(prependToStatements.toList());
-        }
-        prependToStatements = prevPrependToStatements;
     }
 
     //@Override
     public void visitStringExpression(JFXStringExpression tree) {
-        result = new StringExpressionTranslator(tree) {
-            protected JCExpression translateArg(JFXExpression arg) {
-                return translateAsUnconvertedValue(arg);
-            }
-        }.doit();
+        result = new StringExpressionTranslator(tree).doit();
     }
 
     private JCExpression translateNonBoundInit(DiagnosticPosition diagPos,
@@ -1117,38 +897,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         } else {
             // do a vanilla translation of the expression
             Type resultType = vmi.getSymbol().type;
-            JCExpression trans = translateAsValue(init, resultType);
+            JCExpression trans = asExpression(translateToExpressionResult(init, resultType));
             return convertNullability(diagPos, trans, init, resultType);
-        }
-    }
-
-    //TODO: get rid of this -- its existance has too many assumptions
-    private JCExpression translateDefinitionalAssignmentToValueArg(DiagnosticPosition diagPos,
-            JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi) {
-        if (bindStatus.isUnidiBind()) {
-            return translateNonBoundInit(diagPos, init, vmi);
-            // return TODO(); // toBound.translateAsLocationOrBE(init, bindStatus, vmi);
-        } else if (bindStatus.isBidiBind()) {
-            // Bi-directional bind translate so it stays in a Location
-            return translateNonBoundInit(diagPos, init, vmi);
-           //  return TODO();
-        } else {
-            // normal init -- unbound
-            return translateNonBoundInit(diagPos, init, vmi);
-        }
-    }
-
-    private JCExpression translateDefinitionalAssignmentToValue(DiagnosticPosition diagPos,
-            JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        assert !vmi.isMemberVariable();
-        if (bindStatus.isUnidiBind()) {
-            return TODO(); // toBound.translateAsLocationOrBE(init, bindStatus, vmi);
-        } else if (bindStatus.isBidiBind()) {
-            // Bi-directional bind translate so it stays in a Location
-            return TODO();
-        } else {
-            return translateNonBoundInit(diagPos, init, vmi);
         }
     }
 
@@ -1171,7 +921,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         Symbol vsym = vmi.getSymbol();
         assert( (vsym.flags() & Flags.PARAMETER) == 0L): "Parameters are not initialized";
         setSubstitution(init, vsym);
-        JCExpression valueArg = translateDefinitionalAssignmentToValueArg(diagPos, init, bindStatus, vmi);
+        JCExpression valueArg = translateNonBoundInit(diagPos, init, vmi);
         return definitionalAssignmentToSetExpression(diagPos, valueArg, bindStatus, instanceName, vmi);
     }
 
@@ -1202,49 +952,58 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         JFXVar var = tree.getVar();
         assert !attrEnv.toplevel.isLibrary;
 
-        result = translateDefinitionalAssignmentToSetExpression(diagPos, var.init, var.getBindStatus(), vmi, null);
+        result = new ExpressionResult(translateDefinitionalAssignmentToSetExpression(diagPos, var.init, var.getBindStatus(), vmi, null));
     }
 
-    //@Override
-    public void visitVar(JFXVar tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JFXModifiers mods = tree.getModifiers();
-        final VarSymbol vsym = tree.getSymbol();
-        final VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here";
-        final long flags = vsym.flags();
-        final boolean isParameter = (flags & Flags.PARAMETER) != 0;
-        final boolean hasInnerAccess = (flags & JavafxFlags.VARUSE_INNER_ACCESS) != 0;
-        final long modFlags = (mods.flags & ~Flags.FINAL) | ((hasInnerAccess | isParameter)? Flags.FINAL : 0L);
-        final JCModifiers tmods = make.at(diagPos).Modifiers(modFlags);
-        final Type type = tree.type;
-        final JCExpression typeExpression = makeType(diagPos, type, true);
+    class VarTranslator extends ExpressionTranslator {
 
-        // for class vars, initialization happens during class init, so set to
-        // default Location.  For local vars translate as definitional
-        JCExpression init;
-        if (isParameter) {
-            // parameters aren't initialized
-            init = null;
-            result = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
-        } else {
+        final JFXVar tree;
+        final JFXModifiers mods;
+        final VarSymbol vsym;
+        final VarMorphInfo vmi;
+        final long flags;
+        final boolean isParameter;
+        final boolean hasInnerAccess;
+        final long modFlags;
+
+        VarTranslator(JFXVar tree) {
+            super(tree.pos());
+            this.tree = tree;
+            mods = tree.getModifiers();
+            vsym = tree.getSymbol();
+            vmi = typeMorpher.varMorphInfo(vsym);
+            assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here";
+            flags = vsym.flags();
+            isParameter = (flags & Flags.PARAMETER) != 0;
+            hasInnerAccess = (flags & JavafxFlags.VARUSE_INNER_ACCESS) != 0;
+            modFlags = (mods.flags & ~Flags.FINAL) | ((hasInnerAccess | isParameter) ? Flags.FINAL : 0L);
+        }
+
+        protected AbstractStatementsResult doit() {
+            // for class vars, initialization happens during class init, so set to
+            // default Location.  For local vars translate as definitional
+            assert !isParameter;
+            JCExpression init;
             // create a blank variable declaration and move the declaration to the beginning of the block
             optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
             if ((modFlags & Flags.FINAL) != 0) {
                 //TODO: this case probably won't be used any more, but it will
                 // be again if we optimize the case for initializer which don't reference locals
-                init = translateDefinitionalAssignmentToValue(tree.pos(), tree.init,
-                        tree.getBindStatus(), vsym);
-                JCStatement var = make.at(diagPos).VarDef(tmods, tree.name, typeExpression, init);
+                init = translateNonBoundInit(diagPos, tree.init, typeMorpher.varMorphInfo(vsym));
+                JCStatement var = makeVar(modFlags, tree.type, tree.name, init);
                 prependToStatements.append(var);
-                result = make.at(diagPos).Skip();
-                return;
+                return new StatementsResult(diagPos, List.<JCStatement>nil());
             }
             init = makeDefaultValue(diagPos, vmi);
-            prependToStatements.prepend(make.at(Position.NOPOS).VarDef(tmods, tree.name, typeExpression, init));
+            prependToStatements.prepend(makeVar(modFlags, tree.type, tree.name, init));
 
-            result = translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), vmi, null);
+            return toResult(translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), vmi, null));
         }
+    }
+
+    //@Override
+    public void visitVar(JFXVar tree) {
+        result = new VarTranslator(tree).doit();
     }
 
     //@Override
@@ -1261,7 +1020,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
-        result = makeFunctionValue(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type);
+        result = new FunctionValueTranslator(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type).doit();
     }
 
    boolean isInnerFunction (MethodSymbol sym) {
@@ -1269,188 +1028,15 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 && (sym.flags() & Flags.SYNTHETIC) == 0;
    }
 
-   @Override
-   JCTree translateFunction(JFXFunctionDefinition tree, boolean maintainContext) {
-       return new FunctionTranslator(tree, maintainContext).doit();
-   }
-
-   class FunctionTranslator extends Translator {
-
-        final JFXFunctionDefinition tree;
-        final boolean maintainContext;
-        final MethodType mtype;
-        final MethodSymbol sym;
-        final Symbol owner;
-        final Name name;
-        final boolean isBound;
-        final boolean isRunMethod;
-        final boolean isAbstract;
-        final boolean isStatic;
-        final boolean isSynthetic;
-        final boolean isInstanceFunction;
-        final boolean isInstanceFunctionAsStaticMethod;
-        final boolean isMixinClass;
-
-        FunctionTranslator(JFXFunctionDefinition tree, boolean maintainContext) {
-            super(tree.pos());
-            this.tree = tree;
-            this.maintainContext = maintainContext;
-            this.mtype = (MethodType) tree.type;
-            this.sym = (MethodSymbol) tree.sym;
-            this.owner = sym.owner;
-            this.name = tree.name;
-            this.isBound = (sym.flags() & JavafxFlags.BOUND) != 0;
-            this.isRunMethod = syms.isRunMethod(tree.sym);
-            this.isMixinClass = currentClass.isMixinClass();
-            long originalFlags = tree.mods.flags;
-            this.isAbstract = (originalFlags & Flags.ABSTRACT) != 0L;
-            this.isSynthetic = (originalFlags & Flags.SYNTHETIC) != 0L;
-            this.isStatic = (originalFlags & Flags.STATIC) != 0L;
-            this.isInstanceFunction = !isAbstract && !isStatic && !isSynthetic;
-            this.isInstanceFunctionAsStaticMethod = isInstanceFunction && isMixinClass;
-        }
-
-        private JCBlock makeRunMethodBody(JFXBlock bexpr) {
-            final JFXExpression value = bexpr.value;
-            JCBlock block;
-            if (value == null || value.type == syms.voidType) {
-                // the block has no value: translate as simple statement and add a null return
-                block = asBlock(translateToStatement(bexpr));
-                block.stats = block.stats.append(make.Return(make.at(diagPos).Literal(TypeTags.BOT, null)));
-            } else {
-                // block has a value, return it
-                block = asBlock(translateToStatement(bexpr, value.type));
-                final Type valueType = value.type;
-                if (valueType != null && valueType.isPrimitive()) {
-                    // box up any primitives returns so they return Object -- the return type of the run method
-                    new TreeTranslator() {
-
-                        @Override
-                        public void visitReturn(JCReturn tree) {
-                            tree.expr = makeBox(tree.expr.pos(), tree.expr, valueType);
-                            result = tree;
-                        }
-                        // do not descend into inner classes
-
-                        @Override
-                        public void visitClassDef(JCClassDecl tree) {
-                            result = tree;
-                        }
-                    }.translate(block);
-                }
-            }
-            return block;
-        }
-
-        private long methodFlags() {
-            long methodFlags = tree.mods.flags;
-            methodFlags &= ~Flags.PROTECTED;
-            methodFlags &= ~Flags.SYNTHETIC;
-            methodFlags |= Flags.PUBLIC;
-            if (isInstanceFunctionAsStaticMethod) {
-                methodFlags |= Flags.STATIC;
-            }
-            return methodFlags;
-        }
-
-        private List<JCVariableDecl> methodParameters() {
-            ListBuffer<JCVariableDecl> params = ListBuffer.lb();
-            if (isInstanceFunctionAsStaticMethod) {
-                // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
-                params.prepend(makeReceiverParam(currentClass));
-            }
-            for (JFXVar fxVar : tree.getParams()) {
-                JCVariableDecl var = (JCVariableDecl) translate(fxVar);
-                params.append(var);
-            }
-            return params.toList();
-        }
-
-        private JCBlock methodBody() {
-            // construct the body of the translated function
-            JFXBlock bexpr = tree.getBodyExpression();
-            JCBlock body;
-            if (bexpr == null) {
-                body = null; // null if no block expression
-            } else if (isBound) {
-                TODO();
-                body = null;
-            } else if (isRunMethod) {
-                // it is a module level run method, do special translation
-                body = makeRunMethodBody(bexpr);
-            } else {
-                // the "normal" case
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
-                for (JFXVar fxVar : tree.getParams()) {
-                    if (types.isSequence(fxVar.sym.type)) {
-                        setDiagPos(fxVar);
-                        stmts.append(callStmt(id(fxVar.getName()), defs.incrementSharingMethodName));
-                    }
-                }
-                setDiagPos(bexpr);
-                stmts.append(translateToStatement(bexpr, mtype.getReturnType()));
-                body = make.at(bexpr).Block(0L, stmts.toList());
-            }
-
-            if (isInstanceFunction && !isMixinClass) {
-                //TODO: unfortunately, some generated code still expects a receiver$ to always be present.
-                // In the instance as instance case, there is no receiver param, so allow generated code
-                // to function by adding:   var receiver = this;
-                //TODO: this should go away
-                body.stats = body.stats.prepend( m().VarDef(
-                        m().Modifiers(Flags.FINAL),
-                        defs.receiverName,
-                        id(interfaceName(currentClass)),
-                        id(names._this)));
-            }
-            return body;
-        }
-
-        private JCMethodDecl makeMethod(long flags, JCBlock body, List<JCVariableDecl> params) {
-            JCMethodDecl meth = m().MethodDef(
-                    addAccessAnnotationModifiers(diagPos, tree.mods.flags, m().Modifiers(flags)),
-                    functionName(sym, isInstanceFunctionAsStaticMethod, isBound),
-                    makeReturnTypeTree(diagPos, sym, isBound),
-                    m().TypeParams(mtype.getTypeArguments()),
-                    params,
-                    m().Types(mtype.getThrownTypes()), // makeThrows(diagPos), //
-                    body,
-                    null);
-            meth.sym = sym;
-            meth.type = tree.type;
-            return meth;
-        }
-
-        protected JCTree doit() {
-            TranslationState prevZ = translationState;
-            translationState = null; //should be explicitly set
-            ReceiverContext prevContext = inInstanceContext;
-            if (!maintainContext) {
-                inInstanceContext = isStatic?
-                    ReceiverContext.ScriptAsStatic :
-                    isInstanceFunctionAsStaticMethod ?
-                        ReceiverContext.InstanceAsStatic :
-                        ReceiverContext.InstanceAsInstance;
-            }
-
-            try {
-                return makeMethod(methodFlags(), methodBody(), methodParameters());
-            } finally {
-                translationState = prevZ;
-                inInstanceContext = prevContext;
-            }
-        }
-    }
-
    /**
     * Translate JavaFX a class definition into a Java static implementation method.
     */
     //@Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        result = translateFunction(tree, false);
+        result = new FunctionTranslator(tree, false).doit();
     }
 
-    class BlockExpressionTranslator extends Translator {
+    class BlockExpressionTranslator extends ExpressionTranslator {
 
         private final JFXExpression value;
         private final List<JFXExpression> statements;
@@ -1463,7 +1049,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             this.type = tree.type;
         }
 
-        JCTree doit() {
+        protected AbstractStatementsResult doit() {
             Type targetType = translationState.targetType;
             Yield yield = translationState.yield;
 
@@ -1471,14 +1057,12 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             try {
                 prependToStatements = ListBuffer.lb();
 
-                ListBuffer<JCStatement> translatedStmts = ListBuffer.lb();
                 for (JFXExpression expr : statements) {
                     JCStatement stmt = translateToStatement(expr);
                     if (stmt != null) {
-                        translatedStmts.append(stmt);
+                        addPreface(stmt);
                     }
                 }
-                List<JCStatement> localDefs = translatedStmts.toList();
 
                 if (yield == ToExpression) {
                     // make into block expression
@@ -1489,20 +1073,16 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                          ((JFXReturn) value).getExpression()
                         : value;
 
-                    JCExpression tvalue = translateToExpression(rawValue, null); // must be before prepend
-                    localDefs = prependToStatements.appendList(localDefs).toList();
-                    return makeBlockExpression(localDefs, tvalue);  //TODO: tree.flags lost
+                    JCExpression tvalue = translateExpr(rawValue); // must be before prepend
+                    List<JCStatement> localDefs = prependToStatements.appendList(statements()).toList();
+                    return new ExpressionResult(localDefs.size() == 0 ? tvalue : makeBlockExpression(localDefs, tvalue), bindees());
                 } else {
                     // make into block
-                    prependToStatements.appendList(localDefs);
                     if (value != null) {
-                        JCStatement stmt = translateToStatement(value, targetType);
-                        if (stmt != null) {
-                            prependToStatements.append(stmt);
-                        }
+                        translateStmt(value, targetType);
                     }
-                    localDefs = prependToStatements.toList();
-                    return localDefs.size() == 1 ? localDefs.head : make.at(diagPos).Block(0L, localDefs);
+                    List<JCStatement> localDefs = prependToStatements.appendList(statements()).toList();
+                    return new StatementsResult(localDefs.size() == 1 ? localDefs.head : m().Block(0L, localDefs));
                 }
             } finally {
                 prependToStatements = prevPrependToStatements;
@@ -1514,13 +1094,11 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         result = (new BlockExpressionTranslator(tree)).doit();
     }
 
-    //@Override
     public void visitAssign(final JFXAssign tree) {
-        DiagnosticPosition diagPos = tree.pos();
-
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
             TODO();
             // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
+            /***
             JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
             JCExpression rhs = translateAsValue(tree.rhs, si.getSequence().type);
             JCExpression seq = translateAsSequenceVariable(si.getSequence());
@@ -1529,12 +1107,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
             List<JCExpression> args = List.of(startPos, endPos, rhs);
             result = make.at(diagPos).Apply(null, select, args);
+            **/
         } else {
-            result = new AssignTranslator(diagPos, tree.lhs, tree.rhs) {
-
-                JCExpression translateExpression(JFXExpression expr, Type type) {
-                    return translateToExpression(expr, type);
-                }
+            result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
                 JCExpression buildRHS(JCExpression rhsTranslated) {
                     return rhsTranslated;
@@ -1551,17 +1126,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     public void visitAssignop(final JFXAssignOp tree) {
         result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
-            JCExpression translateExpression(JFXExpression expr, Type type) {
-                return translateToExpression(expr, type);
-            }
-
             private boolean useDurationOperations() {
                 return types.isSameType(lhs.type, syms.javafx_DurationType);
             }
 
             @Override
             JCExpression buildRHS(JCExpression rhsTranslated) {
-                final JCExpression lhsTranslated = translateAsUnconvertedValue(lhs);
+                final JCExpression lhsTranslated = translateExpr(lhs);
                 if (useDurationOperations()) {
                     JCExpression method = select(lhsTranslated, tree.operator.name);
                     return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
@@ -1631,7 +1202,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         protected JCExpression translateToCheck(JFXExpression expr) {
             // this may or may not be in a LHS but in either
             // event the selector is a value expression
-            JCExpression translatedSelected = translateAsUnconvertedValue(expr);
+            JCExpression translatedSelected = translateExpr(expr);
 
             if (staticReference) {
                 translatedSelected = staticReference(sym);
@@ -1642,7 +1213,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 if (identSym != null && types.isJFXClass(identSym)) {
                     if ((identSym.flags_field & JavafxFlags.MIXIN) != 0) {
                         translatedSelected = id(defs.receiverName);
-                    } else if (identSym == getAttrEnv().enclClass.sym) {
+                    } else if (identSym == currentClass().sym) {
                         translatedSelected = id(names._this);
                     } else {
                         translatedSelected = id(names._super);
@@ -1667,7 +1238,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                     mungedToCheckTranslated :
                     addTempVar(toCheck.type, mungedToCheckTranslated);
                 JCExpression translated = select(tc, name);
-                return makeFunctionValue(translated, null, diagPos, mtype);
+                return new FunctionValueTranslator(translated, null, diagPos, mtype).doitExpr();
             } else {
                 JCExpression tc = mungedToCheckTranslated;
                 if (tc != null && toCheck.type != null && toCheck.type.isPrimitive()) {  // expr.type is null for package symbols.
@@ -1696,7 +1267,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         result = new IdentTranslator(tree).doit();
     }
 
-    private class ExplicitSequenceTranslator extends Translator {
+    private class ExplicitSequenceTranslator extends ExpressionTranslator {
 
         final List<JFXExpression> items;
         final Type elemType;
@@ -1722,17 +1293,16 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         args.appendList( translate( tree.getItems() ) );
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
         */
-        protected JCExpression doit() {
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+        protected ExpressionResult doit() {
             UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType, items.length());
-            stmts.append(builder.makeBuilderVar());
+            addPreface(builder.makeBuilderVar());
             for (JFXExpression item : items) {
                 if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
                     // Insert all non-null elements
-                    stmts.append(builder.addElement(item));
+                    addPreface(builder.addElement(item));
                 }
             }
-            return makeBlockExpression(stmts, builder.makeToSequence());
+            return toResult(builder.makeToSequence());
         }
     }
 
@@ -1741,110 +1311,196 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         result = new ExplicitSequenceTranslator(
                 tree.pos(),
                 tree.getItems(),
-                types.elementType(tree.type)
-        ).doit();
+                types.elementType(tree.type)).doit();
     }
 
-    //@Override
+    class SequenceRangeTranslator extends ExpressionTranslator {
+
+        private final JFXExpression lower;
+        private final JFXExpression upper;
+        private final JFXExpression step;
+        private final boolean hasStep;
+        private final boolean exclusive;
+        private final Type type;
+
+        SequenceRangeTranslator(JFXSequenceRange tree) {
+            super(tree.pos());
+            this.lower = tree.getLower();
+            this.upper = tree.getUpper();
+            this.hasStep = tree.getStepOrNull() != null;
+            this.step = tree.getStepOrNull();
+            this.exclusive = tree.isExclusive();
+            this.type = tree.type;
+        }
+
+        protected ExpressionResult doit() {
+            RuntimeMethod rm = exclusive ? defs.Sequences_rangeExclusive : defs.Sequences_range;
+            Type elemType = syms.javafx_IntegerType;
+            int ltag = lower.type.tag;
+            int utag = upper.type.tag;
+            int stag = hasStep ? step.type.tag : TypeTags.INT;
+            if (ltag == TypeTags.FLOAT || ltag == TypeTags.DOUBLE ||
+                    utag == TypeTags.FLOAT || utag == TypeTags.DOUBLE ||
+                    stag == TypeTags.FLOAT || stag == TypeTags.DOUBLE) {
+                elemType = syms.javafx_NumberType;
+            }
+            ListBuffer<JCExpression> args = ListBuffer.lb();
+            args.append(translateExpr(lower, elemType));
+            args.append(translateExpr(upper, elemType));
+            if (hasStep) {
+                args.append(translateExpr(step, elemType));
+            }
+            return toResult(convertTranslated(
+                    runtime(diagPos, rm, args.toList()),
+                    diagPos,
+                    types.sequenceType(elemType),
+                    type));
+        }
+    }
+
     public void visitSequenceRange(JFXSequenceRange tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        RuntimeMethod rm  = tree.isExclusive()?
-                    defs.Sequences_rangeExclusive :
-                    defs.Sequences_range;
-        Type elemType = syms.javafx_IntegerType;
-        int ltag = tree.getLower().type.tag;
-        int utag = tree.getUpper().type.tag;
-        int stag = tree.getStepOrNull() == null? TypeTags.INT : tree.getStepOrNull().type.tag;
-        if (ltag == TypeTags.FLOAT || ltag == TypeTags.DOUBLE ||
-                utag == TypeTags.FLOAT || utag == TypeTags.DOUBLE ||
-                stag == TypeTags.FLOAT || stag == TypeTags.DOUBLE) {
-            elemType = syms.javafx_NumberType;
-        }
-        ListBuffer<JCExpression> args = ListBuffer.lb();
-        args.append( translateAsValue( tree.getLower(), elemType ));
-        args.append( translateAsValue( tree.getUpper(), elemType ));
-        if (tree.getStepOrNull() != null) {
-            args.append( translateAsValue( tree.getStepOrNull(), elemType ));
-        }
-        result = convertTranslated(
-                runtime(diagPos, rm, args.toList()),
-                diagPos,
-                types.sequenceType(elemType),
-                tree.type);
+        result = new SequenceRangeTranslator(tree).doit();
     }
 
-    //@Override
-    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        if (types.isSequence(tree.type)) {
-            Type elemType = types.boxedElementType(tree.type);
-            JCExpression expr = accessEmptySequence(tree.pos(), elemType);
-            result =  castFromObject(expr, syms.javafx_SequenceTypeErasure);
+    class SequenceEmptyTranslator extends ExpressionTranslator {
+
+        private final Type type;
+
+        SequenceEmptyTranslator(JFXSequenceEmpty tree) {
+            super(tree.pos());
+            this.type = tree.type;
         }
-        else
-            result = make.at(tree.pos).Literal(TypeTags.BOT, null);
-    }
 
-    public JCExpression translateSequenceExpression (JFXExpression seq) {
-        return translateToExpression(seq, null);
-    }
+        protected ExpressionResult doit() {
+            return toResult(doitExpr());
+        }
 
-    public JCExpression translateSequenceIndexed(DiagnosticPosition diagPos, JFXExpression seq, JCExpression tseq, JCExpression index, Type elementType) {
-        Name getMethodName;
-        boolean primitive = elementType.isPrimitive();
-
-        getMethodName = defs.getMethodName;
-        if (seq instanceof JFXIdent) {
-            JFXIdent var = (JFXIdent) seq;
-            OnReplaceInfo info = findOnReplaceInfo(var.sym);
-            if (info != null) {
-                String mname = getMethodName.toString();
-                ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                args.append(make.TypeCast(makeType(diagPos, info.arraySequenceType, true), make.Ident(defs.onReplaceArgNameBuffer)));
-                if (var.sym == info.oldValueSym) {
-                    mname = mname + "FromOldValue";
-                    args.append(make.TypeCast(makeType(diagPos, info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameOld)));
-                    args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
-                    args.append(make.Ident(defs.onReplaceArgNameLastIndex));
-                }
-                else { // var.sym == info.newElementsSym
-                    mname = mname + "FromNewElements";
-                    args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
-                    args.append(make.TypeCast(makeType(diagPos, info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameNewElements)));
-                }
-                args.append(index);
-                return call(diagPos, makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
-                                      mname, args.toList());
+        protected JCExpression doitExpr() {
+            if (types.isSequence(type)) {
+                Type elemType = types.boxedElementType(type);
+                JCExpression expr = accessEmptySequence(diagPos, elemType);
+                return castFromObject(expr, syms.javafx_SequenceTypeErasure);
+            } else {
+                return makeNull();
             }
         }
-        return call(diagPos, tseq, getMethodName, index);
     }
 
-    //@Override
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        result = new SequenceEmptyTranslator(tree).doit();
+    }
+
+    class SequenceIndexedTranslator extends ExpressionTranslator {
+
+        private final JFXExpression seq;
+        private final JCExpression tSeq;
+        private final JCExpression tIndex;
+
+        SequenceIndexedTranslator(DiagnosticPosition diagPos, JFXExpression seq, JCExpression tSeq, JCExpression tIndex) {
+            super(diagPos);
+            this.seq = seq;
+            this.tSeq = tSeq;
+            this.tIndex = tIndex;
+        }
+
+        SequenceIndexedTranslator(JFXSequenceIndexed tree) {
+            super(tree.pos());
+            this.seq = tree.getSequence();
+            this.tSeq = translateExpr(seq);
+            this.tIndex = translateExpr(tree.getIndex(), syms.intType);
+        }
+
+        JCExpression translateSequenceIndexed() {
+            Name getMethodName = defs.getMethodName;
+            if (seq instanceof JFXIdent) {
+                JFXIdent var = (JFXIdent) seq;
+                OnReplaceInfo info = findOnReplaceInfo(var.sym);
+                if (info != null) {
+                    String mname = getMethodName.toString();
+                    ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+                    args.append(make.TypeCast(makeType(info.arraySequenceType, true), make.Ident(defs.onReplaceArgNameBuffer)));
+                    if (var.sym == info.oldValueSym) {
+                        mname = mname + "FromOldValue";
+                        args.append(make.TypeCast(makeType(info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameOld)));
+                        args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
+                        args.append(make.Ident(defs.onReplaceArgNameLastIndex));
+                    } else { // var.sym == info.newElementsSym
+                        mname = mname + "FromNewElements";
+                        args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
+                        args.append(make.TypeCast(makeType(info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameNewElements)));
+                    }
+                    args.append(tIndex);
+                    return call(makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                            mname, args.toList());
+                }
+            }
+            return call(tSeq, getMethodName, tIndex);
+        }
+
+        protected ExpressionResult doit() {
+            return toResult(doitExpr());
+        }
+
+        protected JCExpression doitExpr() {
+            if (seq.type.tag == TypeTags.ARRAY) {
+                return m().Indexed(tSeq, tIndex);
+            } else {
+                return translateSequenceIndexed();
+            }
+        }
+    }
+
     public void visitSequenceIndexed(final JFXSequenceIndexed tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JFXExpression seq = tree.getSequence();
-        JCExpression index = translateAsValue(tree.getIndex(), syms.intType);
-        JCExpression tseq = translateToExpression(seq, null);
-        if (seq.type.tag == TypeTags.ARRAY) {
-            result = make.at(diagPos).Indexed(tseq, index);
+        result = new SequenceIndexedTranslator(tree).doit();
+    }
+
+    class SequenceSliceTranslator extends ExpressionTranslator {
+
+        private final Type type;
+        private final JCExpression seq;
+        private final int endKind;
+        private final JFXExpression firstIndex;
+        private final JFXExpression lastIndex;
+
+        SequenceSliceTranslator(JFXSequenceSlice tree) {
+            super(tree.pos());
+            this.type = tree.type;
+            this.seq = translateExpr(tree.getSequence());
+            this.endKind = tree.getEndKind();
+            this.firstIndex = tree.getFirstIndex();
+            this.lastIndex = tree.getLastIndex();
         }
-        else {
-            result = translateSequenceIndexed(diagPos, seq, tseq, index, tree.type);
+
+        JCExpression computeSliceEnd() {
+            JCExpression endPos;
+            if (lastIndex == null) {
+                endPos = call(seq, defs.sizeMethodName);
+                if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
+                    endPos = m().Binary(JCTree.MINUS, endPos, makeInt(1));
+                }
+            } else {
+                endPos = translateExpr(lastIndex, syms.intType);
+                if (endKind == SequenceSliceTree.END_INCLUSIVE) {
+                    endPos = makeBinary(JCTree.PLUS, endPos, makeInt(1));
+                }
+            }
+            return endPos;
+        }
+
+        protected ExpressionResult doit() {
+            return toResult(doitExpr());
+        }
+
+        protected JCExpression doitExpr() {
+            JCExpression tFirstIndex = translateExpr(firstIndex, syms.intType);
+            return call(seq, defs.getSliceMethodName, tFirstIndex, computeSliceEnd());
         }
     }
 
-    //@Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        JCExpression seq = translateAsSequenceVariable(tree.getSequence());
-        JCExpression firstIndex = translateAsValue(tree.getFirstIndex(), syms.intType);
-        JCExpression lastIndex = makeSliceEndPos(tree);
-        JCFieldAccess select = make.at(diagPos).Select(seq, defs.getSliceMethodName);
-        List<JCExpression> args = List.of(firstIndex, lastIndex);
-        result = make.at(diagPos).Apply(null, select, args);
+        result = new SequenceSliceTranslator(tree).doit();
     }
 
-    //@Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         TODO();
 /*****
@@ -1920,25 +1576,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
     /**** utility methods ******/
 
-     JCExpression makeSliceEndPos(JFXSequenceSlice tree) {
-        JCExpression endPos;
-        if (tree.getLastIndex() == null) {
-            endPos = call(tree,
-                    translateAsUnconvertedValue(tree.getSequence()),
-                    defs.sizeMethodName);
-            if (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE)
-                endPos = make.at(tree).Binary(JCTree.MINUS,
-                        endPos, make.Literal(TypeTags.INT, 1));
-        }
-        else {
-            endPos = translateAsValue(tree.getLastIndex(), syms.intType);
-            if (tree.getEndKind() == SequenceSliceTree.END_INCLUSIVE)
-                endPos = make.at(tree).Binary(JCTree.PLUS,
-                        endPos, make.Literal(TypeTags.INT, 1));
-        }
-        return endPos;
-    }
-
    JCMethodDecl makeMainMethod(DiagnosticPosition diagPos, Name className) {
         List<JCStatement> mainStats;
         if (!attrEnv.toplevel.isRunnable) {
@@ -1980,7 +1617,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         return new UseSequenceBuilder(diagPos, elemType, null) {
 
             JCStatement addElement(JFXExpression exprToAdd) {
-                JCExpression expr = translateAsValue(exprToAdd, targetType(exprToAdd));
+                JCExpression expr = asExpression(translateToExpressionResult(exprToAdd, targetType(exprToAdd)));
                 return makeAdd(expr);
             }
 
@@ -2005,8 +1642,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         return useSequenceBuilder(diagPos, elemType, -1);
     }
 
-    abstract class UseSequenceBuilder {
-        final DiagnosticPosition diagPos;
+    abstract class UseSequenceBuilder extends JavaTreeBuilder {
         final Type elemType;
         final String seqBuilder;
 
@@ -2014,7 +1650,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         boolean addTypeInfoArg = true;
 
         private UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, String seqBuilder) {
-            this.diagPos = diagPos;
+            super(diagPos);
             this.elemType = elemType;
             this.seqBuilder = seqBuilder;
         }
@@ -2045,18 +1681,18 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JCExpression builderTypeExpr = makeQualifiedTree(diagPos, localSeqBuilder);
             JCExpression builderClassExpr = makeQualifiedTree(diagPos, localSeqBuilder);
             if (! primitive) {
-                builderTypeExpr = make.at(diagPos).TypeApply(builderTypeExpr,
-                        List.of(makeType(diagPos, elemType)));
+                builderTypeExpr = m().TypeApply(builderTypeExpr,
+                        List.of(makeType(elemType)));
                 // class name -- SequenceBuilder<elemType>
-                builderClassExpr = make.at(diagPos).TypeApply(builderClassExpr,
-                        List.<JCExpression>of(makeType(diagPos, elemType)));
+                builderClassExpr = m().TypeApply(builderClassExpr,
+                        List.<JCExpression>of(makeType(elemType)));
             }
 
             // Sequence builder temp var name "sb"
             sbName = getSyntheticName("sb");
 
             // Build "sb" initializing expression -- new SequenceBuilder<T>(clazz)
-            JCExpression newExpr = make.at(diagPos).NewClass(
+            JCExpression newExpr = m().NewClass(
                 null,                               // enclosing
                 List.<JCExpression>nil(),           // type args
                 builderClassExpr, // class name -- SequenceBuilder<elemType>
@@ -2065,13 +1701,11 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 );
 
             // Build the sequence builder variable
-            return make.at(diagPos).VarDef(
-                make.at(diagPos).Modifiers(0L),
-                sbName, builderTypeExpr, newExpr);
+            return makeVar(0L, builderTypeExpr, sbName, newExpr);
         }
 
         JCIdent makeBuilderVarAccess() {
-            return make.Ident(sbName);
+            return id(sbName);
         }
 
         abstract JCStatement addElement(JFXExpression expr);
@@ -2079,44 +1713,21 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         abstract List<JCExpression> makeConstructorArgs();
 
         JCStatement makeAdd(JCExpression expr) {
-            JCMethodInvocation addCall = make.Apply(
-                    List.<JCExpression>nil(),
-                    make.at(diagPos).Select(
-                        makeBuilderVarAccess(),
-                        names.fromString("add")),
-                    List.<JCExpression>of(expr));
-            return make.at(diagPos).Exec(addCall);
+            return callStmt(makeBuilderVarAccess(), names.fromString("add"), expr);
         }
 
         JCExpression makeToSequence() {
-            return make.Apply(
-                List.<JCExpression>nil(), // type arguments
-                make.at(diagPos).Select(
-                    makeBuilderVarAccess(),
-                    names.fromString(toSequenceString)),
-                List.<JCExpression>nil() // arguments
-                );
+            return call(makeBuilderVarAccess(), names.fromString(toSequenceString));
         }
     }
 
     //@Override
     public void visitBinary(final JFXBinary tree) {
-        result = (new BinaryOperationTranslator(tree.pos(), tree) {
-
-            protected JCExpression translateArg(JFXExpression arg, Type type) {
-                return translateAsValue(arg, type);
-            }
-        }).doit();
+        result = new BinaryOperationTranslator(tree.pos(), tree).doit();
     }
 
     public void visitBreak(JFXBreak tree) {
-        result = make.at(tree.pos).Break(tree.label);
-    }
-
-    public void visitCatch(JFXCatch tree) {
-        JCVariableDecl param = translate(tree.param);
-        JCBlock body = translateBlockExpressionToBlock(tree.body);
-        result = make.at(tree.pos).Catch(param, body);
+        result = new StatementsResult(make.at(tree.pos).Break(tree.label));
     }
 
     /**
@@ -2136,7 +1747,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
      *
      * **/
 
-    class ForExpressionTranslator extends Translator {
+    class ForExpressionTranslator extends ExpressionTranslator {
 
         final JFXForExpression tree;
 
@@ -2149,22 +1760,21 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JCStatement stmt = coreStmt;
             for (int inx = tree.getInClauses().size() - 1; inx >= 0; --inx) {
                 JFXForExpressionInClause clause = (JFXForExpressionInClause) tree.getInClauses().get(inx);
-                stmt = new InClauseTranslator(clause, stmt).doit();
+                stmt = new InClauseTranslator(clause, stmt).doitStmt();
             }
             return stmt;
         }
 
-        JCTree doit() {
+        protected AbstractStatementsResult doit() {
             Type targetType = translationState.targetType;
             Yield yield = translationState.yield;
 
             // sub-translation in done inline -- no super.visitForExpression(tree);
             if (yield == ToStatement && targetType == syms.voidType) {
-                return wrapWithInClause(tree, translateToStatement(tree.getBodyExpression()));
+                return new StatementsResult(wrapWithInClause(tree, translateToStatement(tree.getBodyExpression())));
             } else {
                 // body has value (non-void)
                 assert tree.type != syms.voidType : "should be handled above";
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 JCStatement stmt;
                 JCExpression value;
 
@@ -2173,7 +1783,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 Type elemType = types.elementType(tree.type);
 
                 UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType);
-                stmts.append(builder.makeBuilderVar());
+                addPreface(builder.makeBuilderVar());
 
                 // Build innermost loop body
                 stmt = builder.addElement(tree.getBodyExpression());
@@ -2181,14 +1791,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                 // Build the result value
                 value = builder.makeToSequence();
                 stmt = wrapWithInClause(tree, stmt);
-                stmts.append(stmt);
+                addPreface(stmt);
 
                 if (yield == ToStatement) {
-                    stmts.append(make.at(tree).Return(value));
-                    return make.at(diagPos).Block(0L, stmts.toList());
+                    return toStatementResult(value, targetType);
                 } else {
                     // Build the block expression -- which is what we translate to
-                    return makeBlockExpression(stmts, value);
+                    return toResult(value);
                 }
             }
         }
@@ -2201,7 +1810,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     /**
      * Translator class for for-expression in/where clauses
      */
-    private class InClauseTranslator extends Translator {
+    private class InClauseTranslator extends ExpressionTranslator {
         final JFXForExpressionInClause clause;      // in clause being translated
         final JFXVar var;                           // user named JavaFX induction variable
         final Type type;                            // type of the induction variable
@@ -2299,19 +1908,21 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             ListBuffer<JCStatement> tinits = ListBuffer.lb();
             if (! (seq instanceof JFXIdent) || findOnReplaceInfo(((JFXIdent) seq).sym) == null)
                 tinits.append(seqVar);
-            JCExpression init = translateAsValue(first, syms.intType);
+            JCExpression init;
             boolean maxForStartNeeded = true;
             if (first == null)
                 init = makeInt(0);
             else {
+                init = translateExpr(first, syms.intType);
                 if (first.getFXTag() == JavafxTag.LITERAL && ! isNegative(first))
                     maxForStartNeeded = false;
                 // FIXME set maxForStartNeeded false if first is replace-trigger startPos and seq is oldValue
                 if (maxForStartNeeded)
                     setDiagPos(first);
                     init = call(
-                           makeQualifiedTree(first, "java.lang.Math"), "max",
-                           List.of(init, makeInt(0)));
+                           makeQualifiedTree(first, "java.lang.Math"),
+                           "max",
+                           init, makeInt(0));
             }
             setDiagPos(clause);
             inductionVar.init = init;
@@ -2323,11 +1934,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             if (last == null) {
                 limitExpr = sizeExpr;
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE)
-                    limitExpr = make.at(diagPos).Binary(JCTree.MINUS,
-                        limitExpr, makeInt(1));
+                    limitExpr = makeBinary(JCTree.MINUS, limitExpr, makeInt(1));
             }
             else {
-                limitExpr = translateAsValue(last, syms.intType);
+                limitExpr = translateExpr(last, syms.intType);
                 if (endKind == SequenceSliceTree.END_INCLUSIVE)
                     limitExpr = makeBinary(JCTree.PLUS, limitExpr, makeInt(1));
                 // FIXME can optimize if last is replace-trigger endPos and seq is oldValue
@@ -2368,10 +1978,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             // Collect all the loop initializing statements (variable declarations)
             ListBuffer<JCStatement> tinits = ListBuffer.lb();
             // Set the initial value of the induction variable to be the low end of the range, and add it the the initializing statements
-            inductionVar.init = translateAsValue(range.getLower(), type);
+            inductionVar.init = translateExpr(range.getLower(), type);
             tinits.append(inductionVar);
             // Record the upper end of the range in a final variable, and add it the the initializing statements
-            JCVariableDecl upperVar = makeTmpVar("upper", translateAsValue(range.getUpper(), type));
+            JCVariableDecl upperVar = makeTmpVar("upper", translateExpr(range.getUpper(), type));
             tinits.append(upperVar);
             // The expression which will be used in increment the induction variable
             JCExpression tstepIncrExpr;
@@ -2381,7 +1991,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
             JFXExpression step = range.getStepOrNull();
             if (step != null) {
                 // There is a user specified step expression
-                JCExpression stepVal = translateAsValue(step, type);
+                JCExpression stepVal = translateExpr(step, type);
                 if (step.getFXTag() == JavafxTag.LITERAL) {
                     // The step expression is a literal, no need for a variable to hold it, and we can test if the range is scending at compile time
                     tstepIncrExpr = stepVal;
@@ -2409,10 +2019,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         /**
          * Core of the in-clause translation.  Given an in-clause and the current body, build the for-loop
          */
-        public JCStatement doit() {
+        protected StatementsResult doit() {
+            return new StatementsResult(doitStmt());
+        }
+        protected JCStatement doitStmt() {
             // If there is a where expression, make the execution of the body conditional on the where condition
             if (clause.getWhereExpression() != null) {
-                body = m().If(translateAsUnconvertedValue(clause.getWhereExpression()), body, null);
+                body = m().If(translateExpr(clause.getWhereExpression()), body, null);
             }
 
             // Because the induction variable may be used in inner contexts, make a final
@@ -2444,15 +2057,16 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
 
                 if (indexedLoop) {
                     JFXExpression sseq;
-                    if (clause.seqExpr instanceof JFXSequenceSlice)
+                    if (clause.seqExpr instanceof JFXSequenceSlice) {
                         sseq = ((JFXSequenceSlice) clause.seqExpr).getSequence();
-                    else
-                       sseq = clause.seqExpr;
-                    seqVar = makeTmpVar("seq", seq.type, translateAsValue(sseq, seq.type));
-                    varInit = translateSequenceIndexed(diagPos, sseq, id(seqVar), id(inductionVar), type);
-                }
-                else
+                    } else {
+                        sseq = clause.seqExpr;
+                    }
+                    seqVar = makeTmpVar("seq", seq.type, translateExpr(sseq, seq.type));
+                    varInit = new SequenceIndexedTranslator(diagPos, sseq, id(seqVar), id(inductionVar)).doitExpr();
+                } else {
                     varInit = id(inductionVar);
+                }
 
                 stmts.append(makeVar(var.getName(), varInit));
                 stmts.append(body);
@@ -2470,7 +2084,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                         slice.getEndKind(), seqVar);
             } else {
                 // We will be using the sequence as a whole, so translate it
-                JCExpression tseq = translateAsUnconvertedValue(seq);
+                JCExpression tseq = translateExpr(seq);
                 if (types.isSequence(seq.type)) {
                     // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
                     tseq = runtime(diagPos,
@@ -2510,112 +2124,148 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     public void visitIndexof(JFXIndexof tree) {
         final DiagnosticPosition diagPos = tree.pos();
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
-        result = make.at(diagPos).Ident(indexVarName(tree.fname));
+        result = new ExpressionResult(make.at(diagPos).Ident(indexVarName(tree.fname)));
     }
 
-    //@Override
-    public void visitIfExpression(JFXIfExpression tree) {
-        Yield yield = translationState.yield;
 
-        final DiagnosticPosition diagPos = tree.pos();
-        JCExpression cond = translateAsUnconvertedValue(tree.getCondition());
-        JFXExpression trueSide = tree.getTrueExpression();
-        JFXExpression falseSide = tree.getFalseExpression();
-        if (yield == ToExpression) {
-            Type targetType = tree.type;
-            result = make.at(diagPos).Conditional(
-                    cond,
-                    translateAsValue(trueSide, targetType),
-                    translateAsValue(falseSide, targetType));
-        } else {
-            Type targetType = translationState.targetType;
-            result = make.at(diagPos).If(
-                    cond,
-                    translateToStatement(trueSide, targetType),
-                    falseSide == null ? null : translateToStatement(falseSide, targetType));
+    /**
+     * Translate if-expression
+     */
+    private class IfTranslator extends ExpressionTranslator {
+
+        private final JFXIfExpression tree;
+
+        IfTranslator(JFXIfExpression tree) {
+            super(tree.pos());
+            this.tree = tree;
+        }
+
+        JCExpression sideExpr(JFXExpression expr) {
+            ExpressionResult res = translateToExpressionResult(expr, tree.type);
+            addBindees(res.bindees());
+            return asExpression(res);
+        }
+
+        JCStatement sideStmt(JFXExpression expr) {
+            if (expr == null) {
+                return null;
+            } else {
+                return translateToStatement(expr, translationState.targetType);
+            }
+        }
+
+        protected AbstractStatementsResult doit() {
+            JCExpression cond = translateExpr(tree.getCondition());
+            JFXExpression trueSide = tree.getTrueExpression();
+            JFXExpression falseSide = tree.getFalseExpression();
+            if (translationState.yield == ToExpression) {
+                return toResult(m().Conditional(
+                        cond,
+                        sideExpr(trueSide),
+                        sideExpr(falseSide)));
+            } else {
+                 return toStatementResult(m().If(
+                        cond,
+                        sideStmt(trueSide),
+                        sideStmt(falseSide)));
+            }
         }
     }
 
-    //@Override
+    public void visitIfExpression(JFXIfExpression tree) {
+        result = new IfTranslator(tree).doit();
+    }
+
     public void visitContinue(JFXContinue tree) {
-        result = make.at(tree.pos).Continue(tree.label);
+        result = new StatementsResult(make.at(tree.pos).Continue(tree.label));
     }
 
-    //@Override
-    public void visitErroneous(JFXErroneous tree) {
-        List<? extends JCTree> errs = translateGeneric(tree.getErrorTrees());
-        result = make.at(tree.pos).Erroneous(errs);
-    }
-
-    //@Override
     public void visitReturn(JFXReturn tree) {
         JFXExpression exp = tree.getExpression();
         if (exp == null) {
-            result = make.at(tree).Return(null);
+            result = new StatementsResult(make.at(tree).Return(null));
         } else {
-            result = translateToStatement(exp, tree.returnType);
+            result = translateToStatementsResult(exp, tree.returnType);
         }
     }
 
-    //@Override
     public void visitParens(JFXParens tree) {
         Type targetType = translationState.targetType;
         Yield yield = translationState.yield;
 
         if (yield == ToExpression) {
-            JCExpression expr = translateAsUnconvertedValue(tree.expr);
-            result = make.at(tree.pos).Parens(expr);
+            result = translateToExpressionResult(tree.expr, targetType);
         } else {
-            result = translateToStatement(tree.expr, targetType);
+            result = translateToStatementsResult(tree.expr, targetType);
         }
     }
 
-    //@Override
-    public void visitImport(JFXImport tree) {
-        //JCTree qualid = straightConvert(tree.qualid);
-        //result = make.at(tree.pos).Import(qualid, tree.staticImport);
-        assert false : "should be processed by parent tree";
+    class InstanceOfTranslator extends ExpressionTranslator {
+
+        private final Type classType;
+        private final JFXExpression expr;
+
+        InstanceOfTranslator(JFXInstanceOf tree) {
+            super(tree.pos());
+            this.classType = types.boxedTypeOrType(tree.clazz.type);
+            this.expr = tree.getExpression();
+        }
+
+        protected ExpressionResult doit() {
+            JCExpression tExpr = translateExpr(expr);
+            if (expr.type.isPrimitive()) {
+                tExpr = makeBox(expr.pos(), tExpr, expr.type);
+            }
+            if (types.isSequence(expr.type) && !types.isSequence(classType)) {
+                tExpr = call(
+                        makeQualifiedTree(expr, "com.sun.javafx.runtime.sequence.Sequences"),
+                        "getSingleValue", tExpr);
+            }
+            JCTree clazz = makeType(classType);
+            return toResult(m().TypeTest(tExpr, clazz));
+        }
     }
 
-    //@Override
     public void visitInstanceOf(JFXInstanceOf tree) {
-        Type type = types.boxedTypeOrType(tree.clazz.type);
-        JCTree clazz = this.makeType( tree, type);
-        JCExpression expr = translateAsUnconvertedValue(tree.expr);
-        if (tree.expr.type.isPrimitive()) {
-            expr = this.makeBox(tree.expr.pos(), expr, tree.expr.type);
+        result = new InstanceOfTranslator(tree).doit();
+    }
+
+    class TypeCastTranslator extends ExpressionTranslator {
+
+        private final JFXExpression expr;
+        private final JFXTree clazz;
+
+        TypeCastTranslator(final JFXTypeCast tree) {
+            super(tree.pos());
+            this.expr = tree.getExpression();
+            this.clazz = tree.clazz;
         }
-        if (types.isSequence(tree.expr.type) && ! types.isSequence(type))
-            expr = call(tree.expr,
-                    makeQualifiedTree(tree.expr, "com.sun.javafx.runtime.sequence.Sequences"),
-                    "getSingleValue", expr);
-        result = make.at(tree.pos).TypeTest(expr, clazz);
+
+        protected ExpressionResult doit() {
+            JCExpression tExpr = translateExpr(expr, clazz.type);
+            // The makeTypeCast below is usually redundant, since translateAsValue
+            // takes care of most conversions - except in the case of a plain object cast.
+            // It would be cleaner to move the makeTypeCast to translateAsValue,
+            // but it's painful to get it right.  FIXME.
+            JCExpression ret = typeCast(diagPos, clazz.type, expr.type, tExpr);
+            ret = convertNullability(diagPos, ret, expr, clazz.type);
+            return toResult(ret);
+        }
     }
 
-    //@Override
     public void visitTypeCast(final JFXTypeCast tree) {
-        final DiagnosticPosition diagPos = tree.pos();
-
-        JCExpression val = translateAsValue(tree.expr, tree.clazz.type);
-        // The makeTypeCast below is usually redundant, since translateAsValue
-        // takes care of most conversions - except in the case of a plain object cast.
-        // It would be cleaner to move the makeTypeCast to translateAsValue,
-        // but it's painful to get it right.  FIXME.
-        JCExpression ret = typeCast(diagPos, tree.clazz.type, tree.expr.type, val);
-        result = convertNullability(diagPos, ret, tree.expr, tree.clazz.type);
+        result = new TypeCastTranslator(tree).doit();
     }
 
-    //@Override
     public void visitLiteral(JFXLiteral tree) {
-        result = translateLiteral(tree);
+        result = new ExpressionResult(translateLiteral(tree));
     }
 
-    //@Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         result = (new FunctionCallTranslator(tree) {
             private Name funcName = null;
 
-            protected JCTree doit() {
+            protected AbstractStatementsResult doit() {
                 JFXExpression toCheckOrNull;
                 boolean knownNonNull;
 
@@ -2669,7 +2319,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                 }
                             }
 
-                            trans = translateAsUnconvertedValue(expr);
+                            trans = translateExpr(expr);
                             if (expr.type.isPrimitive()) {
                                 // Java doesn't allow calls directly on a primitive, wrap it
                                 trans = makeBox(diagPos, trans, expr.type);
@@ -2685,7 +2335,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                             // add the selector name back
                             tc = select(tc, funcName);
                         }
-                        JCMethodInvocation app =  m().Apply(translateExpressions(tree.typeargs), tc, args);
+                        JCMethodInvocation app =  m().Apply(translateExprs(tree.typeargs), tc, args);
 
                         JCExpression full = callBound ? makeBoundCall(app) : app;
                         if (useInvoke) {
@@ -2739,7 +2389,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                     //System.err.println("Not match: " + arg.type + " vs " + formal.head);
                                     // Otherwise, fall-through, presumably a conversion will work.
                                     default: {
-                                        targs.append(translateAsValue(arg, arg.type));
+                                        targs.append(translateExpr(arg, arg.type));
                                     }
                                 }
                                 formal = formal.tail;
@@ -2761,9 +2411,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
                                 if (magicIsInitializedFunction) {
                                     //TODO: in theory, this could have side-effects (but only in theory)
                                     //TODO: Lombard
-                                    targ = translateAsValue(l.head, formal);
+                                    targ = translateExpr(l.head, formal);
                                 } else {
-                                    targ = preserveSideEffects(formal, l.head, translateAsValue(l.head, formal));
+                                    targ = preserveSideEffects(formal, l.head, translateExpr(l.head, formal));
                                 }
                                 targs.append(targ);
                             }
@@ -2790,37 +2440,44 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         }).doit();
     }
 
-    //@Override
-    public void visitModifiers(JFXModifiers tree) {
-        result = make.at(tree.pos).Modifiers(tree.flags, List.<JCAnnotation>nil());
-    }
-
-    //@Override
     public void visitSkip(JFXSkip tree) {
-        result = make.at(tree.pos).Skip();
+        result = new StatementsResult(make.at(tree.pos).Skip());
     }
 
-    //@Override
     public void visitThrow(JFXThrow tree) {
-        JCTree expr = translateAsUnconvertedValue(tree.expr);
-        result = make.at(tree.pos).Throw(expr);
+        JCTree expr = translateToExpression(tree.expr);
+        result = new StatementsResult(make.at(tree.pos).Throw(expr));
     }
 
-    //@Override
+    class TryTranslator extends ExpressionTranslator {
+
+        private final JFXTry tree;
+
+        TryTranslator(JFXTry tree) {
+            super(tree.pos());
+            this.tree = tree;
+        }
+
+        protected StatementsResult doit() {
+            ListBuffer<JCCatch> tCatchers = ListBuffer.lb();
+            for (List<JFXCatch> l = tree.catchers; l.nonEmpty(); l = l.tail) {
+                JFXCatch cat = l.head;
+                JCVariableDecl param = convertParam(cat.param);
+                JCBlock tCatBody = translateToBlock(cat.body);
+                tCatchers.append(m().Catch(param, tCatBody));
+            }
+            JCBlock body = translateToBlock(tree.body);
+            JCBlock finalizer = translateToBlock(tree.finalizer);
+            return new StatementsResult(m().Try(body, tCatchers.toList(), finalizer));
+        }
+    }
+
     public void visitTry(JFXTry tree) {
-        JCBlock body = translateBlockExpressionToBlock(tree.body);
-        List<JCCatch> catchers = translateCatchers(tree.catchers);
-        JCBlock finalizer = translateBlockExpressionToBlock(tree.finalizer);
-        result = make.at(tree.pos).Try(body, catchers, finalizer);
+        result = new TryTranslator(tree).doit();
     }
 
     public void visitUnary(final JFXUnary tree) {
-        result = (new UnaryOperationTranslator(tree) {
-
-            JCExpression translateExpression(JFXExpression expr, Type type) {
-                return translateToExpression(expr, type);
-            }
-        }).doit();
+        result = new UnaryOperationTranslator(tree).doit();
     }
 
     JCExpression translateSizeof(DiagnosticPosition diagPos, JFXExpression expr, JCExpression transExpr) {
@@ -2848,42 +2505,85 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
     }
 
-    //@Override
+    class WhileTranslator extends ExpressionTranslator {
+
+        private final JFXWhileLoop tree;
+
+        WhileTranslator(JFXWhileLoop tree) {
+            super(tree);
+            this.tree = tree;
+        }
+
+        protected StatementsResult doit() {
+            JCExpression cond = translateExpr(tree.cond);
+
+            JCStatement body = translateToStatement(tree.body);
+
+            return toStatementResult(m().WhileLoop(cond, body));
+        }
+    }
+
     public void visitWhileLoop(JFXWhileLoop tree) {
-        JCStatement body = translateToStatement(tree.body);
-        JCExpression cond = translateAsUnconvertedValue(tree.cond);
-        result = make.at(tree.pos).WhileLoop(cond, body);
+        result = new WhileTranslator(tree).doit();
     }
 
-    /******** goofy visitors, most of which should go away ******/
+    public void visitTimeLiteral(final JFXTimeLiteral tree) {
+        result = new TimeLiteralTranslator(tree).doit();
+   }
 
-    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        assert false : "should be processed by parent tree";
+    abstract class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
+
+        final JFXInterpolateValue tree;
+
+        InterpolateValueTranslator(JFXInterpolateValue tree) {
+            super(tree.pos(), syms.javafx_KeyValueType);
+            this.tree = tree;
+            this.tree.value = tree.funcValue;
+        }
+
+        protected abstract JCExpression translateTarget();
+
+        protected void initInstanceVariables(Name instName) {
+            // value
+            setInstanceVariable(instName, defs.valueName, tree.value);
+
+            // interpolator kind
+            if (tree.interpolation != null) {
+                VarSymbol vsym = varSym(defs.interpolateName);
+                setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, tree.interpolation);
+            }
+
+            // target -- convert to Pointer
+            setInstanceVariable(tree.attribute.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.targetName), translateTarget());
+        }
     }
 
-    public void visitTypeAny(JFXTypeAny that) {
-        assert false : "should be processed by parent tree";
+    public void visitInterpolateValue(final JFXInterpolateValue tree) {
+        result = new InterpolateValueTranslator(tree) {
+
+            protected JCExpression translateTarget() {
+                JCExpression target = translateExpr(tree.attribute);
+                return call(makeType(syms.javafx_PointerType), "make", target);
+            }
+        }.doit();
     }
 
-    public void visitTypeClass(JFXTypeClass that) {
-        assert false : "should be processed by parent tree";
-    }
+    public void visitKeyFrameLiteral(final JFXKeyFrameLiteral tree) {
+        result = new NewBuiltInInstanceTranslator(tree.pos(), syms.javafx_KeyFrameType) {
 
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        assert false : "should be processed by parent tree";
-    }
+            protected void initInstanceVariables(Name instName) {
+                // start time
+                setInstanceVariable(instName, defs.timeName, tree.start);
 
-    //@Override
-    public void visitTypeArray(JFXTypeArray tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitTypeUnknown(JFXTypeUnknown that) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        assert false : "should be processed by parent tree";
+                // key values -- as sequence
+                JCExpression values = asExpression(new ExplicitSequenceTranslator(
+                        tree.pos(),
+                        tree.getInterpolationValues(),
+                        syms.javafx_KeyValueType
+                ).doit());
+                setInstanceVariable(tree.pos(), instName, varSym(defs.valuesName), values);
+            }
+        }.doit();
     }
 
     /***********************************************************************
@@ -2897,7 +2597,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
     }
 
     JCBlock translatedOnReplaceBody(JFXOnReplace onr) {
-        return (onr == null)?  null : translateBlockExpressionToBlock(onr.getBody());
+        return (onr == null)?  null : translateToBlock(onr.getBody());
     }
 
     private void fillClassesWithOuters(JFXScript tree) {
@@ -2971,63 +2671,4 @@ public class JavafxToJava extends JavafxAbstractTranslation<JCTree> {
         new FillClassesWithOuters().scan(tree);
     }
 
-    //@Override
-    public void visitTimeLiteral(JFXTimeLiteral tree) {
-        result = makeDurationLiteral(tree.pos(), translateAsUnconvertedValue(tree.value));
-   }
-
-    abstract class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
-
-        final JFXInterpolateValue tree;
-
-        InterpolateValueTranslator(JFXInterpolateValue tree) {
-            super(tree.pos(), syms.javafx_KeyValueType);
-            this.tree = tree;
-            this.tree.value = tree.funcValue;
-        }
-
-        protected abstract JCExpression translateTarget();
-
-        protected void initInstanceVariables(Name instName) {
-            // value
-            setInstanceVariable(instName, defs.valueName, tree.value);
-
-            // interpolator kind
-            if (tree.interpolation != null) {
-                VarSymbol vsym = varSym(defs.interpolateName);
-                setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, tree.interpolation);
-            }
-
-            // target -- convert to Pointer
-            setInstanceVariable(tree.attribute.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.targetName), translateTarget());
-        }
-    }
-
-    public void visitInterpolateValue(final JFXInterpolateValue tree) {
-        result = new InterpolateValueTranslator(tree) {
-
-            protected JCExpression translateTarget() {
-                JCExpression target = translateAsUnconvertedValue(tree.attribute);
-                return call(makeType(syms.javafx_PointerType), "make", target);
-            }
-        }.doit();
-    }
-
-    public void visitKeyFrameLiteral(final JFXKeyFrameLiteral tree) {
-        result = new NewBuiltInInstanceTranslator(tree.pos(), syms.javafx_KeyFrameType) {
-
-            protected void initInstanceVariables(Name instName) {
-                // start time
-                setInstanceVariable(instName, defs.timeName, tree.start);
-
-                // key values -- as sequence
-                JCExpression values = new ExplicitSequenceTranslator(
-                        tree.pos(),
-                        tree.getInterpolationValues(),
-                        syms.javafx_KeyValueType
-                ).doit();
-                setInstanceVariable(tree.pos(), instName, varSym(defs.valuesName), values);
-            }
-        }.doit();
-    }
 }

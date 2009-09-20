@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
@@ -42,29 +43,12 @@ import com.sun.tools.mjavac.util.Name;
  * 
  * @author Robert Field
  */
-public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTranslateBind.Result> implements JavafxVisitor {
+public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionResult> implements JavafxVisitor {
 
     protected static final Context.Key<JavafxTranslateBind> jfxBoundTranslation =
         new Context.Key<JavafxTranslateBind>();
 
     Symbol targetSymbol;
-
-    public class Result {
-        final List<JCStatement> stmts;
-        final JCExpression value;
-        final List<VarSymbol> bindees;
-        Result(List<JCStatement> stmts, JCExpression value, List<VarSymbol> bindees) {
-            this.stmts = stmts;
-            this.value = value;
-            this.bindees = bindees;
-        }
-        Result(ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<VarSymbol> bindees) {
-            this(buf.toList(), value, bindees.toList());
-        }
-        Result(JCExpression value) {
-            this(List.<JCStatement>nil(), value, List.<VarSymbol>nil());
-        }
-    }
 
     public static JavafxTranslateBind instance(Context context) {
         JavafxTranslateBind instance = context.get(jfxBoundTranslation);
@@ -81,7 +65,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
         context.put(jfxBoundTranslation, this);
     }
 
-    Result translate(JFXExpression expr, Symbol targetSymbol) {
+    ExpressionResult translate(JFXExpression expr, Symbol targetSymbol) {
         this.targetSymbol = targetSymbol;
         return translate(expr);
     }
@@ -91,48 +75,23 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
  ****************************************************************************/
 
     public void visitBinary(JFXBinary tree) {
-        final ListBuffer<JCStatement> preface = ListBuffer.lb();
-        final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
-        JCExpression value = (new BinaryOperationTranslator(tree.pos(), tree) {
-
-            protected JCExpression translateArg(JFXExpression arg, Type type) {
-                Result res = translate(arg);
-                //TODO: convert type
-                preface.appendList(res.stmts);
-                bindees.appendList(res.bindees);
-                return res.value;
-            }
-        }).doit();
-        result = new Result(preface, value, bindees);
+        result = (new BinaryOperationTranslator(tree.pos(), tree)).doit();
     }
 
     //TODO: merge with JavafxToJava version
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
-        final ListBuffer<JCStatement> preface = ListBuffer.lb();
-        final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
-        JCExpression value = (new FunctionCallTranslator(tree) {
+        result = (new FunctionCallTranslator(tree) {
             private Name funcName = null;
-
-            JCExpression translateExpression(JFXExpression expr) {
-                Result res = translate(expr);
-                //TODO: convert type
-                preface.appendList(res.stmts);
-                return res.value;
-            }
-
-            JCExpression translateExpression(JFXExpression expr, Type type) {
-                return translateExpression(expr);
-            }
 
             List<JCExpression> translateExpressions(List<JFXExpression> trees) {
                 ListBuffer<JCExpression> list = ListBuffer.lb();
                 for (JFXExpression expr : trees) {
-                    list.append(translateExpression(expr));
+                    list.append(translateExpr(expr));
                 }
                 return list.toList();
             }
 
-            protected JCExpression doit() {
+            protected ExpressionResult doit() {
                 JFXExpression toCheckOrNull;
                 boolean knownNonNull;
 
@@ -164,7 +123,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                     knownNonNull =  selector.type.isPrimitive() || !selectorMutable;
                 }
 
-                return (JCExpression) new NullCheckTranslator(diagPos, toCheckOrNull, returnType, knownNonNull) {
+                return (ExpressionResult) new NullCheckTranslator(diagPos, toCheckOrNull, returnType, knownNonNull) {
 
                     JCExpression translateToCheck(JFXExpression expr) {
                         JCExpression trans;
@@ -188,7 +147,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                                 }
                             }
 
-                            trans = translateExpression(expr);
+                            trans = translateExpr(expr);
                             if (expr.type.isPrimitive()) {
                                 // Java doesn't allow calls directly on a primitive, wrap it
                                 trans = makeBox(diagPos, trans, expr.type);
@@ -234,15 +193,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
                                 if (magicIsInitializedFunction) {
                                     //TODO: in theory, this could have side-effects (but only in theory)
                                     //TODO: Lombard
-                                    targ = translateExpression(l.head, formal);
+                                    targ = translateExpr(l.head, formal);
                                 } else {
                                     if (arg instanceof JFXIdent) {
                                         Symbol sym = ((JFXIdent) arg).sym;
                                         JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
                                         JCVariableDecl newVar = makeTmpVar("new", formal, call(attributeGetterName(sym)));
-                                        preface.append(oldVar);
-                                        preface.append(newVar);
-                                        bindees.append((VarSymbol)sym);
+                                        addPreface(oldVar);
+                                        addPreface(newVar);
+                                        addBindee((VarSymbol)sym);
 
                                         // oldArg != newArg
                                         JCExpression compare = makeNotEqual(id(oldVar), id(newVar));
@@ -251,7 +210,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
 
                                         targ = id(newVar);
                                     } else {
-                                        targ = preserveSideEffects(formal, l.head, translateExpression(arg, formal));
+                                        targ = preserveSideEffects(formal, l.head, translateExpr(arg, formal));
                                     }
                                 }
                                 targs.append(targ);
@@ -281,16 +240,16 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
             }
 
         }).doit();
-        result = new Result(preface, value, bindees);
     }
 
     public void visitIdent(JFXIdent tree) {
-        // Just translate to get
-        result = new Result(
-                List.<JCStatement>nil(),
-                new IdentTranslator(tree).doit(),
-                (tree.sym instanceof VarSymbol)? List.<VarSymbol>of((VarSymbol)tree.sym) : List.<VarSymbol>nil());
+        IdentTranslator tor = new IdentTranslator(tree);
+        if (tree.sym instanceof VarSymbol) {
+            tor.addBindee((VarSymbol) tree.sym);
+        }
+        result = tor.doit();
     }
+
 
     /**
      * Translate if-expression
@@ -314,12 +273,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
      *   res
      *
      */
-    private class IfExpressionTranslator extends Translator {
+    private class IfExpressionTranslator extends ExpressionTranslator {
 
         private final JFXIfExpression tree;
         private final Type targetType;
         private final JCVariableDecl resVar;
-        private final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
 
         IfExpressionTranslator(JFXIfExpression tree) {
             super(tree.pos());
@@ -329,37 +287,29 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
         }
 
         JCStatement side(JFXExpression expr) {
-            Result res = translate(expr, targetType);
-            bindees.appendList(res.bindees);
-            return m().Block(0L, res.stmts.append(m().Exec(m().Assign(id(resVar), res.value))));
+            ExpressionResult res = translateToExpressionResult(expr, targetType);
+            addBindees(res.bindees());
+            return m().Block(0L, res.statements().append(makeExec(m().Assign(id(resVar), res.expr()))));
         }
 
-        protected JCStatement doit() {
-            assert false : "should not reach here";
-            return null;
-        }
-
-        Result result() {
-            Result cond = translate(tree.getCondition());
-            bindees.appendList(cond.bindees);
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            stmts.append(resVar);
-            stmts.appendList(cond.stmts);
-            stmts.append(make.at(diagPos).If(
-                    cond.value,
+        protected ExpressionResult doit() {
+            JCExpression cond = translateExpr(tree.getCondition());
+            addPreface(resVar);
+            addPreface(m().If(
+                    cond,
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
-            return new Result(stmts, id(resVar), bindees);
+            return toResult( id(resVar) );
         }
     }
 
     public void visitIfExpression(JFXIfExpression tree) {
-        result = new IfExpressionTranslator(tree).result();
+        result = new IfExpressionTranslator(tree).doit();
     }
 
     public void visitLiteral(JFXLiteral tree) {
         // Just translate to literal value
-        result = new Result(translateLiteral(tree));
+        result = new ExpressionResult(translateLiteral(tree));
     }
 
     public void visitParens(JFXParens tree) {
@@ -367,19 +317,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
     }
 
     public void visitUnary(JFXUnary tree) {
-        final ListBuffer<JCStatement> preface = ListBuffer.lb();
-        final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
-        JCExpression value = (new UnaryOperationTranslator(tree) {
-
-            JCExpression translateExpression(JFXExpression expr, Type type) {
-                Result res = translate(expr);
-                //TODO: convert type
-                preface.appendList(res.stmts);
-                bindees.appendList(res.bindees);
-                return res.value;
-            }
-        }).doit();
-        result = new Result(preface, value, bindees);
+        result = new UnaryOperationTranslator(tree).doit();
     }
 
 
@@ -540,10 +478,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
         assert false : "should not be processed as part of a binding";
     }
 
-    public void visitCatch(JFXCatch tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         assert false : "should not be processed as part of a binding";
     }
@@ -552,19 +486,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
         assert false : "should not be processed as part of a binding";
     }
 
-    public void visitErroneous(JFXErroneous tree) {
-        assert false : "erroneous nodes shouldn't have gotten this far";
-    }
-
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        assert false : "should be processed by parent tree";
-    }
-
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitImport(JFXImport tree) {
         assert false : "should not be processed as part of a binding";
     }
 
@@ -573,14 +495,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
     }
 
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitModifiers(JFXModifiers tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
         assert false : "should not be processed as part of a binding";
     }
 
@@ -620,31 +534,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<JavafxTransla
         assert false : "should not be processed as part of a binding";
     }
 
-    public void visitTree(JFXTree that) {
-        assert false : "Should not be here!!!";
-    }
-
     public void visitTry(JFXTry tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitTypeAny(JFXTypeAny that) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitTypeClass(JFXTypeClass that) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitTypeArray(JFXTypeArray tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitTypeUnknown(JFXTypeUnknown that) {
         assert false : "should not be processed as part of a binding";
     }
 
