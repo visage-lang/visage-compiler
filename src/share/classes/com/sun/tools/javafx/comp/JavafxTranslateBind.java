@@ -186,6 +186,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         result = translate(tree.expr);
     }
 
+    public void visitSelect(JFXSelect tree) {
+        result = (ExpressionResult) new SelectTranslator(tree).doit();
+    }
+
     public void visitUnary(JFXUnary tree) {
         result = new UnaryOperationTranslator(tree).doit();
     }
@@ -218,12 +222,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         //(tree.clazz);
     }
 
-    public void visitSelect(JFXSelect tree) {
-        TODO();
-        translate(tree.selected);
-    }
-
-    //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         TODO();
         for (JFXVar param : tree.getParams()) {

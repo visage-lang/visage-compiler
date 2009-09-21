@@ -729,10 +729,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-
-
     /**
-     * Translate to a built-in type
+     * Translate to a built-in construct
      */
     abstract class NewBuiltInInstanceTranslator extends NewInstanceTranslator {
 
@@ -853,7 +851,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    //@Override
     public void visitInstanciate(JFXInstanciate tree) {
         result = new InstanciateTranslator(tree) {
             protected void processLocalVar(JFXVar var) {
@@ -862,7 +859,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }.doit();
     }
 
-    //@Override
     public void visitStringExpression(JFXStringExpression tree) {
         result = new StringExpressionTranslator(tree).doit();
     }
@@ -994,10 +990,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 && (sym.flags() & Flags.SYNTHETIC) == 0;
    }
 
-   /**
-    * Translate JavaFX a class definition into a Java static implementation method.
-    */
-    //@Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         result = new FunctionTranslator(tree, false).doit();
     }
@@ -1088,7 +1080,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    //@Override
     public void visitAssignop(final JFXAssignOp tree) {
         result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
@@ -1149,88 +1140,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }.doit();
     }
 
-    class SelectTranslator extends NullCheckTranslator {
-
-        protected final JFXSelect tree;
-        protected final Symbol sym;
-        protected final boolean isFunctionReference;
-        protected final boolean staticReference;
-        protected final Name name;
-
-        protected SelectTranslator(JFXSelect tree) {
-            super(tree.pos(), tree.type);
-            this.tree = tree;
-            this.sym = tree.sym;
-            this.isFunctionReference = tree.type instanceof FunctionType && sym.type instanceof MethodType;
-            this.staticReference = sym.isStatic();
-            this.name = tree.getIdentifier();
-        }
-
-        @Override
-        JFXExpression getToCheck() {
-            return tree.getExpression();
-        }
-
-        @Override
-        boolean needNullCheck() {
-            return !staticReference && super.needNullCheck();
-        }
-
-        @Override
-        protected JCExpression translateToCheck(JFXExpression expr) {
-            // this may or may not be in a LHS but in either
-            // event the selector is a value expression
-            JCExpression translatedSelected = translateExpr(expr);
-
-            if (staticReference) {
-                translatedSelected = staticReference(sym);
-            } else if (expr instanceof JFXIdent) {
-                JFXIdent ident = (JFXIdent)expr;
-                Symbol identSym = ident.sym;
-
-                if (identSym != null && types.isJFXClass(identSym)) {
-                    if ((identSym.flags_field & JavafxFlags.MIXIN) != 0) {
-                        translatedSelected = id(defs.receiverName);
-                    } else if (identSym == currentClass().sym) {
-                        translatedSelected = id(names._this);
-                    } else {
-                        translatedSelected = id(names._super);
-                    }
-                }
-            }
-
-            return translatedSelected;
-        }
-
-        @Override
-        protected JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
-            Symbol selectorSym = (getToCheck() != null)? expressionSymbol(getToCheck()) : null;
-            // If this is OuterClass.memberName or MixinClass.memberName, then
-            // we want to create expression to get the proper receiver.
-            if (!staticReference && selectorSym != null && selectorSym.kind == Kinds.TYP) {
-                mungedToCheckTranslated = makeReceiver(diagPos, sym);
-            }
-            Type toCheckType = getToCheck().type;
-            if (isFunctionReference) {
-                MethodType mtype = (MethodType) sym.type;
-                JCExpression tc = staticReference?
-                    mungedToCheckTranslated :
-                    addTempVar(toCheckType, mungedToCheckTranslated);
-                JCExpression translated = select(tc, name);
-                return new FunctionValueTranslator(translated, null, diagPos, mtype).doitExpr();
-            } else {
-                JCExpression tc = mungedToCheckTranslated;
-                if (tc != null && toCheckType != null && toCheckType.isPrimitive()) {  // expr.type is null for package symbols.
-                    tc = makeBox(diagPos, tc, toCheckType);
-                }
-                JCExpression translated = select(tc, name);
-
-                return convertVariableReference(translated, sym);
-            }
-        }
-    }
-
-
     public void visitSelect(JFXSelect tree) {
         if (substitute(tree.sym)) {
             return;
@@ -1238,7 +1147,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SelectTranslator(tree).doit();
     }
 
-    //@Override
     public void visitIdent(JFXIdent tree) {
         if (substitute(tree.sym)) {
             return;
