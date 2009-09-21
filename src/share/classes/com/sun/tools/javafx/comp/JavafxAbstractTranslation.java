@@ -314,7 +314,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         JCExpression asExpression() {
             if (res instanceof ExpressionResult) {
                 ExpressionResult er = (ExpressionResult) res;
-                if (er.statements().length() > 0) {
+                if (er.statements().nonEmpty()) {
                     BlockExprJCBlockExpression bexpr = new BlockExprJCBlockExpression(0L, er.statements(), er.expr());
                     bexpr.pos = er.expr().pos;
                     return bexpr;
@@ -428,8 +428,6 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
     }
 
     private static final Pattern DATETIME_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT]");
-
-    enum ArgKind { BOUND, DEPENDENT, FREE };
 
     /**
      * @return the attrEnv
@@ -1711,7 +1709,6 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
        return make.TypeCast(makeType(arg.pos(), types.boxedTypeOrType(castType)), arg);
     }
 
-   //TODO: hack -- move FunctionTranslator up
    JCTree translateFunction(JFXFunctionDefinition tree, boolean maintainContext) {
        return new FunctionTranslator(tree, maintainContext).doit().tree();
    }
@@ -1931,7 +1928,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
     }
 
-    /******** goofy visitors, alpha order -- most of which should go away ******/
+    /******** goofy visitors, alpha order -- many of which should go away ******/
 
     public void visitCatch(JFXCatch tree) {
         assert false : "should be processed by parent tree";
@@ -1945,6 +1942,10 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         assert false : "should be processed by parent tree";
     }
 
+    public void visitInitDefinition(JFXInitDefinition tree) {
+        assert false : "should be processed by class tree";
+    }
+
     public void visitImport(JFXImport tree) {
         assert false : "should be processed by parent tree";
     }
@@ -1955,6 +1956,18 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
         assert false : "should be processed by parent tree";
+    }
+
+    public void visitOnReplace(JFXOnReplace tree) {
+        assert false : "should be processed by parent tree";
+    }
+
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+        assert false : "should be processed by parent tree";
+    }
+
+    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+        assert false : "should be processed by class tree";
     }
 
     public void visitTree(JFXTree that) {

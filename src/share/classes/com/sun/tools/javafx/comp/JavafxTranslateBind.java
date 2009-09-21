@@ -490,23 +490,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         assert false : "should not be processed as part of a binding";
     }
 
-    public void visitInitDefinition(JFXInitDefinition tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitOnReplace(JFXOnReplace tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        assert false : "should not be processed as part of a binding";
-    }
-
-    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
         assert false : "should not be processed as part of a binding";
     }
 

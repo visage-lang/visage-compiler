@@ -167,14 +167,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    JCBlock asBlock(JCStatement stmt) {
-        if (stmt.getTag() == JCTree.BLOCK) {
-            return (JCBlock)stmt;
-        } else {
-            return make.at(stmt).Block(0L, List.of(stmt));
-        }
-    }
-
     private boolean substitute(Symbol sym) {
         Name name = substitutionMap.get(sym);
         if (name == null) {
@@ -543,15 +535,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         } finally {
             setCurrentClass(prevClass);
         }
-    }
-
-    //@Override
-    public void visitInitDefinition(JFXInitDefinition tree) {
-        assert false : "should be processed by class tree";
-    }
-
-    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-        assert false : "should be processed by class tree";
     }
 
     abstract class NewInstanceTranslator extends ExpressionTranslator {
@@ -1001,23 +984,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    //@Override
     public void visitVar(JFXVar tree) {
         result = new VarTranslator(tree).doit();
     }
 
-    //@Override
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-    //@Override
-    public void visitOnReplace(JFXOnReplace tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-
-    //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
         result = new FunctionValueTranslator(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type).doit();
@@ -1644,10 +1614,11 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     abstract class UseSequenceBuilder extends JavaTreeBuilder {
         final Type elemType;
-        final String seqBuilder;
-
-        Name sbName;
+        private final String seqBuilder;
         boolean addTypeInfoArg = true;
+
+        // Sequence builder temp var name "sb"
+        private final Name sbName = getSyntheticName("sb");
 
         private UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, String seqBuilder) {
             super(diagPos);
@@ -1687,9 +1658,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 builderClassExpr = m().TypeApply(builderClassExpr,
                         List.<JCExpression>of(makeType(elemType)));
             }
-
-            // Sequence builder temp var name "sb"
-            sbName = getSyntheticName("sb");
 
             // Build "sb" initializing expression -- new SequenceBuilder<T>(clazz)
             JCExpression newExpr = m().NewClass(

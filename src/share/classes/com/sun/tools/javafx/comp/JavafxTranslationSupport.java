@@ -317,40 +317,6 @@ public abstract class JavafxTranslationSupport {
         return tree;
     }
 
-    protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, Type type) {
-        return makeParam(diagPos, name, makeType(diagPos, type));
-
-    }
-
-    protected JCVariableDecl makeParam(DiagnosticPosition diagPos, Name name, JCExpression typeExpression) {
-        return make.at(diagPos).VarDef(
-                make.Modifiers(Flags.PARAMETER | Flags.FINAL),
-                name,
-                typeExpression,
-                null);
-
-    }
-
-    protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, long flags, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-        return makeMethod(diagPos, flags, makeType(diagPos, returnType, true), methName, params, stmts);
-    }
-
-    protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, long flags, JCExpression typeExpression, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-        return makeMethod(diagPos, make.at(diagPos).Modifiers(flags), typeExpression, methName, params, stmts);
-    }
-
-    protected JCMethodDecl makeMethod(DiagnosticPosition diagPos, JCModifiers modifiers, JCExpression typeExpression, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-        return make.at(diagPos).MethodDef(
-                modifiers,
-                methName,
-                typeExpression,
-                List.<JCTypeParameter>nil(),
-                params == null ? List.<JCVariableDecl>nil() : params,
-                List.<JCExpression>nil(),
-                stmts==null? null : make.at(diagPos).Block(0L, stmts),
-                null);
-    }
-
     protected JCExpression makeQualifiedTree(DiagnosticPosition diagPos, String str) {
         JCExpression tree = null;
         int inx;
@@ -634,18 +600,6 @@ public abstract class JavafxTranslationSupport {
 
     JCMethodInvocation call(DiagnosticPosition diagPos, JCExpression receiver, String method, Object args) {
         return call(diagPos, receiver, names.fromString(method), args);
-    }
-
-    JCStatement callStmt(DiagnosticPosition diagPos, JCExpression receiver, Name methodName) {
-        return callStmt(diagPos, receiver, methodName, null);
-    }
-
-    JCStatement callStmt(DiagnosticPosition diagPos, JCExpression receiver, Name methodName, Object args) {
-        return make.at(diagPos).Exec(call(diagPos, receiver, methodName, args));
-    }
-
-    JCStatement callStmt(DiagnosticPosition diagPos, Name methodName, Object args) {
-        return make.at(diagPos).Exec(call(diagPos, null, methodName, args));
     }
 
     Name functionInterfaceName(MethodSymbol sym, boolean isBound) {
@@ -1141,21 +1095,33 @@ public abstract class JavafxTranslationSupport {
          */
 
         protected JCMethodDecl makeMethod(long flags, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-            return JavafxTranslationSupport.this.makeMethod(diagPos, flags, makeType(returnType, true), methName, params, stmts);
+            return makeMethod(flags, makeType(returnType), methName, params, stmts);
         }
 
         protected JCMethodDecl makeMethod(long flags, JCExpression typeExpression, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-            return JavafxTranslationSupport.this.makeMethod(diagPos, flags, typeExpression, methName, params, stmts);
+        return makeMethod(m().Modifiers(flags), typeExpression, methName, params, stmts);
         }
 
         protected JCMethodDecl makeMethod(JCModifiers modifiers, Type returnType, Name methName,
                 List<JCVariableDecl> params, ListBuffer<JCStatement> stmts) {
-            return JavafxTranslationSupport.this.makeMethod(diagPos, modifiers, makeType(returnType), methName, params, stmts==null? null : stmts.toList());
+            return makeMethod(modifiers, makeType(returnType), methName, params, stmts==null? null : stmts.toList());
         }
 
         protected JCMethodDecl makeMethod(long flags, Type returnType, Name methName,
                 List<JCVariableDecl> params, ListBuffer<JCStatement> stmts) {
             return makeMethod(flags, returnType, methName, params, stmts.toList());
+        }
+
+        protected JCMethodDecl makeMethod(JCModifiers modifiers, JCExpression typeExpression, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
+            return m().MethodDef(
+                    modifiers,
+                    methName,
+                    typeExpression,
+                    List.<JCTypeParameter>nil(),
+                    params == null ? List.<JCVariableDecl>nil() : params,
+                    List.<JCExpression>nil(),
+                    stmts == null ? null : m().Block(0L, stmts),
+                    null);
         }
 
         /**
