@@ -26,17 +26,13 @@ package com.sun.tools.javafx.comp;
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
-import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.List;
-import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Context;
-import com.sun.tools.mjavac.util.Name;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -78,167 +74,41 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         result = (new BinaryOperationTranslator(tree.pos(), tree)).doit();
     }
 
-    //TODO: merge with JavafxToJava version
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
-        result = (new FunctionCallTranslator(tree) {
-            private Name funcName = null;
+        result = (ExpressionResult) (new FunctionCallTranslator(tree) {
+            JCExpression condition = null;
 
-            List<JCExpression> translateExpressions(List<JFXExpression> trees) {
-                ListBuffer<JCExpression> list = ListBuffer.lb();
-                for (JFXExpression expr : trees) {
-                    list.append(translateExpr(expr));
-                }
-                return list.toList();
-            }
+            @Override
+            JCExpression translateArg(JFXExpression arg, Type formal) {
+                if (arg instanceof JFXIdent) {
+                    Symbol sym = ((JFXIdent) arg).sym;
+                    JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
+                    JCVariableDecl newVar = makeTmpVar("new", formal, call(attributeGetterName(sym)));
+                    addPreface(oldVar);
+                    addPreface(newVar);
+                    addBindee((VarSymbol) sym);
 
-            protected ExpressionResult doit() {
-                JFXExpression toCheckOrNull;
-                boolean knownNonNull;
+                    // oldArg != newArg
+                    JCExpression compare = makeNotEqual(id(oldVar), id(newVar));
+                    // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
+                    condition = condition == null ? compare : makeBinary(JCTree.OR, condition, compare);
 
-                if (useInvoke) {
-                    // this is a function var call, check the whole expression for null
-                    toCheckOrNull = meth;
-                    funcName = defs.invokeName;
-                    knownNonNull = false;
-                } else if (selector == null) {
-                    // This is not an function var call and not a selector, so we assume it is a simple foo()
-                    if (meth.getFXTag() == JavafxTag.IDENT) {
-                        JFXIdent fr = fxm().Ident(functionName(msym, superToStatic, callBound));
-                        fr.type = meth.type;
-                        fr.sym = msym;
-                        toCheckOrNull = fr;
-                        funcName = null;
-                        knownNonNull = true;
-                    } else {
-                        // Should never get here
-                        assert false : meth;
-                        toCheckOrNull = meth;
-                        funcName = null;
-                        knownNonNull = true;
-                    }
+                    return id(newVar);
                 } else {
-                    // Regular selector call  foo.bar() -- so, check the selector not the whole meth
-                    toCheckOrNull = selector;
-                    funcName = functionName(msym, superToStatic, callBound);
-                    knownNonNull =  selector.type.isPrimitive() || !selectorMutable;
+                    return super.translateArg(arg, formal);
                 }
-
-                return (ExpressionResult) new NullCheckTranslator(diagPos, toCheckOrNull, returnType, knownNonNull) {
-
-                    JCExpression translateToCheck(JFXExpression expr) {
-                        JCExpression trans;
-                        if (renameToSuper || superCall) {
-                           trans = id(names._super);
-                        } else if (renameToThis || thisCall) {
-                           trans = id(names._this);
-                        } else if (superToStatic) {
-                            trans = staticReference(msym);
-                        } else if (selector != null && !useInvoke && msym != null && msym.isStatic()) {
-                            //TODO: clean this up -- handles referencing a static function via an instance
-                            trans = staticReference(msym);
-                        } else {
-                            if (selector != null && msym != null && !msym.isStatic()) {
-                                Symbol selectorSym = expressionSymbol(selector);
-                                // If this is OuterClass.memberName() then we want to
-                                // to create expression to get the proper receiver.
-                                if (selectorSym != null && selectorSym.kind == Kinds.TYP) {
-                                    trans = makeReceiver(diagPos, msym);
-                                    return trans;
-                                }
-                            }
-
-                            trans = translateExpr(expr);
-                            if (expr.type.isPrimitive()) {
-                                // Java doesn't allow calls directly on a primitive, wrap it
-                                trans = makeBox(diagPos, trans, expr.type);
-                            }
-                        }
-                        return trans;
-                    }
-
-                    @Override
-                    JCExpression fullExpression( JCExpression mungedToCheckTranslated) {
-                        ListBuffer<JCExpression> targs = ListBuffer.lb();
-                        JCExpression condition = null;
-
-                        // if this is a super.foo(x) call, "super" will be translated to referenced class,
-                        // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
-                        if (superToStatic) {
-                            targs.append(make.Ident(defs.receiverName));
-                        }
-
-                        if (callBound) {
-                            //TODO: this code looks completely messed-up
-                            /**
-                             * If this is a bound call, use left-hand side references for arguments consisting
-                             * solely of a  var or attribute reference, or function call, otherwise, wrap it
-                             * in an expression location
-                             */
-                            //TODO
-                        } else {
-                            boolean handlingVarargs = false;
-                            Type formal = null;
-                            List<Type> t = formals;
-                            for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail) {
-                                if (!handlingVarargs) {
-                                    formal = t.head;
-                                    t = t.tail;
-                                    if (usesVarArgs && t.isEmpty()) {
-                                        formal = types.elemtype(formal);
-                                        handlingVarargs = true;
-                                    }
-                                }
-                                JFXExpression arg = l.head;
-                                JCExpression targ;
-                                if (magicIsInitializedFunction) {
-                                    //TODO: in theory, this could have side-effects (but only in theory)
-                                    //TODO: Lombard
-                                    targ = translateExpr(l.head, formal);
-                                } else {
-                                    if (arg instanceof JFXIdent) {
-                                        Symbol sym = ((JFXIdent) arg).sym;
-                                        JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
-                                        JCVariableDecl newVar = makeTmpVar("new", formal, call(attributeGetterName(sym)));
-                                        addPreface(oldVar);
-                                        addPreface(newVar);
-                                        addBindee((VarSymbol)sym);
-
-                                        // oldArg != newArg
-                                        JCExpression compare = makeNotEqual(id(oldVar), id(newVar));
-                                        // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
-                                        condition = condition == null ? compare : makeBinary(JCTree.OR, condition, compare);
-
-                                        targ = id(newVar);
-                                    } else {
-                                        targ = preserveSideEffects(formal, l.head, translateExpr(arg, formal));
-                                    }
-                                }
-                                targs.append(targ);
-                            }
-                        }
-                        JCExpression tc = mungedToCheckTranslated;
-                        if (funcName != null) {
-                            // add the selector name back
-                            tc = select(tc, funcName);
-                        }
-                        JCMethodInvocation app =  m().Apply(translateExpressions(tree.typeargs), tc, targs.toList());
-
-                        JCExpression full = callBound ?
-                              null //TODO
-                            : app;
-                        if (useInvoke) {
-                            if (tree.type.tag != TypeTags.VOID) {
-                                full = castFromObject(full, tree.type);
-                            }
-                        }
-                        if (condition != null) {
-                            full = m().Conditional(condition, full, id(attributeValueName(targetSymbol)));
-                        }
-                        return full;
-                    }
-                }.doit();
             }
 
+            @Override
+            JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
+                JCExpression full = super.fullExpression(mungedToCheckTranslated);
+                if (condition != null) {
+                    // if no args have changed, don't call function, just return pervious value
+                    //TODO: must call if selector changes
+                    full = m().Conditional(condition, full, id(attributeValueName(targetSymbol)));
+                }
+                return full;
+            }
         }).doit();
     }
 
@@ -325,7 +195,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
  * Visitor methods -- NOT implemented yet
  ****************************************************************************/
 
-    void TODO() {
+    @Override
+    JCExpression TODO() {
         throw new RuntimeException("Not yet implemented bind functionality");
     }
 

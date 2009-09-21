@@ -71,6 +71,10 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
     final JavafxOptimizationStatistics optStat;
     final Target target;
 
+    JCExpression TODO() {
+        throw new RuntimeException("Not yet implemented");
+    }
+
     public static abstract class Result {
         final DiagnosticPosition diagPos;
         Result(DiagnosticPosition diagPos) {
@@ -690,39 +694,45 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
     }
 
 
-    abstract class FunctionCallTranslator extends ExpressionTranslator {
+    class FunctionCallTranslator extends NullCheckTranslator {
 
+        // Function determination
         protected final JFXExpression meth;
         protected final JFXExpression selector;
         protected final boolean thisCall;
         protected final boolean superCall;
         protected final MethodSymbol msym;
+        protected final Symbol selectorSym;
         protected final boolean renameToThis;
         protected final boolean renameToSuper;
         protected final boolean superToStatic;
-        protected final List<Type> formals;
-        protected final boolean usesVarArgs;
         protected final boolean useInvoke;
-        protected final boolean selectorMutable;
         protected final boolean callBound;
         protected final boolean magicIsInitializedFunction;
-        protected final Type returnType;
+        
+        // Call info
+        protected final List<JFXExpression> typeargs;
+        protected final List<JFXExpression> args;
+
+        // Null Checking control
+        protected final boolean knownNonNull;
 
         FunctionCallTranslator(final JFXFunctionInvocation tree) {
-            super(tree.pos());
+            super(tree.pos(), tree.type);
+
+            // Function determination
             meth = tree.meth;
-            returnType = tree.type;
             JFXSelect fieldAccess = meth.getFXTag() == JavafxTag.SELECT ? (JFXSelect) meth : null;
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
-            Symbol sym = expressionSymbol(meth);
-            msym = (sym instanceof MethodSymbol) ? (MethodSymbol) sym : null;
+            Symbol methSymOrNull = expressionSymbol(meth);
+            msym = (methSymOrNull instanceof MethodSymbol) ? (MethodSymbol) methSymOrNull : null;
             Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
             thisCall = selectorIdName == names._this;
             superCall = selectorIdName == names._super;
             ClassSymbol csym = currentClass().sym;
 
             useInvoke = meth.type instanceof FunctionType;
-            Symbol selectorSym = selector != null? expressionSymbol(selector) : null;
+            selectorSym = selector != null? expressionSymbol(selector) : null;
             boolean namedSuperCall =
                     msym != null && !msym.isStatic() &&
                     selectorSym instanceof ClassSymbol &&
@@ -733,25 +743,184 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             renameToThis = canRename && selectorSym == csym;
             renameToSuper = canRename && selectorSym != csym;
             superToStatic = (superCall || namedSuperCall) && isMixinSuper;
-            formals = meth.type.getParameterTypes();
-            //TODO: probably move this local to the arg processing
-            usesVarArgs = tree.args != null && msym != null &&
-                            (msym.flags() & Flags.VARARGS) != 0 &&
-                            (formals.size() != tree.args.size() ||
-                             types.isConvertible(tree.args.last().type,
-                                 types.elemtype(formals.last())));
 
-            selectorMutable = msym != null &&
-                    !sym.isStatic() && selector != null &&
-                    !namedSuperCall &&
-                    !superCall && !renameToSuper &&
-                    !thisCall && !renameToThis;
             callBound = msym != null && !useInvoke &&
                   ((msym.flags() & JavafxFlags.BOUND) != 0);
 
             magicIsInitializedFunction = (msym != null) &&
                     (msym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
+
+            // Call info
+            this.typeargs = tree.getTypeArguments();
+            this.args = tree.getArguments();
+
+            // Null Checking control
+            boolean selectorImmutable =
+                    msym == null ||
+                    msym.isStatic() ||
+                    selector == null ||
+                    selector.type.isPrimitive() ||
+                    namedSuperCall ||
+                    superCall ||
+                    thisCall;
+            knownNonNull =  selectorImmutable && !useInvoke;
        }
+
+        @Override
+        JCExpression translateToCheck(JFXExpression expr) {
+            JCExpression trans;
+            if (renameToSuper || superCall) {
+                trans = id(names._super);
+            } else if (renameToThis || thisCall) {
+                trans = id(names._this);
+            } else if (superToStatic) {
+                trans = staticReference(msym);
+            } else if (msym != null && msym.isStatic()) {
+                trans = staticReference(msym);
+            } else if (expr == null) {
+                if (msym != null) {
+                    // it is a non-static attribute or function class member
+                    // reference it through the receiver
+                    trans = makeReceiver(diagPos, msym, true);
+                } else {
+                    trans = null;
+                }
+            } else {
+                if (selectorSym != null && msym != null && !msym.isStatic()) {
+                    // If this is OuterClass.memberName() then we want to
+                    // to create expression to get the proper receiver.
+                    //TODO: is this needed? used?
+                    if (selectorSym.kind == Kinds.TYP) {
+                        return makeReceiver(diagPos, msym, true);
+                    }
+                }
+                trans = translateExpr(expr);
+                if (expr.type.isPrimitive()) {
+                    // Java doesn't allow calls directly on a primitive, wrap it
+                    trans = makeBox(diagPos, trans, expr.type);
+                }
+            }
+            return trans;
+        }
+
+        @Override
+        JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
+            JCExpression tMeth = select(mungedToCheckTranslated, methodName());
+            JCMethodInvocation app = m().Apply(translateExprs(typeargs), tMeth, determineArgs());
+
+            JCExpression full = callBound ? makeBoundCall(app) : app;
+            if (useInvoke) {
+                if (resultType.tag != TypeTags.VOID) {
+                    full = castFromObject(full, resultType);
+                }
+            }
+            return full;
+        }
+
+        Name methodName() {
+            return useInvoke? defs.invokeName : functionName(msym, superToStatic, callBound);
+        }
+
+        // This is for calls from non-bound contexts (code for true bound calls is in JavafxToBound)
+        JCExpression makeBoundCall(JCExpression applyExpression) {
+            return TODO();
+        }
+
+        @Override
+        JFXExpression getToCheck() {
+            return useInvoke? meth : selector;
+        }
+
+        @Override
+        boolean needNullCheck() {
+            return !knownNonNull && super.needNullCheck();
+        }
+
+        /**
+         * Compute the translated arguments.
+         */
+        List<JCExpression> determineArgs() {
+            final List<Type> formals = meth.type.getParameterTypes();
+            final boolean usesVarArgs = args != null && msym != null &&
+                    (msym.flags() & Flags.VARARGS) != 0 &&
+                    (formals.size() != args.size() ||
+                    types.isConvertible(args.last().type,
+                    types.elemtype(formals.last())));
+            ListBuffer<JCExpression> targs = ListBuffer.lb();
+            // if this is a super.foo(x) call, "super" will be translated to referenced class,
+            // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
+            if (superToStatic) {
+                targs.append(id(defs.receiverName));
+            }
+
+            if (callBound) {
+                //TODO: this code looks completely messed-up
+                /**
+                 * If this is a bound call, use left-hand side references for arguments consisting
+                 * solely of a  var or attribute reference, or function call, otherwise, wrap it
+                 * in an expression location
+                 */
+                List<Type> formal = formals;
+                for (JFXExpression arg : args) {
+                    switch (arg.getFXTag()) {
+                        case IDENT:
+                        case SELECT:
+                        case APPLY:
+                            // This arg expression is one that will translate into a Location;
+                            // since that is needed for a this into Location, do so.
+                            // However, if the types need to by changed (subclass), this won't
+                            // directly work.
+                            // Also, if this is a mismatched sequence type, we will need
+                            // to do some different
+                            //TODO: never actually gets here
+                            if (arg.type.equals(formal.head) ||
+                                    types.isSequence(formal.head) ||
+                                    formal.head == syms.objectType // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
+                                    ) {
+                                TODO();
+                                break;
+                            }
+                        //TODO: handle sequence subclasses
+                        //TODO: use more efficient mechanism (use currently apears rare)
+                        //System.err.println("Not match: " + arg.type + " vs " + formal.head);
+                        // Otherwise, fall-through, presumably a conversion will work.
+                        default: {
+                            targs.append(translateExpr(arg, arg.type));
+                        }
+                    }
+                    formal = formal.tail;
+                }
+            } else {
+                boolean handlingVarargs = false;
+                Type formal = null;
+                List<Type> t = formals;
+                for (List<JFXExpression> l = args; l.nonEmpty(); l = l.tail) {
+                    JFXExpression arg = l.head;
+                    if (!handlingVarargs) {
+                        formal = t.head;
+                        t = t.tail;
+                        if (usesVarArgs && t.isEmpty()) {
+                            formal = types.elemtype(formal);
+                            handlingVarargs = true;
+                        }
+                    }
+                    JCExpression targ;
+                    if (magicIsInitializedFunction) {
+                        //TODO: in theory, this could have side-effects (but only in theory)
+                        //TODO: Lombard
+                        targ = translateExpr(arg, formal);
+                    } else {
+                        targ = translateArg(arg, formal);
+                    }
+                    targs.append(targ);
+                }
+            }
+            return targs.toList();
+        }
+
+        JCExpression translateArg(JFXExpression arg, Type formal) {
+            return preserveSideEffects(formal, arg, translateExpr(arg, formal));
+        }
     }
 
     class TimeLiteralTranslator extends ExpressionTranslator {
@@ -937,27 +1106,25 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
     //TODO: this needs to be refactored so it makes sense as a MemberReferenceTranslator
     abstract class NullCheckTranslator extends MemberReferenceTranslator {
 
-        protected final JFXExpression toCheck;
         protected final Type resultType;
-        private final boolean needNullCheck;
-        private boolean hasSideEffects;
-        private ListBuffer<JCStatement> tmpVarList;
 
-        NullCheckTranslator(DiagnosticPosition diagPos, JFXExpression toCheck, Type resultType, boolean knownNonNull) {
+        NullCheckTranslator(DiagnosticPosition diagPos, Type resultType) {
             super(diagPos);
-            this.toCheck = toCheck;
             this.resultType = resultType;
-            this.needNullCheck = !knownNonNull && !toCheck.type.isPrimitive() && possiblyNull(toCheck);
-            this.hasSideEffects = needNullCheck && hasSideEffects(toCheck);
-            this.tmpVarList = ListBuffer.<JCStatement>lb();
         }
 
         abstract JCExpression fullExpression(JCExpression mungedToCheckTranslated);
 
         abstract JCExpression translateToCheck(JFXExpression expr);
 
+        abstract JFXExpression getToCheck();
+
+        boolean needNullCheck() {
+            return !getToCheck().type.isPrimitive() && possiblyNull(getToCheck());
+        }
+
         protected JCExpression preserveSideEffects(Type type, JFXExpression expr, JCExpression trans) {
-            if (needNullCheck && expr!=null && hasSideEffects(expr)) {
+            if (needNullCheck() && expr!=null && hasSideEffects(expr)) {
                 // if there is going to be a null check (which thus could keep expr
                 // from being evaluated), and expr has side-effects, then eval
                 // it first and put it in a temp var.
@@ -970,8 +1137,46 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         protected JCExpression addTempVar(Type varType, JCExpression trans) {
             JCVariableDecl tmpVar = makeTmpVar("pse", varType, trans);
-            tmpVarList.append(tmpVar);
-            return id(tmpVar.name);
+            addPreface(tmpVar);
+            return id(tmpVar);
+        }
+
+        protected AbstractStatementsResult doit() {
+            JCExpression mungedToCheckTranslated = translateToCheck(getToCheck());
+            JCVariableDecl tmpVar = null;
+            if (needNullCheck() && hasSideEffects(getToCheck())) {
+                // if the toCheck sub-expression has side-effects, compute it and stash in a
+                // temp var so we don't invoke it twice.
+                tmpVar = makeTmpVar("toCheck", getToCheck().type, mungedToCheckTranslated);
+                addPreface(tmpVar);
+                mungedToCheckTranslated = id(tmpVar);
+            }
+            JCExpression full = fullExpression(mungedToCheckTranslated);
+            if (!needNullCheck()) {
+                return toResult(full);
+            }
+            // Do a null check
+            JCExpression toTest = tmpVar!=null ? id(tmpVar) : translateToCheck(getToCheck());
+            // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
+            JCExpression cond = makeNotNullCheck(toTest);
+            if (resultType == syms.voidType) {
+                // if this is a void expression, check it with an If-statement
+                JCStatement stmt = makeExec(full);
+                if (needNullCheck()) {
+                    stmt = m().If(cond, stmt, null);
+                }
+                // a statement is the desired result of the translation, return the If-statement
+                return toStatementResult(stmt);
+            } else {
+                if (needNullCheck()) {
+                    // it has a non-void return type, convert it to a conditional expression
+                    // if it would dereference null, then the full expression instead yields the default value
+                    TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(resultType);
+                    JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
+                    full = m().Conditional(cond, full, defaultExpr);
+                }
+                return toResult(full);
+            }
         }
 
         private boolean possiblyNull(JFXExpression expr) {
@@ -1011,161 +1216,97 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     return false;
             }
         }
-
-        protected AbstractStatementsResult doit() {
-            JCExpression mungedToCheckTranslated = translateToCheck(toCheck);
-            JCVariableDecl tmpVar = null;
-            if (hasSideEffects) {
-                // if the toCheck sub-expression has side-effects, compute it and stash in a
-                // temp var so we don't invoke it twice.
-                tmpVar = makeTmpVar("toCheck", toCheck.type, mungedToCheckTranslated);
-                tmpVarList.append(tmpVar);
-                mungedToCheckTranslated = id(tmpVar.name);
-            }
-            JCExpression full = fullExpression(mungedToCheckTranslated);
-            if (!needNullCheck && tmpVarList.isEmpty()) {
-                return toResult(full);
-            }
-            // Do a null check
-            JCExpression toTest = hasSideEffects ? id(tmpVar.name) : translateToCheck(toCheck);
-            // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
-            JCExpression cond = makeNotNullCheck(toTest);
-            if (resultType == syms.voidType) {
-                // if this is a void expression, check it with an If-statement
-                JCStatement stmt = m().Exec(full);
-                if (needNullCheck) {
-                    stmt = m().If(cond, stmt, null);
-                }
-                // a statement is the desired result of the translation, return the If-statement
-                if (tmpVarList.nonEmpty()) {
-                    // if the selector has side-effects, we created a temp var to hold it
-                    // so we need to make a block to include the temp var
-                    stmt = m().Block(0L, tmpVarList.toList().append(stmt));
-                }
-                return toStatementResult(stmt);
-            } else {
-                if (needNullCheck) {
-                    // it has a non-void return type, convert it to a conditional expression
-                    // if it would dereference null, then the full expression instead yields the default value
-                    TypeMorphInfo returnTypeInfo = typeMorpher.typeMorphInfo(resultType);
-                    JCExpression defaultExpr = makeDefaultValue(diagPos, returnTypeInfo);
-                    full = m().Conditional(cond, full, defaultExpr);
-                }
-                if (tmpVarList.nonEmpty()) {
-                    // if the selector has side-effects, we created a temp var to hold it
-                    // so we need to make a block-expression to include the temp var
-                    full = makeBlockExpression(tmpVarList.toList(), full);
-                }
-                return toResult(full);
-            }
-        }
     }
 
-    abstract class AssignTranslator extends ExpressionTranslator {
+    abstract class AssignTranslator extends NullCheckTranslator {
 
         protected final JFXExpression lhs;
         protected final JFXExpression rhs;
         protected final Symbol sym;
-        protected final VarMorphInfo vmi;
+        protected final JFXExpression selector;
         protected final JCExpression rhsTranslated;
+        private final JCExpression rhsTranslatedPreserved;
+        protected final boolean useSetters;
 
         AssignTranslator(final DiagnosticPosition diagPos, final JFXExpression lhs, final JFXExpression rhs) {
-            super(diagPos);
+            super(diagPos, lhs.type);
             this.lhs = lhs;
             this.rhs = rhs;
+            this.selector = (lhs instanceof JFXSelect) ? ((JFXSelect) lhs).getExpression() : null;
             this.sym = expressionSymbol(lhs);
-            this.vmi = sym==null? null : typeMorpher.varMorphInfo(sym);
             this.rhsTranslated = convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
+            this.rhsTranslatedPreserved = preserveSideEffects(lhs.type, rhs, rhsTranslated);
+            this.useSetters = sym==null? false : typeMorpher.varMorphInfo(sym).useAccessors();
         }
 
         abstract JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated);
 
         abstract JCExpression buildRHS(JCExpression rhsTranslated);
 
-        /**
-         * Override to change the translation type of the right-hand side
-         */
-        protected Type rhsType() {
-            return sym==null? lhs.type : sym.type; // Handle type inferencing not reseting the ident type
+        @Override
+        JFXExpression getToCheck() {
+            return selector;
         }
 
-        /**
-         * Override to change result in the non-default case.
-          */
-        protected JCExpression postProcessExpression(JCExpression built) {
-            return built;
+        @Override
+        boolean needNullCheck() {
+            return selector != null && super.needNullCheck();
         }
 
-        protected ExpressionResult postProcess(JCExpression built) {
-            return toResult(built);
+        @Override
+        JCExpression translateToCheck(JFXExpression expr) {
+            return expr == null ? null : translateExpr(expr);
         }
 
-        private JCExpression buildSetter(JCExpression tc, JCExpression rhsComplete) {
-            final Name setter = attributeSetterName(sym);
-            JCExpression toApply = (tc==null)? id(setter) : select(tc, setter);
-            return m().Apply(null, toApply, List.of(rhsComplete));
-        }
-
-        protected AbstractStatementsResult doit() {
-            if (lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
+        @Override
+        JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
+            if (selector != null) {
+                Symbol selectorSym = expressionSymbol(selector);
+                // If LHS is OuterClass.memberName or MixinClass.memberName, then
+                // we want to create expression to get the proper receiver.
+                if (!sym.isStatic() && selectorSym != null && selectorSym.kind == Kinds.TYP) {
+                    mungedToCheckTranslated = makeReceiver(diagPos, sym);
+                }
+                return postProcessExpression(buildSetter(mungedToCheckTranslated, buildRHS(rhsTranslatedPreserved)));
+            } else if (lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
                 // set of a sequence element --  s[i]=8, call the sequence set method
                 JFXSequenceIndexed si = (JFXSequenceIndexed) lhs;
                 JFXExpression seq = si.getSequence();
                 JCExpression index = translateExpr(si.getIndex(), syms.intType);
                 if (seq.type.tag == TypeTags.ARRAY) {
                     JCExpression tseq = translateExpr(seq);
-                    return postProcess(m().Assign(m().Indexed(tseq, index), buildRHS(rhsTranslated)));
-                }
-                else {
-                    JCExpression tseq = translateExpr(seq); //TODO
-                    List<JCExpression> args = List.of(index, buildRHS(rhsTranslated));
-                    JCExpression select = select(tseq, defs.setMethodName);
-                    return postProcess(m().Apply(null, select, args));
-                }
-            } else {
-                final boolean useSetters = vmi.useAccessors();
-                //TODO: ??? If sequence we need to call incrementShared.  Thus:
-                // assert ! types.isSequence(lhs.type);
-                if (lhs.getFXTag() == JavafxTag.SELECT) {
-                    final JFXSelect select = (JFXSelect) lhs;
-                    return new NullCheckTranslator(diagPos, select.getExpression(), lhs.type, false) { 
-
-                        private final JCExpression rhsTranslatedPreserved = preserveSideEffects(lhs.type, rhs, rhsTranslated);
-
-                        @Override
-                        JCExpression translateToCheck( JFXExpression expr) {
-                            return translateExpr(expr);
-                        }
-
-                        @Override
-                        JCExpression fullExpression( JCExpression mungedToCheckTranslated) {
-                            Symbol selectorSym = expressionSymbol(select.getExpression());
-                            // If LHS is OuterClass.memberName or MixinClass.memberName, then
-                            // we want to create expression to get the proper receiver.
-                            if (!sym.isStatic() && selectorSym != null && selectorSym.kind == Kinds.TYP) {
-                                mungedToCheckTranslated = makeReceiver(diagPos, sym);
-                            }
-                            if (useSetters) {
-                                return postProcessExpression(buildSetter(mungedToCheckTranslated, buildRHS(rhsTranslatedPreserved)));
-                            } else {
-                                //TODO: possibly should use, or be unified with convertVariableReference
-                                JCExpression fa = select(mungedToCheckTranslated, attributeValueName(select.sym));
-                                return defaultFullExpression(fa, rhsTranslatedPreserved);
-                            }
-                        }
-                    }.doit();
+                    return m().Assign(m().Indexed(tseq, index), buildRHS(rhsTranslated));
                 } else {
-                    // not SELECT
-                    if (useSetters) {
-                        JCExpression recv = sym.isStatic()?
-                            makeType(sym.owner.type, false) :
-                            makeReceiver(diagPos, sym, true);
-                        return postProcess(buildSetter(recv, buildRHS(rhsTranslated)));
-                    } else {
-                        return toResult(defaultFullExpression(translateExpr(lhs), rhsTranslated));
-                    }
+                    JCExpression tseq = translateExpr(seq); //TODO
+                    return call(tseq, defs.setMethodName, index, buildRHS(rhsTranslated));
+                 }
+            } else {
+                if (useSetters) {
+                    JCExpression recv = sym.isStatic() ? makeType(sym.owner.type, false) : makeReceiver(diagPos, sym, true);
+                    return buildSetter(recv, buildRHS(rhsTranslated));
+                } else {
+                    return defaultFullExpression(translateExpr(lhs), rhsTranslated);
                 }
             }
+        }
+
+        /**
+         * Override to change the translation type of the right-hand side
+         */
+        protected Type rhsType() {
+            return sym == null ? lhs.type : sym.type; // Handle type inferencing not reseting the ident type
+        }
+
+        /**
+         * Override to change result in the non-default case.
+         */
+        protected JCExpression postProcessExpression(JCExpression built) {
+            return built;
+        }
+
+        JCExpression buildSetter(JCExpression tc, JCExpression rhsComplete) {
+            final Name setter = attributeSetterName(sym);
+            return call(tc, setter, rhsComplete);
         }
     }
 
