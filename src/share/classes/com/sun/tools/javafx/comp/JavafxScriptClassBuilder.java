@@ -156,18 +156,6 @@ public class JavafxScriptClassBuilder {
         fval.rettype = makeRunFunctionType();
     }
 
-    private JFXClassDeclaration createSynthClass(Name className, ListBuffer<JFXTree> defs) {
-        // Synthesize a class definition and flag it as synthetic.
-        JFXModifiers cMods = fxmake.Modifiers(PUBLIC);
-        cMods.setGenType(SynthType.SYNTHETIC);
-        JFXClassDeclaration klass = fxmake.ClassDeclaration(
-                cMods, //public access needed for applet initialization
-                className,
-                List.<JFXExpression>nil(), // no supertypes
-                defs.toList());
-        klass.setGenType(SynthType.SYNTHETIC);
-        return klass;
-    }
 
     public JFXClassDeclaration preProcessJfxTopLevel(JFXScript module) {
         Name moduleClassName = scriptName(module);
@@ -268,7 +256,6 @@ public class JavafxScriptClassBuilder {
         final boolean isLibrary = externalAccessFound || (userRunFunction != null);
         module.isLibrary = isLibrary;
         ListBuffer<JFXTree> scriptClassDefs = new ListBuffer<JFXTree>();
-        ListBuffer<JFXTree> moduleNameLevelDefs = new ListBuffer<JFXTree>();
         ListBuffer<JFXExpression> stats = new ListBuffer<JFXExpression>();
         JFXExpression value = null;
        
@@ -300,24 +287,21 @@ public class JavafxScriptClassBuilder {
                     } else {
                         // classes other than the script-class become nested static classes
                         decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
-                        moduleNameLevelDefs.append(tree);
+                        scriptClassDefs.append(tree);
                     }
                     break;
                 }
                 case FUNCTION_DEF: {
                     // turn script-level functions into script-class static functions
                     JFXFunctionDefinition decl = (JFXFunctionDefinition) tree;
+                    decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
                     Name name = decl.name;
                     checkName(tree.pos, name);
                     // User run function isn't used directly.
                     // Guts will be added to internal run function.
                     // Other functions added to the script-class
                     if (name != defs.userRunFunctionName) {
-                        scriptClassDefs.append(decl);
-                        // Clone and add as static to module-class so that attribution will be happy (later ignored)
-                        JFXFunctionDefinition clone = new JavafxTreeCopier(fxmake).copy(decl);
-                        clone.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
-                        moduleNameLevelDefs.append(clone);
+                        scriptClassDefs.append(tree);
                     }
                     break;
                 }
@@ -328,7 +312,8 @@ public class JavafxScriptClassBuilder {
                         // if this wasn't already created as a synthetic
                         checkName(tree.pos, decl.getName());
                     }
-                    scriptClassDefs.append(decl);
+                    decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
+                    scriptClassDefs.append(decl);  // declare variable as a static in the script class
                     if (!isLibrary) {
                         // This is a simple-form script where the main-code is just loose at the script-level.
                         // The main-code will go into the run method.  The variable initializations should
@@ -336,10 +321,6 @@ public class JavafxScriptClassBuilder {
                         // it will wind up in the code of the run method.
                         value = fxmake.VarScriptInit(decl);
                     }
-                    // Clone and add as static to module-class so that attribution will be happy (later ignored)
-                    JFXVar clone = new JavafxTreeCopier(fxmake).copy(decl);
-                    clone.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
-                    moduleNameLevelDefs.append(clone);
                     break;
                 }
                 default: {
@@ -420,18 +401,19 @@ public class JavafxScriptClassBuilder {
             }
         }
 
-        if (scriptClassDefs.nonEmpty()) {
-            // Create a class for the script-level vars and functions
-            JFXClassDeclaration scriptClass = createSynthClass(names.fromString(moduleClassName + JavafxDefs.scriptClassSuffix), scriptClassDefs);
-            // It is inner class of moduleClass
-            moduleNameLevelDefs.prepend(scriptClass);
-            // Point to it in module
-            module.scriptLevelClass = scriptClass;
-        }
-
         if (moduleClass == null) {
-            // Create moduleClass if user didn't
-            moduleClass = createSynthClass(moduleClassName, moduleNameLevelDefs);
+
+            // Synthesize a Main class definition and flag it as
+            // such.
+            //
+            JFXModifiers cMods = fxmake.Modifiers(PUBLIC);
+            cMods.setGenType(SynthType.SYNTHETIC);
+            moduleClass = fxmake.ClassDeclaration(
+                    cMods, //public access needed for applet initialization
+                    moduleClassName,
+                    List.<JFXExpression>nil(), // no supertypes
+                    scriptClassDefs.toList());
+            moduleClass.setGenType(SynthType.SYNTHETIC);
             moduleClass.setPos(module.getStartPosition());
 
             // Check endpos for IDE
@@ -439,11 +421,11 @@ public class JavafxScriptClassBuilder {
             setEndPos(module, moduleClass, module);
         
         } else {
-            moduleClass.setMembers(moduleNameLevelDefs.appendList(moduleClass.getMembers()).toList());
+            moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
         
-        moduleClass.scriptClassModule = module;
-        moduleClass.runMethod = userRunFunction;
+//        moduleClass.isScriptClass   = true;
+        moduleClass.runMethod       = userRunFunction;
         topLevelDefs.append(moduleClass);
         
         module.defs = topLevelDefs.toList();
@@ -548,7 +530,7 @@ public class JavafxScriptClassBuilder {
     }
 
     private JFXType makeRunFunctionType() {
-        JFXExpression rettree = fxmake.Type(syms.objectType);
+         JFXExpression rettree = fxmake.Type(syms.objectType);
         rettree.type = syms.objectType;
         return fxmake.TypeClass(rettree, JFXType.Cardinality.SINGLETON);
     }
@@ -600,7 +582,7 @@ public class JavafxScriptClassBuilder {
         // Make the static run function
         //
         JFXFunctionDefinition func = fxmake.at(sPos).FunctionDefinition(
-                fxmake.Modifiers(PUBLIC | SYNTHETIC),
+                fxmake.Modifiers(PUBLIC | STATIC | SCRIPT_LEVEL_SYNTH_STATIC | SYNTHETIC),
                 defs.internalRunFunctionName,
                 makeRunFunctionType(),
                 makeRunFunctionArgs(argName),
