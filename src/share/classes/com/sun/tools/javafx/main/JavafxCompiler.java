@@ -393,12 +393,12 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /**
      * The policy for the order in which to perform the compilation
      */
-    protected CompilePolicy compilePolicy;
+    CompilePolicy compilePolicy;
 
     /**
      * The policy for what to do with implicitly read source files
      */
-    protected ImplicitSourcePolicy implicitSourcePolicy;
+    ImplicitSourcePolicy implicitSourcePolicy;
 
     /**
      * Report activity related to compilePolicy
@@ -1011,7 +1011,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     public JavafxEnv<JavafxAttrContext> varAnalysis(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
-            log.printLines(log.noticeWriter, "[type-morph " + env.enclClass.sym + "]");
+            Log.printLines(log.noticeWriter, "[type-morph " + env.enclClass.sym + "]");
 
         JavaFileObject prev = log.useSource(
                                   env.enclClass.sym.sourcefile != null ?
@@ -1036,7 +1036,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     public JavafxEnv<JavafxAttrContext> prepForBackEnd(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
-            log.printLines(log.noticeWriter, "[prep-for-back-end " + env.enclClass.sym + "]");
+            Log.printLines(log.noticeWriter, "[prep-for-back-end " + env.enclClass.sym + "]");
         printJavaSource(env);
         printOptimizationStatistics(env);
 

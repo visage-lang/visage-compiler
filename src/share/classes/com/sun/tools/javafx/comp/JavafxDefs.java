@@ -110,6 +110,7 @@ public class JavafxDefs {
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
     private static final String cUtil = runtimePackageNameString + ".Util";
+    private static final String cFXBase = runtimePackageNameString + ".FXBase";
 
     public char typeCharToEscape = '.';
     public char escapeTypeChar = '_';
@@ -136,6 +137,8 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_size;
 
     final RuntimeMethod Util_isEqual;
+
+    final RuntimeMethod FXBase_switchDependence;
 
     /**
      * Name definitions
@@ -346,6 +349,8 @@ public class JavafxDefs {
         Sequences_size = new RuntimeMethod(names, cSequences, "size");
 
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
+
+        FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
 
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;

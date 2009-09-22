@@ -268,9 +268,9 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
-        if (tree.sym.isStatic()) {
+        if (tree.sym.isStatic() || !types.isJFXClass(tree.sym.owner)) {
             // Referenced is static, then selected is a class reference
-            selected = tree.selected;
+            selected = decompose(tree.selected);
         } else {
             selected = shred(tree.selected);
         }

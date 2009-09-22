@@ -187,7 +187,49 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     }
 
     public void visitSelect(JFXSelect tree) {
-        result = (ExpressionResult) new SelectTranslator(tree).doit();
+        result = (new SelectTranslator(tree) {
+
+            /**
+             * Override to handle mutable selector changing dependencies
+             *
+             *  // def w = bind r.v
+             * 	String get$w() {
+             *	  if ( ! isValidValue$( VOFF$w ) ) {
+             *	    Baz oldSelector = $r;
+             *	    Baz newSelector = get$r();
+             *	    switchDependence$(VOFF$v, oldSelector, newSelector);
+             *	    be$w( (newSelector==null)? "" : newSelector.get$v() );
+             *	  }
+             *	  return $w;
+             *	}
+             */
+            @Override
+            protected ExpressionResult doit() {
+                // cases that need a null check are the same as cases that have changing dependencies
+                JFXExpression selectorExpr = tree.getExpression();
+                if (needNullCheck() && (selectorExpr instanceof JFXIdent)) {
+                    JFXIdent selector = (JFXIdent) selectorExpr;
+                    Symbol selectorSym = selector.sym;
+                    if (types.isJFXClass(selectorSym.owner)) {
+                        Type selectorType = selector.type;
+                        JCVariableDecl oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
+                        JCVariableDecl newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
+                        addPreface(oldSelector);
+                        addPreface(newSelector);
+                        addPreface(callStmt(defs.FXBase_switchDependence,
+                                id(names._this), 
+                                id(attributeOffsetName(tree.sym)), 
+                                id(oldSelector), 
+                                id(newSelector)));
+                        addPreface(makeDebugTrace("switchDependence", makeString(""+attributeOffsetName(tree.sym))));
+                        addPreface(makeDebugTrace("from:", id(oldSelector)));
+                        addPreface(makeDebugTrace("to:  ", id(newSelector)));
+                    }
+                    addBindee((VarSymbol)selectorSym);
+                }
+                return (ExpressionResult) super.doit();
+            }
+        }).doit();
     }
 
     public void visitUnary(JFXUnary tree) {

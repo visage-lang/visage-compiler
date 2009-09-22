@@ -757,7 +757,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                 // Prepare to accumulate if statements.
                 ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
-                
+
+                // Debug tracing
+                stmts.appendList(makeDebugTrace(attributeInvalidateName(varSym) + " called"));
+                ifStmts.appendList(makeDebugTrace(attributeInvalidateName(varSym) + " entered"));
+
                 // Call super first.
                 ClassSymbol superClassSym = analysis.getFXSuperClassSym();
                 if (varInfo.isOverride() && superClassSym != null) {

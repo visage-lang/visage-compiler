@@ -534,16 +534,20 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             stmts.append(stmt);
         }
 
-        void addPreface(List<JCStatement> stmts) {
-            stmts.appendList(stmts);
+        void addPreface(List<JCStatement> list) {
+            stmts.appendList(list);
         }
 
         void addBindee(VarSymbol sym) {
-            bindees.append(sym);
+            if (!bindees.contains(sym)) {
+                bindees.append(sym);
+            }
         }
 
         void addBindees(List<VarSymbol> syms) {
-            bindees.appendList(syms);
+            for (VarSymbol sym : syms) {
+                addBindee(sym);
+            }
         }
 
         ExpressionResult toResult(JCExpression translated) {

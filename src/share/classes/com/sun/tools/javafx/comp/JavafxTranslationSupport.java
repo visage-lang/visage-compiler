@@ -62,6 +62,7 @@ import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.util.Options;
 import java.util.Set;
 
 /**
@@ -79,6 +80,7 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxSymtab syms;
     protected final JavafxTypes types;
     protected final JavafxTypeMorpher typeMorpher;
+    protected final Options options;
 
     /*
      * other instance information
@@ -95,6 +97,7 @@ public abstract class JavafxTranslationSupport {
         typeMorpher = JavafxTypeMorpher.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
+        options = Options.instance(context);
 
         syntheticNameCounter = 0;
     }
@@ -966,7 +969,7 @@ public abstract class JavafxTranslationSupport {
         protected JCExpression makeInt(int value)         { return m().Literal(TypeTags.INT, value); }
         protected JCExpression makeBoolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
         protected JCExpression makeNull()                 { return m().Literal(TypeTags.BOT, null); }
-        protected JCExpression makeString(String str)     { return m().Literal(TypeTags.BOT, str); }
+        protected JCExpression makeString(String str)     { return m().Literal(TypeTags.CLASS, str); }
 
         protected JCExpression makeUnary(int tag, JCExpression arg) {
             return m().Unary(tag, arg);
@@ -1213,12 +1216,21 @@ public abstract class JavafxTranslationSupport {
             return call((JCExpression)null, names.fromString(methodString), callArgs(args));
         }
 
-  
+        JCExpression call(RuntimeMethod meth, List<JCExpression> args) {
+            return runtime(diagPos, meth, args);
+        }
+
+        JCExpression call(RuntimeMethod meth, ListBuffer<JCExpression> args) {
+            return runtime(diagPos, meth, args.toList());
+        }
+
+        JCExpression call(RuntimeMethod meth, JCExpression... args) {
+            return runtime(diagPos, meth, callArgs(args));
+        }
 
         /**
          * Method calls -- returning a JCStatement
          */
-
 
         JCStatement callStmt(JCExpression receiver, Name methodName, List<JCExpression> args) {
             return makeExec(call(receiver, methodName, args));
@@ -1296,6 +1308,18 @@ public abstract class JavafxTranslationSupport {
             return makeExec(call((JCExpression)null, names.fromString(methodString), callArgs(args)));
         }
         
+        JCStatement callStmt(RuntimeMethod meth, List<JCExpression> args) {
+            return makeExec(runtime(diagPos, meth, args));
+        }
+
+        JCStatement callStmt(RuntimeMethod meth, ListBuffer<JCExpression> args) {
+            return makeExec(runtime(diagPos, meth, args.toList()));
+        }
+
+        JCStatement callStmt(RuntimeMethod meth, JCExpression... args) {
+            return makeExec(runtime(diagPos, meth, callArgs(args)));
+        }
+        
         /**
          * These methods simplify throw statements.
          */
@@ -1308,6 +1332,20 @@ public abstract class JavafxTranslationSupport {
         }
         JCStatement makeThrow(Type type) {
             return makeThrow(type, null);
+        }
+
+        /* Debugging support */
+        
+        List<JCStatement> makeDebugTrace(String msg) {
+            return makeDebugTrace(msg, makeString(""));
+        }
+
+        List<JCStatement> makeDebugTrace(String msg, JCExpression obj) {
+            String trace = options.get("debugTrace");
+            return trace != null ?
+                List.<JCStatement>of(callStmt(makeQualifiedTree(diagPos, "java.lang.System.err"), "println",
+                    makeBinary(JCTree.PLUS, makeString(msg + " "), obj)))
+              : List.<JCStatement>nil();
         }
     }
 }
