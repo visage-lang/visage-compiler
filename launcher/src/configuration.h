@@ -60,6 +60,7 @@ private:
     std::string prefix;
     std::string profile_filename;
     std::string device_profile;
+    std::string profile_toolkit;
 };
 
 #endif	/* _CONFIGURATION_H */
