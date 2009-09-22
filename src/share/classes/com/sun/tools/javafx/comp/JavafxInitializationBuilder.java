@@ -1662,36 +1662,37 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Prepare to accumulate methods.
             ListBuffer<JCTree> methods = ListBuffer.lb();
             
-            List<JCVariableDecl> receiverVarDeclList;
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-            // Mixin super calls will be handled when inserted into real classes.
-            if (!isMixinClass()) {
-                //TODO:
-                // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
-                //    var receiver = this;
-                
-                stmts.append(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
-                receiverVarDeclList = List.<JCVariableDecl>nil();
-
-                if (superClassSym != null) {
-                    stmts.append(callStmt(id(names._super), methName));
-                }
-
-                for (ClassSymbol mixinClassSym : immediateMixinClasses) {
-                    String mixinName = mixinClassSym.fullname.toString();
-                    stmts.append(callStmt(id(names.fromString(mixinName)), methName,  m().TypeCast(makeType(mixinClassSym), id(names._this))));
-                }
-            } else {
-                receiverVarDeclList = List.<JCVariableDecl>of(makeReceiverParam(getCurrentClassDecl()));
-            }
-
-            stmts.appendList(translatedInitBlocks);
-
+           
             // Only create method if necessary (rely on FXBase.)
-            if (stmts.nonEmpty() || isMixinClass() || superClassSym == null) {
-                 methods.append(makeMethod(!isMixinClass() ? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC),
+            if (translatedInitBlocks.nonEmpty() || immediateMixinClasses.nonEmpty() || isMixinClass() || superClassSym == null) {
+                List<JCVariableDecl> receiverVarDeclList;
+                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
+    
+                // Mixin super calls will be handled when inserted into real classes.
+                if (!isMixinClass()) {
+                    //TODO:
+                    // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
+                    //    var receiver = this;
+                    
+                    stmts.append(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
+                    receiverVarDeclList = List.<JCVariableDecl>nil();
+    
+                    if (superClassSym != null) {
+                        stmts.append(callStmt(id(names._super), methName));
+                    }
+    
+                    for (ClassSymbol mixinClassSym : immediateMixinClasses) {
+                        String mixinName = mixinClassSym.fullname.toString();
+                        stmts.append(callStmt(id(names.fromString(mixinName)), methName,  m().TypeCast(makeType(mixinClassSym), id(names._this))));
+                    }
+                } else {
+                    receiverVarDeclList = List.<JCVariableDecl>of(makeReceiverParam(getCurrentClassDecl()));
+                }
+    
+                stmts.appendList(translatedInitBlocks);
+
+                methods.append(makeMethod(!isMixinClass() ? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC),
                                            syms.voidType,
                                            methName,
                                            receiverVarDeclList,
