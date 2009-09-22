@@ -33,6 +33,7 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -212,16 +213,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
                     Symbol selectorSym = selector.sym;
                     if (types.isJFXClass(selectorSym.owner)) {
                         Type selectorType = selector.type;
+                        Name offset = attributeOffsetName(tree.sym);
+                        JCExpression rcvr = tree.sym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this);
                         JCVariableDecl oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
                         JCVariableDecl newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
                         addPreface(oldSelector);
                         addPreface(newSelector);
                         addPreface(callStmt(defs.FXBase_switchDependence,
-                                id(names._this), 
-                                id(attributeOffsetName(tree.sym)), 
+                                rcvr,
+                                id(offset),
                                 id(oldSelector), 
                                 id(newSelector)));
-                        addPreface(makeDebugTrace("switchDependence", makeString(""+attributeOffsetName(tree.sym))));
+                        addPreface(makeDebugTrace("switchDependence", makeString(""+offset)));
                         addPreface(makeDebugTrace("from:", id(oldSelector)));
                         addPreface(makeDebugTrace("to:  ", id(newSelector)));
                     }

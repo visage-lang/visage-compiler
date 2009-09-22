@@ -47,6 +47,7 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.jvm.Target;
+import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.tree.TreeTranslator;
 import java.util.HashSet;
@@ -586,10 +587,22 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (encl.name.endsWith(defs.scriptClassSuffixName) && owner == encl.owner) {
                 return null;
             } else {
-                JCExpression expr = makeType(types.erasure(owner.type), false);
+                Type classType = types.erasure(owner.type);
+                JCExpression expr = makeType(classType, false);
                 if (types.isJFXClass(owner)) {
-                    // script-level get to instance through script-level accessor
-                    expr = call(expr, defs.scriptLevelAccessMethod);
+                    Name simpleName;
+                    switch (expr.getTag()) {
+                        case JCTree.IDENT:
+                            simpleName = ((JCIdent)expr).name;
+                            break;
+                       case JCTree.SELECT:
+                            simpleName = ((JCFieldAccess)expr).name;
+                            break;
+                        default:
+                            throw new RuntimeException("should not get here -- type name should be identifier or select");
+                    }
+                    // make X.X$Script
+                    expr = select(expr, simpleName.append(defs.scriptClassSuffixName));
                 }
                 return expr;
             }
