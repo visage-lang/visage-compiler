@@ -313,7 +313,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         }
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
-                            boolean isScriptClone = (attrDef.getModifiers().flags & SCRIPT_LEVEL_SYNTH_STATIC) != 0;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
                             inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             JCStatement initStmt = (!isStatic || getAttrEnv().toplevel.isLibrary) ? translateDefinitionalAssignmentToSet(attrDef.pos(),
@@ -352,7 +351,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         }
                         case FUNCTION_DEF: {
                             JFXFunctionDefinition funcDef = (JFXFunctionDefinition) def;
-                            boolean isScriptClone = (funcDef.getModifiers().flags & SCRIPT_LEVEL_SYNTH_STATIC) != 0;
                             translatedDefs.appendList(translate(funcDef).trees());
                             break;
                         }

@@ -25,9 +25,11 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.List;
@@ -49,6 +51,7 @@ public class JavafxDecompose implements JavafxVisitor {
     private ListBuffer<? super JFXVar> lbVar;
     private int varCount = 0;
     private Symbol owner = null;
+    private boolean inScriptLevel = true;
 
     protected final JavafxTreeMaker fxmake;
     protected final JavafxDefs defs;
@@ -113,7 +116,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression pose = decompose(tree);
         if (inUniBind) {
             Name vName = tempName();
-            long flags = 0L;
+            long flags = inScriptLevel? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L;
             JFXModifiers mod = fxmake.at(tree.pos).Modifiers(flags);
             JFXType fxType = fxmake.at(tree.pos).TypeAny(Cardinality.ANY);
             JFXVar v = fxmake.at(tree.pos).Var(vName, fxType, mod, pose, JavafxBindStatus.UNIDIBIND, null);
@@ -306,8 +309,10 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        boolean wasInScriptLevel = inScriptLevel;
         boolean wasInUniBind = inUniBind;
         inUniBind = tree.isBound();
+        inScriptLevel = tree.sym.isStatic();
         Symbol prevOwner = owner;
         owner = tree.sym.owner;
         JFXModifiers mods = tree.mods;
@@ -319,26 +324,33 @@ public class JavafxDecompose implements JavafxVisitor {
         res.sym = tree.sym;
         result = res;
         inUniBind = wasInUniBind;
+        inScriptLevel = wasInScriptLevel;
         owner = prevOwner;
     }
 
     public void visitInitDefinition(JFXInitDefinition tree) {
+        boolean wasInScriptLevel = inScriptLevel;
+        inScriptLevel = tree.sym.isStatic();
         Symbol prevOwner = owner;
         owner = tree.sym.owner;
         JFXBlock body = decompose(tree.body);
         JFXInitDefinition res = fxmake.at(tree.pos).InitDefinition(body);
         res.sym = tree.sym;
         result = res;
+        inScriptLevel = wasInScriptLevel;
         owner = prevOwner;
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition tree) {
         Symbol prevOwner = owner;
         owner = tree.sym.owner;
+        boolean wasInScriptLevel = inScriptLevel;
+        inScriptLevel = tree.sym.isStatic();
         JFXBlock body = decompose(tree.body);
         JFXPostInitDefinition res = fxmake.at(tree.pos).PostInitDefinition(body);
         res.sym = tree.sym;
         result = res;
+        inScriptLevel = wasInScriptLevel;
         owner = prevOwner;
     }
 
@@ -361,6 +373,8 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+        boolean wasInScriptLevel = inScriptLevel;
+        inScriptLevel = tree.sym.isStatic();
         boolean wasInUniBind = inUniBind;
         inUniBind |= tree.isUnidiBind();  //TODO: this may not be right
         JFXExpression expr = decompose(tree.getExpression());
@@ -368,6 +382,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.sym = tree.sym;
         result = res;
         inUniBind = wasInUniBind;
+        inScriptLevel = wasInScriptLevel;
     }
 
     public void visitTypeAny(JFXTypeAny tree) {
@@ -397,6 +412,8 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         Symbol prevOwner = owner;
         owner = tree.sym.owner;
+        boolean wasInScriptLevel = inScriptLevel;
+        inScriptLevel = tree.sym.isStatic();
         boolean wasInUniBind = inUniBind;
         // on-replace is always unbound
         inUniBind = false;
@@ -413,6 +430,7 @@ public class JavafxDecompose implements JavafxVisitor {
         inUniBind = wasInUniBind;
         owner = prevOwner;
         result = res;
+        inScriptLevel = wasInScriptLevel;
     }
 
     public void visitOnReplace(JFXOnReplace tree) {
@@ -506,6 +524,8 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         Symbol prevOwner = owner;
         owner = tree.sym.owner;
+        boolean wasInScriptLevel = inScriptLevel;
+        inScriptLevel = tree.sym.isStatic();
         boolean wasInUniBind = inUniBind;
         // on-replace is always unbound
         inUniBind = false;
@@ -516,6 +536,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getId(), initializer, tree.getBindStatus(), onReplace);
         res.sym = tree.sym;
         inUniBind = wasInUniBind;
+        inScriptLevel = wasInScriptLevel;
         owner = prevOwner;
         result = res;
     }
