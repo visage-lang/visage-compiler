@@ -231,16 +231,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     void scriptBegin() {
     }
 
-    /**
-     * Add per-script BindingExpression/ChangeListener class, is needed
-     * @param diagPos
-     * @return
-     */
-    List<JCTree> scriptComplete(DiagnosticPosition diagPos) {
-        return List.nil();
-    }
-
-
     //@Override
     public void visitScript(JFXScript tree) {
         // add to the hasOuters set the class symbols for classes that need a reference to the outer class
@@ -275,7 +265,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         JCExpression pid = straightConvert(tree.pid);
         JCCompilationUnit translated = make.at(tree.pos).TopLevel(List.<JCAnnotation>nil(), pid, translatedDefinitions.toList());
         translated.sourcefile = tree.sourcefile;
-        //System.err.println("<translated src="+tree.sourcefile+">"); System.err.println(translated); System.err.println("</translated>");
+        // System.err.println("<translated src="+tree.sourcefile+">"); System.err.println(translated); System.err.println("</translated>");
         translated.docComments = null;
         translated.lineMap = tree.lineMap;
         translated.flags = tree.flags;
@@ -324,22 +314,20 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isScriptClone = (attrDef.getModifiers().flags & SCRIPT_LEVEL_SYNTH_STATIC) != 0;
-                            if (!isScriptClone) {
-                                boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                                inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
-                                JCStatement initStmt = (!isStatic || getAttrEnv().toplevel.isLibrary) ? translateDefinitionalAssignmentToSet(attrDef.pos(),
-                                        attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
-                                        (isStatic || !isMixinClass) ? null : defs.receiverName)
-                                        : null;
-                                attrInfo.append(new TranslatedVarInfo(
-                                        attrDef,
-                                        typeMorpher.varMorphInfo(attrDef.sym),
-                                        initStmt,
-                                        attrDef.isBound() ? translateBind.translate(attrDef.getInitializer(), attrDef.sym) : null,
-                                        attrDef.getOnReplace(),
-                                        translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace())));
-                                inInstanceContext = ReceiverContext.Oops;
-                            }
+                            boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
+                            inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
+                            JCStatement initStmt = (!isStatic || getAttrEnv().toplevel.isLibrary) ? translateDefinitionalAssignmentToSet(attrDef.pos(),
+                                    attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
+                                    (isStatic || !isMixinClass) ? null : defs.receiverName)
+                                    : null;
+                            attrInfo.append(new TranslatedVarInfo(
+                                    attrDef,
+                                    typeMorpher.varMorphInfo(attrDef.sym),
+                                    initStmt,
+                                    attrDef.isBound() ? translateBind.translate(attrDef.getInitializer(), attrDef.sym) : null,
+                                    attrDef.getOnReplace(),
+                                    translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace())));
+                            inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case OVERRIDE_ATTRIBUTE_DEF: {
@@ -365,9 +353,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         case FUNCTION_DEF: {
                             JFXFunctionDefinition funcDef = (JFXFunctionDefinition) def;
                             boolean isScriptClone = (funcDef.getModifiers().flags & SCRIPT_LEVEL_SYNTH_STATIC) != 0;
-                            if (!isScriptClone) {
-                                translatedDefs.appendList(translate(funcDef).trees());
-                            }
+                            translatedDefs.appendList(translate(funcDef).trees());
                             break;
                         }
                         default: {
@@ -385,7 +371,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
-            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList(), literalInitClassMap);
+            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList(),
+                                                                           literalInitClassMap,
+                                                                           translatedDefs,
+                                                                           translatedInitBlocks, translatedPostInitBlocks);
             additionalImports.appendList(model.additionalImports);
 
             // include the interface only once
@@ -404,32 +393,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             }
 
             translatedDefs.appendList(model.additionalClassMembers);
-
-            ClassSymbol superClassSym = model.superClassSym;
-            List<ClassSymbol> immediateMixins = model.immediateMixins;
-            boolean forceInit = !immediateMixins.isEmpty() || superClassSym == null || isMixinClass;
-
-            if (forceInit || !translatedInitBlocks.isEmpty()) {
-                // Add the userInit$ method
-                addInitBlockMethod(defs.userInitName, translatedInitBlocks, superClassSym, immediateMixins);
-            }
-
-            if (forceInit || translatedPostInitBlocks.nonEmpty()) {
-                // Add the userPostInit$ method
-                addInitBlockMethod(defs.postInitName, translatedPostInitBlocks, superClassSym, immediateMixins);
-            }
-
-            if (tree.isScriptClass()) {
-                if (!isMixinClass) {
-                    // JFXC-1888: Do *not* add main method!
-                    // com.sun.javafx.runtime.Main has the
-                    // "main" that will call Entry.start().
-                    // translatedDefs.append(makeMainMethod(diagPos, tree.getName()));
-                }
-
-                // Add binding support
-                translatedDefs.appendList(scriptComplete(tree.pos()));
-            }
 
             // build the list of implemented interfaces
             List<JCExpression> implementing = model.interfaces;
@@ -461,48 +424,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             res.sym = tree.sym;
             res.type = tree.type;
             return new StatementsResult(res);
-        }
-
-        private void addInitBlockMethod(Name methName, ListBuffer<JCStatement> translatedInitBlocks, ClassSymbol superClassSym, List<ClassSymbol> immediateMixins) {
-                            List<JCVariableDecl> receiverVarDeclList = isMixinClass ? List.of(makeReceiverParam(tree)) : List.<JCVariableDecl>nil();
-                ListBuffer<JCStatement> initStats = ListBuffer.lb();
-
-                // Mixin super calls will be handled when inserted into real classes.
-                if (!isMixinClass) {
-                    //TODO:
-                    // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
-                    //    var receiver = this;
-                    initStats.prepend(makeVar(
-                            Flags.FINAL,
-                            id(initBuilder.interfaceName(currentClass())),
-                            defs.receiverName,
-                            id(names._this)));
-
-                    if (superClassSym != null) {
-                        initStats = initStats.append(callStmt(id(names._super), methName));
-                    }
-
-                    for (ClassSymbol mixinClassSym : immediateMixins) {
-                        String mixinName = mixinClassSym.fullname.toString();
-                        initStats = initStats.append(callStmt(
-                                makeIdentifier(diagPos, mixinName),
-                                methName,
-                                m().TypeCast(makeType(mixinClassSym), id(names._this))));
-                    }
-                }
-
-                initStats.appendList(translatedInitBlocks);
-
-                // Only create method if necessary (rely on FXBase.)
-                if (initStats.nonEmpty() || isMixinClass || superClassSym == null) {
-                     translatedDefs.append(makeMethod(
-                            !isMixinClass ? Flags.PUBLIC : (Flags.PUBLIC | Flags.STATIC),
-                            syms.voidType,
-                            methName,
-                            receiverVarDeclList,
-                            initStats.toList()));
-                }
-
         }
 
         private void translateAndAppendStaticBlock(JFXBlock block, ListBuffer<JCStatement> translatedBlocks) {
