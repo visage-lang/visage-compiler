@@ -927,9 +927,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
 
         protected AbstractStatementsResult doit() {
-            Type targetType = translationState.targetType;
-            Yield yield = translationState.yield;
-
             ListBuffer<JCStatement> prevPrependToStatements = prependToStatements;
             try {
                 prependToStatements = ListBuffer.lb();
@@ -941,7 +938,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     }
                 }
 
-                if (yield == ToExpression) {
+                if (yield() == ToExpression) {
                     // make into block expression
                     assert (type != syms.voidType) : "void block expressions should be handled below";
 
@@ -1423,7 +1420,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         return new UseSequenceBuilder(diagPos, elemType, null) {
 
             JCStatement addElement(JFXExpression exprToAdd) {
-                JCExpression expr = asExpression(translateToExpressionResult(exprToAdd, targetType(exprToAdd)));
+                JCExpression expr = asExpression(translateToExpressionResult(exprToAdd, targettedType(exprToAdd)));
                 return makeAdd(expr);
             }
 
@@ -1462,7 +1459,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             this.seqBuilder = seqBuilder;
         }
 
-        Type targetType(JFXExpression exprToAdd) {
+        Type targettedType(JFXExpression exprToAdd) {
             Type exprType = exprToAdd.type;
             if (types.isArray(exprType) || types.isSequence(exprType)) {
                 return types.sequenceType(elemType);
@@ -1570,11 +1567,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
 
         protected AbstractStatementsResult doit() {
-            Type targetType = translationState.targetType;
-            Yield yield = translationState.yield;
-
             // sub-translation in done inline -- no super.visitForExpression(tree);
-            if (yield == ToStatement && targetType == syms.voidType) {
+            if (yield() == ToStatement && targetType == syms.voidType) {
                 return new StatementsResult(wrapWithInClause(tree, translateToStatement(tree.getBodyExpression())));
             } else {
                 // body has value (non-void)
@@ -1597,7 +1591,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 stmt = wrapWithInClause(tree, stmt);
                 addPreface(stmt);
 
-                if (yield == ToStatement) {
+                if (yield() == ToStatement) {
                     return toStatementResult(value, targetType);
                 } else {
                     // Build the block expression -- which is what we translate to
@@ -1954,7 +1948,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             if (expr == null) {
                 return null;
             } else {
-                return translateToStatement(expr, translationState.targetType);
+                return translateToStatement(expr, targetType);
             }
         }
 
@@ -1962,7 +1956,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             JCExpression cond = translateExpr(tree.getCondition());
             JFXExpression trueSide = tree.getTrueExpression();
             JFXExpression falseSide = tree.getFalseExpression();
-            if (translationState.yield == ToExpression) {
+            if (yield() == ToExpression) {
                 return toResult(m().Conditional(
                         cond,
                         sideExpr(trueSide),
@@ -1994,10 +1988,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     public void visitParens(JFXParens tree) {
-        Type targetType = translationState.targetType;
-        Yield yield = translationState.yield;
-
-        if (yield == ToExpression) {
+        if (yield() == ToExpression) {
             result = translateToExpressionResult(tree.expr, targetType);
         } else {
             result = translateToStatementsResult(tree.expr, targetType);
