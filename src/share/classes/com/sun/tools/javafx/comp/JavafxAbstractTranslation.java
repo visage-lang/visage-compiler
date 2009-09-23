@@ -622,7 +622,10 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     // find referenced instance, null for current
                     switch (expr.getTag()) {
                         case JCTree.IDENT:
-                            instance = null;
+                            // if we are in a mixin class reference variables through the receiver
+                            instance = currentClass().isMixinClass()? 
+                                  id(defs.receiverName)
+                                : null;
                             break;
                         case JCTree.SELECT:
                             instance = ((JCFieldAccess) varRef).getExpression();
