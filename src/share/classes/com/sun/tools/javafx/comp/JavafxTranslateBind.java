@@ -147,18 +147,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     private class IfExpressionTranslator extends ExpressionTranslator {
 
         private final JFXIfExpression tree;
-        private final Type targetType;
+        private final Type targettedType;
         private final JCVariableDecl resVar;
 
         IfExpressionTranslator(JFXIfExpression tree) {
             super(tree.pos());
             this.tree = tree;
-            this.targetType = tree.type;
-            this.resVar = makeTmpVar("res", targetType, null);
+            this.targettedType = tree.type;
+            this.resVar = makeTmpVar("res", targettedType, null);
         }
 
         JCStatement side(JFXExpression expr) {
-            ExpressionResult res = translateToExpressionResult(expr, targetType);
+            ExpressionResult res = translateToExpressionResult(expr, targettedType);
             addBindees(res.bindees());
             return m().Block(0L, res.statements().append(makeExec(m().Assign(id(resVar), res.expr()))));
         }

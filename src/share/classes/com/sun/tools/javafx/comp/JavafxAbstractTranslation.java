@@ -188,16 +188,11 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         ToStatement
     }
 
-    static class TranslationState {
-        final Yield yield;
-        final Type targetType;
-        TranslationState(Yield yield, Type targetType) {
-            this.yield = yield;
-            this.targetType = targetType;
-        }
+    Type targetType;
+    Yield yieldKind;
+    Yield yield() {
+        return yieldKind;
     }
-
-    TranslationState translationState = null; // should be set before use
 
     JFXClassDeclaration currentClass() {
         return getAttrEnv().enclClass;
@@ -211,20 +206,27 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         return translateToExpressionResult(expr, null);
     }
 
-    ExpressionResult translateToExpressionResult(JFXExpression expr, Type targetType) {
+    private void translateCore(JFXTree expr, Type targettedType, Yield yield) {
+            JFXTree prevWhere = getAttrEnv().where;
+            Yield prevYield = yield();
+            Type prevTargetType = targetType;
+            getAttrEnv().where = expr;
+            yieldKind = yield;
+            targetType = targettedType;
+            expr.accept(this);
+            yieldKind = prevYield;
+            targetType = prevTargetType;
+            getAttrEnv().where = prevWhere;
+    }
+
+    ExpressionResult translateToExpressionResult(JFXExpression expr, Type targettedType) {
         if (expr == null) {
             return null;
         } else {
-            JFXTree prevWhere = getAttrEnv().where;
-            getAttrEnv().where = expr;
-            TranslationState prevZ = translationState;
-            translationState = new TranslationState(ToExpression, targetType);
-            expr.accept(this);
-            translationState = prevZ;
-            getAttrEnv().where = prevWhere;
+            translateCore(expr, targettedType, ToExpression);
             ExpressionResult ret = (ExpressionResult)this.result;
             this.result = null;
-            return (targetType==null)? ret : convertTranslated(ret, expr.pos(), expr.type, targetType);
+            return (targettedType==null)? ret : convertTranslated(ret, expr.pos(), expr.type, targettedType);
         }
     }
 
@@ -232,17 +234,11 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         return translateToStatementsResult(expr, syms.voidType);
     }
 
-    StatementsResult translateToStatementsResult(JFXExpression expr, Type targetType) {
+    StatementsResult translateToStatementsResult(JFXExpression expr, Type targettedType) {
         if (expr == null) {
             return null;
         } else {
-            JFXTree prevWhere = getAttrEnv().where;
-            getAttrEnv().where = expr;
-            TranslationState prevZ = translationState;
-            translationState = new TranslationState(ToStatement, targetType);
-            expr.accept(this);
-            translationState = prevZ;
-            getAttrEnv().where = prevWhere;
+            translateCore(expr, targettedType, ToStatement);
             Result ret = this.result;
             this.result = null;
             if (ret instanceof StatementsResult) {
@@ -252,7 +248,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 JCExpression tExpr = translated.expr();
                 DiagnosticPosition diagPos = expr.pos();
                 JCStatement stmt;
-                if (targetType == null || targetType == syms.voidType) {
+                if (targettedType == null || targettedType == syms.voidType) {
                     stmt = make.at(diagPos).Exec(tExpr);
                 } else {
                     JFXVar var = null;
@@ -266,7 +262,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                         assert false;
                     }
                     stmt = make.at(diagPos).Return(
-                            convertTranslated(tExpr, diagPos, expr.type, targetType));
+                            convertTranslated(tExpr, diagPos, expr.type, targettedType));
                 }
                 return new StatementsResult(diagPos, translated.statements().append(stmt));
             } else {
@@ -336,28 +332,28 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         return new JCConverter(res).asBlock();
     }
 
-    JCBlock asBlock(AbstractStatementsResult res, Type targetType) {
-        return new JCConverter(res, targetType).asBlock();
+    JCBlock asBlock(AbstractStatementsResult res, Type targettedType) {
+        return new JCConverter(res, targettedType).asBlock();
     }
 
     JCStatement asStatement(AbstractStatementsResult res) {
         return new JCConverter(res).asStatement();
     }
 
-    JCStatement asStatement(AbstractStatementsResult res, Type targetType) {
-        return new JCConverter(res, targetType).asStatement();
+    JCStatement asStatement(AbstractStatementsResult res, Type targettedType) {
+        return new JCConverter(res, targettedType).asStatement();
     }
 
-    List<JCStatement> asStatements(AbstractStatementsResult res, Type targetType) {
-        return new JCConverter(res, targetType).asStatements();
+    List<JCStatement> asStatements(AbstractStatementsResult res, Type targettedType) {
+        return new JCConverter(res, targettedType).asStatements();
     }
 
     List<JCStatement> asStatements(AbstractStatementsResult res) {
         return new JCConverter(res).asStatements();
     }
 
-    JCExpression asExpression(AbstractStatementsResult res, Type targetType) {
-        return new JCConverter(res, targetType).asExpression();
+    JCExpression asExpression(AbstractStatementsResult res, Type targettedType) {
+        return new JCConverter(res, targettedType).asExpression();
     }
 
     JCExpression asExpression(AbstractStatementsResult res) {
@@ -368,27 +364,27 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         return translateToExpression(expr, null);
     }
 
-    JCExpression translateToExpression(JFXExpression expr, Type targetType) {
-        return asExpression(translateToExpressionResult(expr, targetType), targetType);
+    JCExpression translateToExpression(JFXExpression expr, Type targettedType) {
+        return asExpression(translateToExpressionResult(expr, targettedType), targettedType);
     }
 
     JCStatement translateToStatement(JFXExpression expr) {
         return translateToStatement(expr, syms.voidType);
     }
 
-    JCStatement translateToStatement(JFXExpression expr, Type targetType) {
-        return asStatement(translateToStatementsResult(expr, targetType), targetType);
+    JCStatement translateToStatement(JFXExpression expr, Type targettedType) {
+        return asStatement(translateToStatementsResult(expr, targettedType), targettedType);
     }
 
     JCBlock translateToBlock(JFXExpression expr) {
         return translateToBlock(expr, syms.voidType);
     }
 
-    JCBlock translateToBlock(JFXExpression expr, Type targetType) {
+    JCBlock translateToBlock(JFXExpression expr, Type targettedType) {
         if (expr == null) {
             return null;
         } else {
-            return asBlock(translateToStatementsResult(expr, targetType), targetType);
+            return asBlock(translateToStatementsResult(expr, targettedType), targettedType);
         }
     }
 
@@ -555,8 +551,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             return new ExpressionResult(diagPos, stmts, translated, bindees);
         }
 
-        StatementsResult toStatementResult(JCExpression translated, Type targetType) {
-            return toStatementResult((targetType == null || targetType == syms.voidType) ? makeExec(translated) : makeReturn(translated));
+        StatementsResult toStatementResult(JCExpression translated, Type targettedType) {
+            return toStatementResult((targettedType == null || targettedType == syms.voidType) ? makeExec(translated) : makeReturn(translated));
         }
 
         StatementsResult toStatementResult(JCStatement translated) {
@@ -622,7 +618,10 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     // find referenced instance, null for current
                     switch (expr.getTag()) {
                         case JCTree.IDENT:
-                            instance = null;
+                            // if we are in a mixin class reference variables through the receiver
+                            instance = currentClass().isMixinClass()? 
+                                  id(defs.receiverName)
+                                : null;
                             break;
                         case JCTree.SELECT:
                             instance = ((JCFieldAccess) varRef).getExpression();
@@ -1100,22 +1099,25 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
 
         protected SpecialResult doit() {
-            TranslationState prevZ = translationState;
-            translationState = null; //should be explicitly set
+            JFXTree prevWhere = getAttrEnv().where;
+            Yield prevYield = yield();
+            Type prevTargetType = targetType;
+            getAttrEnv().where = tree;
+            yieldKind = ToStatement;
+            targetType = null;
+
             ReceiverContext prevContext = inInstanceContext;
             if (!maintainContext) {
-                inInstanceContext = isStatic?
-                    ReceiverContext.ScriptAsStatic :
-                    isInstanceFunctionAsStaticMethod ?
-                        ReceiverContext.InstanceAsStatic :
-                        ReceiverContext.InstanceAsInstance;
+                inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isInstanceFunctionAsStaticMethod ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
             }
 
             try {
-                return new SpecialResult( makeMethod(methodFlags(), methodBody(), methodParameters()) );
+                return new SpecialResult(makeMethod(methodFlags(), methodBody(), methodParameters()));
             } finally {
-                translationState = prevZ;
                 inInstanceContext = prevContext;
+                yieldKind = prevYield;
+                targetType = prevTargetType;
+                getAttrEnv().where = prevWhere;
             }
         }
     }
@@ -1729,21 +1731,21 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         final JCExpression translated;
         final Type sourceType;
-        final Type targetType;
+        final Type targettedType;
         final boolean sourceIsSequence;
         final boolean targetIsSequence;
         final boolean sourceIsArray;
         final boolean targetIsArray;
 
-        TypeConversionTranslator(DiagnosticPosition diagPos, JCExpression translated, Type sourceType, Type targetType) {
+        TypeConversionTranslator(DiagnosticPosition diagPos, JCExpression translated, Type sourceType, Type targettedType) {
             super(diagPos);
             this.translated = translated;
             this.sourceType = sourceType;
-            this.targetType = targetType;
+            this.targettedType = targettedType;
             this.sourceIsSequence = types.isSequence(sourceType);
-            this.targetIsSequence = types.isSequence(targetType);
+            this.targetIsSequence = types.isSequence(targettedType);
             this.sourceIsArray = types.isArray(sourceType);
-            this.targetIsArray = types.isArray(targetType);
+            this.targetIsArray = types.isArray(targettedType);
         }
 
         private JCExpression convertNumericSequence(final DiagnosticPosition diagPos,
@@ -1761,16 +1763,16 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         JCExpression doitExpr() {
             assert sourceType != null;
-            assert targetType != null;
-            if (targetType.tag == TypeTags.UNKNOWN) {
+            assert targettedType != null;
+            if (targettedType.tag == TypeTags.UNKNOWN) {
                 //TODO: this is bad attribution
                 return translated;
             }
-            if (types.isSameType(targetType, sourceType)) {
+            if (types.isSameType(targettedType, sourceType)) {
                 return translated;
             }
             if (targetIsArray) {
-                Type elemType = types.elemtype(targetType);
+                Type elemType = types.elemtype(targettedType);
                 if (sourceIsSequence) {
                     if (elemType.isPrimitive()) {
                         String mname;
@@ -1799,7 +1801,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     stats.append(tmpVar);
                     JCVariableDecl sizeVar = makeTmpVar(syms.intType, call(id(tmpVar.name), "size"));
                     stats.append(sizeVar);
-                    JCVariableDecl arrVar = makeTmpVar("arr", targetType, make.at(diagPos).NewArray(
+                    JCVariableDecl arrVar = makeTmpVar("arr", targettedType, make.at(diagPos).NewArray(
                             makeType(elemType, true),
                             List.<JCExpression>of(id(sizeVar.name)),
                             null));
@@ -1833,7 +1835,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 //    Type elemType = types.elemtype(type);
                 //    return makeEmptySequenceCreator(diagPos, elemType);
                 //}
-                Type targetElemType = types.elementType(targetType);
+                Type targetElemType = types.elementType(targettedType);
                 JCExpression cSequences = makeType(syms.javafx_SequencesType, false);
                 JCExpression expr = convertTranslated(translated, diagPos, sourceType, targetElemType);
                 
@@ -1846,7 +1848,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             }
             if (targetIsSequence && sourceIsSequence) {
                 Type sourceElementType = types.elementType(sourceType);
-                Type targetElementType = types.elementType(targetType);
+                Type targetElementType = types.elementType(targettedType);
                 if (!types.isSameType(sourceElementType, targetElementType) &&
                         types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
                     return convertNumericSequence(diagPos,
@@ -1857,7 +1859,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             }
 
             // Convert primitive/Object types
-            Type unboxedTargetType = targetType.isPrimitive() ? targetType : types.unboxedType(targetType);
+            Type unboxedTargetType = targettedType.isPrimitive() ? targettedType : types.unboxedType(targettedType);
             Type unboxedSourceType = sourceType.isPrimitive() ? sourceType : types.unboxedType(sourceType);
             JCExpression res = translated;
             Type curType = sourceType;
@@ -1873,14 +1875,14 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     res = make.at(diagPos).TypeCast(unboxedTargetType, res);
                     curType = unboxedTargetType;
                 }
-                if (!targetType.isPrimitive()) {
+                if (!targettedType.isPrimitive()) {
                     // box target if target boxed
-                    res = make.at(diagPos).TypeCast(makeType(targetType, false), res);
-                    curType = targetType;
+                    res = make.at(diagPos).TypeCast(makeType(targettedType, false), res);
+                    curType = targettedType;
                 }
             } else {
                 if (curType.isCompound() || curType.isPrimitive()) {
-                    res = make.at(diagPos).TypeCast(makeType(types.erasure(targetType), true), res);
+                    res = make.at(diagPos).TypeCast(makeType(types.erasure(targettedType), true), res);
                 }
             }
             // We should add a cast "when needed".  Then visitTypeCast would just
@@ -1891,17 +1893,17 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
     }
 
     ExpressionResult convertTranslated(ExpressionResult translated, DiagnosticPosition diagPos,
-            Type sourceType, Type targetType) {
+            Type sourceType, Type targettedType) {
         return new ExpressionResult(
                 diagPos,
                 translated.statements(),
-                new TypeConversionTranslator(diagPos, translated.expr(), sourceType, targetType).doitExpr(),
+                new TypeConversionTranslator(diagPos, translated.expr(), sourceType, targettedType).doitExpr(),
                 translated.bindees);
     }
 
     JCExpression convertTranslated(JCExpression translated, DiagnosticPosition diagPos,
-            Type sourceType, Type targetType) {
-        return new TypeConversionTranslator(diagPos, translated, sourceType, targetType).doitExpr();
+            Type sourceType, Type targettedType) {
+        return new TypeConversionTranslator(diagPos, translated, sourceType, targettedType).doitExpr();
     }
 
     /**
