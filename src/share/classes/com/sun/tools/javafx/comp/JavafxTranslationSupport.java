@@ -714,9 +714,9 @@ public abstract class JavafxTranslationSupport {
                     sb.append(escapeTypeName(types.erasure(argtype)));
                     if (counter < argtypesCount - 1) {
                         // Don't append type separator after the last type in the signature.
-                        sb.append(defs.escapeTypeChar);
+                        sb.append(JavafxDefs.escapeTypeChar);
                         // Double separator between type names.
-                        sb.append(defs.escapeTypeChar);
+                        sb.append(JavafxDefs.escapeTypeChar);
                     }
                     counter++;
                 }
@@ -730,7 +730,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     private String escapeTypeName(Type type) {
-        return type.toString().replace(defs.typeCharToEscape, defs.escapeTypeChar);
+        return type.toString().replace(JavafxDefs.typeCharToEscape, JavafxDefs.escapeTypeChar);
     }
 
     private JCExpression primitiveTypeInfo(DiagnosticPosition diagPos, Name typeName) {

@@ -82,7 +82,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     private ListBuffer<JCExpression> additionalImports = null;
 
-    private Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
+    Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
+
+    // Stack used to track literal symbols for the current class.
+    LiteralInitClassMap literalInitClassMap = null;
 
     private JavafxEnv<JavafxAttrContext> attrEnv;
 
@@ -466,92 +469,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         @Override
         protected ExpressionResult doit() {
             return buildInstance(builtIn, null, true);
-        }
-    }
-
-    /**
-     * Translator for object literals
-     */
-    abstract class InstanciateTranslator extends NewInstanceTranslator {
-
-        protected final JFXInstanciate tree;
-        private final Symbol idSym;
-
-        InstanciateTranslator(final JFXInstanciate tree) {
-            super(tree.pos());
-            this.tree = tree;
-            this.idSym = JavafxTreeInfo.symbol(tree.getIdentifier());
-        }
-
-        abstract protected void processLocalVar(JFXVar var);
-
-        protected void initInstanceVariables(Name instName) {
-            if (tree.varDefinedByThis != null) {
-                substitutionMap.put(tree.varDefinedByThis, instName);
-            }
-            for (JFXObjectLiteralPart olpart : tree.getParts()) {
-                diagPos = olpart.pos(); // overwrite diagPos (must restore)
-                JavafxBindStatus bindStatus = olpart.getBindStatus();
-                JFXExpression init = olpart.getExpression();
-                VarSymbol vsym = (VarSymbol) olpart.sym;
-                setInstanceVariable(instName, bindStatus, vsym, init);
-            }
-            if (tree.varDefinedByThis != null) {
-                substitutionMap.remove(tree.varDefinedByThis);
-            }
-            diagPos = tree.pos();
-        }
-
-        protected List<JCExpression> translatedConstructorArgs() {
-            List<JFXExpression> args = tree.getArgs();
-            Symbol sym = tree.constructor;
-            if (sym != null && sym.type != null) {
-                ListBuffer<JCExpression> translated = ListBuffer.lb();
-                List<Type> formals = sym.type.asMethodType().getParameterTypes();
-                boolean usesVarArgs = (sym.flags() & VARARGS) != 0L &&
-                        (formals.size() != args.size() ||
-                        types.isConvertible(args.last().type, types.elemtype(formals.last())));
-                boolean handlingVarargs = false;
-                Type formal = null;
-                List<Type> t = formals;
-                for (List<JFXExpression> l = args; l.nonEmpty(); l = l.tail) {
-                    if (!handlingVarargs) {
-                        formal = t.head;
-                        t = t.tail;
-                        if (usesVarArgs && t.isEmpty()) {
-                            formal = types.elemtype(formal);
-                            handlingVarargs = true;
-                        }
-                    }
-                    JCExpression targ = translateExpr(l.head, formal);
-                    if (targ != null) {
-                        translated.append(targ);
-                    }
-                }
-                return translated.toList();
-            } else {
-                return translateExprs(args);
-            }
-        }
-
-        @Override
-        protected List<JCExpression> completeTranslatedConstructorArgs() {
-            List<JCExpression> translated = translatedConstructorArgs();
-            if (tree.getClassBody() != null &&
-                    tree.getClassBody().sym != null && hasOuters.contains(tree.getClassBody().sym) ||
-                    idSym != null && hasOuters.contains(idSym)) {
-                JCIdent thisIdent = id(defs.receiverName);
-                translated = translated.prepend(thisIdent);
-            }
-            return translated;
-        }
-
-        protected ExpressionResult doit() {
-            for (JFXVar var : tree.getLocalvars()) {
-                // add the variable before the class definition or object litersl assignment
-                processLocalVar(var);
-            }
-            return buildInstance(tree.type, tree.getClassBody(), types.isJFXClass(idSym));
         }
     }
 
