@@ -1667,7 +1667,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Only create method if necessary (rely on FXBase.)
             if (translatedInitBlocks.nonEmpty() || immediateMixinClasses.nonEmpty() || isMixinClass() || superClassSym == null) {
                 List<JCVariableDecl> receiverVarDeclList;
-                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
     
                 // Mixin super calls will be handled when inserted into real classes.
                 if (!isMixinClass()) {

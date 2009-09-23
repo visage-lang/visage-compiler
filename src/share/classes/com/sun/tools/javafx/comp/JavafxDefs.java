@@ -89,6 +89,8 @@ public class JavafxDefs {
 
     public static final String varOffsetString = "VOFF$";
     public static final String varCountString = "VCNT$";
+    public static final String varFlagsString = "VFLGS$";
+    public static final String varDependentsManagerString = "DependentsManager$";
     public static final String varValueString = "$";
     public static final String varFlagActionTest = "is";
     public static final String varFlagActionSet = "set";

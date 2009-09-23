@@ -626,7 +626,10 @@ public class JavafxClassReader extends ClassReader {
                         // Filter out synthetic vars.
                         String nameString = name.toString();
                         if (nameString.startsWith(defs.varMapString)) continue;
-                    }
+                        if (nameString.startsWith(defs.varCountString)) continue;
+                        if (nameString.startsWith(defs.varFlagsString)) continue;
+                        if (nameString.startsWith(defs.varDependentsManagerString)) continue;
+                   }
                     Type otype = memsym.type;
                     Type type = translateType(otype);
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
