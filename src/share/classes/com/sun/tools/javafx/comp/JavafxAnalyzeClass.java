@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope.Entry;
@@ -172,17 +173,14 @@ class JavafxAnalyzeClass {
         // Return modifier flags from the symbol.
         public long getFlags() { return sym.flags(); }
         
-        // Return true if the var is bound.
-        public boolean isBound() { return (getFlags() & JavafxFlags.VARUSE_BOUND_INIT) != 0L; }
-        
-        // Return true if the var is used in a bind.
-        public boolean isUsedBound() { return (getFlags() & JavafxFlags.VARUSE_USED_IN_BIND) != 0L; }
-        
+        // Return true if the var/override has an initializing expression
+        public boolean hasInitializer() { throw new RuntimeException("no initializer info"); }
+
         // Return true if the var has a bound definition.
-        public boolean hasBoundDefinition() { return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L; }
+        public boolean hasBoundDefinition() { throw new RuntimeException("no accurate bind info"); }
         
         // Return true if the var has a bidirectional bind.
-        public boolean hasBiDiBoundDefinition() { return (getFlags() & JavafxFlags.VARUSE_BOUND_BIDIRECTIONAL) != 0L; }
+        public boolean hasBiDiBoundDefinition() { throw new RuntimeException("no accurate bind info"); }
         
         // Return true if the var is an inline bind.
         public boolean isInlinedBind() { return hasBoundDefinition(); }
@@ -272,6 +270,12 @@ class JavafxAnalyzeClass {
         // Null or javafx code for the var's on replace.
         private final JFXOnReplace onReplace;
 
+        // The bind status for the var/override
+        private final JavafxBindStatus bindStatus;
+
+        // The does this var have an initializing expression
+        private final boolean hasInitializer;
+
         // Null or java code for the var's on replace inlined in setter.
         private final JCStatement onReplaceAsInline;
 
@@ -281,13 +285,27 @@ class JavafxAnalyzeClass {
         // Inversion of boundBindees.
         private ListBuffer<VarSymbol> bindersOrNull;
 
-        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
+        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
                 JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
             super(diagPos, name, attrSym, vmi, initStmt);
+            this.hasInitializer = hasInitializer;
+            this.bindStatus = bindStatus;
             this.bindOrNull = bindOrNull;
             this.onReplace = onReplace;
             this.onReplaceAsInline = onReplaceAsInline;
         }
+
+        // Return true if the var/override has an initializing expression
+        @Override
+        public boolean hasInitializer() { return hasInitializer; }
+
+        // Return true if the var has a bound definition.
+        @Override
+        public boolean hasBoundDefinition() { return bindStatus.isBound(); }
+
+        // Return true if the var has a bidirectional bind.
+        @Override
+        public boolean hasBiDiBoundDefinition() { return bindStatus.isBidiBind(); }
 
         // Null or Java code for getter expression of bound variable
         @Override
@@ -330,7 +348,7 @@ class JavafxAnalyzeClass {
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
                 JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
-            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline);
+            super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline);
             this.var = var;
         }
 
@@ -348,7 +366,7 @@ class JavafxAnalyzeClass {
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
                 JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline);
+            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer()!=null, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline);
         }
         
         // Return true if the var is an override.
