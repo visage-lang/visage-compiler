@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.comp;
 
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
@@ -42,6 +43,8 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitClassMap;
+import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitVarMap;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -71,6 +74,12 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
     final JavafxOptimizationStatistics optStat;
     final Target target;
+
+    Type targetType;
+    Yield yieldKind;
+
+    // Stack used to track literal symbols for the current class.
+    LiteralInitClassMap literalInitClassMap = null;
 
     JCExpression TODO() {
         throw new RuntimeException("Not yet implemented");
@@ -188,8 +197,6 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         ToStatement
     }
 
-    Type targetType;
-    Yield yieldKind;
     Yield yield() {
         return yieldKind;
     }
@@ -1318,6 +1325,66 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
     }
 
+    class IdentTranslator extends MemberReferenceTranslator {
+        JFXIdent tree;
+        IdentTranslator(JFXIdent tree) {
+            super(tree.pos());
+            this.tree = tree;
+        }
+
+        protected ExpressionResult doit() {
+            return toResult(doitExpr());
+        }
+
+        protected JCExpression doitExpr() {
+            if (tree.name == names._this) {
+                // in the static implementation method, "this" becomes "receiver$"
+                return makeReceiver(diagPos, tree.sym);
+            } else if (tree.name == names._super) {
+                if (types.isMixin(tree.type.tsym)) {
+                    // "super" becomes just the class where the static implementation method is defined
+                    //  the rest of the implementation is in visitFunctionInvocation
+                    return id(tree.type.tsym.name);
+                } else {
+                    // Just use super.
+                    return id(tree.name);
+                }
+            }
+
+            int kind = tree.sym.kind;
+            if (kind == Kinds.TYP) {
+                // This is a class name, replace it with the full name (no generics)
+                return makeType(types.erasure(tree.sym.type), false);
+            }
+
+            // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
+            // and possible outer access methods
+            JCExpression convert;
+            boolean isStatic = tree.sym.isStatic();
+            if (isStatic) {
+                // make class-based direct static reference:   Foo.x
+                convert = select(staticReference(tree.sym), tree.name);
+            } else {
+                if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
+                        tree.sym.owner.kind == Kinds.TYP) {
+                    // it is a non-static attribute or function class member
+                    // reference it through the receiver
+                    JCExpression mRec = makeReceiver(diagPos, tree.sym, true);
+                    convert = select(mRec, tree.name);
+                } else {
+                    convert = id(tree.name);
+                }
+            }
+
+            if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
+                MethodType mtype = (MethodType) tree.sym.type;
+                JFXFunctionDefinition def = null; // FIXME
+                return new FunctionValueTranslator(convert, def, tree.pos(), mtype).doitExpr();
+            }
+
+            return convertVariableReference(convert, tree.sym);
+        }
+    }
 
     abstract class AssignTranslator extends NullCheckTranslator {
 
@@ -2029,6 +2096,201 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
     }
 
+    abstract class NewInstanceTranslator extends ExpressionTranslator {
+
+        // Statements to set symbols with initial values.
+        protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
+
+        // Symbols corresponding to caseStats.
+        protected ListBuffer<VarSymbol> varSyms = ListBuffer.lb();
+
+        NewInstanceTranslator(DiagnosticPosition diagPos) {
+            super(diagPos);
+        }
+
+        /**
+         * Initialize the instance variables of the instance
+         * @param instName
+         */
+        protected abstract void initInstanceVariables(Name instName);
+
+        /**
+         * @return the constructor args -- translating any supplied args
+         */
+        protected abstract List<JCExpression> completeTranslatedConstructorArgs();
+
+        protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
+            JCExpression trans = translateToExpression(init, vsym.type);
+            return convertNullability(init.pos(), trans, init, vsym.type);
+        }
+
+        void setInstanceVariable(DiagnosticPosition diagPos, Name instanceName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
+            JCExpression tc = instanceName == null ? null : id(instanceName);
+            varInits.append(callStmt(tc, attributeBeName(vsym), transInit));
+            varSyms.append(vsym);
+        }
+
+        void setInstanceVariable(DiagnosticPosition diagPos, Name instName, VarSymbol vsym, JCExpression transInit) {
+            setInstanceVariable(diagPos, instName, JavafxBindStatus.UNBOUND, vsym, transInit);
+        }
+
+        void setInstanceVariable(Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
+            DiagnosticPosition initPos = init.pos();
+            JCExpression transInit = translateInstanceVariableInit(init, bindStatus, vsym);
+            setInstanceVariable(initPos, instName, bindStatus, vsym, transInit);
+        }
+
+        void setInstanceVariable(Name instName, VarSymbol vsym, JFXExpression init) {
+            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
+        }
+
+        void makeInitSupportCall(Name methName, Name receiverName) {
+            JCExpression receiver = id(receiverName);
+            JCStatement callExec = callStmt(receiver, methName, List.<JCExpression>nil());
+            addPreface(callExec);
+        }
+
+        void makeInitApplyDefaults(Type classType, Name receiverName) {
+            ClassSymbol classSym = (ClassSymbol)classType.tsym;
+            int count = varSyms.size();
+
+            JCVariableDecl loopVar = makeTmpLoopVar(diagPos, 0);
+            Name loopName = loopVar.name;
+            JCExpression loopLimit = m().Apply(null, select(id(receiverName), names.fromString(JavafxDefs.attributeCountMethodString)),
+                                               List.<JCExpression>nil());
+            JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
+            addPreface(loopLimitVar);
+            JCExpression loopTest = makeBinary(JCTree.LT, id(loopName), id(loopLimitVar.name));
+            List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(loopName), m().Literal(TypeTags.INT, 1))));
+            JCStatement loopBody;
+
+            List<JCExpression> args = List.<JCExpression>of(id(loopName));
+            JCStatement applyDefaultsExpr = callStmt(id(receiverName), defs.attributeApplyDefaultsPrefixMethodName, args);
+
+            if (1 < count) {
+                // final short[] jfx$0map = GETMAP$X();
+                JCExpression getmapExpr = m().Apply(null, id(varGetMapName(classSym)), List.<JCExpression>nil());
+                JCVariableDecl mapVar = makeTmpVar("map", syms.javafx_ShortArray, getmapExpr);
+                addPreface(mapVar);
+
+                LiteralInitVarMap varMap = literalInitClassMap.getVarMap(classSym);
+                int[] tags = new int[count];
+
+                int index = 0;
+                for (VarSymbol varSym : varSyms.toList()) {
+                    tags[index++] = varMap.addVar(varSym);
+                }
+
+                ListBuffer<JCCase> cases = ListBuffer.lb();
+                index = 0;
+                for (JCStatement varInit : varInits) {
+                    cases.append(m().Case(m().Literal(TypeTags.INT, tags[index++]), List.<JCStatement>of(varInit, m().Break(null))));
+                }
+
+                cases.append(m().Case(null, List.<JCStatement>of(applyDefaultsExpr, m().Break(null))));
+
+                JCExpression mapExpr = m().Indexed(id(mapVar.name), id(loopName));
+                loopBody = m().Switch(mapExpr, cases.toList());
+            } else {
+                VarSymbol varSym = varSyms.first();
+                JCExpression varOffsetExpr = select(makeType(classType, false), attributeOffsetName(varSym));
+                JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
+                addPreface(offsetVar);
+                JCExpression condition = makeEqual(id(loopName), id(offsetVar.name));
+                loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
+            }
+
+            addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
+        }
+
+        /**
+         * Return the instance building expression
+         * @param declaredType
+         * @param cdef
+         * @param isFX
+         * @return
+         */
+        protected ExpressionResult buildInstance(Type declaredType, JFXClassDeclaration cdef, boolean isFX) {
+            Type type;
+
+            if (cdef == null) {
+                type = declaredType;
+            } else {
+                translateStmt(cdef);
+                type = cdef.type;
+            }
+            JCExpression classTypeExpr = makeType(type, false);
+
+            List<JCExpression> newClassArgs = completeTranslatedConstructorArgs();
+
+            Name tmpVarName = getSyntheticName("objlit");
+            initInstanceVariables(tmpVarName);  // Must preceed varSyms.nonEmpty() test
+
+            JCExpression instExpression;
+            if (varSyms.nonEmpty() || (isFX && newClassArgs.nonEmpty()) || cdef != null) {
+                // it is a instanciation of a JavaFX class which has instance variable initializers
+                // (or is anonymous, or has an outer class argument)
+                //
+                //   {
+                //       final X jfx$0objlit = new X(true);
+                //       final short[] jfx$0map = GETMAP$X();
+                //
+                //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
+                //           if (!isInitialized(jfx$0initloop) {
+                //               switch (jfx$0map[jfx$0initloop]) {
+                //                   1: jfx$0objlit.set$a(0); break;
+                //                   2: jfx$0objlit.set$b(0); break;
+                //                   ...
+                //                   n: jfx$0objlit.set$z(0); break;
+                //                   default: jfx$0objlit.applyDefaults$(jfx$0initloop);
+                //               }
+                //           }
+                //       }
+                //
+                //       jfx$0objlit.complete$();
+                //       jfx$0objlit
+                //   }
+
+                // Use the JavaFX constructor by adding a marker argument. The "true" in:
+                //       ... new X(true);
+                newClassArgs = newClassArgs.append(m().Literal(TypeTags.BOOLEAN, 1));
+
+                // Create the new instance, placing it in a temporary variable "jfx$0objlit"
+                //       final X jfx$0objlit = new X(true);
+                addPreface(makeVar(
+                        type,
+                        tmpVarName,
+                        m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
+
+                // Apply defaults to the instance variables
+                //
+                //       final short[] jfx$0map = GETMAP$X();
+                //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
+                //           ...
+                //       }
+                if (varSyms.nonEmpty()) {
+                    makeInitApplyDefaults(type, tmpVarName);
+                } else {
+                    makeInitSupportCall(defs.attributeApplyDefaultsPrefixMethodName, tmpVarName);
+                }
+
+                // Call complete$ to do user's init and postinit blocks
+                //       jfx$0objlit.complete$();
+                makeInitSupportCall(defs.completeName, tmpVarName);
+
+                // Return the instance from the block expressions
+                //       jfx$0objlit
+                instExpression = id(tmpVarName);
+
+            } else {
+                // this is a Java class or has no instance variable initializers, just instanciate it
+                instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
+            }
+
+            return toResult(instExpression);
+        }
+    }
+
     JCExpression makeReceiver(DiagnosticPosition diagPos, Symbol sym) {
         return makeReceiver(diagPos, sym, false);
     }
@@ -2097,67 +2359,6 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             }
         }
         return (nullForThis && ret == thisExpr)? null : ret;
-    }
-
-    class IdentTranslator extends MemberReferenceTranslator {
-        JFXIdent tree;
-        IdentTranslator(JFXIdent tree) {
-            super(tree.pos());
-            this.tree = tree;
-        }
-
-        protected ExpressionResult doit() {
-            return toResult(doitExpr());
-        }
-
-        protected JCExpression doitExpr() {
-            if (tree.name == names._this) {
-                // in the static implementation method, "this" becomes "receiver$"
-                return makeReceiver(diagPos, tree.sym);
-            } else if (tree.name == names._super) {
-                if (types.isMixin(tree.type.tsym)) {
-                    // "super" becomes just the class where the static implementation method is defined
-                    //  the rest of the implementation is in visitFunctionInvocation
-                    return id(tree.type.tsym.name);
-                } else {
-                    // Just use super.
-                    return id(tree.name);
-                }
-            }
-
-            int kind = tree.sym.kind;
-            if (kind == Kinds.TYP) {
-                // This is a class name, replace it with the full name (no generics)
-                return makeType(types.erasure(tree.sym.type), false);
-            }
-
-            // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
-            // and possible outer access methods
-            JCExpression convert;
-            boolean isStatic = tree.sym.isStatic();
-            if (isStatic) {
-                // make class-based direct static reference:   Foo.x
-                convert = select(staticReference(tree.sym), tree.name);
-            } else {
-                if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
-                        tree.sym.owner.kind == Kinds.TYP) {
-                    // it is a non-static attribute or function class member
-                    // reference it through the receiver
-                    JCExpression mRec = makeReceiver(diagPos, tree.sym, true);
-                    convert = select(mRec, tree.name);
-                } else {
-                    convert = id(tree.name);
-                }
-            }
-
-            if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-                MethodType mtype = (MethodType) tree.sym.type;
-                JFXFunctionDefinition def = null; // FIXME
-                return new FunctionValueTranslator(convert, def, tree.pos(), mtype).doitExpr();
-            }
-
-            return convertVariableReference(convert, tree.sym);
-        }
     }
 
     JCExpression translateLiteral(JFXLiteral tree) {
