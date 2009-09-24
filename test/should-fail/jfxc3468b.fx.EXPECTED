@@ -1,0 +1,4 @@
+test/should-fail/jfxc3468b/pak1/A.fx:5: cyclic inheritance involving jfxc3468b.pak1.A
+public class A extends B.B2 {}
+^
+1 error

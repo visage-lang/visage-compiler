@@ -1874,6 +1874,14 @@ public class JavafxAttr implements JavafxVisitor {
                                     List.<Type>nil(),
                                     syms.methodClass);
             m.type = mtype;
+            
+            if (m.owner instanceof ClassSymbol) {
+                // Fix primitive/number types so overridden Java methods will have the correct types.
+                fixOverride(tree, m);
+                if (returnType == syms.unknownType) {
+                    returnType = m.getReturnType();
+                }
+            }
 
             if (tree.getBodyExpression() == null) {
                 // Empty bodies are only allowed for
@@ -1940,8 +1948,6 @@ public class JavafxAttr implements JavafxVisitor {
             // If we override any other methods, check that we do so properly.
             // JLS ???
             if (m.owner instanceof ClassSymbol) {
-                // Fix primitive/number types so overridden Java methods will have the correct types.
-                fixOverride(tree, m);
                 chk.checkOverride(tree, m);
             } else {
                 if ((m.flags() & JavafxFlags.OVERRIDE) != 0) {
@@ -3937,7 +3943,7 @@ public class JavafxAttr implements JavafxVisitor {
 	Type mtres = mt.getReturnType();
 	Type otres = types.subst(ot.getReturnType(), otvars, mtvars);
         
-	boolean resultTypesOK =
+	boolean resultTypesOK = mtres != syms.javafx_UnspecifiedType &&
 	    types.returnTypeSubstitutable(mt, ot, otres, noteWarner);
 	if (!resultTypesOK) {
 	    if (!source.allowCovariantReturns() &&
@@ -3961,6 +3967,9 @@ public class JavafxAttr implements JavafxVisitor {
                 }
                 else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_DoubleType) && otres == syms.longType) {
                     setReturnType = syms.longType;
+                }
+                else if (mtres == syms.javafx_UnspecifiedType) {
+                    setReturnType = otres;
                 }
 
                 if (setReturnType != null) {

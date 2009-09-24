@@ -3,7 +3,7 @@
  *
  * @compile jfxc1812Base.fx
  * @compile jfxc1812One.fx
- * @test/compile-error
+ * @test
  */
 
 public class jfxc1812Two extends jfxc1812Base {
