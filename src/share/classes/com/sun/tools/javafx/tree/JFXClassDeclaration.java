@@ -49,7 +49,8 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     
     public JFXFunctionDefinition runMethod;
     public Scope runBodyScope;
-    public JFXScript scriptClassModule = null;
+    
+    public boolean isScriptClass;
 
     public boolean hasBeenTranslated = false; // prevent multiple translations
     
@@ -71,10 +72,11 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         this.supertypes = supertypes;
         this.defs = declarations;
         this.sym = sym;
+        this.isScriptClass = false;
     }
 
     public boolean isScriptClass() {
-        return scriptClassModule != null;
+        return isScriptClass;
     }
 
     public java.util.List<ExpressionTree> getSupertypeList() {

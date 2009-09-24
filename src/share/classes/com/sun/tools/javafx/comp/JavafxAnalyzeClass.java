@@ -31,6 +31,7 @@ import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.JCExpression;
 import com.sun.tools.mjavac.tree.JCTree.JCStatement;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
@@ -82,10 +83,22 @@ class JavafxAnalyzeClass {
     private ListBuffer<ClassSymbol> allMixins = ListBuffer.lb();
 
     // Number of vars in the current class (includes mixins.)
-    private int varCount;
+    private int classVarCount;
 
-    // Resulting list of relevant attributes.
-    private final ListBuffer<VarInfo> attributeInfos = ListBuffer.lb();
+    // Number of vars in the current class (includes mixins.)
+    private int scriptVarCount;
+    
+    // Resulting list of class vars.
+    private final ListBuffer<VarInfo> classVarInfos = ListBuffer.lb();
+
+    // Resulting list of script vars.
+    private final ListBuffer<VarInfo> scriptVarInfos = ListBuffer.lb();
+
+    // Resulting list of class vars.
+    private final ListBuffer<FuncInfo> classFuncInfos = ListBuffer.lb();
+
+    // Resulting list of script vars.
+    private final ListBuffer<FuncInfo> scriptFuncInfos = ListBuffer.lb();
 
     // List of all attributes.  Used to track overridden and mixin attributes.
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
@@ -104,6 +117,9 @@ class JavafxAnalyzeClass {
 
     // List of overriding vars (attributes) found in the current javafx class (supplied by JavafxInitializationBuilder.)
     private final List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo;
+
+    // List of functions (methods) found in the current javafx class (supplied by JavafxInitializationBuilder.)
+    private final List<TranslatedFuncInfo> translatedFuncInfo;
 
     // Global names table (supplied by JavafxInitializationBuilder.)
     private final Name.Table names;
@@ -398,6 +414,7 @@ class JavafxAnalyzeClass {
             ClassSymbol currentClassSym,
             List<TranslatedVarInfo> translatedAttrInfo,
             List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
+            List<TranslatedFuncInfo> translatedFuncInfo,
             Name.Table names,
             JavafxTypes types,
             JavafxClassReader reader,
@@ -411,49 +428,117 @@ class JavafxAnalyzeClass {
         this.currentClassSym = currentClassSym;
         this.translatedAttrInfo = translatedAttrInfo;
         this.translatedOverrideAttrInfo = translatedOverrideAttrInfo;
-        this.varCount = 0;
+        this.translatedFuncInfo = translatedFuncInfo;
+        this.classVarCount = 0;
+        this.scriptVarCount = 0;
 
         // Start by analyzing the current class.
         analyzeCurrentClass();
 
-        // Assign var enumeration and handle binders.
-        for (VarInfo ai : attributeInfos) {
-            // Only variables actually declared.
-            if (ai.needsCloning() && !ai.isOverride()) {
-                // Assign the vars enumeration.
-                ai.setEnumeration(varCount++);
-            }
-            
-            // Only look at translated vars.
-            if (ai instanceof TranslatedVarInfoBase) {
-                TranslatedVarInfoBase tai = (TranslatedVarInfoBase)ai;
-                
-                // If the var has a bind 
-                if (tai.boundInit() != null) {
-                    // Check each of the bindees.
-                    for (VarSymbol bindeeSym : tai.boundBindees()) {
-                        // Find the varInfo
-                        VarInfo bindee = visitedAttributes.get(bindeeSym.name);
-                        
-                        // If an interesting var.
-                        if (bindee instanceof TranslatedVarInfoBase) {
-                            TranslatedVarInfoBase bindeeTAI = (TranslatedVarInfoBase)bindee;
-                            
-                            // Add a symbol buffer if necessary.
-                            if (bindeeTAI.bindersOrNull == null) {
-                                bindeeTAI.bindersOrNull = ListBuffer.lb();
-                            }
-                            
-                            // Add bunder.
-                            bindeeTAI.bindersOrNull.append(tai.getSymbol());
-                        }
-                    }
-                }
-            }
+        // Assign var enumeration and binders.
+        for (VarInfo ai : classVarInfos) {
+           if (ai.needsCloning() && !ai.isOverride()) {
+               ai.setEnumeration(classVarCount++);
+           }
+           
+           if (ai instanceof TranslatedVarInfoBase) {
+              addBinders((TranslatedVarInfoBase)ai);
+           }
+        }
+        for (VarInfo ai : scriptVarInfos) {
+           if (ai.needsCloning() && !ai.isOverride()) {
+               ai.setEnumeration(scriptVarCount++);
+           }
+           
+           if (ai instanceof TranslatedVarInfoBase) {
+              addBinders((TranslatedVarInfoBase)ai);
+           }
         }
 
         // Useful debugging tool.
         // printAnalysis(false);
+    }
+    
+    
+    private void addBinders(TranslatedVarInfoBase tai) {
+        // If the var has a bind 
+        if (tai.boundInit() != null) {
+            // Check each of the bindees.
+            for (VarSymbol bindeeSym : tai.boundBindees()) {
+                // Find the varInfo
+                VarInfo bindee = visitedAttributes.get(bindeeSym.name);
+                
+                // If an interesting var.
+                if (bindee instanceof TranslatedVarInfoBase) {
+                    TranslatedVarInfoBase bindeeTAI = (TranslatedVarInfoBase)bindee;
+                    
+                    // Add a symbol buffer if necessary.
+                    if (bindeeTAI.bindersOrNull == null) {
+                        bindeeTAI.bindersOrNull = ListBuffer.lb();
+                    }
+                    
+                    // Add bunder.
+                    bindeeTAI.bindersOrNull.append(tai.getSymbol());
+                }
+            }
+        }
+    }
+
+    
+    //
+    // This class supers all classes used to hold function information. Consumed by
+    // JavafxInitializationBuilder.
+    //
+    static abstract class FuncInfo {
+        // Position of the function declaration or current javafx class if read from superclass.
+        private final DiagnosticPosition diagPos;
+
+        // Function symbol (unique to symbol.)
+        private final MethodSymbol funcSym;
+        
+        FuncInfo(DiagnosticPosition diagPos, MethodSymbol funcSym) {
+            this.diagPos = diagPos;
+            this.funcSym = funcSym;
+        }
+
+        // Return the function position.
+        public DiagnosticPosition pos() { return diagPos; }
+
+        // Return the function symbol.
+        public MethodSymbol getSymbol() { return funcSym; }
+
+        // Return modifier flags from the symbol.
+        public long getFlags() { return funcSym.flags(); }
+
+        // Predicate for static func test.
+        public boolean isStatic() { return (getFlags() & Flags.STATIC) != 0; }
+        
+        // Useful diagnostic tool.
+        public void printInfo() {
+            System.out.println("    " + getSymbol() +
+                               ", static=" + isStatic());
+        }
+    }
+    
+    static class TranslatedFuncInfo extends FuncInfo {
+        // Javafx definition of the function.
+        private final JFXFunctionDefinition jfxFuncDef;
+        
+        // Java translation of the function.
+        private final List<JCTree> jcFuncDef;
+        
+        TranslatedFuncInfo(JFXFunctionDefinition jfxFuncDef, List<JCTree> jcFuncDef) {
+            super(jfxFuncDef, jfxFuncDef.sym);
+            this.jfxFuncDef = jfxFuncDef;
+            this.jcFuncDef = jcFuncDef;
+        }
+
+        // Return the javafx definition of the function.
+        public JFXFunctionDefinition jfxFunction() { return jfxFuncDef; }
+
+        // Return the java translation of the function.
+        public List<JCTree> jcFunction() { return jcFuncDef; }
+
     }
 
     //
@@ -465,11 +550,6 @@ class JavafxAnalyzeClass {
     // Returns the current class decl.
     //
     public JFXClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
-
-    //
-    // Returns true if the current class is a script.
-    //
-    public boolean isScriptClass() { return currentClassDecl.isScriptClass(); }
 
     //
     // Returns the current class symbol.
@@ -484,7 +564,12 @@ class JavafxAnalyzeClass {
     //
     // Returns the var count for the current class.
     //
-    public int getVarCount() { return varCount; }
+    public int getClassVarCount() { return classVarCount; }
+
+    //
+    // Returns the var count for the current script.
+    //
+    public int getScriptVarCount() { return scriptVarCount; }
 
     //
     // Returns the translatedAttrInfo for the current class.
@@ -499,26 +584,38 @@ class JavafxAnalyzeClass {
     }
 
     //
-    // Returns the resulting list of instance attribute vars.
+    // Returns the translatedFuncInfo for the current class.
     //
-    public List<VarInfo> instanceAttributeInfos() {
-        return attributeInfos.toList();
+    public List<TranslatedFuncInfo> getTranslatedFuncVarInfo() {
+        return translatedFuncInfo;
     }
 
     //
-    // Returns the resulting list of static attribute vars.
+    // Returns the resulting list of class vars.
     //
-    public List<VarInfo> staticAttributeInfos() {
-        ListBuffer<VarInfo> ais = ListBuffer.lb();
+    public List<VarInfo> classVarInfos() {
+        return classVarInfos.toList();
+    }
 
-        // Select just the static vars from the current javafx class.
-        for (VarInfo ai : translatedAttrInfo) {
-            if (ai.isStatic()) {
-                ais.append( ai );
-            }
-        }
+    //
+    // Returns the resulting list of script vars.
+    //
+    public List<VarInfo> scriptVarInfos() {
+        return scriptVarInfos.toList();
+    }
 
-        return ais.toList();
+    //
+    // Returns the resulting list of class funcs.
+    //
+    public List<FuncInfo> classFuncInfos() {
+        return classFuncInfos.toList();
+    }
+
+    //
+    // Returns the resulting list of script func.
+    //
+    public List<FuncInfo> scriptFuncInfos() {
+        return scriptFuncInfos.toList();
     }
 
     //
@@ -608,38 +705,29 @@ class JavafxAnalyzeClass {
 
         // Track the current vars to the instance attribute results.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            // Only look at instance vars.
-            if (!tai.isStatic()) {
-                // Track the var for overrides and mixin duplication.
-                visitedAttributes.put(tai.getName(), tai);
-            }
+            // Track the var for overrides and mixin duplication.
+            visitedAttributes.put(tai.getName(), tai);
         }
 
         // Track the override vars to the instance attribute results.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
-            // Only look at instance vars.
-            if (!tai.isStatic()) {
-                // Find the overridden var.
-                VarInfo oldVarInfo = visitedAttributes.get(tai.getName());
+            // Find the overridden var.
+            VarInfo oldVarInfo = visitedAttributes.get(tai.getName());
 
-                // Test because it's possible to find the override before the mixin.
-                if (oldVarInfo != null) {
-                    // Proxy to the overridden var.
-                    tai.setProxyVar(oldVarInfo);
-                }
-
-                // Track the var for overrides and mixin duplication.
-                visitedAttributes.put(tai.getName(), tai);
+            // Test because it's possible to find the override before the mixin.
+            if (oldVarInfo != null) {
+                // Proxy to the overridden var.
+                tai.setProxyVar(oldVarInfo);
             }
+
+            // Track the var for overrides and mixin duplication.
+            visitedAttributes.put(tai.getName(), tai);
         }
 
         // Map the current methods so they are filtered out of the results.
-        for (JFXTree def : currentClassDecl.getMembers()) {
-            // Only the method members.
-            if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
-                MethodSymbol method = ((JFXFunctionDefinition) def).sym;
-                visitedMethods.put(methodSignature(method), method);
-            }
+        for (TranslatedFuncInfo func : translatedFuncInfo) {
+            MethodSymbol method = func.getSymbol();
+            visitedMethods.put(methodSignature(method), method);
         }
 
         // Lastly, insert any mixin vars and methods from the interfaces.
@@ -649,23 +737,33 @@ class JavafxAnalyzeClass {
             analyzeClass(supertype.type.tsym, true, true);
         }
 
-        // Add the current vars to the instance attribute results.
+        // Add the current vars to the var results.
         // JFXC-3043 - This needs to be done after mixins.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            // Only look at instance vars.
-            if (!tai.isStatic()) {
-                // Add the var to the instance var results.
-                attributeInfos.append(tai);
+            if (tai.isStatic()) {
+                scriptVarInfos.append(tai);
+            } else {
+                classVarInfos.append(tai);
             }
         }
 
-        // Add the override vars to the instance attribute results.
+        // Add the override vars to the var results.
         // JFXC-3043 - This needs to be done after mixins.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
-            // Only look at instance vars.
-            if (!tai.isStatic()) {
-                // Add the var to the instance var results.
-                attributeInfos.append(tai);
+            if (tai.isStatic()) {
+                scriptVarInfos.append(tai);
+            } else {
+                classVarInfos.append(tai);
+            }
+        }
+
+        // Add the functions to the function results.
+        // JFXC-3043 - This needs to be done after mixins.
+        for (TranslatedFuncInfo tfi : translatedFuncInfo) {
+            if (tfi.isStatic()) {
+                scriptFuncInfos.append(tfi);
+            } else {
+                classFuncInfos.append(tfi);
             }
         }
     }
@@ -851,7 +949,7 @@ class JavafxAnalyzeClass {
                     // Construct a new mixin VarInfo.
                     MixinClassVarInfo newVarInfo = new MixinClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
                     // Add the new mixin VarInfo to the result list.
-                    attributeInfos.append(newVarInfo);
+                    classVarInfos.append(newVarInfo);
                     // Map the fact we've seen this var.
                     visitedAttributes.put(attrName, newVarInfo);
                 }
@@ -859,7 +957,7 @@ class JavafxAnalyzeClass {
                 // Construct a new superclass VarInfo.
                 SuperClassVarInfo newVarInfo = new SuperClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
                 // Add the new superclass VarInfo to the result list.
-                attributeInfos.append(newVarInfo);
+                classVarInfos.append(newVarInfo);
                 // Map the fact we've seen this var.
                 visitedAttributes.put(attrName, newVarInfo);
             }
@@ -907,8 +1005,14 @@ class JavafxAnalyzeClass {
          System.out.println("  all mixins");
         for (ClassSymbol cs : allMixins) System.out.println("    " + cs);
 
-        System.out.println("  attributeInfos");
-        for (VarInfo ai : attributeInfos) ai.printInfo();
+        System.out.println("  classVarInfos");
+        for (VarInfo ai : classVarInfos) ai.printInfo();
+        System.out.println("  scriptVarInfos");
+        for (VarInfo ai : scriptVarInfos) ai.printInfo();
+        System.out.println("  classFuncInfos");
+        for (FuncInfo fi : classFuncInfos) fi.printInfo();
+        System.out.println("  scriptFuncInfos");
+        for (FuncInfo fi : scriptFuncInfos) fi.printInfo();
         System.out.println("  needDispatchMethods");
         for (MethodSymbol m : needDispatch()) {
             System.out.println("    " + m + ", owner=" + m.owner);

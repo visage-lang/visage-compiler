@@ -149,7 +149,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         {
             Name name = names.fromString(runtimePackageNameString + ".AssignToBoundException");
-            ClassSymbol sym = reader.enterClass(name);
+            ClassSymbol sym = reader.jreader.enterClass(name);
             assignBindExceptionType = types.erasure( sym.type );
         }
         
@@ -212,20 +212,28 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl,
            List<TranslatedVarInfo> translatedAttrInfo,
            List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
+           List<TranslatedFuncInfo> translatedFuncInfo,
            LiteralInitClassMap initClassMap,
-           ListBuffer<JCTree> translatedDefs,
            ListBuffer<JCStatement> translatedInitBlocks, ListBuffer<JCStatement> translatedPostInitBlocks) {
 
         DiagnosticPosition diagPos = cDecl.pos();
         Type superType = types.superType(cDecl);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl); // null unless inner class with outer reference
+        boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
+        boolean isRunnable = toJava.getAttrEnv().toplevel.isRunnable;
 
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(diagPos,
-                cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo,
+                cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo, translatedFuncInfo,
                 names, types, reader, typeMorpher);
+                
         JavaCodeMaker javaCodeMaker = new JavaCodeMaker(analysis);
-        List<VarInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
-        List<VarInfo> staticAttributeInfos = analysis.staticAttributeInfos();
+        
+        List<VarInfo> classVarInfos = analysis.classVarInfos();
+        List<VarInfo> scriptVarInfos = analysis.scriptVarInfos();
+        List<FuncInfo> classFuncInfos = analysis.classFuncInfos();
+        List<FuncInfo> scriptFuncInfos = analysis.scriptFuncInfos();
+        int classVarCount = analysis.getClassVarCount();
+        int scriptVarCount = analysis.getScriptVarCount();
         List<MethodSymbol> needDispatch = analysis.needDispatch();
         ClassSymbol fxSuperClassSym = analysis.getFXSuperClassSym();
         List<ClassSymbol> superClasses = analysis.getSuperClasses();
@@ -245,21 +253,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
 
         if (!isMixinClass) {
-            cDefinitions.appendList(javaCodeMaker.makeAttributeNumbers(varMap));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(instanceAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount, varMap));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(classVarInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(classVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
-
-            if (isScriptClass) {
-                cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
-                cDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess());
-            }
 
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
-            cDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(translatedAttrInfo, initMap));
+            cDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(initMap));
 
             if (outerTypeSym == null) {
                 cDefinitions.append(javaCodeMaker.makeJavaEntryConstructor());
@@ -270,9 +271,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             cDefinitions.appendList(javaCodeMaker.makeFunctionProxyMethods(needDispatch));
             cDefinitions.append(javaCodeMaker.makeFXEntryConstructor(outerTypeSym));
-        
             cDefinitions.appendList(javaCodeMaker.makeInitMethod(defs.userInitName, translatedInitBlocks, immediateMixinClasses));
             cDefinitions.appendList(javaCodeMaker.makeInitMethod(defs.postInitName, translatedPostInitBlocks, immediateMixinClasses));
+            cDefinitions.appendList(javaCodeMaker.gatherFunctions(classFuncInfos));
 
             if (!hasFxSuper) {
                 // Has a non-JavaFX super, so we can't use FXBase, therefore we need 
@@ -292,25 +293,42 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Clone what is needed from FXBase/FXObject.
                 cDefinitions.appendList(javaCodeMaker.cloneFXBase(excludes));
             }
-        } else {
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
-            iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
-
+            
             if (isScriptClass) {
-                cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+                Name scriptName = cDecl.getName().append(defs.scriptClassSuffixName);
+                ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
+                 
+                sDefinitions.appendList(javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null));
+                sDefinitions.appendList(javaCodeMaker.makeAttributeFields(scriptVarInfos));
+                sDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
+                sDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+                sDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(null));
+                sDefinitions.appendList(javaCodeMaker.gatherFunctions(scriptFuncInfos));
+                
+                sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
+                
+                JCClassDecl script = javaCodeMaker.makeScript(scriptName, sDefinitions.toList());
+   
+                cDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, false, isRunnable));
+                cDefinitions.append(script);
             }
 
-            // Static(script) vars are exposed in class
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
-            cDefinitions.append    (javaCodeMaker.makeInitStaticAttributesBlock(translatedAttrInfo, null));
+        } else {
+            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(classVarInfos));
+            iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
 
-            cDefinitions.appendList(javaCodeMaker.makeMixinAccessorMethods(instanceAttributeInfos));
+            // Static(script) vars are exposed in class
+            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(scriptVarInfos));
+            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
+            cDefinitions.append    (javaCodeMaker.makeInitStaticAttributesBlock(null));
+
+            cDefinitions.appendList(javaCodeMaker.makeMixinAccessorMethods(classVarInfos));
             iDefinitions.appendList(javaCodeMaker.makeFunctionInterfaceMethods());
             iDefinitions.appendList(javaCodeMaker.makeOuterAccessorInterfaceMembers());
         
             cDefinitions.appendList(javaCodeMaker.makeInitMethod(defs.userInitName, translatedInitBlocks, immediateMixinClasses));
             cDefinitions.appendList(javaCodeMaker.makeInitMethod(defs.postInitName, translatedPostInitBlocks, immediateMixinClasses));
+            cDefinitions.appendList(javaCodeMaker.gatherFunctions(classFuncInfos));
         }
 
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
@@ -379,7 +397,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         return additionalImports.toList();
     }
 
-    // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members
+    // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter
+    // to handle the instantiation of the classes that access outer members
     private ClassSymbol outerTypeSymbol(JFXClassDeclaration cdecl) {
         if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
             Symbol typeOwner = cdecl.sym.owner;
@@ -542,7 +561,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // These methods return an expression for testing/setting/clearing a var flag.
         //
         JCExpression makeFlagExpression(VarSymbol varSym, String action, String flag) {
-            return call(getReceiver(), names.fromString(action + flag), id(attributeOffsetName(varSym)));
+            return call(getReceiver(varSym), names.fromString(action + flag), id(attributeOffsetName(varSym)));
         }
 
         //
@@ -561,6 +580,29 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             return null;
+        }
+        private JCExpression getReceiver(VarSymbol varSym) {
+            if (varSym.isStatic()) {
+                return call(defs.scriptLevelAccessMethod);
+            }
+            
+            return getReceiver();
+        }
+        private JCExpression getReceiver(VarInfo varInfo) {
+            return getReceiver(varInfo.getSymbol());
+        }
+        
+        //
+        // This method gathers all the translated functions in funcInfos.
+        //
+        public List<JCTree> gatherFunctions(List<FuncInfo> funcInfos) {
+            ListBuffer<JCTree> buffer = ListBuffer.lb();
+            for (FuncInfo func : funcInfos) {
+                if (func instanceof TranslatedFuncInfo) {
+                    buffer.appendList(((TranslatedFuncInfo)func).jcFunction());
+                }
+            }
+            return buffer.toList();
         }
         
         //
@@ -789,7 +831,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
                 
                 // notifyDependents(VOFF$var););
-                ifStmts.append(callStmt(getReceiver(), defs.attributeNotifyDependentsName, id(attributeOffsetName(proxyVarSym))));
+                ifStmts.append(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, id(attributeOffsetName(proxyVarSym))));
                 
                 // isValid
                 JCExpression test = makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid);
@@ -1079,19 +1121,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method generates an enumeration for each of the instance attributes
         // of the class.
         //
-        public List<JCTree> makeAttributeNumbers(LiteralInitVarMap varMap) {
+        public List<JCTree> makeAttributeNumbers(List<VarInfo> attrInfos, int varCount, LiteralInitVarMap varMap) {
             // Buffer for new members.
             ListBuffer<JCTree> members = ListBuffer.lb();
             // Reset diagnostic position to current class.
             resetDiagPos();
-            // Get the list of instance attributes.
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
 
             // Construct a static count variable (VCNT$), -1 indicates count has not been initialized.
             members.append(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.varCountName, -1));
 
             // Construct a static count accessor method (VCNT$)
-            members.append(makeVCNT$());
+            members.append(makeVCNT$(attrInfos, varCount));
 
             // Construct a virtual count accessor method (count$)
             members.append(makecount$());
@@ -1119,17 +1159,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // The method constructs the VCNT$ method for the current class.
         //
-        public JCTree makeVCNT$() {
+        public JCTree makeVCNT$(List<VarInfo> attrInfos, int varCount) {
             // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Reset diagnostic position to current class.
             resetDiagPos();
             // Grab the super class.
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-            // Get the list of instance attributes.
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
 
             // Prepare to accumulate statements in the if.
             ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
@@ -1140,10 +1176,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // If has a javafx superclass.
             if (superClassSym == null) {
                 // n
-                setVCNT$Expr = makeInt(count);
+                setVCNT$Expr = makeInt(varCount);
             } else {
                 // super.VCNT$() + n
-                setVCNT$Expr = makeBinary(JCTree.PLUS, call(superClassSym.type, defs.varCountName), makeInt(count));
+                setVCNT$Expr = makeBinary(JCTree.PLUS, call(superClassSym.type, defs.varCountName), makeInt(varCount));
             }
 
             Name countName = names.fromString("$count");
@@ -1158,7 +1194,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Offset var name.
                     Name name = attributeOffsetName(ai.getSymbol());
                     // VCNT$ - n + i;
-                    JCExpression setVOFF$Expr = makeBinary(JCTree.PLUS, id(countName), makeInt(ai.getEnumeration() - count));
+                    JCExpression setVOFF$Expr = makeBinary(JCTree.PLUS, id(countName), makeInt(ai.getEnumeration() - varCount));
                     // VOFF$var = VCNT$ - n + i;
                     ifStmts.append(makeExec(m().Assign(id(name), setVOFF$Expr)));
                 }
@@ -1388,7 +1424,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ListBuffer<JCTree> methods = ListBuffer.lb();
 
             // Number of variables in current class.
-            int count = analysis.getVarCount();
+            int count = analysis.getClassVarCount();
 
             // Grab the super class.
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
@@ -1404,7 +1440,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ListBuffer<JCStatement> overrides = ListBuffer.lb();
 
             // Gather the instance attributes.
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+            List<VarInfo> attrInfos = analysis.classVarInfos();
             for (VarInfo ai : attrInfos) {
                 // Only declared attributes with default expressions.
                 if (ai.needsCloning() && !ai.isOverride()) {
@@ -1630,7 +1666,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Construct the static block for setting defaults
         //
-        public JCBlock makeInitStaticAttributesBlock(List<TranslatedVarInfo> translatedAttrInfo, JCStatement initMap) {
+        public JCBlock makeInitStaticAttributesBlock(JCStatement initMap) {
             // Buffer for init statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
     
@@ -1638,21 +1674,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (initMap != null) {
                 stmts.append(initMap);
             }
-    
-            boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
-            for (TranslatedVarInfo tai : translatedAttrInfo) {
-                if (tai.isStatic()) {
-                    // Don't put variable initialization in the static initializer if this is
-                    // a simple-form script (where variable initialization is done in the run method).
-                    if (tai.isDirectOwner() && isLibrary) {
-                        if (tai.getDefaultInitStatement() != null) {
-                            stmts.append(tai.getDefaultInitStatement());
-                        }
-                    }
-                }
-            }
-            
-            resetDiagPos();
+
             return m().Block(Flags.STATIC, stmts.toList());
         }
 
@@ -1877,6 +1899,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
+        // This method constructs a script class.
+        //
+        public JCClassDecl makeScript(Name scriptName, List<JCTree> definitions) {
+            JCModifiers classMods = m().Modifiers(Flags.PUBLIC | Flags.STATIC);
+            classMods = addAccessAnnotationModifiers(diagPos, 0, classMods);
+            JCClassDecl script =m().ClassDef(
+                    classMods,
+                    scriptName,
+                    List.<JCTypeParameter>nil(),
+                    makeType(syms.javafx_FXBaseType),
+                    List.<JCExpression>of(makeType(syms.javafx_FXObjectType)),
+                    definitions);
+                        
+            return script;
+        }
+                
+        //
         // Methods for accessing the outer members.
         //
         public List<JCTree> makeOuterAccessorInterfaceMembers() {
@@ -1910,36 +1949,42 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Add definitions to class to access the script-level sole instance.
         //
-        private List<JCTree> makeScriptLevelAccess() {
-            ListBuffer<JCTree> mems = ListBuffer.lb();
-            final JFXScript module = getCurrentClassDecl().scriptClassModule;
-            final JFXClassDeclaration scriptLevel = module.scriptLevelClass;
-            if (scriptLevel != null) {
+        private List<JCTree> makeScriptLevelAccess(Name scriptName, boolean scriptLevel, boolean isRunnable) {
+            ListBuffer<JCTree> members = ListBuffer.lb();
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+            if (scriptLevel) {
                 // sole instance field
-                mems.append(makeVar(Flags.PRIVATE | Flags.STATIC, scriptLevel.type, defs.scriptLevelAccessField, null));
-                //sole instance lazy creation method
+                members.append(makeVar(Flags.PRIVATE | Flags.STATIC, id(scriptName), defs.scriptLevelAccessField, null));
+                
+                // sole instance lazy creation method
                 JCExpression condition = makeNullCheck(id(defs.scriptLevelAccessField));
+                
                 JCExpression assignExpr = m().Assign(
                         id(defs.scriptLevelAccessField),
-                        m().NewClass(null, null, m().Type(scriptLevel.type), List.<JCExpression>nil(), null));
-                List<JCStatement> stmts = List.<JCStatement>of(
-                        m().If(condition, makeExec(assignExpr), null),
-                        m().Return(id(defs.scriptLevelAccessField)));
-                mems.append(makeMethod(Flags.PUBLIC | Flags.STATIC, scriptLevel.type, defs.scriptLevelAccessMethod, null, stmts));
-                // If module is runnable, create a run method that redirects to the sole instance version
-                if (module.isRunnable) {
-                    mems.append(makeMethod(
-                            Flags.PUBLIC | Flags.STATIC,
-                            syms.objectType,
-                            defs.internalRunFunctionName,
-                            List.<JCVariableDecl>of(m().Param(defs.arg0Name, types.sequenceType(syms.stringType), null)),
-                            List.<JCStatement>of(m().Return(call(
-                                call(defs.scriptLevelAccessMethod),
-                                defs.internalRunFunctionName,
-                                id(defs.arg0Name))))));
-                }
+                        m().NewClass(null, null, id(scriptName), List.<JCExpression>nil(), null));
+                        
+                stmts.append(m().If(condition, makeExec(assignExpr), null));
+                stmts.append(m().Return(id(defs.scriptLevelAccessField)));
+            } else {
+                stmts.append(m().Return(call(id(scriptName), defs.scriptLevelAccessMethod)));
             }
-            return mems.toList();
+            
+            members.append(makeMethod(Flags.PUBLIC | Flags.STATIC, id(scriptName), defs.scriptLevelAccessMethod, null, stmts.toList()));
+
+            // If module is runnable, create a run method that redirects to the sole instance version
+            if (!scriptLevel && isRunnable) {
+                members.append(makeMethod(Flags.PUBLIC | Flags.STATIC,
+                                          syms.objectType,
+                                          defs.internalRunFunctionName,
+                                          List.<JCVariableDecl>of(m().Param(defs.arg0Name, types.sequenceType(syms.stringType), null)),
+                                          List.<JCStatement>of(m().Return(call(
+                                              call(defs.scriptLevelAccessMethod),
+                                              defs.internalRunFunctionName,
+                                              id(defs.arg0Name))))));
+            }
+
+            return members.toList();
         }
     }
 }

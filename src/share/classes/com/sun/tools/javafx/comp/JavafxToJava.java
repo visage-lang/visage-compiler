@@ -290,6 +290,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
             ListBuffer<TranslatedVarInfo> attrInfo = ListBuffer.lb();
             ListBuffer<TranslatedOverrideClassVarInfo> overrideInfo = ListBuffer.lb();
+            ListBuffer<TranslatedFuncInfo> funcInfo = ListBuffer.lb();
 
             // translate all the definitions that make up the class.
             // collect any prepended definitions, and prepend then to the tranlations
@@ -351,11 +352,12 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         }
                         case FUNCTION_DEF: {
                             JFXFunctionDefinition funcDef = (JFXFunctionDefinition) def;
-                            translatedDefs.appendList(translate(funcDef).trees());
+                            funcInfo.append(new TranslatedFuncInfo(funcDef, translate(funcDef).trees()));
                             break;
                         }
                         default: {
-                            translatedDefs.appendList(translate(def).trees());
+                            assert false : "Unhandled top level member";
+                            // translatedDefs.appendList(translate(def).trees());
                             break;
                         }
                     }
@@ -369,9 +371,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
-            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList(),
+            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList(), funcInfo.toList(),
                                                                            literalInitClassMap,
-                                                                           translatedDefs,
                                                                            translatedInitBlocks, translatedPostInitBlocks);
             additionalImports.appendList(model.additionalImports);
 

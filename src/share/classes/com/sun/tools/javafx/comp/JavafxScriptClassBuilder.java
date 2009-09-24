@@ -424,7 +424,7 @@ public class JavafxScriptClassBuilder {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
         
-//        moduleClass.isScriptClass   = true;
+        moduleClass.isScriptClass   = true;
         moduleClass.runMethod       = userRunFunction;
         topLevelDefs.append(moduleClass);
         
