@@ -232,6 +232,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<VarInfo> scriptVarInfos = analysis.scriptVarInfos();
         List<FuncInfo> classFuncInfos = analysis.classFuncInfos();
         List<FuncInfo> scriptFuncInfos = analysis.scriptFuncInfos();
+        
+        boolean hasStatics = !scriptVarInfos.isEmpty() || !scriptFuncInfos.isEmpty();
+        
         int classVarCount = analysis.getClassVarCount();
         int scriptVarCount = analysis.getScriptVarCount();
         List<MethodSymbol> needDispatch = analysis.needDispatch();
@@ -293,7 +296,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDefinitions.appendList(javaCodeMaker.cloneFXBase(excludes));
             }
             
-            if (isScriptClass && isRunnable) {
+            if (isScriptClass && (isRunnable || hasStatics)) {
                 Name scriptName = cDecl.getName().append(defs.scriptClassSuffixName);
                 ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
                  
@@ -304,11 +307,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 sDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(null));
                 sDefinitions.appendList(javaCodeMaker.gatherFunctions(scriptFuncInfos));
                 
-                sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true));
+                sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
                 
                 JCClassDecl script = javaCodeMaker.makeScript(scriptName, sDefinitions.toList());
    
-                cDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, false));
+                cDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, false, isRunnable));
                 cDefinitions.append(script);
             }
 
@@ -1976,7 +1979,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Add definitions to class to access the script-level sole instance.
         //
-        private List<JCTree> makeScriptLevelAccess(Name scriptName, boolean scriptLevel) {
+        private List<JCTree> makeScriptLevelAccess(Name scriptName, boolean scriptLevel, boolean isRunnable) {
             ListBuffer<JCTree> members = ListBuffer.lb();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
@@ -2000,7 +2003,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             members.append(makeMethod(Flags.PUBLIC | Flags.STATIC, id(scriptName), defs.scriptLevelAccessMethod, null, stmts.toList()));
 
             // If module is runnable, create a run method that redirects to the sole instance version
-            if (!scriptLevel) {
+            if (!scriptLevel && isRunnable) {
                 members.append(makeMethod(Flags.PUBLIC | Flags.STATIC,
                                           syms.objectType,
                                           defs.internalRunFunctionName,
