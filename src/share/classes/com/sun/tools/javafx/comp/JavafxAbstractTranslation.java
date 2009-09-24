@@ -2206,24 +2206,14 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             varSyms.append(vsym);
         }
 
-        void setInstanceVariable(DiagnosticPosition diagPos, Name instName, VarSymbol vsym, JCExpression transInit) {
-            setInstanceVariable(diagPos, instName, JavafxBindStatus.UNBOUND, vsym, transInit);
-        }
-
         void setInstanceVariable(Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
             DiagnosticPosition initPos = init.pos();
             JCExpression transInit = translateInstanceVariableInit(init, bindStatus, vsym);
             setInstanceVariable(initPos, instName, bindStatus, vsym, transInit);
         }
 
-        void setInstanceVariable(Name instName, VarSymbol vsym, JFXExpression init) {
-            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
-        }
-
         void makeInitSupportCall(Name methName, Name receiverName) {
-            JCExpression receiver = id(receiverName);
-            JCStatement callExec = callStmt(receiver, methName, List.<JCExpression>nil());
-            addPreface(callExec);
+            addPreface(callStmt(id(receiverName), methName));
         }
 
         void makeInitApplyDefaults(Type classType, Name receiverName) {
@@ -2232,12 +2222,11 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
             JCVariableDecl loopVar = makeTmpLoopVar(diagPos, 0);
             Name loopName = loopVar.name;
-            JCExpression loopLimit = m().Apply(null, select(id(receiverName), names.fromString(JavafxDefs.attributeCountMethodString)),
-                                               List.<JCExpression>nil());
+            JCExpression loopLimit = call(id(receiverName), defs.attributeCountMethodName);
             JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
             addPreface(loopLimitVar);
             JCExpression loopTest = makeBinary(JCTree.LT, id(loopName), id(loopLimitVar.name));
-            List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(loopName), m().Literal(TypeTags.INT, 1))));
+            List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(loopName), makeInt(1))));
             JCStatement loopBody;
 
             List<JCExpression> args = List.<JCExpression>of(id(loopName));
@@ -2245,7 +2234,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
-                JCExpression getmapExpr = m().Apply(null, id(varGetMapName(classSym)), List.<JCExpression>nil());
+                JCExpression getmapExpr = call(varGetMapName(classSym));
                 JCVariableDecl mapVar = makeTmpVar("map", syms.javafx_ShortArray, getmapExpr);
                 addPreface(mapVar);
 
@@ -2253,26 +2242,26 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 int[] tags = new int[count];
 
                 int index = 0;
-                for (VarSymbol varSym : varSyms.toList()) {
+                for (VarSymbol varSym : varSyms) {
                     tags[index++] = varMap.addVar(varSym);
                 }
 
                 ListBuffer<JCCase> cases = ListBuffer.lb();
                 index = 0;
                 for (JCStatement varInit : varInits) {
-                    cases.append(m().Case(m().Literal(TypeTags.INT, tags[index++]), List.<JCStatement>of(varInit, m().Break(null))));
+                    cases.append(m().Case(makeInt(tags[index++]), List.<JCStatement>of(varInit, m().Break(null))));
                 }
 
                 cases.append(m().Case(null, List.<JCStatement>of(applyDefaultsExpr, m().Break(null))));
 
-                JCExpression mapExpr = m().Indexed(id(mapVar.name), id(loopName));
+                JCExpression mapExpr = m().Indexed(id(mapVar), id(loopName));
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
                 VarSymbol varSym = varSyms.first();
                 JCExpression varOffsetExpr = select(makeType(classType, false), attributeOffsetName(varSym));
                 JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
-                JCExpression condition = makeEqual(id(loopName), id(offsetVar.name));
+                JCExpression condition = makeEqual(id(loopName), id(offsetVar));
                 loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
             }
 
@@ -2329,7 +2318,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
                 // Use the JavaFX constructor by adding a marker argument. The "true" in:
                 //       ... new X(true);
-                newClassArgs = newClassArgs.append(m().Literal(TypeTags.BOOLEAN, 1));
+                newClassArgs = newClassArgs.append(makeBoolean(true));
 
                 // Create the new instance, placing it in a temporary variable "jfx$0objlit"
                 //       final X jfx$0objlit = new X(true);

@@ -463,7 +463,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
         void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
             VarSymbol vsym = varSym(varName);
-            setInstanceVariable(instName, vsym, init);
+            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
         }
 
         @Override
@@ -1902,7 +1902,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         tree.getInterpolationValues(),
                         syms.javafx_KeyValueType
                 ).doit());
-                setInstanceVariable(tree.pos(), instName, varSym(defs.valuesName), values);
+                setInstanceVariable(tree.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.valuesName), values);
             }
         }.doit();
     }
