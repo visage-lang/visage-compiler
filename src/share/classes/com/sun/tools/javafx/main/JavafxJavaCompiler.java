@@ -177,11 +177,13 @@ public class JavafxJavaCompiler extends JavaCompiler {
                         newStats.append(s);
                         index++;
                     }
-                    if (lastStat.getKind() == Kind.EXPRESSION_STATEMENT) {
+                    if (lastStat != null && lastStat.getKind() == Kind.EXPRESSION_STATEMENT) {
                         stats = newStats.toList();
                         value = ((JCExpressionStatement)lastStat).getExpression();
                     }
-                    return new BlockExprJCBlockExpression(0L, stats, value);
+                    JCExpression expr = new BlockExprJCBlockExpression(0L, stats, value);
+                    expr.pos = blk.pos;
+                    return expr;
                 }
             };
             tree = parser.compilationUnit();
