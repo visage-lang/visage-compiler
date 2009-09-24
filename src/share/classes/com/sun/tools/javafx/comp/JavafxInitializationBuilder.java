@@ -244,7 +244,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = analysis.isAnonClass();
         boolean hasFxSuper = fxSuperClassSym != null;
-
         // Have to populate the var map for anon classes.
         // TODO: figure away to avoid this if not used (needs global knowledge.)
         LiteralInitVarMap varMap = isAnonClass ? initClassMap.getVarMap(analysis.getCurrentClassSymbol()) : null;
@@ -294,7 +293,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 cDefinitions.appendList(javaCodeMaker.cloneFXBase(excludes));
             }
             
-            if (isScriptClass) {
+            if (isScriptClass && isRunnable) {
                 Name scriptName = cDecl.getName().append(defs.scriptClassSuffixName);
                 ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
                  
@@ -305,11 +304,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 sDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(null));
                 sDefinitions.appendList(javaCodeMaker.gatherFunctions(scriptFuncInfos));
                 
-                sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
+                sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true));
                 
                 JCClassDecl script = javaCodeMaker.makeScript(scriptName, sDefinitions.toList());
    
-                cDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, false, isRunnable));
+                cDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, false));
                 cDefinitions.append(script);
             }
 
@@ -1977,7 +1976,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Add definitions to class to access the script-level sole instance.
         //
-        private List<JCTree> makeScriptLevelAccess(Name scriptName, boolean scriptLevel, boolean isRunnable) {
+        private List<JCTree> makeScriptLevelAccess(Name scriptName, boolean scriptLevel) {
             ListBuffer<JCTree> members = ListBuffer.lb();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
@@ -2001,7 +2000,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             members.append(makeMethod(Flags.PUBLIC | Flags.STATIC, id(scriptName), defs.scriptLevelAccessMethod, null, stmts.toList()));
 
             // If module is runnable, create a run method that redirects to the sole instance version
-            if (!scriptLevel && isRunnable) {
+            if (!scriptLevel) {
                 members.append(makeMethod(Flags.PUBLIC | Flags.STATIC,
                                           syms.objectType,
                                           defs.internalRunFunctionName,

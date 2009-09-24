@@ -368,8 +368,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                             break;
                         }
                         default: {
-                            assert false : "Unhandled top level member";
-                            // translatedDefs.appendList(translate(def).trees());
+                            // Handle other classes.
+                            translatedDefs.appendList(translate(def).trees());
                             break;
                         }
                     }
@@ -452,7 +452,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         JFXClassDeclaration prevClass = currentClass();
         setCurrentClass(tree);
-
+        
         if (tree.isScriptClass()) {
             scriptBegin();
         }
