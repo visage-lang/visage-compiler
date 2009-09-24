@@ -82,14 +82,16 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     private ListBuffer<JCExpression> additionalImports = null;
 
-    Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
+    // Stack used to track literal symbols for the current class.
+    private Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
 
     // Stack used to track literal symbols for the current class.
-    LiteralInitClassMap literalInitClassMap = null;
+    private LiteralInitClassMap literalInitClassMap = null;
+
+    /** Class symbols for classes that need a reference to the outer class. */
+    private final Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
 
     private JavafxEnv<JavafxAttrContext> attrEnv;
-
-    boolean inOverrideInstanceVariableDefinition = false;
 
     /*
      * static information
@@ -98,9 +100,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
     private static final String methodThrowsString = "java.lang.Throwable";
-
-    /** Class symbols for classes that need a reference to the outer class. */
-    Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
 
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
@@ -119,12 +118,19 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     /**
+     * Entry point
+     */
+    public void toJava(JavafxEnv<JavafxAttrContext> attrEnv) {
+        this.setAttrEnv(attrEnv);
+
+        attrEnv.translatedToplevel = (JCCompilationUnit)((SpecialResult)translate(attrEnv.toplevel)).tree();
+        attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;
+    }
+
+    /**
      * For special cases where the expression may not be fully attributed.
      * Specifically: package and import names.
      * Do a dumb simple conversion.
-     *
-     * @param tree
-     * @return
      */
     private JCExpression straightConvert(JFXExpression tree) {
         if (tree == null) {
@@ -148,7 +154,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     private boolean substitute(Symbol sym) {
-        Name name = substitutionMap.get(sym);
+        Name name = getSubstitutionMap().get(sym);
         if (name == null) {
             return false;
         } else {
@@ -179,11 +185,35 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         this.attrEnv = attrEnv;
     }
 
-    public void toJava(JavafxEnv<JavafxAttrContext> attrEnv) {
-        this.setAttrEnv(attrEnv);
+    /**
+     * @return the substitutionMap
+     */
+    @Override
+    Map<Symbol, Name> getSubstitutionMap() {
+        return substitutionMap;
+    }
 
-        attrEnv.translatedToplevel = (JCCompilationUnit)((SpecialResult)translate(attrEnv.toplevel)).tree();
-        attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;
+    /**
+     * Class symbols for classes that need a reference to the outer class.
+     */
+    @Override
+    Set<ClassSymbol> getHasOuters() {
+        return hasOuters;
+    }
+
+    /**
+     * @return the literalInitClassMap
+     */
+    @Override
+    LiteralInitClassMap getLiteralInitClassMap() {
+        return literalInitClassMap;
+    }
+
+    /**
+     * @param literalInitClassMap the literalInitClassMap to set
+     */
+    private void setLiteralInitClassMap(LiteralInitClassMap literalInitClassMap) {
+        this.literalInitClassMap = literalInitClassMap;
     }
 
     static class OnReplaceInfo {
@@ -319,11 +349,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
                             inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             JCStatement initStmt;
-                            inOverrideInstanceVariableDefinition = true;
                             initStmt = translateDefinitionalAssignmentToSet(override.pos(),
                                     override.getInitializer(), override.getBindStatus(), override.sym,
                                     (isStatic || !isMixinClass) ? null : defs.receiverName);
-                            inOverrideInstanceVariableDefinition = false;
                             overrideInfo.append(new TranslatedOverrideClassVarInfo(
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
@@ -355,9 +383,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
 
-            JavafxClassModel model = initBuilder.createJFXClassModel(tree, attrInfo.toList(), overrideInfo.toList(), funcInfo.toList(),
-                                                                           literalInitClassMap,
-                                                                           translatedInitBlocks, translatedPostInitBlocks);
+            JavafxClassModel model = initBuilder.createJFXClassModel(tree, 
+                    attrInfo.toList(),
+                    overrideInfo.toList(),
+                    funcInfo.toList(),
+                    getLiteralInitClassMap(),
+                    translatedInitBlocks,
+                    translatedPostInitBlocks);
             additionalImports.appendList(model.additionalImports);
 
             // include the interface only once
@@ -427,7 +459,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
         try {
             if (tree.isScriptClass()) {
-                literalInitClassMap = new LiteralInitClassMap();
+                setLiteralInitClassMap(new LiteralInitClassMap());
             }
 
             result = new ClassDeclarationTranslator(tree).doit();
@@ -1871,8 +1903,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
             // interpolator kind
             if (tree.interpolation != null) {
-                VarSymbol vsym = varSym(defs.interpolateName);
-                setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, tree.interpolation);
+                setInstanceVariable(instName, defs.interpolateName, tree.interpolation);
             }
 
             // target -- convert to Pointer
@@ -1983,7 +2014,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
                     if (foundOuterOwner) {
                         for (ClassSymbol cs : potentialOuters) {
-                            hasOuters.add(cs);
+                            getHasOuters().add(cs);
                         }
                     }
                 }
