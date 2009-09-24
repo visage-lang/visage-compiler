@@ -25,6 +25,10 @@ package com.sun.javafx.runtime;
 
 // CODING/NAMING RESTRICTIONS - see FXBase for explanation.
 
+import java.lang.reflect.Type;
+
+
+
 /**
  * All FX classes must extend FXObject; it acts as a marker interface, and also includes methods required for
  * object lifecyle.
@@ -93,6 +97,12 @@ public interface FXObject {
     public void     update$ (final FXObject src, final int varNum);
     // for testing - the listener count is the number of distinct {varNum, dep} pairs
     public int      getListenerCount$();
+
+    // instance variable access by varNum
+    public Object   get$(int varNum);
+    public void     set$(int varNum, Object value);
+    // type of a particular instance variable
+    public Class    getType$(int varNum);
 
     public void     initialize$   ();
     public void     applyDefaults$();

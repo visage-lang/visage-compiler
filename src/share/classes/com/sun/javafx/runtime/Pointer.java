@@ -23,6 +23,9 @@
 
 package com.sun.javafx.runtime;
 
+import com.sun.javafx.runtime.sequence.Sequence;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.animation.KeyValueTarget;
 
 
@@ -30,17 +33,37 @@ import javafx.animation.KeyValueTarget;
  * Pointers
  *
  * @author Brian Goetz
- *
- * FIXME: yet to be implemented for compiled binds
+ * @author A. Sundararajan
  */
 public class Pointer implements KeyValueTarget {
     private final Type type;
     private final FXObject obj;
     private final int varnum;
 
+    private static Map<Class, Type> classToType;
+    static {
+        classToType = new HashMap<Class, Type>();
+        classToType.put(Byte.TYPE, Type.BYTE);
+        classToType.put(Short.TYPE, Type.SHORT);
+        classToType.put(Integer.TYPE, Type.INTEGER);
+        classToType.put(Long.TYPE, Type.LONG);
+        classToType.put(Float.TYPE, Type.FLOAT);
+        classToType.put(Double.TYPE, Type.DOUBLE);
+        classToType.put(Boolean.TYPE, Type.BOOLEAN);
+        classToType.put(Character.TYPE, Type.INTEGER);
+    }
+
     public static Pointer make(FXObject obj, int varnum) {
-        // FIXME: yet to be implemented for compiled binds
-        return null;
+        Class clazz = obj.getType$(varnum);
+        Type type = classToType.get(clazz);
+        if (type == null) {
+            if (Sequence.class.isAssignableFrom(clazz)) {
+                type = Type.SEQUENCE;
+            } else {
+                type = Type.OBJECT;
+            }
+        }
+        return new Pointer(type, obj, varnum);
     }
 
     public static boolean equals(Pointer p1, Pointer p2) {
@@ -62,12 +85,11 @@ public class Pointer implements KeyValueTarget {
     }
     
     public Object get() {
-        // FIXME: yet to be implemented for compiled binds
-        return null;
+        return obj.get$(varnum);
     }
 
     public void set(Object value) {
-        // FIXME: yet to be implemented for compiled binds
+        obj.set$(varnum, value);
     }
 
     public Object getValue() {
@@ -93,4 +115,3 @@ public class Pointer implements KeyValueTarget {
         return System.identityHashCode(obj) ^ varnum;
     }
 }
-
