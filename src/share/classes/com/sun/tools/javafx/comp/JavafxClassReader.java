@@ -599,7 +599,9 @@ public class JavafxClassReader extends ClassReader {
                             name.startsWith(defs.attributeBePrefixName) ||
                             name.startsWith(defs.attributeInvalidatePrefixMethodName) ||
                             name.startsWith(defs.attributeOnReplacePrefixMethodName) ||
-                            name.startsWith(defs.attributeApplyDefaultsPrefixMethodName)))
+                            name.startsWith(defs.attributeApplyDefaultsPrefixMethodName) ||
+                            name.startsWith(defs.attributeUpdatePrefixMethodName)
+                            ))
                         continue;
                     // if this is a main method in an FX class then it is synthetic, ignore it
                     if (name == defs.mainName && isFXClass) {

@@ -66,6 +66,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private Name outerAccessorFieldName;
     private Name makeInitMap;
 
+    private Name updateInstanceName;
     private Name varNumName;
     private Name varLocalNumName;
     private Name varWordName;
@@ -140,6 +141,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         outerAccessorFieldName = names.fromString("accessOuterField$");
         makeInitMap = names.fromString("makeInitMap$");
 
+        updateInstanceName = names.fromString("instance$");
         varNumName = names.fromString("varNum$");
         varLocalNumName = names.fromString("varLocalNum$");
         varWordName = names.fromString("varWord$");
@@ -259,6 +261,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(classVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(classVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
+            cDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
 
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
@@ -304,6 +307,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 sDefinitions.appendList(javaCodeMaker.makeAttributeFields(scriptVarInfos));
                 sDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
                 sDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+                sDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
                 sDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(null));
                 sDefinitions.appendList(javaCodeMaker.gatherFunctions(scriptFuncInfos));
                 
@@ -322,6 +326,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Static(script) vars are exposed in class
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(scriptVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
+            cDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
             cDefinitions.append    (javaCodeMaker.makeInitStaticAttributesBlock(null));
 
             cDefinitions.appendList(javaCodeMaker.makeMixinAccessorMethods(classVarInfos));
@@ -1555,6 +1560,48 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             return methods.toList();
         }
+        
+        //
+        // This method constructs the current class's update$ method.
+        //
+        public List<JCTree> makeUpdateMethod() {
+            // Buffer for new methods.
+            ListBuffer<JCTree> methods = ListBuffer.lb();
+             // Prepare to accumulate statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Grab the super class.
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            // Reset diagnostic position to current class.
+            resetDiagPos();
+           
+            boolean hasUpdates = false;
+
+            // generate method if it is worthwhile or we have to.
+            if (hasUpdates || superClassSym == null) {
+               // If there is a super class.
+                if (superClassSym != null) {
+                    // super
+                    JCExpression selector = id(names._super);
+                    // (varNum)
+                    List<JCExpression> args = List.<JCExpression>of(id(updateInstanceName), id(varNumName));
+                    // Construct and add: return super.applyDefaults$(varNum);
+                    stmts.append(callStmt(selector, defs.attributeUpdatePrefixMethodName, args));
+                }
+
+                // Construct method.
+                JCMethodDecl method = makeMethod(Flags.PUBLIC,
+                                                 syms.voidType,
+                                                 defs.attributeUpdatePrefixMethodName,
+                                                 List.<JCVariableDecl>of(makeParam(syms.javafx_FXObjectType, updateInstanceName),
+                                                                         makeParam(syms.intType, varNumName)),
+                                                 stmts);
+                // Add to the methods list.
+                methods.append(method);
+            }
+
+            return methods.toList();
+        }
+
 
         //
         // This method constructs the initializer for a var map.

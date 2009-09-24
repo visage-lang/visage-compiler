@@ -51,6 +51,7 @@ public class JavafxDefs {
     public static final String attributeEvaluateMethodNamePrefix = "evaluate$";
     public static final String attributeNotifyDependentsNameString = "notifyDependents$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
+    public static final String attributeUpdateMethodNamePrefix = "update$";
     public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
     public static final String attributeCountMethodString = "count$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
@@ -219,6 +220,7 @@ public class JavafxDefs {
     final Name attributeOnReplacePrefixMethodName;
     final Name attributeEvaluatePrefixMethodName;
     final Name attributeApplyDefaultsPrefixMethodName;
+    final Name attributeUpdatePrefixMethodName;
     final Name attributeCountMethodName;
     final Name isInitializedPrefixName;
     final Name incrementSharingMethodName;
@@ -333,6 +335,7 @@ public class JavafxDefs {
         attributeOnReplacePrefixMethodName = names.fromString(attributeOnReplaceMethodNamePrefix);
         attributeEvaluatePrefixMethodName = names.fromString(attributeEvaluateMethodNamePrefix);
         attributeApplyDefaultsPrefixMethodName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
+        attributeUpdatePrefixMethodName = names.fromString(attributeUpdateMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
         scriptLevelAccessField = names.fromString("$scriptLevel$");
