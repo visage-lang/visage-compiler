@@ -32,8 +32,6 @@ import com.sun.javafx.runtime.sequence.*;
  * TypeInfo
  *
  * @author Brian Goetz
- *
- * FIXME: Do we need TypeInfo in the new locationless world? Revisit this.
  */
 public class TypeInfo<T> {
     public final T defaultValue;
@@ -120,5 +118,3 @@ public class TypeInfo<T> {
         return makeAndRegisterTypeInfo(defaultValue.getClass(), defaultValue);
     }
 }
-
-
