@@ -782,15 +782,33 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             return method;
         }
-        
+
+        //
+        // Determine if this override needs an invalidate method
+        // Must be in sync with makeInvalidateAccessorMethod
+        //
+        private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
+            if (varInfo.hasBoundDefinition()) {
+                return false;
+            }
+            if (varInfo.isMixinVar()) {
+                // based on makeInvalidateAccessorMethod
+                return true;
+            } else {
+                if (varInfo instanceof TranslatedVarInfoBase) {
+                    return ((TranslatedVarInfoBase) varInfo).boundBinders().nonEmpty();
+                } else {
+                    return false;
+                }
+            }
+        }
+
         //
         // This method constructs the invalidate method for the specified attribute.
         //
         private JCTree makeInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
             // Symbol used on the method.
             VarSymbol varSym = varInfo.getSymbol();
-            // Real type for var.
-            Type type = varInfo.getRealType();
             // Assume no body.
             ListBuffer<JCStatement> stmts = null;
 
@@ -810,12 +828,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 // Call super first.
                 ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-                if (varInfo.isOverride() && superClassSym != null) {
+                boolean isOverride = varInfo.isOverride() && superClassSym != null;
+                if (isOverride) {
                     ifStmts.append(makeSuperCall(superClassSym, attributeInvalidateName(varSym)));
                 }
                 
                 // clearValidValue$(VOFF$var);
-                ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionClear, varFlagValid));
+                if (!isOverride) {
+                    ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionClear, varFlagValid));
+                }
                 
                 // Handle binders.
                 if (varInfo.isMixinVar()) {
@@ -831,7 +852,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
                 
                 // notifyDependents(VOFF$var););
-                ifStmts.append(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, id(attributeOffsetName(proxyVarSym))));
+                if (!isOverride) {
+                    ifStmts.append(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, id(attributeOffsetName(proxyVarSym))));
+                }
                 
                 // isValid
                 JCExpression test = makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid);
@@ -1048,8 +1071,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     accessors.append(makeInvalidateAccessorMethod(ai, needsBody));
                     accessors.append(makeOnReplaceAccessorMethod(ai, needsBody));
                 } else if (needsBody) {
-                    if (ai.hasBoundDefinition()) {
+                    if (ai.hasInitializer()) {
+                        // Bound or not, we need getter & setter on override since we
+                        // may be switching between bound and non-bound or visa versa
                         accessors.append(makeGetterAccessorMethod(ai, needsBody));
+                        accessors.append(makeSetterAccessorMethod(ai, needsBody));
+                    }
+                    if (needOverrideInvalidateAccessorMethod(ai)) {
                         accessors.append(makeInvalidateAccessorMethod(ai, needsBody));
                     }
                     if (ai.onReplace() != null) {
@@ -1377,8 +1405,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the statements needed to apply defaults to a given var.
         //
         private JCStatement makeApplyDefaultsStatement(VarInfo ai, boolean isMixinClass) {
-            if (ai.isInlinedBind()) { //TODO: Lombard
-                // Inlined bind, don't set in applyDefaults$
+            if (ai.hasBoundDefinition()) {
+                // bind, don't set in applyDefaults$
                 return null;
             }
 

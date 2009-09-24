@@ -35,29 +35,13 @@ import com.sun.tools.mjavac.code.*;
 import static com.sun.tools.mjavac.code.Flags.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.tree.JCTree;
-import com.sun.tools.mjavac.tree.JCTree.JCAnnotation;
-import com.sun.tools.mjavac.tree.JCTree.JCBlock;
-import com.sun.tools.mjavac.tree.JCTree.JCCase;
-import com.sun.tools.mjavac.tree.JCTree.JCCatch;
-import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
-import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
-import com.sun.tools.mjavac.tree.JCTree.JCExpression;
-import com.sun.tools.mjavac.tree.JCTree.JCExpressionStatement;
-import com.sun.tools.mjavac.tree.JCTree.JCIdent;
-import com.sun.tools.mjavac.tree.JCTree.JCMethodDecl;
-import com.sun.tools.mjavac.tree.JCTree.JCMethodInvocation;
-import com.sun.tools.mjavac.tree.JCTree.JCModifiers;
-import com.sun.tools.mjavac.tree.JCTree.JCStatement;
-import com.sun.tools.mjavac.tree.JCTree.JCTypeParameter;
-import com.sun.tools.mjavac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
-import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
-import static com.sun.tools.javafx.code.JavafxFlags.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Result;
@@ -98,12 +82,12 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     private ListBuffer<JCExpression> additionalImports = null;
 
-    private Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
-
-    private JavafxEnv<JavafxAttrContext> attrEnv;
+    Map<Symbol, Name> substitutionMap = new HashMap<Symbol, Name>();
 
     // Stack used to track literal symbols for the current class.
     LiteralInitClassMap literalInitClassMap = null;
+
+    private JavafxEnv<JavafxAttrContext> attrEnv;
 
     boolean inOverrideInstanceVariableDefinition = false;
 
@@ -453,202 +437,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    abstract class NewInstanceTranslator extends ExpressionTranslator {
-
-        // Statements to set symbols with initial values.
-        protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
-
-        // Symbols corresponding to caseStats.
-        protected ListBuffer<VarSymbol> varSyms = ListBuffer.lb();
-
-        NewInstanceTranslator(DiagnosticPosition diagPos) {
-            super(diagPos);
-        }
-
-        /**
-         * Initialize the instance variables of the instance
-         * @param instName
-         */
-        protected abstract void initInstanceVariables(Name instName);
-
-        /**
-         * @return the constructor args -- translating any supplied args
-         */
-        protected abstract List<JCExpression> completeTranslatedConstructorArgs();
-
-        protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            return translateNonBoundInit(init.pos(), init, vmi);
-        }
-
-        void setInstanceVariable(DiagnosticPosition diagPos, Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
-            //TODO: should not be calling definitionalAssignmentToSetExpression, instead should be translateDefinitionalAssignmentToSetExpression
-            varInits.append(m().Exec( definitionalAssignmentToSetExpression(diagPos, transInit, bindStatus, instName,
-                                                     typeMorpher.varMorphInfo(vsym)) ) );
-            varSyms.append(vsym);
-        }
-
-        void setInstanceVariable(DiagnosticPosition diagPos, Name instName, VarSymbol vsym, JCExpression transInit) {
-            setInstanceVariable(diagPos, instName, JavafxBindStatus.UNBOUND, vsym, transInit);
-        }
-
-        void setInstanceVariable(Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
-            DiagnosticPosition initPos = init.pos();
-            JCExpression transInit = translateInstanceVariableInit(init, bindStatus, vsym);
-            setInstanceVariable(initPos, instName, bindStatus, vsym, transInit);
-        }
-
-        void setInstanceVariable(Name instName, VarSymbol vsym, JFXExpression init) {
-            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
-        }
-
-        void makeInitSupportCall(Name methName, Name receiverName) {
-            JCExpression receiver = id(receiverName);
-            JCStatement callExec = callStmt(receiver, methName, List.<JCExpression>nil());
-            addPreface(callExec);
-        }
-
-        void makeInitApplyDefaults(Type classType, Name receiverName) {
-            ClassSymbol classSym = (ClassSymbol)classType.tsym;
-            int count = varSyms.size();
-
-            JCVariableDecl loopVar = makeTmpLoopVar(diagPos, 0);
-            Name loopName = loopVar.name;
-            JCExpression loopLimit = m().Apply(null, select(id(receiverName), names.fromString(attributeCountMethodString)),
-                                               List.<JCExpression>nil());
-            JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
-            addPreface(loopLimitVar);
-            JCExpression loopTest = makeBinary(JCTree.LT, id(loopName), id(loopLimitVar.name));
-            List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(loopName), m().Literal(TypeTags.INT, 1))));
-            JCStatement loopBody;
-
-            List<JCExpression> args = List.<JCExpression>of(id(loopName));
-            JCStatement applyDefaultsExpr = callStmt(id(receiverName), defs.attributeApplyDefaultsPrefixMethodName, args);
-
-            if (1 < count) {
-                // final short[] jfx$0map = GETMAP$X();
-                JCExpression getmapExpr = m().Apply(null, id(varGetMapName(classSym)), List.<JCExpression>nil());
-                JCVariableDecl mapVar = makeTmpVar("map", syms.javafx_ShortArray, getmapExpr);
-                addPreface(mapVar);
-
-                LiteralInitVarMap varMap = literalInitClassMap.getVarMap(classSym);
-                int[] tags = new int[count];
-
-                int index = 0;
-                for (VarSymbol varSym : varSyms.toList()) {
-                    tags[index++] = varMap.addVar(varSym);
-                }
-
-                ListBuffer<JCCase> cases = ListBuffer.lb();
-                index = 0;
-                for (JCStatement varInit : varInits) {
-                    cases.append(m().Case(m().Literal(TypeTags.INT, tags[index++]), List.<JCStatement>of(varInit, m().Break(null))));
-                }
-
-                cases.append(m().Case(null, List.<JCStatement>of(applyDefaultsExpr, m().Break(null))));
-
-                JCExpression mapExpr = m().Indexed(id(mapVar.name), id(loopName));
-                loopBody = m().Switch(mapExpr, cases.toList());
-            } else {
-                VarSymbol varSym = varSyms.first();
-                JCExpression varOffsetExpr = select(makeType(classType, false), attributeOffsetName(varSym));
-                JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
-                addPreface(offsetVar);
-                JCExpression condition = makeEqual(id(loopName), id(offsetVar.name));
-                loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
-            }
-
-            addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
-        }
-
-        /**
-         * Return the instance building expression
-         * @param declaredType
-         * @param cdef
-         * @param isFX
-         * @return
-         */
-        protected ExpressionResult buildInstance(Type declaredType, JFXClassDeclaration cdef, boolean isFX) {
-            Type type;
-
-            if (cdef == null) {
-                type = declaredType;
-            } else {
-                translateStmt(cdef);
-                type = cdef.type;
-            }
-            JCExpression classTypeExpr = makeType(type, false);
-
-            List<JCExpression> newClassArgs = completeTranslatedConstructorArgs();
-
-            Name tmpVarName = getSyntheticName("objlit");
-            initInstanceVariables(tmpVarName);  // Must preceed varSyms.nonEmpty() test
-
-            JCExpression instExpression;
-            if (varSyms.nonEmpty() || (isFX && newClassArgs.nonEmpty()) || cdef != null) {
-                // it is a instanciation of a JavaFX class which has instance variable initializers
-                // (or is anonymous, or has an outer class argument)
-                //
-                //   {
-                //       final X jfx$0objlit = new X(true);
-                //       final short[] jfx$0map = GETMAP$X();
-                //
-                //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
-                //           if (!isInitialized(jfx$0initloop) {
-                //               switch (jfx$0map[jfx$0initloop]) {
-                //                   1: jfx$0objlit.set$a(0); break;
-                //                   2: jfx$0objlit.set$b(0); break;
-                //                   ...
-                //                   n: jfx$0objlit.set$z(0); break;
-                //                   default: jfx$0objlit.applyDefaults$(jfx$0initloop);
-                //               }
-                //           }
-                //       }
-                //
-                //       jfx$0objlit.complete$();
-                //       jfx$0objlit
-                //   }
-
-                // Use the JavaFX constructor by adding a marker argument. The "true" in:
-                //       ... new X(true);
-                newClassArgs = newClassArgs.append(m().Literal(TypeTags.BOOLEAN, 1));
-
-                // Create the new instance, placing it in a temporary variable "jfx$0objlit"
-                //       final X jfx$0objlit = new X(true);
-                addPreface(makeVar(
-                        type,
-                        tmpVarName,
-                        m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
-
-                // Apply defaults to the instance variables
-                //
-                //       final short[] jfx$0map = GETMAP$X();
-                //       for (int jfx$0initloop = 0; i < X.$VAR_COUNT; i++) {
-                //           ...
-                //       }
-                if (varSyms.nonEmpty()) {
-                    makeInitApplyDefaults(type, tmpVarName);
-                } else {
-                    makeInitSupportCall(defs.attributeApplyDefaultsPrefixMethodName, tmpVarName);
-                }
-
-                // Call complete$ to do user's init and postinit blocks
-                //       jfx$0objlit.complete$();
-                makeInitSupportCall(defs.completeName, tmpVarName);
-
-                // Return the instance from the block expressions
-                //       jfx$0objlit
-                instExpression = id(tmpVarName);
-
-            } else {
-                // this is a Java class or has no instance variable initializers, just instanciate it
-                instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
-            }
-
-            return toResult(instExpression);
-        }
-    }
-
     /**
      * Translate to a built-in construct
      */
@@ -676,98 +464,12 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
         void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
             VarSymbol vsym = varSym(varName);
-            setInstanceVariable(instName, vsym, init);
+            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
         }
 
         @Override
         protected ExpressionResult doit() {
             return buildInstance(builtIn, null, true);
-        }
-    }
-
-    /**
-     * Translator for object literals
-     */
-    abstract class InstanciateTranslator extends NewInstanceTranslator {
-
-        protected final JFXInstanciate tree;
-        private final Symbol idSym;
-
-        InstanciateTranslator(final JFXInstanciate tree) {
-            super(tree.pos());
-            this.tree = tree;
-            this.idSym = JavafxTreeInfo.symbol(tree.getIdentifier());
-        }
-
-        abstract protected void processLocalVar(JFXVar var);
-
-        protected void initInstanceVariables(Name instName) {
-            if (tree.varDefinedByThis != null) {
-                substitutionMap.put(tree.varDefinedByThis, instName);
-            }
-            for (JFXObjectLiteralPart olpart : tree.getParts()) {
-                diagPos = olpart.pos(); // overwrite diagPos (must restore)
-                JavafxBindStatus bindStatus = olpart.getBindStatus();
-                JFXExpression init = olpart.getExpression();
-                VarSymbol vsym = (VarSymbol) olpart.sym;
-                setInstanceVariable(instName, bindStatus, vsym, init);
-            }
-            if (tree.varDefinedByThis != null) {
-                substitutionMap.remove(tree.varDefinedByThis);
-            }
-            diagPos = tree.pos();
-        }
-
-        protected List<JCExpression> translatedConstructorArgs() {
-            List<JFXExpression> args = tree.getArgs();
-            Symbol sym = tree.constructor;
-            if (sym != null && sym.type != null) {
-                ListBuffer<JCExpression> translated = ListBuffer.lb();
-                List<Type> formals = sym.type.asMethodType().getParameterTypes();
-                boolean usesVarArgs = (sym.flags() & VARARGS) != 0L &&
-                        (formals.size() != args.size() ||
-                        types.isConvertible(args.last().type, types.elemtype(formals.last())));
-                boolean handlingVarargs = false;
-                Type formal = null;
-                List<Type> t = formals;
-                for (List<JFXExpression> l = args; l.nonEmpty(); l = l.tail) {
-                    if (!handlingVarargs) {
-                        formal = t.head;
-                        t = t.tail;
-                        if (usesVarArgs && t.isEmpty()) {
-                            formal = types.elemtype(formal);
-                            handlingVarargs = true;
-                        }
-                    }
-                    JCExpression targ = translateExpr(l.head, formal);
-                    if (targ != null) {
-                        translated.append(targ);
-                    }
-                }
-                return translated.toList();
-            } else {
-                return translateExprs(args);
-            }
-        }
-
-        @Override
-        protected List<JCExpression> completeTranslatedConstructorArgs() {
-            List<JCExpression> translated = translatedConstructorArgs();
-            if (tree.getClassBody() != null &&
-                    tree.getClassBody().sym != null && hasOuters.contains(tree.getClassBody().sym) ||
-                    idSym != null && hasOuters.contains(idSym)) {
-                JCIdent thisIdent = id(defs.receiverName);
-                translated = translated.prepend(thisIdent);
-            }
-            return translated;
-        }
-
-        protected ExpressionResult doit() {
-            for (JFXVar var : tree.getLocalvars()) {
-                // add the variable before the class definition or object litersl assignment
-                processLocalVar(var);
-            }
-            return buildInstance(tree.type, tree.getClassBody(), types.isJFXClass(idSym));
         }
     }
 
@@ -792,13 +494,12 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         } else {
             // do a vanilla translation of the expression
             Type resultType = vmi.getSymbol().type;
-            JCExpression trans = asExpression(translateToExpressionResult(init, resultType));
+            JCExpression trans = translateToExpression(init, resultType);
             return convertNullability(diagPos, trans, init, resultType);
         }
     }
 
-    //TODO: make this private again
-    JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
+    private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
             Name instanceName) {
         if (init == null) {
@@ -1421,7 +1122,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         return new UseSequenceBuilder(diagPos, elemType, null) {
 
             JCStatement addElement(JFXExpression exprToAdd) {
-                JCExpression expr = asExpression(translateToExpressionResult(exprToAdd, targettedType(exprToAdd)));
+                JCExpression expr = translateToExpression(exprToAdd, targettedType(exprToAdd));
                 return makeAdd(expr);
             }
 
@@ -1942,7 +1643,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         JCExpression sideExpr(JFXExpression expr) {
             ExpressionResult res = translateToExpressionResult(expr, tree.type);
             addBindees(res.bindees());
-            return asExpression(res);
+            return asExpression(res, tree.type);
         }
 
         JCStatement sideStmt(JFXExpression expr) {
@@ -2202,7 +1903,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         tree.getInterpolationValues(),
                         syms.javafx_KeyValueType
                 ).doit());
-                setInstanceVariable(tree.pos(), instName, varSym(defs.valuesName), values);
+                setInstanceVariable(tree.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.valuesName), values);
             }
         }.doit();
     }

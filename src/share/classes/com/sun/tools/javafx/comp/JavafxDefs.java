@@ -28,6 +28,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import java.util.regex.Pattern;
 import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /**
@@ -114,8 +115,10 @@ public class JavafxDefs {
     private static final String cUtil = runtimePackageNameString + ".Util";
     private static final String cFXBase = runtimePackageNameString + ".FXBase";
 
-    public char typeCharToEscape = '.';
-    public char escapeTypeChar = '_';
+    public  static final Pattern DATETIME_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT]");
+
+    public  static final char typeCharToEscape = '.';
+    public  static final char escapeTypeChar = '_';
 
     static class RuntimeMethod {
         final String classString;

@@ -36,6 +36,7 @@ import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.comp.JavafxDefs;
+import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -49,6 +50,7 @@ import com.sun.tools.javafx.comp.JavafxDefs;
 public class JavaPretty extends Pretty {
 	private HashSet<Name> importedPackages = new HashSet<Name>();
 	private HashSet<Name> importedClasses = new HashSet<Name>();
+    private boolean seenImport;
 
     public static final boolean showAnnotations = false;
 	
@@ -56,11 +58,11 @@ public class JavaPretty extends Pretty {
         super(out, sourceOutput);
 
 		JavafxDefs defs = JavafxDefs.instance(context);
-		importedPackages.add(defs.runtimePackageName);
-		importedPackages.add(defs.annotationPackageName);
-		importedPackages.add(defs.sequencePackageName);
-		importedPackages.add(defs.functionsPackageName);
-                importedPackages.add(defs.javaLangPackageName);
+		    importedPackages.add(defs.runtimePackageName);
+		    importedPackages.add(defs.annotationPackageName);
+		    importedPackages.add(defs.sequencePackageName);
+		    importedPackages.add(defs.functionsPackageName);
+            importedPackages.add(defs.javaLangPackageName);
     }
 
     @Override
@@ -84,6 +86,7 @@ public class JavaPretty extends Pretty {
             if (tree.value != null) {
                 pretty.align();
                 pretty.printExpr(tree.value);
+                pretty.print(";");
             }
             pretty.undent();
             pretty.println();
@@ -94,8 +97,9 @@ public class JavaPretty extends Pretty {
         }
     }
 	
-	@Override
+    @Override
     public void visitImport(JCImport tree) {
+        printRuntimeImports();
 		super.visitImport(tree);
 
 		// save imports for later use
@@ -113,7 +117,13 @@ public class JavaPretty extends Pretty {
         }
     }
 
-	@Override
+    @Override
+    public void visitClassDef(JCClassDecl tree) {
+        printRuntimeImports();
+        super.visitClassDef(tree);
+    }
+
+    @Override
     public void visitSelect(JCFieldAccess tree) {
         try {
 			if (!importedPackages.contains(TreeInfo.fullName(tree.selected)) 
@@ -125,5 +135,21 @@ public class JavaPretty extends Pretty {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }	
+    }
+
+    private void printRuntimeImports() {
+        if (! seenImport) {
+            for (Name pkg : importedPackages) {
+                try {
+                    print("import ");
+                    print(pkg.toString());
+                    print(".*;");
+                    println();
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }
+        }
+        seenImport = true;
+    }
 }

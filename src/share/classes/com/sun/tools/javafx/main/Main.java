@@ -224,9 +224,24 @@ public class Main {
             for (j=firstOptionToCheck; j<recognizedOptions.length; j++)
                 if (recognizedOptions[j].matches(flag)) break;
 
-            if (j == recognizedOptions.length) {
-                error(MsgSym.MESSAGE_ERR_INVALID_FLAG, flag);
-                return null;
+            if (options.get("mjavac") != null && flag.endsWith(".javadump")) {
+                File f = new File(flag);
+                if (!f.exists()) {
+                    error(MsgSym.MESSAGE_ERR_FILE_NOT_FOUND, f);
+                    return null;
+                }
+                if (!f.isFile()) {
+                    error(MsgSym.MESSAGE_ERR_FILE_NOT_FILE, f);
+                    return null;
+                }
+                if (!filenames.contains(f))
+                    filenames.append(f);
+                continue;
+            } else {
+                if (j == recognizedOptions.length) {
+                    error(MsgSym.MESSAGE_ERR_INVALID_FLAG, flag);
+                    return null;
+                }
             }
 
             Option option = recognizedOptions[j];
@@ -562,6 +577,8 @@ public class Main {
         filenames = new ListBuffer<File>();
         classnames = new ListBuffer<String>();
         JavafxCompiler comp = null;
+        JavafxJavaCompiler mjcomp = null;
+
         /*
          * TODO: Logic below about what is an acceptable command line
          * should be updated to take annotation processing semantics
@@ -621,12 +638,23 @@ public class Main {
                 for (JavaFileObject fo : otherFiles)
                     fileObjects = fileObjects.prepend(fo);
             }
-            comp.compile(fileObjects, classnames.toList(),
+
+            boolean useMJavac = options.get("mjavac") != null;
+            if (useMJavac) {
+                mjcomp = JavafxJavaCompiler.instance(context);
+                mjcomp.compile(fileObjects);
+
+                if (mjcomp.errorCount() != 0 ||
+                    options.get("-Werror") != null && mjcomp.warningCount() != 0)
+                    return EXIT_ERROR;
+            } else {
+                comp.compile(fileObjects, classnames.toList(),
                          namedImportScope, starImportScope, preserveSymbols);
 
-            if (comp.errorCount() != 0 ||
-                options.get("-Werror") != null && comp.warningCount() != 0)
-                return EXIT_ERROR;
+                if (comp.errorCount() != 0 ||
+                    options.get("-Werror") != null && comp.warningCount() != 0)
+                    return EXIT_ERROR;
+            }
         } catch (IOException ex) {
             ioMessage(ex);
             return EXIT_SYSERR;
@@ -655,6 +683,7 @@ public class Main {
             return EXIT_ABNORMAL;
         } finally {
             if (comp != null) comp.close();
+            if (mjcomp != null) mjcomp.close();
             filenames = null;
             options = null;
         }
