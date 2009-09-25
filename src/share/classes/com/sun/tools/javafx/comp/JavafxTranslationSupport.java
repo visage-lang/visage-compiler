@@ -900,7 +900,7 @@ public abstract class JavafxTranslationSupport {
 
     protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
         JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
-        JCExpression expr = call(diagPos, durClass, defs.scriptLevelAccessMethod);
+        JCExpression expr = (JavafxInitializationBuilder.SCRIPT_LEVEL_AT_TOP)? durClass : call(diagPos, durClass, defs.scriptLevelAccessMethod);
         return call(diagPos, expr, defs.valueOfName, value);
     }
 

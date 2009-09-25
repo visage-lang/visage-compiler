@@ -859,6 +859,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (encl.name.endsWith(defs.scriptClassSuffixName) && owner == encl.owner) {
                 return null;
             } else {
+                //TODO: see init builder getStaticContext() for a better implementation
                 Type classType = types.erasure(owner.type);
                 JCExpression expr = makeType(classType, false);
                 if (types.isJFXClass(owner)) {
@@ -873,8 +874,11 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                         default:
                             throw new RuntimeException("should not get here -- type name should be identifier or select");
                     }
+
                     // make X.X$Script
-                    expr = select(expr, simpleName.append(defs.scriptClassSuffixName));
+                    if (!JavafxInitializationBuilder.SCRIPT_LEVEL_AT_TOP) {
+                        expr = select(expr, simpleName.append(defs.scriptClassSuffixName));
+                    }
                 }
                 return expr;
             }
@@ -2222,7 +2226,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
                 VarSymbol varSym = varSyms.first();
-                JCExpression varOffsetExpr = select(makeType(classType, false), attributeOffsetName(varSym));
+                JCExpression varOffsetExpr = select(makeType(classType, false), attributeOffsetName(varSym)); //FIXME: script-level access
                 JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
                 JCExpression condition = makeEqual(id(loopName), id(offsetVar));
