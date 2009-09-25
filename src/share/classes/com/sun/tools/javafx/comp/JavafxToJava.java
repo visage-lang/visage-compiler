@@ -330,10 +330,14 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
                             inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
-                            JCStatement initStmt = (!isStatic || getAttrEnv().toplevel.isLibrary) ? translateDefinitionalAssignmentToSet(attrDef.pos(),
-                                    attrDef.getInitializer(), attrDef.getBindStatus(), attrDef.sym,
-                                    (isStatic || !isMixinClass) ? null : defs.receiverName)
-                                    : null;
+                            JCStatement initStmt = (isStatic && ! getAttrEnv().toplevel.isLibrary) ?
+                                  null // init handled by VarScriptInit
+                                : translateDefinitionalAssignmentToSet(
+                                    attrDef.pos(),
+                                    attrDef.getInitializer(), 
+                                    attrDef.getBindStatus(),
+                                    attrDef.sym,
+                                    (isStatic || !isMixinClass) ? null : defs.receiverName);
                             attrInfo.append(new TranslatedVarInfo(
                                     attrDef,
                                     typeMorpher.varMorphInfo(attrDef.sym),
@@ -349,8 +353,11 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
                             inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             JCStatement initStmt;
-                            initStmt = translateDefinitionalAssignmentToSet(override.pos(),
-                                    override.getInitializer(), override.getBindStatus(), override.sym,
+                            initStmt = translateDefinitionalAssignmentToSet(
+                                    override.pos(),
+                                    override.getInitializer(), 
+                                    override.getBindStatus(),
+                                    override.sym,
                                     (isStatic || !isMixinClass) ? null : defs.receiverName);
                             overrideInfo.append(new TranslatedOverrideClassVarInfo(
                                     override,

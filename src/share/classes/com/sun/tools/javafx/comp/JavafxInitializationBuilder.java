@@ -287,7 +287,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
                  
                 if (SCRIPT_LEVEL_AT_TOP) {
-                    // With this approach attribute fields and methods, functions, and class maps are top-level statics
+                    // With this approach script-level attribute fields and methods, functions, and class maps are top-level statics
 
                     // script-level into class X
                     cDefinitions.appendList(javaCodeMaker.makeAttributeFields(scriptVarInfos));
@@ -342,6 +342,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
 
         } else {
+            // Mixin class
+
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(classVarInfos));
             iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
 
@@ -550,7 +552,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         mods = addInheritedAnnotationModifiers(diagPos, varSym.flags(), mods);
                     }
 
-                    // Construct the value field 
+                    // Construct the value field
                     vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
                                 needsDefaultValue(ai.getVMI()) ? makeDefaultValue(diagPos, ai.getVMI()) : null));
                 }
@@ -2095,7 +2097,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             members.append(makeMethod(Flags.PUBLIC | Flags.STATIC, id(scriptName), defs.scriptLevelAccessMethod, null, stmts.toList()));
 
             // If module is runnable, create a run method that redirects to the sole instance version
-            if (!scriptLevel && isRunnable) {
+            if (!SCRIPT_LEVEL_AT_TOP && !scriptLevel && isRunnable) {
                 members.append(makeMethod(Flags.PUBLIC | Flags.STATIC,
                                           syms.objectType,
                                           defs.internalRunFunctionName,
