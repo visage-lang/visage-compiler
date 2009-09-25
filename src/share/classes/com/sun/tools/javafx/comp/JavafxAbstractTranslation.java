@@ -1030,7 +1030,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (yield() == ToStatement) {
                  // a statement is the desired result of the translation, return the If-statement
                 return toStatementResult(
-                        m().If(cond, makeExec(full), null));
+                        m().If(cond, makeStatement(full, targetType), null));
             } else {
                 // an expression is the desired result of the translation, convert it to a conditional expression
                 // if it would dereference null, then the full expression instead yields the default value

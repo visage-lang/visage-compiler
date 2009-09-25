@@ -987,6 +987,12 @@ public abstract class JavafxTranslationSupport {
             return m().Return(expr);
         }
 
+        protected JCStatement makeStatement(JCExpression expr, Type returnType) {
+            return (returnType==null || returnType==syms.voidType)? 
+                  makeExec(expr)
+                : makeReturn(expr);
+        }
+
         //
         // This method simplifies NOT expressions.
         //
