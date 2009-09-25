@@ -38,6 +38,10 @@ public class Bits {
         return value >> shift;
     }
 
+    public static int unsignedShiftRight(int value, int shift) {
+        return value >>> shift;
+    }
+
     public static int bitOr(int value, int mask) {
         return value | mask;
     }
@@ -73,6 +77,10 @@ public class Bits {
 
     public static long shiftRight(long value, int shift) {
         return value >> shift;
+    }
+
+    public static long unsignedShiftRight(long value, int shift) {
+        return value >>> shift;
     }
 
     public static long bitOr(long value, long mask) {

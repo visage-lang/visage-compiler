@@ -557,9 +557,7 @@ public abstract class JavafxTranslationSupport {
             tmi.getRealType() == syms.javafx_StringType ?
                 make.Literal("") :
             tmi.getRealType() == syms.javafx_DurationType ?
-                make.at(diagPos).TypeCast(
-                makeQualifiedTree(diagPos, "javafx.lang.Duration"),
-                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Duration.ZERO")) :
+                makeQualifiedTree(diagPos, JavafxDefs.zeroDuration) :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
     }
 
