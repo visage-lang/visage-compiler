@@ -420,6 +420,14 @@ class JavafxAnalyzeClass {
             super(diagPos, var.name, var, vmi, null);
         }
 
+        // Return true if the var has a bound definition.
+        @Override
+        public boolean hasBoundDefinition() { return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L; }
+
+        // Return true if the var has a bidirectional bind.
+        @Override
+        public boolean hasBiDiBoundDefinition() { return (getFlags() & JavafxFlags.VARUSE_BOUND_BIDIRECTIONAL) != 0L; }
+
         // Mixin vars are always cloned.
         @Override
         public boolean needsCloning() { return true; }
