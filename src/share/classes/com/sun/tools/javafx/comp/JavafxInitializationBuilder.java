@@ -1620,12 +1620,43 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             // Reset diagnostic position to current class.
             resetDiagPos();
+            
+            // Get the update map.
+            HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap = analysis.getUpdateMap();
            
-            boolean hasUpdates = false;
-
             // generate method if it is worthwhile or we have to.
-            if (hasUpdates || superClassSym == null) {
-               // If there is a super class.
+            if (!updateMap.isEmpty() || superClassSym == null) {
+                JCStatement ifInstanceStmt = null;
+                
+                // Loop for instance symbol.
+                for (VarSymbol instanceVar : updateMap.keySet()) {
+                    HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+                    
+                    // Loop for reference symbol.
+                    JCStatement ifReferenceStmt = null;
+                    for (VarSymbol referenceVar : instanceMap.keySet()) {
+                        HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
+                        ListBuffer<JCStatement> invalidateStmts = ListBuffer.lb();
+                        
+                        // Loop for local vars.
+                        for (VarInfo varInfo : referenceSet) {
+                            VarSymbol proxyVarSym = varInfo.proxyVarSym();
+                            invalidateStmts.append(callStmt(getReceiver(varInfo), attributeInvalidateName(proxyVarSym)));
+                        }
+                        
+                        Type instanceType = referenceVar.owner.type;
+                        JCExpression referenceSelect = m().Select(makeType(instanceType), attributeOffsetName(referenceVar));
+                        JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), referenceSelect);
+                        ifReferenceStmt = m().If(ifReferenceCond, m().Block(0L, invalidateStmts.toList()), ifReferenceStmt);
+                    }
+                    
+                    JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName), id(attributeValueName(instanceVar)));
+                    ifInstanceStmt = m().If(ifInstanceCond, m().Block(0L, List.<JCStatement>of(ifReferenceStmt)), ifInstanceStmt);
+                }
+                
+                stmts.append(ifInstanceStmt);
+            
+                // If there is a super class.
                 if (superClassSym != null) {
                     // super
                     JCExpression selector = id(names._super);

@@ -45,6 +45,7 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.mjavac.code.Flags.*;
@@ -103,6 +104,9 @@ class JavafxAnalyzeClass {
 
     // List of all attributes.  Used to track overridden and mixin attributes.
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
+    
+    // Map of all bind selects used to construct an update$ method.
+    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
     private final Map<String, MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
@@ -253,11 +257,14 @@ class JavafxAnalyzeClass {
         // Null or Java code for getter expression of bound variable
         public JCExpression boundInit() { return null; }
 
-        // Null or Java preface code for getter of bound variable
+        // Empty or Java preface code for getter of bound variable
         public List<JCStatement> boundPreface() { return List.<JCStatement>nil(); }
 
-        // Null or variable symbols on which this variable depends
+        // Empty or variable symbols on which this variable depends
         public List<VarSymbol> boundBindees() { return List.<VarSymbol>nil(); }
+
+        // Empty or bound select pairs.
+        public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
 
         @Override
         public String toString() { return getNameString(); }
@@ -337,6 +344,10 @@ class JavafxAnalyzeClass {
 
         // Bound variable symbols on which this variable is used.
         public List<VarSymbol> boundBinders() { return bindersOrNull==null? List.<VarSymbol>nil() : bindersOrNull.toList(); }
+
+        // Empty or bound select pairs.
+        @Override
+        public List<DependentPair> boundBoundSelects() { return bindOrNull==null? List.<DependentPair>nil() : bindOrNull.interClass(); }
 
         // Possible javafx code for the var's 'on replace'.
         @Override
@@ -507,6 +518,34 @@ class JavafxAnalyzeClass {
                     bindeeTAI.bindersOrNull.append(tai.getSymbol());
                 }
             }
+            
+            // Add any bind select pairs to update map.
+            for (DependentPair pair : tai.boundBoundSelects()) {
+                VarSymbol varSymbol = (VarSymbol)tai.getSymbol();
+                VarSymbol instanceSymbol = (VarSymbol)pair.instanceSym;
+                VarSymbol referenceSymbol = (VarSymbol)pair.referencedSym;
+                
+                // Get instance level map.
+                HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
+                
+                // Add new entry if not found.
+                if (instanceMap == null) {
+                    instanceMap = new HashMap<VarSymbol, HashSet<VarInfo>>();
+                    updateMap.put(instanceSymbol, instanceMap);
+                }
+                
+                // Get reference level map.
+                HashSet<VarInfo> referenceSet = instanceMap.get(referenceSymbol);
+                
+                // Add new entry if not found.
+                if (referenceSet == null) {
+                    referenceSet = new HashSet<VarInfo>();
+                    instanceMap.put(referenceSymbol, referenceSet);
+                }
+                
+                // Add symbol to set.
+                referenceSet.add(tai);
+            }
         }
     }
 
@@ -642,6 +681,10 @@ class JavafxAnalyzeClass {
     //
     public List<FuncInfo> scriptFuncInfos() {
         return scriptFuncInfos.toList();
+    }
+    
+    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getUpdateMap() {
+        return updateMap;
     }
 
     //

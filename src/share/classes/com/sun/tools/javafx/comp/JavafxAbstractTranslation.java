@@ -351,6 +351,9 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         List<VarSymbol> bindees() {
             return bindees;
         }
+        List<DependentPair> interClass() {
+            return interClass;
+        }
         @Override
         List<JCTree> trees() {
             List<JCTree> ts = super.trees();
