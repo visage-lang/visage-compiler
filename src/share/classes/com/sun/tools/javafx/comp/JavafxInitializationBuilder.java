@@ -267,8 +267,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
-            cDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(initMap));
-
             if (outerTypeSym == null) {
                 cDefinitions.append(javaCodeMaker.makeJavaEntryConstructor());
             } else {
@@ -297,7 +295,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // script-level into class X.X$Script
                     sDefinitions.appendList(javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null));
-                    sDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(null));
                     sDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
                     sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
                     //needed: sDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
@@ -309,7 +306,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     sDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
                     sDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
                     sDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
-                    sDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(null));
                     sDefinitions.appendList(javaCodeMaker.gatherFunctions(scriptFuncInfos));
 
                     sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
@@ -318,7 +314,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 JCClassDecl script = javaCodeMaker.makeScript(scriptName, sDefinitions.toList());
    
                 cDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, false, isRunnable));
+                cDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(scriptName, scriptVarInfos, initMap));
+
                 cDefinitions.append(script);
+            } else {
+                cDefinitions.append(javaCodeMaker.makeInitStaticAttributesBlock(null, null, initMap));
             }
 
             if (!hasFxSuper) {
@@ -351,7 +351,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(scriptVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
-            cDefinitions.append    (javaCodeMaker.makeInitStaticAttributesBlock(null));
+            cDefinitions.append    (javaCodeMaker.makeInitStaticAttributesBlock(null, null, null));
 
             cDefinitions.appendList(javaCodeMaker.makeMixinAccessorMethods(classVarInfos));
             iDefinitions.appendList(javaCodeMaker.makeFunctionInterfaceMethods());
@@ -1790,7 +1790,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Construct the static block for setting defaults
         //
-        public JCBlock makeInitStaticAttributesBlock(JCStatement initMap) {
+        public JCBlock makeInitStaticAttributesBlock(Name scriptName, List<VarInfo> attrInfo, JCStatement initMap) {
             // Buffer for init statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
     
@@ -1799,6 +1799,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 stmts.append(initMap);
             }
 
+            if (scriptName != null) {
+                stmts.append(callStmt(id(scriptName), defs.scriptLevelAccessMethod));
+            }
+            
+            if (attrInfo != null) {
+                for (VarInfo ai : attrInfo) {
+                    JCStatement init = ai.getDefaultInitStatement();
+                    
+                    if (init != null) {
+                        stmts.append(init);
+                    }
+                }
+            }
+             
             return m().Block(Flags.STATIC, stmts.toList());
         }
 
@@ -2085,9 +2099,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 JCExpression condition = makeNullCheck(id(defs.scriptLevelAccessField));
                 
                 JCExpression assignExpr = m().Assign(
-                        id(defs.scriptLevelAccessField),
-                        m().NewClass(null, null, id(scriptName), List.<JCExpression>nil(), null));
-                        
+                       id(defs.scriptLevelAccessField),
+                       m().NewClass(null, null, id(scriptName), List.<JCExpression>nil(), null));
+                       
                 stmts.append(m().If(condition, makeExec(assignExpr), null));
                 stmts.append(m().Return(id(defs.scriptLevelAccessField)));
             } else {
