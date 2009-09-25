@@ -1654,7 +1654,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     ifInstanceStmt = m().If(ifInstanceCond, m().Block(0L, List.<JCStatement>of(ifReferenceStmt)), ifInstanceStmt);
                 }
                 
-                stmts.append(ifInstanceStmt);
+                if (ifInstanceStmt != null) {
+                    stmts.append(ifInstanceStmt);
+                }
             
                 // If there is a super class.
                 if (superClassSym != null) {
