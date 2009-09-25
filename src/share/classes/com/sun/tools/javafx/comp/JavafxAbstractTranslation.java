@@ -224,7 +224,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 diagPos,
                 translated.statements(),
                 new TypeConversionTranslator(diagPos, translated.expr(), sourceType, targettedType).doitExpr(),
-                translated.bindees);
+                translated.bindees,
+                translated.interClass);
     }
 
     JCExpression convertTranslated(JCExpression translated, DiagnosticPosition diagPos,
@@ -318,18 +319,28 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
     }
 
     public static class ExpressionResult extends AbstractStatementsResult {
+        public static class DependentPair {
+            public final VarSymbol instanceSym;
+            public final Symbol referencedSym;
+            DependentPair(VarSymbol instanceSym, Symbol referencedSym) {
+                this.instanceSym = instanceSym;
+                this.referencedSym = referencedSym;
+            }
+        }
         private final JCExpression value;
         private final List<VarSymbol> bindees;
-        ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, List<VarSymbol> bindees) {
+        private final List<DependentPair> interClass;
+        ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, List<VarSymbol> bindees, List<DependentPair> interClass) {
             super(diagPos, stmts);
             this.value = value;
             this.bindees = bindees;
+            this.interClass = interClass;
         }
-        ExpressionResult(DiagnosticPosition diagPos, ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<VarSymbol> bindees) {
-            this(diagPos, buf.toList(), value, bindees.toList());
+        ExpressionResult(DiagnosticPosition diagPos, ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<VarSymbol> bindees, ListBuffer<DependentPair> interClass) {
+            this(diagPos, buf.toList(), value, bindees.toList(), interClass.toList());
         }
         ExpressionResult(JCExpression value, List<VarSymbol> bindees) {
-            this(value.pos(), List.<JCStatement>nil(), value, bindees);
+            this(value.pos(), List.<JCStatement>nil(), value, bindees, List.<DependentPair>nil());
         }
         ExpressionResult(JCExpression value) {
             this(value, List.<VarSymbol>nil());
@@ -696,6 +707,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         private final ListBuffer<JCStatement> stmts = ListBuffer.lb();
         private final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
+        private final ListBuffer<ExpressionResult.DependentPair> interClass = ListBuffer.lb();
 
         ExpressionTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
@@ -752,8 +764,12 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             }
         }
 
+        void addInterClassBindee(VarSymbol instanceSym, Symbol referencedSym) {
+            interClass.append(new ExpressionResult.DependentPair( instanceSym,  referencedSym));
+        }
+
         ExpressionResult toResult(JCExpression translated) {
-            return new ExpressionResult(diagPos, stmts, translated, bindees);
+            return new ExpressionResult(diagPos, stmts, translated, bindees, interClass);
         }
 
         StatementsResult toStatementResult(JCExpression translated, Type targettedType) {
