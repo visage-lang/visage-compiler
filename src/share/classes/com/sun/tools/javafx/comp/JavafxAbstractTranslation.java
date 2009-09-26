@@ -125,8 +125,14 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
     /********** Utility routines **********/
 
-    JCExpression TODO() {
-        throw new RuntimeException("Not yet implemented");
+    public static class NotYetImplementedException extends RuntimeException {
+        NotYetImplementedException(String msg) {
+            super(msg);
+        }
+    }
+
+    JCExpression TODO(String msg) {
+        throw new NotYetImplementedException("Not yet implemented: " + msg);
     }
 
     /**
@@ -1147,7 +1153,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         // This is for calls from non-bound contexts (code for true bound calls is in JavafxToBound)
         JCExpression makeBoundCall(JCExpression applyExpression) {
-            return TODO();
+            return TODO("makeBoundCall");
         }
 
         @Override
@@ -1201,8 +1207,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                                     types.isSequence(formal.head) ||
                                     formal.head == syms.objectType // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
                                     ) {
-                                TODO();
-                                break;
+                                throw new RuntimeException("bogus bound call code");
+                                //break;
                             }
                         //TODO: handle sequence subclasses
                         //TODO: use more efficient mechanism (use currently apears rare)
@@ -1361,7 +1367,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (bexpr == null) {
                 body = null; // null if no block expression
             } else if (isBound) {
-                throw new RuntimeException("not yet implemented");
+                TODO("bound function building"); body = null;
             } else if (isRunMethod) {
                 // it is a module level run method, do special translation
                 body = makeRunMethodBody(bexpr);

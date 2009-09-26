@@ -127,6 +127,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;
     }
 
+    JCExpression TODO(JFXTree tree) {
+        return TODO("non-bound " + tree.getClass().getSimpleName());
+    }
+
     /**
      * For special cases where the expression may not be fully attributed.
      * Specifically: package and import names.
@@ -728,7 +732,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     public void visitAssign(final JFXAssign tree) {
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-            TODO();
+            TODO("visitAssign SEQUENCE_SLICE");
             // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
             /***
             JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
@@ -1072,7 +1076,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        TODO();
+        TODO(tree);;
 /*****
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seqLoc = translateAsSequenceVariable(tree.getSequence());
@@ -1108,7 +1112,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     //@Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
-        TODO();
+        TODO(tree);;
 /*****
         JFXExpression seq = tree.getSequence();
 

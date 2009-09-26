@@ -33,7 +33,6 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Context;
-import com.sun.tools.mjavac.util.Name;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -243,31 +242,30 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
  * Visitor methods -- NOT implemented yet
  ****************************************************************************/
 
-    @Override
-    JCExpression TODO() {
-        throw new RuntimeException("Not yet implemented bind functionality");
+    JCExpression TODO(JFXTree tree) {
+        return TODO("BIND functionality: " + tree.getClass().getSimpleName());
     }
 
     public void visitAssign(JFXAssign tree) {
-        TODO();
+        TODO(tree);
         //(tree.lhs);
         //(tree.rhs);
     }
 
     public void visitTypeCast(JFXTypeCast tree) {
-        TODO();
+        TODO(tree);
         //(tree.clazz);
         //(tree.expr);
     }
 
     public void visitInstanceOf(JFXInstanceOf tree) {
-        TODO();
+        TODO(tree);
         //(tree.expr);
         //(tree.clazz);
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
-        TODO();
+        TODO(tree);
         for (JFXVar param : tree.getParams()) {
             //(param);
         }
@@ -275,41 +273,41 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     }
 
     //@Override
-    public void visitSequenceEmpty(JFXSequenceEmpty that) {
-        TODO();
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        TODO(tree);
     }
     
     //@Override
-    public void visitSequenceRange(JFXSequenceRange that) {
-        TODO();
+    public void visitSequenceRange(JFXSequenceRange tree) {
+        TODO(tree);
         //( that.getLower() );
         //( that.getUpper() );
         //( that.getStepOrNull() );
     }
     
     //@Override
-    public void visitSequenceExplicit(JFXSequenceExplicit that) {
-        TODO();
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        TODO(tree);
         //( that.getItems() );
     }
 
     //@Override
-    public void visitSequenceIndexed(JFXSequenceIndexed that) {
-        TODO();
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        TODO(tree);
         //(that.getSequence());
         //(that.getIndex());
     }
     
-    public void visitSequenceSlice(JFXSequenceSlice that) {
-        TODO();
+    public void visitSequenceSlice(JFXSequenceSlice tree) {
+        TODO(tree);
         //(that.getSequence());
         //(that.getFirstIndex());
         //(that.getLastIndex());
     }
 
-    public void visitStringExpression(JFXStringExpression that) {
-        TODO();
-        List<JFXExpression> parts = that.getParts();
+    public void visitStringExpression(JFXStringExpression tree) {
+        TODO(tree);
+        List<JFXExpression> parts = tree.getParts();
         parts = parts.tail;
         while (parts.nonEmpty()) {
             parts = parts.tail;
@@ -321,7 +319,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     
     //@Override
     public void visitInstanciate(JFXInstanciate tree) {
-        TODO();
+        TODO(tree);
        //(tree.getIdentifier());
        //(tree.getArgs());
        //(tree.getParts());
@@ -331,9 +329,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     
     
     //@Override
-    public void visitForExpression(JFXForExpression that) {
-        TODO();
-        for (ForExpressionInClauseTree cl : that.getInClauses()) {
+    public void visitForExpression(JFXForExpression tree) {
+        TODO(tree);
+        for (ForExpressionInClauseTree cl : tree.getInClauses()) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             //(clause);
         }
@@ -341,26 +339,26 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     }
 
     //@Override
-    public void visitBlockExpression(JFXBlock that) {
-        TODO();
+    public void visitBlockExpression(JFXBlock tree) {
+        TODO(tree);
         //(that.stats);
         //(that.value);
     }
     
     //@Override
-    public void visitIndexof(JFXIndexof that) {
-        TODO();
+    public void visitIndexof(JFXIndexof tree) {
+        TODO(tree);
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {
-        TODO();
+        TODO(tree);
     }
 
-    public void visitInterpolateValue(JFXInterpolateValue that) {
-        TODO();
+    public void visitInterpolateValue(JFXInterpolateValue tree) {
+        TODO(tree);
         //(that.attribute);
         //(that.value);
-        if  (that.interpolation != null) {
+        if  (tree.interpolation != null) {
             //(that.interpolation);
         }
     }
