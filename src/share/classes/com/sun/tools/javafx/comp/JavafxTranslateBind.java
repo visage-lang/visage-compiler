@@ -62,9 +62,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         context.put(jfxBoundTranslation, this);
     }
 
-    ExpressionResult translate(JFXExpression expr, Symbol targetSymbol) {
+    ExpressionResult translate(JFXExpression expr, Type targettedType, Symbol targetSymbol) {
         this.targetSymbol = targetSymbol;
-        return translate(expr);
+        return translateToExpressionResult(expr, targettedType);
     }
 
 /* ***************************************************************************
@@ -147,30 +147,28 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     private class IfExpressionTranslator extends ExpressionTranslator {
 
         private final JFXIfExpression tree;
-        private final Type targettedType;
         private final JCVariableDecl resVar;
 
         IfExpressionTranslator(JFXIfExpression tree) {
             super(tree.pos());
             this.tree = tree;
-            this.targettedType = tree.type;
-            this.resVar = makeTmpVar("res", targettedType, null);
+            this.resVar = makeTmpVar("res", targetType, null);
         }
 
         JCStatement side(JFXExpression expr) {
-            ExpressionResult res = translateToExpressionResult(expr, targettedType);
+            ExpressionResult res = translateToExpressionResult(expr, targetType);
             addBindees(res.bindees());
             return m().Block(0L, res.statements().append(makeExec(m().Assign(id(resVar), res.expr()))));
         }
 
         protected ExpressionResult doit() {
-            JCExpression cond = translateExpr(tree.getCondition());
+            JCExpression cond = translateExpr(tree.getCondition(), syms.booleanType);
             addPreface(resVar);
             addPreface(m().If(
                     cond,
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
-            return toResult( id(resVar) );
+            return toResult( id(resVar), targetType );
         }
     }
 
@@ -180,11 +178,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
 
     public void visitLiteral(JFXLiteral tree) {
         // Just translate to literal value
-        result = new ExpressionResult(translateLiteral(tree));
+        result = new ExpressionResult(translateLiteral(tree), tree.type);
     }
 
     public void visitParens(JFXParens tree) {
-        result = translate(tree.expr);
+        result = translateToExpressionResult(tree.expr, targetType);
     }
 
     public void visitSelect(JFXSelect tree) {
@@ -252,28 +250,28 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
 
     public void visitAssign(JFXAssign tree) {
         TODO();
-        translate(tree.lhs);
-        translate(tree.rhs);
+        //(tree.lhs);
+        //(tree.rhs);
     }
 
     public void visitTypeCast(JFXTypeCast tree) {
         TODO();
         //(tree.clazz);
-        translate(tree.expr);
+        //(tree.expr);
     }
 
     public void visitInstanceOf(JFXInstanceOf tree) {
         TODO();
-        translate(tree.expr);
+        //(tree.expr);
         //(tree.clazz);
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
         TODO();
         for (JFXVar param : tree.getParams()) {
-            translate(param);
+            //(param);
         }
-        translate(tree.getBodyExpression());
+        //(tree.getBodyExpression());
     }
 
     //@Override
@@ -284,29 +282,29 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     //@Override
     public void visitSequenceRange(JFXSequenceRange that) {
         TODO();
-        translate( that.getLower() );
-        translate( that.getUpper() );
-        translate( that.getStepOrNull() );
+        //( that.getLower() );
+        //( that.getUpper() );
+        //( that.getStepOrNull() );
     }
     
     //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit that) {
         TODO();
-        translate( that.getItems() );
+        //( that.getItems() );
     }
 
     //@Override
     public void visitSequenceIndexed(JFXSequenceIndexed that) {
         TODO();
-        translate(that.getSequence());
-        translate(that.getIndex());
+        //(that.getSequence());
+        //(that.getIndex());
     }
     
     public void visitSequenceSlice(JFXSequenceSlice that) {
         TODO();
-        translate(that.getSequence());
-        translate(that.getFirstIndex());
-        translate(that.getLastIndex());
+        //(that.getSequence());
+        //(that.getFirstIndex());
+        //(that.getLastIndex());
     }
 
     public void visitStringExpression(JFXStringExpression that) {
@@ -315,7 +313,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         parts = parts.tail;
         while (parts.nonEmpty()) {
             parts = parts.tail;
-            translate(parts.head);
+            //(parts.head);
             parts = parts.tail;
             parts = parts.tail;
         }
@@ -324,11 +322,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     //@Override
     public void visitInstanciate(JFXInstanciate tree) {
         TODO();
-       translate(tree.getIdentifier());
-       translate(tree.getArgs());
-       translate(tree.getParts());
-       translate(tree.getLocalvars());
-       translate(tree.getClassBody());
+       //(tree.getIdentifier());
+       //(tree.getArgs());
+       //(tree.getParts());
+       //(tree.getLocalvars());
+       //(tree.getClassBody());
     }
     
     
@@ -339,14 +337,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             //(clause);
         }
-        translate(that.getBodyExpression());
+        //(that.getBodyExpression());
     }
 
     //@Override
     public void visitBlockExpression(JFXBlock that) {
         TODO();
-        translate(that.stats);
-        translate(that.value);
+        //(that.stats);
+        //(that.value);
     }
     
     //@Override
@@ -360,10 +358,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
 
     public void visitInterpolateValue(JFXInterpolateValue that) {
         TODO();
-        translate(that.attribute);
-        translate(that.value);
+        //(that.attribute);
+        //(that.value);
         if  (that.interpolation != null) {
-            translate(that.interpolation);
+            //(that.interpolation);
         }
     }
 

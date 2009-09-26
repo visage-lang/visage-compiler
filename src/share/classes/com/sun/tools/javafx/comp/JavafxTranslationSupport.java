@@ -1106,7 +1106,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         protected JCMethodDecl makeMethod(long flags, JCExpression typeExpression, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-        return makeMethod(m().Modifiers(flags), typeExpression, methName, params, stmts);
+            return makeMethod(m().Modifiers(flags), typeExpression, methName, params, stmts);
         }
 
         protected JCMethodDecl makeMethod(JCModifiers modifiers, Type returnType, Name methName,

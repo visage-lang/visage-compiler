@@ -172,7 +172,7 @@ public enum JavafxTag {
      */
     VAR_SCRIPT_INIT,
 
-    /** loose trigger wrapper
+    /** var override
      */
     OVERRIDE_ATTRIBUTE_DEF,
 

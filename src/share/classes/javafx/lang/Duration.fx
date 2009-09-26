@@ -99,7 +99,7 @@ public class Duration extends Comparable {
      * @profile common
      */
     public function toSeconds():Number {
-        return Math.floor(millis / 1000);
+        return Math.floor(millis / 1000) as Number;
     }
     
     /** Returns the number of whole minutes in this period or Number.POSITIVE_INFINITY if the period is INDEFINITE. 
@@ -107,7 +107,7 @@ public class Duration extends Comparable {
      * @profile common
      */
     public function toMinutes(): Number {
-        return Math.floor(millis / 60 / 1000);
+        return Math.floor(millis / 60 / 1000) as Number;
     }
     
     /** Returns the number of whole hours in this period or Number.POSITIVE_INFINITY if the period is INDEFINITE. 
@@ -115,7 +115,7 @@ public class Duration extends Comparable {
      * @profile common
      */
     public function toHours(): Number {
-        return Math.floor(millis / 60 / 60 / 1000);
+        return Math.floor(millis / 60 / 60 / 1000) as Number;
     }
 
     /** Add this instance and another Duration instance to return a new Duration instance.
@@ -190,7 +190,7 @@ public class Duration extends Comparable {
             throw new java.lang.ArithmeticException("/ by zero");
         }
         
-        return millis / other.millis;
+        return (millis / other.millis) as Number;
     }
 
     /** 
