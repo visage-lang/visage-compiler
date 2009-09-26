@@ -108,6 +108,12 @@
     <target name="-do-help">
       <echo> 
     Main developer targets:
+      name="dev-..."                                           description="temp targets to assist in move to compiled bind"
+            dev-pass:   run tests that are expected to pass.  
+            dev-fail:   run tests that are currently failing - see lists in project.properties
+                        This should be run as   ant dev-fail > aLogFile
+            dev-find-passes: Analyze output of dev-fail to see if any tests passes.
+                        This should be run as   ant dev-find-passes -Dlog=aLogFile
       name="help"
       name="jar"                                               description="Build compiler .jar files"
       name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
@@ -1220,6 +1226,26 @@
       <property name="testFile" value="**/FXCompilerTest.java"/>
     </target>
 
+
+    <!-- temp code to test the dev repo, excluding the tests in the exclude list in project.properties -->
+    <target name="dev-pass"  depends="-init-dev-pass,binaries,-do-test" description="Build binaries and run tests that should pass"/>
+    <target name="dev-fail"  depends="-init-dev-fail,binaries,-do-test" description="Build binaries and run tests that currently fail"/>
+    <target name="dev-find-passes" depends="-init-dev-fail" description="Report tests that passed instead of failed in a dev-fail run">
+      <echo message="${test.fx.dev.exclude.list}" file="./build/test/dev-expected-fails" />
+      <exec dir="." executable="sh">
+        <arg line="./dev-find-passes.sh ./build/test/dev-expected-fails ${log}"/>
+      </exec>
+    </target>
+
+    <target name="-init-dev-pass" depends="init">
+      <property name="testFile" value="**/*Test.java"/>
+      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list} ${test.fx.dev.hang.list}"/>
+    </target>
+
+    <target name="-init-dev-fail" depends="init">
+      <property name="testFile" value="**/FXCompilerTest.java"/>
+      <property name="test-sys-prop.test.fx.list" value="${test.fx.dev.exclude.list}"/>
+    </target>
 
     <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
         <property name="test-sys-prop.test.fx.roots" value="${test.fx.roots}"/>
