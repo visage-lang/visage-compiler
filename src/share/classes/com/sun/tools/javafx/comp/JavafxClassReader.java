@@ -594,6 +594,7 @@ public class JavafxClassReader extends ClassReader {
                             name == names.clinit ||
                             name.startsWith(defs.varOffsetName) ||
                             name.startsWith(defs.varCountName) ||
+                            name.startsWith(defs.attributeTypePrefixName) ||
                             name.startsWith(defs.attributeGetPrefixName) ||
                             name.startsWith(defs.attributeSetPrefixName) ||
                             name.startsWith(defs.attributeBePrefixName) ||

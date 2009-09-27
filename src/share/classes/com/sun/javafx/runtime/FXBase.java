@@ -331,19 +331,19 @@ package com.sun.javafx.runtime;
     public Object get$(int varNum) {
         return get$(this, varNum);
     }
-    public static Object get$(Object obj, int varNum) {
+    public static Object get$(FXObject obj, int varNum) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public void set$(int varNum, Object value) {
         set$(this, varNum, value);
     }
-    public static void set$(Object obj, int varNum, Object value) {
+    public static void set$(FXObject obj, int varNum, Object value) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public Class getType$(int varNum) {
         return getType$(this, varNum);
     }
-    public static Class getType$(Object obj, int varNum) {
+    public static Class getType$(FXObject obj, int varNum) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     

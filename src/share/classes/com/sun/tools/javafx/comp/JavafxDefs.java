@@ -43,6 +43,7 @@ public class JavafxDefs {
      */
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
+    public static final String attributeTypeMethodNamePrefix = "type$";
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeBeMethodNamePrefix = "be$";
@@ -213,6 +214,7 @@ public class JavafxDefs {
     final Name initFXBaseName;
     final Name userInitName;
     final Name postInitName;
+    final Name attributeTypePrefixName;
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name attributeBePrefixName;
@@ -328,6 +330,7 @@ public class JavafxDefs {
         onReplaceArgNameLastIndex = names.fromString("$lastIndex$");
         onReplaceArgNameNewElements = names.fromString("$newElements$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
+        attributeTypePrefixName = names.fromString(attributeTypeMethodNamePrefix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         attributeBePrefixName = names.fromString(attributeBeMethodNamePrefix);
