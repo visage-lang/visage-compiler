@@ -105,8 +105,11 @@ class JavafxAnalyzeClass {
     // List of all attributes.  Used to track overridden and mixin attributes.
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     
-    // Map of all bind selects used to construct an update$ method.
-    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    // Map of all bind selects used to construct the class update$ method.
+    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+
+    // Map of all bind selects used to construct the script update$ method.
+    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
     private final Map<String, MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
@@ -525,6 +528,10 @@ class JavafxAnalyzeClass {
                 VarSymbol instanceSymbol = (VarSymbol)pair.instanceSym;
                 VarSymbol referenceSymbol = (VarSymbol)pair.referencedSym;
                 
+                // Get the correct update map.
+                HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
+                    tai.isStatic() ? scriptUpdateMap : classUpdateMap;
+                
                 // Get instance level map.
                 HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
                 
@@ -683,8 +690,18 @@ class JavafxAnalyzeClass {
         return scriptFuncInfos.toList();
     }
     
-    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getUpdateMap() {
-        return updateMap;
+    //
+    // Returns the map used to construct the class update$ method.
+    //
+    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
+        return classUpdateMap;
+    }
+    
+    //
+    // Returns the map used to construct the script update$ method.
+    //
+    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
+        return scriptUpdateMap;
     }
 
     //

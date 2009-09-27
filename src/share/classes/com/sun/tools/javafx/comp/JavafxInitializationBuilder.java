@@ -69,6 +69,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private Name makeInitMap;
 
     private Name updateInstanceName;
+    private Name objName;
     private Name varNumName;
     private Name varLocalNumName;
     private Name varWordName;
@@ -144,6 +145,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         makeInitMap = names.fromString("makeInitMap$");
 
         updateInstanceName = names.fromString("instance$");
+        objName = names.fromString("object$");
         varNumName = names.fromString("varNum$");
         varLocalNumName = names.fromString("varLocalNum$");
         varWordName = names.fromString("varWord$");
@@ -263,7 +265,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(classVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(classVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
-            cDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
+            cDefinitions.appendList(javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap()));
 
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
@@ -295,7 +297,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // script-level into class X.X$Script
                     sDefinitions.appendList(javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null));
-                    sDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
+                    sDefinitions.appendList(javaCodeMaker.makeUpdateMethod(analysis.getScriptUpdateMap()));
                     sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
                     //needed: sDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
                 } else {
@@ -305,7 +307,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     sDefinitions.appendList(javaCodeMaker.makeAttributeFields(scriptVarInfos));
                     sDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
                     sDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
-                    sDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
+                    sDefinitions.appendList(javaCodeMaker.makeUpdateMethod(analysis.getScriptUpdateMap()));
                     sDefinitions.appendList(javaCodeMaker.gatherFunctions(scriptFuncInfos));
 
                     sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
@@ -350,7 +352,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Static(script) vars are exposed in class
             cDefinitions.appendList(javaCodeMaker.makeAttributeFields(scriptVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
-            cDefinitions.appendList(javaCodeMaker.makeUpdateMethod());
+            cDefinitions.appendList(javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap()));
             cDefinitions.append    (javaCodeMaker.makeInitStaticAttributesBlock(null, null, null));
 
             cDefinitions.appendList(javaCodeMaker.makeMixinAccessorMethods(classVarInfos));
@@ -1611,18 +1613,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method constructs the current class's update$ method.
         //
-        public List<JCTree> makeUpdateMethod() {
+        public List<JCTree> makeUpdateMethod(HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap) {
             // Buffer for new methods.
             ListBuffer<JCTree> methods = ListBuffer.lb();
-             // Prepare to accumulate statements.
+            // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Grab the super class.
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
             // Reset diagnostic position to current class.
             resetDiagPos();
-            
-            // Get the update map.
-            HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap = analysis.getUpdateMap();
            
             // generate method if it is worthwhile or we have to.
             if (!updateMap.isEmpty() || superClassSym == null) {
@@ -1681,8 +1680,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             return methods.toList();
         }
-
-
         //
         // This method constructs the initializer for a var map.
         //
