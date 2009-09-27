@@ -211,7 +211,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
                     if (types.isJFXClass(selectorSym.owner)) {
                         Type selectorType = selector.type;
                         JCExpression offset = m().Select(makeType(selector.type), attributeOffsetName(tree.sym));
-                        JCExpression rcvr = tree.sym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this); //FIXME
+                        JCExpression rcvr = selectorSym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this);
                         JCVariableDecl oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
                         JCVariableDecl newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
                         addPreface(oldSelector);
