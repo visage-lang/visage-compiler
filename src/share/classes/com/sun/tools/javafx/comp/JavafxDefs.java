@@ -117,6 +117,8 @@ public class JavafxDefs {
     private static final String cUtil = runtimePackageNameString + ".Util";
     private static final String cFXBase = runtimePackageNameString + ".FXBase";
 
+    public  static final String zeroDuration = "javafx.lang.Duration.$ZERO";
+
     public  static final Pattern DATETIME_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT]");
 
     public  static final char typeCharToEscape = '.';

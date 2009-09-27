@@ -557,9 +557,7 @@ public abstract class JavafxTranslationSupport {
             tmi.getRealType() == syms.javafx_StringType ?
                 make.Literal("") :
             tmi.getRealType() == syms.javafx_DurationType ?
-                make.at(diagPos).TypeCast(
-                makeQualifiedTree(diagPos, "javafx.lang.Duration"),
-                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Duration.ZERO")) :
+                makeQualifiedTree(diagPos, JavafxDefs.zeroDuration) :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
     }
 
@@ -1108,7 +1106,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         protected JCMethodDecl makeMethod(long flags, JCExpression typeExpression, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-        return makeMethod(m().Modifiers(flags), typeExpression, methName, params, stmts);
+            return makeMethod(m().Modifiers(flags), typeExpression, methName, params, stmts);
         }
 
         protected JCMethodDecl makeMethod(JCModifiers modifiers, Type returnType, Name methName,

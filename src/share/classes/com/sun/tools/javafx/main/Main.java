@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.main;
 
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.NotYetImplementedException;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.Reader;
@@ -667,6 +668,9 @@ public class Main {
         } catch (FatalError ex) {
             feMessage(ex);
             return EXIT_SYSERR;
+        } catch (NotYetImplementedException ex) {
+            Log.printLines(out, "ABORT: " + ex.getMessage());
+            return EXIT_ABNORMAL;
         } catch (ClientCodeException ex) {
             // as specified by javax.tools.JavaCompiler#getTask
             // and javax.tools.JavaCompiler.CompilationTask#call

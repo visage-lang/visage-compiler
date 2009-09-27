@@ -826,11 +826,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                // if (varOldValue$ != varNewValue$) { handle change }
                 stmts.append(m().If(testExpr, m().Block(0L, ifStmts.toList()), null));
+
+                // return $var;
+                stmts.append(m().Return(id(varName)));
             }
 
             // Construct method.
             JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             syms.voidType,
+                                             type,
                                              attributeBeName(varSym),
                                              makeParamList(!needsBody, makeParam(type, varNewValueName)),
                                              stmts);

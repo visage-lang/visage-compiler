@@ -125,8 +125,14 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
     /********** Utility routines **********/
 
-    JCExpression TODO() {
-        throw new RuntimeException("Not yet implemented");
+    public static class NotYetImplementedException extends RuntimeException {
+        NotYetImplementedException(String msg) {
+            super(msg);
+        }
+    }
+
+    JCExpression TODO(String msg) {
+        throw new NotYetImplementedException("Not yet implemented: " + msg);
     }
 
     /**
@@ -218,19 +224,23 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         return rs.resolveInternalConstructor(pos, getAttrEnv(), qual, args, null);
     }
 
-    ExpressionResult convertTranslated(ExpressionResult translated, DiagnosticPosition diagPos,
-            Type sourceType, Type targettedType) {
-        return new ExpressionResult(
+    ExpressionResult convertTranslated(ExpressionResult res, DiagnosticPosition diagPos, Type targettedType) {
+        return (targettedType == null || targettedType == syms.voidType) ?
+              res
+            : new ExpressionResult(
                 diagPos,
-                translated.statements(),
-                new TypeConversionTranslator(diagPos, translated.expr(), sourceType, targettedType).doitExpr(),
-                translated.bindees,
-                translated.interClass);
+                res.statements(),
+                new TypeConversionTranslator(diagPos, res.expr(), res.resultType, targettedType).doitExpr(),
+                res.bindees,
+                res.interClass,
+                targettedType);
     }
 
     JCExpression convertTranslated(JCExpression translated, DiagnosticPosition diagPos,
             Type sourceType, Type targettedType) {
-        return new TypeConversionTranslator(diagPos, translated, sourceType, targettedType).doitExpr();
+        return (targettedType == null || targettedType == syms.voidType) ?
+              translated
+            : new TypeConversionTranslator(diagPos, translated, sourceType, targettedType).doitExpr();
     }
 
     /**
@@ -330,20 +340,23 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         private final JCExpression value;
         private final List<VarSymbol> bindees;
         private final List<DependentPair> interClass;
-        ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, List<VarSymbol> bindees, List<DependentPair> interClass) {
+        private final Type resultType;
+
+        ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, List<VarSymbol> bindees, List<DependentPair> interClass, Type resultType) {
             super(diagPos, stmts);
             this.value = value;
             this.bindees = bindees;
             this.interClass = interClass;
+            this.resultType = resultType;
         }
-        ExpressionResult(DiagnosticPosition diagPos, ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<VarSymbol> bindees, ListBuffer<DependentPair> interClass) {
-            this(diagPos, buf.toList(), value, bindees.toList(), interClass.toList());
+        ExpressionResult(DiagnosticPosition diagPos, ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<VarSymbol> bindees, ListBuffer<DependentPair> interClass, Type resultType) {
+            this(diagPos, buf.toList(), value, bindees.toList(), interClass.toList(), resultType);
         }
-        ExpressionResult(JCExpression value, List<VarSymbol> bindees) {
-            this(value.pos(), List.<JCStatement>nil(), value, bindees, List.<DependentPair>nil());
+        ExpressionResult(JCExpression value, List<VarSymbol> bindees, Type resultType) {
+            this(value.pos(), List.<JCStatement>nil(), value, bindees, List.<DependentPair>nil(), resultType);
         }
-        ExpressionResult(JCExpression value) {
-            this(value, List.<VarSymbol>nil());
+        ExpressionResult(JCExpression value, Type resultType) {
+            this(value, List.<VarSymbol>nil(), resultType);
         }
         JCExpression expr() {
             return value;
@@ -381,10 +394,6 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
     /********** translation support **********/
 
-    ExpressionResult translateToExpressionResult(JFXExpression expr) {
-        return translateToExpressionResult(expr, null);
-    }
-
     private void translateCore(JFXTree expr, Type targettedType, Yield yield) {
             JFXTree prevWhere = getAttrEnv().where;
             Yield prevYield = yield();
@@ -405,12 +414,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             translateCore(expr, targettedType, ToExpression);
             ExpressionResult ret = (ExpressionResult)this.result;
             this.result = null;
-            return (targettedType==null)? ret : convertTranslated(ret, expr.pos(), expr.type, targettedType);
+            return convertTranslated(ret, expr.pos(), targettedType);
         }
-    }
-
-    StatementsResult translateToStatementsResult(JFXExpression expr) {
-        return translateToStatementsResult(expr, syms.voidType);
     }
 
     StatementsResult translateToStatementsResult(JFXExpression expr, Type targettedType) {
@@ -423,27 +428,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (ret instanceof StatementsResult) {
                 return (StatementsResult) ret; // already converted
             } else if (ret instanceof ExpressionResult) {
-                ExpressionResult translated = (ExpressionResult) ret;
-                JCExpression tExpr = translated.expr();
-                DiagnosticPosition diagPos = expr.pos();
-                JCStatement stmt;
-                if (targettedType == null || targettedType == syms.voidType) {
-                    stmt = make.at(diagPos).Exec(tExpr);
-                } else {
-                    JFXVar var = null;
-                    if (expr instanceof JFXVar) {
-                        var = (JFXVar) expr;
-                    } else if (expr instanceof JFXVarScriptInit) {
-                        var = ((JFXVarScriptInit) expr).getVar();
-                    }
-
-                    if ((var != null) && var.isBound()) {
-                        assert false;
-                    }
-                    stmt = make.at(diagPos).Return(
-                            convertTranslated(tExpr, diagPos, expr.type, targettedType));
-                }
-                return new StatementsResult(diagPos, translated.statements().append(stmt));
+                return new StatementsResult(expr.pos(), asStatements((ExpressionResult) ret, targettedType));
             } else {
                 throw new RuntimeException(ret.toString());
             }
@@ -458,20 +443,17 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         JCConverter(AbstractStatementsResult res, Type type) {
             super(res.diagPos);
             this.res = res;
-            this.type = type == syms.voidType ? null : type;
-        }
-
-        JCConverter(AbstractStatementsResult res) {
-            this(res, null);
+            this.type = type;
         }
 
         List<JCStatement> asStatements() {
+            int typeTag = type.tag; // Blow up if we are passed null as the type of statements
             List<JCStatement> stmts = res.statements();
             if (res instanceof ExpressionResult) {
                 ExpressionResult eres = (ExpressionResult) res;
                 JCExpression expr = eres.expr();
                 if (expr != null) {
-                    stmts = stmts.append((type != null) ? makeReturn(expr) : makeExec(expr));
+                    stmts = stmts.append(makeStatement(convertedExpression(eres), type));
                 }
             }
             return stmts;
@@ -495,28 +477,24 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (res instanceof ExpressionResult) {
                 ExpressionResult er = (ExpressionResult) res;
                 if (er.statements().nonEmpty()) {
-                    BlockExprJCBlockExpression bexpr = new BlockExprJCBlockExpression(0L, er.statements(), er.expr());
+                    BlockExprJCBlockExpression bexpr = new BlockExprJCBlockExpression(0L, er.statements(), convertedExpression(er));
                     bexpr.pos = er.expr().pos;
                     return bexpr;
                 } else {
-                    return er.expr();
+                    return convertedExpression(er);
                 }
             } else {
                 throw new IllegalArgumentException("must be ExpressionResult -- was: " + res);
             }
         }
-    }
 
-    JCBlock asBlock(AbstractStatementsResult res) {
-        return new JCConverter(res).asBlock();
+        private JCExpression convertedExpression(ExpressionResult eres) {
+            return convertTranslated(eres.expr(), diagPos, eres.resultType, type);
+        }
     }
 
     JCBlock asBlock(AbstractStatementsResult res, Type targettedType) {
         return new JCConverter(res, targettedType).asBlock();
-    }
-
-    JCStatement asStatement(AbstractStatementsResult res) {
-        return new JCConverter(res).asStatement();
     }
 
     JCStatement asStatement(AbstractStatementsResult res, Type targettedType) {
@@ -527,36 +505,16 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         return new JCConverter(res, targettedType).asStatements();
     }
 
-    List<JCStatement> asStatements(AbstractStatementsResult res) {
-        return new JCConverter(res).asStatements();
-    }
-
     JCExpression asExpression(AbstractStatementsResult res, Type targettedType) {
         return new JCConverter(res, targettedType).asExpression();
-    }
-
-    JCExpression asExpression(AbstractStatementsResult res) {
-        return new JCConverter(res).asExpression();
-    }
-
-    JCExpression translateToExpression(JFXExpression expr) {
-        return translateToExpression(expr, null);
     }
 
     JCExpression translateToExpression(JFXExpression expr, Type targettedType) {
         return asExpression(translateToExpressionResult(expr, targettedType), targettedType);
     }
 
-    JCStatement translateToStatement(JFXExpression expr) {
-        return translateToStatement(expr, syms.voidType);
-    }
-
     JCStatement translateToStatement(JFXExpression expr, Type targettedType) {
         return asStatement(translateToStatementsResult(expr, targettedType), targettedType);
-    }
-
-    JCBlock translateToBlock(JFXExpression expr) {
-        return translateToBlock(expr, syms.voidType);
     }
 
     JCBlock translateToBlock(JFXExpression expr, Type targettedType) {
@@ -583,8 +541,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
     /** Translate a single tree.
      */
-    R translate(JFXTree tree) {
-        R ret;
+    SpecialResult translateToSpecialResult(JFXTree tree) {
+        SpecialResult ret;
 
         if (tree == null) {
             ret = null;
@@ -593,32 +551,10 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             getAttrEnv().where = tree;
             tree.accept(this);
             getAttrEnv().where = prevWhere;
-            ret = this.result;
+            ret = (SpecialResult)this.result;
             this.result = null;
         }
         return ret;
-    }
-
-    /** Translate a single expression.
-     */
-    R translate(JFXExpression expr, Type type) {
-        return translate(expr);
-    }
-
-    /** Translate a list of expressions.
-     */
-    <T extends JFXTree> List<R> translate(List<T> trees) {
-        ListBuffer<R> translated = ListBuffer.lb();
-        if (trees == null) {
-            return null;
-        }
-        for (List<T> l = trees; l.nonEmpty(); l = l.tail) {
-            R tree = translate(l.head);
-            if (tree != null) {
-                translated.append(tree);
-            }
-        }
-        return translated.toList();
     }
 
     /********** Translators **********/
@@ -716,10 +652,6 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             super(diagPos);
         }
 
-        JCExpression translateExpr(JFXExpression expr) {
-            return translateExpr(expr, null);
-        }
-
         JCExpression translateExpr(JFXExpression expr, Type type) {
             ExpressionResult res = translateToExpressionResult(expr, type);
             stmts.appendList(res.statements());
@@ -730,7 +662,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         List<JCExpression> translateExprs(List<JFXExpression> list) {
             ListBuffer<JCExpression> trans = ListBuffer.lb();
             for (List<JFXExpression> l = list; l.nonEmpty(); l = l.tail) {
-                JCExpression res = translateExpr(l.head);
+                JCExpression res = translateExpr(l.head, null);
                 if (res != null) {
                     trans.append(res);
                 }
@@ -738,12 +670,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             return trans.toList();
         }
 
-        void translateStmt(JFXExpression expr) {
-            translateStmt(expr, null);
-        }
-
-        void translateStmt(JFXExpression expr, Type type) {
-            StatementsResult res = translateToStatementsResult(expr, type);
+        void translateStmt(JFXExpression expr, Type targettedType) {
+            StatementsResult res = translateToStatementsResult(expr, targettedType);
             stmts.appendList(res.statements());
         }
 
@@ -771,12 +699,16 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             interClass.append(new ExpressionResult.DependentPair( instanceSym,  referencedSym));
         }
 
-        ExpressionResult toResult(JCExpression translated) {
-            return new ExpressionResult(diagPos, stmts, translated, bindees, interClass);
+        ExpressionResult toResult(JCExpression translated, Type resultType) {
+            return new ExpressionResult(diagPos, stmts, translated, bindees, interClass, resultType);
         }
 
-        StatementsResult toStatementResult(JCExpression translated, Type targettedType) {
-            return toStatementResult((targettedType == null || targettedType == syms.voidType) ? makeExec(translated) : makeReturn(translated));
+        StatementsResult toStatementResult(JCExpression translated, Type resultType, Type targettedType) {
+            return toStatementResult(
+                    (targettedType == null || targettedType == syms.voidType) ?
+                          makeExec(translated)
+                        : makeReturn(
+                            convertTranslated(translated, diagPos, resultType, targettedType)));
         }
 
         StatementsResult toStatementResult(JCStatement translated) {
@@ -823,16 +755,12 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 parts = parts.tail;
                 JFXExpression exp = parts.head;
                 JCExpression texp;
-                if (exp != null &&
-                        types.isSameType(exp.type, syms.javafx_DurationType)) {
-                    texp = m().Apply(null,
-                            select(translateExpr(exp),
-                            names.fromString("toMillis")),
-                            List.<JCExpression>nil());
+                if (exp != null && types.isSameType(exp.type, syms.javafx_DurationType)) {
+                    texp = call(translateExpr(exp, syms.javafx_DurationType), names.fromString("toMillis"));
                     texp = typeCast(diagPos, syms.javafx_LongType, syms.javafx_DoubleType, texp);
                     sb.append(format.length() == 0 ? "%dms" : format);
                 } else {
-                    texp = translateExpr(exp);
+                    texp = translateExpr(exp, null);
                     sb.append(format.length() == 0 ? "%s" : format);
                 }
                 values.append(texp);
@@ -862,7 +790,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 formatMethod = "java.lang.String.format";
             }
             JCExpression formatter = makeQualifiedTree(diagPos, formatMethod);
-            return toResult(m().Apply(null, formatter, values.toList()));
+            return toResult(m().Apply(null, formatter, values.toList()), syms.stringType);
         }
     }
 
@@ -940,13 +868,15 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
     abstract class NullCheckTranslator extends MemberReferenceTranslator {
 
         protected final Symbol refSym;
+        protected final Type fullType;
         protected final Type resultType;
         protected final boolean staticReference;
 
-        NullCheckTranslator(DiagnosticPosition diagPos, Symbol sym, Type resultType) {
+        NullCheckTranslator(DiagnosticPosition diagPos, Symbol sym, Type fullType) {
             super(diagPos);
             this.refSym = sym;
-            this.resultType = resultType;
+            this.fullType = fullType;
+            this.resultType = targetType==null? fullType : targetType; // use targetType, if any
             this.staticReference = refSym.isStatic();
         }
 
@@ -1002,7 +932,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             Type exprType = expr.type;
 
             // translate normally, preserving side-effects if need be
-            JCExpression tExpr = preserveSideEffects(exprType, expr, translateExpr(expr));
+            JCExpression tExpr = preserveSideEffects(exprType, expr, translateExpr(expr, exprType));
 
             // if expr is primitve, box it
             // expr.type is null for package symbols.
@@ -1016,9 +946,10 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         protected AbstractStatementsResult doit() {
             JCExpression tToCheck = translateToCheck(getToCheck());
             JCExpression full = fullExpression(tToCheck);
+            full = convertTranslated(full, diagPos, fullType, resultType);
             if (!needNullCheck()) {
                 // no null check needed just return the translation
-                return toResult(full);
+                return toResult(full, resultType);
             }
             // Make an expression to use in null test.
             // If translated toCheck is an identifier (tmp var or not), just make a new identifier.
@@ -1030,16 +961,21 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             // Do a null check
             // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
             JCExpression cond = makeNotNullCheck(toTest);
+            JCExpression defaultExpr = makeDefaultValue(diagPos, resultType);
             if (yield() == ToStatement) {
                  // a statement is the desired result of the translation, return the If-statement
+                JCStatement nullAction = null;
+                if (resultType != null && resultType != syms.voidType) {
+                    nullAction = makeStatement(defaultExpr, resultType);
+                }
                 return toStatementResult(
-                        m().If(cond, makeStatement(full, targetType), null));
+                        m().If(cond, makeStatement(full, resultType), nullAction));
             } else {
                 // an expression is the desired result of the translation, convert it to a conditional expression
                 // if it would dereference null, then the full expression instead yields the default value
-                JCExpression defaultExpr = makeDefaultValue(diagPos, resultType);
                 return toResult(
-                        m().Conditional(cond, full, defaultExpr));
+                        m().Conditional(cond, full, defaultExpr),
+                        resultType);
             }
         }
 
@@ -1105,7 +1041,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (isFunctionReference) {
                 MethodType mtype = (MethodType) refSym.type;
                 JCExpression translated = select(tToCheck, name);
-                return new FunctionValueTranslator(translated, null, diagPos, mtype).doitExpr();
+                return new FunctionValueTranslator(translated, null, diagPos, mtype, fullType).doitExpr();
             } else {
                 JCExpression translated = select(tToCheck, name);
                 return convertVariableReference(translated, refSym);
@@ -1204,7 +1140,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
             JCExpression full = callBound ? makeBoundCall(app) : app;
             if (useInvoke) {
-                if (resultType.tag != TypeTags.VOID) {
+                if (resultType != syms.voidType) {
                     full = castFromObject(full, resultType);
                 }
             }
@@ -1217,7 +1153,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         // This is for calls from non-bound contexts (code for true bound calls is in JavafxToBound)
         JCExpression makeBoundCall(JCExpression applyExpression) {
-            return TODO();
+            return TODO("makeBoundCall");
         }
 
         @Override
@@ -1271,8 +1207,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                                     types.isSequence(formal.head) ||
                                     formal.head == syms.objectType // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
                                     ) {
-                                TODO();
-                                break;
+                                throw new RuntimeException("bogus bound call code");
+                                //break;
                             }
                         //TODO: handle sequence subclasses
                         //TODO: use more efficient mechanism (use currently apears rare)
@@ -1327,7 +1263,9 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
 
         protected ExpressionResult doit() {
-            return toResult(makeDurationLiteral(diagPos, translateExpr(value)));
+            return toResult(
+                    makeDurationLiteral(diagPos, translateExpr(value, syms.doubleType)),
+                    syms.javafx_DurationType);
         }
     }
 
@@ -1372,7 +1310,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             JCBlock block;
             if (value == null || value.type == syms.voidType) {
                 // the block has no value: translate as simple statement and add a null return
-                block = translateToBlock(bexpr);
+                block = translateToBlock(bexpr, syms.voidType);
                 block.stats = block.stats.append(makeReturn(makeNull()));
             } else {
                 // block has a value, return it
@@ -1429,7 +1367,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (bexpr == null) {
                 body = null; // null if no block expression
             } else if (isBound) {
-                throw new RuntimeException("not yet implemented");
+                TODO("bound function building"); body = null;
             } else if (isRunMethod) {
                 // it is a module level run method, do special translation
                 body = makeRunMethodBody(bexpr);
@@ -1512,7 +1450,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
 
         protected ExpressionResult doit() {
-            return toResult(doitExpr());
+            return toResult(doitExpr(), tree.type);
         }
 
         protected JCExpression doitExpr() {
@@ -1557,7 +1495,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
                 MethodType mtype = (MethodType) tree.sym.type;
                 JFXFunctionDefinition def = null; // FIXME
-                return new FunctionValueTranslator(convert, def, tree.pos(), mtype).doitExpr();
+                return new FunctionValueTranslator(convert, def, tree.pos(), mtype, tree.type).doitExpr();
             }
 
             return convertVariableReference(convert, tree.sym);
@@ -1605,17 +1543,17 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 JFXExpression seq = si.getSequence();
                 JCExpression index = translateExpr(si.getIndex(), syms.intType);
                 if (seq.type.tag == TypeTags.ARRAY) {
-                    JCExpression tseq = translateExpr(seq);
+                    JCExpression tseq = translateExpr(seq, null); //FIXME
                     return m().Assign(m().Indexed(tseq, index), buildRHS(rhsTranslated));
                 } else {
-                    JCExpression tseq = translateExpr(seq); //TODO
+                    JCExpression tseq = translateExpr(seq, null); //FIXME
                     return call(tseq, defs.setMethodName, index, buildRHS(rhsTranslated));
                  }
             } else {
                 if (useSetters) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
                 } else {
-                    return defaultFullExpression(translateExpr(lhs), rhsTranslated);
+                    return defaultFullExpression(translateExpr(lhs, null), rhsTranslated);
                 }
             }
         }
@@ -1649,10 +1587,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             super(tree.pos());
             this.tree = tree;
             this.expr = tree.getExpression();
-            this.transExpr =
-                    tree.getFXTag() == JavafxTag.SIZEOF &&
-                    (expr instanceof JFXIdent || expr instanceof JFXSelect) ? translateExpr(expr)
-                    : translateExpr(expr, expr.type);
+            this.transExpr = translateExpr(expr, expr.type);
         }
 
         JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
@@ -1701,18 +1636,20 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             switch (tree.getFXTag()) {
                 case SIZEOF:
                     if (expr.type.tag == TypeTags.ARRAY) {
-                        return toResult(select(transExpr, defs.lengthName));
+                        return toResult(select(transExpr, defs.lengthName), syms.intType);
                     }
-                    return toResult(translateSizeof(expr, transExpr));
+                    return toResult(translateSizeof(expr, transExpr), syms.intType);
                 case REVERSE:
                     if (types.isSequence(expr.type)) {
                         // call runtime reverse of a sequence
-                        return toResult(call(
+                        return toResult(
+                             call(
                                 makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
-                                "reverse", transExpr));
+                                "reverse", transExpr),
+                             expr.type);
                     } else {
                         // this isn't a sequence, just make it a sequence
-                        return convertTranslated(toResult(transExpr), diagPos, expr.type, tree.type);
+                        return toResult(convertTranslated(transExpr, diagPos, expr.type, targetType), targetType);
                     }
                 case PREINC:
                     return doIncDec(JCTree.PLUS, false);
@@ -1724,10 +1661,14 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     return doIncDec(JCTree.MINUS, true);
                 case NEG:
                     if (types.isSameType(tree.type, syms.javafx_DurationType)) {
-                        return toResult(call(translateExpr(tree.arg, tree.arg.type), names.fromString("negate")));
+                        return toResult(
+                                call(translateExpr(tree.arg, tree.arg.type), names.fromString("negate")),
+                                syms.javafx_DurationType);
                     }
                 default:
-                    return toResult(makeUnary(tree.getOperatorTag(), transExpr));
+                    return toResult(
+                            makeUnary(tree.getOperatorTag(), transExpr),
+                            tree.type);
             }
         }
     }
@@ -1898,7 +1839,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
          * Translate a binary expressions
          */
         protected ExpressionResult doit() {
-            return toResult(doitExpr());
+            return toResult(doitExpr(), tree.type);
         }
 
         JCExpression doitExpr() {
@@ -1951,7 +1892,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
 
         protected ExpressionResult doit() {
-            return toResult(doitExpr());
+            return toResult(doitExpr(), targettedType);
         }
 
         JCExpression doitExpr() {
@@ -2009,8 +1950,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     //TODO: conversion may be needed here, but this is better than what we had
                     return translated;
                 }
-            }
-            if (sourceIsArray && targetIsSequence) {
+            } else if (sourceIsArray && targetIsSequence) {
                 Type sourceElemType = types.elemtype(sourceType);
                 List<JCExpression> args;
                 if (sourceElemType.isPrimitive()) {
@@ -2090,16 +2030,18 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         private final JCExpression meth;
         private final JFXFunctionDefinition def;
         private final MethodType mtype;
+        private final Type resultType;
 
-        FunctionValueTranslator(JCExpression meth, JFXFunctionDefinition def, DiagnosticPosition diagPos, MethodType mtype) {
+        FunctionValueTranslator(JCExpression meth, JFXFunctionDefinition def, DiagnosticPosition diagPos, MethodType mtype, Type resultType) {
             super(diagPos);
             this.meth = meth;
             this.def = def;
             this.mtype = mtype;
+            this.resultType = resultType;
         }
 
         protected ExpressionResult doit() {
-            return toResult(doitExpr());
+            return toResult(doitExpr(), resultType);
         }
 
         JCExpression doitExpr() {
@@ -2268,7 +2210,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (cdef == null) {
                 type = declaredType;
             } else {
-                translateStmt(cdef);
+                translateStmt(cdef, syms.voidType);
                 type = cdef.type;
             }
             JCExpression classTypeExpr = makeType(type, false);
@@ -2339,7 +2281,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
             }
 
-            return toResult(instExpression);
+            return toResult(instExpression, type);
         }
     }
 

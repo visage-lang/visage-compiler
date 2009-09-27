@@ -1,0 +1,10 @@
+/**
+ * JFXC-2350 - Division not supported for Duration
+ * 
+ * @test
+ * @run
+ */
+
+var proportion:Number = 2.5s / 5s; 
+
+java.lang.System.out.println(proportion);

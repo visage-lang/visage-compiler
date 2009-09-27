@@ -33,7 +33,6 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Context;
-import com.sun.tools.mjavac.util.Name;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -62,9 +61,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         context.put(jfxBoundTranslation, this);
     }
 
-    ExpressionResult translate(JFXExpression expr, Symbol targetSymbol) {
+    ExpressionResult translate(JFXExpression expr, Type targettedType, Symbol targetSymbol) {
         this.targetSymbol = targetSymbol;
-        return translate(expr);
+        return translateToExpressionResult(expr, targettedType);
     }
 
 /* ***************************************************************************
@@ -147,30 +146,28 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     private class IfExpressionTranslator extends ExpressionTranslator {
 
         private final JFXIfExpression tree;
-        private final Type targettedType;
         private final JCVariableDecl resVar;
 
         IfExpressionTranslator(JFXIfExpression tree) {
             super(tree.pos());
             this.tree = tree;
-            this.targettedType = tree.type;
-            this.resVar = makeTmpVar("res", targettedType, null);
+            this.resVar = makeTmpVar("res", targetType, null);
         }
 
         JCStatement side(JFXExpression expr) {
-            ExpressionResult res = translateToExpressionResult(expr, targettedType);
+            ExpressionResult res = translateToExpressionResult(expr, targetType);
             addBindees(res.bindees());
             return m().Block(0L, res.statements().append(makeExec(m().Assign(id(resVar), res.expr()))));
         }
 
         protected ExpressionResult doit() {
-            JCExpression cond = translateExpr(tree.getCondition());
+            JCExpression cond = translateExpr(tree.getCondition(), syms.booleanType);
             addPreface(resVar);
             addPreface(m().If(
                     cond,
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
-            return toResult( id(resVar) );
+            return toResult( id(resVar), targetType );
         }
     }
 
@@ -180,11 +177,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
 
     public void visitLiteral(JFXLiteral tree) {
         // Just translate to literal value
-        result = new ExpressionResult(translateLiteral(tree));
+        result = new ExpressionResult(translateLiteral(tree), tree.type);
     }
 
     public void visitParens(JFXParens tree) {
-        result = translate(tree.expr);
+        result = translateToExpressionResult(tree.expr, targetType);
     }
 
     public void visitSelect(JFXSelect tree) {
@@ -214,7 +211,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
                     if (types.isJFXClass(selectorSym.owner)) {
                         Type selectorType = selector.type;
                         JCExpression offset = m().Select(makeType(selector.type), attributeOffsetName(tree.sym));
-                        JCExpression rcvr = tree.sym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this); //FIXME
+                        JCExpression rcvr = selectorSym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this);
                         JCVariableDecl oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
                         JCVariableDecl newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
                         addPreface(oldSelector);
@@ -245,77 +242,76 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
  * Visitor methods -- NOT implemented yet
  ****************************************************************************/
 
-    @Override
-    JCExpression TODO() {
-        throw new RuntimeException("Not yet implemented bind functionality");
+    JCExpression TODO(JFXTree tree) {
+        return TODO("BIND functionality: " + tree.getClass().getSimpleName());
     }
 
     public void visitAssign(JFXAssign tree) {
-        TODO();
-        translate(tree.lhs);
-        translate(tree.rhs);
+        TODO(tree);
+        //(tree.lhs);
+        //(tree.rhs);
     }
 
     public void visitTypeCast(JFXTypeCast tree) {
-        TODO();
+        TODO(tree);
         //(tree.clazz);
-        translate(tree.expr);
+        //(tree.expr);
     }
 
     public void visitInstanceOf(JFXInstanceOf tree) {
-        TODO();
-        translate(tree.expr);
+        TODO(tree);
+        //(tree.expr);
         //(tree.clazz);
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
-        TODO();
+        TODO(tree);
         for (JFXVar param : tree.getParams()) {
-            translate(param);
+            //(param);
         }
-        translate(tree.getBodyExpression());
+        //(tree.getBodyExpression());
     }
 
     //@Override
-    public void visitSequenceEmpty(JFXSequenceEmpty that) {
-        TODO();
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        TODO(tree);
     }
     
     //@Override
-    public void visitSequenceRange(JFXSequenceRange that) {
-        TODO();
-        translate( that.getLower() );
-        translate( that.getUpper() );
-        translate( that.getStepOrNull() );
+    public void visitSequenceRange(JFXSequenceRange tree) {
+        TODO(tree);
+        //( that.getLower() );
+        //( that.getUpper() );
+        //( that.getStepOrNull() );
     }
     
     //@Override
-    public void visitSequenceExplicit(JFXSequenceExplicit that) {
-        TODO();
-        translate( that.getItems() );
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        TODO(tree);
+        //( that.getItems() );
     }
 
     //@Override
-    public void visitSequenceIndexed(JFXSequenceIndexed that) {
-        TODO();
-        translate(that.getSequence());
-        translate(that.getIndex());
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        TODO(tree);
+        //(that.getSequence());
+        //(that.getIndex());
     }
     
-    public void visitSequenceSlice(JFXSequenceSlice that) {
-        TODO();
-        translate(that.getSequence());
-        translate(that.getFirstIndex());
-        translate(that.getLastIndex());
+    public void visitSequenceSlice(JFXSequenceSlice tree) {
+        TODO(tree);
+        //(that.getSequence());
+        //(that.getFirstIndex());
+        //(that.getLastIndex());
     }
 
-    public void visitStringExpression(JFXStringExpression that) {
-        TODO();
-        List<JFXExpression> parts = that.getParts();
+    public void visitStringExpression(JFXStringExpression tree) {
+        TODO(tree);
+        List<JFXExpression> parts = tree.getParts();
         parts = parts.tail;
         while (parts.nonEmpty()) {
             parts = parts.tail;
-            translate(parts.head);
+            //(parts.head);
             parts = parts.tail;
             parts = parts.tail;
         }
@@ -323,47 +319,47 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     
     //@Override
     public void visitInstanciate(JFXInstanciate tree) {
-        TODO();
-       translate(tree.getIdentifier());
-       translate(tree.getArgs());
-       translate(tree.getParts());
-       translate(tree.getLocalvars());
-       translate(tree.getClassBody());
+        TODO(tree);
+       //(tree.getIdentifier());
+       //(tree.getArgs());
+       //(tree.getParts());
+       //(tree.getLocalvars());
+       //(tree.getClassBody());
     }
     
     
     //@Override
-    public void visitForExpression(JFXForExpression that) {
-        TODO();
-        for (ForExpressionInClauseTree cl : that.getInClauses()) {
+    public void visitForExpression(JFXForExpression tree) {
+        TODO(tree);
+        for (ForExpressionInClauseTree cl : tree.getInClauses()) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             //(clause);
         }
-        translate(that.getBodyExpression());
+        //(that.getBodyExpression());
     }
 
     //@Override
-    public void visitBlockExpression(JFXBlock that) {
-        TODO();
-        translate(that.stats);
-        translate(that.value);
+    public void visitBlockExpression(JFXBlock tree) {
+        TODO(tree);
+        //(that.stats);
+        //(that.value);
     }
     
     //@Override
-    public void visitIndexof(JFXIndexof that) {
-        TODO();
+    public void visitIndexof(JFXIndexof tree) {
+        TODO(tree);
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {
-        TODO();
+        TODO(tree);
     }
 
-    public void visitInterpolateValue(JFXInterpolateValue that) {
-        TODO();
-        translate(that.attribute);
-        translate(that.value);
-        if  (that.interpolation != null) {
-            translate(that.interpolation);
+    public void visitInterpolateValue(JFXInterpolateValue tree) {
+        TODO(tree);
+        //(that.attribute);
+        //(that.value);
+        if  (tree.interpolation != null) {
+            //(that.interpolation);
         }
     }
 

@@ -59,30 +59,6 @@ public class Util {
         return capacity;
     }
 
-    /**
-     * Return the default value for a type.
-     * @param clazz the class to use to determine default value Class<T>
-     * @return the default value
-     */
-    @SuppressWarnings("unchecked")
-    public static<T> T defaultValue(Class clazz) {
-        if (clazz == Integer.class)
-            return (T) Integer.valueOf(0);
-        else if (clazz == Double.class)
-            return (T) Double.valueOf(0.0);
-        else if (clazz == Boolean.class)
-            return (T) Boolean.FALSE;
-        else if (clazz == String.class)
-            return (T) "";
-        try {
-            if (clazz == Class.forName("javafx.lang.Duration"))
-                return (T) Duration.make(0);
-        } catch (Exception ex) {
-            // ignore
-        }
-        return null;
-    }
-
 //    @SuppressWarnings("unchecked")
 //    public static<T> T[] newArray(Class<?> clazz, int size) {
 //        return (T[]) Array.newInstance(clazz, size);
