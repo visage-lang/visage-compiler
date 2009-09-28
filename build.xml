@@ -505,6 +505,15 @@
                  classpath="${build.classes.dir}:${javac.test.classpath}"
                  compilerclasspath="${build.classes.dir}:${javac.classpath}">
         </javafxc>
+
+        <taskdef name="bytecode-verify" classname="com.sun.javafx.tools.bytecodeverifier.VerifierTask">
+            <classpath>
+                 <pathelement location="${ant.jar}"/>
+                 <pathelement location="${build.buildtools.dir}/"/>
+                 <path refid="asm.class.path"/>
+            </classpath>
+        </taskdef>
+        <bytecode-verify path="${build.classes.dir}"/>
     </target>
 
     <target depends="init,javafxdoc" name="-javadoc-build">
@@ -588,6 +597,7 @@
         <javac srcdir="${src.buildtools.dir}" destdir="${build.buildtools.dir}" classpath="${import.ant.jar}">
             <classpath>
                 <path refid="ant.class.path" />
+                <path refid="asm.class.path" />
                 <path refid="antlr.class.path" />
             </classpath>
         </javac>
