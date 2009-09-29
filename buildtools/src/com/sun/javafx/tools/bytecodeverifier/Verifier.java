@@ -54,9 +54,13 @@ import org.objectweb.asm.util.CheckClassAdapter;
  */
 public class Verifier {
     // do not create me!
-    private Verifier() {}
+    private Verifier() {
+    }
 
-    private static void verify(ClassReader reader, final PrintWriter err) {
+    private static boolean verify(String name, ClassReader reader, final PrintWriter err, boolean verbose) {
+        if (verbose) {
+            err.println("Verifying " + name);
+        }
         ClassNode classNode = new ClassNode();
         reader.accept(new CheckClassAdapter(classNode), ClassReader.SKIP_DEBUG);
 
@@ -73,6 +77,7 @@ public class Verifier {
             SimpleVerifier verifier = new SimpleVerifier(
                     Type.getObjectType(classNode.name),
                     syperType, interfaces, false) {
+
                 @Override
                 protected boolean isAssignableFrom(Type t, Type u) {
                     // FIXME: Assignment check in the superclass implementation uses
@@ -86,51 +91,53 @@ public class Verifier {
             Analyzer analyzer = new Analyzer(verifier);
             try {
                 analyzer.analyze(classNode.name, method);
-            } catch (Exception exp) {
+            } catch (AnalyzerException exp) {
+                err.println("Verification failed for " + name);
                 exp.printStackTrace(err);
+                err.flush();
+                return false;
             }
         }
         err.flush();
+        return true;
     }
 
-    private static void verifyClass(InputStream is, PrintWriter err) 
-            throws IOException {
+    private static boolean verifyClass(String name, InputStream is, PrintWriter err, boolean verbose) throws IOException {
         ClassReader cr = new ClassReader(is);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new CheckClassAdapter(cw);
         cr.accept(cv, 0);
-        verify(new ClassReader(cw.toByteArray()), err);
+        return verify(name, new ClassReader(cw.toByteArray()), err, verbose);
     }
 
-    private static void verifyZip(ZipInputStream zis, PrintWriter err) 
-            throws IOException {
-        try {
-            ZipEntry ze = zis.getNextEntry();
-            while (ze != null) {
-                if (! ze.isDirectory()) {
-                    String zname = ze.getName();
-                    if (zname.endsWith(".class")) {
-                        err.println("Verifying " + ze.getName());
-                        verifyClass(zis, err); 
-                    }
-                }
-                zis.closeEntry();
-                ze = zis.getNextEntry();
-            }
-        } catch (ZipException ex) {
-            err.println(ex);
-            ex.printStackTrace(err);
+    private static boolean verifyZip(String name, ZipInputStream zis, PrintWriter err, boolean verbose) throws IOException {
+        if (verbose) {
+            err.println("Verifying " + name);
         }
+        boolean result = false;
+        ZipEntry ze = zis.getNextEntry();
+        while (ze != null) {
+            if (!ze.isDirectory()) {
+                String zname = ze.getName();
+                if (zname.endsWith(".class")) {
+                    result |= verifyClass(ze.getName(), zis, err, verbose);
+                }
+            }
+            zis.closeEntry();
+            ze = zis.getNextEntry();
+        }
+        return result;
     }
 
-    public static void verifyFile(File f, PrintWriter err) throws IOException {
-        if (! f.exists()) {
+    public static boolean verifyFile(File f, PrintWriter err, boolean verbose) throws IOException {
+        if (!f.exists()) {
             err.println(f.getAbsolutePath() + " does not exist!");
         }
+        boolean result = false;
         if (f.isDirectory()) {
             File[] contents = f.listFiles();
             for (File c : contents) {
-                verifyFile(c, err);
+                result |= verifyFile(c, err, verbose);
             }
         } else {
             String path = f.getAbsolutePath();
@@ -138,30 +145,44 @@ public class Verifier {
             if (path.endsWith(".jar") || path.endsWith(".zip")) {
                 ZipInputStream zis = null;
                 try {
-                    err.println("Verifying " + path);
                     zis = new ZipInputStream(is);
-                    verifyZip(zis, err);
+                    result |= verifyZip(path, zis, err, verbose);
                 } finally {
-                    if (zis != null) zis.close();
-                    if (is != null) is.close();
+                    if (zis != null) {
+                        zis.close();
+                    }
+                    if (is != null) {
+                        is.close();
+                    }
                 }
             } else if (path.endsWith(".class")) {
                 // verify single .class
                 try {
-                    err.println("Verifying " + path);
-                    verifyClass(is, err);
+                    result |= verifyClass(path, is, err, verbose);
                 } finally {
-                    if (is != null) is.close();
+                    if (is != null) {
+                        is.close();
+                    }
                 }
             }
         }
+        return result;
     }
 
-    public static void verifyPath(String path, PrintWriter err) throws IOException {
+    public static boolean verifyPath(String path, PrintWriter err, boolean verbose) throws IOException {
+        if (verbose) {
+            err.println("Verifying " + path);
+        }
+        boolean result = false;
         String[] files = path.split(File.pathSeparator);
         for (String file : files) {
-            verifyFile(new File(file), err);
+            result |= verifyFile(new File(file), err, verbose);
         }
+        if (verbose && result) {
+            err.println("All files in " + path + " verified OK!");
+        }
+        err.flush();
+        return result;
     }
 
     public static void main(String[] args) {
@@ -170,7 +191,7 @@ public class Verifier {
             System.exit(1);
         }
         try {
-            verifyPath(args[0], new PrintWriter(System.out));
+            verifyPath(args[0], new PrintWriter(System.out), true);
         } catch (IOException exp) {
             exp.printStackTrace();
         }

@@ -42,47 +42,55 @@ import java.io.PrintWriter;
  * @author A. Sundararajan
  */
 public class VerifierTask extends Task {
+
     private Path path;
+    private boolean verbose;
     private File outFile;
 
     public VerifierTask() {
-        super();
     }
 
-    public void setPath(Path p) {
-        path = p;
+    public void setPath(Path path) {
+        this.path = path;
     }
 
     public void setPathRef(Reference r) {
         setPath((Path) r.getReferencedObject());
     }
 
-    public void setOut(String out) {
-        outFile = new File(out);
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
     }
-    
+
+    public void setOut(String out) {
+        this.outFile = new File(out);
+    }
+
     protected void checkParameters() throws BuildException {
         if (path == null) {
-            throw new BuildException("bytecode-verifier: classpath must be set", getLocation());
+            throw new BuildException("path must be set for bytecode verifier", getLocation());
         }
     }
 
-    @Override    
+    @Override
     public void execute() throws BuildException {
         checkParameters();
         PrintWriter err = null;
         try {
             if (outFile != null) {
-                if (! outFile.isFile()) {
-                    throw new BuildException("Output file " + outFile.getAbsolutePath() + " does not exist!"); 
-                }
                 err = new PrintWriter(new BufferedWriter(new FileWriter(outFile)));
             }
-            Verifier.verifyPath(path.toString(), err == null? new PrintWriter(System.err) : err);
+            boolean verified = Verifier.verifyPath(path.toString(),
+                    err == null ? new PrintWriter(System.err) : err, verbose);
+            if (! verified) {
+                throw new BuildException("one or more bytecode verifications failed!", getLocation());
+            }
         } catch (IOException exp) {
-            throw new BuildException(exp);
+            throw new BuildException(exp, getLocation());
         } finally {
-            if (err != null) err.close();
+            if (err != null) {
+                err.close();
+            }
         }
     }
 }
