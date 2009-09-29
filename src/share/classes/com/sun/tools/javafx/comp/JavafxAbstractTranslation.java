@@ -2005,7 +2005,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 }
                 if (unboxedSourceType != unboxedTargetType) {
                     // convert as primitive types
-                    res = make.at(diagPos).TypeCast(unboxedTargetType, res);
+                    res = make.at(diagPos).TypeCast(unboxedTargetType, make.at(diagPos).TypeCast(unboxedSourceType, res));
                     curType = unboxedTargetType;
                 }
                 if (!targettedType.isPrimitive()) {
