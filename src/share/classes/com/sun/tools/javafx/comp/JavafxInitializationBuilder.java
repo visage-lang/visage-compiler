@@ -39,7 +39,9 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Build the representation(s) of a JavaFX class.  Includes class initialization, attribute and function proxies.
@@ -266,6 +268,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(classVarInfos));
             cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
             cDefinitions.appendList(javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap()));
+            cDefinitions.appendList(javaCodeMaker.makeGetMethod(classVarInfos, classVarCount));
+            cDefinitions.appendList(javaCodeMaker.makeSetMethod(classVarInfos, classVarCount));
+            cDefinitions.appendList(javaCodeMaker.makeTypeMethod(classVarInfos, classVarCount));
 
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
@@ -298,6 +303,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // script-level into class X.X$Script
                     sDefinitions.appendList(javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null));
                     sDefinitions.appendList(javaCodeMaker.makeUpdateMethod(analysis.getScriptUpdateMap()));
+                    sDefinitions.appendList(javaCodeMaker.makeGetMethod(scriptVarInfos, scriptVarCount));
+                    sDefinitions.appendList(javaCodeMaker.makeSetMethod(scriptVarInfos, scriptVarCount));
+                    sDefinitions.appendList(javaCodeMaker.makeTypeMethod(scriptVarInfos, scriptVarCount));
                     sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
                     //needed: sDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
                 } else {
@@ -308,6 +316,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     sDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos));
                     sDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
                     sDefinitions.appendList(javaCodeMaker.makeUpdateMethod(analysis.getScriptUpdateMap()));
+                    sDefinitions.appendList(javaCodeMaker.makeGetMethod(scriptVarInfos, scriptVarCount));
+                    sDefinitions.appendList(javaCodeMaker.makeSetMethod(scriptVarInfos, scriptVarCount));
+                    sDefinitions.appendList(javaCodeMaker.makeTypeMethod(scriptVarInfos, scriptVarCount));
                     sDefinitions.appendList(javaCodeMaker.gatherFunctions(scriptFuncInfos));
 
                     sDefinitions.appendList(javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable));
@@ -661,185 +672,471 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return buffer.toList();
         }
         
+ private List<JCVariableDecl> makeParamList(boolean isAbstract, JCVariableDecl... params) {
+     ListBuffer<JCVariableDecl> buffer = ListBuffer.lb();
+     
+     if (isMixinClass() && !isAbstract) {
+         buffer.append(makeReceiverParam(getCurrentClassDecl()));
+     }
+     
+     for (JCVariableDecl param : params) {
+         buffer.append(param);
+     }
+     
+     return buffer.toList();
+}
         //
-        // Return a parameter list, prefixing the receiver if a mixin.
+        // This class is designed to reduce the repetitiveness of constructing methods.
         //
-        private List<JCVariableDecl> makeParamList(boolean isAbstract, JCVariableDecl... params) {
-            ListBuffer<JCVariableDecl> buffer = ListBuffer.lb();
+        public class MethodBuilder {
+            // Name of method to generate.
+            protected Name methodName;
+            // Method return type.
+            protected JCExpression returnType;
+            // True if the return type is void.
+            protected boolean isVoidReturnType;
             
-            if (isMixinClass() && !isAbstract) {
-                buffer.append(makeReceiverParam(getCurrentClassDecl()));
+            // Grab the super class.
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            // Grab the mixin classes.
+            public List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
+            
+            // Buffer for new methods.
+            protected ListBuffer<JCTree> methods = ListBuffer.lb();
+            // Stack of nested statements.
+            protected Stack<ListBuffer<JCStatement>> stmtsStack = new Stack<ListBuffer<JCStatement>>();
+            // Current set of statements.
+            protected ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            
+            // List of parameter types.
+            ListBuffer<Type> paramTypes = ListBuffer.lb();
+            // List of parameter names.
+            ListBuffer<Name> paramNames = ListBuffer.lb();
+            
+            MethodBuilder(Name methodName, Type returnType) {
+                this.methodName = methodName;
+                this.returnType = makeType(returnType);
+                this.isVoidReturnType = returnType == syms.voidType;
             }
             
-            for (JCVariableDecl param : params) {
-                buffer.append(param);
+            MethodBuilder(Name methodName, JCExpression returnType) {
+                this.methodName = methodName;
+                this.returnType = returnType;
+                this.isVoidReturnType = false;
             }
             
-            return buffer.toList();
+            // This method saves the current list of statements and starts a new one.
+            public void beginBlock() {
+                stmtsStack.push(stmts);
+                stmts = ListBuffer.lb();
+            }
+            
+            // This method restores the previous list of statements and returns the current
+            // list of statements in a block.
+            public JCBlock endBlock() {
+                return m().Block(0L, endBlockAsStmts());
+            }
+            
+            // This method restores the previous list of statements and returns the current
+            // list of statements.
+            public List<JCStatement> endBlockAsStmts() {
+                assert !stmtsStack.empty() : "MethodBuilder: mismatched blocks";
+                List<JCStatement> result = stmts.toList();
+                stmts = stmtsStack.pop();
+                return result;
+            }
+            
+            // This method adds a new statement to the current lists of statements.
+            public void addStmt(JCStatement stmt) {
+                if (stmt != null) {
+                    stmts.append(stmt);
+                }
+            }
+            
+            // This method adds several statements to the current lists of statements.
+            public void addStmts(List<JCStatement> list) {
+                stmts.appendList(list);
+            }
+            public void addStmts(ListBuffer<JCStatement> list) {
+                stmts.appendList(list.toList());
+            }
+            
+            // This method adds a new parameter type and name to the current method.
+            public void addParam(Type type, Name name) {
+                paramTypes.append(type);
+                paramNames.append(name);
+            }
+            
+            // This method returns all the parameters for the current method as a
+            // list of JCVariableDecl.
+            protected List<JCVariableDecl> paramList() {
+                Iterator<Type> typeIter = paramTypes.iterator();
+                Iterator<Name> nameIter = paramNames.iterator();
+                ListBuffer<JCVariableDecl> params = ListBuffer.lb();
+                
+                while (typeIter.hasNext() && nameIter.hasNext()) {
+                    params.append(makeParam(typeIter.next(), nameIter.next()));
+                }
+                
+                return params.toList();
+            }
+            
+            // This method returns all the parameters for the current method as a
+            // list of JCExpression.
+            protected List<JCExpression> argList() {
+                ListBuffer<JCExpression> args = ListBuffer.lb();
+                
+                for (Name name : paramNames) {
+                    args.append(id(name));
+                }
+                
+                return args.toList();
+            }
+
+            // This method generates a call to the mixin symbol.
+            public void callMixin(ClassSymbol mixin) {
+                List<JCExpression> superArgs = argList();
+                
+                superArgs.prepend(id(analysis.isMixinClass() ? defs.receiverName : names._this));
+                
+                if (isVoidReturnType) {
+                    addStmt(callStmt(id(mixin), methodName, superArgs));
+                } else {
+                    addStmt(m().Return(call(id(mixin), methodName, superArgs)));
+                }
+            }
+
+            // This method generates all the calls for immediate mixins.
+            public void callMixins() {
+                for (ClassSymbol mixin : immediateMixinClasses) {
+                    callMixin(mixin);
+                }
+            }
+            
+            // This method generates the call for the super class.
+            public void callSuper() {
+                if (superClassSym != null && !analysis.isMixinClass()) {
+                    List<JCExpression> superArgs = argList();
+                    
+                    if (isVoidReturnType) {
+                        addStmt(callStmt(id(names._super), methodName, superArgs));
+                    } else {
+                        addStmt(m().Return(call(id(names._super), methodName, superArgs)));
+                    }
+                 }
+            }
+            
+            // This method generates the statements for the method.
+            public void generate() {
+                // Initialize for method.
+                initialize();
+                
+                // Reset diagnostic position to current class.
+                resetDiagPos();
+                // Emit prologue statements.
+                prologue();
+                
+                // Reset diagnostic position to current class.
+                resetDiagPos();
+
+                body();
+                
+                // Reset diagnostic position to current class.
+                resetDiagPos();
+                // Emit epilog statements.
+                epilogue();
+            }
+
+            
+            // This method contains any code to initialize the builder.
+            public void initialize() {
+            }
+            
+            // This method generates any code needed before the body of the method.
+            public void prologue() {
+            }
+             
+            // This method generates any code needed after the body of the method.
+            public void epilogue() {
+            }
+            
+            // This method generates the body of the method.
+            public void body() {
+                statements();
+            }
+            
+            // This method generates specialized code for the body.
+            public void statements() {
+            }            
         }
         
+        //
+        // This class is designed to generate a method whose body is a var
+        // accessor.
+        //
+        public class VarAccessorMethodBuilder extends MethodBuilder {
+            // Current var info.
+            protected VarInfo varInfo;
+            // Whether the accessor needs a body or not.
+            protected boolean needsBody;
+            // Symbol used on the method.
+            protected VarSymbol varSym;
+            // Symbol used when accessing the variable.
+            protected VarSymbol proxyVarSym;
+            // Name of var field.
+            protected Name varName;
+            // Real type of the var.
+            protected Type type;
+
+            
+            VarAccessorMethodBuilder(Name methodName, Type returnType, VarInfo varInfo, boolean needsBody) {
+                super(methodName, returnType);
+                this.varInfo = varInfo;
+                this.needsBody = needsBody;
+                this.varSym = varInfo.getSymbol();
+                this.proxyVarSym = varInfo.proxyVarSym();
+                this.varName = attributeValueName(proxyVarSym);
+                this.type = varInfo.getRealType();
+            }
+                
+            // This method returns all the parameters for the current method as a
+            // list of JCVariableDecl.
+            protected List<JCVariableDecl> paramList() {
+                List<JCVariableDecl> params = super.paramList();
+
+                if (isMixinClass() && needsBody) {
+                    params.prepend(makeReceiverParam(getCurrentClassDecl()));
+                }
+                
+                return params;
+            }
+        
+            // Driver method to construct the current method.
+            public JCTree build() {
+                // Generate the code.
+                if (needsBody) generate();
+                
+                // Record method.
+                optStat.recordProxyMethod();
+
+                // Construct method.
+                return makeMethod(proxyModifiers(varInfo, !needsBody),
+                                  returnType,
+                                  methodName,
+                                  paramList(),
+                                  needsBody ? stmts.toList() : null);
+            }
+            
+            // This method generates the body of the method.
+            public void body() {
+                if (needsBody) {
+                    statements();
+                }
+            }
+        }
+        
+        //
+        // This class is designed to generate a method whose body is switched
+        // on var offsets.
+        //
+        public class VarCaseMethodBuilder extends MethodBuilder {
+            List<VarInfo> attrInfos =  List.<VarInfo>nil();
+            int varCount = 0;
+        
+            VarCaseMethodBuilder(Name methodName, Type returnType, List<VarInfo> attrInfos, int varCount) {
+                super(methodName, returnType);
+                this.attrInfos = attrInfos;
+                this.varCount = varCount;
+                addParam(syms.intType, varNumName);
+            }
+            VarCaseMethodBuilder(Name methodName, JCExpression returnType, List<VarInfo> attrInfos, int varCount) {
+                super(methodName, returnType);
+                this.attrInfos = attrInfos;
+                this.varCount = varCount;
+                addParam(syms.intType, varNumName);
+            }
+            
+            // Driver method to construct the current method.
+            public List<JCTree> build() {
+                // Generate the code.
+                generate();
+                
+                if (stmts.nonEmpty() || superClassSym == null) {
+                    // Add to the methods list.
+                    methods.append(makeMethod(Flags.PUBLIC, returnType, methodName, paramList(), stmts.toList()));
+                    
+                    // Record method.
+                    optStat.recordProxyMethod();
+                }
+    
+                return methods.toList();
+            }
+            
+            // Specialized body the handles offset cases.
+            public void body() {
+                if (varCount != 0) {
+                    // Prepare to accumulate cases.
+                    ListBuffer<JCCase> cases = ListBuffer.lb();
+                    // Iterate thru each var.
+                    for (VarInfo ai : attrInfos) {
+                        // Set to the var position.
+                        setDiagPos(ai.pos());
+                         
+                        // Constrain the var.
+                        if (constrain(ai)) {
+                            // Construct the case.
+                            beginBlock();
+                            boolean use = statements(ai);
+                            List<JCStatement> stmts = endBlockAsStmts();
+    
+                            // Use if indicated.
+                            if (use) {
+                                // case tag number
+                                JCExpression tag = makeInt(ai.getEnumeration() - varCount);
+        
+                                // Add the case, something like:
+                                // case i: return get$var();
+                                cases.append(m().Case(tag, stmts));
+                            }
+                        }
+                    }
+                    
+                    // Add statement if there were some cases.
+                    if (cases.nonEmpty()) {
+                        // varNum - VCNT$
+                        JCExpression tagExpr = makeBinary(JCTree.MINUS, id(varNumName), id(defs.varCountName));
+                        // Construct and add: switch(varNum - VCNT$) { ... }
+                        addStmt(m().Switch(tagExpr, cases.toList()));
+                    }
+                    
+                    // Call the super version.
+                    callSuper();
+                }
+            }
+            
+            // Adds the statements for the case.
+            public boolean statements(VarInfo ai) {
+                return false;
+            }
+            
+            // This method returns true if the current attribute should be processed.
+            boolean constrain(VarInfo ai) { return true; }
+        }
+
         //
         // This method constructs the getter method for the specified attribute.
         //
         private JCTree makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Real type for var.
-            Type type = varInfo.getRealType();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                public void statements() {
+                    if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {
+                        // !isValidValue$(VOFF$var)
+                        JCExpression condition = makeNot(makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid));
+                        
+                        // Prepare to accumulate body of if.
+                        beginBlock();
+                        
+                        // Set to new value.
+                        if (varInfo.isMixinVar()) {
+                            // Mixin.evaluate$var(this);
+                            addStmt(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
+                            // setIsValidValue(VOFF$var);
+                            addStmt(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
+                        } else {
+                            assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
+    
+                            // set$var(init/bound expression)
+                            addStmts(varInfo.boundPreface());
+                            addStmt(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
+                        }
+                      
+                        // if (!isValidValue$(VOFF$var)) { set$var(init/bound expression); }
+                        addStmt(m().If(condition, endBlock(), null));
+                    } 
+    
+                    // Construct and add: return $var;
+                    addStmt(m().Return(id(varName)));
+                }
+            };
 
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-
-                // Symbol used when accessing the variable.
-                VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                // Name of variable.
-                Name name = attributeValueName(proxyVarSym);
-
-                if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {
-                    // !isValidValue$(VOFF$var)
-                    JCExpression condition = makeNot(makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid));
-                    
-                    // Prepare to accumulate body of if.
-                    ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
-                    
-                    // Set to new value.
-                    if (varInfo.isMixinVar()) {
-                        // Mixin.evaluate$var(this);
-                        ifStmts.append(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
-                        // setIsValidValue(VOFF$var);
-                        ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
-                    } else {
-                        assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
-
-                        // set$var(init/bound expression)
-                        ifStmts.appendList(varInfo.boundPreface());
-                        ifStmts.append(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
-                    }
-                  
-                    // if (!isValidValue$(VOFF$var)) { set$var(init/bound expression); }
-                    stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
-                } 
-
-                // Construct and add: return $var;
-                stmts.append(m().Return(id(name)));
-            }
-
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             type,
-                                             attributeGetterName(varSym),
-                                             makeParamList(!needsBody),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
+            return vamb.build();
         }
 
         //
         // This method constructs the setter method for the specified attribute.
         //
         private JCTree makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Real type for var.
-            Type type = varInfo.getRealType();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
-
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-                
-                if (varInfo.hasBoundDefinition() && !varInfo.hasBiDiBoundDefinition()) {
-                    stmts.append(makeThrow(assignBindExceptionType));
-                } else if (varInfo.isDef()) {
-                    stmts.append(makeThrow(assignDefExceptionType));
-                } else {
-                    // Symbol used when accessing the variable.
-                    VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                    // $var
-                    Name varName = attributeValueName(proxyVarSym);
-                    // set$var(value)
-                    stmts.append(callStmt(getReceiver(), attributeBeName(varSym), id(varNewValueName)));
-                    // return $var;
-                    stmts.append(m().Return(id(varName)));
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetterName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                public void initialize() {
+                    addParam(type, varNewValueName);
                 }
-            }
+                
+                public void statements() {
+                    if (varInfo.hasBoundDefinition() && !varInfo.hasBiDiBoundDefinition()) {
+                        addStmt(makeThrow(assignBindExceptionType));
+                    } else if (varInfo.isDef()) {
+                        addStmt(makeThrow(assignDefExceptionType));
+                    } else {
+                        // set$var(value)
+                        addStmt(callStmt(getReceiver(), attributeBeName(varSym), id(varNewValueName)));
+                        // return $var;
+                        addStmt(m().Return(id(varName)));
+                    }
+                }
+            };
 
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             type,
-                                             attributeSetterName(varSym),
-                                             makeParamList(!needsBody, makeParam(type, varNewValueName)),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
+            return vamb.build();
         }
 
         //
         // This method constructs the be method for the specified attribute.
         //
         private JCTree makeBeAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Real type for var.
-            Type type = varInfo.getRealType();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
-
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-
-                // Symbol used when accessing the variable.
-                VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                // $var
-                Name varName = attributeValueName(proxyVarSym);
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeBeName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                public void initialize() {
+                    addParam(type, varNewValueName);
+                }
+                
+                public void statements() {
+                    // T varOldValue$ = $var;
+                    addStmt(makeVar(Flags.FINAL, type, varOldValueName, id(varName)));
     
-                // T varOldValue$ = $var;
-                stmts.append(makeVar(Flags.FINAL, type, varOldValueName, id(varName)));
+                    // Prepare to accumulate trigger statements.
+                    beginBlock();
+    
+                    // $var = value
+                    addStmt(makeExec(m().Assign(id(varName), id(varNewValueName))));
+    
+                    // invalidate$()
+                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym)));
+    
+                    // setIsValidValue(VOFF$var);
+                    addStmt(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
+    
+                    // onReplace$(varOldValue$, varNewValue$)
+                    addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(varOldValueName), id(varNewValueName)));
+    
+                    // varOldValue$ != varNewValue$
+                    // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
+                    JCExpression testExpr = type.isPrimitive() ?
+                        makeNotEqual(id(varOldValueName), id(varNewValueName))
+                      : makeNot(runtime(diagPos, defs.Util_isEqual, List.<JCExpression>of(id(varOldValueName), id(varNewValueName))));
+    
+                    // if (varOldValue$ != varNewValue$) { handle change }
+                    addStmt(m().If(testExpr, endBlock(), null));
+    
+                    // return $var;
+                    addStmt(m().Return(id(varName)));
+                }
+            };
 
-                // Prepare to accumulate trigger statements.
-                ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
-
-                // $var = value
-                ifStmts.append(makeExec(m().Assign(id(varName), id(varNewValueName))));
-
-                // invalidate$()
-                ifStmts.append(callStmt(getReceiver(), attributeInvalidateName(varSym)));
-
-                // setIsValidValue(VOFF$var);
-                ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
-
-                // onReplace$(varOldValue$, varNewValue$)
-                ifStmts.append(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(varOldValueName), id(varNewValueName)));
-
-                // varOldValue$ != varNewValue$
-                // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
-                JCExpression testExpr = type.isPrimitive() ?
-                    makeNotEqual(id(varOldValueName), id(varNewValueName))
-                  : makeNot(runtime(diagPos, defs.Util_isEqual, List.<JCExpression>of(id(varOldValueName), id(varNewValueName))));
-
-               // if (varOldValue$ != varNewValue$) { handle change }
-                stmts.append(m().If(testExpr, m().Block(0L, ifStmts.toList()), null));
-
-                // return $var;
-                stmts.append(m().Return(id(varName)));
-            }
-
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             type,
-                                             attributeBeName(varSym),
-                                             makeParamList(!needsBody, makeParam(type, varNewValueName)),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
+            return vamb.build();
         }
 
         //
@@ -866,143 +1163,119 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the invalidate method for the specified attribute.
         //
         private JCTree makeInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
+                                                                         syms.voidType,
+                                                                         varInfo, needsBody) {
+                public void statements() {
+                    // Debug tracing
+                    addStmts(makeDebugTrace(attributeInvalidateName(varSym) + " called"));
 
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-
-                // Symbol used when accessing the variable.
-                VarSymbol proxyVarSym = varInfo.proxyVarSym();
+                    // Prepare to accumulate if statements.
+                    beginBlock();
     
-                // Prepare to accumulate if statements.
-                ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
-
-                // Debug tracing
-                stmts.appendList(makeDebugTrace(attributeInvalidateName(varSym) + " called"));
-                ifStmts.appendList(makeDebugTrace(attributeInvalidateName(varSym) + " entered"));
-
-                // Call super first.
-                ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-                boolean isOverride = varInfo.isOverride() && superClassSym != null;
-                if (isOverride) {
-                    ifStmts.append(makeSuperCall(superClassSym, attributeInvalidateName(varSym)));
-                }
-                
-                // clearValidValue$(VOFF$var);
-                if (!isOverride) {
-                    ifStmts.append(makeFlagStatement(proxyVarSym, varFlagActionClear, varFlagValid));
-                }
-                
-                // Handle binders.
-                if (varInfo.isMixinVar()) {
-                    // Mixin.onReplace$var(this, oldValue, newValue);
-                    ifStmts.append(makeSuperCall((ClassSymbol)varSym.owner, attributeInvalidateName(varSym), id(names._this)));
-                } else {
-                    if (varInfo instanceof TranslatedVarInfoBase) {
-                        for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
-                            // invalidate$var();
-                            ifStmts.append(callStmt(getReceiver(), attributeInvalidateName(otherVarSym)));
+                    // Debug tracing
+                    addStmts(makeDebugTrace(attributeInvalidateName(varSym) + " entered"));
+    
+                    if (varInfo.isOverride()) {
+                        // Call super first.
+                        callSuper();
+                    } else {
+                        // clearValidValue$(VOFF$var);
+                        addStmt(makeFlagStatement(proxyVarSym, varFlagActionClear, varFlagValid));
+                    }
+                    
+                    // Handle binders.
+                    if (varInfo.isMixinVar()) {
+                        // Mixin.onReplace$var(this, oldValue, newValue);
+                        callMixin((ClassSymbol)varSym.owner);
+                    } else {
+                        if (varInfo instanceof TranslatedVarInfoBase) {
+                            for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
+                                // invalidate$var();
+                                addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym)));
+                            }
                         }
                     }
+                    
+                    // notifyDependents(VOFF$var);
+                    if (!varInfo.isOverride()) {
+                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, getVOFF(proxyVarSym)));
+                    }
+                    
+                    // isValid
+                    JCExpression test = makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid);
+                    
+                    // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
+                    addStmt(m().If(test, endBlock(), null));
                 }
-                
-                // notifyDependents(VOFF$var);
-                if (!isOverride) {
-                    ifStmts.append(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, getVOFF(proxyVarSym)));
-                }
-                
-                // isValid
-                JCExpression test = makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid);
-                
-                // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                stmts.append(m().If(test, m().Block(0L, ifStmts.toList()), null));
-            }
+            };
 
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             syms.voidType,
-                                             attributeInvalidateName(varSym),
-                                             makeParamList(!needsBody),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
+            return vamb.build();
         }
 
         //
         // This method constructs the onreplace$ method for the specified attribute.
         //
         private JCTree makeOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Real type for var.
-            Type type = varInfo.getRealType();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
-            // Assume the onReplace arg names.
-            Name oldValueName = varOldValueName;
-            Name newValueName = varNewValueName;
-
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-
-                // Forward to the mixin.
-                if (!isMixinClass() && varInfo.isMixinVar()) {
-                    // Mixin.onReplace$var(this, oldValue, newValue);
-                    stmts.append(makeSuperCall((ClassSymbol)varSym.owner, attributeOnReplaceName(varSym),
-                                               id(names._this), id(oldValueName), id(newValueName)));
-                } else {
-                    // Symbol used when accessing the variable.
-                    VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                    
-                    // Fetch the on replace statement or null.
-                    JCStatement onReplace = varInfo.onReplaceAsInline();
-    
-                    // Need to capture init state if has trigger.
-                    if (onReplace != null) {
-                        // Gather specified var info.
-                        JFXVar oldVar = varInfo.onReplace().getOldValue();
-                        JFXVar newVar = varInfo.onReplace().getNewElements();
-        
-                         // Check to see if the on replace has an old value.
-                        if (oldVar != null) {
-                            // Change the onReplace arg name. 
-                            oldValueName = oldVar.getName();
-                        }
-        
-                         // Check to see if the on replace has a new value.
-                        if (newVar != null) {
-                            // Change the onReplace arg name. 
-                            newValueName = newVar.getName();
-                        }
-        
-                        // Insert the trigger.
-                        stmts.append(onReplace);
-                    }
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
+                                                                         syms.voidType,
+                                                                         varInfo, needsBody) {
+                Name oldValueName = varOldValueName;
+                Name newValueName = varNewValueName;
                 
-                    // Call super first.
-                    ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-                    if (varInfo.isOverride() && superClassSym != null) {
-                        stmts.prepend(makeSuperCall(superClassSym, attributeOnReplaceName(varSym), id(oldValueName), id(newValueName)));
+                public void initialize() {
+                    if (needsBody) {
+                        // Fetch the on replace statement or null.
+                        JCStatement onReplace = varInfo.onReplaceAsInline();
+        
+                        // Need to capture init state if has trigger.
+                        if (onReplace != null) {
+                            // Gather specified var info.
+                            JFXVar oldVar = varInfo.onReplace().getOldValue();
+                            JFXVar newVar = varInfo.onReplace().getNewElements();
+            
+                             // Check to see if the on replace has an old value.
+                            if (oldVar != null) {
+                                // Change the onReplace arg name. 
+                                oldValueName = oldVar.getName();
+                            }
+            
+                             // Check to see if the on replace has a new value.
+                            if (newVar != null) {
+                                // Change the onReplace arg name. 
+                                newValueName = newVar.getName();
+                            }
+                        }
+                    }
+                    
+                    addParam(type, oldValueName);
+                    addParam(type, newValueName);
+                }
+                
+                public void statements() {
+                    // Forward to the mixin.
+                    if (!isMixinClass() && varInfo.isMixinVar()) {
+                        // Mixin.onReplace$var(this, oldValue, newValue);
+                        callMixin((ClassSymbol)varSym.owner);
+                    } else {
+                        // Call super first.
+                        if (varInfo.isOverride()) {
+                            callSuper();
+                        }
+
+                        // Fetch the on replace statement or null.
+                        JCStatement onReplace = varInfo.onReplaceAsInline();
+        
+                        // Need to capture init state if has trigger.
+                        if (onReplace != null) {
+                            // Insert the trigger.
+                            addStmt(onReplace);
+                        }
                     }
                 }
-            }
+            };
 
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             syms.voidType,
-                                             attributeOnReplaceName(varSym),
-                                             makeParamList(!needsBody, makeParam(type, oldValueName),
-                                                                       makeParam(type, newValueName)),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
+            return vamb.build();
         }
         
         //
@@ -1683,6 +1956,80 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             return methods.toList();
         }
+        
+        //
+        // This method constructs the current class's get$ method.
+        //
+        public List<JCTree> makeGetMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeGetPrefixName, syms.objectType,
+                                                                 attrInfos, varCount) {
+                public boolean constrain(VarInfo ai) { 
+                    return ai.needsCloning() && !ai.isOverride();
+                }
+            
+                public boolean statements(VarInfo ai) {
+                    // get$var()
+                    JCExpression getterExp = call(attributeGetterName(ai.getSymbol()));
+                    // return get$var()
+                    addStmt(m().Return(getterExp));
+                
+                    return true;
+                }
+            };
+            
+            return vcmb.build();
+        }
+        
+        //
+        // This method constructs the current class's set$ method.
+        //
+        public List<JCTree> makeSetMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeSetPrefixName, syms.voidType,
+                                                                 attrInfos, varCount) {
+                public void initialize() {
+                    addParam(syms.objectType, objName);
+                }
+                
+                public boolean constrain(VarInfo ai) { 
+                    return ai.needsCloning() && !ai.isOverride();
+                }
+            
+                public boolean statements(VarInfo ai) {
+                    // (type)object$
+                    JCExpression objCast = typeCast(diagPos, ai.getRealType(), syms.objectType, id(objName));
+                    // set$var((type)object$)
+                    addStmt(callStmt(attributeSetterName(ai.getSymbol()), objCast));
+                    // return
+                    addStmt(m().Return(null));
+                
+                    return true;
+                }
+            };
+            
+            return vcmb.build();
+        }
+        
+        //
+        // This method constructs the current class's type$ method.
+        //
+        public List<JCTree> makeTypeMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeTypePrefixName,
+                                                                 makeQualifiedTree(diagPos, "java.lang.Class"),
+                                                                 attrInfos, varCount) {
+                public boolean constrain(VarInfo ai) { 
+                    return ai.needsCloning() && !ai.isOverride();
+                }
+            
+                public boolean statements(VarInfo ai) {
+                    Type type = ai.getRealType();                    
+                    addStmt(m().Return(m().ClassLiteral(type)));
+                    return true;
+                }
+            };
+            
+            return vcmb.build();
+        }
+        
         //
         // This method constructs the initializer for a var map.
         //
