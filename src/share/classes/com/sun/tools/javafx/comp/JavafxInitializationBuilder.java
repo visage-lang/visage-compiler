@@ -770,16 +770,24 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // This method returns all the parameters for the current method as a
             // list of JCVariableDecl.
             protected List<JCVariableDecl> paramList() {
+                return paramList(false);
+            }
+            protected List<JCVariableDecl> paramList(boolean isAbstract) {
                 Iterator<Type> typeIter = paramTypes.iterator();
                 Iterator<Name> nameIter = paramNames.iterator();
                 ListBuffer<JCVariableDecl> params = ListBuffer.lb();
                 
+                if (isMixinClass() && !isAbstract) {
+                    params.append(makeReceiverParam(getCurrentClassDecl()));
+                }
+     
                 while (typeIter.hasNext() && nameIter.hasNext()) {
                     params.append(makeParam(typeIter.next(), nameIter.next()));
                 }
                 
                 return params.toList();
             }
+            
             
             // This method returns all the parameters for the current method as a
             // list of JCExpression.
@@ -795,14 +803,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             // This method generates a call to the mixin symbol.
             public void callMixin(ClassSymbol mixin) {
-                List<JCExpression> superArgs = argList();
+                List<JCExpression> mixinArgs = argList();
+                JCExpression receiver = id(isMixinClass() ? defs.receiverName : names._this);
                 
-                superArgs.prepend(id(analysis.isMixinClass() ? defs.receiverName : names._this));
+                mixinArgs = List.<JCExpression>of(receiver).appendList(mixinArgs);
                 
                 if (isVoidReturnType) {
-                    addStmt(callStmt(id(mixin), methodName, superArgs));
+                    addStmt(callStmt(id(mixin), methodName, mixinArgs));
                 } else {
-                    addStmt(m().Return(call(id(mixin), methodName, superArgs)));
+                    addStmt(m().Return(call(id(mixin), methodName, mixinArgs)));
                 }
             }
 
@@ -828,9 +837,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             // This method generates the statements for the method.
             public void generate() {
-                // Initialize for method.
-                initialize();
-                
                 // Reset diagnostic position to current class.
                 resetDiagPos();
                 // Emit prologue statements.
@@ -899,20 +905,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.type = varInfo.getRealType();
             }
                 
-            // This method returns all the parameters for the current method as a
-            // list of JCVariableDecl.
-            protected List<JCVariableDecl> paramList() {
-                List<JCVariableDecl> params = super.paramList();
-
-                if (isMixinClass() && needsBody) {
-                    params.prepend(makeReceiverParam(getCurrentClassDecl()));
-                }
-                
-                return params;
-            }
-        
             // Driver method to construct the current method.
             public JCTree build() {
+                // Initialize for method.
+                initialize();
+                
                 // Generate the code.
                 if (needsBody) generate();
                 
@@ -923,7 +920,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 return makeMethod(proxyModifiers(varInfo, !needsBody),
                                   returnType,
                                   methodName,
-                                  paramList(),
+                                  paramList(!needsBody),
                                   needsBody ? stmts.toList() : null);
             }
             
@@ -959,6 +956,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Driver method to construct the current method.
             public List<JCTree> build() {
                 // Generate the code.
+                // Initialize for method.
+                initialize();
+                
                 generate();
                 
                 if (stmts.nonEmpty() || superClassSym == null) {
@@ -1185,7 +1185,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     // Handle binders.
-                    if (varInfo.isMixinVar()) {
+                    if (!isMixinClass() && varInfo.isMixinVar()) {
                         // Mixin.onReplace$var(this, oldValue, newValue);
                         callMixin((ClassSymbol)varSym.owner);
                     } else {
@@ -2013,6 +2013,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's type$ method.
         //
         public List<JCTree> makeTypeMethod(List<VarInfo> attrInfos, int varCount) {
+        /*
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeTypePrefixName,
                                                                  makeQualifiedTree(diagPos, "java.lang.Class"),
                                                                  attrInfos, varCount) {
@@ -2028,6 +2029,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             };
             
             return vcmb.build();
+        */
+            return List.<JCTree>nil();
         }
         
         //
