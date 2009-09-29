@@ -5,10 +5,7 @@
  */
 
 import com.sun.javafx.runtime.Pointer;
-import com.sun.javafx.runtime.PointerFactory;
 import java.lang.System;
-
-var pf = PointerFactory { };
 
 var v = 1;
 var w = 2;
@@ -16,21 +13,21 @@ var s = [ 1, 2, 3 ];
 var b : Boolean = true;
 var n : Number = 1.0;
 
-var bvp = bind pf.make(v);
+var bvp = bind Pointer.make(Main.class, "v");
 var vp = bvp.unwrap();
 
-var bwp = bind pf.make(w);
+var bwp = bind Pointer.make(Main.class, "w");
 var wp = bwp.unwrap();
-var bwp1 = bind pf.make(w);
+var bwp1 = bind Pointer.make(Main.class, "w");
 var wp1 = bwp1.unwrap();
 
-var bsp = bind pf.make(s);
+var bsp = bind Pointer.make(Main.class, "s");
 var sp = bsp.unwrap();
 
-var bnp = bind pf.make(n);
+var bnp = bind Pointer.make(Main.class, "n");
 var np = bnp.unwrap();
 
-var bbp = bind pf.make(b);
+var bbp = bind Pointer.make(Main.class, "b");
 var bp = bbp.unwrap();
 
 // True
@@ -58,11 +55,11 @@ var f1 = Foo { x: 3 };
 var f2 = Foo { x: 4 };
 var f3 = f1;
 
-var bxp1 = bind pf.make(f1.x);
+var bxp1 = bind Pointer.make(f1, "x");
 var xp1 = bxp1.unwrap();
-var bxp2 = bind pf.make(f2.x);
+var bxp2 = bind Pointer.make(f2, "x");
 var xp2 = bxp2.unwrap();
-var bxp3 = bind pf.make(f3.x);
+var bxp3 = bind Pointer.make(f3, "x");
 var xp3 = bxp3.unwrap();
 
 System.out.println(Pointer.equals(xp1, xp2));  // false

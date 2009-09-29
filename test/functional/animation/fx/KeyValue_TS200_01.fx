@@ -16,27 +16,26 @@ import java.lang.Thread;
 import java.lang.AssertionError;
 import java.lang.Throwable;
 import java.util.concurrent.TimeUnit;
-import com.sun.javafx.runtime.PointerFactory;
+import com.sun.javafx.runtime.Pointer;
 
-var pf: PointerFactory = PointerFactory {};
 var s:String = "abc";
-var bps = bind pf.make(s); 
+var bps = bind Pointer.make(KeyValue_TS200_01.class, "s"); 
 var ps = bps.unwrap();
 
 var i:Integer = 0;
-var bpi = bind pf.make(i); 
+var bpi = bind Pointer.make(KeyValue_TS200_01.class, "i"); 
 var pi = bpi.unwrap();
 
 var b:Boolean = true;
-var bpb = bind pf.make(b); 
+var bpb = bind Pointer.make(KeyValue_TS200_01.class, "b"); 
 var pb = bpb.unwrap();
 
 var n: Number = 1.0; 
-var bpn = bind pf.make(n); 
+var bpn = bind Pointer.make(KeyValue_TS200_01.class, "n"); 
 var pn = bpn.unwrap();
 
 var d:Duration = 1s;
-var bpd = bind pf.make(d); 
+var bpd = bind Pointer.make(KeyValue_TS200_01.class, "d"); 
 var pd = bpd.unwrap();
 
 var t : Timeline = Timeline {

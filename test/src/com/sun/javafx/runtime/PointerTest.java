@@ -15,6 +15,7 @@ public class PointerTest extends JavaFXTestCase {
         public int count$() { return VCNT$; }
 
         private int $count;
+        public static final int VOFF$count = 0;
            
         public int get$count() { return $count; }
         public void set$count(int count) { $count = count; } 
@@ -55,6 +56,8 @@ public class PointerTest extends JavaFXTestCase {
         Counter counter = new Counter();
         // make a Pointer for varNum 0
         assertNotNull(Pointer.make(counter, 0));
+        // make a Pointer for variable "count"
+        assertNotNull(Pointer.make(counter, "count"));
     }
 
     public void testPointerAccess() {

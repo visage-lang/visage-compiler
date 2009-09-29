@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime;
 
 import com.sun.javafx.runtime.sequence.Sequence;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.animation.KeyValueTarget;
@@ -64,6 +65,29 @@ public class Pointer implements KeyValueTarget {
             }
         }
         return new Pointer(type, obj, varnum);
+    }
+
+    // make a Pointer for a script-level variable of given Class
+    public static Pointer make(Class clazz, String varName) {
+        try {
+            // FIXME: dependency on generated members!
+            Method statics = clazz.getMethod("access$scriptLevel$", (Class[])null);
+            FXObject obj = (FXObject) statics.invoke(null, (Object[])null);
+            return make(obj, FXBase.getVarNum$(obj, varName));
+        } catch (RuntimeException re) {
+            throw (RuntimeException)re;
+        } catch (Exception exp) {
+            throw new RuntimeException(exp);
+        }
+    }
+
+    // make a Pointer for an instance variable of a given object
+    public static Pointer make(FXBase obj, String varName) {
+        return make((FXObject)obj, varName);
+    }
+
+    public static Pointer make(FXObject obj, String varName) {
+        return make(obj, FXBase.getVarNum$(obj, varName));
     }
 
     public static boolean equals(Pointer p1, Pointer p2) {
