@@ -43,7 +43,7 @@ public class JavafxDefs {
      */
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String implFunctionSuffix = "$impl";
-    public static final String attributeTypeMethodNamePrefix = "type$";
+    public static final String attributeTypeMethodNamePrefix = "getType$";
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeBeMethodNamePrefix = "be$";
