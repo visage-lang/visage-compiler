@@ -217,4 +217,10 @@ if [ "$default_toolkit" = "prism" -a $RES -eq 33 ]; then
     default_toolkit=swing
 
     exec_java
+
+    RES=$?
+
 fi
+
+exit $RES
+
