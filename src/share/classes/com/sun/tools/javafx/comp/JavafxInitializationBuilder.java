@@ -803,15 +803,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             // This method generates a call to the mixin symbol.
             public void callMixin(ClassSymbol mixin) {
-                List<JCExpression> mixinArgs = argList();
                 JCExpression receiver = id(isMixinClass() ? defs.receiverName : names._this);
-                
-                mixinArgs = List.<JCExpression>of(receiver).appendList(mixinArgs);
-                
+                List<JCExpression> mixinArgs = List.<JCExpression>of(receiver).appendList(argList());
+                JCExpression selector = makeType(mixin.type, false);
+ 
                 if (isVoidReturnType) {
-                    addStmt(callStmt(id(mixin), methodName, mixinArgs));
+                    addStmt(callStmt(selector, methodName, mixinArgs));
                 } else {
-                    addStmt(m().Return(call(id(mixin), methodName, mixinArgs)));
+                    addStmt(m().Return(call(selector, methodName, mixinArgs)));
                 }
             }
 
