@@ -2225,8 +2225,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
     
                     for (ClassSymbol mixinClassSym : immediateMixinClasses) {
-                        String mixinName = mixinClassSym.fullname.toString();
-                        stmts.append(callStmt(id(names.fromString(mixinName)), methName,  m().TypeCast(makeType(mixinClassSym), id(names._this))));
+                        JCExpression selector = makeType(mixinClassSym.type, false);
+                        stmts.append(callStmt(selector, methName,  m().TypeCast(makeType(mixinClassSym), id(names._this))));
                     }
                 } else {
                     receiverVarDeclList = List.<JCVariableDecl>of(makeReceiverParam(getCurrentClassDecl()));
