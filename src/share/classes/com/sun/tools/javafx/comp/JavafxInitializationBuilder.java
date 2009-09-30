@@ -28,6 +28,7 @@ import com.sun.tools.mjavac.code.Scope.Entry;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Type.*;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.*;
@@ -2012,7 +2013,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's type$ method.
         //
         public List<JCTree> makeTypeMethod(List<VarInfo> attrInfos, int varCount) {
-        /*
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeTypePrefixName,
                                                                  makeQualifiedTree(diagPos, "java.lang.Class"),
                                                                  attrInfos, varCount) {
@@ -2021,15 +2021,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             
                 public boolean statements(VarInfo ai) {
-                    Type type = ai.getRealType();                    
-                    addStmt(m().Return(m().ClassLiteral(type)));
+                    Type type = ai.getRealType();
+                    if (type.isParameterized() || type.isCompound()) {
+                        // TODO specialize for sequences et al.
+                        addStmt(m().Return(m().ClassLiteral(syms.objectType)));
+                    } else {
+                        addStmt(m().Return(m().ClassLiteral(type)));
+                    }
                     return true;
                 }
             };
             
             return vcmb.build();
-        */
-            return List.<JCTree>nil();
         }
         
         //
