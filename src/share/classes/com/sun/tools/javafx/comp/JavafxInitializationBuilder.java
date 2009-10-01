@@ -2035,6 +2035,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     return false;
                 }
+                
+                private boolean hasWildCard(Type type) {
+                    String str = type.toString();
+                    return str.contains("?") || str.contains("<>");
+                }
             
                 public boolean statements(VarInfo ai) {
                     Type type = ai.getRealType();
@@ -2048,9 +2053,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             expr = call(accessEmptySequence(diagPos, tmi.getElementType()), names.getClass);
                         } else if (isFunctionType(type)) {
                             // Okay since there are no wild cards.
-//                            expr = m().ClassLiteral(type);
-                            // TODO - need full wildcard check.
-                            expr = m().ClassLiteral(syms.objectType);
+                            expr = m().ClassLiteral(hasWildCard(type) ? syms.objectType : type);
                         } else {
                             expr = m().ClassLiteral(syms.objectType);
                         }
