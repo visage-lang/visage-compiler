@@ -2035,32 +2035,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     return false;
                 }
-                
-                private boolean hasWildCard(Type type) {
-                    String str = type.toString();
-                    return str.contains("?") || str.contains("<>");
-                }
             
                 public boolean statements(VarInfo ai) {
-                    Type type = ai.getRealType();
-                    JCExpression expr;
-                    
-                    if (type.isParameterized() || type.isCompound()) {
-                        // May have a wildcard.
-                        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
-                    
-                        if (tmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE) {
-                            expr = call(accessEmptySequence(diagPos, tmi.getElementType()), names.getClass);
-                        } else if (isFunctionType(type)) {
-                            // Okay since there are no wild cards.
-                            expr = m().ClassLiteral(hasWildCard(type) ? syms.objectType : type);
-                        } else {
-                            expr = m().ClassLiteral(syms.objectType);
-                        }
-                    } else {
-                        expr = m().ClassLiteral(type);
-                    }
-                    
+                    Type type = types.erasure(ai.getRealType());
+                    JCExpression expr = m().ClassLiteral(type);
                     addStmt(m().Return(expr));
                     return true;
                 }
