@@ -2010,7 +2010,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This method constructs the current class's type$ method.
+        // This method constructs the current class's getType$ method.
         //
         public List<JCTree> makeTypeMethod(List<VarInfo> attrInfos, int varCount) {
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeTypePrefixName,
@@ -2023,7 +2023,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public boolean statements(VarInfo ai) {
                     Type type = ai.getRealType();
                     if (type.isParameterized() || type.isCompound()) {
-                        // TODO specialize for sequences et al.
+                        // TODO specialize for sequences, functions et al.
                         addStmt(m().Return(m().ClassLiteral(syms.objectType)));
                     } else {
                         addStmt(m().Return(m().ClassLiteral(type)));
