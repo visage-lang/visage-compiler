@@ -36,6 +36,8 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
 import java.util.HashMap;
@@ -79,6 +81,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private Name varChangedName;
     private Name varOldValueName;
     private Name varNewValueName;
+    private Name functionClassPrefixName;
 
     final Type assignBindExceptionType;
     final Type assignDefExceptionType;
@@ -155,6 +158,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         varChangedName = names.fromString("varChanged$");
         varOldValueName =  names.fromString("varOldValue$");
         varNewValueName =  names.fromString("varNewValue$");
+
+        functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
 
         {
             Name name = names.fromString(runtimePackageNameString + ".AssignToBoundException");
@@ -2019,15 +2024,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public boolean constrain(VarInfo ai) { 
                     return ai.needsCloning() && !ai.isOverride();
                 }
+                
+                private boolean isFunctionType(Type type) {
+                    if (type.tag == TypeTags.CLASS) {
+                        ClassType classType = (ClassType)type;
+                        ClassSymbol classSym = (ClassSymbol)classType.tsym;
+                        
+                        return classSym.flatname != null && classSym.flatname.startsWith(functionClassPrefixName);
+                    }
+                    
+                    return false;
+                }
             
                 public boolean statements(VarInfo ai) {
                     Type type = ai.getRealType();
+                    JCExpression expr;
+                    
                     if (type.isParameterized() || type.isCompound()) {
-                        // TODO specialize for sequences, functions et al.
-                        addStmt(m().Return(m().ClassLiteral(syms.objectType)));
+                        // May have a wildcard.
+                        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(type);
+                    
+                        if (tmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE) {
+                            expr = call(accessEmptySequence(diagPos, tmi.getElementType()), names.getClass);
+                        } else if (isFunctionType(type)) {
+                            // Okay since there are no wild cards.
+                            expr = m().ClassLiteral(type);
+                        } else {
+                            expr = m().ClassLiteral(syms.objectType);
+                        }
                     } else {
-                        addStmt(m().Return(m().ClassLiteral(type)));
+                        expr = m().ClassLiteral(type);
                     }
+                    
+                    addStmt(m().Return(expr));
                     return true;
                 }
             };
