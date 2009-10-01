@@ -2048,7 +2048,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             expr = call(accessEmptySequence(diagPos, tmi.getElementType()), names.getClass);
                         } else if (isFunctionType(type)) {
                             // Okay since there are no wild cards.
-                            expr = m().ClassLiteral(type);
+//                            expr = m().ClassLiteral(type);
+                            // TODO - need full wildcard check.
+                            expr = m().ClassLiteral(syms.objectType);
                         } else {
                             expr = m().ClassLiteral(syms.objectType);
                         }
