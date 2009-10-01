@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.source.tree.Tree.Kind;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.comp.JavafxDefs;
 import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
+import com.sun.tools.mjavac.tree.JCTree.JCIdent;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -129,7 +131,13 @@ public class JavaPretty extends Pretty {
 			if (!importedPackages.contains(TreeInfo.fullName(tree.selected)) 
 					&& !importedClasses.contains(TreeInfo.fullName(tree))) {
 				printExpr(tree.selected, TreeInfo.postfixPrec);
-				print(".");
+                if (tree.selected.getKind() == Kind.IDENTIFIER) {
+                    if (! ((JCIdent)tree.selected).getName().isEmpty()) {
+                        print(".");
+                    }
+                } else {
+                    print(".");
+                }
 			}
             print(tree.name);
         } catch (IOException e) {
