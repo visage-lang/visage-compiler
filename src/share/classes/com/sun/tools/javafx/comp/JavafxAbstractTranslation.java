@@ -877,7 +877,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             this.refSym = sym;
             this.fullType = fullType;
             this.resultType = targetType==null? fullType : targetType; // use targetType, if any
-            this.staticReference = refSym.isStatic();
+            this.staticReference = refSym != null && refSym.isStatic();
         }
 
         abstract JFXExpression getToCheck();
@@ -1073,7 +1073,12 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         protected final boolean knownNonNull;
 
         FunctionCallTranslator(final JFXFunctionInvocation tree) {
-            super(tree.pos(), expressionSymbol(tree.meth), tree.type);
+            // If this is an invoke (later "useInvoke") then the named meth is not the refSym
+            // since it will be wrapped with a ".invoke()"
+            super(
+                    tree.pos(),
+                    (tree.meth.type instanceof FunctionType)? null : expressionSymbol(tree.meth),
+                    tree.type);
 
             // Function determination
             meth = tree.meth;
