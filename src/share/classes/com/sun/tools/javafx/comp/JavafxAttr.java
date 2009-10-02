@@ -1842,6 +1842,14 @@ public class JavafxAttr implements JavafxVisitor {
                                     List.<Type>nil(),
                                     syms.methodClass);
             m.type = mtype;
+            
+            if (m.owner instanceof ClassSymbol) {
+                // Fix primitive/number types so overridden Java methods will have the correct types.
+                fixOverride(tree, m, true);
+                if (returnType == syms.unknownType) {
+                    returnType = m.getReturnType();
+                }
+            }
 
             if (tree.getBodyExpression() == null) {
                 // Empty bodies are only allowed for
@@ -1908,8 +1916,6 @@ public class JavafxAttr implements JavafxVisitor {
             // If we override any other methods, check that we do so properly.
             // JLS ???
             if (m.owner instanceof ClassSymbol) {
-                // Fix primitive/number types so overridden Java methods will have the correct types.
-                fixOverride(tree, m);
                 chk.checkOverride(tree, m);
             } else {
                 if ((m.flags() & JavafxFlags.OVERRIDE) != 0) {
@@ -3831,7 +3837,7 @@ public class JavafxAttr implements JavafxVisitor {
         methodSymToTree = null;
     }
 
-    private void fixOverride(JFXFunctionDefinition tree, MethodSymbol m) {
+    private void fixOverride(JFXFunctionDefinition tree, MethodSymbol m, boolean fixFlags) {
         ClassSymbol origin = (ClassSymbol) m.owner;
         if ((origin.flags() & ENUM) != 0 && names.finalize.equals(m.name)) {
             if (m.overrides(syms.enumFinalFinalize, origin, types, false)) {
@@ -3855,7 +3861,7 @@ public class JavafxAttr implements JavafxVisitor {
                             ((MethodType)e.sym.type).restype = syms.errType;
                             break;
                         }
-                        else if (fixOverride(tree, m, (MethodSymbol) e.sym, origin)) {
+                        else if (fixOverride(tree, m, (MethodSymbol) e.sym, origin, fixFlags)) {
                             break;
                         }
                     }
@@ -3868,7 +3874,8 @@ public class JavafxAttr implements JavafxVisitor {
     public boolean fixOverride(JFXFunctionDefinition tree,
 		       MethodSymbol m,
 		       MethodSymbol other,
-		       ClassSymbol origin) {
+		       ClassSymbol origin,
+                       boolean fixFlags) {
 
 	Type mt = types.memberType(origin.type, m);
 	Type ot = types.memberType(origin.type, other);
@@ -3881,7 +3888,7 @@ public class JavafxAttr implements JavafxVisitor {
 	Type mtres = mt.getReturnType();
 	Type otres = types.subst(ot.getReturnType(), otvars, mtvars);
         
-	boolean resultTypesOK =
+	boolean resultTypesOK = mtres != syms.javafx_UnspecifiedType &&
 	    types.returnTypeSubstitutable(mt, ot, otres, noteWarner);
 	if (!resultTypesOK) {
 	    if (!source.allowCovariantReturns() &&
@@ -3906,6 +3913,9 @@ public class JavafxAttr implements JavafxVisitor {
                 else if ((mtres == syms.javafx_IntegerType || mtres == syms.javafx_DoubleType) && otres == syms.longType) {
                     setReturnType = syms.longType;
                 }
+                else if (mtres == syms.javafx_UnspecifiedType) {
+                    setReturnType = otres;
+                }
 
                 if (setReturnType != null) {
                     JFXType oldType = tree.operation.getJFXReturnType();
@@ -3922,14 +3932,16 @@ public class JavafxAttr implements JavafxVisitor {
 	}
 
         // now fix up the access modifiers
-        long origFlags = m.flags();
-        long flags = origFlags;
-        if ((flags & JavafxFlags.JavafxExplicitAccessFlags) == 0) {
-            flags |= other.flags() & (JavafxFlags.JavafxExplicitAccessFlags | JavafxFlags.JavafxAccessFlags);
-        }
-        if (flags != origFlags) {
-            m.flags_field = flags;
-            tree.getModifiers().flags = flags;
+        if (fixFlags) {
+            long origFlags = m.flags();
+            long flags = origFlags;
+            if ((flags & JavafxFlags.JavafxExplicitAccessFlags) == 0) {
+                flags |= other.flags() & (JavafxFlags.JavafxExplicitAccessFlags | JavafxFlags.JavafxAccessFlags);
+            }
+            if (flags != origFlags) {
+                m.flags_field = flags;
+                tree.getModifiers().flags = flags;
+            }
         }
         return true;
     }
