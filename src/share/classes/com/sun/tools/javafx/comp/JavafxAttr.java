@@ -1600,7 +1600,7 @@ public class JavafxAttr implements JavafxVisitor {
 
             Scope.Entry oldEntry = partsScope.lookup(memberSym.name);
             if (oldEntry.sym != null) {
-                log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_ALREAD_DEFINED_OBJECT_LITERAL, memberSym);
+                log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_ALREADY_DEFINED_OBJECT_LITERAL, memberSym);
             }
             partsScope.enter(memberSym);
 
@@ -1622,6 +1622,9 @@ public class JavafxAttr implements JavafxVisitor {
             }
             if (memberSym instanceof VarSymbol) {
                 VarSymbol v = (VarSymbol) memberSym;
+                if (v.isStatic()) {
+                    log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL, memberSym);
+                }
                 WriteKind kind = part.isBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;
                 chk.checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
                 chk.checkBidiBind(part.getExpression(), part.getBindStatus(), localEnv, v.type);
