@@ -2127,7 +2127,7 @@ public class JavafxAttr implements JavafxVisitor {
             // both are known to be reference types.  The result is
             // lub(type1,type2). This cannot fail, as it will
             // always be possible to infer "Object" if nothing better.
-            return types.lub(type1.baseType(), type2.baseType());
+            return types.makeUnionType(type1, type2);
         }
 
     //@Override
