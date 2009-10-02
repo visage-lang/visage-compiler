@@ -130,6 +130,7 @@ INIT			: 'init';
 INSERT			: 'insert';
 INSTANCEOF		: 'instanceof';
 INTO			: 'into';
+INVALIDATE              : 'invalidate';
 INVERSE			: 'inverse';
 LAST			: 'last';
 LAZY			: 'lazy';

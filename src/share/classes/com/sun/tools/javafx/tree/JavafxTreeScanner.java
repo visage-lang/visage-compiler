@@ -246,6 +246,11 @@ public class JavafxTreeScanner implements JavafxVisitor {
     }
 
     //@Override
+    public void visitInvalidate(JFXInvalidate that) {
+        scan(that.getVariable());
+    }
+
+    //@Override
     public void visitStringExpression(JFXStringExpression that) {
         List<JFXExpression> parts = that.getParts();
         parts = parts.tail;

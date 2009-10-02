@@ -1064,6 +1064,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         protected final boolean useInvoke;
         protected final boolean callBound;
         protected final boolean magicIsInitializedFunction;
+        protected final boolean magicHasAnInitializerFunction;
         
         // Call info
         protected final List<JFXExpression> typeargs;
@@ -1108,7 +1109,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
             magicIsInitializedFunction = (msym != null) &&
                     (msym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
-
+            magicHasAnInitializerFunction = (msym != null) &&
+                    (msym.flags_field & JavafxFlags.FUNC_HAS_AN_INITIALIZER) != 0;
             // Call info
             this.typeargs = tree.getTypeArguments();
             this.args = tree.getArguments();

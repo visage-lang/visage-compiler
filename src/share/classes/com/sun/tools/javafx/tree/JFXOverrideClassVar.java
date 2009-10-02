@@ -38,7 +38,7 @@ public class JFXOverrideClassVar extends JFXExpression implements TriggerTree {
     private final JFXIdent expr;
     private final JFXExpression init;
     private final JavafxBindStatus bindStatus;
-    private final JFXOnReplace onReplace;
+    private final JFXOnReplace[] triggers;
     
     public VarSymbol sym;
     
@@ -46,11 +46,14 @@ public class JFXOverrideClassVar extends JFXExpression implements TriggerTree {
             JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
+            JFXOnReplace onInvalidate,
             VarSymbol sym) {
         this.expr = expr;
         this.init = init;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
-        this.onReplace = onReplace;
+        this.triggers = new JFXOnReplace[JFXOnReplace.Kind.values().length];
+        this.triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()] = onReplace;
+        this.triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()] = onInvalidate;
         this.sym = sym;
     }
     
@@ -91,11 +94,27 @@ public class JFXOverrideClassVar extends JFXExpression implements TriggerTree {
     }
 
     public OnReplaceTree getOnReplaceTree() {
-        return (OnReplaceTree) onReplace;
+        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
     }
 
     public JFXOnReplace getOnReplace() {
-        return onReplace;
+        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
+    }
+
+    public OnReplaceTree getOnInvalidateTree() {
+        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
+    }
+
+    public JFXOnReplace getOnInvalidate() {
+        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
+    }
+
+    public OnReplaceTree getTriggerTree(JFXOnReplace.Kind triggerKind) {
+        return triggers[triggerKind.ordinal()];
+    }
+
+    public JFXOnReplace getTrigger(JFXOnReplace.Kind triggerKind) {
+        return triggers[triggerKind.ordinal()];
     }
 
     public JavaFXKind getJavaFXKind() {

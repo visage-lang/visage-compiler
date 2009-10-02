@@ -1148,6 +1148,10 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
  *****/
     }
 
+    public void visitInvalidate(JFXInvalidate tree) {
+        TODO(tree); //FIXME
+    }
+
     /**** utility methods ******/
 
    JCMethodDecl makeMainMethod(DiagnosticPosition diagPos, Name className) {

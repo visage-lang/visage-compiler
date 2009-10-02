@@ -84,6 +84,7 @@ public class JavafxDefs {
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
     public static final String isInitializedNameString = "isInitialized";
+    public static final String hasAnInitializerNameString = "hasAnInitializer";
     public static final String convertNumberSequence = "convertNumberSequence";
     public static final String scriptBindingListenerClassString = "_SBECL";
     public static final String bindingIdString = "id";
@@ -190,6 +191,7 @@ public class JavafxDefs {
     final Name lengthName;
     final Name emptySequenceFieldString;
     final Name isInitializedName;
+    final Name hasAnInitializerName;
     final Name scriptBindingClassName;
     final Name bindingIdName;
     final Name varOffsetName;
@@ -298,6 +300,7 @@ public class JavafxDefs {
         lengthName = names.fromString("length");
         emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
+        hasAnInitializerName = names.fromString(hasAnInitializerNameString);
         scriptBindingClassName = names.fromString(scriptBindingListenerClassString);
         bindingIdName = names.fromString(bindingIdString);
         varOffsetName = names.fromString(varOffsetString);
