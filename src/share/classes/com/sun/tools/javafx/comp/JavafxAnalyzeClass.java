@@ -289,6 +289,8 @@ class JavafxAnalyzeClass {
                                (isPrivateAccess() ? ", private" : "") +
                                (needsCloning() ? ", clone" : "") +
                                (isDef() ? ", isDef" : "") +
+                               (!boundBindees().isEmpty() ? ", intra binds" : "") + 
+                               (!boundBoundSelects().isEmpty() ? ", inter binds" : "") + 
                                (getDefaultInitStatement() != null ? ", init" : "") +
                                ", class=" + getClass().getSimpleName());
             if (detail) {
