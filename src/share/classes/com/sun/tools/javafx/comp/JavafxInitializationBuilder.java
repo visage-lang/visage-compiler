@@ -1417,7 +1417,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (needOverrideInvalidateAccessorMethod(ai)) {
                         accessors.append(makeInvalidateAccessorMethod(ai, needsBody));
                     }
-                    if (ai.onReplace() != null) {
+                    if (ai.onReplace() != null || ai.isMixinVar()) {
                         accessors.append(makeOnReplaceAccessorMethod(ai, needsBody));
                     }
                 }
@@ -2406,9 +2406,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ListBuffer<JCTree> methods = ListBuffer.lb();
             
             for (MethodSymbol sym : needDispatch) {
-                if ((sym.flags() & Flags.PRIVATE) == 0) {
-                    appendMethodClones(methods, sym, true);
-                }
+                appendMethodClones(methods, sym, true);
             }
             return methods.toList();
         }
