@@ -254,6 +254,9 @@ reverse seq;
 // TYPE_ARRAY
 var ax : nativearray of Integer;
 
+// VARIABLE_INVALIDATE
+invalidate b;
+
 // ERRONEOUS
 // not needed here, the line above is just for completness
 

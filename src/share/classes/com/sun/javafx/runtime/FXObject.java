@@ -69,10 +69,10 @@ public interface FXObject {
     
     public void     initFXBase$     ();
     
-    public int      getVFLGS$small  ();
-    public void     setVFLGS$small  (final int small);
-    public int[]    getVFLGS$large  ();
-    public void     setVFLGS$large  (final int[] large);
+    public int      getVFLGS$small$internal$  ();
+    public void     setVFLGS$small$internal$  (final int small);
+    public int[]    getVFLGS$large$internal$  ();
+    public void     setVFLGS$large$internal$  (final int[] large);
 
     public boolean  isInitialized$     (final int varNum);
     public boolean  setInitialized$    (final int varNum);
@@ -86,8 +86,8 @@ public interface FXObject {
     public boolean  clearBindee$       (final int varNum);
     
     // dependents management
-    public DependentsManager getDependentsManager$();
-    public void     setDependentsManager$(final DependentsManager depMgr);
+    public DependentsManager getDependentsManager$internal$();
+    public void     setDependentsManager$internal$(final DependentsManager depMgr);
     public void     addDependent$      (final int varNum, FXObject dep);
     public void     removeDependent$   (final int varNum, FXObject dep);
     // Earlier 'this' object was dependent on { oldBindee, varNum }.

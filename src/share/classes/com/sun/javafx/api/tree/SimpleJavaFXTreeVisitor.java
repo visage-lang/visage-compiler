@@ -236,6 +236,10 @@ public class SimpleJavaFXTreeVisitor <R,P> implements JavaFXTreeVisitor<R,P> {
         return defaultAction(node, p);
     }
 
+    public R visitVariableInvalidate(VariableInvalidateTree node, P p) {
+        return defaultAction(node, p);
+    }
+
     public R visitStringExpression(StringExpressionTree node, P p) {
         return defaultAction(node, p);
     }

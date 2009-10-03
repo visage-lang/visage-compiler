@@ -305,6 +305,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         //(that.getLastIndex());
     }
 
+    public void visitInvalidate(JFXInvalidate tree) {
+        TODO(tree); //FIXME
+    }
+
     public void visitStringExpression(JFXStringExpression tree) {
         TODO(tree);
         List<JFXExpression> parts = tree.getParts();

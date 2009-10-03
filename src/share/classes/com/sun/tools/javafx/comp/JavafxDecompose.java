@@ -119,7 +119,7 @@ public class JavafxDecompose implements JavafxVisitor {
             long flags = inScriptLevel? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L;
             JFXModifiers mod = fxmake.at(tree.pos).Modifiers(flags);
             JFXType fxType = fxmake.at(tree.pos).TypeAny(Cardinality.ANY);
-            JFXVar v = fxmake.at(tree.pos).Var(vName, fxType, mod, pose, JavafxBindStatus.UNIDIBIND, null);
+            JFXVar v = fxmake.at(tree.pos).Var(vName, fxType, mod, pose, JavafxBindStatus.UNIDIBIND, null, null);
             VarSymbol sym = new VarSymbol(flags, vName, tree.type, owner);
             v.sym = sym;
             v.type = tree.type;
@@ -425,7 +425,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXModifiers mods = tree.getModifiers();
         JFXExpression initializer = decompose(tree.getInitializer());
         JFXVar res = fxmake.at(tree.pos).Var(name, type, mods,
-                                        initializer, tree.getBindStatus(), onReplace);
+                                        initializer, tree.getBindStatus(), onReplace, null); //FIXME: on invalidate not supported
         res.sym = tree.sym;
         inUniBind = wasInUniBind;
         owner = prevOwner;
@@ -498,6 +498,10 @@ public class JavafxDecompose implements JavafxVisitor {
         result = fxmake.at(tree.pos).SequenceDelete(sequence, element);
     }
 
+    public void visitInvalidate(JFXInvalidate tree) {
+        throw new AssertionError("Invalidate statement not supported yet"); //FIXME
+    }
+
     public void visitForExpression(JFXForExpression tree) {
         List<JFXForExpressionInClause> inClauses = decompose(tree.inClauses);
         JFXExpression bodyExpr = decompose(tree.bodyExpr);
@@ -533,7 +537,7 @@ public class JavafxDecompose implements JavafxVisitor {
         // bound if was bind context or is bound variable
         inUniBind = wasInUniBind | tree.isUnidiBind();
         JFXExpression initializer = decompose(tree.getInitializer());
-        JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getId(), initializer, tree.getBindStatus(), onReplace);
+        JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getId(), initializer, tree.getBindStatus(), onReplace, null); //FIXME: on invalidate not supported
         res.sym = tree.sym;
         inUniBind = wasInUniBind;
         inScriptLevel = wasInScriptLevel;

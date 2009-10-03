@@ -84,6 +84,7 @@ public class JavafxDefs {
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
     public static final String isInitializedNameString = "isInitialized";
+    public static final String hasAnInitializerNameString = "hasAnInitializer";
     public static final String convertNumberSequence = "convertNumberSequence";
     public static final String scriptBindingListenerClassString = "_SBECL";
     public static final String bindingIdString = "id";
@@ -93,7 +94,7 @@ public class JavafxDefs {
     public static final String varOffsetString = "VOFF$";
     public static final String varCountString = "VCNT$";
     public static final String varFlagsString = "VFLGS$";
-    public static final String varDependentsManagerString = "DependentsManager$";
+    public static final String varDependentsManagerString = "DependentsManager$internal$";
     public static final String varValueString = "$";
     public static final String varFlagActionTest = "is";
     public static final String varFlagActionSet = "set";
@@ -190,6 +191,7 @@ public class JavafxDefs {
     final Name lengthName;
     final Name emptySequenceFieldString;
     final Name isInitializedName;
+    final Name hasAnInitializerName;
     final Name scriptBindingClassName;
     final Name bindingIdName;
     final Name varOffsetName;
@@ -234,6 +236,7 @@ public class JavafxDefs {
     final Name onReplaceArgNameFirstIndex;
     final Name onReplaceArgNameLastIndex;
     final Name onReplaceArgNameNewElements;
+    final Name internalSuffixName;
 
 	public final Name runtimePackageName;
 	public final Name annotationPackageName;
@@ -298,6 +301,7 @@ public class JavafxDefs {
         lengthName = names.fromString("length");
         emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
+        hasAnInitializerName = names.fromString(hasAnInitializerNameString);
         scriptBindingClassName = names.fromString(scriptBindingListenerClassString);
         bindingIdName = names.fromString(bindingIdString);
         varOffsetName = names.fromString(varOffsetString);
@@ -331,6 +335,7 @@ public class JavafxDefs {
         onReplaceArgNameFirstIndex = names.fromString("$index$");
         onReplaceArgNameLastIndex = names.fromString("$lastIndex$");
         onReplaceArgNameNewElements = names.fromString("$newElements$");
+        internalSuffixName = names.fromString("$internal$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
         attributeTypePrefixName = names.fromString(attributeTypeMethodNamePrefix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
