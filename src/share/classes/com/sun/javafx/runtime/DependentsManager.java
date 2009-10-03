@@ -57,10 +57,10 @@ public abstract class DependentsManager {
      * @param src FXObject for which dependents manager is returned
      */
     public static DependentsManager get(FXObject obj) {
-        DependentsManager depMgr = obj.getDependentsManager$();
+        DependentsManager depMgr = obj.getDependentsManager$internal$();
         if (depMgr == null) {
             depMgr = new MinimalWeakRefsDependentsManager();
-            obj.setDependentsManager$(depMgr);
+            obj.setDependentsManager$internal$(depMgr);
         }
         return depMgr;
     }

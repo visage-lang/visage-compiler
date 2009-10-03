@@ -119,12 +119,12 @@ import java.lang.reflect.Field;
     /**
      * Status bits for vars.  Array is for bits greater than 32, null if not needed.
      */
-    public int   VFLGS$small;
-    public int[] VFLGS$large;
-    public int   getVFLGS$small()            { return VFLGS$small; }
-    public void  setVFLGS$small(int small)   { VFLGS$small = small; }
-    public int[] getVFLGS$large()            { return VFLGS$large; }
-    public void  setVFLGS$large(int[] large) { VFLGS$large = large; }
+    public int   VFLGS$small$internal$;
+    public int[] VFLGS$large$internal$;
+    public int   getVFLGS$small$internal$()            { return VFLGS$small$internal$; }
+    public void  setVFLGS$small$internal$(int small)   { VFLGS$small$internal$ = small; }
+    public int[] getVFLGS$large$internal$()            { return VFLGS$large$internal$; }
+    public void  setVFLGS$large$internal$(int[] large) { VFLGS$large$internal$ = large; }
     
     /**
      * Allocate var status bits.
@@ -137,7 +137,7 @@ import java.lang.reflect.Field;
       
         if (count > VFLGS$VARS_PER_WORD) {
             int length = (((count * VFLGS$BITS_PER_VAR) + 31) >> 5) - 1;
-            obj.setVFLGS$large(new int[length]);
+            obj.setVFLGS$large$internal$(new int[length]);
         }
     }
     
@@ -156,10 +156,10 @@ import java.lang.reflect.Field;
       
         if (bit >= 32) {
             int index = (bit >> 5) - 1;
-            int[] large = obj.getVFLGS$large();
+            int[] large = obj.getVFLGS$large$internal$();
             word = large[index];
         } else {
-            word = obj.getVFLGS$small();
+            word = obj.getVFLGS$small$internal$();
         }
       
         return ((word >> shift) & 1) != 0;
@@ -180,12 +180,12 @@ import java.lang.reflect.Field;
       
         if (bit >= 32) {
             int index = (bit >> 5) - 1;
-            int[] large = obj.getVFLGS$large();
+            int[] large = obj.getVFLGS$large$internal$();
             word = large[index];
             large[index] = word | (1 << shift);
         } else {
-            word = obj.getVFLGS$small();
-            obj.setVFLGS$small(word | (1 << shift));
+            word = obj.getVFLGS$small$internal$();
+            obj.setVFLGS$small$internal$(word | (1 << shift));
         }
       
         return ((word >> shift) & 1) != 0;
@@ -206,12 +206,12 @@ import java.lang.reflect.Field;
       
         if (bit >= 32) {
             int index = (bit >> 5) - 1;
-            int[] large = obj.getVFLGS$large();
+            int[] large = obj.getVFLGS$large$internal$();
             word = large[index];
             large[index] = word & ~(1 << shift);
         } else {
-            word = obj.getVFLGS$small();
-            obj.setVFLGS$small(word & ~(1 << shift));
+            word = obj.getVFLGS$small$internal$();
+            obj.setVFLGS$small$internal$(word & ~(1 << shift));
         }
       
       return ((word >> shift) & 1) != 0;
@@ -282,12 +282,12 @@ import java.lang.reflect.Field;
     }
 
     // dependents management
-    public DependentsManager DependentsManager$;
-    public DependentsManager getDependentsManager$() {
-        return DependentsManager$;
+    public DependentsManager DependentsManager$internal$;
+    public DependentsManager getDependentsManager$internal$() {
+        return DependentsManager$internal$;
     }
-    public void setDependentsManager$(final DependentsManager depMgr) {
-        DependentsManager$ = depMgr;
+    public void setDependentsManager$internal$(final DependentsManager depMgr) {
+        DependentsManager$internal$ = depMgr;
     }
     public void addDependent$(final int varNum, FXObject dep) {
         addDependent$(this, varNum, dep);
