@@ -157,6 +157,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         JCStatement side(JFXExpression expr) {
             ExpressionResult res = translateToExpressionResult(expr, targetType);
             addBindees(res.bindees());
+            addInterClassBindees(res.interClass());
             return m().Block(0L, res.statements().append(makeExec(m().Assign(id(resVar), res.expr()))));
         }
 

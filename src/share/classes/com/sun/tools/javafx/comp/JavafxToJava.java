@@ -711,6 +711,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     return new ExpressionResult(
                             localDefs.size() == 0 ? tvalue : makeBlockExpression(localDefs, tvalue),
                             bindees(),
+                            interClass(),
                             targetType);
                 } else {
                     // make into block
@@ -1720,6 +1721,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         JCExpression sideExpr(JFXExpression expr) {
             ExpressionResult res = translateToExpressionResult(expr, targetType);
             addBindees(res.bindees());
+            addInterClassBindees(res.interClass());
             return asExpression(res, targetType);
         }
 

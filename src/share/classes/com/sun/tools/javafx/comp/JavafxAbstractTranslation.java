@@ -352,11 +352,11 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         ExpressionResult(DiagnosticPosition diagPos, ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<VarSymbol> bindees, ListBuffer<DependentPair> interClass, Type resultType) {
             this(diagPos, buf.toList(), value, bindees.toList(), interClass.toList(), resultType);
         }
-        ExpressionResult(JCExpression value, List<VarSymbol> bindees, Type resultType) {
-            this(value.pos(), List.<JCStatement>nil(), value, bindees, List.<DependentPair>nil(), resultType);
+        ExpressionResult(JCExpression value, List<VarSymbol> bindees, List<DependentPair> interClass, Type resultType) {
+            this(value.pos(), List.<JCStatement>nil(), value, bindees, interClass, resultType);
         }
         ExpressionResult(JCExpression value, Type resultType) {
-            this(value, List.<VarSymbol>nil(), resultType);
+            this(value, List.<VarSymbol>nil(), List.<DependentPair>nil(), resultType);
         }
         JCExpression expr() {
             return value;
@@ -699,6 +699,12 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             interClass.append(new ExpressionResult.DependentPair( instanceSym,  referencedSym));
         }
 
+        void addInterClassBindees(List<ExpressionResult.DependentPair> pairs) {
+            for (ExpressionResult.DependentPair pair : pairs) {
+                interClass.append(pair);
+            }
+        }
+
         ExpressionResult toResult(JCExpression translated, Type resultType) {
             return new ExpressionResult(diagPos, stmts, translated, bindees, interClass, resultType);
         }
@@ -722,6 +728,10 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         List<VarSymbol> bindees() {
             return bindees.toList();
+        }
+
+        List<ExpressionResult.DependentPair> interClass() {
+            return interClass.toList();
         }
 
         abstract protected AbstractStatementsResult doit();
