@@ -103,7 +103,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
             JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
                 JCExpression full = super.fullExpression(mungedToCheckTranslated);
                 if (condition != null) {
-                    // if no args have changed, don't call function, just return pervious value
+                    // if no args have changed, don't call function, just return previous value
                     //TODO: must call if selector changes
                     full = m().Conditional(condition, full, id(attributeValueName(targetSymbol)));
                 }

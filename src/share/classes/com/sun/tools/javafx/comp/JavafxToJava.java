@@ -492,42 +492,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    /**
-     * Translate to a built-in construct
-     */
-    abstract class NewBuiltInInstanceTranslator extends NewInstanceTranslator {
-
-        protected final Type builtIn;
-
-        NewBuiltInInstanceTranslator(DiagnosticPosition diagPos, Type builtIn) {
-            super(diagPos);
-            this.builtIn = builtIn;
-        }
-
-        /**
-         * Arguments for the constructor.
-         * There are no user arguments to built-in class constructors.
-         * Just generate the default init 'true' flag for JavaFX generated constructors.
-         */
-        protected List<JCExpression> completeTranslatedConstructorArgs() {
-            return List.<JCExpression>nil();
-        }
-
-        VarSymbol varSym(Name varName) {
-            return (VarSymbol) builtIn.tsym.members().lookup(varName).sym;
-        }
-
-        void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
-            VarSymbol vsym = varSym(varName);
-            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
-        }
-
-        @Override
-        protected ExpressionResult doit() {
-            return buildInstance(builtIn, null, true);
-        }
-    }
-
     public void visitInstanciate(JFXInstanciate tree) {
         result = new InstanciateTranslator(tree) {
             protected void processLocalVar(JFXVar var) {
@@ -625,7 +589,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             mods = tree.getModifiers();
             vsym = tree.getSymbol();
             vmi = typeMorpher.varMorphInfo(vsym);
-            assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here";
+            assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here: " + tree.name;
             flags = vsym.flags();
             isParameter = (flags & Flags.PARAMETER) != 0;
             hasInnerAccess = (flags & JavafxFlags.VARUSE_INNER_ACCESS) != 0;
@@ -1938,17 +1902,55 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new TimeLiteralTranslator(tree).doit();
    }
 
-    abstract class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
+    /**
+     * Translate to a built-in construct
+     */
+    abstract class NewBuiltInInstanceTranslator extends NewInstanceTranslator {
+
+        protected final Type builtIn;
+
+        NewBuiltInInstanceTranslator(DiagnosticPosition diagPos, Type builtIn) {
+            super(diagPos);
+            this.builtIn = builtIn;
+        }
+
+        /**
+         * Arguments for the constructor.
+         * There are no user arguments to built-in class constructors.
+         * Just generate the default init 'true' flag for JavaFX generated constructors.
+         */
+        protected List<JCExpression> completeTranslatedConstructorArgs() {
+            return List.<JCExpression>nil();
+        }
+
+        VarSymbol varSym(Name varName) {
+            return (VarSymbol) builtIn.tsym.members().lookup(varName).sym;
+        }
+
+        void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
+            VarSymbol vsym = varSym(varName);
+            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
+        }
+
+        @Override
+        protected ExpressionResult doit() {
+            return buildInstance(builtIn, null, true);
+        }
+    }
+
+    class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
 
         final JFXInterpolateValue tree;
 
         InterpolateValueTranslator(JFXInterpolateValue tree) {
             super(tree.pos(), syms.javafx_KeyValueType);
             this.tree = tree;
-            this.tree.value = tree.funcValue;
         }
 
-        protected abstract JCExpression translateTarget();
+        protected JCExpression translateTarget() {
+            JCExpression target = translateExpr(tree.attribute, null); //FIXME
+            return call(makeType(syms.javafx_PointerType), "make", target);
+        }
 
         protected void initInstanceVariables(Name instName) {
             // value
@@ -1965,13 +1967,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     public void visitInterpolateValue(final JFXInterpolateValue tree) {
-        result = new InterpolateValueTranslator(tree) {
-
-            protected JCExpression translateTarget() {
-                JCExpression target = translateExpr(tree.attribute, null); //FIXME
-                return call(makeType(syms.javafx_PointerType), "make", target);
-            }
-        }.doit();
+        result = new InterpolateValueTranslator(tree).doit();
     }
 
     public void visitKeyFrameLiteral(final JFXKeyFrameLiteral tree) {

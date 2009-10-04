@@ -37,13 +37,13 @@ import com.sun.javafx.api.JavafxBindStatus;
  * @author Zhiqun Chen
  */
 public class JFXVar extends JFXExpression implements VariableTree {
-    public JFXModifiers mods;
-    public Name name;
-    public JFXExpression init;
-    public VarSymbol sym;
-    private JFXType jfxtype;
+    public final JFXModifiers mods;
+    public final Name name;
+    public final JFXExpression init;
     private final JavafxBindStatus bindStatus;
     private final JFXOnReplace[] triggers;
+    private JFXType jfxtype;
+    public VarSymbol sym;
 
     protected JFXVar() {
         this(null, null, null, null, null, null, null, null);

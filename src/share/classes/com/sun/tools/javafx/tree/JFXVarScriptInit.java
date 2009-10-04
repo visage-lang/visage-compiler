@@ -36,7 +36,7 @@ import com.sun.javafx.api.JavafxBindStatus;
  * @author Robert Field
  */
 public class JFXVarScriptInit extends JFXExpression implements VariableTree {
-    private final JFXVar var;
+    private JFXVar var;
 
     protected JFXVarScriptInit(JFXVar var) {
             this.var = var;
@@ -44,6 +44,10 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
     
     public JFXVar getVar() {
         return var;
+    }
+
+    public void resetVar(JFXVar res) {
+        var = res;
     }
 
     public VarSymbol getSymbol() {

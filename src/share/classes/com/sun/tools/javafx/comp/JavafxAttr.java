@@ -4045,14 +4045,13 @@ public class JavafxAttr implements JavafxVisitor {
          * FunctionValue. But, if this JFXInterpolateValue tree is
          * attributed twice, on the second visit, tree.value would
          * be a function value and so would fail with type check.
-         * Now, we use tree.funcValue. Translation will copy the
+         * Now, we use tree.funcValue. Decomposition will copy the
          * "tree.funcValue" to "tree.value".
          */
-        tree.funcValue = fxmake.at(tree.pos()).FunctionValue(fxmake.at(tree.pos()).TypeUnknown(),
-                                                         List.<JFXVar>nil(),
-                                                         fxmake.at(tree.pos()).Block(0L, 
-     List.<JFXExpression>nil(), 
-     tree.value));
+        tree.funcValue = fxmake.at(tree.pos()).FunctionValue(
+                fxmake.at(tree.pos()).TypeUnknown(),
+                List.<JFXVar>nil(),
+                fxmake.at(tree.pos()).Block(0L, List.<JFXExpression>nil(), tree.value));
         attribExpr(tree.funcValue, env);
         result = check(tree, syms.javafx_KeyValueType, VAL, pkind, pt, pSequenceness);
         this.inBindContext = wasInBindContext;
