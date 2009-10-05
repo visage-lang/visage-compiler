@@ -560,6 +560,18 @@ class JavafxAnalyzeClass {
             return hasOverrideVar() ? overrideVar().onReplaceAsInline() : null;
         }
 
+        // Possible javafx code for the var's 'on invalidate'.
+        @Override
+        public JFXOnReplace onInvalidate() {
+            return hasOverrideVar() ? overrideVar().onInvalidate() : null;
+        }
+
+        // Possible java code for the var's 'on invalidate' in var$invalidate method.
+        @Override
+        public JCStatement onInvalidateAsInline() {
+            return hasOverrideVar() ? overrideVar().onInvalidateAsInline() : null;
+        }
+
         // Mixin vars are always cloned.
         @Override
         public boolean needsCloning() { return true; }
