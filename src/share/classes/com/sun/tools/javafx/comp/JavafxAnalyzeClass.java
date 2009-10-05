@@ -270,6 +270,9 @@ class JavafxAnalyzeClass {
         // Empty or variable symbols on which this variable depends
         public List<VarSymbol> boundBindees() { return List.<VarSymbol>nil(); }
 
+        // Bound variable symbols on which this variable is used.
+        public List<VarSymbol> boundBinders() { return List.<VarSymbol>nil(); }
+
         // Empty or bound select pairs.
         public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
 
@@ -364,6 +367,7 @@ class JavafxAnalyzeClass {
         public List<VarSymbol> boundBindees() { return bindOrNull==null? List.<VarSymbol>nil() : bindOrNull.bindees(); }
 
         // Bound variable symbols on which this variable is used.
+        @Override
         public List<VarSymbol> boundBinders() { return bindersOrNull==null? List.<VarSymbol>nil() : bindersOrNull.toList(); }
 
         // Empty or bound select pairs.
@@ -461,6 +465,12 @@ class JavafxAnalyzeClass {
             this.overrideVar = null;
         }
 
+        // Return true if the var/override has an initializing expression
+        @Override
+        public boolean hasInitializer() {
+            return hasOverrideVar() && overrideVar().hasInitializer();
+        }
+
         // Returns null or the code for var initialization.
         @Override
         public JCStatement getDefaultInitStatement() {
@@ -474,11 +484,56 @@ class JavafxAnalyzeClass {
 
         // Return true if the var has a bound definition.
         @Override
-        public boolean hasBoundDefinition() { return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L; }
+        public boolean hasBoundDefinition() {
+            return hasOverrideVar() && overrideVar().hasBoundDefinition();
+        }
 
         // Return true if the var has a bidirectional bind.
         @Override
-        public boolean hasBiDiBoundDefinition() { return (getFlags() & JavafxFlags.VARUSE_BOUND_BIDIRECTIONAL) != 0L; }
+        public boolean hasBiDiBoundDefinition()  {
+            return hasOverrideVar() && overrideVar().hasBiDiBoundDefinition();
+        }
+        
+        // Null or Java code for getter expression of bound variable
+        @Override
+        public JCExpression boundInit() {
+            return hasOverrideVar() ? overrideVar().boundInit() : null;
+        }
+
+        // Null or Java preface code for getter of bound variable
+        @Override
+        public List<JCStatement> boundPreface() {
+            return hasOverrideVar() ? overrideVar().boundPreface() : null;
+        }
+
+        // Variable symbols on which this variable depends
+        @Override
+        public List<VarSymbol> boundBindees() {
+            return hasOverrideVar() ? overrideVar().boundBindees() : null;
+        }
+
+        // Bound variable symbols on which this variable is used.
+        public List<VarSymbol> boundBinders() {
+            return hasOverrideVar() ? overrideVar().boundBinders() : null;
+        }
+
+        // Empty or bound select pairs.
+        @Override
+        public List<DependentPair> boundBoundSelects() {
+            return hasOverrideVar() ? overrideVar().boundBoundSelects() : null;
+        }
+
+        // Possible javafx code for the var's 'on replace'.
+        @Override
+        public JFXOnReplace onReplace() {
+            return hasOverrideVar() ? overrideVar().onReplace() : null;
+        }
+
+        // Possible java code for the var's 'on replace' in setter.
+        @Override
+        public JCStatement onReplaceAsInline() {
+            return hasOverrideVar() ? overrideVar().onReplaceAsInline() : null;
+        }
 
         // Mixin vars are always cloned.
         @Override
