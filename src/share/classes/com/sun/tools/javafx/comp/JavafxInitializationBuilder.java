@@ -1264,23 +1264,27 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 public void statements() {
                     // Forward to the mixin.
+                    // Call super first.
+                    if (varInfo.isOverride()) {
+                        callSuper();
+                    }
+
+                    // Fetch the on replace statement or null.
+                    JCStatement onReplace = varInfo.onReplaceAsInline();
+    
                     if (!isMixinClass() && varInfo.isMixinVar()) {
                         // Mixin.onReplace$var(this, oldValue, newValue);
                         callMixin((ClassSymbol)varSym.owner);
-                    } else {
-                        // Call super first.
-                        if (varInfo.isOverride()) {
-                            callSuper();
-                        }
-
-                        // Fetch the on replace statement or null.
-                        JCStatement onReplace = varInfo.onReplaceAsInline();
-        
-                        // Need to capture init state if has trigger.
+                        
                         if (onReplace != null) {
-                            // Insert the trigger.
-                            addStmt(onReplace);
+                            addStmt(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
                         }
+                    }
+                    
+                    // Need to capture init state if has trigger.
+                    if (onReplace != null) {
+                        // Insert the trigger.
+                        addStmt(onReplace);
                     }
                 }
             };
