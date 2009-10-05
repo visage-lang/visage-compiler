@@ -557,7 +557,8 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitInvalidate(JFXInvalidate tree) {
-        throw new AssertionError("Invalidate statement not supported yet"); //FIXME
+        JFXExpression variable = decompose(tree.getVariable());
+        result = fxmake.at(tree.pos).Invalidate(variable);
     }
 
     public void visitForExpression(JFXForExpression tree) {
@@ -592,10 +593,11 @@ public class JavafxDecompose implements JavafxVisitor {
         // on-replace is always unbound
         inUniBind = false;
         JFXOnReplace onReplace = decompose(tree.getOnReplace());
+        JFXOnReplace onInvalidate = decompose(tree.getOnInvalidate());
         // bound if was bind context or is bound variable
         inUniBind = wasInUniBind | tree.isUnidiBind();
         JFXExpression initializer = decompose(tree.getInitializer());
-        JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getId(), initializer, tree.getBindStatus(), onReplace, null); //FIXME: on invalidate not supported
+        JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getId(), initializer, tree.getBindStatus(), onReplace, onInvalidate);
         res.sym = tree.sym;
         inUniBind = wasInUniBind;
         inScriptLevel = wasInScriptLevel;

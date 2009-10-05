@@ -51,6 +51,7 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.tree.TreeInfo;
 import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
 
 /**
@@ -241,7 +242,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     /**
      * Make a version of the on-replace to be used in inline in a setter.
      */
-    private JCStatement translateOnReplaceAsInline(VarSymbol vsym, JFXOnReplace onReplace) {
+    private JCStatement translateTriggerAsInline(VarSymbol vsym, JFXOnReplace onReplace) {
         if (onReplace == null) return null;
         return translateToStatement(onReplace.getBody(), syms.voidType);
     }
@@ -355,7 +356,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                                     initStmt,
                                     attrDef.isBound() ? translateBind.translate(attrDef.getInitializer(), attrDef.type, attrDef.sym) : null,
                                     attrDef.getOnReplace(),
-                                    translateOnReplaceAsInline(attrDef.sym, attrDef.getOnReplace())));
+                                    translateTriggerAsInline(attrDef.sym, attrDef.getOnReplace()),
+                                    attrDef.getOnInvalidate(),
+                                    translateTriggerAsInline(attrDef.sym, attrDef.getOnInvalidate())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
@@ -376,7 +379,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                                     initStmt,
                                     override.isBound() ? translateBind.translate(override.getInitializer(), override.type, override.sym) : null,
                                     override.getOnReplace(),
-                                    translateOnReplaceAsInline(override.sym, override.getOnReplace())));
+                                    translateTriggerAsInline(override.sym, override.getOnReplace()),
+                                    override.getOnInvalidate(),
+                                    translateTriggerAsInline(override.sym, override.getOnInvalidate())));
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
@@ -1114,7 +1119,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     public void visitInvalidate(JFXInvalidate tree) {
-        TODO(tree); //FIXME
+        JCTree receiver = null;
+        Symbol vsym = JavafxTreeInfo.symbol(tree.getVariable());
+        if (tree.getVariable().getFXTag() == JavafxTag.SELECT) {
+            JFXSelect sel = (JFXSelect)tree.getVariable();
+            receiver = translateToExpression(sel.selected, sel.selected.type);
+        }
+        result = new StatementsResult(make.at(tree.pos()).Exec(call(tree.pos(), (JCExpression)receiver, attributeInvalidateName(vsym))));
     }
 
     /**** utility methods ******/

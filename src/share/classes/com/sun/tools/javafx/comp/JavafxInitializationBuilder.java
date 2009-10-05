@@ -1135,7 +1135,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                     // if (varOldValue$ != varNewValue$) { handle change }
                     addStmt(m().If(testExpr, endBlock(), null));
-    
+   
                     // return $var;
                     addStmt(m().Return(id(varName)));
                 }
@@ -1187,6 +1187,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     } else {
                         // clearValidValue$(VOFF$var);
                         addStmt(makeFlagStatement(proxyVarSym, varFlagActionClear, varFlagValid));
+                    }
+
+                    // Add on-invalidate trigger if any
+                    if (varInfo.onInvalidate() != null) {
+                        addStmt(varInfo.onInvalidateAsInline());
                     }
                     
                     // Handle binders.

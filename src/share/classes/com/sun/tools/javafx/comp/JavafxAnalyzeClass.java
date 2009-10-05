@@ -261,6 +261,12 @@ class JavafxAnalyzeClass {
         // null or Java tree for var's on-replace for use in change listeber.
         public JCStatement onReplaceAsListenerInstanciation() { return null; }
 
+        // null or javafx tree for the var's 'on invalidate'.
+        public JFXOnReplace onInvalidate() { return null; }
+
+        // null or Java tree for var's on-invalidate for use in var$invalidate method.
+        public JCStatement onInvalidateAsInline() { return null; }
+
         // Null or Java code for getter expression of bound variable
         public JCExpression boundInit() { return null; }
 
@@ -314,6 +320,9 @@ class JavafxAnalyzeClass {
         // Null or javafx code for the var's on replace.
         private final JFXOnReplace onReplace;
 
+        // Null or javafx code for the var's on invalidate.
+        private final JFXOnReplace onInvalidate;
+
         // The bind status for the var/override
         private final JavafxBindStatus bindStatus;
 
@@ -323,6 +332,9 @@ class JavafxAnalyzeClass {
         // Null or java code for the var's on replace inlined in setter.
         private final JCStatement onReplaceAsInline;
 
+        // Null or java code for the var's on invalidate inlined in var$invalidate method.
+        private final JCStatement onInvalidateAsInline;
+
         // Result of bind translation
         private final ExpressionResult bindOrNull;
         
@@ -330,13 +342,16 @@ class JavafxAnalyzeClass {
         private ListBuffer<VarSymbol> bindersOrNull;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
-                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
+                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(diagPos, name, attrSym, vmi, initStmt);
             this.hasInitializer = hasInitializer;
             this.bindStatus = bindStatus;
             this.bindOrNull = bindOrNull;
             this.onReplace = onReplace;
             this.onReplaceAsInline = onReplaceAsInline;
+            this.onInvalidate = onInvalidate;
+            this.onInvalidateAsInline = onInvalidateAsInline;
         }
 
         // Return true if the var/override has an initializing expression
@@ -378,6 +393,14 @@ class JavafxAnalyzeClass {
         @Override
         public JCStatement onReplaceAsInline() { return onReplaceAsInline; }
 
+        // Possible javafx code for the var's 'on invalidate'.
+        @Override
+        public JFXOnReplace onInvalidate() { return onInvalidate; }
+
+        // Possible java code for the var's 'on invalidate' in var$invalidate method.
+        @Override
+        public JCStatement onInvalidateAsInline() { return onInvalidateAsInline; }
+
         // This var is in the current javafx class so it has to be cloned into the java class.
         @Override
         public boolean needsCloning() { return true; }
@@ -395,8 +418,9 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
-            super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline);
+                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
+            super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.var = var;
         }
 
@@ -413,8 +437,9 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline) {
-            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer()!=null, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline);
+                JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
+            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer()!=null, vmi, initStmt, bindOrNull, onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
         }
         
         // Return true if the var is an override.
