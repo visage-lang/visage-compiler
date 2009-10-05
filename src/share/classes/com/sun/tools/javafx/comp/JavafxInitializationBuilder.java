@@ -1189,21 +1189,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(makeFlagStatement(proxyVarSym, varFlagActionClear, varFlagValid));
                     }
 
+                    // Mixin invalidate$
+                    if (!isMixinClass() && varInfo.isMixinVar()) {
+                        // Mixin.invalidate$var(this, oldValue, newValue);
+                        callMixin((ClassSymbol)varSym.owner);
+                    }
+                    
                     // Add on-invalidate trigger if any
                     if (varInfo.onInvalidate() != null) {
                         addStmt(varInfo.onInvalidateAsInline());
                     }
                     
-                    // Handle binders.
-                    if (!isMixinClass() && varInfo.isMixinVar()) {
-                        // Mixin.onReplace$var(this, oldValue, newValue);
-                        callMixin((ClassSymbol)varSym.owner);
-                    } else {
-                        if (varInfo instanceof TranslatedVarInfoBase) {
-                            for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
-                                // invalidate$var();
-                                addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym)));
-                            }
+                    if (varInfo instanceof TranslatedVarInfoBase) {
+                        for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
+                            // invalidate$var();
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym)));
                         }
                     }
                     
@@ -1390,7 +1390,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     stmts.append(callStmt(getReceiver(), attributeInvalidateName(otherVarSym)));
                 }
   
-                // Construct method.
+                 // Add on-invalidate trigger if any
+                if (varInfo.onInvalidate() != null) {
+                    stmts.append(varInfo.onInvalidateAsInline());
+                }
+                    
+               // Construct method.
                 JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
                                                  syms.voidType,
                                                  attributeInvalidateName(varSym),
