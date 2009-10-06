@@ -1600,7 +1600,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // The method constructs the count$ method for the current class.
         //
         public void makecount$() {
-            StaticMethodBuilder smb = new StaticMethodBuilder(defs.varCountName, syms.intType) {
+            MethodBuilder smb = new MethodBuilder(defs.attributeCountMethodName, syms.intType) {
                 public void statements() {
                     // Construct and add: return VCNT$();
                     addStmt(m().Return(call(defs.varCountName)));
