@@ -906,6 +906,35 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
+        // This class is designed to generate a method whose body is a static
+        // utility.
+        //
+        public class StaticMethodBuilder extends MethodBuilder {
+            StaticMethodBuilder(Name methodName, Type returnType) {
+                super(methodName, returnType);
+            }
+            
+            // Driver method to construct the current method.
+            public void build() {
+                // Initialize for method.
+                initialize();
+                
+                // Generate the code.
+                generate();
+                
+                // Record method.
+                optStat.recordProxyMethod();
+
+                // Construct method.
+                addDefinition(makeMethod(Flags.STATIC | Flags.PUBLIC,
+                                         returnType,
+                                         methodName,
+                                         paramList(),
+                                         stmts.toList()));
+            }
+        }
+      
+        //
         // This class is designed to generate a method whose body is a var
         // accessor.
         //
@@ -1526,84 +1555,59 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // The method constructs the VCNT$ method for the current class.
         //
-        public void makeVCNT$(List<VarInfo> attrInfos, int varCount) {
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-            // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-
-            // Prepare to accumulate statements in the if.
-            ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
-
-            // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
-            JCExpression setVCNT$Expr;
-
-            // If has a javafx superclass.
-            if (superClassSym == null) {
-                // n
-                setVCNT$Expr = makeInt(varCount);
-            } else {
-                // super.VCNT$() + n
-                setVCNT$Expr = makeBinary(JCTree.PLUS, call(superClassSym.type, defs.varCountName), makeInt(varCount));
-            }
-
-            Name countName = names.fromString("$count");
-            // final int $count = VCNT$ = super.VCNT$() + n;
-            ifStmts.append(makeVar(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.varCountName), setVCNT$Expr)));
-
-            for (VarInfo ai : attrInfos) {
-                // Only variables actually declared.
-                if (ai.needsCloning() && !ai.isOverride()) {
-                    // Set diagnostic position for attribute.
-                    setDiagPos(ai.pos());
-                    // Offset var name.
-                    Name name = attributeOffsetName(ai.getSymbol());
-                    // VCNT$ - n + i;
-                    JCExpression setVOFF$Expr = makeBinary(JCTree.PLUS, id(countName), makeInt(ai.getEnumeration() - varCount));
-                    // VOFF$var = VCNT$ - n + i;
-                    ifStmts.append(makeExec(m().Assign(id(name), setVOFF$Expr)));
+        public void makeVCNT$(final List<VarInfo> attrInfos, final int varCount) {
+            StaticMethodBuilder smb = new StaticMethodBuilder(defs.varCountName, syms.intType) {
+                public void statements() {
+                    // Start if block.
+                    beginBlock();
+        
+                    // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
+                    JCExpression setVCNT$Expr = superClassSym == null ?  makeInt(varCount) :
+                                                                         makeBinary(JCTree.PLUS,
+                                                                                    call(superClassSym.type, defs.varCountName),
+                                                                                    makeInt(varCount));
+                    Name countName = names.fromString("$count");
+                    // final int $count = VCNT$ = super.VCNT$() + n;
+                    addStmt(makeVar(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.varCountName), setVCNT$Expr)));
+        
+                    for (VarInfo ai : attrInfos) {
+                        // Only variables actually declared.
+                        if (ai.needsCloning() && !ai.isOverride()) {
+                            // Set diagnostic position for attribute.
+                            setDiagPos(ai.pos());
+                            // Offset var name.
+                            Name name = attributeOffsetName(ai.getSymbol());
+                            // VCNT$ - n + i;
+                            JCExpression setVOFF$Expr = makeBinary(JCTree.PLUS, id(countName), makeInt(ai.getEnumeration() - varCount));
+                            // VOFF$var = VCNT$ - n + i;
+                            addStmt(makeExec(m().Assign(id(name), setVOFF$Expr)));
+                        }
+                    }
+        
+                    // VCNT$ == -1
+                    JCExpression condition = makeEqual(id(defs.varCountName), makeInt(-1));
+                    // if (VCNT$ == -1) { ...
+                    addStmt(m().If(condition, endBlock(), null));
+                    // return VCNT$;
+                    addStmt(m().Return(id(defs.varCountName)));
                 }
-            }
-
-            // VCNT$ == -1
-            JCExpression condition = makeEqual(id(defs.varCountName), makeInt(-1));
-            // if (VCNT$ == -1) { ...
-            stmts.append(m().If(condition, m().Block(0, ifStmts.toList()), null));
-            // return VCNT$;
-            stmts.append(m().Return(id(defs.varCountName)));
-
-            // Construct method.
-            JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
-                                             syms.intType,
-                                             defs.varCountName,
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            addDefinition(method);
+            };
+            
+            smb.build();
         }
 
         //
         // The method constructs the count$ method for the current class.
         //
         public void makecount$() {
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-
-            // VCNT$()
-            JCExpression countExpr = call(defs.varCountName);
-            // Construct and add: return VCNT$();
-            stmts.append(m().Return(countExpr));
-
-            // Construct method.
-            JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                             syms.intType,
-                                             defs.attributeCountMethodName,
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            addDefinition(method);
+            StaticMethodBuilder smb = new StaticMethodBuilder(defs.varCountName, syms.intType) {
+                public void statements() {
+                    // Construct and add: return VCNT$();
+                    addStmt(m().Return(call(defs.varCountName)));
+                }
+            };
+            
+            smb.build();
         }
         
         //
