@@ -698,19 +698,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
         }
         
- private List<JCVariableDecl> makeParamList(boolean isAbstract, JCVariableDecl... params) {
-     ListBuffer<JCVariableDecl> buffer = ListBuffer.lb();
-     
-     if (isMixinClass() && !isAbstract) {
-         buffer.append(makeReceiverParam(getCurrentClassDecl()));
-     }
-     
-     for (JCVariableDecl param : params) {
-         buffer.append(param);
-     }
-     
-     return buffer.toList();
-}
         //
         // This class is designed to reduce the repetitiveness of constructing methods.
         //
@@ -858,6 +845,25 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                  }
             }
             
+            // Driver method to construct the current method.
+            public void build() {
+                // Initialize for method.
+                initialize();
+                
+                // Generate the code.
+                generate();
+                
+                // Record method.
+                optStat.recordProxyMethod();
+
+                // Construct method.
+                addDefinition(makeMethod(isMixinClass() ? (Flags.STATIC | Flags.PUBLIC) : Flags.PUBLIC,
+                                         returnType,
+                                         methodName,
+                                         paramList(),
+                                         stmts.toList()));
+            }
+
             // This method generates the statements for the method.
             public void generate() {
                 // Reset diagnostic position to current class.
@@ -867,7 +873,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 // Reset diagnostic position to current class.
                 resetDiagPos();
-
+                // Emit method body.
                 body();
                 
                 // Reset diagnostic position to current class.
@@ -929,7 +935,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
                 
             // Driver method to construct the current method.
-            public JCTree build() {
+            public void build() {
                 // Initialize for method.
                 initialize();
                 
@@ -940,18 +946,50 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 optStat.recordProxyMethod();
 
                 // Construct method.
-                return makeMethod(proxyModifiers(varInfo, !needsBody),
-                                  returnType,
-                                  methodName,
-                                  paramList(!needsBody),
-                                  needsBody ? stmts.toList() : null);
+                addDefinition(makeMethod(proxyModifiers(varInfo, !needsBody),
+                                         returnType,
+                                         methodName,
+                                         paramList(!needsBody),
+                                         needsBody ? stmts.toList() : null));
+            }
+        }
+        
+        //
+        // This class is designed to generate a method whose body is a mixin var
+        // accessor.
+        //
+        public class MixinMethodBuilder extends MethodBuilder {
+            // Current var info.
+            protected VarInfo varInfo;
+            // Symbol used on the method.
+            protected VarSymbol varSym;
+            // Symbol used when accessing the variable.
+            protected VarSymbol proxyVarSym;
+            // Name of var field.
+            protected Name varName;
+            // Real type of the var.
+            protected Type type;
+            
+            MixinMethodBuilder(Name methodName, Type returnType, VarInfo varInfo) {
+                super(methodName, returnType);
+                this.varInfo = varInfo;
+                this.varSym = varInfo.getSymbol();
+                this.proxyVarSym = varInfo.proxyVarSym();
+                this.varName = attributeValueName(proxyVarSym);
+                this.type = varInfo.getRealType();
             }
             
-            // This method generates the body of the method.
-            public void body() {
-                if (needsBody) {
-                    statements();
+            // Driver method to construct the current method.
+            public void build() {
+                // Build only if a member of this mixin.
+                if (constrain()) {
+                    super.build();
                 }
+            }
+            
+            // Additional constraint to force the method.
+            public boolean constrain() {
+                return false;
             }
         }
         
@@ -960,8 +998,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // on var offsets.
         //
         public class VarCaseMethodBuilder extends MethodBuilder {
-            List<VarInfo> attrInfos =  List.<VarInfo>nil();
-            int varCount = 0;
+            protected List<VarInfo> attrInfos =  List.<VarInfo>nil();
+            protected int varCount = 0;
+            protected VarInfo varInfo;
         
             VarCaseMethodBuilder(Name methodName, Type returnType, List<VarInfo> attrInfos, int varCount) {
                 super(methodName, returnType);
@@ -977,24 +1016,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             // Driver method to construct the current method.
-            public JCTree build() {
+            public void build() {
                 // Generate the code.
                 // Initialize for method.
                 initialize();
                 
+                // Generate the body.
                 generate();
                 
                 if (stmts.nonEmpty() || superClassSym == null) {
-                    // Add to the methods list.
-                    JCTree method = makeMethod(Flags.PUBLIC, returnType, methodName, paramList(), stmts.toList());
-                    
                     // Record method.
                     optStat.recordProxyMethod();
                     
-                    return method;
+                    // Construct method.
+                    addDefinition(makeMethod(Flags.PUBLIC, returnType, methodName, paramList(), stmts.toList()));
                 }
-    
-                return null;
             }
             
             // Specialized body the handles offset cases.
@@ -1008,21 +1044,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         setDiagPos(ai.pos());
                          
                         // Constrain the var.
-                        if (constrain(ai)) {
+                        if (ai.needsCloning() && !ai.isOverride()) {
                             // Construct the case.
                             beginBlock();
-                            boolean use = statements(ai);
+                            
+                            // Generate statements.
+                            varInfo = ai;
+                            statements();
                             List<JCStatement> stmts = endBlockAsStmts();
     
-                            // Use if indicated.
-                            if (use) {
-                                // case tag number
-                                JCExpression tag = makeInt(ai.getEnumeration() - varCount);
-        
-                                // Add the case, something like:
-                                // case i: return get$var();
-                                cases.append(m().Case(tag, stmts));
-                            }
+                            // case tag number
+                            JCExpression tag = makeInt(ai.getEnumeration() - varCount);
+    
+                            // Add the case, something like:
+                            // case i: return get$var();
+                            cases.append(m().Case(tag, stmts));
                         }
                     }
                     
@@ -1038,14 +1074,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     callSuper();
                 }
             }
-            
-            // Adds the statements for the case.
-            public boolean statements(VarInfo ai) {
-                return false;
-            }
-            
-            // This method returns true if the current attribute should be processed.
-            boolean constrain(VarInfo ai) { return true; }
         }
 
         //
@@ -1086,7 +1114,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             };
 
-            addDefinition(vamb.build());
+            vamb.build();
         }
 
         //
@@ -1114,7 +1142,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             };
 
-            addDefinition(vamb.build());
+            vamb.build();
         }
 
         //
@@ -1161,7 +1189,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             };
 
-            addDefinition(vamb.build());
+            vamb.build();
         }
 
         //
@@ -1240,7 +1268,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             };
 
-            addDefinition(vamb.build());
+            vamb.build();
         }
 
         //
@@ -1309,117 +1337,78 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             };
 
-            addDefinition(vamb.build());
+            vamb.build();
         }
         
         //
         // This method constructs a mixin applyDefault method.
         //
         private void makeMixinApplyDefaultsMethod(VarInfo varInfo) {
-            // Prepare to accumulate methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
-
-            // Fetch the attribute symbol.
-            VarSymbol varSym = varInfo.getSymbol();
-            // True if the the user specified a default.
-            boolean hasDefault = varInfo.getDefaultInitStatement() != null;
-  
-            // If the var is defined in the current class or it has a (override) default.
-            if (isCurrentClassSymbol(varSym.owner) || hasDefault) {
-                // Prepare to accumulate statements.
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
-  
-                // Get body of applyDefaults$.
-                JCStatement deflt = makeApplyDefaultsStatement(varInfo, true);
-                if (deflt != null) {
-                    stmts.append(deflt);
+            MixinMethodBuilder mmb = new MixinMethodBuilder(attributeApplyDefaultsName(varInfo.getSymbol()), syms.voidType, varInfo) {
+                public void statements() {
+                    // Get body of applyDefaults$.
+                    addStmt(makeApplyDefaultsStatement(varInfo, true));
                 }
-  
-                // Mixins need a receiver arg.
-                List<JCVariableDecl> args = List.<JCVariableDecl>of(makeReceiverParam(getCurrentClassDecl()));
-  
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
-                                                 syms.voidType,
-                                                 attributeApplyDefaultsName(varSym),
-                                                 makeParamList(false),
-                                                 stmts);
-                addDefinition(method);
-            }
+                
+                public boolean constrain() {
+                    return isCurrentClassSymbol(varSym.owner) || varInfo.getDefaultInitStatement() != null;
+                }
+            };
+             
+            mmb.build();
         }
 
         //
         // This method constructs a mixin evaluate method.
         //
         private void makeMixinEvaluateAccessorMethod(VarInfo varInfo) {
-            // Prepare to accumulate methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
-
-            // Fetch the attribute symbol.
-            VarSymbol varSym = varInfo.getSymbol();
-  
-            // If the var is defined in the current class or it has a bind.
-            if (isCurrentClassSymbol(varSym.owner) || varInfo.hasBoundDefinition()) {
-                // Prepare to accumulate statements.
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
-  
-                if (varInfo.hasBoundDefinition()) {
-                    assert varInfo.boundInit() != null;
-                    
-                    // set$var(init/bound expression)
-                    stmts.appendList(varInfo.boundPreface());
-                    stmts.append(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
-                } 
-  
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
-                                                 syms.voidType,
-                                                 attributeEvaluateName(varSym),
-                                                 makeParamList(false),
-                                                 stmts);
-                addDefinition(method);
-            }
+            MixinMethodBuilder mmb = new MixinMethodBuilder(attributeEvaluateName(varInfo.getSymbol()), syms.voidType, varInfo) {
+                public void statements() {
+                    if (varInfo.hasBoundDefinition()) {
+                        // set$var(init/bound expression)
+                        addStmts(varInfo.boundPreface());
+                        addStmt(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
+                    } 
+                }
+                
+                public boolean constrain() {
+                    return isCurrentClassSymbol(varSym.owner) || varInfo.hasBoundDefinition();
+                }
+            };
+             
+            mmb.build();
         }
 
         //
         // This method constructs a mixin invalidate method.
         //
         private void makeMixinInvalidateAccessorMethod(VarInfo varInfo) {
-            // Prepare to accumulate methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
-            
-            // Only defined translated vars.
-            if (varInfo instanceof TranslatedVarInfoBase) {
-                // Prepare to accumulate statements.
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
-                // Fetch the attribute symbol.
-                VarSymbol varSym = varInfo.getSymbol();
-  
-                // Call super first.
-                ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-                if (varInfo.isOverride() && superClassSym != null) {
-                    stmts.append(makeSuperCall(superClassSym, attributeInvalidateName(varSym), id(defs.receiverName)));
+            MixinMethodBuilder mmb = new MixinMethodBuilder(attributeInvalidateName(varInfo.getSymbol()), syms.voidType, varInfo) {
+                public void statements() {
+                    // Call super first.
+                    if (varInfo.isOverride()) {
+                       callSuper();
+                    }
+                    
+                    // Invalidate other mixin vars.
+                    for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
+                         addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym)));
+                    }
+      
+                     // Add on-invalidate trigger if any
+                    if (varInfo.onInvalidate() != null) {
+                        addStmt(varInfo.onInvalidateAsInline());
+                    }
                 }
                 
-                for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
-                    // invalidate$var();
-                    stmts.append(callStmt(getReceiver(), attributeInvalidateName(otherVarSym)));
+                public boolean constrain() {
+                    return varInfo instanceof TranslatedVarInfoBase;
                 }
-  
-                 // Add on-invalidate trigger if any
-                if (varInfo.onInvalidate() != null) {
-                    stmts.append(varInfo.onInvalidateAsInline());
-                }
-                    
-               // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
-                                                 syms.voidType,
-                                                 attributeInvalidateName(varSym),
-                                                 makeParamList(false),
-                                                 stmts);
-                addDefinition(method);
-            }
-        }
+            };
+             
+            mmb.build();
+        
+         }
 
         //
         // This method constructs the accessor methods for an attribute.
@@ -1958,21 +1947,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public void makeGetMethod(List<VarInfo> attrInfos, int varCount) {
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeGetPrefixName, syms.objectType,
                                                                  attrInfos, varCount) {
-                public boolean constrain(VarInfo ai) { 
-                    return ai.needsCloning() && !ai.isOverride();
-                }
-            
-                public boolean statements(VarInfo ai) {
+                public void statements() {
                     // get$var()
-                    JCExpression getterExp = call(attributeGetterName(ai.getSymbol()));
+                    JCExpression getterExp = call(attributeGetterName(varInfo.getSymbol()));
                     // return get$var()
                     addStmt(m().Return(getterExp));
-                
-                    return true;
                 }
             };
             
-            addDefinition(vcmb.build());
+            vcmb.build();
         }
         
         //
@@ -1985,23 +1968,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addParam(syms.objectType, objName);
                 }
                 
-                public boolean constrain(VarInfo ai) { 
-                    return ai.needsCloning() && !ai.isOverride();
-                }
-            
-                public boolean statements(VarInfo ai) {
+                public void statements() {
                     // (type)object$
-                    JCExpression objCast = typeCast(diagPos, ai.getRealType(), syms.objectType, id(objName));
+                    JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, id(objName));
                     // set$var((type)object$)
-                    addStmt(callStmt(attributeSetterName(ai.getSymbol()), objCast));
+                    addStmt(callStmt(attributeSetterName(varInfo.getSymbol()), objCast));
                     // return
                     addStmt(m().Return(null));
-                
-                    return true;
                 }
             };
             
-            addDefinition(vcmb.build());
+            vcmb.build();
         }
         
         //
@@ -2011,30 +1988,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeTypePrefixName,
                                                                  makeQualifiedTree(diagPos, "java.lang.Class"),
                                                                  attrInfos, varCount) {
-                public boolean constrain(VarInfo ai) { 
-                    return ai.needsCloning() && !ai.isOverride();
-                }
-                
-                private boolean isFunctionType(Type type) {
-                    if (type.tag == TypeTags.CLASS) {
-                        ClassType classType = (ClassType)type;
-                        ClassSymbol classSym = (ClassSymbol)classType.tsym;
-                        
-                        return classSym.flatname != null && classSym.flatname.startsWith(functionClassPrefixName);
-                    }
-                    
-                    return false;
-                }
-            
-                public boolean statements(VarInfo ai) {
-                    Type type = types.erasure(ai.getRealType());
+                public void statements() {
+                    Type type = types.erasure(varInfo.getRealType());
                     JCExpression expr = m().ClassLiteral(type);
                     addStmt(m().Return(expr));
-                    return true;
                 }
             };
             
-            addDefinition(vcmb.build());
+            vcmb.build();
         }
         
         //
