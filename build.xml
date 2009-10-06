@@ -1247,6 +1247,7 @@
 
     <!-- temp code to test the dev repo, excluding the tests in the exclude list in project.properties -->
     <target name="dev-pass"  depends="-init-dev-pass,binaries,-do-test" description="Build binaries and run tests that should pass"/>
+    <target name="dev-no-hang"  depends="-init-dev-no-hang,binaries,-do-test" description="Build binaries and run tests that do not hang"/>
     <target name="dev-fail"  depends="-init-dev-fail,binaries,-do-test" description="Build binaries and run tests that currently fail"/>
     <target name="dev-find-passes" depends="-init-dev-fail" description="Report tests that passed instead of failed in a dev-fail run">
       <echo message="${test.fx.dev.exclude.list}" file="./build/test/dev-expected-fails" />
@@ -1258,6 +1259,11 @@
     <target name="-init-dev-pass" depends="init">
       <property name="testFile" value="**/*Test.java"/>
       <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list} ${test.fx.dev.hang.list}"/>
+    </target>
+
+    <target name="-init-dev-no-hang" depends="init">
+      <property name="testFile" value="**/*Test.java"/>
+      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.hang.list}"/>
     </target>
 
     <target name="-init-dev-fail" depends="init">
