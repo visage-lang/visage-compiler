@@ -39,7 +39,8 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
     private JFXVar var;
 
     protected JFXVarScriptInit(JFXVar var) {
-            this.var = var;
+        this.var = var;
+        var.setVarInit(this);
     }
     
     public JFXVar getVar() {
@@ -48,6 +49,7 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
 
     public void resetVar(JFXVar res) {
         var = res;
+        var.setVarInit(this);
     }
 
     public VarSymbol getSymbol() {

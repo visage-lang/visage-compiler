@@ -37,8 +37,6 @@ import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Context;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Decompose bind expressions into easily translated expressions
@@ -55,8 +53,6 @@ public class JavafxDecompose implements JavafxVisitor {
     private int varCount = 0;
     private Symbol owner = null;
     private boolean inScriptLevel = true;
-    private Map<JFXVar, JFXVar> varOldToNew = new HashMap<JFXVar, JFXVar>();
-    private Map<JFXVar, JFXVarScriptInit> varOldToScriptInit = new HashMap<JFXVar, JFXVarScriptInit>();
 
     protected final JavafxTreeMaker fxmake;
     protected final JavafxDefs defs;
@@ -437,36 +433,24 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitVarScriptInit(JFXVarScriptInit tree) {
-        JFXVar ovar = tree.getVar();
-        JFXVar var = varOldToNew.get(ovar);
-        if (var == null) {
-            // we don't have a mapping to decomposed var, add to map
-            // requesting update.  And leave it untouched, for now.
-            varOldToScriptInit.put(ovar, tree);
-            result = tree;
-        } else {
-            result = fxmake.at(tree.pos).VarScriptInit(var);
-        }
+        // Handled in visitVar
+        result = tree;
     }
 
     public void visitVar(JFXVar tree) {
-        JFXVar already = varOldToNew.get(tree);
-        if (already != null) {
-            result = already;
-        } else {
-            Symbol prevOwner = this.owner;
-            this.owner = tree.sym.owner;
-            boolean wasInScriptLevel = inScriptLevel;
-            inScriptLevel = tree.sym.isStatic();
-            boolean wasInUniBind = inUniBind;
-            // for on-replace, decompose as unbound 
-            inUniBind = false;
-            JFXOnReplace onReplace = decompose(tree.getOnReplace());
-            JFXOnReplace onInvalidate = decompose(tree.getOnInvalidate());
-            // bound if was bind context or is bound variable
-            inUniBind = wasInUniBind | tree.isUnidiBind();
+        Symbol prevOwner = this.owner;
+        owner = tree.sym.owner;
+        boolean wasInScriptLevel = inScriptLevel;
+        inScriptLevel = tree.sym.isStatic();
+        boolean wasInUniBind = inUniBind;
+        // for on-replace, decompose as unbound
+        inUniBind = false;
+        JFXOnReplace onReplace = decompose(tree.getOnReplace());
+        JFXOnReplace onInvalidate = decompose(tree.getOnInvalidate());
+        // bound if was bind context or is bound variable
+        inUniBind = wasInUniBind | tree.isUnidiBind();
 
-            JFXVar res = fxmake.at(tree.pos).Var(
+        JFXVar res = fxmake.at(tree.pos).Var(
                     tree.name,
                     tree.getJFXType(),
                     tree.getModifiers(),
@@ -474,21 +458,18 @@ public class JavafxDecompose implements JavafxVisitor {
                     tree.getBindStatus(),
                     onReplace,
                     onInvalidate);
-            res.sym = tree.sym;
-            res.type = tree.type;
-            varOldToNew.put(tree, res);
-            JFXVarScriptInit vsi = varOldToScriptInit.get(tree);
-            if (vsi != null) {
-                // we have already seen this var in a VarScriptInit, update
-                // the var
-                vsi.resetVar(res);
-            }
-            
-            inUniBind = wasInUniBind;
-            this.owner = prevOwner;
-            inScriptLevel = wasInScriptLevel;
-            result = res;
+        res.sym = tree.sym;
+        res.type = tree.type;
+        JFXVarScriptInit vsi = tree.getVarInit();
+        if (vsi != null) {
+            // update the var in the var-init
+            vsi.resetVar(res);
         }
+
+        inUniBind = wasInUniBind;
+        owner = prevOwner;
+        inScriptLevel = wasInScriptLevel;
+        result = res;
     }
 
     public void visitOnReplace(JFXOnReplace tree) {
