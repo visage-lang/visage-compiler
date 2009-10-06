@@ -936,14 +936,7 @@ public class JavafxAttr implements JavafxVisitor {
                 /***
                  * inBindContext is not implemented correctly here since things are not walked in tree order in finish*.
                  *
-                if (this.inBindContext) {
-                    v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT | JavafxFlags.VARUSE_BOUND_DEFINITION;
-                }
-                 * For the purpose of Check just do this for now:
                  */
-                if (tree.isBound()) {
-                    v.flags_field |= JavafxFlags.VARUSE_BOUND_DEFINITION;
-                }
                 initType = attribExpr(tree.init, initEnv, declType);
                 this.inBindContext = wasInBindContext;
                 initType = chk.checkNonVoid(tree.pos(), initType);                

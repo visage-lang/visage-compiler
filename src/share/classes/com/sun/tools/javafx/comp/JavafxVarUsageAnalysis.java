@@ -94,96 +94,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
 
-    //TODO: merge with side-effect scanner in JavafxTranslationSupport
-    boolean hasSideEffectsOrLengthy(JFXExpression expr) {
-        class SideEffectScanner extends JavafxTreeScanner {
-
-            boolean hse = false;
-
-            private void markSideEffects() {
-                hse = true;
-            }
-
-            @Override
-            public void visitUnary(JFXUnary tree) {
-                switch (tree.getFXTag()) {
-                    case POSTINC:           // _ ++
-                    case POSTDEC:           // _ --
-                    case PREINC:            // ++ _
-                    case PREDEC:            // -- _
-                        markSideEffects();
-                        break;
-                    default:
-                        super.visitUnary(tree);
-                        break;
-                }
-            }
-
-            @Override
-            public void visitAssign(JFXAssign tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitAssignop(JFXAssignOp tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitInstanciate(JFXInstanciate tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitSequenceInsert(JFXSequenceInsert tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitSequenceDelete(JFXSequenceDelete tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitOnReplace(JFXOnReplace tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitReturn(JFXReturn tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitThrow(JFXThrow tree) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitForExpression(JFXForExpression that) {
-                markSideEffects();
-            }
-
-            @Override
-            public void visitWhileLoop(JFXWhileLoop tree) {
-                markSideEffects();
-            }
-        }
-        SideEffectScanner scanner = new SideEffectScanner();
-        scanner.scan(expr);
-        return scanner.hse;
-    }
-
     @Override
     public void visitScript(JFXScript tree) {
        inInitBlock = false;
@@ -200,23 +110,17 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     @Override
     public void visitVar(JFXVar tree) {
         // Don't trust flags set by attribution
-        tree.sym.flags_field &= ~(VARUSE_BOUND_DEFINITION | VARUSE_BOUND_INIT);
+        tree.sym.flags_field &= ~VARUSE_BOUND_INIT;
 
         // any changes here should also go into visitOverrideClassVar
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();
         if (inBindContext) {
-            mark(tree.sym, VARUSE_BOUND_DEFINITION | VARUSE_BOUND_INIT);
+            mark(tree.sym, VARUSE_BOUND_INIT);
         }
         tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
         scan(tree.getInitializer());
         tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
-        if (tree.isBidiBind() || tree.getInitializer() != null && hasSideEffectsOrLengthy(tree.getInitializer())) {
-            mark(tree.sym, VARUSE_INIT_HAS_SIDE_EFFECTS_OR_NASTY);
-        }
-        if (tree.isBidiBind()) {
-            mark(tree.sym, VARUSE_BOUND_BIDIRECTIONAL);
-        }
         inBindContext = wasInBindContext;
         if (tree.getOnReplace() != null) {
             mark(tree.sym, VARUSE_HAS_ON_REPLACE);
@@ -228,7 +132,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();
-        mark(tree.sym, VARUSE_OVERRIDDEN);
         if (tree.getInitializer() != null) {
             markInit(tree.sym);
             tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;

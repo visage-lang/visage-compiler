@@ -49,9 +49,6 @@ public class JavafxVarSymbol extends VarSymbol {
     static final String[] typePrefixes = new String[] { "Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence" };
     public static String getTypePrefix(int index) { return typePrefixes[index]; }
     
-    static final String[] accessorSuffixes = new String[] { "", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence" };
-    public static String getAccessorSuffix(int index) { return accessorSuffixes[index]; }
-
     /** Creates a new instance of JavafxVarSymbol */
     public JavafxVarSymbol(long flags,
             Name name,
