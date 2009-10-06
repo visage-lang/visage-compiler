@@ -305,8 +305,6 @@ class HistoData {
         // do the locations work
         System.gc();
         synchronized (FxTracker.loc_map) {
-            System.gc();
-
             for (AbstractLocation loc : FxTracker.loc_map.keySet()) {
                 keepClassTally(loc_class_type_table, loc.getClass().getName());
                 binding_expression +=
@@ -329,7 +327,6 @@ class HistoData {
         // now we do the fxobjects
         System.gc();
         synchronized (FxTracker.fxo_map) {
-            System.gc();
             for (FXObject fxo : FxTracker.fxo_map.keySet()) {
                 keepClassTally(fxo_class_type_table, fxo.getClass().getName());
                 fxo_mapsize++;
@@ -339,9 +336,8 @@ class HistoData {
         // now for the SDL
         System.gc();
         synchronized (FxTracker.sdl_map) {
-            System.gc();
             for (StaticDependentLocation sdl : FxTracker.sdl_map.keySet()) {
-                if (sdl.get() == null) {
+                if (sdl.get() == null && !sdl.isEnqueued()) {
                     sdl_null_referent_count++;
                 }
                 sdl_mapsize++;

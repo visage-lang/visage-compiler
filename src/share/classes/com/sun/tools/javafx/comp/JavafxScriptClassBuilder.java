@@ -415,14 +415,12 @@ public class JavafxScriptClassBuilder {
                     scriptClassDefs.toList());
             moduleClass.setGenType(SynthType.SYNTHETIC);
             moduleClass.setPos(module.getStartPosition());
-
-            // Check endpos for IDE
-            //
-            setEndPos(module, moduleClass, module);
-        
         } else {
             moduleClass.setMembers(scriptClassDefs.appendList(moduleClass.getMembers()).toList());
         }
+        // Check endpos for IDE
+        //
+        setEndPos(module, moduleClass, module);
         
         moduleClass.isScriptClass   = true;
         moduleClass.runMethod       = userRunFunction;

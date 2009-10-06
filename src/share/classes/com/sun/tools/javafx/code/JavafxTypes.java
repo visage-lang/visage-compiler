@@ -151,6 +151,32 @@ public class JavafxTypes extends Types {
         }
     }
 
+    public Type makeUnionType(Type s, Type t) {
+        Type lub = lub(s.baseType(), t.baseType());
+        if (lub.isCompound()) {
+            //members of the compound type could not be ordered properly
+            //due to the fact that JavaFX allows MI through mixins
+            //the compound supertype should always be a JavaFX class
+            //while the superinterfaces should be mixins
+            Type clazz = null;
+            ListBuffer<Type> interfaces = new ListBuffer<Type>();
+            ListBuffer<Type> mixins = new ListBuffer<Type>();
+            for (Type st : interfaces(lub).prepend(supertype(lub))) {
+                if (isMixin(st.tsym))
+                    mixins.append(st);
+                else if (st.isInterface())
+                    interfaces.append(st);
+                else
+                    clazz = st;
+            }
+            List<Type> supertypes = interfaces.toList().prependList(mixins.toList());
+            if (clazz != null)
+                supertypes = supertypes.prepend(clazz);
+            lub = makeCompoundType(supertypes);
+        }
+        return lub;
+    }
+
     public List<Type> supertypes(Symbol clazz) {
         return supertypes(clazz, null);
     }
@@ -207,8 +233,48 @@ public class JavafxTypes extends Types {
                     return x;
             }
         }
-        return super.asSuper(t, sym);
+        return asSuper.visit(t, sym);
     }
+    // where
+    private SimpleVisitor<Type,Symbol> asSuper = new SimpleVisitor<Type,Symbol>() {
+
+        public Type visitType(Type t, Symbol sym) {
+            return null;
+        }
+
+        @Override
+        public Type visitClassType(ClassType t, Symbol sym) {
+            if (t.tsym == sym)
+                return t;
+
+            for (Type st : interfaces(t).prepend(supertype(t))) {
+                if (st.tag == CLASS || st.tag == TYPEVAR || st.tag == ERROR) {
+                    Type x = asSuper(st, sym);
+                    if (x != null)
+                        return x;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public Type visitArrayType(ArrayType t, Symbol sym) {
+            return isSubtype(t, sym.type) ? sym.type : null;
+        }
+
+        @Override
+        public Type visitTypeVar(TypeVar t, Symbol sym) {
+            if (t.tsym == sym)
+                return t;
+            else
+                return asSuper(t.bound, sym);
+        }
+
+        @Override
+        public Type visitErrorType(ErrorType t, Symbol sym) {
+            return t;
+        }
+    };
     
     public Type superType(JFXClassDeclaration cDecl) {
         // JFXC-2868 - Mixins: JavafxTypes.superType is complex and likely wrong.
