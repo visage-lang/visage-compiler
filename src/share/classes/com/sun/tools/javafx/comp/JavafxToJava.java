@@ -51,7 +51,6 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.mjavac.tree.TreeInfo;
 import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
 
 /**
@@ -342,8 +341,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                             JFXVar attrDef = (JFXVar) def;
                             boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
                             inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
-                            JCStatement initStmt = (isStatic && ! getAttrEnv().toplevel.isLibrary) ?
-                                  null // init handled by VarScriptInit
+                            JCStatement initStmt = (attrDef.isBound() || attrDef.deferInit()) ?
+                                  null // init handled by bind or JavafxVarScriptInit
                                 : translateDefinitionalAssignmentToSet(
                                     attrDef.pos(),
                                     attrDef.getInitializer(), 
@@ -367,7 +366,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                             boolean isStatic = (override.sym.flags() & STATIC) != 0;
                             inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
                             JCStatement initStmt;
-                            initStmt = translateDefinitionalAssignmentToSet(
+                            initStmt = override.isBound() ?
+                                  null // init handled by bind
+                                : translateDefinitionalAssignmentToSet(
                                     override.pos(),
                                     override.getInitializer(), 
                                     override.getBindStatus(),

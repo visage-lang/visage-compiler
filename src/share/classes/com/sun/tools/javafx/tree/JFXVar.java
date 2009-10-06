@@ -43,6 +43,7 @@ public class JFXVar extends JFXExpression implements VariableTree {
     private final JavafxBindStatus bindStatus;
     private final JFXOnReplace[] triggers;
     private JFXType jfxtype;
+    private JFXVarScriptInit varInit;
     public VarSymbol sym;
 
     protected JFXVar() {
@@ -75,6 +76,27 @@ public class JFXVar extends JFXExpression implements VariableTree {
 
     public VarSymbol getSymbol() {
         return sym;
+    }
+
+    /**
+     * @return the varInit
+     */
+    public JFXVarScriptInit getVarInit() {
+        return varInit;
+    }
+
+    /**
+     * @param varInit the varInit to set
+     */
+    public void setVarInit(JFXVarScriptInit varInit) {
+        this.varInit = varInit;
+    }
+
+    /**
+     * Is init done in a var init
+     */
+    public boolean deferInit() {
+        return this.varInit != null;
     }
 
     // for VariableTree
