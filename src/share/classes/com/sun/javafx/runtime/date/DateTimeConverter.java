@@ -91,7 +91,7 @@ public class DateTimeConverter {
                     float fraction = Float.parseFloat(input.substring(start, index));
                     ms = (int)(fraction * 1000); // round-down
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException(e);
+                    throw new IllegalArgumentException(e.toString());
                 }
             }
         }
