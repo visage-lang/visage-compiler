@@ -311,6 +311,7 @@ public class JavafxTreeScanner implements JavafxVisitor {
         scan(tree.mods);
         scan(tree.getInitializer());
         scan(tree.getOnReplace());
+        scan(tree.getOnInvalidate());
     }
 
     //@Override
@@ -318,6 +319,7 @@ public class JavafxTreeScanner implements JavafxVisitor {
         scan(tree.getId());
         scan(tree.getInitializer());
         scan(tree.getOnReplace());
+        scan(tree.getOnInvalidate());
     }
 
     //@Override

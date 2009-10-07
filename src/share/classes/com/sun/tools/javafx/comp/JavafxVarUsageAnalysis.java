@@ -87,13 +87,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         }
     }
 
-    private void markInit(Symbol sym) {
-        if (inBindContext) {
-            mark(sym, VARUSE_BOUND_INIT);
-        }
-    }
-
-
     @Override
     public void visitScript(JFXScript tree) {
        inInitBlock = false;
@@ -133,7 +126,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();
         if (tree.getInitializer() != null) {
-            markInit(tree.sym);
             tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
             scan(tree.getInitializer());
             tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
@@ -226,7 +218,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         // bind doesn't permiate object literals, but...
         // Locations are needed for updating bound object literals
         inBindContext |= tree.isBound();
-        markInit(tree.sym);
         mark(tree.sym, VARUSE_OBJ_LIT_INIT);
         scan(tree.getExpression());
 
@@ -310,7 +301,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         boolean wasInBindContext = inBindContext;
         inBindContext = true;
 
-        markInit(tree.sym);
         mark(tree.sym, VARUSE_OBJ_LIT_INIT);
         super.visitInterpolateValue(tree);
 

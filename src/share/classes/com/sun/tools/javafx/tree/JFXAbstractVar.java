@@ -31,9 +31,9 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
  *
  * @author Robert Field
  */
-public abstract class JFXAbstractVar extends JFXExpression {
+public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMarkable {
     private final JFXExpression init;
-    private final JavafxBindStatus bindStatus;
+    private JavafxBindStatus bindStatus;
     private final JFXOnReplace[] triggers;
     
     public VarSymbol sym;
@@ -54,6 +54,12 @@ public abstract class JFXAbstractVar extends JFXExpression {
 
     public JavafxBindStatus getBindStatus() {
         return bindStatus;
+    }
+
+    public void markBound() {
+        if (!bindStatus.isBound()) {
+            bindStatus = JavafxBindStatus.UNIDIBIND;
+        }
     }
 
     public JFXExpression getInitializer() {

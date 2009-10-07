@@ -219,11 +219,15 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected Name.Table names;
 
+    /** The bind analyzer.
+     */
+    protected JavafxBoundContextAnalysis bindAnalyzer;
+
     /** The attributor.
      */
     protected JavafxAttr attr;
 
-    /** The attributor.
+    /** The checker.
      */
     protected JavafxCheck chk;
 
@@ -309,6 +313,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
         source = Source.instance(context);
         attr = JavafxAttr.instance(context);
+        bindAnalyzer = JavafxBoundContextAnalysis.instance(context);
         chk = JavafxCheck.instance(context);
         annotate = JavafxAnnotate.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
@@ -788,16 +793,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(todo))))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(bindAnalysis(todo)))))), results);
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(todo))))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(bindAnalysis(todo)))))), results);
                 break;
 
             case BY_FILE: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
-                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(attribute(todo))))).values())
+                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(attribute(bindAnalysis(todo)))))).values())
                     envbuff.appendList(prepForBackEnd(list));
                 backEnd(envbuff.toList(), results);
                 break;
@@ -805,7 +810,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             case BY_TODO: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
                 while (todo.nonEmpty()) {
-                    envbuff.append(attribute(todo.next()));
+                    envbuff.append(attribute(bindAnalysis(todo.next())));
                 }
 
                 backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(stopIfError(envbuff))))), results);
@@ -915,14 +920,58 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Check for errors -- called by JavafxTaskImpl.
      */
     public void errorCheck() throws IOException {
-        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(todo))))), null);
+        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(bindAnalysis(todo)))))), null);
     }
 
     /**
      * Attribute the existing JavafxTodo list.  Called by JavafxTaskImpl.
      */
     public List<JavafxEnv<JavafxAttrContext>> attribute() {
-        return attribute(todo);
+        return attribute(bindAnalysis(todo));
+    }
+
+    /**
+     * Analyze binds in trees, such as found on the "todo" list.
+     * Bound context analysis of the entries in the list does not stop if any errors occur.
+     * @returns a list of environments for classes.
+     */
+    public ListBuffer<JavafxEnv<JavafxAttrContext>> bindAnalysis(ListBuffer<JavafxEnv<JavafxAttrContext>> envs) {
+        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
+        while (envs.nonEmpty())
+            results.append(bindAnalysis(envs.next()));
+        return results;
+    }
+
+    /**
+     * Analyze binds in a tree.
+     * @returns the bind marked tree
+     */
+    public JavafxEnv<JavafxAttrContext> bindAnalysis(JavafxEnv<JavafxAttrContext> env) {
+        if (verboseCompilePolicy)
+            Log.printLines(log.noticeWriter, "[bindAnalysis " + env.enclClass.sym + "]");
+
+        if (taskListener != null) {
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+            taskListener.started(e);
+        }
+
+        JavaFileObject prev = log.useSource(
+                                  env.enclClass.sym.sourcefile != null ?
+                                  env.enclClass.sym.sourcefile :
+                                  env.toplevel.sourcefile);
+        try {
+            bindAnalyzer.analyzeBindContexts(env);
+        }
+        finally {
+            log.useSource(prev);
+        }
+
+        if (taskListener != null) {
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+            taskListener.finished(e);
+        }
+
+        return env;
     }
 
     /**

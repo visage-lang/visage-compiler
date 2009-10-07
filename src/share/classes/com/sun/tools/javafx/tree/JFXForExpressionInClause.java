@@ -29,12 +29,13 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
-public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree {
+public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree, JFXBoundMarkable {
 
     public final JFXVar var;
     public final JFXExpression seqExpr;
     public final JFXExpression whereExpr;
     private boolean indexUsed;
+    private boolean isBound = false;;
 
     protected JFXForExpressionInClause() {
         this.var        = null;
@@ -90,5 +91,13 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitForExpressionInClause(this, d);
+    }
+
+    public void markBound() {
+        isBound = true;
+    }
+
+    public boolean isBound() {
+        return isBound;
     }
 }
