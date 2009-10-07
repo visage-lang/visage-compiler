@@ -53,7 +53,7 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
         Dep dep = Dep.newDependency(binder);
         dep.linkToBindee(bindee, varNum);
         // tell "bindee" that there are binders for "varNum" variable
-        bindee.setBindee$(varNum);
+        bindee.setVarBit$(varNum, FXObject.VFLGS$IS_BINDEE);
         // FIXME: revisit this - is this a good time to call cleanup?
         WeakBinderRef.checkForCleanups();
     }

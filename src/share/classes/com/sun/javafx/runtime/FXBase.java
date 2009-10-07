@@ -146,10 +146,10 @@ import java.lang.reflect.Field;
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    private boolean isVarBitSet$(final int varNum, final int varBit) {
+    public boolean isVarBitSet$(final int varNum, final int varBit) {
         return isVarBitSet$(this, varNum, varBit);
     }
-    private static boolean isVarBitSet$(FXObject obj, final int varNum, final int varBit) {
+    public static boolean isVarBitSet$(FXObject obj, final int varNum, final int varBit) {
         int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
         int shift = bit & 31;
         int word;
@@ -170,10 +170,10 @@ import java.lang.reflect.Field;
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    private boolean setVarBit$(final int varNum, final int varBit) {
+    public boolean setVarBit$(final int varNum, final int varBit) {
         return setVarBit$(this, varNum, varBit);
     }
-    private static boolean setVarBit$(FXObject obj, final int varNum, final int varBit) {
+    public static boolean setVarBit$(FXObject obj, final int varNum, final int varBit) {
         int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
         int shift = bit & 31;
         int word;
@@ -196,10 +196,10 @@ import java.lang.reflect.Field;
      * @param varNum var identifying offset.
      * @param varBit var status bit number.
      */
-    private boolean clearVarBit$(final int varNum, final int varBit) {
+    public boolean clearVarBit$(final int varNum, final int varBit) {
         return clearVarBit$(this, varNum, varBit);
     }
-    private static boolean clearVarBit$(FXObject obj, final int varNum, final int varBit) {
+    public static boolean clearVarBit$(FXObject obj, final int varNum, final int varBit) {
       int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
       int shift = bit & 31;
       int word;
@@ -215,93 +215,6 @@ import java.lang.reflect.Field;
         }
       
       return ((word >> shift) & 1) != 0;
-    }
-
-    public boolean isInitialized$(final int varNum) {
-        return isInitialized$(this, varNum);
-    }
-    public static boolean isInitialized$(FXObject obj, final int varNum) {
-        return isVarBitSet$(obj, varNum, VFLGS$IS_INITIALIZED);
-    }
-    public boolean setInitialized$(final int varNum) {
-        return setInitialized$(this, varNum);
-    }
-    public static boolean setInitialized$(FXObject obj, final int varNum) {
-        return setVarBit$(obj, varNum, VFLGS$IS_INITIALIZED);
-    }
-    
-    public boolean isDefaultsApplied$(final int varNum) {
-        return isDefaultsApplied$(this, varNum);
-    }
-    public static boolean isDefaultsApplied$(FXObject obj, final int varNum) {
-        return isVarBitSet$(obj, varNum, VFLGS$IS_DEFAULTS_APPLIED);
-    }
-    public boolean setDefaultsApplied$(final int varNum) {
-        return setDefaultsApplied$(this, varNum);
-    }
-    public static boolean setDefaultsApplied$(FXObject obj, final int varNum) {
-        return setVarBit$(obj, varNum, VFLGS$IS_DEFAULTS_APPLIED);
-    }
-
-
-    public boolean isValidValue$(final int varNum) {
-        return isValidValue$(this, varNum);
-    }
-    public static boolean isValidValue$(FXObject obj, final int varNum) {
-        return isVarBitSet$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE0) ||
-               isVarBitSet$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE1);
-    }
-    public boolean setValidValue$(final int varNum) {
-        return setValidValue$(this, varNum);
-    }
-    public static boolean setValidValue$(FXObject obj, final int varNum) {
-        return setVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE0) ||
-               setVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE1);
-    }
-    public boolean clearValidValue$(final int varNum) {
-        return clearValidValue$(this, varNum);
-    }
-    public static boolean clearValidValue$(FXObject obj, final int varNum) {
-        return clearVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE0) ||
-               clearVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE1);
-    }
-
-    public boolean isValidValue$(final int varNum, final int phase) {
-        return isValidValue$(this, varNum, phase);
-    }
-    public static boolean isValidValue$(FXObject obj, final int varNum, final int phase) {
-        return isVarBitSet$(obj, varNum, VFLGS$IS_VALID_VALUE + phase);
-    }
-    public boolean setValidValue$(final int varNum, final int phase) {
-        return setValidValue$(this, varNum, phase);
-    }
-    public static boolean setValidValue$(FXObject obj, final int varNum, final int phase) {
-        return setVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + phase);
-    }
-    public boolean clearValidValue$(final int varNum, final int phase) {
-        return clearValidValue$(this, varNum, phase);
-    }
-    public static boolean clearValidValue$(FXObject obj, final int varNum, final int phase) {
-        return clearVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + phase);
-    }
-
-    public boolean isBindee$(final int varNum) {
-        return isBindee$(this, varNum);
-    }
-    public static boolean isBindee$(FXObject obj, final int varNum) {
-        return isVarBitSet$(obj, varNum, VFLGS$IS_BINDEE);
-    }
-    public boolean setBindee$(final int varNum) {
-        return setBindee$(this, varNum);
-    }
-    public static boolean setBindee$(FXObject obj, final int varNum) {
-        return setVarBit$(obj, varNum, VFLGS$IS_BINDEE);
-    }
-    public boolean clearBindee$(final int varNum) {
-        return clearBindee$(this, varNum);
-    }
-    public static boolean clearBindee$(FXObject obj, final int varNum) {
-        return clearVarBit$(obj, varNum, VFLGS$IS_BINDEE);
     }
 
     // dependents management

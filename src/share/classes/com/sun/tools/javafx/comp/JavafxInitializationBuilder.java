@@ -80,14 +80,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private Name varOldValueName;
     private Name varNewValueName;
     private Name functionClassPrefixName;
-
     private Name phaseName;
-    private Name vflgPhase0Name;
-    private Name vflgPhase1Name;
-    private Name vflgIsInitializedName;
-    private Name vflgIsDefaultsAppliedName;
-    private Name vflgIsIsValidValueName;
-    private Name vflgIsBindeeName;
 
     final Type assignBindExceptionType;
     final Type assignDefExceptionType;
@@ -164,14 +157,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         varChangedName = names.fromString("varChanged$");
         varOldValueName =  names.fromString("varOldValue$");
         varNewValueName =  names.fromString("varNewValue$");
-        
         phaseName = names.fromString("phase$");
-        vflgPhase0Name = names.fromString("VFLGS$PHASE0");
-        vflgPhase1Name = names.fromString("VFLGS$PHASE1");
-        vflgIsInitializedName = names.fromString("VFLGS$IS_INITIALIZED");
-        vflgIsDefaultsAppliedName = names.fromString("VFLGS$IS_DEFAULTS_APPLIED");
-        vflgIsIsValidValueName = names.fromString("VFLGS$IS_VALID_VALUE");
-        vflgIsBindeeName = names.fromString("VFLGS$IS_BINDEE");
 
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
 
@@ -649,20 +635,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // These methods return an expression for testing/setting/clearing a var flag.
         //
-        JCExpression makeFlagExpression(VarSymbol varSym, String action, String flag) {
-            return call(getReceiver(varSym), names.fromString(action + flag), getVOFF(varSym));
+        JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name flag) {
+            return call(getReceiver(varSym), action, getVOFF(varSym), id(flag));
         }
-        JCExpression makeFlagExpression(VarSymbol varSym, String action, String flag, JCExpression phase) {
-            return call(getReceiver(varSym), names.fromString(action + flag), getVOFF(varSym), phase);
+        JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name flag, JCExpression phase) {
+            return call(getReceiver(varSym), action, getVOFF(varSym), makeBinary(JCTree.PLUS, id(flag), phase));
         }
 
         //
         // These methods returns a statement for setting/clearing a var flag.
         //
-        JCStatement makeFlagStatement(VarSymbol varSym, String action, String flag) {
+        JCStatement makeFlagStatement(VarSymbol varSym, Name action, Name flag) {
             return makeExec(makeFlagExpression(varSym, action, flag));
         }
-        JCStatement makeFlagStatement(VarSymbol varSym, String action, String flag, JCExpression phase) {
+        JCStatement makeFlagStatement(VarSymbol varSym, Name action, Name flag, JCExpression phase) {
             return makeExec(makeFlagExpression(varSym, action, flag, phase));
         }
 
@@ -1137,7 +1123,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {
                         // !isValidValue$(VOFF$var)
-                        JCExpression condition = makeNot(makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid));
+                        JCExpression condition = makeNot(makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagValid, id(defs.vflgPhase1Name)));
                         
                         // Prepare to accumulate body of if.
                         beginBlock();
@@ -1147,7 +1133,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Mixin.evaluate$var(this);
                             addStmt(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
                             // setIsValidValue(VOFF$var);
-                            addStmt(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
+                            addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionSet, defs.varFlagValid, id(defs.vflgPhase0Name)));
+                            addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionSet, defs.varFlagValid, id(defs.vflgPhase1Name)));
                         } else {
                             assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
     
@@ -1219,16 +1206,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     beginBlock();
     
                     // invalidate$(VFLGS$PHASE0)
-                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(vflgPhase0Name)));
+                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.vflgPhase0Name)));
     
                     // $var = value
                     addStmt(makeExec(m().Assign(id(varName), id(varNewValueName))));
     
                     // invalidate$(VFLGS$PHASE1)
-                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(vflgPhase1Name)));
+                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.vflgPhase1Name)));
     
                     // setIsValidValue(VOFF$var);
-                    addStmt(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionSet, defs.varFlagValid, id(defs.vflgPhase0Name)));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionSet, defs.varFlagValid, id(defs.vflgPhase1Name)));
     
                     // onReplace$(varOldValue$, varNewValue$)
                     addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(varOldValueName), id(varNewValueName)));
@@ -1246,7 +1234,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     beginBlock();
     
                     // setIsValidValue(VOFF$var);
-                    addStmt(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionSet, defs.varFlagValid, id(defs.vflgPhase0Name)));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionSet, defs.varFlagValid, id(defs.vflgPhase1Name)));
                     
                     // End of else block.
                     JCBlock elseBlock = endBlock();
@@ -1310,7 +1299,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     } else {
                         // clearValidValue$(VOFF$var);
-                        addStmt(makeFlagStatement(proxyVarSym, varFlagActionClear, varFlagValid, id(phaseName)));
+                        addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionClear, defs.varFlagValid, id(phaseName)));
                     }
 
                     // Mixin invalidate$
@@ -1343,13 +1332,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
                     
                      // phase$ == VFLG$PHASE0
-                    JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(vflgPhase1Name));
+                    JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.vflgPhase1Name));
                    
                     // if (phase$ == VFLG$PHASE0) { get$var(); }
                     addStmt(m().If(ifTriggerPhase, endBlock(), null));
                     
                     // isValid
-                    JCExpression ifValidTest = makeFlagExpression(proxyVarSym, varFlagActionTest, varFlagValid, id(phaseName));
+                    JCExpression ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagValid, id(phaseName));
                     
                     // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
                     addStmt(m().If(ifValidTest, endBlock(), null));

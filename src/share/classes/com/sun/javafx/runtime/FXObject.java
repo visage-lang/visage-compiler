@@ -77,25 +77,15 @@ public interface FXObject {
     
     public void     initFXBase$     ();
     
-    public int      getVFLGS$small$internal$  ();
-    public void     setVFLGS$small$internal$  (final int small);
-    public int[]    getVFLGS$large$internal$  ();
-    public void     setVFLGS$large$internal$  (final int[] large);
+    public int      getVFLGS$small$internal$();
+    public void     setVFLGS$small$internal$(final int small);
+    public int[]    getVFLGS$large$internal$();
+    public void     setVFLGS$large$internal$(final int[] large);
 
-    public boolean  isInitialized$     (final int varNum);
-    public boolean  setInitialized$    (final int varNum);
-    public boolean  isDefaultsApplied$ (final int varNum);
-    public boolean  setDefaultsApplied$(final int varNum);
-    public boolean  isValidValue$      (final int varNum);
-    public boolean  setValidValue$     (final int varNum);
-    public boolean  clearValidValue$   (final int varNum);
-    public boolean  isValidValue$      (final int varNum, int phase);
-    public boolean  setValidValue$     (final int varNum, int phase);
-    public boolean  clearValidValue$   (final int varNum, int phase);
-    public boolean  isBindee$          (final int varNum);
-    public boolean  setBindee$         (final int varNum);
-    public boolean  clearBindee$       (final int varNum);
-    
+    public boolean isVarBitSet$(final int varNum, final int varBit);
+    public boolean setVarBit$(final int varNum, final int varBit);
+    public boolean clearVarBit$(final int varNum, final int varBit);
+
     // dependents management
     public DependentsManager getDependentsManager$internal$();
     public void     setDependentsManager$internal$(final DependentsManager depMgr);

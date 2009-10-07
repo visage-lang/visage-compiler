@@ -89,19 +89,11 @@ public class JavafxDefs {
     public static final String bindingIdString = "id";
     public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
-
     public static final String varOffsetString = "VOFF$";
     public static final String varCountString = "VCNT$";
     public static final String varFlagsString = "VFLGS$";
     public static final String varDependentsManagerString = "DependentsManager$internal$";
     public static final String varValueString = "$";
-    public static final String varFlagActionTest = "is";
-    public static final String varFlagActionSet = "set";
-    public static final String varFlagActionClear = "clear";
-    public static final String varFlagInitialized = "Initialized$";
-    public static final String varFlagDefaultsApplied = "DefaultsApplied$";
-    public static final String varFlagValid = "ValidValue$";
-    public static final String varFlagHasDependents = "Bindee$";
     public static final String varMapString = "MAP$";
     public static final String varGetMapString = "GETMAP$";
 
@@ -236,6 +228,16 @@ public class JavafxDefs {
     final Name onReplaceArgNameLastIndex;
     final Name onReplaceArgNameNewElements;
     final Name internalSuffixName;
+    
+    final Name varFlagActionTest;
+    final Name varFlagActionSet;
+    final Name varFlagActionClear;
+    final Name vflgPhase0Name;
+    final Name vflgPhase1Name;
+    final Name varFlagInitialized;
+    final Name varFlagDefaultsApplied;
+    final Name varFlagValid;
+    final Name varFlagHasDependents;
 
 	public final Name runtimePackageName;
 	public final Name annotationPackageName;
@@ -363,6 +365,16 @@ public class JavafxDefs {
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
         scriptLevelAccessField = names.fromString("$scriptLevel$");
         scriptLevelAccessMethod = names.fromString("access$scriptLevel$");
+        
+        varFlagActionTest = names.fromString("isVarBitSet$");
+        varFlagActionSet = names.fromString("setVarBit$");
+        varFlagActionClear = names.fromString("clearVarBit$");
+        vflgPhase0Name = names.fromString("VFLGS$PHASE0");
+        vflgPhase1Name = names.fromString("VFLGS$PHASE1");
+        varFlagInitialized = names.fromString("VFLGS$IS_INITIALIZED");
+        varFlagDefaultsApplied = names.fromString("VFLGS$IS_DEFAULTS_APPLIED");
+        varFlagValid = names.fromString("VFLGS$IS_VALID_VALUE");
+        varFlagHasDependents = names.fromString("VFLGS$IS_BINDEE");
 
         runtimePackageName = names.fromString(runtimePackageNameString);
         annotationPackageName = names.fromString(annotationPackageNameString);
