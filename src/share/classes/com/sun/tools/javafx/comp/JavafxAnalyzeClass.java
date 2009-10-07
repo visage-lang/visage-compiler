@@ -43,7 +43,6 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import com.sun.tools.javafx.tree.*;
@@ -243,7 +242,7 @@ class JavafxAnalyzeClass {
 
         // Predicate to test for sequence.
         public boolean isSequence() {
-            return vmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE;
+            return vmi.getTypeKind() == JavafxDefs.TYPE_KIND_SEQUENCE;
         }
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
@@ -538,6 +537,7 @@ class JavafxAnalyzeClass {
         }
 
         // Bound variable symbols on which this variable is used.
+        @Override
         public List<VarSymbol> boundBinders() {
             return hasOverrideVar() ? overrideVar().boundBinders() : null;
         }

@@ -34,6 +34,8 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.*;
 import static com.sun.tools.mjavac.code.Flags.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
@@ -43,9 +45,7 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Result;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.*;
@@ -1229,7 +1229,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     primitive = true;
                     addTypeInfoArg = false;
                     int kind = typeMorpher.kindFromPrimitiveType(elemType.tsym);
-                    localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxVarSymbol.getTypePrefix(kind) + "ArraySequence";
+                    localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxDefs.getTypePrefix(kind) + "ArraySequence";
                 }
                 else
                     localSeqBuilder = sequenceBuilderString;

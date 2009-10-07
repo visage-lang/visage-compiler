@@ -58,7 +58,6 @@ import com.sun.tools.javafx.util.MsgSym;
 import com.sun.javafx.api.JavafxBindStatus;
 
 import static com.sun.tools.javafx.code.JavafxFlags.*;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /** Type checking helper class for the attribution phase.
  *

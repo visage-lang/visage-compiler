@@ -29,7 +29,6 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import java.util.regex.Pattern;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /**
  * Shared definitions
@@ -245,6 +244,20 @@ public class JavafxDefs {
 	public final Name javaLangPackageName;
     public final Name implFunctionSuffixName;
 
+    public static final int TYPE_KIND_OBJECT = 0;
+    public static final int TYPE_KIND_BOOLEAN = 1;
+    public static final int TYPE_KIND_CHAR = 2;
+    public static final int TYPE_KIND_BYTE = 3;
+    public static final int TYPE_KIND_SHORT = 4;
+    public static final int TYPE_KIND_INT = 5;
+    public static final int TYPE_KIND_LONG = 6;
+    public static final int TYPE_KIND_FLOAT = 7;
+    public static final int TYPE_KIND_DOUBLE = 8;
+    public static final int TYPE_KIND_SEQUENCE = 9;
+    public static final int TYPE_KIND_COUNT = 10;
+
+    static final String[] typePrefixes = new String[] { "Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence" };
+
     /**
      * Context set-up
      */
@@ -382,4 +395,6 @@ public class JavafxDefs {
         realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
         realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
     }
+    
+    public static String getTypePrefix(int index) { return typePrefixes[index]; }
 }

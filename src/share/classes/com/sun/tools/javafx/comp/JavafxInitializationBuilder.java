@@ -36,8 +36,6 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
 import java.util.HashMap;
@@ -915,6 +913,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             // Driver method to construct the current method.
+            @Override
             public void build() {
                 // Initialize for method.
                 initialize();
@@ -964,6 +963,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
                 
             // Driver method to construct the current method.
+            @Override
             public void build() {
                 // Initialize for method.
                 initialize();
@@ -1009,6 +1009,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             // Driver method to construct the current method.
+            @Override
             public void build() {
                 // Build only if a member of this mixin.
                 if (constrain()) {
@@ -1045,6 +1046,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             // Driver method to construct the current method.
+            @Override
             public void build() {
                 // Generate the code.
                 // Initialize for method.
@@ -1063,6 +1065,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             // Specialized body the handles offset cases.
+            @Override
             public void body() {
                 if (varCount != 0) {
                     // Prepare to accumulate cases.
@@ -1080,14 +1083,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Generate statements.
                             varInfo = ai;
                             statements();
-                            List<JCStatement> stmts = endBlockAsStmts();
+                            List<JCStatement> ebStmts = endBlockAsStmts();
     
                             // case tag number
                             JCExpression tag = makeInt(ai.getEnumeration() - varCount);
     
                             // Add the case, something like:
                             // case i: return get$var();
-                            cases.append(m().Case(tag, stmts));
+                            cases.append(m().Case(tag, ebStmts));
                         }
                     }
                     
@@ -1112,6 +1115,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
                                                                          varInfo, needsBody) {
+                @Override
                 public void statements() {
                     if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {
                         // !isValidValue$(VOFF$var)
@@ -1153,10 +1157,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetterName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
                                                                          varInfo, needsBody) {
+                @Override
                 public void initialize() {
                     addParam(type, varNewValueName);
                 }
                 
+                @Override
                 public void statements() {
                     if (varInfo.hasBoundDefinition() && !varInfo.hasBiDiBoundDefinition()) {
                         addStmt(makeThrow(assignBindExceptionType));
@@ -1181,10 +1187,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeBeName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
                                                                          varInfo, needsBody) {
+                @Override
                 public void initialize() {
                     addParam(type, varNewValueName);
                 }
                 
+                @Override
                 public void statements() {
                     // T varOldValue$ = $var;
                     addStmt(makeVar(Flags.FINAL, type, varOldValueName, id(varName)));
@@ -1248,6 +1256,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, needsBody) {
+                @Override
                 public void statements() {
                     // Debug tracing
                     addStmts(makeDebugTrace(attributeInvalidateName(varSym) + " called"));
@@ -1310,6 +1319,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 Name oldValueName = varOldValueName;
                 Name newValueName = varNewValueName;
                 
+                @Override
                 public void initialize() {
                     if (needsBody) {
                         // Fetch the on replace statement or null.
@@ -1339,6 +1349,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addParam(type, newValueName);
                 }
                 
+                @Override
                 public void statements() {
                     // Forward to the mixin.
                     // Call super first.
@@ -1374,11 +1385,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         private void makeMixinApplyDefaultsMethod(VarInfo varInfo) {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeApplyDefaultsName(varInfo.getSymbol()), syms.voidType, varInfo) {
+                @Override
                 public void statements() {
                     // Get body of applyDefaults$.
                     addStmt(makeApplyDefaultsStatement(varInfo, true));
                 }
                 
+                @Override
                 public boolean constrain() {
                     return isCurrentClassSymbol(varSym.owner) || varInfo.getDefaultInitStatement() != null;
                 }
@@ -1392,6 +1405,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         private void makeMixinEvaluateAccessorMethod(VarInfo varInfo) {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeEvaluateName(varInfo.getSymbol()), syms.voidType, varInfo) {
+                @Override
                 public void statements() {
                     if (varInfo.hasBoundDefinition()) {
                         // set$var(init/bound expression)
@@ -1400,6 +1414,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     } 
                 }
                 
+                @Override
                 public boolean constrain() {
                     return isCurrentClassSymbol(varSym.owner) || varInfo.hasBoundDefinition();
                 }
@@ -1413,6 +1428,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         private void makeMixinInvalidateAccessorMethod(VarInfo varInfo) {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeInvalidateName(varInfo.getSymbol()), syms.voidType, varInfo) {
+                @Override
                 public void statements() {
                     // Call super first.
                     if (varInfo.isOverride()) {
@@ -1430,6 +1446,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                 }
                 
+                @Override
                 public boolean constrain() {
                     return varInfo instanceof TranslatedVarInfoBase;
                 }
@@ -1557,6 +1574,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public void makeVCNT$(final List<VarInfo> attrInfos, final int varCount) {
             StaticMethodBuilder smb = new StaticMethodBuilder(defs.varCountName, syms.intType) {
+                @Override
                 public void statements() {
                     // Start if block.
                     beginBlock();
@@ -1601,6 +1619,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public void makecount$() {
             MethodBuilder smb = new MethodBuilder(defs.attributeCountMethodName, syms.intType) {
+                @Override
                 public void statements() {
                     // Construct and add: return VCNT$();
                     addStmt(m().Return(call(defs.varCountName)));
@@ -1951,6 +1970,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public void makeGetMethod(List<VarInfo> attrInfos, int varCount) {
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeGetPrefixName, syms.objectType,
                                                                  attrInfos, varCount) {
+                @Override
                 public void statements() {
                     // get$var()
                     JCExpression getterExp = call(attributeGetterName(varInfo.getSymbol()));
@@ -1968,10 +1988,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public void makeSetMethod(List<VarInfo> attrInfos, int varCount) {
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeSetPrefixName, syms.voidType,
                                                                  attrInfos, varCount) {
+                @Override
                 public void initialize() {
                     addParam(syms.objectType, objName);
                 }
                 
+                @Override
                 public void statements() {
                     // (type)object$
                     JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, id(objName));
@@ -1992,6 +2014,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeTypePrefixName,
                                                                  makeQualifiedTree(diagPos, "java.lang.Class"),
                                                                  attrInfos, varCount) {
+                @Override
                 public void statements() {
                     Type type = types.erasure(varInfo.getRealType());
                     JCExpression expr = m().ClassLiteral(type);

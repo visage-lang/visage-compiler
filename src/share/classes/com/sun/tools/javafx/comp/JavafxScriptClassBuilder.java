@@ -314,7 +314,7 @@ public class JavafxScriptClassBuilder {
                     }
                     decl.mods.flags |= STATIC | SCRIPT_LEVEL_SYNTH_STATIC;
                     scriptClassDefs.append(decl);  // declare variable as a static in the script class
-                    if (!isLibrary) {  //TODO: should be --- if (!isLibrary && !decl.isBound()) {
+                    if (!isLibrary && !decl.isBound()) {
                         // This is a simple-form script where the main-code is just loose at the script-level.
                         // The main-code will go into the run method.  The variable initializations should
                         // be in-place inline.   Place the variable initialization in 'value' so that

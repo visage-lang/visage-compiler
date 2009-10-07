@@ -42,11 +42,8 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.util.MsgSym;
-import com.sun.tools.mjavac.util.Log;
 
 import com.sun.tools.javafx.main.JavafxCompiler;
-import com.sun.tools.javafx.main.Main;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /** Provides operations to read a classfile into an internal
  *  representation. The internal representation is anchored in a
@@ -77,7 +74,6 @@ public class JavafxClassReader extends ClassReader {
 
     private final Name functionClassPrefixName;
     private Context ctx;
-    private Log log;
     private Messages messages;
     
     public static void preRegister(final Context context, final ClassReader jreader) {
@@ -113,7 +109,6 @@ public class JavafxClassReader extends ClassReader {
         defs = JavafxDefs.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
         ctx = context;
-        log = Log.instance(context);
         messages = Messages.instance(context);
     }
 
@@ -401,8 +396,8 @@ public class JavafxClassReader extends ClassReader {
         if (type instanceof MethodType) {
             boolean convertToStatic = false;
             
-            if (nameString.endsWith(defs.implFunctionSuffix)) {
-                nameString = nameString.substring(0, nameString.length() - defs.implFunctionSuffix.length());
+            if (nameString.endsWith(JavafxDefs.implFunctionSuffix)) {
+                nameString = nameString.substring(0, nameString.length() - JavafxDefs.implFunctionSuffix.length());
                 convertToStatic = true;
             }
             
@@ -628,8 +623,8 @@ public class JavafxClassReader extends ClassReader {
                     if (!isRootClass) {
                         // Filter out synthetic vars.
                         String nameString = name.toString();
-                        if (nameString.startsWith(defs.varMapString)) continue;
-                        if (nameString.startsWith(defs.varCountString)) continue;
+                        if (nameString.startsWith(JavafxDefs.varMapString)) continue;
+                        if (nameString.startsWith(JavafxDefs.varCountString)) continue;
                    }
                     Type otype = memsym.type;
                     Type type = translateType(otype);

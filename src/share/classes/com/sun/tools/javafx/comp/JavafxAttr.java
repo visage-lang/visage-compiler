@@ -98,8 +98,8 @@ public class JavafxAttr implements JavafxVisitor {
      */
     private final Source source;
     
-    Map<JavafxVarSymbol, JFXVar> varSymToTree =
-            new HashMap<JavafxVarSymbol, JFXVar>();
+    Map<VarSymbol, JFXVar> varSymToTree =
+            new HashMap<VarSymbol, JFXVar>();
     Map<MethodSymbol, JFXFunctionDefinition> methodSymToTree =
             new HashMap<MethodSymbol, JFXFunctionDefinition>();
 
