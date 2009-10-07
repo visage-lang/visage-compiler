@@ -222,7 +222,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     static class OnReplaceInfo {
         public OnReplaceInfo outer;
-        JFXOnReplace onReplace;
         Symbol newElementsSym;
         Symbol oldValueSym;
         Type arraySequenceType;
@@ -1047,7 +1046,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        TODO(tree);;
+        TODO(tree);
 /*****
         DiagnosticPosition diagPos = tree.pos();
         JCExpression seqLoc = translateAsSequenceVariable(tree.getSequence());

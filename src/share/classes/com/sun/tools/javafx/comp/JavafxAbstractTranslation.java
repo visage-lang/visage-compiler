@@ -597,7 +597,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 thisExpr;
 
             // check if it is in the chain
-            if (owner != null && siteOwner != null && siteOwner != owner) {
+            if (owner != null && siteOwner != owner) {
                 Symbol siteCursor = siteOwner;
                 boolean foundOwner = false;
                 int numOfOuters = 0;
@@ -1613,10 +1613,6 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         private ExpressionResult doIncDec(final int binaryOp, final boolean postfix) {
             return (ExpressionResult) new AssignTranslator(diagPos, expr, fxm().Literal(1)) {
-
-                JCExpression translateExpression(JFXExpression expr, Type type) {
-                    return UnaryOperationTranslator.this.translateExpr(expr, type);
-                }
 
                 private JCExpression castIfNeeded(JCExpression transExpr) {
                     int ttag = expr.type.tag;
