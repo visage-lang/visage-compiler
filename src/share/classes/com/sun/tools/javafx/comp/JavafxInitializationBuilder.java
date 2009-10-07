@@ -1224,11 +1224,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // $var = value
                     addStmt(makeExec(m().Assign(id(varName), id(varNewValueName))));
     
-                    // setIsValidValue(VOFF$var);
-                    addStmt(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
-    
                     // invalidate$(VFLGS$PHASE1)
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(vflgPhase1Name)));
+    
+                    // setIsValidValue(VOFF$var);
+                    addStmt(makeFlagStatement(proxyVarSym, varFlagActionSet, varFlagValid));
     
                     // onReplace$(varOldValue$, varNewValue$)
                     addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(varOldValueName), id(varNewValueName)));
