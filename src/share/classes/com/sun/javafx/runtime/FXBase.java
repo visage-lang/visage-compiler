@@ -342,10 +342,10 @@ import java.lang.reflect.Field;
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
         DependentsManager.get(obj).notifyDependents(obj, varNum, phase);
     }
-    public void update$(FXObject src, final int varNum) {
-        update$(this, src, varNum);
+    public void update$(FXObject src, final int varNum, final int phase) {
+        update$(this, src, varNum, phase);
     }
-    public static void update$(FXObject obj, FXObject src, final int varNum) {
+    public static void update$(FXObject obj, FXObject src, final int varNum, final int phase) {
     }
     public int getListenerCount$() {
         return getListenerCount$(this);

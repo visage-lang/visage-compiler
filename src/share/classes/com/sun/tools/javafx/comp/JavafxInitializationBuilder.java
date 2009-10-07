@@ -1980,7 +1980,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Loop for local vars.
                         for (VarInfo varInfo : referenceSet) {
                             VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                            invalidateStmts.append(callStmt(getReceiver(varInfo), attributeInvalidateName(proxyVarSym), id(vflgPhase0Name)));
+                            invalidateStmts.append(callStmt(getReceiver(varInfo), attributeInvalidateName(proxyVarSym), id(phaseName)));
                         }
                         
                         Type instanceType = referenceVar.owner.type;
@@ -2002,7 +2002,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // super
                     JCExpression selector = id(names._super);
                     // (varNum)
-                    List<JCExpression> args = List.<JCExpression>of(id(updateInstanceName), id(varNumName));
+                    List<JCExpression> args = List.<JCExpression>of(id(updateInstanceName), id(varNumName), id(phaseName));
                     // Construct and add: return super.applyDefaults$(varNum);
                     stmts.append(callStmt(selector, defs.attributeUpdatePrefixMethodName, args));
                 }
@@ -2012,7 +2012,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                  syms.voidType,
                                                  defs.attributeUpdatePrefixMethodName,
                                                  List.<JCVariableDecl>of(makeParam(syms.javafx_FXObjectType, updateInstanceName),
-                                                                         makeParam(syms.intType, varNumName)),
+                                                                         makeParam(syms.intType, varNumName),
+                                                                         makeParam(syms.intType, phaseName)),
                                                  stmts);
                 // Add to the methods list.
                 addDefinition(method);

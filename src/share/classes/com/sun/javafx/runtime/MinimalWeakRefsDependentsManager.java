@@ -89,7 +89,7 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
                             dep.binderRef = null;
                             binderRef.cleanup();
                         } else {
-                            binder.update$(bindee, varNum);
+                            binder.update$(bindee, varNum, phase);
                         }
                     }
                 } else {

@@ -105,7 +105,7 @@ public interface FXObject {
     // Now, change the dependence to { newBindee, varNum }
     public void     switchDependence$  (final int varNum, FXObject oldBindee, FXObject newBindee);
     public void     notifyDependents$  (final int varNum, final int phase);
-    public void     update$ (final FXObject src, final int varNum);
+    public void     update$ (final FXObject src, final int varNum, final int phase);
     // for testing - the listener count is the number of distinct {varNum, dep} pairs
     public int      getListenerCount$();
 
