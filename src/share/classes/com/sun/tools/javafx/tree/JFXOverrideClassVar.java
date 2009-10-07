@@ -30,17 +30,12 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.javafx.api.JavafxBindStatus;
 
 /**
- * Wrapper for loose triggers
+ * The override of an instance variable
  *
  * @author Robert Field
  */
-public class JFXOverrideClassVar extends JFXExpression implements TriggerTree {
+public class JFXOverrideClassVar extends JFXAbstractVar implements TriggerTree {
     private final JFXIdent expr;
-    private final JFXExpression init;
-    private final JavafxBindStatus bindStatus;
-    private final JFXOnReplace[] triggers;
-    
-    public VarSymbol sym;
     
     protected JFXOverrideClassVar(JFXIdent expr,
             JFXExpression init,
@@ -48,13 +43,8 @@ public class JFXOverrideClassVar extends JFXExpression implements TriggerTree {
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
             VarSymbol sym) {
+        super(init, bindStat, onReplace, onInvalidate, sym);
         this.expr = expr;
-        this.init = init;
-        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
-        this.triggers = new JFXOnReplace[JFXOnReplace.Kind.values().length];
-        this.triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()] = onReplace;
-        this.triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()] = onInvalidate;
-        this.sym = sym;
     }
     
     public void accept(JavafxVisitor v) {
@@ -65,56 +55,8 @@ public class JFXOverrideClassVar extends JFXExpression implements TriggerTree {
         return expr;
     }
 
-    public JFXExpression getInitializer() {
-        return init;
-    }
-
     public ExpressionTree getExpressionTree() {
-        return (ExpressionTree)expr;
-    }
-
-    public JavafxBindStatus getBindStatus() {
-        return bindStatus;
-    }
-
-    public boolean isBound() {
-        return bindStatus.isBound();
-    }
-
-    public boolean isUnidiBind() {
-        return bindStatus.isUnidiBind();
-    }
-
-    public boolean isBidiBind() {
-        return bindStatus.isBidiBind();
-    }
-
-    public boolean isLazy() {
-        return bindStatus.isLazy();
-    }
-
-    public OnReplaceTree getOnReplaceTree() {
-        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
-    }
-
-    public JFXOnReplace getOnReplace() {
-        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
-    }
-
-    public OnReplaceTree getOnInvalidateTree() {
-        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
-    }
-
-    public JFXOnReplace getOnInvalidate() {
-        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
-    }
-
-    public OnReplaceTree getTriggerTree(JFXOnReplace.Kind triggerKind) {
-        return triggers[triggerKind.ordinal()];
-    }
-
-    public JFXOnReplace getTrigger(JFXOnReplace.Kind triggerKind) {
-        return triggers[triggerKind.ordinal()];
+        return (ExpressionTree) expr;
     }
 
     public JavaFXKind getJavaFXKind() {

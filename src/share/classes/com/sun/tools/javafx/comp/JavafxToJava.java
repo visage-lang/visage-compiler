@@ -574,7 +574,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         assert !attrEnv.toplevel.isLibrary;
 
         result = new ExpressionResult(
-                translateDefinitionalAssignmentToSetExpression(diagPos, var.init, var.getBindStatus(), vmi, null),
+                translateDefinitionalAssignmentToSetExpression(diagPos, var.getInitializer(),var.getBindStatus(), vmi, null),
                 tree.type);
     }
 
@@ -612,7 +612,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             if ((modFlags & Flags.FINAL) != 0) {
                 //TODO: this case probably won't be used any more, but it will
                 // be again if we optimize the case for initializer which don't reference locals
-                init = translateNonBoundInit(diagPos, tree.init, typeMorpher.varMorphInfo(vsym));
+                init = translateNonBoundInit(diagPos, tree.getInitializer(),typeMorpher.varMorphInfo(vsym));
                 JCStatement var = makeVar(modFlags, tree.type, tree.name, init);
                 prependToStatements.append(var);
                 return new StatementsResult(diagPos, List.<JCStatement>nil());
@@ -621,7 +621,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             prependToStatements.prepend(makeVar(modFlags, tree.type, tree.name, init));
 
             return toResult(
-                    translateDefinitionalAssignmentToSetExpression(diagPos, tree.init, tree.getBindStatus(), vmi, null),
+                    translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(),tree.getBindStatus(), vmi, null),
                     tree.type);
         }
     }

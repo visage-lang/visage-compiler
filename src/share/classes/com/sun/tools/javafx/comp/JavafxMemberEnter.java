@@ -611,7 +611,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             v.completer = completer;
 
         v.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, v, tree);
-        if (tree.init != null) {
+        if (tree.getInitializer() != null) {
             v.flags_field |= HASINIT;
         }
         if (tree.isBound()) {

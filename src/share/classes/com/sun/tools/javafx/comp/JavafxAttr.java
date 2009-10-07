@@ -908,11 +908,11 @@ public class JavafxAttr implements JavafxVisitor {
             //        chk.validate(tree.vartype);
 
             Type initType;
-            if (tree.init == null && (tree.getModifiers().flags & JavafxFlags.IS_DEF) != 0) {
+            if (tree.getInitializer() == null && (tree.getModifiers().flags & JavafxFlags.IS_DEF) != 0) {
                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_DEF_MUST_HAVE_INIT, v);
             }            
-            if (tree.init != null) {
-                if (tree.init.getJavaFXKind() == JavaFXKind.INSTANTIATE_OBJECT_LITERAL &&
+            if (tree.getInitializer() != null) {
+                if (tree.getInitializer().getJavaFXKind() == JavaFXKind.INSTANTIATE_OBJECT_LITERAL &&
                     (tree.getModifiers().flags & JavafxFlags.IS_DEF) != 0)                        
                     v.flags_field |= JavafxFlags.OBJ_LIT_INIT;
                 // Attribute initializer in a new environment.
@@ -937,7 +937,7 @@ public class JavafxAttr implements JavafxVisitor {
                  * inBindContext is not implemented correctly here since things are not walked in tree order in finish*.
                  *
                  */
-                initType = attribExpr(tree.init, initEnv, declType);
+                initType = attribExpr(tree.getInitializer(), initEnv, declType);
                 this.inBindContext = wasInBindContext;
                 initType = chk.checkNonVoid(tree.pos(), initType);                
                 chk.checkType(tree.pos(), initType, declType,
@@ -948,7 +948,7 @@ public class JavafxAttr implements JavafxVisitor {
                 else if (initType == syms.javafx_EmptySequenceType)
                     initType = types.sequenceType(syms.objectType);
                 //FIXME - following if should be remove now that we have arrays (see JFXC-2784)                
-                chk.checkBidiBind(tree.init, tree.getBindStatus(), initEnv, v.type);
+                chk.checkBidiBind( tree.getInitializer(),tree.getBindStatus(), initEnv, v.type);
             }
             else if (tree.type != null)
                 initType = tree.type;
