@@ -4,7 +4,7 @@
  * 
  * @test
  * @compilefirst jfxc3522a.fx
- * @run
+ * @run/fail
  */
 
 import javafx.animation.*;
