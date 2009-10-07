@@ -47,6 +47,7 @@ import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.util.MsgSym;
 import static com.sun.tools.mjavac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
+import com.sun.tools.javafx.tree.xml.TreeXMLTransformer;
 import com.sun.tools.javafx.util.PlatformPlugin;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -506,6 +507,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             taskListener.finished(e);
         }
 
+        TreeXMLTransformer.afterParse(context, tree);
         return tree;
     }
     // where
@@ -642,6 +644,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ENTER, tree);
             taskListener.finished(e);
         }
+
+        TreeXMLTransformer.afterEnter(context, tree, c);
 
         if (enter.getEnv(c) == null) {
             boolean isPkgInfo =
@@ -1020,6 +1024,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             taskListener.finished(e);
         }
 
+        TreeXMLTransformer.afterAnalyze(context, env.toplevel, env.enclClass.sym);
         return env;
     }
 
@@ -1209,6 +1214,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     protected void registerServices(final Context context) {
+        TreeXMLTransformer.preRegister(context);
         // if fileManager not already set, register the JavacFileManager to be used
         if (context.get(JavaFileManager.class) == null) {
             com.sun.tools.javafx.util.JavafxFileManager.preRegister(context);
