@@ -52,7 +52,7 @@ public class JavafxFlags {
     public static final long OBJ_LIT_INIT              = FIRST_FX_MOD_FLAG << 9;
     private static final long LAST_FX_MOD_FLAG         = OBJ_LIT_INIT;
 
-    // Var/def usage info -- all usage info is within the script only
+    // Var/def usage info -- all usage info is within the script only //TODO: many no longer used
     private static final long FIRST_VARUSE_FLAG      = LAST_FX_MOD_FLAG << 1;
     public static final long VARUSE_BOUND_INIT       = FIRST_VARUSE_FLAG << 0;  // defined as bound, initially, in obj lit, or override
     public static final long VARUSE_HAS_ON_REPLACE   = FIRST_VARUSE_FLAG << 1;  // has 'on replace' either in definition or override

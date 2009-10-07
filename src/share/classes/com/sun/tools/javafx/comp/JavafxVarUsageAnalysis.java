@@ -102,15 +102,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitVar(JFXVar tree) {
-        // Don't trust flags set by attribution
-        tree.sym.flags_field &= ~VARUSE_BOUND_INIT;
-
         // any changes here should also go into visitOverrideClassVar
         boolean wasInBindContext = inBindContext;
         inBindContext |= tree.isBound();
-        if (inBindContext) {
-            mark(tree.sym, VARUSE_BOUND_INIT);
-        }
         tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
         scan(tree.getInitializer());
         tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
