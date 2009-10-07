@@ -88,7 +88,8 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
     }
 
     @Override
-    public void notifyDependents(FXObject bindee, final int varNum) {
+    public void notifyDependents(FXObject bindee, final int varNum, final int phase) {
+        // TODO - handle phase.
         boolean oldInIteration = Dependent.inIteration;
         try {
             Dependent.inIteration = true;

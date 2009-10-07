@@ -42,7 +42,7 @@ public abstract class DependentsManager {
             newBindee.addDependent$(varNum, binder);
         }
     }
-    public abstract void notifyDependents(FXObject bindee, final int varNum);
+    public abstract void notifyDependents(FXObject bindee, final int varNum, final int phase);
     public abstract int getListenerCount(FXObject bindee);
 
     /**

@@ -74,7 +74,8 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
         }
     }
 
-    public void notifyDependents(FXObject bindee, final int varNum) {
+    public void notifyDependents(FXObject bindee, final int varNum, final int phase) {
+        // TODO - handle phase.
         boolean oldInIteration = Dep.inIteration;
         try {
             Dep.inIteration = true;

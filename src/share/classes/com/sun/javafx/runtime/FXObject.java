@@ -38,34 +38,42 @@ import java.lang.reflect.Type;
  */
 public interface FXObject {
     /**
-     * Number of bits needed for each var.  Must be non-final for binary compatibility.
+     * Number of bits needed for each var.
      */
-    public static int VFLGS$BITS_PER_VAR = 4;
+    public static final int VFLGS$BITS_PER_VAR = 8;
     
     /**
-     * Number of bits needed for each var.  Must be non-final for binary compatibility.
+     * Number of bits needed for each var.
      */
-    public static int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
+    public static final int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
     
     /**
-     * Var is initialized flag.  Must be non-final for binary compatibility.
+     * Multi-bit phase flags.
+     */
+    public static final int VFLGS$PHASE0 = 0;
+    public static final int VFLGS$PHASE1 = 1;
+    
+    /**
+     * Var is initialized flag.
      */
     public static final int VFLGS$IS_INITIALIZED = 0;
     
     /**
-     * Var is defaults applied flag.  Must be non-final for binary compatibility.
+     * Var is defaults applied flag.
      */
     public static final int VFLGS$IS_DEFAULTS_APPLIED = 1;
     
     /**
-     * Var is valid value applied flag.  Must be non-final for binary compatibility.
+     * Var is valid value applied flag (two phase bits.)
      */
     public static final int VFLGS$IS_VALID_VALUE = 2;
+    // public static final int VFLGS$IS_VALID_VALUE_PHASE0 = 2;
+    // public static final int VFLGS$IS_VALID_VALUE_PHASE1 = 3;
    
     /**
-     * Var is bindee flag.  Must be non-final for binary compatibility.
+     * Var is bindee flag.
      */
-    public static final int VFLGS$IS_BINDEE = 3;
+    public static final int VFLGS$IS_BINDEE = 4;
     
     public void     initFXBase$     ();
     
@@ -81,6 +89,9 @@ public interface FXObject {
     public boolean  isValidValue$      (final int varNum);
     public boolean  setValidValue$     (final int varNum);
     public boolean  clearValidValue$   (final int varNum);
+    public boolean  isValidValue$      (final int varNum, int phase);
+    public boolean  setValidValue$     (final int varNum, int phase);
+    public boolean  clearValidValue$   (final int varNum, int phase);
     public boolean  isBindee$          (final int varNum);
     public boolean  setBindee$         (final int varNum);
     public boolean  clearBindee$       (final int varNum);
@@ -93,7 +104,7 @@ public interface FXObject {
     // Earlier 'this' object was dependent on { oldBindee, varNum }.
     // Now, change the dependence to { newBindee, varNum }
     public void     switchDependence$  (final int varNum, FXObject oldBindee, FXObject newBindee);
-    public void     notifyDependents$  (final int varNum);
+    public void     notifyDependents$  (final int varNum, final int phase);
     public void     update$ (final FXObject src, final int varNum);
     // for testing - the listener count is the number of distinct {varNum, dep} pairs
     public int      getListenerCount$();

@@ -243,23 +243,46 @@ import java.lang.reflect.Field;
         return setVarBit$(obj, varNum, VFLGS$IS_DEFAULTS_APPLIED);
     }
 
+
     public boolean isValidValue$(final int varNum) {
         return isValidValue$(this, varNum);
     }
     public static boolean isValidValue$(FXObject obj, final int varNum) {
-        return isVarBitSet$(obj, varNum, VFLGS$IS_VALID_VALUE);
+        return isVarBitSet$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE0) ||
+               isVarBitSet$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE1);
     }
     public boolean setValidValue$(final int varNum) {
         return setValidValue$(this, varNum);
     }
     public static boolean setValidValue$(FXObject obj, final int varNum) {
-        return setVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE);
+        return setVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE0) ||
+               setVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE1);
     }
     public boolean clearValidValue$(final int varNum) {
         return clearValidValue$(this, varNum);
     }
     public static boolean clearValidValue$(FXObject obj, final int varNum) {
-        return clearVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE);
+        return clearVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE0) ||
+               clearVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + VFLGS$PHASE1);
+    }
+
+    public boolean isValidValue$(final int varNum, final int phase) {
+        return isValidValue$(this, varNum, phase);
+    }
+    public static boolean isValidValue$(FXObject obj, final int varNum, final int phase) {
+        return isVarBitSet$(obj, varNum, VFLGS$IS_VALID_VALUE + phase);
+    }
+    public boolean setValidValue$(final int varNum, final int phase) {
+        return setValidValue$(this, varNum, phase);
+    }
+    public static boolean setValidValue$(FXObject obj, final int varNum, final int phase) {
+        return setVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + phase);
+    }
+    public boolean clearValidValue$(final int varNum, final int phase) {
+        return clearValidValue$(this, varNum, phase);
+    }
+    public static boolean clearValidValue$(FXObject obj, final int varNum, final int phase) {
+        return clearVarBit$(obj, varNum, VFLGS$IS_VALID_VALUE + phase);
     }
 
     public boolean isBindee$(final int varNum) {
@@ -312,12 +335,12 @@ import java.lang.reflect.Field;
             DependentsManager.get(obj).switchDependence(obj, varNum, oldBindee, newBindee);
         }
     }
-    public void notifyDependents$(final int varNum) {
-        notifyDependents$(this, varNum);
+    public void notifyDependents$(final int varNum, final int phase) {
+        notifyDependents$(this, varNum, phase);
     }
-    public static void notifyDependents$(FXObject obj, final int varNum) {
+    public static void notifyDependents$(FXObject obj, final int varNum, final int phase) {
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
-        DependentsManager.get(obj).notifyDependents(obj, varNum);
+        DependentsManager.get(obj).notifyDependents(obj, varNum, phase);
     }
     public void update$(FXObject src, final int varNum) {
         update$(this, src, varNum);
