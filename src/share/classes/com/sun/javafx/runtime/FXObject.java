@@ -48,12 +48,6 @@ public interface FXObject {
     public static final int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
     
     /**
-     * Multi-bit phase flags.
-     */
-    public static final int VFLGS$PHASE0 = 0;
-    public static final int VFLGS$PHASE1 = 1;
-    
-    /**
      * Var is initialized flag.
      */
     public static final int VFLGS$IS_INITIALIZED = 0;
@@ -67,8 +61,8 @@ public interface FXObject {
      * Var is valid value applied flag (two phase bits.)
      */
     public static final int VFLGS$IS_VALID_VALUE = 2;
-    // public static final int VFLGS$IS_VALID_VALUE_PHASE0 = 2;
-    // public static final int VFLGS$IS_VALID_VALUE_PHASE1 = 3;
+    public static final int VFLGS$INVAL_PHASE = 0;
+    public static final int VFLGS$TRIGGER_PHASE = 1;
    
     /**
      * Var is bindee flag.

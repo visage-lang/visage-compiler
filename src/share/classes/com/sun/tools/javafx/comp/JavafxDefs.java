@@ -232,8 +232,8 @@ public class JavafxDefs {
     final Name varFlagActionTest;
     final Name varFlagActionSet;
     final Name varFlagActionClear;
-    final Name vflgPhase0Name;
-    final Name vflgPhase1Name;
+    final Name vflgInvalPhaseName;
+    final Name vflgTriggerPhaseName;
     final Name varFlagInitialized;
     final Name varFlagDefaultsApplied;
     final Name varFlagValid;
@@ -369,8 +369,8 @@ public class JavafxDefs {
         varFlagActionTest = names.fromString("isVarBitSet$");
         varFlagActionSet = names.fromString("setVarBit$");
         varFlagActionClear = names.fromString("clearVarBit$");
-        vflgPhase0Name = names.fromString("VFLGS$PHASE0");
-        vflgPhase1Name = names.fromString("VFLGS$PHASE1");
+        vflgInvalPhaseName = names.fromString("VFLGS$INVAL_PHASE");
+        vflgTriggerPhaseName = names.fromString("VFLGS$TRIGGER_PHASE");
         varFlagInitialized = names.fromString("VFLGS$IS_INITIALIZED");
         varFlagDefaultsApplied = names.fromString("VFLGS$IS_DEFAULTS_APPLIED");
         varFlagValid = names.fromString("VFLGS$IS_VALID_VALUE");

@@ -1137,8 +1137,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     }
                 }
                 
-                stmts.append(callStmt(receiver0, attributeInvalidateName(vsym), id(defs.vflgPhase0Name)));
-                stmts.append(callStmt(receiver1, attributeInvalidateName(vsym), id(defs.vflgPhase1Name)));
+                stmts.append(callStmt(receiver0, attributeInvalidateName(vsym), id(defs.vflgInvalPhaseName)));
+                stmts.append(callStmt(receiver1, attributeInvalidateName(vsym), id(defs.vflgTriggerPhaseName)));
                 return toStatementResult(m().Block(0L, stmts.toList()));
             }
         }).doit();
