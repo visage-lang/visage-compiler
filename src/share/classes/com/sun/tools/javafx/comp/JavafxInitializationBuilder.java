@@ -307,7 +307,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.makeInitClassMaps(initClassMap);
 
                     // script-level into class X.X$Script
-                    javaCodeMaker.setDefinitions(sDefinitions);
+                    javaCodeMaker.setContext(true, sDefinitions);
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
                     javaCodeMaker.makeUpdateMethod(analysis.getScriptUpdateMap());
                     javaCodeMaker.makeGetMethod(scriptVarInfos, scriptVarCount);
@@ -315,11 +315,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.makeTypeMethod(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable);
                     //needed: javaCodeMaker.makeApplyDefaultsMethod();
-                    javaCodeMaker.setDefinitions(cDefinitions);
+                    javaCodeMaker.setContext(false, cDefinitions);
                 } else {
                     // With this approach all script-level members and support statics are in script-class
 
-                    javaCodeMaker.setDefinitions(sDefinitions);
+                    javaCodeMaker.setContext(true, sDefinitions);
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
                     javaCodeMaker.makeAttributeFields(scriptVarInfos);
                     javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
@@ -331,7 +331,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
                     javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable);
-                    javaCodeMaker.setDefinitions(cDefinitions);
+                    javaCodeMaker.setContext(false, cDefinitions);
                 }
 
                 javaCodeMaker.makeScriptLevelAccess(scriptName, false, isRunnable);
@@ -378,11 +378,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeInitMethod(defs.postInitName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
             
-            javaCodeMaker.setDefinitions(iDefinitions);
+            javaCodeMaker.setContext(false, iDefinitions);
             javaCodeMaker.makeMemberVariableAccessorInterfaceMethods();
             javaCodeMaker.makeFunctionInterfaceMethods();
             javaCodeMaker.makeOuterAccessorInterfaceMembers();
-            javaCodeMaker.setDefinitions(cDefinitions);
+            javaCodeMaker.setContext(false, cDefinitions);
         }
 
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
@@ -484,6 +484,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     class JavaCodeMaker extends JavaTreeBuilder {
         // The current class analysis/
         private final JavafxAnalyzeClass analysis;
+        private boolean isScript;
         private ListBuffer<JCTree> definitions = null;
 
         JavaCodeMaker(JavafxAnalyzeClass analysis, ListBuffer<JCTree> definitions) {
@@ -495,7 +496,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Method for changing the current definition list.
         //
-        public void setDefinitions(ListBuffer<JCTree> definitions) {
+        public void setContext(boolean isScript, ListBuffer<JCTree> definitions) {
+            this.isScript = isScript;
             this.definitions = definitions;
         }
         
@@ -681,7 +683,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         private JCExpression getReceiver(VarSymbol varSym) {
             if (varSym.isStatic()) {
-                return call(defs.scriptLevelAccessMethod);
+                return isScript ? null : call(defs.scriptLevelAccessMethod);
             }
             
             return getReceiver();
@@ -1967,7 +1969,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Loop for local vars.
                         for (VarInfo varInfo : referenceSet) {
                             VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                            invalidateStmts.append(callStmt(getReceiver(varInfo), attributeInvalidateName(proxyVarSym), id(phaseName)));
+                            invalidateStmts.append(callStmt(getReceiver(proxyVarSym), attributeInvalidateName(proxyVarSym), id(phaseName)));
                         }
                         
                         Type instanceType = referenceVar.owner.type;
