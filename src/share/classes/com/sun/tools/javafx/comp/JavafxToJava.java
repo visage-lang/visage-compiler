@@ -1118,14 +1118,30 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
  *****/
     }
 
-    public void visitInvalidate(JFXInvalidate tree) {
-        JCTree receiver = null;
-        Symbol vsym = JavafxTreeInfo.symbol(tree.getVariable());
-        if (tree.getVariable().getFXTag() == JavafxTag.SELECT) {
-            JFXSelect sel = (JFXSelect)tree.getVariable();
-            receiver = translateToExpression(sel.selected, sel.selected.type);
-        }
-        result = new StatementsResult(make.at(tree.pos()).Exec(call(tree.pos(), (JCExpression)receiver, attributeInvalidateName(vsym))));
+    public void visitInvalidate(final JFXInvalidate tree) {
+        result = (new ExpressionTranslator(tree.pos()) {
+            protected AbstractStatementsResult doit() {
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                JCExpression receiver0 = null;
+                JCExpression receiver1 = null;
+                
+                Symbol vsym = JavafxTreeInfo.symbol(tree.getVariable());
+                if (tree.getVariable().getFXTag() == JavafxTag.SELECT) {
+                    JFXSelect sel = (JFXSelect)tree.getVariable();
+                    JCExpression receiver = translateToExpression(sel.selected, sel.selected.type);
+                    if (receiver != null) {
+                        JCVariableDecl invalVar = makeTmpVar("inval", sel.selected.type, receiver);
+                        stmts.append(invalVar);
+                        receiver0 = id(invalVar.name);
+                        receiver1 = id(invalVar.name);
+                    }
+                }
+                
+                stmts.append(callStmt(receiver0, attributeInvalidateName(vsym), id(defs.vflgPhase0Name)));
+                stmts.append(callStmt(receiver0, attributeInvalidateName(vsym), id(defs.vflgPhase1Name)));
+                return new StatementsResult(m().Block(0L, stmts.toList()));
+            }
+        }).doit();
     }
 
     /**** utility methods ******/

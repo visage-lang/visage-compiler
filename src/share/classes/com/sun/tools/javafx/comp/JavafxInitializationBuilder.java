@@ -1297,9 +1297,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.isOverride()) {
                         // Call super first.
                         callSuper();
-                    } else {
-                        // clearValidValue$(VOFF$var);
-                        addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionClear, defs.varFlagValid, id(phaseName)));
                     }
 
                     // Mixin invalidate$
@@ -1338,7 +1335,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(m().If(ifTriggerPhase, endBlock(), null));
                     
                     // isValid
-                    JCExpression ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagValid, id(phaseName));
+                    Name action = varInfo.isOverride() ? defs.varFlagActionTest : defs.varFlagActionClear;
+                    JCExpression ifValidTest = makeFlagExpression(proxyVarSym, action, defs.varFlagValid, id(phaseName));
                     
                     // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
                     addStmt(m().If(ifValidTest, endBlock(), null));
