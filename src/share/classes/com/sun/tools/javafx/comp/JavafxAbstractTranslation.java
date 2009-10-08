@@ -656,6 +656,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             ExpressionResult res = translateToExpressionResult(expr, type);
             stmts.appendList(res.statements());
             bindees.appendList(res.bindees());
+            interClass.appendList(res.interClass());
             return res.expr();
         }
 
