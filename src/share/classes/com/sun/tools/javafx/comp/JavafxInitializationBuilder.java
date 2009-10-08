@@ -1266,7 +1266,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 return true;
             } else {
                 if (varInfo instanceof TranslatedVarInfoBase) {
-                    return ((TranslatedVarInfoBase) varInfo).boundBinders().nonEmpty();
+                    return ((TranslatedVarInfoBase) varInfo).boundBinders().size() != 0;
                 } else {
                     return false;
                 }

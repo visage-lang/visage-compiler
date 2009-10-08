@@ -276,7 +276,7 @@ class JavafxAnalyzeClass {
         public List<VarSymbol> boundBindees() { return List.<VarSymbol>nil(); }
 
         // Bound variable symbols on which this variable is used.
-        public List<VarSymbol> boundBinders() { return List.<VarSymbol>nil(); }
+        public HashSet<VarSymbol> boundBinders() { return new HashSet<VarSymbol>(); }
 
         // Empty or bound select pairs.
         public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
@@ -341,7 +341,7 @@ class JavafxAnalyzeClass {
         private final ExpressionResult bindOrNull;
         
         // Inversion of boundBindees.
-        private ListBuffer<VarSymbol> bindersOrNull;
+        private  HashSet<VarSymbol> bindersOrNull;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
                 JCStatement initStmt, ExpressionResult bindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline,
@@ -382,11 +382,11 @@ class JavafxAnalyzeClass {
 
         // Bound variable symbols on which this variable is used.
         @Override
-        public List<VarSymbol> boundBinders() { return bindersOrNull==null? List.<VarSymbol>nil() : bindersOrNull.toList(); }
+        public HashSet<VarSymbol> boundBinders() { return bindersOrNull == null? new HashSet<VarSymbol>() : bindersOrNull; }
 
         // Empty or bound select pairs.
         @Override
-        public List<DependentPair> boundBoundSelects() { return bindOrNull==null? List.<DependentPair>nil() : bindOrNull.interClass(); }
+        public List<DependentPair> boundBoundSelects() { return bindOrNull == null? List.<DependentPair>nil() : bindOrNull.interClass(); }
 
         // Possible javafx code for the var's 'on replace'.
         @Override
@@ -538,7 +538,7 @@ class JavafxAnalyzeClass {
 
         // Bound variable symbols on which this variable is used.
         @Override
-        public List<VarSymbol> boundBinders() {
+        public HashSet<VarSymbol> boundBinders() {
             return hasOverrideVar() ? overrideVar().boundBinders() : null;
         }
 
@@ -651,11 +651,11 @@ class JavafxAnalyzeClass {
                     
                     // Add a symbol buffer if necessary.
                     if (bindeeTAI.bindersOrNull == null) {
-                        bindeeTAI.bindersOrNull = ListBuffer.lb();
+                        bindeeTAI.bindersOrNull = new HashSet<VarSymbol>();
                     }
                     
                     // Add bunder.
-                    bindeeTAI.bindersOrNull.append(tai.getSymbol());
+                    bindeeTAI.bindersOrNull.add(tai.getSymbol());
                 }
             }
             
