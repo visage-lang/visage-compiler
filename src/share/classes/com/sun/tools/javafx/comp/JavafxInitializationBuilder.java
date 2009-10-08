@@ -1261,7 +1261,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (varInfo.hasBoundDefinition()) {
                 return false;
             }
-            if (varInfo.isMixinVar()) {
+            if (varInfo.isMixinVar() || varInfo.onReplace() != null) {
                 // based on makeInvalidateAccessorMethod
                 return true;
             } else {
@@ -1324,17 +1324,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, getVOFF(proxyVarSym), id(phaseName)));
                     }
                     
-                    // Begin the get$ block.
-                    beginBlock();
-                    
-                    // Call the get$var to force evaluation.
-                    addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
-                    
-                     // phase$ == VFLGS$TRIGGER_PHASE
-                    JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.vflgTriggerPhaseName));
-                   
-                    // if (phase$ == VFLGS$TRIGGER_PHASE) { get$var(); }
-                    addStmt(m().If(ifTriggerPhase, endBlock(), null));
+                    if (varInfo.onReplace() != null) {
+                        // Begin the get$ block.
+                        beginBlock();
+                        
+                        // Call the get$var to force evaluation.
+                        addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
+                        
+                         // phase$ == VFLGS$TRIGGER_PHASE
+                        JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.vflgTriggerPhaseName));
+                       
+                        // if (phase$ == VFLGS$TRIGGER_PHASE) { get$var(); }
+                        addStmt(m().If(ifTriggerPhase, endBlock(), null));
+                    }
                     
                     // isValid
                     Name action = varInfo.isOverride() ? defs.varFlagActionTest : defs.varFlagActionClear;
