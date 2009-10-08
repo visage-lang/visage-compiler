@@ -1954,8 +1954,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
            
             // generate method if it is worthwhile or we have to.
             if (!updateMap.isEmpty() || superClassSym == null) {
-                JCStatement ifInstanceStmt = null;
-                
                 // Loop for instance symbol.
                 for (VarSymbol instanceVar : updateMap.keySet()) {
                     HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
@@ -1979,10 +1977,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName), id(attributeValueName(instanceVar)));
-                    ifInstanceStmt = m().If(ifInstanceCond, m().Block(0L, List.<JCStatement>of(ifReferenceStmt)), ifInstanceStmt);
-                }
-                
-                if (ifInstanceStmt != null) {
+                    JCStatement ifInstanceStmt = m().If(ifInstanceCond, m().Block(0L, List.<JCStatement>of(ifReferenceStmt)), null);
                     stmts.append(ifInstanceStmt);
                 }
             
