@@ -1,0 +1,7 @@
+This is a trial to see if we can communicate problems without creating JIRAs.
+When you fix a problem on this list, remove it from the list, and presuming that the test passes,
+remove the test from the fail list in project.properties.
+
+10/ 9-11:19 jjh: regress/jfxc2808b.fx:
+             this has a bound if with the condition being true.  A var in the 'else' is changed which incorrectly causes the else to be recomputed.
+
