@@ -36,6 +36,8 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
 import java.util.HashMap;
@@ -77,8 +79,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private Name varLocalNumName;
     private Name varWordName;
     private Name varChangedName;
-    private Name varOldValueName;
-    private Name varNewValueName;
     private Name functionClassPrefixName;
     private Name phaseName;
 
@@ -155,8 +155,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         varLocalNumName = names.fromString("varLocalNum$");
         varWordName = names.fromString("varWord$");
         varChangedName = names.fromString("varChanged$");
-        varOldValueName =  names.fromString("varOldValue$");
-        varNewValueName =  names.fromString("varNewValue$");
         phaseName = names.fromString("phase$");
 
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
@@ -1149,18 +1147,27 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void initialize() {
-                    addParam(type, varNewValueName);
+                    addParam(type, defs.attributeNewValueName);
                 }
-                
+
                 @Override
                 public void statements() {
-                    if (varInfo.hasBoundDefinition() && !varInfo.hasBiDiBoundDefinition()) {
-                        addStmt(makeThrow(assignBindExceptionType));
+                    if (varInfo.hasBoundDefinition()) {
+                        if (varInfo.hasBiDiBoundDefinition()) {
+                            // Preface to setter.
+                            addStmts(varInfo.boundInvSetterPreface());
+                            // set$var(set$invvar(value))
+                            addStmt(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInvSetter()));
+                            // return $var;
+                            addStmt(m().Return(id(varName)));
+                        } else {
+                            addStmt(makeThrow(assignBindExceptionType));
+                        }
                     } else if (varInfo.isDef()) {
                         addStmt(makeThrow(assignDefExceptionType));
                     } else {
                         // set$var(value)
-                        addStmt(callStmt(getReceiver(), attributeBeName(varSym), id(varNewValueName)));
+                        addStmt(callStmt(getReceiver(), attributeBeName(varSym), id(defs.attributeNewValueName)));
                         // return $var;
                         addStmt(m().Return(id(varName)));
                     }
@@ -1179,13 +1186,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void initialize() {
-                    addParam(type, varNewValueName);
+                    addParam(type, defs.attributeNewValueName);
                 }
                 
                 @Override
                 public void statements() {
                     // T varOldValue$ = $var;
-                    addStmt(makeVar(Flags.FINAL, type, varOldValueName, id(varName)));
+                    addStmt(makeVar(Flags.FINAL, type, defs.attributeOldValueName, id(varName)));
     
                     // Prepare to accumulate then statements.
                     beginBlock();
@@ -1194,7 +1201,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.vflgInvalPhaseName)));
     
                     // $var = value
-                    addStmt(makeExec(m().Assign(id(varName), id(varNewValueName))));
+                    addStmt(makeExec(m().Assign(id(varName), id(defs.attributeNewValueName))));
     
                     // invalidate$(VFLGS$TRIGGER_PHASE)
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.vflgTriggerPhaseName)));
@@ -1204,13 +1211,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionSet, defs.varFlagValid, id(defs.vflgTriggerPhaseName)));
     
                     // onReplace$(varOldValue$, varNewValue$)
-                    addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(varOldValueName), id(varNewValueName)));
+                    addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
     
                     // varOldValue$ != varNewValue$
                     // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
                     JCExpression testExpr = type.isPrimitive() ?
-                        makeNotEqual(id(varOldValueName), id(varNewValueName))
-                      : makeNot(runtime(diagPos, defs.Util_isEqual, List.<JCExpression>of(id(varOldValueName), id(varNewValueName))));
+                        makeNotEqual(id(defs.attributeOldValueName), id(defs.attributeNewValueName))
+                      : makeNot(runtime(diagPos, defs.Util_isEqual, List.<JCExpression>of(id(defs.attributeOldValueName), id(defs.attributeNewValueName))));
                     
                     // End of then block.
                     JCBlock thenBlock = endBlock();
@@ -1301,7 +1308,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym), id(phaseName)));
                         }
                     }
-                    
+    
                     // notifyDependents(VOFF$var, phase$);
                     if (!varInfo.isOverride()) {
                         addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym, null), id(phaseName)));
@@ -1340,8 +1347,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, needsBody) {
-                Name oldValueName = varOldValueName;
-                Name newValueName = varNewValueName;
+                Name oldValueName = defs.attributeOldValueName;
+                Name newValueName = defs.attributeNewValueName;
                 
                 @Override
                 public void initialize() {
