@@ -62,6 +62,7 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.util.Options;
 import java.util.Set;
 
@@ -959,6 +960,24 @@ public abstract class JavafxTranslationSupport {
 
         protected JCExpression makeType(Symbol sym) {
             return makeType(sym.type, true);
+        }
+
+        protected JCExpression makeVarOffset(Symbol sym, Symbol selectorSym) {
+            JCExpression klass;
+            if ((sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
+                // This is a mixin var, get type from selector (if any)
+                if (selectorSym == null) {
+                    klass = null;
+                } else {
+                    klass = makeType(selectorSym.type, false);
+                }
+            } else {
+                klass = makeType(sym.owner.type, false);
+                if (sym.isStatic()) {
+                    klass = select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
+                }
+            }
+            return select(klass, attributeOffsetName(sym));
         }
 
         //

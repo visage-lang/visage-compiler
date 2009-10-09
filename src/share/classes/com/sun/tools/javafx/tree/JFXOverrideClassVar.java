@@ -68,6 +68,11 @@ public class JFXOverrideClassVar extends JFXAbstractVar implements TriggerTree {
         return JavafxTag.OVERRIDE_ATTRIBUTE_DEF;
     }
     
+    @Override
+    public boolean deferInit() {
+        return false;
+    }
+
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         return visitor.visitTrigger(this, data);
     }

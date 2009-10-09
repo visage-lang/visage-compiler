@@ -638,10 +638,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // These methods return an expression for testing/setting/clearing a var flag.
         //
         JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name flag) {
-            return call(getReceiver(varSym), action, getVOFF(varSym), id(flag));
+            return call(getReceiver(varSym), action, makeVarOffset(varSym, /*used in current context*/null), id(flag));
         }
         JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name flag, JCExpression phase) {
-            return call(getReceiver(varSym), action, getVOFF(varSym), makeBinary(JCTree.PLUS, id(flag), phase));
+            return call(getReceiver(varSym), action, makeVarOffset(varSym, /*used in current context*/null), makeBinary(JCTree.PLUS, id(flag), phase));
         }
 
         //
@@ -652,23 +652,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         JCStatement makeFlagStatement(VarSymbol varSym, Name action, Name flag, JCExpression phase) {
             return makeExec(makeFlagExpression(varSym, action, flag, phase));
-        }
-
-        //
-        // Generate a reference to the VOFF$ .
-        // For static vars this is: pkg.X.X$Script.VOFF$varName
-        // For instance vars this is just: VOFF$varName
-        //
-        private JCExpression getVOFF(VarSymbol varSym) {
-            JCExpression context = null;
-            if (varSym.isStatic()) {
-                // construct a script-level class reference expression
-                // pkg.X.X$Script
-                context = select(
-                        makeType(getCurrentClassSymbol().type, false),
-                        getCurrentClassSymbol().getSimpleName().append(defs.scriptClassSuffixName));
-            }
-            return select(context, attributeOffsetName(varSym));
         }
 
         //
@@ -1321,7 +1304,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // notifyDependents(VOFF$var, phase$);
                     if (!varInfo.isOverride()) {
-                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, getVOFF(proxyVarSym), id(phaseName)));
+                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym, null), id(phaseName)));
                     }
                     
                     if (varInfo.onReplace() != null) {
@@ -1971,9 +1954,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             VarSymbol proxyVarSym = varInfo.proxyVarSym();
                             invalidateStmts.append(callStmt(getReceiver(proxyVarSym), attributeInvalidateName(proxyVarSym), id(phaseName)));
                         }
-                        
-                        Type instanceType = referenceVar.owner.type;
-                        JCExpression referenceSelect = m().Select(makeType(instanceType), attributeOffsetName(referenceVar));
+
+                        // Reference the class with the instance, if it is script-level append the suffix
+                        JCExpression referenceSelect = makeVarOffset(referenceVar, instanceVar);
                         JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), referenceSelect);
                         ifReferenceStmt = m().If(ifReferenceCond, m().Block(0L, invalidateStmts.toList()), ifReferenceStmt);
                     }
@@ -2213,7 +2196,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
 
             if (scriptName != null) {
-                stmts.append(callStmt(id(scriptName), defs.scriptLevelAccessMethod));
+                stmts.append(callStmt(defs.scriptLevelAccessMethod));
             }
             
             if (attrInfo != null) {
@@ -2484,26 +2467,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Add definitions to class to access the script-level sole instance.
         //
         public void makeScriptLevelAccess(Name scriptName, boolean scriptLevel, boolean isRunnable) {
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-            if (scriptLevel) {
+            if (!scriptLevel) {
                 // sole instance field
                 addDefinition(makeVar(Flags.PRIVATE | Flags.STATIC, id(scriptName), defs.scriptLevelAccessField, null));
-                
+
                 // sole instance lazy creation method
                 JCExpression condition = makeNullCheck(id(defs.scriptLevelAccessField));
-                
+
                 JCExpression assignExpr = m().Assign(
-                       id(defs.scriptLevelAccessField),
-                       m().NewClass(null, null, id(scriptName), List.<JCExpression>nil(), null));
-                       
+                        id(defs.scriptLevelAccessField),
+                        m().NewClass(null, null, id(scriptName), List.<JCExpression>nil(), null));
+
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
                 stmts.append(m().If(condition, makeExec(assignExpr), null));
                 stmts.append(m().Return(id(defs.scriptLevelAccessField)));
-            } else {
-                stmts.append(m().Return(call(id(scriptName), defs.scriptLevelAccessMethod)));
+                addDefinition(makeMethod(Flags.PUBLIC | Flags.STATIC, id(scriptName), defs.scriptLevelAccessMethod, null, stmts.toList()));
             }
-            
-            addDefinition(makeMethod(Flags.PUBLIC | Flags.STATIC, id(scriptName), defs.scriptLevelAccessMethod, null, stmts.toList()));
 
             // If module is runnable, create a run method that redirects to the sole instance version
             if (!SCRIPT_LEVEL_AT_TOP && !scriptLevel && isRunnable) {

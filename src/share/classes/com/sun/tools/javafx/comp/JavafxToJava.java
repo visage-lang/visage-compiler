@@ -32,7 +32,6 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.*;
-import static com.sun.tools.mjavac.code.Flags.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
@@ -92,6 +91,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     private final Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
 
     private JavafxEnv<JavafxAttrContext> attrEnv;
+    ReceiverContext inInstanceContext = ReceiverContext.Oops;
 
     /*
      * static information
@@ -180,6 +180,16 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     @Override
     protected JavafxEnv<JavafxAttrContext> getAttrEnv() {
         return attrEnv;
+    }
+
+    @Override
+    protected ReceiverContext receiverContext() {
+        return inInstanceContext;
+    }
+
+    @Override
+    protected void setReceiverContext(ReceiverContext rc) {
+        inInstanceContext = rc;
     }
 
     /**
@@ -296,7 +306,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SpecialResult(translated);
     }
 
-    class ClassDeclarationTranslator extends Translator {
+    private class ClassDeclarationTranslator extends Translator {
 
         private final JFXClassDeclaration tree;
         private final boolean isMixinClass;
@@ -325,84 +335,68 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 for (JFXTree def : tree.getMembers()) {
                     switch (def.getFXTag()) {
                         case INIT_DEF: {
-                            inInstanceContext = isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
+                            setContext(false);
                             translateAndAppendStaticBlock(((JFXInitDefinition) def).getBody(), translatedInitBlocks);
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case POSTINIT_DEF: {
-                            inInstanceContext = isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
+                            setContext(false);
                             translateAndAppendStaticBlock(((JFXPostInitDefinition) def).getBody(), translatedPostInitBlocks);
                             inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
-                            boolean isStatic = (attrDef.getModifiers().flags & STATIC) != 0;
-                            inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
-                            JCStatement initStmt = (attrDef.isBound() || attrDef.deferInit()) ?
-                                  null // init handled by bind or JavafxVarScriptInit
-                                : translateDefinitionalAssignmentToSet(
-                                    attrDef.pos(),
-                                    attrDef.getInitializer(), 
-                                    attrDef.getBindStatus(),
-                                    attrDef.sym,
-                                    (isStatic || !isMixinClass) ? null : defs.receiverName);
+                            setContext(attrDef.isStatic());
                             attrInfo.append(new TranslatedVarInfo(
                                     attrDef,
                                     typeMorpher.varMorphInfo(attrDef.sym),
-                                    initStmt,
+                                    translateVarInit(attrDef),
                                     attrDef.isBound() ? translateBind.translate(attrDef.getInitializer(), attrDef.type, attrDef.sym) : null,
                                     attrDef.getOnReplace(),
                                     translateTriggerAsInline(attrDef.sym, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
                                     translateTriggerAsInline(attrDef.sym, attrDef.getOnInvalidate())));
-                            inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case OVERRIDE_ATTRIBUTE_DEF: {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
-                            boolean isStatic = (override.sym.flags() & STATIC) != 0;
-                            inInstanceContext = isStatic ? ReceiverContext.ScriptAsStatic : isMixinClass ? ReceiverContext.InstanceAsStatic : ReceiverContext.InstanceAsInstance;
-                            JCStatement initStmt;
-                            initStmt = override.isBound() ?
-                                  null // init handled by bind
-                                : translateDefinitionalAssignmentToSet(
-                                    override.pos(),
-                                    override.getInitializer(), 
-                                    override.getBindStatus(),
-                                    override.sym,
-                                    (isStatic || !isMixinClass) ? null : defs.receiverName);
+                            setContext(override.isStatic());
                             overrideInfo.append(new TranslatedOverrideClassVarInfo(
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
-                                    initStmt,
+                                    translateVarInit(override),
                                     override.isBound() ? translateBind.translate(override.getInitializer(), override.type, override.sym) : null,
                                     override.getOnReplace(),
                                     translateTriggerAsInline(override.sym, override.getOnReplace()),
                                     override.getOnInvalidate(),
                                     translateTriggerAsInline(override.sym, override.getOnInvalidate())));
-                            inInstanceContext = ReceiverContext.Oops;
                             break;
                         }
                         case FUNCTION_DEF: {
                             JFXFunctionDefinition funcDef = (JFXFunctionDefinition) def;
+                            setContext(funcDef.isStatic());
                             funcInfo.append(new TranslatedFuncInfo(funcDef, translateToSpecialResult(funcDef).trees()));
                             break;
                         }
                         case CLASS_DEF: {
                             // Handle other classes.
+                            inInstanceContext = ReceiverContext.Oops;
                             translatedDefs.appendList(translateToStatementsResult((JFXClassDeclaration)def, syms.voidType).trees());
                             break;
                         }
                         default: {
                             assert false : "Unexpected class member: " + def;
+                            inInstanceContext = ReceiverContext.Oops;
                             translatedDefs.appendList(translateToSpecialResult(def).trees());
                             break;
                         }
                     }
                 }
             }
+            inInstanceContext = ReceiverContext.Oops;
+
             // the translated defs have prepends in front
             for (JCTree prepend : prependToDefinitions) {
                 translatedDefs.prepend(prepend);
@@ -469,6 +463,30 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             return new StatementsResult(res);
         }
 
+        private void setContext(boolean isStatic) {
+            inInstanceContext = isStatic ?
+                  ReceiverContext.ScriptAsStatic
+                : isMixinClass ?
+                          ReceiverContext.InstanceAsStatic
+                        : ReceiverContext.InstanceAsInstance;
+
+        }
+
+        private JCStatement translateVarInit(JFXAbstractVar var) {
+            if (var.getInitializer()==null || var.isBound() || var.deferInit()) {
+                // no init, or init handled by bind or JavafxVarScriptInit
+                return null;
+            }
+            Name instanceName = (var.isStatic() || !isMixinClass) ? null : defs.receiverName;
+            return makeExec(translateDefinitionalAssignmentToSetExpression(
+                    var.pos(),
+                    var.getInitializer(),
+                    var.getBindStatus(),
+                    typeMorpher.varMorphInfo(var.sym),
+                    instanceName
+                 ));
+        }
+
         private void translateAndAppendStaticBlock(JFXBlock block, ListBuffer<JCStatement> translatedBlocks) {
             JCStatement stmt = translateToStatement(block, syms.voidType);
             if (stmt != null) {
@@ -523,18 +541,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    private JCStatement translateDefinitionalAssignmentToSet(DiagnosticPosition diagPos,
-            JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym,
-            Name instanceName) {
-        if (init == null) {
-            // Nothing to set, no init statement
-            return null;
-        }
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        return make.at(diagPos).Exec( translateDefinitionalAssignmentToSetExpression(diagPos,
-            init, bindStatus, vmi, instanceName) );
-    }
-
     private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi,
             Name instanceName) {
@@ -577,7 +583,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 tree.type);
     }
 
-    class VarTranslator extends ExpressionTranslator {
+    private class VarTranslator extends ExpressionTranslator {
 
         final JFXVar tree;
         final JFXModifiers mods;
@@ -643,7 +649,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new FunctionTranslator(tree, false).doit();
     }
 
-    class BlockExpressionTranslator extends ExpressionTranslator {
+    private class BlockExpressionTranslator extends ExpressionTranslator {
 
         private final JFXExpression value;
         private final List<JFXExpression> statements;
@@ -855,7 +861,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
              .doit();
     }
 
-    class SequenceRangeTranslator extends ExpressionTranslator {
+    private class SequenceRangeTranslator extends ExpressionTranslator {
 
         private final JFXExpression lower;
         private final JFXExpression upper;
@@ -901,7 +907,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceRangeTranslator(tree).doit();
     }
 
-    class SequenceEmptyTranslator extends ExpressionTranslator {
+    private class SequenceEmptyTranslator extends ExpressionTranslator {
 
         private final Type type;
 
@@ -929,7 +935,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceEmptyTranslator(tree).doit();
     }
 
-    class SequenceIndexedTranslator extends ExpressionTranslator {
+    private class SequenceIndexedTranslator extends ExpressionTranslator {
 
         private final JFXExpression seq;
         private final JCExpression tSeq;
@@ -998,7 +1004,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceIndexedTranslator(tree).doit();
     }
 
-    class SequenceSliceTranslator extends ExpressionTranslator {
+    private class SequenceSliceTranslator extends ExpressionTranslator {
 
         private final Type type;
         private final JCExpression seq;
@@ -1082,7 +1088,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     //@Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
-        TODO(tree);;
+        TODO(tree);
 /*****
         JFXExpression seq = tree.getSequence();
 
@@ -1145,43 +1151,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     /**** utility methods ******/
-
-   JCMethodDecl makeMainMethod(DiagnosticPosition diagPos, Name className) {
-        List<JCStatement> mainStats;
-        if (!attrEnv.toplevel.isRunnable) {
-            List<JCExpression> newClassArgs = List.<JCExpression>of(make.at(diagPos).Literal(TypeTags.CLASS, className.toString()));
-            mainStats = List.<JCStatement>of(make.at(diagPos).Throw(make.at(diagPos).NewClass(null, null, makeIdentifier(diagPos, noMainExceptionString), newClassArgs, null)));
-        } else {
-            List<JCExpression> emptyExpressionList = List.nil();
-            JCExpression classIdent = make.at(diagPos).Ident(className);
-            JCExpression classConstant = make.at(diagPos).Select(classIdent, names._class);
-            JCExpression commandLineArgs = makeIdentifier(diagPos, "args");
-            JCExpression startIdent = makeQualifiedTree(diagPos, JavafxDefs.startMethodString);
-            ListBuffer<JCExpression>args = new ListBuffer<JCExpression>();
-            args.append(classConstant);
-            args.append(commandLineArgs);
-            JCMethodInvocation runCall = make.at(diagPos).Apply(emptyExpressionList, startIdent, args.toList());
-            mainStats = List.<JCStatement>of(make.at(diagPos).Exec(runCall));
-        }
-            List<JCVariableDecl> paramList = List.nil();
-            paramList = paramList.append(make.at(diagPos).VarDef(make.Modifiers(0),
-                    names.fromString("args"),
-                    make.at(diagPos).TypeArray(make.Ident(names.fromString("String"))),
-                    null));
-            JCBlock body = make.Block(0, mainStats);
-            return make.at(diagPos).MethodDef(make.Modifiers(Flags.PUBLIC | Flags.STATIC),
-                    defs.mainName,
-                    make.at(diagPos).TypeIdent(TypeTags.VOID),
-                    List.<JCTypeParameter>nil(),
-                    paramList,
-                    makeThrows(diagPos),
-                    body,
-                    null);
-    }
-
-    public List<JCExpression> makeThrows(DiagnosticPosition diagPos) {
-        return List.of(makeQualifiedTree(diagPos, methodThrowsString));
-    }
 
     UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
         return new UseSequenceBuilder(diagPos, elemType, null) {
@@ -1847,7 +1816,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new StatementsResult(make.at(tree.pos).Throw(expr));
     }
 
-    class TryTranslator extends ExpressionTranslator {
+    private class TryTranslator extends ExpressionTranslator {
 
         private final JFXTry tree;
 
@@ -1878,7 +1847,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new UnaryOperationTranslator(tree).doit();
     }
 
-    JCExpression translateSizeof(DiagnosticPosition diagPos, JFXExpression expr, JCExpression transExpr) {
+    private JCExpression translateSizeof(DiagnosticPosition diagPos, JFXExpression expr, JCExpression transExpr) {
         if (expr instanceof JFXIdent) {
             JFXIdent var = (JFXIdent) expr;
             OnReplaceInfo info = findOnReplaceInfo(var.sym);
@@ -1903,7 +1872,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
     }
 
-    class WhileTranslator extends ExpressionTranslator {
+    private class WhileTranslator extends ExpressionTranslator {
 
         private final JFXWhileLoop tree;
 
@@ -1965,7 +1934,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
+    private class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
 
         final JFXInterpolateValue tree;
 
@@ -2027,10 +1996,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     protected String getSyntheticPrefix() {
         return "jfx$";
-    }
-
-    JCBlock translatedOnReplaceBody(JFXOnReplace onr) {
-        return (onr == null)?  null : translateToBlock(onr.getBody(), syms.voidType);
     }
 
     private void fillClassesWithOuters(JFXScript tree) {
@@ -2103,5 +2068,4 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
         new FillClassesWithOuters().scan(tree);
     }
-
 }

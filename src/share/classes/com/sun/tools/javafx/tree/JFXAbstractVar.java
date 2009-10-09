@@ -52,8 +52,10 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
         this.sym = sym;
     }
 
-    public JavafxBindStatus getBindStatus() {
-        return bindStatus;
+    public abstract boolean deferInit();
+
+    public boolean isStatic() {
+        return sym.isStatic();
     }
 
     public void markBound() {
@@ -94,6 +96,10 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
         return sym;
     }
 
+    public JavafxBindStatus getBindStatus() {
+        return bindStatus;
+    }
+
     public boolean isBidiBind() {
         return bindStatus.isBidiBind();
     }
@@ -109,5 +115,4 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
     public boolean isUnidiBind() {
         return bindStatus.isUnidiBind();
     }
-
 }

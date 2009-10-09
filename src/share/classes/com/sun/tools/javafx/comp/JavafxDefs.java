@@ -140,6 +140,8 @@ public class JavafxDefs {
     final RuntimeMethod Util_isEqual;
 
     final RuntimeMethod FXBase_switchDependence;
+    final RuntimeMethod FXBase_removeDependent;
+    final RuntimeMethod FXBase_addDependent;
 
     /**
      * Name definitions
@@ -394,6 +396,8 @@ public class JavafxDefs {
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
 
         FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
+        FXBase_removeDependent  = new RuntimeMethod(names, cFXBase, "removeDependent$");
+        FXBase_addDependent     = new RuntimeMethod(names, cFXBase, "addDependent$");
 
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;

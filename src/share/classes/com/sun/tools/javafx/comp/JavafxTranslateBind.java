@@ -25,7 +25,10 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
+import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -33,6 +36,7 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -113,11 +117,47 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     }
 
     public void visitIdent(JFXIdent tree) {
-        IdentTranslator tor = new IdentTranslator(tree);
-        if (tree.sym instanceof VarSymbol) {
-            tor.addBindee((VarSymbol) tree.sym);
-        }
-        result = tor.doit();
+        result = new IdentTranslator(tree) {
+
+            @Override
+            protected ExpressionResult doit() {
+                if (sym instanceof VarSymbol) {
+                    VarSymbol vsym = (VarSymbol) sym;
+                    if (currentClass().sym.isSubClass(sym.owner, types)) {
+                        // The var is in our class (or a superclass)
+                        if ((receiverContext() != ReceiverContext.ScriptAsStatic) && sym.isStatic()) {
+                            // The reference is to a static, and we are in a non-static context
+                            // so we need to add it to the interClass (different instances)
+                            Name scriptName = sym.owner.name.append(defs.scriptClassSuffixName);
+                            JavafxClassSymbol scriptClass = new JavafxClassSymbol(Flags.STATIC | Flags.PUBLIC | JavafxFlags.FX_CLASS, scriptName, sym.owner);
+                            VarSymbol scriptLevel = new VarSymbol(
+                                    Flags.STATIC,
+                                    defs.scriptLevelAccessField.subName(1, defs.scriptLevelAccessField.length()),
+                                    scriptClass.type,
+                                    scriptClass);
+                             // Prevent duplicates, remove it if it is already there
+                            addPreface(callStmt(defs.FXBase_removeDependent,
+                                    id(names._this),
+                                    makeVarOffset(sym, null),
+                                    call(defs.scriptLevelAccessMethod)));
+                            // Add dependence on a script-level var
+                            addPreface(callStmt(defs.FXBase_addDependent,
+                                    id(names._this),
+                                    makeVarOffset(sym, null),
+                                    call(defs.scriptLevelAccessMethod)));
+                            addInterClassBindee(scriptLevel, vsym);
+                        } else {
+                            addBindee(vsym);
+                        }
+                    } else {
+                        // The reference is to a presumably outer class
+                        //TODO:
+                    }
+                    
+                }
+                return super.doit();
+            }
+        }.doit();
     }
 
 
@@ -211,7 +251,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
                     Symbol selectorSym = selector.sym;
                     if (types.isJFXClass(selectorSym.owner)) {
                         Type selectorType = selector.type;
-                        JCExpression offset = m().Select(makeType(selector.type), attributeOffsetName(tree.sym));
+                        JCExpression offset = makeVarOffset(tree.sym, selectorSym);
                         JCExpression rcvr = selectorSym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this);
                         JCVariableDecl oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
                         JCVariableDecl newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));

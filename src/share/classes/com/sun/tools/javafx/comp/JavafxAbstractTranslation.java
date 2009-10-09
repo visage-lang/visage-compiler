@@ -77,9 +77,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
     Type targetType;
     Yield yieldKind;
-
-    ReceiverContext inInstanceContext = ReceiverContext.Oops;
-
+    
     private JavafxToJava toJava; //TODO: this should go away
 
     protected JavafxAbstractTranslation(Context context, JavafxToJava toJava) {
@@ -121,6 +119,14 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
     protected JavafxEnv<JavafxAttrContext> getAttrEnv() {
         return toJava.getAttrEnv();
+    }
+
+    protected ReceiverContext receiverContext() {
+        return toJava.receiverContext();
+    }
+
+    protected void setReceiverContext(ReceiverContext rc) {
+        toJava.setReceiverContext(rc);
     }
 
     /********** Utility routines **********/
@@ -1440,19 +1446,19 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             yieldKind = ToStatement;
             targetType = null;
 
-            ReceiverContext prevContext = inInstanceContext;
+            ReceiverContext prevContext = receiverContext();
             if (!maintainContext) {
-                inInstanceContext = isStatic ? 
+                setReceiverContext(isStatic ?
                     ReceiverContext.ScriptAsStatic :
                     isInstanceFunctionAsStaticMethod ?
                         ReceiverContext.InstanceAsStatic :
-                        ReceiverContext.InstanceAsInstance;
+                        ReceiverContext.InstanceAsInstance);
             }
 
             try {
                 return new SpecialResult(makeMethod(methodFlags(), methodBody(), methodParameters()));
             } finally {
-                inInstanceContext = prevContext;
+                setReceiverContext(prevContext);
                 yieldKind = prevYield;
                 targetType = prevTargetType;
                 getAttrEnv().where = prevWhere;
@@ -1461,10 +1467,12 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
     }
 
     class IdentTranslator extends MemberReferenceTranslator {
-        JFXIdent tree;
+        protected final JFXIdent tree;
+        protected final Symbol sym;
         IdentTranslator(JFXIdent tree) {
             super(tree.pos());
             this.tree = tree;
+            this.sym = tree.sym;
         }
 
         protected ExpressionResult doit() {
@@ -1474,7 +1482,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         protected JCExpression doitExpr() {
             if (tree.name == names._this) {
                 // in the static implementation method, "this" becomes "receiver$"
-                return makeReceiver(tree.sym, false);
+                return makeReceiver(sym, false);
             } else if (tree.name == names._super) {
                 if (types.isMixin(tree.type.tsym)) {
                     // "super" becomes just the class where the static implementation method is defined
@@ -1486,37 +1494,37 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 }
             }
 
-            int kind = tree.sym.kind;
+            int kind = sym.kind;
             if (kind == Kinds.TYP) {
                 // This is a class name, replace it with the full name (no generics)
-                return makeType(types.erasure(tree.sym.type), false);
+                return makeType(types.erasure(sym.type), false);
             }
 
             // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
             // and possible outer access methods
             JCExpression convert;
-            boolean isStatic = tree.sym.isStatic();
+            boolean isStatic = sym.isStatic();
             if (isStatic) {
                 // make class-based direct static reference:   Foo.x
-                convert = select(staticReference(tree.sym), tree.name);
+                convert = select(staticReference(sym), tree.name);
             } else {
                 if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
-                        tree.sym.owner.kind == Kinds.TYP) {
+                        sym.owner.kind == Kinds.TYP) {
                     // it is a non-static attribute or function class member
                     // reference it through the receiver
-                    convert = select(makeReceiver(tree.sym), tree.name);
+                    convert = select(makeReceiver(sym), tree.name);
                 } else {
                     convert = id(tree.name);
                 }
             }
 
-            if (tree.type instanceof FunctionType && tree.sym.type instanceof MethodType) {
-                MethodType mtype = (MethodType) tree.sym.type;
+            if (tree.type instanceof FunctionType && sym.type instanceof MethodType) {
+                MethodType mtype = (MethodType) sym.type;
                 JFXFunctionDefinition def = null; // FIXME
                 return new FunctionValueTranslator(convert, def, tree.pos(), mtype, tree.type).doitExpr();
             }
 
-            return convertVariableReference(convert, tree.sym);
+            return convertVariableReference(convert, sym);
         }
     }
 
@@ -2201,7 +2209,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
                 VarSymbol varSym = varSyms.first();
-                JCExpression varOffsetExpr = select(makeType(classType, false), attributeOffsetName(varSym)); //FIXME: script-level access
+                JCExpression varOffsetExpr = makeVarOffset(varSym, classSym); //TODO: fill-in selectorSym
                 JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
                 JCExpression condition = makeEqual(id(loopName), id(offsetVar));
