@@ -69,6 +69,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
      */
     private final JavafxInitializationBuilder initBuilder;
     private final JavafxTranslateBind translateBind;
+    private final JavafxTranslateInvBind translateInvBind;
 
     /*
      * Buffers holding definitions waiting to be prepended to the current list of definitions.
@@ -115,6 +116,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
         initBuilder = JavafxInitializationBuilder.instance(context);
         translateBind = JavafxTranslateBind.instance(context);
+        translateInvBind = JavafxTranslateInvBind.instance(context);
     }
 
     /**
@@ -353,6 +355,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                                     typeMorpher.varMorphInfo(attrDef.sym),
                                     initStmt,
                                     attrDef.isBound() ? translateBind.translate(attrDef.getInitializer(), attrDef.type, attrDef.sym) : null,
+                                    attrDef.isBidiBind() ? translateInvBind.translate(attrDef.getInitializer(), attrDef.type, attrDef.sym) : null,
                                     attrDef.getOnReplace(),
                                     translateTriggerAsInline(attrDef.sym, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
@@ -378,6 +381,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                                     typeMorpher.varMorphInfo(override.sym),
                                     initStmt,
                                     override.isBound() ? translateBind.translate(override.getInitializer(), override.type, override.sym) : null,
+                                    override.isBidiBind() ? translateInvBind.translate(override.getInitializer(), override.type, override.sym) : null,
                                     override.getOnReplace(),
                                     translateTriggerAsInline(override.sym, override.getOnReplace()),
                                     override.getOnInvalidate(),

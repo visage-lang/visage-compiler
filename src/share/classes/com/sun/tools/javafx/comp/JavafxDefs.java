@@ -54,6 +54,8 @@ public class JavafxDefs {
     public static final String attributeUpdateMethodNamePrefix = "update$";
     public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
     public static final String attributeCountMethodString = "count$";
+    public static final String attributeOldValueNameString = "varOldValue$";
+    public static final String attributeNewValueNameString = "varNewValue$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
     public static final String mixinSuffix = "$Mixin";
     public static final String deprecatedInterfaceSuffix = "$Intf";
@@ -219,6 +221,8 @@ public class JavafxDefs {
     final Name attributeApplyDefaultsPrefixMethodName;
     final Name attributeUpdatePrefixMethodName;
     final Name attributeCountMethodName;
+    final Name attributeOldValueName;
+    final Name attributeNewValueName;
     final Name isInitializedPrefixName;
     final Name incrementSharingMethodName;
     final Name onReplaceArgNameOld;
@@ -362,6 +366,8 @@ public class JavafxDefs {
         attributeApplyDefaultsPrefixMethodName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         attributeUpdatePrefixMethodName = names.fromString(attributeUpdateMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
+        attributeOldValueName =  names.fromString(attributeOldValueNameString);
+        attributeNewValueName =  names.fromString(attributeNewValueNameString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
         scriptLevelAccessField = names.fromString("$scriptLevel$");
         scriptLevelAccessMethod = names.fromString("access$scriptLevel$");
