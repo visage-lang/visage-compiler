@@ -93,7 +93,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation<Expression
                     addPreface(selector);
                     JCExpression callExpr = call(id(selector), attributeSetterName(selectVarSymbol), id(value));
                     JCExpression conditionExpr = makeBinary(JCTree.NE, id(selector), makeNull());
-                    expr = m().Conditional(conditionExpr, callExpr, id(value));
+                    expr = m().Conditional(conditionExpr, callExpr, id(defs.attributeNewValueName));
                 } else {
                     expr = call(attributeSetterName(selectVarSymbol), id(value));
                 }
