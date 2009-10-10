@@ -76,12 +76,16 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation<Expression
         return (new ExpressionTranslator(expr.pos()) {
             protected ExpressionResult doit() {
                 /*
-                  set$varSym(varNewValue$)
+                  type tmp0 = inv expression(varNewValue$);
+                  set$varSym(tmp0);
+                  varNewValue$
                   
                   or
-                  seltype tmp0 = get$select();
-                  type tmp1 = varNewValue$;
-                  tmp0 != null : tmp0.set$varSym(tmp1) : tmp1
+                  
+                  type tmp0 = inv expression(varNewValue$);
+                  seltype tmp1 = get$select();
+                  if (tmp1 != null) tmp1.set$varSym(tmp0);
+                  varNewValue$
                 */
                 JCExpression expr;
 
@@ -91,14 +95,14 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation<Expression
                 if (selectSymbol != null) {
                     JCVariableDecl selector = makeTmpVar(selectSymbol.type, call(attributeGetterName(selectSymbol)));
                     addPreface(selector);
-                    JCExpression callExpr = call(id(selector), attributeSetterName(selectVarSymbol), id(value));
+                    JCStatement setter = callStmt(id(selector), attributeSetterName(selectVarSymbol), id(value));
                     JCExpression conditionExpr = makeBinary(JCTree.NE, id(selector), makeNull());
-                    expr = m().Conditional(conditionExpr, callExpr, id(defs.attributeNewValueName));
+                    addPreface(m().If(conditionExpr, m().Block(0L, List.<JCStatement>of(setter)), null));
                 } else {
-                    expr = call(attributeSetterName(selectVarSymbol), id(value));
+                    addPreface(callStmt(attributeSetterName(selectVarSymbol), id(value)));
                 }
                 
-                return toResult(expr, targettedType);
+                return toResult(id(defs.attributeNewValueName), targettedType);
             }
         }).doit();
     }
