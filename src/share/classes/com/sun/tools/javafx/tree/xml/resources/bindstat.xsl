@@ -35,6 +35,7 @@
         <xsl:value-of select="c:putGlobal('eager-binds', 0)"/>
         <xsl:value-of select="c:putGlobal('lazy-binds', 0)"/>
         <xsl:value-of select="c:putGlobal('on-replaces', 0)"/>
+        <xsl:value-of select="c:putGlobal('on-invalidates', 0)"/>
 
         <xsl:value-of select="c:putGlobal('local-eager-binds', 0)"/>
         <xsl:value-of select="c:putGlobal('local-lazy-binds', 0)"/>
@@ -57,6 +58,7 @@
 count.of.eager.binds=<xsl:value-of select="c:getGlobal('eager-binds')"/>
 count.of.lazy.binds=<xsl:value-of select="c:getGlobal('lazy-binds')"/>
 count.of.on.replaces=<xsl:value-of select="c:getGlobal('on-replaces')"/>
+count.of.on.invalidates=<xsl:value-of select="c:getGlobal('on-invalidates')"/>
 count.of.local.eager.binds=<xsl:value-of select="c:getGlobal('local-eager-binds')"/>
 count.of.local.lazy.binds=<xsl:value-of select="c:getGlobal('local-lazy-binds')"/>
 count.of.local.on.replaces=<xsl:value-of select="c:getGlobal('local-on-replaces')"/>
@@ -72,6 +74,7 @@ count.of.object.literal.lazy.binds=<xsl:value-of select="c:getGlobal('object-lit
         <xsl:param name="varEagerBinds"/>
         <xsl:param name="varLazyBinds"/>
         <xsl:param name="varOnReplaces"/>
+        <xsl:param name="varOnInvalidates"/>
 
         <xsl:for-each select="fx:bind-status">
              <xsl:choose>
@@ -88,7 +91,12 @@ count.of.object.literal.lazy.binds=<xsl:value-of select="c:getGlobal('object-lit
 
         <xsl:if test="fx:on-replace">
             <xsl:if test="not(c:putGlobal($varOnReplaces, c:getGlobal($varOnReplaces) + 1))"/>
-            <xsl:apply-templates select="*"/>
+            <xsl:apply-templates select="fx:on-replace"/>
+        </xsl:if>
+
+        <xsl:if test="fx:on-invalidate">
+            <xsl:if test="not(c:putGlobal($varOnInvalidates, c:getGlobal($varOnInvalidates) + 1))"/>
+            <xsl:apply-templates select="fx:on-invalidate"/>
         </xsl:if>
     </xsl:template>
 
@@ -97,6 +105,7 @@ count.of.object.literal.lazy.binds=<xsl:value-of select="c:getGlobal('object-lit
             <xsl:with-param name="varEagerBinds" select="'eager-binds'"/>
             <xsl:with-param name="varLazyBinds" select="'lazy-binds'"/>
             <xsl:with-param name="varOnReplaces" select="'on-replaces'"/>
+            <xsl:with-param name="varOnInvalidates" select="'on-invalidates'"/>
         </xsl:call-template>
     </xsl:template>
 
@@ -105,6 +114,7 @@ count.of.object.literal.lazy.binds=<xsl:value-of select="c:getGlobal('object-lit
             <xsl:with-param name="varEagerBinds" select="'eager-binds'"/>
             <xsl:with-param name="varLazyBinds" select="'lazy-binds'"/>
             <xsl:with-param name="varOnReplaces" select="'on-replaces'"/>
+            <xsl:with-param name="varOnInvalidates" select="'on-invalidates'"/>
         </xsl:call-template>
     </xsl:template>
 
@@ -114,6 +124,7 @@ count.of.object.literal.lazy.binds=<xsl:value-of select="c:getGlobal('object-lit
             <xsl:with-param name="varEagerBinds" select="'local-eager-binds'"/>
             <xsl:with-param name="varLazyBinds" select="'local-lazy-binds'"/>
             <xsl:with-param name="varOnReplaces" select="'local-on-replaces'"/>
+            <xsl:with-param name="varOnInvalidates" select="'on-invalidates'"/>
         </xsl:call-template>
     </xsl:template>
     
