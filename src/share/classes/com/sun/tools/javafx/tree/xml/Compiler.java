@@ -28,11 +28,11 @@ import com.sun.source.tree.LineMap;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.model.JavacElements;
-import com.sun.tools.mjavac.model.JavacTypes;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Convert;
 import com.sun.tools.mjavac.util.Options;
 import com.sun.tools.mjavac.util.Position;
+import com.sun.tools.javafx.code.JavafxTypes;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,8 +101,8 @@ public final class Compiler {
         return getState().converter.idToType(id);
     }
 
-    public static JavacTypes types() {
-        return JavacTypes.instance(getState().context);
+    public static JavafxTypes types() {
+        return JavafxTypes.instance(getState().context);
     }
 
     public static JavacElements symbols() {

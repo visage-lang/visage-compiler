@@ -52,8 +52,17 @@
     <xsl:template match="fx:import"/>
     <xsl:template match="fx:bind-status"/>
     
-    <xsl:template match="fx:var"/>
-    <xsl:template match="fx:def"/>
+    <xsl:template match="fx:var">
+        <xsl:apply-templates select="fx:init-value/*"/>
+        <xsl:apply-templates select="fx:on-replace"/>
+        <xsl:apply-templates select="fx:on-invalidate"/>
+    </xsl:template>
+    <xsl:template match="fx:def">
+        <xsl:apply-templates select="fx:init-value/*"/>
+        <xsl:apply-templates select="fx:on-replace"/>
+        <xsl:apply-templates select="fx:on-invalidate"/>
+    </xsl:template>
+
     <xsl:template match="fx:empty"/>
     
     <xsl:template match="fx:while">
