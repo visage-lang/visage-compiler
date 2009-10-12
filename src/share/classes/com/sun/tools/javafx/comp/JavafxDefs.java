@@ -244,10 +244,10 @@ public class JavafxDefs {
     final Name varFlagActionClear;
     final Name vflgInvalPhaseName;
     final Name vflgTriggerPhaseName;
-    final Name varFlagInitialized;
-    final Name varFlagDefaultsApplied;
     final Name varFlagValid;
-    final Name varFlagHasDependents;
+    final Name varFlagInitialized;
+    final Name varFlagBound;
+    final Name varFlagReadOnly;
 
 	public final Name runtimePackageName;
 	public final Name annotationPackageName;
@@ -386,10 +386,10 @@ public class JavafxDefs {
         varFlagActionClear = names.fromString("clearVarBit$");
         vflgInvalPhaseName = names.fromString("VFLGS$INVAL_PHASE");
         vflgTriggerPhaseName = names.fromString("VFLGS$TRIGGER_PHASE");
-        varFlagInitialized = names.fromString("VFLGS$IS_INITIALIZED");
-        varFlagDefaultsApplied = names.fromString("VFLGS$IS_DEFAULTS_APPLIED");
         varFlagValid = names.fromString("VFLGS$IS_VALID_VALUE");
-        varFlagHasDependents = names.fromString("VFLGS$IS_BINDEE");
+        varFlagInitialized = names.fromString("VFLGS$IS_INITIALIZED");
+        varFlagBound = names.fromString("VFLGS$IS_BOUND");
+        varFlagReadOnly = names.fromString("VFLGS$IS_READONLY");
 
         runtimePackageName = names.fromString(runtimePackageNameString);
         annotationPackageName = names.fromString(annotationPackageNameString);

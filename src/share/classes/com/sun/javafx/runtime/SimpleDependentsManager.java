@@ -66,8 +66,6 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
             dependencies.setPrev(newDep);
         }
         dependencies = newDep;
-        // tell "bindee" that there are binders for "varNum" variable
-        bindee.setVarBit$(varNum, FXObject.VFLGS$IS_BINDEE);
         Dependent.clearDeadDependencies();
     }
 

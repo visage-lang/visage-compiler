@@ -40,7 +40,7 @@ public interface FXObject {
     /**
      * Number of bits needed for each var.
      */
-    public static final int VFLGS$BITS_PER_VAR = 8;
+    public static final int VFLGS$BITS_PER_VAR = 4;
     
     /**
      * Number of bits needed for each var.
@@ -48,26 +48,26 @@ public interface FXObject {
     public static final int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
     
     /**
-     * Var is initialized flag.
-     */
-    public static final int VFLGS$IS_INITIALIZED = 0;
-    
-    /**
-     * Var is defaults applied flag.
-     */
-    public static final int VFLGS$IS_DEFAULTS_APPLIED = 1;
-    
-    /**
      * Var is valid value applied flag (two phase bits.)
      */
-    public static final int VFLGS$IS_VALID_VALUE = 2;
+    public static final int VFLGS$IS_VALID_VALUE = 0;
     public static final int VFLGS$INVAL_PHASE = 0;
     public static final int VFLGS$TRIGGER_PHASE = 1;
    
     /**
-     * Var is bindee flag.
+     * Var is initialized flag.  Alias to VFLGS$IS_VALID_VALUE for convenience in libraries.
      */
-    public static final int VFLGS$IS_BINDEE = 4;
+    public static final int VFLGS$IS_INITIALIZED = VFLGS$IS_VALID_VALUE + VFLGS$INVAL_PHASE;
+    
+    /**
+     * Var is bound flag.
+     */
+    public static final int VFLGS$IS_BOUND = 2;
+    
+    /**
+     * Var is read only flag (bound or def.)
+     */
+    public static final int VFLGS$IS_READONLY = 3;
     
     public void     initFXBase$     ();
     
