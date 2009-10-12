@@ -736,23 +736,15 @@ public class Timeline {
         // isReverse rewinds elapsed time
         var timeDirection = if (isReverse) -1 else 1;
         var elapsed = baseElapsed + (currentTick - baseTick) * Math.abs(rate) * timeDirection;
-
-        var needsStop = false;
-        if(isReverse) {
-            if(elapsed <= 0) {
-                elapsed = 0;
-                needsStop = true;
-            }
-        } else {
-            if(elapsed >= totalDur and totalDur >= 0) {
-                elapsed = totalDur;
-                needsStop = true;
-            }
+        if (totalDur >= 0) {
+            elapsed = Math.min(elapsed, totalDur);
         }
+        elapsed = Math.max(elapsed, 0);
+        lastElapsed = elapsed;
+        var needsStop = playedToEnd();
 
         var curT: Number;
         var cycle: Integer;
-        lastElapsed = elapsed;
 
         if (timelineDur < 0) {
             // indefinite duration (e.g. will occur when a sub-timeline
@@ -765,26 +757,20 @@ public class Timeline {
         }
 
         // check if passed cycle boundary
-        var aborted = false;
         if(isReverse) {
             while(cycle < cycleIndex and (repeatCount < 0 or cycleIndex >= 0)) {
                 if (not visitCycle(cycleIndex > cycle + 1)) {
-                    aborted = true;
-                    break;
+                    return;
                 }
                 cycleIndex --;
             }
         } else {
             while(cycle > cycleIndex and(repeatCount < 0 or cycleIndex < repeatCount)) {
                 if (not visitCycle(cycleIndex < cycle - 1)) {
-                    aborted = true;
-                    break;
+                    return;
                 }
                 cycleIndex ++;
             }
-        }
-        if (aborted) {
-            return;
         }
 
         var cycleForward = if(isReverse) not forward else forward;
@@ -805,6 +791,21 @@ public class Timeline {
         if(needsStop) {
             stop();
         }
+    }
+
+    function playedToEnd(): Boolean {
+        var endReached = false;
+            var totalDur = getTotalDur();
+        if(isReverse) {
+            if(lastElapsed <= 0) {
+                endReached = true;
+            }
+        } else {
+            if(totalDur >= 0 and lastElapsed >= totalDur) {
+                endReached = true;
+            }
+        }
+        return endReached;
     }
 
     function doInterpolate(curT: Number) {
@@ -865,11 +866,14 @@ public class Timeline {
         }
         curPos = cycleT;
         time = makeDur(cycleT);
-        prepareForNextCycle();
+        prepareForNextCycle(catchingUp);
         return true;
     }
 
-    function prepareForNextCycle() {
+    function prepareForNextCycle(catchingUp: Boolean) {
+        if (not catchingUp and playedToEnd()) {
+            return;
+        }
         if (autoReverse) {
             forward = not forward;
         } else {
@@ -1023,7 +1027,7 @@ public class Timeline {
                      */
                     if((time.toMillis() as Number) >= timelineDur) {
                         cycleIndex ++;
-                        prepareForNextCycle();
+                        prepareForNextCycle(false);
                         }
                 } else {
                     lastElapsed = timelineDur - curPos;
@@ -1033,7 +1037,7 @@ public class Timeline {
                      */
                     if(time <= 0ms) {
                         cycleIndex ++;
-                        prepareForNextCycle();
+                        prepareForNextCycle(false);
                     }
                 }
                 baseElapsed = lastElapsed;
@@ -1063,7 +1067,7 @@ public class Timeline {
                 isReverse = false;
 
                 var dur = getTotalDur();
-                if((time.toMillis() as Number) != dur or
+                if(not playedToEnd() or
                         // INDEFINITE duration timeline can never reach to the end,
                         // must be explicit stop
                         dur < 0) {
