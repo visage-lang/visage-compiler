@@ -532,7 +532,6 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         startElement(INTERPOLATE_VALUE, ivt);
         emitTree(ATTRIBUTE, ivt.getAttribute());
         emitTree(VALUE, ivt.getValue());
-        System.out.println("value is " + ivt.getValue());
         emitTree(INTERPOLATION, ivt.getInterpolation());
         endElement(INTERPOLATE_VALUE);
         return null;
