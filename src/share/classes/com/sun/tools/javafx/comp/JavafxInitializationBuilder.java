@@ -1308,7 +1308,31 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym), id(phaseName)));
                         }
                     }
-    
+                    
+                    // Invalidate back to inverse.
+                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
+                        for (VarSymbol bindeeSym : varInfo.boundBindees()) {
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(bindeeSym), id(phaseName)));
+                            
+                            // rest are duplicates.
+                            break;
+                        }
+                        
+                        for (DependentPair pair : varInfo.boundBoundSelects()) {
+                            VarSymbol instanceSymbol = (VarSymbol)pair.instanceSym;
+                            VarSymbol referenceSymbol = (VarSymbol)pair.referencedSym;
+                            JCVariableDecl selector = makeTmpVar(instanceSymbol.type, call(getReceiver(), attributeGetterName(instanceSymbol)));
+                            addStmt(selector);
+                            beginBlock();
+                            addStmt(callStmt(id(selector), attributeInvalidateName(referenceSymbol), id(phaseName)));
+                            JCExpression conditionExpr = makeBinary(JCTree.NE, id(selector), makeNull());
+                            addStmt(m().If(conditionExpr, endBlock(), null));
+        
+                            // rest are duplicates.
+                            break;
+                        }
+                    }
+
                     // notifyDependents(VOFF$var, phase$);
                     if (!varInfo.isOverride()) {
                         addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym, null), id(phaseName)));
