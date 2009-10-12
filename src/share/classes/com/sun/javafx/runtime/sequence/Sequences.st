@@ -28,6 +28,7 @@ import java.util.*;
 import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
+import com.sun.javafx.runtime.FXBase;
 import com.sun.javafx.runtime.util.MathUtil;
 
 /**
@@ -796,5 +797,92 @@ $PREFIX:{T|
             return newElements;
         buffer.incrementSharing();
         return Sequences.subsequence(buffer, startPos, buffer.gapStart);
+    }
+
+    public static <T> Sequence<? extends T> replaceSlice(FXBase instance, int varNum, int startPos, int endPos/*exclusive*/, T newValue) {
+        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
+        if (newValue != null ? (endPos == startPos+1 && newValue.equals(oldValue.get( startPos))) : endPos == startPos) {
+            // FIXME set valid??
+            return oldValue;
+        }
+
+        int oldSize = oldValue.size();
+        if (startPos < 0)
+            startPos = 0;
+        else if (startPos > oldSize)
+            startPos = oldSize;
+        if (endPos > oldSize)
+            endPos = oldSize;
+        else if (endPos < startPos)
+            endPos = startPos;
+        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(startPos, endPos, (T) newValue, true);
+        // FIXME var.setValid();
+        // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
+        arr.clearOldValues(endPos-startPos);
+        instance.set\$(varNum, arr);
+        return arr;
+    }
+
+    public static <T> Sequence<? extends T> replaceSlice(FXBase instance, int varNum, int startPos, int endPos/*exclusive*/, Sequence<? extends T> newValues) {
+        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
+        if (sliceEqual(oldValue, startPos, endPos, newValues)) {
+            // FIXME set valid??
+            return oldValue;
+        }
+        int inserted = newValues.size();
+        int oldSize = oldValue.size();
+        if (startPos < 0)
+            startPos = 0;
+        else if (startPos > oldSize)
+            startPos = oldSize;
+        if (endPos > oldSize)
+            endPos = oldSize;
+        else if (endPos < startPos)
+            endPos = startPos;
+        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(startPos, endPos, newValues, 0, inserted, true);
+        // FIXME var.setValid();
+        // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
+        arr.clearOldValues(endPos-startPos);
+        instance.set\$(varNum, arr);
+        return arr;
+    }
+
+    public static <T> void set(FXBase instance, int varNum, int index, T newValue) {
+        replaceSlice(instance, varNum, index, index+1, newValue);
+    }
+
+    public static <T> void insert(FXBase instance, int varNum, T newValue) {
+        if (newValue == null)
+            return;
+        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
+        int oldSize = oldValue.size();
+        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(oldSize, oldSize, (T) newValue, true);
+        // FIXME var.setValid();
+        // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
+        instance.set\$(varNum, arr);
+    }
+
+    public static <T> void insert(FXBase instance, int varNum, Sequence<? extends T> values) {
+        int inserted = values.size();
+        if (inserted == 0)
+            return;
+        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
+        int oldSize = oldValue.size();
+        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(oldSize, oldSize, values, 0, inserted, true);
+        // FIXME var.setValid();
+        // TODO: invalidate(varNum, startPos, endPos, ...);
+        instance.set\$(varNum, arr);
+    }
+
+    public static <T> void insertBefore(FXBase instance, int varNum, T value, int position) {
+        replaceSlice(instance, varNum, position, position, value);
+    }
+
+    public static <T> void insertBefore(FXBase instance, int varNum, Sequence<? extends T> values, int position) {
+        replaceSlice(instance, varNum, position, position, values);
     }
 }

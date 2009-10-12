@@ -982,7 +982,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         args.append(make.TypeCast(makeType(info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameNewElements)));
                     }
                     args.append(tIndex);
-                    return call(makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                    return call(makeQualifiedTree(diagPos, JavafxDefs.cSequences),
                             mname, args.toList());
                 }
             }
@@ -1055,39 +1055,42 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceSliceTranslator(tree).doit();
     }
 
+    class SequenceInsertTranslator extends ExpressionTranslator {
+        JFXSequenceInsert tree;
+
+        public SequenceInsertTranslator(JFXSequenceInsert tree) {
+            super(tree.pos());
+            this.tree = tree;
+        }
+
+        protected ExpressionResult doit() {
+            ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+            JCExpression mutated = translateToMutable(tree.getSequence());
+            args.append(mutated);
+            JCExpression elem = translateToExpression(tree.getElement(), tree.getElement().type);
+            Type elemType = tree.getElement().type;
+            if (types.isArray(elemType) || types.isSequence(elemType))
+                elem = convertTranslated(elem, diagPos, elemType, tree.getSequence().type);
+            else
+                elem = convertTranslated(elem, diagPos, elemType, types.elementType(tree.getSequence().type));
+            args.append(elem);
+            JCExpression receiver = makeQualifiedTree(diagPos, JavafxDefs.cSequences);
+            Name method;
+            if (tree.getPosition() == null) {
+                method = defs.insertName;
+            } else {
+                JCExpression position = translateToExpression(tree.getPosition(), syms.intType);
+                if (tree.shouldInsertAfter())
+                    position = make.Binary(JCTree.PLUS, position, make.Literal(Integer.valueOf(1)));
+                method = defs.insertBeforeName;
+                args.append(position);
+            }
+            return toResult(call(receiver, method, args), tree.type);
+        }
+    }
+
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        TODO(tree);
-/*****
-        DiagnosticPosition diagPos = tree.pos();
-        JCExpression seqLoc = translateAsSequenceVariable(tree.getSequence());
-        JCExpression elem = translateAsUnconvertedValue( tree.getElement() );
-        Type elemType = tree.getElement().type;
-        if (types.isArray(elemType) || types.isSequence(elemType))
-            elem = convertTranslated(elem, diagPos, elemType, tree.getSequence().type);
-        else
-            elem = convertTranslated(elem, diagPos, elemType, types.elementType(tree.getSequence().type));
-        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-        JCExpression receiver;
-        if (elemType.isPrimitive()) {
-            // In this case we call a static method.  Kind of ugly ...
-            receiver = makeQualifiedTree(diagPos, JavafxDefs.locationPackageNameString+".SequenceVariable");
-            args.append(seqLoc);
-        }
-        else
-            receiver = seqLoc;
-        args.append(elem);
-        String method;
-        if (tree.getPosition() == null) {
-            method = "insert";
-        } else {
-            JCExpression position = translateAsValue(tree.getPosition(), syms.intType);
-            if (tree.shouldInsertAfter())
-                position = make.Binary(JCTree.PLUS, position, make.Literal(Integer.valueOf(1)));
-            method = "insertBefore";
-            args.append(position);
-        }
-        result = callStmt(diagPos, receiver, names.fromString(method), args.toList());
-*****/
+        result = new SequenceInsertTranslator(tree).doit();
     }
 
     //@Override
@@ -1216,7 +1219,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 if (elemType.isPrimitive()) {
                     primitive = true;
                     addTypeInfoArg = false;
-                    int kind = typeMorpher.kindFromPrimitiveType(elemType.tsym);
+                    int kind = types.kindFromPrimitiveType(elemType.tsym);
                     localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxDefs.getTypePrefix(kind) + "ArraySequence";
                 }
                 else
@@ -1760,7 +1763,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             }
             if (types.isSequence(expr.type) && !types.isSequence(classType)) {
                 tExpr = call(
-                        makeQualifiedTree(expr, "com.sun.javafx.runtime.sequence.Sequences"),
+                        makeQualifiedTree(expr, JavafxDefs.cSequences),
                         "getSingleValue", tExpr);
             }
             JCTree clazz = makeType(classType);
@@ -1869,7 +1872,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
                     args.append(make.Ident(defs.onReplaceArgNameNewElements));
                 }
-                return call(diagPos, makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                return call(diagPos, makeQualifiedTree(diagPos, JavafxDefs.cSequences),
                         mname, args.toList());
             }
         }

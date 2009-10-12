@@ -545,6 +545,27 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
     }
 
+    public JCExpression translateToMutable(JFXExpression seq) {
+        Symbol sym;
+        JCExpression instance;
+        if (seq instanceof JFXIdent) {
+            sym = ((JFXIdent) seq).sym;
+            instance = null;
+        } else if (seq instanceof JFXSelect) {
+            JFXSelect select = (JFXSelect) seq;
+            sym = select.sym;
+            instance = translateToExpression(select.selected, sym.owner.type);
+        }
+        else
+            throw new Error();
+        Name getter = attributeGetMutableName(sym);
+        if (instance == null)
+            instance = make.Ident(getter);
+        else
+            instance = make.Select(instance, getter);
+        return make.Apply(List.<JCExpression>nil(), instance, List.<JCExpression>nil());
+    }
+
     /** Translate a single tree.
      */
     SpecialResult translateToSpecialResult(JFXTree tree) {
@@ -1572,8 +1593,9 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     JCExpression tseq = translateExpr(seq, null); //FIXME
                     return m().Assign(m().Indexed(tseq, index), buildRHS(rhsTranslated));
                 } else {
-                    JCExpression tseq = translateExpr(seq, null); //FIXME
-                    return call(tseq, defs.setMethodName, index, buildRHS(rhsTranslated));
+                    JCExpression mutated = translateToMutable(seq);
+                    JCExpression receiver = makeQualifiedTree(diagPos, JavafxDefs.cSequences);
+                    return call(receiver, defs.setMethodName, mutated, index, buildRHS(rhsTranslated));
                  }
             } else {
                 if (useSetters) {
@@ -1666,7 +1688,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                         // call runtime reverse of a sequence
                         return toResult(
                              call(
-                                makeQualifiedTree(diagPos, "com.sun.javafx.runtime.sequence.Sequences"),
+                                makeQualifiedTree(diagPos, JavafxDefs.cSequences),
                                 "reverse", transExpr),
                              expr.type);
                     } else {
