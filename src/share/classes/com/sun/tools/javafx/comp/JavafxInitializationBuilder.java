@@ -367,7 +367,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Static(script) vars are exposed in class
             javaCodeMaker.makeAttributeFields(scriptVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
-            javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap());
+            // javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap());
             javaCodeMaker.makeInitStaticAttributesBlock(null, null, null);
 
             javaCodeMaker.makeMixinAccessorMethods(classVarInfos);
@@ -1960,7 +1960,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method constructs the current class's update$ method.
         //
-        public void makeUpdateMethod(HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap) {
+        public void makeUpdateMethod(HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap) {
             // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Grab the super class.
@@ -1971,8 +1971,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // generate method if it is worthwhile or we have to.
             if (!updateMap.isEmpty() || superClassSym == null) {
                 // Loop for instance symbol.
-                for (VarSymbol instanceVar : updateMap.keySet()) {
-                    HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+                for (Symbol instanceSym : updateMap.keySet()) {
+                    VarSymbol instanceVarSym = instanceSym instanceof VarSymbol ? (VarSymbol)instanceSym : null;
+                    HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSym);
                     
                     // Loop for reference symbol.
                     JCStatement ifReferenceStmt = null;
@@ -1987,12 +1988,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
 
                         // Reference the class with the instance, if it is script-level append the suffix
-                        JCExpression referenceSelect = makeVarOffset(referenceVar, instanceVar);
+                        JCExpression referenceSelect = makeVarOffset(referenceVar, instanceVarSym);
                         JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), referenceSelect);
                         ifReferenceStmt = m().If(ifReferenceCond, m().Block(0L, invalidateStmts.toList()), ifReferenceStmt);
                     }
                     
-                    JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName), id(attributeValueName(instanceVar)));
+                    JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName),
+                                                             instanceVarSym != null ? id(attributeValueName(instanceVarSym)) : id(names._this));
                     JCStatement ifInstanceStmt = m().If(ifInstanceCond, m().Block(0L, List.<JCStatement>of(ifReferenceStmt)), null);
                     stmts.append(ifInstanceStmt);
                 }

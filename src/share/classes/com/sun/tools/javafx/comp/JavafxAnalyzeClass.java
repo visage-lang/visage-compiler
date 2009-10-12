@@ -105,10 +105,10 @@ class JavafxAnalyzeClass {
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     
     // Map of all bind selects used to construct the class update$ method.
-    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
 
     // Map of all bind selects used to construct the script update$ method.
-    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
     private final Map<String, FuncInfo> needDispatchMethods = new HashMap<String, FuncInfo>();
@@ -648,24 +648,26 @@ class JavafxAnalyzeClass {
         // Start by analyzing the current class.
         analyzeCurrentClass();
 
-        // Assign var enumeration and binders.
-        for (VarInfo ai : classVarInfos) {
-           if (ai.needsCloning() && !ai.isOverride()) {
-               ai.setEnumeration(classVarCount++);
-           }
-           
-           if (ai instanceof TranslatedVarInfoBase) {
-              addBinders((TranslatedVarInfoBase)ai);
-           }
-        }
-        for (VarInfo ai : scriptVarInfos) {
-           if (ai.needsCloning() && !ai.isOverride()) {
-               ai.setEnumeration(scriptVarCount++);
-           }
-           
-           if (ai instanceof TranslatedVarInfoBase) {
-              addBinders((TranslatedVarInfoBase)ai);
-           }
+        if (!isMixinClass()) {
+            // Assign var enumeration and binders.
+            for (VarInfo ai : classVarInfos) {
+               if (ai.needsCloning() && !ai.isOverride()) {
+                   ai.setEnumeration(classVarCount++);
+               }
+               
+               if (ai instanceof TranslatedVarInfoBase) {
+                  addBinders((TranslatedVarInfoBase)ai);
+               }
+            }
+            for (VarInfo ai : scriptVarInfos) {
+               if (ai.needsCloning() && !ai.isOverride()) {
+                   ai.setEnumeration(scriptVarCount++);
+               }
+               
+               if (ai instanceof TranslatedVarInfoBase) {
+                  addBinders((TranslatedVarInfoBase)ai);
+               }
+            }
         }
 
         // Useful debugging tool.
@@ -684,7 +686,38 @@ class JavafxAnalyzeClass {
             
             // Add bunder.
             bindeeTAI.bindersOrNull.add(binder.getSymbol());
+        } else {
+            addInterClassBinder(bindee, currentClassSym, binder.getSymbol());
         }
+    }
+    
+    private void addInterClassBinder(VarInfo varInfo, Symbol instanceSymbol, VarSymbol referenceSymbol) {
+        VarSymbol varSymbol = (VarSymbol)varInfo.getSymbol();
+        
+        // Get the correct update map.
+        HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
+            varInfo.isStatic() ? scriptUpdateMap : classUpdateMap;
+        
+        // Get instance level map.
+        HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
+        
+        // Add new entry if not found.
+        if (instanceMap == null) {
+            instanceMap = new HashMap<VarSymbol, HashSet<VarInfo>>();
+            updateMap.put(instanceSymbol, instanceMap);
+        }
+        
+        // Get reference level map.
+        HashSet<VarInfo> referenceSet = instanceMap.get(referenceSymbol);
+        
+        // Add new entry if not found.
+        if (referenceSet == null) {
+            referenceSet = new HashSet<VarInfo>();
+            instanceMap.put(referenceSymbol, referenceSet);
+        }
+        
+        // Add symbol to set.
+        referenceSet.add(varInfo);
     }
     
     private void addBinders(TranslatedVarInfoBase tai) {
@@ -694,39 +727,15 @@ class JavafxAnalyzeClass {
             for (VarSymbol bindeeSym : tai.boundBindees()) {
                 // Find the varInfo
                 VarInfo bindee = visitedAttributes.get(bindeeSym.name);
-                addBinder(bindee, tai);
+                
+                if (bindee != null) {
+                    addBinder(bindee, tai);
+                }
             }
             
             // Add any bind select pairs to update map.
             for (DependentPair pair : tai.boundBoundSelects()) {
-                VarSymbol varSymbol = (VarSymbol)tai.getSymbol();
-                VarSymbol instanceSymbol = (VarSymbol)pair.instanceSym;
-                VarSymbol referenceSymbol = (VarSymbol)pair.referencedSym;
-                
-                // Get the correct update map.
-                HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
-                    tai.isStatic() ? scriptUpdateMap : classUpdateMap;
-                
-                // Get instance level map.
-                HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
-                
-                // Add new entry if not found.
-                if (instanceMap == null) {
-                    instanceMap = new HashMap<VarSymbol, HashSet<VarInfo>>();
-                    updateMap.put(instanceSymbol, instanceMap);
-                }
-                
-                // Get reference level map.
-                HashSet<VarInfo> referenceSet = instanceMap.get(referenceSymbol);
-                
-                // Add new entry if not found.
-                if (referenceSet == null) {
-                    referenceSet = new HashSet<VarInfo>();
-                    instanceMap.put(referenceSymbol, referenceSet);
-                }
-                
-                // Add symbol to set.
-                referenceSet.add(tai);
+                addInterClassBinder(tai, pair.instanceSym, (VarSymbol)pair.referencedSym);
             }
         }
     }
@@ -891,14 +900,14 @@ class JavafxAnalyzeClass {
     //
     // Returns the map used to construct the class update$ method.
     //
-    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
+    public final HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
         return classUpdateMap;
     }
     
     //
     // Returns the map used to construct the script update$ method.
     //
-    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
+    public final HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
         return scriptUpdateMap;
     }
 
