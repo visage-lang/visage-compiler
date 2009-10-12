@@ -367,7 +367,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Static(script) vars are exposed in class
             javaCodeMaker.makeAttributeFields(scriptVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
-            // javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap());
+            javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap());
             javaCodeMaker.makeInitStaticAttributesBlock(null, null, null);
 
             javaCodeMaker.makeMixinAccessorMethods(classVarInfos);
@@ -1302,11 +1302,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(varInfo.onInvalidateAsInline());
                     }
                     
-                    if (varInfo instanceof TranslatedVarInfoBase) {
-                        for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
-                            // invalidate$var(phase$);
-                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym), id(phaseName)));
-                        }
+                    for (VarSymbol otherVarSym : varInfo.boundBinders()) {
+                        // invalidate$var(phase$);
+                        addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym), id(phaseName)));
                     }
                     
                     // Invalidate back to inverse.
@@ -1332,11 +1330,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             break;
                         }
                     }
+                    
+                    boolean isSuperVarInfo = varInfo instanceof SuperClassVarInfo;
 
-                    // notifyDependents(VOFF$var, phase$);
-                    if (!varInfo.isOverride()) {
+                    if (isSuperVarInfo) {
+                        callSuper();
+                    } else if (!varInfo.isOverride()) {
+                        // notifyDependents(VOFF$var, phase$);
                         addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym, null), id(phaseName)));
-                    }
+                    } 
                     
                     if (varInfo.onReplace() != null) {
                         // Begin the get$ block.
@@ -1353,7 +1355,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     // isValid
-                    Name action = varInfo.isOverride() ? defs.varFlagActionTest : defs.varFlagActionClear;
+                    Name action = isSuperVarInfo || varInfo.isOverride() ? defs.varFlagActionTest : defs.varFlagActionClear;
                     JCExpression ifValidTest = makeFlagExpression(proxyVarSym, action, defs.varFlagValid, id(phaseName));
                     
                     // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
@@ -1554,6 +1556,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Only create accessors for declared and proxied vars.
                 if (ai.needsCloning()) {
                     makeAnAttributeAccessorMethods(ai, true);
+                } else {
+                    // If a super has binders we need to emit an overriding invalidate$.
+                    if (ai.boundBinders().size() != 0) {
+                        makeInvalidateAccessorMethod(ai, true);
+                    }
                 }
             }
         }
@@ -1960,7 +1967,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method constructs the current class's update$ method.
         //
-        public void makeUpdateMethod(HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap) {
+        public void makeUpdateMethod(HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap) {
             // Prepare to accumulate statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             // Grab the super class.
@@ -1971,9 +1978,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // generate method if it is worthwhile or we have to.
             if (!updateMap.isEmpty() || superClassSym == null) {
                 // Loop for instance symbol.
-                for (Symbol instanceSym : updateMap.keySet()) {
-                    VarSymbol instanceVarSym = instanceSym instanceof VarSymbol ? (VarSymbol)instanceSym : null;
-                    HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSym);
+                for (VarSymbol instanceVar : updateMap.keySet()) {
+                    HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
                     
                     // Loop for reference symbol.
                     JCStatement ifReferenceStmt = null;
@@ -1988,13 +1994,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
 
                         // Reference the class with the instance, if it is script-level append the suffix
-                        JCExpression referenceSelect = makeVarOffset(referenceVar, instanceVarSym);
+                        JCExpression referenceSelect = makeVarOffset(referenceVar, instanceVar);
                         JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), referenceSelect);
                         ifReferenceStmt = m().If(ifReferenceCond, m().Block(0L, invalidateStmts.toList()), ifReferenceStmt);
                     }
                     
-                    JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName),
-                                                             instanceVarSym != null ? id(attributeValueName(instanceVarSym)) : id(names._this));
+                    JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName), id(attributeValueName(instanceVar)));
                     JCStatement ifInstanceStmt = m().If(ifInstanceCond, m().Block(0L, List.<JCStatement>of(ifReferenceStmt)), null);
                     stmts.append(ifInstanceStmt);
                 }

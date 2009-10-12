@@ -105,10 +105,10 @@ class JavafxAnalyzeClass {
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     
     // Map of all bind selects used to construct the class update$ method.
-    private final HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
 
     // Map of all bind selects used to construct the script update$ method.
-    private final HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
     private final Map<String, FuncInfo> needDispatchMethods = new HashMap<String, FuncInfo>();
@@ -163,6 +163,8 @@ class JavafxAnalyzeClass {
         // The class local enumeration value for this var.
         private int enumeration;
 
+        // Inversion of boundBindees.
+        private  HashSet<VarSymbol> bindersOrNull;
 
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
@@ -172,6 +174,7 @@ class JavafxAnalyzeClass {
             this.vmi = vmi;
             this.initStmt = initStmt;
             this.enumeration = -1;
+            this.bindersOrNull = null;
         }
 
         // Return the var symbol.
@@ -196,13 +199,13 @@ class JavafxAnalyzeClass {
         public long getFlags() { return sym.flags(); }
         
         // Return true if the var/override has an initializing expression
-        public boolean hasInitializer() { throw new RuntimeException("no initializer info"); }
+        public boolean hasInitializer() { return false; }
 
         // Return true if the var has a bound definition.
-        public boolean hasBoundDefinition() { throw new RuntimeException("no accurate bind info"); }
+        public boolean hasBoundDefinition() { return false; }
         
         // Return true if the var has a bidirectional bind.
-        public boolean hasBiDiBoundDefinition() { throw new RuntimeException("no accurate bind info"); }
+        public boolean hasBiDiBoundDefinition() { return false; }
         
         // Return true if the var is an inline bind.
         public boolean isInlinedBind() { return hasBoundDefinition(); }
@@ -280,9 +283,9 @@ class JavafxAnalyzeClass {
 
         // Empty or variable symbols on which this variable depends
         public List<VarSymbol> boundBindees() { return List.<VarSymbol>nil(); }
-
+        
         // Bound variable symbols on which this variable is used.
-        public HashSet<VarSymbol> boundBinders() { return new HashSet<VarSymbol>(); }
+        public HashSet<VarSymbol> boundBinders() { return bindersOrNull == null? new HashSet<VarSymbol>() : bindersOrNull; }
 
         // Empty or bound select pairs.
         public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
@@ -305,6 +308,7 @@ class JavafxAnalyzeClass {
                                (isDef() ? ", isDef" : "") +
                                (!boundBindees().isEmpty() ? ", intra binds" : "") + 
                                (!boundBoundSelects().isEmpty() ? ", inter binds" : "") + 
+                               (bindersOrNull != null ?  ", binders" : "") + 
                                (getDefaultInitStatement() != null ? ", init" : "") +
                                ", class=" + getClass().getSimpleName());
             if (detail) {
@@ -348,9 +352,6 @@ class JavafxAnalyzeClass {
         
         // Result of bind with inverse translation
         private final ExpressionResult invBindOrNull;
-        
-        // Inversion of boundBindees.
-        private  HashSet<VarSymbol> bindersOrNull;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
                 JCStatement initStmt, ExpressionResult bindOrNull, ExpressionResult invBindOrNull, 
@@ -398,10 +399,6 @@ class JavafxAnalyzeClass {
         // Variable symbols on which this variable depends
         @Override
         public List<VarSymbol> boundBindees() { return bindOrNull==null? List.<VarSymbol>nil() : bindOrNull.bindees(); }
-
-        // Bound variable symbols on which this variable is used.
-        @Override
-        public HashSet<VarSymbol> boundBinders() { return bindersOrNull == null? new HashSet<VarSymbol>() : bindersOrNull; }
 
         // Empty or bound select pairs.
         @Override
@@ -546,66 +543,66 @@ class JavafxAnalyzeClass {
         // Null or Java code for getter expression of bound variable
         @Override
         public JCExpression boundInit() {
-            return hasOverrideVar() ? overrideVar().boundInit() : null;
+            return hasOverrideVar() ? overrideVar().boundInit() : super.boundInit();
         }
 
         // Empty or Java preface code for getter of bound variable
         @Override
         public List<JCStatement> boundPreface() {
-            return hasOverrideVar() ? overrideVar().boundPreface() : null;
+            return hasOverrideVar() ? overrideVar().boundPreface() : super.boundPreface();
         }
 
         // Null or Java code for setting of bound with inverse variable
         @Override
         public JCExpression boundInvSetter() {
-            return hasOverrideVar() ? overrideVar().boundInvSetter() : null;
+            return hasOverrideVar() ? overrideVar().boundInvSetter() : super.boundInvSetter();
         }
 
         // Empty or Java preface code for setting of bound with inverse variable
         public List<JCStatement> boundInvSetterPreface() {
-            return hasOverrideVar() ? overrideVar().boundInvSetterPreface() : null;
+            return hasOverrideVar() ? overrideVar().boundInvSetterPreface() : super.boundInvSetterPreface();
         }
 
         // Variable symbols on which this variable depends
         @Override
         public List<VarSymbol> boundBindees() {
-            return hasOverrideVar() ? overrideVar().boundBindees() : null;
+            return hasOverrideVar() ? overrideVar().boundBindees() : super.boundBindees();
         }
 
         // Bound variable symbols on which this variable is used.
         @Override
         public HashSet<VarSymbol> boundBinders() {
-            return hasOverrideVar() ? overrideVar().boundBinders() : null;
+            return hasOverrideVar() ? overrideVar().boundBinders() : super.boundBinders();
         }
 
         // Empty or bound select pairs.
         @Override
         public List<DependentPair> boundBoundSelects() {
-            return hasOverrideVar() ? overrideVar().boundBoundSelects() : null;
+            return hasOverrideVar() ? overrideVar().boundBoundSelects() : super.boundBoundSelects();
         }
 
         // Possible javafx code for the var's 'on replace'.
         @Override
         public JFXOnReplace onReplace() {
-            return hasOverrideVar() ? overrideVar().onReplace() : null;
+            return hasOverrideVar() ? overrideVar().onReplace() : super.onReplace();
         }
 
         // Possible java code for the var's 'on replace' in setter.
         @Override
         public JCStatement onReplaceAsInline() {
-            return hasOverrideVar() ? overrideVar().onReplaceAsInline() : null;
+            return hasOverrideVar() ? overrideVar().onReplaceAsInline() : super.onReplaceAsInline();
         }
 
         // Possible javafx code for the var's 'on invalidate'.
         @Override
         public JFXOnReplace onInvalidate() {
-            return hasOverrideVar() ? overrideVar().onInvalidate() : null;
+            return hasOverrideVar() ? overrideVar().onInvalidate() : super.onInvalidate();
         }
 
         // Possible java code for the var's 'on invalidate' in var$invalidate method.
         @Override
         public JCStatement onInvalidateAsInline() {
-            return hasOverrideVar() ? overrideVar().onInvalidateAsInline() : null;
+            return hasOverrideVar() ? overrideVar().onInvalidateAsInline() : super.onInvalidateAsInline();
         }
 
         // Mixin vars are always cloned.
@@ -648,54 +645,35 @@ class JavafxAnalyzeClass {
         // Start by analyzing the current class.
         analyzeCurrentClass();
 
-        if (!isMixinClass()) {
-            // Assign var enumeration and binders.
-            for (VarInfo ai : classVarInfos) {
-               if (ai.needsCloning() && !ai.isOverride()) {
-                   ai.setEnumeration(classVarCount++);
-               }
-               
-               if (ai instanceof TranslatedVarInfoBase) {
-                  addBinders((TranslatedVarInfoBase)ai);
-               }
-            }
-            for (VarInfo ai : scriptVarInfos) {
-               if (ai.needsCloning() && !ai.isOverride()) {
-                   ai.setEnumeration(scriptVarCount++);
-               }
-               
-               if (ai instanceof TranslatedVarInfoBase) {
-                  addBinders((TranslatedVarInfoBase)ai);
-               }
-            }
+        // Assign var enumeration and binders.
+        for (VarInfo ai : classVarInfos) {
+           if (ai.needsCloning() && !ai.isOverride()) {
+               ai.setEnumeration(classVarCount++);
+           }
+           
+           if (ai instanceof TranslatedVarInfoBase) {
+              addBinders((TranslatedVarInfoBase)ai);
+           }
+        }
+        for (VarInfo ai : scriptVarInfos) {
+           if (ai.needsCloning() && !ai.isOverride()) {
+               ai.setEnumeration(scriptVarCount++);
+           }
+           
+           if (ai instanceof TranslatedVarInfoBase) {
+              addBinders((TranslatedVarInfoBase)ai);
+           }
         }
 
         // Useful debugging tool.
         // printAnalysis(false);
     }
     
-    private void addBinder(VarInfo bindee, VarInfo binder) {
-        // If an interesting var.
-        if (bindee instanceof TranslatedVarInfoBase) {
-            TranslatedVarInfoBase bindeeTAI = (TranslatedVarInfoBase)bindee;
-            
-            // Add a symbol buffer if necessary.
-            if (bindeeTAI.bindersOrNull == null) {
-                bindeeTAI.bindersOrNull = new HashSet<VarSymbol>();
-            }
-            
-            // Add bunder.
-            bindeeTAI.bindersOrNull.add(binder.getSymbol());
-        } else {
-            addInterClassBinder(bindee, currentClassSym, binder.getSymbol());
-        }
-    }
-    
-    private void addInterClassBinder(VarInfo varInfo, Symbol instanceSymbol, VarSymbol referenceSymbol) {
+    private void addInterClassBinder(VarInfo varInfo, VarSymbol instanceSymbol, VarSymbol referenceSymbol) {
         VarSymbol varSymbol = (VarSymbol)varInfo.getSymbol();
         
         // Get the correct update map.
-        HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
+        HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
             varInfo.isStatic() ? scriptUpdateMap : classUpdateMap;
         
         // Get instance level map.
@@ -720,6 +698,19 @@ class JavafxAnalyzeClass {
         referenceSet.add(varInfo);
     }
     
+    private void addBinder(VarInfo bindee, VarInfo binder) {
+        // If an interesting var.
+        if (bindee != null) {
+            // Add a symbol buffer if necessary.
+            if (bindee.bindersOrNull == null) {
+                bindee.bindersOrNull = new HashSet<VarSymbol>();
+            }
+            
+            // Add bunder.
+            bindee.bindersOrNull.add(binder.getSymbol());
+        }
+    }
+    
     private void addBinders(TranslatedVarInfoBase tai) {
         // If the var has a bind 
         if (tai.boundInit() != null) {
@@ -727,10 +718,7 @@ class JavafxAnalyzeClass {
             for (VarSymbol bindeeSym : tai.boundBindees()) {
                 // Find the varInfo
                 VarInfo bindee = visitedAttributes.get(bindeeSym.name);
-                
-                if (bindee != null) {
-                    addBinder(bindee, tai);
-                }
+                addBinder(bindee, (VarInfo)tai);
             }
             
             // Add any bind select pairs to update map.
@@ -900,14 +888,14 @@ class JavafxAnalyzeClass {
     //
     // Returns the map used to construct the class update$ method.
     //
-    public final HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
+    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
         return classUpdateMap;
     }
     
     //
     // Returns the map used to construct the script update$ method.
     //
-    public final HashMap<Symbol, HashMap<VarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
+    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
         return scriptUpdateMap;
     }
 
