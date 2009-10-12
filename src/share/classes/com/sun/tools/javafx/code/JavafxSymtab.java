@@ -305,4 +305,9 @@ public class JavafxSymtab extends Symtab {
         }
         return makeFunctionType(typarams.toList(), mtype);
     }
+
+    /** Make public. */
+    public Type enterClass(String name) {
+        return super.enterClass(name);
+    }
 }

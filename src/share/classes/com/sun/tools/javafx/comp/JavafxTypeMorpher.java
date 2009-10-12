@@ -94,7 +94,7 @@ public class JavafxTypeMorpher {
             this.realType = symType;
 
             if (symType.isPrimitive()) {
-                typeKind = kindFromPrimitiveType(realTsym);
+                typeKind = types.kindFromPrimitiveType(realTsym);
             } else {
                 if (isSequence()) {
                     typeKind = TYPE_KIND_SEQUENCE;
@@ -161,16 +161,4 @@ public class JavafxTypeMorpher {
         defaultValueByKind[TYPE_KIND_SEQUENCE] = null; // Empty sequence done programatically
     }
 
-    public int kindFromPrimitiveType(TypeSymbol tsym) {
-        if (tsym == syms.booleanType.tsym) return TYPE_KIND_BOOLEAN;
-        if (tsym == syms.charType.tsym) return TYPE_KIND_CHAR;
-        if (tsym == syms.byteType.tsym) return TYPE_KIND_BYTE;
-        if (tsym == syms.shortType.tsym) return TYPE_KIND_SHORT;
-        if (tsym == syms.intType.tsym) return TYPE_KIND_INT;
-        if (tsym == syms.longType.tsym) return TYPE_KIND_LONG;
-        if (tsym == syms.floatType.tsym) return TYPE_KIND_FLOAT;
-        if (tsym == syms.doubleType.tsym) return TYPE_KIND_DOUBLE;
-        assert false : "should not reach here";
-        return TYPE_KIND_OBJECT;
-    }
 }
