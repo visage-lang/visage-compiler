@@ -1033,6 +1033,22 @@ public class SequencesBase {
         return replaceSlice(oldValue, position, position+1, (Sequence<? extends T>)null);
     }
 
+    public static <T> void deleteSlice(FXBase instance, int varNum, int begin, int end) {
+        replaceSlice(instance, varNum, begin, end, (Sequence<? extends T>)null);
+    }
+
+    public static <T> Sequence<? extends T> deleteSlice(Sequence<? extends T> oldValue, int begin, int end) {
+        return replaceSlice(oldValue, begin, end, (Sequence<? extends T>)null);
+    }
+
+    public static <T> void deleteValue(FXBase instance, int varNum, T value) {
+        throw new RuntimeException("Not yet implemented: deleteValue");
+    }
+
+    public static <T> Sequence<? extends T> deleteValue(Sequence<? extends T> oldValue, T value) {
+        throw new RuntimeException("Not yet implemented: deleteValue");
+    }
+
     public static <T> Sequence<? extends T> deleteAll(Sequence<? extends T> oldValue) {
         return replaceSlice(oldValue, 0, oldValue.size(), (Sequence<? extends T>)null);
     }
