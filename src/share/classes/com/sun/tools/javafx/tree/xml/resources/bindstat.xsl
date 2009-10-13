@@ -43,6 +43,7 @@
 
         <xsl:value-of select="c:putGlobal('object-literal-eager-binds', 0)"/>
         <xsl:value-of select="c:putGlobal('object-literal-lazy-binds', 0)"/>
+        <xsl:value-of select="c:putGlobal('object-literals-with-binds', 0)"/>
         <xsl:text>&#10;</xsl:text>
     </xsl:template>
 
@@ -64,6 +65,7 @@ count.of.local.lazy.binds=<xsl:value-of select="c:getGlobal('local-lazy-binds')"
 count.of.local.on.replaces=<xsl:value-of select="c:getGlobal('local-on-replaces')"/>
 count.of.object.literal.eager.binds=<xsl:value-of select="c:getGlobal('object-literal-eager-binds')"/>
 count.of.object.literal.lazy.binds=<xsl:value-of select="c:getGlobal('object-literal-lazy-binds')"/>
+count.of.object.literals.with.binds=<xsl:value-of select="c:getGlobal('object-literals-with-binds')"/>
     </xsl:template>
 
     <xsl:template match="fx:file">
@@ -141,5 +143,13 @@ count.of.object.literal.lazy.binds=<xsl:value-of select="c:getGlobal('object-lit
         </xsl:for-each>
         <xsl:apply-templates select="fx:expr/*"/>
     </xsl:template>
-   
+  
+    <xsl:template match="fx:object-literal"> 
+        <!-- check if we have atleast one initialization with bind expr -->
+        <xsl:if test="fx:defs/fx:object-literal-init/fx:bind-status != 'unbound'">
+            <xsl:if test="not(c:putGlobal('object-literals-with-binds', c:getGlobal('object-literals-with-binds') + 1))"/>
+        </xsl:if>
+        <xsl:apply-imports/>
+    </xsl:template>
+
 </xsl:transform>
