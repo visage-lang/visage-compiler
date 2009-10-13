@@ -136,85 +136,72 @@ import java.lang.reflect.Field;
         int count = obj.count$();
       
         if (count > VFLGS$VARS_PER_WORD) {
-            int length = (((count * VFLGS$BITS_PER_VAR) + 31) >> 5) - 1;
-            obj.setVFLGS$large$internal$(new int[length]);
+            if (obj.getVFLGS$large$internal$() == null) {
+                int length = (count - 1) / VFLGS$VARS_PER_WORD;
+                obj.setVFLGS$large$internal$(new int[length]);
+            }
         }
     }
     
-    /**
-     * Test a var status bit.
-     * @param varNum var identifying offset.
-     * @param varBit var status bit number.
-     */
-    public boolean isVarBitSet$(final int varNum, final int varBit) {
-        return isVarBitSet$(this, varNum, varBit);
+    public boolean varTestBits$(final int varNum, int maskBits, int testBits) {
+        return varTestBits$(this, varNum, maskBits, testBits);
     }
-    public static boolean isVarBitSet$(FXObject obj, final int varNum, final int varBit) {
-        int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
-        int shift = bit & 31;
+    public static boolean varTestBits$(FXObject obj, final int varNum, int maskBits, int testBits) {
+        int index = varNum / VFLGS$VARS_PER_WORD;
+        int slot = varNum % VFLGS$VARS_PER_WORD;
+        int shift = slot * VFLGS$BITS_PER_VAR;
+        maskBits <<= shift;
+        testBits <<= shift;
         int word;
       
-        if (bit >= 32) {
-            int index = (bit >> 5) - 1;
+        if (index > 0) {
+            index--;
             int[] large = obj.getVFLGS$large$internal$();
             word = large[index];
         } else {
             word = obj.getVFLGS$small$internal$();
         }
       
-        return ((word >> shift) & 1) != 0;
+        return (word & maskBits) == testBits;
     }
     
-    /**
-     * Set a var status bit.  Returns old state.
-     * @param varNum var identifying offset.
-     * @param varBit var status bit number.
-     */
-    public boolean setVarBit$(final int varNum, final int varBit) {
-        return setVarBit$(this, varNum, varBit);
+    public boolean varChangeBits$(final int varNum, int clearBits, int setBits) {
+        return varChangeBits$(this, varNum, clearBits, setBits);
     }
-    public static boolean setVarBit$(FXObject obj, final int varNum, final int varBit) {
-        int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
-        int shift = bit & 31;
+    public static boolean varChangeBits$(FXObject obj, final int varNum, int clearBits, int setBits) {
+        int index = varNum / VFLGS$VARS_PER_WORD;
+        int slot = varNum % VFLGS$VARS_PER_WORD;
+        int shift = slot * VFLGS$BITS_PER_VAR;
+        clearBits <<= shift;
+        setBits <<= shift;
         int word;
       
-        if (bit >= 32) {
-            int index = (bit >> 5) - 1;
+        if (index > 0) {
+            index--;
             int[] large = obj.getVFLGS$large$internal$();
             word = large[index];
-            large[index] = word | (1 << shift);
+            large[index] = (word & ~clearBits) | setBits;
         } else {
             word = obj.getVFLGS$small$internal$();
-            obj.setVFLGS$small$internal$(word | (1 << shift));
+            obj.setVFLGS$small$internal$((word & ~clearBits) | setBits);
         }
+        
+        int bits = clearBits | setBits;
       
-        return ((word >> shift) & 1) != 0;
+        return (word & bits) == bits;
     }
-    
-    /**
-     * Clear a var status bit.  Returns old state.
-     * @param varNum var identifying offset.
-     * @param varBit var status bit number.
-     */
-    public boolean clearVarBit$(final int varNum, final int varBit) {
-        return clearVarBit$(this, varNum, varBit);
+     
+    public void restrictSet$(final int varNum) {
+        restrictSet$(this, varNum);
     }
-    public static boolean clearVarBit$(FXObject obj, final int varNum, final int varBit) {
-      int bit = varNum * VFLGS$BITS_PER_VAR + varBit;
-      int shift = bit & 31;
-      int word;
-      
-        if (bit >= 32) {
-            int index = (bit >> 5) - 1;
-            int[] large = obj.getVFLGS$large$internal$();
-            word = large[index];
-            large[index] = word & ~(1 << shift);
-        } else {
-            word = obj.getVFLGS$small$internal$();
-            obj.setVFLGS$small$internal$(word & ~(1 << shift));
+    public static void restrictSet$(FXObject obj, final int varNum) {
+        if (varTestBits$(obj, varNum, 0, VFLGS$IS_READONLY)) {
+            if (varTestBits$(obj, varNum, 0, VFLGS$IS_BOUND)) {
+                throw new AssignToBoundException();
+            } else {
+                throw new AssignToDefException();
+            }
         }
-      
-      return ((word >> shift) & 1) != 0;
     }
 
     // dependents management

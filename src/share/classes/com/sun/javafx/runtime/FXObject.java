@@ -43,31 +43,22 @@ public interface FXObject {
     public static final int VFLGS$BITS_PER_VAR = 4;
     
     /**
-     * Number of bits needed for each var.
+     * Number of var slots per word.
      */
     public static final int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
     
     /**
      * Var is valid value applied flag (two phase bits.)
      */
-    public static final int VFLGS$IS_VALID_VALUE = 0;
-    public static final int VFLGS$INVAL_PHASE = 0;
-    public static final int VFLGS$TRIGGER_PHASE = 1;
-   
-    /**
-     * Var is initialized flag.  Alias to VFLGS$IS_VALID_VALUE for convenience in libraries.
-     */
-    public static final int VFLGS$IS_INITIALIZED = VFLGS$IS_VALID_VALUE + VFLGS$INVAL_PHASE;
-    
-    /**
-     * Var is bound flag.
-     */
-    public static final int VFLGS$IS_BOUND = 2;
-    
-    /**
-     * Var is read only flag (bound or def.)
-     */
-    public static final int VFLGS$IS_READONLY = 3;
+    public static final int VFLGS$IS_VALID_VALUE = 3;
+    public static final int VFLGS$IS_VALID_INVAL_PHASE = 1;
+    public static final int VFLGS$IS_VALID_TRIGGER_PHASE = 2;
+    public static final int VFLGS$IS_BOUND = 4;
+    public static final int VFLGS$IS_READONLY = 8;
+
+    public static final int VFLGS$IS_INITIALIZED = VFLGS$IS_VALID_VALUE;
+    public static final int VFLGS$IS_BOUND_READONLY = VFLGS$IS_BOUND | VFLGS$IS_READONLY;
+    public static final int VFLGS$IS_BOUND_VALID = VFLGS$IS_BOUND | VFLGS$IS_VALID_VALUE;
     
     public void     initFXBase$     ();
     
@@ -76,9 +67,9 @@ public interface FXObject {
     public int[]    getVFLGS$large$internal$();
     public void     setVFLGS$large$internal$(final int[] large);
 
-    public boolean isVarBitSet$(final int varNum, final int varBit);
-    public boolean setVarBit$(final int varNum, final int varBit);
-    public boolean clearVarBit$(final int varNum, final int varBit);
+    public boolean varTestBits$(final int varNum, int maskBits, int testBits);
+    public boolean varChangeBits$(final int varNum, int clearBits, int setBits);
+    public void restrictSet$(final int varNum);
 
     // dependents management
     public DependentsManager getDependentsManager$internal$();

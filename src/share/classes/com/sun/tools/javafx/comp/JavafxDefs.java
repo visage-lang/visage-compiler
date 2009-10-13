@@ -240,20 +240,22 @@ public class JavafxDefs {
     final Name internalSuffixName;
     
     final Name varFlagActionTest;
-    final Name varFlagActionSet;
-    final Name varFlagActionClear;
-    final Name vflgInvalPhaseName;
-    final Name vflgTriggerPhaseName;
-    final Name varFlagValid;
-    final Name varFlagInitialized;
-    final Name varFlagBound;
-    final Name varFlagReadOnly;
+    final Name varFlagActionChange;
+    final Name varFlagRestrictSet;
+    final Name varFlagIS_VALID_VALUE;
+    final Name varFlagIS_VALID_INVAL_PHASE;
+    final Name varFlagIS_VALID_TRIGGER_PHASE;
+    final Name varFlagIS_BOUND;
+    final Name varFlagIS_READONLY;
+    final Name varFlagIS_INITIALIZED;
+    final Name varFlagIS_BOUND_READONLY;
+    final Name varFlagIS_BOUND_VALID;
 
-	public final Name runtimePackageName;
-	public final Name annotationPackageName;
-	public final Name sequencePackageName;
-	public final Name functionsPackageName;
-	public final Name javaLangPackageName;
+    public final Name runtimePackageName;
+    public final Name annotationPackageName;
+    public final Name sequencePackageName;
+    public final Name functionsPackageName;
+    public final Name javaLangPackageName;
     public final Name implFunctionSuffixName;
 
     public static final int TYPE_KIND_OBJECT = 0;
@@ -381,15 +383,17 @@ public class JavafxDefs {
         scriptLevelAccessField = names.fromString("$scriptLevel$");
         scriptLevelAccessMethod = names.fromString("access$scriptLevel$");
         
-        varFlagActionTest = names.fromString("isVarBitSet$");
-        varFlagActionSet = names.fromString("setVarBit$");
-        varFlagActionClear = names.fromString("clearVarBit$");
-        vflgInvalPhaseName = names.fromString("VFLGS$INVAL_PHASE");
-        vflgTriggerPhaseName = names.fromString("VFLGS$TRIGGER_PHASE");
-        varFlagValid = names.fromString("VFLGS$IS_VALID_VALUE");
-        varFlagInitialized = names.fromString("VFLGS$IS_INITIALIZED");
-        varFlagBound = names.fromString("VFLGS$IS_BOUND");
-        varFlagReadOnly = names.fromString("VFLGS$IS_READONLY");
+        varFlagActionTest = names.fromString("varTestBits$");
+        varFlagActionChange = names.fromString("varChangeBits$");
+        varFlagRestrictSet = names.fromString("restrictSet$");
+        varFlagIS_VALID_VALUE = names.fromString("VFLGS$IS_VALID_VALUE");
+        varFlagIS_VALID_INVAL_PHASE = names.fromString("VFLGS$IS_VALID_INVAL_PHASE");
+        varFlagIS_VALID_TRIGGER_PHASE = names.fromString("VFLGS$IS_VALID_TRIGGER_PHASE");
+        varFlagIS_BOUND = names.fromString("VFLGS$IS_BOUND");
+        varFlagIS_READONLY = names.fromString("VFLGS$IS_READONLY");
+        varFlagIS_INITIALIZED = names.fromString("VFLGS$IS_INITIALIZED");
+        varFlagIS_BOUND_READONLY = names.fromString("VFLGS$IS_BOUND_READONLY");
+        varFlagIS_BOUND_VALID = names.fromString("VFLGS$IS_BOUND_VALID");
 
         runtimePackageName = names.fromString(runtimePackageNameString);
         annotationPackageName = names.fromString(annotationPackageNameString);
