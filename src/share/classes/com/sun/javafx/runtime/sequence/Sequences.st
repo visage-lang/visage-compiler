@@ -798,8 +798,7 @@ $PREFIX:{T|
         return Sequences.subsequence(buffer, startPos, buffer.gapStart);
     }
 
-    public static <T> Sequence<? extends T> replaceSlice(FXBase instance, int varNum, int startPos, int endPos/*exclusive*/, T newValue) {
-        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
+    public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, int startPos, int endPos/*exclusive*/, T newValue) {
         if (newValue != null ? (endPos == startPos+1 && newValue.equals(oldValue.get( startPos))) : endPos == startPos) {
             // FIXME set valid??
             return oldValue;
@@ -816,15 +815,19 @@ $PREFIX:{T|
             endPos = startPos;
         ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
         arr.replace(startPos, endPos, (T) newValue, true);
-        // FIXME var.setValid();
-        // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
         arr.clearOldValues(endPos-startPos);
-        instance.set\$(varNum, arr);
         return arr;
     }
 
-    public static <T> Sequence<? extends T> replaceSlice(FXBase instance, int varNum, int startPos, int endPos/*exclusive*/, Sequence<? extends T> newValues) {
+    public static <T> void replaceSlice(FXBase instance, int varNum, int startPos, int endPos/*exclusive*/, T newValue) {
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
+        Sequence<? extends T> arr = replaceSlice(oldValue, startPos, endPos, newValue);
+        // FIXME var.setValid();
+        // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
+        instance.set\$(varNum, arr);
+    }
+
+    public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, int startPos, int endPos/*exclusive*/, Sequence<? extends T> newValues) {
         if (sliceEqual(oldValue, startPos, endPos, newValues)) {
             // FIXME set valid??
             return oldValue;
@@ -841,11 +844,18 @@ $PREFIX:{T|
             endPos = startPos;
         ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
         arr.replace(startPos, endPos, newValues, 0, inserted, true);
-        // FIXME var.setValid();
-        // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
         arr.clearOldValues(endPos-startPos);
-        instance.set\$(varNum, arr);
         return arr;
+    }
+
+    public static <T> void replaceSlice(FXBase instance, int varNum, int startPos, int endPos/*exclusive*/, Sequence<? extends T> newValues) {
+        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
+        Sequence<? extends T> arr = replaceSlice(oldValue, startPos, endPos, newValues);
+        instance.set\$(varNum, arr);
+    }
+
+    public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, T newValue, int index) {
+        return replaceSlice(oldValue, index, index+1, newValue);
     }
 
     public static <T> T set(FXBase instance, int varNum, T newValue, int index) {
@@ -853,16 +863,34 @@ $PREFIX:{T|
         return newValue;
     }
 
+    public static <T> Sequence<? extends T> insert(Sequence<? extends T> oldValue, T newValue) {
+        if (newValue == null)
+            return oldValue;
+        int oldSize = oldValue.size();
+        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(oldSize, oldSize, (T) newValue, true);
+        return arr;
+    }
+
     public static <T> void insert(FXBase instance, int varNum, T newValue) {
         if (newValue == null)
             return;
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
         int oldSize = oldValue.size();
-        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
-        arr.replace(oldSize, oldSize, (T) newValue, true);
+        Sequence<? extends T> arr = insert(oldValue, newValue);
         // FIXME var.setValid();
         // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
         instance.set\$(varNum, arr);
+    }
+
+    public static <T> Sequence<? extends T> insert(Sequence<? extends T> oldValue, Sequence<? extends T> values) {
+        int inserted = values.size();
+        if (inserted == 0)
+            return oldValue;
+        int oldSize = oldValue.size();
+        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(oldSize, oldSize, values, 0, inserted, true);
+        return arr;
     }
 
     public static <T> void insert(FXBase instance, int varNum, Sequence<? extends T> values) {
@@ -870,9 +898,7 @@ $PREFIX:{T|
         if (inserted == 0)
             return;
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get\$(varNum);
-        int oldSize = oldValue.size();
-        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
-        arr.replace(oldSize, oldSize, values, 0, inserted, true);
+        Sequence<? extends T> arr = insert(oldValue, values);
         // FIXME var.setValid();
         // TODO: invalidate(varNum, startPos, endPos, ...);
         instance.set\$(varNum, arr);
@@ -884,5 +910,13 @@ $PREFIX:{T|
 
     public static <T> void insertBefore(FXBase instance, int varNum, Sequence<? extends T> values, int position) {
         replaceSlice(instance, varNum, position, position, values);
+    }
+
+    public static <T> Sequence<? extends T> insertBefore(Sequence<? extends T> oldValue, T value, int position) {
+        return replaceSlice(oldValue, position, position, value);
+    }
+
+    public static <T> Sequence<? extends T> insertBefore(Sequence<? extends T> oldValue, Sequence<? extends T> values, int position) {
+        return replaceSlice(oldValue, position, position, values);
     }
 }

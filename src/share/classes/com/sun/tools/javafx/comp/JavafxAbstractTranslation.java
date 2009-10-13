@@ -1597,22 +1597,38 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             return translateExpr(indexOrNull, syms.intType);
         }
 
-        JCExpression sequencesOp(Name methodName, JCExpression tToCheck) {
-            if (refSym == null || refSym.owner.kind != Kinds.TYP) {
-                TODO("local variable sequence operations");
-                return null; // shutup
+        // Figure out the instance containing the variable
+        JCExpression instance(JCExpression tToCheck) {
+            if (staticReference) {
+                return call(tToCheck, defs.scriptLevelAccessMethod);
+            } else if (tToCheck == null) {
+                return id(names._this);
             } else {
-                // Figure out the instance containing the variable
-                JCExpression instance;
-                if (staticReference) {
-                    instance = call(tToCheck, defs.scriptLevelAccessMethod);
-                } else if (tToCheck == null) {
-                    instance = id(names._this);
-                } else {
-                    instance = tToCheck;
+                return tToCheck;
+            }
+        }
+
+        JCExpression sequencesOp(Name methodName, JCExpression tToCheck) {
+            ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+            if (refSym.owner.kind != Kinds.TYP) {
+                // Local variable sequence -- make a block expression, roughly:
+                // { Foo tmp = rhs;
+                //   lhs = sequenceAction(lhs, rhs);
+                //   tmp;
+                // }
+                args.append(id(refSym.name));
+                JCVariableDecl tv = makeTmpVar(types.boxedTypeOrType(rhsType()), buildRHS(rhsTranslated));
+                args.append(id(tv));
+                JCExpression tIndex = translateIndex();
+                if (tIndex != null) {
+                    args.append(tIndex);
                 }
-                ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                args.append(instance);
+                JCExpression res = call(syms.javafx_SequencesType, methodName, args);
+                return makeBlockExpression(List.<JCStatement>of(tv, makeExec(m().Assign(id(refSym.name), res))), id(tv));
+            } else {
+                // Instance variable sequence -- roughly:
+                // sequenceAction(instance, varNum, rhs);
+                args.append(instance(tToCheck));
                 args.append(makeVarOffset(refSym, expressionSymbol(selector)));
                 args.append(buildRHS(rhsTranslated));
                 JCExpression tIndex = translateIndex();
@@ -1628,8 +1644,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             if (indexOrNull != null) {
                 if (ref.type.tag == TypeTags.ARRAY) {
                     // set of an array element --  s[i]=8, set the array element
-                    JCExpression tseq = translateExpr(ref, null); //FIXME
-                    return m().Assign(m().Indexed(tseq, translateIndex()), buildRHS(rhsTranslated));
+                    JCExpression tArray = buildGetter(instance(tToCheck));
+                    return m().Assign(m().Indexed(tArray, translateIndex()), buildRHS(rhsTranslated));
                 } else {
                     // set of a sequence element --  s[i]=8, call the sequence set method
                     return sequencesOp(defs.setMethodName, tToCheck);
@@ -1673,6 +1689,10 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
 
         JCExpression buildSetter(JCExpression tc, JCExpression rhsComplete) {
             return call(tc, attributeSetterName(refSym), rhsComplete);
+        }
+
+        JCExpression buildGetter(JCExpression tc) {
+            return call(tc, attributeGetterName(refSym));
         }
     }
 
