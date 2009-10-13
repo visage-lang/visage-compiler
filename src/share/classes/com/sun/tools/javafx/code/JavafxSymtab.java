@@ -307,6 +307,7 @@ public class JavafxSymtab extends Symtab {
     }
 
     /** Make public. */
+    @Override
     public Type enterClass(String name) {
         return super.enterClass(name);
     }

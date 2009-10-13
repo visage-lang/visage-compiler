@@ -1730,10 +1730,6 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             this.transExpr = translateExpr(expr, expr.type);
         }
 
-        JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
-            return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
-        }
-
         private ExpressionResult doIncDec(final int binaryOp, final boolean postfix) {
             return (ExpressionResult) new AssignTranslator(diagPos, expr, fxm().Literal(1)) {
 
@@ -1774,7 +1770,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     if (expr.type.tag == TypeTags.ARRAY) {
                         return toResult(select(transExpr, defs.lengthName), syms.intType);
                     }
-                    return toResult(translateSizeof(expr, transExpr), syms.intType);
+                    return toResult(call(defs.Sequences_size, transExpr), syms.intType);
                 case REVERSE:
                     if (types.isSequence(expr.type)) {
                         // call runtime reverse of a sequence

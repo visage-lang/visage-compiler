@@ -712,25 +712,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     public void visitAssign(final JFXAssign tree) {
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-            TODO("visitAssign SEQUENCE_SLICE");
-            // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
-            /***
-            JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
-            JCExpression rhs = translateAsValue(tree.rhs, si.getSequence().type);
-            JCExpression seq = translateAsSequenceVariable(si.getSequence());
-            JCExpression startPos = translateAsValue(si.getFirstIndex(), syms.intType);
-            JCExpression endPos = makeSliceEndPos(si);
-            JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
-            List<JCExpression> args = List.of(startPos, endPos, rhs);
-            result = make.at(diagPos).Apply(null, select, args);
-            **/
+            result = new SequenceSliceActionTranslator((JFXSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.rhs).doit();
         } else {
             result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
-
-                @Override
-                JCExpression buildRHS(JCExpression rhsTranslated) {
-                    return rhsTranslated;
-                }
 
                 @Override
                 JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated) {
@@ -1056,7 +1040,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceSliceTranslator(tree).doit();
     }
 
-    abstract class AbstractSequenceTranslator extends AssignTranslator {
+    class SequenceActionTranslator extends AssignTranslator {
 
         final RuntimeMethod meth;
 
@@ -1065,11 +1049,15 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
          * @param diagPos
          * @param ref Variable being referenced (different from LHS if indexed -- where it is sequence or array)
          * @param indexOrNull The index into the variable reference.  Or null if not indexed.
-         * @param rhs The expression acting on ref
+         * @param rhs The expression acting on ref or null
          */
-        AbstractSequenceTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, JFXExpression rhs) {
+        SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, JFXExpression rhs) {
             super(diagPos, ref, indexOrNull, syms.voidType, rhs);
             this.meth = meth;
+        }
+
+        SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull) {
+            this(diagPos, ref, meth, indexOrNull, null);
         }
 
         @Override
@@ -1127,7 +1115,22 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
-    class SequenceInsertTranslator extends AbstractSequenceTranslator {
+    class SequenceSliceActionTranslator extends SequenceActionTranslator {
+
+        private final JFXSequenceSlice slice;
+
+        SequenceSliceActionTranslator(JFXSequenceSlice slice, RuntimeMethod meth, JFXExpression rhs) {
+            super(slice.pos(), slice.getSequence(), meth, slice.getFirstIndex(), rhs);
+            this.slice = slice;
+        }
+
+        @Override
+        JCExpression translateIndex2() {
+            return makeSliceEndPos(slice);
+        }
+    }
+
+    class SequenceInsertTranslator extends SequenceActionTranslator {
         JFXSequenceInsert tree;
 
         public SequenceInsertTranslator(JFXSequenceInsert tree) {
@@ -1157,42 +1160,25 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceInsertTranslator(tree).doit();
     }
 
-    class SequenceDeleteTranslator extends AbstractSequenceTranslator {
-
-        SequenceDeleteTranslator(final DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull) {
-            this(diagPos, ref, meth, indexOrNull, null);
-        }
-
-        SequenceDeleteTranslator(final DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, JFXExpression element) {
-            super(diagPos, ref, meth, indexOrNull, element);
-        }
-    }
-
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         DiagnosticPosition diagPos = tree.pos();
         JFXExpression seq = tree.getSequence();
-        SequenceDeleteTranslator trans;
+        SequenceActionTranslator trans;
         if (tree.getElement() != null) {
-            trans = new SequenceDeleteTranslator(diagPos, seq, defs.Sequences_deleteValue, null, tree.getElement());
+            trans = new SequenceActionTranslator(diagPos, seq, defs.Sequences_deleteValue, null, tree.getElement());
         } else {
             switch (seq.getFXTag()) {
                 case SEQUENCE_INDEXED:
                     JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
-                    trans = new SequenceDeleteTranslator(diagPos, si.getSequence(), defs.Sequences_deleteIndexed, si.getIndex());
+                    trans = new SequenceActionTranslator(diagPos, si.getSequence(), defs.Sequences_deleteIndexed, si.getIndex());
                     break;
                 case SEQUENCE_SLICE:
                     final JFXSequenceSlice ss = (JFXSequenceSlice) seq;
-                    trans = new SequenceDeleteTranslator(diagPos, ss.getSequence(), defs.Sequences_deleteSlice, ss.getFirstIndex()) {
-
-                        @Override
-                        JCExpression translateIndex2() {
-                            return makeSliceEndPos(ss);
-                        }
-                    };
+                    trans = new SequenceSliceActionTranslator((JFXSequenceSlice) seq, defs.Sequences_deleteSlice, null);
                     break;
                 default:
                     if (types.isSequence(seq.type)) {
-                        trans = new SequenceDeleteTranslator(diagPos, seq, defs.Sequences_deleteAll, null);
+                        trans = new SequenceActionTranslator(diagPos, seq, defs.Sequences_deleteAll, null);
                     } else {
                         TODO("delete non-sequence");
                         trans = null; //shut-up

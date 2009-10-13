@@ -85,7 +85,6 @@ public class JavafxDefs {
     public static final String hasAnInitializerNameString = "hasAnInitializer";
     public static final String convertNumberSequence = "convertNumberSequence";
     public static final String bindingIdString = "id";
-    public static final String computeMethodString = "compute";
     public static final String varOffsetString = "VOFF$";
     public static final String varCountString = "VCNT$";
     public static final String varFlagsString = "VFLGS$";
@@ -146,7 +145,7 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_deleteValue;
     final RuntimeMethod Sequences_deleteAll;
 
-    final RuntimeMethod Util_isEqual;
+    final RuntimeMethod Util_isEqual; //TODO: replace uses with Checks_equals
 
     final RuntimeMethod Checks_equals;
     final RuntimeMethod Checks_isNull;
@@ -187,7 +186,6 @@ public class JavafxDefs {
     final Name getMethodName;
     final Name attributeSetMethodParamName;
     final Name getSliceMethodName;
-    final Name setMethodName;
     final Name sizeMethodName;
     final Name defaultingTypeInfoFieldName;
     final Name needDefaultsMethodName;
@@ -257,11 +255,11 @@ public class JavafxDefs {
     final Name varFlagValid;
     final Name varFlagHasDependents;
 
-	public final Name runtimePackageName;
-	public final Name annotationPackageName;
-	public final Name sequencePackageName;
-	public final Name functionsPackageName;
-	public final Name javaLangPackageName;
+    public final Name runtimePackageName;
+    public final Name annotationPackageName;
+    public final Name sequencePackageName;
+    public final Name functionsPackageName;
+    public final Name javaLangPackageName;
     public final Name implFunctionSuffixName;
 
     public static final int TYPE_KIND_OBJECT = 0;
@@ -322,7 +320,6 @@ public class JavafxDefs {
         getMethodName = names.fromString(getMethodNameString);
         attributeSetMethodParamName = names.fromString("value$");
         getSliceMethodName = names.fromString("getSlice");
-        setMethodName = names.fromString(setMethodNameString);
         sizeMethodName = names.fromString(sizeMethodNameString);
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
         needDefaultsMethodName = names.fromString(needDefaultMethodNameString);
