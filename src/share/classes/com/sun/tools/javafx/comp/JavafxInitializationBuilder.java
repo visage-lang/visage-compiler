@@ -694,6 +694,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             protected JCExpression returnType;
             // True if the return type is void.
             protected boolean isVoidReturnType;
+            // True if we're to stop the build.
+            protected boolean stopBuild = false;
+            // True if body is required.
+            protected boolean needsBody = true;
             
             // Grab the super class.
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
@@ -831,23 +835,31 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                  }
             }
             
+            // Return the method flags.
+            public JCModifiers flags() {
+                return m().Modifiers(isMixinClass() ? (Flags.STATIC | Flags.PUBLIC) : Flags.PUBLIC);
+            }
+            
             // Driver method to construct the current method.
             public void build() {
                 // Initialize for method.
                 initialize();
                 
                 // Generate the code.
-                generate();
+                if (needsBody && !stopBuild) generate();
                 
-                // Record method.
-                optStat.recordProxyMethod();
-
-                // Construct method.
-                addDefinition(makeMethod(isMixinClass() ? (Flags.STATIC | Flags.PUBLIC) : Flags.PUBLIC,
-                                         returnType,
-                                         methodName,
-                                         paramList(),
-                                         stmts.toList()));
+                // Produce no method if generate indicates stopBuild.
+                if (!stopBuild) {
+                    // Record method.
+                    optStat.recordProxyMethod();
+    
+                    // Construct method.
+                    addDefinition(makeMethod(flags(),
+                                             returnType,
+                                             methodName,
+                                             paramList(!needsBody),
+                                             needsBody ? stmts.toList() : null));
+                }
             }
 
             // This method generates the statements for the method.
@@ -900,24 +912,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 super(methodName, returnType);
             }
             
-            // Driver method to construct the current method.
+            // Return the method flags.
             @Override
-            public void build() {
-                // Initialize for method.
-                initialize();
-                
-                // Generate the code.
-                generate();
-                
-                // Record method.
-                optStat.recordProxyMethod();
-
-                // Construct method.
-                addDefinition(makeMethod(Flags.STATIC | Flags.PUBLIC,
-                                         returnType,
-                                         methodName,
-                                         paramList(),
-                                         stmts.toList()));
+            public JCModifiers flags() {
+                return m().Modifiers(Flags.STATIC | Flags.PUBLIC);
             }
         }
       
@@ -928,8 +926,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public class VarAccessorMethodBuilder extends MethodBuilder {
             // Current var info.
             protected VarInfo varInfo;
-            // Whether the accessor needs a body or not.
-            protected boolean needsBody;
             // Symbol used on the method.
             protected VarSymbol varSym;
             // Symbol used when accessing the variable.
@@ -948,26 +944,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.proxyVarSym = varInfo.proxyVarSym();
                 this.varName = attributeValueName(proxyVarSym);
                 this.type = varInfo.getRealType();
+                this.needsBody = needsBody;
             }
-                
-            // Driver method to construct the current method.
+            
+            // Return the method flags.
             @Override
-            public void build() {
-                // Initialize for method.
-                initialize();
-                
-                // Generate the code.
-                if (needsBody) generate();
-                
-                // Record method.
-                optStat.recordProxyMethod();
-
-                // Construct method.
-                addDefinition(makeMethod(proxyModifiers(varInfo, !needsBody),
-                                         returnType,
-                                         methodName,
-                                         paramList(!needsBody),
-                                         needsBody ? stmts.toList() : null));
+            public JCModifiers flags() {
+                return proxyModifiers(varInfo, !needsBody);
             }
         }
         
@@ -995,20 +978,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.varName = attributeValueName(proxyVarSym);
                 this.type = varInfo.getRealType();
             }
-            
-            // Driver method to construct the current method.
-            @Override
-            public void build() {
-                // Build only if a member of this mixin.
-                if (constrain()) {
-                    super.build();
-                }
-            }
-            
-            // Additional constraint to force the method.
-            public boolean constrain() {
-                return false;
-            }
         }
         
         //
@@ -1032,26 +1001,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.varCount = varCount;
                 addParam(syms.intType, varNumName);
             }
-            
-            // Driver method to construct the current method.
-            @Override
-            public void build() {
-                // Generate the code.
-                // Initialize for method.
-                initialize();
-                
-                // Generate the body.
-                generate();
-                
-                if (stmts.nonEmpty() || superClassSym == null) {
-                    // Record method.
-                    optStat.recordProxyMethod();
-                    
-                    // Construct method.
-                    addDefinition(makeMethod(Flags.PUBLIC, returnType, methodName, paramList(), stmts.toList()));
-                }
-            }
-            
+                        
             // Specialized body the handles offset cases.
             @Override
             public void body() {
@@ -1091,6 +1041,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // Call the super version.
                     callSuper();
+                    
+                    // Control build.
+                    stopBuild = !(stmts.nonEmpty() || superClassSym == null);
                 }
             }
         }
@@ -1323,7 +1276,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(selector);
                             beginBlock();
                             addStmt(callStmt(id(selector), attributeInvalidateName(referenceSymbol), id(phaseName)));
-                            JCExpression conditionExpr = makeBinary(JCTree.NE, id(selector), makeNull());
+                            JCExpression conditionExpr = makeNotNullCheck(id(selector));
                             addStmt(m().If(conditionExpr, endBlock(), null));
         
                             // rest are duplicates.
@@ -1443,14 +1396,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private void makeMixinApplyDefaultsMethod(VarInfo varInfo) {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeApplyDefaultsName(varInfo.getSymbol()), syms.voidType, varInfo) {
                 @Override
+                public void initialize() {
+                    stopBuild = !(isCurrentClassSymbol(varSym.owner) || varInfo.getDefaultInitStatement() != null);
+                }                
+
+                @Override
                 public void statements() {
                     // Get body of applyDefaults$.
                     addStmt(makeApplyDefaultsStatement(varInfo, true));
-                }
-                
-                @Override
-                public boolean constrain() {
-                    return isCurrentClassSymbol(varSym.owner) || varInfo.getDefaultInitStatement() != null;
                 }
             };
              
@@ -1463,17 +1416,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private void makeMixinEvaluateAccessorMethod(VarInfo varInfo) {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeEvaluateName(varInfo.getSymbol()), syms.voidType, varInfo) {
                 @Override
+                public void initialize() {
+                    stopBuild = !(isCurrentClassSymbol(varSym.owner) || varInfo.hasBoundDefinition());
+                }                
+
+                @Override
                 public void statements() {
                     if (varInfo.hasBoundDefinition()) {
                         // set$var(init/bound expression)
                         addStmts(varInfo.boundPreface());
                         addStmt(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
                     } 
-                }
-                
-                @Override
-                public boolean constrain() {
-                    return isCurrentClassSymbol(varSym.owner) || varInfo.hasBoundDefinition();
                 }
             };
              
@@ -1488,6 +1441,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void initialize() {
                     addParam(syms.intType, phaseName);
+                    stopBuild = !(varInfo instanceof TranslatedVarInfoBase);
                 }
                                                                          
                 @Override
@@ -1498,19 +1452,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     // Invalidate other mixin vars.
-                    for (VarSymbol otherVarSym : ((TranslatedVarInfoBase)varInfo).boundBinders()) {
-                         addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym), id(phaseName)));
+                    for (VarSymbol otherVarSym : varInfo.boundBinders()) {
+                        addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym), id(phaseName)));
                     }
       
-                     // Add on-invalidate trigger if any
+                    // Add on-invalidate trigger if any
                     if (varInfo.onInvalidate() != null) {
                         addStmt(varInfo.onInvalidateAsInline());
                     }
-                }
-                
-                @Override
-                public boolean constrain() {
-                    return varInfo instanceof TranslatedVarInfoBase;
                 }
             };
              
@@ -1864,104 +1813,91 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's applyDefaults$ method.
         //
         public void makeApplyDefaultsMethod() {
-            // Number of variables in current class.
-            int count = analysis.getClassVarCount();
-
-            // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-
-            // Prepare to accumulate cases.
-            ListBuffer<JCCase> cases = ListBuffer.lb();
-             // Prepare to accumulate overrides.
-            ListBuffer<JCStatement> overrides = ListBuffer.lb();
-
-            // Gather the instance attributes.
-            List<VarInfo> attrInfos = analysis.classVarInfos();
-            for (VarInfo ai : attrInfos) {
-                // Only declared attributes with default expressions.
-                if (ai.needsCloning() && !ai.isOverride()) {
-                    // Prepare to accumulate case statements.
-                    ListBuffer<JCStatement> caseStmts = ListBuffer.lb();
-
-                    // Get body of applyDefaults$.
-                    JCStatement deflt = makeApplyDefaultsStatement(ai, isMixinClass());
-
-                    // Something to set when we have a default.
-                    if (deflt != null) {
-                        // applyDefaults$var();
-                        caseStmts.append(deflt);
-                    }
-
-                    // Build the case
-                    {
-                        // return
-                        JCStatement returnExpr = m().Return(null);
-                        caseStmts.append(returnExpr);
-
-                        // case tag number
-                        JCExpression tag = makeInt(ai.getEnumeration() - count);
-
-                        // Add the case, something like:
-                        // case i: applyDefaults$var(); return;
-                        cases.append(m().Case(tag, caseStmts.toList()));
-                    }
-                } else {
-                    // Get init statement.
-                    JCStatement init = ai.getDefaultInitStatement();
-
-                    if (init != null) {
-                        // varNum == VOFF$var
-                        JCExpression isRightVarExpr = makeEqual(id(varNumName), id(attributeOffsetName(ai.getSymbol())));
-                        // { init; return; }
-                        JCBlock block = m().Block(0, List.<JCStatement>of(init, m().Return(null)));
-                        // if (varNum == VOFF$var) { init; return; }
-                        overrides.append(m().If(isRightVarExpr, block, null));
-                    }
+            MethodBuilder mb = new MethodBuilder(defs.attributeApplyDefaultsPrefixMethodName, syms.voidType) {
+                @Override
+                public void initialize() {
+                    addParam(syms.intType, varNumName);
                 }
-            }
-
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-
-            // Has some defaults.
-            boolean hasDefaults = cases.nonEmpty() || overrides.nonEmpty();
-
-            // If there were some location vars.
-            if (cases.nonEmpty()) {
-                // varNum - VCNT$
-                JCExpression tagExpr = makeBinary(JCTree.MINUS, id(varNumName), id(defs.varCountName));
-                // Construct and add: switch(varNum - VCNT$) { ... }
-                stmts.append(m().Switch(tagExpr, cases.toList()));
-            }
-
-            // Add overrides.
-            stmts.appendList(overrides);
-
-            // generate method if it is worthwhile or we have to.
-            if (hasDefaults || superClassSym == null) {
-               // If there is a super class.
-                if (superClassSym != null) {
-                    // super
-                    JCExpression selector = id(names._super);
-                    // (varNum)
-                    List<JCExpression> args = List.<JCExpression>of(id(varNumName));
-                    // Construct and add: return super.applyDefaults$(varNum);
-                    stmts.append(callStmt(selector, defs.attributeApplyDefaultsPrefixMethodName, args));
+                
+                // Return the method flags.
+                @Override
+                public JCModifiers flags() {
+                    return m().Modifiers(Flags.PUBLIC);
                 }
-
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 syms.voidType,
-                                                 defs.attributeApplyDefaultsPrefixMethodName,
-                                                 List.<JCVariableDecl>of(makeParam(syms.intType, varNumName)),
-                                                 stmts);
-                addDefinition(method);
-            }
+            
+                @Override
+                public void statements() {
+                    // Number of variables in current class.
+                    int count = analysis.getClassVarCount();
+        
+                    // Prepare to accumulate cases.
+                    ListBuffer<JCCase> cases = ListBuffer.lb();
+                     // Prepare to accumulate overrides.
+                    ListBuffer<JCStatement> overrides = ListBuffer.lb();
+        
+                    // Gather the instance attributes.
+                    List<VarInfo> attrInfos = analysis.classVarInfos();
+                    for (VarInfo ai : attrInfos) {
+                        setDiagPos(ai.pos());
+                        // Only declared attributes with default expressions.
+                        if (ai.needsCloning() && !ai.isOverride()) {
+                            // Begin the var case.
+                            beginBlock();
+                            // Get body of applyDefaults$.
+                            addStmt(makeApplyDefaultsStatement(ai, isMixinClass()));
+                            // return
+                            addStmt(m().Return(null));
+                            // case tag number
+                            JCExpression tag = makeInt(ai.getEnumeration() - count);
+    
+                            // Add the case, something like:
+                            // case i: applyDefaults$var(); return;
+                            cases.append(m().Case(tag, endBlockAsStmts()));
+                        } else {
+                            // Get init statement.
+                            JCStatement init = ai.getDefaultInitStatement();
+        
+                            if (init != null) {
+                                // Begin the override case.
+                                beginBlock();
+                                // Add init statement.
+                                addStmt(init);
+                                // return
+                                addStmt(m().Return(null));
+                                // varNum == VOFF$var
+                                JCExpression isRightVarExpr = makeEqual(id(varNumName), id(attributeOffsetName(ai.getSymbol())));
+                                // if (varNum == VOFF$var) { init; return; }
+                                overrides.append(m().If(isRightVarExpr, endBlock(), null));
+                            }
+                        }
+                    }
+        
+                    // Reset diagnostic position to current class.
+                    resetDiagPos();
+        
+                    // Has some defaults.
+                    boolean hasDefaults = cases.nonEmpty() || overrides.nonEmpty();
+        
+                    // If there were some location vars.
+                    if (cases.nonEmpty()) {
+                        // varNum - VCNT$
+                        JCExpression tagExpr = makeBinary(JCTree.MINUS, id(varNumName), id(defs.varCountName));
+                        // Construct and add: switch(varNum - VCNT$) { ... }
+                        addStmt(m().Switch(tagExpr, cases.toList()));
+                    }
+        
+                    // Add overrides.
+                    addStmts(overrides.toList());
+                    
+                    // Call super if necessary.
+                    callSuper();
+                    
+                    stopBuild = !(hasDefaults || superClassSym == null);
+                }
+            };
+            
+            mb.build();
+            
         }
         
         //
