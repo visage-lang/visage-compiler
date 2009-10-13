@@ -709,6 +709,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Current set of statements.
             protected ListBuffer<JCStatement> stmts = ListBuffer.lb();
             
+            void buildIf(boolean condition) {
+                stopBuild = !condition;
+            }
+            
             // List of parameter types.
             ListBuffer<Type> paramTypes = ListBuffer.lb();
             // List of parameter names.
@@ -1043,7 +1047,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     callSuper();
                     
                     // Control build.
-                    stopBuild = !(stmts.nonEmpty() || superClassSym == null);
+                    buildIf(stmts.nonEmpty() || superClassSym == null);
                 }
             }
         }
@@ -1397,7 +1401,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeApplyDefaultsName(varInfo.getSymbol()), syms.voidType, varInfo) {
                 @Override
                 public void initialize() {
-                    stopBuild = !(isCurrentClassSymbol(varSym.owner) || varInfo.getDefaultInitStatement() != null);
+                    buildIf(isCurrentClassSymbol(varSym.owner) || varInfo.getDefaultInitStatement() != null);
                 }                
 
                 @Override
@@ -1417,7 +1421,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeEvaluateName(varInfo.getSymbol()), syms.voidType, varInfo) {
                 @Override
                 public void initialize() {
-                    stopBuild = !(isCurrentClassSymbol(varSym.owner) || varInfo.hasBoundDefinition());
+                    buildIf(isCurrentClassSymbol(varSym.owner) || varInfo.hasBoundDefinition());
                 }                
 
                 @Override
@@ -1441,7 +1445,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void initialize() {
                     addParam(syms.intType, phaseName);
-                    stopBuild = !(varInfo instanceof TranslatedVarInfoBase);
+                    buildIf(varInfo instanceof TranslatedVarInfoBase);
                 }
                                                                          
                 @Override
@@ -1892,7 +1896,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Call super if necessary.
                     callSuper();
                     
-                    stopBuild = !(hasDefaults || superClassSym == null);
+                    buildIf(hasDefaults || superClassSym == null);
                 }
             };
             
