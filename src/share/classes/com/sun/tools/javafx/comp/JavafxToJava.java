@@ -1056,11 +1056,78 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceSliceTranslator(tree).doit();
     }
 
-    class SequenceInsertTranslator extends AssignTranslator {
+    abstract class AbstractSequenceTranslator extends AssignTranslator {
+        /**
+         *
+         * @param diagPos
+         * @param ref Variable being referenced (different from LHS if indexed -- where it is sequence or array)
+         * @param indexOrNull The index into the variable reference.  Or null if not indexed.
+         * @param rhs The expression acting on ref
+         */
+        AbstractSequenceTranslator(final DiagnosticPosition diagPos, final JFXExpression ref, final JFXExpression indexOrNull, final JFXExpression rhs) {
+            super(diagPos, ref, indexOrNull, syms.voidType, rhs);
+        }
+
+        //TODO: Temp hack
+        JCExpression sequencesOp(String method, JCExpression tToCheck) {
+            return sequencesOp(names.fromString(method),  tToCheck);
+        }
+
+        @Override
+        JCExpression sequencesOp(Name methodName, JCExpression tToCheck) {
+            ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+            if (refSym.owner.kind != Kinds.TYP) {
+                // Local variable sequence -- roughly:
+                // lhs = sequenceAction(lhs, rhs);
+                args.append(id(refSym.name));
+            } else {
+                // Instance variable sequence -- roughly:
+                // sequenceAction(instance, varNum, rhs);
+                args.append(instance(tToCheck));
+                args.append(makeVarOffset(refSym, expressionSymbol(selector)));
+            }
+            JCExpression tRHS = buildRHS(rhsTranslated);
+            if (tRHS != null) {
+                args.append(tRHS);
+            }
+            JCExpression tIndex = translateIndex();
+            if (tIndex != null) {
+                args.append(tIndex);
+                JCExpression tIndex2 = translateIndex2();
+                if (tIndex2 != null) {
+                    args.append(tIndex2);
+                }
+            }
+            JCExpression res = call(syms.javafx_SequencesType, methodName, args);
+            if (refSym.owner.kind != Kinds.TYP) {
+                // It is a local variable sequence, assign the result
+                res = m().Assign(id(refSym.name), res);
+            }
+            return res;
+        }
+
+        JCExpression translateIndex2() {
+            return null;
+        }
+
+        /**
+         * If we are operating on an array or sequence, convert to the sequence type.
+         * Otherwise, to the element type.
+         */
+        @Override
+        protected Type rhsType() {
+            if (types.isArray(rhs.type) || types.isSequence(rhs.type))
+                return ref.type;
+            else
+                return types.elementType(ref.type);
+        }
+    }
+
+    class SequenceInsertTranslator extends AbstractSequenceTranslator {
         JFXSequenceInsert tree;
 
         public SequenceInsertTranslator(JFXSequenceInsert tree) {
-            super(tree.pos(), tree.getSequence(), tree.getPosition(), syms.voidType, tree.getElement());
+            super(tree.pos(), tree.getSequence(), tree.getPosition(), tree.getElement());
             this.tree = tree;
         }
 
@@ -1080,60 +1147,63 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             }
             return position;
         }
-
-        /**
-         * If we are inserting an array or sequence, convert to the sequence type.
-         * Otherwise, to the element type.
-         */
-        @Override
-        protected Type rhsType() {
-            if (types.isArray(rhs.type) || types.isSequence(rhs.type))
-                return ref.type;
-            else
-                return types.elementType(ref.type);
-        }
     }
 
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         result = new SequenceInsertTranslator(tree).doit();
     }
 
-    //@Override
-    public void visitSequenceDelete(JFXSequenceDelete tree) {
-        TODO(tree);
-/*****
-        JFXExpression seq = tree.getSequence();
+    class SequenceDeleteTranslator extends AbstractSequenceTranslator {
 
+        private final String method;
+
+        SequenceDeleteTranslator(final DiagnosticPosition diagPos, JFXExpression ref, String method, JFXExpression indexOrNull) {
+            this(diagPos, ref, method, indexOrNull, null);
+        }
+
+        SequenceDeleteTranslator(final DiagnosticPosition diagPos, JFXExpression ref, String method, JFXExpression indexOrNull, JFXExpression element) {
+            super(diagPos, ref, indexOrNull, element);
+            this.method = method;
+        }
+
+        @Override
+        JCExpression fullExpression(JCExpression tToCheck) {
+            return sequencesOp(method, tToCheck);
+        }
+    }
+
+    public void visitSequenceDelete(JFXSequenceDelete tree) {
+        DiagnosticPosition diagPos = tree.pos();
+        JFXExpression seq = tree.getSequence();
+        SequenceDeleteTranslator trans;
         if (tree.getElement() != null) {
-            JCExpression seqLoc = translateAsSequenceVariable(seq);
-            result = callStmt(tree.pos(), seqLoc, "deleteValue", translateAsUnconvertedValue(tree.getElement())); //TODO: convert to seqence type
+            trans = new SequenceDeleteTranslator(diagPos, seq, "deleteValue", null, tree.getElement());
         } else {
-            if (seq.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
-                // deletion of a sequence element -- delete s[i]
-                JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
-                JFXExpression seqseq = si.getSequence();
-                JCExpression seqLoc = translateAsSequenceVariable(seqseq);
-                JCExpression index = translateAsValue(si.getIndex(), syms.intType);
-                result = callStmt(tree.pos(), seqLoc, "delete", index);
-            } else if (seq.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-                // deletion of a sequence slice --  delete s[i..j]=8
-                JFXSequenceSlice slice = (JFXSequenceSlice) seq;
-                JFXExpression seqseq = slice.getSequence();
-                JCExpression seqLoc = translateAsSequenceVariable(seqseq);
-                JCExpression first = translateAsValue(slice.getFirstIndex(), syms.intType);
-                JCExpression end = makeSliceEndPos(slice);
-                result = callStmt(tree.pos(), seqLoc, "deleteSlice", List.of(first, end));
-            } else if (types.isSequence(seq.type)) {
-                JCExpression seqLoc = translateAsSequenceVariable(seq);
-                result = callStmt(tree.pos(), seqLoc, "deleteAll");
-            } else {
-                result = make.at(tree.pos()).Exec(
-                            make.Assign(
-                                translateAsUnconvertedValue(seq), //TODO: does this work?
-                                make.Literal(TypeTags.BOT, null)));
+            switch (seq.getFXTag()) {
+                case SEQUENCE_INDEXED:
+                    JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
+                    trans = new SequenceDeleteTranslator(diagPos, si.getSequence(), "deleteIndexed", si.getIndex());
+                    break;
+                case SEQUENCE_SLICE:
+                    final JFXSequenceSlice ss = (JFXSequenceSlice) seq;
+                    trans = new SequenceDeleteTranslator(diagPos, ss.getSequence(), "deleteSlice", ss.getFirstIndex()) {
+
+                        @Override
+                        JCExpression translateIndex2() {
+                            return makeSliceEndPos(ss);
+                        }
+                    };
+                    break;
+                default:
+                    if (types.isSequence(seq.type)) {
+                        trans = new SequenceDeleteTranslator(diagPos, seq, "deleteAll", null);
+                    } else {
+                        TODO("delete non-sequence");
+                        trans = null; //shut-up
+                    }
             }
         }
- *****/
+        result = trans.doit();
     }
 
     public void visitInvalidate(final JFXInvalidate tree) {

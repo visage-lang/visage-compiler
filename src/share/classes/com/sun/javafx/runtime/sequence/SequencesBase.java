@@ -938,7 +938,7 @@ public class SequencesBase {
             // FIXME set valid??
             return oldValue;
         }
-        int inserted = newValues.size();
+        int inserted = newValues==null? 0 : newValues.size();
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -982,7 +982,6 @@ public class SequencesBase {
         if (newValue == null)
             return;
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
-        int oldSize = oldValue.size();
         Sequence<? extends T> arr = insert(oldValue, newValue);
         // FIXME var.setValid();
         // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
@@ -1024,5 +1023,25 @@ public class SequencesBase {
 
     public static <T> Sequence<? extends T> insertBefore(Sequence<? extends T> oldValue, Sequence<? extends T> values, int position) {
         return replaceSlice(oldValue, position, position, values);
+    }
+
+    public static <T> void deleteIndexed(FXBase instance, int varNum, int position) {
+        replaceSlice(instance, varNum, position, position+1, (Sequence<? extends T>)null);
+    }
+
+    public static <T> Sequence<? extends T> deleteIndexed(Sequence<? extends T> oldValue, int position) {
+        return replaceSlice(oldValue, position, position+1, (Sequence<? extends T>)null);
+    }
+
+    public static <T> Sequence<? extends T> deleteAll(Sequence<? extends T> oldValue) {
+        return replaceSlice(oldValue, 0, oldValue.size(), (Sequence<? extends T>)null);
+    }
+
+    public static <T> void deleteAll(FXBase instance, int varNum) {
+        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        Sequence<? extends T> arr = deleteAll(oldValue);
+        // FIXME var.setValid();
+        // TODO: invalidate(varNum, startPos, endPos, ...);
+        instance.set$(varNum, arr);
     }
 }

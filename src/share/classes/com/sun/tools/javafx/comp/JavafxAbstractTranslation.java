@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
@@ -1555,8 +1556,8 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             this.indexOrNull = indexOrNull;
             this.rhs = rhs;
             this.selector = (ref instanceof JFXSelect) ? ((JFXSelect) ref).getExpression() : null;
-            this.rhsTranslated = convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
-            this.rhsTranslatedPreserved = preserveSideEffects(fullType, rhs, rhsTranslated);
+            this.rhsTranslated = rhs==null? null : convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
+            this.rhsTranslatedPreserved = rhs==null? null : preserveSideEffects(fullType, rhs, rhsTranslated);
             this.useSetters = refSym==null? false : typeMorpher.varMorphInfo(refSym).useAccessors();
         }
 
@@ -1594,7 +1595,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
 
         JCExpression translateIndex() {
-            return translateExpr(indexOrNull, syms.intType);
+            return indexOrNull==null? null : translateExpr(indexOrNull, syms.intType);
         }
 
         // Figure out the instance containing the variable
@@ -1637,6 +1638,25 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 }
                 return call(syms.javafx_SequencesType, methodName, args);
             }
+        }
+
+        JCExpression makeSliceEndPos(JFXSequenceSlice tree) {
+            JCExpression endPos;
+            if (tree.getLastIndex() == null) {
+                endPos = call(
+                        translateExpr(tree.getSequence(), null),
+                        defs.sizeMethodName);
+                if (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE) {
+                    endPos = make.at(tree).Binary(JCTree.MINUS,
+                            endPos, make.Literal(TypeTags.INT, 1));
+                }
+            } else {
+                endPos = translateExpr(tree.getLastIndex(), syms.intType);
+                if (tree.getEndKind() == SequenceSliceTree.END_INCLUSIVE) {
+                    endPos = makeBinary(JCTree.PLUS, endPos, makeInt(1));
+                }
+            }
+            return endPos;
         }
 
         @Override
