@@ -61,10 +61,6 @@ public class JavafxDefs {
     public static final String mixinSuffix = "$Mixin";
     public static final String deprecatedInterfaceSuffix = "$Intf";
     public static final String scriptClassSuffix = "$Script";
-    public static final String equalsMethodString = "com.sun.javafx.runtime.Checks.equals";
-    public static final String isNullMethodString = "com.sun.javafx.runtime.Checks.isNull";
-    public static final String startMethodString = "com.sun.javafx.runtime.Entry.start";
-    public static final String baseBindingListenerClassString = "com.sun.javafx.runtime.location.SBECL";
 
     public static final String fxObjectString = "com.sun.javafx.runtime.FXObject";
     public static final String fxMixinString = "com.sun.javafx.runtime.FXMixin";
@@ -88,9 +84,7 @@ public class JavafxDefs {
     public static final String isInitializedNameString = "isInitialized";
     public static final String hasAnInitializerNameString = "hasAnInitializer";
     public static final String convertNumberSequence = "convertNumberSequence";
-    public static final String scriptBindingListenerClassString = "_SBECL";
     public static final String bindingIdString = "id";
-    public static final String getStaticDependentsMethodString = "getStaticDependents";
     public static final String computeMethodString = "compute";
     public static final String varOffsetString = "VOFF$";
     public static final String varCountString = "VCNT$";
@@ -109,8 +103,12 @@ public class JavafxDefs {
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
     public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
+
     private static final String cUtil = runtimePackageNameString + ".Util";
+    private static final String cChecks = runtimePackageNameString + ".Checks";
     private static final String cFXBase = runtimePackageNameString + ".FXBase";
+
+    private static final String cMath = javaLangPackageNameString + ".Math";
 
     public  static final String zeroDuration = "javafx.lang.Duration.$ZERO";
 
@@ -139,8 +137,22 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_range;
     final RuntimeMethod Sequences_rangeExclusive;
     final RuntimeMethod Sequences_size;
+    final RuntimeMethod Sequences_replaceSlice;
+    final RuntimeMethod Sequences_set;
+    final RuntimeMethod Sequences_insert;
+    final RuntimeMethod Sequences_insertBefore;
+    final RuntimeMethod Sequences_deleteIndexed;
+    final RuntimeMethod Sequences_deleteSlice;
+    final RuntimeMethod Sequences_deleteValue;
+    final RuntimeMethod Sequences_deleteAll;
 
     final RuntimeMethod Util_isEqual;
+
+    final RuntimeMethod Checks_equals;
+    final RuntimeMethod Checks_isNull;
+
+    final RuntimeMethod Math_min;
+    final RuntimeMethod Math_max;
 
     final RuntimeMethod FXBase_switchDependence;
     final RuntimeMethod FXBase_removeDependent;
@@ -175,7 +187,6 @@ public class JavafxDefs {
     final Name getMethodName;
     final Name attributeSetMethodParamName;
     final Name getSliceMethodName;
-    final Name replaceSliceMethodName;
     final Name setMethodName;
     final Name sizeMethodName;
     final Name defaultingTypeInfoFieldName;
@@ -185,12 +196,9 @@ public class JavafxDefs {
     final Name invokeName;
     final Name lambdaName;
     final Name lengthName;
-    final Name insertName;
-    final Name insertBeforeName;
     final Name emptySequenceFieldString;
     final Name isInitializedName;
     final Name hasAnInitializerName;
-    final Name scriptBindingClassName;
     final Name bindingIdName;
     final Name varOffsetName;
     final Name varCountName;
@@ -314,7 +322,6 @@ public class JavafxDefs {
         getMethodName = names.fromString(getMethodNameString);
         attributeSetMethodParamName = names.fromString("value$");
         getSliceMethodName = names.fromString("getSlice");
-        replaceSliceMethodName = names.fromString("replaceSlice");
         setMethodName = names.fromString(setMethodNameString);
         sizeMethodName = names.fromString(sizeMethodNameString);
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
@@ -324,12 +331,9 @@ public class JavafxDefs {
         invokeName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         lengthName = names.fromString("length");
-        insertName = names.fromString("insert");
-        insertBeforeName = names.fromString("insertBefore");
         emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
         hasAnInitializerName = names.fromString(hasAnInitializerNameString);
-        scriptBindingClassName = names.fromString(scriptBindingListenerClassString);
         bindingIdName = names.fromString(bindingIdString);
         varOffsetName = names.fromString(varOffsetString);
         varCountName = names.fromString(varCountString);
@@ -405,8 +409,22 @@ public class JavafxDefs {
         Sequences_range = new RuntimeMethod(names, cSequences, "range");
         Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");
         Sequences_size = new RuntimeMethod(names, cSequences, "size");
+        Sequences_replaceSlice = new RuntimeMethod(names, cSequences, "replaceSlice");
+        Sequences_set = new RuntimeMethod(names, cSequences, "set");
+        Sequences_insert = new RuntimeMethod(names, cSequences, "insert");
+        Sequences_insertBefore = new RuntimeMethod(names, cSequences, "insertBefore");
+        Sequences_deleteIndexed = new RuntimeMethod(names, cSequences, "deleteIndexed");
+        Sequences_deleteSlice = new RuntimeMethod(names, cSequences, "deleteSlice");
+        Sequences_deleteValue = new RuntimeMethod(names, cSequences, "deleteValue");
+        Sequences_deleteAll = new RuntimeMethod(names, cSequences, "deleteAll");
 
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
+
+        Checks_equals = new RuntimeMethod(names, cChecks, "equals"); //TODO: looks like dup
+        Checks_isNull = new RuntimeMethod(names, cChecks, "isNull");
+
+        Math_min = new RuntimeMethod(names, cMath, "min");
+        Math_max = new RuntimeMethod(names, cMath, "max");
 
         FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
         FXBase_removeDependent  = new RuntimeMethod(names, cFXBase, "removeDependent$");

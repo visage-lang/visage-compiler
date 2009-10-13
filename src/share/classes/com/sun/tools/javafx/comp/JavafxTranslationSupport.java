@@ -1157,6 +1157,10 @@ public abstract class JavafxTranslationSupport {
                     null);
         }
 
+        protected JCExpression makeQualifiedTree(String str) {
+            return JavafxTranslationSupport.this.makeQualifiedTree(diagPos, str);
+        }
+
         /**
          * Method calls -- returning a JCExpression
          */
@@ -1247,15 +1251,15 @@ public abstract class JavafxTranslationSupport {
         }
 
         JCExpression call(RuntimeMethod meth, List<JCExpression> args) {
-            return runtime(diagPos, meth, args);
+            return call(makeQualifiedTree(meth.classString), meth.methodName, args);
         }
 
         JCExpression call(RuntimeMethod meth, ListBuffer<JCExpression> args) {
-            return runtime(diagPos, meth, args.toList());
+            return call(meth, args.toList());
         }
 
         JCExpression call(RuntimeMethod meth, JCExpression... args) {
-            return runtime(diagPos, meth, callArgs(args));
+            return call(meth, callArgs(args));
         }
 
         /**
@@ -1339,15 +1343,15 @@ public abstract class JavafxTranslationSupport {
         }
         
         JCStatement callStmt(RuntimeMethod meth, List<JCExpression> args) {
-            return makeExec(runtime(diagPos, meth, args));
+            return makeExec(call(meth, args));
         }
 
         JCStatement callStmt(RuntimeMethod meth, ListBuffer<JCExpression> args) {
-            return makeExec(runtime(diagPos, meth, args.toList()));
+            return makeExec(call(meth, args));
         }
 
         JCStatement callStmt(RuntimeMethod meth, JCExpression... args) {
-            return makeExec(runtime(diagPos, meth, callArgs(args)));
+            return makeExec(call(meth, args));
         }
         
         /**
@@ -1373,7 +1377,7 @@ public abstract class JavafxTranslationSupport {
         List<JCStatement> makeDebugTrace(String msg, JCExpression obj) {
             String trace = options.get("debugTrace");
             return trace != null ?
-                List.<JCStatement>of(callStmt(makeQualifiedTree(diagPos, "java.lang.System.err"), "println",
+                List.<JCStatement>of(callStmt(makeQualifiedTree("java.lang.System.err"), "println",
                     makeBinary(JCTree.PLUS, makeString(msg + " "), obj)))
               : List.<JCStatement>nil();
         }

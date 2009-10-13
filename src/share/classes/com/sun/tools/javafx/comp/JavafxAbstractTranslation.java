@@ -44,6 +44,7 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitClassMap;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitVarMap;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
@@ -807,7 +808,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             } else {
                 formatMethod = "java.lang.String.format";
             }
-            JCExpression formatter = makeQualifiedTree(diagPos, formatMethod);
+            JCExpression formatter = makeQualifiedTree(formatMethod);
             return toResult(m().Apply(null, formatter, values.toList()), syms.stringType);
         }
     }
@@ -1609,7 +1610,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             }
         }
 
-        JCExpression sequencesOp(Name methodName, JCExpression tToCheck) {
+        JCExpression sequencesOp(RuntimeMethod meth, JCExpression tToCheck) {
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
             if (refSym.owner.kind != Kinds.TYP) {
                 // Local variable sequence -- make a block expression, roughly:
@@ -1624,7 +1625,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 if (tIndex != null) {
                     args.append(tIndex);
                 }
-                JCExpression res = call(syms.javafx_SequencesType, methodName, args);
+                JCExpression res = call(meth, args);
                 return makeBlockExpression(List.<JCStatement>of(tv, makeExec(m().Assign(id(refSym.name), res))), id(tv));
             } else {
                 // Instance variable sequence -- roughly:
@@ -1636,7 +1637,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 if (tIndex != null) {
                     args.append(tIndex);
                 }
-                return call(syms.javafx_SequencesType, methodName, args);
+                return call(meth, args);
             }
         }
 
@@ -1668,7 +1669,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                     return m().Assign(m().Indexed(tArray, translateIndex()), buildRHS(rhsTranslated));
                 } else {
                     // set of a sequence element --  s[i]=8, call the sequence set method
-                    return sequencesOp(defs.setMethodName, tToCheck);
+                    return sequencesOp(defs.Sequences_set, tToCheck);
                 }
             } else {
                 if (useSetters) {
@@ -1851,23 +1852,17 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
             if (tmi.isSequence() || tmi.getRealType() == syms.javafx_StringType) {
-                return callRuntime(JavafxDefs.isNullMethodString, List.of(arg));
+                return call(defs.Checks_isNull, arg);
             } else {
                 return makeNullCheck(arg);
             }
-        }
-
-        private JCExpression callRuntime(String methNameString, List<JCExpression> args) {
-            JCExpression meth = makeQualifiedTree(diagPos, methNameString);
-            List<JCExpression> typeArgs = List.nil();
-            return m().Apply(typeArgs, meth, args);
         }
 
         /**
          * Make a .equals() comparison with a null check on the receiver
          */
         private JCExpression makeFullCheck(JCExpression lhs, JCExpression rhs) {
-            return callRuntime(JavafxDefs.equalsMethodString, List.of(lhs, rhs));
+            return call(defs.Checks_equals, lhs, rhs);
         }
 
         /**
@@ -2186,7 +2181,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             JCExpression encl = null;
             int nargs = mtype.argtypes.size();
             Type ftype = syms.javafx_FunctionTypes[nargs];
-            JCExpression t = makeQualifiedTree(null, ftype.tsym.getQualifiedName().toString());
+            JCExpression t = makeQualifiedTree(ftype.tsym.getQualifiedName().toString());
             ListBuffer<JCExpression> typeargs = new ListBuffer<JCExpression>();
             Type rtype = types.boxedTypeOrType(mtype.restype);
             typeargs.append(makeType(rtype));

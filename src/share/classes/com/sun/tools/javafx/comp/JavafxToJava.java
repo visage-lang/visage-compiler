@@ -1057,6 +1057,9 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
     }
 
     abstract class AbstractSequenceTranslator extends AssignTranslator {
+
+        final RuntimeMethod meth;
+
         /**
          *
          * @param diagPos
@@ -1064,17 +1067,18 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
          * @param indexOrNull The index into the variable reference.  Or null if not indexed.
          * @param rhs The expression acting on ref
          */
-        AbstractSequenceTranslator(final DiagnosticPosition diagPos, final JFXExpression ref, final JFXExpression indexOrNull, final JFXExpression rhs) {
+        AbstractSequenceTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, JFXExpression rhs) {
             super(diagPos, ref, indexOrNull, syms.voidType, rhs);
-        }
-
-        //TODO: Temp hack
-        JCExpression sequencesOp(String method, JCExpression tToCheck) {
-            return sequencesOp(names.fromString(method),  tToCheck);
+            this.meth = meth;
         }
 
         @Override
-        JCExpression sequencesOp(Name methodName, JCExpression tToCheck) {
+        JCExpression fullExpression(JCExpression tToCheck) {
+            return sequencesOp(meth, tToCheck);
+        }
+
+        @Override
+        JCExpression sequencesOp(RuntimeMethod meth, JCExpression tToCheck) {
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
             if (refSym.owner.kind != Kinds.TYP) {
                 // Local variable sequence -- roughly:
@@ -1098,7 +1102,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     args.append(tIndex2);
                 }
             }
-            JCExpression res = call(syms.javafx_SequencesType, methodName, args);
+            JCExpression res = call(meth, args);
             if (refSym.owner.kind != Kinds.TYP) {
                 // It is a local variable sequence, assign the result
                 res = m().Assign(id(refSym.name), res);
@@ -1127,13 +1131,13 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         JFXSequenceInsert tree;
 
         public SequenceInsertTranslator(JFXSequenceInsert tree) {
-            super(tree.pos(), tree.getSequence(), tree.getPosition(), tree.getElement());
+            super(
+                    tree.pos(),
+                    tree.getSequence(),
+                    (tree.getPosition() == null)? defs.Sequences_insert : defs.Sequences_insertBefore,
+                    tree.getPosition(),
+                    tree.getElement());
             this.tree = tree;
-        }
-
-        @Override
-        JCExpression fullExpression(JCExpression tToCheck) {
-            return sequencesOp((indexOrNull == null)? defs.insertName : defs.insertBeforeName, tToCheck);
         }
 
         @Override
@@ -1155,20 +1159,12 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     class SequenceDeleteTranslator extends AbstractSequenceTranslator {
 
-        private final String method;
-
-        SequenceDeleteTranslator(final DiagnosticPosition diagPos, JFXExpression ref, String method, JFXExpression indexOrNull) {
-            this(diagPos, ref, method, indexOrNull, null);
+        SequenceDeleteTranslator(final DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull) {
+            this(diagPos, ref, meth, indexOrNull, null);
         }
 
-        SequenceDeleteTranslator(final DiagnosticPosition diagPos, JFXExpression ref, String method, JFXExpression indexOrNull, JFXExpression element) {
-            super(diagPos, ref, indexOrNull, element);
-            this.method = method;
-        }
-
-        @Override
-        JCExpression fullExpression(JCExpression tToCheck) {
-            return sequencesOp(method, tToCheck);
+        SequenceDeleteTranslator(final DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, JFXExpression element) {
+            super(diagPos, ref, meth, indexOrNull, element);
         }
     }
 
@@ -1177,16 +1173,16 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         JFXExpression seq = tree.getSequence();
         SequenceDeleteTranslator trans;
         if (tree.getElement() != null) {
-            trans = new SequenceDeleteTranslator(diagPos, seq, "deleteValue", null, tree.getElement());
+            trans = new SequenceDeleteTranslator(diagPos, seq, defs.Sequences_deleteValue, null, tree.getElement());
         } else {
             switch (seq.getFXTag()) {
                 case SEQUENCE_INDEXED:
                     JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
-                    trans = new SequenceDeleteTranslator(diagPos, si.getSequence(), "deleteIndexed", si.getIndex());
+                    trans = new SequenceDeleteTranslator(diagPos, si.getSequence(), defs.Sequences_deleteIndexed, si.getIndex());
                     break;
                 case SEQUENCE_SLICE:
                     final JFXSequenceSlice ss = (JFXSequenceSlice) seq;
-                    trans = new SequenceDeleteTranslator(diagPos, ss.getSequence(), "deleteSlice", ss.getFirstIndex()) {
+                    trans = new SequenceDeleteTranslator(diagPos, ss.getSequence(), defs.Sequences_deleteSlice, ss.getFirstIndex()) {
 
                         @Override
                         JCExpression translateIndex2() {
@@ -1196,7 +1192,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     break;
                 default:
                     if (types.isSequence(seq.type)) {
-                        trans = new SequenceDeleteTranslator(diagPos, seq, "deleteAll", null);
+                        trans = new SequenceDeleteTranslator(diagPos, seq, defs.Sequences_deleteAll, null);
                     } else {
                         TODO("delete non-sequence");
                         trans = null; //shut-up
@@ -1300,8 +1296,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 else
                     localSeqBuilder = sequenceBuilderString;
             }
-            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, localSeqBuilder);
-            JCExpression builderClassExpr = makeQualifiedTree(diagPos, localSeqBuilder);
+            JCExpression builderTypeExpr = makeQualifiedTree(localSeqBuilder);
+            JCExpression builderClassExpr = makeQualifiedTree(localSeqBuilder);
             if (! primitive) {
                 builderTypeExpr = m().TypeApply(builderTypeExpr,
                         List.of(makeType(elemType)));
@@ -1537,10 +1533,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 // FIXME set maxForStartNeeded false if first is replace-trigger startPos and seq is oldValue
                 if (maxForStartNeeded)
                     setDiagPos(first);
-                    init = call(
-                           makeQualifiedTree(first, "java.lang.Math"),
-                           "max",
-                           init, makeInt(0));
+                    init = call(defs.Math_max, init, makeInt(0));
             }
             setDiagPos(clause);
             inductionVar.init = init;
@@ -1561,9 +1554,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 // FIXME can optimize if last is replace-trigger endPos and seq is oldValue
                 if (true)
                     setDiagPos(last);
-                    limitExpr = call(
-                           makeQualifiedTree(last, "java.lang.Math"), "min",
-                           List.of(limitExpr, sizeExpr));
+                    limitExpr = call(defs.Math_min, limitExpr, sizeExpr);
             }
             setDiagPos(clause);
             JCVariableDecl limitVar = makeTmpVar("limit", syms.intType, limitExpr);

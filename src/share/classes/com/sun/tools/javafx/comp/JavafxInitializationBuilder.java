@@ -36,7 +36,6 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
@@ -2075,7 +2074,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public void makeTypeMethod(List<VarInfo> attrInfos, int varCount) {
             VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeTypePrefixName,
-                                                                 makeQualifiedTree(diagPos, "java.lang.Class"),
+                                                                 makeQualifiedTree("java.lang.Class"),
                                                                  attrInfos, varCount) {
                 @Override
                 public void statements() {
