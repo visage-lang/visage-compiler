@@ -29,7 +29,6 @@ import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.FXBase;
-import com.sun.javafx.runtime.util.MathUtil;
 
 /**
  * Sequences -- static helper methods for constructing derived sequences. Implements heuristics for reducing time and
@@ -849,8 +848,9 @@ $PREFIX:{T|
         return arr;
     }
 
-    public static <T> void set(FXBase instance, int varNum, int index, T newValue) {
+    public static <T> T set(FXBase instance, int varNum, T newValue, int index) {
         replaceSlice(instance, varNum, index, index+1, newValue);
+        return newValue;
     }
 
     public static <T> void insert(FXBase instance, int varNum, T newValue) {

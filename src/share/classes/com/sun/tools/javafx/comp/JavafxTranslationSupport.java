@@ -104,6 +104,9 @@ public abstract class JavafxTranslationSupport {
     }
 
     protected Symbol expressionSymbol(JFXExpression tree) {
+        if (tree == null) {
+            return null;
+        }
         switch (tree.getFXTag()) {
             case IDENT:
                 return ((JFXIdent) tree).sym;
