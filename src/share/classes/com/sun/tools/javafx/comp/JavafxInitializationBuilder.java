@@ -272,6 +272,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             javaCodeMaker.makeFunctionProxyMethods(needDispatch);
             javaCodeMaker.makeFXEntryConstructor(outerTypeSym);
+            javaCodeMaker.makeInitVarBitsMethod(false);
             javaCodeMaker.makeInitMethod(defs.userInitName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInitName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -296,6 +297,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.makeGetMethod(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeSetMethod(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeTypeMethod(scriptVarInfos, scriptVarCount);
+                    javaCodeMaker.makeInitVarBitsMethod(true);
                     javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable);
                     //needed: javaCodeMaker.makeApplyDefaultsMethod();
                     javaCodeMaker.setContext(false, cDefinitions);
@@ -311,6 +313,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.makeGetMethod(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeSetMethod(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeTypeMethod(scriptVarInfos, scriptVarCount);
+                    javaCodeMaker.makeInitVarBitsMethod(true);
                     javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
                     javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable);
@@ -356,7 +359,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeInitStaticAttributesBlock(null, null, null);
 
             javaCodeMaker.makeMixinAccessorMethods(classVarInfos);
-        
+            javaCodeMaker.makeInitVarBitsMethod(false);
             javaCodeMaker.makeInitMethod(defs.userInitName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInitName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -586,6 +589,24 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             }
         }
+        
+        
+        ListBuffer<JCStatement> makeLocalTemps(HashSet<VarSymbol> tempsNeeded) {
+             ListBuffer<JCStatement> stmts = ListBuffer.lb();
+             
+             if (isMixinClass()) {
+                for (VarInfo varInfo : analysis.classVarInfos()) {
+                    VarSymbol varSym = varInfo.getSymbol();
+
+                    if (!varInfo.isOverride() && tempsNeeded.contains(varSym)) {
+                        JCExpression init = call(getReceiver(varSym), attributeGetMixinName(varSym));
+                        stmts.append(makeVar(Flags.FINAL, varInfo.getRealType(), attributeValueName(varSym), init));
+                    }
+                }
+             }
+             
+             return stmts;
+        }
 
         //
         // This method constructs modifiers for getters/setters and proxies.
@@ -621,7 +642,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // These methods return an expression for testing/setting/clearing a var flag.
         //
         JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
-            return call(getReceiver(varSym), action, makeVarOffset(varSym, null),
+            return call(getReceiver(varSym), action, makeMixinSafeVarOffset(varSym),
                         clearBits != null ? id(clearBits) : makeInt(0),
                         setBits != null ? id(setBits) : makeInt(0));
         }
@@ -720,14 +741,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // This method restores the previous list of statements and returns the current
             // list of statements in a block.
             public JCBlock endBlock() {
-                return m().Block(0L, endBlockAsStmts());
+                return m().Block(0L, endBlockAsList());
             }
             
             // This method restores the previous list of statements and returns the current
             // list of statements.
-            public List<JCStatement> endBlockAsStmts() {
+            public List<JCStatement> endBlockAsList() {
                 assert !stmtsStack.empty() : "MethodBuilder: mismatched blocks";
                 List<JCStatement> result = stmts.toList();
+                stmts = stmtsStack.pop();
+                return result;
+            }
+            
+            // This method restores the previous list of statements and returns the current
+            // list buffer of statements.
+            public ListBuffer<JCStatement> endBlockAsBuffer() {
+                assert !stmtsStack.empty() : "MethodBuilder: mismatched blocks";
+                ListBuffer<JCStatement> result = stmts;
                 stmts = stmtsStack.pop();
                 return result;
             }
@@ -1012,7 +1042,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                             // Add the case, something like:
                             // case i: return get$var();
-                            cases.append(m().Case(tag, endBlockAsStmts()));
+                            cases.append(m().Case(tag, endBlockAsList()));
                         }
                     }
                     
@@ -1090,7 +1120,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     // Restrict setting.
-                    addStmt(callStmt(getReceiver(varSym), defs.varFlagRestrictSet, makeVarOffset(varSym, null)));
+                    addStmt(callStmt(getReceiver(varSym), defs.varFlagRestrictSet, makeMixinSafeVarOffset(varSym)));
  
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         // Begin bidi block.
@@ -1271,7 +1301,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     } else if (!varInfo.isOverride()) {
                         // notifyDependents(VOFF$var, phase$);
-                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym, null), id(phaseName)));
+                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeMixinSafeVarOffset(proxyVarSym), id(phaseName)));
                     } 
                     
                     if (varInfo.onReplace() != null) {
@@ -1374,6 +1404,53 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             vamb.build();
         }
+
+        //
+        // This method constructs a getMixin$ method.
+        //
+        private void makeGetMixinAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetMixinName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    // Construct and add: return $var;
+                    addStmt(m().Return(id(varName)));
+                }
+            };
+             
+            vamb.build();
+        }
+
+        //
+        // This method returns the correct expression for accessing a value depending if in a mixin or not.
+        //
+        private JCExpression makeMixinSafeVarValue(VarSymbol varSym) {
+            return isMixinClass() ? call(getReceiver(), attributeGetMixinName(varSym)) : id(attributeValueName(varSym));
+        }
+
+        //
+        // This method constructs a getVOFF$ method.
+        //
+        private void makeGetVOFFAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetVOFFName(varInfo.getSymbol()),
+                                                                         syms.intType,
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    addStmt(m().Return(makeVarOffset(proxyVarSym, null)));
+                }
+            };
+             
+            vamb.build();
+        }
+        
+        //
+        // This method returns the correct expression for accessing a VOFF$ depending if in a mixin or not.
+        //
+        private JCExpression makeMixinSafeVarOffset(VarSymbol varSym) {
+            return isMixinClass() ? call(getReceiver(varSym), attributeGetVOFFName(varSym)) : makeVarOffset(varSym, null);
+        }
         
         //
         // This method constructs a mixin applyDefault method.
@@ -1450,7 +1527,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
              
             mmb.build();
         
-         }
+        }
 
         //
         // This method constructs the accessor methods for an attribute.
@@ -1465,6 +1542,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     makeBeAccessorMethod(ai, needsBody);
                     makeInvalidateAccessorMethod(ai, needsBody);
                     makeOnReplaceAccessorMethod(ai, needsBody);
+                    if (ai.isMixinVar()) {
+                        makeGetMixinAccessorMethod(ai, needsBody);
+                        makeGetVOFFAccessorMethod(ai, needsBody);
+                    }
                 } else if (needsBody) {
                     if (ai.hasInitializer()) {
                         // Bound or not, we need getter & setter on override since we
@@ -1477,6 +1558,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     if (ai.onReplace() != null || ai.isMixinVar()) {
                         makeOnReplaceAccessorMethod(ai, needsBody);
+                    }
+                    if (ai.isMixinVar()) {
+                        makeGetMixinAccessorMethod(ai, needsBody);
+                        makeGetVOFFAccessorMethod(ai, needsBody);
                     }
                 }
             }
@@ -1837,7 +1922,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                             // Add the case, something like:
                             // case i: applyDefaults$var(); return;
-                            cases.append(m().Case(tag, endBlockAsStmts()));
+                            cases.append(m().Case(tag, endBlockAsList()));
                         } else {
                             // Get init statement.
                             JCStatement init = ai.getDefaultInitStatement();
@@ -1886,67 +1971,102 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
+        // This method sets the initial var flags.
+        //
+        private void makeInitVarBitsMethod(final boolean isScript) {
+            MethodBuilder mb = new MethodBuilder(defs.attributeInitVarBitsPrefixMethodName, syms.voidType) {
+                @Override
+                public JCModifiers flags() {
+                    return m().Modifiers(isMixinClass() ? (Flags.PRIVATE | Flags.STATIC) : Flags.PRIVATE);
+                }
+                
+                @Override
+                public void statements() {
+                    callMixins();
+                    
+                    // Set var flags when necessary. 
+                    List<VarInfo> attrInfos = isScript ? analysis.scriptVarInfos() : analysis.classVarInfos();
+                    for (VarInfo ai : attrInfos) {
+                        setDiagPos(ai.pos());
+                        // Only declared attributes with default expressions.
+                        if (ai.needsCloning()) {
+                            JCExpression flagsExpr = null;
+                            boolean isReadonly = ai.isDef() || (ai.boundInit() != null && !ai.hasBiDiBoundDefinition());
+                            boolean isBound = ai.boundInit() != null;
+                            Name setBits = null;
+                            
+                            if (isReadonly && isBound) {
+                                setBits = defs.varFlagIS_BOUND_READONLY;
+                            } else if (isReadonly) {
+                                setBits = defs.varFlagIS_READONLY;
+                            } else if (isBound) {
+                                setBits = defs.varFlagIS_BOUND;
+                            }
+                            
+                            if (setBits != null) {
+                                addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, setBits));
+                            }
+                        }
+                    }
+                }
+            };
+            
+            mb.build();
+        }
+    
+        //
         // This method constructs the current class's update$ method.
         //
-        public void makeUpdateMethod(HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap) {
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-            // Reset diagnostic position to current class.
-            resetDiagPos();
-           
-            // generate method if it is worthwhile or we have to.
-            if (!updateMap.isEmpty() || superClassSym == null) {
-                // Loop for instance symbol.
-                for (VarSymbol instanceVar : updateMap.keySet()) {
-                    HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
-                    
-                    // Loop for reference symbol.
-                    JCStatement ifReferenceStmt = null;
-                    for (VarSymbol referenceVar : instanceMap.keySet()) {
-                        HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
-                        ListBuffer<JCStatement> invalidateStmts = ListBuffer.lb();
-                        
-                        // Loop for local vars.
-                        for (VarInfo varInfo : referenceSet) {
-                            VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                            invalidateStmts.append(callStmt(getReceiver(proxyVarSym), attributeInvalidateName(proxyVarSym), id(phaseName)));
-                        }
-
-                        // Reference the class with the instance, if it is script-level append the suffix
-                        JCExpression referenceSelect = makeVarOffset(referenceVar, instanceVar);
-                        JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), referenceSelect);
-                        ifReferenceStmt = m().If(ifReferenceCond, m().Block(0L, invalidateStmts.toList()), ifReferenceStmt);
-                    }
-                    
-                    JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName), id(attributeValueName(instanceVar)));
-                    JCStatement ifInstanceStmt = m().If(ifInstanceCond, m().Block(0L, List.<JCStatement>of(ifReferenceStmt)), null);
-                    stmts.append(ifInstanceStmt);
+        public void makeUpdateMethod(final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap) {
+            MethodBuilder mb = new MethodBuilder(defs.attributeUpdatePrefixMethodName, syms.voidType) {
+                @Override
+                public void initialize() {
+                    addParam(syms.javafx_FXObjectType, updateInstanceName);
+                    addParam(syms.intType, varNumName);
+                    addParam(syms.intType, phaseName);
                 }
             
-                // If there is a super class.
-                if (superClassSym != null) {
-                    // super
-                    JCExpression selector = id(names._super);
-                    // (varNum)
-                    List<JCExpression> args = List.<JCExpression>of(id(updateInstanceName), id(varNumName), id(phaseName));
-                    // Construct and add: return super.applyDefaults$(varNum);
-                    stmts.append(callStmt(selector, defs.attributeUpdatePrefixMethodName, args));
+                @Override
+                public void statements() {
+                    // Loop for instance symbol.
+                    for (VarSymbol instanceVar : updateMap.keySet()) {
+                        HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+                        beginBlock();
+                        
+                        // Loop for reference symbol.
+                        JCStatement ifReferenceStmt = null;
+                        for (VarSymbol referenceVar : instanceMap.keySet()) {
+                            HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
+                            beginBlock();
+                             
+                            // Loop for local vars.
+                            for (VarInfo varInfo : referenceSet) {
+                                VarSymbol proxyVarSym = varInfo.proxyVarSym();
+                                addStmt(callStmt(getReceiver(proxyVarSym), attributeInvalidateName(proxyVarSym), id(phaseName)));
+                            }
+    
+                            // Reference the class with the instance, if it is script-level append the suffix
+                            JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), makeMixinSafeVarOffset(instanceVar));
+                            ifReferenceStmt = m().If(ifReferenceCond, endBlock(), ifReferenceStmt);
+                        }
+                        addStmt(ifReferenceStmt);
+                        
+                        JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName), makeMixinSafeVarValue(instanceVar));
+                        addStmt(m().If(ifInstanceCond, endBlock(), null));
+                    }
+                    
+                    if (stmts.nonEmpty()) {
+                        callSuper();
+                    }
+                    
+                    callMixins();
+                    
+                    buildIf(stmts.nonEmpty());
                 }
-
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 syms.voidType,
-                                                 defs.attributeUpdatePrefixMethodName,
-                                                 List.<JCVariableDecl>of(makeParam(syms.javafx_FXObjectType, updateInstanceName),
-                                                                         makeParam(syms.intType, varNumName),
-                                                                         makeParam(syms.intType, phaseName)),
-                                                 stmts);
-                // Add to the methods list.
-                addDefinition(method);
-            }
-        }
+            };
+            
+            mb.build();
+         }
         
         //
         // This method constructs the current class's get$ method.
@@ -2226,36 +2346,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // Add attributes of vars to the var bits table.
-        //
-        private void makeDefaultVarFlags(boolean isScript, ListBuffer<JCStatement> stmts) {
-            // Set var flags when necessary. 
-            List<VarInfo> attrInfos = isScript ? analysis.scriptVarInfos() : analysis.classVarInfos();
-            for (VarInfo ai : attrInfos) {
-                setDiagPos(ai.pos());
-                // Only declared attributes with default expressions.
-                if (ai.needsCloning()) {
-                    JCExpression flagsExpr = null;
-                    boolean isReadonly = ai.isDef() || (ai.boundInit() != null && !ai.hasBiDiBoundDefinition());
-                    boolean isBound = ai.boundInit() != null;
-                    Name setBits = null;
-                    
-                    if (isReadonly && isBound) {
-                        setBits = defs.varFlagIS_BOUND_READONLY;
-                    } else if (isReadonly) {
-                        setBits = defs.varFlagIS_READONLY;
-                    } else if (isBound) {
-                        setBits = defs.varFlagIS_BOUND;
-                    }
-                    
-                    if (setBits != null) {
-                        stmts.append(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, setBits));
-                    }
-                }
-            }
-        }
-    
-        //
         // Make a constructor to be called by Java code.
         // Simply pass up to super, unless this is the last JavaFX class, in which case add object initialization
         //
@@ -2266,7 +2356,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             //    }
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             stmts.append(callStmt(names._this, makeBoolean(false)));
-            makeDefaultVarFlags(false, stmts);
+            stmts.append(callStmt(getReceiver(), defs.attributeInitVarBitsPrefixMethodName));
             stmts.append(callStmt(defs.initializeName));
             makeConstructor(List.<JCVariableDecl>nil(), stmts.toList());
         }
@@ -2288,7 +2378,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 stmts.append(callStmt(defs.initFXBaseName));
             }
     
-            makeDefaultVarFlags(false, stmts);
+            stmts.append(callStmt(getReceiver(), defs.attributeInitVarBitsPrefixMethodName));
 
             // Construct the parameters
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
@@ -2473,7 +2563,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
                 ifStmts.append(makeExec(assignExpr));
-                makeDefaultVarFlags(true, ifStmts);
+
+                ifStmts.append(callStmt(id(defs.scriptLevelAccessField), defs.attributeInitVarBitsPrefixMethodName));
                 
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));

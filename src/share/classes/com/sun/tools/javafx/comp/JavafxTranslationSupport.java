@@ -679,6 +679,14 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, attributeEvaluateMethodNamePrefix);
     }
     
+    Name attributeGetMixinName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeGetMixinMethodNamePrefix);
+    }
+    
+    Name attributeGetVOFFName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeGetVOFFMethodNamePrefix);
+    }
+ 
     Name attributeApplyDefaultsName(Symbol sym) {
         return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
     }

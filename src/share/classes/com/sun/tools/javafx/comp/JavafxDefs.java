@@ -50,6 +50,9 @@ public class JavafxDefs {
     public static final String attributeInvalidateMethodNamePrefix = "invalidate$";
     public static final String attributeOnReplaceMethodNamePrefix = "onReplace$";
     public static final String attributeEvaluateMethodNamePrefix = "evaluate$";
+    public static final String attributeGetMixinMethodNamePrefix = "getMixin$";
+    public static final String attributeGetVOFFMethodNamePrefix = "getVOFF$";
+    public static final String attributeInitVarBitsMethodNamePrefix = "initVarBits$";
     public static final String attributeNotifyDependentsNameString = "notifyDependents$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeUpdateMethodNamePrefix = "update$";
@@ -224,6 +227,9 @@ public class JavafxDefs {
     final Name attributeInvalidatePrefixMethodName;
     final Name attributeOnReplacePrefixMethodName;
     final Name attributeEvaluatePrefixMethodName;
+    final Name attributeGetMixinPrefixMethodName;
+    final Name attributeGetVOFFPrefixMethodName;
+    final Name attributeInitVarBitsPrefixMethodName;
     final Name attributeApplyDefaultsPrefixMethodName;
     final Name attributeUpdatePrefixMethodName;
     final Name attributeCountMethodName;
@@ -374,6 +380,9 @@ public class JavafxDefs {
         attributeInvalidatePrefixMethodName = names.fromString(attributeInvalidateMethodNamePrefix);
         attributeOnReplacePrefixMethodName = names.fromString(attributeOnReplaceMethodNamePrefix);
         attributeEvaluatePrefixMethodName = names.fromString(attributeEvaluateMethodNamePrefix);
+        attributeGetMixinPrefixMethodName = names.fromString(attributeGetMixinMethodNamePrefix);
+        attributeGetVOFFPrefixMethodName = names.fromString(attributeGetVOFFMethodNamePrefix);
+        attributeInitVarBitsPrefixMethodName = names.fromString(attributeInitVarBitsMethodNamePrefix);
         attributeApplyDefaultsPrefixMethodName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         attributeUpdatePrefixMethodName = names.fromString(attributeUpdateMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);

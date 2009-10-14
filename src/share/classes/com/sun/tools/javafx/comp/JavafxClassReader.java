@@ -595,6 +595,10 @@ public class JavafxClassReader extends ClassReader {
                             name.startsWith(defs.attributeBePrefixName) ||
                             name.startsWith(defs.attributeInvalidatePrefixMethodName) ||
                             name.startsWith(defs.attributeOnReplacePrefixMethodName) ||
+                            name.startsWith(defs.attributeEvaluatePrefixMethodName) ||
+                            name.startsWith(defs.attributeGetMixinPrefixMethodName) ||
+                            name.startsWith(defs.attributeGetVOFFPrefixMethodName) ||
+                            name.startsWith(defs.attributeInitVarBitsPrefixMethodName) ||
                             name.startsWith(defs.attributeApplyDefaultsPrefixMethodName) ||
                             name.startsWith(defs.attributeUpdatePrefixMethodName)
                             ))

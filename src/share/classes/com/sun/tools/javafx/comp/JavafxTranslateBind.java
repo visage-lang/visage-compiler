@@ -251,12 +251,26 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
                     Symbol selectorSym = selector.sym;
                     if (types.isJFXClass(selectorSym.owner)) {
                         Type selectorType = selector.type;
-                        JCExpression offset = makeVarOffset(tree.sym, selectorSym);
-                        JCExpression rcvr = selectorSym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this);
-                        JCVariableDecl oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
-                        JCVariableDecl newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
+                        JCExpression offset;
+                        JCExpression rcvr;
+                        JCVariableDecl oldSelector;
+                        JCVariableDecl newSelector;
+                        
+                        if ((selectorSym.owner.flags() & JavafxFlags.MIXIN) != 0) {
+                            offset = call(id(defs.receiverName), attributeGetVOFFName(selectorSym));
+                            rcvr = id(defs.receiverName);
+                            oldSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
+                            newSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetterName(selectorSym)));
+                        } else {
+                            offset = makeVarOffset(tree.sym, selectorSym);
+                            rcvr = selectorSym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this);
+                            oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
+                            newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
+                        }
+                        
                         addPreface(oldSelector);
                         addPreface(newSelector);
+                        
                         addPreface(callStmt(defs.FXBase_switchDependence,
                                 rcvr,
                                 offset,
