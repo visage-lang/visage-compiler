@@ -848,7 +848,7 @@ public class SequencesBase {
      * contents of the existing sequence
      * */
     public static <T> Sequence<T> shuffle (Sequence<T> seq) {
-        T[] array = Sequences.toArray(seq);
+        T[] array = toArray(seq);
         List<? extends T> list = Arrays.asList(array);
         Collections.shuffle(list);
         return Sequences.make(seq.getElementType(), list);
@@ -1042,11 +1042,43 @@ public class SequencesBase {
     }
 
     public static <T> void deleteValue(FXBase instance, int varNum, T value) {
-        throw new RuntimeException("Not yet implemented: deleteValue");
+        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        // It's tempting to just do:
+        //   Sequence<? extends T> arr = deleteValue(oldValue, value);
+        //   instance.set$(varNum, arr);
+        // However, in hat case triggers won't run properly.
+        int hi = -1;
+        for (int i = oldValue.size();  ; ) {
+            boolean matches = --i < 0 ? false : oldValue.get(i).equals(value);
+            if (matches) {
+                if (hi < 0)
+                    hi = i;
+            }
+            else if (hi >= 0) {
+                deleteSlice(instance, varNum, i+1, hi+1);
+                // The following may be redundant - but just in case:
+                oldValue = (Sequence<? extends T>) instance.get$(varNum);
+                hi = -1;
+            }
+            if (i < 0) break;
+        }
     }
 
     public static <T> Sequence<? extends T> deleteValue(Sequence<? extends T> oldValue, T value) {
-        throw new RuntimeException("Not yet implemented: deleteValue");
+        int hi = -1;
+        for (int i = oldValue.size();  ; ) {
+            boolean matches = --i < 0 ? false : oldValue.get(i).equals(value);
+            if (matches) {
+                if (hi < 0)
+                    hi = i;
+            }
+            else if (hi >= 0) {
+                oldValue = deleteSlice(oldValue, i+1, hi+1);
+                hi = -1;
+            }
+            if (i < 0) break;
+        }
+        return oldValue;
     }
 
     public static <T> Sequence<? extends T> deleteAll(Sequence<? extends T> oldValue) {
