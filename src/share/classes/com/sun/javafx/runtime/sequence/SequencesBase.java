@@ -905,11 +905,8 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/) {
-        if (newValue != null ? (endPos == startPos+1 && newValue.equals(oldValue.get( startPos))) : endPos == startPos) {
-            // FIXME set valid??
-            return oldValue;
-        }
-
+        if (newValue == null)
+            return replaceSlice(oldValue, (Sequence<? extends T>) null, startPos, endPos);
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -919,6 +916,11 @@ public class SequencesBase {
             endPos = oldSize;
         else if (endPos < startPos)
             endPos = startPos;
+        if (endPos == startPos+1 && newValue.equals(oldValue.get(startPos))) {
+            // FIXME set valid??
+            return oldValue;
+        }
+
         ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
         arr.replace(startPos, endPos, (T) newValue, true);
         arr.clearOldValues(endPos-startPos);
@@ -934,11 +936,6 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
-        if (sliceEqual(oldValue, startPos, endPos, newValues)) {
-            // FIXME set valid??
-            return oldValue;
-        }
-        int inserted = newValues==null? 0 : newValues.size();
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -948,6 +945,12 @@ public class SequencesBase {
             endPos = oldSize;
         else if (endPos < startPos)
             endPos = startPos;
+        if (newValues == null ? startPos == endPos
+            : sliceEqual(oldValue, startPos, endPos, newValues)) {
+            // FIXME set valid??
+            return oldValue;
+        }
+        int inserted = newValues==null? 0 : newValues.size();
         ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
         arr.replace(startPos, endPos, newValues, 0, inserted, true);
         arr.clearOldValues(endPos-startPos);
