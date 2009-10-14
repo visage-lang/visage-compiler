@@ -143,10 +143,42 @@ import java.lang.reflect.Field;
         }
     }
     
+    private static void printBits$(final int bits) {
+        System.err.print("(");
+        if ((bits & VFLGS$IS_VALID_INVAL_PHASE) != 0)   System.err.print(" Invalid");
+        if ((bits & VFLGS$IS_VALID_TRIGGER_PHASE) != 0) System.err.print(" Trigger");
+        if ((bits & VFLGS$IS_BOUND) != 0)               System.err.print(" Bound");
+        if ((bits & VFLGS$IS_READONLY) != 0)            System.err.print(" Readonly");
+        System.err.print(" )");
+    }
+    
+    private static void printBitsAction$(String title, FXObject obj, final int varNum, final int bits1, final int bits2) {
+        System.err.print(title + ": " + obj + "[" + varNum + "] ");
+        printBits$(bits1);
+        printBits$(bits2);
+        
+        int index = varNum / VFLGS$VARS_PER_WORD;
+        int slot = varNum % VFLGS$VARS_PER_WORD;
+        int shift = slot * VFLGS$BITS_PER_VAR;
+        int word;
+      
+        if (index > 0) {
+            index--;
+            int[] large = obj.getVFLGS$large$internal$();
+            word = large[index];
+        } else {
+            word = obj.getVFLGS$small$internal$();
+        }
+        printBits$((word >> shift) & ((1 << VFLGS$BITS_PER_VAR) - 1));
+        
+        System.err.println();
+    }
+    
     public boolean varTestBits$(final int varNum, int maskBits, int testBits) {
         return varTestBits$(this, varNum, maskBits, testBits);
     }
     public static boolean varTestBits$(FXObject obj, final int varNum, int maskBits, int testBits) {
+        // printBitsAction$("Tst", obj, varNum, maskBits, testBits);
         int index = varNum / VFLGS$VARS_PER_WORD;
         int slot = varNum % VFLGS$VARS_PER_WORD;
         int shift = slot * VFLGS$BITS_PER_VAR;
@@ -169,6 +201,7 @@ import java.lang.reflect.Field;
         return varChangeBits$(this, varNum, clearBits, setBits);
     }
     public static boolean varChangeBits$(FXObject obj, final int varNum, int clearBits, int setBits) {
+        // printBitsAction$("Chg", obj, varNum, clearBits, setBits);
         int index = varNum / VFLGS$VARS_PER_WORD;
         int slot = varNum % VFLGS$VARS_PER_WORD;
         int shift = slot * VFLGS$BITS_PER_VAR;
@@ -195,8 +228,8 @@ import java.lang.reflect.Field;
         restrictSet$(this, varNum);
     }
     public static void restrictSet$(FXObject obj, final int varNum) {
-        if (varTestBits$(obj, varNum, 0, VFLGS$IS_READONLY)) {
-            if (varTestBits$(obj, varNum, 0, VFLGS$IS_BOUND)) {
+        if (!varTestBits$(obj, varNum, VFLGS$IS_BOUND_READONLY, 0)) {
+            if (varTestBits$(obj, varNum, VFLGS$IS_BOUND, VFLGS$IS_BOUND)) {
                 throw new AssignToBoundException();
             } else {
                 throw new AssignToDefException();

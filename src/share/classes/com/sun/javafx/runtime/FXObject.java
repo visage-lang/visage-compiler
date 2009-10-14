@@ -58,7 +58,7 @@ public interface FXObject {
 
     public static final int VFLGS$IS_INITIALIZED = VFLGS$IS_VALID_VALUE;
     public static final int VFLGS$IS_BOUND_READONLY = VFLGS$IS_BOUND | VFLGS$IS_READONLY;
-    public static final int VFLGS$IS_BOUND_VALID = VFLGS$IS_BOUND | VFLGS$IS_VALID_VALUE;
+    public static final int VFLGS$IS_BOUND_VALID = VFLGS$IS_BOUND | VFLGS$IS_VALID_INVAL_PHASE;
     
     public void     initFXBase$     ();
     

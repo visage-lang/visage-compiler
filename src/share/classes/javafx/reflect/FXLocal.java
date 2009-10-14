@@ -972,7 +972,7 @@ public class FXLocal {
                     for (int offset = 0; offset < count; offset++ ) {
                         if (initMembers[offset] != null) {
                             initMembers[offset].setValue(this, initValues[offset]);
-                        } else if (!instance.varTestBits$(offset, 0, FXObject.VFLGS$IS_INITIALIZED)) {
+                        } else if (!instance.varTestBits$(offset, FXObject.VFLGS$IS_INITIALIZED, FXObject.VFLGS$IS_INITIALIZED)) {
                             instance.applyDefaults$(offset);
                         }
                     }
