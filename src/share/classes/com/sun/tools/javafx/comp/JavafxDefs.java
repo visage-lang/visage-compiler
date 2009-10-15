@@ -46,7 +46,6 @@ public class JavafxDefs {
     public static final String attributeGetMethodNamePrefix = "get$";
     public static final String attributeSetMethodNamePrefix = "set$";
     public static final String attributeBeMethodNamePrefix = "be$";
-    public static final String attributeGetMutableMethodNamePrefix = "getMutable$";
     public static final String attributeInvalidateMethodNamePrefix = "invalidate$";
     public static final String attributeOnReplaceMethodNamePrefix = "onReplace$";
     public static final String attributeEvaluateMethodNamePrefix = "evaluate$";
@@ -230,7 +229,6 @@ public class JavafxDefs {
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name attributeBePrefixName;
-    final Name attributeGetMutablePrefixName;
     final Name attributeInvalidatePrefixMethodName;
     final Name attributeOnReplacePrefixMethodName;
     final Name attributeEvaluatePrefixMethodName;
@@ -378,7 +376,6 @@ public class JavafxDefs {
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);
         attributeBePrefixName = names.fromString(attributeBeMethodNamePrefix);
-        attributeGetMutablePrefixName = names.fromString(attributeGetMutableMethodNamePrefix);
         attributeInvalidatePrefixMethodName = names.fromString(attributeInvalidateMethodNamePrefix);
         attributeOnReplacePrefixMethodName = names.fromString(attributeOnReplaceMethodNamePrefix);
         attributeEvaluatePrefixMethodName = names.fromString(attributeEvaluateMethodNamePrefix);
