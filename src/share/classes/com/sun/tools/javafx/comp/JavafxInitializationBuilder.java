@@ -1084,8 +1084,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (varInfo.isMixinVar()) {
                             // Mixin.evaluate$var(this);
                             addStmt(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
-                            // setValid(VOFF$var);
-                            addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_VALID_VALUE));
+                            // Make valid.
+                            addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
                         } else {
                             assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
     
@@ -1094,10 +1094,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
                         }
                       
-                        // !isValidValue$(VOFF$var)
-                        JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_VALID, defs.varFlagIS_BOUND);
+                        // Is it bound and invalid?
+                        JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
                         
-                        // if (!isValidValue$(VOFF$var)) { set$var(init/bound expression); }
+                        // if (bound and invalid) { set$var(init/bound expression); }
                         addStmt(m().If(condition, endBlock(), null));
                     } 
     
@@ -1167,17 +1167,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Prepare to accumulate then statements.
                     beginBlock();
     
-                    // invalidate$(VFLGS$INVAL_PHASE)
-                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagIS_VALID_INVAL_PHASE)));
+                    // invalidate$(VFLGS$IS_INVALID)
+                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
     
                     // $var = value
                     addStmt(makeExec(m().Assign(id(varName), id(defs.attributeNewValueName))));
     
-                    // invalidate$(VFLGS$TRIGGER_PHASE)
-                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagIS_VALID_TRIGGER_PHASE)));
+                    // invalidate$(VFLGS$NEEDS_TRIGGER)
+                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
 
                     // setValid(VOFF$var);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_VALID_VALUE));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
     
                     // onReplace$(varOldValue$, varNewValue$)
                     addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
@@ -1195,7 +1195,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     beginBlock();
     
                     // setValid(VOFF$var);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_VALID_VALUE));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
                     
                     // End of else block.
                     JCBlock elseBlock = endBlock();
@@ -1301,10 +1301,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Call the get$var to force evaluation.
                         addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
                         
-                         // phase$ == VFLGS$IS_VALID_TRIGGER_PHASE
-                        JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.varFlagIS_VALID_TRIGGER_PHASE));
+                         // phase$ == VFLGS$NEEDS_TRIGGER
+                        JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.varFlagNEEDS_TRIGGER));
                        
-                        // if (phase$ == VFLGS$IS_VALID_TRIGGER_PHASE) { get$var(); }
+                        // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
                         addStmt(m().If(ifTriggerPhase, endBlock(), null));
                     }
                     
@@ -1313,11 +1313,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (isSuperVarInfo || varInfo.isOverride()) {
                         ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, phaseName, phaseName);
                     } else {
-                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionChange, phaseName, null);
+                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionChange, null, phaseName);
                     }
                     
                     // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                    addStmt(m().If(ifValidTest, endBlock(), null));
+                    addStmt(m().If(makeNot(ifValidTest), endBlock(), null));
                 }
             };
 
@@ -1479,17 +1479,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     Name setBits = null;
                     
                     if (isReadonly && isBound) {
-                        setBits = defs.varFlagIS_BOUND_READONLY;
+                        setBits = defs.varFlagINIT_BOUND_READONLY;
                     } else if (isReadonly) {
-                        setBits = defs.varFlagIS_READONLY;
+                        setBits = defs.varFlagINIT_READONLY;
                     } else if (isBound) {
-                        setBits = defs.varFlagIS_BOUND;
+                        setBits = defs.varFlagINIT_BOUND;
                     }
                     
                     if (setBits != null) {
                         addStmt(m().Return(id(setBits)));
                     } else if (!varInfo.isOverride() || varInfo.getDefaultInitStatement() != null) {
-                        addStmt(m().Return(makeInt(0)));
+                        addStmt(m().Return(id(defs.varFlagINIT_NORMAL)));
                     } else {
                         buildIf(false);
                     }
@@ -2017,7 +2017,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             VarSymbol proxyVarSym = ai.proxyVarSym();
                             if (!isMixinClass() && ai.isMixinVar()) {
                                 JCExpression mixinCall = call(makeType(proxyVarSym.owner.type, false), attributeInitVarBitsName(proxyVarSym), id(names._this));
-                                addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, id(defs.varFlagIS_BOUND_READONLY), mixinCall));
+                                addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, id(defs.varFlagALL_FLAGS), mixinCall));
                             } else {
                                 JCExpression flagsExpr = null;
                                 boolean isReadonly = ai.isDef() || (ai.boundInit() != null && !ai.hasBiDiBoundDefinition());
@@ -2025,17 +2025,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 Name setBits = null;
                                 
                                 if (isReadonly && isBound) {
-                                    setBits = defs.varFlagIS_BOUND_READONLY;
+                                    setBits = defs.varFlagINIT_BOUND_READONLY;
                                 } else if (isReadonly) {
-                                    setBits = defs.varFlagIS_READONLY;
+                                    setBits = defs.varFlagINIT_READONLY;
                                 } else if (isBound) {
-                                    setBits = defs.varFlagIS_BOUND;
+                                    setBits = defs.varFlagINIT_BOUND;
                                 }
                                 
                                 if (setBits != null) {
-                                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, setBits));
+                                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagALL_FLAGS, setBits));
                                 } else if (ai.isOverride() && ai.getDefaultInitStatement() != null) {
-                                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, null));
+                                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagALL_FLAGS, null));
                                 }
                             }
                         }

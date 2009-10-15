@@ -69,14 +69,14 @@ public class DependentsTest extends JavaFXTestCase {
         src.addDependent$(1, dep2);
 
         // update zeroth var
-        src.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         // dep1's update$ should have been called
         // dep2's update$ should not have been called
         assertEquals(1, numTimesDep1Updated[0]);
         assertEquals(0, numTimesDep2Updated[0]);
 
         // update first var
-        src.notifyDependents$(1, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(1, FXObject.VFLGS$IS_INVALID);
         // dep1's update$ should not have been called
         // dep2's update$ should have been called
         assertEquals(1, numTimesDep1Updated[0]);
@@ -113,12 +113,12 @@ public class DependentsTest extends JavaFXTestCase {
         };
 
         src.addDependent$(1, dep2);
-        src.notifyDependents$(1, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(1, FXObject.VFLGS$IS_INVALID);
         assertEquals(0, numTimesDep1Updated[0]);
         assertEquals(1, numTimesDep2Updated[0]);
 
         // dep2's update adds dep1 as dependent
-        src.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(1, numTimesDep1Updated[0]);
         assertEquals(1, numTimesDep2Updated[0]);
     }
@@ -155,15 +155,15 @@ public class DependentsTest extends JavaFXTestCase {
         src.addDependent$(0, dep1);
         src.addDependent$(1, dep2);
 
-        src.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
-        src.notifyDependents$(1, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
+        src.notifyDependents$(1, FXObject.VFLGS$IS_INVALID);
         assertEquals(1, numTimesDep1Updated[0]);
         assertEquals(1, numTimesDep2Updated[0]);
 
         // dep2's update removed dep1 as dependent
         // so, we should not get dep1.update$ call
-        src.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
-        src.notifyDependents$(1, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
+        src.notifyDependents$(1, FXObject.VFLGS$IS_INVALID);
         assertEquals(1, numTimesDep1Updated[0]);
         assertEquals(2, numTimesDep2Updated[0]);
     }
@@ -201,7 +201,7 @@ public class DependentsTest extends JavaFXTestCase {
         src.addDependent$(0, dep1);
         src.addDependent$(1, dep2);
         assertEquals(3, src.getListenerCount$());
-        src.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(1, numTimesDep1Updated[0]);
         assertEquals(1, numTimesDep2Updated[0]);
         // one dependent removed from notification loop
@@ -257,7 +257,7 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(3, src.getListenerCount$());
         // remove all from the first inserted dependent
         deleter[0] = 0;
-        src.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(0, src.getListenerCount$());
 
         src.addDependent$(0, dep0);
@@ -266,7 +266,7 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(3, src.getListenerCount$());
         // remove all from the second (middle) inserted dependent
         deleter[0] = 1;
-        src.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(0, src.getListenerCount$());
 
         src.addDependent$(0, dep0);
@@ -275,7 +275,7 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(3, src.getListenerCount$());
         // removal all from the last inserted dependent
         deleter[0] = 2;
-        src.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(0, src.getListenerCount$());
     }
 
@@ -309,7 +309,7 @@ public class DependentsTest extends JavaFXTestCase {
         // add one listener for "src1"
         src1.addDependent$(0, dep);
         assertEquals(1, src1.getListenerCount$());
-        src1.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src1.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(1, numTimesDepUpdated[0]);
 
         // switch the dependence of "dep" from "src1" to "src2"
@@ -317,7 +317,7 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(0, src1.getListenerCount$());
         assertEquals(1, src2.getListenerCount$());
 
-        src2.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src2.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(2, numTimesDepUpdated[0]);
     }
 
@@ -342,7 +342,7 @@ public class DependentsTest extends JavaFXTestCase {
         src1.addDependent$(0, dep);
         assertEquals(1, src1.getListenerCount$());
         assertEquals(0, src2.getListenerCount$());
-        src1.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src1.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(0, src1.getListenerCount$());
         assertEquals(1, src2.getListenerCount$());
     }
@@ -402,7 +402,7 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(3, src1.getListenerCount$());
         // switch all from the first inserted dependent
         switcher[0] = 0;
-        src1.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src1.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(0, src1.getListenerCount$());
         assertEquals(3, src2.getListenerCount$());
         for (FXObject d : dependents) {
@@ -416,7 +416,7 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(0, src2.getListenerCount$());
         // switch all from the second (middle) inserted dependent
         switcher[0] = 1;
-        src1.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src1.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(0, src1.getListenerCount$());
         assertEquals(3, src2.getListenerCount$());
         for (FXObject d : dependents) {
@@ -429,7 +429,7 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(3, src1.getListenerCount$());
         // switch all from the last inserted dependent
         switcher[0] = 2;
-        src1.notifyDependents$(0, FXObject.VFLGS$IS_VALID_INVAL_PHASE);
+        src1.notifyDependents$(0, FXObject.VFLGS$IS_INVALID);
         assertEquals(0, src1.getListenerCount$());
         assertEquals(3, src2.getListenerCount$());
     }

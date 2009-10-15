@@ -253,14 +253,17 @@ public class JavafxDefs {
     final Name varFlagActionTest;
     final Name varFlagActionChange;
     final Name varFlagRestrictSet;
-    final Name varFlagIS_VALID_VALUE;
-    final Name varFlagIS_VALID_INVAL_PHASE;
-    final Name varFlagIS_VALID_TRIGGER_PHASE;
+    final Name varFlagIS_INVALID;
+    final Name varFlagNEEDS_TRIGGER;
     final Name varFlagIS_BOUND;
     final Name varFlagIS_READONLY;
-    final Name varFlagIS_INITIALIZED;
-    final Name varFlagIS_BOUND_READONLY;
-    final Name varFlagIS_BOUND_VALID;
+    final Name varFlagVALIDITY_FLAGS;
+    final Name varFlagIS_BOUND_INVALID;
+    final Name varFlagINIT_NORMAL;
+    final Name varFlagINIT_READONLY;
+    final Name varFlagINIT_BOUND;
+    final Name varFlagINIT_BOUND_READONLY;
+    final Name varFlagALL_FLAGS;
 
     public final Name runtimePackageName;
     public final Name annotationPackageName;
@@ -394,14 +397,18 @@ public class JavafxDefs {
         varFlagActionTest = names.fromString("varTestBits$");
         varFlagActionChange = names.fromString("varChangeBits$");
         varFlagRestrictSet = names.fromString("restrictSet$");
-        varFlagIS_VALID_VALUE = names.fromString("VFLGS$IS_VALID_VALUE");
-        varFlagIS_VALID_INVAL_PHASE = names.fromString("VFLGS$IS_VALID_INVAL_PHASE");
-        varFlagIS_VALID_TRIGGER_PHASE = names.fromString("VFLGS$IS_VALID_TRIGGER_PHASE");
+        
+        varFlagIS_INVALID = names.fromString("VFLGS$IS_INVALID");
+        varFlagNEEDS_TRIGGER = names.fromString("VFLGS$NEEDS_TRIGGER");
         varFlagIS_BOUND = names.fromString("VFLGS$IS_BOUND");
         varFlagIS_READONLY = names.fromString("VFLGS$IS_READONLY");
-        varFlagIS_INITIALIZED = names.fromString("VFLGS$IS_INITIALIZED");
-        varFlagIS_BOUND_READONLY = names.fromString("VFLGS$IS_BOUND_READONLY");
-        varFlagIS_BOUND_VALID = names.fromString("VFLGS$IS_BOUND_VALID");
+        varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
+        varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
+        varFlagINIT_NORMAL = names.fromString("VFLGS$INIT_NORMAL");
+        varFlagINIT_READONLY = names.fromString("VFLGS$INIT_READONLY");
+        varFlagINIT_BOUND = names.fromString("VFLGS$INIT_BOUND");
+        varFlagINIT_BOUND_READONLY = names.fromString("VFLGS$INIT_BOUND_READONLY");
+        varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
 
         runtimePackageName = names.fromString(runtimePackageNameString);
         annotationPackageName = names.fromString(annotationPackageNameString);
