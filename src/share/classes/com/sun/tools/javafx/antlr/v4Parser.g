@@ -1531,6 +1531,8 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 					//
 					$value = F.at($pos).OverrideClassVar
 						(
+                                                        $name.value,
+                                                        $mods,
 							part,
 							bValue,
 							bStatus,

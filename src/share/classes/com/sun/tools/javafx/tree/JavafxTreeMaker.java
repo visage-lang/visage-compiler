@@ -739,8 +739,8 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXOverrideClassVar TriggerWrapper(JFXIdent expr, JFXOnReplace onReplace, JFXOnReplace onInvalidate) {
-        JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, null, null, onReplace, onInvalidate, null);
+    public JFXOverrideClassVar TriggerWrapper(Name name, JFXIdent expr, JFXOnReplace onReplace, JFXOnReplace onInvalidate) {
+        JFXOverrideClassVar tree = new JFXOverrideClassVar(name, null, expr, null, null, onReplace, onInvalidate, null);
         tree.pos = pos;
         return tree;
     }
@@ -801,12 +801,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         tree.pos = pos;
         return tree;
     }
-    public JFXOverrideClassVar OverrideClassVar(JFXIdent expr,
+    public JFXOverrideClassVar OverrideClassVar(Name name, JFXModifiers mods, JFXIdent expr,
             JFXExpression initializer,
             JavafxBindStatus bindStatus,
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate) {
-        JFXOverrideClassVar tree = new JFXOverrideClassVar(expr, initializer,
+        JFXOverrideClassVar tree = new JFXOverrideClassVar(name, mods, expr, initializer,
                 bindStatus, onReplace, onInvalidate, null);
         tree.pos = pos;
         return tree;

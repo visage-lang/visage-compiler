@@ -36,17 +36,10 @@ import com.sun.javafx.api.JavafxBindStatus;
  * @author Robert Field
  * @author Zhiqun Chen
  */
-public class JFXVar extends JFXExpression implements VariableTree {
-    public JFXModifiers mods;
-    public Name name;
-    public JFXExpression init;
-    public VarSymbol sym;
-    private JFXType jfxtype;
-    private final JavafxBindStatus bindStatus;
-    private final JFXOnReplace[] triggers;
+public class JFXVar extends JFXVarBase {
 
     protected JFXVar() {
-        this(null, null, null, null, null, null, null, null);
+        super(null, null, null, null, null, null, null, null);
     }
 
     protected JFXVar(Name name,
@@ -57,109 +50,23 @@ public class JFXVar extends JFXExpression implements VariableTree {
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
             VarSymbol sym) {
-            this.mods = mods;
-            this.name = name;
-            this.init = init;
-            this.sym = sym;
-        this.jfxtype = jfxtype;
-        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
-        this.triggers = new JFXOnReplace[JFXOnReplace.Kind.values().length];
-        this.triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()] = onReplace;
-        this.triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()] = onInvalidate;
-        this.sym = sym;
-    }
-    
-    public Name getName() {
-        return name;
-    }
-
-    public VarSymbol getSymbol() {
-        return sym;
-    }
-
-    // for VariableTree
-    public JFXTree getType() {
-        return jfxtype;
-    }
-
-    public JFXExpression getInitializer() {
-        return init;
+        super( name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
     }
 
     public void accept(JavafxVisitor v) {
         v.visitVar(this);
     }
 
-    public JFXType getJFXType() {
-        return jfxtype;
-    }
-
     public void setJFXType(JFXType type) {
-        jfxtype = type;
-    }
-    
-    public OnReplaceTree getOnReplaceTree() {
-        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
-    }
-    
-    public JFXOnReplace getOnReplace() {
-        return triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()];
-    }
-
-    public OnReplaceTree getOnInvalidateTree() {
-        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
-    }
-
-    public JFXOnReplace getOnInvalidate() {
-        return triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()];
-    }
-    
-    public OnReplaceTree getTriggerTree(JFXOnReplace.Kind triggerKind) {
-        return triggers[triggerKind.ordinal()];
-    }
-
-    public JFXOnReplace getTrigger(JFXOnReplace.Kind triggerKind) {
-        return triggers[triggerKind.ordinal()];
-    }
-
-    public JavafxBindStatus getBindStatus() {
-        return bindStatus;
-    }
-
-    public boolean isBound() {
-        return bindStatus.isBound();
-    }
-
-    public boolean isUnidiBind() {
-        return bindStatus.isUnidiBind();
-    }
-
-    public boolean isBidiBind() {
-        return bindStatus.isBidiBind();
-    }
-
-    public boolean isLazy() {
-        return bindStatus.isLazy();
-    }
-
-    @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.VAR_DEF;
-    }
-    
-    public JFXModifiers getModifiers() {
-        return mods;
+        typeExpr = type;
     }
     
     public boolean isOverride() {
         return false;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.VARIABLE;
+    @Override
+    public JavafxTag getFXTag() {
+        return JavafxTag.VAR_DEF;
     }
-
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitVariable(this, data);
-     }
 }
