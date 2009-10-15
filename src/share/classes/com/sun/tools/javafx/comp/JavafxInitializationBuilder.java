@@ -1294,6 +1294,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeMixinSafeVarOffset(proxyVarSym), id(phaseName)));
                     } 
                     
+                    // isValid
+                    JCExpression ifValidTest;
+                    if (isSuperVarInfo || varInfo.isOverride()) {
+                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, phaseName, phaseName);
+                    } else {
+                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionChange, null, phaseName);
+                    }
+                    
+                    // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
+                    addStmt(m().If(makeNot(ifValidTest), endBlock(), null));
+                    
                     if (varInfo.onReplace() != null) {
                         // Begin the get$ block.
                         beginBlock();
@@ -1307,17 +1318,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
                         addStmt(m().If(ifTriggerPhase, endBlock(), null));
                     }
-                    
-                    // isValid
-                    JCExpression ifValidTest;
-                    if (isSuperVarInfo || varInfo.isOverride()) {
-                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, phaseName, phaseName);
-                    } else {
-                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionChange, null, phaseName);
-                    }
-                    
-                    // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                    addStmt(m().If(makeNot(ifValidTest), endBlock(), null));
                 }
             };
 
