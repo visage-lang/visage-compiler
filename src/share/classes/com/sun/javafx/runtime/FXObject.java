@@ -48,18 +48,21 @@ public interface FXObject {
     public static final int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
     
     /**
-     * Var is valid value applied flag (two phase bits.)
+     * Var bit flags.
      */
-    public static final int VFLGS$IS_VALID_VALUE = 3;
-    public static final int VFLGS$IS_VALID_INVAL_PHASE = 1;
-    public static final int VFLGS$IS_VALID_TRIGGER_PHASE = 2;
+    public static final int VFLGS$IS_INVALID = 1;
+    public static final int VFLGS$NEEDS_TRIGGER = 2;
     public static final int VFLGS$IS_BOUND = 4;
     public static final int VFLGS$IS_READONLY = 8;
 
-    public static final int VFLGS$IS_INITIALIZED = VFLGS$IS_VALID_VALUE;
-    public static final int VFLGS$IS_BOUND_READONLY = VFLGS$IS_BOUND | VFLGS$IS_READONLY;
-    public static final int VFLGS$IS_BOUND_VALID = VFLGS$IS_BOUND | VFLGS$IS_VALID_INVAL_PHASE;
-    
+    public static final int VFLGS$VALIDITY_FLAGS = VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
+    public static final int VFLGS$IS_BOUND_INVALID = VFLGS$IS_BOUND | VFLGS$IS_INVALID;
+    public static final int VFLGS$INIT_NORMAL = 0;
+    public static final int VFLGS$INIT_READONLY = VFLGS$IS_READONLY;
+    public static final int VFLGS$INIT_BOUND = VFLGS$IS_BOUND | VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
+    public static final int VFLGS$INIT_BOUND_READONLY = VFLGS$IS_BOUND | VFLGS$IS_READONLY | VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
+    public static final int VFLGS$ALL_FLAGS = (1 << VFLGS$BITS_PER_VAR) - 1;
+
     public void     initFXBase$     ();
     
     public int      getVFLGS$small$internal$();

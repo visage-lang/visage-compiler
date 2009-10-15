@@ -1207,8 +1207,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     }
                 }
                 
-                stmts.append(callStmt(receiver0, attributeInvalidateName(vsym), id(defs.varFlagIS_VALID_INVAL_PHASE)));
-                stmts.append(callStmt(receiver1, attributeInvalidateName(vsym), id(defs.varFlagIS_VALID_TRIGGER_PHASE)));
+                stmts.append(callStmt(receiver0, attributeInvalidateName(vsym), id(defs.varFlagIS_INVALID)));
+                stmts.append(callStmt(receiver1, attributeInvalidateName(vsym), id(defs.varFlagNEEDS_TRIGGER)));
                 return toStatementResult(m().Block(0L, stmts.toList()));
             }
         }).doit();

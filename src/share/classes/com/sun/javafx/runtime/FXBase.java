@@ -146,8 +146,8 @@ import java.lang.reflect.Field;
     
     private static void printBits$(final int bits) {
         System.err.print("(");
-        if ((bits & VFLGS$IS_VALID_INVAL_PHASE) != 0)   System.err.print(" Invalid");
-        if ((bits & VFLGS$IS_VALID_TRIGGER_PHASE) != 0) System.err.print(" Trigger");
+        if ((bits & VFLGS$IS_INVALID) != 0)             System.err.print(" Invalid");
+        if ((bits & VFLGS$NEEDS_TRIGGER) != 0)          System.err.print(" NeedsTrigger");
         if ((bits & VFLGS$IS_BOUND) != 0)               System.err.print(" Bound");
         if ((bits & VFLGS$IS_READONLY) != 0)            System.err.print(" Readonly");
         System.err.print(" )");
@@ -287,12 +287,14 @@ import java.lang.reflect.Field;
     }
     public static void notifyDependents$(FXObject obj, final int varNum, final int phase) {
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        //System.err.println("notifyDependents$: " + obj + "[" + varNum + "] " + phase);
         DependentsManager.get(obj).notifyDependents(obj, varNum, phase);
     }
     public void update$(FXObject src, final int varNum, final int phase) {
         update$(this, src, varNum, phase);
     }
     public static void update$(FXObject obj, FXObject src, final int varNum, final int phase) {
+        //System.err.println("update$: " + obj + " " + src + "[" + varNum + "] " + phase);
     }
     public int getListenerCount$() {
         return getListenerCount$(this);
