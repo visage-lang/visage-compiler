@@ -74,12 +74,13 @@ public interface FXObject {
     // dependents management
     public DependentsManager getDependentsManager$internal$();
     public void     setDependentsManager$internal$(final DependentsManager depMgr);
-    public void     addDependent$      (final int varNum, FXObject dep);
-    public void     removeDependent$   (final int varNum, FXObject dep);
+    public void     addDependent$        (final int varNum, FXObject dep);
+    public void     removeDependent$     (final int varNum, FXObject dep);
     // Earlier 'this' object was dependent on { oldBindee, varNum }.
     // Now, change the dependence to { newBindee, varNum }
-    public void     switchDependence$  (final int varNum, FXObject oldBindee, FXObject newBindee);
-    public void     notifyDependents$  (final int varNum, final int phase);
+    public void     switchDependence$    (FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum);
+    public void     switchBiDiDependence$(final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum);
+    public void     notifyDependents$    (final int varNum, final int phase);
     public void     update$ (final FXObject src, final int varNum, final int phase);
     // for testing - the listener count is the number of distinct {varNum, dep} pairs
     public int      getListenerCount$();
@@ -91,6 +92,7 @@ public interface FXObject {
     public Class    getType$(int varNum);
 
     public void     initialize$   ();
+    public void     initVarBits$  ();
     public void     applyDefaults$();
     public void     applyDefaults$(final int varNum);
     public void     userInit$     ();

@@ -313,7 +313,7 @@ public class DependentsTest extends JavaFXTestCase {
         assertEquals(1, numTimesDepUpdated[0]);
 
         // switch the dependence of "dep" from "src1" to "src2"
-        dep.switchDependence$(0, src1, src2);
+        dep.switchDependence$(src1, 0, src2, 0);
         assertEquals(0, src1.getListenerCount$());
         assertEquals(1, src2.getListenerCount$());
 
@@ -336,7 +336,7 @@ public class DependentsTest extends JavaFXTestCase {
             @Override
             public void update$(FXObject srcObj, int varNum, int phase) {
                 // switch dependence of current object
-                this.switchDependence$(0, src1, src2);
+                this.switchDependence$(src1, 0, src2, 0);
             }
         };
         src1.addDependent$(0, dep);
@@ -364,7 +364,7 @@ public class DependentsTest extends JavaFXTestCase {
             public void update$(FXObject srcObj, int varNum, int phase) {
                 if (switcher[0] == 0) {
                    for (FXBase fx : dependents) {
-                       fx.switchDependence$(0, src1, src2);
+                       fx.switchDependence$(src1, 0, src2, 0);
                    }
                 }
             }
@@ -374,7 +374,7 @@ public class DependentsTest extends JavaFXTestCase {
             public void update$(FXObject srcObj, int varNum, int phase) {
                 if (switcher[0] == 1) {
                    for (FXBase fx : dependents) {
-                       fx.switchDependence$(0, src1, src2);
+                       fx.switchDependence$(src1, 0, src2, 0);
                    }
                 }
             }
@@ -384,7 +384,7 @@ public class DependentsTest extends JavaFXTestCase {
             public void update$(FXObject srcObj, int varNum, int phase) {
                 if (switcher[0] == 2) {
                    for (FXBase fx : dependents) {
-                       fx.switchDependence$(0, src1, src2);
+                       fx.switchDependence$(src1, 0, src2, 0);
                    }
                 }
             }

@@ -34,12 +34,12 @@ package com.sun.javafx.runtime;
 public abstract class DependentsManager {
     public abstract void addDependent(FXObject bindee, final int varNum, FXObject binder);
     public abstract void removeDependent(FXObject bindee, final int varNum, FXObject binder);
-    public void switchDependence(FXObject binder, final int varNum, FXObject oldBindee, FXObject newBindee) {
+    public void switchDependence(FXObject binder, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
         if (oldBindee != null) {
-            oldBindee.removeDependent$(varNum, binder);
+            oldBindee.removeDependent$(oldNum, binder);
         }
         if (newBindee != null) {
-            newBindee.addDependent$(varNum, binder);
+            newBindee.addDependent$(newNum, binder);
         }
     }
     public abstract void notifyDependents(FXObject bindee, final int varNum, final int phase);

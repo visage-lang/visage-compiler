@@ -146,6 +146,7 @@ public class JavafxDefs {
     final RuntimeMethod Util_isEqual;
 
     final RuntimeMethod FXBase_switchDependence;
+    final RuntimeMethod FXBase_switchBiDiDependence;
     final RuntimeMethod FXBase_removeDependent;
     final RuntimeMethod FXBase_addDependent;
 
@@ -422,6 +423,7 @@ public class JavafxDefs {
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
 
         FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
+        FXBase_switchBiDiDependence = new RuntimeMethod(names, cFXBase, "switchBiDiDependence$");
         FXBase_removeDependent  = new RuntimeMethod(names, cFXBase, "removeDependent$");
         FXBase_addDependent     = new RuntimeMethod(names, cFXBase, "addDependent$");
 

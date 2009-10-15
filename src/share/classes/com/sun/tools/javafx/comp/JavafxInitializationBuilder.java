@@ -839,7 +839,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             // This method generates the call for the super class.
             public void callSuper() {
-                if (superClassSym != null && !analysis.isMixinClass()) {
+                if (superClassSym != null && !isMixinClass()) {
                     List<JCExpression> superArgs = argList();
                     
                     if (isVoidReturnType) {
@@ -1279,20 +1279,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // rest are duplicates.
                             break;
                         }
-                        
-                        for (DependentPair pair : varInfo.boundBoundSelects()) {
-                            VarSymbol instanceSymbol = (VarSymbol)pair.instanceSym;
-                            VarSymbol referenceSymbol = (VarSymbol)pair.referencedSym;
-                            JCVariableDecl selector = makeTmpVar(instanceSymbol.type, call(getReceiver(), attributeGetterName(instanceSymbol)));
-                            addStmt(selector);
-                            beginBlock();
-                            addStmt(callStmt(id(selector), attributeInvalidateName(referenceSymbol), id(phaseName)));
-                            JCExpression conditionExpr = makeNotNullCheck(id(selector));
-                            addStmt(m().If(conditionExpr, endBlock(), null));
-        
-                            // rest are duplicates.
-                            break;
-                        }
                     }
                     
                     boolean isSuperVarInfo = varInfo instanceof SuperClassVarInfo;
@@ -1426,7 +1412,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method returns the correct expression for accessing a value depending if in a mixin or not.
         //
         private JCExpression makeMixinSafeVarValue(VarSymbol varSym) {
-            return isMixinClass() ? call(getReceiver(), attributeGetMixinName(varSym)) : id(attributeValueName(varSym));
+            return isMixinClass() && analysis.isMixinClass(varSym.owner) ? call(getReceiver(), attributeGetMixinName(varSym)) : id(attributeValueName(varSym));
         }
 
         //
@@ -1449,7 +1435,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method returns the correct expression for accessing a VOFF$ depending if in a mixin or not.
         //
         private JCExpression makeMixinSafeVarOffset(VarSymbol varSym) {
-            return isMixinClass() ? call(getReceiver(varSym), attributeGetVOFFName(varSym)) : makeVarOffset(varSym, null);
+            return isMixinClass() && analysis.isMixinClass(varSym.owner) ? call(getReceiver(varSym), attributeGetVOFFName(varSym)) : makeVarOffset(varSym, null);
         }
         
         //
@@ -1975,13 +1961,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         private void makeInitVarBitsMethod(final boolean isScript) {
             MethodBuilder mb = new MethodBuilder(defs.attributeInitVarBitsPrefixMethodName, syms.voidType) {
-                @Override
-                public JCModifiers flags() {
-                    return m().Modifiers(isMixinClass() ? (Flags.PRIVATE | Flags.STATIC) : Flags.PRIVATE);
-                }
-                
+
                 @Override
                 public void statements() {
+                    callSuper();
                     callMixins();
                     
                     // Set var flags when necessary. 
@@ -2005,6 +1988,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             
                             if (setBits != null) {
                                 addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, setBits));
+                            } else if (ai.isOverride() && ai.getDefaultInitStatement() != null) {
+                                addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, null));
                             }
                         }
                     }
@@ -2046,7 +2031,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
     
                             // Reference the class with the instance, if it is script-level append the suffix
-                            JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), makeMixinSafeVarOffset(instanceVar));
+                            JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), makeMixinSafeVarOffset(referenceVar));
                             ifReferenceStmt = m().If(ifReferenceCond, endBlock(), ifReferenceStmt);
                         }
                         addStmt(ifReferenceStmt);
@@ -2356,7 +2341,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             //    }
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             stmts.append(callStmt(names._this, makeBoolean(false)));
-            stmts.append(callStmt(getReceiver(), defs.attributeInitVarBitsPrefixMethodName));
             stmts.append(callStmt(defs.initializeName));
             makeConstructor(List.<JCVariableDecl>nil(), stmts.toList());
         }
@@ -2378,8 +2362,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 stmts.append(callStmt(defs.initFXBaseName));
             }
     
-            stmts.append(callStmt(getReceiver(), defs.attributeInitVarBitsPrefixMethodName));
-
             // Construct the parameters
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
             if (outerTypeSym != null) {
@@ -2564,8 +2546,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
                 ifStmts.append(makeExec(assignExpr));
 
-                ifStmts.append(callStmt(id(defs.scriptLevelAccessField), defs.attributeInitVarBitsPrefixMethodName));
-                
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
                 stmts.append(m().Return(id(defs.scriptLevelAccessField)));

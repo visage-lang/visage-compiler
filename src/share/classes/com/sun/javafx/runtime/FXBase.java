@@ -110,6 +110,7 @@ import java.lang.reflect.Field;
     }
     public static void initFXBase$(FXObject obj) {
         allocateVarBits$(obj);
+        obj.initVarBits$();
     }
 
     // First class count.
@@ -178,7 +179,7 @@ import java.lang.reflect.Field;
         return varTestBits$(this, varNum, maskBits, testBits);
     }
     public static boolean varTestBits$(FXObject obj, final int varNum, int maskBits, int testBits) {
-        // printBitsAction$("Tst", obj, varNum, maskBits, testBits);
+        //printBitsAction$("Tst", obj, varNum, maskBits, testBits);
         int index = varNum / VFLGS$VARS_PER_WORD;
         int slot = varNum % VFLGS$VARS_PER_WORD;
         int shift = slot * VFLGS$BITS_PER_VAR;
@@ -201,7 +202,7 @@ import java.lang.reflect.Field;
         return varChangeBits$(this, varNum, clearBits, setBits);
     }
     public static boolean varChangeBits$(FXObject obj, final int varNum, int clearBits, int setBits) {
-        // printBitsAction$("Chg", obj, varNum, clearBits, setBits);
+        //printBitsAction$("Chg", obj, varNum, clearBits, setBits);
         int index = varNum / VFLGS$VARS_PER_WORD;
         int slot = varNum % VFLGS$VARS_PER_WORD;
         int shift = slot * VFLGS$BITS_PER_VAR;
@@ -228,7 +229,7 @@ import java.lang.reflect.Field;
         restrictSet$(this, varNum);
     }
     public static void restrictSet$(FXObject obj, final int varNum) {
-        if (!varTestBits$(obj, varNum, VFLGS$IS_BOUND_READONLY, 0)) {
+        if (varTestBits$(obj, varNum, VFLGS$IS_READONLY, VFLGS$IS_READONLY)) {
             if (varTestBits$(obj, varNum, VFLGS$IS_BOUND, VFLGS$IS_BOUND)) {
                 throw new AssignToBoundException();
             } else {
@@ -259,13 +260,26 @@ import java.lang.reflect.Field;
         assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
         DependentsManager.get(obj).removeDependent(obj, varNum, dep);
     }
-    public void switchDependence$(final int varNum, FXObject oldBindee, FXObject newBindee) {
-        switchDependence$(this, varNum, oldBindee, newBindee);
+    public void switchDependence$(FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+        switchDependence$(this, oldBindee, oldNum, newBindee, newNum);
     }
-    public static void switchDependence$(FXObject obj, final int varNum, FXObject oldBindee, FXObject newBindee) {
-        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+    public static void switchDependence$(FXObject obj, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
         if (oldBindee != newBindee) {
-            DependentsManager.get(obj).switchDependence(obj, varNum, oldBindee, newBindee);
+            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
+        }
+    }
+    public void switchBiDiDependence$(final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+        switchBiDiDependence$(this, varNum, oldBindee, oldNum, newBindee, newNum);
+    }
+    public static void switchBiDiDependence$(FXObject obj, final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+        if (oldBindee != newBindee) {
+            if (oldBindee != null) {
+                DependentsManager.get(oldBindee).switchDependence(oldBindee, obj, varNum, null, 0);
+            }
+            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
+            if (newBindee != null) {
+                DependentsManager.get(newBindee).switchDependence(newBindee, null, 0, obj, varNum);
+            }
         }
     }
     public void notifyDependents$(final int varNum, final int phase) {
@@ -338,6 +352,9 @@ import java.lang.reflect.Field;
         obj.userInit$();
         obj.postInit$();
     }
+    
+    public void initVarBits$() { initVarBits$(this); }
+    public static void initVarBits$(FXObject obj) {}
 
     public void applyDefaults$(final int varNum) {}
     public static void applyDefaults$(FXObject obj, final int varNum) {}
