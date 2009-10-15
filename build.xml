@@ -109,11 +109,12 @@
       <echo> 
     Main developer targets:
       name="dev-..."                                           description="temp targets to assist in move to compiled bind"
-            dev-pass:   run tests that are expected to pass.  
-            dev-fail:   run tests that are currently failing - see lists in project.properties
-                        This should be run as   ant dev-fail > aLogFile
-            dev-find-passes: Analyze output of dev-fail to see if any tests passes.
-                        This should be run as   ant dev-find-passes -Dlog=aLogFile
+            dev-test:    run tests that are not on the exclude list (ie, don't hang, and don't contain 'lazy')
+            dev-no-hang: run tests that are not on the hang list
+            dev-pass:    run tests that are expected to pass.  
+            dev-fail:    run tests that are currently failing - see lists in project.properties
+            dev-check:   find unexpected passes and unexpected failures in a previous dev-* test run.  EG
+                            ant dev-test dev-check
       name="help"
       name="jar"                                               description="Build compiler .jar files"
       name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
@@ -1246,29 +1247,50 @@
 
 
     <!-- temp code to test the dev repo, excluding the tests in the exclude list in project.properties -->
-    <target name="dev-pass"  depends="-init-dev-pass,binaries,-do-test" description="Build binaries and run tests that should pass"/>
+    <target name="dev-test"  depends="-init-dev-test,binaries,-do-test" description="Build binaries and run tests not on the exclude list"/>
     <target name="dev-no-hang"  depends="-init-dev-no-hang,binaries,-do-test" description="Build binaries and run tests that do not hang"/>
+    <target name="dev-pass"  depends="-init-dev-pass,binaries,-do-test" description="Build binaries and run tests that should pass"/>
     <target name="dev-fail"  depends="-init-dev-fail,binaries,-do-test" description="Build binaries and run tests that currently fail"/>
+
     <target name="dev-find-passes" depends="-init-dev-fail" description="Report tests that passed instead of failed in a dev-fail run">
-      <echo message="${test.fx.dev.exclude.list}" file="./build/test/dev-expected-fails" />
+      <echo message="${test.fx.dev.fail.list}" file="./build/test/dev-expected-fails" />
       <exec dir="." executable="sh">
         <arg line="./dev-find-passes.sh ./build/test/dev-expected-fails ${log}"/>
       </exec>
     </target>
 
+    <target name="dev-check" description="Analyze dev-* test results for unexpected passes and failures">
+      <exec dir="." executable="sh">
+        <arg line="./dev-check.sh"/>
+      </exec>
+    </target>
+
     <target name="-init-dev-pass" depends="init">
       <property name="testFile" value="**/*Test.java"/>
-      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list} ${test.fx.dev.hang.list}"/>
+      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list} ${test.fx.dev.fail.list}"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-pass" file="./build/test/dev-target" />
+    </target>
+
+    <target name="-init-dev-test" depends="init">
+      <property name="testFile" value="**/*Test.java"/>
+      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list}"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-test" file="./build/test/dev-target" />
     </target>
 
     <target name="-init-dev-no-hang" depends="init">
       <property name="testFile" value="**/*Test.java"/>
       <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.hang.list}"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-no-hang" file="./build/test/dev-target" />
     </target>
 
     <target name="-init-dev-fail" depends="init">
       <property name="testFile" value="**/FXCompilerTest.java"/>
-      <property name="test-sys-prop.test.fx.list" value="${test.fx.dev.exclude.list}"/>
+      <property name="test-sys-prop.test.fx.list" value="${test.fx.dev.fail.list}"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-fail" file="./build/test/dev-target" />
     </target>
 
     <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
@@ -1308,7 +1330,14 @@
         </junit>
     </target>
 
-    <target depends="init" if="have.tests" name="test-report"/>
+    <target depends="init" if="have.tests" name="test-report">
+       <junitreport  todir="build/test">
+          <fileset dir="build/test/results"/>
+          <report format="noframes" todir="build/test/reports"/>
+       </junitreport>
+      <echo message="${test.fx.dev.fail.list}" file="./build/test/dev-expected-fails" />
+    </target>
+
     <target depends="init" if="netbeans.home+have.tests" name="-test-browse"/>
     <target depends="init" if="have.tests" name="-pre-test-run-single">
         <mkdir dir="${build.test.results.dir}"/>
