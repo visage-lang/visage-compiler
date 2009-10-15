@@ -358,7 +358,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeInitStaticAttributesBlock(null, null, null);
 
             javaCodeMaker.makeMixinAccessorMethods(classVarInfos);
-            javaCodeMaker.makeInitVarBitsMethod(false);
             javaCodeMaker.makeInitMethod(defs.userInitName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInitName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -641,15 +640,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // These methods return an expression for testing/setting/clearing a var flag.
         //
         JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
-            return call(getReceiver(varSym), action, makeMixinSafeVarOffset(varSym),
+            return makeFlagExpression(varSym, action,
                         clearBits != null ? id(clearBits) : makeInt(0),
                         setBits != null ? id(setBits) : makeInt(0));
+        }
+        JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
+            return call(getReceiver(varSym), action, makeMixinSafeVarOffset(varSym), clearBits, setBits);
         }
 
         //
         // These methods returns a statement for setting/clearing a var flag.
         //
         JCStatement makeFlagStatement(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
+            return makeExec(makeFlagExpression(varSym, action, clearBits, setBits));
+        }
+        JCStatement makeFlagStatement(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
             return makeExec(makeFlagExpression(varSym, action, clearBits, setBits));
         }
 
@@ -1458,6 +1463,43 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
+        // This method constructs a mixin initVarBits method.
+        //
+        private void makeMixinInitVarBitsMethod(VarInfo varInfo) {
+            MixinMethodBuilder mmb = new MixinMethodBuilder(attributeInitVarBitsName(varInfo.getSymbol()), syms.intType, varInfo) {
+                @Override
+                public void initialize() {
+                    buildIf(isCurrentClassSymbol(varSym.owner));
+                }                
+
+                @Override
+                public void statements() {
+                    boolean isReadonly = varInfo.isDef() || (varInfo.boundInit() != null && !varInfo.hasBiDiBoundDefinition());
+                    boolean isBound = varInfo.boundInit() != null;
+                    Name setBits = null;
+                    
+                    if (isReadonly && isBound) {
+                        setBits = defs.varFlagIS_BOUND_READONLY;
+                    } else if (isReadonly) {
+                        setBits = defs.varFlagIS_READONLY;
+                    } else if (isBound) {
+                        setBits = defs.varFlagIS_BOUND;
+                    }
+                    
+                    if (setBits != null) {
+                        addStmt(m().Return(id(setBits)));
+                    } else if (!varInfo.isOverride() || varInfo.getDefaultInitStatement() != null) {
+                        addStmt(m().Return(makeInt(0)));
+                    } else {
+                        buildIf(false);
+                    }
+                }
+            };
+             
+            mmb.build();
+        }
+
+        //
         // This method constructs a mixin evaluate method.
         //
         private void makeMixinEvaluateAccessorMethod(VarInfo varInfo) {
@@ -1595,6 +1637,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 if (ai.needsCloning()) {
                     makeMixinApplyDefaultsMethod(ai);
+                    makeMixinInitVarBitsMethod(ai);
                     makeMixinEvaluateAccessorMethod(ai);
                     makeMixinInvalidateAccessorMethod(ai);
                     makeOnReplaceAccessorMethod(ai, true);
@@ -1964,7 +2007,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     callSuper();
-                    callMixins();
                     
                     // Set var flags when necessary. 
                     List<VarInfo> attrInfos = isScript ? analysis.scriptVarInfos() : analysis.classVarInfos();
@@ -1972,23 +2014,29 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         setDiagPos(ai.pos());
                         // Only declared attributes with default expressions.
                         if (ai.needsCloning()) {
-                            JCExpression flagsExpr = null;
-                            boolean isReadonly = ai.isDef() || (ai.boundInit() != null && !ai.hasBiDiBoundDefinition());
-                            boolean isBound = ai.boundInit() != null;
-                            Name setBits = null;
-                            
-                            if (isReadonly && isBound) {
-                                setBits = defs.varFlagIS_BOUND_READONLY;
-                            } else if (isReadonly) {
-                                setBits = defs.varFlagIS_READONLY;
-                            } else if (isBound) {
-                                setBits = defs.varFlagIS_BOUND;
-                            }
-                            
-                            if (setBits != null) {
-                                addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, setBits));
-                            } else if (ai.isOverride() && ai.getDefaultInitStatement() != null) {
-                                addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, null));
+                            VarSymbol proxyVarSym = ai.proxyVarSym();
+                            if (!isMixinClass() && ai.isMixinVar()) {
+                                JCExpression mixinCall = call(makeType(proxyVarSym.owner.type, false), attributeInitVarBitsName(proxyVarSym), id(names._this));
+                                addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, id(defs.varFlagIS_BOUND_READONLY), mixinCall));
+                            } else {
+                                JCExpression flagsExpr = null;
+                                boolean isReadonly = ai.isDef() || (ai.boundInit() != null && !ai.hasBiDiBoundDefinition());
+                                boolean isBound = ai.boundInit() != null;
+                                Name setBits = null;
+                                
+                                if (isReadonly && isBound) {
+                                    setBits = defs.varFlagIS_BOUND_READONLY;
+                                } else if (isReadonly) {
+                                    setBits = defs.varFlagIS_READONLY;
+                                } else if (isBound) {
+                                    setBits = defs.varFlagIS_BOUND;
+                                }
+                                
+                                if (setBits != null) {
+                                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, setBits));
+                                } else if (ai.isOverride() && ai.getDefaultInitStatement() != null) {
+                                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagIS_BOUND_READONLY, null));
+                                }
                             }
                         }
                     }

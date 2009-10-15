@@ -685,6 +685,10 @@ public abstract class JavafxTranslationSupport {
     Name attributeGetVOFFName(Symbol sym) {
         return prefixedAttributeName(sym, attributeGetVOFFMethodNamePrefix);
     }
+    
+    Name attributeInitVarBitsName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeInitVarBitsMethodNamePrefix);
+    }
  
     Name attributeApplyDefaultsName(Symbol sym) {
         return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
