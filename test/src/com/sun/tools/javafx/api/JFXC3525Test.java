@@ -52,7 +52,7 @@ public class JFXC3525Test {
             JavafxcTool tool = JavafxcTool.create();
             MockDiagnosticListener<? super FileObject> dl = new MockDiagnosticListener<FileObject>();
             StandardJavaFileManager fileManager = tool.getStandardFileManager(dl, null, null);
-            File file = new File("test/src/com/sun/tools/javafx/api/jfxc3525.fx");
+            File file = new File("test/src/com/sun/tools/javafx/api/JFXC3525.fx");
             Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(file);
             JavafxcTask javafxTask = tool.getTask(null, fileManager, dl, null, fileObjects);
             Iterable<? extends UnitTree> treeList = javafxTask.analyze();
