@@ -24,14 +24,20 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.OnReplaceTree;
+
+import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 
 /**
  *
  * @author Robert Field
  */
-public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMarkable {
+public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMarkable, VariableTree {
+    public final Name name;
+    private JFXType jfxtype;
+    public final JFXModifiers mods;
     private final JFXExpression init;
     private JavafxBindStatus bindStatus;
     private final JFXOnReplace[] triggers;
@@ -39,11 +45,17 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
     public VarSymbol sym;
 
     protected JFXAbstractVar(
+            Name name,
+            JFXType jfxtype,
+            JFXModifiers mods,
             JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
             VarSymbol sym) {
+        this.name = name;
+        this.jfxtype = jfxtype;
+        this.mods = mods;
         this.init = init;
         this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
         this.triggers = new JFXOnReplace[JFXOnReplace.Kind.values().length];
@@ -53,6 +65,8 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
     }
 
     public abstract boolean deferInit();
+
+    public abstract boolean isOverride();
 
     public boolean isStatic() {
         return sym.isStatic();
@@ -114,5 +128,33 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
 
     public boolean isUnidiBind() {
         return bindStatus.isUnidiBind();
+    }
+
+    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
+        return visitor.visitVariable(this, data);
+    }
+
+    public JavaFXKind getJavaFXKind() {
+        return JavaFXKind.VARIABLE;
+    }
+
+    public Name getName() {
+        return name;
+    }
+
+    public JFXTree getType() {
+        return jfxtype;
+    }
+
+    public JFXType getJFXType() {
+        return jfxtype;
+    }
+
+    public void setJFXType(JFXType type) {
+        jfxtype = type;
+    }
+
+    public JFXModifiers getModifiers() {
+        return mods;
     }
 }

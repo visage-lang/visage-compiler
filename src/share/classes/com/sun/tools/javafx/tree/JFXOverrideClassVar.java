@@ -23,49 +23,44 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.javafx.api.JavafxBindStatus;
 
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
-import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * The override of an instance variable
  *
  * @author Robert Field
  */
-public class JFXOverrideClassVar extends JFXAbstractVar implements TriggerTree {
+public class JFXOverrideClassVar extends JFXAbstractVar {
+
     private final JFXIdent expr;
     
-    protected JFXOverrideClassVar(JFXIdent expr,
+    protected JFXOverrideClassVar(
+            Name name,
+            JFXModifiers mods,
+            JFXIdent expr,
             JFXExpression init,
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
             VarSymbol sym) {
-        super(init, bindStat, onReplace, onInvalidate, sym);
+        super(name, null, mods, init, bindStat, onReplace, onInvalidate, sym);
         this.expr = expr;
     }
     
     public void accept(JavafxVisitor v) {
         v.visitOverrideClassVar(this);
     }
-    
-    public JFXIdent getId() {
-        return expr;
-    }
-
-    public ExpressionTree getExpressionTree() {
-        return (ExpressionTree) expr;
-    }
-
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.TRIGGER_WRAPPER;
-    }
 
     @Override
     public JavafxTag getFXTag() {
         return JavafxTag.OVERRIDE_ATTRIBUTE_DEF;
+    }
+
+    public JFXIdent getId() {
+        return expr;
     }
     
     @Override
@@ -73,7 +68,8 @@ public class JFXOverrideClassVar extends JFXAbstractVar implements TriggerTree {
         return false;
     }
 
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitTrigger(this, data);
+    @Override
+    public boolean isOverride() {
+        return true;
     }
 }

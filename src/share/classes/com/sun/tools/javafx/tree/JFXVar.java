@@ -24,11 +24,10 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.javafx.api.JavafxBindStatus;
 
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Name;
-import com.sun.javafx.api.JavafxBindStatus;
 
 /**
  * Variable declaration.
@@ -37,9 +36,7 @@ import com.sun.javafx.api.JavafxBindStatus;
  * @author Zhiqun Chen
  */
 public class JFXVar extends JFXAbstractVar implements VariableTree {
-    public final JFXModifiers mods;
-    public final Name name;
-    private JFXType jfxtype;
+    
     private JFXVarScriptInit varInit;
 
     protected JFXVar() {
@@ -54,14 +51,7 @@ public class JFXVar extends JFXAbstractVar implements VariableTree {
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
             VarSymbol sym) {
-        super(init, bindStat, onReplace, onInvalidate, sym);
-        this.mods = mods;
-        this.name = name;
-        this.jfxtype = jfxtype;
-    }
-    
-    public Name getName() {
-        return name;
+        super(name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
     }
 
     /**
@@ -84,42 +74,17 @@ public class JFXVar extends JFXAbstractVar implements VariableTree {
     public boolean deferInit() {
         return this.varInit != null;
     }
-
-    // for VariableTree
-    public JFXTree getType() {
-        return jfxtype;
-    }
-
-    public void accept(JavafxVisitor v) {
-        v.visitVar(this);
-    }
-
-    public JFXType getJFXType() {
-        return jfxtype;
-    }
-
-    public void setJFXType(JFXType type) {
-        jfxtype = type;
-    }
     
     @Override
     public JavafxTag getFXTag() {
         return JavafxTag.VAR_DEF;
     }
     
-    public JFXModifiers getModifiers() {
-        return mods;
-    }
-    
     public boolean isOverride() {
         return false;
     }
 
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.VARIABLE;
+    public void accept(JavafxVisitor v) {
+        v.visitVar(this);
     }
-
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitVariable(this, data);
-     }
 }

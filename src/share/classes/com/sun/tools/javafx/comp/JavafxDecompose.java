@@ -580,7 +580,13 @@ public class JavafxDecompose implements JavafxVisitor {
         // bound if was bind context or is bound variable
         inBind = wasInBind | tree.isBound();
         JFXExpression initializer = decompose(tree.getInitializer());
-        JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getId(), initializer, tree.getBindStatus(), onReplace, onInvalidate);
+        JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getName(),
+                tree.getModifiers(),
+                tree.getId(),
+                initializer,
+                tree.getBindStatus(),
+                onReplace,
+                onInvalidate);
         res.sym = tree.sym;
         inBind = wasInBind;
         inScriptLevel = wasInScriptLevel;
