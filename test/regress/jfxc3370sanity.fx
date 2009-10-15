@@ -11,26 +11,23 @@
 var x : Boolean = true;
 var i : Integer = 100;
 
+
+// on replace makes these binds be eager
 var y = bind x or (i < 10) on replace oldy {
    println("y changed from {oldy} to {y}");
 };
 
-var z = bind lazy x and (i < 10) on replace oldz {
+var z = bind x and (i < 10) on replace oldz {
    println("z changed from {oldz} to {z}");
 };
 
-x = not x;
-println("x changed to {x}");
+println("changing x to false");
+x = false;
 
-// now access 'z' to see if lazy change is seen
-z;
 
-// change i now
+println("changing i to 2");
 i = 2;
-println("i changed to {i}");
 
-// access 'z' to see lazy change
-z;
 
 // try bind..or and bind..and as a non-top-level expression
 var a = true;

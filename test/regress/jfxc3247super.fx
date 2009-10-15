@@ -17,6 +17,7 @@ function run() {
     e: 123
     f: bind 666
   }
+  m.b;
   m.show();
   m.x = 7777;
   m.show();

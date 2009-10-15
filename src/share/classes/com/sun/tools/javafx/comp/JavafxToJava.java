@@ -712,25 +712,11 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
     public void visitAssign(final JFXAssign tree) {
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-            TODO("visitAssign SEQUENCE_SLICE");
-            // assignment of a sequence slice --  s[i..j]=8, call the sequence set method
-            /***
-            JFXSequenceSlice si = (JFXSequenceSlice)tree.lhs;
-            JCExpression rhs = translateAsValue(tree.rhs, si.getSequence().type);
-            JCExpression seq = translateAsSequenceVariable(si.getSequence());
-            JCExpression startPos = translateAsValue(si.getFirstIndex(), syms.intType);
-            JCExpression endPos = makeSliceEndPos(si);
-            JCFieldAccess select = make.Select(seq, defs.replaceSliceMethodName);
-            List<JCExpression> args = List.of(startPos, endPos, rhs);
-            result = make.at(diagPos).Apply(null, select, args);
-            **/
+            result = new SequenceSliceActionTranslator((JFXSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.rhs).doit();
         } else {
             result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
-                JCExpression buildRHS(JCExpression rhsTranslated) {
-                    return rhsTranslated;
-                }
-
+                @Override
                 JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated) {
                     return m().Assign(lhsTranslated, rhsTranslated);
                 }
@@ -742,20 +728,20 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
             private boolean useDurationOperations() {
-                return types.isSameType(lhs.type, syms.javafx_DurationType);
+                return types.isSameType(ref.type, syms.javafx_DurationType);
             }
 
             @Override
             JCExpression buildRHS(JCExpression rhsTranslated) {
-                final JCExpression lhsTranslated = translateExpr(lhs, null);
+                final JCExpression lhsTranslated = translateExpr(ref, null);
                 if (useDurationOperations()) {
                     JCExpression method = select(lhsTranslated, tree.operator.name);
                     return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
                 } else {
                     JCExpression ret = makeBinary(getBinaryOp(), lhsTranslated, rhsTranslated);
-                    if (!types.isSameType(rhsType(), lhs.type)) {
+                    if (!types.isSameType(rhsType(), ref.type)) {
                         // Because the RHS is a different type than the LHS, a cast may be needed
-                        ret = m().TypeCast(lhs.type, ret);
+                        ret = m().TypeCast(ref.type, ret);
                     }
                     return ret;
                 }
@@ -769,7 +755,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         // Allow for cases like 'k *= 0.5' where k is an Integer or Duration
                         return operationalType(useDurationOperations()? syms.javafx_NumberType : rhs.type);
                     default:
-                        return operationalType(lhs.type);
+                        return operationalType(ref.type);
                 }
             }
 
@@ -982,8 +968,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         args.append(make.TypeCast(makeType(info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameNewElements)));
                     }
                     args.append(tIndex);
-                    return call(makeQualifiedTree(diagPos, JavafxDefs.cSequences),
-                            mname, args.toList());
+                    return call(syms.javafx_SequencesType, mname, args);
                 }
             }
             return call(tSeq, getMethodName, tIndex);
@@ -1055,37 +1040,119 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceSliceTranslator(tree).doit();
     }
 
-    class SequenceInsertTranslator extends ExpressionTranslator {
+    class SequenceActionTranslator extends AssignTranslator {
+
+        final RuntimeMethod meth;
+
+        /**
+         *
+         * @param diagPos
+         * @param ref Variable being referenced (different from LHS if indexed -- where it is sequence or array)
+         * @param indexOrNull The index into the variable reference.  Or null if not indexed.
+         * @param rhs The expression acting on ref or null
+         */
+        SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, JFXExpression rhs) {
+            super(diagPos, ref, indexOrNull, syms.voidType, rhs);
+            this.meth = meth;
+        }
+
+        SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull) {
+            this(diagPos, ref, meth, indexOrNull, null);
+        }
+
+        @Override
+        JCExpression fullExpression(JCExpression tToCheck) {
+            return sequencesOp(meth, tToCheck);
+        }
+
+        @Override
+        JCExpression sequencesOp(RuntimeMethod meth, JCExpression tToCheck) {
+            ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+            if (refSym.owner.kind != Kinds.TYP) {
+                // Local variable sequence -- roughly:
+                // lhs = sequenceAction(lhs, rhs);
+                args.append(id(refSym.name));
+            } else {
+                // Instance variable sequence -- roughly:
+                // sequenceAction(instance, varNum, rhs);
+                args.append(instance(tToCheck));
+                args.append(makeVarOffset(refSym, expressionSymbol(selector)));
+            }
+            JCExpression tRHS = buildRHS(rhsTranslated);
+            if (tRHS != null) {
+                args.append(tRHS);
+            }
+            JCExpression tIndex = translateIndex();
+            if (tIndex != null) {
+                args.append(tIndex);
+                JCExpression tIndex2 = translateIndex2();
+                if (tIndex2 != null) {
+                    args.append(tIndex2);
+                }
+            }
+            JCExpression res = call(meth, args);
+            if (refSym.owner.kind != Kinds.TYP) {
+                // It is a local variable sequence, assign the result
+                res = m().Assign(id(refSym.name), res);
+            }
+            return res;
+        }
+
+        JCExpression translateIndex2() {
+            return null;
+        }
+
+        /**
+         * If we are operating on an array or sequence, convert to the sequence type.
+         * Otherwise, to the element type.
+         */
+        @Override
+        protected Type rhsType() {
+            if (types.isArray(rhs.type) || types.isSequence(rhs.type))
+                return ref.type;
+            else
+                return types.elementType(ref.type);
+        }
+    }
+
+    class SequenceSliceActionTranslator extends SequenceActionTranslator {
+
+        private final JFXSequenceSlice slice;
+
+        SequenceSliceActionTranslator(JFXSequenceSlice slice, RuntimeMethod meth, JFXExpression rhs) {
+            super(slice.pos(), slice.getSequence(), meth, slice.getFirstIndex(), rhs);
+            this.slice = slice;
+        }
+
+        @Override
+        JCExpression translateIndex2() {
+            return makeSliceEndPos(slice);
+        }
+    }
+
+    class SequenceInsertTranslator extends SequenceActionTranslator {
         JFXSequenceInsert tree;
 
         public SequenceInsertTranslator(JFXSequenceInsert tree) {
-            super(tree.pos());
+            super(
+                    tree.pos(),
+                    tree.getSequence(),
+                    (tree.getPosition() == null)? defs.Sequences_insert : defs.Sequences_insertBefore,
+                    tree.getPosition(),
+                    tree.getElement());
             this.tree = tree;
         }
 
-        protected ExpressionResult doit() {
-            ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-            JCExpression mutated = translateToMutable(tree.getSequence());
-            args.append(mutated);
-            JCExpression elem = translateToExpression(tree.getElement(), tree.getElement().type);
-            Type elemType = tree.getElement().type;
-            if (types.isArray(elemType) || types.isSequence(elemType))
-                elem = convertTranslated(elem, diagPos, elemType, tree.getSequence().type);
-            else
-                elem = convertTranslated(elem, diagPos, elemType, types.elementType(tree.getSequence().type));
-            args.append(elem);
-            JCExpression receiver = makeQualifiedTree(diagPos, JavafxDefs.cSequences);
-            Name method;
-            if (tree.getPosition() == null) {
-                method = defs.insertName;
-            } else {
-                JCExpression position = translateToExpression(tree.getPosition(), syms.intType);
-                if (tree.shouldInsertAfter())
-                    position = make.Binary(JCTree.PLUS, position, make.Literal(Integer.valueOf(1)));
-                method = defs.insertBeforeName;
-                args.append(position);
+        @Override
+        JCExpression translateIndex() {
+            if (indexOrNull == null) {
+                return null;
             }
-            return toResult(call(receiver, method, args), tree.type);
+            JCExpression position = translateExpr(indexOrNull, syms.intType);
+            if (tree.shouldInsertAfter()) {
+                position = makeBinary(JCTree.PLUS, position, makeInt(1));
+            }
+            return position;
         }
     }
 
@@ -1093,42 +1160,32 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceInsertTranslator(tree).doit();
     }
 
-    //@Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
-        TODO(tree);
-/*****
+        DiagnosticPosition diagPos = tree.pos();
         JFXExpression seq = tree.getSequence();
-
+        SequenceActionTranslator trans;
         if (tree.getElement() != null) {
-            JCExpression seqLoc = translateAsSequenceVariable(seq);
-            result = callStmt(tree.pos(), seqLoc, "deleteValue", translateAsUnconvertedValue(tree.getElement())); //TODO: convert to seqence type
+            trans = new SequenceActionTranslator(diagPos, seq, defs.Sequences_deleteValue, null, tree.getElement());
         } else {
-            if (seq.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
-                // deletion of a sequence element -- delete s[i]
-                JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
-                JFXExpression seqseq = si.getSequence();
-                JCExpression seqLoc = translateAsSequenceVariable(seqseq);
-                JCExpression index = translateAsValue(si.getIndex(), syms.intType);
-                result = callStmt(tree.pos(), seqLoc, "delete", index);
-            } else if (seq.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-                // deletion of a sequence slice --  delete s[i..j]=8
-                JFXSequenceSlice slice = (JFXSequenceSlice) seq;
-                JFXExpression seqseq = slice.getSequence();
-                JCExpression seqLoc = translateAsSequenceVariable(seqseq);
-                JCExpression first = translateAsValue(slice.getFirstIndex(), syms.intType);
-                JCExpression end = makeSliceEndPos(slice);
-                result = callStmt(tree.pos(), seqLoc, "deleteSlice", List.of(first, end));
-            } else if (types.isSequence(seq.type)) {
-                JCExpression seqLoc = translateAsSequenceVariable(seq);
-                result = callStmt(tree.pos(), seqLoc, "deleteAll");
-            } else {
-                result = make.at(tree.pos()).Exec(
-                            make.Assign(
-                                translateAsUnconvertedValue(seq), //TODO: does this work?
-                                make.Literal(TypeTags.BOT, null)));
+            switch (seq.getFXTag()) {
+                case SEQUENCE_INDEXED:
+                    JFXSequenceIndexed si = (JFXSequenceIndexed) seq;
+                    trans = new SequenceActionTranslator(diagPos, si.getSequence(), defs.Sequences_deleteIndexed, si.getIndex());
+                    break;
+                case SEQUENCE_SLICE:
+                    final JFXSequenceSlice ss = (JFXSequenceSlice) seq;
+                    trans = new SequenceSliceActionTranslator((JFXSequenceSlice) seq, defs.Sequences_deleteSlice, null);
+                    break;
+                default:
+                    if (types.isSequence(seq.type)) {
+                        trans = new SequenceActionTranslator(diagPos, seq, defs.Sequences_deleteAll, null);
+                    } else {
+                        TODO("delete non-sequence");
+                        trans = null; //shut-up
+                    }
             }
         }
- *****/
+        result = trans.doit();
     }
 
     public void visitInvalidate(final JFXInvalidate tree) {
@@ -1225,8 +1282,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 else
                     localSeqBuilder = sequenceBuilderString;
             }
-            JCExpression builderTypeExpr = makeQualifiedTree(diagPos, localSeqBuilder);
-            JCExpression builderClassExpr = makeQualifiedTree(diagPos, localSeqBuilder);
+            JCExpression builderTypeExpr = makeQualifiedTree(localSeqBuilder);
+            JCExpression builderClassExpr = makeQualifiedTree(localSeqBuilder);
             if (! primitive) {
                 builderTypeExpr = m().TypeApply(builderTypeExpr,
                         List.of(makeType(elemType)));
@@ -1462,10 +1519,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 // FIXME set maxForStartNeeded false if first is replace-trigger startPos and seq is oldValue
                 if (maxForStartNeeded)
                     setDiagPos(first);
-                    init = call(
-                           makeQualifiedTree(first, "java.lang.Math"),
-                           "max",
-                           init, makeInt(0));
+                    init = call(defs.Math_max, init, makeInt(0));
             }
             setDiagPos(clause);
             inductionVar.init = init;
@@ -1486,9 +1540,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 // FIXME can optimize if last is replace-trigger endPos and seq is oldValue
                 if (true)
                     setDiagPos(last);
-                    limitExpr = call(
-                           makeQualifiedTree(last, "java.lang.Math"), "min",
-                           List.of(limitExpr, sizeExpr));
+                    limitExpr = call(defs.Math_min, limitExpr, sizeExpr);
             }
             setDiagPos(clause);
             JCVariableDecl limitVar = makeTmpVar("limit", syms.intType, limitExpr);
@@ -1762,9 +1814,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                 tExpr = makeBox(expr.pos(), tExpr, expr.type);
             }
             if (types.isSequence(expr.type) && !types.isSequence(classType)) {
-                tExpr = call(
-                        makeQualifiedTree(expr, JavafxDefs.cSequences),
-                        "getSingleValue", tExpr);
+                tExpr = call(syms.javafx_SequencesType, "getSingleValue", tExpr);
             }
             JCTree clazz = makeType(classType);
             return toResult(

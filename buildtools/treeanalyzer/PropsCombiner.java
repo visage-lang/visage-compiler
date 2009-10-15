@@ -33,7 +33,7 @@ public class PropsCombiner {
        for (Object o : names) {
            String name = o.toString();
            System.out.print(name);
-           System.out.print('=');
+           System.out.print(" = ");
            System.out.println(prop.getProperty(name));
        }
    }
@@ -73,7 +73,12 @@ public class PropsCombiner {
 
    private static Properties load(File f) throws IOException {
        Properties props = new Properties();
-       props.load(new BufferedInputStream(new FileInputStream(f)));
+       InputStream is = new BufferedInputStream(new FileInputStream(f));
+       try {
+           props.load(is);
+       } finally {
+           is.close();
+       }
        return props;
    }
 }
