@@ -4137,7 +4137,7 @@ postfixExpression
 
 	// Position for pipe epxression
 	//
-	int pPos;
+	int pPos = -1;
 	
 	// Indicates if we had the LT token
 	//
@@ -4208,6 +4208,7 @@ postfixExpression
 							JFXExpression part = F.at($n2.pos).Ident($n2.value);
 							errNodes.append(part);
 							endPos(part);
+                                                        pPos = part.getEndPosition(endPositions);
 						}
 					  
 					  PIPE 
@@ -4226,6 +4227,7 @@ postfixExpression
                   		// Build a var reference
                   		//
                   		JFXVar var = F.at($n2.pos).Param($n2.value, F.TypeUnknown());
+                                endPos(var, pPos);
                   		
                   		// Set up the in clause
                   		//
