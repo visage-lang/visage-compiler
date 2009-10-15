@@ -1173,11 +1173,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // $var = value
                     addStmt(makeExec(m().Assign(id(varName), id(defs.attributeNewValueName))));
     
+                    // setValid(VFLGS$IS_INVALID);
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagIS_INVALID, null));
+
                     // invalidate$(VFLGS$NEEDS_TRIGGER)
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
 
-                    // setValid(VOFF$var);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
+                    // setValid(VFLGS$NEEDS_TRIGGER);
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null));
     
                     // onReplace$(varOldValue$, varNewValue$)
                     addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
@@ -1194,7 +1197,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Prepare to accumulate else statements.
                     beginBlock();
     
-                    // setValid(VOFF$var);
+                    // setValid(VFLGS$VALIDITY_FLAGS);
                     addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
                     
                     // End of else block.
