@@ -4402,7 +4402,9 @@ primaryExpression
 	| LPAREN e=expression RPAREN
 	
 		{
-			$value = $e.value;
+			$value = preserveTrees ?
+                            F.at(pos($LPAREN)).Parens($e.value) :
+                            $e.value;
 		}
 		
 	| AT 

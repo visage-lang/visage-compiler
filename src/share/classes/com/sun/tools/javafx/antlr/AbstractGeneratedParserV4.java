@@ -97,6 +97,11 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
      * Should the parser generate an end positions map? 
      */
     protected boolean genEndPos;
+
+    /**
+     * Should the parser preserve trees as much as possible (for IDE)?
+     */
+    protected boolean preserveTrees;
     
     /** 
      * The end positions map. 
@@ -384,7 +389,8 @@ public abstract class AbstractGeneratedParserV4 extends Parser {
         this.genEndPos  =    options.get("-Xjcov") != null 
                           || context.get(DiagnosticListener.class) != null 
                           || Boolean.getBoolean("JavafxModuleBuilder.debugBadPositions");
-        
+
+        this.preserveTrees = options.get("preserveTrees") != null;
         this.treeInfo = (JavafxTreeInfo) JavafxTreeInfo.instance(context);
         
     }
