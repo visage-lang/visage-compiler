@@ -953,7 +953,7 @@ public abstract class JavafxTranslationSupport {
             return makeType(sym.type, true);
         }
 
-        protected JCExpression makeVarOffset(Symbol sym, Symbol selectorSym) {
+        protected JCExpression makeVarSelect(Symbol sym, Symbol selectorSym, Name name) {
             JCExpression klass;
             if ((sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
                 // This is a mixin var, get type from selector (if any)
@@ -968,7 +968,15 @@ public abstract class JavafxTranslationSupport {
                     klass = select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
                 }
             }
-            return select(klass, attributeOffsetName(sym));
+            return select(klass, name);
+        }
+
+        protected JCExpression makeVarOffset(Symbol sym, Symbol selectorSym) {
+            return makeVarSelect(sym, selectorSym, attributeOffsetName(sym));
+        }
+
+        protected JCExpression makeVarValue(Symbol sym, Symbol selectorSym) {
+            return makeVarSelect(sym, selectorSym, attributeValueName(sym));
         }
 
         //

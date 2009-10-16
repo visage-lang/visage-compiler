@@ -86,13 +86,12 @@ public class MxInit01 extends FXTestCase {
     }
 /*
  * initializing in mixee, mixin and super mixin
- * INVALID TEST - need to be fixed if JFXC-3078 fixed
  */
     function INVALID_testA02() {
         res = "";
         var x = C{};
         x.v = 95;
-        assertEquals("AAEC", res); // should be "AEC"
+        assertEquals("AEC", res);
         assertEquals(95, x.v);
         var y:A = x;
         assertEquals(95, y.v);
@@ -104,13 +103,12 @@ public class MxInit01 extends FXTestCase {
 
 /*
  * initializing in mixee, supeclass and in two mixin
- * INVALID TEST - need to be fixed if JFXC-3078 fixed
  */
     function INVALID_testA03() {
         res = "";
         var x = D{};
         x.v = 105;
-        assertEquals("AAECD", res); // should be "AECD"
+        assertEquals("AECD", res);
         assertEquals(105, x.v);
         var y:A = x;
         assertEquals(105, y.v);

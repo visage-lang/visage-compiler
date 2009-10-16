@@ -1066,7 +1066,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             }
         }
+        
+        //
+        // This method returns true if there is a default statement for a given var.
+        //
+        public boolean hasDefaultInitStatement(VarInfo varInfo) {
+            return varInfo.getDefaultInitStatement() != null ||
+                   (varInfo.onReplaceAsInline() != null && (varInfo.hasBoundDefinition() || !varInfo.isOverride()));
+        }
+        
 
+        //
+        // This method returns the default statement for a given var.
+        //
+        public JCStatement getDefaultInitStatement(VarInfo varInfo) {
+            JCStatement init = varInfo.getDefaultInitStatement();
+            
+            if (init == null) {
+                VarSymbol varSym = varInfo.getSymbol();
+                
+                // If we need to prime the on replace trigger.
+                if (varInfo.onReplaceAsInline() != null) {
+                    if (varInfo.hasBoundDefinition()) {
+                        init = callStmt(getReceiver(), attributeGetterName(varSym));
+                    } else if(!varInfo.isOverride()) {
+                        init = callStmt(getReceiver(), attributeOnReplaceName(varSym),
+                                        makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym));
+                    }
+                }
+            }
+
+            return init;
+        }
+        
         //
         // This method constructs the getter method for the specified attribute.
         //
@@ -1219,12 +1251,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Must be in sync with makeInvalidateAccessorMethod
         //
         private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
-            if (varInfo.hasBoundDefinition()) {
-                return false;
-            }
             if (varInfo.isMixinVar() || varInfo.onReplace() != null) {
                 // based on makeInvalidateAccessorMethod
                 return true;
+            } else if (varInfo.hasBoundDefinition()) {
+                return false;
             } else {
                 if (varInfo instanceof TranslatedVarInfoBase) {
                     return ((TranslatedVarInfoBase) varInfo).boundBinders().size() != 0;
@@ -1418,7 +1449,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method returns the correct expression for accessing a value depending if in a mixin or not.
         //
         private JCExpression makeMixinSafeVarValue(VarSymbol varSym) {
-            return isMixinClass() && analysis.isMixinClass(varSym.owner) ? call(getReceiver(), attributeGetMixinName(varSym)) : id(attributeValueName(varSym));
+           if (isMixinClass() && analysis.isMixinClass(varSym.owner)) {
+               return call(getReceiver(varSym), attributeGetMixinName(varSym));
+           } else if (varSym.isStatic()) {
+               return select(makeType(varSym.owner.type, false), attributeValueName(varSym));
+           }
+           
+           return id(attributeValueName(varSym));
         }
 
         //
@@ -1451,7 +1488,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeApplyDefaultsName(varInfo.getSymbol()), syms.voidType, varInfo) {
                 @Override
                 public void initialize() {
-                    buildIf(isCurrentClassSymbol(varSym.owner) || varInfo.getDefaultInitStatement() != null);
+                    buildIf(isCurrentClassSymbol(varSym.owner) || hasDefaultInitStatement(varInfo));
                 }                
 
                 @Override
@@ -1476,8 +1513,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 @Override
                 public void statements() {
-                    boolean isReadonly = varInfo.isDef() || (varInfo.boundInit() != null && !varInfo.hasBiDiBoundDefinition());
-                    boolean isBound = varInfo.boundInit() != null;
+                    boolean isBound = varInfo.hasBoundDefinition();
+                    boolean isReadonly = varInfo.isDef() || (isBound && !varInfo.hasBiDiBoundDefinition());
                     Name setBits = null;
                     
                     if (isReadonly && isBound) {
@@ -1490,7 +1527,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     if (setBits != null) {
                         addStmt(m().Return(id(setBits)));
-                    } else if (!varInfo.isOverride() || varInfo.getDefaultInitStatement() != null) {
+                    } else if (!varInfo.isOverride() || hasDefaultInitStatement(varInfo)) {
                         addStmt(m().Return(id(defs.varFlagINIT_NORMAL)));
                     } else {
                         buildIf(false);
@@ -1878,7 +1915,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Assume the worst.
             JCStatement stmt = null;
             // Get init statement.
-            JCStatement init = ai.getDefaultInitStatement();
+            JCStatement init = getDefaultInitStatement(ai);
 
             if (init != null) {
                 // a default exists, either on the direct attribute or on an override
@@ -1891,7 +1928,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     Name methodName = attributeApplyDefaultsName(varSym);
                     // Include defaults for mixins into real classes.
                     stmt = makeSuperCall((ClassSymbol)varSym.owner, methodName, id(names._this));
-               } else if (ai instanceof TranslatedVarInfo) {
+               } else if (ai instanceof TranslatedVarInfoBase) {
                     //TODO: see SequenceVariable.setDefault() and JFXC-885
                     // setDefault() isn't really done for sequences
                    /**
@@ -1959,7 +1996,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             cases.append(m().Case(tag, endBlockAsList()));
                         } else {
                             // Get init statement.
-                            JCStatement init = ai.getDefaultInitStatement();
+                            JCStatement init = getDefaultInitStatement(ai);
         
                             if (init != null) {
                                 // Begin the override case.
@@ -2026,8 +2063,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, id(defs.varFlagALL_FLAGS), mixinCall));
                             } else {
                                 JCExpression flagsExpr = null;
-                                boolean isReadonly = ai.isDef() || (ai.boundInit() != null && !ai.hasBiDiBoundDefinition());
-                                boolean isBound = ai.boundInit() != null;
+                                boolean isBound = ai.hasBoundDefinition();
+                                boolean isReadonly = ai.isDef() || (isBound && !ai.hasBiDiBoundDefinition());
                                 Name setBits = null;
                                 
                                 if (isReadonly && isBound) {
@@ -2040,7 +2077,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 
                                 if (setBits != null) {
                                     addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagALL_FLAGS, setBits));
-                                } else if (ai.isOverride() && ai.getDefaultInitStatement() != null) {
+                                } else if (ai.isOverride() && hasDefaultInitStatement(ai)) {
                                     addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagALL_FLAGS, null));
                                 }
                             }
@@ -2318,10 +2355,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             if (attrInfo != null) {
                 for (VarInfo ai : attrInfo) {
-                    JCStatement init = ai.getDefaultInitStatement();
-                    
-                    if (init != null) {
-                        stmts.append(init);
+                    if (hasDefaultInitStatement(ai)) {
+                        stmts.append(getDefaultInitStatement(ai));
                     }
                 }
             }
