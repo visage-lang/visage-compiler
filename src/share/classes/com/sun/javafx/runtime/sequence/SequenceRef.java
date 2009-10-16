@@ -53,42 +53,50 @@ public class SequenceRef<T> extends AbstractSequence<T> {
     }
 
     public int size() {
-        return saved == null ? saved.size() : instance.size$(varNum);
+        return saved != null ? saved.size() : instance.size$(varNum);
     }
 
     public T get(int position) {
-        return saved == null ? saved.get(position) : (T) instance.get$(varNum, position);
+        return saved != null ? saved.get(position) : (T) instance.get$(varNum, position);
     }
 
+    @Override
     public boolean getAsBoolean(int position) {
-        return saved == null ? saved.getAsBoolean(position) : instance.getAsBoolean$(varNum, position);
+        return saved != null ? saved.getAsBoolean(position) : instance.getAsBoolean$(varNum, position);
     }
 
+    @Override
     public char getAsChar(int position) {
-        return saved == null ? saved.getAsChar(position) : instance.getAsChar$(varNum, position);
+        return saved != null ? saved.getAsChar(position) : instance.getAsChar$(varNum, position);
     }
 
+    @Override
     public byte getAsByte(int position) {
-        return saved == null ? saved.getAsByte(position) : instance.getAsByte$(varNum, position);
+        return saved != null ? saved.getAsByte(position) : instance.getAsByte$(varNum, position);
     }
 
+    @Override
     public short getAsShort(int position) {
-        return saved == null ? saved.getAsShort(position) : instance.getAsShort$(varNum, position);
+        return saved != null ? saved.getAsShort(position) : instance.getAsShort$(varNum, position);
     }
 
+    @Override
     public int getAsInt(int position) {
-        return saved == null ? saved.getAsInt(position) : instance.getAsInt$(varNum, position);
+        return saved != null ? saved.getAsInt(position) : instance.getAsInt$(varNum, position);
     }
 
+    @Override
     public long getAsLong(int position) {
-        return saved == null ? saved.getAsLong(position) : instance.getAsLong$(varNum, position);
+        return saved != null ? saved.getAsLong(position) : instance.getAsLong$(varNum, position);
     }
 
+    @Override
     public float getAsFloat(int position) {
-        return saved == null ? saved.getAsFloat(position) : instance.getAsFloat$(varNum, position);
+        return saved != null ? saved.getAsFloat(position) : instance.getAsFloat$(varNum, position);
     }
 
+    @Override
     public double getAsDouble(int position) {
-        return saved == null ? saved.getAsDouble(position) : instance.getAsDouble$(varNum, position);
+        return saved != null ? saved.getAsDouble(position) : instance.getAsDouble$(varNum, position);
     }
 }
