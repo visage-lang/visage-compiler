@@ -963,6 +963,15 @@ public class SequencesBase {
         instance.set$(varNum, arr);
     }
 
+    public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
+        return newValue;
+    }
+
+    public static <T> void set(FXBase instance, int varNum, Sequence<? extends T> newValue) {
+        //TODO: should give slice invalidations, as if below, but should actually set to the new sequence
+        replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum) + 1);
+    }
+
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, T newValue, int index) {
         return replaceSlice(oldValue, newValue, index, index + 1);
     }
