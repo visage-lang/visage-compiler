@@ -41,6 +41,7 @@ public class JavafxDefs {
      * static string definitions
      */
     public static final String boundFunctionDollarSuffix = "$$bound$";
+    public static final String boundFunctionResult = "$$bound$result$";
     public static final String implFunctionSuffix = "$impl";
     public static final String attributeTypeMethodNamePrefix = "getType$";
     public static final String attributeGetMethodNamePrefix = "get$";
@@ -271,6 +272,7 @@ public class JavafxDefs {
     public final Name functionsPackageName;
     public final Name javaLangPackageName;
     public final Name implFunctionSuffixName;
+    public final Name boundFunctionResultName;
 
     public static final int TYPE_KIND_OBJECT = 0;
     public static final int TYPE_KIND_BOOLEAN = 1;
@@ -375,6 +377,7 @@ public class JavafxDefs {
         onReplaceArgNameNewElements = names.fromString("$newElements$");
         internalSuffixName = names.fromString("$internal$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
+        boundFunctionResultName = names.fromString(boundFunctionResult);
         attributeTypePrefixName = names.fromString(attributeTypeMethodNamePrefix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
         attributeSetPrefixName = names.fromString(attributeSetMethodNamePrefix);

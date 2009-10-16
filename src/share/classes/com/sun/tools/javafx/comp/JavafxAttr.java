@@ -918,7 +918,15 @@ public class JavafxAttr implements JavafxVisitor {
                 // marking the variable as undefined.
                 initEnv.info.enclVar = v;
                 initType = attribExpr(tree.getInitializer(), initEnv, declType);
-                initType = chk.checkNonVoid(tree.pos(), initType);                
+                /*
+                 * We introduce a synthetic variable for bound function result.
+                 * See JavafxBoundContextAnalysis. If the type of that var is
+                 * Void, then return statement will catch it and produce appropriate
+                 * error message ("Bound function can not be void").
+                 */
+                if (tree.name != defs.boundFunctionResultName) {
+                    initType = chk.checkNonVoid(tree.pos(), initType);
+                }
                 chk.checkType(tree.pos(), initType, declType,
                         types.isSequence(declType) ? Sequenceness.REQUIRED : Sequenceness.DISALLOWED, false);
                 if (initType == syms.botType

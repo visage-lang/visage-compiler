@@ -23,11 +23,13 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic;
 import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Log;
 
 /**
@@ -41,6 +43,8 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
 
     private final Log log;
     private final JCDiagnostic.Factory diags;
+    private JavafxTreeMaker fxmake;
+    private JavafxDefs defs;
 
     private boolean inBindContext;
 
@@ -56,6 +60,8 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         context.put(bindAnalysisKey, this);
         log = Log.instance(context);
         diags = JCDiagnostic.Factory.instance(context);
+        fxmake = JavafxTreeMaker.instance(context);
+        defs = JavafxDefs.instance(context);
 
         inBindContext = false;
     }
@@ -129,6 +135,25 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         inBindContext = tree.isBound();
         // don't use super, since we don't want to cancel the inBindContext
         scan(tree.getParams());
+        if (tree.isBound()) {
+            /*
+             * For bound functions, make a new bound variable with initialization
+             * expression to be the return expression and return the variable as
+             * result. This way, JavafxLocalToClass will see this function with
+             * a local bind variable (even if there are no other variables in the
+             * function) and so create a class for local context.
+             */
+            JFXBlock blk = tree.getBodyExpression();
+            JFXExpression returnExpr = (blk.value instanceof JFXReturn)?
+                ((JFXReturn)blk.value).getExpression() : blk.value;
+            if (returnExpr != null) {
+                fxmake.at(blk.value.pos);
+                JFXVar resultVar = fxmake.Var(defs.boundFunctionResultName, fxmake.TypeUnknown(),
+                    fxmake.Modifiers(0), returnExpr, JavafxBindStatus.UNIDIBIND, null, null);
+                blk.stats = blk.stats.append(resultVar);
+                blk.value = fxmake.Ident(defs.boundFunctionResultName);
+            }
+        }
         scan(tree.getBodyExpression());
         inBindContext = wasInBindContext;
     }
