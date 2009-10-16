@@ -159,6 +159,15 @@ var specialCaseData822:String[] = [
     "29 Feb 00 02:14 +0900",      "Tue, 29 Feb 2000 02:14:00 +0900",    // Y2K
     "29 Mar 09 20:28:39 PDT",     "Sun, 29 Mar 2009 20:28:39 PDT",      // Y2K
     "Sun, 29 Mar 09 20:28:39 UT", "Sun, 29 Mar 2009 20:28:39 GMT",      // Y2K
+    // Allow invalid U.S. local time stamps (RT-5989)
+    "Mon, 25 Dec 2000 01:02:03 EDT", "Mon, 25 Dec 2000 01:02:03 -0400",
+    "Mon, 19 Jun 2000 01:02:03 EST", "Mon, 19 Jun 2000 01:02:03 -0500",
+    "Sun, 02 Apr 2006 02:45:00 CST", "Sun, 02 Apr 2006 02:45:00 -0600",
+    "Sun, 02 Apr 2006 02:45:00 CDT", "Sun, 02 Apr 2006 02:45:00 -0500",
+    "Sun, 08 Mar 2009 02:00:00 PST", "Sun, 08 Mar 2009 02:00:00 -0800",
+    "Sun, 08 Mar 2009 02:00:00 PDT", "Sun, 08 Mar 2009 02:00:00 -0700",
+    "Sun, 08 Mar 2009 02:30:00 PST", "Sun, 08 Mar 2009 02:30:00 -0800",
+    "Sun, 08 Mar 2009 02:30:00 PDT", "Sun, 08 Mar 2009 02:30:00 -0700",
     // Military single letter time zones
     "Sun, 29 Mar 09 20:28:39 A",  "Sun, 29 Mar 2009 20:28:39 -0100",
     "Sun, 29 Mar 09 20:28:39 B",  "Sun, 29 Mar 2009 20:28:39 -0200",
@@ -208,10 +217,6 @@ var badData822:String[] = [
     "Sun, 01 Mar 2009 20:68:39 PST",        // invalid minute
     "Sun, 01 Mar 2009 20:28:69 PST",        // invalid second
     "Sun, 29 Mar 2009 20:28:39.999 PDT",    // invalid fractional seconds
-    "Sun, 08 Mar 2009 02:00:00 PST",        // invalid local time (dst-std transition)
-    "Sun, 08 Mar 2009 02:00:00 PDT",        // invalid local time (dst-std transition)
-    "Sun, 08 Mar 2009 02:30:00 PST",        // invalid local time (dst-std transition)
-    "Sun, 08 Mar 2009 02:30:00 PDT",        // invalid local time (dst-std transition)
     "Sun, 01 Mar 2009 20:28:39 J",          // invalid time zone
     "Sun, 01 Mar 2009 20:28:39 JST",        // invalid time zone
     "Sun, 01 Mar 2009 20:28:39 HST",        // invalid time zone
@@ -220,9 +225,6 @@ var badData822:String[] = [
     "Sun, 01 Mar 2009 20:28:39 -07000",     // invalid time zone
     "Sun, 01 Mar 2009 20:28:39 +0760",      // invalid time zone
     "Sun, 01 Mar 2009 20:28:39 -0760",      // invalid time zone
-    "Mon, 25 Dec 2000 01:02:03 EDT",        // invalid local time
-    "Sun, 08 Mar 2009 02:30:00 PDT",        // invalid local time
-    "Sun, 02 Apr 2006 02:45:00 PST",        // invalid local time
     "Sun, 01 Mar 2009 20:28:39",            // no time zone
     "Sun 29 Mar 2009 20:28:39 PDT",         // no comma
     "Sun, 29 Feb 2009 20:28:39 PST",        // Feb. 29 in a non-leap year

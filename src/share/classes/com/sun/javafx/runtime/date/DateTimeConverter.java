@@ -195,51 +195,38 @@ public class DateTimeConverter {
         "Dec"
     };
 
-    private static final String[] RFC822ZONE_STD_NAMES = {
-        "GMT",
-        "UT",
-        "EST",
-        "CST",
-        "MST",
-        "PST",
+    private static final int NAME_STD = 0;
+    private static final int NAME_DST = 1;
+    private static final String[][] RFC822ZONE_NAMES = {
+        { "EST", "EDT" },
+        { "CST", "CDT" },
+        { "MST", "MDT" },
+        { "PST", "PDT" },
+        { "GMT", null },
+        { "UT",  null },
     };
 
-    private static final int[] RFC822ZONE_STD_OFFSETS = {
-        0,
-        0,
-        -5 * 60 * 60 * 1000,
-        -6 * 60 * 60 * 1000,
-        -7 * 60 * 60 * 1000,
-        -8 * 60 * 60 * 1000,
-    };
-    private static final String[] RFC822ZONE_STD_IDS = {
-        "GMT",
-        "GMT",
-        "America/New_York",
-        "America/Chicago",
-        "America/Denver",
-        "America/Los_Angeles",
+    private static final int OFFSET_STD = 0;
+    private static final int OFFSET_DST = 1;
+    private static final int[][] RFC822ZONE_OFFSETS = {
+        { -5 * 60 * 60 * 1000, -4 * 60 * 60 * 1000 },
+        { -6 * 60 * 60 * 1000, -5 * 60 * 60 * 1000 },
+        { -7 * 60 * 60 * 1000, -6 * 60 * 60 * 1000 },
+        { -8 * 60 * 60 * 1000, -7 * 60 * 60 * 1000 },
+        { 0, 0 },
+        { 0, 0 },
     };
 
-    private static final String[] RFC822ZONE_DST_NAMES = {
-        "EDT",
-        "CDT",
-        "MDT",
-        "PDT",
-    };
-
-    private static final int[] RFC822ZONE_DST_OFFSETS = {
-        -4 * 60 * 60 * 1000,
-        -5 * 60 * 60 * 1000,
-        -6 * 60 * 60 * 1000,
-        -7 * 60 * 60 * 1000,
-    };
-
-    private static final String[] RFC822ZONE_DST_IDS = {
-        "America/New_York",
-        "America/Chicago",
-        "America/Denver",
-        "America/Los_Angeles",
+    private static final int ZONE_ID = 0;
+    private static final int ZONE_ALTSTD = 1;
+    private static final int ZONE_ALTDST = 2;
+    private static final String[][] RFC822ZONE_IDS = {
+        { "America/New_York",    "GMT-05:00",       "GMT-04:00" },
+        { "America/Chicago",     "GMT-06:00",       "GMT-05:00" },
+        { "America/Denver",      "America/Phoenix", "GMT-06:00" },
+        { "America/Los_Angeles", "GMT-08:00",       "GMT-07:00" },
+        { "GMT",                 null,              null },
+        { "GMT",                 null,              null },
     };
 
     public static String toRFC822String(DateTimeEngine engine) {
@@ -256,6 +243,13 @@ public class DateTimeConverter {
         if (tz != null) {
             sb.append(' ');
             try {
+                // If both the standard abbreviation and the raw GMT
+                // offset match an RFC822 zone, then use its RFC822
+                // zone name. Otherwise, use the numeric format (e.g.,
+                // +0900). If the TimeZone is "Europe/London", its
+                // standard abbreviation matches "GMT", but its
+                // daylight time needs to be converted to +0100. This
+                // fallback is performed in appendRFC822ZoneName().
                 String tzabbr = tz.getDisplayName(false, TimeZone.SHORT, Locale.US);
                 int rawOffset = tz.getRawOffset();
                 if (isRFC822ZoneName(tzabbr, rawOffset)) {
@@ -338,6 +332,7 @@ public class DateTimeConverter {
             checkDelimiter(input, index++, ' ');
 
             // parse time of day (HH:mm[:ss])
+            int hours = 0;
           timeofday:
             for (int i = 0; i < 3; i++) {
                 x = parseInt(input, index, value);
@@ -352,6 +347,10 @@ public class DateTimeConverter {
                         syntaxError(x);
                     }
                     engine.setHours(val);
+                    // save hours to determine if DST amount needs to
+                    // be adjusted in case the given time zone is kind
+                    // of invalid.
+                    hours = val;
                     x++;
                     break;
                 case 1:
@@ -394,14 +393,20 @@ public class DateTimeConverter {
             // time or corresponding non-DST time zone. (No support
             // for the historical differences in the U.S. time zones.)
             if ((engine.getDaylightSaving() > 0) != expectDST) {
-                if (expectDST || (!tzid.equals("America/Denver"))) {
+                String altTzid = null;
+                for (String[] ids : RFC822ZONE_IDS) {
+                    if (tzid.equals(ids[ZONE_ID])) {
+                        altTzid = ids[expectDST ? ZONE_ALTDST : ZONE_ALTSTD];
+                    }
+                }
+                if (altTzid == null) {
                     parseError("invalid local time");
                 }
-                // Recalculate local time, assuming that the time zone
-                // is Phoenix rather than Denver.
-                tzid = "America/Phoenix";
-                tz = TimeZone.getTimeZone(tzid);
-                instant += engine.getDaylightSaving();
+                // Recalculate local time
+                tz = TimeZone.getTimeZone(altTzid);
+                if (hours == engine.getHours()) {
+                    instant += engine.getDaylightSaving();
+                }
                 engine = DateTimeEngine.getInstance(instant, tz);
             }
             if (dayOfWeek != 0 && engine.getDayOfWeek() != dayOfWeek) {
@@ -423,9 +428,9 @@ public class DateTimeConverter {
      * @param offset time zone offset in milliseconds
      */
     private static boolean isRFC822ZoneName(String abbr, int offset) {
-        for (int i = 0; i < RFC822ZONE_STD_OFFSETS.length; i++) {
-            if (offset == RFC822ZONE_STD_OFFSETS[i]
-                && abbr.equals(RFC822ZONE_STD_NAMES[i])) {
+        for (int i = 0; i < RFC822ZONE_OFFSETS.length; i++) {
+            if (offset == RFC822ZONE_OFFSETS[i][OFFSET_STD]
+                && abbr.equals(RFC822ZONE_NAMES[i][NAME_STD])) {
                 return true;
             }
         }
@@ -434,10 +439,10 @@ public class DateTimeConverter {
 
     private static void appendRFC822ZoneName(StringBuilder sb,
                                              int offset, boolean daylight) {
-        int[] offsets = daylight ? RFC822ZONE_DST_OFFSETS : RFC822ZONE_STD_OFFSETS;
-        for (int i = 0; i < offsets.length; i++) {
-            if (offset == offsets[i]) {
-                sb.append(daylight ? RFC822ZONE_DST_NAMES[i] : RFC822ZONE_STD_NAMES[i]);
+        int index = daylight ? OFFSET_DST : OFFSET_STD;
+        for (int i = 0; i < RFC822ZONE_OFFSETS.length; i++) {
+            if (offset == RFC822ZONE_OFFSETS[i][index]) {
+                sb.append(RFC822ZONE_NAMES[i][index]);
                 return;
             }
         }
@@ -499,17 +504,14 @@ public class DateTimeConverter {
                 CalendarUtils.sprintf0d(sb, offset, 2).append(":00");
                 tzid = sb.toString();
             } else {
-                int len = RFC822ZONE_STD_NAMES.length;
-                for (int i = 0; i < len; i++) {
-                    if (RFC822ZONE_STD_NAMES[i].equals(name)) {
-                        tzid = RFC822ZONE_STD_IDS[i];
+                int len = RFC822ZONE_NAMES.length;
+                for (int i = 0; i < RFC822ZONE_NAMES.length; i++) {
+                    if (name.equals(RFC822ZONE_NAMES[i][NAME_STD])) {
+                        tzid = RFC822ZONE_IDS[i][ZONE_ID];
                         break;
                     }
-                }
-                len = RFC822ZONE_DST_NAMES.length;
-                for (int i = 0; i < len; i++) {
-                    if (RFC822ZONE_DST_NAMES[i].equals(name)) {
-                        tzid = RFC822ZONE_DST_IDS[i];
+                    if (name.equals(RFC822ZONE_NAMES[i][NAME_DST])) {
+                        tzid = RFC822ZONE_IDS[i][ZONE_ID];
                         isDST[0] = true;
                         break;
                     }
