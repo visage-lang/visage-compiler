@@ -102,4 +102,15 @@ public interface FXObject {
     public void     postInit$     ();
     public void     complete$     ();
     public int      count$        ();
+
+    public int size$(int varNum);
+    public Object get$(int varNum, int position);
+    public boolean getAsBoolean$(int varNum, int position);
+    public char getAsChar$(int varNum, int position);
+    public byte getAsByte$(int varNum, int position);
+    public short getAsShort$(int varNum, int position);
+    public int getAsInt$(int varNum, int position);
+    public long getAsLong$(int varNum, int position);
+    public float getAsFloat$(int varNum, int position);
+    public double getAsDouble$(int varNum, int position);
 }
