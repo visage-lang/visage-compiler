@@ -177,19 +177,19 @@ public class JavafxScriptClassBuilder {
             @Override
             public void visitIdent(JFXIdent id) {
                 super.visitIdent(id);
-                if (id.name.equals(pseudoSourceFile)) {
+                if (id.getName().equals(pseudoSourceFile)) {
                     usesSourceFile = true;
                     markPosition(id);
                 }
-                if (id.name.equals(pseudoFile)) {
+                if (id.getName().equals(pseudoFile)) {
                     usesFile = true;
                     markPosition(id);
                 }
-                if (id.name.equals(pseudoDir)) {
+                if (id.getName().equals(pseudoDir)) {
                     usesDir = true;
                     markPosition(id);
                 }
-                if (id.name.equals(pseudoProfile)) {
+                if (id.getName().equals(pseudoProfile)) {
                     usesProfile = true;
                     markPosition(id);
 		}

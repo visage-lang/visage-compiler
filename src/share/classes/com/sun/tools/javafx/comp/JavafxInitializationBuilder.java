@@ -1381,10 +1381,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (!isMixinClass() && varInfo.isMixinVar()) {
                         // Mixin.onReplace$var(this, oldValue, newValue);
                         callMixin((ClassSymbol)varSym.owner);
-                        
-                        if (onReplace != null) {
-                            addStmt(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
-                        }
+                    }
+                    if (!isMixinClass() && onReplace != null && !varInfo.isStatic()) {
+                        addStmt(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
                     }
                     
                     // Need to capture init state if has trigger.
@@ -1935,6 +1934,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     ListBuffer<JCCase> cases = ListBuffer.lb();
                      // Prepare to accumulate overrides.
                     ListBuffer<JCStatement> overrides = ListBuffer.lb();
+
+                    if (!isMixinClass()) {
+                        addStmt(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
+                    }
         
                     // Gather the instance attributes.
                     List<VarInfo> attrInfos = analysis.classVarInfos();

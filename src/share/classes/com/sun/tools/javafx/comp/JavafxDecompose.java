@@ -317,7 +317,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitIdent(JFXIdent tree) {
-        JFXIdent res = fxmake.at(tree.pos).Ident(tree.name);
+        JFXIdent res = fxmake.at(tree.pos).Ident(tree.getName());
         res.sym = tree.sym;
         result = res;
     }

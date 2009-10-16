@@ -174,7 +174,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     public void visitIdent(JFXIdent tree) {
-        result = maker.at(tree.pos).Ident(tree.name);
+        result = maker.at(tree.pos).Ident(tree.getName());
     }
 
     public void visitLiteral(JFXLiteral tree) {

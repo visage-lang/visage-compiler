@@ -623,7 +623,7 @@ public class JavafxPretty implements JavafxVisitor {
 
     public void visitIdent(JFXIdent tree) {
         try {
-            print(tree.name);
+            print(tree.getName());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

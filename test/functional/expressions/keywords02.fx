@@ -112,7 +112,7 @@ function run( ) {
      */ 
     TU.checkB(o.getThis().startsWith("keywords02$outer"),"check outer class this");
     TU.checkB(o.inn.getThis().startsWith("keywords02$outer$1inner$anon1"),"check this of anon. inner class");
-    TU.checkB(o.mlocal().startsWith("keywords02$outer$1localclass$anon2"),"check this of local anon class");
+    TU.checkB(o.mlocal().startsWith("keywords02$outer$1local_klass2$1localclass$anon2"),"check this of local anon class");
 
     //create a C for tests
     def c = new C;

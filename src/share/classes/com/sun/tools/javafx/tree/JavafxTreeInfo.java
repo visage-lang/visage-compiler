@@ -408,7 +408,7 @@ public class JavafxTreeInfo {
         tree = skipParens(tree);
         switch (tree.getFXTag()) {
         case IDENT:
-            return ((JFXIdent) tree).name;
+            return ((JFXIdent) tree).getName();
         case SELECT:
             Name sname = fullName(((JFXSelect) tree).selected);
             return sname == null ? null : sname.append('.', name(tree));
@@ -423,7 +423,7 @@ public class JavafxTreeInfo {
     public static Name name(JFXTree tree) {
         switch (tree.getFXTag()) {
         case IDENT:
-            return ((JFXIdent) tree).name;
+            return ((JFXIdent) tree).getName();
         case SELECT:
             return ((JFXSelect) tree).name;
         default:

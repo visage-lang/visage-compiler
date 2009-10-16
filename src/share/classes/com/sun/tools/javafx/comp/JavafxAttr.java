@@ -493,7 +493,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (tree.sym != null && tree.sym.kind != VAR) {
             sym = tree.sym;
         } else {
-            sym = rs.resolveIdent(tree.pos(), env, tree.name, pkind, pt);
+            sym = rs.resolveIdent(tree.pos(), env,tree.getName(), pkind, pt);
         }
         tree.sym = sym;
         sym.complete();
@@ -511,7 +511,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (env.enclClass.sym.owner.kind != PCK && // we are in an inner class
             (sym.kind & (VAR | MTH | TYP)) != 0 &&
             sym.owner.kind == TYP &&
-            tree.name != names._this && tree.name != names._super) {
+            tree.getName() != names._this && tree.getName() != names._super) {
 
             // Find environment in which identifier is defined.
             while (symEnv.outer != null &&
@@ -1050,7 +1050,7 @@ public class JavafxAttr implements JavafxVisitor {
         result = tree.type = declType;
 
         if (types.isSameType(env.enclClass.type, v.owner.type)) {
-            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN, tree.getId().name);
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN,tree.getId().getName());
         }
 
         // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
@@ -1067,9 +1067,9 @@ public class JavafxAttr implements JavafxVisitor {
         JavaFileObject prev = log.useSource(env.toplevel.sourcefile);
 
         if ((v.flags() & JavafxFlags.IS_DEF) != 0L) {
-            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF, tree.getId().name);
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_DEF,tree.getId().getName());
         } else if (!rs.isAccessibleForWrite(env, env.enclClass.type, v)) {
-            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE, tree.getId().name);
+            log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE,tree.getId().getName());
         }
 
         //TODO: (below)
@@ -1143,7 +1143,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         // Must reference an attribute
         if (sym.kind != VAR) {
-            log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE, id.name);
+            log.error(id.pos(), MsgSym.MESSAGE_JAVAFX_MUST_BE_AN_ATTRIBUTE,id.getName());
         } else if (localEnv.outer.tree.getFXTag() != JavafxTag.CLASS_DEF) {
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION, sym.name, sym.owner);
         } else {
@@ -1308,7 +1308,7 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitIndexof(JFXIndexof tree) {
         for (int n = forClauses == null ? 0 : forClauses.size(); ; ) {
             if (--n < 0) {
-                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_INDEXOF_NOT_FOUND, tree.fname.name);
+                 log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_INDEXOF_NOT_FOUND,tree.fname.getName());
                  break;
             }
             JFXForExpressionInClause clause = forClauses.get(n);
@@ -1326,7 +1326,7 @@ public class JavafxAttr implements JavafxVisitor {
             //
             if (v == null || v instanceof JFXErroneousVar) continue;
             
-            if (clause.getVar().getName() == tree.fname.name) {
+            if (clause.getVar().getName() == tree.fname.getName()) {
                 tree.clause = clause;
                 tree.fname.sym = clause.getVar().sym;
                 clause.setIndexUsed(true);

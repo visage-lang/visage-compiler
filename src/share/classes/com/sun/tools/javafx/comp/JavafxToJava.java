@@ -146,7 +146,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         switch (tree.getFXTag()) {
             case IDENT: {
                 JFXIdent id = (JFXIdent) tree;
-                return make.at(diagPos).Ident(id.name);
+                return make.at(diagPos).Ident(id.getName());
             }
             case SELECT: {
                 JFXSelect sel = (JFXSelect) tree;

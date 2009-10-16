@@ -1482,17 +1482,17 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
 
         protected JCExpression doitExpr() {
-            if (tree.name == names._this) {
+            if (tree.getName() == names._this) {
                 // in the static implementation method, "this" becomes "receiver$"
                 return makeReceiver(sym, false);
-            } else if (tree.name == names._super) {
+            } else if (tree.getName() == names._super) {
                 if (types.isMixin(tree.type.tsym)) {
                     // "super" becomes just the class where the static implementation method is defined
                     //  the rest of the implementation is in visitFunctionInvocation
                     return id(tree.type.tsym.name);
                 } else {
                     // Just use super.
-                    return id(tree.name);
+                    return id(tree.getName());
                 }
             }
 
@@ -1508,15 +1508,15 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             boolean isStatic = sym.isStatic();
             if (isStatic) {
                 // make class-based direct static reference:   Foo.x
-                convert = select(staticReference(sym), tree.name);
+                convert = select(staticReference(sym),tree.getName());
             } else {
                 if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                         sym.owner.kind == Kinds.TYP) {
                     // it is a non-static attribute or function class member
                     // reference it through the receiver
-                    convert = select(makeReceiver(sym), tree.name);
+                    convert = select(makeReceiver(sym),tree.getName());
                 } else {
-                    convert = id(tree.name);
+                    convert = id(tree.getName());
                 }
             }
 
@@ -2479,7 +2479,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
             List<JCExpression> translated = translatedConstructorArgs();
             if (tree.getClassBody() != null &&
                     tree.getClassBody().sym != null && getHasOuters().contains(tree.getClassBody().sym) ||
-                    idSym != null && getHasOuters().contains(idSym)) {
+                    idSym != null && getHasOuters().contains(idSym)) {                
                 JCIdent thisIdent = id(defs.receiverName);
                 translated = translated.prepend(thisIdent);
             }

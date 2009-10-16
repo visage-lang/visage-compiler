@@ -34,6 +34,7 @@ import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Symbol.PackageSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
@@ -183,6 +184,17 @@ public class JavafxLocalToClass {
         return ic.needed;
     }
 
+    private Scope getEnclosingScope(Symbol s) {
+        if (s.owner.kind == Kinds.TYP) {
+            return ((ClassSymbol)s.owner).members();
+        }
+        else if (s.owner.kind == Kinds.PCK) {
+            return ((PackageSymbol)s.owner).members();
+        }
+        else
+            return null;
+    }
+
     private JavafxClassSymbol makeClassSymbol(Name name) {
         JavafxClassSymbol classSym = (JavafxClassSymbol)reader.defineClass(name, owner);
         classSym.flatname = chk.localClassName(classSym);
@@ -215,6 +227,10 @@ public class JavafxLocalToClass {
         classSym.addSuperType(syms.javafx_FXBaseType);
 
         return classSym;
+    }
+
+    private MethodSymbol makeDummyMethodSymbol(Symbol owner) {
+        return new MethodSymbol(Flags.BLOCK, names.empty, null, owner);
     }
 
 
@@ -259,7 +275,7 @@ public class JavafxLocalToClass {
                 classSym.type.tsym); // TypeSymbol
         final MethodSymbol funcSym = new MethodSymbol(0L, funcName, funcType, classSym);
 
-        class VarConverter extends TreeScannerWithinChunk {
+        class VarAndClassConverter extends TreeScannerWithinChunk {
 
             ListBuffer<JFXTree> vars = ListBuffer.lb();
             boolean inInstanciateLocalVars = false;
@@ -271,9 +287,16 @@ public class JavafxLocalToClass {
                 if (expr instanceof JFXVar) {
                     JFXVar var = (JFXVar) expr;
                     vars.append(var);
-                    var.sym.owner = classSym;  // Is this OK?
+                    Scope oldScope = getEnclosingScope(var.sym);
+                    if (oldScope != null)
+                        oldScope.remove(var.sym);
+                    while (classSym.members().lookup(var.sym.name).sym != null) {
+                        var.sym.name = var.sym.name.append('$', var.sym.name);
+                    }
+                    classSym.members().enter(var.sym);
+                    var.sym.owner = classSym;
                     Symbol prevOwner = owner;
-                    owner = var.sym;
+                    owner = makeDummyMethodSymbol(classSym);
                     scan(var.getInitializer());
                     scan(var.getOnReplace());
                     scan(var.getOnInvalidate());
@@ -312,6 +335,16 @@ public class JavafxLocalToClass {
             }
 
             @Override
+            public void visitClassDeclaration(JFXClassDeclaration that) {
+                Scope oldScope = getEnclosingScope(that.sym);
+                if (oldScope != null)
+                    oldScope.remove(that.sym);
+                ((ClassType)that.type).setEnclosingType(classSym.type);
+                that.sym.owner = funcSym;
+                classSym.members().enter(that.sym);
+            }
+
+            @Override
             public void visitBlockExpression(JFXBlock that) {
                 ListBuffer<JFXExpression> stmts = ListBuffer.lb();
                 for (JFXExpression stat : that.stats) {
@@ -322,7 +355,7 @@ public class JavafxLocalToClass {
                 that.value = convertExprAndScan(that.value);
             }
         }
-        VarConverter vc = new VarConverter();
+        VarAndClassConverter vc = new VarAndClassConverter();
         vc.scan(tree);
 
         // set position of class etc as block-expression position
@@ -419,6 +452,24 @@ public class JavafxLocalToClass {
             owner = that.sym;
             descendThroughChunksReportIfThisChunkInflated(that.operation);
             owner = prevOwner;
+        }
+
+        @Override
+        public void visitOnReplace(JFXOnReplace that) {
+            Symbol prevOwner = owner;
+            owner = makeDummyMethodSymbol(owner);
+            descendThroughChunksReportIfThisChunkInflated(that.getBody());
+            owner = prevOwner;
+        }
+
+        @Override
+        public void visitVar(JFXVar that) {
+            Symbol prevOwner = owner;
+            owner = makeDummyMethodSymbol(owner);
+            descendThroughChunksReportIfThisChunkInflated(that.getInitializer());
+            owner = prevOwner;
+            descendThroughChunksReportIfThisChunkInflated(that.getOnReplace());
+            descendThroughChunksReportIfThisChunkInflated(that.getOnInvalidate());
         }
     }
 
