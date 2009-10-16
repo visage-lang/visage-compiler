@@ -45,9 +45,7 @@ public class JavafxTypeMorpher {
     protected static final Context.Key<JavafxTypeMorpher> typeMorpherKey =
             new Context.Key<JavafxTypeMorpher>();
 
-    private final JavafxDefs defs;
     private final Name.Table names;
-    private final JavafxSymtab syms;
     private final JavafxTypes types;
 
     private final Object[] defaultValueByKind;
@@ -67,10 +65,9 @@ public class JavafxTypeMorpher {
         }
 
         boolean useAccessors() {
-            // FIXME: revisit this. For now, return don't
-            // use accessors for local variables. Without this
+            // Don't use accessors for local variables. Without this
             // compiler generates method invoke for local var access!
-            return !sym.isLocal();
+            return sym.owner.kind == Kinds.TYP;
         }
 
         boolean isMemberVariable() {
@@ -143,8 +140,6 @@ public class JavafxTypeMorpher {
     protected JavafxTypeMorpher(Context context) {
         context.put(typeMorpherKey, this);
 
-        defs = JavafxDefs.instance(context);
-        syms = (JavafxSymtab)(JavafxSymtab.instance(context));
         types = JavafxTypes.instance(context);
         names = Name.Table.instance(context);
 

@@ -351,7 +351,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             setContext(attrDef.isStatic());
-                            attrInfo.append(new TranslatedVarInfo(
+                            TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
                                     typeMorpher.varMorphInfo(attrDef.sym),
                                     translateVarInit(attrDef),
@@ -360,13 +360,14 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                                     attrDef.getOnReplace(),
                                     translateTriggerAsInline(attrDef.sym, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
-                                    translateTriggerAsInline(attrDef.sym, attrDef.getOnInvalidate())));
+                                    translateTriggerAsInline(attrDef.sym, attrDef.getOnInvalidate()));
+                            attrInfo.append(ai);
                             break;
                         }
                         case OVERRIDE_ATTRIBUTE_DEF: {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             setContext(override.isStatic());
-                            overrideInfo.append(new TranslatedOverrideClassVarInfo(
+                            TranslatedOverrideClassVarInfo ai = new TranslatedOverrideClassVarInfo(
                                     override,
                                     typeMorpher.varMorphInfo(override.sym),
                                     translateVarInit(override),
@@ -375,7 +376,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                                     override.getOnReplace(),
                                     translateTriggerAsInline(override.sym, override.getOnReplace()),
                                     override.getOnInvalidate(),
-                                    translateTriggerAsInline(override.sym, override.getOnInvalidate())));
+                                    translateTriggerAsInline(override.sym, override.getOnInvalidate()));
+                            overrideInfo.append(ai);
                             break;
                         }
                         case FUNCTION_DEF: {
@@ -580,7 +582,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         VarSymbol vsym = tree.getSymbol();
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JFXVar var = tree.getVar();
-        assert !attrEnv.toplevel.isLibrary;
 
         result = new ExpressionResult(
                 translateDefinitionalAssignmentToSetExpression(diagPos, var.getInitializer(),var.getBindStatus(), vmi, null),

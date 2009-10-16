@@ -193,7 +193,10 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                        JFXExpression fn,
                        List<JFXExpression> args)
     {
-        JFXFunctionInvocation tree = new JFXFunctionInvocation(typeargs, fn, args);
+        JFXFunctionInvocation tree = new JFXFunctionInvocation(
+                typeargs != null? typeargs : List.<JFXExpression>nil(),
+                fn,
+                args != null? args : List.<JFXExpression>nil());
         tree.pos = pos;
         return tree;
     }
@@ -631,7 +634,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             List<JFXExpression> args) {
         return Instanciate(JavaFXKind.INSTANTIATE_NEW,
                 ident,
-                args,
+                args != null? args : List.<JFXExpression>nil(),
                 List.<JFXTree>nil());
     }
 

@@ -188,11 +188,17 @@ public class JavafxTreeInfo {
     /** Return flags as a string, separated by " ".
      */
     public static String flagNames(long flags) {
+        return flagNames(flags, false);
+    }
+
+    /** Return flags as a string, separated by " ".
+     */
+    public static String flagNames(long flags, boolean pretty) {
         StringBuffer fsb = new StringBuffer(Flags.toString(flags));
         if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
             fsb.append("package ");
         }
-        if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
+        if (!pretty && (flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
             fsb.append("script only (default) ");
         }
         if ((flags & JavafxFlags.PUBLIC_READ) != 0) {

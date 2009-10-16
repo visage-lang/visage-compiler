@@ -224,6 +224,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected JavafxBoundContextAnalysis bindAnalyzer;
 
+    /** The bind analyzer.
+     */
+    protected JavafxLocalToClass localToClass;
+
     /** The attributor.
      */
     protected JavafxAttr attr;
@@ -315,6 +319,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         source = Source.instance(context);
         attr = JavafxAttr.instance(context);
         bindAnalyzer = JavafxBoundContextAnalysis.instance(context);
+        localToClass = JavafxLocalToClass.instance(context);
         chk = JavafxCheck.instance(context);
         annotate = JavafxAnnotate.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
@@ -500,7 +505,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         tree.sourcefile = filename;
 
-        printJavafxSource(tree, content);
+        printJavafxSource("dumpfx", tree, content);
 
         if (content != null && taskListener != null) {
             JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.PARSE, tree);
@@ -563,8 +568,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Emit pretty=printed fx source corresponding to an input file.
      */
-    void printJavafxSource(JFXScript cu, CharSequence content) {
-        String dump = options.get("dumpfx");
+    void printJavafxSource(String opt, JFXScript cu, CharSequence content) {
+        String dump = options.get(opt);
         BufferedWriter out = null;
         if (dump != null) {
             try {
@@ -574,30 +579,6 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     FileWriter fw = new FileWriter(outFile);
                     out = new BufferedWriter(fw);
                     new JavafxPretty(out, true, content).printUnit(cu);
-                } finally {
-                    if (out != null) {
-                        out.close();
-                    }
-                }
-            } catch (IOException ex) {
-                System.err.println("Exception thrown in JavaFX pretty printing: " + ex);
-            }
-        }
-    }
-
-    /** Emit pretty=printed fx source corresponding to post-processed
-     */
-    void printJavafxSourceLate(JFXScript cu) {
-        String dump = options.get("dumppost");
-        BufferedWriter out = null;
-        if (dump != null) {
-            try {
-                try {
-                    String fn = cu.sourcefile.toString().replace(".fx", ".fxdump");
-                    File outFile = new File(dump, (new File(fn)).getName());
-                    FileWriter fw = new FileWriter(outFile);
-                    out = new BufferedWriter(fw);
-                    new JavafxPretty(out, true).printUnit(cu);
                 } finally {
                     if (out != null) {
                         out.close();
@@ -935,7 +916,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     /**
-     * Analyze binds in trees, such as found on the "todo" list.
+     * Analyze binds in trees and convert local contexts to classes (as needed), such as found on the "todo" list.
      * Bound context analysis of the entries in the list does not stop if any errors occur.
      * @returns a list of environments for classes.
      */
@@ -947,12 +928,12 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     /**
-     * Analyze binds in a tree.
+     * Analyze binds in a tree and convert local contexts to classes (as needed).
      * @returns the bind marked tree
      */
     public JavafxEnv<JavafxAttrContext> bindAnalysis(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
-            Log.printLines(log.noticeWriter, "[bindAnalysis " + env.enclClass.sym + "]");
+            Log.printLines(log.noticeWriter, "[preAttribution " + env.enclClass.sym + "]");
 
         if (taskListener != null) {
             JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
@@ -965,6 +946,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                   env.toplevel.sourcefile);
         try {
             bindAnalyzer.analyzeBindContexts(env);
+            printJavafxSource("dumpbind", env.toplevel, null);
         }
         finally {
             log.useSource(prev);
@@ -1037,8 +1019,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     protected void decomposeBinds(JavafxEnv<JavafxAttrContext> env) {
         try {
+//            localToClass.inflateAsNeeded(env);  // Uncomment to turn on local-to-class inflation
+            printJavafxSource("dumpinflate", env.toplevel, null);
             decomposeBindExpressions.decompose(env);
-            printJavafxSourceLate(env.toplevel);
+            printJavafxSource("dumpdecompose", env.toplevel, null);
         } catch (RuntimeException ex) {
             if (env.where != null) {
                 log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR,

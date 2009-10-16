@@ -1,0 +1,490 @@
+/*
+* Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
+* DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+*
+* This code is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License version 2 only, as
+* published by the Free Software Foundation.
+*
+* This code is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+* version 2 for more details (a copy is included in the LICENSE file that
+* accompanied this code).
+*
+* You should have received a copy of the GNU General Public License version
+* 2 along with this work; if not, write to the Free Software Foundation,
+* Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+*
+* Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
+* CA 95054 USA or visit www.sun.com if you need additional information or
+* have any questions.
+*/
+
+package com.sun.tools.javafx.comp;
+
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
+import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Kinds;
+import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.Type.ClassType;
+import com.sun.tools.mjavac.code.Type.MethodType;
+import com.sun.tools.mjavac.jvm.ClassReader;
+import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
+
+/**
+ * Convert local contexts into classes if need be.
+ * This conversion is needed for local contexts containing binds,
+ * on-replace, and some forms of object literal.
+ *
+ * @author Robert Field
+ */
+public class JavafxLocalToClass {
+
+    private final JavafxTreeMaker fxmake;
+    private final Name.Table names;
+    private final JavafxCheck chk;
+    private final ClassReader reader;
+    private final JavafxTypes types;
+    private final JavafxSymtab syms;
+
+    private JavafxEnv<JavafxAttrContext> env;
+    private Symbol owner;
+    private int tmpCount = 0;
+
+    protected static final Context.Key<JavafxLocalToClass> localToClass =
+            new Context.Key<JavafxLocalToClass>();
+
+    public static JavafxLocalToClass instance(Context context) {
+        JavafxLocalToClass instance = context.get(localToClass);
+        if (instance == null) {
+            instance = new JavafxLocalToClass(context);
+        }
+        return instance;
+    }
+
+    private JavafxLocalToClass(Context context) {
+        context.put(localToClass, this);
+
+        fxmake = JavafxTreeMaker.instance(context);
+        names = Name.Table.instance(context);
+        chk = JavafxCheck.instance(context);
+        reader = ClassReader.instance(context);
+        types = JavafxTypes.instance(context);
+        syms = (JavafxSymtab)JavafxSymtab.instance(context);
+    }
+
+    public void inflateAsNeeded(JavafxEnv<JavafxAttrContext> attrEnv) {
+        this.env = attrEnv;
+        descendThroughChunksReportIfThisChunkInflated(attrEnv.tree);
+    }
+
+    /**
+     * This class subclassed by classes which should not descend into other chunks.
+     * Where a chunk in a block-expression and all the sharable contexts within.
+     * Loop bodies (for and while) are not sharable (because they are multiple).
+     * Object literal parts, class declarations, and function definition are
+     * separate contexts (thus not sharable).
+     */
+    private abstract class TreeScannerWithinChunk extends JavafxTreeScanner {
+
+        @Override
+        public void visitForExpression(JFXForExpression that) {
+            for (ForExpressionInClauseTree cl : that.getInClauses()) {
+                JFXForExpressionInClause clause = (JFXForExpressionInClause) cl;
+                // Don't process induction var
+                scan(clause.getSequenceExpression());
+                scan(clause.getWhereExpression());
+            }
+            // skip body
+            }
+
+        @Override
+        public void visitCatch(JFXCatch tree) {
+            // Skip param
+            scan(tree.body);
+        }
+
+        @Override
+        public void visitWhileLoop(JFXWhileLoop tree) {
+            scan(tree.cond);
+            // skip body
+        }
+
+        @Override
+        public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+        }
+
+        @Override
+        public void visitClassDeclaration(JFXClassDeclaration that) {
+        }
+
+        @Override
+        public void visitFunctionValue(JFXFunctionValue that) {
+        }
+
+        @Override
+        public void visitFunctionDefinition(JFXFunctionDefinition that) {
+        }
+    }
+
+    /**
+     * Check if a local context needs to be inflated into a class.
+     * If it has bound variables, variables with triggers, or
+     * contexts that can reference locals, we need to inflate.
+     * @param tree Expression to check
+     * @return True if tree needs to be inflated
+     */
+    private boolean needsToBeInflatedToClass(JFXTree tree) {
+        class InflationChecker extends TreeScannerWithinChunk {
+
+            boolean needed = false;
+
+            @Override
+            public void visitVar(JFXVar that) {
+                // Check for bound or triggered
+                needed |= that.isBound();
+                needed |= that.getOnReplace() != null;
+                needed |= that.getOnInvalidate() != null;
+                super.visitVar(that);
+            }
+
+            @Override
+            public void visitClassDeclaration(JFXClassDeclaration that) {
+                // Class declaration may reference (non-final) locals
+                needed = true;
+            }
+
+            @Override
+            public void visitFunctionValue(JFXFunctionValue that) {
+                // Funtion value may reference (non-final) locals
+                needed = true;
+            }
+
+            @Override
+            public void visitFunctionDefinition(JFXFunctionDefinition that) {
+                // Function declaration may reference (non-final) locals
+                needed = true;
+            }
+        }
+        InflationChecker ic = new InflationChecker();
+        ic.scan(tree);
+        return ic.needed;
+    }
+
+    private JavafxClassSymbol makeClassSymbol(Name name) {
+        JavafxClassSymbol classSym = (JavafxClassSymbol)reader.defineClass(name, owner);
+        classSym.flatname = chk.localClassName(classSym);
+        chk.compiled.put(classSym.flatname, classSym);
+
+        // we may be able to get away without any scope stuff
+        //  s.enter(sym);
+
+        // Fill out class fields.
+        classSym.completer = null;
+        classSym.flags_field = 0L;
+        classSym.sourcefile = env.toplevel.sourcefile;
+        classSym.members_field = new Scope(classSym);
+
+        ClassType ct = (ClassType) classSym.type;
+        // We are seeing a local or inner class.
+        // Set outer_field of this class to closest enclosing class
+        // which contains this class in a non-static context
+        // (its "enclosing instance class"), provided such a class exists.
+        Symbol owner1 = owner;
+        while ((owner1.kind & (Kinds.VAR | Kinds.MTH)) != 0 &&
+                (owner1.flags_field & Flags.STATIC) == 0) {
+            owner1 = owner1.owner;
+        }
+        if (owner1.kind == Kinds.TYP) {
+            ct.setEnclosingType(owner1.type);
+        }
+
+        ct.supertype_field = syms.javafx_FXBaseType;
+        classSym.addSuperType(syms.javafx_FXBaseType);
+
+        return classSym;
+    }
+
+
+    /**
+     * Inflate a block-expression into a class:
+     *   {
+     *     var x = 4;
+     *     ++x;
+     *     var y = x + 100;
+     *     def z = bind y + 1;
+     *     println(z);
+     *     x + z
+     *   }
+     * Should become:
+     *   {
+     *     class local_klass44 {
+     *       var x = 4;
+     *       var y = x + 100;
+     *       def z = bind y + 1;
+     *       function doit$23(0 {
+     *         VarInit x;
+     *         ++x;
+     *         VarInit y;
+     *         ;
+     *         println(z);
+     *         x + z
+     *       }
+     *     }
+     *     (new local_klass44()).doit$();
+     *   }
+     */
+    private void inflateToClass(JFXBlock tree) {
+        final Name funcName = syntheticName("doit$");
+        final Name className = syntheticName("local_klass");
+
+        final JavafxClassSymbol classSym = makeClassSymbol(className);
+
+        final MethodType funcType = new MethodType(
+                List.<Type>nil(),    // arg types
+                tree.type,           // return type
+                List.<Type>nil(),    // Throws type
+                classSym.type.tsym); // TypeSymbol
+        final MethodSymbol funcSym = new MethodSymbol(0L, funcName, funcType, classSym);
+
+        class VarConverter extends TreeScannerWithinChunk {
+
+            ListBuffer<JFXTree> vars = ListBuffer.lb();
+            boolean inInstanciateLocalVars = false;
+
+            /**
+             * Convert any variables with the local context into a VarInit
+             */
+            private JFXExpression convertExprAndScan(JFXExpression expr) {
+                if (expr instanceof JFXVar) {
+                    JFXVar var = (JFXVar) expr;
+                    vars.append(var);
+                    var.sym.owner = classSym;  // Is this OK?
+                    Symbol prevOwner = owner;
+                    owner = var.sym;
+                    scan(var.getInitializer());
+                    scan(var.getOnReplace());
+                    scan(var.getOnInvalidate());
+                    owner = prevOwner;
+                    if (var.isBound()) {
+                        // Bound vars self-init
+                        return fxmake.at(var).Skip();
+                    } else {
+                        // Do the init in-line
+                        JFXExpression vi = fxmake.at(var).VarScriptInit(var);
+                        vi.type = var.type;
+                        return vi;
+                    }
+                } else {
+                    // Not a var, just pass through
+                    scan(expr);
+                    return expr;
+                }
+            }
+
+            @Override
+            public void visitInstanciate(JFXInstanciate tree) {
+                scan(tree.getIdentifier());
+                scan(tree.getArgs());
+                scan(tree.getParts());
+                inInstanciateLocalVars = true;
+                scan(tree.getLocalvars());
+                inInstanciateLocalVars = false;
+                scan(tree.getClassBody());
+            }
+
+            @Override
+            public void visitVar(JFXVar that) {
+                if (!inInstanciateLocalVars && (that.mods.flags & Flags.PARAMETER) == 0L)
+                    throw new AssertionError("all vars should have been processed in the block expression");
+            }
+
+            @Override
+            public void visitBlockExpression(JFXBlock that) {
+                ListBuffer<JFXExpression> stmts = ListBuffer.lb();
+                for (JFXExpression stat : that.stats) {
+                    stmts.append(convertExprAndScan(stat));
+                }
+                // Replace the guts of the block-expression with the var-converted versions
+                that.stats = stmts.toList();
+                that.value = convertExprAndScan(that.value);
+            }
+        }
+        VarConverter vc = new VarConverter();
+        vc.scan(tree);
+
+        // set position of class etc as block-expression position
+        fxmake.at(tree.pos());  
+
+        // Create whose vars are the block's vars and having a doit function with the content
+
+        JFXType fxtype = fxmake.TypeUnknown();
+        fxtype.type = tree.type;
+
+        JFXBlock body = fxmake.Block(tree.flags, tree.getStmts(), tree.getValue());
+        body.type = tree.type;
+
+        JFXFunctionDefinition doit = fxmake.FunctionDefinition(
+                fxmake.Modifiers(0L),
+                funcName,
+                fxtype,
+                List.<JFXVar>nil(),
+                body);
+        doit.sym = funcSym;
+        doit.type = funcType;
+
+        JFXClassDeclaration cdecl = fxmake.ClassDeclaration(
+                fxmake.Modifiers(Flags.SYNTHETIC),
+                className,
+                List.<JFXExpression>nil(),
+                vc.vars.append(doit).toList());
+        cdecl.sym = classSym;
+        cdecl.type = classSym.type;
+        types.addFxClass(classSym, cdecl);
+        cdecl.setDifferentiatedExtendingImplementing(List.<JFXExpression>nil(), List.<JFXExpression>nil(), List.<JFXExpression>nil());
+
+        JFXIdent classId = fxmake.Ident(className);
+        classId.sym = classSym;
+        classId.type = classSym.type;
+
+        JFXInstanciate inst = fxmake.InstanciateNew(classId, null);
+        inst.sym = classSym;
+        inst.type = classSym.type;
+
+        JFXSelect select = fxmake.Select(inst, funcName);
+        select.sym = funcSym;
+        select.type = funcSym.type;
+
+        JFXFunctionInvocation apply = fxmake.Apply(null, select, null);
+        apply.type = tree.type;
+
+
+        // Replace the guts of the block-expression with the class wrapping the previous body
+        // and a call to the doit function of that class.
+        tree.stats = List.<JFXExpression>of(cdecl);
+        tree.value = apply;
+    }
+
+    private abstract class ChunkBreakingTreeScanner extends JavafxTreeScanner {
+
+        @Override
+        public void visitInterpolateValue(JFXInterpolateValue that) {
+            //TODO: this probably needs special processing
+            super.visitInterpolateValue(that);
+        }
+
+        @Override
+        public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
+            //TODO: this probably needs special processing
+            super.visitKeyFrameLiteral(that);
+        }
+
+        @Override
+        public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
+            // Process separately, but it has its own context and
+            // we don't care if it was inflated
+            descendThroughChunksReportIfThisChunkInflated(that.getExpression());
+        }
+
+        @Override
+        public void visitClassDeclaration(JFXClassDeclaration that) {
+            Symbol prevOwner = owner;
+            owner = that.sym;
+            for (JFXTree member : that.getMembers()) {
+                descendThroughChunksReportIfThisChunkInflated(member);
+            }
+            owner = prevOwner;
+        }
+
+        @Override
+        public void visitFunctionValue(JFXFunctionValue that) {
+            descendThroughChunksReportIfThisChunkInflated(that.getBodyExpression());
+        }
+
+        @Override
+        public void visitFunctionDefinition(JFXFunctionDefinition that) {
+            Symbol prevOwner = owner;
+            owner = that.sym;
+            descendThroughChunksReportIfThisChunkInflated(that.operation);
+            owner = prevOwner;
+        }
+    }
+
+    /**
+     * Process all contained chunks (see above).  Ones outside our context (other
+     * classes, functions, etc) get inflated, but we don't care.
+     * Those inside our context (loop bodies, etc) force us to be inflated, as does
+     * our (independent) need for inflation (bound vars, etc).
+     * Call the inflator (if needed).
+     * @return True if the chunk was inflated
+     */
+    private boolean processBlockChunk(JFXBlock tree) {
+        class Chunker extends ChunkBreakingTreeScanner {
+
+            boolean containedChunkInflated = false;
+
+            @Override
+            public void visitForExpression(JFXForExpression that) {
+                for (ForExpressionInClauseTree cl : that.getInClauses()) {
+                    JFXForExpressionInClause clause = (JFXForExpressionInClause) cl;
+                    scan(clause);
+                }
+                containedChunkInflated |= descendThroughChunksReportIfThisChunkInflated(that.getBodyExpression());
+            }
+
+            @Override
+            public void visitWhileLoop(JFXWhileLoop that) {
+                scan(that.cond);
+                containedChunkInflated |= descendThroughChunksReportIfThisChunkInflated(that.body);
+            }
+        }
+        Chunker chunk = new Chunker();
+        chunk.scan(tree);
+        if (needsToBeInflatedToClass(tree) || chunk.containedChunkInflated) {
+            inflateToClass(tree);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Recurse all the way down the AST, breaking into chunks.
+     * Skip any non-var containing cruft, and report if anything within this
+     * chunk gets inflated.
+     * @param tree
+     * @return True if something inside (but within this chunk) gets inflated.
+     */
+    private boolean descendThroughChunksReportIfThisChunkInflated(JFXTree tree) {
+        class Skipper extends ChunkBreakingTreeScanner {
+
+            boolean containedChunkInflated = false;
+
+            @Override
+            public void visitBlockExpression(JFXBlock that) {
+                containedChunkInflated |= processBlockChunk(that);
+            }
+        }
+        Skipper skp = new Skipper();
+        skp.scan(tree);
+        return skp.containedChunkInflated;
+    }
+
+    private Name syntheticName(String prefix) {
+        return names.fromString(prefix + ++tmpCount);
+    }
+
+}
+

@@ -525,30 +525,6 @@ public abstract class JavafxTranslationSupport {
         }
     }
 
-   /**
-    * Make a receiver parameter.
-    * Its type is that of the corresponding interface and it is a final parameter.
-    * */
-    JCVariableDecl makeReceiverParam(JFXClassDeclaration cDecl) {
-        return make.VarDef(
-                make.Modifiers(Flags.FINAL | Flags.PARAMETER),
-                defs.receiverName,
-                make.Ident(interfaceName(cDecl)),
-                null);
-    }
-
-   /**
-    * Make a receiver local.
-    * Its type is that of the corresponding interface and it is a final parameter.
-    * */
-    JCVariableDecl makeReceiverLocal(JFXClassDeclaration cDecl) {
-        return make.VarDef(
-                make.Modifiers(Flags.FINAL),
-                defs.receiverName,
-                make.Ident(interfaceName(cDecl)),
-                make.Ident(names._this));
-    }
-    
     boolean needsDefaultValue(TypeMorphInfo tmi) {
         return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ||
                tmi.getRealType() == syms.javafx_StringType ||

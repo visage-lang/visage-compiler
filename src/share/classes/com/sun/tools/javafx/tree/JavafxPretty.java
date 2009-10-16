@@ -30,7 +30,6 @@ import java.util.Map;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.InterpolateValueTree;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.tree.JCTree;
@@ -39,7 +38,6 @@ import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
-import java.util.Iterator;
 
 import static com.sun.tools.mjavac.code.Flags.*;
 
@@ -233,8 +231,9 @@ public class JavafxPretty implements JavafxVisitor {
     /** Print a set of modifiers.
      */
     public void printFlags(long flags) throws IOException {
-        if ((flags & SYNTHETIC) != 0) print("/*synthetic*/ ");
-        print(JavafxTreeInfo.flagNames(flags));
+        // Redundant
+        // if ((flags & SYNTHETIC) != 0) print("/*synthetic*/ ");
+        print(JavafxTreeInfo.flagNames(flags, true));
         if ((flags & StandardFlags) != 0) print(" ");
         if ((flags & ANNOTATION) != 0) print("@");
     }
@@ -802,7 +801,10 @@ public class JavafxPretty implements JavafxVisitor {
             pretty.printExprs(tree.getParams());
             fxpretty.variableScope = SCOPE_METHOD;
             pretty.print(")");
-            pretty.printExpr(tree.operation.rettype);
+            if (tree.operation.rettype != null && tree.operation.rettype.getFXTag() != JavafxTag.TYPEUNKNOWN) {
+                pretty.print(" : ");
+                pretty.printExpr(tree.operation.rettype);
+            }
             JFXBlock body = tree.getBodyExpression();
             if (body != null) {
                 pretty.print(" ");
@@ -1166,7 +1168,11 @@ public class JavafxPretty implements JavafxVisitor {
             if (variableScope != SCOPE_PARAMS) {
                 if (tree.getInitializer() != null) {
                     print(" = ");
+                    if (tree.isBound())
+                        print("bind ");
                     printExpr(tree.getInitializer());
+                    if (tree.isBidiBind())
+                        print(" with inverse");
                 }
             }
             if (tree.getOnReplace() != null) {
