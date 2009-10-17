@@ -189,15 +189,17 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
 
         private final JFXIfExpression tree;
         private final JCVariableDecl resVar;
+        private final Type type;
 
         IfExpressionTranslator(JFXIfExpression tree) {
             super(tree.pos());
             this.tree = tree;
-            this.resVar = makeTmpVar("res", targetType, null);
+            this.type = (targetType != null)? targetType : tree.type;
+            this.resVar = makeTmpVar("res", type, null);
         }
 
         JCStatement side(JFXExpression expr) {
-            ExpressionResult res = translateToExpressionResult(expr, targetType);
+            ExpressionResult res = translateToExpressionResult(expr, type);
             addBindees(res.bindees());
             addInterClassBindees(res.interClass());
             return m().Block(0L, res.statements().append(makeExec(m().Assign(id(resVar), res.expr()))));
@@ -210,7 +212,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
                     cond,
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
-            return toResult( id(resVar), targetType );
+            return toResult( id(resVar), type );
         }
     }
 
@@ -322,6 +324,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         }).doit();
     }
 
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        result = new SequenceEmptyTranslator(tree).doit();
+    }
+
+    public void visitStringExpression(JFXStringExpression tree) {
+        result = new StringExpressionTranslator(tree).doit();
+    }
+
+    public void visitTimeLiteral(final JFXTimeLiteral tree) {
+        result = new TimeLiteralTranslator(tree).doit();
+   }
+
     public void visitTypeCast(final JFXTypeCast tree) {
         result = new TypeCastTranslator(tree).doit();
     }
@@ -354,11 +368,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     }
 
     //@Override
-    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        TODO(tree);
-    }
-    
-    //@Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         TODO(tree);
         //( that.getLower() );
@@ -386,22 +395,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         //(that.getLastIndex());
     }
 
-    public void visitInvalidate(JFXInvalidate tree) {
-        TODO(tree); //FIXME
-    }
-
-    public void visitStringExpression(JFXStringExpression tree) {
-        TODO(tree);
-        List<JFXExpression> parts = tree.getParts();
-        parts = parts.tail;
-        while (parts.nonEmpty()) {
-            parts = parts.tail;
-            //(parts.head);
-            parts = parts.tail;
-            parts = parts.tail;
-        }
-    }
-    
     //@Override
     public void visitInstanciate(JFXInstanciate tree) {
         TODO(tree);
@@ -435,10 +428,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         TODO(tree);
     }
 
-    public void visitTimeLiteral(JFXTimeLiteral tree) {
-        TODO(tree);
-    }
-
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         TODO(tree);
         //(that.attribute);
@@ -466,67 +455,75 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
      *
      */
 
+    private void wrong() {
+        throw new AssertionError("should not be processed as part of a binding");
+    }
+
     public void visitAssignop(JFXAssignOp tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitBreak(JFXBreak tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitClassDeclaration(JFXClassDeclaration tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitContinue(JFXContinue tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
+    }
+
+    public void visitInvalidate(JFXInvalidate tree) {
+        wrong();
     }
 
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitReturn(JFXReturn tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitScript(JFXScript tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitSequenceDelete(JFXSequenceDelete tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitSequenceInsert(JFXSequenceInsert tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitSkip(JFXSkip tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitThrow(JFXThrow tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitTry(JFXTry tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitVar(JFXVar tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitVarInit(JFXVarInit tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 
     public void visitWhileLoop(JFXWhileLoop tree) {
-        assert false : "should not be processed as part of a binding";
+        wrong();
     }
 }

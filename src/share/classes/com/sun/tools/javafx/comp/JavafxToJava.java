@@ -898,30 +898,6 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         result = new SequenceRangeTranslator(tree).doit();
     }
 
-    private class SequenceEmptyTranslator extends ExpressionTranslator {
-
-        private final Type type;
-
-        SequenceEmptyTranslator(JFXSequenceEmpty tree) {
-            super(tree.pos());
-            this.type = tree.type;
-        }
-
-        protected ExpressionResult doit() {
-            return toResult(doitExpr(), type);
-        }
-
-        protected JCExpression doitExpr() {
-            if (types.isSequence(type)) {
-                Type elemType = types.boxedElementType(type);
-                JCExpression expr = accessEmptySequence(diagPos, elemType);
-                return castFromObject(expr, syms.javafx_SequenceTypeErasure);
-            } else {
-                return makeNull();
-            }
-        }
-    }
-
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         result = new SequenceEmptyTranslator(tree).doit();
     }
