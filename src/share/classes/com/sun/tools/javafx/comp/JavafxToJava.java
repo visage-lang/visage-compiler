@@ -44,7 +44,6 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Result;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.*;
@@ -59,7 +58,7 @@ import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
  * @author Per Bothner
  * @author Lubo Litchev
  */
-public class JavafxToJava extends JavafxAbstractTranslation<Result> {
+public class JavafxToJava extends JavafxAbstractTranslation {
     protected static final Context.Key<JavafxToJava> jfxToJavaKey =
         new Context.Key<JavafxToJava>();
 
@@ -328,6 +327,8 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
             ListBuffer<TranslatedOverrideClassVarInfo> overrideInfo = ListBuffer.lb();
             ListBuffer<TranslatedFuncInfo> funcInfo = ListBuffer.lb();
 
+            ReceiverContext prevReceiverContext = receiverContext();
+
             // translate all the definitions that make up the class.
             // collect any prepended definitions, and prepend then to the tranlations
             ListBuffer<JCStatement> prevPrependToDefinitions = prependToDefinitions;
@@ -466,15 +467,18 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
                     translatedDefs.toList());
             res.sym = tree.sym;
             res.type = tree.type;
+
+            setReceiverContext(prevReceiverContext);
+
             return new StatementsResult(res);
         }
 
         private void setContext(boolean isStatic) {
-            inInstanceContext = isStatic ?
+            setReceiverContext( isStatic ?
                   ReceiverContext.ScriptAsStatic
                 : isMixinClass ?
                           ReceiverContext.InstanceAsStatic
-                        : ReceiverContext.InstanceAsInstance;
+                        : ReceiverContext.InstanceAsInstance );
 
         }
 
@@ -501,6 +505,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         }
     }
 
+    @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         JFXClassDeclaration prevClass = currentClass();
         setCurrentClass(tree);

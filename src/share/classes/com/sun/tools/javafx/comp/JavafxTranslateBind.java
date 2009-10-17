@@ -43,7 +43,7 @@ import com.sun.tools.mjavac.util.Name;
  * 
  * @author Robert Field
  */
-public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionResult> implements JavafxVisitor {
+public class JavafxTranslateBind extends JavafxAbstractTranslation implements JavafxVisitor {
 
     protected static final Context.Key<JavafxTranslateBind> jfxBoundTranslation =
         new Context.Key<JavafxTranslateBind>();
@@ -130,13 +130,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
                         if ((receiverContext() != ReceiverContext.ScriptAsStatic) && sym.isStatic()) {
                             // The reference is to a static, and we are in a non-static context
                             // so we need to add it to the interClass (different instances)
-                            Name scriptName = sym.owner.name.append(defs.scriptClassSuffixName);
-                            JavafxClassSymbol scriptClass = new JavafxClassSymbol(Flags.STATIC | Flags.PUBLIC | JavafxFlags.FX_CLASS, scriptName, sym.owner);
                             VarSymbol scriptLevel = new VarSymbol(
                                     Flags.STATIC,
                                     defs.scriptLevelAccessField.subName(1, defs.scriptLevelAccessField.length()),
-                                    scriptClass.type,
-                                    scriptClass);
+                                    sym.owner.type,
+                                    sym.owner);
                              // Prevent duplicates, remove it if it is already there
                             addPreface(callStmt(defs.FXBase_removeDependent,
                                     id(names._this),
@@ -222,6 +220,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
 
     public void visitInstanceOf(JFXInstanceOf tree) {
         result = new InstanceOfTranslator(tree).doit();
+    }
+
+    public void visitInstanciate(JFXInstanciate tree) {
+        result = new InstanciateTranslator(tree) {
+            protected void processLocalVar(JFXVar var) {
+                translateStmt(var, syms.voidType);
+            }
+        }.doit();
     }
 
     public void visitLiteral(JFXLiteral tree) {
@@ -396,17 +402,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     }
 
     //@Override
-    public void visitInstanciate(JFXInstanciate tree) {
-        TODO(tree);
-       //(tree.getIdentifier());
-       //(tree.getArgs());
-       //(tree.getParts());
-       //(tree.getLocalvars());
-       //(tree.getClassBody());
-    }
-    
-    
-    //@Override
     public void visitForExpression(JFXForExpression tree) {
         TODO(tree);
         for (ForExpressionInClauseTree cl : tree.getInClauses()) {
@@ -464,10 +459,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
     }
 
     public void visitBreak(JFXBreak tree) {
-        wrong();
-    }
-
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
         wrong();
     }
 

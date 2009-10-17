@@ -65,14 +65,14 @@ import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
  *
  * @author Robert Field
  */
-public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslation.Result>
+public abstract class JavafxAbstractTranslation
                              extends JavafxTranslationSupport
                              implements JavafxVisitor {
 
     /*
      * the result of translating a tree by a visit method
      */
-    R result;
+    Result result;
 
     final JavafxOptimizationStatistics optStat;
     final Target target;
@@ -2249,7 +2249,7 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
         protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
-            JCExpression trans = translateToExpression(init, vsym.type);
+            JCExpression trans = translateExpr(init, vsym.type);
             return convertNullability(init.pos(), trans, init, vsym.type);
         }
 
@@ -2566,6 +2566,13 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
                 return makeNull();
             }
         }
+    }
+
+    /********** visitors redirected back to JavafxToJava **********/
+
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
+        toJava.visitClassDeclaration(tree);
+        result = toJava.result;
     }
 
     /********** goofy visitors, alpha order -- many of which should go away **********/

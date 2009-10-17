@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
@@ -39,7 +38,7 @@ import com.sun.tools.mjavac.util.Context;
  * 
  * @author Jim Laskey
  */
-public class JavafxTranslateInvBind extends JavafxAbstractTranslation<ExpressionResult> implements JavafxVisitor {
+public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements JavafxVisitor {
 
     protected static final Context.Key<JavafxTranslateInvBind> jfxBoundInvTranslation =
         new Context.Key<JavafxTranslateInvBind>();
