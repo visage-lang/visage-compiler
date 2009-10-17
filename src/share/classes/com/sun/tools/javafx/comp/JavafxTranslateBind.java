@@ -218,6 +218,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         result = new IfExpressionTranslator(tree).doit();
     }
 
+    public void visitInstanceOf(JFXInstanceOf tree) {
+        result = new InstanceOfTranslator(tree).doit();
+    }
+
     public void visitLiteral(JFXLiteral tree) {
         // Just translate to literal value
         result = new ExpressionResult(translateLiteral(tree), tree.type);
@@ -318,6 +322,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         }).doit();
     }
 
+    public void visitTypeCast(final JFXTypeCast tree) {
+        result = new TypeCastTranslator(tree).doit();
+    }
+
     public void visitUnary(JFXUnary tree) {
         result = new UnaryOperationTranslator(tree).doit();
     }
@@ -335,18 +343,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation<ExpressionRes
         TODO(tree);
         //(tree.lhs);
         //(tree.rhs);
-    }
-
-    public void visitTypeCast(JFXTypeCast tree) {
-        TODO(tree);
-        //(tree.clazz);
-        //(tree.expr);
-    }
-
-    public void visitInstanceOf(JFXInstanceOf tree) {
-        TODO(tree);
-        //(tree.expr);
-        //(tree.clazz);
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {

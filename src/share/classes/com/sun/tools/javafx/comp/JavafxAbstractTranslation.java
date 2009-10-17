@@ -2495,6 +2495,55 @@ public abstract class JavafxAbstractTranslation<R extends JavafxAbstractTranslat
         }
     }
 
+    class TypeCastTranslator extends ExpressionTranslator {
+
+        private final JFXExpression expr;
+        private final JFXTree clazz;
+
+        TypeCastTranslator(final JFXTypeCast tree) {
+            super(tree.pos());
+            this.expr = tree.getExpression();
+            this.clazz = tree.clazz;
+        }
+
+        protected ExpressionResult doit() {
+            JCExpression tExpr = translateExpr(expr, clazz.type);
+            // The makeTypeCast below is usually redundant, since translateAsValue
+            // takes care of most conversions - except in the case of a plain object cast.
+            // It would be cleaner to move the makeTypeCast to translateAsValue,
+            // but it's painful to get it right.  FIXME.
+            JCExpression ret = typeCast(diagPos, clazz.type, expr.type, tExpr);
+            ret = convertNullability(diagPos, ret, expr, clazz.type);
+            return toResult(ret, clazz.type);
+        }
+    }
+
+    class InstanceOfTranslator extends ExpressionTranslator {
+
+        private final Type classType;
+        private final JFXExpression expr;
+
+        InstanceOfTranslator(JFXInstanceOf tree) {
+            super(tree.pos());
+            this.classType = types.boxedTypeOrType(tree.clazz.type);
+            this.expr = tree.getExpression();
+        }
+
+        protected ExpressionResult doit() {
+            JCExpression tExpr = translateExpr(expr, null);
+            if (expr.type.isPrimitive()) {
+                tExpr = makeBox(expr.pos(), tExpr, expr.type);
+            }
+            if (types.isSequence(expr.type) && !types.isSequence(classType)) {
+                tExpr = call(syms.javafx_SequencesType, "getSingleValue", tExpr);
+            }
+            JCTree clazz = makeType(classType);
+            return toResult(
+                    m().TypeTest(tExpr, clazz),
+                    syms.booleanType);
+        }
+    }
+
     /********** goofy visitors, alpha order -- many of which should go away **********/
 
     public void visitCatch(JFXCatch tree) {
