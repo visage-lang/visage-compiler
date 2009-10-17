@@ -319,7 +319,7 @@ public class JavafxScriptClassBuilder {
                         // The main-code will go into the run method.  The variable initializations should
                         // be in-place inline.   Place the variable initialization in 'value' so that
                         // it will wind up in the code of the run method.
-                        value = fxmake.VarScriptInit(decl);
+                        value = fxmake.VarInit(decl);
                     }
                     break;
                 }

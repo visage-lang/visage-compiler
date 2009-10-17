@@ -262,7 +262,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     //@Override
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    public void visitVarInit(JFXVarInit tree) {
     }
 
     public void visitVar(JFXVar tree) {

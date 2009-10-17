@@ -37,7 +37,7 @@ import com.sun.tools.mjavac.util.Name;
  */
 public class JFXVar extends JFXAbstractVar implements VariableTree {
     
-    private JFXVarScriptInit varInit;
+    private JFXVarInit varInit;
 
     protected JFXVar() {
         this(null, null, null, null, null, null, null, null);
@@ -57,14 +57,14 @@ public class JFXVar extends JFXAbstractVar implements VariableTree {
     /**
      * @return the varInit
      */
-    public JFXVarScriptInit getVarInit() {
+    public JFXVarInit getVarInit() {
         return varInit;
     }
 
     /**
      * @param varInit the varInit to set
      */
-    public void setVarInit(JFXVarScriptInit varInit) {
+    public void setVarInit(JFXVarInit varInit) {
         this.varInit = varInit;
     }
 

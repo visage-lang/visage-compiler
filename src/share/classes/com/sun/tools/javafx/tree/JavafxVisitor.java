@@ -63,7 +63,7 @@ public interface JavafxVisitor {
     public void visitTypeArray(JFXTypeArray tree);
     public void visitTypeUnknown(JFXTypeUnknown tree);
     public void visitVar(JFXVar tree);
-    public void visitVarScriptInit(JFXVarScriptInit tree);
+    public void visitVarInit(JFXVarInit tree);
     public void visitOnReplace(JFXOnReplace tree);
     public void visitBlockExpression(JFXBlock tree);
     public void visitFunctionValue(JFXFunctionValue tree);

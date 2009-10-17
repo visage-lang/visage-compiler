@@ -307,7 +307,7 @@ public class JavafxLocalToClass {
                         return fxmake.at(var).Skip();
                     } else {
                         // Do the init in-line
-                        JFXExpression vi = fxmake.at(var).VarScriptInit(var);
+                        JFXExpression vi = fxmake.at(var).VarInit(var);
                         vi.type = var.type;
                         return vi;
                     }

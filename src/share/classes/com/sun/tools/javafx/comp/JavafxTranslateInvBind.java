@@ -360,7 +360,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation<Expression
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    public void visitVarInit(JFXVarInit tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 

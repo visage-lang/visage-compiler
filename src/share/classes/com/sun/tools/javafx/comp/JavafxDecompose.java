@@ -467,7 +467,7 @@ public class JavafxDecompose implements JavafxVisitor {
         result = tree;
     }
 
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    public void visitVarInit(JFXVarInit tree) {
         // Handled in visitVar
         result = tree;
     }
@@ -493,7 +493,7 @@ public class JavafxDecompose implements JavafxVisitor {
                     onInvalidate);
         res.sym = tree.sym;
         res.type = tree.type;
-        JFXVarScriptInit vsi = tree.getVarInit();
+        JFXVarInit vsi = tree.getVarInit();
         if (vsi != null) {
             // update the var in the var-init
             vsi.resetVar(res);

@@ -83,7 +83,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    public void visitVarInit(JFXVarInit tree) {
     }
 
     @Override

@@ -31,14 +31,19 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.javafx.api.JavafxBindStatus;
 
 /**
- * Initialization of a var inline in a script body
+ * Initialization of a var inline in a local context.
+ * This includes both script bodies (its original use)
+ * and local contexts inflated into classes.
+ * Initialization code remains attached to the var.
+ * VarInit holds the actual var tree, thus access must
+ * carefully consider this.
  *
  * @author Robert Field
  */
-public class JFXVarScriptInit extends JFXExpression implements VariableTree {
+public class JFXVarInit extends JFXExpression implements VariableTree {
     private JFXVar var;
 
-    protected JFXVarScriptInit(JFXVar var) {
+    protected JFXVarInit(JFXVar var) {
         this.var = var;
         var.setVarInit(this);
     }
@@ -70,7 +75,7 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
     }
 
     public void accept(JavafxVisitor v) {
-        v.visitVarScriptInit(this);
+        v.visitVarInit(this);
     }
 
     public JFXType getJFXType() {

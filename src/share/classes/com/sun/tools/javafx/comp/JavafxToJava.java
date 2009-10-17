@@ -480,7 +480,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
 
         private JCStatement translateVarInit(JFXAbstractVar var) {
             if (var.getInitializer()==null || var.isBound() || var.deferInit()) {
-                // no init, or init handled by bind or JavafxVarScriptInit
+                // no init, or init handled by bind or JavafxVarInit
                 return null;
             }
             Name instanceName = (var.isStatic() || !isMixinClass) ? null : defs.receiverName;
@@ -577,7 +577,7 @@ public class JavafxToJava extends JavafxAbstractTranslation<Result> {
         return make.at(diagPos).Assign(varRef, nonNullInit);
     }
 
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    public void visitVarInit(JFXVarInit tree) {
         DiagnosticPosition diagPos = tree.pos();
         VarSymbol vsym = tree.getSymbol();
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);

@@ -1139,7 +1139,7 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     //@Override
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    public void visitVarInit(JFXVarInit tree) {
         // REMOVE
         try {
         print("variable initialization for ");

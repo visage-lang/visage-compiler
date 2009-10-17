@@ -960,7 +960,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     //@Override
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    public void visitVarInit(JFXVarInit tree) {
         result = tree.type = attribExpr(tree.getVar(), env);
     }
             
