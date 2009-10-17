@@ -149,8 +149,8 @@ public class JavafxDecompose implements JavafxVisitor {
                 TODO("LOCAL BIND");
             }
             Name vName = tempName();
-            long flags = inScriptLevel? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L;
-            JFXModifiers mod = fxmake.at(tree.pos).Modifiers(flags);
+            long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
+            JFXModifiers mod = fxmake.at(tree.pos).Modifiers(flags | JavafxFlags.SCRIPT_PRIVATE);
             JFXType fxType = fxmake.at(tree.pos).TypeAny(Cardinality.ANY);
             JFXVar v = fxmake.at(tree.pos).Var(vName, fxType, mod, pose, JavafxBindStatus.UNIDIBIND, null, null);
             VarSymbol sym = new VarSymbol(flags, vName, tree.type, varOwner);
@@ -396,18 +396,46 @@ public class JavafxDecompose implements JavafxVisitor {
         result = fxmake.at(tree.pos).StringExpression(parts, tree.translationKey);
     }
 
-    public void visitInstanciate(JFXInstanciate tree) {
-        JFXExpression clazz = tree.getIdentifier();
-        JFXClassDeclaration def = decompose(tree.getClassBody());
-        List<JFXExpression> args = decomposeComponents(tree.getArgs());
-        List<JFXObjectLiteralPart> parts = decompose(tree.getParts());
-        List<JFXVar> localVars = decomposeContainer(tree.getLocalvars());
-        JFXInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getJavaFXKind(), clazz, def, args, parts, localVars);
-        res.sym = tree.sym;
-        res.constructor = tree.constructor;
-        res.varDefinedByThis = tree.varDefinedByThis;
-        result = res;
-    }
+   public void visitInstanciate(JFXInstanciate tree) {
+       JFXExpression klassExpr = tree.getIdentifier();
+       List<JFXObjectLiteralPart> parts = tree.getParts();
+       ListBuffer<JFXTree> newOverrides = ListBuffer.<JFXTree>lb();
+       ListBuffer<JFXObjectLiteralPart> dparts = ListBuffer.<JFXObjectLiteralPart>lb();
+       for (JFXObjectLiteralPart part : parts) {
+           if (part.isBound()) {
+               fxmake.at(part.pos());  // create at part position
+               JFXIdent id = fxmake.Ident(part.name);
+               id.sym = part.sym;
+               id.type = part.sym.type;
+               JFXOverrideClassVar ocv =
+                  fxmake.OverrideClassVar(
+                       part.name,
+                       fxmake.Modifiers(part.sym.flags_field),
+                       id,
+                       part.getExpression(),
+                       part.getBindStatus(),
+                       null,
+                       null);
+               ocv.sym = (VarSymbol)part.sym;
+               ocv.type = part.sym.type;
+               newOverrides.append(ocv);
+           } else {
+               dparts.append(decompose(part));
+           }
+       }
+       JFXClassDeclaration cdecl = tree.getClassBody();
+       if (newOverrides.nonEmpty()) {
+           cdecl.setMembers(cdecl.getMembers().appendList(newOverrides));
+       }
+       JFXClassDeclaration dcdel = decompose(cdecl);
+       List<JFXExpression> dargs = decomposeComponents(tree.getArgs());
+       List<JFXVar> localVars = decomposeContainer(tree.getLocalvars());
+       JFXInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getJavaFXKind(), klassExpr, dcdel, dargs, dparts.toList(), localVars);
+       res.sym = tree.sym;
+       res.constructor = tree.constructor;
+       res.varDefinedByThis = tree.varDefinedByThis;
+       result = res;
+   }
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         boolean wasInBind = inBind;

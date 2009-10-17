@@ -638,47 +638,50 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 List.<JFXTree>nil());
     }
 
-    public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression ident,
-            List<JFXExpression> args,
-            List<JFXTree> defs) {
+   public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression ident,
+           List<JFXExpression> args,
+           List<JFXTree> defs) {
 
-        // Don't try and process object literals that have erroneous elements
-        //
-        if  (ident instanceof JFXErroneous) return null;
+       // Don't try and process object literals that have erroneous elements
+       //
+       if  (ident instanceof JFXErroneous) return null;
 
-        ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.lb();
-        ListBuffer<JFXTree> defsBuffer = ListBuffer.lb();
-        ListBuffer<JFXVar> varsBuffer = ListBuffer.lb();
-        if (defs != null) {
-            for (JFXTree def : defs) {
-                if (def instanceof JFXObjectLiteralPart) {
-                    partsBuffer.append((JFXObjectLiteralPart) def);
-                } else if (def instanceof JFXVar /* && ((JFXVar)def).isLocal()*/) {
-                    // for now, at least, assume any var declaration inside an object literal is local
-                    varsBuffer.append((JFXVar) def);
-                } else {
-                    defsBuffer.append(def);
-                }
-            }
-        }
-        JFXClassDeclaration klass = null;
-        if (defsBuffer.size() > 0) {
-            JFXExpression id = ident;
-            while (id instanceof JFXSelect) id = ((JFXSelect)id).getExpression();
-            Name cname = syntheticClassName(((JFXIdent)id).getName());
-            long innerClassFlags = Flags.SYNTHETIC | Flags.FINAL; // to enable, change to Flags.FINAL
-            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
-        }
+       ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.lb();
+       ListBuffer<JFXTree> defsBuffer = ListBuffer.lb();
+       ListBuffer<JFXVar> varsBuffer = ListBuffer.lb();
+       boolean boundParts = false;
+       if (defs != null) {
+           for (JFXTree def : defs) {
+               if (def instanceof JFXObjectLiteralPart) {
+                   JFXObjectLiteralPart olp = (JFXObjectLiteralPart) def;
+                   partsBuffer.append(olp);
+                   boundParts |= olp.isBound();
+               } else if (def instanceof JFXVar /* && ((JFXVar)def).isLocal()*/) {
+                   // for now, at least, assume any var declaration inside an object literal is local
+                   varsBuffer.append((JFXVar) def);
+               } else {
+                   defsBuffer.append(def);
+               }
+           }
+       }
+       JFXClassDeclaration klass = null;
+       if (defsBuffer.size() > 0 || boundParts) {
+           JFXExpression id = ident;
+           while (id instanceof JFXSelect) id = ((JFXSelect)id).getExpression();
+           Name cname = syntheticClassName(((JFXIdent)id).getName());
+           long innerClassFlags = Flags.SYNTHETIC | Flags.FINAL; // to enable, change to Flags.FINAL
+           klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
+       }
 
-        JFXInstanciate tree = new JFXInstanciate(kind, ident,
-                klass,
-                args==null? List.<JFXExpression>nil() : args,
-                partsBuffer.toList(),
-                varsBuffer.toList(),
-                null);
-        tree.pos = pos;
-        return tree;
-    }
+       JFXInstanciate tree = new JFXInstanciate(kind, ident,
+               klass,
+               args==null? List.<JFXExpression>nil() : args,
+               partsBuffer.toList(),
+               varsBuffer.toList(),
+               null);
+       tree.pos = pos;
+       return tree;
+   }
 
     public JFXObjectLiteralPart ObjectLiteralPart(
             Name attrName,

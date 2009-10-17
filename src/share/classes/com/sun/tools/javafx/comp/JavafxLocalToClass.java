@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.tree.*;
@@ -370,7 +371,7 @@ public class JavafxLocalToClass {
         body.type = tree.type;
 
         JFXFunctionDefinition doit = fxmake.FunctionDefinition(
-                fxmake.Modifiers(0L),
+                fxmake.Modifiers(JavafxFlags.SCRIPT_PRIVATE),
                 funcName,
                 fxtype,
                 List.<JFXVar>nil(),
