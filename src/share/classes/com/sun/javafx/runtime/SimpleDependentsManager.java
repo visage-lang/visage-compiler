@@ -108,6 +108,28 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
         }
     }
 
+    public void notifyDependents(FXObject bindee, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+        // TODO - handle phase.
+        boolean oldInIteration = Dependent.inIteration;
+        try {
+            Dependent.inIteration = true;
+            for (Dependent dep = dependencies; dep != null;) {
+                Dependent next = dep.getNext();
+                FXObject binder = dep.get();
+                if (binder != null) {
+                    if (varNum == dep.varNum) {
+                        binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                    }
+                } else {
+                    Linkables.remove(dep);
+                }
+                dep = next;
+            }
+        } finally {
+            Dependent.inIteration = oldInIteration;
+        }
+    }
+
     @Override
     public int getListenerCount(FXObject obj) {
         int count = 0;

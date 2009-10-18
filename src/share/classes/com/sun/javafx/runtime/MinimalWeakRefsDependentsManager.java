@@ -100,6 +100,34 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
         }
     }
 
+    public void notifyDependents(FXObject bindee, int varNum, int startPos, int endPos, int newLength, int phase) {
+        // TODO - handle phase.
+        boolean oldInIteration = Dep.inIteration;
+        try {
+            Dep.inIteration = true;
+            for (Dep dep = dependencies; dep != null;) {
+                Dep next = dep.nextInBinders;
+                WeakBinderRef binderRef = dep.binderRef;
+                if (binderRef != null) {
+                    if (varNum == dep.bindeeVarNum) {
+                        FXObject binder = binderRef.get();
+                        if (binder == null) {
+                            dep.binderRef = null;
+                            binderRef.cleanup();
+                        } else {
+                            binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                        }
+                    }
+                } else {
+                    dep.unlinkFromBindee();
+                }
+                dep = next;
+            }
+        } finally {
+            Dep.inIteration = oldInIteration;
+        }
+    }
+
     public int getListenerCount(FXObject bindee) {
         int count = 0;
         for (Dep dep = dependencies; dep != null;) {

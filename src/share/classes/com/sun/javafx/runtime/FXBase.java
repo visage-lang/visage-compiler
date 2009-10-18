@@ -291,11 +291,24 @@ import java.lang.reflect.Field;
         //System.err.println("notifyDependents$: " + obj + "[" + varNum + "] " + phase);
         DependentsManager.get(obj).notifyDependents(obj, varNum, phase);
     }
+    public void notifyDependents$(int varNum, int startPos, int endPos, int newLength, int phase) {
+        notifyDependents$(this, varNum, startPos, endPos, newLength, phase);
+    }
+    public static void notifyDependents$(FXObject obj, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        //System.err.println("notifyDependents$: " + obj + "[" + varNum + "] " + phase);
+        DependentsManager.get(obj).notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
+    }
     public void update$(FXObject src, final int varNum, final int phase) {
         update$(this, src, varNum, phase);
     }
     public static void update$(FXObject obj, FXObject src, final int varNum, final int phase) {
         //System.err.println("update$: " + obj + " " + src + "[" + varNum + "] " + phase);
+    }
+    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+        update$(this, src, varNum, startPos, endPos, newLength, phase);
+    }
+    public static void update$(FXObject obj, FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
     }
     public int getListenerCount$() {
         return getListenerCount$(this);

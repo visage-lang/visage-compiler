@@ -43,6 +43,7 @@ public abstract class DependentsManager {
         }
     }
     public abstract void notifyDependents(FXObject bindee, final int varNum, final int phase);
+    public abstract void notifyDependents(FXObject bindee, final int varNum, int startPos, int endPos, int newLength, final int phase);
     public abstract int getListenerCount(FXObject bindee);
 
     /**
