@@ -135,17 +135,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     defs.scriptLevelAccessField.subName(1, defs.scriptLevelAccessField.length()),
                                     sym.owner.type,
                                     sym.owner);
-                             // Prevent duplicates, remove it if it is already there
-                            addPreface(callStmt(defs.FXBase_removeDependent,
-                                    id(names._this),
-                                    makeVarOffset(sym, null),
-                                    call(defs.scriptLevelAccessMethod)));
-                            // Add dependence on a script-level var
-                            addPreface(callStmt(defs.FXBase_addDependent,
-                                    id(names._this),
-                                    makeVarOffset(sym, null),
-                                    call(defs.scriptLevelAccessMethod)));
                             addInterClassBindee(scriptLevel, vsym);
+
+                            // (Lazily) add a dependence on a script-level var (removing it, if we have done this before)
+                            addPreface(callStmt(defs.FXBase_switchDependence,
+                                    id(names._this),
+                                    call(defs.scriptLevelAccessMethod), makeVarOffset(sym, null),
+                                    call(defs.scriptLevelAccessMethod), makeVarOffset(sym, null)));
                         } else {
                             addBindee(vsym);
                         }
