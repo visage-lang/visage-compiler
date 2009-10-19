@@ -1730,8 +1730,8 @@ public abstract class JavafxAbstractTranslation
             this.transExpr = translateExpr(expr, expr.type);
         }
 
-        private ExpressionResult doIncDec(final int binaryOp, final boolean postfix) {
-            return (ExpressionResult) new AssignTranslator(diagPos, expr, fxm().Literal(1)) {
+        private AbstractStatementsResult doIncDec(final int binaryOp, final boolean postfix) {
+            return (AbstractStatementsResult) new AssignTranslator(diagPos, expr, fxm().Literal(1)) {
 
                 private JCExpression castIfNeeded(JCExpression transExpr) {
                     int ttag = expr.type.tag;
@@ -1764,7 +1764,7 @@ public abstract class JavafxAbstractTranslation
             }.doit();
         }
 
-        protected ExpressionResult doit() {
+        protected AbstractStatementsResult doit() {
             switch (tree.getFXTag()) {
                 case SIZEOF:
                     if (expr.type.tag == TypeTags.ARRAY) {
