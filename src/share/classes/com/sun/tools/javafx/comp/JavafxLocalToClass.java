@@ -464,6 +464,22 @@ public class JavafxLocalToClass {
         }
 
         @Override
+        public void visitInitDefinition(JFXInitDefinition that) {
+            Symbol prevOwner = owner;
+            owner = that.sym;
+            descendThroughChunksReportIfThisChunkInflated(that.getBody());
+            owner = prevOwner;
+        }
+
+        @Override
+        public void visitPostInitDefinition(JFXPostInitDefinition that) {
+            Symbol prevOwner = owner;
+            owner = that.sym;
+            descendThroughChunksReportIfThisChunkInflated(that.getBody());
+            owner = prevOwner;
+        }
+
+        @Override
         public void visitVar(JFXVar that) {
             Symbol prevOwner = owner;
             owner = makeDummyMethodSymbol(owner);
