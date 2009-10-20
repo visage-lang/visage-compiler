@@ -907,6 +907,10 @@ public abstract class JavafxAbstractTranslation
             return getToCheck() != null && !staticReference && !getToCheck().type.isPrimitive() && possiblyNull(getToCheck());
         }
 
+        boolean canChange() {
+            return getToCheck() != null && !getToCheck().type.isPrimitive() && possiblyNull(getToCheck());
+        }
+
         protected JCExpression preserveSideEffects(Type type, JFXExpression expr, JCExpression trans) {
             if (needNullCheck() && expr!=null && hasSideEffects(expr)) {
                 // if there is going to be a null check (which thus could keep expr

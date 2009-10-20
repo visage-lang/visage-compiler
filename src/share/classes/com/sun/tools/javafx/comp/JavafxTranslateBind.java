@@ -127,29 +127,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     VarSymbol vsym = (VarSymbol) sym;
                     if (currentClass().sym.isSubClass(sym.owner, types)) {
                         // The var is in our class (or a superclass)
-                        if ((receiverContext() != ReceiverContext.ScriptAsStatic) && sym.isStatic()) {
-                            // The reference is to a static, and we are in a non-static context
-                            // so we need to add it to the interClass (different instances)
-                            VarSymbol scriptLevel = new VarSymbol(
-                                    Flags.STATIC,
-                                    defs.scriptLevelAccessField.subName(1, defs.scriptLevelAccessField.length()),
-                                    sym.owner.type,
-                                    sym.owner);
-                            addInterClassBindee(scriptLevel, vsym);
-
-                            // (Lazily) add a dependence on a script-level var (removing it, if we have done this before)
-                            addPreface(callStmt(defs.FXBase_switchDependence,
-                                    id(names._this),
-                                    call(defs.scriptLevelAccessMethod), makeVarOffset(sym),
-                                    call(defs.scriptLevelAccessMethod), makeVarOffset(sym)));
-                        } else {
+                        if ((receiverContext() == ReceiverContext.ScriptAsStatic) || !sym.isStatic()) {
                             addBindee(vsym);
                         }
                     } else {
                         // The reference is to a presumably outer class
                         //TODO:
                     }
-                    
+
                 }
                 return super.doit();
             }
@@ -256,7 +241,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             protected ExpressionResult doit() {
                 // cases that need a null check are the same as cases that have changing dependencies
                 JFXExpression selectorExpr = tree.getExpression();
-                if (needNullCheck() && (selectorExpr instanceof JFXIdent)) {
+                if (canChange() && (selectorExpr instanceof JFXIdent)) {
                     JFXIdent selector = (JFXIdent) selectorExpr;
                     Symbol selectorSym = selector.sym;
                     if (types.isJFXClass(selectorSym.owner)) {

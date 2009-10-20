@@ -94,7 +94,13 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 if (selectSymbol != null) {
                     JCVariableDecl selector = makeTmpVar(selectSymbol.type, call(attributeGetterName(selectSymbol)));
                     addPreface(selector);
-                    JCStatement setter = callStmt(id(selector), attributeSetterName(selectVarSymbol), id(value));
+                    //note: we have to use the set$(int, FXBase) version because
+                    //the set$xxx version is not always accessible from the
+                    //selector expression (if selector is XXX$Script class)
+                    JCStatement setter = callStmt(id(selector),
+                            names.fromString(JavafxDefs.attributeSetMethodNamePrefix),
+                            makeVarOffset(selectVarSymbol, selectSymbol),
+                            id(value)); //FIXME: is this mixin safe?
                     JCExpression conditionExpr = makeBinary(JCTree.NE, id(selector), makeNull());
                     addPreface(m().If(conditionExpr, m().Block(0L, List.<JCStatement>of(setter)), null));
                 } else {
