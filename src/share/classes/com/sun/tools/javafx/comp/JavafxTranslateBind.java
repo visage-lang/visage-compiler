@@ -140,8 +140,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             // (Lazily) add a dependence on a script-level var (removing it, if we have done this before)
                             addPreface(callStmt(defs.FXBase_switchDependence,
                                     id(names._this),
-                                    call(defs.scriptLevelAccessMethod), makeVarOffset(sym, null),
-                                    call(defs.scriptLevelAccessMethod), makeVarOffset(sym, null)));
+                                    call(defs.scriptLevelAccessMethod), makeVarOffset(sym),
+                                    call(defs.scriptLevelAccessMethod), makeVarOffset(sym)));
                         } else {
                             addBindee(vsym);
                         }

@@ -953,14 +953,14 @@ public abstract class JavafxTranslationSupport {
             return makeType(sym.type, true);
         }
 
-        protected JCExpression makeVarSelect(Symbol sym, Symbol selectorSym, Name name) {
+        protected JCExpression makeVarSelect(Symbol sym, Type selectorType, Name name) {
             JCExpression klass;
             if ((sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
                 // This is a mixin var, get type from selector (if any)
-                if (selectorSym == null) {
+                if (selectorType == null) {
                     klass = null;
                 } else {
-                    klass = makeType(selectorSym.type, false);
+                    klass = makeType(selectorType, false);
                 }
             } else {
                 klass = makeType(sym.owner.type, false);
@@ -971,12 +971,20 @@ public abstract class JavafxTranslationSupport {
             return select(klass, name);
         }
 
+        protected JCExpression makeVarOffset(Symbol sym) {
+            return makeVarSelect(sym, null, attributeOffsetName(sym));
+        }
+
         protected JCExpression makeVarOffset(Symbol sym, Symbol selectorSym) {
-            return makeVarSelect(sym, selectorSym, attributeOffsetName(sym));
+            return makeVarSelect(sym, selectorSym==null? null : selectorSym.type, attributeOffsetName(sym));
+        }
+
+        protected JCExpression makeVarOffset(Symbol sym, Type selectorType) {
+            return makeVarSelect(sym, selectorType, attributeOffsetName(sym));
         }
 
         protected JCExpression makeVarValue(Symbol sym, Symbol selectorSym) {
-            return makeVarSelect(sym, selectorSym, attributeValueName(sym));
+            return makeVarSelect(sym, selectorSym==null? null : selectorSym.type, attributeValueName(sym));
         }
 
         //
