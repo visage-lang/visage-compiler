@@ -164,7 +164,7 @@ class JavafxAnalyzeClass {
         private int enumeration;
 
         // Inversion of boundBindees.
-        private  HashSet<VarSymbol> bindersOrNull;
+        private  HashSet<VarInfo> bindersOrNull;
 
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
@@ -285,7 +285,7 @@ class JavafxAnalyzeClass {
         public List<VarSymbol> boundBindees() { return List.<VarSymbol>nil(); }
         
         // Bound variable symbols on which this variable is used.
-        public HashSet<VarSymbol> boundBinders() { return bindersOrNull == null? new HashSet<VarSymbol>() : bindersOrNull; }
+        public HashSet<VarInfo> boundBinders() { return bindersOrNull == null? new HashSet<VarInfo>() : bindersOrNull; }
 
         // Empty or bound select pairs.
         public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
@@ -571,7 +571,7 @@ class JavafxAnalyzeClass {
 
         // Bound variable symbols on which this variable is used.
         @Override
-        public HashSet<VarSymbol> boundBinders() {
+        public HashSet<VarInfo> boundBinders() {
             return hasOverrideVar() ? overrideVar().boundBinders() : super.boundBinders();
         }
 
@@ -703,11 +703,11 @@ class JavafxAnalyzeClass {
         if (bindee != null) {
             // Add a symbol buffer if necessary.
             if (bindee.bindersOrNull == null) {
-                bindee.bindersOrNull = new HashSet<VarSymbol>();
+                bindee.bindersOrNull = new HashSet<VarInfo>();
             }
             
             // Add bunder.
-            bindee.bindersOrNull.add(binder.getSymbol());
+            bindee.bindersOrNull.add(binder);
         }
     }
     

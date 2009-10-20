@@ -307,33 +307,44 @@ import java.lang.reflect.Field;
         //System.err.println("update$: " + obj + " " + src + "[" + varNum + "] " + phase);
     }
     public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
-        update$(this, src, varNum, startPos, endPos, newLength, phase);
     }
     public static void update$(FXObject obj, FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
     }
     public int getListenerCount$() {
-        return getListenerCount$(this);
+        return DependentsManager.get(this).getListenerCount(this);
     }
     public static int getListenerCount$(FXObject src) {
         return DependentsManager.get(src).getListenerCount(src);
     }
 
     public Object get$(int varNum) {
-        return get$(this, varNum);
+        throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public static Object get$(FXObject obj, int varNum) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public void set$(int varNum, Object value) {
-        set$(this, varNum, value);
+        throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public static void set$(FXObject obj, int varNum, Object value) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public Class getType$(int varNum) {
-        return getType$(this, varNum);
+        throw new IllegalArgumentException("no such variable: " + varNum);
     }
     public static Class getType$(FXObject obj, int varNum) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public void be$(int varNum, Object value) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public static void be$(FXObject obj, int varNum, Object value) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public void invalidate$(int varNum, int startPos, int endPos, int newLength, int phase) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public void invalidate$(FXObject obj, int varNum, int startPos, int endPos, int newLength, int phase) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     

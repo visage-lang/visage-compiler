@@ -56,6 +56,7 @@ public class JavafxDefs {
     public static final String attributeNotifyDependentsNameString = "notifyDependents$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeUpdateMethodNamePrefix = "update$";
+    public static final String attributeSizeMethodNamePrefix = "size$";
     public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
     public static final String attributeCountMethodString = "count$";
     public static final String attributeOldValueNameString = "varOldValue$";
@@ -238,6 +239,7 @@ public class JavafxDefs {
     final Name attributeInitVarBitsPrefixMethodName;
     final Name attributeApplyDefaultsPrefixMethodName;
     final Name attributeUpdatePrefixMethodName;
+    final Name attributeSizePrefixMethodName;
     final Name attributeCountMethodName;
     final Name attributeOldValueName;
     final Name attributeNewValueName;
@@ -246,9 +248,13 @@ public class JavafxDefs {
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
     final Name onReplaceArgNameBuffer;
+    final Name sliceArgNameStartPos;
+    final Name sliceArgNameEndPos;
+    final Name sliceArgNameNewLength;
     final Name onReplaceArgNameFirstIndex;
     final Name onReplaceArgNameLastIndex;
     final Name onReplaceArgNameNewElements;
+    final Name getArgNamePos;
     final Name internalSuffixName;
     
     final Name varFlagActionTest;
@@ -373,10 +379,14 @@ public class JavafxDefs {
         postInitName = names.fromString("postInit$");
         incrementSharingMethodName = names.fromString("incrementSharing");
         onReplaceArgNameBuffer = names.fromString("$buffer$");
-        onReplaceArgNameOld = names.fromString("$oldValue");
-        onReplaceArgNameNew = names.fromString("$newValue");
-        onReplaceArgNameFirstIndex = names.fromString("$index$");
-        onReplaceArgNameLastIndex = names.fromString("$lastIndex$");
+        onReplaceArgNameOld = names.fromString("oldValue$");
+        onReplaceArgNameNew = names.fromString("newValue$");
+        sliceArgNameStartPos = names.fromString("startPos$");
+        sliceArgNameEndPos = names.fromString("endPos$");
+        sliceArgNameNewLength = names.fromString("newLength$");
+        getArgNamePos = names.fromString("pos$");
+        onReplaceArgNameFirstIndex = sliceArgNameStartPos;
+        onReplaceArgNameLastIndex = sliceArgNameEndPos;
         onReplaceArgNameNewElements = names.fromString("$newElements$");
         internalSuffixName = names.fromString("$internal$");
         implFunctionSuffixName = names.fromString(implFunctionSuffix);
@@ -393,6 +403,7 @@ public class JavafxDefs {
         attributeInitVarBitsPrefixMethodName = names.fromString(attributeInitVarBitsMethodNamePrefix);
         attributeApplyDefaultsPrefixMethodName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         attributeUpdatePrefixMethodName = names.fromString(attributeUpdateMethodNamePrefix);
+        attributeSizePrefixMethodName = names.fromString(attributeSizeMethodNamePrefix);
         attributeCountMethodName = names.fromString(attributeCountMethodString);
         attributeOldValueName =  names.fromString(attributeOldValueNameString);
         attributeNewValueName =  names.fromString(attributeNewValueNameString);

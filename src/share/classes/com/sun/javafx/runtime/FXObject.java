@@ -95,6 +95,8 @@ public interface FXObject {
     public void     set$(int varNum, Object value);
     // type of a particular instance variable
     public Class    getType$(int varNum);
+    public void     be$(int varNum, Object value);
+    public void     invalidate$(int varNum, int startPos, int endPos, int newLength, int phase);
 
     public void     initialize$   ();
     public void     initVarBits$  ();

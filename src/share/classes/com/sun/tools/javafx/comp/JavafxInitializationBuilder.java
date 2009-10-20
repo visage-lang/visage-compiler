@@ -79,6 +79,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private Name varWordName;
     private Name varChangedName;
     private Name functionClassPrefixName;
+    private Name getPosName;
+    private Name getSizeName;
     private Name phaseName;
 
     void TODO() {
@@ -151,8 +153,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         varLocalNumName = names.fromString("varLocalNum$");
         varWordName = names.fromString("varWord$");
         varChangedName = names.fromString("varChanged$");
+        getPosName = names.fromString("get");
+        getSizeName = names.fromString("size");
         phaseName = names.fromString("phase$");
-
+        
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
     }
 
@@ -254,11 +258,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount, varMap);
             javaCodeMaker.makeAttributeFields(classVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
-            javaCodeMaker.makeApplyDefaultsMethod();
-            javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap());
-            javaCodeMaker.makeGetMethod(classVarInfos, classVarCount);
-            javaCodeMaker.makeSetMethod(classVarInfos, classVarCount);
-            javaCodeMaker.makeTypeMethod(classVarInfos, classVarCount);
+            javaCodeMaker.makeVarNumMethods(false, false);
 
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
@@ -271,7 +271,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             javaCodeMaker.makeFunctionProxyMethods(needDispatch);
             javaCodeMaker.makeFXEntryConstructor(outerTypeSym);
-            javaCodeMaker.makeInitVarBitsMethod(false);
             javaCodeMaker.makeInitMethod(defs.userInitName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInitName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -292,13 +291,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
-                    javaCodeMaker.makeUpdateMethod(analysis.getScriptUpdateMap());
-                    javaCodeMaker.makeGetMethod(scriptVarInfos, scriptVarCount);
-                    javaCodeMaker.makeSetMethod(scriptVarInfos, scriptVarCount);
-                    javaCodeMaker.makeTypeMethod(scriptVarInfos, scriptVarCount);
-                    javaCodeMaker.makeInitVarBitsMethod(true);
+                    javaCodeMaker.makeVarNumMethods(false, true);
                     javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable);
-                    //needed: javaCodeMaker.makeApplyDefaultsMethod();
                     javaCodeMaker.setContext(false, cDefinitions);
                 } else {
                     // With this approach all script-level members and support statics are in script-class
@@ -308,11 +302,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.makeAttributeFields(scriptVarInfos);
                     javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
                     javaCodeMaker.makeInitClassMaps(initClassMap);
-                    javaCodeMaker.makeUpdateMethod(analysis.getScriptUpdateMap());
-                    javaCodeMaker.makeGetMethod(scriptVarInfos, scriptVarCount);
-                    javaCodeMaker.makeSetMethod(scriptVarInfos, scriptVarCount);
-                    javaCodeMaker.makeTypeMethod(scriptVarInfos, scriptVarCount);
-                    javaCodeMaker.makeInitVarBitsMethod(true);
+                    javaCodeMaker.makeVarNumMethods(false, true);
                     javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
                     javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable);
@@ -354,7 +344,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Static(script) vars are exposed in class
             javaCodeMaker.makeAttributeFields(scriptVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
-            javaCodeMaker.makeUpdateMethod(analysis.getClassUpdateMap());
+            javaCodeMaker.makeVarNumMethods(true, false);
             javaCodeMaker.makeInitStaticAttributesBlock(null, null, null);
 
             javaCodeMaker.makeMixinAccessorMethods(classVarInfos);
@@ -953,6 +943,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             protected Name varName;
             // Real type of the var.
             protected Type type;
+            // Is a sequence type.
+            protected boolean isSequence;
 
             
             VarAccessorMethodBuilder(Name methodName, Type returnType, VarInfo varInfo, boolean needsBody) {
@@ -963,6 +955,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.proxyVarSym = varInfo.proxyVarSym();
                 this.varName = attributeValueName(proxyVarSym);
                 this.type = varInfo.getRealType();
+                this.isSequence = varInfo.isSequence();
                 this.needsBody = needsBody;
             }
             
@@ -988,6 +981,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             protected Name varName;
             // Real type of the var.
             protected Type type;
+            // Is a sequence type.
+            protected boolean isSequence;
             
             MixinMethodBuilder(Name methodName, Type returnType, VarInfo varInfo) {
                 super(methodName, returnType);
@@ -996,6 +991,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.proxyVarSym = varInfo.proxyVarSym();
                 this.varName = attributeValueName(proxyVarSym);
                 this.type = varInfo.getRealType();
+                this.isSequence = varInfo.isSequence();
             }
         }
         
@@ -1090,14 +1086,397 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.hasBoundDefinition()) {
                         init = callStmt(getReceiver(), attributeGetterName(varSym));
                     } else if(!varInfo.isOverride()) {
-                        init = callStmt(getReceiver(), attributeOnReplaceName(varSym),
-                                        makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym));
+                        if (!varInfo.isSequence()) {
+                            init = callStmt(getReceiver(), attributeOnReplaceName(varSym),
+                                            makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym));
+                        } else {
+                            init = callStmt(getReceiver(), attributeOnReplaceName(varSym),
+                                            makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym),
+                                            makeInt(-1), makeInt(-1), makeInt(-1));
+                        }
                     }
                 }
             }
 
             return init;
         }
+        
+        //
+        // Determine if this override needs an invalidate method
+        // Must be in sync with makeInvalidateAccessorMethod
+        //
+        private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
+            if (varInfo.isMixinVar() || varInfo.onReplace() != null) {
+                // based on makeInvalidateAccessorMethod
+                return true;
+            } else if (varInfo.hasBoundDefinition()) {
+                return false;
+            } else {
+                if (varInfo instanceof TranslatedVarInfoBase) {
+                    return ((TranslatedVarInfoBase) varInfo).boundBinders().size() != 0;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        //
+        // This method returns the correct expression for accessing a value depending if in a mixin or not.
+        //
+        private JCExpression makeMixinSafeVarValue(VarSymbol varSym) {
+           if (isMixinClass() && analysis.isMixinClass(varSym.owner)) {
+               return call(getReceiver(varSym), attributeGetMixinName(varSym));
+           } else if (varSym.isStatic()) {
+               return select(makeType(varSym.owner.type, false), attributeValueName(varSym));
+           }
+           
+           return id(attributeValueName(varSym));
+        }
+
+        //
+        // This method returns the correct expression for accessing a VOFF$ depending if in a mixin or not.
+        //
+        private JCExpression makeMixinSafeVarOffset(VarSymbol varSym) {
+            return isMixinClass() && analysis.isMixinClass(varSym.owner) ? call(getReceiver(varSym), attributeGetVOFFName(varSym)) : makeVarOffset(varSym);
+        }
+        
+                
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //
+        // Sequence var accessors.
+        //
+        
+        //
+        // This method constructs the getter method for a sequence attribute.
+        //
+        private void makeSeqGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    // FIXME - just here to keep things going.
+                     JCIf initIf = null;
+                    if (!varInfo.isStatic()) {
+                        // Prepare to accumulate body of if.
+                        beginBlock();
+
+                        // applyDefaults$(VOFF$var)
+                        addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varInfo.getSymbol())));
+
+                        // Is it uninitialized (and not bound)
+                        JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INITIALIZED, null);
+
+                        // if (uninitialized) { applyDefaults$(VOFF$var); }
+                        initIf = m().If(initCondition, endBlock(), null);
+                    }
+
+                   if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {                        
+                        // Prepare to accumulate body of if.
+                        beginBlock();
+                        
+                        // Set to new value.
+                        if (varInfo.isMixinVar()) {
+                            // Mixin.evaluate$var(this);
+                            addStmt(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
+                            // Make valid.
+                            addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
+                        } else {
+                            assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
+    
+                            // set$var(init/bound expression)
+                            addStmts(varInfo.boundPreface());
+                            addStmt(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
+                        }
+                      
+                        // Is it bound and invalid?
+                        JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
+                        
+                        // if (bound and invalid) { set$var(init/bound expression); }
+                        addStmt(m().If(condition, endBlock(), initIf));
+                    } else {
+                        addStmt(initIf);
+                    }
+    
+                    // Construct and add: return $var;
+                    addStmt(m().Return(id(varName)));
+                }
+            };
+
+            vamb.build();
+        }
+        
+        //
+        // FIXME - Should not exist.
+        // This method constructs the getter method for a sequence attribute.
+        //
+        private void makeSeqSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetterName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(type, defs.attributeNewValueName);
+                }
+                
+                @Override
+                public void statements() {
+                    // FIXME - just here to keep things going.
+                    // Restrict setting.
+                    addStmt(callStmt(getReceiver(varSym), defs.varFlagRestrictSet, makeMixinSafeVarOffset(varSym)));
+ 
+                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
+                        // Begin bidi block.
+                        beginBlock();
+                        // Preface to setter.
+                        addStmts(varInfo.boundInvSetterPreface());
+                        // Test to see if bound.
+                        JCExpression ifBoundTest = makeFlagExpression(varSym, defs.varFlagActionTest, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND);
+                        // if (!isBound$(VOFF$var)) { set$other(inv bound expression); }
+                        addStmt(m().If(ifBoundTest, endBlock(), null));
+                    }
+                    
+                    // set$var(value)
+                    addStmt(callStmt(getReceiver(), attributeBeName(varSym), id(defs.attributeNewValueName)));
+                    // return $var;
+                    addStmt(m().Return(id(varName)));
+                }
+            };
+
+            vamb.build();
+         }
+
+
+        //
+        // This method constructs the get position method for a sequence attribute.
+        //
+        private void makeSeqGetPosAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
+                                                                         types.elementType(varInfo.getRealType()),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(syms.intType, defs.getArgNamePos);
+                }
+                
+                @Override
+                public void statements() {
+                    // Construct and add: return $var.get(pos$);
+                    addStmt(m().Return(call(id(varName), getPosName, id(defs.getArgNamePos))));
+                }
+            };
+
+            vamb.build();
+        }
+
+        
+        //
+        // This method constructs the getter method for a sequence attribute.
+        //
+        private void makeSeqGetSizeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSizeName(varInfo.getSymbol()),
+                                                                         syms.intType,
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    // Construct and add: return $var.size();
+                    addStmt(m().Return(call(id(varName), getSizeName)));
+                }
+            };
+
+            vamb.build();
+        }
+
+        //
+        // This method constructs the be method for a sequence attribute.
+        //
+        private void makeSeqBeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeBeName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(type, defs.attributeNewValueName);
+                }
+                
+                @Override
+                public void statements() {
+                    // FIXME - Do the right thing.
+                    // T varOldValue$ = $var;
+                    addStmt(makeVar(Flags.FINAL, type, defs.attributeOldValueName, id(varName)));
+    
+                    // Prepare to accumulate then statements.
+                    beginBlock();
+    
+                    // invalidate$(VFLGS$IS_INVALID)
+                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), makeInt(-1), makeInt(-1), makeInt(-1), id(defs.varFlagIS_INVALID)));
+    
+                    // $var = value
+                    addStmt(makeExec(m().Assign(id(varName), id(defs.attributeNewValueName))));
+    
+                    // setValid(VFLGS$IS_INVALID);
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagIS_INVALID, null));
+
+                    // invalidate$(VFLGS$NEEDS_TRIGGER)
+                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), makeInt(-1), makeInt(-1), makeInt(-1), id(defs.varFlagNEEDS_TRIGGER)));
+
+                    // setValid(VFLGS$NEEDS_TRIGGER);
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, defs.varFlagIS_INITIALIZED));
+    
+                    // onReplace$(varOldValue$, varNewValue$)
+                    addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName), makeInt(-1), makeInt(-1), makeInt(-1)));
+    
+                    // varOldValue$ != varNewValue$
+                    // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
+                    JCExpression testExpr = type.isPrimitive() ?
+                        makeNotEqual(id(defs.attributeOldValueName), id(defs.attributeNewValueName))
+                      : makeNot(runtime(diagPos, defs.Util_isEqual, List.<JCExpression>of(id(defs.attributeOldValueName), id(defs.attributeNewValueName))));
+                    
+                    // End of then block.
+                    JCBlock thenBlock = endBlock();
+    
+                    // Prepare to accumulate else statements.
+                    beginBlock();
+    
+                    // setValid(VFLGS$VALIDITY_FLAGS);
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, defs.varFlagIS_INITIALIZED));
+                    
+                    // End of else block.
+                    JCBlock elseBlock = endBlock();
+    
+                    // if (varOldValue$ != varNewValue$) { handle change }
+                    addStmt(m().If(testExpr, thenBlock, elseBlock));
+   
+                    // return $var;
+                    addStmt(m().Return(id(varName)));
+                }
+            };
+
+            vamb.build();
+        }
+
+        //
+        // This method constructs the invalidate method for a sequence attribute.
+        //
+        private void makeSeqInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
+                                                                         syms.voidType,
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(syms.intType, defs.sliceArgNameStartPos);
+                    addParam(syms.intType, defs.sliceArgNameEndPos);
+                    addParam(syms.intType, defs.sliceArgNameNewLength);
+                    addParam(syms.intType, phaseName);
+                }
+                                                                         
+                @Override
+                public void statements() {
+                    // Prepare to accumulate if statements.
+                    beginBlock();
+    
+                    if (varInfo.isOverride()) {
+                        // Call super first.
+                        callSuper();
+                    }
+
+                    // Mixin invalidate$
+                    if (!isMixinClass() && varInfo.isMixinVar()) {
+                        // Mixin.invalidate$var(this, phase$);
+                        callMixin((ClassSymbol)varSym.owner);
+                    }
+                    
+                    // Add on-invalidate trigger if any
+                    if (varInfo.onInvalidate() != null) {
+                        addStmt(varInfo.onInvalidateAsInline());
+                    }
+                    
+                    for (VarInfo otherVar : varInfo.boundBinders()) {
+                        // invalidate$var(phase$);
+                        // FIXME - do the right thing.
+                        if (!otherVar.isSequence()) {
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), id(phaseName)));
+                        } else {
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()),
+                                             makeInt(-1),
+                                             makeInt(-1),
+                                             makeInt(-1),
+                                             id(phaseName)));
+                        }
+                    }
+                    
+                    // Invalidate back to inverse.
+                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
+                        for (VarSymbol bindeeSym : varInfo.boundBindees()) {
+                            // FIXME - do the right thing.
+                            if (!types.isSequence(bindeeSym.type)) {
+                                addStmt(callStmt(getReceiver(), attributeInvalidateName(bindeeSym), id(phaseName)));
+                            } else {
+                                addStmt(callStmt(getReceiver(bindeeSym), attributeInvalidateName(bindeeSym),
+                                                 makeInt(-1),
+                                                 makeInt(-1),
+                                                 makeInt(-1),
+                                                 id(phaseName)));
+                            }
+                            // rest are duplicates.
+                            break;
+                        }
+                    }
+                    
+                    boolean isSuperVarInfo = varInfo instanceof SuperClassVarInfo;
+
+                    if (isSuperVarInfo) {
+                        callSuper();
+                    } else if (!varInfo.isOverride()) {
+                        // notifyDependents(VOFF$var, phase$);
+                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeMixinSafeVarOffset(proxyVarSym), id(phaseName)));
+                    } 
+                    
+                    // isValid
+                    JCExpression ifValidTest;
+                    if (isSuperVarInfo || varInfo.isOverride()) {
+                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, phaseName, phaseName);
+                    } else {
+                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionChange, null, phaseName);
+                    }
+                    
+                    // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
+                    addStmt(m().If(makeNot(ifValidTest), endBlock(), null));
+                    
+                    if (varInfo.onReplace() != null) {
+                        // Begin the get$ block.
+                        beginBlock();
+                        
+                        // FIXME - do the right thing.
+                        if (false && isSequence) {
+                            // Call the onReplace$var to force evaluation.
+                            addStmt(callStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
+                                                            makeMixinSafeVarValue(proxyVarSym),
+                                                            makeMixinSafeVarValue(proxyVarSym),
+                                                            id(defs.sliceArgNameStartPos),
+                                                            id(defs.sliceArgNameEndPos),
+                                                            id(defs.sliceArgNameNewLength)));
+                        } else {
+                            // Call the get$var to force evaluation.
+                            addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
+                        }
+                            
+                        // phase$ == VFLGS$NEEDS_TRIGGER
+                        JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.varFlagNEEDS_TRIGGER));
+                       
+                        // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
+                        addStmt(m().If(ifTriggerPhase, endBlock(), null));
+                    }
+                }
+            };
+
+            vamb.build();
+        }
+
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //
+        // Normal var accessors.
+        //
         
         //
         // This method constructs the getter method for the specified attribute.
@@ -1264,25 +1643,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // Determine if this override needs an invalidate method
-        // Must be in sync with makeInvalidateAccessorMethod
-        //
-        private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
-            if (varInfo.isMixinVar() || varInfo.onReplace() != null) {
-                // based on makeInvalidateAccessorMethod
-                return true;
-            } else if (varInfo.hasBoundDefinition()) {
-                return false;
-            } else {
-                if (varInfo instanceof TranslatedVarInfoBase) {
-                    return ((TranslatedVarInfoBase) varInfo).boundBinders().size() != 0;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        //
         // This method constructs the invalidate method for the specified attribute.
         //
         private void makeInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
@@ -1296,14 +1656,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          
                 @Override
                 public void statements() {
-                    // Debug tracing
-                    addStmts(makeDebugTrace(attributeInvalidateName(varSym) + " called"));
-
                     // Prepare to accumulate if statements.
                     beginBlock();
-    
-                    // Debug tracing
-                    addStmts(makeDebugTrace(attributeInvalidateName(varSym) + " entered"));
     
                     if (varInfo.isOverride()) {
                         // Call super first.
@@ -1321,16 +1675,33 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(varInfo.onInvalidateAsInline());
                     }
                     
-                    for (VarSymbol otherVarSym : varInfo.boundBinders()) {
+                    for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
-                        addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym), id(phaseName)));
+                        // FIXME - do the right thing.
+                        if (!otherVar.isSequence()) {
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), id(phaseName)));
+                        } else {
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()),
+                                             makeInt(-1),
+                                             makeInt(-1),
+                                             makeInt(-1),
+                                             id(phaseName)));
+                        }
                     }
                     
                     // Invalidate back to inverse.
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         for (VarSymbol bindeeSym : varInfo.boundBindees()) {
-                            addStmt(callStmt(getReceiver(), attributeInvalidateName(bindeeSym), id(phaseName)));
-                            
+                            // FIXME - do the right thing.
+                            if (!types.isSequence(bindeeSym.type)) {
+                                addStmt(callStmt(getReceiver(), attributeInvalidateName(bindeeSym), id(phaseName)));
+                            } else {
+                                addStmt(callStmt(getReceiver(bindeeSym), attributeInvalidateName(bindeeSym),
+                                                 makeInt(-1),
+                                                 makeInt(-1),
+                                                 makeInt(-1),
+                                                 id(phaseName)));
+                            }
                             // rest are duplicates.
                             break;
                         }
@@ -1360,10 +1731,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Begin the get$ block.
                         beginBlock();
                         
-                        // Call the get$var to force evaluation.
-                        addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
-                        
-                         // phase$ == VFLGS$NEEDS_TRIGGER
+                        if (isSequence) {
+                            // Call the get$var to force evaluation.
+                            addStmt(callStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
+                                                            makeMixinSafeVarValue(proxyVarSym),
+                                                            makeMixinSafeVarValue(proxyVarSym),
+                                                            id(defs.sliceArgNameStartPos),
+                                                            id(defs.sliceArgNameEndPos),
+                                                            id(defs.sliceArgNameNewLength)));
+                        } else {
+                            // Call the get$var to force evaluation.
+                            addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
+                        }
+                            
+                        // phase$ == VFLGS$NEEDS_TRIGGER
                         JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.varFlagNEEDS_TRIGGER));
                        
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
@@ -1384,7 +1765,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 Name oldValueName = defs.attributeOldValueName;
                 Name newValueName = defs.attributeNewValueName;
-                
+                Name firstIndexName = defs.sliceArgNameStartPos;
+                Name lastIndexName = defs.sliceArgNameEndPos;
+                Name newElementsName = defs.onReplaceArgNameNewElements;
+
                 @Override
                 public void initialize() {
                     if (needsBody) {
@@ -1396,23 +1780,52 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Gather specified var info.
                             JFXVar oldVar = varInfo.onReplace().getOldValue();
                             JFXVar newVar = varInfo.onReplace().getNewElements();
-            
-                             // Check to see if the on replace has an old value.
+                            JFXVar firstIndex = varInfo.onReplace().getFirstIndex();
+                            JFXVar lastIndex = varInfo.onReplace().getLastIndex();
+                            JFXVar newElements = varInfo.onReplace().getNewElements();
+
+                            // Check to see if the on replace has an old value.
                             if (oldVar != null) {
                                 // Change the onReplace arg name. 
                                 oldValueName = oldVar.getName();
                             }
             
-                             // Check to see if the on replace has a new value.
+                            // Check to see if the on replace has a new value.
                             if (newVar != null) {
                                 // Change the onReplace arg name. 
                                 newValueName = newVar.getName();
                             }
-                        }
+             
+                            // Check to see if the on replace has a first index.
+                            if (firstIndex != null) {
+                                // Change the onReplace arg name. 
+                                firstIndexName = firstIndex.getName();
+                            }
+            
+                            // Check to see if the on replace has a last index.
+                            if (lastIndex != null) {
+                                // Change the onReplace arg name. 
+                                lastIndexName = lastIndex.getName();
+                            }
+            
+                            // Check to see if the on replace has a new elements.
+                            if (newElements != null) {
+                                // Change the onReplace arg name. 
+                                newElementsName = newElements.getName();
+                            }
+                       }
                     }
                     
-                    addParam(type, oldValueName);
-                    addParam(type, newValueName);
+                    if (isSequence) {
+                        addParam(type, oldValueName);
+                        addParam(type, newValueName);
+                        addParam(syms.intType, firstIndexName);
+                        addParam(syms.intType, lastIndexName);
+                        addParam(syms.intType, defs.sliceArgNameNewLength);
+                    } else {
+                        addParam(type, oldValueName);
+                        addParam(type, newValueName);
+                    }
                 }
                 
                 @Override
@@ -1445,6 +1858,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             vamb.build();
         }
 
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //
+        // Mixin var accessors.
+        //
+        
         //
         // This method constructs a getMixin$ method.
         //
@@ -1463,19 +1881,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method returns the correct expression for accessing a value depending if in a mixin or not.
-        //
-        private JCExpression makeMixinSafeVarValue(VarSymbol varSym) {
-           if (isMixinClass() && JavafxAnalyzeClass.isMixinClass(varSym.owner)) {
-               return call(getReceiver(varSym), attributeGetMixinName(varSym));
-           } else if (varSym.isStatic()) {
-               return select(makeType(varSym.owner.type, false), attributeValueName(varSym));
-           }
-           
-           return id(attributeValueName(varSym));
-        }
-
-        //
         // This method constructs a getVOFF$ method.
         //
         private void makeGetVOFFAccessorMethod(VarInfo varInfo, boolean needsBody) {
@@ -1489,13 +1894,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             };
              
             vamb.build();
-        }
-        
-        //
-        // This method returns the correct expression for accessing a VOFF$ depending if in a mixin or not.
-        //
-        private JCExpression makeMixinSafeVarOffset(VarSymbol varSym) {
-            return isMixinClass() && JavafxAnalyzeClass.isMixinClass(varSym.owner) ? call(getReceiver(varSym), attributeGetVOFFName(varSym)) : makeVarOffset(varSym);
         }
         
         //
@@ -1585,6 +1983,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             MixinMethodBuilder mmb = new MixinMethodBuilder(attributeInvalidateName(varInfo.getSymbol()), syms.voidType, varInfo) {
                 @Override
                 public void initialize() {
+                    if (isSequence) {
+                        addParam(syms.intType, defs.sliceArgNameStartPos);
+                        addParam(syms.intType, defs.sliceArgNameEndPos);
+                        addParam(syms.intType, defs.sliceArgNameNewLength);
+                    }
                     addParam(syms.intType, phaseName);
                     buildIf(varInfo instanceof TranslatedVarInfoBase);
                 }
@@ -1597,8 +2000,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     // Invalidate other mixin vars.
-                    for (VarSymbol otherVarSym : varInfo.boundBinders()) {
-                        addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVarSym), id(phaseName)));
+                    for (VarInfo otherVar : varInfo.boundBinders()) {
+                        // FIXME - do the right thing.
+                        if (!otherVar.isSequence()) {
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), id(phaseName)));
+                        } else {
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()),
+                                             makeInt(-1),
+                                             makeInt(-1),
+                                             makeInt(-1),
+                                             id(phaseName)));
+                        }
                     }
       
                     // Add on-invalidate trigger if any
@@ -1612,6 +2024,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         }
 
+        //-----------------------------------------------------------------------------------------------------------------------------
+        
         //
         // This method constructs the accessor methods for an attribute.
         //
@@ -1619,32 +2033,68 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             setDiagPos(ai.pos());
 
             if (ai.useAccessors()) {
-                if (!ai.isOverride()) {
-                    makeGetterAccessorMethod(ai, needsBody);
-                    makeSetterAccessorMethod(ai, needsBody);
-                    makeBeAccessorMethod(ai, needsBody);
-                    makeInvalidateAccessorMethod(ai, needsBody);
-                    makeOnReplaceAccessorMethod(ai, needsBody);
-                    if (ai.isMixinVar()) {
-                        makeGetMixinAccessorMethod(ai, needsBody);
-                        makeGetVOFFAccessorMethod(ai, needsBody);
+                if (ai.isSequence()) {
+                     if (!ai.isOverride()) {
+                        makeSeqGetterAccessorMethod(ai, needsBody);
+                        makeSeqSetterAccessorMethod(ai, needsBody);
+                        makeSeqGetPosAccessorMethod(ai, needsBody);
+                        makeSeqGetSizeAccessorMethod(ai, needsBody);
+                        makeSeqBeAccessorMethod(ai, needsBody);
+                        makeSeqInvalidateAccessorMethod(ai, needsBody);
+                        makeOnReplaceAccessorMethod(ai, needsBody);
+                        if (ai.isMixinVar()) {
+                            makeGetMixinAccessorMethod(ai, needsBody);
+                            makeGetVOFFAccessorMethod(ai, needsBody);
+                        }
+                    } else if (needsBody) {
+                        if (ai.hasInitializer()) {
+                            // Bound or not, we need getter & setter on override since we
+                            // may be switching between bound and non-bound or visa versa
+                            makeSeqGetterAccessorMethod(ai, needsBody);
+                            makeSeqSetterAccessorMethod(ai, needsBody);
+                            makeSeqGetPosAccessorMethod(ai, needsBody);
+                            makeSeqGetSizeAccessorMethod(ai, needsBody);
+                            makeSeqBeAccessorMethod(ai, needsBody);
+                        }
+                        if (needOverrideInvalidateAccessorMethod(ai)) {
+                            makeSeqInvalidateAccessorMethod(ai, needsBody);
+                        }
+                        if (ai.onReplace() != null || ai.isMixinVar()) {
+                            makeOnReplaceAccessorMethod(ai, needsBody);
+                        }
+                        if (ai.isMixinVar()) {
+                            makeGetMixinAccessorMethod(ai, needsBody);
+                            makeGetVOFFAccessorMethod(ai, needsBody);
+                        }
                     }
-                } else if (needsBody) {
-                    if (ai.hasInitializer()) {
-                        // Bound or not, we need getter & setter on override since we
-                        // may be switching between bound and non-bound or visa versa
+               } else {
+                    if (!ai.isOverride()) {
                         makeGetterAccessorMethod(ai, needsBody);
                         makeSetterAccessorMethod(ai, needsBody);
-                    }
-                    if (needOverrideInvalidateAccessorMethod(ai)) {
+                        makeBeAccessorMethod(ai, needsBody);
                         makeInvalidateAccessorMethod(ai, needsBody);
-                    }
-                    if (ai.onReplace() != null || ai.isMixinVar()) {
                         makeOnReplaceAccessorMethod(ai, needsBody);
-                    }
-                    if (ai.isMixinVar()) {
-                        makeGetMixinAccessorMethod(ai, needsBody);
-                        makeGetVOFFAccessorMethod(ai, needsBody);
+                        if (ai.isMixinVar()) {
+                            makeGetMixinAccessorMethod(ai, needsBody);
+                            makeGetVOFFAccessorMethod(ai, needsBody);
+                        }
+                    } else if (needsBody) {
+                        if (ai.hasInitializer()) {
+                            // Bound or not, we need getter & setter on override since we
+                            // may be switching between bound and non-bound or visa versa
+                            makeGetterAccessorMethod(ai, needsBody);
+                            makeSetterAccessorMethod(ai, needsBody);
+                        }
+                        if (needOverrideInvalidateAccessorMethod(ai)) {
+                            makeInvalidateAccessorMethod(ai, needsBody);
+                        }
+                        if (ai.onReplace() != null || ai.isMixinVar()) {
+                            makeOnReplaceAccessorMethod(ai, needsBody);
+                        }
+                        if (ai.isMixinVar()) {
+                            makeGetMixinAccessorMethod(ai, needsBody);
+                            makeGetVOFFAccessorMethod(ai, needsBody);
+                        }
                     }
                 }
             }
@@ -1976,6 +2426,38 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         null);
             }
         }
+        
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //
+        // VarNum method generation.
+        //
+        
+        //
+        // This method coordinates the generation of instance level varnum methods.
+        //
+        public void makeVarNumMethods(boolean isMixin, boolean isScript) {
+            final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
+                isScript ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
+            final List<VarInfo> varInfos = isScript ? analysis.scriptVarInfos() : analysis.classVarInfos();
+            final int varCount = isScript ? analysis.getScriptVarCount() : analysis.getClassVarCount();
+
+            if (!isMixin && !isScript) {
+                makeApplyDefaultsMethod();
+            }
+            
+            makeUpdateMethod(updateMap);
+            
+            if (!isMixin) {
+                makeGetMethod(varInfos, varCount);
+                makeGetPosMethod(varInfos, varCount);
+                makeSizeMethod(varInfos, varCount);
+                makeSetMethod(varInfos, varCount);
+                makeBeMethod(varInfos, varCount);
+                makeInvalidateMethod(varInfos, varCount);
+                makeTypeMethod(varInfos, varCount);
+                makeInitVarBitsMethod(varInfos);
+            }
+        }
 
         //
         // This method constructs the current class's applyDefaults$ method.
@@ -2075,7 +2557,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method sets the initial var flags.
         //
-        private void makeInitVarBitsMethod(final boolean isScript) {
+        private void makeInitVarBitsMethod(final List<VarInfo> attrInfos) {
             MethodBuilder mb = new MethodBuilder(defs.attributeInitVarBitsPrefixMethodName, syms.voidType) {
 
                 @Override
@@ -2083,7 +2565,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     callSuper();
                     
                     // Set var flags when necessary. 
-                    List<VarInfo> attrInfos = isScript ? analysis.scriptVarInfos() : analysis.classVarInfos();
                     for (VarInfo ai : attrInfos) {
                         setDiagPos(ai.pos());
                         // Only declared attributes with default expressions.
@@ -2114,6 +2595,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
                         }
                     }
+                    
+                    buildIf(stmts.size() != 1);
                 }
             };
             
@@ -2148,7 +2631,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Loop for local vars.
                             for (VarInfo varInfo : referenceSet) {
                                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                                addStmt(callStmt(getReceiver(proxyVarSym), attributeInvalidateName(proxyVarSym), id(phaseName)));
+                                // FIXME - do the right thing.
+                                if (!varInfo.isSequence()) {
+                                    addStmt(callStmt(getReceiver(), attributeInvalidateName(proxyVarSym), id(phaseName)));
+                                } else {
+                                    addStmt(callStmt(getReceiver(), attributeInvalidateName(proxyVarSym),
+                                                     makeInt(-1),
+                                                     makeInt(-1),
+                                                     makeInt(-1),
+                                                     id(phaseName)));
+                                }
                             }
     
                             // Reference the class with the instance, if it is script-level append the suffix
@@ -2193,6 +2685,51 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
+        // This method constructs the current class's get$(varnum, pos) method.
+        //
+        public void makeGetPosMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeGetPrefixName, syms.objectType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(syms.intType, defs.getArgNamePos);
+                }
+                
+                @Override
+                public void statements() {
+                    if (varInfo.isSequence()) {
+                        // return get$var(pos$)
+                        addStmt(m().Return(call(attributeGetterName(varInfo.getSymbol()), id(defs.getArgNamePos))));
+                    } else {
+                        addStmt(m().Return(makeNull()));
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
+         
+        //
+        // This method constructs the current class's size$(varnum) method.
+        //
+        public void makeSizeMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeSizePrefixMethodName, syms.intType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void statements() {
+                    if (varInfo.isSequence()) {
+                        // return size$var()
+                        addStmt(m().Return(call(attributeSizeName(varInfo.getSymbol()))));
+                    } else {
+                        addStmt(m().Return(makeInt(0)));
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
+       
+        //
         // This method constructs the current class's set$ method.
         //
         public void makeSetMethod(List<VarInfo> attrInfos, int varCount) {
@@ -2216,7 +2753,62 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             vcmb.build();
         }
-        
+       
+        //
+        // This method constructs the current class's be$ method.
+        //
+        public void makeBeMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeBePrefixName, syms.voidType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(syms.objectType, objName);
+                }
+                
+                @Override
+                public void statements() {
+                    // (type)object$
+                    JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, id(objName));
+                    // be$var((type)object$)
+                    addStmt(callStmt(attributeBeName(varInfo.getSymbol()), objCast));
+                    // return
+                    addStmt(m().Return(null));
+                }
+            };
+            
+            vcmb.build();
+        }
+         
+        //
+        // This method constructs the current class's invalidate$(varnum, ...) method.
+        //
+        public void makeInvalidateMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeInvalidatePrefixMethodName, syms.voidType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(syms.intType, defs.sliceArgNameStartPos);
+                    addParam(syms.intType, defs.sliceArgNameEndPos);
+                    addParam(syms.intType, defs.sliceArgNameNewLength);
+                    addParam(syms.intType, phaseName);
+                }
+                
+                @Override
+                public void statements() {
+                    // FIXME - do the right thing.
+                    if (varInfo.isSequence()) {
+                        addStmt(callStmt(attributeInvalidateName(varInfo.getSymbol()), makeInt(-1), makeInt(-1), makeInt(-1), id(phaseName)));
+                    } else {
+                        addStmt(callStmt(attributeInvalidateName(varInfo.getSymbol()), id(phaseName)));
+                    }
+                    
+                    addStmt(m().Return(null));
+                }
+            };
+            
+            vcmb.build();
+        }
+
         //
         // This method constructs the current class's getType$ method.
         //
