@@ -2321,6 +2321,17 @@ public abstract class JavafxAbstractTranslation
             addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));
         }
 
+        void makeSetVarFlags(Name receiverName, Type contextType) {
+            for (VarSymbol vsym : varSyms) {
+                addPreface(callStmt(
+                        id(receiverName),
+                        defs.varFlagActionChange,
+                        makeVarOffset(vsym, contextType),
+                        id(defs.varFlagALL_FLAGS),
+                        id(defs.varFlagINIT_OBJ_LIT)));
+            }
+        }
+
         /**
          * Return the instance building expression
          * @param declaredType
@@ -2379,6 +2390,9 @@ public abstract class JavafxAbstractTranslation
                         type,
                         tmpVarName,
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
+
+                // (Re-)initialize the flags for the variables set in object literal 
+                makeSetVarFlags(tmpVarName, declaredType);
 
                 // Apply defaults to the instance variables
                 //

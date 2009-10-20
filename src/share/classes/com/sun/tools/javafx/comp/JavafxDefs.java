@@ -258,9 +258,12 @@ public class JavafxDefs {
     final Name varFlagNEEDS_TRIGGER;
     final Name varFlagIS_BOUND;
     final Name varFlagIS_READONLY;
+    final Name varFlagIS_INITIALIZED;
     final Name varFlagVALIDITY_FLAGS;
     final Name varFlagIS_BOUND_INVALID;
+    final Name varFlagIS_BOUND_INITIALIZED;
     final Name varFlagINIT_NORMAL;
+    final Name varFlagINIT_OBJ_LIT;
     final Name varFlagINIT_READONLY;
     final Name varFlagINIT_BOUND;
     final Name varFlagINIT_BOUND_READONLY;
@@ -405,9 +408,12 @@ public class JavafxDefs {
         varFlagNEEDS_TRIGGER = names.fromString("VFLGS$NEEDS_TRIGGER");
         varFlagIS_BOUND = names.fromString("VFLGS$IS_BOUND");
         varFlagIS_READONLY = names.fromString("VFLGS$IS_READONLY");
+        varFlagIS_INITIALIZED = names.fromString("VFLGS$IS_INITIALIZED");
         varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
         varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
+        varFlagIS_BOUND_INITIALIZED = names.fromString("VFLGS$IS_BOUND_INITIALIZED");
         varFlagINIT_NORMAL = names.fromString("VFLGS$INIT_NORMAL");
+        varFlagINIT_OBJ_LIT = names.fromString("VFLGS$INIT_OBJ_LIT");
         varFlagINIT_READONLY = names.fromString("VFLGS$INIT_READONLY");
         varFlagINIT_BOUND = names.fromString("VFLGS$INIT_BOUND");
         varFlagINIT_BOUND_READONLY = names.fromString("VFLGS$INIT_BOUND_READONLY");

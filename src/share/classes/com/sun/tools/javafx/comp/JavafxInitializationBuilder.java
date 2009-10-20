@@ -1108,7 +1108,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void statements() {
-                    if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {                        
+                    JCIf initIf = null;
+                    if (!varInfo.isStatic()) {
+                        // Prepare to accumulate body of if.
+                        beginBlock();
+
+                        // applyDefaults$(VOFF$var)
+                        addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varInfo.getSymbol())));
+
+                        // Is it uninitialized (and not bound)
+                        JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INITIALIZED, null);
+
+                        // if (uninitialized) { applyDefaults$(VOFF$var); }
+                        initIf = m().If(initCondition, endBlock(), null);
+                    }
+
+                    if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {
                         // Prepare to accumulate body of if.
                         beginBlock();
                         
@@ -1130,8 +1145,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
                         
                         // if (bound and invalid) { set$var(init/bound expression); }
-                        addStmt(m().If(condition, endBlock(), null));
-                    } 
+                        addStmt(m().If(condition, endBlock(), initIf));
+                    } else {
+                        addStmt(initIf);
+                    }
     
                     // Construct and add: return $var;
                     addStmt(m().Return(id(varName)));
@@ -1211,8 +1228,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // invalidate$(VFLGS$NEEDS_TRIGGER)
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
 
-                    // setValid(VFLGS$NEEDS_TRIGGER);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null));
+                    // setValid(VFLGS$NEEDS_TRIGGER); and set as initialized;
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, defs.varFlagIS_INITIALIZED));
     
                     // onReplace$(varOldValue$, varNewValue$)
                     addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
@@ -1230,7 +1247,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     beginBlock();
     
                     // setValid(VFLGS$VALIDITY_FLAGS);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, defs.varFlagIS_INITIALIZED));
                     
                     // End of else block.
                     JCBlock elseBlock = endBlock();
@@ -1449,7 +1466,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method returns the correct expression for accessing a value depending if in a mixin or not.
         //
         private JCExpression makeMixinSafeVarValue(VarSymbol varSym) {
-           if (isMixinClass() && analysis.isMixinClass(varSym.owner)) {
+           if (isMixinClass() && JavafxAnalyzeClass.isMixinClass(varSym.owner)) {
                return call(getReceiver(varSym), attributeGetMixinName(varSym));
            } else if (varSym.isStatic()) {
                return select(makeType(varSym.owner.type, false), attributeValueName(varSym));
@@ -1467,7 +1484,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void statements() {
-                    addStmt(m().Return(makeVarOffset(proxyVarSym, null)));
+                    addStmt(m().Return(makeVarOffset(proxyVarSym)));
                 }
             };
              
@@ -1478,7 +1495,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method returns the correct expression for accessing a VOFF$ depending if in a mixin or not.
         //
         private JCExpression makeMixinSafeVarOffset(VarSymbol varSym) {
-            return isMixinClass() && analysis.isMixinClass(varSym.owner) ? call(getReceiver(varSym), attributeGetVOFFName(varSym)) : makeVarOffset(varSym, null);
+            return isMixinClass() && JavafxAnalyzeClass.isMixinClass(varSym.owner) ? call(getReceiver(varSym), attributeGetVOFFName(varSym)) : makeVarOffset(varSym);
         }
         
         //
@@ -1927,7 +1944,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Construct the name of the method.
                     Name methodName = attributeApplyDefaultsName(varSym);
                     // Include defaults for mixins into real classes.
-                    stmt = makeSuperCall((ClassSymbol)varSym.owner, methodName, id(names._this));
+                    // Return immediately -- don't wrap in a test and set of IS_INITIALIZED, because it would double wrap and fail
+                    return makeSuperCall((ClassSymbol)varSym.owner, methodName, id(names._this));
                } else if (ai instanceof TranslatedVarInfoBase) {
                     //TODO: see SequenceVariable.setDefault() and JFXC-885
                     // setDefault() isn't really done for sequences
@@ -1943,7 +1961,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             }
 
-            return stmt;
+            VarSymbol proxyVarSym = ai.proxyVarSym();
+            // Set the var initialized
+            JCStatement setInited = makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED);
+
+            if (stmt == null) {
+                // No set action, just mark as inited
+                return setInited;
+            } else {
+                // If (not initialized and not bound) { mark as initialized; initialize it; }
+                JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INITIALIZED, null);
+                return m().If(initCondition,
+                        m().Block(0L, List.of(setInited, stmt)),
+                        null);
+            }
         }
 
         //
