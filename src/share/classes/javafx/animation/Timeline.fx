@@ -860,7 +860,6 @@ public class Timeline {
 
     function visitCycle(catchingUp:Boolean): Boolean  {
         var cycleT = if (forward) timelineDur else 0;
-
         if (not visitFrames(curPos, cycleT, catchingUp)) {
             return false;
         }
@@ -878,6 +877,7 @@ public class Timeline {
             forward = not forward;
         } else {
             frameIndex = if (forward) 0 else sortedFrames.size() - 1;
+            lastKF = -1;
             curPos = if (forward) 0 else timelineDur;
             time = makeDur(curPos);
         }
