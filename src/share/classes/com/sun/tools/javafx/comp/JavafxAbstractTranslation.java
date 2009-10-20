@@ -1087,7 +1087,6 @@ public abstract class JavafxAbstractTranslation
         protected final boolean useInvoke;
         protected final boolean callBound;
         protected final boolean magicIsInitializedFunction;
-        protected final boolean magicHasAnInitializerFunction;
         
         // Call info
         protected final List<JFXExpression> typeargs;
@@ -1132,8 +1131,7 @@ public abstract class JavafxAbstractTranslation
 
             magicIsInitializedFunction = (msym != null) &&
                     (msym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
-            magicHasAnInitializerFunction = (msym != null) &&
-                    (msym.flags_field & JavafxFlags.FUNC_HAS_AN_INITIALIZER) != 0;
+            
             // Call info
             this.typeargs = tree.getTypeArguments();
             this.args = tree.getArguments();
@@ -1250,7 +1248,26 @@ public abstract class JavafxAbstractTranslation
                     }
                     formal = formal.tail;
                 }
-            } else {
+            } else if (magicIsInitializedFunction) {
+                //isInitialized has just one argument -- we need to split into
+                //an inst/var offset pair so that the builtins function can be called
+                //Note: in principle this could be inlined as an FXBase call
+                switch (args.head.getFXTag()) {
+                    case SELECT: {
+                        JFXSelect select = (JFXSelect)args.head;
+                        targs.append(translateExpr(select.selected, syms.javafx_FXBaseType));
+                        targs.append(makeVarOffset(select.sym));
+                        break;
+                    }
+                    case IDENT: {
+                        JFXIdent ident = (JFXIdent)args.head;
+                        targs.append(makeReceiver(ident.sym, false));
+                        targs.append(makeVarOffset(ident.sym));
+                        break;
+                    }
+                }
+            }
+            else {
                 boolean handlingVarargs = false;
                 Type formal = null;
                 List<Type> t = formals;
@@ -1264,15 +1281,7 @@ public abstract class JavafxAbstractTranslation
                             handlingVarargs = true;
                         }
                     }
-                    JCExpression targ;
-                    if (magicIsInitializedFunction) {
-                        //TODO: in theory, this could have side-effects (but only in theory)
-                        //TODO: Lombard
-                        targ = translateExpr(arg, formal);
-                    } else {
-                        targ = translateArg(arg, formal);
-                    }
-                    targs.append(targ);
+                    targs.append(translateArg(arg, formal));
                 }
             }
             return targs.toList();

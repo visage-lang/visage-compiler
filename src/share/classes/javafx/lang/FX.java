@@ -72,12 +72,13 @@ public class FX {
 
     /**
      * Test if an instance variable has been initialized.
-     * 
-     * @param varRef The variable to be tested.
-     * @return true if the object has been initialized
+     *
+     * @param args The variable to be tested (args[0] is the FXObject instance,
+     * args[1] is the var offset).
+     * @return true if the object has been initialized already
      */
-    public static boolean isInitialized(Object varRef) {
-        return Builtins.isInitialized(varRef);
+    public static boolean isInitialized(Object... args) {
+        return Builtins.isInitialized(args);
     }
 
     /**

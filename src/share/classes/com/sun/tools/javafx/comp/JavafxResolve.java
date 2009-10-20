@@ -1230,9 +1230,11 @@ public class JavafxResolve {
         Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : typeNotFound;
         Symbol sym;
          if ((kind & (VAR|MTH)) != 0) {
-            sym = findVar(env, name, kind, expected, false, false);
+            sym = findVar(env, name, kind, expected, false, env.info.varArgs = false);
             if (sym.kind >= WRONG_MTHS)
-                sym = findVar(env, name, kind, expected, true, false);
+                sym = findVar(env, name, kind, expected, true, env.info.varArgs = false);
+            if (sym.kind >= WRONG_MTHS)
+                sym = findVar(env, name, kind, expected, true, env.info.varArgs = true);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }

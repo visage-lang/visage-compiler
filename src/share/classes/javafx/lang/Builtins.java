@@ -23,6 +23,8 @@
 
 package javafx.lang;
 
+import com.sun.javafx.runtime.FXBase;
+
 /**
  * These functions are automaticlly imported for
  * all JavaFX Scripts to use
@@ -76,20 +78,21 @@ public class Builtins {
     /**
      * Test if an instance variable has been initialized.
      * 
-     * @param varRef The variable to be tested.
+     * @param args The variable to be tested (args[0] is the FXObject instance,
+     * args[1] is the var offset).
      * @return true if the object has been initialized already
      */
-    public static boolean isInitialized(Object varRef) {
-        return false; // FIXME: yet to be implemented for compiled binds
-    }
-
-    /**
-     * Test if an instance variable has a class literal init.
-     *
-     * @param varRef The variable to be tested.
-     * @return true if the object has been initialized already
-     */
-    public static boolean hasAnInitializer(Object varRef) {
-        return false; // FIXME: yet to be implemented for compiled binds
+    public static boolean isInitialized(Object... args) {
+        //should return false until flag is correctly set - otherwise
+        //this will always return true - which causes some reg failures
+        //the code below should be uncommented when the flag is set properly
+        return false;
+        /*
+        FXBase inst = (FXBase)args[0];
+        int offset = (Integer)args[1];
+        return inst.varTestBits$(offset,
+                FXBase.VFLGS$IS_INITIALIZED,
+                FXBase.VFLGS$IS_INITIALIZED);
+         */
     }
 }
