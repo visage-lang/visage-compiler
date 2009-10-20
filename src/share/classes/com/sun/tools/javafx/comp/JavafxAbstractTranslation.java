@@ -744,6 +744,37 @@ public abstract class JavafxAbstractTranslation
         }
 
         abstract protected AbstractStatementsResult doit();
+
+        JCExpression staticReference(Symbol sym) {
+            Symbol owner = sym.owner;
+            Symbol encl = currentClass().sym;
+            if (encl.name.endsWith(defs.scriptClassSuffixName) && owner == encl.owner) {
+                return null;
+            } else {
+                //TODO: see init builder getStaticContext() for a better implementation
+                Type classType = types.erasure(owner.type);
+                JCExpression expr = makeType(classType, false);
+                if (types.isJFXClass(owner)) {
+                    Name simpleName;
+                    switch (expr.getTag()) {
+                        case JCTree.IDENT:
+                            simpleName = ((JCIdent)expr).name;
+                            break;
+                       case JCTree.SELECT:
+                            simpleName = ((JCFieldAccess)expr).name;
+                            break;
+                        default:
+                            throw new RuntimeException("should not get here -- type name should be identifier or select");
+                    }
+
+                    // make X.X$Script
+                    if (!JavafxInitializationBuilder.SCRIPT_LEVEL_AT_TOP) {
+                        expr = select(expr, simpleName.append(defs.scriptClassSuffixName));
+                    }
+                }
+                return expr;
+            }
+        }
     }
 
     class StringExpressionTranslator extends ExpressionTranslator {
@@ -817,37 +848,6 @@ public abstract class JavafxAbstractTranslation
 
         protected MemberReferenceTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
-        }
-
-        JCExpression staticReference(Symbol sym) {
-            Symbol owner = sym.owner;
-            Symbol encl = currentClass().sym;
-            if (encl.name.endsWith(defs.scriptClassSuffixName) && owner == encl.owner) {
-                return null;
-            } else {
-                //TODO: see init builder getStaticContext() for a better implementation
-                Type classType = types.erasure(owner.type);
-                JCExpression expr = makeType(classType, false);
-                if (types.isJFXClass(owner)) {
-                    Name simpleName;
-                    switch (expr.getTag()) {
-                        case JCTree.IDENT:
-                            simpleName = ((JCIdent)expr).name;
-                            break;
-                       case JCTree.SELECT:
-                            simpleName = ((JCFieldAccess)expr).name;
-                            break;
-                        default:
-                            throw new RuntimeException("should not get here -- type name should be identifier or select");
-                    }
-
-                    // make X.X$Script
-                    if (!JavafxInitializationBuilder.SCRIPT_LEVEL_AT_TOP) {
-                        expr = select(expr, simpleName.append(defs.scriptClassSuffixName));
-                    }
-                }
-                return expr;
-            }
         }
 
         JCExpression convertVariableReference(JCExpression varRef, Symbol sym) {

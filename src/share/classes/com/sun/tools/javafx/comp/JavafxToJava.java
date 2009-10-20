@@ -1934,8 +1934,28 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
 
         protected JCExpression translateTarget() {
-            JCExpression target = translateExpr(tree.attribute, null); //FIXME
-            return call(makeType(syms.javafx_PointerType), "make", target);
+            JavafxTag tag = tree.attribute.getFXTag();
+            Symbol sym = expressionSymbol(tree.attribute);
+            JCExpression receiver;
+            if (tag == JavafxTag.IDENT) {
+                if (sym.isStatic()) {
+                    receiver = call(staticReference(sym), defs.scriptLevelAccessMethod);
+                } else {
+                    receiver = makeReceiver(sym, false);
+                }
+            } else if (tag == JavafxTag.SELECT) {
+                receiver = translateExpr(((JFXSelect)tree.attribute).selected, null);
+            } else {
+                // FIXME: JavafxAttr enforces "attribute" of JFXInterpolateValue
+                // to be either a select or an identifier. Do I need TODO here?
+                TODO("JFXInterpolateValue.attribute should be either a select or an identifier");
+                // should not reach here. TODO always throws exception.
+                // This is just to satisfy the compiler for calls below.
+                receiver = null;
+            }
+            
+            JCExpression varOffsetExpr = makeVarOffset(sym, sym.owner);
+            return call(makeType(syms.javafx_PointerType), "make", receiver, varOffsetExpr);
         }
 
         protected void initInstanceVariables(Name instName) {

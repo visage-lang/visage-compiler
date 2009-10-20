@@ -51,15 +51,12 @@ public class KeyFrame extends Comparable {
      * @profile common
      * @defaultvalue 0s
      */
-    public var time: Duration;
-    /*
-        FIXME: yet to be implemented.
-        on replace {
+    public var time: Duration on replace {
         if(owner != null) {
             owner.sortAndComputeTL(false);
             owner.invalidate();
         }
-    };*/
+    };
 
     /**
      * The list of target variables and the desired values they should
