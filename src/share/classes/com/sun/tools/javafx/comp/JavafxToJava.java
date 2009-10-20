@@ -1958,6 +1958,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             return call(makeType(syms.javafx_PointerType), "make", receiver, varOffsetExpr);
         }
 
+        @Override
+        protected boolean hasInstanceVariableInits() {
+            return true;
+        }
+
+        @Override
         protected void initInstanceVariables(Name instName) {
             // value
             setInstanceVariable(instName, defs.valueName, tree.value);
@@ -1979,6 +1985,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     public void visitKeyFrameLiteral(final JFXKeyFrameLiteral tree) {
         result = new NewBuiltInInstanceTranslator(tree.pos(), syms.javafx_KeyFrameType) {
 
+            @Override
+            protected boolean hasInstanceVariableInits() {
+                return true;
+            }
+
+            @Override
             protected void initInstanceVariables(Name instName) {
                 // start time
                 setInstanceVariable(instName, defs.timeName, tree.start);
