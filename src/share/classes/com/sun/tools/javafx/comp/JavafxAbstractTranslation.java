@@ -79,7 +79,7 @@ public abstract class JavafxAbstractTranslation
 
     Type targetType;
     Yield yieldKind;
-    
+
     private JavafxToJava toJava; //TODO: this should go away
 
     protected JavafxAbstractTranslation(Context context, JavafxToJava toJava) {
@@ -129,6 +129,10 @@ public abstract class JavafxAbstractTranslation
 
     protected void setReceiverContext(ReceiverContext rc) {
         toJava.setReceiverContext(rc);
+    }
+
+    protected JavafxToJava toJava() {
+        return toJava;
     }
 
     /********** Utility routines **********/
@@ -660,12 +664,15 @@ public abstract class JavafxAbstractTranslation
             super(diagPos);
         }
 
-        JCExpression translateExpr(JFXExpression expr, Type type) {
-            ExpressionResult res = translateToExpressionResult(expr, type);
-            stmts.appendList(res.statements());
-            bindees.appendList(res.bindees());
-            interClass.appendList(res.interClass());
+        JCExpression mergeResults(ExpressionResult res) {
+            addPreface(res.statements());
+            addBindees(res.bindees());
+            addInterClassBindees(res.interClass());
             return res.expr();
+        }
+
+        JCExpression translateExpr(JFXExpression expr, Type type) {
+            return mergeResults(translateToExpressionResult(expr, type));
         }
 
         List<JCExpression> translateExprs(List<JFXExpression> list) {
@@ -680,8 +687,9 @@ public abstract class JavafxAbstractTranslation
         }
 
         void translateStmt(JFXExpression expr, Type targettedType) {
+            //TODO: My guess is that statements will need to preserve bindee info for block-expressions
             StatementsResult res = translateToStatementsResult(expr, targettedType);
-            stmts.appendList(res.statements());
+            addPreface(res.statements());
         }
 
         void addPreface(JCStatement stmt) {
@@ -1070,7 +1078,7 @@ public abstract class JavafxAbstractTranslation
                 return convertVariableReference(translated, refSym);
             }
         }
-    }
+            }
 
     class FunctionCallTranslator extends NullCheckTranslator {
 
@@ -1087,7 +1095,7 @@ public abstract class JavafxAbstractTranslation
         protected final boolean useInvoke;
         protected final boolean callBound;
         protected final boolean magicIsInitializedFunction;
-        
+
         // Call info
         protected final List<JFXExpression> typeargs;
         protected final List<JFXExpression> args;
@@ -2113,7 +2121,7 @@ public abstract class JavafxAbstractTranslation
                 Type targetElemType = types.elementType(targettedType);
                 JCExpression cSequences = makeType(syms.javafx_SequencesType, false);
                 JCExpression expr = convertTranslated(translated, diagPos, sourceType, targetElemType);
-                
+
                 // This would be redundant, if convertTranslated did a cast if needed.
                 expr = makeTypeCast(diagPos, targetElemType, sourceType, expr);
                 return call(
@@ -2429,7 +2437,7 @@ public abstract class JavafxAbstractTranslation
                 // now initialize it's instance variables
                 initInstanceVariables(tmpVarName);
 
-                // (Re-)initialize the flags for the variables set in object literal 
+                // (Re-)initialize the flags for the variables set in object literal
                 makeSetVarFlags(tmpVarName, declaredType);
 
                 // Apply defaults to the instance variables
@@ -2545,7 +2553,7 @@ public abstract class JavafxAbstractTranslation
             List<JCExpression> translated = translatedConstructorArgs();
             if (tree.getClassBody() != null &&
                     tree.getClassBody().sym != null && getHasOuters().contains(tree.getClassBody().sym) ||
-                    idSym != null && getHasOuters().contains(idSym)) {                
+                    idSym != null && getHasOuters().contains(idSym)) {
                 JCIdent thisIdent = id(defs.receiverName);
                 translated = translated.prepend(thisIdent);
             }

@@ -29,7 +29,6 @@ import com.sun.tools.javafx.util.MsgSym;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic;
 import com.sun.tools.mjavac.util.List;
-import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Log;
 
 /**

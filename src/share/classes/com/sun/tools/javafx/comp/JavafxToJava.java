@@ -97,9 +97,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
      * static information
      */
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.ObjectArraySequence";
-    private static final String noMainExceptionString = "com.sun.javafx.runtime.NoMainException";
     private static final String toSequenceString = "toSequence";
-    private static final String methodThrowsString = "java.lang.Throwable";
 
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
@@ -193,6 +191,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         inInstanceContext = rc;
     }
 
+    @Override
+    protected JavafxToJava toJava() {
+        return this;
+    }
+    
     /**
      * @param attrEnv the attrEnv to set
      */

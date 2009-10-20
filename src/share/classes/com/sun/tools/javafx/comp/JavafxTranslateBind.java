@@ -92,7 +92,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     JCVariableDecl newVar = makeTmpVar("new", formal, call(attributeGetterName(sym)));
                     addPreface(oldVar);
                     addPreface(newVar);
-                    addBindee((VarSymbol) sym);
+                    addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
 
                     // oldArg != newArg
                     JCExpression compare = makeNotEqual(id(oldVar), id(newVar));
@@ -133,7 +133,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     } else {
                         // The reference is to a presumably outer class
                         //TODO:
-                    }
+                    }                   
 
                 }
                 return super.doit();
