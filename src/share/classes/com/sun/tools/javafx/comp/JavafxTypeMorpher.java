@@ -67,7 +67,7 @@ public class JavafxTypeMorpher {
         boolean useAccessors() {
             // Don't use accessors for local variables. Without this
             // compiler generates method invoke for local var access!
-            return sym.owner.kind == Kinds.TYP;
+            return isFXMemberVariable();
         }
 
         boolean isMemberVariable() {

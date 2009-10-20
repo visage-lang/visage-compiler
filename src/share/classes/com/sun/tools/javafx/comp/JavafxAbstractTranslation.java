@@ -1688,7 +1688,12 @@ public abstract class JavafxAbstractTranslation
                 if (useSetters) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
                 } else {
-                    return defaultFullExpression(translateExpr(ref, null), rhsTranslated);
+                    //TODO: possibly should use, or be unified with convertVariableReference
+                    JCExpression lhsTranslated = selector != null ?
+                        m().Select(tToCheck, refSym.name) :
+                        m().Ident(refSym);
+                    JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
+                    return res;
                 }
             }
         }
