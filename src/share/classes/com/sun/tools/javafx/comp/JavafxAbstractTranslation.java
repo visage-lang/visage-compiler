@@ -2251,10 +2251,25 @@ public abstract class JavafxAbstractTranslation
         }
 
         /**
+         * Does this instance have any instance initializations?
+         */
+        protected boolean hasInstanceVariableInits() {
+            return false;
+        }
+
+        /**
          * Initialize the instance variables of the instance
          * @param instName
          */
         protected abstract void initInstanceVariables(Name instName);
+
+        /**
+         * buildInstance calls this just after object is created, but before
+         * it's instance variables are initialized. Override to generate
+         * statements/expressions just after new object is created.
+         */
+        protected void postInstanceCreation() {
+        }
 
         /**
          * @return the constructor args -- translating any supplied args
@@ -2366,10 +2381,9 @@ public abstract class JavafxAbstractTranslation
             List<JCExpression> newClassArgs = completeTranslatedConstructorArgs();
 
             Name tmpVarName = getSyntheticName("objlit");
-            initInstanceVariables(tmpVarName);  // Must preceed varSyms.nonEmpty() test
-
+            boolean hasVars = hasInstanceVariableInits();
             JCExpression instExpression;
-            if (varSyms.nonEmpty() || (isFX && newClassArgs.nonEmpty()) || cdef != null) {
+            if (hasVars || (isFX && newClassArgs.nonEmpty()) || cdef != null) {
                 // it is a instanciation of a JavaFX class which has instance variable initializers
                 // (or is anonymous, or has an outer class argument)
                 //
@@ -2404,6 +2418,12 @@ public abstract class JavafxAbstractTranslation
                         tmpVarName,
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));
 
+                // generate stuff just after new object is created
+                postInstanceCreation();
+
+                // now initialize it's instance variables
+                initInstanceVariables(tmpVarName);
+
                 // (Re-)initialize the flags for the variables set in object literal 
                 makeSetVarFlags(tmpVarName, declaredType);
 
@@ -2430,6 +2450,7 @@ public abstract class JavafxAbstractTranslation
             } else {
                 // this is a Java class or has no instance variable initializers, just instanciate it
                 instExpression = m().NewClass(null, null, classTypeExpr, newClassArgs, null);
+                postInstanceCreation();
             }
 
             return toResult(instExpression, type);
@@ -2452,6 +2473,12 @@ public abstract class JavafxAbstractTranslation
 
         abstract protected void processLocalVar(JFXVar var);
 
+        @Override
+        protected boolean hasInstanceVariableInits() {
+            return tree.getParts().nonEmpty();
+        }
+
+        @Override
         protected void initInstanceVariables(Name instName) {
             if (tree.varDefinedByThis != null) {
                 getSubstitutionMap().put(tree.varDefinedByThis, instName);
@@ -2467,6 +2494,13 @@ public abstract class JavafxAbstractTranslation
                 getSubstitutionMap().remove(tree.varDefinedByThis);
             }
             diagPos = tree.pos();
+        }
+
+        @Override
+        public void postInstanceCreation() {
+            for (JFXVar var : tree.getLocalvars()) {
+                processLocalVar(var);
+            }
         }
 
         protected List<JCExpression> translatedConstructorArgs() {
@@ -2514,10 +2548,6 @@ public abstract class JavafxAbstractTranslation
         }
 
         protected ExpressionResult doit() {
-            for (JFXVar var : tree.getLocalvars()) {
-                // add the variable before the class definition or object litersl assignment
-                processLocalVar(var);
-            }
             return buildInstance(tree.type, tree.getClassBody(), types.isJFXClass(idSym));
         }
     }
