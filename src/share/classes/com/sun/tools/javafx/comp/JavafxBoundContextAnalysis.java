@@ -144,14 +144,16 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
              * function) and so create a class for local context.
              */
             JFXBlock blk = tree.getBodyExpression();
-            JFXExpression returnExpr = (blk.value instanceof JFXReturn)?
-                ((JFXReturn)blk.value).getExpression() : blk.value;
-            if (returnExpr != null) {
-                fxmake.at(blk.value.pos);
-                JFXVar resultVar = fxmake.Var(defs.boundFunctionResultName, fxmake.TypeUnknown(),
-                    fxmake.Modifiers(0), returnExpr, JavafxBindStatus.UNIDIBIND, null, null);
-                blk.stats = blk.stats.append(resultVar);
-                blk.value = fxmake.Ident(defs.boundFunctionResultName);
+            if (blk != null) {
+                JFXExpression returnExpr = (blk.value instanceof JFXReturn)?
+                    ((JFXReturn)blk.value).getExpression() : blk.value;
+                if (returnExpr != null && returnExpr.getFXTag() != JavafxTag.VAR_DEF) {
+                    fxmake.at(blk.value.pos);
+                    JFXVar resultVar = fxmake.Var(defs.boundFunctionResultName, fxmake.TypeUnknown(),
+                        fxmake.Modifiers(0), returnExpr, JavafxBindStatus.UNIDIBIND, null, null);
+                    blk.stats = blk.stats.append(resultVar);
+                    blk.value = fxmake.Ident(defs.boundFunctionResultName);
+                }
             }
         }
         scan(tree.getBodyExpression());
