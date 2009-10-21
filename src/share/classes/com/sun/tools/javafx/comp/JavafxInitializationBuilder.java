@@ -1170,40 +1170,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // FIXME - Should not exist.
-        // This method constructs the getter method for a sequence attribute.
-        //
-        private void makeSeqSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetterName(varInfo.getSymbol()),
-                                                                         varInfo.getRealType(),
-                                                                         varInfo, needsBody) {
-                @Override
-                public void initialize() {
-                    addParam(type, defs.attributeNewValueName);
-                    buildIf(!varInfo.isDef());
-                }
-                
-                @Override
-                public void statements() {
-                    // Restrict setting.
-                    addStmt(callStmt(getReceiver(varSym), defs.varFlagRestrictSet, makeVarOffset(varSym)));
- 
-                    if (varInfo.hasBoundDefinition()) {
-                        assert false : "Bound sequences not implemented";
-                    }
-                    
-                    // set$var(value)
-                    addStmt(callStmt(getReceiver(), attributeBeName(varSym), id(defs.attributeNewValueName)));
-                    // return $var;
-                    addStmt(m().Return(id(varName)));
-                }
-            };
-
-            vamb.build();
-         }
-
-
-        //
         // This method constructs the get position method for a sequence attribute.
         //
         private void makeSeqGetPosAccessorMethod(VarInfo varInfo, boolean needsBody) {
@@ -2000,7 +1966,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (ai.isSequence()) {
                      if (!ai.isOverride()) {
                         makeSeqGetterAccessorMethod(ai, needsBody);
-                        //makeSeqSetterAccessorMethod(ai, needsBody);
                         makeSeqGetPosAccessorMethod(ai, needsBody);
                         makeSeqGetSizeAccessorMethod(ai, needsBody);
                         makeSeqBeAccessorMethod(ai, needsBody);
@@ -2015,7 +1980,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Bound or not, we need getter & setter on override since we
                             // may be switching between bound and non-bound or visa versa
                             makeSeqGetterAccessorMethod(ai, needsBody);
-                            //makeSeqSetterAccessorMethod(ai, needsBody);
                             makeSeqGetPosAccessorMethod(ai, needsBody);
                             makeSeqGetSizeAccessorMethod(ai, needsBody);
                             makeSeqBeAccessorMethod(ai, needsBody);
