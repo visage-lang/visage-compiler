@@ -1048,7 +1048,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     callSuper();
                     
                     // Control build.
-                    buildIf(stmts.nonEmpty() || superClassSym == null);
+                    buildIf(stmts.nonEmpty());
                 }
             }
         }
@@ -2511,7 +2511,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Call super if necessary.
                     callSuper();
                     
-                    buildIf(hasDefaults || superClassSym == null);
+                    buildIf(hasDefaults);
                 }
             };
             
@@ -2961,7 +2961,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ClassSymbol superClassSym = analysis.getFXSuperClassSym();
            
             // Only create method if necessary (rely on FXBase.)
-            if (translatedInitBlocks.nonEmpty() || immediateMixinClasses.nonEmpty() || isMixinClass() || superClassSym == null) {
+            if (translatedInitBlocks.nonEmpty() || immediateMixinClasses.nonEmpty() || isMixinClass()) {
                 List<JCVariableDecl> receiverVarDeclList;
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
     

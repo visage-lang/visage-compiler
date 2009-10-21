@@ -402,8 +402,10 @@ import java.lang.reflect.Field;
     
     public static int VCNT$() { return VCNT$; }
 
-    public void userInit$     () {}
-    public void postInit$     () {}
+    public        void userInit$()             {}
+    public static void userInit$(FXObject obj) {}
+    public        void postInit$()             {}
+    public static void postInit$(FXObject obj) {}
     
     //
     // makeInitMap$ constructs a field mapping table used in the switch portion
