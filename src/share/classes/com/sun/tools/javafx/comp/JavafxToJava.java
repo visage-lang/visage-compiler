@@ -572,7 +572,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     JCExpression tc = 
                             instanceName == null ?
                                 vsym.isStatic()?
-                                      call(vsym.owner.type, defs.scriptLevelAccessMethod)
+                                      call(vsym.owner.type, scriptLevelAccessMethod(vsym.owner))
                                     : id(names._this)
                                : id(instanceName);
                     res = call(defs.Sequences_set, tc, makeVarOffset(vsym), nonNullInit);
