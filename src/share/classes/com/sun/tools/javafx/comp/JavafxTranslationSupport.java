@@ -541,10 +541,6 @@ public abstract class JavafxTranslationSupport {
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
     }
 
-    JCExpression makeDefaultValue(DiagnosticPosition diagPos, Type type) {
-        return makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(type));
-    }
-
     /** Make an attributed tree representing a literal. This will be
      *  a Literal node.
      *  @param type       The literal's type.
@@ -554,10 +550,6 @@ public abstract class JavafxTranslationSupport {
         int tag = value==null? TypeTags.BOT : type.tag;
         return make.at(diagPos).Literal(tag, value).setType(
             tag == TypeTags.BOT? syms.botType : type.constType(value)); 
-    }
-
-    JCExpression call(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> args) {
-        return call(diagPos, meth, null, args);
     }
 
     JCExpression call(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> typeArgs, List<JCExpression> args) {
@@ -1117,7 +1109,7 @@ public abstract class JavafxTranslationSupport {
             return make.VarDef(
                     make.Modifiers(Flags.PARAMETER | Flags.FINAL),
                     defs.receiverName,
-                    make.Ident(interfaceName(cDecl)),
+                    id(interfaceName(cDecl)),
                     null);
         }
 
@@ -1398,6 +1390,11 @@ public abstract class JavafxTranslationSupport {
         }
         JCStatement makeThrow(Type type) {
             return makeThrow(type, null);
+        }
+
+        /* Default value per type */
+        JCExpression makeDefaultValue(Type type) {
+            return JavafxTranslationSupport.this.makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(type));
         }
 
         /* Debugging support */

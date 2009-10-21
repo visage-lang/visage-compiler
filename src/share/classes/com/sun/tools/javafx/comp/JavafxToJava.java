@@ -577,11 +577,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                                : id(instanceName);
                     res = call(defs.Sequences_set, tc, makeVarOffset(vsym), nonNullInit);
                 } else if (vmi.useAccessors()) {
-                    JCExpression tc = instanceName == null ? null : make.Ident(instanceName);
+                    JCExpression tc = instanceName == null ? null : id(instanceName);
                     res = call(tc, attributeBeName(vsym), nonNullInit);
                 } else {
                     // TODO: Java inherited.
-                    final JCExpression varRef = make.Ident(vsym);
+                    final JCExpression varRef = id(vsym);
                     res = m().Assign(varRef, nonNullInit);
                 }
                 return toResult(res, vmi.getRealType());
@@ -637,7 +637,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 prependToStatements.append(var);
                 return new StatementsResult(diagPos, List.<JCStatement>nil());
             }
-            init = makeDefaultValue(diagPos, vmi);
+            init = JavafxToJava.this.makeDefaultValue(diagPos, vmi);
             prependToStatements.prepend(makeVar(modFlags, tree.type, tree.name, init));
 
             return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vmi, null);
@@ -1523,7 +1523,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             setDiagPos(clause);
             inductionVar.init = init;
             tinits.append(inductionVar);
-            JCExpression sizeExpr = translateSizeof(diagPos, seq, id(seqVar));
+            JCExpression sizeExpr = translateSizeof(seq, id(seqVar));
             //call(diagPos, ident(seqVar), "size");
             JCExpression limitExpr;
             // Compare the logic in makeSliceEndPos.
@@ -1550,6 +1550,29 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(inductionVar), m().Literal(TypeTags.INT, 1))));
             tinits.append(m().ForLoop(List.<JCStatement>nil(), tcond, tstep, body));
             body = m().Block(0L, tinits.toList());
+        }
+
+        private JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
+            if (expr instanceof JFXIdent) {
+                JFXIdent varId = (JFXIdent) expr;
+                OnReplaceInfo info = findOnReplaceInfo(varId.sym);
+                if (info != null) {
+                    RuntimeMethod rm;
+                    ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+                    args.append(id(defs.onReplaceArgNameBuffer));
+                    if (varId.sym == info.oldValueSym) {
+                        rm = defs.Sequences_sizeOfOldValue;
+                        args.append(id(defs.onReplaceArgNameOld));
+                        args.append(id(defs.onReplaceArgNameLastIndex));
+                    } else { // var.sym == info.newElementsSym
+                        rm = defs.Sequences_sizeOfNewElements;
+                        args.append(id(defs.onReplaceArgNameFirstIndex));
+                        args.append(id(defs.onReplaceArgNameNewElements));
+                    }
+                    return call(rm, args);
+                }
+            }
+            return call(defs.Sequences_size, transExpr);
         }
 
         /**
@@ -1851,31 +1874,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     public void visitUnary(final JFXUnary tree) {
         result = new UnaryOperationTranslator(tree).doit();
-    }
-
-    private JCExpression translateSizeof(DiagnosticPosition diagPos, JFXExpression expr, JCExpression transExpr) {
-        if (expr instanceof JFXIdent) {
-            JFXIdent var = (JFXIdent) expr;
-            OnReplaceInfo info = findOnReplaceInfo(var.sym);
-            if (info != null) {
-                String mname;
-                ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                args.append(make.Ident(defs.onReplaceArgNameBuffer));
-                if (var.sym == info.oldValueSym) {
-                    mname = "sizeOfOldValue";
-                    args.append(make.Ident(defs.onReplaceArgNameOld));
-                    args.append(make.Ident(defs.onReplaceArgNameLastIndex));
-                }
-                else { // var.sym == info.newElementsSym
-                    mname = "sizeOfNewElements";
-                    args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
-                    args.append(make.Ident(defs.onReplaceArgNameNewElements));
-                }
-                return call(diagPos, makeQualifiedTree(diagPos, JavafxDefs.cSequences),
-                        mname, args.toList());
-            }
-        }
-        return call(diagPos, defs.Sequences_size, List.of(transExpr));
     }
 
     private class WhileTranslator extends ExpressionTranslator {

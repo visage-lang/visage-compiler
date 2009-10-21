@@ -278,7 +278,7 @@ public abstract class JavafxAbstractTranslation
 
                 final Type inType = inExpr.type;
                 if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
-                    return makeDefaultValue(diagPos, outType);
+                    return makeDefaultValue(outType);
                 }
 
                 if (!types.isSameType(inType, outType) || isValueFromJava(inExpr)) {
@@ -288,7 +288,7 @@ public abstract class JavafxAbstractTranslation
                     JCExpression ret = m().Conditional(
                             cond,
                             id(daVar.name),
-                            makeDefaultValue(diagPos, outType));
+                            makeDefaultValue(outType));
                     return makeBlockExpression(List.<JCStatement>of(daVar), ret);
                 }
                 return expr;
@@ -992,7 +992,7 @@ public abstract class JavafxAbstractTranslation
             // Do a null check
             // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
             JCExpression cond = makeNotNullCheck(toTest);
-            JCExpression defaultExpr = makeDefaultValue(diagPos, resultType);
+            JCExpression defaultExpr = makeDefaultValue(resultType);
             if (yield() == ToStatement) {
                  // a statement is the desired result of the translation, return the If-statement
                 JCStatement nullAction = null;

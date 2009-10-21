@@ -561,7 +561,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct the value field
                     addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
-                                                    needsDefaultValue(ai.getVMI()) ? makeDefaultValue(diagPos, ai.getVMI()) : null));
+                                                    needsDefaultValue(ai.getVMI()) ? 
+                                                          JavafxInitializationBuilder.this.makeDefaultValue(diagPos, ai.getVMI())
+                                                        : null));
                 }
             }
         }
