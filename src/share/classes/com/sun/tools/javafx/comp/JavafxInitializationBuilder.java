@@ -1180,6 +1180,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void initialize() {
                     addParam(type, defs.attributeNewValueName);
+                    buildIf(!varInfo.isDef());
                 }
                 
                 @Override
@@ -1509,6 +1510,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void initialize() {
                     addParam(type, defs.attributeNewValueName);
+                    buildIf(!varInfo.isDef());
                 }
 
                 @Override
@@ -2707,7 +2709,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    if (!varInfo.isSequence()) {
+                    if (!varInfo.isSequence() && !varInfo.isDef()) {
                         // (type)object$
                         JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, id(objName));
                         // set$var((type)object$)
