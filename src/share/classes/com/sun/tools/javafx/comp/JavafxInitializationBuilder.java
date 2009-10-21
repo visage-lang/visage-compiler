@@ -2562,11 +2562,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Only declared attributes with default expressions.
                         if (ai.needsCloning()) {
                             VarSymbol proxyVarSym = ai.proxyVarSym();
-                            if (!isMixinClass() && ai.isMixinVar()) {
+                            if (!isMixinClass() && ai.isMixinVar() && !(ai.hasOverrideVar() && hasDefaultInitStatement(ai))) {
                                 JCExpression mixinCall = call(makeType(proxyVarSym.owner.type, false), attributeInitVarBitsName(proxyVarSym), id(names._this));
                                 addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, id(defs.varFlagALL_FLAGS), mixinCall));
                             } else {
-                                JCExpression flagsExpr = null;
                                 boolean isBound = ai.hasBoundDefinition();
                                 boolean isReadonly = ai.isDef() || (isBound && !ai.hasBiDiBoundDefinition());
                                 Name setBits = null;
