@@ -1138,8 +1138,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void statements() {
-                    // FIXME - just here to keep things going.
-                     JCIf initIf = null;
+                    JCIf initIf = null;
                     if (!varInfo.isStatic()) {
                         // Prepare to accumulate body of if.
                         beginBlock();
@@ -1154,29 +1153,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         initIf = m().If(initCondition, endBlock(), null);
                     }
 
-                   if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {                        
-                        // Prepare to accumulate body of if.
-                        beginBlock();
-                        
-                        // Set to new value.
-                        if (varInfo.isMixinVar()) {
-                            // Mixin.evaluate$var(this);
-                            addStmt(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
-                            // Make valid.
-                            addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
-                        } else {
-                            assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
-    
-                            // set$var(init/bound expression)
-                            addStmts(varInfo.boundPreface());
-                            addStmt(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
-                        }
-                      
-                        // Is it bound and invalid?
-                        JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
-                        
-                        // if (bound and invalid) { set$var(init/bound expression); }
-                        addStmt(m().If(condition, endBlock(), initIf));
+                    if (varInfo.isMixinVar()) {
+                        assert false : "Mixin sequences not implemented";
+                    } else if (varInfo.hasBoundDefinition()) {                        
+                        assert false : "Bound sequences not implemented";
                     } else {
                         addStmt(initIf);
                     }
@@ -1204,19 +1184,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    // FIXME - just here to keep things going.
                     // Restrict setting.
                     addStmt(callStmt(getReceiver(varSym), defs.varFlagRestrictSet, makeVarOffset(varSym)));
  
-                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
-                        // Begin bidi block.
-                        beginBlock();
-                        // Preface to setter.
-                        addStmts(varInfo.boundInvSetterPreface());
-                        // Test to see if bound.
-                        JCExpression ifBoundTest = makeFlagExpression(varSym, defs.varFlagActionTest, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND);
-                        // if (!isBound$(VOFF$var)) { set$other(inv bound expression); }
-                        addStmt(m().If(ifBoundTest, endBlock(), null));
+                    if (varInfo.hasBoundDefinition()) {
+                        assert false : "Bound sequences not implemented";
                     }
                     
                     // set$var(value)
@@ -1244,8 +1216,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    // Construct and add: return $var.get(pos$);
-                    addStmt(m().Return(call(id(varName), getPosName, id(defs.getArgNamePos))));
+                    if (varInfo.isMixinVar()) {
+                        assert false : "Mixin sequences not implemented";
+                    } else if (varInfo.hasBoundDefinition()) {                        
+                        assert false : "Bound sequences not implemented";
+                    } else {
+                        // Construct and add: return $var.get(pos$);
+                        addStmt(m().Return(call(id(varName), getPosName, id(defs.getArgNamePos))));
+                    }
                 }
             };
 
@@ -1262,8 +1240,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void statements() {
-                    // Construct and add: return $var.size();
-                    addStmt(m().Return(call(id(varName), getSizeName)));
+                    if (varInfo.isMixinVar()) {
+                        assert false : "Mixin sequences not implemented";
+                    } else if (varInfo.hasBoundDefinition()) {                        
+                        assert false : "Bound sequences not implemented";
+                    } else {
+                        // Construct and add: return $var.size();
+                        addStmt(m().Return(call(id(varName), getSizeName)));
+                    }
                 }
             };
 
@@ -1431,18 +1415,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
                         
                         // FIXME - do the right thing.
-                        if (false && isSequence) {
-                            // Call the onReplace$var to force evaluation.
-                            addStmt(callStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
-                                                            makeMixinSafeVarValue(proxyVarSym),
-                                                            makeMixinSafeVarValue(proxyVarSym),
-                                                            id(defs.sliceArgNameStartPos),
-                                                            id(defs.sliceArgNameEndPos),
-                                                            id(defs.sliceArgNameNewLength)));
-                        } else {
-                            // Call the get$var to force evaluation.
-                            addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
-                        }
+                        // Call the onReplace$var to force evaluation.
+                        addStmt(callStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
+                                                        makeMixinSafeVarValue(proxyVarSym),
+                                                        makeMixinSafeVarValue(proxyVarSym),
+                                                        id(defs.sliceArgNameStartPos),
+                                                        id(defs.sliceArgNameEndPos),
+                                                        id(defs.sliceArgNameNewLength)));
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
                         JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.varFlagNEEDS_TRIGGER));
@@ -2724,7 +2703,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void initialize() {
                     addParam(syms.objectType, objName);
-                }
+                 }
                 
                 @Override
                 public void statements() {
@@ -2733,10 +2712,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, id(objName));
                         // set$var((type)object$)
                         addStmt(callStmt(attributeSetterName(varInfo.getSymbol()), objCast));
-                        // return
-                        addStmt(m().Return(null));
                     }
-                }
+
+                    // return
+                    addStmt(m().Return(null));
+               }
             };
             
             vcmb.build();
@@ -2757,8 +2737,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     // (type)object$
                     JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, id(objName));
-                        // be$var((type)object$)
-                        addStmt(callStmt(attributeBeName(varInfo.getSymbol()), objCast));
+                    // be$var((type)object$)
+                    addStmt(callStmt(attributeBeName(varInfo.getSymbol()), objCast));
                     // return
                     addStmt(m().Return(null));
                 }
