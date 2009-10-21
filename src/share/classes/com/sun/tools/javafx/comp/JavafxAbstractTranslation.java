@@ -2372,7 +2372,7 @@ public abstract class JavafxAbstractTranslation
                         defs.varFlagActionChange,
                         makeVarOffset(vsym, contextType),
                         id(defs.varFlagALL_FLAGS),
-                        id(defs.varFlagINIT_OBJ_LIT)));
+                        m().Binary(JCTree.BITOR, id(defs.varFlagINIT_OBJ_LIT), id(defs.varFlagIS_INITIALIZED))));
             }
         }
 

@@ -83,16 +83,10 @@ public class Builtins {
      * @return true if the object has been initialized already
      */
     public static boolean isInitialized(Object... args) {
-        //should return false until flag is correctly set - otherwise
-        //this will always return true - which causes some reg failures
-        //the code below should be uncommented when the flag is set properly
-        return false;
-        /*
         FXBase inst = (FXBase)args[0];
         int offset = (Integer)args[1];
-        return inst.varTestBits$(offset,
-                FXBase.VFLGS$IS_INITIALIZED,
-                FXBase.VFLGS$IS_INITIALIZED);
-         */
+        return !inst.varTestBits$(offset,
+                FXBase.VFLGS$IS_INITIALIZED | FXBase.VFLGS$IS_BOUND,
+                0);
     }
 }

@@ -151,7 +151,8 @@ import java.lang.reflect.Field;
         if ((bits & VFLGS$NEEDS_TRIGGER) != 0)          System.err.print(" NeedsTrigger");
         if ((bits & VFLGS$IS_BOUND) != 0)               System.err.print(" Bound");
         if ((bits & VFLGS$IS_READONLY) != 0)            System.err.print(" Readonly");
-        if ((bits & VFLGS$IS_INITIALIZED) != 0)            System.err.print(" Initialized");
+        if ((bits & VFLGS$DEFAULT_APPLIED) != 0)        System.err.print(" DefaultApplied");
+        if ((bits & VFLGS$IS_INITIALIZED) != 0)         System.err.print(" Initialized");
         System.err.print(" )");
     }
     

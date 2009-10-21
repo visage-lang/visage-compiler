@@ -1147,7 +1147,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varInfo.getSymbol())));
 
                         // Is it uninitialized (and not bound)
-                        JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INITIALIZED, null);
+                        JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
 
                         // if (uninitialized) { applyDefaults$(VOFF$var); }
                         initIf = m().If(initCondition, endBlock(), null);
@@ -1255,7 +1255,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), makeInt(-1), makeInt(-1), makeInt(-1), id(defs.varFlagNEEDS_TRIGGER)));
 
                     // setValid(VFLGS$NEEDS_TRIGGER);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, defs.varFlagIS_INITIALIZED));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, defs.varFlagDEFAULT_APPLIED));
     
                     // onReplace$(varOldValue$, varNewValue$)
                     addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName), makeInt(-1), makeInt(-1), makeInt(-1)));
@@ -1273,7 +1273,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     beginBlock();
     
                     // setValid(VFLGS$VALIDITY_FLAGS);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, defs.varFlagIS_INITIALIZED));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED));
                     
                     // End of else block.
                     JCBlock elseBlock = endBlock();
@@ -1522,7 +1522,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varInfo.getSymbol())));
 
                         // Is it uninitialized (and not bound)
-                        JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INITIALIZED, null);
+                        JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
 
                         // if (uninitialized) { applyDefaults$(VOFF$var); }
                         initIf = m().If(initCondition, endBlock(), null);
@@ -1580,7 +1580,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     // Restrict setting.
                     addStmt(callStmt(getReceiver(varSym), defs.varFlagRestrictSet, makeVarOffset(varSym)));
- 
+
+                    addStmt(makeFlagStatement(varSym, defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED));
+
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         // Begin bidi block.
                         beginBlock();
@@ -1653,7 +1655,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     beginBlock();
     
                     // setValid(VFLGS$VALIDITY_FLAGS);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, defs.varFlagIS_INITIALIZED));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED));
                     
                     // End of else block.
                     JCBlock elseBlock = endBlock();
@@ -2355,16 +2357,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private JCStatement makeApplyDefaultsCheck(VarInfo ai, JCStatement stmt) {
             VarSymbol proxyVarSym = ai.proxyVarSym();
             // Set the var initialized
-            JCStatement setInited = makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED);
+            JCStatement setDefault = makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED);
 
             if (stmt == null) {
                 // No set action, just mark as inited
-                return setInited;
+                return setDefault;
             } else {
                 // If (not initialized and not bound) { mark as initialized; initialize it; }
-                JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INITIALIZED, null);
+                JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
+                List<JCStatement> stmts = List.of(setDefault);
+                if (ai.hasInitializer()) {
+                    stmts = stmts.append(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED));
+                }
+                stmts = stmts.append(stmt);
                 return m().If(initCondition,
-                        m().Block(0L, List.of(setInited, stmt)),
+                        m().Block(0L, stmts),
                         null);
             }
         }
