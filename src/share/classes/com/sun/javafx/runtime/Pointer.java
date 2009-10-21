@@ -71,7 +71,11 @@ public class Pointer implements KeyValueTarget {
     public static Pointer make(Class clazz, String varName) {
         try {
             // FIXME: dependency on generated members!
-            Method statics = clazz.getMethod("access$scriptLevel$", (Class[])null);
+            StringBuilder buf = new StringBuilder();
+            buf.append("access$scriptLevel$");
+            buf.append(clazz.getName().replace('.', '$'));
+            buf.append('$');
+            Method statics = clazz.getMethod(buf.toString(), (Class[])null);
             FXObject obj = (FXObject) statics.invoke(null, (Object[])null);
             return make(obj, FXBase.getVarNum$(obj, varName));
         } catch (RuntimeException re) {

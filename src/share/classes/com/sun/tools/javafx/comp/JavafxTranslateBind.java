@@ -259,7 +259,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             oldSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
                             newSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetterName(selectorSym)));
                         } else {
-                            rcvr = selectorSym.isStatic()? call(defs.scriptLevelAccessMethod) : id(names._this);
+                            rcvr = selectorSym.isStatic()? call(scriptLevelAccessMethod(selectorSym.owner)) : id(names._this);
                             oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
                             newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
                         }
