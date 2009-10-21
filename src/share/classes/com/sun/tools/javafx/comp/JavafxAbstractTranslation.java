@@ -992,7 +992,10 @@ public abstract class JavafxAbstractTranslation
             // Do a null check
             // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
             JCExpression cond = makeNotNullCheck(toTest);
-            JCExpression defaultExpr = makeDefaultValue(resultType);
+            JCExpression defaultValue = makeDefaultValue(fullType);
+            JCExpression defaultExpr = defaultValue.type == syms.botType ?
+                makeDefaultValue(resultType) :
+                convertTranslated(defaultValue, diagPos, fullType, resultType);
             if (yield() == ToStatement) {
                  // a statement is the desired result of the translation, return the If-statement
                 JCStatement nullAction = null;
