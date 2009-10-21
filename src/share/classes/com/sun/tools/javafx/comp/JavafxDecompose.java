@@ -195,15 +195,15 @@ public class JavafxDecompose implements JavafxVisitor {
         return cs;
     }
 
-    MethodSymbol syntheticScriptMethod(Symbol clazz) {
-        MethodSymbol msym = new MethodSymbol(Flags.STATIC, defs.scriptLevelAccessMethod, Type.noType, clazz.owner);
-        msym.type = new MethodType(List.<Type>nil(), clazz.type, List.<Type>nil(), syms.methodClass);
+    MethodSymbol syntheticScriptMethod(Symbol staticsHolder, Symbol scriptClazz) {
+        MethodSymbol msym = new MethodSymbol(Flags.STATIC, defs.scriptLevelAccessMethod(names, staticsHolder), Type.noType, scriptClazz.owner);
+        msym.type = new MethodType(List.<Type>nil(), scriptClazz.type, List.<Type>nil(), syms.methodClass);
         return msym;
     }
 
     JFXExpression syntheticScriptMethodCall(Symbol sym) {
         Symbol cs = syntheticScriptClass(sym);
-        Symbol msym = syntheticScriptMethod(cs);
+        Symbol msym = syntheticScriptMethod(sym, cs);
         JFXExpression  meth = fxmake.Apply(null, fxmake.Ident(msym), null);
         meth.type = cs.type;
         return meth;
@@ -362,7 +362,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 types.isJFXClass(tree.sym.owner) &&
                 !currentClass.isSubClass(tree.sym.owner, types) &&
                 inBind &&
-                tree.getName() != defs.scriptLevelAccessMethod) {
+                !(tree.getName().startsWith(defs.scriptLevelAccessMethodPrefix))) {
             //referenced is static script var - if in bind context need shredding
             JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
             meth = shred(meth);

@@ -292,7 +292,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.setContext(true, sDefinitions);
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
                     javaCodeMaker.makeVarNumMethods(false, true);
-                    javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, scriptName, true, isRunnable);
                     javaCodeMaker.setContext(false, cDefinitions);
                 } else {
                     // With this approach all script-level members and support statics are in script-class
@@ -305,15 +305,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.makeVarNumMethods(false, true);
                     javaCodeMaker.gatherFunctions(scriptFuncInfos);
 
-                    javaCodeMaker.makeScriptLevelAccess(scriptName, true, isRunnable);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, scriptName, true, isRunnable);
                     javaCodeMaker.setContext(false, cDefinitions);
                 }
 
-                javaCodeMaker.makeScriptLevelAccess(scriptName, false, isRunnable);
-                javaCodeMaker.makeInitStaticAttributesBlock(scriptName, scriptVarInfos, initMap);
+                javaCodeMaker.makeScriptLevelAccess(cDecl.sym, scriptName, false, isRunnable);
+                javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, scriptName, scriptVarInfos, initMap);
                 javaCodeMaker.makeScript(scriptName, sDefinitions.toList());
             } else {
-                javaCodeMaker.makeInitStaticAttributesBlock(null, null, initMap);
+                javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, null, null, initMap);
             }
 
             if (!hasFxSuper) {
@@ -345,7 +345,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeAttributeFields(scriptVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
             javaCodeMaker.makeVarNumMethods(true, false);
-            javaCodeMaker.makeInitStaticAttributesBlock(null, null, null);
+            javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, null, null, null);
 
             javaCodeMaker.makeMixinAccessorMethods(classVarInfos);
             javaCodeMaker.makeInitMethod(defs.userInitName, translatedInitBlocks, immediateMixinClasses);
@@ -650,7 +650,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         private JCExpression getReceiver(VarSymbol varSym) {
             if (varSym.isStatic()) {
-                return isScript ? null : call(defs.scriptLevelAccessMethod);
+                return isScript ? null : call(scriptLevelAccessMethod(varSym.owner));
             }
             
             return getReceiver();
@@ -2951,7 +2951,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Construct the static block for setting defaults
         //
-        public void makeInitStaticAttributesBlock(Name scriptName, List<VarInfo> attrInfo, JCStatement initMap) {
+        public void makeInitStaticAttributesBlock(ClassSymbol sym, Name scriptName, List<VarInfo> attrInfo, JCStatement initMap) {
             // Buffer for init statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
     
@@ -2961,7 +2961,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
 
             if (scriptName != null) {
-                stmts.append(callStmt(defs.scriptLevelAccessMethod));
+                stmts.append(callStmt(scriptLevelAccessMethod(sym)));
             }
             
             if (attrInfo != null) {
@@ -3230,7 +3230,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Add definitions to class to access the script-level sole instance.
         //
-        public void makeScriptLevelAccess(Name scriptName, boolean scriptLevel, boolean isRunnable) {
+        public void makeScriptLevelAccess(ClassSymbol sym, Name scriptName, boolean scriptLevel, boolean isRunnable) {
             if (!scriptLevel) {
                 // sole instance field
                 addDefinition(makeVar(Flags.PRIVATE | Flags.STATIC, id(scriptName), defs.scriptLevelAccessField, null));
@@ -3248,7 +3248,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
                 stmts.append(m().Return(id(defs.scriptLevelAccessField)));
-                addDefinition(makeMethod(Flags.PUBLIC | Flags.STATIC, id(scriptName), defs.scriptLevelAccessMethod, null, stmts.toList()));
+                addDefinition(makeMethod(Flags.PUBLIC | Flags.STATIC, id(scriptName), scriptLevelAccessMethod(sym), null, stmts.toList()));
             }
 
             // If module is runnable, create a run method that redirects to the sole instance version
@@ -3258,7 +3258,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                          defs.internalRunFunctionName,
                                          List.<JCVariableDecl>of(m().Param(defs.arg0Name, types.sequenceType(syms.stringType), null)),
                                          List.<JCStatement>of(m().Return(call(
-                                             call(defs.scriptLevelAccessMethod),
+                                             call(scriptLevelAccessMethod(sym)),
                                              defs.internalRunFunctionName,
                                              id(defs.arg0Name))))));
             }

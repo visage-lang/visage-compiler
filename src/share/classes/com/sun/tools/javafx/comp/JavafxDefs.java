@@ -28,6 +28,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.mjavac.code.Symbol;
 import java.util.regex.Pattern;
 
 /**
@@ -173,7 +174,7 @@ public class JavafxDefs {
     public final Name mixinSuffixName;
     public final Name deprecatedInterfaceSuffixName;
     final Name scriptLevelAccessField;
-    final Name scriptLevelAccessMethod;
+    final Name scriptLevelAccessMethodPrefix;
     final Name durOpAdd;
     final Name durOpSub;
     final Name durOpMul;
@@ -411,7 +412,7 @@ public class JavafxDefs {
         attributeNewValueName =  names.fromString(attributeNewValueNameString);
         isInitializedPrefixName = names.fromString(attributeIsInitializedMethodNamePrefix);
         scriptLevelAccessField = names.fromString("$scriptLevel$");
-        scriptLevelAccessMethod = names.fromString("access$scriptLevel$");
+        scriptLevelAccessMethodPrefix = names.fromString("access$scriptLevel$");
         
         varFlagActionTest = names.fromString("varTestBits$");
         varFlagActionChange = names.fromString("varChangeBits$");
@@ -484,4 +485,13 @@ public class JavafxDefs {
     }
     
     public static String getTypePrefix(int index) { return typePrefixes[index]; }
+
+    public Name scriptLevelAccessMethod(Name.Table names, Symbol clazz) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(scriptLevelAccessMethodPrefix);
+        buf.append(clazz.getQualifiedName().toString().replace('.', '$'));
+        buf.append('$');
+        return names.fromString(buf);
+ 
+    }
 }
