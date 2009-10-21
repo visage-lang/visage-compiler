@@ -1402,6 +1402,103 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             vamb.build();
         }
 
+        //
+        // This method constructs the onreplace$ method for a sequence attribute.
+        //
+        private void makeSeqOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
+                                                                         syms.voidType,
+                                                                         varInfo, needsBody) {
+                Name oldValueName = defs.attributeOldValueName;
+                Name newValueName = defs.attributeNewValueName;
+                Name firstIndexName = defs.sliceArgNameStartPos;
+                Name lastIndexName = defs.sliceArgNameEndPos;
+                Name newElementsName = defs.onReplaceArgNameNewElements;
+
+                @Override
+                public void initialize() {
+                    if (needsBody) {
+                        // Fetch the on replace statement or null.
+                        JCStatement onReplace = varInfo.onReplaceAsInline();
+        
+                        // Need to capture init state if has trigger.
+                        if (onReplace != null) {
+                            // Gather specified var info.
+                            JFXVar oldVar = varInfo.onReplace().getOldValue();
+                            JFXVar newVar = varInfo.onReplace().getNewElements();
+                            JFXVar firstIndex = varInfo.onReplace().getFirstIndex();
+                            JFXVar lastIndex = varInfo.onReplace().getLastIndex();
+                            JFXVar newElements = varInfo.onReplace().getNewElements();
+
+                            // Check to see if the on replace has an old value.
+                            if (oldVar != null) {
+                                // Change the onReplace arg name. 
+                                oldValueName = oldVar.getName();
+                            }
+            
+                            // Check to see if the on replace has a new value.
+                            if (newVar != null) {
+                                // Change the onReplace arg name. 
+                                newValueName = newVar.getName();
+                            }
+             
+                            // Check to see if the on replace has a first index.
+                            if (firstIndex != null) {
+                                // Change the onReplace arg name. 
+                                firstIndexName = firstIndex.getName();
+                            }
+            
+                            // Check to see if the on replace has a last index.
+                            if (lastIndex != null) {
+                                // Change the onReplace arg name. 
+                                lastIndexName = lastIndex.getName();
+                            }
+            
+                            // Check to see if the on replace has a new elements.
+                            if (newElements != null) {
+                                // Change the onReplace arg name. 
+                                newElementsName = newElements.getName();
+                            }
+                       }
+                    }
+                
+                    addParam(type, oldValueName);
+                    addParam(type, newValueName);
+                    addParam(syms.intType, firstIndexName);
+                    addParam(syms.intType, lastIndexName);
+                    addParam(syms.intType, defs.sliceArgNameNewLength);
+                }
+                
+                @Override
+                public void statements() {
+                    // Forward to the mixin.
+                    // Call super first.
+                    if (varInfo.isOverride()) {
+                        callSuper();
+                    }
+
+                    // Fetch the on replace statement or null.
+                    JCStatement onReplace = varInfo.onReplaceAsInline();
+    
+                    if (!isMixinClass() && varInfo.isMixinVar()) {
+                        // Mixin.onReplace$var(this, oldValue, newValue);
+                        callMixin((ClassSymbol)varSym.owner);
+                    }
+                    if (!isMixinClass() && onReplace != null && !varInfo.isStatic()) {
+                        addStmt(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
+                    }
+                    
+                    // Need to capture init state if has trigger.
+                    if (onReplace != null) {
+                        // Insert the trigger.
+                        addStmt(onReplace);
+                    }
+                }
+            };
+
+            vamb.build();
+        }
+
         //-----------------------------------------------------------------------------------------------------------------------------
         //
         // Normal var accessors.
@@ -1695,9 +1792,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 Name oldValueName = defs.attributeOldValueName;
                 Name newValueName = defs.attributeNewValueName;
-                Name firstIndexName = defs.sliceArgNameStartPos;
-                Name lastIndexName = defs.sliceArgNameEndPos;
-                Name newElementsName = defs.onReplaceArgNameNewElements;
 
                 @Override
                 public void initialize() {
@@ -1710,9 +1804,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Gather specified var info.
                             JFXVar oldVar = varInfo.onReplace().getOldValue();
                             JFXVar newVar = varInfo.onReplace().getNewElements();
-                            JFXVar firstIndex = varInfo.onReplace().getFirstIndex();
-                            JFXVar lastIndex = varInfo.onReplace().getLastIndex();
-                            JFXVar newElements = varInfo.onReplace().getNewElements();
 
                             // Check to see if the on replace has an old value.
                             if (oldVar != null) {
@@ -1725,37 +1816,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 // Change the onReplace arg name. 
                                 newValueName = newVar.getName();
                             }
-             
-                            // Check to see if the on replace has a first index.
-                            if (firstIndex != null) {
-                                // Change the onReplace arg name. 
-                                firstIndexName = firstIndex.getName();
-                            }
-            
-                            // Check to see if the on replace has a last index.
-                            if (lastIndex != null) {
-                                // Change the onReplace arg name. 
-                                lastIndexName = lastIndex.getName();
-                            }
-            
-                            // Check to see if the on replace has a new elements.
-                            if (newElements != null) {
-                                // Change the onReplace arg name. 
-                                newElementsName = newElements.getName();
-                            }
                        }
                     }
                     
-                    if (isSequence) {
-                        addParam(type, oldValueName);
-                        addParam(type, newValueName);
-                        addParam(syms.intType, firstIndexName);
-                        addParam(syms.intType, lastIndexName);
-                        addParam(syms.intType, defs.sliceArgNameNewLength);
-                    } else {
-                        addParam(type, oldValueName);
-                        addParam(type, newValueName);
-                    }
+                    addParam(type, oldValueName);
+                    addParam(type, newValueName);
                 }
                 
                 @Override
@@ -1970,11 +2035,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         makeSeqGetSizeAccessorMethod(ai, needsBody);
                         makeSeqBeAccessorMethod(ai, needsBody);
                         makeSeqInvalidateAccessorMethod(ai, needsBody);
-                        makeOnReplaceAccessorMethod(ai, needsBody);
-                        if (ai.isMixinVar()) {
-                            makeGetMixinAccessorMethod(ai, needsBody);
-                            makeGetVOFFAccessorMethod(ai, needsBody);
-                        }
+                        makeSeqOnReplaceAccessorMethod(ai, needsBody);
                     } else if (needsBody) {
                         if (ai.hasInitializer()) {
                             // Bound or not, we need getter & setter on override since we
@@ -1988,11 +2049,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             makeSeqInvalidateAccessorMethod(ai, needsBody);
                         }
                         if (ai.onReplace() != null || ai.isMixinVar()) {
-                            makeOnReplaceAccessorMethod(ai, needsBody);
-                        }
-                        if (ai.isMixinVar()) {
-                            makeGetMixinAccessorMethod(ai, needsBody);
-                            makeGetVOFFAccessorMethod(ai, needsBody);
+                            makeSeqOnReplaceAccessorMethod(ai, needsBody);
                         }
                     }
                } else {
@@ -2002,10 +2059,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         makeBeAccessorMethod(ai, needsBody);
                         makeInvalidateAccessorMethod(ai, needsBody);
                         makeOnReplaceAccessorMethod(ai, needsBody);
-                        if (ai.isMixinVar()) {
-                            makeGetMixinAccessorMethod(ai, needsBody);
-                            makeGetVOFFAccessorMethod(ai, needsBody);
-                        }
                     } else if (needsBody) {
                         if (ai.hasInitializer()) {
                             // Bound or not, we need getter & setter on override since we
@@ -2019,11 +2072,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (ai.onReplace() != null || ai.isMixinVar()) {
                             makeOnReplaceAccessorMethod(ai, needsBody);
                         }
-                        if (ai.isMixinVar()) {
-                            makeGetMixinAccessorMethod(ai, needsBody);
-                            makeGetVOFFAccessorMethod(ai, needsBody);
-                        }
                     }
+                }
+                
+                if (ai.isMixinVar()) {
+                    makeGetMixinAccessorMethod(ai, needsBody);
+                    makeGetVOFFAccessorMethod(ai, needsBody);
                 }
             }
         }
