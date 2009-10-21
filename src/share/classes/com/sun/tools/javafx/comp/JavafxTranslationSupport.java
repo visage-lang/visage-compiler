@@ -674,6 +674,10 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
     }
 
+    Name scriptLevelAccessMethod(Symbol clazz) {
+        return defs.scriptLevelAccessMethod(names, clazz);
+    }
+
     private Name prefixedAttributeName(Symbol sym, String prefix) {
         Symbol owner = sym.owner;
         if (!types.isJFXClass(owner)) {
@@ -894,7 +898,7 @@ public abstract class JavafxTranslationSupport {
 
     protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
         JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
-        JCExpression expr = (JavafxInitializationBuilder.SCRIPT_LEVEL_AT_TOP)? durClass : call(diagPos, durClass, defs.scriptLevelAccessMethod);
+        JCExpression expr = (JavafxInitializationBuilder.SCRIPT_LEVEL_AT_TOP)? durClass : call(diagPos, durClass, scriptLevelAccessMethod(syms.javafx_DurationType.tsym));
         return call(diagPos, expr, defs.valueOfName, value);
     }
 

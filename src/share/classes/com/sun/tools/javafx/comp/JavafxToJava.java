@@ -1942,7 +1942,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCExpression receiver;
             if (tag == JavafxTag.IDENT) {
                 if (sym.isStatic()) {
-                    receiver = call(staticReference(sym), defs.scriptLevelAccessMethod);
+                    receiver = call(staticReference(sym), scriptLevelAccessMethod(sym.owner));
                 } else {
                     receiver = makeReceiver(sym, false);
                 }

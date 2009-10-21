@@ -1623,7 +1623,7 @@ public abstract class JavafxAbstractTranslation
         // Figure out the instance containing the variable
         JCExpression instance(JCExpression tToCheck) {
             if (staticReference) {
-                return call(tToCheck, defs.scriptLevelAccessMethod);
+                return call(tToCheck, scriptLevelAccessMethod(refSym.owner));
             } else if (tToCheck == null) {
                 return id(names._this);
             } else {
