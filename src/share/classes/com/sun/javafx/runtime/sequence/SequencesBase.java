@@ -27,7 +27,7 @@ import java.util.*;
 
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.FXBase;
+import com.sun.javafx.runtime.FXObject;
 import com.sun.javafx.runtime.NumericTypeInfo;
 
 /**
@@ -927,12 +927,13 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> void replaceSlice(FXBase instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
+    public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         Sequence<? extends T> arr = replaceSlice(oldValue, newValue, startPos, endPos);
         // FIXME var.setValid();
         // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
-        instance.set$(varNum, arr);
+        instance.be$(varNum, arr);
+        return arr;
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
@@ -957,26 +958,27 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> void replaceSlice(FXBase instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
+    public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         Sequence<? extends T> arr = replaceSlice(oldValue, newValues, startPos, endPos);
-        instance.set$(varNum, arr);
+        instance.be$(varNum, arr);
+        return arr;
     }
 
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
         return newValue;
     }
 
-    public static <T> void set(FXBase instance, int varNum, Sequence<? extends T> newValue) {
+    public static <T> Sequence<? extends T> set(FXObject instance, int varNum, Sequence<? extends T> newValue) {
         //TODO: should give slice invalidations, as if below, but should actually set to the new sequence
-        replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum) + 1);
+        return replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum) + 1);
     }
 
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, T newValue, int index) {
         return replaceSlice(oldValue, newValue, index, index + 1);
     }
 
-    public static <T> T set(FXBase instance, int varNum, T newValue, int index) {
+    public static <T> T set(FXObject instance, int varNum, T newValue, int index) {
         replaceSlice(instance, varNum, newValue, index, index + 1);
         return newValue;
     }
@@ -990,14 +992,14 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> void insert(FXBase instance, int varNum, T newValue) {
+    public static <T> void insert(FXObject instance, int varNum, T newValue) {
         if (newValue == null)
             return;
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         Sequence<? extends T> arr = insert(oldValue, newValue);
         // FIXME var.setValid();
         // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
-        instance.set$(varNum, arr);
+        instance.be$(varNum, arr);
     }
 
     public static <T> Sequence<? extends T> insert(Sequence<? extends T> oldValue, Sequence<? extends T> values) {
@@ -1010,7 +1012,7 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> void insert(FXBase instance, int varNum, Sequence<? extends T> values) {
+    public static <T> void insert(FXObject instance, int varNum, Sequence<? extends T> values) {
         int inserted = values.size();
         if (inserted == 0)
             return;
@@ -1018,14 +1020,14 @@ public class SequencesBase {
         Sequence<? extends T> arr = insert(oldValue, values);
         // FIXME var.setValid();
         // TODO: invalidate(varNum, startPos, endPos, ...);
-        instance.set$(varNum, arr);
+        instance.be$(varNum, arr);
     }
 
-    public static <T> void insertBefore(FXBase instance, int varNum, T value, int position) {
+    public static <T> void insertBefore(FXObject instance, int varNum, T value, int position) {
         replaceSlice(instance, varNum, value, position, position);
     }
 
-    public static <T> void insertBefore(FXBase instance, int varNum, Sequence<? extends T> values, int position) {
+    public static <T> void insertBefore(FXObject instance, int varNum, Sequence<? extends T> values, int position) {
         replaceSlice(instance, varNum, values, position, position);
     }
 
@@ -1037,7 +1039,7 @@ public class SequencesBase {
         return replaceSlice(oldValue, values, position, position);
     }
 
-    public static <T> void deleteIndexed(FXBase instance, int varNum, int position) {
+    public static <T> void deleteIndexed(FXObject instance, int varNum, int position) {
         replaceSlice(instance, varNum, (Sequence<? extends T>)null, position, position+1);
     }
 
@@ -1045,7 +1047,7 @@ public class SequencesBase {
         return replaceSlice(oldValue, (Sequence<? extends T>)null, position, position+1);
     }
 
-    public static <T> void deleteSlice(FXBase instance, int varNum, int begin, int end) {
+    public static <T> void deleteSlice(FXObject instance, int varNum, int begin, int end) {
         replaceSlice(instance, varNum, (Sequence<? extends T>)null, begin, end);
     }
 
@@ -1053,11 +1055,11 @@ public class SequencesBase {
         return replaceSlice(oldValue, (Sequence<? extends T>)null, begin, end);
     }
 
-    public static <T> void deleteValue(FXBase instance, int varNum, T value) {
+    public static <T> void deleteValue(FXObject instance, int varNum, T value) {
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         // It's tempting to just do:
         //   Sequence<? extends T> arr = deleteValue(oldValue, value);
-        //   instance.set$(varNum, arr);
+        //   instance.be$(varNum, arr);
         // However, in hat case triggers won't run properly.
         int hi = -1;
         for (int i = oldValue.size();  ; ) {
@@ -1097,11 +1099,11 @@ public class SequencesBase {
         return replaceSlice(oldValue, (Sequence<? extends T>)null, 0, oldValue.size());
     }
 
-    public static <T> void deleteAll(FXBase instance, int varNum) {
+    public static <T> void deleteAll(FXObject instance, int varNum) {
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         Sequence<? extends T> arr = deleteAll(oldValue);
         // FIXME var.setValid();
         // TODO: invalidate(varNum, startPos, endPos, ...);
-        instance.set$(varNum, arr);
+        instance.be$(varNum, arr);
     }
 }

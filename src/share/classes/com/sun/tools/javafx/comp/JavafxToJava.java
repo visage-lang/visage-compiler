@@ -494,10 +494,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             return makeExec(translateDefinitionalAssignmentToSetExpression(
                     var.pos(),
                     var.getInitializer(),
-                    var.getBindStatus(),
                     typeMorpher.varMorphInfo(var.sym),
                     instanceName
-                 ));
+                 ).expr());
         }
 
         private void translateAndAppendStaticBlock(JFXBlock block, ListBuffer<JCStatement> translatedBlocks) {
@@ -555,34 +554,39 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    private JCExpression translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
-            JFXExpression init, JavafxBindStatus bindStatus, VarMorphInfo vmi,
-            Name instanceName) {
-        Symbol vsym = vmi.getSymbol();
-        assert( (vsym.flags() & Flags.PARAMETER) == 0L): "Parameters are not initialized";
-        setSubstitution(init, vsym);
-        JCExpression valueArg = translateNonBoundInit(diagPos, init, vmi);
-        return definitionalAssignmentToSetExpression(diagPos, valueArg, bindStatus, instanceName, vmi);
-    }
+    private ExpressionResult translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
+            final JFXExpression init,
+            final VarMorphInfo vmi,
+            final Name instanceName) {
 
-    //TODO: should go away and be folded with above
-    private JCExpression definitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
-            JCExpression init, JavafxBindStatus bindStatus,
-            Name instanceName, VarMorphInfo vmi) {
-        Symbol vsym = vmi.getSymbol();
-        final boolean isLocal = !vmi.isMemberVariable();
-        assert !isLocal || instanceName == null;
-        final JCExpression nonNullInit = (init == null) ? makeDefaultValue(diagPos, vmi) : init;  //TODO: is this needed?
-
-        if (vmi.useAccessors()) {
-            JCExpression tc = instanceName == null ? null : make.at(diagPos).Ident(instanceName);
-            return call(diagPos, tc, attributeBeName(vsym), nonNullInit);
-        }
-        // TODO: Java inherited.
-        final JCExpression varRef = //TODO: fix me
-                  make.at(diagPos).Ident(vsym) // It is a local variable
-                ;
-        return make.at(diagPos).Assign(varRef, nonNullInit);
+        return new ExpressionTranslator(diagPos) {
+            protected ExpressionResult doit() {
+                Symbol vsym = vmi.getSymbol();
+                assert ((vsym.flags() & Flags.PARAMETER) == 0L) : "Parameters are not initialized";
+                setSubstitution(init, vsym);
+                final JCExpression nonNullInit = translateNonBoundInit(diagPos, init, vmi);
+                final boolean isLocal = !vmi.isMemberVariable();
+                assert !isLocal || instanceName == null;
+                JCExpression res;
+                if (vmi.isMemberVariable() && vmi.isSequence()) {
+                    JCExpression tc = 
+                            instanceName == null ?
+                                vsym.isStatic()?
+                                      call(vsym.owner.type, defs.scriptLevelAccessMethod)
+                                    : id(names._this)
+                               : id(instanceName);
+                    res = call(defs.Sequences_set, tc, makeVarOffset(vsym), nonNullInit);
+                } else if (vmi.useAccessors()) {
+                    JCExpression tc = instanceName == null ? null : make.Ident(instanceName);
+                    res = call(tc, attributeBeName(vsym), nonNullInit);
+                } else {
+                    // TODO: Java inherited.
+                    final JCExpression varRef = make.Ident(vsym);
+                    res = m().Assign(varRef, nonNullInit);
+                }
+                return toResult(res, vmi.getRealType());
+            }
+        }.doit();
     }
 
     public void visitVarInit(JFXVarInit tree) {
@@ -591,9 +595,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
         JFXVar var = tree.getVar();
 
-        result = new ExpressionResult(
-                translateDefinitionalAssignmentToSetExpression(diagPos, var.getInitializer(),var.getBindStatus(), vmi, null),
-                tree.type);
+        result = translateDefinitionalAssignmentToSetExpression(diagPos, var.getInitializer(), vmi, null);
     }
 
     private class VarTranslator extends ExpressionTranslator {
@@ -638,9 +640,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             init = makeDefaultValue(diagPos, vmi);
             prependToStatements.prepend(makeVar(modFlags, tree.type, tree.name, init));
 
-            return toResult(
-                    translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(),tree.getBindStatus(), vmi, null),
-                    tree.type);
+            return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vmi, null);
         }
     }
 
@@ -720,8 +720,18 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitAssign(final JFXAssign tree) {
-        if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-            result = new SequenceSliceActionTranslator((JFXSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.rhs).doit();
+        if (types.isSequence(tree.type)) {
+            if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
+                result = new SequenceSliceActionTranslator((JFXSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.type, tree.rhs).doit();
+            } else {
+                result = new SequenceActionTranslator(tree.pos(), tree.lhs, defs.Sequences_set, null, tree.type, tree.rhs) {
+
+                    @Override
+                    protected Type rhsType() {
+                        return tree.type;
+                    }
+                }.doit();
+            }
         } else {
             result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
@@ -897,7 +907,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 args.append(translateExpr(step, elemType));
             }
             return toResult(
-                    runtime(diagPos, rm, args.toList()),
+                    call(rm, args),
                     type);
         }
     }
@@ -1037,7 +1047,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
          * @param rhs The expression acting on ref or null
          */
         SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, JFXExpression rhs) {
-            super(diagPos, ref, indexOrNull, syms.voidType, rhs);
+            this(diagPos, ref, meth, indexOrNull, syms.voidType, rhs);
+        }
+
+        SequenceActionTranslator(DiagnosticPosition diagPos, JFXExpression ref, RuntimeMethod meth, JFXExpression indexOrNull, Type fullType, JFXExpression rhs) {
+            super(diagPos, ref, indexOrNull, fullType, rhs);
             this.meth = meth;
         }
 
@@ -1104,8 +1118,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         private final JFXSequenceSlice slice;
 
-        SequenceSliceActionTranslator(JFXSequenceSlice slice, RuntimeMethod meth, JFXExpression rhs) {
-            super(slice.pos(), slice.getSequence(), meth, slice.getFirstIndex(), rhs);
+        SequenceSliceActionTranslator(JFXSequenceSlice slice, RuntimeMethod meth, Type fullType, JFXExpression rhs) {
+            super(slice.pos(), slice.getSequence(), meth, slice.getFirstIndex(), fullType, rhs);
             this.slice = slice;
         }
 
@@ -1159,7 +1173,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     break;
                 case SEQUENCE_SLICE:
                     final JFXSequenceSlice ss = (JFXSequenceSlice) seq;
-                    trans = new SequenceSliceActionTranslator((JFXSequenceSlice) seq, defs.Sequences_deleteSlice, null);
+                    trans = new SequenceSliceActionTranslator((JFXSequenceSlice) seq, defs.Sequences_deleteSlice, syms.voidType, null);
                     break;
                 default:
                     if (types.isSequence(seq.type)) {
@@ -1239,7 +1253,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         private final Name sbName = getSyntheticName("sb");
 
         private UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, String seqBuilder) {
-            super(diagPos);
+            super(diagPos, currentClass());
             this.elemType = elemType;
             this.seqBuilder = seqBuilder;
         }
@@ -1667,9 +1681,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 JCExpression tseq = translateExpr(seq, null); //FIXME
                 if (types.isSequence(seq.type)) {
                     // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
-                    tseq = runtime(diagPos,
-                            defs.Sequences_forceNonNull,
-                            List.of(makeTypeInfo(diagPos, inductionVarType), tseq));
+                    tseq = call(defs.Sequences_forceNonNull,
+                            makeTypeInfo(diagPos, inductionVarType), tseq);
                     translateSliceInClause(seq, null, null, SequenceSliceTree.END_INCLUSIVE, seqVar);
                     //body = m().ForeachLoop(inductionVar, tseq, body);
                 } else if (seq.type.tag == TypeTags.ARRAY ||
@@ -1862,7 +1875,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         mname, args.toList());
             }
         }
-        return runtime(diagPos, defs.Sequences_size, List.of(transExpr));
+        return call(diagPos, defs.Sequences_size, List.of(transExpr));
     }
 
     private class WhileTranslator extends ExpressionTranslator {

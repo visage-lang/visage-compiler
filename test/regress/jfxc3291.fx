@@ -1,5 +1,5 @@
 /**
- * currently-failing test JFXC-3291 : bind fails from override var to a normal var
+ * Regression test JFXC-3291 : bind fails from override var to a normal var
  *
  * Should print: urx set to: 300
  * And printed value of urx should be 300

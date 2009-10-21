@@ -453,7 +453,7 @@ public abstract class JavafxAbstractTranslation
         private final Type type;
 
         JCConverter(AbstractStatementsResult res, Type type) {
-            super(res.diagPos);
+            super(res.diagPos, currentClass());
             this.res = res;
             this.type = type;
         }
@@ -574,7 +574,7 @@ public abstract class JavafxAbstractTranslation
     abstract class Translator extends JavaTreeBuilder {
 
         Translator(DiagnosticPosition diagPos) {
-            super(diagPos);
+            super(diagPos, currentClass());
         }
 
         abstract Result doit();
@@ -751,7 +751,7 @@ public abstract class JavafxAbstractTranslation
             return interClass.toList();
         }
 
-        abstract protected AbstractStatementsResult doit();
+        abstract AbstractStatementsResult doit();
 
         JCExpression staticReference(Symbol sym) {
             Symbol owner = sym.owner;
@@ -2036,9 +2036,9 @@ public abstract class JavafxAbstractTranslation
                 final JCExpression expr, final Type inElementType, final Type targetElementType) {
             JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
             JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
-            return runtime(diagPos,
+            return call(
                     defs.Sequences_convertNumberSequence,
-                    List.of(targetTypeInfo, inTypeInfo, expr));
+                    targetTypeInfo, inTypeInfo, expr);
         }
 
         protected ExpressionResult doit() {

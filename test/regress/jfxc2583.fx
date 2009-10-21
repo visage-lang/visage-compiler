@@ -1,0 +1,9 @@
+/*
+ * Regression test: JFXC-2583 : Unable to build a Character sequence via the range expression 
+ *
+ * @test
+ * @run
+ */
+
+var cSeq1 : Character[] = [ 100..103 ];
+println(cSeq1);

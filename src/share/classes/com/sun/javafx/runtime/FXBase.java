@@ -344,7 +344,7 @@ import java.lang.reflect.Field;
     public void invalidate$(int varNum, int startPos, int endPos, int newLength, int phase) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
-    public void invalidate$(FXObject obj, int varNum, int startPos, int endPos, int newLength, int phase) {
+    public static void invalidate$(FXObject obj, int varNum, int startPos, int endPos, int newLength, int phase) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
     

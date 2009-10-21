@@ -556,11 +556,11 @@ public abstract class JavafxTranslationSupport {
             tag == TypeTags.BOT? syms.botType : type.constType(value)); 
     }
 
-    JCExpression runtime(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> args) {
-        return runtime(diagPos, meth, null, args);
+    JCExpression call(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> args) {
+        return call(diagPos, meth, null, args);
     }
 
-    JCExpression runtime(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> typeArgs, List<JCExpression> args) {
+    JCExpression call(DiagnosticPosition diagPos, RuntimeMethod meth, List<JCExpression> typeArgs, List<JCExpression> args) {
         JCExpression select = make.at(diagPos).Select(makeQualifiedTree(diagPos, meth.classString), meth.methodName);
         return make.at(diagPos).Apply(typeArgs, select, args);
     }
@@ -767,7 +767,7 @@ public abstract class JavafxTranslationSupport {
         } else {
             assert !type.isPrimitive();
             List<JCExpression> typeArgs = List.of(makeType(diagPos, type, true));
-            return runtime(diagPos, defs.TypeInfo_getTypeInfo, typeArgs, List.<JCExpression>nil());
+            return call(diagPos, defs.TypeInfo_getTypeInfo, typeArgs, List.<JCExpression>nil());
         }
     }
 
@@ -901,9 +901,28 @@ public abstract class JavafxTranslationSupport {
     protected class JavaTreeBuilder {
 
         protected DiagnosticPosition diagPos;
+        private final JFXClassDeclaration enclosingClassDecl;
 
-        protected JavaTreeBuilder(DiagnosticPosition diagPos) {
+        protected JavaTreeBuilder(DiagnosticPosition diagPos, JFXClassDeclaration enclosingClassDecl) {
             this.diagPos = diagPos;
+            this.enclosingClassDecl = enclosingClassDecl;
+        }
+
+
+        //
+        // Returns the current class decl.
+        //
+        public JFXClassDeclaration getCurrentClassDecl() { return enclosingClassDecl; }
+
+        //
+        // Returns true if the class (or current class) is a mixin.
+        //
+        public boolean isMixinClass() {
+            return isMixinClass(enclosingClassDecl.sym);
+        }
+
+        public boolean isMixinClass(Symbol cSym) {
+            return (cSym.flags() & JavafxFlags.MIXIN) != 0;
         }
 
         protected void setDiagPos(DiagnosticPosition diagPos) {
@@ -957,6 +976,7 @@ public abstract class JavafxTranslationSupport {
             return makeType(sym.type, true);
         }
 
+        //TODO: dump this for code in init builder
         protected JCExpression makeVarSelect(Symbol sym, Type selectorType, Name name) {
             JCExpression klass;
             if ((sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
@@ -975,8 +995,16 @@ public abstract class JavafxTranslationSupport {
             return select(klass, name);
         }
 
-        protected JCExpression makeVarOffset(Symbol sym) {
-            return makeVarSelect(sym, null, attributeOffsetName(sym));
+        //
+        // This method returns the correct expression for accessing a VOFF$ depending if in a mixin or not.
+        //
+        protected JCExpression makeVarOffset(Symbol varSym) {
+            if (isMixinClass() && JavafxAnalyzeClass.isMixinClass(varSym.owner)) {
+                // From a mixin class to a mixn var, use the VOFF getter
+                return call(id(defs.receiverName), attributeGetVOFFName(varSym));
+            } else {
+                return makeVarSelect(varSym, null, attributeOffsetName(varSym));
+            }
         }
 
         protected JCExpression makeVarOffset(Symbol sym, Symbol selectorSym) {
@@ -984,7 +1012,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         protected JCExpression makeVarOffset(Symbol sym, Type selectorType) {
-            return makeVarSelect(sym, selectorType, attributeOffsetName(sym));
+            return selectorType==null? makeVarOffset(sym) : makeVarSelect(sym, selectorType, attributeOffsetName(sym));
         }
 
         protected JCExpression makeVarValue(Symbol sym, Symbol selectorSym) {
