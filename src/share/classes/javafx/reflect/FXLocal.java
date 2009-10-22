@@ -36,6 +36,7 @@ import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.annotation.SourceName;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
+import com.sun.javafx.runtime.DependentsManager;
 
 /**
  * Implement JavaFX rfeflection on top of {@java.lang.reflect}.
@@ -240,16 +241,15 @@ public class FXLocal {
         public ClassType makeClassRef(Class cls) {
             int modifiers = 0;
             try {
+
                 Class[] interfaces = cls.getInterfaces();
                 for (int i = 0;  i < interfaces.length;  i++ ) {
                     String iname = interfaces[i].getName();
                     if (iname.equals(FXOBJECT_NAME)) {
                         modifiers |= FXClassType.FX_CLASS;
-                        break;
                     } else if (iname.equals(FXMIXIN_NAME)) {
-                        modifiers |= FXClassType.FX_MIXIN | FXClassType.FX_CLASS;
-                        break;
-                    }
+                        modifiers |= FXClassType.FX_MIXIN;
+                    } 
                 }
                 
                 Class clsInterface = null;
@@ -311,6 +311,7 @@ public class FXLocal {
     public static class ClassType extends FXClassType {
         Class refClass;
         Class refInterface;
+	protected static int VOFF_INITIALIZED = 1 << 16; // high to avoid collisions with masks added in parent class.
 
         public ClassType(Context context, int modifiers,
                 Class refClass, Class refInterface) {
@@ -422,6 +423,7 @@ public class FXLocal {
             "complete$",
             "makeInitMap$",
             "count$",
+	    "getType$",
             "VCNT$"
         };
         static final String[] SYSTEM_METHOD_PREFIXES = {
@@ -429,7 +431,10 @@ public class FXLocal {
             "set$",
             "be$",
             "invalidate$",
+	    "evaluate$",
+	    "size$",
             "onReplace$",
+	    "initVarBits$",
             "applyDefaults$",
             "GETMAP$",
             "VOFF$"
@@ -549,6 +554,19 @@ public class FXLocal {
             "MAP$"
         };
 
+	private void ensureVOffInitialized() {
+	    // if no instances of this class have been created, there's no guarantee that VOFF$xxx are initialized,
+	    // force initialization.
+	    if ((this.modifiers & VOFF_INITIALIZED) == 0) {
+		try {
+		    refClass.getMethod("VCNT$").invoke(null);
+		} catch (Throwable e) {
+		} 
+		this.modifiers |= VOFF_INITIALIZED;
+	    }
+	}
+
+
         protected void getVariables(FXMemberFilter filter, SortedMemberArray<? super FXVarMember> result) {
             Context ctxt = getReflectionContext();
             Class cls = refClass;
@@ -567,12 +585,6 @@ public class FXLocal {
                     continue;
                 }
                 String fname = fld.getName();
-                if (fname.startsWith("loc$")) {
-                    fname = fname.substring(3);
-                    if (getFieldOrNull(cls, fname) != null) {
-                        continue;
-                    }
-                }
                 
                 SourceName sourceName = fld.getAnnotation(SourceName.class);
                 String sname;
@@ -599,6 +611,8 @@ public class FXLocal {
                     
                 java.lang.reflect.Type gtype = fld.getGenericType();
                 FXType tr = ctxt.makeTypeRef(gtype);
+		
+		ensureVOffInitialized();
                 int offset  = getFieldIntOrDefault(cls, "VOFF" + fname, -1);
                 VarMember ref = new VarMember(sname, this, tr, offset);
                 ref.fld = fld;
@@ -611,8 +625,6 @@ public class FXLocal {
                         ref.setter = getMethodOrNull(cls, "set" + fname, type);
                     }
                     
-                    ref.loc_getter = getMethodOrNull(cls, "loc" + fname);
-                    ref.locfield = getFieldOrNull(cls, "loc" + fname);
                 }
                
                 if (filter != null && filter.accept(ref))
@@ -698,8 +710,6 @@ public class FXLocal {
         Field fld;
         Method getter;
         Method setter;
-        Method loc_getter;
-        Field locfield;
         FXType type;
         String name;
         FXClassType owner;
@@ -726,14 +736,12 @@ public class FXLocal {
         public FXValue getValue(FXObjectValue obj) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if (fld != null || getter != null || loc_getter != null) {
+                if (fld != null || getter != null) {
                     Context context =
                         (Context) owner.getReflectionContext();
                     Object val;
                     if (getter != null)
                         val = getter.invoke(robj, new Object[0]);
-                    else if (loc_getter != null)
-                        val = loc_getter.invoke(robj, new Object[0]);
                     else {
                         val = fld.get(robj);
                     }
@@ -778,12 +786,6 @@ public class FXLocal {
                         setter.invoke(robj, ((Value) value).asObject());
                         return;
                     } else {
-                        Object loc = null;
-                        if (loc_getter != null) {
-                            loc = loc_getter.invoke(robj, noObjects);
-                        } else if (fld != null) {
-                            loc = fld.get(robj);
-                        }
                         // FIXME: yet to be implemented for compiled binds
                         if (fld != null) {
                             fld.set(robj, value);
@@ -813,14 +815,39 @@ public class FXLocal {
             return (mods & Modifier.STATIC) != 0;
         }
          
+	static class ListenerAdapter extends com.sun.javafx.runtime.FXBase implements FXChangeListenerID {
+	    final FXChangeListener listener;
+	    ListenerAdapter(FXChangeListener listener) {
+		this.listener = listener;
+	    }
+	    
+	    @Override public void update$(FXObject src, final int varNum, int phase) {
+		// varNum does not matter, there is one change listener per <src, varNum> tuple.
+		if (phase == FXObject.VFLGS$NEEDS_TRIGGER) {
+		    this.listener.onChange();
+		}
+	    }
+	}
+
         public FXChangeListenerID addChangeListener(FXObjectValue instance, FXChangeListener listener) {
-            // FIXME: yet to be implemented for compiled binds
-            return null;
+	    if (!this.owner.isAssignableFrom(instance.getType()))
+		throw new IllegalArgumentException("not an instance of " + this.owner);
+	    // check if instance acually has a variable represented by this
+	    FXObject src = (FXObject)((Value)instance).asObject();
+	    DependentsManager deps = DependentsManager.get(src);
+	    ListenerAdapter adapter = new ListenerAdapter(listener);
+	    deps.addDependent(src, this.offset, adapter);
+            return adapter;
         }
         
         public void removeChangeListener(FXObjectValue instance, FXChangeListenerID id) {
-            // FIXME: yet to be implemented for compiled binds
+	    if (!this.owner.isAssignableFrom(instance.getType()))
+		throw new IllegalArgumentException("not an instance of " + this.owner);
+	    FXObject src = (FXObject)((Value)instance).asObject();
+	    DependentsManager deps = DependentsManager.get(src);
+	    deps.removeDependent(src, this.offset, (ListenerAdapter)id);
         }
+
     }
 
     static class FunctionMember extends FXFunctionMember {
