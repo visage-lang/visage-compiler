@@ -929,10 +929,11 @@ public class SequencesBase {
 
     public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        int newLength = newValue==null?0:1;
+        instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
         Sequence<? extends T> arr = replaceSlice(oldValue, newValue, startPos, endPos);
-        // FIXME var.setValid();
-        // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
         instance.be$(varNum, arr);
+        instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
         return arr;
     }
 
@@ -961,7 +962,10 @@ public class SequencesBase {
     public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         Sequence<? extends T> arr = replaceSlice(oldValue, newValues, startPos, endPos);
+        int newLength = newValues == null ? 0 : newValues.size();
+        instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
         instance.be$(varNum, arr);
+        instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
         return arr;
     }
 
@@ -971,7 +975,7 @@ public class SequencesBase {
 
     public static <T> Sequence<? extends T> set(FXObject instance, int varNum, Sequence<? extends T> newValue) {
         //TODO: should give slice invalidations, as if below, but should actually set to the new sequence
-        return replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum) + 1);
+        return replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum));
     }
 
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, T newValue, int index) {
@@ -996,10 +1000,12 @@ public class SequencesBase {
         if (newValue == null)
             return;
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        int oldSize = oldValue.size();
+        int newLength = newValue==null?0:1;
         Sequence<? extends T> arr = insert(oldValue, newValue);
-        // FIXME var.setValid();
-        // TODO: invalidate(varNum, startPos, endPos, newValue==null?0:1);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.VFLGS$IS_INVALID);
         instance.be$(varNum, arr);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
     }
 
     public static <T> Sequence<? extends T> insert(Sequence<? extends T> oldValue, Sequence<? extends T> values) {
@@ -1017,10 +1023,13 @@ public class SequencesBase {
         if (inserted == 0)
             return;
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        int oldSize = oldValue.size();
+        int newLength = values == null ? 0 : values.size();
         Sequence<? extends T> arr = insert(oldValue, values);
-        // FIXME var.setValid();
-        // TODO: invalidate(varNum, startPos, endPos, ...);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength, FXObject.VFLGS$IS_INVALID);
         instance.be$(varNum, arr);
+        instance.invalidate$(varNum, oldSize, oldSize, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
+
     }
 
     public static <T> void insertBefore(FXObject instance, int varNum, T value, int position) {

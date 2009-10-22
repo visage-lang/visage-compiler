@@ -1239,48 +1239,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // T varOldValue$ = $var;
                     addStmt(makeVar(Flags.FINAL, type, defs.attributeOldValueName, id(varName)));
     
-                    // Prepare to accumulate then statements.
-                    beginBlock();
-    
-                    // invalidate$(VFLGS$IS_INVALID)
-                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), makeInt(-1), makeInt(-1), makeInt(-1), id(defs.varFlagIS_INVALID)));
-    
                     // $var = value
                     addStmt(makeExec(m().Assign(id(varName), id(defs.attributeNewValueName))));
     
-                    // setValid(VFLGS$IS_INVALID);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagIS_INVALID, null));
-
-                    // invalidate$(VFLGS$NEEDS_TRIGGER)
-                    addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), makeInt(-1), makeInt(-1), makeInt(-1), id(defs.varFlagNEEDS_TRIGGER)));
-
-                    // setValid(VFLGS$NEEDS_TRIGGER);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, defs.varFlagDEFAULT_APPLIED));
-    
-                    // onReplace$(varOldValue$, varNewValue$)
-                    addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName), makeInt(-1), makeInt(-1), makeInt(-1)));
-    
-                    // varOldValue$ != varNewValue$
-                    // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
-                    JCExpression testExpr = type.isPrimitive() ?
-                        makeNotEqual(id(defs.attributeOldValueName), id(defs.attributeNewValueName))
-                      : makeNot(call(defs.Util_isEqual, id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
-                    
-                    // End of then block.
-                    JCBlock thenBlock = endBlock();
-    
-                    // Prepare to accumulate else statements.
-                    beginBlock();
-    
-                    // setValid(VFLGS$VALIDITY_FLAGS);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED));
-                    
-                    // End of else block.
-                    JCBlock elseBlock = endBlock();
-    
-                    // if (varOldValue$ != varNewValue$) { handle change }
-                    addStmt(m().If(testExpr, thenBlock, elseBlock));
-   
                     // return $var;
                     addStmt(m().Return(id(varName)));
                 }
@@ -1363,7 +1324,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     } else if (!varInfo.isOverride()) {
                         // notifyDependents(VOFF$var, phase$);
-                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym), id(phaseName)));
+                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym),
+                                id(defs.sliceArgNameStartPos), id(defs.sliceArgNameEndPos), id(defs.sliceArgNameNewLength),
+                                id(phaseName)));
                     } 
                     
                     // isValid
@@ -1449,7 +1412,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
             
                             // Check to see if the on replace has a last index.
-                            if (lastIndex != null) {
+                            if (lastIndex != null
+                                    && varInfo.onReplace().getEndKind() == JFXSequenceSlice.END_EXCLUSIVE) {
                                 // Change the onReplace arg name. 
                                 lastIndexName = lastIndex.getName();
                             }
@@ -1486,6 +1450,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     if (!isMixinClass() && onReplace != null && !varInfo.isStatic()) {
                         addStmt(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
+                    }
+
+                    if (onReplace != null) {
+                        JFXVar lastIndex = varInfo.onReplace().getLastIndex();
+                        if (lastIndex != null && varInfo.onReplace().getEndKind() == JFXSequenceSlice.END_INCLUSIVE) {
+                            addStmt(makeVar(syms.intType, lastIndex.name,
+                                    m().Binary(JCTree.MINUS, id(defs.sliceArgNameEndPos), m().Literal(Integer.valueOf(1)))));
+                        }
                     }
                     
                     // Need to capture init state if has trigger.
@@ -2794,7 +2766,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     // FIXME - do the right thing.
                     if (varInfo.isSequence()) {
-                        addStmt(callStmt(attributeInvalidateName(varInfo.getSymbol()), makeInt(-1), makeInt(-1), makeInt(-1), id(phaseName)));
+                        addStmt(callStmt(attributeInvalidateName(varInfo.getSymbol()), 
+                                id(defs.sliceArgNameStartPos), id(defs.sliceArgNameEndPos), id(defs.sliceArgNameNewLength), id(phaseName)));
                     } else {
                         addStmt(callStmt(attributeInvalidateName(varInfo.getSymbol()), id(phaseName)));
                     }
