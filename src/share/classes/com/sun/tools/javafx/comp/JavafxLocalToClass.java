@@ -302,15 +302,11 @@ public class JavafxLocalToClass {
                     scan(var.getOnReplace());
                     scan(var.getOnInvalidate());
                     owner = prevOwner;
-                    if (var.isBound()) {
-                        // Bound vars self-init
-                        return fxmake.at(var).Skip();
-                    } else {
+
                         // Do the init in-line
                         JFXExpression vi = fxmake.at(var).VarInit(var);
                         vi.type = var.type;
                         return vi;
-                    }
                 } else {
                     // Not a var, just pass through
                     scan(expr);

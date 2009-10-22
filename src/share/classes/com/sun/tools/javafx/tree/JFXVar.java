@@ -68,13 +68,6 @@ public class JFXVar extends JFXAbstractVar implements VariableTree {
         this.varInit = varInit;
     }
 
-    /**
-     * Is init done in a var init
-     */
-    public boolean deferInit() {
-        return this.varInit != null;
-    }
-    
     @Override
     public JavafxTag getFXTag() {
         return JavafxTag.VAR_DEF;

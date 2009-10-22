@@ -64,11 +64,6 @@ public class JFXOverrideClassVar extends JFXAbstractVar {
     }
     
     @Override
-    public boolean deferInit() {
-        return false;
-    }
-
-    @Override
     public boolean isOverride() {
         return true;
     }

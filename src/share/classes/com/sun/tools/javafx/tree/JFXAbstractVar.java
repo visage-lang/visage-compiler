@@ -64,8 +64,6 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
         this.sym = sym;
     }
 
-    public abstract boolean deferInit();
-
     public abstract boolean isOverride();
 
     public boolean isStatic() {

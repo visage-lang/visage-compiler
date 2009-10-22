@@ -153,6 +153,7 @@ import java.lang.reflect.Field;
         if ((bits & VFLGS$IS_READONLY) != 0)            System.err.print(" Readonly");
         if ((bits & VFLGS$DEFAULT_APPLIED) != 0)        System.err.print(" DefaultApplied");
         if ((bits & VFLGS$IS_INITIALIZED) != 0)         System.err.print(" Initialized");
+        if ((bits & VFLGS$IS_SET) != 0)                 System.err.print(" Set");
         System.err.print(" )");
     }
     
@@ -385,8 +386,12 @@ import java.lang.reflect.Field;
     public void initVarBits$() { initVarBits$(this); }
     public static void initVarBits$(FXObject obj) {}
 
-    public void applyDefaults$(final int varNum) {}
-    public static void applyDefaults$(FXObject obj, final int varNum) {}
+    public void applyDefaults$(final int varNum) {
+        applyDefaults$(this, varNum);
+    }
+    public static void applyDefaults$(FXObject obj, final int varNum) {
+        obj.varChangeBits$(varNum, 0, VFLGS$DEFAULT_APPLIED);
+    }
 
     public void applyDefaults$() {
         int cnt = count$();

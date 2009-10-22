@@ -310,7 +310,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
 
                 javaCodeMaker.makeScriptLevelAccess(cDecl.sym, scriptName, false, isRunnable);
-                javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, scriptName, scriptVarInfos, initMap);
+                javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, scriptName, isLibrary ? scriptVarInfos : null, initMap);
                 javaCodeMaker.makeScript(scriptName, sDefinitions.toList());
             } else {
                 javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, null, null, initMap);
@@ -627,6 +627,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
             return call(getReceiver(varSym), action, makeVarOffset(varSym), clearBits, setBits);
         }
+        JCExpression makeFlagExpression(JCExpression offset, Name action, Name clearBits, Name setBits) {
+            return call(action, offset,
+                        clearBits != null ? id(clearBits) : makeInt(0),
+                        setBits != null ? id(setBits) : makeInt(0));
+        }
 
         //
         // These methods returns a statement for setting/clearing a var flag.
@@ -636,6 +641,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         JCStatement makeFlagStatement(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
             return makeExec(makeFlagExpression(varSym, action, clearBits, setBits));
+        }
+        JCStatement makeFlagStatement(JCExpression offset, Name action, Name clearBits, Name setBits) {
+            return makeExec(makeFlagExpression(offset, action, clearBits, setBits));
         }
 
         //
@@ -1068,12 +1076,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public JCStatement getDefaultInitStatement(VarInfo varInfo) {
             JCStatement init = varInfo.getDefaultInitStatement();
             
-            if (init == null) {
+            if (init == null || varInfo.hasBoundDefinition()) {
                 VarSymbol varSym = varInfo.getSymbol();
                 
                 // If we need to prime the on replace trigger.
                 if (varInfo.onReplaceAsInline() != null) {
-                    if (varInfo.hasBoundDefinition()) {
+                    if (varInfo.hasBoundDefinition() && !varInfo.isStatic()) {
                         init = callStmt(getReceiver(), attributeGetterName(varSym));
                     } else if(!varInfo.isOverride()) {
                         if (!varInfo.isSequence()) {
@@ -1596,6 +1604,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Prepare to accumulate then statements.
                     beginBlock();
     
+                    // setValid(VFLGS$IS_INVALID);
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_SET));
+
                     // invalidate$(VFLGS$IS_INVALID)
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
     
@@ -1609,7 +1620,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
 
                     // setValid(VFLGS$NEEDS_TRIGGER); and set as initialized;
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, defs.varFlagIS_INITIALIZED));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null));
     
                     // onReplace$(varOldValue$, varNewValue$)
                     addStmt(callStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
@@ -1619,6 +1630,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCExpression testExpr = type.isPrimitive() ?
                         makeNotEqual(id(defs.attributeOldValueName), id(defs.attributeNewValueName))
                       : makeNot(call(defs.Util_isEqual, id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
+                    testExpr = makeBinary(JCTree.OR, testExpr, makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_SET, null));
                     
                     // End of then block.
                     JCBlock thenBlock = endBlock();
@@ -2326,37 +2338,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
         }
 
-        private JCStatement makeApplyDefaultsCheck(VarInfo ai, JCStatement stmt) {
-            VarSymbol proxyVarSym = ai.proxyVarSym();
-            // Set the var initialized
-            JCStatement setDefault = makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED);
-
-            if (stmt == null) {
-                // No set action, just mark as inited
-                return setDefault;
-            } else {
-                // If (not initialized and not bound) { mark as initialized; initialize it; }
-                JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
-                List<JCStatement> stmts = List.of(setDefault);
-                if (ai.hasInitializer()) {
-                    stmts = stmts.append(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED));
-                }
-                stmts = stmts.append(stmt);
-                return m().If(initCondition,
-                        m().Block(0L, stmts),
-                        null);
-            }
-        }
-
         //
         // This method constructs the statements needed to apply defaults to a given var.
         //
         private JCStatement makeApplyDefaultsStatement(VarInfo ai, boolean isMixinClass) {
-            if (ai.hasBoundDefinition()) {
-                // bind, don't set in applyDefaults$
-                return null;
-            }
-
             // Assume the worst.
             JCStatement stmt = null;
             // Get init statement.
@@ -2388,7 +2373,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     * ***/
                 }
             }
-            return makeApplyDefaultsCheck(ai, stmt);
+            return stmt;
         }
         
         //-----------------------------------------------------------------------------------------------------------------------------
@@ -2405,8 +2390,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             final List<VarInfo> varInfos = isScript ? analysis.scriptVarInfos() : analysis.classVarInfos();
             final int varCount = isScript ? analysis.getScriptVarCount() : analysis.getClassVarCount();
 
-            if (!isMixin && !isScript) {
-                makeApplyDefaultsMethod();
+            if (!isMixin) {
+                makeApplyDefaultsMethod(varInfos, varCount);
             }
             
             makeUpdateMethod(updateMap);
@@ -2426,7 +2411,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method constructs the current class's applyDefaults$ method.
         //
-        public void makeApplyDefaultsMethod() {
+        public void makeApplyDefaultsMethod(final List<VarInfo> attrInfos, final int count) {
             MethodBuilder mb = new MethodBuilder(defs.attributeApplyDefaultsPrefixMethodName, syms.voidType) {
                 @Override
                 public void initialize() {
@@ -2441,52 +2426,54 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    // Number of variables in current class.
-                    int count = analysis.getClassVarCount();
-        
                     // Prepare to accumulate cases.
                     ListBuffer<JCCase> cases = ListBuffer.lb();
                      // Prepare to accumulate overrides.
                     ListBuffer<JCStatement> overrides = ListBuffer.lb();
 
                     if (!isMixinClass()) {
-                        addStmt(makeVar(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
+                        JCExpression receiverType = isScript ? id(getCurrentClassDecl().getName().append(defs.scriptClassSuffixName)) :
+                                                               id(interfaceName(getCurrentClassDecl()));
+                        addStmt(makeVar(Flags.FINAL, receiverType, defs.receiverName, id(names._this)));
                     }
         
                     // Gather the instance attributes.
-                    List<VarInfo> attrInfos = analysis.classVarInfos();
                     for (VarInfo ai : attrInfos) {
                         setDiagPos(ai.pos());
                         // Only declared attributes with default expressions.
                         if (ai.needsCloning() && !ai.isOverride()) {
                             // Begin the var case.
                             beginBlock();
+                            
+                            // Set initialized flag if need be.
+                            if (ai.hasInitializer()) {
+                                addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED));
+                            }
                             // Get body of applyDefaults$.
                             addStmt(makeApplyDefaultsStatement(ai, isMixinClass()));
                             // return
                             addStmt(m().Return(null));
+                            
                             // case tag number
                             JCExpression tag = makeInt(ai.getEnumeration() - count);
-    
-                            // Add the case, something like:
+                             // Add the case, something like:
                             // case i: applyDefaults$var(); return;
                             cases.append(m().Case(tag, endBlockAsList()));
-                        } else {
-                            // Get init statement.
-                            JCStatement init = getDefaultInitStatement(ai);
-        
-                            if (init != null) {
-                                // Begin the override case.
-                                beginBlock();
-                                // Add init statement.
-                                addStmt(init);
-                                // return
-                                addStmt(m().Return(null));
-                                // varNum == VOFF$var
-                                JCExpression isRightVarExpr = makeEqual(id(varNumName), id(attributeOffsetName(ai.getSymbol())));
-                                // if (varNum == VOFF$var) { init; return; }
-                                overrides.append(m().If(isRightVarExpr, makeApplyDefaultsCheck(ai, endBlock()), null));
-                            }
+                        } else if (ai.hasInitializer()) {
+                            // Begin the override case.
+                            beginBlock();
+                            
+                            // Set initialized flag.
+                            addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED));
+                            // Get body of applyDefaults$.
+                            addStmt(makeApplyDefaultsStatement(ai, isMixinClass()));
+                            // return
+                            addStmt(m().Return(null));
+                            
+                            // varNum == VOFF$var
+                            JCExpression isRightVarExpr = makeEqual(id(varNumName), id(attributeOffsetName(ai.getSymbol())));
+                            // if (varNum == VOFF$var) { init; return; }
+                            overrides.append(m().If(isRightVarExpr, endBlock(), null));
                         }
                     }
         
@@ -2495,6 +2482,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
                     // Has some defaults.
                     boolean hasDefaults = cases.nonEmpty() || overrides.nonEmpty();
+                    
+                    // Begin overall block.
+                    beginBlock();
+                    
+                    // Make the assumption that a default will be set.
+                    addStmt(makeFlagStatement(id(varNumName), defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED));
         
                     // If there were some location vars.
                     if (cases.nonEmpty()) {
@@ -2507,8 +2500,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Add overrides.
                     addStmts(overrides.toList());
                     
+                    // Okay, try again.
+                    addStmt(makeFlagStatement(id(varNumName), defs.varFlagActionChange, defs.varFlagDEFAULT_APPLIED, null));
+                    
                     // Call super if necessary.
                     callSuper();
+                    
+                    // if (!default_applied)
+                    JCExpression ifExpr = makeFlagExpression(id(varNumName), defs.varFlagActionTest, defs.varFlagDEFAULT_APPLIED, null);
+                    // if (!default_applied) { body } 
+                    addStmt(m().If(ifExpr, endBlock(), null));
                     
                     buildIf(hasDefaults);
                 }
@@ -2947,11 +2948,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             if (attrInfo != null) {
+                /*
                 for (VarInfo ai : attrInfo) {
-                    if (hasDefaultInitStatement(ai)) {
-                        stmts.append(getDefaultInitStatement(ai));
-                    }
-                }
+                    stmts.append(callStmt(call(scriptLevelAccessMethod(sym)), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(ai.getSymbol())));
+                }*/
+                
+                stmts.append(callStmt(call(scriptLevelAccessMethod(sym)), defs.attributeApplyDefaultsPrefixMethodName));
             }
              
             addDefinition(m().Block(Flags.STATIC, stmts.toList()));

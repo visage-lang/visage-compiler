@@ -486,7 +486,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
 
         private JCStatement translateVarInit(JFXAbstractVar var) {
-            if (var.getInitializer()==null || var.isBound() || var.deferInit()) {
+            if (var.getInitializer()==null || var.isBound()) {
                 // no init, or init handled by bind or JavafxVarInit
                 return null;
             }
@@ -590,12 +590,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitVarInit(JFXVarInit tree) {
-        DiagnosticPosition diagPos = tree.pos();
-        VarSymbol vsym = tree.getSymbol();
-        VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-        JFXVar var = tree.getVar();
+        final VarSymbol vsym = tree.getSymbol();
 
-        result = translateDefinitionalAssignmentToSetExpression(diagPos, var.getInitializer(), vmi, null);
+        result = new ExpressionTranslator(tree.pos()) {
+            ExpressionResult doit() {
+                JCExpression receiver = vsym.isStatic() ? call(scriptLevelAccessMethod(vsym.owner)) : null;
+                return toResult(call(receiver, defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(vsym)), vsym.type);
+        }}.doit();
     }
 
     private class VarTranslator extends ExpressionTranslator {
@@ -704,8 +705,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 } else {
                     // make into block
                     if (value != null) {
+                        if (value.getFXTag() == JavafxTag.VAR_SCRIPT_INIT && targetType != syms.voidType) {
+                            translateStmt(value, syms.voidType);
+                            addPreface(makeStatement(id(attributeValueName(((JFXVarInit) value).getSymbol())), targetType));
+                        } else {
                             translateStmt(value, targetType);
                         }
+                    }
                     List<JCStatement> localDefs = prependToStatements.appendList(statements()).toList();
                     return new StatementsResult(localDefs.size() == 1 ? localDefs.head : m().Block(0L, localDefs));
                 }

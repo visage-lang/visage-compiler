@@ -59,7 +59,6 @@ public class JavafxDefs {
     public static final String attributeUpdateMethodNamePrefix = "update$";
     public static final String attributeGetElementMethodNamePrefix = "get$";
     public static final String attributeSizeMethodNamePrefix = "size$";
-    public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
     public static final String attributeCountMethodString = "count$";
     public static final String attributeOldValueNameString = "varOldValue$";
     public static final String attributeNewValueNameString = "varNewValue$";
@@ -271,6 +270,7 @@ public class JavafxDefs {
     final Name varFlagIS_READONLY;
     final Name varFlagDEFAULT_APPLIED;
     final Name varFlagIS_INITIALIZED;
+    final Name varFlagIS_SET;
     final Name varFlagVALIDITY_FLAGS;
     final Name varFlagIS_BOUND_INVALID;
     final Name varFlagIS_BOUND_DEFAULT_APPLIED;
@@ -426,6 +426,7 @@ public class JavafxDefs {
         varFlagIS_READONLY = names.fromString("VFLGS$IS_READONLY");
         varFlagDEFAULT_APPLIED = names.fromString("VFLGS$DEFAULT_APPLIED");
         varFlagIS_INITIALIZED = names.fromString("VFLGS$IS_INITIALIZED");
+        varFlagIS_SET = names.fromString("VFLGS$IS_SET");
         varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
         varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
         varFlagIS_BOUND_DEFAULT_APPLIED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED");

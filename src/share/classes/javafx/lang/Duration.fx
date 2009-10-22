@@ -32,11 +32,11 @@ import javafx.util.Bits;
  *
  * @profile common
  */
-public def INDEFINITE: Duration = Duration { millis: Double.POSITIVE_INFINITY};
-
-public def ZERO: Duration = Duration { millis: 0};
+public def ZERO: Duration = Duration { millis: 0}; 
 
 public def ONE: Duration = Duration { millis: 1};
+
+public def INDEFINITE: Duration = Duration { millis: Double.POSITIVE_INFINITY};
 
 
 // script-level "static" functions below
