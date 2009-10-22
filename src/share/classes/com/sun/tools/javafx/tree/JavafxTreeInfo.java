@@ -385,7 +385,7 @@ public class JavafxTreeInfo {
 
         if (tree == null) return tree;
         if (tree.getFXTag() == JavafxTag.PARENS)
-            return skipParens((JFXParens)tree);
+            return skipParens(((JFXParens)tree).expr);
         else
             return tree;
     }

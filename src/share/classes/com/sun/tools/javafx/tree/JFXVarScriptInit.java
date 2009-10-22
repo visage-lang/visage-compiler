@@ -23,23 +23,26 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
-
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
-import com.sun.tools.mjavac.util.Name;
-import com.sun.javafx.api.JavafxBindStatus;
 
 /**
  * Initialization of a var inline in a script body
  *
  * @author Robert Field
  */
-public class JFXVarScriptInit extends JFXExpression implements VariableTree {
+public class JFXVarScriptInit extends JFXVarBase {
     private final JFXVar var;
 
     protected JFXVarScriptInit(JFXVar var) {
-            this.var = var;
+        super(var.getName(),
+            var.getJFXType(),
+            var.getModifiers(),
+            var.getInitializer(),
+            var.getBindStatus(),
+            var.getOnReplace(),
+            var.getOnInvalidate(),
+            var.getSymbol());
+        this.var = var;
     }
     
     public JFXVar getVar() {
@@ -50,61 +53,8 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
         return var.getSymbol();
     }
 
-    public Name getName() {
-        return var.getName();
-    }
-
-    // for VariableTree
-    public JFXTree getType() {
-        return var.getType();
-    }
-
-    public JFXExpression getInitializer() {
-        return var.getInitializer();
-    }
-
     public void accept(JavafxVisitor v) {
         v.visitVarScriptInit(this);
-    }
-
-    public JFXType getJFXType() {
-        return var.getJFXType();
-    }
-
-    public OnReplaceTree getOnReplaceTree() {
-        return var.getOnReplaceTree();
-    }
-    
-    public JFXOnReplace getOnReplace() {
-        return var.getOnReplace();
-    }
-
-    public OnReplaceTree getOnInvalidateTree() {
-        return var.getOnInvalidateTree();
-    }
-
-    public JFXOnReplace getOnInvalidate() {
-        return var.getOnInvalidate();
-    }
-
-    public JavafxBindStatus getBindStatus() {
-        return var.getBindStatus();
-    }
-
-    public boolean isBound() {
-        return var.isBound();
-    }
-
-    public boolean isUnidiBind() {
-        return var.isUnidiBind();
-    }
-
-    public boolean isBidiBind() {
-        return var.isBidiBind();
-    }
-
-    public boolean isLazy() {
-        return var.isLazy();
     }
 
     @Override
@@ -112,19 +62,7 @@ public class JFXVarScriptInit extends JFXExpression implements VariableTree {
         return JavafxTag.VAR_SCRIPT_INIT;
     }
     
-    public JFXModifiers getModifiers() {
-        return var.getModifiers();
-    }
-    
     public boolean isOverride() {
         return false;
     }
-
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.VARIABLE;
-    }
-
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
-        return visitor.visitVariable(this, data);
-     }
 }
