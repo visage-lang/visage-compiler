@@ -2733,16 +2733,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    if (!varInfo.isSequence() && !varInfo.isDef()) {
+                    if (!varInfo.isDef()) {
                         // (type)object$
                         JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, id(objName));
-                        // set$var((type)object$)
-                        addStmt(callStmt(attributeSetterName(varInfo.getSymbol()), objCast));
+                        if (varInfo.isSequence()) {
+                            addStmt(callStmt(defs.Sequences_set, id(names._this), makeVarOffset(varInfo.getSymbol()), objCast));
+                        } else {
+                            // set$var((type)object$)
+                            addStmt(callStmt(attributeSetterName(varInfo.getSymbol()), objCast));
+                        }
                     }
-
                     // return
                     addStmt(m().Return(null));
-               }
+                }
             };
             
             vcmb.build();
