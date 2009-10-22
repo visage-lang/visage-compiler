@@ -42,9 +42,13 @@ import com.sun.tools.mjavac.util.Name;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.BoundResult;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.DependentPair;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Result;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.SequenceElementSizeResult;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.mjavac.code.Flags.*;
@@ -290,6 +294,12 @@ class JavafxAnalyzeClass {
         // Empty or bound select pairs.
         public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
 
+        // Null or Java code for getting the element of a bound sequence
+        public JCStatement boundElementGetter() { return null; }
+
+        // Null or Java code for getting the size of a bound sequence
+        public JCStatement boundSizeGetter() { return null; }
+
         @Override
         public String toString() { return getNameString(); }
 
@@ -348,13 +358,13 @@ class JavafxAnalyzeClass {
         private final JCStatement onInvalidateAsInline;
 
         // Result of bind translation
-        private final ExpressionResult bindOrNull;
-        
+        private final BoundResult bindOrNull;
+
         // Result of bind with inverse translation
         private final ExpressionResult invBindOrNull;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
-                JCStatement initStmt, ExpressionResult bindOrNull, ExpressionResult invBindOrNull, 
+                JCStatement initStmt, BoundResult bindOrNull, ExpressionResult invBindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(diagPos, name, attrSym, vmi, initStmt);
@@ -404,6 +414,14 @@ class JavafxAnalyzeClass {
         @Override
         public List<DependentPair> boundBoundSelects() { return bindOrNull == null? List.<DependentPair>nil() : bindOrNull.interClass(); }
 
+        // Null or Java code for getting the element of a bound sequence
+        @Override
+        public JCStatement boundElementGetter() { return bindOrNull == null ? null : bindOrNull.getElementMethodBody(); }
+
+        // Null or Java code for getting the size of a bound sequence
+        @Override
+        public JCStatement boundSizeGetter() { return bindOrNull == null ? null : bindOrNull.getSizeMethodBody(); }
+
         // Possible javafx code for the var's 'on replace'.
         @Override
         public JFXOnReplace onReplace() { return onReplace; }
@@ -437,7 +455,7 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, ExpressionResult bindOrNull, ExpressionResult invBindOrNull,
+                JCStatement initStmt, BoundResult bindOrNull, ExpressionResult invBindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi,
@@ -459,7 +477,7 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, ExpressionResult bindOrNull, ExpressionResult invBindOrNull,
+                JCStatement initStmt, BoundResult bindOrNull, ExpressionResult invBindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer()!=null, vmi,
@@ -559,6 +577,7 @@ class JavafxAnalyzeClass {
         }
 
         // Empty or Java preface code for setting of bound with inverse variable
+        @Override
         public List<JCStatement> boundInvSetterPreface() {
             return hasOverrideVar() ? overrideVar().boundInvSetterPreface() : super.boundInvSetterPreface();
         }
@@ -712,15 +731,18 @@ class JavafxAnalyzeClass {
     }
     
     private void addBinders(TranslatedVarInfoBase tai) {
-        // If the var has a bind 
-        if (tai.boundInit() != null) {
+        // If the var has bindees
+        if (tai.boundBindees() != null) {
             // Check each of the bindees.
             for (VarSymbol bindeeSym : tai.boundBindees()) {
                 // Find the varInfo
                 VarInfo bindee = visitedAttributes.get(bindeeSym.name);
                 addBinder(bindee, (VarInfo)tai);
             }
+        }
             
+        // If the var has inter-class bindees
+        if (tai.boundBoundSelects() != null) {
             // Add any bind select pairs to update map.
             for (DependentPair pair : tai.boundBoundSelects()) {
                 addInterClassBinder(tai, pair.instanceSym, (VarSymbol)pair.referencedSym);

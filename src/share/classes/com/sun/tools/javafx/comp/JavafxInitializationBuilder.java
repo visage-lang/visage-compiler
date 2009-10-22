@@ -1186,7 +1186,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.isMixinVar()) {
                         assert false : "Mixin sequences not implemented";
                     } else if (varInfo.hasBoundDefinition()) {                        
-                        assert false : "Bound sequences not implemented";
+                        addStmt(varInfo.boundElementGetter());
                     } else {
                         // Construct and add: return $var.get(pos$);
                         addStmt(m().Return(call(id(varName), getPosName, id(defs.getArgNamePos))));
@@ -1210,7 +1210,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.isMixinVar()) {
                         assert false : "Mixin sequences not implemented";
                     } else if (varInfo.hasBoundDefinition()) {                        
-                        assert false : "Bound sequences not implemented";
+                        addStmt(varInfo.boundSizeGetter());
                     } else {
                         // Construct and add: return $var.size();
                         addStmt(m().Return(call(id(varName), getSizeName)));

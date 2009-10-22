@@ -316,7 +316,7 @@ public abstract class JavafxAbstractTranslation
             super(diagPos);
             this.stmts = stmts;
         }
-        List<JCStatement> statements() {
+        public List<JCStatement> statements() {
             return stmts;
         }
         List<JCTree> trees() {
@@ -340,15 +340,38 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
-    public static class ExpressionResult extends AbstractStatementsResult {
-        public static class DependentPair {
-            public final VarSymbol instanceSym;
-            public final Symbol referencedSym;
-            DependentPair(VarSymbol instanceSym, Symbol referencedSym) {
-                this.instanceSym = instanceSym;
-                this.referencedSym = referencedSym;
-            }
+    public static class DependentPair {
+
+        public final VarSymbol instanceSym;
+        public final Symbol referencedSym;
+
+        DependentPair(VarSymbol instanceSym, Symbol referencedSym) {
+            this.instanceSym = instanceSym;
+            this.referencedSym = referencedSym;
         }
+    }
+
+    public interface BoundResult {
+
+        // Java code for getter expression of bound variable
+        JCExpression expr();
+
+        // Java preface code for getter of bound variable
+        List<JCStatement> statements();
+
+        // Variable symbols on which this variable depends
+        List<VarSymbol> bindees();
+
+        List<DependentPair> interClass();
+
+        // Java code for getting the element of a bound sequence
+        JCStatement getElementMethodBody();
+
+        // Java code for getting the size of a bound sequence
+        JCStatement getSizeMethodBody();
+    }
+
+    public static class ExpressionResult extends AbstractStatementsResult implements BoundResult {
         private final JCExpression value;
         private final List<VarSymbol> bindees;
         private final List<DependentPair> interClass;
@@ -370,19 +393,69 @@ public abstract class JavafxAbstractTranslation
         ExpressionResult(JCExpression value, Type resultType) {
             this(value, List.<VarSymbol>nil(), List.<DependentPair>nil(), resultType);
         }
-        JCExpression expr() {
+        public JCExpression expr() {
             return value;
         }
-        List<VarSymbol> bindees() {
+        public List<VarSymbol> bindees() {
             return bindees;
         }
-        List<DependentPair> interClass() {
+        public List<DependentPair> interClass() {
             return interClass;
         }
+        public JCStatement getElementMethodBody() {
+            return null;
+        }
+        public JCStatement getSizeMethodBody() {
+            return null;
+        }
+
         @Override
         List<JCTree> trees() {
             List<JCTree> ts = super.trees();
             return value==null? ts : ts.append(value);
+        }
+    }
+
+    /**
+     * Bound sequence get element / size method body pair as Result
+     */
+    public static class SequenceElementSizeResult extends ExpressionResult implements BoundResult {
+        private final JCStatement getElement;
+        private final JCStatement getSize;
+        SequenceElementSizeResult(List<VarSymbol> bindees, JCStatement getElement, JCStatement getSize) {
+            super(getElement.pos(), null, null, bindees, null, null);
+            this.getElement = getElement;
+            this.getSize = getSize;
+        }
+        // Java code for getting the element of a bound sequence
+        @Override
+        public JCStatement getElementMethodBody() {
+            return getElement;
+        }
+        // Java code for getting the size of a bound sequence
+        @Override
+        public JCStatement getSizeMethodBody() {
+            return getSize;
+        }
+        @Override
+        public JCExpression expr() {
+            throw new AssertionError("Shouldn't be asking for this");
+        }
+        @Override
+        public List<JCStatement> statements() {
+            throw new AssertionError("Shouldn't be asking for this");
+        }
+        @Override
+        public List<DependentPair> interClass() {
+            return List.<DependentPair>nil();
+        }
+        @Override
+        public String toString() {
+            return "SequenceElementSizeResult- get element: " + getElement.getClass() + " = " + getElement + ", size: " + getSize.getClass() + " = " + getSize;
+        }
+        @Override
+        List<JCTree> trees() {
+            return List.<JCTree>of(getElement, getSize);
         }
     }
 
@@ -445,6 +518,13 @@ public abstract class JavafxAbstractTranslation
                 throw new RuntimeException(ret.toString());
             }
         }
+    }
+
+    SequenceElementSizeResult translateToBoundSequenceResult(JFXExpression expr) {
+        translateCore(expr, syms.voidType, Yield.ToStatement);
+        SequenceElementSizeResult ret = (SequenceElementSizeResult) this.result;
+        this.result = null;
+        return ret;
     }
 
     class JCConverter extends JavaTreeBuilder {
@@ -658,7 +738,7 @@ public abstract class JavafxAbstractTranslation
 
         private final ListBuffer<JCStatement> stmts = ListBuffer.lb();
         private final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
-        private final ListBuffer<ExpressionResult.DependentPair> interClass = ListBuffer.lb();
+        private final ListBuffer<DependentPair> interClass = ListBuffer.lb();
 
         ExpressionTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
@@ -713,11 +793,11 @@ public abstract class JavafxAbstractTranslation
         }
 
         void addInterClassBindee(VarSymbol instanceSym, Symbol referencedSym) {
-            interClass.append(new ExpressionResult.DependentPair( instanceSym,  referencedSym));
+            interClass.append(new DependentPair( instanceSym,  referencedSym));
         }
 
-        void addInterClassBindees(List<ExpressionResult.DependentPair> pairs) {
-            for (ExpressionResult.DependentPair pair : pairs) {
+        void addInterClassBindees(List<DependentPair> pairs) {
+            for (DependentPair pair : pairs) {
                 interClass.append(pair);
             }
         }
@@ -747,7 +827,7 @@ public abstract class JavafxAbstractTranslation
             return bindees.toList();
         }
 
-        List<ExpressionResult.DependentPair> interClass() {
+        List<DependentPair> interClass() {
             return interClass.toList();
         }
 

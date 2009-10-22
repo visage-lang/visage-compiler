@@ -25,18 +25,17 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
-import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
-import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Context;
-import com.sun.tools.mjavac.util.Name;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -66,10 +65,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         context.put(jfxBoundTranslation, this);
     }
 
-    ExpressionResult translate(JFXExpression expr, Type targettedType, Symbol targetSymbol, boolean isBidiBind) {
+    BoundResult translate(JFXExpression expr, Type targettedType, Symbol targetSymbol, boolean isBidiBind) {
         this.targetSymbol = targetSymbol;
         this.isBidiBind = isBidiBind;
-        return translateToExpressionResult(expr, targettedType);
+        return types.isSequence(targettedType)?
+              translateToBoundSequenceResult(expr)
+            : translateToExpressionResult(expr, targettedType);
     }
 
 /* ***************************************************************************
@@ -315,6 +316,218 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         result = new SequenceEmptyTranslator(tree).doit();
     }
 
+    abstract class BoundSequenceTranslator extends ExpressionTranslator {
+
+        abstract JCStatement makeSizeBody();
+        abstract JCStatement makeGetElementBody();
+        abstract List<VarSymbol> getBindees();
+
+        BoundSequenceTranslator(DiagnosticPosition diagPos) {
+            super(diagPos);
+        }
+
+        SequenceElementSizeResult doit() {
+            return new SequenceElementSizeResult(getBindees(), makeGetElementBody(), makeSizeBody());
+        }
+    }
+
+    class BoundRangeSequenceTranslator extends BoundSequenceTranslator {
+        private final JFXVar varLower;
+        private final JFXVar varUpper;
+        private final JFXVar varStep;
+        private final Type elemType;
+        private final Type szType;
+        private final boolean exclusive;
+
+        BoundRangeSequenceTranslator(JFXSequenceRange tree) {
+            super(tree.pos());
+            this.varLower = (JFXVar)tree.getLower();
+            this.varUpper = (JFXVar)tree.getUpper();
+            this.varStep = (JFXVar)tree.getStepOrNull();
+            if (
+                    varLower.type == syms.javafx_NumberType ||
+                    varLower.type == syms.javafx_DoubleType ||
+                    varUpper.type == syms.javafx_NumberType ||
+                    varUpper.type == syms.javafx_DoubleType ||
+                    (varStep != null && (
+                        varStep.type == syms.javafx_NumberType ||
+                        varStep.type == syms.javafx_DoubleType) )) {
+                this.elemType = syms.javafx_NumberType;
+                this.szType = syms.longType;
+            } else {
+                this.elemType = syms.javafx_IntegerType;
+                this.szType = syms.intType;
+            }
+            this.exclusive = tree.isExclusive();
+        }
+        private JCExpression posArg() {
+            return id(defs.elemPosArgName);
+        }
+        private JCExpression zero() {
+            return m().Literal(elemType.tag, 0);
+        }
+        private JCExpression szZero() {
+            return m().Literal(szType.tag, 0);
+        }
+        private JCExpression szOne() {
+            return m().Literal(szType.tag, 1);
+        }
+        private JCExpression get(JFXVar var) {
+            return id(attributeValueName(var.getSymbol()));
+        }
+        private JCExpression lower() {
+            return get(varLower);
+        }
+        private JCExpression upper() {
+            return get(varUpper);
+        }
+        private JCExpression step() {
+            return varStep == null?
+                  m().Literal(elemType.tag, 1)
+                : get(varStep);
+        }
+        private JCExpression LT(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.LT, v1, v2);
+        }
+        private JCExpression LE(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.LE, v1, v2);
+        }
+        private JCExpression GT(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.GT, v1, v2);
+        }
+        private JCExpression GE(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.GE, v1, v2);
+        }
+        private JCExpression AND(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.AND, v1, v2);
+        }
+        private JCExpression OR(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.OR, v1, v2);
+        }
+        private JCExpression PLUS(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.PLUS, v1, v2);
+        }
+        private JCExpression MINUS(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.MINUS, v1, v2);
+        }
+        private JCExpression MUL(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.MUL, v1, v2);
+        }
+        private JCExpression DIV(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.DIV, v1, v2);
+        }
+        private JCStatement Assign(JCVariableDecl var, JCExpression value) {
+            return makeExec(m().Assign(id(var), value));
+        }
+
+        JCStatement makeSizeBody() {
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+            // long sz = 0;
+            JCVariableDecl vSize = makeMutableTmpVar("sz", szType, szZero());
+
+            // (long) ((upper - lower) / step)) + 1
+            JCExpression diff = MINUS(upper(), lower());
+            if (varStep != null) {
+                diff = DIV(diff, step());
+            }
+            if (elemType == syms.javafx_NumberType) {
+                diff = m().TypeCast(szType, diff);
+            }
+            diff = PLUS(diff, szOne());
+
+            // sz = (long) ((upper - lower) / step)) + 1;
+            stmts.append(Assign(vSize, diff));
+
+            // if (sz < 0) sz = 0;
+            stmts.append(m().If(
+                    LT(id(vSize), szZero()),
+                    Assign(vSize, szZero()),
+                    null));
+
+            if (elemType == syms.javafx_NumberType) {
+                // if (   (upper >= lower || step <= 0.0f) &&
+                //        (upper <= lower || step >= 0.0f)) {
+                //     sz = (long) ((upper - lower) / step)) + 1;
+                //     if (sz < 0) sz = 0;
+                // }
+                JCExpression cond = (varStep == null)?
+                    GE(upper(), lower())
+                  : AND(
+                        OR(
+                            GE(upper(), lower()),
+                            LE(step(), zero())),
+                        OR(
+                            LE(upper(), lower()),
+                            GE(step(), zero())));
+                JCBlock block = m().Block(0L, stmts.toList());
+                stmts = ListBuffer.lb();
+                stmts.append( m().If(cond, block, null) );
+            }
+            if (exclusive) {
+                // long reach = lower + (sz-1)*step;
+                // if (sz > 0 && ((step > 0.0f)
+                //      ? (reach >= upper)
+                //      : (reach <= upper)) )
+                //   --sz;
+                JCExpression reach = MINUS(id(vSize), szOne());
+                if (varStep != null) {
+                    reach = MUL(reach, step());
+                }
+                reach = PLUS(lower(), reach);
+                JCVariableDecl vReach = makeTmpVar("reach", szType, reach);
+                JCExpression exceed = (varStep == null)?
+                      GE(id(vReach), upper())
+                    : m().Conditional(
+                        GT(step(), zero()),
+                        GE(id(vReach), upper()),
+                        LE(id(vReach), upper()));
+                JCExpression tooBig = AND(
+                        GT(id(vSize), szZero()),
+                        exceed);
+                stmts.append( m().If(
+                        tooBig,
+                        makeExec(makeUnary(JCTree.PREDEC, id(vSize))),
+                        null) );
+            }
+            stmts.prepend(vSize);
+            JCExpression res = id(vSize);
+            if (szType == syms.longType) {
+                res = m().TypeCast(syms.intType, res);
+            }
+            stmts.append(makeReturn(res));
+            return m().Block(0L, stmts.toList());
+        }
+
+        /*
+         * float get$range(int pos) {
+         *    return (pos > 0 && pos < size$range())?
+         *              pos * step + lower
+         *            : 0.0f;
+         * }
+         */
+        JCStatement makeGetElementBody() {
+            JCExpression cond = AND(
+                    GT(posArg(), makeInt(0)),
+                    LT(posArg(), call(attributeSizeName(targetSymbol)))
+                    );
+            JCExpression offset = (varStep == null)?
+                  posArg()
+                : MUL(posArg(), step());
+            JCExpression value = PLUS(offset, lower());
+            JCExpression res = m().Conditional(cond, value, zero());
+            return makeReturn(res);
+        }
+
+        List<VarSymbol> getBindees() {
+            return List.<VarSymbol>nil();
+        }
+    }
+
+    public void visitSequenceRange(JFXSequenceRange tree) {
+        result = new BoundRangeSequenceTranslator(tree).doit();
+    }
+
     public void visitStringExpression(JFXStringExpression tree) {
         result = new StringExpressionTranslator(tree).doit();
     }
@@ -354,14 +567,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         //(tree.getBodyExpression());
     }
 
-    //@Override
-    public void visitSequenceRange(JFXSequenceRange tree) {
-        TODO(tree);
-        //( that.getLower() );
-        //( that.getUpper() );
-        //( that.getStepOrNull() );
-    }
-    
     //@Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         TODO(tree);

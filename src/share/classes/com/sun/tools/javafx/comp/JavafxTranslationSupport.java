@@ -653,7 +653,11 @@ public abstract class JavafxTranslationSupport {
     Name attributeGetVOFFName(Symbol sym) {
         return prefixedAttributeName(sym, attributeGetVOFFMethodNamePrefix);
     }
-    
+
+    Name attributeGetElementName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeGetElementMethodNamePrefix);
+    }
+
     Name attributeSizeName(Symbol sym) {
         return prefixedAttributeName(sym, attributeSizeMethodNamePrefix);
     }

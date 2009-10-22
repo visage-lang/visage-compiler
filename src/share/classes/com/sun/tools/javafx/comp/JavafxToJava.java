@@ -704,8 +704,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 } else {
                     // make into block
                     if (value != null) {
-                        translateStmt(value, targetType);
-                    }
+                            translateStmt(value, targetType);
+                        }
                     List<JCStatement> localDefs = prependToStatements.appendList(statements()).toList();
                     return new StatementsResult(localDefs.size() == 1 ? localDefs.head : m().Block(0L, localDefs));
                 }

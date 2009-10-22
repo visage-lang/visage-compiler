@@ -144,32 +144,43 @@ public class JavafxDecompose implements JavafxVisitor {
         return lb.toList();
     }
 
+    private JFXVar shredVar(JFXExpression pose, Type type) {
+        if (varOwner == null) {
+            TODO("LOCAL BIND");
+        }
+        Name vName = tempName();
+        long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
+        JFXModifiers mod = fxmake.at(pose.pos).Modifiers(flags | JavafxFlags.SCRIPT_PRIVATE);
+        JFXType fxType = fxmake.at(pose.pos).TypeAny(Cardinality.ANY);
+        JFXVar v = fxmake.at(pose.pos).Var(vName, fxType, mod, pose, JavafxBindStatus.UNIDIBIND, null, null);
+        VarSymbol sym = new VarSymbol(flags, vName, type, varOwner);
+        v.sym = sym;
+        v.type = type;
+        lbVar.append(v);
+        return v;
+    }
+
+    private JFXExpression id(JFXVar v) {
+        JFXIdent id = fxmake.at(v.pos).Ident(v.getName());
+        id.sym = v.sym;
+        id.type = v.type;
+        return id;
+    }
+
     /**
      * If we are in a bound expression, break this expression out into a separate synthetic bound variable.
      */
     private JFXExpression shred(JFXExpression tree) {
-        if (tree == null)
+        if (tree == null) {
             return null;
+        }
         JFXExpression pose = decompose(tree);
         if (inBind) {
-            if (varOwner == null) {
-                TODO("LOCAL BIND");
-            }
-            Name vName = tempName();
-            long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
-            JFXModifiers mod = fxmake.at(tree.pos).Modifiers(flags | JavafxFlags.SCRIPT_PRIVATE);
-            JFXType fxType = fxmake.at(tree.pos).TypeAny(Cardinality.ANY);
-            JFXVar v = fxmake.at(tree.pos).Var(vName, fxType, mod, pose, JavafxBindStatus.UNIDIBIND, null, null);
-            VarSymbol sym = new VarSymbol(flags, vName, tree.type, varOwner);
-            v.sym = sym;
-            v.type = tree.type;
-            lbVar.append(v);
-            JFXIdent id = fxmake.at(tree.pos).Ident(vName);
-            id.sym = sym;
-            id.type = tree.type;
-            return id;
+            JFXVar v = shredVar(pose, tree.type);
+            return id(v);
+        } else {
+            return pose;
         }
-        return pose;
     }
 
     private List<JFXExpression> shred(List<JFXExpression> trees) {
@@ -587,11 +598,31 @@ public class JavafxDecompose implements JavafxVisitor {
         result = tree;
     }
 
+    private JFXVar synthVar(JFXExpression tree) {
+        if (tree == null) {
+            return null;
+        }
+        JFXExpression pose = decompose(tree);
+        JFXVar v = shredVar(pose, tree.type);
+        v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+        return v;
+    }
+
     public void visitSequenceRange(JFXSequenceRange tree) {
-        JFXExpression lower = decomposeComponent(tree.getLower());
-        JFXExpression upper = decomposeComponent(tree.getUpper());
-        JFXExpression stepOrNull = decomposeComponent(tree.getStepOrNull());
+        JFXExpression lower;
+        JFXExpression upper;
+        JFXExpression stepOrNull;
+        if (inBind) {
+            lower = synthVar(tree.getLower());
+            upper = synthVar(tree.getUpper());
+            stepOrNull = synthVar(tree.getStepOrNull());
+        } else {
+            lower = decomposeComponent(tree.getLower());
+            upper = decomposeComponent(tree.getUpper());
+            stepOrNull = decomposeComponent(tree.getStepOrNull());
+        }
         result = fxmake.at(tree.pos).RangeSequence(lower, upper, stepOrNull, tree.isExclusive());
+        result.type = tree.type;
     }
 
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {

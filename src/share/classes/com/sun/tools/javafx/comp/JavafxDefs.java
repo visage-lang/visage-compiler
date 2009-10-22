@@ -57,6 +57,7 @@ public class JavafxDefs {
     public static final String attributeNotifyDependentsNameString = "notifyDependents$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
     public static final String attributeUpdateMethodNamePrefix = "update$";
+    public static final String attributeGetElementMethodNamePrefix = "get$";
     public static final String attributeSizeMethodNamePrefix = "size$";
     public static final String attributeApplyDefaultsBaseMethodName = "applyDefaults$base$";
     public static final String attributeCountMethodString = "count$";
@@ -248,6 +249,7 @@ public class JavafxDefs {
     final Name attributeNewValueName;
     final Name isInitializedPrefixName;
     final Name incrementSharingMethodName;
+    final Name elemPosArgName;
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
     final Name onReplaceArgNameBuffer;
@@ -284,7 +286,6 @@ public class JavafxDefs {
     public final Name sequencePackageName;
     public final Name functionsPackageName;
     public final Name javaLangPackageName;
-    public final Name implFunctionSuffixName;
     public final Name boundFunctionResultName;
 
     public static final int TYPE_KIND_OBJECT = 0;
@@ -382,6 +383,7 @@ public class JavafxDefs {
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
         incrementSharingMethodName = names.fromString("incrementSharing");
+        elemPosArgName = names.fromString("pos$");
         onReplaceArgNameBuffer = names.fromString("$buffer$");
         onReplaceArgNameOld = names.fromString("oldValue$");
         onReplaceArgNameNew = names.fromString("newValue$");
@@ -393,7 +395,6 @@ public class JavafxDefs {
         onReplaceArgNameLastIndex = sliceArgNameEndPos;
         onReplaceArgNameNewElements = names.fromString("$newElements$");
         internalSuffixName = names.fromString("$internal$");
-        implFunctionSuffixName = names.fromString(implFunctionSuffix);
         boundFunctionResultName = names.fromString(boundFunctionResult);
         attributeTypePrefixName = names.fromString(attributeTypeMethodNamePrefix);
         attributeGetPrefixName = names.fromString(attributeGetMethodNamePrefix);
