@@ -1426,11 +1426,6 @@ public class JavafxAttr implements JavafxVisitor {
         // a new environment nested in the current one.
         JavafxEnv<JavafxAttrContext> localEnv = newLocalEnv(tree);
 
-        List<JFXVar> vars = tree.getLocalvars();
-        memberEnter.memberEnter(vars, localEnv);
-        for (List<JFXVar> l = vars; l.nonEmpty(); l = l.tail)
-            attribExpr(l.head, localEnv);
-
         // The anonymous inner class definition of the new expression,
         // if one is defined by it.
         JFXClassDeclaration cdef = tree.getClassBody();

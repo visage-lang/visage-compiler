@@ -219,16 +219,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitInstanciate(JFXInstanciate tree) {
-        super.visitInstanciate(tree);
-
-        // Local vars of an object literal are effectively an inner accessed
-        for (JFXVar var : tree.getLocalvars()) {
-            mark(var.sym, VARUSE_INNER_ACCESS);
-        }
-    }
-
-    @Override
     public void visitAssign(JFXAssign tree) {
         boolean wasLHS = inLHS;
         inLHS = true;

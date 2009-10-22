@@ -496,8 +496,8 @@ public class JavafxDecompose implements JavafxVisitor {
        }
        JFXClassDeclaration dcdel = decompose(cdecl);
        List<JFXExpression> dargs = decomposeComponents(tree.getArgs());
-       List<JFXVar> localVars = decomposeContainer(tree.getLocalvars());
-       JFXInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getJavaFXKind(), klassExpr, dcdel, dargs, dparts.toList(), localVars);
+       
+       JFXInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getJavaFXKind(), klassExpr, dcdel, dargs, dparts.toList(), tree.getLocalvars());
        res.sym = tree.sym;
        res.constructor = tree.constructor;
        res.varDefinedByThis = tree.varDefinedByThis;

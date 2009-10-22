@@ -622,7 +622,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXInstanciate ObjectLiteral(JFXExpression ident,
+    public JFXExpression ObjectLiteral(JFXExpression ident,
             List<JFXTree> defs) {
         return Instanciate(JavaFXKind.INSTANTIATE_OBJECT_LITERAL,
                 ident,
@@ -632,13 +632,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     public JFXInstanciate InstanciateNew(JFXExpression ident,
             List<JFXExpression> args) {
-        return Instanciate(JavaFXKind.INSTANTIATE_NEW,
+        return (JFXInstanciate)Instanciate(JavaFXKind.INSTANTIATE_NEW,
                 ident,
                 args != null? args : List.<JFXExpression>nil(),
                 List.<JFXTree>nil());
     }
 
-   public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression ident,
+   public JFXExpression Instanciate(JavaFXKind kind, JFXExpression ident,
            List<JFXExpression> args,
            List<JFXTree> defs) {
 
@@ -648,7 +648,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
        ListBuffer<JFXObjectLiteralPart> partsBuffer = ListBuffer.lb();
        ListBuffer<JFXTree> defsBuffer = ListBuffer.lb();
-       ListBuffer<JFXVar> varsBuffer = ListBuffer.lb();
+       ListBuffer<JFXExpression> varsBuffer = ListBuffer.lb();
        boolean boundParts = false;
        if (defs != null) {
            for (JFXTree def : defs) {
@@ -673,13 +673,38 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
        }
 
-       JFXInstanciate tree = new JFXInstanciate(kind, ident,
+       JFXExpression tree = new JFXInstanciate(kind, ident,
                klass,
                args==null? List.<JFXExpression>nil() : args,
                partsBuffer.toList(),
-               varsBuffer.toList(),
+               List.convert(JFXVar.class, varsBuffer.toList()),
                null);
        tree.pos = pos;
+       
+        //ObjLit {
+        //  local var 1;
+        //  local var 2;
+        //  ...
+        //  local var n;
+        //}
+        //
+        //is equivalent to:
+        //
+        //{
+        //
+        //  local var 1;
+        //  local var 2;
+        //  ...
+        //  local var n;
+        //
+        //  ObjLit {
+        //    ...
+        //  }
+        //}
+
+       if (varsBuffer.nonEmpty()) {
+           tree = Block(0L, varsBuffer.toList(), tree);
+       }
        return tree;
    }
 

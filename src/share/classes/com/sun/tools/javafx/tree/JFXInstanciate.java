@@ -86,7 +86,12 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     public java.util.List<VariableTree> getLocalVariables() {
         return convertList(VariableTree.class, localVars);
     }
-    
+
+    /**
+     *  For API uses only (object literals locals are desugared in a block
+     *  surrounding the object literal - the compiler doesn't have to deal with
+     *  them explicitly - we need to maintain access for IDE.
+     */
     public List<JFXVar> getLocalvars() {
         return localVars;
     }

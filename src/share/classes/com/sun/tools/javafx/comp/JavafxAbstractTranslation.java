@@ -2601,13 +2601,6 @@ public abstract class JavafxAbstractTranslation
             diagPos = tree.pos();
         }
 
-        @Override
-        public void postInstanceCreation() {
-            for (JFXVar var : tree.getLocalvars()) {
-                processLocalVar(var);
-            }
-        }
-
         protected List<JCExpression> translatedConstructorArgs() {
             List<JFXExpression> args = tree.getArgs();
             Symbol sym = tree.constructor;
