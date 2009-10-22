@@ -35,15 +35,19 @@ public class IntExpressionBindingTest extends JavaFXTestCase {
 
     /**
      * Test IntLocation with no binding
+     * I'm commenting out this test as the new on invalidate changes (see JFXC-3440)
+     * require that non-bound variables should be aware of invalidate
+     * messages as well as bound vars. If the feature is backed out this
+     * test should be restored.
      */
-    public void testConstantLocation() {
-        final IntVariable loc = IntVariable.make(3);
-        assertTrue(!loc.isLazilyBound());
-        assertEquals(3, loc);
-        loc.setAsInt(5);
-        assertEquals(5, loc);
-        assertException(BindingException.class, loc, "invalidate");
-    }
+//    public void testConstantLocation() {
+//        final IntVariable loc = IntVariable.make(3);
+//        assertTrue(!loc.isLazilyBound());
+//        assertEquals(3, loc);
+//        loc.setAsInt(5);
+//        assertEquals(5, loc);
+//        assertException(BindingException.class, loc, "invalidate");
+//    }
 
 
     /**

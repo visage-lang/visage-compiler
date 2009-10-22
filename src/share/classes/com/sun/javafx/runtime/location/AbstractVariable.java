@@ -136,13 +136,13 @@ public abstract class AbstractVariable<
 
     @Override
     public void invalidate() {
-        if (isUnidirectionallyBound()) {
-            super.invalidate();
-            if (!isLazilyBound())
-                update();
+        super.invalidate();
+        if (!isLazilyBound())
+            update();
+
+        if (!isBound()) {
+            setValid();
         }
-        else
-            throw new BindingException("Cannot invalidate non-bound variable");
     }
 
     @Override

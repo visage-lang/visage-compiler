@@ -25,7 +25,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,12 +121,15 @@ public class FxTrackerRunner {
    
     static final String SDK_DIR = "sdk";
     static final String JPSMARKER="JPSMARKER=";
+
+    static final String PSTOOLS = System.getProperty("pstools.dir","c:/devtools/pstools");
+    static final File PSKILL = new File(PSTOOLS, "pskill.exe");
     
     // Command line arguments
     static String appClasspath = null;
     static String mainClass = null;
-    static int interval = 5*1000;
-    static int duration = 2*60*1000;
+    static int interval = Integer.getInteger("interval", 5*1000).intValue();
+    static int duration = Integer.getInteger("duration", 2*60*1000).intValue();
     
     static final String msg[] = { "--jar path_to_your_jar",
                                   "(optional) --main entry-point",
@@ -136,8 +138,8 @@ public class FxTrackerRunner {
 
     public static void main(String... args) {
         init(args);
-            doRun();
-            System.exit(0);
+        doRun();
+        System.exit(0);
     }
     
     static void init(String[] args) {
@@ -289,17 +291,32 @@ public class FxTrackerRunner {
     static void killTestApplication() {
         List<String> cmdsList = new ArrayList<String>();
         String appId = getAppPid(FXTRACKER_NAME);
+        if (appId == null) return;
         cmdsList.clear();
 
         if (isWindows) {
             cmdsList.add("taskkill");
             cmdsList.add("-PID");
+            cmdsList.add(appId);
+            doExec(cmdsList);
+            appId = getAppPid(FXTRACKER_NAME);
+            if ( appId != null && PSKILL.canExecute()) {
+                if (debug) {
+                    System.out.println("killing stray process " + appId);
+                }
+                cmdsList.clear();
+                cmdsList.add(PSKILL.getAbsolutePath());
+                cmdsList.add("-t");
+                cmdsList.add(appId);
+                doExec(cmdsList);
+            }
         } else {
             cmdsList.add("kill");
             cmdsList.add("-15");
+            cmdsList.add(appId);
+            doExec(cmdsList);
         }
-        cmdsList.add(appId);
-        doExec(cmdsList);
+
     }
 
     static List<String> doExec(String... cmds) {
@@ -319,7 +336,7 @@ public class FxTrackerRunner {
                 return fld[0];
             }
         }
-        throw new RuntimeException("Error: could not find the JPSMARKER");
+        return null;
     }
     
     static List<String> doExec(List<String> cmds) {
@@ -408,12 +425,18 @@ public class FxTrackerRunner {
             if (debug) {
                 System.out.println("---output---");
             }
-            while (in != null) {
+            
+            try {
+                while (in != null) {
 //                if (debug) {
 //                    System.out.println(in + " ");
 //                }
 //                System.out.println("");
-                in = rdr.readLine();
+                    in = rdr.readLine();
+                }
+            } catch (IOException ioe) {
+//                ioe.printStackTrace();
+                return;
             }
             p.waitFor();
             return;

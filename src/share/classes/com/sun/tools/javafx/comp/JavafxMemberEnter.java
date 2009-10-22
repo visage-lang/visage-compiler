@@ -436,7 +436,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         if (tree instanceof JFXBlock)
             visitBlockExpression((JFXBlock) tree);
         else
-            super.visitTree(tree);
+            super.visitTree(tree); //super.visitTree is a no-op because scan is overridden!!
     }
 
     @Override
@@ -589,6 +589,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
 
     @Override
     public void scan(JFXTree tree) {
+        //do nothing!
     }
 
     @Override
@@ -692,19 +693,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
     }
 
-    @Override
-    public void visitReturn(JFXReturn tree) {
-        super.visitReturn(tree);
-    }
-
-    @Override
-    public void visitClassDeclaration(JFXClassDeclaration that) {
-        for (JFXExpression superClass : that.getSupertypes()) {
-            attr.attribType(superClass, env);
-        }
-    }
-    
-/* ********************************************************************
+/*********************************************************************
  * Type completion
  *********************************************************************/
 
@@ -749,24 +738,15 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // Save class environment for later member enter (2) processing.
             halfcompleted.append(localEnv);
 
-            // If this is a toplevel-class, make sure any preceding import
-            // clauses have been seen.
-            if (c.owner.kind == PCK) {
-                for (JFXTree def : localEnv.toplevel.defs) {
-                    // Note we have to be careful to not yet visit member
-                    // classes (and attribute their super-type), until
-                    // we've set the super-types of this class.
-                    // Otherwise we risk a stack overflow, at least in the
-                    // tricky case of an inheritance cycle that includes the
-                    // module class.  There probably is a cleaner way ...
-                    if (def instanceof JFXImport)
-                         memberEnter(localEnv.toplevel, localEnv.enclosing(JavafxTag.TOPLEVEL));
-                }
-                todo.append(localEnv);
-            }
-
             // Mark class as not yet attributed.
             c.flags_field |= UNATTRIBUTED;
+
+            // If this is a toplevel script-class, make sure any preceding import
+            // clauses have been seen.
+            if (c.owner.kind == PCK) {
+                memberEnter(localEnv.toplevel, localEnv.enclosing(JavafxTag.TOPLEVEL));
+                todo.append(localEnv);
+            }
 
             if (c.owner.kind == TYP)
                 c.owner.complete();

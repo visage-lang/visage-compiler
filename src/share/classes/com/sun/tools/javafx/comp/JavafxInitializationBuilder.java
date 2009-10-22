@@ -2151,7 +2151,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
 
                 // Construct lazy accessor method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
+                JCMethodDecl method = makeMethod(Flags.PRIVATE | Flags.STATIC,
                                                  syms.javafx_ShortArray,
                                                  varGetMapName(cSym),
                                                  List.<JCVariableDecl>nil(),
