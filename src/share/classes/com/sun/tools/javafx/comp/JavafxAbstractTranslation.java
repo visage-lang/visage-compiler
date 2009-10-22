@@ -1343,20 +1343,29 @@ public abstract class JavafxAbstractTranslation
                 //isInitialized has just one argument -- we need to split into
                 //an inst/var offset pair so that the builtins function can be called
                 //Note: in principle this could be inlined as an FXBase call
+                JCExpression receiver = null;
+                JCExpression varOffset = null;
                 switch (args.head.getFXTag()) {
                     case SELECT: {
                         JFXSelect select = (JFXSelect)args.head;
-                        targs.append(translateExpr(select.selected, syms.javafx_FXBaseType));
-                        targs.append(makeVarOffset(select.sym));
+                        receiver = select.sym.isStatic() ?
+                            call(defs.scriptLevelAccessMethod(names, select.sym.owner), List.<JCExpression>nil()) :
+                            translateExpr(select.selected, syms.javafx_FXBaseType);
+                        varOffset = makeVarOffset(select.sym);
                         break;
                     }
                     case IDENT: {
                         JFXIdent ident = (JFXIdent)args.head;
-                        targs.append(makeReceiver(ident.sym, false));
-                        targs.append(makeVarOffset(ident.sym));
+                        receiver = ident.sym.isStatic() ?
+                            call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            makeReceiver(ident.sym, false);
+
+                        varOffset = makeVarOffset(ident.sym);
                         break;
                     }
                 }
+                targs.append(receiver);
+                targs.append(varOffset);
             }
             else {
                 boolean handlingVarargs = false;
