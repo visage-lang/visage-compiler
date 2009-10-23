@@ -2333,6 +2333,26 @@ public class JavafxAttr implements JavafxVisitor {
         }
 
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
+                msym.owner.type.tsym == syms.javafx_PointerType.tsym &&
+                methName == defs.makeMethodName &&
+                argcount == 1) {
+            msym.flags_field |= JavafxFlags.FUNC_POINTER_MAKE;
+            for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
+                JFXExpression arg = l.head;
+                Symbol asym = JavafxTreeInfo.symbol(arg);
+                if (asym == null || !(asym.type instanceof ErrorType)) {
+                    if (asym == null ||
+                            !(asym instanceof VarSymbol) ||
+                            (arg.getFXTag() != JavafxTag.IDENT && arg.getFXTag() != JavafxTag.SELECT) ||
+                            asym.owner == null ||
+                            (asym.owner.kind != TYP && !asym.isLocal())) {
+                        log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_APPLIED_TO_INSTANCE_VAR, methName);
+                    }
+                }
+            }
+        }
+
+        if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
                 (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym ||
                  msym.owner.type.tsym == syms.javafx_FXRuntimeType.tsym) &&
                 methName == defs.isInitializedName) {

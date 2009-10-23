@@ -19,23 +19,23 @@ import java.util.concurrent.TimeUnit;
 import com.sun.javafx.runtime.Pointer;
 
 var s:String = "abc";
-var bps = bind Pointer.make(KeyValue_TS200_02.class, "s"); 
+var bps = bind Pointer.make(s); 
 var ps = bps.unwrap();
 
 var i:Integer = 0;
-var bpi = bind Pointer.make(KeyValue_TS200_02.class, "i");
+var bpi = bind Pointer.make(i);
 var pi = bpi.unwrap();
 
 var b:Boolean = true;
-var bpb = bind Pointer.make(KeyValue_TS200_02.class, "b");
+var bpb = bind Pointer.make(b);
 var pb = bpb.unwrap();
 
 var n: Number = 1.0; 
-var bpn = bind Pointer.make(KeyValue_TS200_02.class, "n"); 
+var bpn = bind Pointer.make(n); 
 var pn = bpn.unwrap();
 
 var d:Duration = 1s;
-var bpd = bind Pointer.make(KeyValue_TS200_02.class, "d"); 
+var bpd = bind Pointer.make(d); 
 var pd = bpd.unwrap();
 
 var t : Timeline = Timeline {

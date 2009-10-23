@@ -13,21 +13,21 @@ var s = [ 1, 2, 3 ];
 var b : Boolean = true;
 var n : Number = 1.0;
 
-var bvp = bind Pointer.make(Main.class, "v");
+var bvp = bind Pointer.make(v);
 var vp = bvp.unwrap();
 
-var bwp = bind Pointer.make(Main.class, "w");
+var bwp = bind Pointer.make(w);
 var wp = bwp.unwrap();
-var bwp1 = bind Pointer.make(Main.class, "w");
+var bwp1 = bind Pointer.make(w);
 var wp1 = bwp1.unwrap();
 
-var bsp = bind Pointer.make(Main.class, "s");
+var bsp = bind Pointer.make(s);
 var sp = bsp.unwrap();
 
-var bnp = bind Pointer.make(Main.class, "n");
+var bnp = bind Pointer.make(n);
 var np = bnp.unwrap();
 
-var bbp = bind Pointer.make(Main.class, "b");
+var bbp = bind Pointer.make(b);
 var bp = bbp.unwrap();
 
 // True
@@ -55,11 +55,11 @@ var f1 = Foo { x: 3 };
 var f2 = Foo { x: 4 };
 var f3 = f1;
 
-var bxp1 = bind Pointer.make(f1, "x");
+var bxp1 = bind Pointer.make(f1.x);
 var xp1 = bxp1.unwrap();
-var bxp2 = bind Pointer.make(f2, "x");
+var bxp2 = bind Pointer.make(f2.x);
 var xp2 = bxp2.unwrap();
-var bxp3 = bind Pointer.make(f3, "x");
+var bxp3 = bind Pointer.make(f3.x);
 var xp3 = bxp3.unwrap();
 
 System.out.println(Pointer.equals(xp1, xp2));  // false
@@ -67,4 +67,17 @@ System.out.println(Pointer.equals(xp1, xp3));  // true
 System.out.println(xp3.get());                 // 3
 xp1.set(2);
 System.out.println(xp3.get());                 // 2
+
+class Person {
+  var name : String;
+}
+
+var person = Person { name : "Gandhi" };
+var ptr = bind Pointer.make(person.name);
+println(ptr.get());
+person.name = "Mahatma Gandhi";
+println(ptr.get());
+
+person = Person { name: "Buddha" };
+println(ptr.get());
 

@@ -1232,6 +1232,7 @@ public abstract class JavafxAbstractTranslation
         protected final boolean useInvoke;
         protected final boolean callBound;
         protected final boolean magicIsInitializedFunction;
+        protected final boolean magicPointerMakeFunction;
 
         // Call info
         protected final List<JFXExpression> typeargs;
@@ -1276,6 +1277,8 @@ public abstract class JavafxAbstractTranslation
 
             magicIsInitializedFunction = (msym != null) &&
                     (msym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
+            magicPointerMakeFunction = (msym != null) &&
+                    (msym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
             
             // Call info
             this.typeargs = tree.getTypeArguments();
@@ -1420,6 +1423,37 @@ public abstract class JavafxAbstractTranslation
                 }
                 targs.append(receiver);
                 targs.append(varOffset);
+            } else if (magicPointerMakeFunction) {
+                // Pointer.make has just one argument -- we need to split into
+                // three args - an inst, var offset and var type - so that the
+                // Pointer.make(FXObject, int, Class) is called.
+                JCExpression receiver;
+                switch (args.head.getFXTag()) {
+                    case SELECT: {
+                        JFXSelect select = (JFXSelect)args.head;
+                        receiver = select.sym.isStatic() ?
+                            call(defs.scriptLevelAccessMethod(names, select.sym.owner), List.<JCExpression>nil()) :
+                            translateExpr(select.selected, syms.javafx_FXBaseType);
+                        targs.append(translateExpr(select.selected, syms.javafx_FXBaseType));
+                        targs.append(makeVarOffset(select.sym));
+                        Type type = types.erasure(select.type);
+                        JCExpression varType = m().ClassLiteral(type);
+                        targs.append(varType);
+                        break;
+                    }
+                    case IDENT: {
+                        JFXIdent ident = (JFXIdent)args.head;
+                        receiver = ident.sym.isStatic() ?
+                            call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            makeReceiver(ident.sym, false);
+                        targs.append(receiver);
+                        targs.append(makeVarOffset(ident.sym));
+                        Type type = types.erasure(ident.type);
+                        JCExpression varType = m().ClassLiteral(type);
+                        targs.append(varType);
+                        break;
+                    }
+                }
             }
             else {
                 boolean handlingVarargs = false;

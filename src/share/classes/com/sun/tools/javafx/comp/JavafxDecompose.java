@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
+import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
@@ -39,7 +40,6 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
-import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.jvm.ClassReader;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
@@ -294,7 +294,19 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
         JFXExpression fn = decompose(tree.meth);
-        List<JFXExpression> args = shred(tree.args);
+        Symbol msym = JavafxTreeInfo.symbol(tree.meth);
+        boolean magicPointerMakeFunction = (msym != null) &&
+                    (msym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
+        /*
+         * Do *not* shred select expression if it is passed to intrinsic function
+         * Pointer.make(Object). If not, the temporary shred variable will be used
+         * to create Pointer. The temporary is a bind var and so Pointer.set() via
+         * that throw assign to bind variable exception.
+         *
+         * FIXME: Right now, Pointer.make calls support simple select or identifier
+         * Do we have to shred select part to handle complex selections?
+         */
+        List<JFXExpression> args = magicPointerMakeFunction? tree.args : shred(tree.args);
         result = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
     }
 

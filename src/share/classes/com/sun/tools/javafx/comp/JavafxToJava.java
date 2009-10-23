@@ -1955,7 +1955,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         protected JCExpression translateTarget() {
             JavafxTag tag = tree.attribute.getFXTag();
-            Symbol sym = expressionSymbol(tree.attribute);
+            Symbol sym = JavafxTreeInfo.symbol(tree.attribute);
             JCExpression receiver;
             if (tag == JavafxTag.IDENT) {
                 if (sym.isStatic()) {
@@ -1975,7 +1975,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             }
             
             JCExpression varOffsetExpr = makeVarOffset(sym, sym.owner);
-            return call(makeType(syms.javafx_PointerType), "make", receiver, varOffsetExpr);
+            Type type = types.erasure(tree.attribute.type);
+            JCExpression varType = m().ClassLiteral(type);
+            return call(makeType(syms.javafx_PointerType), "make", receiver, varOffsetExpr, varType);
         }
 
         @Override

@@ -426,32 +426,6 @@ import java.lang.reflect.Field;
         return map;
     }
 
-    // returns varNum for a given variable of a given object
-    public static int getVarNum$(FXObject obj, String varName) {
-        try {
-            // FIXME: dependency on generated members!
-            Field field;
-            try {
-                field = obj.getClass().getField("VOFF$" + varName);
-            } catch (NoSuchFieldException exp) {
-                // may be this is a script-private member
-                String className = obj.getClass().getName();
-                className = className.replace('.', '$');
-                StringBuilder buf = new StringBuilder();
-                buf.append("VOFF$");
-                buf.append(className.replace('.', '$'));
-                buf.append('$');
-                buf.append(varName);
-                field = obj.getClass().getField(buf.toString());
-            }
-            return field.getInt(null);
-        } catch (RuntimeException re) {
-            throw (RuntimeException)re;
-        } catch (Exception exp) {
-            throw new RuntimeException(exp);
-        }
-    }
-
     public int size$(int varNum) {
         return ((Sequence<?>) get$(varNum)).size();
     }

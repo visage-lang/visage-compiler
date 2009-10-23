@@ -73,7 +73,8 @@ public class JavafxFlags {
     private static final long FIRST_FX_FUNC_FLAG    = LAST_FX_MOD_FLAG << 1;
     public static final long FUNC_IS_INITIALIZED    = FIRST_FX_FUNC_FLAG << 0;  // This is the special isInitialized() function
     public static final long FUNC_HAS_AN_INITIALIZER= FIRST_FX_FUNC_FLAG << 1;  // This is the special hasAnInitializer() function
-
+    public static final long FUNC_POINTER_MAKE      = FIRST_FX_FUNC_FLAG << 2;  // This is the special Pointer.make() function
+    
     // Class flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
     public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // JavaFX class

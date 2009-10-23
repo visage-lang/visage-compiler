@@ -29,19 +29,19 @@ class XYZ {
 
 var xyz = XYZ{};
 
-var bps = bind Pointer.make(xyz, "s"); 
+var bps = bind Pointer.make(xyz.s); 
 var ps = bps.unwrap();
 
-var bpi = bind Pointer.make(xyz, "i"); 
+var bpi = bind Pointer.make(xyz.i); 
 var pi = bpi.unwrap();
 
-var bpb = bind Pointer.make(xyz, "b"); 
+var bpb = bind Pointer.make(xyz.b); 
 var pb = bpb.unwrap();
 
-var bpn = bind Pointer.make(xyz, "n"); 
+var bpn = bind Pointer.make(xyz.n); 
 var pn = bpn.unwrap();
 
-var bpd = bind Pointer.make(xyz, "d"); 
+var bpd = bind Pointer.make(xyz.d); 
 var pd = bpd.unwrap();
 
 var t : Timeline = Timeline {

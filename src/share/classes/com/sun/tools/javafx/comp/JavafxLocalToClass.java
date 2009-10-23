@@ -50,6 +50,9 @@ import com.sun.tools.mjavac.util.Name;
  * This conversion is needed for local contexts containing binds,
  * on-replace, and some forms of object literal.
  *
+ * Also, local context is created for if Pointer.make is callled on a
+ * local variable or if interpolation attribute is a local variable.
+ *
  * @author Robert Field
  */
 public class JavafxLocalToClass {
@@ -178,6 +181,35 @@ public class JavafxLocalToClass {
             public void visitFunctionDefinition(JFXFunctionDefinition that) {
                 // Function declaration may reference (non-final) locals
                 needed = true;
+            }
+
+
+            @Override
+            public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                Symbol msym = JavafxTreeInfo.symbol(tree.meth);
+                boolean magicPointerMakeFunction = (msym != null) &&
+                    (msym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
+                if (magicPointerMakeFunction) {
+                    Symbol sym = JavafxTreeInfo.symbol(tree.args.head);
+                    if (sym.isLocal()) {
+                        needed = true;
+                    }
+                } else {
+                    super.visitFunctionInvocation(tree);
+                }
+            }
+            
+            @Override
+            public void visitInterpolateValue(JFXInterpolateValue tree) {
+                JavafxTag tag = JavafxTreeInfo.skipParens(tree.attribute).getFXTag();
+                if (tag == JavafxTag.IDENT) {
+                    Symbol sym = JavafxTreeInfo.symbol(tree.attribute);
+                    if (sym.isLocal()) {
+                        needed = true;
+                    }
+                } else {
+                    super.visitInterpolateValue(tree);
+                }
             }
         }
         InflationChecker ic = new InflationChecker();
@@ -408,7 +440,6 @@ public class JavafxLocalToClass {
     }
 
     private abstract class ChunkBreakingTreeScanner extends JavafxTreeScanner {
-
         @Override
         public void visitInterpolateValue(JFXInterpolateValue that) {
             //TODO: this probably needs special processing

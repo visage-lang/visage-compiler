@@ -6,7 +6,7 @@ import java.lang.System;
 import com.sun.javafx.runtime.*;
 class Foo {
    var alpha : Integer;
-   var _alpha = {var bp = bind Pointer.make(this, "alpha"); bp.unwrap(); };
+   var _alpha = {var bp = bind Pointer.make(alpha); bp.unwrap(); };
  };
 var foo = Foo { alpha: 100 };
 var alphap : Pointer = foo._alpha;

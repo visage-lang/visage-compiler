@@ -54,11 +54,10 @@ public class Pointer implements KeyValueTarget {
         classToType.put(Character.TYPE, Type.INTEGER);
     }
 
-    public static Pointer make(FXObject obj, int varnum) {
-        Class clazz = obj.getType$(varnum);
-        Type type = classToType.get(clazz);
+    public static Pointer make(FXObject obj, int varnum, Class varType) {
+        Type type = classToType.get(varType);
         if (type == null) {
-            if (Sequence.class.isAssignableFrom(clazz)) {
+            if (Sequence.class.isAssignableFrom(varType)) {
                 type = Type.SEQUENCE;
             } else {
                 type = Type.OBJECT;
@@ -67,33 +66,10 @@ public class Pointer implements KeyValueTarget {
         return new Pointer(type, obj, varnum);
     }
 
-    // make a Pointer for a script-level variable of given Class
-    public static Pointer make(Class clazz, String varName) {
-        try {
-            // FIXME: dependency on generated members!
-            StringBuilder buf = new StringBuilder();
-            buf.append("access$scriptLevel$");
-            buf.append(clazz.getName().replace('.', '$'));
-            buf.append('$');
-            Method statics = clazz.getMethod(buf.toString(), (Class[])null);
-            FXObject obj = (FXObject) statics.invoke(null, (Object[])null);
-            return make(obj, FXBase.getVarNum$(obj, varName));
-        } catch (RuntimeException re) {
-            throw (RuntimeException)re;
-        } catch (Exception exp) {
-            throw new RuntimeException(exp);
-        }
+    public static Pointer make(Object var) {
+        throw new UnsupportedOperationException("compiler should have rewritten this call!");
     }
-
-    // make a Pointer for an instance variable of a given object
-    public static Pointer make(FXBase obj, String varName) {
-        return make((FXObject)obj, varName);
-    }
-
-    public static Pointer make(FXObject obj, String varName) {
-        return make(obj, FXBase.getVarNum$(obj, varName));
-    }
-
+    
     public static boolean equals(Pointer p1, Pointer p2) {
         return (p1 == null) ? (p2 == null) : p1.equals(p2);
     }
