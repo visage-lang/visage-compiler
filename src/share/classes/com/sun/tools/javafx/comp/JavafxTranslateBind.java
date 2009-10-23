@@ -334,6 +334,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private final JFXVar varLower;
         private final JFXVar varUpper;
         private final JFXVar varStep;
+        private final JFXVar varSize;
         private final Type elemType;
         private final Type szType;
         private final boolean exclusive;
@@ -343,19 +344,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.varLower = (JFXVar)tree.getLower();
             this.varUpper = (JFXVar)tree.getUpper();
             this.varStep = (JFXVar)tree.getStepOrNull();
-            if (
-                    varLower.type == syms.javafx_NumberType ||
-                    varLower.type == syms.javafx_DoubleType ||
-                    varUpper.type == syms.javafx_NumberType ||
-                    varUpper.type == syms.javafx_DoubleType ||
-                    (varStep != null && (
-                        varStep.type == syms.javafx_NumberType ||
-                        varStep.type == syms.javafx_DoubleType) )) {
-                this.elemType = syms.javafx_NumberType;
-                this.szType = syms.longType;
-            } else {
+            this.varSize = tree.boundSizeVar;
+            if (varLower.type == syms.javafx_IntegerType) {
                 this.elemType = syms.javafx_IntegerType;
                 this.szType = syms.intType;
+            } else {
+                this.elemType = syms.javafx_NumberType;
+                this.szType = syms.longType;
             }
             this.exclusive = tree.isExclusive();
         }
@@ -384,6 +379,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return varStep == null?
                   m().Literal(elemType.tag, 1)
                 : get(varStep);
+        }
+        private JCExpression size() {
+            return get(varSize);
         }
         private JCExpression exclusive() {
             return makeBoolean(exclusive);
@@ -422,7 +420,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return makeExec(m().Assign(id(var), value));
         }
 
-        JCExpression makeSizeCalculation() {
+        private JCExpression makeSizeCalculation() {
             RuntimeMethod rm =
                     (elemType == syms.javafx_NumberType)?
                           defs.Sequences_calculateFloatRangeSize
@@ -431,7 +429,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            return makeReturn(makeSizeCalculation());
+            return makeReturn(size());
         }
 
         /*
@@ -444,7 +442,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCStatement makeGetElementBody() {
             JCExpression cond = AND(
                     GT(posArg(), makeInt(0)),
-                    LT(posArg(), makeSizeCalculation())
+                    LT(posArg(), size())
                     );
             JCExpression offset = (varStep == null)?
                   posArg()

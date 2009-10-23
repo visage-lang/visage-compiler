@@ -39,11 +39,13 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
+import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.jvm.ClassReader;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
 /**
  * Decompose bind expressions into easily translated expressions
@@ -144,20 +146,24 @@ public class JavafxDecompose implements JavafxVisitor {
         return lb.toList();
     }
 
-    private JFXVar shredVar(JFXExpression pose, Type type) {
+    private JFXVar makeVar(DiagnosticPosition diagPos, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         if (varOwner == null) {
             TODO("LOCAL BIND");
         }
         Name vName = tempName();
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
-        JFXModifiers mod = fxmake.at(pose.pos).Modifiers(flags | JavafxFlags.SCRIPT_PRIVATE);
-        JFXType fxType = fxmake.at(pose.pos).TypeAny(Cardinality.ANY);
-        JFXVar v = fxmake.at(pose.pos).Var(vName, fxType, mod, pose, JavafxBindStatus.UNIDIBIND, null, null);
+        JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags | JavafxFlags.SCRIPT_PRIVATE);
+        JFXType fxType = fxmake.at(diagPos).TypeAny(Cardinality.ANY);
+        JFXVar v = fxmake.at(diagPos).Var(vName, fxType, mod, pose, bindStatus, null, null);
         VarSymbol sym = new VarSymbol(flags, vName, type, varOwner);
         v.sym = sym;
         v.type = type;
         lbVar.append(v);
         return v;
+    }
+
+    private JFXVar shredVar(JFXExpression pose, Type type) {
+        return makeVar(pose.pos(), pose, JavafxBindStatus.UNIDIBIND, type);
     }
 
     private JFXExpression id(JFXVar v) {
@@ -598,12 +604,20 @@ public class JavafxDecompose implements JavafxVisitor {
         result = tree;
     }
 
-    private JFXVar synthVar(JFXExpression tree) {
+    private JFXVar synthVar(JFXExpression tree, Type type) {
         if (tree == null) {
             return null;
         }
         JFXExpression pose = decompose(tree);
-        JFXVar v = shredVar(pose, tree.type);
+
+        fxmake.at(tree.pos()); // set position
+
+        // cast to desired type
+        JFXIdent tp = (JFXIdent)fxmake.Type(type);
+        tp.sym = type.tsym;
+        JFXExpression expr = fxmake.TypeCast(tp, pose);
+
+        JFXVar v = shredVar(expr, type);
         v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
         return v;
     }
@@ -613,16 +627,24 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression upper;
         JFXExpression stepOrNull;
         if (inBind) {
-            lower = synthVar(tree.getLower());
-            upper = synthVar(tree.getUpper());
-            stepOrNull = synthVar(tree.getStepOrNull());
+            Type elemType = types.elementType(tree.type);
+            lower = synthVar(tree.getLower(), elemType);
+            upper = synthVar(tree.getUpper(), elemType);
+            stepOrNull = synthVar(tree.getStepOrNull(), elemType);
         } else {
             lower = decomposeComponent(tree.getLower());
             upper = decomposeComponent(tree.getUpper());
             stepOrNull = decomposeComponent(tree.getStepOrNull());
         }
-        result = fxmake.at(tree.pos).RangeSequence(lower, upper, stepOrNull, tree.isExclusive());
-        result.type = tree.type;
+        JFXSequenceRange res = fxmake.at(tree.pos).RangeSequence(lower, upper, stepOrNull, tree.isExclusive());
+        res.type = tree.type;
+        if (inBind) {
+            // now add a size temp var
+            JFXVar v = makeVar(tree.pos(), null, JavafxBindStatus.UNBOUND, syms.intType);
+            v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+            res.boundSizeVar = v;
+        }
+        result = res;
     }
 
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
