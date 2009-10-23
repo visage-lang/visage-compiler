@@ -1083,7 +1083,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         } else {
                             onReplaceCall = callStmt(getReceiver(), attributeOnReplaceName(varSym),
                                             makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym),
-                                            makeInt(-1), makeInt(-1), makeInt(-1));
+                                            makeInt(0), makeInt(0), makeInt(0));
                         }
                         JCStatement flagSet = makeFlagStatement(varSym, defs.varFlagActionChange, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED);
                         init = m().Block(0L, List.of(flagSet, onReplaceCall));
