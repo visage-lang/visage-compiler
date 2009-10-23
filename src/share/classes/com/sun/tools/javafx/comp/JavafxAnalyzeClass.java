@@ -52,6 +52,7 @@ import static com.sun.tools.mjavac.code.Flags.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -178,7 +179,7 @@ class JavafxAnalyzeClass {
             this.vmi = vmi;
             this.initStmt = initStmt;
             this.enumeration = -1;
-            this.bindersOrNull = new HashSet<VarInfo>();
+            this.bindersOrNull = new LinkedHashSet<VarInfo>();
             this.boundInvalidatees = ListBuffer.lb();
         }
 
