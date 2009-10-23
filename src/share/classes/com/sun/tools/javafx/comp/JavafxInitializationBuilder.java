@@ -36,6 +36,7 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.tree.*;
@@ -1292,9 +1293,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), id(phaseName)));
                         } else {
                             addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()),
-                                             makeInt(-1),
-                                             makeInt(-1),
-                                             makeInt(-1),
+                                             id(defs.sliceArgNameStartPos),
+                                             id(defs.sliceArgNameEndPos),
+                                             id(defs.sliceArgNameNewLength),
                                              id(phaseName)));
                         }
                     }
@@ -1307,9 +1308,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 addStmt(callStmt(getReceiver(), attributeInvalidateName(bindeeSym), id(phaseName)));
                             } else {
                                 addStmt(callStmt(getReceiver(bindeeSym), attributeInvalidateName(bindeeSym),
-                                                 makeInt(-1),
-                                                 makeInt(-1),
-                                                 makeInt(-1),
+                                                 id(defs.sliceArgNameStartPos),
+                                                 id(defs.sliceArgNameEndPos),
+                                                 id(defs.sliceArgNameNewLength),
                                                  id(phaseName)));
                             }
                             // rest are duplicates.
@@ -1660,6 +1661,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          
                 @Override
                 public void statements() {
+                    // Handle invalidators if present.
+                    List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
+                    if (!invalidatees.isEmpty()) {
+                        for (BindeeInvalidator invalidator : invalidatees) {
+                            addStmt(invalidator.invalidator);
+                        }
+                        
+                        return;
+                    }
+                    
                     // Prepare to accumulate if statements.
                     beginBlock();
     
@@ -1681,32 +1692,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
-                        // FIXME - do the right thing.
                         if (!otherVar.isSequence()) {
                             addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), id(phaseName)));
-                        } else {
-                            addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()),
-                                             makeInt(-1),
-                                             makeInt(-1),
-                                             makeInt(-1),
-                                             id(phaseName)));
                         }
                     }
                     
                     // Invalidate back to inverse.
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         for (VarSymbol bindeeSym : varInfo.boundBindees()) {
-                            // FIXME - do the right thing.
-                            if (!types.isSequence(bindeeSym.type)) {
-                                addStmt(callStmt(getReceiver(), attributeInvalidateName(bindeeSym), id(phaseName)));
-                            } else {
-                                addStmt(callStmt(getReceiver(bindeeSym), attributeInvalidateName(bindeeSym),
-                                                 makeInt(-1),
-                                                 makeInt(-1),
-                                                 makeInt(-1),
-                                                 id(phaseName)));
-                            }
-                            // rest are duplicates.
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(bindeeSym), id(phaseName)));
                             break;
                         }
                     }
@@ -1735,18 +1729,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Begin the get$ block.
                         beginBlock();
                         
-                        if (isSequence) {
-                            // Call the get$var to force evaluation.
-                            addStmt(callStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
-                                                            makeMixinSafeVarValue(proxyVarSym),
-                                                            makeMixinSafeVarValue(proxyVarSym),
-                                                            id(defs.sliceArgNameStartPos),
-                                                            id(defs.sliceArgNameEndPos),
-                                                            id(defs.sliceArgNameNewLength)));
-                        } else {
-                            // Call the get$var to force evaluation.
-                            addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
-                        }
+                        // Call the get$var to force evaluation.
+                        addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
                         JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.varFlagNEEDS_TRIGGER));

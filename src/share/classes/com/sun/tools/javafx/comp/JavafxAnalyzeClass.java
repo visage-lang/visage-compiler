@@ -42,8 +42,7 @@ import com.sun.tools.mjavac.util.Name;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.BoundResult;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.DependentPair;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
@@ -166,7 +165,10 @@ class JavafxAnalyzeClass {
         private int enumeration;
 
         // Inversion of boundBindees.
-        private  HashSet<VarInfo> bindersOrNull;
+        private HashSet<VarInfo> bindersOrNull;
+        
+        // Inversion of invalidators.
+        private ListBuffer<BindeeInvalidator> boundInvalidatees;
 
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
@@ -176,7 +178,8 @@ class JavafxAnalyzeClass {
             this.vmi = vmi;
             this.initStmt = initStmt;
             this.enumeration = -1;
-            this.bindersOrNull = null;
+            this.bindersOrNull = new HashSet<VarInfo>();
+            this.boundInvalidatees = ListBuffer.lb();
         }
 
         // Return the var symbol.
@@ -287,7 +290,10 @@ class JavafxAnalyzeClass {
         public List<VarSymbol> boundBindees() { return List.<VarSymbol>nil(); }
         
         // Bound variable symbols on which this variable is used.
-        public HashSet<VarInfo> boundBinders() { return bindersOrNull == null? new HashSet<VarInfo>() : bindersOrNull; }
+        public HashSet<VarInfo> boundBinders() { return bindersOrNull; }
+        
+        // Bound sequences that need to be invalidated when invalidated.
+        public List<BindeeInvalidator> boundInvalidatees() { return boundInvalidatees.toList(); }
 
         // Empty or bound select pairs.
         public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
@@ -297,6 +303,9 @@ class JavafxAnalyzeClass {
 
         // Null or Java code for getting the size of a bound sequence
         public JCStatement boundSizeGetter() { return null; }
+        
+        // Null or Java code for invalidation of a bound sequence
+        public List<BindeeInvalidator> boundInvalidators() { return List.<BindeeInvalidator>nil(); }
 
         @Override
         public String toString() { return getNameString(); }
@@ -317,6 +326,7 @@ class JavafxAnalyzeClass {
                                (!boundBindees().isEmpty() ? ", intra binds" : "") + 
                                (!boundBoundSelects().isEmpty() ? ", inter binds" : "") + 
                                (bindersOrNull != null ?  ", binders" : "") + 
+                               (!boundInvalidatees.isEmpty() ?  ", invalidators" : "") + 
                                (getDefaultInitStatement() != null ? ", init" : "") +
                                ", class=" + getClass().getSimpleName());
             if (detail) {
@@ -324,9 +334,27 @@ class JavafxAnalyzeClass {
                     System.out.print("        proxy=");
                     proxyVar().printInfo(false);
                 }
+                
                 if (hasOverrideVar()) {
                     System.out.print("        override=");
                     overrideVar().printInfo(false);
+                }
+                
+                if (boundElementGetter() != null) {
+                    System.out.print("        element getter=");
+                    System.out.println(boundElementGetter());
+                }
+                
+                if (boundSizeGetter() != null) {
+                    System.out.print("        size getter=");
+                    System.out.println(boundSizeGetter());
+                }
+                
+                if (boundInvalidators().size() != 0) {
+                    System.out.println("        invalidators=");
+                    for (BindeeInvalidator bi : boundInvalidators()) {
+                        System.out.println("          " + bi.bindee + " " + bi.invalidator);
+                    }
                 }
             }
         }
@@ -419,6 +447,10 @@ class JavafxAnalyzeClass {
         // Null or Java code for getting the size of a bound sequence
         @Override
         public JCStatement boundSizeGetter() { return bindOrNull == null ? null : bindOrNull.getSizeMethodBody(); }
+        
+        // Null or Java code for invalidation of a bound sequence
+        @Override
+        public List<BindeeInvalidator> boundInvalidators() { return bindOrNull == null ? List.<BindeeInvalidator>nil() : bindOrNull.invalidators(); }
 
         // Possible javafx code for the var's 'on replace'.
         @Override
@@ -592,10 +624,33 @@ class JavafxAnalyzeClass {
             return hasOverrideVar() ? overrideVar().boundBinders() : super.boundBinders();
         }
 
+        // Bound sequences that need to be invalidated when invalidated.
+        public List<BindeeInvalidator> boundInvalidatees() {
+            return hasOverrideVar() ? overrideVar().boundInvalidatees() : super.boundInvalidatees();
+        }
+
         // Empty or bound select pairs.
         @Override
         public List<DependentPair> boundBoundSelects() {
             return hasOverrideVar() ? overrideVar().boundBoundSelects() : super.boundBoundSelects();
+        }
+
+        // Null or Java code for getting the element of a bound sequence
+        @Override
+        public JCStatement boundElementGetter() {
+            return hasOverrideVar() ? overrideVar().boundElementGetter() : super.boundElementGetter();
+        }
+
+        // Null or Java code for getting the size of a bound sequence
+        @Override
+        public JCStatement boundSizeGetter() {
+            return hasOverrideVar() ? overrideVar().boundSizeGetter() : super.boundSizeGetter();
+        }
+        
+        // Null or Java code for invalidation of a bound sequence
+        @Override
+        public List<BindeeInvalidator> boundInvalidators() {
+            return hasOverrideVar() ? overrideVar().boundInvalidators() : super.boundInvalidators();
         }
 
         // Possible javafx code for the var's 'on replace'.
@@ -715,39 +770,32 @@ class JavafxAnalyzeClass {
         referenceSet.add(varInfo);
     }
     
-    private void addBinder(VarInfo bindee, VarInfo binder) {
-        // If an interesting var.
-        if (bindee != null) {
-            // Add a symbol buffer if necessary.
-            if (bindee.bindersOrNull == null) {
-                bindee.bindersOrNull = new HashSet<VarInfo>();
-            }
-            
-            // Add bunder.
-            bindee.bindersOrNull.add(binder);
-        }
-    }
-    
     private void addBinders(TranslatedVarInfoBase tai) {
-        // If the var has bindees
-        if (tai.boundBindees() != null) {
-            // Check each of the bindees.
-            for (VarSymbol bindeeSym : tai.boundBindees()) {
-                // Find the varInfo
-                VarInfo bindee = visitedAttributes.get(bindeeSym.name);
-                addBinder(bindee, (VarInfo)tai);
+        // Add any bindees to binders.
+        for (VarSymbol bindeeSym : tai.boundBindees()) {
+            // Find the varInfo
+            VarInfo bindee = visitedAttributes.get(bindeeSym.name);
+            
+            if (bindee != null) {
+                bindee.bindersOrNull.add((VarInfo)tai);
             }
         }
             
-        // If the var has inter-class bindees
-        if (tai.boundBoundSelects() != null) {
-            // Add any bind select pairs to update map.
-            for (DependentPair pair : tai.boundBoundSelects()) {
-                addInterClassBinder(tai, pair.instanceSym, (VarSymbol)pair.referencedSym);
+        // Add any bind select pairs to update map.
+        for (DependentPair pair : tai.boundBoundSelects()) {
+            addInterClassBinder(tai, pair.instanceSym, (VarSymbol)pair.referencedSym);
+        }
+        
+        // If the tai has invalidators.
+        for (BindeeInvalidator invalidator: tai.boundInvalidators()) {
+            // Find the varInfo
+            VarInfo bindee = visitedAttributes.get(invalidator.bindee.name);
+            
+            if (bindee != null && invalidator.invalidator != null) {
+               bindee.boundInvalidatees.append(invalidator);
             }
         }
     }
-
     
     //
     // This class supers all classes used to hold function information. Consumed by
