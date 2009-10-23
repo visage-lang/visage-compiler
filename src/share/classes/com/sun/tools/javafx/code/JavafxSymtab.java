@@ -74,6 +74,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_VoidType;
     public final Type javafx_java_lang_VoidType;
     public final Type javafx_SequenceType;
+    public final Type javafx_SequenceRefType;
     public final Type javafx_ArraySequenceType;
     public final Type javafx_EmptySequenceType;
     public final Type javafx_SequenceTypeErasure;
@@ -182,6 +183,7 @@ public class JavafxSymtab extends Symtab {
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;
         javafx_SequenceType = enterClass(JavafxDefs.cSequence);
+        javafx_SequenceRefType = enterClass(JavafxDefs.cSequenceRef);
         javafx_ArraySequenceType = enterClass(JavafxDefs.arraySequence);
         javafx_SequencesType = enterClass(JavafxDefs.cSequences);
         javafx_EmptySequenceType = fxtypes.sequenceType(botType);

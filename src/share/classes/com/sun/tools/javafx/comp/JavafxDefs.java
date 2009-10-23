@@ -106,6 +106,7 @@ public class JavafxDefs {
 
     public  static final String cSequences = sequencePackageNameString + ".Sequences";
     public  static final String cSequence  = sequencePackageNameString + ".Sequence";
+    public  static final String cSequenceRef  = sequencePackageNameString + ".SequenceRef";
     public  static final String arraySequence  = sequencePackageNameString + ".ArraySequence";
 
     private static final String cUtil = runtimePackageNameString + ".Util";

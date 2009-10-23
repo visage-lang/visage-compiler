@@ -553,7 +553,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct the value field
                     addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
-                                                    needsDefaultValue(ai.getVMI()) ? 
+                                                    needsDefaultValue(ai.getVMI()) && !(ai.isSequence() && ai.hasBoundDefinition()) ? 
                                                           JavafxInitializationBuilder.this.makeDefaultValue(diagPos, ai.getVMI())
                                                         : null));
                 }
@@ -1155,12 +1155,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     if (varInfo.isMixinVar()) {
                         assert false : "Mixin sequences not implemented";
-                    } else if (varInfo.hasBoundDefinition()) {                        
-                        addStmt(makeThrow(syms.runtimeExceptionType, "bound sequence getter not yet implemented"));
+                    } else if (varInfo.hasBoundDefinition()) {  
+                        // Begin if block.
+                        beginBlock();
+                        
+                        // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
+                        List<JCExpression> args = List.<JCExpression>of(makeTypeInfo(diagPos, types.elementType(type)), id(names._this),  makeVarOffset(varInfo.getSymbol()));
+                        JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
+                        addStmt(makeExec(m().Assign(id(varName), newExpr)));
+                        
+                        // If (seq$ == null) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
+                        addStmt(m().If(makeNullCheck(id(varName)), endBlock(), null));
                     } else {
                         addStmt(initIf);
                     }
-    
+                    
                     // Construct and add: return $var;
                     addStmt(m().Return(id(varName)));
                 }
@@ -1288,7 +1297,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
-                        // FIXME - do the right thing.
                         if (!otherVar.isSequence()) {
                             addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), id(phaseName)));
                         } else {
@@ -1303,7 +1311,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Invalidate back to inverse.
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         for (VarSymbol bindeeSym : varInfo.boundBindees()) {
-                            // FIXME - do the right thing.
                             if (!types.isSequence(bindeeSym.type)) {
                                 addStmt(callStmt(getReceiver(), attributeInvalidateName(bindeeSym), id(phaseName)));
                             } else {
@@ -1344,7 +1351,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Begin the get$ block.
                         beginBlock();
                         
-                        // FIXME - do the right thing.
                         // Call the onReplace$var to force evaluation.
                         addStmt(callStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
                                                         makeMixinSafeVarValue(proxyVarSym),
@@ -1786,7 +1792,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    // Forward to the mixin.
                     // Call super first.
                     if (varInfo.isOverride()) {
                         callSuper();
@@ -1795,6 +1800,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Fetch the on replace statement or null.
                     JCStatement onReplace = varInfo.onReplaceAsInline();
     
+                    // Forward to the mixin.
                     if (!isMixinClass() && varInfo.isMixinVar()) {
                         // Mixin.onReplace$var(this, oldValue, newValue);
                         callMixin((ClassSymbol)varSym.owner);
