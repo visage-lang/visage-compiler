@@ -69,19 +69,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private static final int VFLAG_DEFAULTS_APPLIED = 1;
     private static final int VFLAG_BITS_PER_VAR = 2;
 
-    private Name outerAccessorFieldName;
-    private Name makeInitMap;
+    //TODO: for searchability and shared use, all names should be defined in defs
+    private final Name outerAccessorFieldName;
+    private final Name makeInitMap;
 
-    private Name updateInstanceName;
-    private Name objName;
-    private Name varNumName;
-    private Name varLocalNumName;
-    private Name varWordName;
-    private Name varChangedName;
-    private Name functionClassPrefixName;
-    private Name getPosName;
-    private Name getSizeName;
-    private Name phaseName;
+    private final Name updateInstanceName;
+    private final Name objName;
+    private final Name varNumName;
+    private final Name getPosName;
+    private final Name getSizeName;
+    private final Name phaseName = defs.invalidateArgNamePhase;
 
     void TODO() {
         throw new RuntimeException("Not yet implemented");
@@ -150,14 +147,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         updateInstanceName = names.fromString("instance$");
         objName = names.fromString("object$");
         varNumName = names.fromString("varNum$");
-        varLocalNumName = names.fromString("varLocalNum$");
-        varWordName = names.fromString("varWord$");
-        varChangedName = names.fromString("varChanged$");
         getPosName = names.fromString("get");
         getSizeName = names.fromString("size");
-        phaseName = names.fromString("phase$");
-        
-        functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
     }
 
     /**

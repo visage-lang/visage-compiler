@@ -36,7 +36,6 @@ import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.List;
-import com.sun.tools.mjavac.util.ListBuffer;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -319,14 +318,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         abstract JCStatement makeSizeBody();
         abstract JCStatement makeGetElementBody();
-        abstract List<BindeeInvalidator> getInvalidators();
+        abstract void setupInvalidators();
 
         BoundSequenceTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
         }
 
         BoundSequenceResult doit() {
-            return new BoundSequenceResult(getInvalidators(), makeGetElementBody(), makeSizeBody());
+            setupInvalidators();
+            return new BoundSequenceResult(invalidators(), makeGetElementBody(), makeSizeBody());
         }
     }
 
@@ -355,13 +355,16 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.exclusive = tree.isExclusive();
         }
         private JCExpression posArg() {
-            return id(defs.elemPosArgName);
+            return id(defs.getArgNamePos);
         }
         private JCExpression zero() {
             return m().Literal(elemType.tag, 0);
         }
         private JCExpression szZero() {
             return m().Literal(szType.tag, 0);
+        }
+        private JCExpression iZero() {
+            return m().Literal(syms.intType.tag, 0);
         }
         private JCExpression szOne() {
             return m().Literal(szType.tag, 1);
@@ -398,6 +401,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private JCExpression GE(JCExpression v1, JCExpression v2) {
             return makeBinary(JCTree.GE, v1, v2);
         }
+        private JCExpression EQ(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.GE, v1, v2);
+        }
+        private JCExpression NE(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.GE, v1, v2);
+        }
         private JCExpression AND(JCExpression v1, JCExpression v2) {
             return makeBinary(JCTree.AND, v1, v2);
         }
@@ -416,23 +425,38 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private JCExpression DIV(JCExpression v1, JCExpression v2) {
             return makeBinary(JCTree.DIV, v1, v2);
         }
+        private JCExpression NEG(JCExpression v1) {
+            return makeUnary(JCTree.NEG, v1);
+        }
+        private JCStatement Assign(JCExpression vid, JCExpression value) {
+            return makeExec(m().Assign(vid, value));
+        }
         private JCStatement Assign(JCVariableDecl var, JCExpression value) {
-            return makeExec(m().Assign(id(var), value));
+            return Assign(id(var), value);
+        }
+        private JCStatement Block(JCStatement... stmts) {
+            return m().Block(0L, List.from(stmts));
+        }
+        private JCStatement If(JCExpression cond, JCStatement thenStmt, JCStatement elseStmt) {
+            return m().If(cond, thenStmt, elseStmt);
+        }
+        private JCStatement If(JCExpression cond, JCStatement thenStmt) {
+            return m().If(cond, thenStmt, null);
         }
 
-        private JCExpression makeSizeCalculation() {
-            RuntimeMethod rm =
+        private RuntimeMethod sizeCalculationMethod() {
+            return
                     (elemType == syms.javafx_NumberType)?
                           defs.Sequences_calculateFloatRangeSize
                         : defs.Sequences_calculateIntRangeSize;
-            return call(rm, lower(), upper(), step(), exclusive());
+     //       return call(sizeCalculationMethod(), lower(), upper(), step(), exclusive());
         }
 
         JCStatement makeSizeBody() {
             return makeReturn(size());
         }
 
-        /*
+        /**
          * float get$range(int pos) {
          *    return (pos > 0 && pos < size)?
          *              pos * step + lower
@@ -452,8 +476,84 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return makeReturn(res);
         }
 
-        List<BindeeInvalidator> getInvalidators() {
-            return List.<BindeeInvalidator>nil();
+        /**
+         * float newLower = ...;
+         * if (step != 0 && lower != newLower) {
+         *     int newSize = // computed in library
+         *     int loss = 0;
+         *     int gain = 0;
+         *     float delta = newLower - lower;
+         *     if (size == 0 || ((delta % step) != 0)) {
+         *      // invalidate everything
+         * 	loss = size;
+         * 	gain = newSize;
+         *     } else if (newLower > lower) {
+         * 	loss = (int) delta / step;
+         * 	if (loss > size)
+         * 	    loss = size
+         *     } else {
+         * 	gain = (int) -delta / step;
+         *     }
+         *     invalidate$range(0, loss, gain, phase);
+         *     if (phase == TRIGGER_PHASE) {
+         * 	lower = newLower;
+         * 	size = newSize;
+         *     }
+         * }
+         */
+        private JCStatement makeInvalidateLower() {
+            JCVariableDecl vNewLower = makeTmpVar("newLower", elemType, translateToExpression(varLower.getInitializer(), elemType));
+            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+                    call(sizeCalculationMethod(), id(vNewLower), upper(), step(), exclusive()));
+            JCVariableDecl vLoss = makeMutableTmpVar("loss", syms.intType, szZero());
+            JCVariableDecl vGain = makeMutableTmpVar("gain", syms.intType, szZero());
+            JCVariableDecl vDelta = makeTmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
+
+            return Block(
+                    vNewLower,
+                    If (AND(NE(step(), zero()), NE(lower(), id(vNewLower))),
+                        Block(
+                            vNewSize,
+                            vLoss,
+                            vGain,
+                            vDelta,
+                            If (OR(EQ(size(), iZero()), NE(makeBinary(JCTree.MOD, id(vDelta), step()), zero())),
+                                Block(
+                                    Assign(vLoss, size()),
+                                    Assign(vGain, id(vNewSize))),
+                            If (GT(id(vNewLower), lower()),
+                                Block(
+                                    Assign(vLoss, m().TypeCast(syms.intType, DIV(id(vDelta), step()))),
+                                    If (GT(id(vLoss), size()),
+                                       Assign(vLoss, size()))
+                                    ),
+                                Assign(vGain, m().TypeCast(syms.intType, DIV(NEG(id(vDelta)), step())))
+                            )),
+                            callStmt(attributeInvalidateName(targetSymbol), iZero(), id(vLoss), id(vGain), id(defs.invalidateArgNamePhase)),
+                            If (EQ(id(defs.invalidateArgNamePhase), id(defs.varFlagNEEDS_TRIGGER)),
+                                Block(
+                                    Assign(lower(), id(vNewLower)),
+                                    Assign(size(), id(vNewSize))
+                                )
+                            )
+                       ))
+            );
+        }
+
+        private JCStatement makeInvalidateUpper() {
+            return null;
+        }
+
+        private JCStatement makeInvalidateStep() {
+            return null;
+        }
+
+        void setupInvalidators() {
+            addInvalidator(varLower.sym, makeInvalidateLower());
+            addInvalidator(varUpper.sym, makeInvalidateUpper());
+            if (varStep != null) {
+                addInvalidator(varStep.sym, makeInvalidateStep());
+            }
         }
     }
 

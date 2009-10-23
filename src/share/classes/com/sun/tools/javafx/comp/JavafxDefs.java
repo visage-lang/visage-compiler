@@ -250,7 +250,6 @@ public class JavafxDefs {
     final Name attributeNewValueName;
     final Name isInitializedPrefixName;
     final Name incrementSharingMethodName;
-    final Name elemPosArgName;
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
     final Name onReplaceArgNameBuffer;
@@ -261,6 +260,8 @@ public class JavafxDefs {
     final Name onReplaceArgNameLastIndex;
     final Name onReplaceArgNameNewElements;
     final Name getArgNamePos;
+    final Name invalidateArgNamePhase;
+
     final Name internalSuffixName;
     
     final Name varFlagActionTest;
@@ -385,7 +386,6 @@ public class JavafxDefs {
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
         incrementSharingMethodName = names.fromString("incrementSharing");
-        elemPosArgName = names.fromString("pos$");
         onReplaceArgNameBuffer = names.fromString("$buffer$");
         onReplaceArgNameOld = names.fromString("oldValue$");
         onReplaceArgNameNew = names.fromString("newValue$");
@@ -393,6 +393,7 @@ public class JavafxDefs {
         sliceArgNameEndPos = names.fromString("endPos$");
         sliceArgNameNewLength = names.fromString("newLength$");
         getArgNamePos = names.fromString("pos$");
+        invalidateArgNamePhase = names.fromString("phase$");
         onReplaceArgNameFirstIndex = sliceArgNameStartPos;
         onReplaceArgNameLastIndex = sliceArgNameEndPos;
         onReplaceArgNameNewElements = names.fromString("$newElements$");

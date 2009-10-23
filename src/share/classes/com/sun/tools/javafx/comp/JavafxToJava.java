@@ -699,7 +699,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     List<JCStatement> localDefs = prependToStatements.appendList(statements()).toList();
                     return new ExpressionResult(
                             localDefs.size() == 0 ? tvalue : makeBlockExpression(localDefs, tvalue),
-                            bindees(),
+                            invalidators(),
                             interClass(),
                             targetType);
                 } else {
