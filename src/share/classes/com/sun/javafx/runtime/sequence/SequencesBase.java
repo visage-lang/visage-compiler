@@ -310,22 +310,50 @@ public class SequencesBase {
         }
     }
 
-    public static int calculateSize(int start, int bound, int step, boolean exclusive) {
-        if (Math.abs((long) start - (long) bound) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)
+    public static int calculateIntRangeSize(int lower, int upper, int step, boolean exclusive) {
+        if (Math.abs((long) lower - (long) upper) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range sequence too big");
-        if (bound == start) {
+        if (upper == lower) {
             return exclusive ? 0 : 1;
         }
         else {
-            int size = Math.max(0, ((bound - start) / step) + 1);
+            int size = Math.max(0, ((upper - lower) / step) + 1);
             if (exclusive) {
                 boolean tooBig = (step > 0)
-                        ? (start + (size-1)*step >= bound)
-                        : (start + (size-1)*step <= bound);
+                        ? (lower + (size-1)*step >= upper)
+                        : (lower + (size-1)*step <= upper);
                 if (tooBig && size > 0)
                     --size;
             }
             return (int) size;
+        }
+    }
+
+    public static int calculateFloatRangeSize(float lower, float upper, float step, boolean exclusive) {
+        if (step == 0.0f) {
+            throw new IllegalArgumentException("Range step of zero");
+        }
+
+        if (upper == lower) {
+            return exclusive ? 0 : 1;
+        } else {
+
+            long sz = ((upper < lower && step > 0.0f) ||
+                    (upper > lower && step < 0.0f)) ? 0
+                    : Math.max(0, (((long) ((upper - lower) / step)) + 1));
+            if (exclusive) {
+                boolean tooBig = (step > 0.0f)
+                        ? (lower + (sz - 1) * step >= upper)
+                        : (lower + (sz - 1) * step <= upper);
+                if (tooBig && sz > 0) {
+                    --sz;
+                }
+            }
+            if (sz > Integer.MAX_VALUE || sz < 0) {
+                throw new IllegalArgumentException("Range sequence too big");
+            } else {
+                return (int) sz;
+            }
         }
     }
 

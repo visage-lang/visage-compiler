@@ -45,27 +45,7 @@ class NumberRangeSequence extends AbstractSequence<Float> implements Sequence<Fl
             throw new IllegalArgumentException("Range step of zero");
         this.start = start;
         this.step = step;
-        if (bound == start) {
-            this.size = exclusive ? 0 : 1;
-        }
-        else {
-
-            long sz = ((bound < start  && step > 0.0f) ||
-                    (bound > start && step < 0.0f))?
-                        0
-                :Math.max(0, (((long) ((bound - start) / step)) + 1));
-            if (exclusive) {
-                boolean tooBig = (step > 0.0f)
-                        ? (start + (sz-1)*step >= bound)
-                        : (start + (sz-1)*step <= bound);
-                if (tooBig && sz > 0)
-                    --sz;
-            }
-            if (sz > Integer.MAX_VALUE || sz < 0)
-                throw new IllegalArgumentException("Range sequence too big");
-            else
-                this.size = (int) sz;
-        }
+        this.size = Sequences.calculateFloatRangeSize(start, bound, step, exclusive);
     }
 
     public NumberRangeSequence(float start, float bound, float step) {

@@ -27,6 +27,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
+import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -384,6 +385,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                   m().Literal(elemType.tag, 1)
                 : get(varStep);
         }
+        private JCExpression exclusive() {
+            return makeBoolean(exclusive);
+        }
         private JCExpression LT(JCExpression v1, JCExpression v2) {
             return makeBinary(JCTree.LT, v1, v2);
         }
@@ -418,88 +422,21 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return makeExec(m().Assign(id(var), value));
         }
 
+        JCExpression makeSizeCalculation() {
+            RuntimeMethod rm =
+                    (elemType == syms.javafx_NumberType)?
+                          defs.Sequences_calculateFloatRangeSize
+                        : defs.Sequences_calculateIntRangeSize;
+            return call(rm, lower(), upper(), step(), exclusive());
+        }
+
         JCStatement makeSizeBody() {
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-            // long sz = 0;
-            JCVariableDecl vSize = makeMutableTmpVar("sz", szType, szZero());
-
-            // (long) ((upper - lower) / step)) + 1
-            JCExpression diff = MINUS(upper(), lower());
-            if (varStep != null) {
-                diff = DIV(diff, step());
-            }
-            if (elemType == syms.javafx_NumberType) {
-                diff = m().TypeCast(szType, diff);
-            }
-            diff = PLUS(diff, szOne());
-
-            // sz = (long) ((upper - lower) / step)) + 1;
-            stmts.append(Assign(vSize, diff));
-
-            // if (sz < 0) sz = 0;
-            stmts.append(m().If(
-                    LT(id(vSize), szZero()),
-                    Assign(vSize, szZero()),
-                    null));
-
-            if (elemType == syms.javafx_NumberType) {
-                // if (   (upper >= lower || step <= 0.0f) &&
-                //        (upper <= lower || step >= 0.0f)) {
-                //     sz = (long) ((upper - lower) / step)) + 1;
-                //     if (sz < 0) sz = 0;
-                // }
-                JCExpression cond = (varStep == null)?
-                    GE(upper(), lower())
-                  : AND(
-                        OR(
-                            GE(upper(), lower()),
-                            LE(step(), zero())),
-                        OR(
-                            LE(upper(), lower()),
-                            GE(step(), zero())));
-                JCBlock block = m().Block(0L, stmts.toList());
-                stmts = ListBuffer.lb();
-                stmts.append( m().If(cond, block, null) );
-            }
-            if (exclusive) {
-                // long reach = lower + (sz-1)*step;
-                // if (sz > 0 && ((step > 0.0f)
-                //      ? (reach >= upper)
-                //      : (reach <= upper)) )
-                //   --sz;
-                JCExpression reach = MINUS(id(vSize), szOne());
-                if (varStep != null) {
-                    reach = MUL(reach, step());
-                }
-                reach = PLUS(lower(), reach);
-                JCVariableDecl vReach = makeTmpVar("reach", szType, reach);
-                JCExpression exceed = (varStep == null)?
-                      GE(id(vReach), upper())
-                    : m().Conditional(
-                        GT(step(), zero()),
-                        GE(id(vReach), upper()),
-                        LE(id(vReach), upper()));
-                JCExpression tooBig = AND(
-                        GT(id(vSize), szZero()),
-                        exceed);
-                stmts.append( m().If(
-                        tooBig,
-                        makeExec(makeUnary(JCTree.PREDEC, id(vSize))),
-                        null) );
-            }
-            stmts.prepend(vSize);
-            JCExpression res = id(vSize);
-            if (szType == syms.longType) {
-                res = m().TypeCast(syms.intType, res);
-            }
-            stmts.append(makeReturn(res));
-            return m().Block(0L, stmts.toList());
+            return makeReturn(makeSizeCalculation());
         }
 
         /*
          * float get$range(int pos) {
-         *    return (pos > 0 && pos < size$range())?
+         *    return (pos > 0 && pos < size)?
          *              pos * step + lower
          *            : 0.0f;
          * }
@@ -507,7 +444,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCStatement makeGetElementBody() {
             JCExpression cond = AND(
                     GT(posArg(), makeInt(0)),
-                    LT(posArg(), call(attributeSizeName(targetSymbol)))
+                    LT(posArg(), makeSizeCalculation())
                     );
             JCExpression offset = (varStep == null)?
                   posArg()

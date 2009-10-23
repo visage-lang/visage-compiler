@@ -151,6 +151,8 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_deleteSlice;
     final RuntimeMethod Sequences_deleteValue;
     final RuntimeMethod Sequences_deleteAll;
+    final RuntimeMethod Sequences_calculateIntRangeSize;
+    final RuntimeMethod Sequences_calculateFloatRangeSize;
 
     final RuntimeMethod Util_isEqual; //TODO: replace uses with Checks_equals
 
@@ -461,6 +463,8 @@ public class JavafxDefs {
         Sequences_deleteSlice = new RuntimeMethod(names, cSequences, "deleteSlice");
         Sequences_deleteValue = new RuntimeMethod(names, cSequences, "deleteValue");
         Sequences_deleteAll = new RuntimeMethod(names, cSequences, "deleteAll");
+        Sequences_calculateIntRangeSize = new RuntimeMethod(names, cSequences, "calculateIntRangeSize");
+        Sequences_calculateFloatRangeSize = new RuntimeMethod(names, cSequences, "calculateFloatRangeSize");
 
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
 
