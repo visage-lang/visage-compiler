@@ -79,6 +79,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final Name varNumName;
     private final Name getPosName;
     private final Name getSizeName;
+    private final Name saveName;
     private final Name phaseName = defs.invalidateArgNamePhase;
 
     void TODO() {
@@ -150,6 +151,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         varNumName = names.fromString("varNum$");
         getPosName = names.fromString("get");
         getSizeName = names.fromString("size");
+        saveName = names.fromString("save");
     }
 
     /**
@@ -931,10 +933,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             protected VarSymbol proxyVarSym;
             // Name of var field.
             protected Name varName;
-            // Real type of the var.
-            protected Type type;
             // Is a sequence type.
             protected boolean isSequence;
+            // Real type of the var.
+            protected Type type;
+            // Element type of the var.
+            protected Type elementType;
 
             
             VarAccessorMethodBuilder(Name methodName, Type returnType, VarInfo varInfo, boolean needsBody) {
@@ -944,8 +948,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.varSym = varInfo.getSymbol();
                 this.proxyVarSym = varInfo.proxyVarSym();
                 this.varName = attributeValueName(proxyVarSym);
-                this.type = varInfo.getRealType();
                 this.isSequence = varInfo.isSequence();
+                this.type = varInfo.getRealType();
+                this.elementType = isSequence ? varInfo.getElementType() : null;
                 this.needsBody = needsBody;
             }
             
@@ -1160,7 +1165,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
                         
                         // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
-                        List<JCExpression> args = List.<JCExpression>of(makeTypeInfo(diagPos, types.elementType(type)), id(names._this),  makeVarOffset(varInfo.getSymbol()));
+                        JCExpression receiver = getReceiver(proxyVarSym);
+                        if (receiver == null) receiver = id(names._this);
+                        
+                        List<JCExpression> args = List.<JCExpression>of(makeTypeInfo(diagPos, elementType), receiver,  makeVarOffset(varInfo.getSymbol()));
                         JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
                         addStmt(makeExec(m().Assign(id(varName), newExpr)));
                         
@@ -1183,7 +1191,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         private void makeSeqGetPosAccessorMethod(VarInfo varInfo, boolean needsBody) {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
-                                                                         types.elementType(varInfo.getRealType()),
+                                                                         varInfo.getElementType(),
                                                                          varInfo, needsBody) {
                 @Override
                 public void initialize() {
@@ -1346,6 +1354,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
                     addStmt(m().If(makeNot(ifValidTest), endBlock(), null));
+                    
+                    if (varInfo.hasBoundDefinition()) {
+                        // Begin seq save block.
+                        beginBlock();
+                        // seq$.save()
+                        addStmt(callStmt(id(varName), saveName));
+                        // seq$ = null;
+                        addStmt(makeExec(m().Assign(id(varName), makeNull())));
+                        // If (seq$ != null) { seq$.save(); seq$ = null; }
+                        addStmt(m().If(makeNotNullCheck(id(varName)), endBlock(), null));
+                    }
                     
                     if (varInfo.onReplace() != null) {
                         // Begin the get$ block.

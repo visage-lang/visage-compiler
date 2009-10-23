@@ -32,6 +32,7 @@ import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.Type.*;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.JCExpression;
 import com.sun.tools.mjavac.tree.JCTree.JCStatement;
@@ -42,6 +43,7 @@ import com.sun.tools.mjavac.util.Name;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
@@ -134,7 +136,7 @@ class JavafxAnalyzeClass {
 
     // Global types table (supplied by JavafxInitializationBuilder.)
     private final JavafxTypes types;
-
+    
     // Class reader used to fetch superclass .class files (supplied by JavafxInitializationBuilder.)
     private final JavafxClassReader reader;
 
@@ -317,7 +319,7 @@ class JavafxAnalyzeClass {
         public void printInfo(boolean detail) {
             System.out.println("    " + getEnumeration() + ". " +
                                getSymbol() +
-                               ", type=" + getRealType() +
+                               ", type=" + vmi.getRealType() +
                                ", owner=" + getSymbol().owner +
                                (isStatic() ? ", static" : "") +
                                (isPrivateAccess() ? ", private" : "") +
