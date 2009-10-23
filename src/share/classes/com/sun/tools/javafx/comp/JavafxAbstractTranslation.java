@@ -2510,12 +2510,16 @@ public abstract class JavafxAbstractTranslation
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
             for (VarSymbol vsym : varSyms) {
+                JCExpression flagsToSet = (vsym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 ?
+                    id(defs.varFlagINIT_OBJ_LIT_DEFAULT) :
+                    id(defs.varFlagINIT_OBJ_LIT);
+
                 addPreface(callStmt(
                         id(receiverName),
                         defs.varFlagActionChange,
                         makeVarOffset(vsym, contextType),
                         id(defs.varFlagALL_FLAGS),
-                        m().Binary(JCTree.BITOR, id(defs.varFlagINIT_OBJ_LIT), id(defs.varFlagIS_INITIALIZED))));
+                        flagsToSet));
             }
         }
 

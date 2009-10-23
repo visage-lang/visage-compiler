@@ -37,7 +37,7 @@ public interface FXObject {
     /**
      * Number of bits needed for each var.
      */
-    public static final int VFLGS$BITS_PER_VAR = 8;
+    public static final int VFLGS$BITS_PER_VAR = 6;
     
     /**
      * Number of var slots per word.
@@ -53,13 +53,13 @@ public interface FXObject {
     public static final int VFLGS$IS_READONLY = 8;
     public static final int VFLGS$DEFAULT_APPLIED = 16;
     public static final int VFLGS$IS_INITIALIZED = 32;
-    public static final int VFLGS$IS_SET = 64;
 
     public static final int VFLGS$VALIDITY_FLAGS = VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
     public static final int VFLGS$IS_BOUND_INVALID = VFLGS$IS_BOUND | VFLGS$IS_INVALID;
     public static final int VFLGS$IS_BOUND_DEFAULT_APPLIED = VFLGS$IS_BOUND | VFLGS$DEFAULT_APPLIED;
     public static final int VFLGS$INIT_NORMAL = 0;
-    public static final int VFLGS$INIT_OBJ_LIT = VFLGS$DEFAULT_APPLIED;
+    public static final int VFLGS$INIT_OBJ_LIT = VFLGS$IS_INITIALIZED;
+    public static final int VFLGS$INIT_OBJ_LIT_DEFAULT = VFLGS$IS_INITIALIZED | VFLGS$DEFAULT_APPLIED;
     public static final int VFLGS$INIT_READONLY = VFLGS$IS_READONLY;
     public static final int VFLGS$INIT_BOUND = VFLGS$IS_BOUND | VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
     public static final int VFLGS$INIT_BOUND_READONLY = VFLGS$IS_BOUND | VFLGS$IS_READONLY | VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;

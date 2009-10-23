@@ -989,6 +989,7 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$DEFAULT_APPLIED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         Sequence<? extends T> arr = replaceSlice(oldValue, newValues, startPos, endPos);
         int newLength = newValues == null ? 0 : newValues.size();

@@ -1596,7 +1596,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     beginBlock();
     
                     // setValid(VFLGS$IS_INVALID);
-                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagIS_SET));
+                    addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED));
 
                     // invalidate$(VFLGS$IS_INVALID)
                     addStmt(callStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
@@ -1621,7 +1621,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCExpression testExpr = type.isPrimitive() ?
                         makeNotEqual(id(defs.attributeOldValueName), id(defs.attributeNewValueName))
                       : makeNot(call(defs.Util_isEqual, id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
-                    testExpr = makeBinary(JCTree.OR, testExpr, makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_SET, null));
+                    testExpr = makeBinary(JCTree.OR, testExpr, makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagDEFAULT_APPLIED, null));
                     
                     // End of then block.
                     JCBlock thenBlock = endBlock();
@@ -2440,6 +2440,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             if (ai.hasInitializer()) {
                                 addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED));
                             }
+                            else if (!ai.hasInitializer() || ai.boundInit() != null) {
+                                addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED));
+                            }
                             // Get body of applyDefaults$.
                             addStmt(makeApplyDefaultsStatement(ai, isMixinClass()));
                             // return
@@ -2448,7 +2451,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // case tag number
                             JCExpression tag = makeInt(ai.getEnumeration() - count);
                              // Add the case, something like:
-                            // case i: applyDefaults$var(); return;
+                            // case i: applyDefaults$var(); return;j
                             cases.append(m().Case(tag, endBlockAsList()));
                         } else if (ai.hasInitializer()) {
                             // Begin the override case.
@@ -2476,9 +2479,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // Begin overall block.
                     beginBlock();
-                    
-                    // Make the assumption that a default will be set.
-                    addStmt(makeFlagStatement(id(varNumName), defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED));
         
                     // If there were some location vars.
                     if (cases.nonEmpty()) {
@@ -2490,9 +2490,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
                     // Add overrides.
                     addStmts(overrides.toList());
-                    
-                    // Okay, try again.
-                    addStmt(makeFlagStatement(id(varNumName), defs.varFlagActionChange, defs.varFlagDEFAULT_APPLIED, null));
                     
                     // Call super if necessary.
                     callSuper();
