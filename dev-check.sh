@@ -22,22 +22,24 @@ fi
 target=`cat build/test/dev-target`
 echo "-- target run was: $target"
 
+# Note these filenames only have the last of the dirs between the test and test/, and they contain
+# / instead of \
 passes=`fgrep '<td>Success' build/test/reports/junit-noframes.html  | sed -e 's@<td>@@' -e 's@<.*@@' | fgrep /`
 
 # all tests run should have passed
 # This fail list DOES contain the whole test/... prefix
 compilationFails=`grep '^<td>.* errors' build/test/reports/junit-noframes.html | \
-  sed -e 's@.* test\\\@test/@' \
+  sed -e 's@\\\@/@g' \
+    -e 's@.* test/@test/@' \
     -e 's@ in@@' \
-    -e 's@<.*@@' \
-    -e 's@\\\@/@g'`
+    -e 's@<.*@@'`
 
 # form is ... <td>Output written...  or ...<td>Program output  or ...<td>Expected output
 # This fail list DOES contain the whole test/... prefix
 runtimeFails=`grep '<td.* output' build/test/reports/junit-noframes.html | \
-  sed -e 's@.* test\\\@test/@' \
-    -e 's@\.fx.*@.fx@' \
-    -e 's@\\\@/@g'`
+  sed -e 's@\\\@/@g' \
+    -e 's@.* test/@test/@' \
+    -e 's@\.fx.*@.fx@'`
 
 # This list only contains dir/testname.fx.  IE, the test/... is missing
 runtimeFails1=`grep '<td.*Output written' build/test/reports/junit-noframes.html | \
