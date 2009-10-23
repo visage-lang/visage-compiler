@@ -243,7 +243,7 @@ public abstract class JavafxAbstractTranslation
                 diagPos,
                 res.statements(),
                 new TypeConversionTranslator(diagPos, res.expr(), res.resultType, targettedType).doitExpr(),
-                res.bindees,
+                res.invalidators(),
                 res.interClass,
                 targettedType);
     }
@@ -351,6 +351,45 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
+    /**
+     * A variable (represented as a Symbol) on which the current variable depends
+     * and the, optional, invalidation code to be placed in the variable's
+     * invalidation method to corrected invalidate the current variable.
+     */
+    public static class BindeeInvalidator {
+
+        // Variable symbols on which the current variable depends
+        public final VarSymbol bindee;
+
+        // Invalidation code to be placed in bindee.
+        // Optional.  If null, use default invalidation of the current variable.
+        public final JCStatement invalidator;
+
+        BindeeInvalidator(VarSymbol bindee, JCStatement invalidator) {
+            this.bindee = bindee;
+            this.invalidator = invalidator;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof BindeeInvalidator)) {
+                return false;
+            }
+            BindeeInvalidator other = (BindeeInvalidator)obj;
+            return other.bindee == bindee && other.invalidator == invalidator;
+        }
+
+        @Override
+        public int hashCode() {
+            return bindee.hashCode() + (invalidator == null ? 0 : invalidator.hashCode());
+        }
+
+        @Override
+        public String toString() {
+            return "BindeeInvalidator " + bindee.name + " / " + invalidator;
+        }
+    }
+
     public interface BoundResult {
 
         // Java code for getter expression of bound variable
@@ -361,6 +400,9 @@ public abstract class JavafxAbstractTranslation
 
         // Variable symbols on which this variable depends
         List<VarSymbol> bindees();
+
+        // Invalidators for this variable
+        List<BindeeInvalidator> invalidators();
 
         List<DependentPair> interClass();
 
@@ -373,31 +415,40 @@ public abstract class JavafxAbstractTranslation
 
     public static class ExpressionResult extends AbstractStatementsResult implements BoundResult {
         private final JCExpression value;
-        private final List<VarSymbol> bindees;
+        private final List<BindeeInvalidator> invalidators;
         private final List<DependentPair> interClass;
         private final Type resultType;
 
-        ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, List<VarSymbol> bindees, List<DependentPair> interClass, Type resultType) {
+        ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, Type resultType) {
             super(diagPos, stmts);
             this.value = value;
-            this.bindees = bindees;
+            this.invalidators = invalidators;
             this.interClass = interClass;
             this.resultType = resultType;
         }
-        ExpressionResult(DiagnosticPosition diagPos, ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<VarSymbol> bindees, ListBuffer<DependentPair> interClass, Type resultType) {
-            this(diagPos, buf.toList(), value, bindees.toList(), interClass.toList(), resultType);
+        ExpressionResult(DiagnosticPosition diagPos, ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<BindeeInvalidator> invalidators, ListBuffer<DependentPair> interClass, Type resultType) {
+            this(diagPos, buf.toList(), value, invalidators.toList(), interClass.toList(), resultType);
         }
-        ExpressionResult(JCExpression value, List<VarSymbol> bindees, List<DependentPair> interClass, Type resultType) {
-            this(value.pos(), List.<JCStatement>nil(), value, bindees, interClass, resultType);
+        ExpressionResult(JCExpression value, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, Type resultType) {
+            this(value.pos(), List.<JCStatement>nil(), value, invalidators, interClass, resultType);
         }
         ExpressionResult(JCExpression value, Type resultType) {
-            this(value, List.<VarSymbol>nil(), List.<DependentPair>nil(), resultType);
+            this(value, List.<BindeeInvalidator>nil(), List.<DependentPair>nil(), resultType);
         }
         public JCExpression expr() {
             return value;
         }
+        // Invalidators for this variable
+        public List<BindeeInvalidator> invalidators() {
+            return invalidators;
+        }
+
         public List<VarSymbol> bindees() {
-            return bindees;
+            ListBuffer<VarSymbol> bindees = ListBuffer.lb();
+            for (BindeeInvalidator bi : invalidators) {
+                bindees.append(bi.bindee);
+            }
+            return bindees.toList();
         }
         public List<DependentPair> interClass() {
             return interClass;
@@ -419,11 +470,11 @@ public abstract class JavafxAbstractTranslation
     /**
      * Bound sequence get element / size method body pair as Result
      */
-    public static class SequenceElementSizeResult extends ExpressionResult implements BoundResult {
+    public static class BoundSequenceResult extends ExpressionResult implements BoundResult {
         private final JCStatement getElement;
         private final JCStatement getSize;
-        SequenceElementSizeResult(List<VarSymbol> bindees, JCStatement getElement, JCStatement getSize) {
-            super(getElement.pos(), null, null, bindees, null, null);
+        BoundSequenceResult(List<BindeeInvalidator> invalidators, JCStatement getElement, JCStatement getSize) {
+            super(getElement.pos(), null, null, invalidators, null, null);
             this.getElement = getElement;
             this.getSize = getSize;
         }
@@ -520,9 +571,9 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
-    SequenceElementSizeResult translateToBoundSequenceResult(JFXExpression expr) {
+    BoundSequenceResult translateToBoundSequenceResult(JFXExpression expr) {
         translateCore(expr, syms.voidType, Yield.ToStatement);
-        SequenceElementSizeResult ret = (SequenceElementSizeResult) this.result;
+        BoundSequenceResult ret = (BoundSequenceResult) this.result;
         this.result = null;
         return ret;
     }
@@ -737,7 +788,7 @@ public abstract class JavafxAbstractTranslation
     abstract class ExpressionTranslator extends Translator {
 
         private final ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        private final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
+        private final ListBuffer<BindeeInvalidator> invalidators = ListBuffer.lb();
         private final ListBuffer<DependentPair> interClass = ListBuffer.lb();
 
         ExpressionTranslator(DiagnosticPosition diagPos) {
@@ -780,10 +831,14 @@ public abstract class JavafxAbstractTranslation
             stmts.appendList(list);
         }
 
-        void addBindee(VarSymbol sym) {
-            if (!bindees.contains(sym)) {
-                bindees.append(sym);
+        void addInvalidator(BindeeInvalidator bi) {
+            if (!invalidators.contains(bi)) {
+                invalidators.append(bi);
             }
+        }
+
+        void addBindee(VarSymbol sym) {
+            addInvalidator(new BindeeInvalidator(sym, null));
         }
 
         void addBindees(List<VarSymbol> syms) {
@@ -803,7 +858,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         ExpressionResult toResult(JCExpression translated, Type resultType) {
-            return new ExpressionResult(diagPos, stmts, translated, bindees, interClass, resultType);
+            return new ExpressionResult(diagPos, stmts, translated, invalidators, interClass, resultType);
         }
 
         StatementsResult toStatementResult(JCExpression translated, Type resultType, Type targettedType) {
@@ -815,7 +870,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         StatementsResult toStatementResult(JCStatement translated) {
-            assert bindees.length() == 0;
+            assert invalidators.length() == 0;
             return new StatementsResult(diagPos, stmts.append(translated));
         }
 
@@ -823,8 +878,8 @@ public abstract class JavafxAbstractTranslation
             return stmts.toList();
         }
 
-        List<VarSymbol> bindees() {
-            return bindees.toList();
+        List<BindeeInvalidator> bindees() {
+            return invalidators.toList();
         }
 
         List<DependentPair> interClass() {

@@ -48,7 +48,7 @@ import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Result;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.SequenceElementSizeResult;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.BoundSequenceResult;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.mjavac.code.Flags.*;

@@ -320,14 +320,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         abstract JCStatement makeSizeBody();
         abstract JCStatement makeGetElementBody();
-        abstract List<VarSymbol> getBindees();
+        abstract List<BindeeInvalidator> getInvalidators();
 
         BoundSequenceTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
         }
 
-        SequenceElementSizeResult doit() {
-            return new SequenceElementSizeResult(getBindees(), makeGetElementBody(), makeSizeBody());
+        BoundSequenceResult doit() {
+            return new BoundSequenceResult(getInvalidators(), makeGetElementBody(), makeSizeBody());
         }
     }
 
@@ -519,8 +519,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return makeReturn(res);
         }
 
-        List<VarSymbol> getBindees() {
-            return List.<VarSymbol>nil();
+        List<BindeeInvalidator> getInvalidators() {
+            return List.<BindeeInvalidator>nil();
         }
     }
 
