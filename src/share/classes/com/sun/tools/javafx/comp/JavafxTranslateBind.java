@@ -68,9 +68,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     BoundResult translate(JFXExpression expr, Type targettedType, Symbol targetSymbol, boolean isBidiBind) {
         this.targetSymbol = targetSymbol;
         this.isBidiBind = isBidiBind;
-        return types.isSequence(targettedType)?
-              translateToBoundSequenceResult(expr)
-            : translateToExpressionResult(expr, targettedType);
+        return translateToExpressionResult(expr, targettedType);
     }
 
 /* ***************************************************************************

@@ -438,6 +438,9 @@ public abstract class JavafxAbstractTranslation
         public JCExpression expr() {
             return value;
         }
+        public boolean hasExpr() {
+            return value != null;
+        }
         // Invalidators for this variable
         public List<BindeeInvalidator> invalidators() {
             return invalidators;
@@ -550,7 +553,9 @@ public abstract class JavafxAbstractTranslation
             translateCore(expr, targettedType, ToExpression);
             ExpressionResult ret = (ExpressionResult)this.result;
             this.result = null;
-            return convertTranslated(ret, expr.pos(), targettedType);
+            return ret.hasExpr()?
+                  convertTranslated(ret, expr.pos(), targettedType)
+                : ret;
         }
     }
 
@@ -569,13 +574,6 @@ public abstract class JavafxAbstractTranslation
                 throw new RuntimeException(ret.toString());
             }
         }
-    }
-
-    BoundSequenceResult translateToBoundSequenceResult(JFXExpression expr) {
-        translateCore(expr, syms.voidType, Yield.ToStatement);
-        BoundSequenceResult ret = (BoundSequenceResult) this.result;
-        this.result = null;
-        return ret;
     }
 
     class JCConverter extends JavaTreeBuilder {

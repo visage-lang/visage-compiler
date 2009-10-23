@@ -1164,7 +1164,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.isMixinVar()) {
                         assert false : "Mixin sequences not implemented";
                     } else if (varInfo.hasBoundDefinition()) {                        
-                        assert false : "Bound sequences not implemented";
+                        addStmt(makeThrow(syms.runtimeExceptionType, "bound sequence getter not yet implemented"));
                     } else {
                         addStmt(initIf);
                     }
