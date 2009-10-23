@@ -383,6 +383,16 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                   m().Literal(elemType.tag, 1)
                 : get(varStep);
         }
+        private JCExpression DIVstep(JCExpression v1) {
+            return varStep == null?
+                  v1
+                : DIV(v1, step());
+        }
+        private JCExpression MULstep(JCExpression v1) {
+            return varStep == null?
+                  v1
+                : MUL(v1, step());
+        }
         private JCExpression size() {
             return get(varSize);
         }
@@ -402,10 +412,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return makeBinary(JCTree.GE, v1, v2);
         }
         private JCExpression EQ(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.GE, v1, v2);
+            return makeBinary(JCTree.EQ, v1, v2);
         }
         private JCExpression NE(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.GE, v1, v2);
+            return makeBinary(JCTree.NE, v1, v2);
         }
         private JCExpression AND(JCExpression v1, JCExpression v2) {
             return makeBinary(JCTree.AND, v1, v2);
@@ -470,43 +480,53 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     );
             JCExpression offset = (varStep == null)?
                   posArg()
-                : MUL(posArg(), step());
+                : MULstep(posArg());
             JCExpression value = PLUS(offset, lower());
             JCExpression res = m().Conditional(cond, value, zero());
             return makeReturn(res);
         }
 
+        private JCStatement InvalidateCall(JCExpression begin, JCExpression end, JCExpression newLen) {
+            return callStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.invalidateArgNamePhase));
+        }
+
+        private JCExpression IsTriggerPhase() {
+            return EQ(id(defs.invalidateArgNamePhase), id(defs.varFlagNEEDS_TRIGGER));
+        }
+
         /**
          * float newLower = ...;
          * if (step != 0 && lower != newLower) {
-         *     int newSize = // computed in library
-         *     int loss = 0;
-         *     int gain = 0;
-         *     float delta = newLower - lower;
-         *     if (size == 0 || ((delta % step) != 0)) {
-         *      // invalidate everything
+         *    int newSize = // computed in library
+         *    int loss = 0;
+         *    int gain = 0;
+         *    float delta = newLower - lower;
+         *    if (size == 0 || ((delta % step) != 0)) {
+         *      // invalidate everything - new or start point different
          * 	loss = size;
          * 	gain = newSize;
-         *     } else if (newLower > lower) {
+         *    } else if (newLower > lower) {
+         *      // shrink -- chop off the front
          * 	loss = (int) delta / step;
          * 	if (loss > size)
          * 	    loss = size
-         *     } else {
+         *    } else {
+         *      // grow -- add to the beginning
          * 	gain = (int) -delta / step;
-         *     }
-         *     invalidate$range(0, loss, gain, phase);
-         *     if (phase == TRIGGER_PHASE) {
+         *    }
+         *    invalidate$range(0, loss, gain, phase);
+         *    if (phase == TRIGGER_PHASE) {
          * 	lower = newLower;
          * 	size = newSize;
-         *     }
+         *    }
          * }
          */
         private JCStatement makeInvalidateLower() {
             JCVariableDecl vNewLower = makeTmpVar("newLower", elemType, translateToExpression(varLower.getInitializer(), elemType));
             JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
                     call(sizeCalculationMethod(), id(vNewLower), upper(), step(), exclusive()));
-            JCVariableDecl vLoss = makeMutableTmpVar("loss", syms.intType, szZero());
-            JCVariableDecl vGain = makeMutableTmpVar("gain", syms.intType, szZero());
+            JCVariableDecl vLoss = makeMutableTmpVar("loss", syms.intType, iZero());
+            JCVariableDecl vGain = makeMutableTmpVar("gain", syms.intType, iZero());
             JCVariableDecl vDelta = makeTmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
 
             return Block(
@@ -523,14 +543,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     Assign(vGain, id(vNewSize))),
                             If (GT(id(vNewLower), lower()),
                                 Block(
-                                    Assign(vLoss, m().TypeCast(syms.intType, DIV(id(vDelta), step()))),
+                                    Assign(vLoss, m().TypeCast(syms.intType, DIVstep(id(vDelta)))),
                                     If (GT(id(vLoss), size()),
                                        Assign(vLoss, size()))
                                     ),
-                                Assign(vGain, m().TypeCast(syms.intType, DIV(NEG(id(vDelta)), step())))
+                                Assign(vGain, m().TypeCast(syms.intType, DIVstep(NEG(id(vDelta)))))
                             )),
-                            callStmt(attributeInvalidateName(targetSymbol), iZero(), id(vLoss), id(vGain), id(defs.invalidateArgNamePhase)),
-                            If (EQ(id(defs.invalidateArgNamePhase), id(defs.varFlagNEEDS_TRIGGER)),
+                            InvalidateCall(iZero(), id(vLoss), id(vGain)),
+                            If (IsTriggerPhase(),
                                 Block(
                                     Assign(lower(), id(vNewLower)),
                                     Assign(size(), id(vNewSize))
@@ -540,12 +560,76 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             );
         }
 
+        /**
+         * float newUpper = ...;
+         * if (step != 0 && upper != newUpper) {
+         *    int newSize = // computed in library
+         *    if (newSize >= size)
+         *       // grow
+         *       invalidate$range(size, size, newSize-size, phase);
+         *    else
+         *       // shrink
+         *       invalidate$range(newSize, size, 0, phase);
+         *    if (phase == TRIGGER_PHASE) {
+         *       upper = newUpper;
+         *       size = newSize;
+         *    }
+         * }
+         */
         private JCStatement makeInvalidateUpper() {
-            return null;
+            JCVariableDecl vNewUpper = makeTmpVar("newUpper", elemType, translateToExpression(varUpper.getInitializer(), elemType));
+            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+                    call(sizeCalculationMethod(), lower(), id(vNewUpper), step(), exclusive()));
+
+            return Block(
+                    vNewUpper,
+                    If (AND(NE(step(), zero()), NE(upper(), id(vNewUpper))),
+                        Block(
+                            vNewSize,
+                            If (GE(id(vNewSize), size()),
+                                InvalidateCall(size(), size(), MINUS(id(vNewSize), size())),
+                                InvalidateCall(id(vNewSize), size(), iZero())),
+                            If (IsTriggerPhase(),
+                                Block(
+                                    Assign(upper(), id(vNewUpper)),
+                                    Assign(size(), id(vNewSize))
+                                )
+                            )
+                       ))
+            );
         }
 
+        /**
+         * float newStep = ...;
+         * if (step != newStep) {
+         *    int newSize = // computed in library
+         *    // Invalidate everything
+         *    invalidate$range(0, size, newSize-size, phase);
+         *    if (phase == TRIGGER_PHASE) {
+         *       step = newStep;
+         *       size = newSize;
+         *    }
+         * }
+         */
         private JCStatement makeInvalidateStep() {
-            return null;
+            JCVariableDecl vNewStep = makeTmpVar("newStep", elemType, translateToExpression(varStep.getInitializer(), elemType));
+            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+                    call(sizeCalculationMethod(), lower(), upper(), id(vNewStep), exclusive()));
+
+            return Block(
+                    vNewStep,
+                    If (NE(step(), id(vNewStep)),
+                        Block(
+                            vNewSize,
+                            InvalidateCall(iZero(), size(), MINUS(id(vNewSize), size())),
+                            If (IsTriggerPhase(),
+                                Block(
+                                    Assign(step(), id(vNewStep)),
+                                    Assign(size(), id(vNewSize))
+                                )
+                            )
+                       ))
+            );
         }
 
         void setupInvalidators() {
