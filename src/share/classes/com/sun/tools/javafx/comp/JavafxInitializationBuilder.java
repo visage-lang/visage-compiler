@@ -1093,17 +1093,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 // If we need to prime the on replace trigger.
                 if (varInfo.onReplaceAsInline() != null) {
-                    if (varInfo.hasBoundDefinition() && !varInfo.isStatic()) {
+                    if (varInfo.hasBoundDefinition()) {
                         init = callStmt(getReceiver(), attributeGetterName(varSym));
                     } else if(!varInfo.isOverride()) {
+                        JCStatement onReplaceCall;
                         if (!varInfo.isSequence()) {
-                            init = callStmt(getReceiver(), attributeOnReplaceName(varSym),
+                            onReplaceCall = callStmt(getReceiver(), attributeOnReplaceName(varSym),
                                             makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym));
                         } else {
-                            init = callStmt(getReceiver(), attributeOnReplaceName(varSym),
+                            onReplaceCall = callStmt(getReceiver(), attributeOnReplaceName(varSym),
                                             makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym),
-                                            makeInt(-1), makeInt(-1), makeInt(-1));
+                                            makeInt(0), makeInt(0), makeInt(0));
                         }
+                        JCStatement flagSet = makeFlagStatement(varSym, defs.varFlagActionChange, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED);
+                        init = m().Block(0L, List.of(flagSet, onReplaceCall));
                     }
                 }
             }
@@ -2462,9 +2465,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Set initialized flag if need be.
                             if (ai.hasInitializer()) {
                                 addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED));
-                            }
-                            else if (!ai.hasInitializer() || ai.boundInit() != null) {
-                                addStmt(makeFlagStatement(ai.proxyVarSym(), defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED));
                             }
                             // Get body of applyDefaults$.
                             addStmt(makeApplyDefaultsStatement(ai, isMixinClass()));

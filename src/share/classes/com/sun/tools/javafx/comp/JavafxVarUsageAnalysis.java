@@ -113,6 +113,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             mark(tree.sym, VARUSE_HAS_ON_REPLACE);
             scan(tree.getOnReplace());
         }
+        if (tree.getOnInvalidate() != null) {
+            mark(tree.sym, VARUSE_HAS_ON_INVALIDATE);
+            scan(tree.getOnInvalidate());
+        }
     }
     
     @Override
@@ -128,6 +132,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         if (tree.getOnReplace() != null) {
             mark(tree.sym, VARUSE_HAS_ON_REPLACE);
             scan(tree.getOnReplace());
+        }
+        if (tree.getOnInvalidate() != null) {
+            mark(tree.sym, VARUSE_HAS_ON_INVALIDATE);
+            scan(tree.getOnInvalidate());
         }
     }
 
