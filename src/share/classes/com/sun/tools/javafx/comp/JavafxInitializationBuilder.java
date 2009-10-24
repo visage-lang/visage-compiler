@@ -1410,36 +1410,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, needsBody) {
-                Name oldValueName = defs.attributeOldValueName;
-                Name newValueName = defs.attributeNewValueName;
+                Name oldValueName;
+                Name newValueName;
                 Name firstIndexName;
-                Name lastIndexName = defs.sliceArgNameEndPos;
-                Name newElementsName = defs.onReplaceArgNameNewElements;
+                Name lastIndexName;
+                Name newElementsName;
                 Name newLengthName;
 
                 @Override
                 public void initialize() {
-                    JFXOnReplace onReplace = needsBody ? varInfo.onReplace() : null;
-                    if (onReplace != null) {
-                        // Gather specified var info.
-                        JFXVar oldVar = onReplace.getOldValue();
-                        JFXVar firstIndex = onReplace.getFirstIndex();
-                        JFXVar lastIndex = onReplace.getLastIndex();
-
-                        // Check to see if the on replace has an old value.
-                        if (oldVar != null) {
-                            // Change the onReplace arg name. 
-                            oldValueName = oldVar.getName();
-                        }
-
-                        // Check to see if the on replace has a last index.
-                        if (lastIndex != null
-                                && varInfo.onReplace().getEndKind() == JFXSequenceSlice.END_EXCLUSIVE) {
-                            // Change the onReplace arg name. 
-                            lastIndexName = lastIndex.getName();
-                        }
-                    }
+                    JFXOnReplace onReplace = varInfo.onReplace();
+                    
+                    oldValueName = paramOldValueName(onReplace);
+                    newValueName = defs.attributeNewValueName;
                     firstIndexName = paramStartPosName(onReplace);
+                    lastIndexName = paramEndPosName(onReplace);
                     newLengthName = paramNewElementsLengthName(onReplace);
                 
                     addParam(type, oldValueName);
@@ -1773,34 +1758,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, needsBody) {
-                Name oldValueName = defs.attributeOldValueName;
-                Name newValueName = defs.attributeNewValueName;
+                Name oldValueName;
+                Name newValueName;
 
                 @Override
                 public void initialize() {
-                    if (needsBody) {
-                        // Fetch the on replace statement or null.
-                        JCStatement onReplace = varInfo.onReplaceAsInline();
-        
-                        // Need to capture init state if has trigger.
-                        if (onReplace != null) {
-                            // Gather specified var info.
-                            JFXVar oldVar = varInfo.onReplace().getOldValue();
-                            JFXVar newVar = varInfo.onReplace().getNewElements();
-
-                            // Check to see if the on replace has an old value.
-                            if (oldVar != null) {
-                                // Change the onReplace arg name. 
-                                oldValueName = oldVar.getName();
-                            }
-            
-                            // Check to see if the on replace has a new value.
-                            if (newVar != null) {
-                                // Change the onReplace arg name. 
-                                newValueName = newVar.getName();
-                            }
-                       }
-                    }
+                    JFXOnReplace onReplace = varInfo.onReplace();
+                    
+                    oldValueName = paramOldValueName(onReplace);
+                    newValueName = paramNewValueName(onReplace);
                     
                     addParam(type, oldValueName);
                     addParam(type, newValueName);
