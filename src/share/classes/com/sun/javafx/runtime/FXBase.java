@@ -28,7 +28,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
 
 import java.lang.reflect.Field;
 
-// CODING/NAMING RESTRICTIONS - In a perfect world, all FX classes would inherit 
+// CODING/NAMING RESTRICTIONS - In a perfect world, all FX classes would inherit
 // from FXBase.  However, this is not the case.  It's also possible to inherit
 // from pure java classes. To accommodate this requirement, FXBase and FXObject
 // are under some strict coding conventions.
@@ -43,19 +43,19 @@ import java.lang.reflect.Field;
 //   - All non-static fields must have accessor methods defined in FXBase.
 //     The names of the accessors must be in the form 'get' + fieldName and
 //     'set' + varName.
-//   - The accessor method declarations should be added to FXObject, so that 
+//   - The accessor method declarations should be added to FXObject, so that
 //     java inheriting classes can define their own interface implementations.
 //
 //  Ex.
-//      
+//
 //    In FXBase we define;
-//      
+//
 //       MyClass myField$;
-//      
+//
 //       public MyClass getmyField$() {
 //           return myField$;
 //       }
-//      
+//
 //       public void setmyField$(final MyClass value) {
 //           myField$ = value;
 //       }
@@ -65,21 +65,21 @@ import java.lang.reflect.Field;
 //       public MyClass getmyField$();
 //       public void setmyField$(final MyClass value);
 //
-// When an FX class inherits from a java class, all non-static methods are 
+// When an FX class inherits from a java class, all non-static methods are
 // cloned into the FX class, with bodies that call the FXBase static version of
 // method, inserting 'this' as the first argument.  Therefore;
 //
-//   - All functionality in FXBase should be defined in static methods, 
+//   - All functionality in FXBase should be defined in static methods,
 //     manipulating an FXObject.  The declaration of the method should have an
 //     an FXObject first argument.  '$' naming conventions apply.
-//   - A non-static method should be defined to relay 'this' and remaining 
+//   - A non-static method should be defined to relay 'this' and remaining
 //     arguments thru to the static methods.
 //   - The declaration of the non-static method should be added to FXObject.
 //
 //  Ex.
-//      
+//
 //    In FXBase we define;
-//      
+//
 //       public int addIt$(int n) {
 //           return addIt$(this, n);
 //       }
@@ -94,7 +94,7 @@ import java.lang.reflect.Field;
 //
 // All supplementary initialization for FXBase objects should be added to
 // the static version of initFXBase$.
-// 
+//
 
 /**
  * Base class for most FX classes.  The exception being classes that inherit from Java classes.
@@ -127,7 +127,7 @@ import java.lang.reflect.Field;
     public void  setVFLGS$small$internal$(int small)   { VFLGS$small$internal$ = small; }
     public int[] getVFLGS$large$internal$()            { return VFLGS$large$internal$; }
     public void  setVFLGS$large$internal$(int[] large) { VFLGS$large$internal$ = large; }
-    
+
     /**
      * Allocate var status bits.
      */
@@ -136,7 +136,7 @@ import java.lang.reflect.Field;
     }
     private static void allocateVarBits$(FXObject obj) {
         int count = obj.count$();
-      
+
         if (count > VFLGS$VARS_PER_WORD) {
             if (obj.getVFLGS$large$internal$() == null) {
                 int length = (count - 1) / VFLGS$VARS_PER_WORD;
@@ -144,7 +144,7 @@ import java.lang.reflect.Field;
             }
         }
     }
-    
+
     private static void printBits$(final int bits) {
         System.err.print("(");
         if ((bits & VFLGS$IS_INVALID) != 0)             System.err.print(" Invalid");
@@ -155,17 +155,17 @@ import java.lang.reflect.Field;
         if ((bits & VFLGS$IS_INITIALIZED) != 0)         System.err.print(" Initialized");
         System.err.print(" )");
     }
-    
+
     public static void printBitsAction$(String title, FXObject obj, final int varNum, final int bits1, final int bits2) {
         System.err.print(title + ": " + obj + "[" + varNum + "] ");
         printBits$(bits1);
         printBits$(bits2);
-        
+
         int index = varNum / VFLGS$VARS_PER_WORD;
         int slot = varNum % VFLGS$VARS_PER_WORD;
         int shift = slot * VFLGS$BITS_PER_VAR;
         int word;
-      
+
         if (index > 0) {
             index--;
             int[] large = obj.getVFLGS$large$internal$();
@@ -174,10 +174,10 @@ import java.lang.reflect.Field;
             word = obj.getVFLGS$small$internal$();
         }
         printBits$((word >> shift) & ((1 << VFLGS$BITS_PER_VAR) - 1));
-        
+
         System.err.println();
     }
-    
+
     public boolean varTestBits$(final int varNum, int maskBits, int testBits) {
         return varTestBits$(this, varNum, maskBits, testBits);
     }
@@ -189,7 +189,7 @@ import java.lang.reflect.Field;
         maskBits <<= shift;
         testBits <<= shift;
         int word;
-      
+
         if (index > 0) {
             index--;
             int[] large = obj.getVFLGS$large$internal$();
@@ -197,10 +197,10 @@ import java.lang.reflect.Field;
         } else {
             word = obj.getVFLGS$small$internal$();
         }
-      
+
         return (word & maskBits) == testBits;
     }
-    
+
     public boolean varChangeBits$(final int varNum, int clearBits, int setBits) {
         return varChangeBits$(this, varNum, clearBits, setBits);
     }
@@ -212,7 +212,7 @@ import java.lang.reflect.Field;
         clearBits <<= shift;
         setBits <<= shift;
         int word;
-      
+
         if (index > 0) {
             index--;
             int[] large = obj.getVFLGS$large$internal$();
@@ -222,12 +222,12 @@ import java.lang.reflect.Field;
             word = obj.getVFLGS$small$internal$();
             obj.setVFLGS$small$internal$((word & ~clearBits) | setBits);
         }
-        
+
         int bits = clearBits | setBits;
-      
+
         return (word & bits) == bits;
     }
-     
+
     public void restrictSet$(final int varNum) {
         restrictSet$(this, varNum);
     }
@@ -348,7 +348,7 @@ import java.lang.reflect.Field;
     public static void invalidate$(FXObject obj, int varNum, int startPos, int endPos, int newLength, int phase) {
         throw new IllegalArgumentException("no such variable: " + varNum);
     }
-    
+
     /**
      * Constructor called from Java or from object literal with no instance variable initializers
      */
@@ -381,7 +381,7 @@ import java.lang.reflect.Field;
         obj.userInit$();
         obj.postInit$();
     }
-    
+
     public void initVarBits$() { initVarBits$(this); }
     public static void initVarBits$(FXObject obj) {}
 
@@ -394,24 +394,24 @@ import java.lang.reflect.Field;
 
     public void applyDefaults$() {
         int cnt = count$();
-        for (int inx = 0; inx < cnt; inx += 1) { 
+        for (int inx = 0; inx < cnt; inx += 1) {
             applyDefaults$(inx);
         }
     }
     public static void applyDefaults$(FXObject obj) {
         int cnt = obj.count$();
-        for (int inx = 0; inx < cnt; inx += 1) { 
+        for (int inx = 0; inx < cnt; inx += 1) {
             obj.applyDefaults$(inx);
         }
     }
-    
+
     public static int VCNT$() { return VCNT$; }
 
     public        void userInit$()             {}
     public static void userInit$(FXObject obj) {}
     public        void postInit$()             {}
     public static void postInit$(FXObject obj) {}
-    
+
     //
     // makeInitMap$ constructs a field mapping table used in the switch portion
     // of a object literal initialization.  Each entry in the table represents
@@ -444,55 +444,55 @@ import java.lang.reflect.Field;
         return getAsBoolean$(this, varNum, position);
     }
     public static boolean getAsBoolean$(FXObject obj, int varNum, int position) {
-        return ((Sequence<?>) obj.get$(varNum)).getAsBoolean(position);
+        return Util.objectToBoolean(obj.get$(varNum, position));
     }
 
     public char getAsChar$(int varNum, int position) {
         return getAsChar$(this, varNum, position);
     }
     public static char getAsChar$(FXObject obj, int varNum, int position) {
-        return ((Sequence<?>) obj.get$(varNum)).getAsChar(position);
+        return Util.objectToCharacter(obj.get$(varNum, position));
     }
 
     public byte getAsByte$(int varNum, int position) {
         return getAsByte$(this, varNum, position);
     }
     public static byte getAsByte$(FXObject obj, int varNum, int position) {
-        return ((Sequence<?>) obj.get$(varNum)).getAsByte(position);
+        return Util.objectToByte(obj.get$(varNum, position));
     }
 
     public short getAsShort$(int varNum, int position) {
         return getAsShort$(this, varNum, position);
     }
     public static short getAsShort$(FXObject obj, int varNum, int position) {
-        return ((Sequence<?>) obj.get$(varNum)).getAsShort(position);
+        return Util.objectToShort(obj.get$(varNum, position));
     }
 
     public int getAsInt$(int varNum, int position) {
         return getAsInt$(this, varNum, position);
     }
     public static int getAsInt$(FXObject obj, int varNum, int position) {
-        return ((Sequence<?>) obj.get$(varNum)).getAsInt(position);
+        return Util.objectToInt(obj.get$(varNum, position));
     }
 
     public long getAsLong$(int varNum, int position) {
         return getAsLong$(this, varNum, position);
     }
     public static long getAsLong$(FXObject obj, int varNum, int position) {
-        return ((Sequence<?>) obj.get$(varNum)).getAsLong(position);
+        return Util.objectToLong(obj.get$(varNum, position));
     }
 
     public float getAsFloat$(int varNum, int position) {
         return getAsFloat$(this, varNum, position);
     }
     public static float getAsFloat$(FXObject obj, int varNum, int position) {
-        return ((Sequence<?>) obj.get$(varNum)).getAsFloat(position);
+        return Util.objectToFloat(obj.get$(varNum, position));
     }
 
     public double getAsDouble$(int varNum, int position) {
         return getAsDouble$(this, varNum, position);
     }
     public static double getAsDouble$(FXObject obj, int varNum, int position) {
-        return ((Sequence<?>) obj.get$(varNum)).getAsDouble(position);
+        return Util.objectToDouble(obj.get$(varNum, position));
     }
 }

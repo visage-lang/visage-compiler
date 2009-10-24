@@ -81,10 +81,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final Name getSizeName;
     private final Name phaseName = defs.invalidateArgNamePhase;
 
-    void TODO() {
-        throw new RuntimeException("Not yet implemented");
-    }
-
     public static class LiteralInitVarMap {
         private int count = 1;
         public Map<VarSymbol, Integer> varMap = new HashMap<VarSymbol, Integer>();
@@ -1218,7 +1214,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     if (varInfo.isMixinVar()) {
-                        assert false : "Mixin sequences not implemented";
+                        TODO("mixin sequences");
                     } else if (varInfo.hasBoundDefinition()) {                        
                         addStmt(varInfo.boundElementGetter());
                     } else {
@@ -3124,7 +3120,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
             for (VarSymbol vsym : sym.getParameters()) {
                 if (isBound) {
-                    TODO();
+                    TODO("bound appendMethodClones");
                 }
                 params.append(m().VarDef(m().Modifiers(0L), vsym.name, makeType(vsym.asType()), null));
             }

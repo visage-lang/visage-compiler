@@ -137,16 +137,6 @@ public abstract class JavafxAbstractTranslation
 
     /********** Utility routines **********/
 
-    public static class NotYetImplementedException extends RuntimeException {
-        NotYetImplementedException(String msg) {
-            super(msg);
-        }
-    }
-
-    JCExpression TODO(String msg) {
-        throw new NotYetImplementedException("Not yet implemented: " + msg);
-    }
-
     /**
      * @return the substitutionMap
      */
@@ -457,9 +447,11 @@ public abstract class JavafxAbstractTranslation
             return interClass;
         }
         public JCStatement getElementMethodBody() {
+            TODO("sequence element getter for: " + value);
             return null;
         }
         public JCStatement getSizeMethodBody() {
+            TODO("sequence element getter for: " + value);
             return null;
         }
 

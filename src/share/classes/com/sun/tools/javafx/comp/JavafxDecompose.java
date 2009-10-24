@@ -25,11 +25,10 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
-import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.NotYetImplementedException;
+import com.sun.tools.javafx.comp.JavafxTranslationSupport.NotYetImplementedException;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;

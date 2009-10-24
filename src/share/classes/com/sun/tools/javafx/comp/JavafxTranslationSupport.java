@@ -103,6 +103,16 @@ public abstract class JavafxTranslationSupport {
         syntheticNameCounter = 0;
     }
 
+    public static class NotYetImplementedException extends RuntimeException {
+        NotYetImplementedException(String msg) {
+            super(msg);
+        }
+    }
+
+    static JCExpression TODO(String msg) {
+        throw new NotYetImplementedException("Not yet implemented: " + msg);
+    }
+
     protected Symbol expressionSymbol(JFXExpression tree) {
         if (tree == null) {
             return null;
