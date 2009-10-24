@@ -1672,6 +1672,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Handle invalidators if present.
                     List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
                     boolean hasInvalidators = !invalidatees.isEmpty();
+                     
+                    if (hasInvalidators) {
+                        // Insert invalidators.
+                        for (BindeeInvalidator invalidator : invalidatees) {
+                            addStmt(invalidator.invalidator);
+                        }
+                        
+                        return;
+                    }
                     
                     // Prepare to accumulate if statements.
                     beginBlock();
@@ -1685,11 +1694,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (!isMixinClass() && varInfo.isMixinVar()) {
                         // Mixin.invalidate$var(this, phase$);
                         callMixin((ClassSymbol)varSym.owner);
-                    }
-                    
-                    // Insert invalidators.
-                    for (BindeeInvalidator invalidator : invalidatees) {
-                        addStmt(invalidator.invalidator);
                     }
 
                     // Add on-invalidate trigger if any
