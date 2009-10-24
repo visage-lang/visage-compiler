@@ -692,6 +692,24 @@ public abstract class JavafxAbstractTranslation
 
     /********** Translators **********/
 
+    static class OnReplaceInfo {
+        public OnReplaceInfo outer;
+        public JFXOnReplace onReplace;
+        Symbol newElementsSym;
+        Symbol oldValueSym;
+        Type arraySequenceType;
+        Type seqWithExtendsType;
+    }
+
+    OnReplaceInfo onReplaceInfo;
+
+    OnReplaceInfo findOnReplaceInfo(Symbol sym) {
+        OnReplaceInfo info = onReplaceInfo;
+        while (info != null && sym != info.newElementsSym && sym != info.oldValueSym)
+            info = info.outer;
+        return info;
+    }
+
     abstract class Translator extends JavaTreeBuilder {
 
         Translator(DiagnosticPosition diagPos) {
@@ -909,7 +927,29 @@ public abstract class JavafxAbstractTranslation
                 return expr;
             }
         }
-    }
+        
+        JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
+            if (expr instanceof JFXIdent) {
+                JFXIdent varId = (JFXIdent) expr;
+                OnReplaceInfo info = findOnReplaceInfo(varId.sym);
+                if (info != null) {
+                    if (false /* TODO */ && varId.sym == info.oldValueSym) {
+                        RuntimeMethod rm = defs.Sequences_sizeOfOldValue;
+                        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
+                        args.append(id(defs.onReplaceArgNameBuffer));
+                        args.append(id(defs.onReplaceArgNameOld));
+                        args.append(id(defs.onReplaceArgNameLastIndex));
+                        return call(rm, args);
+                    }
+                    if (varId.sym == info.newElementsSym) {
+                        return id(paramNewElementsLengthName(info.onReplace));
+                    }
+                }
+            }
+            return call(defs.Sequences_size, transExpr);
+        }
+
+   }
 
     class StringExpressionTranslator extends ExpressionTranslator {
 
@@ -1968,7 +2008,7 @@ public abstract class JavafxAbstractTranslation
                     if (expr.type.tag == TypeTags.ARRAY) {
                         return toResult(select(transExpr, defs.lengthName), syms.intType);
                     }
-                    return toResult(call(defs.Sequences_size, transExpr), syms.intType);
+                    return toResult(translateSizeof(expr, transExpr), syms.intType);
                 case REVERSE:
                     if (types.isSequence(expr.type)) {
                         // call runtime reverse of a sequence

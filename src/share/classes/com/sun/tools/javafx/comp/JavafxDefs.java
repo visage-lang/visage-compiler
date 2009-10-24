@@ -176,6 +176,7 @@ public class JavafxDefs {
     public final Name fxMixinName;
     public final Name fxBaseName;
     public final Name mixinSuffixName;
+    public final Name lengthSuffixName;
     public final Name deprecatedInterfaceSuffixName;
     final Name scriptLevelAccessField;
     final Name scriptLevelAccessMethodPrefix;
@@ -255,6 +256,8 @@ public class JavafxDefs {
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
     final Name onReplaceArgNameBuffer;
+    final Name[] typedGetMethodName;
+    final Name[] typedSetMethodName;
     final Name sliceArgNameStartPos;
     final Name sliceArgNameEndPos;
     final Name sliceArgNameNewLength;
@@ -339,6 +342,7 @@ public class JavafxDefs {
         fxMixinName = names.fromString(fxMixinString);
         fxBaseName = names.fromString(fxBaseString);
         mixinSuffixName = names.fromString(mixinSuffix);
+        lengthSuffixName = names.fromString("$length");
         deprecatedInterfaceSuffixName = names.fromString(deprecatedInterfaceSuffix);
         userRunFunctionName = names.fromString("run");
         internalRunFunctionName = names.fromString(internalRunFunctionNameString);
@@ -483,6 +487,14 @@ public class JavafxDefs {
         FXBase_removeDependent  = new RuntimeMethod(names, cFXBase, "removeDependent$");
         FXBase_addDependent     = new RuntimeMethod(names, cFXBase, "addDependent$");
 
+        // Initialize per Kind names and types
+        typedGetMethodName = new Name[TYPE_KIND_COUNT];
+        typedSetMethodName = new Name[TYPE_KIND_COUNT];
+        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+            typedGetMethodName[kind] = names.fromString("get" + accessorSuffixes[kind]);
+            typedSetMethodName[kind] = names.fromString("set" + accessorSuffixes[kind]);
+        }
+
         realTypeByKind = new Type[TYPE_KIND_COUNT];
         realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
         realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
@@ -495,6 +507,8 @@ public class JavafxDefs {
         realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
         realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
     }
+
+    static final String[] accessorSuffixes = new String[] { "", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence" };
     
     public static String getTypePrefix(int index) { return typePrefixes[index]; }
 

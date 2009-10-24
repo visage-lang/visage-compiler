@@ -234,29 +234,27 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         this.literalInitClassMap = literalInitClassMap;
     }
 
-    static class OnReplaceInfo {
-        public OnReplaceInfo outer;
-        Symbol newElementsSym;
-        Symbol oldValueSym;
-        Type arraySequenceType;
-        Type seqWithExtendsType;
-    }
-
-    OnReplaceInfo onReplaceInfo;
-
-    OnReplaceInfo findOnReplaceInfo(Symbol sym) {
-        OnReplaceInfo info = onReplaceInfo;
-        while (info != null && sym != info.newElementsSym && sym != info.oldValueSym)
-            info = info.outer;
-        return info;
-    }
-
     /**
      * Make a version of the on-replace to be used in inline in a setter.
      */
-    private JCStatement translateTriggerAsInline(VarSymbol vsym, JFXOnReplace onReplace) {
+    private JCStatement translateTriggerAsInline(VarMorphInfo vmi, JFXOnReplace onReplace) {
         if (onReplace == null) return null;
-        return translateToStatement(onReplace.getBody(), syms.voidType);
+        boolean isSequence = vmi.isSequence();
+        if (isSequence) {
+            OnReplaceInfo info = new OnReplaceInfo();
+            info.onReplace = onReplace;
+            info.outer = onReplaceInfo;
+            Symbol sym = onReplace.getOldValue().sym;
+            //if ((sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {// optimized away
+            info.oldValueSym = sym;
+            sym = onReplace.getNewElements().sym;
+            info.newElementsSym = sym;
+            onReplaceInfo = info;
+        }
+        JCStatement ret = translateToStatement(onReplace.getBody(), syms.voidType);
+        if (isSequence)
+            onReplaceInfo = onReplaceInfo.outer;
+        return ret;
     }
 
     void scriptBegin() {
@@ -355,32 +353,34 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             setContext(attrDef.isStatic());
+                            VarMorphInfo vmi = typeMorpher.varMorphInfo(attrDef.sym);
                             TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
-                                    typeMorpher.varMorphInfo(attrDef.sym),
+                                    vmi,
                                     translateVarInit(attrDef),
                                     attrDef.isBound() ? translateBind.translate(attrDef.getInitializer(), attrDef.type, attrDef.sym, attrDef.isBidiBind()) : null,
                                     attrDef.isBidiBind() ? translateInvBind.translate(attrDef.getInitializer(), attrDef.type, attrDef.sym) : null,
                                     attrDef.getOnReplace(),
-                                    translateTriggerAsInline(attrDef.sym, attrDef.getOnReplace()),
+                                    translateTriggerAsInline(vmi, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
-                                    translateTriggerAsInline(attrDef.sym, attrDef.getOnInvalidate()));
+                                    translateTriggerAsInline(vmi, attrDef.getOnInvalidate()));
                             attrInfo.append(ai);
                             break;
                         }
                         case OVERRIDE_ATTRIBUTE_DEF: {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             setContext(override.isStatic());
+                            VarMorphInfo vmi = typeMorpher.varMorphInfo(override.sym);
                             TranslatedOverrideClassVarInfo ai = new TranslatedOverrideClassVarInfo(
                                     override,
-                                    typeMorpher.varMorphInfo(override.sym),
+                                    vmi,
                                     translateVarInit(override),
                                     override.isBound() ? translateBind.translate(override.getInitializer(), override.type, override.sym, override.isBidiBind()) : null,
                                     override.isBidiBind() ? translateInvBind.translate(override.getInitializer(), override.type, override.sym) : null,
                                     override.getOnReplace(),
-                                    translateTriggerAsInline(override.sym, override.getOnReplace()),
+                                    translateTriggerAsInline(vmi, override.getOnReplace()),
                                     override.getOnInvalidate(),
-                                    translateTriggerAsInline(override.sym, override.getOnInvalidate()));
+                                    translateTriggerAsInline(vmi, override.getOnInvalidate()));
                             overrideInfo.append(ai);
                             break;
                         }
@@ -950,14 +950,20 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
 
         JCExpression translateSequenceIndexed() {
-            Name getMethodName = defs.getMethodName;
+            Name getMethodName;
+            if (resultType.isPrimitive())
+                getMethodName = defs.typedGetMethodName[types.kindFromPrimitiveType(resultType.tsym)];
+            else
+                getMethodName = defs.getMethodName;
             if (seq instanceof JFXIdent) {
                 JFXIdent var = (JFXIdent) seq;
                 OnReplaceInfo info = findOnReplaceInfo(var.sym);
-                if (info != null) {
+                if (info != null
+                        && /*FIXME*/var.sym == info.newElementsSym
+                        && (var.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {
                     String mname = getMethodName.toString();
+                    JFXOnReplace onReplace = info.onReplace;
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                    args.append(make.TypeCast(makeType(info.arraySequenceType, true), make.Ident(defs.onReplaceArgNameBuffer)));
                     if (var.sym == info.oldValueSym) {
                         mname = mname + "FromOldValue";
                         args.append(make.TypeCast(makeType(info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameOld)));
@@ -965,8 +971,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         args.append(make.Ident(defs.onReplaceArgNameLastIndex));
                     } else { // var.sym == info.newElementsSym
                         mname = mname + "FromNewElements";
-                        args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
-                        args.append(make.TypeCast(makeType(info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameNewElements)));
+                        args.append(make.Ident(defs.attributeNewValueName));
+                        args.append(make.Ident(paramStartPosName(onReplace)));
+                        args.append(make.Ident(paramNewElementsLengthName(onReplace)));
                     }
                     args.append(tIndex);
                     return call(syms.javafx_SequencesType, mname, args);
@@ -1511,7 +1518,16 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         void translateSliceInClause(JFXExpression seq, JFXExpression first, JFXExpression last, int endKind, JCVariableDecl seqVar) {
             // Collect all the loop initializing statements (variable declarations)
             ListBuffer<JCStatement> tinits = ListBuffer.lb();
-            if (! (seq instanceof JFXIdent) || findOnReplaceInfo(((JFXIdent) seq).sym) == null)
+            boolean needSeqVar;
+            if (! (seq instanceof JFXIdent))
+                needSeqVar = true;
+            else  {
+                Symbol seqsym = ((JFXIdent) seq).sym;
+                OnReplaceInfo info = findOnReplaceInfo(seqsym);
+                needSeqVar = info == null ||
+                        (seqsym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0;
+            }
+            if (needSeqVar)
                 tinits.append(seqVar);
             JCExpression init;
             boolean maxForStartNeeded = true;
@@ -1556,29 +1572,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(inductionVar), m().Literal(TypeTags.INT, 1))));
             tinits.append(m().ForLoop(List.<JCStatement>nil(), tcond, tstep, body));
             body = m().Block(0L, tinits.toList());
-        }
-
-        private JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
-            if (expr instanceof JFXIdent) {
-                JFXIdent varId = (JFXIdent) expr;
-                OnReplaceInfo info = findOnReplaceInfo(varId.sym);
-                if (info != null) {
-                    RuntimeMethod rm;
-                    ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                    args.append(id(defs.onReplaceArgNameBuffer));
-                    if (varId.sym == info.oldValueSym) {
-                        rm = defs.Sequences_sizeOfOldValue;
-                        args.append(id(defs.onReplaceArgNameOld));
-                        args.append(id(defs.onReplaceArgNameLastIndex));
-                    } else { // var.sym == info.newElementsSym
-                        rm = defs.Sequences_sizeOfNewElements;
-                        args.append(id(defs.onReplaceArgNameFirstIndex));
-                        args.append(id(defs.onReplaceArgNameNewElements));
-                    }
-                    return call(rm, args);
-                }
-            }
-            return call(defs.Sequences_size, transExpr);
         }
 
         /**

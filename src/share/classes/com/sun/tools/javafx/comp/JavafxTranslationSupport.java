@@ -680,6 +680,19 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
     }
 
+    Name paramStartPosName(JFXOnReplace onReplace) {
+        return onReplace == null || onReplace.getFirstIndex() == null ? defs.sliceArgNameStartPos
+                : onReplace.getFirstIndex().getName();
+    }
+
+    Name paramNewElementsLengthName(JFXOnReplace onReplace) {
+        JFXVar newElements = onReplace == null ? null : onReplace.getNewElements();
+        if (newElements == null)
+            return defs.sliceArgNameNewLength;
+        else
+            return newElements.sym.name.append(defs.lengthSuffixName);
+    }
+
     Name scriptLevelAccessMethod(Symbol clazz) {
         return defs.scriptLevelAccessMethod(names, clazz);
     }

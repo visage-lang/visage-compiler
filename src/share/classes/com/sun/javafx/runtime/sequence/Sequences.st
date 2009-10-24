@@ -59,15 +59,10 @@ $PREFIX:{T|
         return buffer.getDefaultValue();
     }
 
-    public static $PRIM_MAP.(T)$ getAs$T$FromNewElements(ArraySequence<$BOXED_MAP.(T)$> buffer, int loIndex, Sequence<? extends $BOXED_MAP.(T)$> newElements, int k) {
-        if (newElements != null)
-            return newElements.get(k);
-        if (k >= 0) {
-            k = k + loIndex;
-            if (k < buffer.gapStart)
-                return buffer.get(k);
-        }
-        return buffer.getDefaultValue();
+    public static $PRIM_MAP.(T)$ getAs$T$FromNewElements(Sequence<? extends $BOXED_MAP.(T)$> newValue, int loIndex, int inserted, int k) {
+        if (k < 0 || k >= inserted)
+            return newValue.getDefaultValue();
+        return newValue.getAs$T$(loIndex+k);
     }
 }$
 }

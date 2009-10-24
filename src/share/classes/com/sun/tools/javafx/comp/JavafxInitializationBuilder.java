@@ -1412,63 +1412,41 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 Name oldValueName = defs.attributeOldValueName;
                 Name newValueName = defs.attributeNewValueName;
-                Name firstIndexName = defs.sliceArgNameStartPos;
+                Name firstIndexName;
                 Name lastIndexName = defs.sliceArgNameEndPos;
                 Name newElementsName = defs.onReplaceArgNameNewElements;
+                Name newLengthName;
 
                 @Override
                 public void initialize() {
-                    if (needsBody) {
-                        // Fetch the on replace statement or null.
-                        JCStatement onReplace = varInfo.onReplaceAsInline();
-        
-                        // Need to capture init state if has trigger.
-                        if (onReplace != null) {
-                            // Gather specified var info.
-                            JFXVar oldVar = varInfo.onReplace().getOldValue();
-                            JFXVar newVar = varInfo.onReplace().getNewElements();
-                            JFXVar firstIndex = varInfo.onReplace().getFirstIndex();
-                            JFXVar lastIndex = varInfo.onReplace().getLastIndex();
-                            JFXVar newElements = varInfo.onReplace().getNewElements();
+                    JFXOnReplace onReplace = needsBody ? varInfo.onReplace() : null;
+                    if (onReplace != null) {
+                        // Gather specified var info.
+                        JFXVar oldVar = onReplace.getOldValue();
+                        JFXVar firstIndex = onReplace.getFirstIndex();
+                        JFXVar lastIndex = onReplace.getLastIndex();
 
-                            // Check to see if the on replace has an old value.
-                            if (oldVar != null) {
-                                // Change the onReplace arg name. 
-                                oldValueName = oldVar.getName();
-                            }
-            
-                            // Check to see if the on replace has a new value.
-                            if (newVar != null) {
-                                // Change the onReplace arg name. 
-                                newValueName = newVar.getName();
-                            }
-             
-                            // Check to see if the on replace has a first index.
-                            if (firstIndex != null) {
-                                // Change the onReplace arg name. 
-                                firstIndexName = firstIndex.getName();
-                            }
-            
-                            // Check to see if the on replace has a last index.
-                            if (lastIndex != null
-                                    && varInfo.onReplace().getEndKind() == JFXSequenceSlice.END_EXCLUSIVE) {
-                                // Change the onReplace arg name. 
-                                lastIndexName = lastIndex.getName();
-                            }
-            
-                            // Check to see if the on replace has a new elements.
-                            if (newElements != null) {
-                                // Change the onReplace arg name. 
-                                newElementsName = newElements.getName();
-                            }
-                       }
+                        // Check to see if the on replace has an old value.
+                        if (oldVar != null) {
+                            // Change the onReplace arg name. 
+                            oldValueName = oldVar.getName();
+                        }
+
+                        // Check to see if the on replace has a last index.
+                        if (lastIndex != null
+                                && varInfo.onReplace().getEndKind() == JFXSequenceSlice.END_EXCLUSIVE) {
+                            // Change the onReplace arg name. 
+                            lastIndexName = lastIndex.getName();
+                        }
                     }
+                    firstIndexName = paramStartPosName(onReplace);
+                    newLengthName = paramNewElementsLengthName(onReplace);
                 
                     addParam(type, oldValueName);
                     addParam(type, newValueName);
                     addParam(syms.intType, firstIndexName);
                     addParam(syms.intType, lastIndexName);
-                    addParam(syms.intType, defs.sliceArgNameNewLength);
+                    addParam(syms.intType, newLengthName);
                 }
                 
                 @Override
@@ -1492,9 +1470,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     if (onReplace != null) {
                         JFXVar lastIndex = varInfo.onReplace().getLastIndex();
+                        JFXVar newElements = varInfo.onReplace().getNewElements();
                         if (lastIndex != null && varInfo.onReplace().getEndKind() == JFXSequenceSlice.END_INCLUSIVE) {
                             addStmt(makeVar(syms.intType, lastIndex.name,
                                     m().Binary(JCTree.MINUS, id(defs.sliceArgNameEndPos), m().Literal(Integer.valueOf(1)))));
+                        }
+                        if (newElements != null
+                                && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
+                            JCExpression init = call(makeType(syms.javafx_SequencesType), "getNewElements",
+                                    id(newValueName), id(firstIndexName), id(newLengthName));
+                            addStmt(makeVar(newElements.type, newElements.name, init));
                         }
                     }
                     

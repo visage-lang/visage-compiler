@@ -889,12 +889,6 @@ public class SequencesBase {
         return buffer.getRawArrayLength() - buffer.gapEnd + hiIndex;
     }
 
-    public static <T> int sizeOfNewElements(ArraySequence<T> buffer, int loIndex, Sequence<? extends T> newElements) {
-        if (newElements != null)
-            return newElements.size();
-        return buffer.gapStart - loIndex;
-    }
-
     public static <T> T getFromOldValue(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, int k) {
         if (oldValue != null)
             return oldValue.get(k);
@@ -909,15 +903,10 @@ public class SequencesBase {
         return buffer.getDefaultValue();
     }
 
-    public static <T> T getFromNewElements(ArraySequence<T> buffer, int loIndex, Sequence<? extends T> newElements, int k) {
-        if (newElements != null)
-            return newElements.get(k);
-        if (k >= 0) {
-            k = k + loIndex;
-            if (k < buffer.gapStart)
-                return buffer.get(k);
-        }
-        return buffer.getDefaultValue();
+    public static <T> T getFromNewElements(Sequence<? extends T> newValue, int loIndex, int inserted, int k) {
+        if (k < 0 || k >= inserted)
+            return newValue.getDefaultValue();
+        return newValue.get(loIndex+k);
     }
 
     public static <T> Sequence<? extends T> getOldValue(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int loIndex, int hiIndex/*exclusive*/) {
@@ -926,11 +915,9 @@ public class SequencesBase {
         return buffer.extractOldValue(loIndex, hiIndex);
     }
 
-    public static <T> Sequence<? extends T> getNewElements(ArraySequence<T> buffer, int startPos, Sequence<? extends T> newElements) {
-        if (newElements != null)
-            return newElements;
-        buffer.incrementSharing();
-        return Sequences.subsequence(buffer, startPos, buffer.gapStart);
+    public static <T> Sequence<? extends T> getNewElements(Sequence<? extends T> newValue, int startPos, int inserted) {
+        //buffer.incrementSharing();
+        return Sequences.subsequence(newValue, startPos, startPos+inserted);
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/) {
