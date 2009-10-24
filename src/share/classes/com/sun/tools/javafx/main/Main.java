@@ -23,7 +23,6 @@
 
 package com.sun.tools.javafx.main;
 
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.NotYetImplementedException;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.Reader;
@@ -49,6 +48,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.DiagnosticListener;
+import com.sun.tools.javafx.comp.JavafxTranslationSupport.NotYetImplementedException;
 
 /** This class provides a commandline interface to the GJC compiler.
  *
