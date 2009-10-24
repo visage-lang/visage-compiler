@@ -224,8 +224,4 @@ $PREFIX:{T|
             formatter.format("%s", val);
         }
     }
-
-    public Sequence<T> save () {
-        return this;
-    }
 }

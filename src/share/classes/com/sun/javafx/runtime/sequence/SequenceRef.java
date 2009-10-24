@@ -40,6 +40,12 @@ public class SequenceRef<T> extends AbstractSequence<T> {
         this.instance = instance;
         this.varNum = varNum;
     }
+    
+    public static <T> void save(Sequence<T> seq) {
+        if (seq instanceof SequenceRef) {
+            ((SequenceRef<T>) seq).save();
+        }
+    }
 
     public Sequence<T> save () {
         if (saved == null) {

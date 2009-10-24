@@ -114,6 +114,4 @@ public interface Sequence<T> extends Iterable<T> {
     public void incrementSharing();
 
     public void decrementSharing();
-    
-    public Sequence<T> save();
 }

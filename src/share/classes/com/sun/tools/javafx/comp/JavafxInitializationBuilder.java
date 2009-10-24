@@ -79,7 +79,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final Name varNumName;
     private final Name getPosName;
     private final Name getSizeName;
-    private final Name saveName;
     private final Name phaseName = defs.invalidateArgNamePhase;
 
     void TODO() {
@@ -151,7 +150,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         varNumName = names.fromString("varNum$");
         getPosName = names.fromString("get");
         getSizeName = names.fromString("size");
-        saveName = names.fromString("save");
     }
 
     /**
@@ -660,6 +658,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private JCExpression getReceiver(VarInfo varInfo) {
             return getReceiver(varInfo.getSymbol());
         }
+        private JCExpression getReceiverOrThis() {
+            if (isMixinClass()) {
+                return id(defs.receiverName);
+            }
+            
+            return id(names._this);
+        }
+        private JCExpression getReceiverOrThis(VarSymbol varSym) {
+            if (varSym.isStatic()) {
+                return isScript ? null : call(scriptLevelAccessMethod(varSym.owner));
+            }
+            
+            return getReceiverOrThis();
+        }
+        private JCExpression getReceiverOrThis(VarInfo varInfo) {
+            return getReceiverOrThis(varInfo.getSymbol());
+        }
         
         //
         // This method gathers all the translated functions in funcInfos.
@@ -1165,9 +1180,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
                         
                         // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
-                        JCExpression receiver = getReceiver(proxyVarSym);
-                        if (receiver == null) receiver = id(names._this);
-                        
+                        JCExpression receiver = getReceiverOrThis(proxyVarSym);
+
                         List<JCExpression> args = List.<JCExpression>of(makeTypeInfo(diagPos, elementType), receiver,  makeVarOffset(varInfo.getSymbol()));
                         JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
                         addStmt(makeExec(m().Assign(id(varName), newExpr)));
@@ -1359,7 +1373,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Begin seq save block.
                         beginBlock();
                         // seq$.save()
-                        addStmt(callStmt(id(varName), saveName));
+                        addStmt(callStmt(defs.SequencesRef_save, id(varName)));
                         // seq$ = null;
                         addStmt(makeExec(m().Assign(id(varName), makeNull())));
                         // If (seq$ != null) { seq$.save(); seq$ = null; }
