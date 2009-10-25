@@ -1059,6 +1059,54 @@ public abstract class JavafxTranslationSupport {
         }
 
         //
+        // Return a receiver$, scriptLevelAccess$() or null depending on the context.
+        //
+        protected JCExpression getReceiver() {
+            if (isMixinClass()) {
+                return id(defs.receiverName);
+            }
+            
+            return null;
+        }
+        protected JCExpression getReceiver(VarSymbol varSym) {
+            if (varSym.isStatic()) {
+                return call(scriptLevelAccessMethod(varSym.owner));
+            }
+            
+            return getReceiver();
+        }
+
+        //
+        // These methods return an expression for testing/setting/clearing a var flag.
+        //
+        protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
+            return makeFlagExpression(varSym, action,
+                        clearBits != null ? id(clearBits) : makeInt(0),
+                        setBits != null ? id(setBits) : makeInt(0));
+        }
+        protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
+            return call(getReceiver(varSym), action, makeVarOffset(varSym), clearBits, setBits);
+        }
+        protected JCExpression makeFlagExpression(JCExpression offset, Name action, Name clearBits, Name setBits) {
+            return call(action, offset,
+                        clearBits != null ? id(clearBits) : makeInt(0),
+                        setBits != null ? id(setBits) : makeInt(0));
+        }
+
+        //
+        // These methods returns a statement for setting/clearing a var flag.
+        //
+        protected JCStatement makeFlagStatement(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
+            return makeExec(makeFlagExpression(varSym, action, clearBits, setBits));
+        }
+        protected JCStatement makeFlagStatement(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
+            return makeExec(makeFlagExpression(varSym, action, clearBits, setBits));
+        }
+        protected JCStatement makeFlagStatement(JCExpression offset, Name action, Name clearBits, Name setBits) {
+            return makeExec(makeFlagExpression(offset, action, clearBits, setBits));
+        }
+
+        //
         // Methods to generate simple constants.
         //
         protected JCExpression makeInt(int value)         { return m().Literal(TypeTags.INT, value); }

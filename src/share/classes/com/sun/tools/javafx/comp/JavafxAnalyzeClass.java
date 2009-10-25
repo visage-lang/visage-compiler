@@ -205,6 +205,11 @@ class JavafxAnalyzeClass {
         // Return modifier flags from the symbol.
         public long getFlags() { return sym.flags(); }
         
+        // Return true if the var is a bare bones synthesize var (bind temp.)
+        public boolean isBareSynth() {
+            return (getFlags() & JavafxFlags.VARUSE_BARE_SYNTH) != 0;
+        }
+        
         // Return true if the var/override has an initializing expression
         public boolean hasInitializer() { return false; }
 
@@ -320,7 +325,7 @@ class JavafxAnalyzeClass {
             printInfo(true);
         }
         public void printInfo(boolean detail) {
-            System.out.println("    " + getEnumeration() + ". " +
+            System.err.println("    " + getEnumeration() + ". " +
                                getSymbol() +
                                ", type=" + vmi.getRealType() +
                                ", owner=" + getSymbol().owner +
@@ -333,32 +338,33 @@ class JavafxAnalyzeClass {
                                (bindersOrNull != null ?  ", binders" : "") + 
                                (!boundInvalidatees.isEmpty() ?  ", invalidators" : "") + 
                                (getDefaultInitStatement() != null ? ", init" : "") +
+                               (isBareSynth() ? ", bare" : "") +
                                ", class=" + getClass().getSimpleName());
             if (detail) {
                 if (hasProxyVar()) {
-                    System.out.print("        proxy=");
+                    System.err.print("        proxy=");
                     proxyVar().printInfo(false);
                 }
                 
                 if (hasOverrideVar()) {
-                    System.out.print("        override=");
+                    System.err.print("        override=");
                     overrideVar().printInfo(false);
                 }
                 
                 if (boundElementGetter() != null) {
-                    System.out.print("        element getter=");
-                    System.out.println(boundElementGetter());
+                    System.err.print("        element getter=");
+                    System.err.println(boundElementGetter());
                 }
                 
                 if (boundSizeGetter() != null) {
-                    System.out.print("        size getter=");
-                    System.out.println(boundSizeGetter());
+                    System.err.print("        size getter=");
+                    System.err.println(boundSizeGetter());
                 }
                 
                 if (boundInvalidators().size() != 0) {
-                    System.out.println("        invalidators=");
+                    System.err.println("        invalidators=");
                     for (BindeeInvalidator bi : boundInvalidators()) {
-                        System.out.println("          " + bi.bindee + " " + bi.invalidator);
+                        System.err.println("          " + bi.bindee + " " + bi.invalidator);
                     }
                 }
             }
@@ -451,11 +457,11 @@ class JavafxAnalyzeClass {
 
         // Null or Java code for getting the element of a bound sequence
         @Override
-        public JCStatement boundElementGetter() { return bindOrNull == null ? null : bindOrNull.getElementMethodBody(); }
+        public JCStatement boundElementGetter() { return !isSequence() || bindOrNull == null ? null : bindOrNull.getElementMethodBody(); }
 
         // Null or Java code for getting the size of a bound sequence
         @Override
-        public JCStatement boundSizeGetter() { return bindOrNull == null ? null : bindOrNull.getSizeMethodBody(); }
+        public JCStatement boundSizeGetter() { return !isSequence() || bindOrNull == null ? null : bindOrNull.getSizeMethodBody(); }
         
         // Null or Java code for invalidation of a bound sequence
         @Override
@@ -843,7 +849,7 @@ class JavafxAnalyzeClass {
         
         // Useful diagnostic tool.
         public void printInfo() {
-            System.out.println("    " + getSymbol() +
+            System.err.println("    " + getSymbol() +
                                (isStatic() ? ", static" : ""));
         }
     }
@@ -1361,38 +1367,38 @@ class JavafxAnalyzeClass {
     // JavafxInitializationBuilder.
     //
     private void printAnalysis(boolean before) {
-        System.out.println("Analyzed : " + currentClassSym);
+        System.err.println("Analyzed : " + currentClassSym);
 
         if (before) {
-            System.out.println("  translatedAttrInfo");
+            System.err.println("  translatedAttrInfo");
             for (TranslatedVarInfo ai : translatedAttrInfo) ai.printInfo();
-            System.out.println("  translatedOverrideAttrInfo");
+            System.err.println("  translatedOverrideAttrInfo");
             for (TranslatedOverrideClassVarInfo ai : translatedOverrideAttrInfo) ai.printInfo();
         }
 
-        System.out.println("  superClass");
-        System.out.println("    " + superClassSym);
-        System.out.println("  superClasses");
-        for (ClassSymbol cs : superClasses) System.out.println("    " + cs);
-        System.out.println("  immediate mixins");
-        for (ClassSymbol cs : immediateMixins) System.out.println("    " + cs);
-         System.out.println("  all mixins");
-        for (ClassSymbol cs : allMixins) System.out.println("    " + cs);
+        System.err.println("  superClass");
+        System.err.println("    " + superClassSym);
+        System.err.println("  superClasses");
+        for (ClassSymbol cs : superClasses) System.err.println("    " + cs);
+        System.err.println("  immediate mixins");
+        for (ClassSymbol cs : immediateMixins) System.err.println("    " + cs);
+         System.err.println("  all mixins");
+        for (ClassSymbol cs : allMixins) System.err.println("    " + cs);
 
-        System.out.println("  classVarInfos");
+        System.err.println("  classVarInfos");
         for (VarInfo ai : classVarInfos) ai.printInfo();
-        System.out.println("  scriptVarInfos");
+        System.err.println("  scriptVarInfos");
         for (VarInfo ai : scriptVarInfos) ai.printInfo();
-        System.out.println("  classFuncInfos");
+        System.err.println("  classFuncInfos");
         for (FuncInfo fi : classFuncInfos) fi.printInfo();
-        System.out.println("  scriptFuncInfos");
+        System.err.println("  scriptFuncInfos");
         for (FuncInfo fi : scriptFuncInfos) fi.printInfo();
-        System.out.println("  needDispatchMethods");
+        System.err.println("  needDispatchMethods");
         for (MethodSymbol m : needDispatch()) {
-            System.out.println("    " + m + ", owner=" + m.owner);
+            System.err.println("    " + m + ", owner=" + m.owner);
         }
-        System.out.println();
-        System.out.println();
+        System.err.println();
+        System.err.println();
     }
 
 }

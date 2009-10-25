@@ -454,7 +454,7 @@ public abstract class JavafxAbstractTranslation
             return null;
         }
         public JCStatement getSizeMethodBody() {
-            TODO("sequence element getter for: " + value);
+            TODO("sequence size getter for: " + value);
             return null;
         }
 

@@ -425,33 +425,35 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vDelta = makeTmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
 
             return Block(
-                    vNewLower,
-                    If (AND(NE(step(), zero()), NE(lower(), id(vNewLower))),
-                        Block(
-                            vNewSize,
-                            vLoss,
-                            vGain,
-                            vDelta,
-                            If (OR(EQ(size(), iZero()), NE(makeBinary(JCTree.MOD, id(vDelta), step()), zero())),
-                                Block(
-                                    Assign(vLoss, size()),
-                                    Assign(vGain, id(vNewSize))),
-                            If (GT(id(vNewLower), lower()),
-                                Block(
-                                    Assign(vLoss, m().TypeCast(syms.intType, DIVstep(id(vDelta)))),
-                                    If (GT(id(vLoss), size()),
-                                       Assign(vLoss, size()))
-                                    ),
-                                Assign(vGain, m().TypeCast(syms.intType, DIVstep(NEG(id(vDelta)))))
-                            )),
-                            If (IsTriggerPhase(),
-                                Block(
-                                    Assign(lower(), id(vNewLower)),
-                                    Assign(size(), id(vNewSize))
-                                )
-                            ),
-                            InvalidateCall(iZero(), id(vLoss), id(vGain))
-                       ))
+                    If (makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionTest, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER),
+                      Block(
+                        vNewLower,
+                        If (AND(NE(step(), zero()), NE(lower(), id(vNewLower))),
+                          Block(
+                              vNewSize,
+                              vLoss,
+                              vGain,
+                              vDelta,
+                              If (OR(EQ(size(), iZero()), NE(makeBinary(JCTree.MOD, id(vDelta), step()), zero())),
+                                  Block(
+                                      Assign(vLoss, size()),
+                                      Assign(vGain, id(vNewSize))),
+                              If (GT(id(vNewLower), lower()),
+                                  Block(
+                                      Assign(vLoss, m().TypeCast(syms.intType, DIVstep(id(vDelta)))),
+                                      If (GT(id(vLoss), size()),
+                                         Assign(vLoss, size()))
+                                      ),
+                                  Assign(vGain, m().TypeCast(syms.intType, DIVstep(NEG(id(vDelta)))))
+                              )),
+                              If (IsTriggerPhase(),
+                                  Block(
+                                      Assign(lower(), id(vNewLower)),
+                                      Assign(size(), id(vNewSize))
+                                  )
+                              ),
+                              InvalidateCall(iZero(), id(vLoss), id(vGain))
+                    ))))
             );
         }
 
@@ -479,21 +481,23 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         calculateSize(lower(), id(vNewUpper), step()));
 
             return Block(
-                    vNewUpper,
-                    If (AND(NE(step(), zero()), NE(upper(), id(vNewUpper))),
-                        Block(
-                            vNewSize,
-                            vOldSize,
-                            If (IsTriggerPhase(),
-                                Block(
-                                    Assign(upper(), id(vNewUpper)),
-                                    Assign(size(), id(vNewSize))
-                                )
-                            ),
-                            If (GE(id(vNewSize), id(vOldSize)),
-                                InvalidateCall(id(vOldSize), id(vOldSize), MINUS(id(vNewSize), id(vOldSize))),
-                                InvalidateCall(id(vNewSize), id(vOldSize), iZero()))
-                       ))
+                    If (makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionTest, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER),
+                      Block(
+                        vNewUpper,
+                        If (AND(NE(step(), zero()), NE(upper(), id(vNewUpper))),
+                            Block(
+                                vNewSize,
+                                vOldSize,
+                                If (IsTriggerPhase(),
+                                    Block(
+                                        Assign(upper(), id(vNewUpper)),
+                                        Assign(size(), id(vNewSize))
+                                    )
+                                ),
+                                If (GE(id(vNewSize), id(vOldSize)),
+                                    InvalidateCall(id(vOldSize), id(vOldSize), MINUS(id(vNewSize), id(vOldSize))),
+                                    InvalidateCall(id(vNewSize), id(vOldSize), iZero()))
+                    ))))
             );
         }
 
@@ -517,19 +521,21 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         calculateSize(lower(), upper(), id(vNewStep)));
 
             return Block(
-                    vNewStep,
-                    If (NE(step(), id(vNewStep)),
-                        Block(
-                            vNewSize,
-                            vOldSize,
-                            If (IsTriggerPhase(),
-                                Block(
-                                    Assign(step(), id(vNewStep)),
-                                    Assign(size(), id(vNewSize))
-                                )
-                            ),
-                            InvalidateCall(iZero(), id(vOldSize), MINUS(id(vNewSize), id(vOldSize)))
-                       ))
+                    If (makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionTest, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER),
+                      Block(
+                        vNewStep,
+                        If (NE(step(), id(vNewStep)),
+                          Block(
+                              vNewSize,
+                              vOldSize,
+                              If (IsTriggerPhase(),
+                                  Block(
+                                      Assign(step(), id(vNewStep)),
+                                      Assign(size(), id(vNewSize))
+                                  )
+                              ),
+                              InvalidateCall(iZero(), id(vOldSize), MINUS(id(vNewSize), id(vOldSize)))
+                    ))))
             );
         }
 
@@ -563,7 +569,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 inits.append(Assign(step(), id(vNewStep)));
             }
             inits.append(Assign(size(), id(vNewSize)));
-            // TODO: append to 'inits' setValid  (see above) -- awaiting flag bit access methods
+            inits.append(makeFlagStatement((VarSymbol)targetSymbol, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null));
 
             return Block(
                     vNewLower,
