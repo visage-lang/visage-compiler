@@ -43,7 +43,6 @@ import com.sun.tools.mjavac.util.Name;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
@@ -277,6 +276,9 @@ class JavafxAnalyzeClass {
         // null or Java tree for var's on-invalidate for use in var$invalidate method.
         public JCStatement onInvalidateAsInline() { return null; }
 
+        // Is there a getter expression of bound variable
+        public boolean hasBoundInit() { return false; }
+
         // Null or Java code for getter expression of bound variable
         public JCExpression boundInit() { return null; }
 
@@ -418,6 +420,10 @@ class JavafxAnalyzeClass {
         // Return true if the var has a bidirectional bind.
         @Override
         public boolean hasBiDiBoundDefinition() { return bindStatus.isBidiBind(); }
+
+        // Is there a getter expression of bound variable
+        @Override
+        public boolean hasBoundInit() { return bindOrNull==null? false : bindOrNull.hasExpr(); }
 
         // Null or Java code for getter expression of bound variable
         @Override
@@ -591,6 +597,12 @@ class JavafxAnalyzeClass {
             return hasOverrideVar() && overrideVar().hasBiDiBoundDefinition();
         }
         
+        // Is there a getter expression of bound variable
+        @Override
+        public boolean hasBoundInit() {
+            return hasOverrideVar() ? overrideVar().hasBoundInit() : super.hasBoundInit();
+        }
+
         // Null or Java code for getter expression of bound variable
         @Override
         public JCExpression boundInit() {
@@ -628,6 +640,7 @@ class JavafxAnalyzeClass {
         }
 
         // Bound sequences that need to be invalidated when invalidated.
+        @Override
         public List<BindeeInvalidator> boundInvalidatees() {
             return hasOverrideVar() ? overrideVar().boundInvalidatees() : super.boundInvalidatees();
         }

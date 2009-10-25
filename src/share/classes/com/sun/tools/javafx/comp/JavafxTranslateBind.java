@@ -36,6 +36,7 @@ import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -293,6 +294,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             }
             this.exclusive = tree.isExclusive();
         }
+
         private JCExpression zero() {
             return m().Literal(elemType.tag, 0);
         }
@@ -302,20 +304,43 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private JCExpression szOne() {
             return m().Literal(szType.tag, 1);
         }
-        private JCExpression get(JFXVar var) {
+
+        private JCExpression field(JFXVar var) {
             return id(attributeValueName(var.getSymbol()));
         }
         private JCExpression lower() {
-            return get(varLower);
+            return field(varLower);
         }
         private JCExpression upper() {
-            return get(varUpper);
+            return field(varUpper);
         }
         private JCExpression step() {
             return varStep == null?
                   m().Literal(elemType.tag, 1)
+                : field(varStep);
+        }
+        private JCExpression size() {
+            return field(varSize);
+        }
+
+        private JCExpression get(JFXVar var) {
+            return call(attributeGetterName(var.getSymbol()));
+        }
+        private JCExpression getLower() {
+            return get(varLower);
+        }
+        private JCExpression getUpper() {
+            return get(varUpper);
+        }
+        private JCExpression getStep() {
+            return varStep == null?
+                  m().Literal(elemType.tag, 1)
                 : get(varStep);
         }
+        private JCExpression getSize() {
+            return get(varSize);
+        }
+
         private JCExpression DIVstep(JCExpression v1) {
             return varStep == null?
                   v1
@@ -326,49 +351,48 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                   v1
                 : MUL(v1, step());
         }
-        private JCExpression size() {
-            return get(varSize);
-        }
         private JCExpression exclusive() {
             return makeBoolean(exclusive);
         }
 
-        private RuntimeMethod sizeCalculationMethod() {
-            return
+        private JCExpression calculateSize(JCExpression vl, JCExpression vu, JCExpression vs) {
+            RuntimeMethod rm =
                     (elemType == syms.javafx_NumberType)?
                           defs.Sequences_calculateFloatRangeSize
                         : defs.Sequences_calculateIntRangeSize;
-     //       return call(sizeCalculationMethod(), lower(), upper(), step(), exclusive());
+            return call(rm, vl, vu, vs, exclusive());
         }
 
+        /**
+         * int size$range() {
+         *     return getSize();
+         * }
+         */
         JCStatement makeSizeBody() {
-            return makeReturn(size());
+            return makeReturn(getSize());
         }
 
         /**
          * float get$range(int pos) {
-         *    return (pos > 0 && pos < size)?
+         *    return (pos >= 0 && pos < getSize())?
          *              pos * step + lower
          *            : 0.0f;
          * }
          */
         JCStatement makeGetElementBody() {
             JCExpression cond = AND(
-                    GT(posArg(), makeInt(0)),
-                    LT(posArg(), size())
+                    GE(posArg(), iZero()),
+                    LT(posArg(), getSize())
                     );
-            JCExpression offset = (varStep == null)?
-                  posArg()
-                : MULstep(posArg());
-            JCExpression value = PLUS(offset, lower());
+            JCExpression value = PLUS(MULstep(posArg()), lower());
             JCExpression res = m().Conditional(cond, value, zero());
             return makeReturn(res);
         }
 
         /**
-         * float newLower = ...;
+         * float newLower = getLower();
          * if (step != 0 && lower != newLower) {
-         *    int newSize = // computed in library
+         *    int newSize = Sequences.calculateFloatRangeSize(newLower, upper, step, false);
          *    int loss = 0;
          *    int gain = 0;
          *    float delta = newLower - lower;
@@ -385,17 +409,17 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *      // grow -- add to the beginning
          * 	gain = (int) -delta / step;
          *    }
-         *    invalidate$range(0, loss, gain, phase);
          *    if (phase == TRIGGER_PHASE) {
          * 	lower = newLower;
          * 	size = newSize;
          *    }
+         *    invalidate$range(0, loss, gain, phase);
          * }
          */
         private JCStatement makeInvalidateLower() {
-            JCVariableDecl vNewLower = makeTmpVar("newLower", elemType, translateToExpression(varLower.getInitializer(), elemType));
+            JCVariableDecl vNewLower = makeTmpVar("newLower", elemType, getLower());
             JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
-                    call(sizeCalculationMethod(), id(vNewLower), upper(), step(), exclusive()));
+                                        calculateSize(id(vNewLower), upper(), step()));
             JCVariableDecl vLoss = makeMutableTmpVar("loss", syms.intType, iZero());
             JCVariableDecl vGain = makeMutableTmpVar("gain", syms.intType, iZero());
             JCVariableDecl vDelta = makeTmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
@@ -420,95 +444,149 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     ),
                                 Assign(vGain, m().TypeCast(syms.intType, DIVstep(NEG(id(vDelta)))))
                             )),
-                            InvalidateCall(iZero(), id(vLoss), id(vGain)),
                             If (IsTriggerPhase(),
                                 Block(
                                     Assign(lower(), id(vNewLower)),
                                     Assign(size(), id(vNewSize))
                                 )
-                            )
+                            ),
+                            InvalidateCall(iZero(), id(vLoss), id(vGain))
                        ))
             );
         }
 
         /**
-         * float newUpper = ...;
+         * float newUpper = getUpper();
          * if (step != 0 && upper != newUpper) {
-         *    int newSize = // computed in library
-         *    if (newSize >= size)
-         *       // grow
-         *       invalidate$range(size, size, newSize-size, phase);
-         *    else
-         *       // shrink
-         *       invalidate$range(newSize, size, 0, phase);
+         *    int newSize = Sequences.calculateFloatRangeSize(lower, newUpper, step, false);
+         *    int oldSize = size();
          *    if (phase == TRIGGER_PHASE) {
          *       upper = newUpper;
          *       size = newSize;
          *    }
+         *    if (newSize >= oldSize)
+         *       // grow
+         *       invalidate$range(oldSize, oldSize, newSize-oldSize, phase);
+         *    else
+         *       // shrink
+         *       invalidate$range(newSize, oldSize, 0, phase);
          * }
          */
         private JCStatement makeInvalidateUpper() {
-            JCVariableDecl vNewUpper = makeTmpVar("newUpper", elemType, translateToExpression(varUpper.getInitializer(), elemType));
+            JCVariableDecl vNewUpper = makeTmpVar("newUpper", elemType, getUpper());
+            JCVariableDecl vOldSize = makeTmpVar("oldSize", syms.intType, size());
             JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
-                    call(sizeCalculationMethod(), lower(), id(vNewUpper), step(), exclusive()));
+                                        calculateSize(lower(), id(vNewUpper), step()));
 
             return Block(
                     vNewUpper,
                     If (AND(NE(step(), zero()), NE(upper(), id(vNewUpper))),
                         Block(
                             vNewSize,
-                            If (GE(id(vNewSize), size()),
-                                InvalidateCall(size(), size(), MINUS(id(vNewSize), size())),
-                                InvalidateCall(id(vNewSize), size(), iZero())),
+                            vOldSize,
                             If (IsTriggerPhase(),
                                 Block(
                                     Assign(upper(), id(vNewUpper)),
                                     Assign(size(), id(vNewSize))
                                 )
-                            )
+                            ),
+                            If (GE(id(vNewSize), id(vOldSize)),
+                                InvalidateCall(id(vOldSize), id(vOldSize), MINUS(id(vNewSize), id(vOldSize))),
+                                InvalidateCall(id(vNewSize), id(vOldSize), iZero()))
                        ))
             );
         }
 
         /**
-         * float newStep = ...;
+         * float newStep = getStep();
          * if (step != newStep) {
-         *    int newSize = // computed in library
-         *    // Invalidate everything
-         *    invalidate$range(0, size, newSize-size, phase);
+         *    int newSize = Sequences.calculateFloatRangeSize(lower, upper, newStep, false);
+         *    int oldSize = size();
          *    if (phase == TRIGGER_PHASE) {
          *       step = newStep;
          *       size = newSize;
          *    }
+         *    // Invalidate everything
+         *    invalidate$range(0, oldSize, newSize-oldSize, phase);
          * }
          */
         private JCStatement makeInvalidateStep() {
-            JCVariableDecl vNewStep = makeTmpVar("newStep", elemType, translateToExpression(varStep.getInitializer(), elemType));
+            JCVariableDecl vNewStep = makeTmpVar("newStep", elemType, getStep());
+            JCVariableDecl vOldSize = makeTmpVar("oldSize", syms.intType, size());
             JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
-                    call(sizeCalculationMethod(), lower(), upper(), id(vNewStep), exclusive()));
+                                        calculateSize(lower(), upper(), id(vNewStep)));
 
             return Block(
                     vNewStep,
                     If (NE(step(), id(vNewStep)),
                         Block(
                             vNewSize,
-                            InvalidateCall(iZero(), size(), MINUS(id(vNewSize), size())),
+                            vOldSize,
                             If (IsTriggerPhase(),
                                 Block(
                                     Assign(step(), id(vNewStep)),
                                     Assign(size(), id(vNewSize))
                                 )
-                            )
+                            ),
+                            InvalidateCall(iZero(), id(vOldSize), MINUS(id(vNewSize), id(vOldSize)))
                        ))
             );
         }
 
+        /**
+         * float newLower = getLower();
+         * float newUpper = getUpper();
+         * float newStep = getStep();
+         * int newSize = Sequences.calculateFloatRangeSize(newLower, newUpper, newStep, false);
+         * if (phase == TRIGGER_PHASE) {
+         *      lower = newLower;
+         *      upper = newUpper ;
+         *      step = newStep ;
+         *      size = newSize;
+         *      setValid(lower); // TODO: awaiting flag bit access methods
+         *      setValid(upper); // TODO: awaiting flag bit access methods
+         *      setValid(step);  // TODO: awaiting flag bit access methods
+         * }
+         * // Invalidate: empty -> filled out range
+         * invalidate$range(0, 0, newSize, phase);
+         */
+        private JCStatement makeInvalidateSize() {
+            JCVariableDecl vNewLower = makeTmpVar("newLower", elemType, getLower());
+            JCVariableDecl vNewUpper = makeTmpVar("newUpper", elemType, getUpper());
+            JCVariableDecl vNewStep = makeTmpVar("newStep", elemType, getStep());
+            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+                                        calculateSize(id(vNewLower), id(vNewUpper), id(vNewStep)));
+            ListBuffer<JCStatement> inits = ListBuffer.lb();
+            inits.append(Assign(lower(), id(vNewLower)));
+            inits.append(Assign(upper(), id(vNewUpper)));
+            if (varStep != null) {
+                inits.append(Assign(step(), id(vNewStep)));
+            }
+            inits.append(Assign(size(), id(vNewSize)));
+            // TODO: append to 'inits' setValid  (see above) -- awaiting flag bit access methods
+
+            return Block(
+                    vNewLower,
+                    vNewUpper,
+                    vNewStep,
+                    vNewSize,
+                    If (IsTriggerPhase(),
+                        m().Block(0L, inits.toList())
+                    ),
+                    InvalidateCall(iZero(), iZero(), id(vNewSize))
+                   );
+        }
+
+        /**
+         * Set invalidators for the synthetic support variables
+         */
         void setupInvalidators() {
             addInvalidator(varLower.sym, makeInvalidateLower());
             addInvalidator(varUpper.sym, makeInvalidateUpper());
             if (varStep != null) {
                 addInvalidator(varStep.sym, makeInvalidateStep());
             }
+            addInvalidator(varSize.sym, makeInvalidateSize());
         }
     }
 

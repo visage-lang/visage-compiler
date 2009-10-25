@@ -382,6 +382,9 @@ public abstract class JavafxAbstractTranslation
 
     public interface BoundResult {
 
+        // Has getter expression of bound variable
+        boolean hasExpr();
+
         // Java code for getter expression of bound variable
         JCExpression expr();
 

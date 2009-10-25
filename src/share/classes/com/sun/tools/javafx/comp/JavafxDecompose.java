@@ -145,11 +145,11 @@ public class JavafxDecompose implements JavafxVisitor {
         return lb.toList();
     }
 
-    private JFXVar makeVar(DiagnosticPosition diagPos, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
+    private JFXVar makeVar(DiagnosticPosition diagPos, String label, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         if (varOwner == null) {
             TODO("LOCAL BIND");
         }
-        Name vName = tempName();
+        Name vName = tempName(label);
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags | JavafxFlags.SCRIPT_PRIVATE);
         JFXType fxType = fxmake.at(diagPos).TypeAny(Cardinality.ANY);
@@ -161,8 +161,8 @@ public class JavafxDecompose implements JavafxVisitor {
         return v;
     }
 
-    private JFXVar shredVar(JFXExpression pose, Type type) {
-        return makeVar(pose.pos(), pose, JavafxBindStatus.UNIDIBIND, type);
+    private JFXVar shredVar(String label, JFXExpression pose, Type type) {
+        return makeVar(pose.pos(), label, pose, JavafxBindStatus.UNIDIBIND, type);
     }
 
     private JFXExpression id(JFXVar v) {
@@ -181,7 +181,7 @@ public class JavafxDecompose implements JavafxVisitor {
         }
         JFXExpression pose = decompose(tree);
         if (inBind) {
-            JFXVar v = shredVar(pose, tree.type);
+            JFXVar v = shredVar("", pose, tree.type);
             return id(v);
         } else {
             return pose;
@@ -197,8 +197,8 @@ public class JavafxDecompose implements JavafxVisitor {
         return lb.toList();
     }
 
-    private Name tempName() {
-        return names.fromString("$t" + varCount++);
+    private Name tempName(String label) {
+        return names.fromString("$" + label + "$" + varCount++);
     }
 
     Name syntheticClassName(Name superclass) {
@@ -615,7 +615,7 @@ public class JavafxDecompose implements JavafxVisitor {
         result = tree;
     }
 
-    private JFXVar synthVar(JFXExpression tree, Type type) {
+    private JFXVar synthVar(String label,JFXExpression tree, Type type) {
         if (tree == null) {
             return null;
         }
@@ -628,20 +628,30 @@ public class JavafxDecompose implements JavafxVisitor {
         tp.sym = type.tsym;
         JFXExpression expr = fxmake.TypeCast(tp, pose);
 
-        JFXVar v = shredVar(expr, type);
+        JFXVar v = shredVar(label, expr, type);
         v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
         return v;
     }
 
+    /**
+     * Add synthetic variables, and attach them to the reconstituted range.
+     *    def range = bind [rb .. re step st]
+     * adds:
+     *
+     * def lower = bind rb; // marked BARE_SYNTH
+     * def upper = bind re; // marked BARE_SYNTH
+     * def step = bind st; // marked BARE_SYNTH
+     * def size = bind -99;
+     */
     public void visitSequenceRange(JFXSequenceRange tree) {
         JFXExpression lower;
         JFXExpression upper;
         JFXExpression stepOrNull;
         if (inBind) {
             Type elemType = types.elementType(tree.type);
-            lower = synthVar(tree.getLower(), elemType);
-            upper = synthVar(tree.getUpper(), elemType);
-            stepOrNull = synthVar(tree.getStepOrNull(), elemType);
+            lower = synthVar("lower",tree.getLower(), elemType);
+            upper = synthVar("upper",tree.getUpper(), elemType);
+            stepOrNull = synthVar("step",tree.getStepOrNull(), elemType);
         } else {
             lower = decomposeComponent(tree.getLower());
             upper = decomposeComponent(tree.getUpper());
@@ -651,8 +661,9 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (inBind) {
             // now add a size temp var
-            JFXVar v = makeVar(tree.pos(), null, JavafxBindStatus.UNBOUND, syms.intType);
-            v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+            JFXExpression dummy = fxmake.at(tree.pos).Literal(-99);
+            dummy.type = syms.intType;
+            JFXVar v = makeVar(tree.pos(), "size", dummy, JavafxBindStatus.UNIDIBIND, syms.intType);
             res.boundSizeVar = v;
         }
         result = res;
