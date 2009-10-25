@@ -244,11 +244,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             OnReplaceInfo info = new OnReplaceInfo();
             info.onReplace = onReplace;
             info.outer = onReplaceInfo;
-            Symbol sym = onReplace.getOldValue().sym;
-            //if ((sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {// optimized away
-            info.oldValueSym = sym;
-            sym = onReplace.getNewElements().sym;
-            info.newElementsSym = sym;
+            if (onReplace.getOldValue() != null) {
+                Symbol sym = onReplace.getOldValue().sym;
+                //if ((sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {// optimized away
+                info.oldValueSym = sym;
+            }
+            if (onReplace.getNewElements() != null)
+                info.newElementsSym = onReplace.getNewElements().sym;
             onReplaceInfo = info;
         }
         JCStatement ret = translateToStatement(onReplace.getBody(), syms.voidType);
