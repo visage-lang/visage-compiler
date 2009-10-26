@@ -672,6 +672,10 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, attributeSizeMethodNamePrefix);
     }
     
+    Name attributeSavedName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeSavedNamePrefix);
+    }
+
     Name attributeInitVarBitsName(Symbol sym) {
         return prefixedAttributeName(sym, attributeInitVarBitsMethodNamePrefix);
     }

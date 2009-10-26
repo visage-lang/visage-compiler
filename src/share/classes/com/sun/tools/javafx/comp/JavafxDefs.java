@@ -60,6 +60,7 @@ public class JavafxDefs {
     public static final String attributeGetElementMethodNamePrefix = "get$";
     public static final String attributeSizeMethodNamePrefix = "size$";
     public static final String attributeCountMethodString = "count$";
+    public static final String attributeSavedNamePrefix = "saved$";
     public static final String attributeOldValueNameString = "varOldValue$";
     public static final String attributeNewValueNameString = "varNewValue$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";

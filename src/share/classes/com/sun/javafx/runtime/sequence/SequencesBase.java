@@ -969,6 +969,12 @@ public class SequencesBase {
             return oldValue;
         }
         int inserted = newValues==null? 0 : newValues.size();
+        if (startPos == 0 && endPos == oldSize) {
+            if (newValues == null)
+                newValues = oldValue.getEmptySequence();
+            newValues.incrementSharing();
+            return newValues;
+        }
         ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
         arr.replace(startPos, endPos, newValues, 0, inserted, true);
         arr.clearOldValues(endPos-startPos);

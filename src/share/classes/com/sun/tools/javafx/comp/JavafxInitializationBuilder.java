@@ -1070,7 +1070,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                             makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym));
                         } else {
                             onReplaceCall = callStmt(getReceiver(), attributeOnReplaceName(varSym),
-                                            makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym),
+                                            makeMixinSafeVarValue(varSym),
                                             makeInt(0), makeInt(0), makeInt(0));
                         }
                         JCStatement flagSet = makeFlagStatement(varSym, defs.varFlagActionChange, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED);
@@ -1361,7 +1361,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Call the onReplace$var to force evaluation.
                         addStmt(callStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
                                                         makeMixinSafeVarValue(proxyVarSym),
-                                                        makeMixinSafeVarValue(proxyVarSym),
                                                         id(defs.sliceArgNameStartPos),
                                                         id(defs.sliceArgNameEndPos),
                                                         id(defs.sliceArgNameNewLength)));
@@ -1391,22 +1390,26 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 Name lastIndexName;
                 Name newElementsName;
                 Name newLengthName;
+                Name savedName;
 
                 @Override
                 public void initialize() {
                     JFXOnReplace onReplace = varInfo.onReplace();
                     
-                    oldValueName = paramOldValueName(onReplace);
                     newValueName = defs.attributeNewValueName;
                     firstIndexName = paramStartPosName(onReplace);
                     lastIndexName = paramEndPosName(onReplace);
                     newLengthName = paramNewElementsLengthName(onReplace);
                 
-                    addParam(type, oldValueName);
                     addParam(type, newValueName);
                     addParam(syms.intType, firstIndexName);
                     addParam(syms.intType, lastIndexName);
                     addParam(syms.intType, newLengthName);
+                    if (onReplace != null && onReplace.getOldValue() != null) {
+                        savedName = attributeSavedName(varInfo.getSymbol());
+                        addDefinition(makeVar(varInfo.isStatic() ? Flags.STATIC : 0, type, savedName,
+                                accessEmptySequence(diagPos, varInfo.getElementType())));
+                    }
                 }
                 
                 @Override
@@ -1418,7 +1421,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
 
                     // Fetch the on replace statement or null.
-                    JCStatement onReplace = varInfo.onReplaceAsInline();
+                    JFXOnReplace onReplace = varInfo.onReplace();
     
                     if (!isMixinClass() && varInfo.isMixinVar()) {
                         // Mixin.onReplace$var(this, oldValue, newValue);
@@ -1441,12 +1444,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     id(newValueName), id(firstIndexName), id(newLengthName));
                             addStmt(makeVar(newElements.type, newElements.name, init));
                         }
+                        if (savedName != null) {
+                            addStmt(makeVar(type, onReplace.getOldValue().getName(), id(savedName)));
+                            addStmt(makeExec(m().Assign(id(savedName),
+                                    call(getReceiver(), attributeGetterName(varInfo.getSymbol())))));
+                            addStmt(callStmt(id(savedName), defs.incrementSharingMethodName));
+                        }
                     }
                     
                     // Need to capture init state if has trigger.
                     if (onReplace != null) {
                         // Insert the trigger.
-                        addStmt(onReplace);
+                        addStmt(varInfo.onReplaceAsInline());
                     }
                 }
             };
