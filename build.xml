@@ -680,6 +680,19 @@
         </copy>
     </target>
 
+    <!-- Publish the output of langref to maybe an appserver doc directory,
+         typically used by hudson, for  the nightly jobs -->
+    <target name="langref-publish" description="Publish docs to a location"
+            depends="langref" if="appserver.targetdir">
+        <echo message="running because ${appserver.targetdir}"/>
+        <delete dir="${appserver.targetdir}" quiet="true"/>
+        <copy todir="${appserver.targetdir}">
+            <fileset dir="dist/doc"/>
+        </copy>
+        <copy file="${appserver.targetdir}/reference/JavaFXReference.html"
+              tofile="${appserver.targetdir}/reference/index.html"/>
+    </target>
+
     <target name="findbugs" depends="compile">
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
                  classpathref="findbugs.class.path" />
