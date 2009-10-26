@@ -151,7 +151,7 @@ public class JavafxDecompose implements JavafxVisitor {
         }
         Name vName = tempName(label);
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
-        JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags | JavafxFlags.SCRIPT_PRIVATE);
+        JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
         JFXType fxType = fxmake.at(diagPos).TypeAny(Cardinality.ANY);
         JFXVar v = fxmake.at(diagPos).Var(vName, fxType, mod, pose, bindStatus, null, null);
         VarSymbol sym = new VarSymbol(flags, vName, type, varOwner);

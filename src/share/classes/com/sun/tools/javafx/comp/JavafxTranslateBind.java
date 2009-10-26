@@ -37,6 +37,7 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Translate bind expressions into code in bind defining methods
@@ -363,8 +364,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return call(rm, vl, vu, vs, exclusive());
         }
 
+        private Name flagBit = defs.varFlagDEFAULT_APPLIED;
+        private VarSymbol flagSymbol = (VarSymbol)targetSymbol;
+
         private JCExpression isSequenceValid() {
-            return makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionTest, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER);
+            return makeFlagExpression(flagSymbol, defs.varFlagActionTest, flagBit, flagBit);
+        }
+
+        private JCStatement setSequenceValid() {
+            return makeFlagStatement(flagSymbol, defs.varFlagActionChange, null, flagBit);
         }
 
         /**
@@ -513,7 +521,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *       size = newSize;
          *    }
          *    // Invalidate everything
-         *    invalidate$range(0, oldSize, newSize-oldSize, phase);
+         *    invalidate$range(0, oldSize, newSize, phase);
          * }
          */
         private JCStatement makeInvalidateStep() {
@@ -535,7 +543,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                       Assign(size(), id(vNewSize))
                                   )
                               ),
-                              InvalidateCall(iZero(), id(vOldSize), MINUS(id(vNewSize), id(vOldSize)))
+                              InvalidateCall(iZero(), id(vOldSize), id(vNewSize))
                     )))
             );
         }
@@ -568,7 +576,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 inits.append(Assign(step(), id(vNewStep)));
             }
             inits.append(Assign(size(), id(vNewSize)));
-            inits.append(makeFlagStatement((VarSymbol)targetSymbol, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null));
+            inits.append(setSequenceValid());
 
             return Block(
                     vNewLower,

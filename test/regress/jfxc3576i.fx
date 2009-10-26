@@ -1,7 +1,7 @@
 /**
- * Regressioin test: JFXC-3576 : Compiled bind: bound sequence translation infrastructure and bound range
+ * Regression test: JFXC-3576 : Compiled bind: bound sequence translation infrastructure and bound range
  *
- * Integer ranges at script-leve -- no step, no on-replace
+ * Integer ranges at script-level -- no step, no on-replace
  *
  * @test
  * @run

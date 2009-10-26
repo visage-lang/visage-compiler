@@ -1,7 +1,7 @@
 /**
  * Regression test: JFXC-3576 : Compiled bind: bound sequence translation infrastructure and bound range
  *
- * Number ranges with step -- no on-replace
+ * Number ranges with step WITH on-replace
  *
  * @test
  * @run
@@ -10,7 +10,7 @@
 var rb = 5.5;
 var re = 7.0;
 var stp = 0.25;
-def range = bind [rb .. re step stp];
+def range = bind [rb .. re step stp] on replace [start .. end] = newV { println("replace {start}..{end} with {sizeof newV}") };
 println(range);
 rb = 3.25;
 println(range);
