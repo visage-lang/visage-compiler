@@ -957,22 +957,14 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 JFXIdent var = (JFXIdent) seq;
                 OnReplaceInfo info = findOnReplaceInfo(var.sym);
                 if (info != null
-                        && /*FIXME*/var.sym == info.newElementsSym
+                        && var.sym == info.newElementsSym
                         && (var.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {
-                    String mname = getMethodName.toString();
+                    String mname = getMethodName.toString() + "FromNewElements";
                     JFXOnReplace onReplace = info.onReplace;
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                    if (var.sym == info.oldValueSym) {
-                        mname = mname + "FromOldValue";
-                        args.append(make.TypeCast(makeType(info.seqWithExtendsType, true), make.Ident(defs.onReplaceArgNameOld)));
-                        args.append(make.Ident(defs.onReplaceArgNameFirstIndex));
-                        args.append(make.Ident(defs.onReplaceArgNameLastIndex));
-                    } else { // var.sym == info.newElementsSym
-                        mname = mname + "FromNewElements";
-                        args.append(make.Ident(defs.attributeNewValueName));
-                        args.append(make.Ident(paramStartPosName(onReplace)));
-                        args.append(make.Ident(paramNewElementsLengthName(onReplace)));
-                    }
+                    args.append(make.Ident(defs.attributeNewValueName));
+                    args.append(make.Ident(paramStartPosName(onReplace)));
+                    args.append(make.Ident(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);
                     return call(syms.javafx_SequencesType, mname, args);
                 }

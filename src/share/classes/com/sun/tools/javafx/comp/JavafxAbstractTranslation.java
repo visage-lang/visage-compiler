@@ -935,18 +935,8 @@ public abstract class JavafxAbstractTranslation
             if (expr instanceof JFXIdent) {
                 JFXIdent varId = (JFXIdent) expr;
                 OnReplaceInfo info = findOnReplaceInfo(varId.sym);
-                if (info != null) {
-                    if (false /* TODO */ && varId.sym == info.oldValueSym) {
-                        RuntimeMethod rm = defs.Sequences_sizeOfOldValue;
-                        ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                        args.append(id(defs.onReplaceArgNameBuffer));
-                        args.append(id(defs.onReplaceArgNameOld));
-                        args.append(id(defs.onReplaceArgNameLastIndex));
-                        return call(rm, args);
-                    }
-                    if (varId.sym == info.newElementsSym) {
-                        return id(paramNewElementsLengthName(info.onReplace));
-                    }
+                if (info != null && varId.sym == info.newElementsSym) {
+                    return id(paramNewElementsLengthName(info.onReplace));
                 }
             }
             return call(defs.Sequences_size, transExpr);

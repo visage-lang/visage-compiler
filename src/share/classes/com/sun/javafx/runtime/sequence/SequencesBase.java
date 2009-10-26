@@ -883,36 +883,10 @@ public class SequencesBase {
         return Sequences.make(seq.getElementType(), list);
     }
 
-    public static <T> int sizeOfOldValue(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int hiIndex/*exclusive*/) {
-        if (oldValue != null)
-            return oldValue.size();
-        return buffer.getRawArrayLength() - buffer.gapEnd + hiIndex;
-    }
-
-    public static <T> T getFromOldValue(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int startPos, int endPos, int k) {
-        if (oldValue != null)
-            return oldValue.get(k);
-        if (k >= 0) {
-            if (k >= startPos)
-                k += buffer.gapEnd - endPos;
-            int alen = buffer.getRawArrayLength();
-            if (k < alen) {
-                return buffer.getRawArrayElementAsObject(k);
-            }
-        }
-        return buffer.getDefaultValue();
-    }
-
     public static <T> T getFromNewElements(Sequence<? extends T> newValue, int loIndex, int inserted, int k) {
         if (k < 0 || k >= inserted)
             return newValue.getDefaultValue();
         return newValue.get(loIndex+k);
-    }
-
-    public static <T> Sequence<? extends T> getOldValue(ArraySequence<T> buffer, Sequence<? extends T> oldValue, int loIndex, int hiIndex/*exclusive*/) {
-        if (oldValue != null)
-            return oldValue;
-        return buffer.extractOldValue(loIndex, hiIndex);
     }
 
     public static <T> Sequence<? extends T> getNewElements(Sequence<? extends T> newValue, int startPos, int inserted) {

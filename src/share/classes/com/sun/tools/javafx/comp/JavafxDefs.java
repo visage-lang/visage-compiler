@@ -142,7 +142,6 @@ public class JavafxDefs {
 
     final RuntimeMethod Sequences_convertNumberSequence;
     final RuntimeMethod Sequences_forceNonNull;
-    final RuntimeMethod Sequences_sizeOfOldValue;
     final RuntimeMethod Sequences_sizeOfNewElements;
     final RuntimeMethod Sequences_range;
     final RuntimeMethod Sequences_rangeExclusive;
@@ -460,7 +459,6 @@ public class JavafxDefs {
 
         Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
         Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
-        Sequences_sizeOfOldValue = new RuntimeMethod(names, cSequences, "sizeOfOldValue");
         Sequences_sizeOfNewElements = new RuntimeMethod(names, cSequences, "sizeOfNewElements");
         Sequences_range = new RuntimeMethod(names, cSequences, "range");
         Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");

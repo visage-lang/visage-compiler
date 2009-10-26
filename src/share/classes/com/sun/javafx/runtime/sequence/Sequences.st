@@ -45,20 +45,6 @@ public final class Sequences extends SequencesBase {
     private Sequences() { }
 
 $PREFIX:{T|
-    public static $PRIM_MAP.(T)$ getAs$T$FromOldValue(ArraySequence<$BOXED_MAP.(T)$> buffer, Sequence<? extends $BOXED_MAP.(T)$> oldValue, int startPos, int endPos, int k) {
-        if (oldValue != null)
-            return oldValue.get(k);
-        if (k >= 0) {
-            if (k >= startPos)
-                k += buffer.gapEnd - endPos;
-            int alen = buffer.getRawArrayLength();
-            if (k < alen) {
-                return buffer.getRawArrayElementAsObject(k);
-            }
-        }
-        return buffer.getDefaultValue();
-    }
-
     public static $PRIM_MAP.(T)$ getAs$T$FromNewElements(Sequence<? extends $BOXED_MAP.(T)$> newValue, int loIndex, int inserted, int k) {
         if (k < 0 || k >= inserted)
             return newValue.getDefaultValue();
