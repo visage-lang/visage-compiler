@@ -464,7 +464,7 @@ public abstract class JavafxTranslationSupport {
      * Generate the return type as a Location if "isBound" is set.
      * */
     public JCExpression makeReturnTypeTree(DiagnosticPosition diagPos, MethodSymbol mth, boolean isBound) {
-        Type returnType = mth.getReturnType();
+        Type returnType = isBound? syms.javafx_PointerType : mth.getReturnType();
         return makeType(diagPos, returnType);
     }
 
@@ -678,6 +678,14 @@ public abstract class JavafxTranslationSupport {
  
     Name attributeApplyDefaultsName(Symbol sym) {
         return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
+    }
+
+    Name boundFunctionObjectParamName(Name suffix) {
+        return names.fromString(boundFunctionObjectParamPrefix + suffix);
+    }
+
+    Name boundFunctionVarNumParamName(Name suffix) {
+        return names.fromString(boundFunctionVarNumParamPrefix + suffix);
     }
 
     Name paramOldValueName(JFXOnReplace onReplace) {

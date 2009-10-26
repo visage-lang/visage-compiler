@@ -30,6 +30,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope;
@@ -44,6 +45,7 @@ import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.jvm.ClassReader;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 
@@ -500,18 +502,34 @@ public class JavafxLocalToClass {
                 /*
                  * For bound functions, make a synthetic bound variable with
                  * initialization expression to be the return expression and return
-                 * the synthetic variable as the result.
+                 * the Pointer of the synthetic variable as the result.
                  */
                 JFXBlock blk = that.getBodyExpression();
                 if (blk != null) {
                     JFXExpression returnExpr = (blk.value instanceof JFXReturn) ? ((JFXReturn) blk.value).getExpression() : blk.value;
                     if (returnExpr != null) {
+                        fxmake.at(blk.value.pos);
+                        ListBuffer<JFXExpression> stmts = ListBuffer.lb();
+                        for (JFXVar fxVar : that.getParams()) {
+                            JFXVar localVar = fxmake.Var(
+                                fxVar.name,
+                                fxVar.getJFXType(),
+                                fxmake.Modifiers(0),
+                                null,
+                                JavafxBindStatus.UNBOUND, null, null);
+                            localVar.type = fxVar.type;
+                            //localVar.sym = new VarSymbol(0L, fxVar.name, fxVar.type, that.sym);
+                            localVar.sym = fxVar.sym;
+                            stmts.append(localVar);
+                        }
+
+                        stmts.appendList(blk.stats);
+
                         // is return expression a variable declaration?
                         boolean returnExprIsVar = (returnExpr.getFXTag() == JavafxTag.VAR_DEF);
                         if (returnExprIsVar) {
-                            blk.stats = blk.stats.append(returnExpr);
+                            stmts.append(returnExpr);
                         }
-                        fxmake.at(blk.value.pos);
                         JFXVar returnVar = fxmake.Var(
                                 defs.boundFunctionResultName,
                                 fxmake.TypeUnknown(),
@@ -521,10 +539,44 @@ public class JavafxLocalToClass {
                         returnVar.type = returnExpr.type;
                         returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnExpr.type, that.sym);
                         returnVar.markBound();
-                        blk.stats = blk.stats.append(returnVar);
+                        stmts.append(returnVar);
+
+                        // find the symbol of Pointer.make(Object) method.
+                        Symbol pointerSym = syms.javafx_PointerType.tsym;
+                        Symbol pointerMakeMethodSym = null;
+                        for (Scope.Entry e1 = pointerSym.members().lookup(defs.makeMethodName);
+                             e1 != null;
+                             e1 = e1.sibling) {
+                            Symbol sym = e1.sym;
+                            MethodSymbol msym = (MethodSymbol) sym;
+                            if (msym.params().size() == 1) {
+                                pointerMakeMethodSym = msym;
+                                break;
+                            }
+                        }
+
+                        assert pointerMakeMethodSym != null : "can't find Pointer.make(Object) method";
+                        // The select expression Pointer.make
+                        Type pointerMakeType = pointerMakeMethodSym.type;
+                        JFXSelect select = fxmake.Select(fxmake.Type(syms.javafx_PointerType), defs.makeMethodName);
+                        select.sym = pointerMakeMethodSym;
+                        select.sym.flags_field |= JavafxFlags.FUNC_POINTER_MAKE;
+                        select.type = pointerMakeType;
+
+
+                        // args for Pointer.make(Object)
                         JFXExpression ident = fxmake.Ident(returnVar);
                         ident.type = returnVar.type;
-                        blk.value = ident;
+                        ListBuffer<JFXExpression> pointerMakeArgs = ListBuffer.lb();
+                        pointerMakeArgs.append(ident);
+
+                        // call Pointer.make($$bound$result$)
+                        JFXFunctionInvocation apply = fxmake.Apply(null, select, pointerMakeArgs.toList());
+                        apply.type = syms.javafx_PointerType;
+
+                        blk.stats = stmts.toList();
+                        blk.value = apply;
+                        blk.type = apply.type;
                     }
                 }
             }

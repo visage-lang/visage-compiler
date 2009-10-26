@@ -1616,8 +1616,17 @@ public abstract class JavafxAbstractTranslation
                 // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
                 params.prepend(makeReceiverParam(currentClass()));
             }
-            for (JFXVar fxVar : tree.getParams()) {
-                params.append(convertParam(fxVar));
+            if (isBound) {
+                for (JFXVar fxVar : tree.getParams()) {
+                    params.append(makeParam(syms.javafx_FXObjectType, 
+                            boundFunctionObjectParamName(fxVar.name)));
+                    params.append(makeParam(syms.javafx_IntegerType, 
+                            boundFunctionVarNumParamName(fxVar.name)));
+                }
+            } else {
+                for (JFXVar fxVar : tree.getParams()) {
+                    params.append(convertParam(fxVar));
+                }
             }
             return params.toList();
         }
@@ -1628,8 +1637,6 @@ public abstract class JavafxAbstractTranslation
             JCBlock body;
             if (bexpr == null) {
                 body = null; // null if no block expression
-            } else if (isBound) {
-                TODO("bound function building"); body = null;
             } else if (isRunMethod) {
                 // it is a module level run method, do special translation
                 body = makeRunMethodBody(bexpr);

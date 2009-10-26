@@ -146,9 +146,6 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar makeVar(DiagnosticPosition diagPos, String label, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
-        if (varOwner == null) {
-            TODO("LOCAL BIND");
-        }
         Name vName = tempName(label);
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
@@ -438,7 +435,10 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         boolean wasInScriptLevel = inScriptLevel;
         boolean wasInBind = inBind;
-        inBind = tree.isBound();
+        // Bound functions are handled by local variable bind facility.
+        // The return value is transformed already in JavafxLocalToClass.
+        // So, we are not chaning bind scope here.
+        // inBind = tree.isBound();
         inScriptLevel = tree.isStatic();
         Symbol prevVarOwner = varOwner;
         varOwner = null;
