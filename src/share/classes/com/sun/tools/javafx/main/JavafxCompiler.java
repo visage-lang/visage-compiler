@@ -759,10 +759,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             }
         }
         finally {
-            if (taskListener != null) {
-                JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.translatedToplevel, env.enclClass.sym);
-                taskListener.finished(e);
-            }
+            //if (taskListener != null) {
+            //    JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.translatedToplevel, env.enclClass.sym);
+            //    taskListener.finished(e);
+            //}
         }
     }
 
@@ -935,10 +935,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         if (verboseCompilePolicy)
             Log.printLines(log.noticeWriter, "[preAttribution " + env.enclClass.sym + "]");
 
-        if (taskListener != null) {
-            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
-            taskListener.started(e);
-        }
+        //if (taskListener != null) {
+        //    JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+        //    taskListener.started(e);
+        //}
 
         JavaFileObject prev = log.useSource(
                                   env.enclClass.sym.sourcefile != null ?
@@ -952,10 +952,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             log.useSource(prev);
         }
 
-        if (taskListener != null) {
-            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
-            taskListener.finished(e);
-        }
+        //if (taskListener != null) {
+        //    JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+        //    taskListener.finished(e);
+        //}
 
         return env;
     }
