@@ -92,6 +92,7 @@ fi
      echo
      echo "--" `expr $nPasses + $nFails` " tests run"
 
+
      diff ./build/test/dev-expected-fails1 ./build/test/dev-actual-fails | fgrep '> test' | sed -e 's@>@@' > ./build/test/dev-unexpected-fails
      if [ "$target" != dev-fail ] ; then
          # display failures
@@ -117,6 +118,19 @@ fi
          echo "-- $nPasses total passes, $nUnexpectedPasses unexpected passes:"
          cat ./build/test/dev-unexpected-passes | sed -e 's@^@ @'
      fi
+
+     didit=
+     for ii in `cat ./build/test/dev-expected-fails` ; do
+          fgrep $ii ./build/test/dev-actual-fails ./build/test/dev-passes > /dev/null 2>&1
+          if [ $? != 0 ] ; then
+              if [ -z "$didit" ] ; then
+                  echo
+                  echo "--Expected failures for which pass/fail status cannot be determined"
+                  didit=1
+              fi
+              echo "   $ii"
+          fi
+     done
 
 ###  This shows a number of non FXCompilerTest tests run; don't know why 
 ###     echo "-- Result URL: file:///$thisDir/build/test/reports/junit-noframes.html"
