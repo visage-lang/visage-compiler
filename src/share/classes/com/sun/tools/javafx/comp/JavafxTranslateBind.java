@@ -103,7 +103,48 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
  *                     Bound Non-Sequence Translators
  ****************************************************************************/
 
+    /**
+     * Translate a bound function call
+     */
+    private class BoundFunctionCallTranslator extends FunctionCallTranslator {
 
+        BoundFunctionCallTranslator(JFXFunctionInvocation tree) {
+            super(tree);
+        }
+        JCExpression condition = null;
+
+        @Override
+        JCExpression translateArg(JFXExpression arg, Type formal) {
+            if (arg instanceof JFXIdent) {
+                Symbol sym = ((JFXIdent) arg).sym;
+                JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
+                JCVariableDecl newVar = makeTmpVar("new", formal, call(attributeGetterName(sym)));
+                addPreface(oldVar);
+                addPreface(newVar);
+                addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
+
+                // oldArg != newArg
+                JCExpression compare = makeNotEqual(id(oldVar), id(newVar));
+                // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
+                condition = condition == null ? compare : makeBinary(JCTree.OR, condition, compare);
+
+                return id(newVar);
+            } else {
+                return super.translateArg(arg, formal);
+            }
+        }
+
+        @Override
+        JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
+            JCExpression full = super.fullExpression(mungedToCheckTranslated);
+            if (condition != null) {
+                // if no args have changed, don't call function, just return previous value
+                //TODO: must call if selector changes
+                full = m().Conditional(condition, full, id(attributeValueName(targetSymbol)));
+            }
+            return full;
+        }
+    }
 
     /**
      * Translate if-expression
@@ -158,6 +199,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    /**
+     * Bound identifier reference (non-sequence)
+     */
     private class BoundIdentTranslator extends IdentTranslator {
 
         BoundIdentTranslator(JFXIdent tree) {
@@ -180,6 +224,102 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             }
             return super.doit();
+        }
+    }
+
+    /**
+     * Bound member select (non-sequence)
+     */
+    private class BoundSelectTranslator extends SelectTranslator {
+
+        BoundSelectTranslator(JFXSelect tree) {
+            super(tree);
+        }
+
+        /**
+         * Override to handle mutable selector changing dependencies
+         *
+         *  // def w = bind r.v
+         * 	String get$w() {
+         *	  if ( ! isValidValue$( VOFF$w ) ) {
+         *	    Baz oldSelector = $r;
+         *	    Baz newSelector = get$r();
+         *	    switchDependence$(VOFF$v, oldSelector, newSelector);
+         *	    be$w( (newSelector==null)? "" : newSelector.get$v() );
+         *	  }
+         *	  return $w;
+         *	}
+         */
+        @Override
+        protected ExpressionResult doit() {
+            // cases that need a null check are the same as cases that have changing dependencies
+            JFXExpression selectorExpr = tree.getExpression();
+            if (canChange() && (selectorExpr instanceof JFXIdent)) {
+                JFXIdent selector = (JFXIdent) selectorExpr;
+                Symbol selectorSym = selector.sym;
+                if (types.isJFXClass(selectorSym.owner)) {
+                    Type selectorType = selector.type;
+                    JCExpression rcvr;
+                    JCVariableDecl oldSelector;
+                    JCVariableDecl newSelector;
+                    JCVariableDecl oldOffset;
+                    JCVariableDecl newOffset;
+
+                    //
+
+                    if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
+                        rcvr = id(defs.receiverName);
+                        oldSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
+                        newSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetterName(selectorSym)));
+                    } else {
+                        rcvr = selectorSym.isStatic() ? call(scriptLevelAccessMethod(selectorSym.owner)) : id(names._this);
+                        oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
+                        newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
+                    }
+
+                    addPreface(oldSelector);
+                    addPreface(newSelector);
+
+                    if ((selectorSym.type.tsym.flags() & JavafxFlags.MIXIN) != 0) {
+                        JCExpression oldNullCheck = makeNullCheck(id(oldSelector));
+                        JCExpression oldInit = m().Conditional(oldNullCheck, makeInt(0), call(id(oldSelector), attributeGetVOFFName(tree.sym)));
+                        oldOffset = makeTmpVar(syms.intType, oldInit);
+                        addPreface(oldOffset);
+
+                        JCExpression newNullCheck = makeNullCheck(id(newSelector));
+                        JCExpression newInit = m().Conditional(newNullCheck, makeInt(0), call(id(newSelector), attributeGetVOFFName(tree.sym)));
+                        newOffset = makeTmpVar(syms.intType, newInit);
+                        addPreface(newOffset);
+                    } else {
+                        newOffset = oldOffset = makeTmpVar(syms.intType, makeVarOffset(tree.sym, selectorSym));
+                        addPreface(oldOffset);
+                    }
+
+                    if (isBidiBind) {
+                        JCVariableDecl selectorOffset;
+                        if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
+                            selectorOffset = makeTmpVar(syms.intType, call(id(defs.receiverName), attributeGetVOFFName(targetSymbol)));
+                        } else {
+                            selectorOffset = makeTmpVar(syms.intType, makeVarOffset(targetSymbol, targetSymbol.owner));
+                        }
+
+                        addPreface(selectorOffset);
+                        addPreface(callStmt(defs.FXBase_switchBiDiDependence,
+                                rcvr,
+                                id(selectorOffset),
+                                id(oldSelector), id(oldOffset),
+                                id(newSelector), id(newOffset)));
+                    } else {
+                        addPreface(callStmt(defs.FXBase_switchDependence,
+                                rcvr,
+                                id(oldSelector), id(oldOffset),
+                                id(newSelector), id(newOffset)));
+                    }
+                }
+                addBindee((VarSymbol) selectorSym);
+                addInterClassBindee((VarSymbol) selectorSym, refSym);
+            }
+            return (ExpressionResult) super.doit();
         }
     }
 
@@ -642,41 +782,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             // We want to translate to a bound sequence
             TODO("bound sequence", tree);
         }
-        result = (ExpressionResult) (new FunctionCallTranslator(tree) {
-            JCExpression condition = null;
-
-            @Override
-            JCExpression translateArg(JFXExpression arg, Type formal) {
-                if (arg instanceof JFXIdent) {
-                    Symbol sym = ((JFXIdent) arg).sym;
-                    JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
-                    JCVariableDecl newVar = makeTmpVar("new", formal, call(attributeGetterName(sym)));
-                    addPreface(oldVar);
-                    addPreface(newVar);
-                    addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
-
-                    // oldArg != newArg
-                    JCExpression compare = makeNotEqual(id(oldVar), id(newVar));
-                    // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
-                    condition = condition == null ? compare : makeBinary(JCTree.OR, condition, compare);
-
-                    return id(newVar);
-                } else {
-                    return super.translateArg(arg, formal);
-                }
-            }
-
-            @Override
-            JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
-                JCExpression full = super.fullExpression(mungedToCheckTranslated);
-                if (condition != null) {
-                    // if no args have changed, don't call function, just return previous value
-                    //TODO: must call if selector changes
-                    full = m().Conditional(condition, full, id(attributeValueName(targetSymbol)));
-                }
-                return full;
-            }
-        }).doit();
+        result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
     }
 
     public void visitIdent(JFXIdent tree) {
@@ -725,94 +831,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             // We want to translate to a bound sequence
             TODO("bound sequence", tree);
         }
-        result = (new SelectTranslator(tree) {
-
-            /**
-             * Override to handle mutable selector changing dependencies
-             *
-             *  // def w = bind r.v
-             * 	String get$w() {
-             *	  if ( ! isValidValue$( VOFF$w ) ) {
-             *	    Baz oldSelector = $r;
-             *	    Baz newSelector = get$r();
-             *	    switchDependence$(VOFF$v, oldSelector, newSelector);
-             *	    be$w( (newSelector==null)? "" : newSelector.get$v() );
-             *	  }
-             *	  return $w;
-             *	}
-             */
-            @Override
-            protected ExpressionResult doit() {
-                // cases that need a null check are the same as cases that have changing dependencies
-                JFXExpression selectorExpr = tree.getExpression();
-                if (canChange() && (selectorExpr instanceof JFXIdent)) {
-                    JFXIdent selector = (JFXIdent) selectorExpr;
-                    Symbol selectorSym = selector.sym;
-                    if (types.isJFXClass(selectorSym.owner)) {
-                        Type selectorType = selector.type;
-                        JCExpression rcvr;
-                        JCVariableDecl oldSelector;
-                        JCVariableDecl newSelector;
-                        JCVariableDecl oldOffset;
-                        JCVariableDecl newOffset;
-                        
-                        //
-                        
-                        if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
-                            rcvr = id(defs.receiverName);
-                            oldSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
-                            newSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetterName(selectorSym)));
-                        } else {
-                            rcvr = selectorSym.isStatic()? call(scriptLevelAccessMethod(selectorSym.owner)) : id(names._this);
-                            oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
-                            newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
-                        }
-                        
-                        addPreface(oldSelector);
-                        addPreface(newSelector);
-                        
-                        if ((selectorSym.type.tsym.flags() & JavafxFlags.MIXIN) != 0) {
-                            JCExpression oldNullCheck = makeNullCheck(id(oldSelector));
-                            JCExpression oldInit = m().Conditional(oldNullCheck, makeInt(0), call(id(oldSelector), attributeGetVOFFName(tree.sym)));
-                            oldOffset = makeTmpVar(syms.intType, oldInit);
-                            addPreface(oldOffset);
-                            
-                            JCExpression newNullCheck = makeNullCheck(id(newSelector));
-                            JCExpression newInit = m().Conditional(newNullCheck, makeInt(0), call(id(newSelector), attributeGetVOFFName(tree.sym)));
-                            newOffset = makeTmpVar(syms.intType, newInit);
-                            addPreface(newOffset);
-                        } else {
-                            newOffset = oldOffset = makeTmpVar(syms.intType, makeVarOffset(tree.sym, selectorSym));
-                            addPreface(oldOffset);
-                        }
-
-                        if (isBidiBind) {
-                            JCVariableDecl selectorOffset;
-                            if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
-                                selectorOffset = makeTmpVar(syms.intType, call(id(defs.receiverName), attributeGetVOFFName(targetSymbol)));
-                            } else {
-                                selectorOffset = makeTmpVar(syms.intType, makeVarOffset(targetSymbol, targetSymbol.owner));
-                            }
-                            
-                            addPreface(selectorOffset);
-                            addPreface(callStmt(defs.FXBase_switchBiDiDependence,
-                                    rcvr,
-                                    id(selectorOffset),
-                                    id(oldSelector), id(oldOffset),
-                                    id(newSelector), id(newOffset)));
-                        } else {
-                            addPreface(callStmt(defs.FXBase_switchDependence,
-                                    rcvr,
-                                    id(oldSelector), id(oldOffset),
-                                    id(newSelector), id(newOffset)));
-                        }
-                    }
-                    addBindee((VarSymbol)selectorSym);
-                    addInterClassBindee((VarSymbol)selectorSym, refSym);
-                }
-                return (ExpressionResult) super.doit();
-            }
-        }).doit();
+        result = (new BoundSelectTranslator(tree)).doit();
     }
 
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {

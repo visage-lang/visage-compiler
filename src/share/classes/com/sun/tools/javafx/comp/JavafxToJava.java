@@ -126,10 +126,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         attrEnv.translatedToplevel.endPositions = attrEnv.toplevel.endPositions;
     }
 
-    JCExpression TODO(JFXTree tree) {
-        return TODO("non-bound " + tree.getClass().getSimpleName());
-    }
-
     /**
      * For special cases where the expression may not be fully attributed.
      * Specifically: package and import names.
