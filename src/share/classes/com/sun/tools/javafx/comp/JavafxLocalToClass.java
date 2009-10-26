@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -36,6 +37,7 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.PackageSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
@@ -58,6 +60,7 @@ import com.sun.tools.mjavac.util.Name;
 public class JavafxLocalToClass {
 
     private final JavafxTreeMaker fxmake;
+    private final JavafxDefs defs;
     private final Name.Table names;
     private final JavafxCheck chk;
     private final ClassReader reader;
@@ -83,6 +86,7 @@ public class JavafxLocalToClass {
         context.put(localToClass, this);
 
         fxmake = JavafxTreeMaker.instance(context);
+        defs = JavafxDefs.instance(context);
         names = Name.Table.instance(context);
         chk = JavafxCheck.instance(context);
         reader = ClassReader.instance(context);
@@ -187,12 +191,26 @@ public class JavafxLocalToClass {
             @Override
             public void visitFunctionInvocation(JFXFunctionInvocation tree) {
                 Symbol msym = JavafxTreeInfo.symbol(tree.meth);
+
+                // If the function call is the magic Pointer.make(Object)
+                // function and argument involves a local var, then make a local
+                // context class.
                 boolean magicPointerMakeFunction = (msym != null) &&
                     (msym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
                 if (magicPointerMakeFunction) {
                     Symbol sym = JavafxTreeInfo.symbol(tree.args.head);
                     if (sym.isLocal()) {
                         needed = true;
+                    }
+                } else if (msym != null && (msym.flags() & JavafxFlags.BOUND) != 0L) {
+                    // This is a call to a bound function. If any of the arg involves
+                    // a local  variable or literal value, then make a local context class
+                    for (JFXExpression arg : tree.args) {
+                        Symbol sym = JavafxTreeInfo.symbol(arg);
+                        if ((sym != null && sym.isLocal()) || arg.getFXTag() == JavafxTag.LITERAL) {
+                            needed = true;
+                            break;
+                        }
                     }
                 } else {
                     super.visitFunctionInvocation(tree);
@@ -478,6 +496,38 @@ public class JavafxLocalToClass {
         public void visitFunctionDefinition(JFXFunctionDefinition that) {
             Symbol prevOwner = owner;
             owner = that.sym;
+            if (that.isBound()) {
+                /*
+                 * For bound functions, make a synthetic bound variable with
+                 * initialization expression to be the return expression and return
+                 * the synthetic variable as the result.
+                 */
+                JFXBlock blk = that.getBodyExpression();
+                if (blk != null) {
+                    JFXExpression returnExpr = (blk.value instanceof JFXReturn) ? ((JFXReturn) blk.value).getExpression() : blk.value;
+                    if (returnExpr != null) {
+                        // is return expression a variable declaration?
+                        boolean returnExprIsVar = (returnExpr.getFXTag() == JavafxTag.VAR_DEF);
+                        if (returnExprIsVar) {
+                            blk.stats = blk.stats.append(returnExpr);
+                        }
+                        fxmake.at(blk.value.pos);
+                        JFXVar returnVar = fxmake.Var(
+                                defs.boundFunctionResultName,
+                                fxmake.TypeUnknown(),
+                                fxmake.Modifiers(0), 
+                                returnExprIsVar? fxmake.Ident((JFXVar)returnExpr) : returnExpr,
+                                JavafxBindStatus.UNIDIBIND, null, null);
+                        returnVar.type = returnExpr.type;
+                        returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnExpr.type, that.sym);
+                        returnVar.markBound();
+                        blk.stats = blk.stats.append(returnVar);
+                        JFXExpression ident = fxmake.Ident(returnVar);
+                        ident.type = returnVar.type;
+                        blk.value = ident;
+                    }
+                }
+            }
             descendThroughChunksReportIfThisChunkInflated(that.operation);
             owner = prevOwner;
         }
