@@ -2518,7 +2518,13 @@ public abstract class JavafxAbstractTranslation
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instanceName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
             JCExpression tc = instanceName == null ? null : id(instanceName);
-            varInits.append(callStmt(tc, attributeBeName(vsym), transInit));
+            JCStatement def;
+            if (types.isSequence(vsym.type))
+                def = callStmt(defs.Sequences_set, tc,
+                      makeVarOffset(vsym, tc.type), transInit);
+            else
+                def = callStmt(tc, attributeBeName(vsym), transInit);
+            varInits.append(def);
             varSyms.append(vsym);
         }
 
