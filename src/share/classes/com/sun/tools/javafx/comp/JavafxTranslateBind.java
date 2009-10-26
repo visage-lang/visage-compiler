@@ -363,6 +363,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return call(rm, vl, vu, vs, exclusive());
         }
 
+        private JCExpression isSequenceValid() {
+            return makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionTest, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER);
+        }
+
         /**
          * int size$range() {
          *     return getSize();
@@ -424,8 +428,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vGain = makeMutableTmpVar("gain", syms.intType, iZero());
             JCVariableDecl vDelta = makeTmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
 
-            return Block(
-                    If (makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionTest, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER),
+            return If (isSequenceValid(),
                       Block(
                         vNewLower,
                         If (AND(NE(step(), zero()), NE(lower(), id(vNewLower))),
@@ -453,7 +456,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                   )
                               ),
                               InvalidateCall(iZero(), id(vLoss), id(vGain))
-                    ))))
+                    )))
             );
         }
 
@@ -480,8 +483,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
                                         calculateSize(lower(), id(vNewUpper), step()));
 
-            return Block(
-                    If (makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionTest, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER),
+            return If (isSequenceValid(),
                       Block(
                         vNewUpper,
                         If (AND(NE(step(), zero()), NE(upper(), id(vNewUpper))),
@@ -497,7 +499,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 If (GE(id(vNewSize), id(vOldSize)),
                                     InvalidateCall(id(vOldSize), id(vOldSize), MINUS(id(vNewSize), id(vOldSize))),
                                     InvalidateCall(id(vNewSize), id(vOldSize), iZero()))
-                    ))))
+                    )))
             );
         }
 
@@ -520,8 +522,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
                                         calculateSize(lower(), upper(), id(vNewStep)));
 
-            return Block(
-                    If (makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionTest, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER),
+            return If (isSequenceValid(),
                       Block(
                         vNewStep,
                         If (NE(step(), id(vNewStep)),
@@ -535,7 +536,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                   )
                               ),
                               InvalidateCall(iZero(), id(vOldSize), MINUS(id(vNewSize), id(vOldSize)))
-                    ))))
+                    )))
             );
         }
 
@@ -549,9 +550,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *      upper = newUpper ;
          *      step = newStep ;
          *      size = newSize;
-         *      setValid(lower); // TODO: awaiting flag bit access methods
-         *      setValid(upper); // TODO: awaiting flag bit access methods
-         *      setValid(step);  // TODO: awaiting flag bit access methods
+         *      setSequenceValid();
          * }
          * // Invalidate: empty -> filled out range
          * invalidate$range(0, 0, newSize, phase);

@@ -1149,6 +1149,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     } else if (varInfo.hasBoundDefinition()) {  
                         // Begin if block.
                         beginBlock();
+
+                        // Be sure the sequence is initialized before returning the SequenceRef -- call the size accessor to initialize
+                        addStmt(callStmt(getReceiver(), attributeSizeName(varSym)));
                         
                         // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
                         JCExpression receiver = getReceiverOrThis(proxyVarSym);
@@ -1465,7 +1468,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void statements() {
-                    if (!varInfo.isBareSynth()) {
+                    if (varInfo.isBareSynth()) {
+                        // return bound-expression
+                        addStmts(varInfo.boundPreface());
+                        addStmt(m().Return(varInfo.boundInit()));
+                    } else {
                         JCIf initIf = null;
                         if (!varInfo.isStatic()) {
                             // Prepare to accumulate body of if.
@@ -1507,10 +1514,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         } else {
                             addStmt(initIf);
                         }
-                    }
     
-                    // Construct and add: return $var;
-                    addStmt(m().Return(id(varName)));
+                        // Construct and add: return $var;
+                        addStmt(m().Return(id(varName)));
+                    }
                 }
             };
 
