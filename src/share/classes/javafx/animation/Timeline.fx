@@ -726,7 +726,7 @@ public class Timeline {
                 baseElapsed = curCycle * dur + adjustedMillis;
             }
             // catch up frames between the current and new positions
-            if (not visitFrames(curPos, timeInMillis, true)) {
+            if (not visitFrames(curPos, timeInMillis, true, true)) {
                 return;
             }
             curPos = timeInMillis;
@@ -778,7 +778,7 @@ public class Timeline {
         if((not needsStop) or cycleIndex < repeatCount) {
             var newPos = if(cycleForward) curT
                          else if(timelineDur < 0) elapsed else dur - curT;
-            if (not visitFrames(curPos, newPos, false)) {
+            if (not visitFrames(curPos, newPos, false, true)) {
                 return;
             }
             curPos = newPos;
@@ -860,7 +860,7 @@ public class Timeline {
 
     function visitCycle(catchingUp:Boolean): Boolean  {
         var cycleT = if (forward) timelineDur else 0;
-        if (not visitFrames(curPos, cycleT, catchingUp)) {
+        if (not visitFrames(curPos, cycleT, catchingUp, false)) {
             return false;
         }
         curPos = cycleT;
@@ -892,7 +892,7 @@ public class Timeline {
      * if it is the case, we want to abort and re-evaluate at next
      * pulse.
      */
-    function visitFrames(fromTime:Number, toTime:Number, catchingUp:Boolean) : Boolean {
+    function visitFrames(fromTime:Number, toTime:Number, catchingUp:Boolean, visitLast: Boolean) : Boolean {
         var fwd = fromTime <= toTime;
         var aborted = false;
 
@@ -920,7 +920,7 @@ public class Timeline {
                     if (kfMillis > toTime) {
                         break;
                     }
-                    if (not visitKeyFrame(toTime, fi, kf, catchingUp)) {
+                    if (not visitKeyFrame(toTime, fi, kf, catchingUp, visitLast)) {
                         aborted = true;
                         lastTick += Math.abs(kfMillis - fromTime);
                         break;
@@ -938,7 +938,7 @@ public class Timeline {
                     if (kfMillis < toTime) {
                         break;
                     }
-                    if (not visitKeyFrame(toTime, fi, kf, catchingUp)) {
+                    if (not visitKeyFrame(toTime, fi, kf, catchingUp, visitLast)) {
                         aborted = true;
                         lastTick += Math.abs(kfMillis - fromTime);
                         break;
@@ -951,13 +951,13 @@ public class Timeline {
     }
 
     function visitKeyFrame(toTime: Number, kfIndex: Integer, kf: KeyFrame,
-                           catchingUp: Boolean): Boolean {
+                           catchingUp: Boolean, visitLast: Boolean): Boolean {
         if (kfIndex != lastKF) { // suppress double visiting on toggle
             frameIndex = kfIndex;
             lastKF = kfIndex;
             var kfMillis = kf.time.toMillis() as Number;
 
-            if (not (catchingUp and kf.canSkip) or kfMillis == toTime) {
+            if (not (catchingUp and kf.canSkip) or visitLast and kfMillis == toTime) {
                 curPos = kfMillis;
                 time = makeDur(curPos);
                 var savedTime = curPos;
