@@ -1354,7 +1354,7 @@ public abstract class JavafxAbstractTranslation
 
         // This is for calls from non-bound contexts (code for true bound calls is in JavafxToBound)
         JCExpression makeBoundCall(JCExpression applyExpression) {
-            return TODO("makeBoundCall");
+            return applyExpression;
         }
 
         @Override
@@ -1385,39 +1385,17 @@ public abstract class JavafxAbstractTranslation
             }
 
             if (callBound) {
-                //TODO: this code looks completely messed-up
-                /**
-                 * If this is a bound call, use left-hand side references for arguments consisting
-                 * solely of a  var or attribute reference, or function call, otherwise, wrap it
-                 * in an expression location
-                 */
                 List<Type> formal = formals;
                 for (JFXExpression arg : args) {
-                    switch (arg.getFXTag()) {
-                        case IDENT:
-                        case SELECT:
-                        case APPLY:
-                            // This arg expression is one that will translate into a Location;
-                            // since that is needed for a this into Location, do so.
-                            // However, if the types need to by changed (subclass), this won't
-                            // directly work.
-                            // Also, if this is a mismatched sequence type, we will need
-                            // to do some different
-                            //TODO: never actually gets here
-                            if (arg.type.equals(formal.head) ||
-                                    types.isSequence(formal.head) ||
-                                    formal.head == syms.objectType // don't add conversion for parameter type of java.lang.Object: doing so breaks the Pointer trick to obtain the original location (JFC-826)
-                                    ) {
-                                throw new RuntimeException("bogus bound call code");
-                                //break;
-                            }
-                        //TODO: handle sequence subclasses
-                        //TODO: use more efficient mechanism (use currently apears rare)
-                        //System.err.println("Not match: " + arg.type + " vs " + formal.head);
-                        // Otherwise, fall-through, presumably a conversion will work.
-                        default: {
-                            targs.append(translateExpr(arg, arg.type));
-                        }
+                    if (arg.getFXTag() == JavafxTag.IDENT) {
+                        JFXIdent ident = (JFXIdent)args.head;
+                        JCExpression receiver = ident.sym.isStatic() ?
+                            call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            makeReceiver(ident.sym, false);
+                        targs.append(receiver);
+                        targs.append(makeVarOffset(ident.sym));
+                    } else {
+                        TODO("non-Ident in bound call");
                     }
                     formal = formal.tail;
                 }

@@ -209,7 +209,7 @@ public class JavafxLocalToClass {
                     // a local  variable or literal value, then make a local context class
                     for (JFXExpression arg : tree.args) {
                         Symbol sym = JavafxTreeInfo.symbol(arg);
-                        if ((sym != null && sym.isLocal()) || arg.getFXTag() == JavafxTag.LITERAL) {
+                        if (sym != null && sym.isLocal()) {
                             needed = true;
                             break;
                         }
@@ -510,6 +510,12 @@ public class JavafxLocalToClass {
                     if (returnExpr != null) {
                         fxmake.at(blk.value.pos);
                         ListBuffer<JFXExpression> stmts = ListBuffer.lb();
+                        /*
+                         * Generate a local variable for each parameter. We will later
+                         * transform each param as FXObject+varNum pair during translation.
+                         * These locals will be converted into instance variables of the
+                         * local context class.
+                         */
                         for (JFXVar fxVar : that.getParams()) {
                             JFXVar localVar = fxmake.Var(
                                 fxVar.name,
@@ -518,7 +524,6 @@ public class JavafxLocalToClass {
                                 null,
                                 JavafxBindStatus.UNBOUND, null, null);
                             localVar.type = fxVar.type;
-                            //localVar.sym = new VarSymbol(0L, fxVar.name, fxVar.type, that.sym);
                             localVar.sym = fxVar.sym;
                             stmts.append(localVar);
                         }

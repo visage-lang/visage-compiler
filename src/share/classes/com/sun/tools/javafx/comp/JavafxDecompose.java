@@ -434,11 +434,9 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         boolean wasInScriptLevel = inScriptLevel;
-        boolean wasInBind = inBind;
         // Bound functions are handled by local variable bind facility.
         // The return value is transformed already in JavafxLocalToClass.
-        // So, we are not chaning bind scope here.
-        // inBind = tree.isBound();
+        // So, we are not changing bind state "inBind".
         inScriptLevel = tree.isStatic();
         Symbol prevVarOwner = varOwner;
         varOwner = null;
@@ -450,7 +448,6 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXFunctionDefinition res = fxmake.at(tree.pos).FunctionDefinition(mods, name, restype, params, bodyExpression);
         res.sym = tree.sym;
         result = res;
-        inBind = wasInBind;
         inScriptLevel = wasInScriptLevel;
         varOwner = prevVarOwner;
     }
