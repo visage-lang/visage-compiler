@@ -1632,6 +1632,7 @@ public class JavafxCheck {
     private Symbol firstDirectMethodIncompatibility(Type t1, Type t2, Type site) {
 	for (Scope.Entry e1 = t1.tsym.members().elems; e1 != null; e1 = e1.sibling) {
 	    Symbol s1 = e1.sym;
+            s1.complete();
 	    Type st1 = null;
 	    if (s1.kind != MTH || s1.name == defs.internalRunFunctionName ||
                     !s1.isInheritedIn(site.tsym, types)) continue;
@@ -1662,11 +1663,13 @@ public class JavafxCheck {
     private Symbol firstDirectVarIncompatibility(Type t1, Type t2, Type site) {
         for (Scope.Entry e1 = t1.tsym.members().elems; e1 != null; e1 = e1.sibling) {
             Symbol s1 = e1.sym;
+            s1.complete();
             Type st1 = null;
             if (s1.kind != VAR ||
                     !s1.isInheritedIn(site.tsym, types)) continue;
             for (Scope.Entry e2 = t2.tsym.members().lookup(s1.name); e2.scope != null; e2 = e2.next()) {
                 Symbol s2 = e2.sym;
+                s2.complete();
                 if (s1 == s2) continue;
                 if (s2.kind != VAR || !s2.isInheritedIn(site.tsym, types)) continue;
                 if (!types.isSameType(s1.type, s2.type)) {
