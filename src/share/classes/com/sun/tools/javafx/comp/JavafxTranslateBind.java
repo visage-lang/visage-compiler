@@ -698,12 +698,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private JCExpression zero() {
             return m().Literal(elemType.tag, 0);
         }
-        private JCExpression szZero() {
-            return m().Literal(szType.tag, 0);
-        }
-        private JCExpression szOne() {
-            return m().Literal(szType.tag, 1);
-        }
 
         private JCExpression field(JFXVar var) {
             return id(attributeValueName(var.getSymbol()));
@@ -1032,11 +1026,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     public void visitInstanciate(JFXInstanciate tree) {
-        result = new InstanciateTranslator(tree) {
-            protected void processLocalVar(JFXVar var) {
-                translateStmt(var, syms.voidType);
-            }
-        }.doit();
+        result = new InstanciateTranslator(tree).doit();
     }
 
     public void visitLiteral(JFXLiteral tree) {

@@ -158,39 +158,6 @@ public abstract class JavafxAbstractTranslation
         return toJava.getLiteralInitClassMap();
     }
 
-    /**
-     * Return the list of local variables accessed, but not defined within the FX expression.
-     * @param expr
-     * @return
-     */
-    List<VarSymbol> localVars(JFXTree expr) {
-        final ListBuffer<VarSymbol> lb = ListBuffer.<VarSymbol>lb();
-        final Set<VarSymbol> exclude = new HashSet<VarSymbol>();
-        new JavafxTreeScanner() {
-            @Override
-            public void visitVar(JFXVar tree) {
-                exclude.add(tree.sym);
-                super.visitVar(tree);
-            }
-        }.scan(expr);
-
-        new JavafxTreeScanner() {
-            @Override
-            public void visitIdent(JFXIdent tree) {
-                if (tree.sym instanceof VarSymbol) {
-                    VarSymbol vsym = (VarSymbol) (tree.sym);
-                    if (vsym.owner.kind != Kinds.TYP && !exclude.contains(vsym)) {
-                        // Local variable we haven't seen before, include it
-                        lb.append(vsym);
-                        exclude.add(vsym);
-                    }
-                }
-            }
-        }.scan(expr);
-
-        return lb.toList();
-    }
-
     /** Box up a single primitive expression. */
     JCExpression makeBox(DiagnosticPosition diagPos, JCExpression translatedExpr, Type primitiveType) {
         make.at(translatedExpr.pos());
@@ -680,16 +647,12 @@ public abstract class JavafxAbstractTranslation
     SpecialResult translateToSpecialResult(JFXTree tree) {
         SpecialResult ret;
 
-        if (tree == null) {
-            ret = null;
-        } else {
-            JFXTree prevWhere = getAttrEnv().where;
-            getAttrEnv().where = tree;
-            tree.accept(this);
-            getAttrEnv().where = prevWhere;
-            ret = (SpecialResult)this.result;
-            this.result = null;
-        }
+        JFXTree prevWhere = getAttrEnv().where;
+        getAttrEnv().where = tree;
+        tree.accept(this);
+        getAttrEnv().where = prevWhere;
+        ret = (SpecialResult) this.result;
+        this.result = null;
         return ret;
     }
 
@@ -908,26 +871,7 @@ public abstract class JavafxAbstractTranslation
             } else {
                 //TODO: see init builder getStaticContext() for a better implementation
                 Type classType = types.erasure(owner.type);
-                JCExpression expr = makeType(classType, false);
-                if (types.isJFXClass(owner)) {
-                    Name simpleName;
-                    switch (expr.getTag()) {
-                        case JCTree.IDENT:
-                            simpleName = ((JCIdent)expr).name;
-                            break;
-                       case JCTree.SELECT:
-                            simpleName = ((JCFieldAccess)expr).name;
-                            break;
-                        default:
-                            throw new RuntimeException("should not get here -- type name should be identifier or select");
-                    }
-
-                    // make X.X$Script
-                    if (!JavafxInitializationBuilder.SCRIPT_LEVEL_AT_TOP) {
-                        expr = select(expr, simpleName.append(defs.scriptClassSuffixName));
-                    }
-                }
-                return expr;
+                return makeType(classType, false);
             }
         }
         
@@ -2456,9 +2400,7 @@ public abstract class JavafxAbstractTranslation
         /**
          * Does this instance have any instance initializations?
          */
-        protected boolean hasInstanceVariableInits() {
-            return false;
-        }
+        protected abstract boolean hasInstanceVariableInits();
 
         /**
          * Initialize the instance variables of the instance
@@ -2673,7 +2615,7 @@ public abstract class JavafxAbstractTranslation
     /**
      * Translator for object literals
      */
-    abstract class InstanciateTranslator extends NewInstanceTranslator {
+    class InstanciateTranslator extends NewInstanceTranslator {
 
         protected final JFXInstanciate tree;
         private final ClassSymbol idSym;
@@ -2683,8 +2625,6 @@ public abstract class JavafxAbstractTranslation
             this.tree = tree;
             this.idSym = (ClassSymbol)JavafxTreeInfo.symbol(tree.getIdentifier());
         }
-
-        abstract protected void processLocalVar(JFXVar var);
 
         @Override
         protected boolean hasInstanceVariableInits() {

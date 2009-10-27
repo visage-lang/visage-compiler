@@ -651,9 +651,7 @@ public class JavafxClassReader extends ClassReader {
         long accessFlags = initialFlags & JavafxFlags.JavafxAccessFlags;
         JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
         for (Attribute.Compound a : sym.getAnnotationMirrors()) {
-            if (a.type.tsym.flatName() == javafxSyms.javafx_privateAnnotationType.tsym.flatName()) {
-                accessFlags = Flags.PRIVATE;
-            } else if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
+            if (a.type.tsym.flatName() == javafxSyms.javafx_protectedAnnotationType.tsym.flatName()) {
                 accessFlags = Flags.PROTECTED;
             } else if (a.type.tsym.flatName() == javafxSyms.javafx_packageAnnotationType.tsym.flatName()) {
                 accessFlags = 0L;

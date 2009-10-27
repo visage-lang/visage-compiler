@@ -527,11 +527,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitInstanciate(JFXInstanciate tree) {
-        result = new InstanciateTranslator(tree) {
-            protected void processLocalVar(JFXVar var) {
-                translateStmt(var, syms.voidType);
-            }
-        }.doit();
+        result = new InstanciateTranslator(tree).doit();
     }
 
     public void visitStringExpression(JFXStringExpression tree) {
@@ -1218,7 +1214,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     /**** utility methods ******/
 
-    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
+    private UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
         return new UseSequenceBuilder(diagPos, elemType, null) {
 
             JCStatement addElement(JFXExpression exprToAdd) {
@@ -1243,11 +1239,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         };
     }
 
-    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
+    private UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
         return useSequenceBuilder(diagPos, elemType, -1);
     }
 
-    abstract class UseSequenceBuilder extends JavaTreeBuilder {
+    private abstract class UseSequenceBuilder extends JavaTreeBuilder {
         final Type elemType;
         private final String seqBuilder;
         boolean addTypeInfoArg = true;
@@ -1319,9 +1315,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             return callStmt(makeBuilderVarAccess(), names.fromString("add"), expr);
         }
 
-        JCExpression makeToSequence() {
-            return call(makeBuilderVarAccess(), names.fromString(toSequenceString));
-        }
+        abstract JCExpression makeToSequence();
     }
 
     //@Override

@@ -303,14 +303,6 @@ public abstract class JavafxTranslationSupport {
         return (sym.flags_field & JavafxFlags.MIXIN) != 0;
     }
     
-    protected JCExpression makeIdentifier(DiagnosticPosition diagPos, Name aName) {
-        String str = aName.toString();
-        if (str.indexOf('.') < 0 && str.indexOf('<') < 0) {
-            return make.at(diagPos).Ident(aName);
-        }
-        return makeIdentifier(diagPos, str);
-    }
-
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, String str) {
         assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
         JCExpression tree = null;
@@ -567,10 +559,6 @@ public abstract class JavafxTranslationSupport {
         return make.at(diagPos).Apply(typeArgs, select, args);
     }
 
-    JCMethodInvocation call(DiagnosticPosition diagPos, JCExpression receiver, Name methodName) {
-        return call(diagPos, receiver, methodName, null);
-    }
-
     JCMethodInvocation call(DiagnosticPosition diagPos, JCExpression receiver, Name methodName, Object args) {
         JCExpression expr = null;
         if (receiver == null) {
@@ -579,10 +567,6 @@ public abstract class JavafxTranslationSupport {
             expr = make.at(diagPos).Select(receiver, methodName);
         }
         return make.at(diagPos).Apply(List.<JCExpression>nil(), expr, (args == null) ? List.<JCExpression>nil() : (args instanceof List) ? (List<JCExpression>) args : (args instanceof ListBuffer) ? ((ListBuffer<JCExpression>) args).toList() : (args instanceof JCExpression) ? List.<JCExpression>of((JCExpression) args) : null);
-    }
-
-    JCMethodInvocation call(DiagnosticPosition diagPos, JCExpression receiver, String method, Object args) {
-        return call(diagPos, receiver, names.fromString(method), args);
     }
 
     Name functionInterfaceName(MethodSymbol sym, boolean isBound) {
@@ -867,9 +851,6 @@ public abstract class JavafxTranslationSupport {
         if ((flags & Flags.PUBLIC) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.publicAnnotationClassNameString), List.<JCExpression>nil()));
         }
-        else if ((flags & Flags.PRIVATE) != 0) {
-            annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.privateAnnotationClassNameString), List.<JCExpression>nil()));
-        }
         else if ((flags & Flags.PROTECTED) != 0) {
             annotations = annotations.prepend(make.Annotation(makeIdentifier(diagPos, JavafxSymtab.protectedAnnotationClassNameString), List.<JCExpression>nil()));
         }
@@ -945,8 +926,7 @@ public abstract class JavafxTranslationSupport {
 
     protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
         JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
-        JCExpression expr = (JavafxInitializationBuilder.SCRIPT_LEVEL_AT_TOP)? durClass : call(diagPos, durClass, scriptLevelAccessMethod(syms.javafx_DurationType.tsym));
-        return call(diagPos, expr, defs.valueOfName, value);
+        return call(diagPos, durClass, defs.valueOfName, value);
     }
 
     protected class JavaTreeBuilder {
