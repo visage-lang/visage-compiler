@@ -2546,6 +2546,40 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
                 @Override
                 public void statements() {
+                    /*
+                     * For bound functions, we generate a local class. If the current
+                     * class is such a class, we need to invalidate the synthetic
+                     * bound function param instance fields from the input FXObject
+                     * and varNum pairs.
+                     */
+                    Symbol owner = getCurrentClassSymbol().owner;
+                    if (owner instanceof MethodSymbol &&
+                       (owner.flags_field & JavafxFlags.BOUND) != 0L) {
+                        MethodSymbol msym = (MethodSymbol)owner;
+                        List<VarSymbol> params = msym.params();
+
+                        /*
+                         * For each bound function param "foo", we generate
+                         *
+                         *     if (varNum$ == $$boundVarNum$foo && instance$ == $$boundInstance$foo) {
+                         *          invalidate$local_klass2$foo(phase$);
+                         *     }
+                         */
+                        JCStatement ifReferenceStmt = null;
+                        for (VarSymbol param : params) {
+                            beginBlock();
+                            // varNum$ == $$boundVarNum$foo
+                            JCExpression varNumCond = makeBinary(JCTree.EQ, id(varNumName), id(boundFunctionVarNumParamName(param.name)));
+                            // instance$ == $$boundInstance$foo
+                            JCExpression objCond = makeBinary(JCTree.EQ, id(updateInstanceName), id(boundFunctionObjectParamName(param.name)));
+                            // && of above two conditions
+                            JCExpression ifReferenceCond = makeBinary(JCTree.AND, varNumCond, objCond);
+                            // invalidate the synthetic instance field for this param
+                            addStmt(callStmt(getReceiver(), attributeInvalidateName(param), id(phaseName)));
+                            ifReferenceStmt = m().If(ifReferenceCond, endBlock(), ifReferenceStmt);
+                            addStmt(ifReferenceStmt);
+                        }
+                    }
                     // Loop for instance symbol.
                     for (VarSymbol instanceVar : updateMap.keySet()) {
                         HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);

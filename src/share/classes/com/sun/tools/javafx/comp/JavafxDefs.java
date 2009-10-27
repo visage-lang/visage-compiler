@@ -43,6 +43,8 @@ public class JavafxDefs {
      */
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String boundFunctionResult = "$$bound$result$";
+    public static final String boundFunctionObjectParamPrefix = "$$boundInstance$";
+    public static final String boundFunctionVarNumParamPrefix = "$$boundVarNum$";
     public static final String implFunctionSuffix = "$impl";
     public static final String attributeTypeMethodNamePrefix = "getType$";
     public static final String attributeGetMethodNamePrefix = "get$";
@@ -64,8 +66,6 @@ public class JavafxDefs {
     public static final String attributeOldValueNameString = "varOldValue$";
     public static final String attributeNewValueNameString = "varNewValue$";
     public static final String attributeIsInitializedMethodNamePrefix = "isInitialized$";
-    public static final String boundFunctionObjectParamPrefix = "obj$";
-    public static final String boundFunctionVarNumParamPrefix = "varnum$";
     public static final String mixinSuffix = "$Mixin";
     public static final String deprecatedInterfaceSuffix = "$Intf";
     public static final String scriptClassSuffix = "$Script";
