@@ -1097,7 +1097,10 @@ public abstract class JavafxTranslationSupport {
                         setBits != null ? id(setBits) : makeInt(0));
         }
         protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
-            return call(getReceiver(varSym), action, makeVarOffset(varSym), clearBits, setBits);
+            return call(getReceiver(varSym), action, makeVarOffset(varSym),
+                        clearBits != null ? clearBits : makeInt(0),
+                        setBits != null ? setBits : makeInt(0));
+
         }
         protected JCExpression makeFlagExpression(JCExpression offset, Name action, Name clearBits, Name setBits) {
             return call(action, offset,

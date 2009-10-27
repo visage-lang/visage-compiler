@@ -346,15 +346,34 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return callStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.invalidateArgNamePhase));
         }
 
-        JCExpression IsTriggerPhase() {
-            return EQ(id(defs.invalidateArgNamePhase), id(defs.varFlagNEEDS_TRIGGER));
+        private Name flagBit = defs.varFlagDEFAULT_APPLIED;
+        private VarSymbol flagSymbol = (VarSymbol)targetSymbol;
+
+        JCExpression isSequenceValid() {
+            return makeFlagExpression(flagSymbol, defs.varFlagActionTest, flagBit, flagBit);
+        }
+
+        JCStatement setSequenceValid() {
+            return makeFlagStatement(flagSymbol, defs.varFlagActionChange, null, flagBit);
         }
 
         JCExpression posArg() {
             return id(defs.getArgNamePos);
         }
+
+        JCExpression phaseArg() {
+            return id(defs.invalidateArgNamePhase);
+        }
+
+        JCExpression IsTriggerPhase() {
+            return EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
+        }
+
         JCExpression iZero() {
             return m().Literal(syms.intType.tag, 0);
+        }
+        JCExpression iOne() {
+            return m().Literal(syms.intType.tag, 1);
         }
         JCExpression LT(JCExpression v1, JCExpression v2) {
             return makeBinary(JCTree.LT, v1, v2);
@@ -437,7 +456,201 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
-    class BoundRangeSequenceTranslator extends BoundSequenceTranslator {
+    private class BoundExplicitSequenceTranslator extends BoundSequenceTranslator {
+        private final List<JFXVar> vars;
+        private final Type elemType;
+        private final VarSymbol sizeSymbol;
+        private final int length;
+        BoundExplicitSequenceTranslator(JFXSequenceExplicit tree) {
+            super(tree.pos());
+            this.vars = tree.boundItemsVars;
+            this.length = vars.length();
+            this.elemType = types.elementType(tree.type);
+            this.sizeSymbol = tree.boundSizeVar.sym;
+        }
+
+        private boolean isNullable(int index) {
+            Type type = type(index);
+            //TODO: better test that looks at the actual expression (eg. object literal)
+            return !type.isPrimitive() &&
+                    type != syms.javafx_StringType &&
+                    type != syms.javafx_DurationType;
+        }
+
+        private boolean isSequence(int index) {
+            return types.isSequence(type(index));
+        }
+
+        private VarSymbol vsym(int index) {
+            return vars.get(index).sym;
+        }
+
+        private Type type(int index) {
+            return vars.get(index).type;
+        }
+
+        private JCExpression size() {
+            return id(attributeValueName(sizeSymbol));
+        }
+
+        private JCExpression id(int index) {
+            return id(attributeValueName(vsym(index)));
+        }
+
+        private JCExpression get(int index) {
+            return call(attributeGetterName(vsym(index)));
+        }
+
+        private JCExpression computeSize(int index, JCExpression value) {
+            if (isSequence(index)) {
+                return call(attributeSizeName(vsym(index)));
+            } else if (isNullable(index)) {
+                return m().Conditional(makeNullCheck(value), iZero(), iOne());
+            } else {
+                return iOne();
+            }
+        }
+
+        private JCExpression computeSize(int index) {
+            return computeSize(index, id(index));
+        }
+
+        private JCExpression cummulativeSize(int index) {
+            JCExpression sum = iZero();
+            for (int i = 0; i < index; ++i) {
+                sum = PLUS(sum, computeSize(i));
+            }
+            return sum;
+        }
+
+        private JCExpression element(int index, JCExpression pos) {
+            if (isSequence(index)) {
+                return call(attributeGetElementName(vsym(index)), pos);
+            } else {
+                return get(index);
+            }
+        }
+
+        JCStatement makeSizeBody() {
+            return makeReturn(call(attributeGetterName(sizeSymbol)));
+        }
+
+        /**
+         * if (pos < 0) {
+         *    return null; // default
+         * }
+         * int start = 0;
+         * int next = 0;
+         * next += size$s1();
+         * if (pos < next) {
+         *    return get$s1(pos – start);
+         * }
+         * start = next;
+         * next += size$s2();
+         * if (pos < next) {
+         *    return get$s2(pos – start);
+         * }
+         * start = next;
+         * next += size$s3();
+         * if (pos < next) {
+         *    return get$s3(pos – start);
+         * )
+         * return null; // default
+         */
+        JCStatement makeGetElementBody() {
+            JCVariableDecl vStart = makeMutableTmpVar("start", syms.intType, iZero());
+            JCVariableDecl vNext = makeMutableTmpVar("next", syms.intType, iZero());
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+            stmts.append(If(LT(posArg(), iZero()), makeReturn(makeDefaultValue(elemType))));
+            stmts.append(vStart);
+            stmts.append(vNext);
+            for (int index = 0; index < length; ++index) {
+                stmts.append(Assign(vNext, PLUS(id(vNext), computeSize(index))));
+                stmts.append(If(LT(posArg(), id(vNext)), makeReturn(element(index, MINUS(posArg(), id(vStart))))));
+                stmts.append(Assign(vStart, id(vNext)));
+            }
+            stmts.append(makeReturn(makeDefaultValue(elemType)));
+            return m().Block(0L, stmts.toList());
+        }
+
+        /**
+         */
+        private JCStatement makeItemInvalidate(int index) {
+            JCVariableDecl vStart = makeTmpVar("start", syms.intType, cummulativeSize(index));
+            if (isSequence(index)) {
+                TODO("bound explicit sequence containing a sequence");
+
+                return If(isSequenceValid(), Block(
+                        vStart,
+                        InvalidateCall(
+                        PLUS(id(vStart), id(defs.sliceArgNameStartPos)),
+                        PLUS(id(vStart), id(defs.sliceArgNameEndPos)),
+                        id(defs.sliceArgNameNewLength))));
+            } else {
+                //TODO: this is eager even for fixed length
+                JCVariableDecl vValue = makeTmpVar("value", type(index), get(index));
+                JCVariableDecl vNewLen = makeTmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
+                JCVariableDecl vOldLen = makeTmpVar("oldLen", syms.intType, computeSize(index));
+
+                return 
+                    If(isSequenceValid(),
+                        Block(
+                            vStart,
+                            vValue,
+                            vNewLen,
+                            vOldLen,
+                            If(IsTriggerPhase(),
+                                Block(
+                                    // Update the size by the difference
+                                    Assign(size(), PLUS(size(), MINUS(id(vNewLen), id(vOldLen)))),
+                                    Assign(id(index), id(vValue))
+                                )
+                            ),
+                            InvalidateCall(
+                                id(vStart),
+                                PLUS(id(vStart), id(vOldLen)),
+                                id(vNewLen)
+                            )
+                        )
+                    );
+            }
+        }
+
+        /**
+         * Invalidate (and computation) for synthetic size var.
+         */
+        private JCStatement makeInvalidateSize() {
+            // Initialize all the synthetic item vars (during IS_VALID phase)
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            for (int i = 0; i < length; ++i) {
+                stmts.append(Assign(id(i), get(i)));
+            }
+            JCStatement varInits = m().Block(0L, stmts.toList());
+
+            return
+                Block(
+                    If(IsTriggerPhase(),
+                        setSequenceValid(),
+                        varInits
+                    ),
+                    Assign(size(), cummulativeSize(length)),
+                    InvalidateCall(iZero(), iZero(), size())
+                );
+        }
+
+        /**
+         * For each item, and for size, set-up the invalidate method
+         */
+        void setupInvalidators() {
+            for (int index = 0; index < length; ++index) {
+                addInvalidator(vsym(index), makeItemInvalidate(index));
+            }
+            addInvalidator(sizeSymbol, makeInvalidateSize());
+        }
+    }
+
+    private class BoundRangeSequenceTranslator extends BoundSequenceTranslator {
         private final JFXVar varLower;
         private final JFXVar varUpper;
         private final JFXVar varStep;
@@ -528,17 +741,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                           defs.Sequences_calculateFloatRangeSize
                         : defs.Sequences_calculateIntRangeSize;
             return call(rm, vl, vu, vs, exclusive());
-        }
-
-        private Name flagBit = defs.varFlagDEFAULT_APPLIED;
-        private VarSymbol flagSymbol = (VarSymbol)targetSymbol;
-
-        private JCExpression isSequenceValid() {
-            return makeFlagExpression(flagSymbol, defs.varFlagActionTest, flagBit, flagBit);
-        }
-
-        private JCStatement setSequenceValid() {
-            return makeFlagStatement(flagSymbol, defs.varFlagActionChange, null, flagBit);
         }
 
         /**
@@ -838,6 +1040,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         result = new SequenceEmptyTranslator(tree).doit();
     }
 
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        result = new BoundExplicitSequenceTranslator(tree).doit();
+    }
 
     public void visitSequenceRange(JFXSequenceRange tree) {
         result = new BoundRangeSequenceTranslator(tree).doit();
@@ -888,12 +1093,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             //(param);
         }
         //(tree.getBodyExpression());
-    }
-
-    //@Override
-    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        TODO(tree);
-        //( that.getItems() );
     }
 
     //@Override

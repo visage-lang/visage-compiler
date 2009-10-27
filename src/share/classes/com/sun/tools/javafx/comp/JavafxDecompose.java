@@ -615,21 +615,30 @@ public class JavafxDecompose implements JavafxVisitor {
         result = tree;
     }
 
-    private JFXVar synthVar(String label,JFXExpression tree, Type type) {
+    private JFXVar synthVar(String label, JFXExpression tree, Type type) {
         if (tree == null) {
             return null;
         }
-        JFXExpression pose = decompose(tree);
+        JFXExpression expr = decompose(tree);
 
         fxmake.at(tree.pos()); // set position
 
-        // cast to desired type
-        JFXIdent tp = (JFXIdent)fxmake.Type(type);
-        tp.sym = type.tsym;
-        JFXExpression expr = fxmake.TypeCast(tp, pose);
+        if (!types.isSameType(tree.type, type)) {
+            // cast to desired type
+            JFXIdent tp = (JFXIdent) fxmake.Type(type);
+            tp.sym = type.tsym;
+            expr = fxmake.TypeCast(tp, expr);
+        }
 
         JFXVar v = shredVar(label, expr, type);
         v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+        return v;
+    }
+
+    private JFXVar makeSizeVar(DiagnosticPosition diagPos) {
+        JFXExpression dummy = fxmake.at(diagPos).Literal(-99);
+        dummy.type = syms.intType;
+        JFXVar v = makeVar(diagPos, "size", dummy, JavafxBindStatus.UNIDIBIND, syms.intType);
         return v;
     }
 
@@ -649,9 +658,9 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression stepOrNull;
         if (inBind) {
             Type elemType = types.elementType(tree.type);
-            lower = synthVar("lower",tree.getLower(), elemType);
-            upper = synthVar("upper",tree.getUpper(), elemType);
-            stepOrNull = synthVar("step",tree.getStepOrNull(), elemType);
+            lower = synthVar("lower", tree.getLower(), elemType);
+            upper = synthVar("upper", tree.getUpper(), elemType);
+            stepOrNull = synthVar("step", tree.getStepOrNull(), elemType);
         } else {
             lower = decomposeComponent(tree.getLower());
             upper = decomposeComponent(tree.getUpper());
@@ -661,17 +670,30 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (inBind) {
             // now add a size temp var
-            JFXExpression dummy = fxmake.at(tree.pos).Literal(-99);
-            dummy.type = syms.intType;
-            JFXVar v = makeVar(tree.pos(), "size", dummy, JavafxBindStatus.UNIDIBIND, syms.intType);
-            res.boundSizeVar = v;
+            res.boundSizeVar = makeSizeVar(tree.pos());
         }
         result = res;
     }
 
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        List<JFXExpression> items = decomposeComponents(tree.getItems());
-        result = fxmake.at(tree.pos).ExplicitSequence(items);
+        List<JFXExpression> items = null; // bound should not use items
+         if (!inBind) {
+            items = decomposeComponents(tree.getItems());
+        }
+       JFXSequenceExplicit res = fxmake.at(tree.pos).ExplicitSequence(items);
+        res.type = tree.type;
+        if (inBind) {
+            // Generate bare synth vars for the items
+            ListBuffer<JFXVar> vb = ListBuffer.lb();
+            for (JFXExpression item : tree.getItems()) {
+                vb.append(synthVar("item", item, item.type));
+            }
+            res.boundItemsVars = vb.toList();
+
+            // now add a size temp var
+            res.boundSizeVar = makeSizeVar(tree.pos());
+        }
+        result = res;
     }
 
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
