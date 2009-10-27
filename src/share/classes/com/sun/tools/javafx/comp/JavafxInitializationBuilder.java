@@ -1272,9 +1272,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          
                 @Override
                 public void statements() {
-                    // Prepare to accumulate if statements.
-                    beginBlock();
-    
+                    // Handle invalidators if present.
+                    List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
+                    boolean hasInvalidators = !invalidatees.isEmpty();
+                     
+                    if (hasInvalidators) {
+                        // Insert invalidators.
+                        for (BindeeInvalidator invalidator : invalidatees) {
+                            addStmt(invalidator.invalidator);
+                        }
+
+                        return;
+                    }
+
                     if (varInfo.isOverride()) {
                         // Call super first.
                         callSuper();
@@ -1331,17 +1341,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 id(defs.sliceArgNameStartPos), id(defs.sliceArgNameEndPos), id(defs.sliceArgNameNewLength),
                                 id(phaseName)));
                     } 
-                    
-                    // isValid
-                    JCExpression ifValidTest;
-                    if (isSuperVarInfo || varInfo.isOverride()) {
-                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, phaseName, phaseName);
-                    } else {
-                        ifValidTest = makeFlagExpression(proxyVarSym, defs.varFlagActionChange, null, phaseName);
-                    }
-                    
-                    // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                    addStmt(m().If(makeNot(ifValidTest), endBlock(), null));
                     
                     if (varInfo.hasBoundDefinition()) {
                         // Begin seq save block.

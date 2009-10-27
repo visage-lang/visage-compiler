@@ -578,15 +578,32 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         private JCStatement makeItemInvalidate(int index) {
             JCVariableDecl vStart = makeTmpVar("start", syms.intType, cummulativeSize(index));
+            
             if (isSequence(index)) {
-                TODO("bound explicit sequence containing a sequence");
-
-                return If(isSequenceValid(), Block(
-                        vStart,
-                        InvalidateCall(
-                        PLUS(id(vStart), id(defs.sliceArgNameStartPos)),
-                        PLUS(id(vStart), id(defs.sliceArgNameEndPos)),
-                        id(defs.sliceArgNameNewLength))));
+                return 
+                    If(isSequenceValid(),
+                        Block(
+                            vStart,
+                            If(IsTriggerPhase(),
+                                // Update the size by the difference
+                                // size = size + newLen - (end - begin)
+                                Assign(size(),
+                                    PLUS(
+                                        size(),
+                                        MINUS(
+                                            id(defs.sliceArgNameNewLength),
+                                            MINUS(id(defs.sliceArgNameEndPos), id(defs.sliceArgNameStartPos))
+                                        )
+                                    )
+                                )
+                            ),
+                            InvalidateCall(
+                                PLUS(id(vStart), id(defs.sliceArgNameStartPos)),
+                                PLUS(id(vStart), id(defs.sliceArgNameEndPos)),
+                                id(defs.sliceArgNameNewLength)
+                            )
+                        )
+                    );
             } else {
                 //TODO: this is eager even for fixed length
                 JCVariableDecl vValue = makeTmpVar("value", type(index), get(index));
@@ -621,10 +638,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * Invalidate (and computation) for synthetic size var.
          */
         private JCStatement makeInvalidateSize() {
-            // Initialize all the synthetic item vars (during IS_VALID phase)
+            // Initialize the singleton synthetic item vars (during IS_VALID phase)
+            // Bound sequences don't have a value
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             for (int i = 0; i < length; ++i) {
-                stmts.append(Assign(id(i), get(i)));
+                if (!isSequence(i)) {
+                    stmts.append(Assign(id(i), get(i)));
+                }
             }
             JCStatement varInits = m().Block(0L, stmts.toList());
 
