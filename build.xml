@@ -678,19 +678,20 @@
         <copy todir="dist/doc/reference/images/callouts">
             <fileset dir="doc/callouts"/>
         </copy>
+        <!-- create an index.html redirector to JavaFXReference.html-->
+        <echo file="dist/doc/reference/index.html" append="false">
+           &lt;HTML&gt;
+                &lt;HEAD&gt;
+                    &lt;META  HTTP-EQUIV="REFRESH" content="0; url=JavaFXReference.html"&gt;
+                &lt;/HEAD&gt;
+            &lt;/HTML&gt;
+        </echo>
     </target>
 
-    <!-- Publish the output of langref to maybe an appserver doc directory,
-         typically used by hudson, for  the nightly jobs -->
-    <target name="langref-publish" description="Publish docs to a location"
-            depends="langref" if="appserver.targetdir">
-        <echo message="running because ${appserver.targetdir}"/>
-        <delete dir="${appserver.targetdir}" quiet="true"/>
-        <copy todir="${appserver.targetdir}">
-            <fileset dir="dist/doc"/>
-        </copy>
-        <copy file="${appserver.targetdir}/reference/JavaFXReference.html"
-              tofile="${appserver.targetdir}/reference/index.html"/>
+    <target name="hudson-publish" description="Publish a build to a location"
+        depends="-bundle-zip" if="appserver.targetdir">
+            <delete dir="${appserver.targetdir}" quiet="true"/>
+            <unzip src="${zip.bundle}" dest="${appserver.targetdir}" overwrite="true"/>
     </target>
 
     <target name="findbugs" depends="compile">
