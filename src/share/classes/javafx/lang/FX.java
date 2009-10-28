@@ -28,6 +28,7 @@ import com.sun.javafx.runtime.Entry;
 import com.sun.javafx.functions.Function0;
 import com.sun.javafx.runtime.SystemProperties;
 import com.sun.javafx.runtime.FXExit;
+import com.sun.javafx.runtime.FXObject;
 
 import com.sun.javafx.runtime.sequence.Sequence;
 
@@ -70,15 +71,19 @@ public class FX {
         Builtins.println(val);
     }
 
+    public static boolean isInitialized(Object obj) {
+        return Builtins.isInitialized(obj);
+    }
+
     /**
      * Test if an instance variable has been initialized.
      *
-     * @param args The variable to be tested (args[0] is the FXObject instance,
-     * args[1] is the var offset).
-     * @return true if the object has been initialized already
+     * @param instance instance to be tested
+     * @param offset offset of variable to be tested
+     * @return true if the variable has been initialized
      */
-    public static boolean isInitialized(Object... args) {
-        return Builtins.isInitialized(args);
+    public static boolean isInitialized(FXObject instance, int varOffset) {
+        return Builtins.isInitialized(instance, varOffset);
     }
 
     /**

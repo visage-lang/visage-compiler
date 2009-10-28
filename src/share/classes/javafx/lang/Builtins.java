@@ -23,7 +23,7 @@
 
 package javafx.lang;
 
-import com.sun.javafx.runtime.FXBase;
+import com.sun.javafx.runtime.FXObject;
 
 /**
  * These functions are automaticlly imported for
@@ -75,18 +75,20 @@ public class Builtins {
         }
     }
 
+    public static boolean isInitialized(Object instance) {
+        throw new UnsupportedOperationException("compiler should have rewritten this call!");
+    }
+
     /**
      * Test if an instance variable has been initialized.
-     * 
-     * @param args The variable to be tested (args[0] is the FXObject instance,
-     * args[1] is the var offset).
-     * @return true if the object has been initialized already
+     *
+     * @param instance instance to be tested
+     * @param offset offset of variable to be tested
+     * @return true if the variable has been initialized
      */
-    public static boolean isInitialized(Object... args) {
-        FXBase inst = (FXBase)args[0];
-        int offset = (Integer)args[1];
-        return !inst.varTestBits$(offset,
-                FXBase.VFLGS$IS_INITIALIZED | FXBase.VFLGS$IS_BOUND,
+    public static boolean isInitialized(FXObject instance, int offset) {
+        return !instance.varTestBits$(offset,
+                FXObject.VFLGS$IS_INITIALIZED | FXObject.VFLGS$IS_BOUND,
                 0);
     }
 }

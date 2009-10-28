@@ -973,6 +973,7 @@ public class SequencesBase {
 
     public static <T> Sequence<? extends T> set(FXObject instance, int varNum, Sequence<? extends T> newValue) {
         //TODO: should give slice invalidations, as if below, but should actually set to the new sequence
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$IS_INITIALIZED);
         return replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum));
     }
 
@@ -981,6 +982,7 @@ public class SequencesBase {
     }
 
     public static <T> T set(FXObject instance, int varNum, T newValue, int index) {
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$IS_INITIALIZED);
         replaceSlice(instance, varNum, newValue, index, index + 1);
         return newValue;
     }
