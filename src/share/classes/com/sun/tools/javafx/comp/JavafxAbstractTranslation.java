@@ -997,10 +997,10 @@ public abstract class JavafxAbstractTranslation
 
     abstract class NullCheckTranslator extends MemberReferenceTranslator {
 
-        protected final Symbol refSym;
-        protected final Type fullType;
-        protected final Type resultType;
-        protected final boolean staticReference;
+        protected final Symbol refSym;             //
+        protected final Type fullType;             // Type, before conversion, of expression
+        protected final Type resultType;           // Type of final generated expression
+        protected final boolean staticReference;   // Is this a static reference
 
         NullCheckTranslator(DiagnosticPosition diagPos, Symbol sym, Type fullType) {
             super(diagPos);
@@ -1081,38 +1081,57 @@ public abstract class JavafxAbstractTranslation
             JCExpression tToCheck = translateToCheck(getToCheck());
             JCExpression full = fullExpression(tToCheck);
             full = convertTranslated(full, diagPos, fullType, resultType);
-            if (!needNullCheck()) {
-                // no null check needed just return the translation
-                return toResult(full, resultType);
+            if (yield() == ToStatement) {
+                // a statement is the desired result of the translation
+                return toStatementResult(wrapInNullCheckStatement(full, tToCheck, resultType, fullType));
+            } else {
+                // an expression is the desired result of the translation, convert it to a conditional expression
+                // if it would dereference null, then the full expression instead yields the default value
+                return toResult(wrapInNullCheckExpression(full, tToCheck, resultType, fullType), resultType);
             }
+        }
+
+        private JCExpression makeNullCheckCondition(JCExpression tToCheck) {
             // Make an expression to use in null test.
             // If translated toCheck is an identifier (tmp var or not), just make a new identifier.
             // Otherwise, retranslate.
             JCExpression toTest = (tToCheck instanceof JCIdent) ?
                   id(((JCIdent)tToCheck).name)
                 : translateToCheck(getToCheck());
+            return makeNotNullCheck(toTest);
+        }
 
-            // Do a null check
-            // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
-            JCExpression cond = makeNotNullCheck(toTest);
-            JCExpression defaultValue = makeDefaultValue(fullType);
-            JCExpression defaultExpr = defaultValue.type == syms.botType ?
-                makeDefaultValue(resultType) :
-                convertTranslated(defaultValue, diagPos, fullType, resultType);
-            if (yield() == ToStatement) {
-                 // a statement is the desired result of the translation, return the If-statement
-                JCStatement nullAction = null;
-                if (resultType != null && resultType != syms.voidType) {
-                    nullAction = makeStatement(defaultExpr, resultType);
-                }
-                return toStatementResult(
-                        m().If(cond, makeStatement(full, resultType), nullAction));
-            } else {
+        private JCExpression makeDefault(Type theResultType, Type theFullType) {
+            JCExpression defaultValue = makeDefaultValue(theFullType);
+            return defaultValue.type == syms.botType ?
+                makeDefaultValue(theResultType) :
+                convertTranslated(defaultValue, diagPos, theFullType, theResultType);
+        }
+
+        protected JCExpression wrapInNullCheckExpression(JCExpression full, JCExpression tToCheck, Type theResultType, Type theFullType) {
+            if (needNullCheck()) {
+                // Do a null check
+                // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
                 // an expression is the desired result of the translation, convert it to a conditional expression
                 // if it would dereference null, then the full expression instead yields the default value
-                return toResult(
-                        m().Conditional(cond, full, defaultExpr),
-                        resultType);
+                return m().Conditional(makeNullCheckCondition(tToCheck), full, makeDefault(theResultType, theFullType));
+            } else {
+                return full;
+            }
+        }
+
+        protected JCStatement wrapInNullCheckStatement(JCExpression full, JCExpression tToCheck, Type theResultType, Type theFullType) {
+            if (needNullCheck()) {
+                // Do a null check
+                // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
+                // a statement is the desired result of the translation, return the If-statement
+                JCStatement nullAction = null;
+                if (theResultType != null && theResultType != syms.voidType) {
+                    nullAction = makeStatement(makeDefault(theResultType, theFullType), theResultType);
+                }
+                return m().If(makeNullCheckCondition(tToCheck), makeStatement(full, theResultType), nullAction);
+            } else {
+                return makeStatement(full, theResultType);
             }
         }
 
@@ -1184,7 +1203,7 @@ public abstract class JavafxAbstractTranslation
                 return convertVariableReference(translated, refSym);
             }
         }
-            }
+    }
 
     class FunctionCallTranslator extends NullCheckTranslator {
 

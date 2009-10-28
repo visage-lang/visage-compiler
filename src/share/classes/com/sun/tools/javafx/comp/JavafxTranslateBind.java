@@ -28,7 +28,6 @@ import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
-import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -268,6 +267,20 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             super(tree);
         }
 
+        @Override
+        protected ExpressionResult doit() {
+            JFXExpression selectorExpr = tree.getExpression();
+            if (canChange() && (selectorExpr instanceof JFXIdent)) {
+                // cases that need a null check are the same as cases that have changing dependencies
+                JFXIdent selector = (JFXIdent) selectorExpr;
+                Symbol selectorSym = selector.sym;
+                buildDependencies(selectorSym);
+                addBindee((VarSymbol) selectorSym);
+                addInterClassBindee((VarSymbol) selectorSym, refSym);
+            }
+            return (ExpressionResult) super.doit();
+        }
+
         /**
          * Override to handle mutable selector changing dependencies
          *
@@ -282,15 +295,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *	  return $w;
          *	}
          */
-        @Override
-        protected ExpressionResult doit() {
-            // cases that need a null check are the same as cases that have changing dependencies
-            JFXExpression selectorExpr = tree.getExpression();
-            if (canChange() && (selectorExpr instanceof JFXIdent)) {
-                JFXIdent selector = (JFXIdent) selectorExpr;
-                Symbol selectorSym = selector.sym;
+        protected void buildDependencies(Symbol selectorSym) {
                 if (types.isJFXClass(selectorSym.owner)) {
-                    Type selectorType = selector.type;
+                    Type selectorType = selectorSym.type;
                     JCExpression rcvr;
                     JCVariableDecl oldSelector;
                     JCVariableDecl newSelector;
@@ -348,10 +355,71 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 id(newSelector), id(newOffset)));
                     }
                 }
-                addBindee((VarSymbol) selectorSym);
+        }
+
+        /**** Select of Sequence ****/
+
+        JCExpression posArg() {
+            return id(defs.getArgNamePos);
+        }
+
+        JCStatement makeSizeBody() {
+            JCExpression tToCheck = translateToCheck(getToCheck());
+            return buildBody(tToCheck, call(tToCheck, attributeSizeName(refSym)), syms.intType);
+        }
+
+        JCStatement makeGetElementBody() {
+            JCExpression tToCheck = translateToCheck(getToCheck());
+            return buildBody(tToCheck, call(tToCheck, attributeGetElementName(refSym), posArg()), types.elementType(refSym.type));
+        }
+
+        protected JCStatement buildBody(JCExpression tToCheck, JCExpression full, Type theResultType) {
+            return wrapInNullCheckStatement(full, tToCheck, theResultType, theResultType);
+        }
+
+        private JCStatement makeInvalidateSelector(List<JCStatement> preface) {
+            return null;
+ /**           JCVariableDecl vNewStep = makeTmpVar("newStep", elemType, getStep());
+            JCVariableDecl vOldSize = makeTmpVar("oldSize", syms.intType, size());
+            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+                                        calculateSize(lower(), upper(), id(vNewStep)));
+
+            return If (isSequenceValid(),
+                      Block(
+                        vNewStep,
+                        If (NE(step(), id(vNewStep)),
+                          Block(
+                              vNewSize,
+                              vOldSize,
+                              If (IsTriggerPhase(),
+                                  Block(
+                                      Assign(step(), id(vNewStep)),
+                                      Assign(size(), id(vNewSize))
+                                  )
+                              ),
+                              InvalidateCall(iZero(), id(vOldSize), id(vNewSize))
+                    )))
+            );
+  * ***/
+        }
+
+        BoundSequenceResult doitSequence() {
+            JFXExpression selectorExpr = tree.getExpression();
+            if (canChange() && (selectorExpr instanceof JFXIdent)) {
+                // cases that need a null check are the same as cases that have changing dependencies
+                JFXIdent selector = (JFXIdent) selectorExpr;
+                Symbol selectorSym = selector.sym;
+                buildDependencies(selectorSym);
+
+                // Use the preface (which has the dependency switching code) in the invalidator
+                addInvalidator((VarSymbol) selectorSym, makeInvalidateSelector(statements()));
+                
                 addInterClassBindee((VarSymbol) selectorSym, refSym);
+            } else {
+                TODO("immutable bound sequence member select");
             }
-            return (ExpressionResult) super.doit();
+
+            return new BoundSequenceResult(invalidators(), makeGetElementBody(), makeSizeBody());
         }
     }
 
@@ -1071,11 +1139,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     public void visitSelect(JFXSelect tree) {
+        BoundSelectTranslator bst = new BoundSelectTranslator(tree);
         if (tree == boundExpression && types.isSequence(targetType)) {
             // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
+            result = bst.doitSequence();
+        } else {
+            result = bst.doit();
         }
-        result = (new BoundSelectTranslator(tree)).doit();
     }
 
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
