@@ -688,12 +688,6 @@
         </echo>
     </target>
 
-    <target name="hudson-publish" description="Publish a build to a location"
-        depends="-bundle-zip" if="appserver.targetdir">
-            <delete dir="${appserver.targetdir}" quiet="true"/>
-            <unzip src="${zip.bundle}" dest="${appserver.targetdir}" overwrite="true"/>
-    </target>
-
     <target name="findbugs" depends="compile">
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
                  classpathref="findbugs.class.path" />
@@ -749,7 +743,7 @@
 
     <!-- Runs only if export.dir is set, which should only be set from the continuous build.
          Publishes build results to ${export.dir}.
-         Depends on  environment params JOB_NAME and SVN_REVISION.
+         Depends on  environment params JOB_NAME.
          Publishes result of findbugs analysis, where it can later be combined into
          a multi-version bug database. -->
     <target name="hudson-post-build" depends="init" if="export.dir">
@@ -758,15 +752,15 @@
         <exec executable="sh" failonerror="true">
             <arg value="${import.findbugs.home}/bin/setBugDatabaseInfo"/>
             <arg value="-name"/>
-            <arg value="${env.JOB_NAME}-${env.SVN_REVISION}"/>
+            <arg value="${env.JOB_NAME}"/>
             <arg value="${build.dir}/findbugs.xml"/>
-            <redirector output="${export.dir}/findbugs/${env.JOB_NAME}-${env.SVN_REVISION}.xml"/>
+            <redirector output="${export.dir}/findbugs/${env.JOB_NAME}.xml"/>
         </exec>
-        <delete dir="${export.dir}/docroot/current-build" />
-        <copy todir="${export.dir}/docroot/current-build">
+        <delete dir="${export.dir}/ROOT/current-build" />
+        <copy todir="${export.dir}/ROOT/current-build">
             <fileset dir="${dist.dir}"/>
         </copy>
-        <copy todir="${export.dir}/docroot/current-build/doc">
+        <copy todir="${export.dir}/ROOT/current-build/doc">
             <fileset dir="doc" includes="**/*.pdf"/>
         </copy>
     </target>
