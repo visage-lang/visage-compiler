@@ -519,10 +519,20 @@ public class JavafxResolve {
         if (!types.isMixin(s1.owner) &&
                 !types.isMixin(s2.owner))
             return false;
-        List<Type> supertypes = types.interfaces(site).prepend(types.supertype(site)).prepend(site);
-        int i1 = supertypes.indexOf(s1.owner.type);
-        int i2 = supertypes.indexOf(s2.owner.type);
+        List<Type> supertypes = types.orderedSupertypeClosure(site);
+        int i1 = indexInSupertypeList(supertypes, s1.owner.type);
+        int i2 = indexInSupertypeList(supertypes, s2.owner.type);
         return i1 <= i2 && i1 != -1 && i2 != -1;
+    }
+
+    int indexInSupertypeList(List<Type> ts, Type t) {
+        int count = 0;
+        for (Type t2 : ts) {
+            if (types.isSameType(t, t2))
+                return count;
+            count++;
+        }
+        return -1;
     }
 
     /** Resolve a field identifier, throw a fatal error if not found.

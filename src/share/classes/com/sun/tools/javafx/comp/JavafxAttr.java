@@ -861,7 +861,7 @@ public class JavafxAttr implements JavafxVisitor {
                         lhsVar.type == syms.javafx_AnyType/* ??? */ ||
                         lhsVar.type == syms.javafx_UnspecifiedType) {
                     if (tree.rhs.type != null && lhsVar.type != tree.rhs.type) {
-                        lhsVar.type = lhsSym.type = types.upperBound(tree.rhs.type);
+                        lhsVar.type = lhsSym.type = types.normalize(tree.rhs.type);
                         JFXExpression jcExpr = fxmake.at(tree.pos()).Ident(lhsSym);
                         lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
                 }
@@ -942,7 +942,7 @@ public class JavafxAttr implements JavafxVisitor {
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object            
             if (declType == syms.javafx_UnspecifiedType && v.type == null)
-                result = tree.type = v.type = types.upperBound(initType);
+                result = tree.type = v.type = types.normalize(initType);
             //chk.validateAnnotations(tree.mods.annotations, v);
             if (types.isArray(v.type) &&
                     (tree.isBound() ||
@@ -1894,7 +1894,7 @@ public class JavafxAttr implements JavafxVisitor {
                         returnType = syms.javafx_VoidType; //TODO: this is wrong if there is a return statement
                 } else {
                     if (returnType == syms.unknownType)
-                        returnType = bodyType == syms.unreachableType ? syms.javafx_VoidType : bodyType;
+                        returnType = bodyType == syms.unreachableType ? syms.javafx_VoidType : types.normalize(bodyType);
                     else if (returnType != syms.javafx_VoidType && tree.getName() != defs.internalRunFunctionName)
                         chk.checkType(tree.pos(), bodyType, returnType, Sequenceness.PERMITTED, false);
                 }

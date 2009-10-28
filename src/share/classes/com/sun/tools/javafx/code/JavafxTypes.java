@@ -371,6 +371,10 @@ public class JavafxTypes extends Types {
         sym.complete();
         return (sym.flags_field & JavafxFlags.FX_CLASS) != 0;
     }
+
+    public boolean isJFXFunction(Type t) {
+        return (t instanceof FunctionType);
+    }
     
     public void addFxClass(ClassSymbol csym, JFXClassDeclaration cdecl) {
         if (fxClasses == null) {
@@ -430,6 +434,33 @@ public class JavafxTypes extends Types {
         return
             this.isSubSignature(mt, ot) &&
             (!checkResult || this.resultSubtype(mt, ot, Warner.noWarnings));
+    }
+
+    /**
+     * Returns a list of all supertypes of t, without duplicates, where supertypes
+     * are listed according to the order in which they appear in t's extends clause.
+     * This method is used in order to implicitly resolve mixin conflicts.
+     *
+     * @param t the type for which the supertypes list is to be retrieved
+     * @return list of ordered supertypes
+     */
+    public List<Type> orderedSupertypeClosure(Type t) {
+        ListBuffer<Type> buf = ListBuffer.lb();
+        orderedSupertypeClosure(t, buf);
+        return buf.toList();
+    }
+
+    private void orderedSupertypeClosure(Type t, ListBuffer<Type> buf) {
+        if (t == null || buf.contains(t)) {
+            return;
+        }
+        else {
+            buf.append(t);
+            orderedSupertypeClosure(supertype(t), buf);
+            for (Type i : interfaces(t)) {
+                orderedSupertypeClosure(i, buf);
+            }
+        }
     }
 
     public void clearCaches() {
@@ -571,5 +602,65 @@ public class JavafxTypes extends Types {
                 syms.isRunMethod(sym.owner))
             sym = sym.owner;
         return sym.location();
+    }
+
+    /**
+     * Computes a type which is suitable as a variable inferred type.
+     * This step is needed because the inferred type can contain captured
+     * types which makes the inferred type too specific.
+     *
+     * @param t the type to be normalized
+     * @return the normalized type
+     */
+    public Type normalize(Type t) {
+        class TypeNormalizer extends SimpleVisitor<Type, Boolean> {
+
+            @Override
+            public Type visitTypeVar(TypeVar t, Boolean preserveWildcards) {
+                return visit(t.getUpperBound(), preserveWildcards);
+            }
+
+            @Override
+            public Type visitCapturedType(CapturedType t, Boolean preserveWildcards) {
+                return visit(t.wildcard, preserveWildcards);
+            }
+
+            @Override
+            public Type visitWildcardType(WildcardType t, Boolean preserveWildcards) {
+                Type bound2 = visit(upperBound(t), preserveWildcards);
+                if (!preserveWildcards) {
+                    return bound2;
+                }
+                else if (t.kind != BoundKind.SUPER && !isSameType(bound2, upperBound(t))) {
+                    t = new WildcardType(bound2, BoundKind.EXTENDS, syms.boundClass);
+                }
+                return t;
+            }
+
+            @Override
+            public Type visitClassType(ClassType t, Boolean preserveWildcards) {
+                List<Type> args2 = visit(t.getTypeArguments(), true);
+                Type encl2 = visit(t.getEnclosingType(), false);
+                if (!isJFXFunction(t) &&
+                        (!isSameTypes(args2, t.getTypeArguments()) ||
+                        !isSameType(encl2, t.getEnclosingType()))) {
+                    t = new ClassType(encl2, args2, t.tsym);
+                }
+                return t;
+            }
+
+            public Type visitType(Type t, Boolean preserveWildcards) {
+                return t;
+            }
+
+            public List<Type> visit(List<Type> ts, Boolean preserveWildcards) {
+                ListBuffer<Type> buf = ListBuffer.lb();
+                for (Type t : ts) {
+                    buf.append(visit(t, preserveWildcards));
+                }
+                return buf.toList();
+            }
+        }
+        return new TypeNormalizer().visit(t, false);
     }
 }
