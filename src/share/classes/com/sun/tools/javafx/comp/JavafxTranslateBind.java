@@ -28,6 +28,7 @@ import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
+import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -112,6 +113,37 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             super(tree);
         }
         JCExpression condition = null;
+
+        @Override
+        List<JCExpression> determineArgs() {
+            final List<Type> formals = meth.type.getParameterTypes();
+            ListBuffer<JCExpression> targs = ListBuffer.lb();
+            // if this is a super.foo(x) call, "super" will be translated to referenced class,
+            // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
+            if (superToStatic) {
+                targs.append(id(defs.receiverName));
+            }
+
+            if (callBound) {
+                List<Type> formal = formals;
+                for (JFXExpression arg : args) {
+                    if (arg.getFXTag() == JavafxTag.IDENT) {
+                        JFXIdent ident = (JFXIdent)args.head;
+                        JCExpression receiver = ident.sym.isStatic() ?
+                            call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            makeReceiver(ident.sym, false);
+                        targs.append(receiver);
+                        targs.append(makeVarOffset(ident.sym));
+                    } else {
+                        TODO("non-Ident in bound call");
+                    }
+                    formal = formal.tail;
+                }
+                return targs.toList();
+            } else {
+                return super.determineArgs();
+            }
+        }
 
         @Override
         JCExpression translateArg(JFXExpression arg, Type formal) {

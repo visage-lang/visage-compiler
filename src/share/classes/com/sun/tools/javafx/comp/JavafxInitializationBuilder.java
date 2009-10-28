@@ -431,6 +431,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private Name scriptName;
         private ClassSymbol scriptClassSymbol;
         private ClassType scriptClassType;
+        private final boolean isBoundFuncClass;
 
         JavaCodeMaker(JavafxAnalyzeClass analysis, ListBuffer<JCTree> definitions) {
             super(analysis.getCurrentClassPos(), analysis.getCurrentClassDecl());
@@ -439,6 +440,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             this.scriptName = analysis.getCurrentClassDecl().getName().append(defs.scriptClassSuffixName);
             this.scriptClassSymbol = makeClassSymbol(Flags.STATIC | Flags.PUBLIC, this.scriptName, getCurrentClassSymbol());
             this.scriptClassType = (ClassType)this.scriptClassSymbol.type;
+
+            Symbol owner = getCurrentOwner().owner;
+            this.isBoundFuncClass = (owner instanceof MethodSymbol) &&
+                                (owner.flags() & JavafxFlags.BOUND) != 0L;
         }
         
         //
@@ -1500,8 +1505,35 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // if (uninitialized) { applyDefaults$(VOFF$var); }
                             initIf = m().If(initCondition, endBlock(), null);
                         }
-    
-                        if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {
+
+                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                            // Prepare to accumulate body of if.
+                            beginBlock();
+
+                            /*
+                             * if "foo" is the variable name, then we generate
+                             *
+                             *     be$(varNum, $$boundInstance$foo.get($$boundVarNum$foo));
+                             *
+                             * With be$(int, Object), we need not worry about type conversion.
+                             */
+                            ListBuffer<JCExpression> get$args = ListBuffer.lb();
+                            get$args.append(id(boundFunctionVarNumParamName(varSym.name)));
+                            JCExpression get$call = call(id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.attributeGetMethodNamePrefix, get$args);
+
+                            ListBuffer<JCExpression> be$Args = ListBuffer.lb();
+                            be$Args.append(makeVarOffset(varSym));
+                            be$Args.append(get$call);
+                            addStmt(callStmt(getReceiver(), defs.attributeBePrefixName, be$Args));
+
+                            // Is it invalid?
+                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_INVALID, defs.varFlagIS_INVALID);
+
+                            // if (invalid) { set$var(init/bound expression); }
+                            addStmt(m().If(condition, endBlock(), initIf));
+
+                        } else if (varInfo.hasBoundDefinition() || varInfo.isMixinVar()) {
                             // Prepare to accumulate body of if.
                             beginBlock();
                             
@@ -2558,10 +2590,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                      * bound function param instance fields from the input FXObject
                      * and varNum pairs.
                      */
-                    Symbol owner = getCurrentClassSymbol().owner;
-                    if (owner instanceof MethodSymbol &&
-                       (owner.flags_field & JavafxFlags.BOUND) != 0L) {
-                        MethodSymbol msym = (MethodSymbol)owner;
+                    if (isBoundFuncClass) {
+                        MethodSymbol msym = (MethodSymbol) getCurrentClassSymbol().owner;
                         List<VarSymbol> params = msym.params();
 
                         /*

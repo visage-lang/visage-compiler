@@ -292,17 +292,24 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression fn = decompose(tree.meth);
         Symbol msym = JavafxTreeInfo.symbol(tree.meth);
         boolean magicPointerMakeFunction = (msym != null) &&
-                    (msym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
+                    (msym.flags() & JavafxFlags.FUNC_POINTER_MAKE) != 0;
         /*
          * Do *not* shred select expression if it is passed to intrinsic function
-         * Pointer.make(Object). If not, the temporary shred variable will be used
-         * to create Pointer. The temporary is a bind var and so Pointer.set() via
-         * that throw assign to bind variable exception.
-         *
-         * FIXME: Right now, Pointer.make calls support simple select or identifier
-         * Do we have to shred select part to handle complex selections?
+         * Pointer.make(Object). Shred only the "selected" portion of it. If
+         * we shred the whole select expr, then a temporary shred variable will
+         * be used to create Pointer. That temporary is a bound variable and so
+         * Pointer.set() on that would throw assign-to-bind-variable exception.
          */
-        List<JFXExpression> args = magicPointerMakeFunction? tree.args : shred(tree.args);
+        List<JFXExpression> args;
+        if (magicPointerMakeFunction) {
+            if (tree.args.head.getFXTag() == JavafxTag.SELECT) {
+                JFXSelect select = (JFXSelect) tree.args.head;
+                select.selected = shred(select.selected);
+            }
+            args = tree.args;
+        } else {
+            args = shred(tree.args);
+        }
         result = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
     }
 
@@ -563,7 +570,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXOnReplace onInvalidate = decompose(tree.getOnInvalidate());
         // bound if was bind context or is bound variable
         inBind = wasInBind | tree.isBound();
-
+        
         JFXVar res = fxmake.at(tree.pos).Var(
                     tree.name,
                     tree.getJFXType(),

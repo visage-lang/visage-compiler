@@ -1329,20 +1329,7 @@ public abstract class JavafxAbstractTranslation
             }
 
             if (callBound) {
-                List<Type> formal = formals;
-                for (JFXExpression arg : args) {
-                    if (arg.getFXTag() == JavafxTag.IDENT) {
-                        JFXIdent ident = (JFXIdent)args.head;
-                        JCExpression receiver = ident.sym.isStatic() ?
-                            call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
-                            makeReceiver(ident.sym, false);
-                        targs.append(receiver);
-                        targs.append(makeVarOffset(ident.sym));
-                    } else {
-                        TODO("non-Ident in bound call");
-                    }
-                    formal = formal.tail;
-                }
+                TODO("bound call in non-bind context");
             } else if (magicIsInitializedFunction) {
                 //isInitialized has just one argument -- we need to split into
                 //an inst/var offset pair so that the builtins function can be called
@@ -1374,14 +1361,10 @@ public abstract class JavafxAbstractTranslation
                 // Pointer.make has just one argument -- we need to split into
                 // three args - an inst, var offset and var type - so that the
                 // Pointer.make(FXObject, int, Class) is called.
-                JCExpression receiver;
                 switch (args.head.getFXTag()) {
                     case SELECT: {
                         JFXSelect select = (JFXSelect)args.head;
-                        receiver = select.sym.isStatic() ?
-                            call(defs.scriptLevelAccessMethod(names, select.sym.owner), List.<JCExpression>nil()) :
-                            translateExpr(select.selected, syms.javafx_FXBaseType);
-                        targs.append(translateExpr(select.selected, syms.javafx_FXBaseType));
+                        targs.append(translateArg(select.selected, syms.javafx_FXBaseType));
                         targs.append(makeVarOffset(select.sym));
                         Type type = types.erasure(select.type);
                         JCExpression varType = m().ClassLiteral(type);
@@ -1390,7 +1373,7 @@ public abstract class JavafxAbstractTranslation
                     }
                     case IDENT: {
                         JFXIdent ident = (JFXIdent)args.head;
-                        receiver = ident.sym.isStatic() ?
+                        JCExpression receiver = ident.sym.isStatic() ?
                             call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);

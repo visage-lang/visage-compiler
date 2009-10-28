@@ -73,6 +73,10 @@ public class JavafxLocalToClass {
     private Symbol owner;
     private int tmpCount = 0;
 
+    // assigned lazily on the first usage. This is symbol of
+    // Pointer.make(Object) method.
+    private MethodSymbol pointerMakeMethodSym;
+
     protected static final Context.Key<JavafxLocalToClass> localToClass =
             new Context.Key<JavafxLocalToClass>();
 
@@ -99,6 +103,25 @@ public class JavafxLocalToClass {
     public void inflateAsNeeded(JavafxEnv<JavafxAttrContext> attrEnv) {
         this.env = attrEnv;
         descendThroughChunksReportIfThisChunkInflated(attrEnv.tree);
+    }
+
+    private MethodSymbol pointerMakeMethodSym() {
+        if (pointerMakeMethodSym == null) {
+            Symbol pointerSym = syms.javafx_PointerType.tsym;
+            for (Scope.Entry e1 = pointerSym.members().lookup(defs.makeMethodName);
+                e1 != null;
+                e1 = e1.sibling) {
+                Symbol sym = e1.sym;
+                MethodSymbol msym = (MethodSymbol) sym;
+                if (msym.params().size() == 1) {
+                    pointerMakeMethodSym = msym;
+                    break;
+                }
+            }
+        }
+
+        assert pointerMakeMethodSym != null : "can't find Pointer.make(Object) method";
+        return pointerMakeMethodSym;
     }
 
     /**
@@ -520,7 +543,7 @@ public class JavafxLocalToClass {
                             JFXVar localVar = fxmake.Var(
                                 fxVar.name,
                                 fxVar.getJFXType(),
-                                fxmake.Modifiers(0),
+                                fxVar.mods,
                                 null,
                                 JavafxBindStatus.UNBOUND, null, null);
                             localVar.type = fxVar.type;
@@ -547,24 +570,10 @@ public class JavafxLocalToClass {
                         stmts.append(returnVar);
 
                         // find the symbol of Pointer.make(Object) method.
-                        Symbol pointerSym = syms.javafx_PointerType.tsym;
-                        Symbol pointerMakeMethodSym = null;
-                        for (Scope.Entry e1 = pointerSym.members().lookup(defs.makeMethodName);
-                             e1 != null;
-                             e1 = e1.sibling) {
-                            Symbol sym = e1.sym;
-                            MethodSymbol msym = (MethodSymbol) sym;
-                            if (msym.params().size() == 1) {
-                                pointerMakeMethodSym = msym;
-                                break;
-                            }
-                        }
-
-                        assert pointerMakeMethodSym != null : "can't find Pointer.make(Object) method";
                         // The select expression Pointer.make
-                        Type pointerMakeType = pointerMakeMethodSym.type;
+                        Type pointerMakeType = pointerMakeMethodSym().type;
                         JFXSelect select = fxmake.Select(fxmake.Type(syms.javafx_PointerType), defs.makeMethodName);
-                        select.sym = pointerMakeMethodSym;
+                        select.sym = pointerMakeMethodSym();
                         select.sym.flags_field |= JavafxFlags.FUNC_POINTER_MAKE;
                         select.type = pointerMakeType;
 
