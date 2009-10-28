@@ -1068,6 +1068,16 @@ public abstract class JavafxTranslationSupport {
             return getReceiver();
         }
 
+        protected JCExpression getReceiverOrThis(VarSymbol varSym) {
+            JCExpression receiver = getReceiver(varSym);
+
+            if (receiver == null) {
+                receiver = id(names._this);
+            }
+
+            return receiver;
+        }
+
         //
         // These methods return an expression for testing/setting/clearing a var flag.
         //

@@ -143,6 +143,7 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_convertNumberSequence;
     final RuntimeMethod Sequences_forceNonNull;
     final RuntimeMethod Sequences_sizeOfNewElements;
+    final RuntimeMethod Sequences_getNewElements;
     final RuntimeMethod Sequences_range;
     final RuntimeMethod Sequences_rangeExclusive;
     final RuntimeMethod Sequences_size;
@@ -257,7 +258,6 @@ public class JavafxDefs {
     final Name incrementSharingMethodName;
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
-    final Name onReplaceArgNameBuffer;
     final Name[] typedGetMethodName;
     final Name[] typedSetMethodName;
     final Name sliceArgNameStartPos;
@@ -394,7 +394,6 @@ public class JavafxDefs {
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
         incrementSharingMethodName = names.fromString("incrementSharing");
-        onReplaceArgNameBuffer = names.fromString("$buffer$");
         onReplaceArgNameOld = names.fromString("oldValue$");
         onReplaceArgNameNew = names.fromString("newValue$");
         sliceArgNameStartPos = names.fromString("startPos$");
@@ -460,6 +459,7 @@ public class JavafxDefs {
         Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
         Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
         Sequences_sizeOfNewElements = new RuntimeMethod(names, cSequences, "sizeOfNewElements");
+        Sequences_getNewElements = new RuntimeMethod(names, cSequences, "getNewElements");
         Sequences_range = new RuntimeMethod(names, cSequences, "range");
         Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");
         Sequences_size = new RuntimeMethod(names, cSequences, "size");

@@ -627,19 +627,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             return receiver;
         }
-        private JCExpression getReceiverOrThis(VarSymbol varSym) {
-            JCExpression receiver = super.getReceiver(varSym);
-            
-            if (receiver == null) {
-                receiver = id(names._this);
-            }
-            
-            return receiver;
-        }
         private JCExpression getReceiverOrThis(VarInfo varInfo) {
             return getReceiverOrThis(varInfo.getSymbol());
         }
-        
+
         //
         // This method gathers all the translated functions in funcInfos.
         //
@@ -1070,7 +1061,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                             makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym));
                         } else {
                             onReplaceCall = callStmt(getReceiver(), attributeOnReplaceName(varSym),
-                                            makeMixinSafeVarValue(varSym),
                                             makeInt(0), makeInt(0), makeInt(0));
                         }
                         JCStatement flagSet = makeFlagStatement(varSym, defs.varFlagActionChange, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED);
@@ -1359,7 +1349,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         
                         // Call the onReplace$var to force evaluation.
                         addStmt(callStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
-                                                        makeMixinSafeVarValue(proxyVarSym),
                                                         id(defs.sliceArgNameStartPos),
                                                         id(defs.sliceArgNameEndPos),
                                                         id(defs.sliceArgNameNewLength)));
@@ -1399,8 +1388,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     firstIndexName = paramStartPosName(onReplace);
                     lastIndexName = paramEndPosName(onReplace);
                     newLengthName = paramNewElementsLengthName(onReplace);
-                
-                    addParam(type, newValueName);
+
                     addParam(syms.intType, firstIndexName);
                     addParam(syms.intType, lastIndexName);
                     addParam(syms.intType, newLengthName);
@@ -1437,17 +1425,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(makeVar(syms.intType, lastIndex.name,
                                     m().Binary(JCTree.MINUS, id(defs.sliceArgNameEndPos), m().Literal(Integer.valueOf(1)))));
                         }
-                        if (newElements != null
-                                && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
-                            JCExpression init = call(makeType(syms.javafx_SequencesType), "getNewElements",
-                                    id(newValueName), id(firstIndexName), id(newLengthName));
-                            addStmt(makeVar(newElements.type, newElements.name, init));
-                        }
                         if (savedName != null) {
                             addStmt(makeVar(type, onReplace.getOldValue().getName(), id(savedName)));
                             addStmt(makeExec(m().Assign(id(savedName),
                                     call(getReceiver(), attributeGetterName(varInfo.getSymbol())))));
                             addStmt(callStmt(id(savedName), defs.incrementSharingMethodName));
+                        }
+                        if (newElements != null
+                                && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
+                                   JCExpression seq = savedName != null ? id(savedName)
+                                           : call(getReceiver(), attributeGetterName(varInfo.getSymbol()));
+                                   JCExpression init = call(defs.Sequences_getNewElements,
+                                           seq, id(firstIndexName), id(newLengthName));
+                            addStmt(makeVar(newElements.type, newElements.name, init));
                         }
                     }
                     

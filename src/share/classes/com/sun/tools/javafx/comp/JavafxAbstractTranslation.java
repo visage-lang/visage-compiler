@@ -660,9 +660,9 @@ public abstract class JavafxAbstractTranslation
 
     static class OnReplaceInfo {
         public OnReplaceInfo outer;
+        VarMorphInfo vmi;
         public JFXOnReplace onReplace;
         Symbol newElementsSym;
-        Symbol oldValueSym;
         Type arraySequenceType;
         Type seqWithExtendsType;
     }
@@ -671,7 +671,7 @@ public abstract class JavafxAbstractTranslation
 
     OnReplaceInfo findOnReplaceInfo(Symbol sym) {
         OnReplaceInfo info = onReplaceInfo;
-        while (info != null && sym != info.newElementsSym && sym != info.oldValueSym)
+        while (info != null && sym != info.newElementsSym)
             info = info.outer;
         return info;
     }
@@ -879,7 +879,7 @@ public abstract class JavafxAbstractTranslation
             if (expr instanceof JFXIdent) {
                 JFXIdent varId = (JFXIdent) expr;
                 OnReplaceInfo info = findOnReplaceInfo(varId.sym);
-                if (info != null && varId.sym == info.newElementsSym) {
+                if (info != null) {
                     return id(paramNewElementsLengthName(info.onReplace));
                 }
             }

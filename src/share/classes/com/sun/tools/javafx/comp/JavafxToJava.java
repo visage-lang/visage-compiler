@@ -239,12 +239,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         if (isSequence) {
             OnReplaceInfo info = new OnReplaceInfo();
             info.onReplace = onReplace;
+            info.vmi = vmi;
             info.outer = onReplaceInfo;
-            if (onReplace.getOldValue() != null) {
-                Symbol sym = onReplace.getOldValue().sym;
-                //if ((sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {// optimized away
-                info.oldValueSym = sym;
-            }
             if (onReplace.getNewElements() != null)
                 info.newElementsSym = onReplace.getNewElements().sym;
             onReplaceInfo = info;
@@ -953,12 +949,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 JFXIdent var = (JFXIdent) seq;
                 OnReplaceInfo info = findOnReplaceInfo(var.sym);
                 if (info != null
-                        && var.sym == info.newElementsSym
                         && (var.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {
                     String mname = getMethodName.toString() + "FromNewElements";
                     JFXOnReplace onReplace = info.onReplace;
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                    args.append(make.Ident(defs.attributeNewValueName));
+                    Symbol sym = info.vmi.getSymbol();
+                    args.append(getReceiverOrThis((VarSymbol) sym));
+                    args.append(makeVarOffset(sym));
                     args.append(make.Ident(paramStartPosName(onReplace)));
                     args.append(make.Ident(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);

@@ -883,15 +883,16 @@ public class SequencesBase {
         return Sequences.make(seq.getElementType(), list);
     }
 
-    public static <T> T getFromNewElements(Sequence<? extends T> newValue, int loIndex, int inserted, int k) {
-        if (k < 0 || k >= inserted)
-            return newValue.getDefaultValue();
-        return newValue.get(loIndex+k);
+    public static <T> T getFromNewElements(FXObject instance, int varNum, int loIndex, int inserted, int k) {
+        if (k >= inserted)
+            k = -1;
+        else if (k >= 0)
+            k += loIndex;
+        return (T) instance.get$(varNum, k);
     }
 
-    public static <T> Sequence<? extends T> getNewElements(Sequence<? extends T> newValue, int startPos, int inserted) {
-        //buffer.incrementSharing();
-        return Sequences.subsequence(newValue, startPos, startPos+inserted);
+    public static <T> Sequence<? extends T> getNewElements(Sequence<? extends T> current, int startPos, int inserted) {
+         return Sequences.subsequence(current, startPos, startPos+inserted);
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/) {

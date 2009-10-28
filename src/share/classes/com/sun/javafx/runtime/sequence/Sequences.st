@@ -28,7 +28,7 @@ import java.util.*;
 import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
-import com.sun.javafx.runtime.FXBase;
+import com.sun.javafx.runtime.FXObject;
 
 /**
  * Sequences -- static helper methods for constructing derived sequences. Implements heuristics for reducing time and
@@ -45,10 +45,12 @@ public final class Sequences extends SequencesBase {
     private Sequences() { }
 
 $PREFIX:{T|
-    public static $PRIM_MAP.(T)$ getAs$T$FromNewElements(Sequence<? extends $BOXED_MAP.(T)$> newValue, int loIndex, int inserted, int k) {
-        if (k < 0 || k >= inserted)
-            return newValue.getDefaultValue();
-        return newValue.getAs$T$(loIndex+k);
+    public static $PRIM_MAP.(T)$ getAs$T$FromNewElements(FXObject instance, int varNum, int loIndex, int inserted, int k) {
+        if (k >= inserted)
+            k = -1;
+        else if (k >= 0)
+            k += loIndex;
+        return instance.getAs$T$\$(varNum, k);
     }
 }$
 }
