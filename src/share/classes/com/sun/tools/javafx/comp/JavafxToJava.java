@@ -427,7 +427,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     JCClassDecl cInterface = make.ClassDef(mods,
                             model.interfaceName, List.<JCTypeParameter>nil(), null,
                             model.interfaces, model.iDefinitions);
-
+        
+                    cInterface.sym = makeClassSymbol(mods.flags, cInterface.name, tree.sym.owner);
+                    
+                    membersToSymbol(cInterface);
+                    
                     prependToDefinitions.append(cInterface); // prepend to the enclosing class or top-level
                 }
                 tree.hasBeenTranslated = true;
@@ -464,6 +468,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     translatedDefs.toList());
             res.sym = tree.sym;
             res.type = tree.type;
+        
+            membersToSymbol(res);
 
             setReceiverContext(prevReceiverContext);
 

@@ -25,20 +25,19 @@ package com.sun.tools.javafx.comp;
 
 import java.io.OutputStreamWriter;
 
+import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.BoundKind;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.code.Type.CapturedType;
-import com.sun.tools.mjavac.code.Type.ForAll;
-import com.sun.tools.mjavac.code.Type.MethodType;
-import com.sun.tools.mjavac.code.Type.WildcardType;
+import com.sun.tools.mjavac.code.Type.*;
 import com.sun.tools.mjavac.code.TypeTags;
 import static com.sun.tools.mjavac.code.Flags.STATIC;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.JCAnnotation;
+import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCExpression;
 import com.sun.tools.mjavac.tree.JCTree.JCIdent;
 import com.sun.tools.mjavac.tree.JCTree.JCMethodDecl;
@@ -1174,16 +1173,25 @@ public abstract class JavafxTranslationSupport {
          * Make a variable -- final by default
          */
 
-        protected JCVariableDecl makeVar(long flags, JCExpression typeExpr, Name varName, JCExpression initialValue) {
-            return m().VarDef(
-                    m().Modifiers(flags),
-                    varName,
-                    typeExpr,
-                    initialValue);
+        protected JCVariableDecl makeVar(JCModifiers modifiers, JCExpression varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
+            JCVariableDecl varDecl = m().VarDef(
+                                            modifiers,
+                                            varName,
+                                            varType,
+                                            initialValue);
+            varDecl.sym = varSym;
+            return varDecl;
+        }
+        protected JCVariableDecl makeVar(long flags, Type varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
+            return makeVar(m().Modifiers(flags), makeType(varType), varName, initialValue, varSym);
+        }
+
+        protected JCVariableDecl makeVar(long flags, JCExpression varType, Name varName, JCExpression initialValue) {
+            return makeVar(m().Modifiers(flags), varType, varName, initialValue, null);
         }
 
         protected JCVariableDecl makeVar(long flags, Type varType, Name varName, JCExpression initialValue) {
-            return makeVar(flags, makeType(varType), varName, initialValue);
+            return makeVar(flags, varType, varName, initialValue, null);
         }
 
         protected JCVariableDecl makeVar(Type varType, Name varName, JCExpression value) {
@@ -1251,34 +1259,26 @@ public abstract class JavafxTranslationSupport {
          * Make methods
          */
 
-        protected JCMethodDecl makeMethod(long flags, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-            return makeMethod(flags, makeType(returnType), methName, params, stmts);
+        protected JCMethodDecl makeMethod(long flags, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
+            return makeMethod(m().Modifiers(flags), returnType, methName, params, stmts, methSym);
         }
 
-        protected JCMethodDecl makeMethod(long flags, JCExpression typeExpression, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-            return makeMethod(m().Modifiers(flags), typeExpression, methName, params, stmts);
+        protected JCMethodDecl makeMethod(JCModifiers modifiers, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
+            return makeMethod(modifiers, makeType(returnType), methName, params, stmts, methSym);
         }
 
-        protected JCMethodDecl makeMethod(JCModifiers modifiers, Type returnType, Name methName,
-                List<JCVariableDecl> params, ListBuffer<JCStatement> stmts) {
-            return makeMethod(modifiers, makeType(returnType), methName, params, stmts==null? null : stmts.toList());
-        }
-
-        protected JCMethodDecl makeMethod(long flags, Type returnType, Name methName,
-                List<JCVariableDecl> params, ListBuffer<JCStatement> stmts) {
-            return makeMethod(flags, returnType, methName, params, stmts.toList());
-        }
-
-        protected JCMethodDecl makeMethod(JCModifiers modifiers, JCExpression typeExpression, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts) {
-            return m().MethodDef(
-                    modifiers,
-                    methName,
-                    typeExpression,
-                    List.<JCTypeParameter>nil(),
-                    params == null ? List.<JCVariableDecl>nil() : params,
-                    List.<JCExpression>nil(),
-                    stmts == null ? null : m().Block(0L, stmts),
-                    null);
+        protected JCMethodDecl makeMethod(JCModifiers modifiers, JCExpression returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
+            JCMethodDecl methDecl = m().MethodDef(
+                                        modifiers,
+                                        methName,
+                                        returnType,
+                                        List.<JCTypeParameter>nil(),
+                                        params != null ? params : List.<JCVariableDecl>nil(),
+                                        List.<JCExpression>nil(),
+                                        stmts == null ? null : m().Block(0L, stmts),
+                                        null);
+            methDecl.sym = methSym;
+            return methDecl;
         }
 
         protected JCExpression makeQualifiedTree(String str) {
@@ -1496,6 +1496,49 @@ public abstract class JavafxTranslationSupport {
         JCExpression makeDefaultValue(Type type) {
             return JavafxTranslationSupport.this.makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(type));
         }
+        
+        /*
+         * Construct a symbol and type for a new class.
+         */
+        protected ClassSymbol makeClassSymbol(long flags, Name name, Symbol owner) {
+            ClassSymbol classSym = new ClassSymbol(flags, name, owner);
+            ClassType type = new ClassType(Type.noType, List.<Type>nil(), classSym);
+            classSym.type = type;
+            return classSym;
+        }
+
+        /*
+         * Copy the members of a newly created JCClassDecl to it's symbol.
+         */
+        protected void membersToSymbol(JCClassDecl cls) {
+            ClassSymbol cSym = cls.sym;
+            Scope members = new Scope(cSym);
+            
+            for (JCTree tree : cls.getMembers()) {
+                if (tree instanceof JCVariableDecl) {
+                    JCVariableDecl varDecl = (JCVariableDecl)tree;
+                    
+                    if (varDecl.sym != null) {
+                        members.enter(varDecl.sym);
+                    }
+                } else if (tree instanceof JCMethodDecl) {
+                    JCMethodDecl methDecl = (JCMethodDecl)tree;
+                    
+                    if (methDecl.sym != null) {
+                        members.enter(methDecl.sym);
+                    }
+                } else if (tree instanceof JCClassDecl) {
+                    JCClassDecl classDecl = (JCClassDecl)tree;
+                    
+                    if (classDecl.sym != null) {
+                        members.enter(classDecl.sym);
+                    }
+                }
+            }
+            
+            cSym.members_field = members;
+        }
+
 
         /* Debugging support */
         

@@ -545,9 +545,6 @@ public class JavafxClassReader extends ClassReader {
             }
             boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
-            boolean isFXBase = csym == ((JavafxSymtab) syms).javafx_FXBaseType.tsym;
-            boolean isFXObject = csym == ((JavafxSymtab) syms).javafx_FXObjectType.tsym;
-            boolean isRootClass = isFXBase || isFXObject;
 
             Set<Name> priorNames = new HashSet<Name>();
             handleSyms:
@@ -580,44 +577,6 @@ public class JavafxClassReader extends ClassReader {
                     }
                 }
                 if (memsym instanceof MethodSymbol) {
-                    if (! sawSourceNameAnnotation &&
-                            !isRootClass &&
-                            (name == defs.internalRunFunctionName || 
-                            name == defs.initializeName ||
-                            name == defs.completeName ||
-                            name == defs.postInitName || name == defs.userInitName ||
-                            name == names.clinit ||
-                            name.startsWith(defs.varOffsetName) ||
-                            name.startsWith(defs.varCountName) ||
-                            name.startsWith(defs.attributeTypePrefixName) ||
-                            name.startsWith(defs.attributeGetPrefixName) ||
-                            name.startsWith(defs.attributeSetPrefixName) ||
-                            name.startsWith(defs.attributeBePrefixName) ||
-                            name.startsWith(defs.attributeInvalidatePrefixMethodName) ||
-                            name.startsWith(defs.attributeOnReplacePrefixMethodName) ||
-                            name.startsWith(defs.attributeEvaluatePrefixMethodName) ||
-                            name.startsWith(defs.attributeGetMixinPrefixMethodName) ||
-                            name.startsWith(defs.attributeGetVOFFPrefixMethodName) ||
-                            name.startsWith(defs.attributeInitVarBitsPrefixMethodName) ||
-                            name.startsWith(defs.attributeApplyDefaultsPrefixMethodName) ||
-                            name.startsWith(defs.attributeUpdatePrefixMethodName) ||
-                            name.startsWith(defs.attributeSizePrefixMethodName)
-                            ))
-                        continue;
-                    // if this is a main method in an FX class then it is synthetic, ignore it
-                    if (name == defs.mainName && isFXClass) {
-                        if (memsym.type instanceof MethodType) {
-                            MethodType mt = (MethodType) (memsym.type);
-                            List<Type> paramTypes = mt.getParameterTypes();
-                            if (paramTypes.size() == 1 && paramTypes.head instanceof ArrayType) {
-                                Type elemType = ((ArrayType) paramTypes.head).getComponentType();
-                                if (elemType.tsym.name == syms.stringType.tsym.name) {
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-
                     MethodSymbol m = translateMethodSymbol(flags, memsym, csym);     
                     csym.members_field.enter(m);
                 }
@@ -625,12 +584,6 @@ public class JavafxClassReader extends ClassReader {
                     // Eliminate any duplicate value/location.
                     if (priorNames.contains(name))
                         continue;
-                    if (!isRootClass) {
-                        // Filter out synthetic vars.
-                        String nameString = name.toString();
-                        if (nameString.startsWith(JavafxDefs.varMapString)) continue;
-                        if (nameString.startsWith(JavafxDefs.varCountString)) continue;
-                   }
                     Type otype = memsym.type;
                     Type type = translateType(otype);
                     VarSymbol v = new VarSymbol(flags, name, type, csym);
