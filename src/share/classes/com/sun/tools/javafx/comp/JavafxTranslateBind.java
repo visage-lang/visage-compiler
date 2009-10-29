@@ -124,7 +124,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             }
 
             if (callBound) {
-                List<Type> formal = formals;
                 for (JFXExpression arg : args) {
                     if (arg.getFXTag() == JavafxTag.IDENT) {
                         JFXIdent ident = (JFXIdent)args.head;
@@ -136,7 +135,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     } else {
                         TODO("non-Ident in bound call");
                     }
-                    formal = formal.tail;
                 }
                 return targs.toList();
             } else {

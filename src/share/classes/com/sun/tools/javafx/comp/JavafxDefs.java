@@ -85,6 +85,7 @@ public class JavafxDefs {
     public static final String needDefaultMethodNameString = "needDefault";
     public static final String makeAttributeMethodNameString = "makeAttribute";
     public static final String makeMethodNameString = "make";
+    public static final String set$valueMethodNameString = "set$value";
     public static final String makeWithDefaultMethodNameString = "makeWithDefault";
     public static final String makeBijectiveMethodNameString = "makeBijective";
     public static final String invokeNameString = "invoke";
@@ -100,6 +101,7 @@ public class JavafxDefs {
     public static final String varValueString = "$";
     public static final String varMapString = "MAP$";
     public static final String varGetMapString = "GETMAP$";
+    public static final String varOFF$valueString = "VOFF$value";
 
     public  static final String javaLangPackageNameString = "java.lang";
     public  static final String runtimePackageNameString = "com.sun.javafx.runtime";
@@ -115,6 +117,8 @@ public class JavafxDefs {
     private static final String cUtil = runtimePackageNameString + ".Util";
     private static final String cChecks = runtimePackageNameString + ".Checks";
     private static final String cFXBase = runtimePackageNameString + ".FXBase";
+    private static final String cFXVariable = runtimePackageNameString + ".FXVariable";
+    private static final String cPointer = runtimePackageNameString + ".Pointer";
 
     private static final String cMath = javaLangPackageNameString + ".Math";
 
@@ -171,6 +175,11 @@ public class JavafxDefs {
     final RuntimeMethod FXBase_switchBiDiDependence;
     final RuntimeMethod FXBase_removeDependent;
     final RuntimeMethod FXBase_addDependent;
+
+    final RuntimeMethod FXVariable_make;
+
+    final RuntimeMethod Pointer_make;
+    final RuntimeMethod Pointer_get;
 
     /**
      * Name definitions
@@ -290,6 +299,8 @@ public class JavafxDefs {
     final Name varFlagINIT_BOUND;
     final Name varFlagINIT_BOUND_READONLY;
     final Name varFlagALL_FLAGS;
+
+    public final Name varOFF$valueName;
 
     public final Name runtimePackageName;
     public final Name annotationPackageName;
@@ -447,6 +458,8 @@ public class JavafxDefs {
         varFlagINIT_BOUND_READONLY = names.fromString("VFLGS$INIT_BOUND_READONLY");
         varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
 
+        varOFF$valueName = names.fromString(varOFF$valueString);
+
         runtimePackageName = names.fromString(runtimePackageNameString);
         annotationPackageName = names.fromString(annotationPackageNameString);
         javaLangPackageName = names.fromString(javaLangPackageNameString);
@@ -487,6 +500,11 @@ public class JavafxDefs {
         FXBase_switchBiDiDependence = new RuntimeMethod(names, cFXBase, "switchBiDiDependence$");
         FXBase_removeDependent  = new RuntimeMethod(names, cFXBase, "removeDependent$");
         FXBase_addDependent     = new RuntimeMethod(names, cFXBase, "addDependent$");
+
+        FXVariable_make = new RuntimeMethod(names, cFXVariable, makeMethodNameString);
+
+        Pointer_make = new RuntimeMethod(names, cPointer, makeMethodNameString);
+        Pointer_get = new RuntimeMethod(names, cPointer, getMethodNameString);
 
         // Initialize per Kind names and types
         typedGetMethodName = new Name[TYPE_KIND_COUNT];

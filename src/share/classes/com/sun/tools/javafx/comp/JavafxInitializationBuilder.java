@@ -249,7 +249,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
             if (outerTypeSym == null) {
-                javaCodeMaker.makeJavaEntryConstructor();
+                javaCodeMaker.makeJavaEntryConstructor(classVarInfos);
             } else {
                 javaCodeMaker.makeOuterAccessorField(outerTypeSym);
                 javaCodeMaker.makeOuterAccessorMethod(outerTypeSym);
@@ -1154,7 +1154,33 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         initIf = m().If(initCondition, endBlock(), null);
                     }
 
-                    if (varInfo.isMixinVar()) {
+                    if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                            // Prepare to accumulate body of if.
+                            beginBlock();
+
+                            /*
+                             * if "foo" is the variable name, then we generate
+                             *
+                             *     be$(varNum, $$boundInstance$foo.get($$boundVarNum$foo));
+                             *
+                             * With be$(int, Object), we need not worry about type conversion.
+                             */
+                            ListBuffer<JCExpression> get$args = ListBuffer.lb();
+                            get$args.append(id(boundFunctionVarNumParamName(varSym.name)));
+                            JCExpression get$call = call(id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.attributeGetMethodNamePrefix, get$args);
+
+                            ListBuffer<JCExpression> be$Args = ListBuffer.lb();
+                            be$Args.append(makeVarOffset(varSym));
+                            be$Args.append(get$call);
+                            addStmt(callStmt(getReceiver(), defs.attributeBePrefixName, be$Args));
+
+                            // Is it invalid?
+                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_INVALID, defs.varFlagIS_INVALID);
+
+                            // if (invalid) { set$var(init/bound expression); }
+                            addStmt(m().If(condition, endBlock(), initIf));
+                    } else if (varInfo.isMixinVar()) {
                         assert false : "Mixin sequences not implemented";
                     } else if (varInfo.hasBoundDefinition()) {  
                         // Begin if block.
@@ -2605,6 +2631,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                          *
                          *     if (varNum$ == $$boundVarNum$foo && instance$ == $$boundInstance$foo) {
                          *          invalidate$local_klass2$foo(phase$);
+                         *          // or sequence version of invalidate..
                          *     }
                          */
                         JCStatement ifReferenceStmt = null;
@@ -2617,7 +2644,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // && of above two conditions
                             JCExpression ifReferenceCond = makeBinary(JCTree.AND, varNumCond, objCond);
                             // invalidate the synthetic instance field for this param
-                            addStmt(callStmt(getReceiver(), attributeInvalidateName(param), id(phaseName)));
+
+                            if (isSequenceVersion) {
+                                if (types.isSequence(param.type)) {
+                                    // Sequence: update$ is only used on select, so, for sequences, we can just pass through
+                                    addStmt(callStmt(getReceiver(), attributeInvalidateName(param),
+                                            id(defs.sliceArgNameStartPos),
+                                            id(defs.sliceArgNameEndPos),
+                                            id(defs.sliceArgNameNewLength),
+                                            id(phaseName)));
+                                }
+                            } else {
+                                if (!types.isSequence(param.type)) {
+                                    // Non-sequence
+                                    addStmt(callStmt(getReceiver(), attributeInvalidateName(param), id(phaseName)));
+                                }
+                            }
                             ifReferenceStmt = m().If(ifReferenceCond, endBlock(), ifReferenceStmt);
                             addStmt(ifReferenceStmt);
                         }
@@ -3057,14 +3099,37 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Make a constructor to be called by Java code.
         // Simply pass up to super, unless this is the last JavaFX class, in which case add object initialization
         //
-        public void makeJavaEntryConstructor() {
+        public void makeJavaEntryConstructor(List<VarInfo> varInfos) {
             //    public Foo() {
             //        this(false);
             //        initialize$();
+            //        // register dependencies for bound function class
             //    }
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             stmts.append(callStmt(names._this, makeBoolean(false)));
             stmts.append(callStmt(defs.initializeName));
+            if (isBoundFuncClass) {
+                /*
+                 * For each bound function param (FXObject+varNum pair), at the
+                 * end of object creation register "this" as a dependent by
+                 * calling FXBase.addDependent$ method:
+                 *
+                 *     FXBase.addDependent$(boundFuncObjParam1, boundFunctionVarNumParam1, this);
+                 *     FXBase.addDependent$(boundFuncObjParam1, boundFunctionVarNumParam1, this);
+                 *     ....
+                 */
+                for (VarInfo vi : varInfos) {
+                    if ((vi.getFlags() & Flags.PARAMETER) != 0L) {
+                        // call FXBase.addDependent$(FXObject, int, FXObject)
+                        Symbol varSym = vi.getSymbol();
+                        ListBuffer<JCExpression> args = ListBuffer.lb();
+                        args.append(id(boundFunctionObjectParamName(varSym.name)));
+                        args.append(id(boundFunctionVarNumParamName(varSym.name)));
+                        args.append(id(names._this));
+                        stmts.append(callStmt(defs.FXBase_addDependent, args));
+                    }
+                }
+            }
             makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(), stmts.toList());
         }
 

@@ -1957,7 +1957,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCExpression varOffsetExpr = makeVarOffset(sym, sym.owner);
             Type type = types.erasure(tree.attribute.type);
             JCExpression varType = m().ClassLiteral(type);
-            return call(makeType(syms.javafx_PointerType), "make", receiver, varOffsetExpr, varType);
+            return call(defs.Pointer_make, receiver, varOffsetExpr, varType);
         }
 
         @Override
