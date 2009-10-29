@@ -224,9 +224,13 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected JavafxBoundContextAnalysis bindAnalyzer;
 
-    /** The bind analyzer.
+    /** The local var bind converter.
      */
     protected JavafxLocalToClass localToClass;
+
+    /** The type conversion inserter.
+     */
+    protected JavafxConvertTypes convertTypes;
 
     /** The attributor.
      */
@@ -320,6 +324,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         attr = JavafxAttr.instance(context);
         bindAnalyzer = JavafxBoundContextAnalysis.instance(context);
         localToClass = JavafxLocalToClass.instance(context);
+        convertTypes = JavafxConvertTypes.instance(context);
         chk = JavafxCheck.instance(context);
         annotate = JavafxAnnotate.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
@@ -778,16 +783,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(bindAnalysis(todo)))))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(convertTypes(attribute(bindAnalysis(todo))))))), results);
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(bindAnalysis(todo)))))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(convertTypes(attribute(bindAnalysis(todo))))))), results);
                 break;
 
             case BY_FILE: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
-                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(attribute(bindAnalysis(todo)))))).values())
+                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(convertTypes(attribute(bindAnalysis(todo))))))).values())
                     envbuff.appendList(prepForBackEnd(list));
                 backEnd(envbuff.toList(), results);
                 break;
@@ -798,7 +803,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     envbuff.append(attribute(bindAnalysis(todo.next())));
                 }
 
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(stopIfError(envbuff))))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(convertTypes(stopIfError(envbuff)))))), results);
                 break;
             }
             default:
@@ -905,7 +910,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Check for errors -- called by JavafxTaskImpl.
      */
     public void errorCheck() throws IOException {
-        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(attribute(bindAnalysis(todo)))))), null);
+        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(convertTypes(attribute(bindAnalysis(todo))))))), null);
     }
 
     /**
@@ -1057,6 +1062,39 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                   env.toplevel.sourcefile);
         try {
             varUsageAnalysis.analyzeVarUse(env);
+        }
+        finally {
+            log.useSource(prev);
+        }
+
+        return env;
+    }
+
+    /**
+     * Insert explicit type conversions
+     * @returns the list of attributed parse trees
+     */
+    public List<JavafxEnv<JavafxAttrContext>> convertTypes(List<JavafxEnv<JavafxAttrContext>> envs) {
+        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+            convertTypes(l.head);
+        }
+        return envs;
+    }
+
+    /**
+     * Insert explicit type conversions
+     * @returns the attributed parse tree
+     */
+    public JavafxEnv<JavafxAttrContext> convertTypes(JavafxEnv<JavafxAttrContext> env) {
+        if (verboseCompilePolicy)
+            Log.printLines(log.noticeWriter, "[type-conv " + env.enclClass.sym + "]");
+
+        JavaFileObject prev = log.useSource(
+                                  env.enclClass.sym.sourcefile != null ?
+                                  env.enclClass.sym.sourcefile :
+                                  env.toplevel.sourcefile);
+        try {
+            convertTypes.convertTypes(env);
         }
         finally {
             log.useSource(prev);
