@@ -55,6 +55,7 @@ public class JavafxDefs {
     public static final String attributeEvaluateMethodNamePrefix = "evaluate$";
     public static final String attributeGetMixinMethodNamePrefix = "getMixin$";
     public static final String attributeGetVOFFMethodNamePrefix = "getVOFF$";
+    public static final String attributeSetMixinMethodNamePrefix = "setMixin$";
     public static final String attributeInitVarBitsMethodNamePrefix = "initVarBits$";
     public static final String attributeNotifyDependentsNameString = "notifyDependents$";
     public static final String attributeApplyDefaultsMethodNamePrefix = "applyDefaults$";
@@ -256,6 +257,7 @@ public class JavafxDefs {
     final Name attributeEvaluatePrefixMethodName;
     final Name attributeGetMixinPrefixMethodName;
     final Name attributeGetVOFFPrefixMethodName;
+    final Name attributeSetMixinPrefixMethodName;
     final Name attributeInitVarBitsPrefixMethodName;
     final Name attributeApplyDefaultsPrefixMethodName;
     final Name attributeUpdatePrefixMethodName;
@@ -426,6 +428,7 @@ public class JavafxDefs {
         attributeEvaluatePrefixMethodName = names.fromString(attributeEvaluateMethodNamePrefix);
         attributeGetMixinPrefixMethodName = names.fromString(attributeGetMixinMethodNamePrefix);
         attributeGetVOFFPrefixMethodName = names.fromString(attributeGetVOFFMethodNamePrefix);
+        attributeSetMixinPrefixMethodName = names.fromString(attributeSetMixinMethodNamePrefix);
         attributeInitVarBitsPrefixMethodName = names.fromString(attributeInitVarBitsMethodNamePrefix);
         attributeApplyDefaultsPrefixMethodName = names.fromString(attributeApplyDefaultsMethodNamePrefix);
         attributeUpdatePrefixMethodName = names.fromString(attributeUpdateMethodNamePrefix);
