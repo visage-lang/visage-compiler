@@ -419,7 +419,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 TODO("immutable bound sequence member select");
             }
 
-            return new BoundSequenceResult(invalidators(), makeGetElementBody(), makeSizeBody());
+            return new BoundSequenceResult(invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
         }
     }
 
@@ -439,7 +439,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         BoundSequenceResult doit() {
             setupInvalidators();
-            return new BoundSequenceResult(invalidators(), makeGetElementBody(), makeSizeBody());
+            return new BoundSequenceResult(invalidators(), List.<DependentPair>nil(), makeGetElementBody(), makeSizeBody());
         }
 
         JCStatement InvalidateCall(JCExpression begin, JCExpression end, JCExpression newLen) {

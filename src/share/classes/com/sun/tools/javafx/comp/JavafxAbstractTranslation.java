@@ -438,8 +438,8 @@ public abstract class JavafxAbstractTranslation
     public static class BoundSequenceResult extends ExpressionResult implements BoundResult {
         private final JCStatement getElement;
         private final JCStatement getSize;
-        BoundSequenceResult(List<BindeeInvalidator> invalidators, JCStatement getElement, JCStatement getSize) {
-            super(getElement.pos(), null, null, invalidators, null, null);
+        BoundSequenceResult(List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {
+            super(getElement.pos(), null, null, invalidators, interClass, null);
             this.getElement = getElement;
             this.getSize = getSize;
         }
@@ -460,10 +460,6 @@ public abstract class JavafxAbstractTranslation
         @Override
         public List<JCStatement> statements() {
             throw new AssertionError("Shouldn't be asking for this");
-        }
-        @Override
-        public List<DependentPair> interClass() {
-            return List.<DependentPair>nil();
         }
         @Override
         public String toString() {

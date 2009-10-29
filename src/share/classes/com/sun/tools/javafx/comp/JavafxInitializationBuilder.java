@@ -2401,7 +2401,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 makeApplyDefaultsMethod(varInfos, varCount);
             }
             
-            makeUpdateMethod(updateMap);
+            makeUpdateMethod(updateMap, false);
+            makeUpdateMethod(updateMap, true);
             
             if (!isMixin && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
@@ -2573,12 +2574,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method constructs the current class's update$ method.
         //
-        public void makeUpdateMethod(final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap) {
+        public void makeUpdateMethod(final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap, final boolean isSequenceVersion) {
             MethodBuilder mb = new MethodBuilder(defs.attributeUpdatePrefixMethodName, syms.voidType) {
                 @Override
                 public void initialize() {
                     addParam(syms.javafx_FXObjectType, updateInstanceName);
                     addParam(syms.intType, varNumName);
+                    if (isSequenceVersion) {
+                        addParam(syms.intType, defs.sliceArgNameStartPos);
+                        addParam(syms.intType, defs.sliceArgNameEndPos);
+                        addParam(syms.intType, defs.sliceArgNameNewLength);
+                    }
                     addParam(syms.intType, phaseName);
                 }
             
@@ -2630,18 +2636,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Loop for local vars.
                             for (VarInfo varInfo : referenceSet) {
                                 VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                                // FIXME - do the right thing.
-                                if (!varInfo.isSequence()) {
-                                    addStmt(callStmt(getReceiver(), attributeInvalidateName(proxyVarSym), id(phaseName)));
+                                if (isSequenceVersion) {
+                                    if (varInfo.isSequence()) {
+                                        // Sequence: update$ is only used on select, so, for sequences, we can just pass through
+                                        addStmt(callStmt(getReceiver(), attributeInvalidateName(proxyVarSym),
+                                                id(defs.sliceArgNameStartPos),
+                                                id(defs.sliceArgNameEndPos),
+                                                id(defs.sliceArgNameNewLength),
+                                                id(phaseName)));
+                                    }
                                 } else {
-                                    addStmt(callStmt(getReceiver(), attributeInvalidateName(proxyVarSym),
-                                                     makeInt(-1),
-                                                     makeInt(-1),
-                                                     makeInt(-1),
-                                                     id(phaseName)));
+                                    if (!varInfo.isSequence()) {
+                                        // Non-sequence
+                                        addStmt(callStmt(getReceiver(), attributeInvalidateName(proxyVarSym), id(phaseName)));
+                                    }
                                 }
                             }
-    
+
                             // Reference the class with the instance, if it is script-level append the suffix
                             JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), makeVarOffset(referenceVar));
                             ifReferenceStmt = m().If(ifReferenceCond, endBlock(), ifReferenceStmt);
