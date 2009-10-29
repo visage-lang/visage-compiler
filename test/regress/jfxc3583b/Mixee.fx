@@ -1,0 +1,9 @@
+/**
+ * @subtest
+ */
+package jfxc3583b;
+
+public class Mixee extends B, Mixin {
+   override var PAK = [B.PAK, Mixin.PAK];
+   override function f_pak() {PAK;}
+}
