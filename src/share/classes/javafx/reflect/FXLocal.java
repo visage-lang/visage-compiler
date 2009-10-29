@@ -430,6 +430,7 @@ public class FXLocal {
             "get$",
             "set$",
             "be$",
+            "update$",
             "invalidate$",
 	    "evaluate$",
 	    "size$",
@@ -551,7 +552,8 @@ public class FXLocal {
             "VFLGS$",
             "VCNT$",
             "VOFF$",
-            "MAP$"
+            "MAP$",
+            "$scriptLevel$"
         };
 
 	private void ensureVOffInitialized() {
@@ -598,7 +600,8 @@ public class FXLocal {
                                 continue fieldLoop;
                             }
                         }
-                        
+                        if (fname.endsWith("$internal$"))
+                            continue fieldLoop;
                         sname = fname.substring(dollar + 1);
                     }
                 } else {

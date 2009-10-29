@@ -1687,7 +1687,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         slice.getEndKind(), seqVar);
             } else {
                 // We will be using the sequence as a whole, so translate it
-                JCExpression tseq = translateExpr(seq, null); //FIXME
+                JCExpression tseq = asExpression(translateToExpressionResult(seq, null), null);
                 if (types.isSequence(seq.type)) {
                     // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
                     tseq = call(defs.Sequences_forceNonNull,
