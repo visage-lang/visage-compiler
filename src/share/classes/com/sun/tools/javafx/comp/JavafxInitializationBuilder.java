@@ -1128,7 +1128,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
 
                         // applyDefaults$(VOFF$var)
-                        addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varSym)));
+                        addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, offset(varSym)));
 
                         // Is it uninitialized (and not bound)
                         JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1174,7 +1174,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
                         JCExpression receiver = getReceiverOrThis(proxyVarSym);
 
-                        List<JCExpression> args = List.<JCExpression>of(makeTypeInfo(diagPos, elementType), receiver, makeVarOffset(varSym));
+                        List<JCExpression> args = List.<JCExpression>of(makeTypeInfo(diagPos, elementType), receiver, offset(varSym));
                         JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
                         addStmt(makeExec(m().Assign(id(varName), newExpr)));
                         
@@ -1372,7 +1372,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     } else if (!varInfo.isOverride()) {
                         // notifyDependents(VOFF$var, phase$);
-                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym),
+                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, offset(proxyVarSym),
                                 id(defs.sliceArgNameStartPos), id(defs.sliceArgNameEndPos), id(defs.sliceArgNameNewLength),
                                 id(phaseName)));
                     } 
@@ -1522,7 +1522,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             beginBlock();
     
                                 // applyDefaults$(VOFF$var)
-                            addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varSym)));
+                            addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, offset(varSym)));
     
                             // Is it uninitialized (and not bound)
                             JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1549,7 +1549,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                             addStmt(callStmt(getReceiver(), 
                                     defs.attributeBePrefixName,
-                                    makeVarOffset(varSym),
+                                    offset(varSym),
                                     get$call));
 
                             // Is it invalid?
@@ -1615,7 +1615,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     // Restrict setting.
-                    addStmt(callStmt(getReceiver(varSym), defs.varFlagRestrictSet, makeVarOffset(varSym)));
+                    addStmt(callStmt(getReceiver(varSym), defs.varFlagRestrictSet, offset(varSym)));
 
                     addStmt(makeFlagStatement(varSym, defs.varFlagActionChange, null, defs.varFlagIS_INITIALIZED));
 
@@ -1779,7 +1779,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     } else if (!varInfo.isOverride()) {
                         // notifyDependents(VOFF$var, phase$);
-                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, makeVarOffset(proxyVarSym), id(phaseName)));
+                        addStmt(callStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, offset(proxyVarSym), id(phaseName)));
                     } 
                     
                     // isValid
@@ -1896,7 +1896,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void statements() {
-                    addStmt(m().Return(makeVarOffset(proxyVarSym)));
+                    addStmt(m().Return(id(attributeOffsetName(proxyVarSym))));
                 }
             };
              
@@ -2723,7 +2723,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
 
                             // Reference the class with the instance, if it is script-level append the suffix
-                            JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), makeVarOffset(referenceVar));
+                            JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), offset(referenceVar));
                             ifReferenceStmt = m().If(ifReferenceCond, endBlock(), ifReferenceStmt);
                         }
                         addStmt(ifReferenceStmt);
@@ -2825,7 +2825,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                          // (type)object$
                         JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, id(objName));
                         if (varInfo.isSequence()) {
-                            addStmt(callStmt(defs.Sequences_set, id(names._this), makeVarOffset(varInfo.getSymbol()), objCast));
+                            addStmt(callStmt(defs.Sequences_set, id(names._this), offset(varInfo.getSymbol()), objCast));
                         } else {
                             // set$var((type)object$)
                             addStmt(callStmt(attributeSetterName(varInfo.getSymbol()), objCast));

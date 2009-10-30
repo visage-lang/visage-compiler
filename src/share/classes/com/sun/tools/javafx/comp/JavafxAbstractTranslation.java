@@ -1378,7 +1378,7 @@ public abstract class JavafxAbstractTranslation
                         receiver = select.sym.isStatic() ?
                             call(defs.scriptLevelAccessMethod(names, select.sym.owner), List.<JCExpression>nil()) :
                             translateExpr(select.selected, syms.javafx_FXBaseType);
-                        varOffset = makeVarOffset(select.sym);
+                        varOffset = offset(select.sym);
                         break;
                     }
                     case IDENT: {
@@ -1387,7 +1387,7 @@ public abstract class JavafxAbstractTranslation
                             call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
 
-                        varOffset = makeVarOffset(ident.sym);
+                        varOffset = offset(ident.sym);
                         break;
                     }
                 }
@@ -1401,7 +1401,7 @@ public abstract class JavafxAbstractTranslation
                     case SELECT: {
                         JFXSelect select = (JFXSelect)args.head;
                         targs.append(translateArg(select.selected, syms.javafx_FXBaseType));
-                        targs.append(makeVarOffset(select.sym));
+                        targs.append(offset(select.sym));
                         Type type = types.erasure(select.type);
                         JCExpression varType = m().ClassLiteral(type);
                         targs.append(varType);
@@ -1413,7 +1413,7 @@ public abstract class JavafxAbstractTranslation
                             call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
-                        targs.append(makeVarOffset(ident.sym));
+                        targs.append(offset(ident.sym));
                         Type type = types.erasure(ident.type);
                         JCExpression varType = m().ClassLiteral(type);
                         targs.append(varType);

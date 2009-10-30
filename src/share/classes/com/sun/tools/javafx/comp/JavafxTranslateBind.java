@@ -130,7 +130,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
-                        targs.append(makeVarOffset(ident.sym));
+                        targs.append(offset(ident.sym));
                     } else {
                         TODO("non-Ident in bound call");
                     }

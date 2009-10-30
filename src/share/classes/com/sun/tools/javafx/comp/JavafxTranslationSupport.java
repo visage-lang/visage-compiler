@@ -1047,7 +1047,7 @@ public abstract class JavafxTranslationSupport {
         //TODO: dump this for code in init builder
         protected JCExpression makeVarSelect(Symbol sym, Type selectorType, Name name) {
             JCExpression klass;
-            if ((sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
+            if (isMixinVar(sym)) {
                 // This is a mixin var, get type from selector (if any)
                 if (selectorType == null) {
                     klass = null;
@@ -1081,10 +1081,6 @@ public abstract class JavafxTranslationSupport {
 
         protected JCExpression makeVarOffset(Symbol sym, Type selectorType) {
             return selectorType==null? makeVarOffset(sym) : makeVarSelect(sym, selectorType, attributeOffsetName(sym));
-        }
-
-        protected JCExpression makeVarValue(Symbol sym, Symbol selectorSym) {
-            return makeVarSelect(sym, selectorSym==null? null : selectorSym.type, attributeValueName(sym));
         }
 
         //
@@ -1132,7 +1128,7 @@ public abstract class JavafxTranslationSupport {
                         setBits != null ? id(setBits) : makeInt(0));
         }
         protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
-            return call(getReceiver(varSym), action, makeVarOffset(varSym),
+            return call(getReceiver(varSym), action, offset(varSym),
                         clearBits != null ? clearBits : makeInt(0),
                         setBits != null ? setBits : makeInt(0));
 
@@ -1350,10 +1346,16 @@ public abstract class JavafxTranslationSupport {
             assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
             VarSymbol varSym = (VarSymbol)sym;
             
-            if (isMixinVar(varSym) && isMixinClass()) {
-                return call(attributeGetVOFFName(varSym));
+            if (isMixinVar(varSym)) {
+                return call(getReceiver(varSym), attributeGetVOFFName(varSym));
             } else {
-                return m().Select(getReceiver(varSym), attributeOffsetName(varSym));
+                JCExpression klass = makeType(varSym.owner.type, false);
+                
+                if (varSym.isStatic()) {
+                    klass = select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
+                }
+                
+                return m().Select(klass, attributeOffsetName(varSym));
             }
         }
 
