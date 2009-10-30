@@ -1176,7 +1176,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(callStmt(getReceiver(), defs.attributeBePrefixName, be$Args));
 
                             // Is it invalid?
-                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_INVALID, defs.varFlagIS_INVALID);
+                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
                             // if (invalid) { set$var(init/bound expression); }
                             addStmt(m().If(condition, endBlock(), initIf));
@@ -1522,7 +1522,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Prepare to accumulate body of if.
                             beginBlock();
     
-                            // applyDefaults$(VOFF$var)
+                                // applyDefaults$(VOFF$var)
                             addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varInfo.getSymbol())));
     
                             // Is it uninitialized (and not bound)
@@ -1554,7 +1554,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(callStmt(getReceiver(), defs.attributeBePrefixName, be$Args));
 
                             // Is it invalid?
-                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_INVALID, defs.varFlagIS_INVALID);
+                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
                             // if (invalid) { set$var(init/bound expression); }
                             addStmt(m().If(condition, endBlock(), initIf));

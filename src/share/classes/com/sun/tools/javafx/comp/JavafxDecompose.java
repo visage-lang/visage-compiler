@@ -147,6 +147,10 @@ public class JavafxDecompose implements JavafxVisitor {
 
     private JFXVar makeVar(DiagnosticPosition diagPos, String label, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         Name vName = tempName(label);
+        return makeVar(diagPos, vName, pose, bindStatus, type);
+    }
+
+    private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
         JFXType fxType = fxmake.at(diagPos).TypeAny(Cardinality.ANY);
@@ -159,6 +163,22 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar shredVar(String label, JFXExpression pose, Type type) {
+        // If this shred var initialized with a call to a bound function?
+        if (pose instanceof JFXFunctionInvocation) {
+            Symbol meth = JavafxTreeInfo.symbol(((JFXFunctionInvocation)pose).meth);
+            if ((meth.flags() & JavafxFlags.BOUND) != 0L) {
+                Name tmpName = tempName(label);
+                Name tmpBoundResName = tempBoundResultName(tmpName);
+                /*
+                 * Introduce a Pointer synthetic variable which will be used to cache
+                 * bound function's return value. The name of the sythetic Pointer
+                 * variable is derived from the underlying shred variable. 
+                 */
+                JFXVar ptrVar = makeVar(pose.pos(), tmpBoundResName, pose, JavafxBindStatus.UNIDIBIND, syms.javafx_PointerType);
+                ptrVar.sym.flags_field |= Flags.SYNTHETIC;
+                return makeVar(pose.pos(), tmpName, id(ptrVar), JavafxBindStatus.UNBOUND, type);
+            } // else fall through
+        }
         return makeVar(pose.pos(), label, pose, JavafxBindStatus.UNIDIBIND, type);
     }
 
@@ -198,6 +218,10 @@ public class JavafxDecompose implements JavafxVisitor {
         return names.fromString("$" + label + "$" + varCount++);
     }
 
+    private Name tempBoundResultName(Name name) {
+        return names.fromString(defs.boundFunctionResult + name);
+    }
+    
     Name syntheticClassName(Name superclass) {
         return names.fromString(superclass.toString() + "$anonD" + ++varCount);
     }

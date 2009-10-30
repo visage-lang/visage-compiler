@@ -115,7 +115,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         @Override
         List<JCExpression> determineArgs() {
-            final List<Type> formals = meth.type.getParameterTypes();
             ListBuffer<JCExpression> targs = ListBuffer.lb();
             // if this is a super.foo(x) call, "super" will be translated to referenced class,
             // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
@@ -165,13 +164,19 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         @Override
         JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
-            JCExpression full = super.fullExpression(mungedToCheckTranslated);
-            if (condition != null) {
-                // if no args have changed, don't call function, just return previous value
-                //TODO: must call if selector changes
-                full = m().Conditional(condition, full, id(attributeValueName(targetSymbol)));
+            if (callBound) {
+                // call to a bound function in bind context
+                JCExpression tMeth = select(mungedToCheckTranslated, methodName());
+                return m().Apply(translateExprs(typeargs), tMeth, determineArgs());
+            } else {
+                JCExpression full = super.fullExpression(mungedToCheckTranslated);
+                if (condition != null) {
+                    // if no args have changed, don't call function, just return previous value
+                    //TODO: must call if selector changes
+                    full = m().Conditional(condition, full, id(attributeValueName(targetSymbol)));
+                }
+                return full;
             }
-            return full;
         }
     }
 

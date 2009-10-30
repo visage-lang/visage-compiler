@@ -1222,10 +1222,6 @@ public abstract class JavafxAbstractTranslation
         protected final List<JFXExpression> typeargs;
         protected final List<JFXExpression> args;
 
-        // used only "callBound" is true and bound function is called from
-        // non-bind call sites.
-        protected Name[] boundTmpVarNames;
-
         // Null Checking control
         protected final boolean knownNonNull;
 
@@ -1304,55 +1300,14 @@ public abstract class JavafxAbstractTranslation
 
             JCExpression full = null;
             if (callBound) {
+                // Call to bound functions in bind context is handled elsewhere.
 
                 /*
-                 * bound function call in a non-bound site is translated as follows:
-                 *
-                 *   // For each source bound function param "foo",
-                 *   // we create a tmp. var of type FXVariable
-                 *   FXVariable tmp1 = FXVariable.make();
-                 *   FXVariable tmp2 = FXVariable.make();
-                 *   ...
-                 *   Pointer tmpptr = boundFunc(tmp1, FXVariable.VOFF$value, tmp2, FXVariable.VOFF$value
-                 *   // update each argument FXVariable with actual value passed in source
-                 *   tmp1.set$value(arg1);
-                 *   tmp2.set$value(arg2);
-                 *
-                 *   // bound function would have noticed arg value changes and
-                 *   // computed the result. Now, get the result from result Pointer                 *
-                 *   return (ExpectedType) tmpptr.get();
-                 */
-
-                /*
-                 * Declare a temporary variable of type Pointer and save the
-                 * return value of the bound function call.
-                 */
-                JCVariableDecl ptrVar = makeTmpVar(syms.javafx_PointerType, app);
-                addPreface(ptrVar);
-
-                /*
-                 * For each bound function parameter, we passed a temp FXVariable.
-                 * After bound function is called, we need to update the temp.
-                 * FXVariables by calling FXVariable.set$value(Object) so that
-                 * the bound function will notice argument changes.
-                 */
-                final List<Type> formals = meth.type.getParameterTypes();
-                Type formal = null;
-                List<Type> t = formals;
-                int index = 0;
-                for (JFXExpression arg : args) {
-                    formal = t.head;
-                    t = t.tail;
-                    addPreface(callStmt(id(boundTmpVarNames[index]), defs.set$valueMethodNameString, translateExpr(arg, formal)));
-                    index++;
-                }
-
-                /*
-                 * call Pointer.get() on return value of bound function to get
+                 * call Pointer.get() on the return value of bound function to get
                  * computed value of bound function. We need to cast to the right
                  * type as Pointer.get() returns Object type value.
                  */
-                full = castFromObject(call(id(ptrVar), defs.getMethodName), resultType);
+                full = castFromObject(call(app, defs.getMethodName), resultType);
             } else {
                 full = app;
                 if (useInvoke) {
@@ -1399,24 +1354,18 @@ public abstract class JavafxAbstractTranslation
                 // This section handles argument expression for bound function calls
                 // from non-bind call site.
 
-                // create a Name array to store temporary FXVariable vars created
-                // for argument passing.
-                boundTmpVarNames = new Name[args.length()];
-
                 /*
-                 * For each source bound function parameter, we create a temporary
+                 * For each source bound function argument expression, we create a wrapper
                  * variable of type FXVariable and pass it along with FXVariable.VOFF$value
                  * as the arguments to the bound function.
                  */
-                int index = 0;
+                Type formal = null;
+                List<Type> t = formals;
                 for (JFXExpression arg : args) {
-                    JCVariableDecl objVar = makeTmpVar(syms.javafx_FXVariableType, call(defs.FXVariable_make));
-                    addPreface(objVar);
-                    // save the temp. var name so that we can update it later
-                    boundTmpVarNames[index] = objVar.getName();
-                    index++;
-                    // pass the temp FXVariable as FXObject value
-                    targs.append(id(objVar));
+                    formal = t.head;
+                    t = t.tail;
+                    // pass FXVariable wrapper for argument expression
+                    targs.append(call(defs.FXVariable_make, translateExpr(arg, formal)));
 
                     // pass FXVariable.VOFF$value as offset value
                     targs.append(select(makeType(syms.javafx_FXVariableType), defs.varOFF$valueName));
