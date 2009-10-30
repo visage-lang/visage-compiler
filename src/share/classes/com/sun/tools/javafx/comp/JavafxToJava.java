@@ -1255,7 +1255,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         private final Name sbName = getSyntheticName("sb");
 
         private UseSequenceBuilder(DiagnosticPosition diagPos, Type elemType, String seqBuilder) {
-            super(diagPos, currentClass());
+            super(diagPos, currentClass(), receiverContext() == ReceiverContext.ScriptAsStatic);
             this.elemType = elemType;
             this.seqBuilder = seqBuilder;
         }

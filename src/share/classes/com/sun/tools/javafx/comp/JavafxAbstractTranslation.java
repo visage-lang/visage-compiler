@@ -540,7 +540,7 @@ public abstract class JavafxAbstractTranslation
         private final Type type;
 
         JCConverter(AbstractStatementsResult res, Type type) {
-            super(res.diagPos, currentClass());
+            super(res.diagPos, currentClass(), receiverContext() == ReceiverContext.ScriptAsStatic);
             this.res = res;
             this.type = type;
         }
@@ -675,7 +675,7 @@ public abstract class JavafxAbstractTranslation
     abstract class Translator extends JavaTreeBuilder {
 
         Translator(DiagnosticPosition diagPos) {
-            super(diagPos, currentClass());
+            super(diagPos, currentClass(), receiverContext() == ReceiverContext.ScriptAsStatic);
         }
 
         abstract Result doit();

@@ -69,6 +69,7 @@ import java.util.Set;
  * Common support routines needed for translation
  *
  * @author Robert Field
+ * @author Jim Laskey
  */
 public abstract class JavafxTranslationSupport {
     protected final JavafxDefs defs;
@@ -647,6 +648,10 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, attributeGetVOFFMethodNamePrefix);
     }
 
+    Name attributeSetMixinName(Symbol sym) {
+        return prefixedAttributeName(sym, attributeSetMixinMethodNamePrefix);
+    }
+    
     Name attributeGetElementName(Symbol sym) {
         return prefixedAttributeName(sym, attributeGetElementMethodNamePrefix);
     }
@@ -932,10 +937,12 @@ public abstract class JavafxTranslationSupport {
 
         protected DiagnosticPosition diagPos;
         private final JFXClassDeclaration enclosingClassDecl;
+        private boolean isScript;
 
-        protected JavaTreeBuilder(DiagnosticPosition diagPos, JFXClassDeclaration enclosingClassDecl) {
+        protected JavaTreeBuilder(DiagnosticPosition diagPos, JFXClassDeclaration enclosingClassDecl, boolean isScript) {
             this.diagPos = diagPos;
             this.enclosingClassDecl = enclosingClassDecl;
+            this.isScript = isScript;
         }
 
 
@@ -951,9 +958,27 @@ public abstract class JavafxTranslationSupport {
             return isMixinClass(enclosingClassDecl.sym);
         }
 
-        public boolean isMixinClass(Symbol cSym) {
-            return (cSym.flags() & JavafxFlags.MIXIN) != 0;
+        public boolean isMixinClass(Symbol sym) {
+            return (sym.flags() & JavafxFlags.MIXIN) != 0;
         }
+        
+        public boolean isMixinVar(Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            return isMixinClass(varSym.owner);
+        }
+        
+        public boolean setIsScript(boolean newState) {
+            boolean oldState = isScript;
+            isScript = newState;
+            return oldState;
+        }
+        
+        public boolean isScript() {
+            return isScript;
+        }
+
 
         protected void setDiagPos(DiagnosticPosition diagPos) {
             this.diagPos = diagPos;
@@ -1285,6 +1310,43 @@ public abstract class JavafxTranslationSupport {
             return JavafxTranslationSupport.this.makeQualifiedTree(diagPos, str);
         }
 
+        /**
+         * Var accessors -- returning a JCExpression
+         */
+
+        public JCExpression get(Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            if (isMixinVar(varSym) && isMixinClass()) {
+                return call(attributeGetMixinName(varSym));
+            } else {
+                return m().Select(getReceiver(varSym), attributeValueName(varSym));
+            }
+        }
+
+        public JCExpression offset(Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            if (isMixinVar(varSym) && isMixinClass()) {
+                return call(attributeGetVOFFName(varSym));
+            } else {
+                return m().Select(getReceiver(varSym), attributeOffsetName(varSym));
+            }
+        }
+
+        public JCExpression set(Symbol sym, JCExpression value) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            if (isMixinVar(varSym) && isMixinClass()) {
+                return call(attributeSetMixinName(varSym), value);
+            } else {
+                return m().Assign(m().Select(getReceiver(varSym), attributeValueName(varSym)), value);
+            }
+        }
+        
         /**
          * Method calls -- returning a JCExpression
          */

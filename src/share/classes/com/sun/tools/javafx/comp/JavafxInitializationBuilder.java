@@ -244,7 +244,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount, varMap);
             javaCodeMaker.makeAttributeFields(classVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
-            javaCodeMaker.makeVarNumMethods(false, false);
+            javaCodeMaker.makeVarNumMethods();
 
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
@@ -273,7 +273,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // script-level into class X.X$Script
                 javaCodeMaker.setContext(true, sDefinitions);
                 javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
-                javaCodeMaker.makeVarNumMethods(false, true);
+                javaCodeMaker.makeVarNumMethods();
                 javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, isRunnable);
                 javaCodeMaker.setContext(false, cDefinitions);
 
@@ -312,7 +312,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Static(script) vars are exposed in class
             javaCodeMaker.makeAttributeFields(scriptVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
-            javaCodeMaker.makeVarNumMethods(true, false);
+            javaCodeMaker.makeVarNumMethods();
             javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, null, null);
 
             javaCodeMaker.makeMixinAccessorMethods(classVarInfos);
@@ -426,7 +426,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     class JavaCodeMaker extends JavaTreeBuilder {
         // The current class analysis/
         private final JavafxAnalyzeClass analysis;
-        private boolean isScript;
         private ListBuffer<JCTree> definitions;
         private Name scriptName;
         private ClassSymbol scriptClassSymbol;
@@ -434,7 +433,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private final boolean isBoundFuncClass;
 
         JavaCodeMaker(JavafxAnalyzeClass analysis, ListBuffer<JCTree> definitions) {
-            super(analysis.getCurrentClassPos(), analysis.getCurrentClassDecl());
+            super(analysis.getCurrentClassPos(), analysis.getCurrentClassDecl(), false);
             this.analysis = analysis;
             this.definitions = definitions;
             this.scriptName = analysis.getCurrentClassDecl().getName().append(defs.scriptClassSuffixName);
@@ -450,7 +449,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Method for changing the current definition list.
         //
         public void setContext(boolean isScript, ListBuffer<JCTree> definitions) {
-            this.isScript = isScript;
+            setIsScript(isScript);
             this.definitions = definitions;
         }
         
@@ -458,7 +457,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method returns the current owner symbol.
         //
         ClassSymbol getCurrentOwner() {
-            return isScript ? scriptClassSymbol : analysis.getCurrentClassSymbol();
+            return isScript() ? scriptClassSymbol : analysis.getCurrentClassSymbol();
         }
         
         //
@@ -619,7 +618,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         @Override
         protected JCExpression getReceiver(VarSymbol varSym) {
-            if (varSym.isStatic() && isScript) {
+            if (varSym.isStatic() && isScript()) {
                 return null;
             }
             
@@ -1626,7 +1625,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(m().If(ifBoundTest, endBlock(), null));
                     }
                     
-                    // set$var(value)
+                    // be$var(value)
                     addStmt(callStmt(getReceiver(), attributeBeName(varSym), id(defs.attributeNewValueName)));
                     // return $var;
                     addStmt(m().Return(id(varName)));
@@ -1900,6 +1899,28 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
+        // This method constructs a setMixin$ method.
+        //
+        private void makeSetMixinAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetMixinName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(type, defs.attributeNewValueName);
+                }
+                
+                @Override
+                public void statements() {
+                    // Construct and add: return $var;
+                    addStmt(m().Return(m().Assign(id(varName), id(defs.attributeNewValueName))));
+                }
+            };
+             
+            vamb.build();
+        }
+        
+        //
         // This method constructs a mixin applyDefault method.
         //
         private void makeMixinApplyDefaultsMethod(VarInfo varInfo) {
@@ -2094,6 +2115,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (ai.isMixinVar()) {
                     makeGetMixinAccessorMethod(ai, needsBody);
                     makeGetVOFFAccessorMethod(ai, needsBody);
+                    makeSetMixinAccessorMethod(ai, needsBody);
                 }
             }
         }
@@ -2417,20 +2439,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method coordinates the generation of instance level varnum methods.
         //
-        public void makeVarNumMethods(boolean isMixin, boolean isScript) {
+        public void makeVarNumMethods() {
             final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
-                isScript ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
-            final List<VarInfo> varInfos = isScript ? analysis.scriptVarInfos() : analysis.classVarInfos();
-            final int varCount = isScript ? analysis.getScriptVarCount() : analysis.getClassVarCount();
+                isScript() ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
+            final List<VarInfo> varInfos = isScript() ? analysis.scriptVarInfos() : analysis.classVarInfos();
+            final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
 
-            if (!isMixin) {
+            if (!isMixinClass()) {
                 makeApplyDefaultsMethod(varInfos, varCount);
             }
             
             makeUpdateMethod(updateMap, false);
             makeUpdateMethod(updateMap, true);
             
-            if (!isMixin && varCount > 0) {
+            if (!isMixinClass() && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
                 makeGetPosMethod(varInfos, varCount);
                 makeSizeMethod(varInfos, varCount);
@@ -2465,7 +2487,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     ListBuffer<JCStatement> overrides = ListBuffer.lb();
 
                     if (!isMixinClass()) {
-                        JCExpression receiverType = isScript ? id(getCurrentClassDecl().getName().append(defs.scriptClassSuffixName)) :
+                        JCExpression receiverType = isScript() ? id(getCurrentClassDecl().getName().append(defs.scriptClassSuffixName)) :
                                                                id(interfaceName(getCurrentClassDecl()));
                         addStmt(makeVar(Flags.FINAL, receiverType, defs.receiverName, id(names._this)));
                     }
@@ -3028,11 +3050,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             if (attrInfo != null) {
-                /*
-                for (VarInfo ai : attrInfo) {
-                    stmts.append(callStmt(call(scriptLevelAccessMethod(sym)), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(ai.getSymbol())));
-                }*/
-                
                 stmts.append(callStmt(call(scriptLevelAccessMethod(sym)), defs.attributeApplyDefaultsPrefixMethodName));
             }
              
