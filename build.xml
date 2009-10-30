@@ -691,6 +691,12 @@
         <copy todir="dist/doc/reference/images/callouts">
             <fileset dir="doc/callouts"/>
         </copy>
+        <!-- create an index.html redirector to JavaFXReference.html-->
+        <echo file="dist/doc/reference/index.html" append="false">
+            &lt;HTML&gt;&lt;HEAD&gt;
+                &lt;META HTTP-EQUIV="REFRESH" content="0; url=JavaFXReference.html"&gt;
+            &lt;/HEAD&gt;&lt;/HTML&gt;
+        </echo>
     </target>
 
     <target name="findbugs" depends="compile">
@@ -748,24 +754,24 @@
 
     <!-- Runs only if export.dir is set, which should only be set from the continuous build.
          Publishes build results to ${export.dir}.
-         Depends on  environment params JOB_NAME and SVN_REVISION.
+         Depends on  environment params JOB_NAME.
          Publishes result of findbugs analysis, where it can later be combined into
          a multi-version bug database. -->
     <target name="hudson-post-build" depends="init" if="export.dir">
         <property environment="env"/>
-        <mkdir dir="${export.dir}/findbugs"/>
+        <mkdir dir="${export.dir}/ROOT/findbugs"/>
         <exec executable="sh" failonerror="true">
             <arg value="${import.findbugs.home}/bin/setBugDatabaseInfo"/>
             <arg value="-name"/>
-            <arg value="${env.JOB_NAME}-${env.SVN_REVISION}"/>
+            <arg value="${env.JOB_NAME}"/>
             <arg value="${build.dir}/findbugs.xml"/>
-            <redirector output="${export.dir}/findbugs/${env.JOB_NAME}-${env.SVN_REVISION}.xml"/>
+            <redirector output="${export.dir}/ROOT/findbugs/${env.JOB_NAME}.xml"/>
         </exec>
-        <delete dir="${export.dir}/docroot/current-build" />
-        <copy todir="${export.dir}/docroot/current-build">
+        <delete dir="${export.dir}/ROOT/current-build" />
+        <copy todir="${export.dir}/ROOT/current-build">
             <fileset dir="${dist.dir}"/>
         </copy>
-        <copy todir="${export.dir}/docroot/current-build/doc">
+        <copy todir="${export.dir}/ROOT/current-build/doc">
             <fileset dir="doc" includes="**/*.pdf"/>
         </copy>
     </target>
