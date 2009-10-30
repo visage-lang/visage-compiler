@@ -277,6 +277,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, isRunnable);
                 javaCodeMaker.setContext(false, cDefinitions);
 
+                // script-level into class X
                 javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false, isRunnable);
                 javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, true, isLibrary ? scriptVarInfos : null, initMap);
                 javaCodeMaker.makeScript(sDefinitions.toList());
@@ -616,25 +617,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.
         //
-        @Override
-        protected JCExpression getReceiver(VarSymbol varSym) {
-            if (varSym.isStatic() && isScript()) {
-                return null;
-            }
-            
-            return super.getReceiver(varSym);
-        }
         private JCExpression getReceiver(VarInfo varInfo) {
             return getReceiver(varInfo.getSymbol());
-        }
-        private JCExpression getReceiverOrThis() {
-            JCExpression receiver = super.getReceiver();
-            
-            if (receiver == null) {
-                receiver = id(names._this);
-            }
-            
-            return receiver;
         }
         private JCExpression getReceiverOrThis(VarInfo varInfo) {
             return getReceiverOrThis(varInfo.getSymbol());
@@ -1144,7 +1128,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
 
                         // applyDefaults$(VOFF$var)
-                        addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varInfo.getSymbol())));
+                        addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varSym)));
 
                         // Is it uninitialized (and not bound)
                         JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1190,7 +1174,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
                         JCExpression receiver = getReceiverOrThis(proxyVarSym);
 
-                        List<JCExpression> args = List.<JCExpression>of(makeTypeInfo(diagPos, elementType), receiver,  makeVarOffset(varInfo.getSymbol()));
+                        List<JCExpression> args = List.<JCExpression>of(makeTypeInfo(diagPos, elementType), receiver, makeVarOffset(varSym));
                         JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
                         addStmt(makeExec(m().Assign(id(varName), newExpr)));
                         
@@ -1538,7 +1522,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             beginBlock();
     
                                 // applyDefaults$(VOFF$var)
-                            addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varInfo.getSymbol())));
+                            addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varSym)));
     
                             // Is it uninitialized (and not bound)
                             JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -3369,23 +3353,33 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (!scriptLevel) {
                 // sole instance field
                 addDefinition(makeField(Flags.PRIVATE | Flags.STATIC, scriptClassType, defs.scriptLevelAccessField, null));
-
+            }
+            
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            long flags = Flags.PUBLIC;
+            
+            if (scriptLevel) {
+                stmts.append(m().Return(id(names._this)));
+            } else {
+                // class needs to be static.
+                flags |= Flags.STATIC;
+                
                 // sole instance lazy creation method
                 JCExpression condition = makeNullCheck(id(defs.scriptLevelAccessField));
-
+    
                 JCExpression assignExpr = m().Assign(
                         id(defs.scriptLevelAccessField),
                         m().NewClass(null, null, id(scriptName), List.<JCExpression>nil(), null));
-
+    
                 ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
                 ifStmts.append(makeExec(assignExpr));
-
-                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+    
                 stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
                 stmts.append(m().Return(id(defs.scriptLevelAccessField)));
-                MethodSymbol methSym = makeMethodSymbol(Flags.PUBLIC | Flags.STATIC, scriptClassType, scriptLevelAccessMethod(sym), List.<Type>nil());
-                addDefinition(makeMethod(Flags.PUBLIC | Flags.STATIC, scriptClassType, scriptLevelAccessMethod(sym), List.<JCVariableDecl>nil(), stmts.toList(), methSym));
             }
+            
+            MethodSymbol methSym = makeMethodSymbol(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<Type>nil());
+            addDefinition(makeMethod(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<JCVariableDecl>nil(), stmts.toList(), methSym));
         }
     }
 }

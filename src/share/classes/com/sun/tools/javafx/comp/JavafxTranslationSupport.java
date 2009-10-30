@@ -1104,7 +1104,15 @@ public abstract class JavafxTranslationSupport {
             
             return getReceiver();
         }
-
+        private JCExpression getReceiverOrThis() {
+            JCExpression receiver = getReceiver();
+            
+            if (receiver == null) {
+                receiver = id(names._this);
+            }
+            
+            return receiver;
+        }
         protected JCExpression getReceiverOrThis(VarSymbol varSym) {
             JCExpression receiver = getReceiver(varSym);
 
