@@ -1109,10 +1109,7 @@ public class SequencesBase {
     }
 
     public static <T> void deleteAll(FXObject instance, int varNum) {
-        Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
-        Sequence<? extends T> arr = deleteAll(oldValue);
-        // FIXME var.setValid();
-        // TODO: invalidate(varNum, startPos, endPos, ...);
-        instance.be$(varNum, arr);
+        int oldSize = instance.size$(varNum);
+        replaceSlice(instance, varNum, (Sequence<? extends T>)null, 0, oldSize);
     }
 }
