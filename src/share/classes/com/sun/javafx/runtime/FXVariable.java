@@ -199,6 +199,12 @@ public final class FXVariable extends Object implements FXObject {
         return new FXVariable();
     }
 
+    public static FXVariable make(Object init) {
+        FXVariable var = new FXVariable();
+        var.set$value(init);
+        return var;
+    }
+
     public DependentsManager DependentsManager$internal$;
 
     public DependentsManager getDependentsManager$internal$() {

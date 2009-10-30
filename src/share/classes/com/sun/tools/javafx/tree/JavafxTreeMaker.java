@@ -379,6 +379,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
             case VOID:
                 tp = Ident(syms.voidTypeName);
                 break;
+            case ARRAY:
+                JFXExpression elem = Type(types.elemtype(t));
+                elem = elem instanceof JFXType ? elem : TypeClass(elem, Cardinality.SINGLETON);
+                tp = TypeArray((JFXType)elem);
+                break;
             case CLASS:
                 Type outer = t.getEnclosingType();
                 tp = outer.tag == CLASS && t.tsym.owner.kind == TYP

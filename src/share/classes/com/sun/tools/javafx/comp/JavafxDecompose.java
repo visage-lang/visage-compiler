@@ -147,6 +147,10 @@ public class JavafxDecompose implements JavafxVisitor {
 
     private JFXVar makeVar(DiagnosticPosition diagPos, String label, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         Name vName = tempName(label);
+        return makeVar(diagPos, vName, pose, bindStatus, type);
+    }
+
+    private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
         JFXType fxType = fxmake.at(diagPos).TypeAny(Cardinality.ANY);
@@ -159,7 +163,14 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar shredVar(String label, JFXExpression pose, Type type) {
-        return makeVar(pose.pos(), label, pose, JavafxBindStatus.UNIDIBIND, type);
+        Name tmpName = tempName(label);
+        // If this shred var initialized with a call to a bound function?
+        JFXVar ptrVar = makeTempBoundResultName(tmpName, pose);
+        if (ptrVar != null) {
+            return makeVar(pose.pos(), tmpName, id(ptrVar), JavafxBindStatus.UNIDIBIND, type);
+        } else {
+            return makeVar(pose.pos(), tmpName, pose, JavafxBindStatus.UNIDIBIND, type);
+        }
     }
 
     private JFXExpression id(JFXVar v) {
@@ -198,6 +209,28 @@ public class JavafxDecompose implements JavafxVisitor {
         return names.fromString("$" + label + "$" + varCount++);
     }
 
+    private Name tempBoundResultName(Name name) {
+        return names.fromString(defs.boundFunctionResult + name);
+    }
+
+    private JFXVar makeTempBoundResultName(Name varName, JFXExpression initExpr) {
+        JFXVar ptrVar = null;
+        if (initExpr instanceof JFXFunctionInvocation) {
+            Symbol meth = JavafxTreeInfo.symbol(((JFXFunctionInvocation)initExpr).meth);
+            if (meth != null && (meth.flags() & JavafxFlags.BOUND) != 0L) {
+                Name tmpBoundResName = tempBoundResultName(varName);
+                /*
+                 * Introduce a Pointer synthetic variable which will be used to cache
+                 * bound function's return value. The name of the sythetic Pointer
+                 * variable is derived from the given varName.
+                 */
+                ptrVar = makeVar(initExpr.pos(), tmpBoundResName, initExpr, JavafxBindStatus.UNIDIBIND, syms.javafx_PointerType);
+                ptrVar.sym.flags_field |= Flags.SYNTHETIC;
+            }
+        }
+        return ptrVar;
+    }
+    
     Name syntheticClassName(Name superclass) {
         return names.fromString(superclass.toString() + "$anonD" + ++varCount);
     }
@@ -570,12 +603,18 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXOnReplace onInvalidate = decompose(tree.getOnInvalidate());
         // bound if was bind context or is bound variable
         inBind = wasInBind | tree.isBound();
-        
+
+        JFXExpression initExpr = decompose(tree.getInitializer());
+        // Is this a bound var and initialized with a Pointer result
+        // from a bound function call? If so, we need to create Pointer
+        // synthetic var here.
+        JFXVar ptrVar = inBind? makeTempBoundResultName(tree.name, initExpr) : null;
+
         JFXVar res = fxmake.at(tree.pos).Var(
                     tree.name,
                     tree.getJFXType(),
                     tree.getModifiers(),
-                    decompose(tree.getInitializer()),
+                    (ptrVar != null)? id(ptrVar) : initExpr,
                     tree.getBindStatus(),
                     onReplace,
                     onInvalidate);

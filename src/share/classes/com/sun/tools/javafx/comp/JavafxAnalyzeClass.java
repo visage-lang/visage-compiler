@@ -221,6 +221,9 @@ class JavafxAnalyzeClass {
         // Return true if the var/override has an initializing expression
         public boolean hasInitializer() { return false; }
 
+        // is this initialzed with a bound function result var?
+        public boolean isInitWithBoundFuncResult() { return false; }
+
         // Return true if the var has a bound definition.
         public boolean hasBoundDefinition() { return false; }
         
@@ -506,19 +509,25 @@ class JavafxAnalyzeClass {
     static class TranslatedVarInfo extends TranslatedVarInfoBase {
         // Tree for the javafx var.
         private final JFXVar var;
+        private final boolean initWithBoundFuncResult;
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, BoundResult bindOrNull, ExpressionResult invBindOrNull,
+                JCStatement initStmt, boolean initWithBoundFuncResult,
+                BoundResult bindOrNull, ExpressionResult invBindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi,
                   initStmt, bindOrNull, invBindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.var = var;
+            this.initWithBoundFuncResult = initWithBoundFuncResult;
         }
 
         // Returns the tree for the javafx var.
         public JFXVar jfxVar() { return var; }
+        
+        @Override
+        public boolean isInitWithBoundFuncResult() { return initWithBoundFuncResult; }
     }
 
     //

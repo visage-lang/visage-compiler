@@ -24,7 +24,6 @@
 package com.sun.javafx.runtime;
 
 import com.sun.javafx.runtime.sequence.Sequence;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.animation.KeyValueTarget;
@@ -78,6 +77,14 @@ public class Pointer implements KeyValueTarget {
         this.type = type;
         this.obj = obj;
         this.varnum = varnum;
+    }
+
+    public FXObject getFXObject() {
+        return obj;
+    }
+
+    public int getVarNum() {
+        return varnum;
     }
 
     public Type getType() {

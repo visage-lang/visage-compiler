@@ -1164,18 +1164,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                              *
                              * With be$(int, Object), we need not worry about type conversion.
                              */
-                            ListBuffer<JCExpression> get$args = ListBuffer.lb();
-                            get$args.append(id(boundFunctionVarNumParamName(varSym.name)));
-                            JCExpression get$call = call(id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.attributeGetMethodNamePrefix, get$args);
+                            JCExpression get$call = call(
+                                    id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.attributeGetMethodNamePrefix,
+                                    id(boundFunctionVarNumParamName(varSym.name)));
 
-                            ListBuffer<JCExpression> be$Args = ListBuffer.lb();
-                            be$Args.append(makeVarOffset(varSym));
-                            be$Args.append(get$call);
-                            addStmt(callStmt(getReceiver(), defs.attributeBePrefixName, be$Args));
+                            addStmt(callStmt(getReceiver(),
+                                    defs.attributeBePrefixName,
+                                    makeVarOffset(varSym), get$call));
 
                             // Is it invalid?
-                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_INVALID, defs.varFlagIS_INVALID);
+                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
                             // if (invalid) { set$var(init/bound expression); }
                             addStmt(m().If(condition, endBlock(), initIf));
@@ -1225,8 +1224,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     if (varInfo.isMixinVar()) {
                         TODO("mixin sequences");
-                    } else if (varInfo.hasBoundDefinition()) {                        
-                        addStmt(varInfo.boundElementGetter());
+                    } else if (varInfo.hasBoundDefinition()) {
+                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                            JCExpression apply = call(
+                                    id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.attributeGetElementMethodNamePrefix,
+                                    id(boundFunctionVarNumParamName(varSym.name)),
+                                    id(defs.getArgNamePos));
+                            addStmt(m().Return(castFromObject(apply, varInfo.getElementType())));
+                        } else {
+                            addStmt(varInfo.boundElementGetter());
+                        }
                     } else {
                         // Construct and add: return $var.get(pos$);
                         addStmt(m().Return(call(id(varName), getPosName, id(defs.getArgNamePos))));
@@ -1249,8 +1257,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     if (varInfo.isMixinVar()) {
                         assert false : "Mixin sequences not implemented";
-                    } else if (varInfo.hasBoundDefinition()) {                        
-                        addStmt(varInfo.boundSizeGetter());
+                    } else if (varInfo.hasBoundDefinition()) {
+                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                            JCExpression apply = call(
+                                    id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.attributeSizeMethodNamePrefix,
+                                    id(boundFunctionVarNumParamName(varSym.name)));
+                            addStmt(m().Return(apply));
+                        } else {
+                            addStmt(varInfo.boundSizeGetter());
+                        }
                     } else {
                         // Construct and add: return $var.size();
                         addStmt(m().Return(call(id(varName), getSizeName)));
@@ -1521,7 +1537,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Prepare to accumulate body of if.
                             beginBlock();
     
-                            // applyDefaults$(VOFF$var)
+                                // applyDefaults$(VOFF$var)
                             addStmt(callStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, makeVarOffset(varInfo.getSymbol())));
     
                             // Is it uninitialized (and not bound)
@@ -1542,18 +1558,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                              *
                              * With be$(int, Object), we need not worry about type conversion.
                              */
-                            ListBuffer<JCExpression> get$args = ListBuffer.lb();
-                            get$args.append(id(boundFunctionVarNumParamName(varSym.name)));
-                            JCExpression get$call = call(id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.attributeGetMethodNamePrefix, get$args);
+                            JCExpression get$call = call(
+                                    id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.attributeGetMethodNamePrefix,
+                                    id(boundFunctionVarNumParamName(varSym.name)));
 
-                            ListBuffer<JCExpression> be$Args = ListBuffer.lb();
-                            be$Args.append(makeVarOffset(varSym));
-                            be$Args.append(get$call);
-                            addStmt(callStmt(getReceiver(), defs.attributeBePrefixName, be$Args));
+                            addStmt(callStmt(getReceiver(), 
+                                    defs.attributeBePrefixName,
+                                    makeVarOffset(varSym),
+                                    get$call));
 
                             // Is it invalid?
-                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_INVALID, defs.varFlagIS_INVALID);
+                            JCExpression condition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
                             // if (invalid) { set$var(init/bound expression); }
                             addStmt(m().If(condition, endBlock(), initIf));
@@ -1570,10 +1586,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagVALIDITY_FLAGS, null));
                             } else {
                                 assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
-        
+
                                 // set$var(init/bound expression)
                                 addStmts(varInfo.boundPreface());
-                                addStmt(callStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
+                                JCExpression initValue = varInfo.boundInit();
+                                if (varInfo.isInitWithBoundFuncResult()) {
+                                    // We have a Pointer - need to do Pointer.get() and cast the result
+                                    initValue = castFromObject(call(initValue, defs.getMethodName), varSym.type);
+                                }
+                                addStmt(callStmt(getReceiver(), attributeBeName(varSym), initValue));
                             }
                           
                             // Is it bound and invalid?
@@ -2690,7 +2711,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     for (VarSymbol instanceVar : updateMap.keySet()) {
                         HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
                         beginBlock();
-                        
+
                         // Loop for reference symbol.
                         JCStatement ifReferenceStmt = null;
                         for (VarSymbol referenceVar : instanceMap.keySet()) {
@@ -3139,11 +3160,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if ((vi.getFlags() & Flags.PARAMETER) != 0L) {
                         // call FXBase.addDependent$(FXObject, int, FXObject)
                         Symbol varSym = vi.getSymbol();
-                        ListBuffer<JCExpression> args = ListBuffer.lb();
-                        args.append(id(boundFunctionObjectParamName(varSym.name)));
-                        args.append(id(boundFunctionVarNumParamName(varSym.name)));
-                        args.append(id(names._this));
-                        stmts.append(callStmt(defs.FXBase_addDependent, args));
+                        stmts.append(callStmt(
+                                defs.FXBase_addDependent,
+                                id(boundFunctionObjectParamName(varSym.name)),
+                                id(boundFunctionVarNumParamName(varSym.name)),
+                                id(names._this)));
                     }
                 }
             }

@@ -46,7 +46,6 @@ import com.sun.tools.mjavac.jvm.ClassReader;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
-import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 
 /**
@@ -545,7 +544,7 @@ public class JavafxLocalToClass {
                                 fxVar.getJFXType(),
                                 fxVar.mods,
                                 null,
-                                JavafxBindStatus.UNBOUND, null, null);
+                                JavafxBindStatus.UNIDIBIND, null, null);
                             localVar.type = fxVar.type;
                             localVar.sym = fxVar.sym;
                             stmts.append(localVar);

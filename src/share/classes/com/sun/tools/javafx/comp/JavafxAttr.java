@@ -2473,9 +2473,6 @@ public class JavafxAttr implements JavafxVisitor {
                 result = check(tree, owntype, VAL, pkind, pt, Sequenceness.REQUIRED);
                 return;
             }
-            case INVALIDATE: {
-                throw new AssertionError("Usupported unary operator: "+ tree.getFXTag());
-            }
         }
         boolean isIncDec = tree.getFXTag().isIncDec();
 
@@ -3138,28 +3135,12 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         JFXExpression seq = tree.getSequence();
         if (tree.getElement() == null) {
-            if (seq instanceof JFXSequenceIndexed) {
-                // delete seq[index];
-                JFXSequenceIndexed si = (JFXSequenceIndexed)seq;
-                JFXExpression seqseq = si.getSequence();
-                JFXExpression index = si.getIndex();
-                attribTree(seqseq, env, VAR, Type.noType, Sequenceness.REQUIRED);
-                attribExpr(index, env, syms.javafx_IntegerType);
-            } else if (seq instanceof JFXSequenceSlice) {
-                // delete seq[first..last];
-                JFXSequenceSlice slice = (JFXSequenceSlice)seq;
-                JFXExpression seqseq = slice.getSequence();
-                JFXExpression first = slice.getFirstIndex();
-                JFXExpression last = slice.getLastIndex();
-                attribTree(seqseq, env, VAR, Type.noType, Sequenceness.REQUIRED);
-                attribExpr(first, env, syms.javafx_IntegerType);
-                if (last != null) {
-                    attribExpr(last, env, syms.javafx_IntegerType);
-                }
-            } else {
-                // delete seq;   // that is, all the elements
-                attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED);
-            }
+            Sequenceness sequenceness = (seq instanceof JFXSequenceIndexed) ?
+                Sequenceness.DISALLOWED :
+                Sequenceness.REQUIRED;
+            int pkind = (seq instanceof JFXSequenceIndexed) || (seq instanceof JFXSequenceSlice) ?
+                VAL : VAR;
+            attribTree(seq, env, pkind, Type.noType, sequenceness);
         } else {
             Type seqType = attribTree(seq, env, VAR, Type.noType, Sequenceness.REQUIRED);
             attribExpr(tree.getElement(), env,

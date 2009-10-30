@@ -659,6 +659,7 @@
 
     <target depends="init,conditional-instrument,conditional-clean-instrument" if="have.tests" name="-pre-test-run">
         <mkdir dir="${build.test.results.dir}"/>
+        <mkdir dir="${build.test.tmp.dir}"/>
     </target>
 
     <target if="have.tests" name="-post-test-run">
@@ -1326,6 +1327,7 @@
             </syspropertyset>
             <formatter type="brief" usefile="false"/>
             <formatter type="xml"/>
+            <jvmarg value="-Djava.io.tmpdir=${build.test.tmp.dir}"/>
             <jvmarg line="${run.jvmargs}"/>
         </junit>
     </target>
