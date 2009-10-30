@@ -675,6 +675,15 @@ public abstract class JavafxTranslationSupport {
         return names.fromString(boundFunctionVarNumParamPrefix + suffix);
     }
 
+    boolean isBoundFunctionResult(Symbol sym) {
+        // Is this symbol result var storing bound function's result value?
+        // Check if the variable is synthetic, type is Pointer and naming convention
+        // is followed for bound function result value.
+        return ((sym.flags() & Flags.SYNTHETIC) != 0L) &&
+            types.isSameType(syms.javafx_PointerType, sym.type) &&
+            sym.name.startsWith(defs.boundFunctionResultName);
+    }
+
     Name paramOldValueName(JFXOnReplace onReplace) {
         return onReplace == null || onReplace.getOldValue() == null ? defs.attributeOldValueName
                 : onReplace.getOldValue().getName();
@@ -926,6 +935,10 @@ public abstract class JavafxTranslationSupport {
     protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
         JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
         return call(diagPos, durClass, defs.valueOfName, value);
+    }
+
+    protected JCExpression castFromObject (JCExpression arg, Type castType) {
+       return make.TypeCast(makeType(arg.pos(), types.boxedTypeOrType(castType)), arg);
     }
 
     protected class JavaTreeBuilder {

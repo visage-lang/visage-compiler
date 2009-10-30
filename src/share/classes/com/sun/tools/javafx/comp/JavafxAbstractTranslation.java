@@ -253,10 +253,6 @@ public abstract class JavafxAbstractTranslation
         }).doitExpr();
     }
 
-   JCExpression castFromObject (JCExpression arg, Type castType) {
-       return make.TypeCast(makeType(arg.pos(), types.boxedTypeOrType(castType)), arg);
-    }
-
     /********** Result types **********/
 
     public static abstract class Result {

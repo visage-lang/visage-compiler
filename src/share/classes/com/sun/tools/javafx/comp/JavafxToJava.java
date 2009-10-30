@@ -348,12 +348,17 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             JFXVar attrDef = (JFXVar) def;
                             setContext(attrDef.isStatic());
                             VarMorphInfo vmi = typeMorpher.varMorphInfo(attrDef.sym);
+                            JFXExpression initializer = attrDef.getInitializer();
+                            boolean initWithBoundFuncResult = 
+                                attrDef.isBound() && (initializer instanceof JFXIdent) &&
+                                isBoundFunctionResult(((JFXIdent)initializer).sym);
                             TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
                                     vmi,
                                     translateVarInit(attrDef),
-                                    attrDef.isBound() ? translateBind.translateBoundExpression(attrDef.getInitializer(), attrDef.type, attrDef.sym, attrDef.isBidiBind()) : null,
-                                    attrDef.isBidiBind() ? translateInvBind.translate(attrDef.getInitializer(), attrDef.type, attrDef.sym) : null,
+                                    initWithBoundFuncResult,
+                                    attrDef.isBound() ? translateBind.translateBoundExpression(initializer, attrDef.type, attrDef.sym, attrDef.isBidiBind()) : null,
+                                    attrDef.isBidiBind() ? translateInvBind.translate(initializer, attrDef.type, attrDef.sym) : null,
                                     attrDef.getOnReplace(),
                                     translateTriggerAsInline(vmi, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
