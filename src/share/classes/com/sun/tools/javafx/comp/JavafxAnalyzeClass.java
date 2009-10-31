@@ -1267,25 +1267,24 @@ class JavafxAnalyzeClass {
         
         return name == names.init || name == names.clinit ||
                name == defs.internalRunFunctionName || 
-               name == defs.initializeName ||
-               name == defs.completeName ||
+               name == defs.initialize_FXObjectMethodName ||
+               name == defs.complete_FXObjectMethodName ||
                name == defs.postInitName || name == defs.userInitName ||
                name == names.clinit ||
                name.startsWith(defs.varOffsetName) ||
                name.startsWith(defs.varCountName) ||
-               name.startsWith(defs.attributeTypePrefixName) ||
-               name.startsWith(defs.attributeGetPrefixName) ||
-               name.startsWith(defs.attributeSetPrefixName) ||
-               name.startsWith(defs.attributeBePrefixName) ||
-               name.startsWith(defs.attributeInvalidatePrefixMethodName) ||
-               name.startsWith(defs.attributeOnReplacePrefixMethodName) ||
-               name.startsWith(defs.attributeEvaluatePrefixMethodName) ||
-               name.startsWith(defs.attributeGetMixinPrefixMethodName) ||
-               name.startsWith(defs.attributeGetVOFFPrefixMethodName) ||
-               name.startsWith(defs.attributeInitVarBitsPrefixMethodName) ||
-               name.startsWith(defs.attributeApplyDefaultsPrefixMethodName) ||
-               name.startsWith(defs.attributeUpdatePrefixMethodName) ||
-               name.startsWith(defs.attributeSizePrefixMethodName);
+               name.startsWith(defs.attributeGetMethodPrefixName) ||
+               name.startsWith(defs.attributeSetMethodPrefixName) ||
+               name.startsWith(defs.attributeBeMethodPrefixName) ||
+               name.startsWith(defs.invalidate_ObjectMethodName) ||
+               name.startsWith(defs.onReplaceAttributeMethodPrefixName) ||
+               name.startsWith(defs.evaluate_AttributeMethodPrefixName) ||
+               name.startsWith(defs.getMixinAttributeMethodPrefixName) ||
+               name.startsWith(defs.getVOFFAttributeMethodPrefixName) ||
+               name.startsWith(defs.initVarBitsAttributeMethodPrefixName) ||
+               name.startsWith(defs.applyDefaults_AttributeMethodPrefixName) ||
+               name.startsWith(defs.update_ObjectMethodName) ||
+               name.startsWith(defs.size_ObjectMethodName);
     }
 
     //

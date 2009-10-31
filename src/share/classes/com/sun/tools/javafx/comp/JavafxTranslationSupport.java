@@ -298,7 +298,7 @@ public abstract class JavafxTranslationSupport {
         Name name = cDecl.getName();
         if (!cDecl.isMixinClass())
             return name;
-        return names.fromString(name.toString() + mixinSuffix);
+        return names.fromString(name.toString() + mixinClassSuffix);
     }
 
     protected boolean isMixinClass(ClassSymbol sym) {
@@ -365,7 +365,7 @@ public abstract class JavafxTranslationSupport {
                     throw new RuntimeException("TYPEVAR: " + owner.type);
                 }
                 if (makeIntf) {
-                    name = names.fromString(name.toString() + mixinSuffix);
+                    name = names.fromString(name.toString() + mixinClassSuffix);
                 }
                 break;
             default:
@@ -619,59 +619,59 @@ public abstract class JavafxTranslationSupport {
     }
 
     Name attributeGetterName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeGetMethodNamePrefix);
+        return prefixedAttributeName(sym, get_AttributeMethodPrefix);
     }
 
     Name attributeSetterName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeSetMethodNamePrefix);
+        return prefixedAttributeName(sym, set_AttributeMethodPrefix);
     }
 
     Name attributeBeName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeBeMethodNamePrefix);
+        return prefixedAttributeName(sym, be_AttributeMethodPrefix);
     }
     
     Name attributeInvalidateName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeInvalidateMethodNamePrefix);
+        return prefixedAttributeName(sym, invalidate_AttributeMethodPrefix);
     }
     
     Name attributeOnReplaceName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeOnReplaceMethodNamePrefix); 
+        return prefixedAttributeName(sym, onReplace_AttributeMethodPrefix);
     }
     
     Name attributeEvaluateName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeEvaluateMethodNamePrefix);
+        return prefixedAttributeName(sym, evaluate_AttributeMethodPrefix);
     }
     
     Name attributeGetMixinName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeGetMixinMethodNamePrefix);
+        return prefixedAttributeName(sym, getMixin_AttributeMethodPrefix);
     }
     
     Name attributeGetVOFFName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeGetVOFFMethodNamePrefix);
+        return prefixedAttributeName(sym, getVOFF_AttributeMethodPrefix);
     }
 
     Name attributeSetMixinName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeSetMixinMethodNamePrefix);
+        return prefixedAttributeName(sym, setMixin_AttributeMethodPrefix);
     }
     
     Name attributeGetElementName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeGetElementMethodNamePrefix);
+        return prefixedAttributeName(sym, getElement_AttributeMethodPrefix);
     }
 
     Name attributeSizeName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeSizeMethodNamePrefix);
+        return prefixedAttributeName(sym, size_AttributeMethodPrefix);
     }
     
     Name attributeSavedName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeSavedNamePrefix);
+        return prefixedAttributeName(sym, saved_AttributeFieldNamePrefix);
     }
 
     Name attributeInitVarBitsName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeInitVarBitsMethodNamePrefix);
+        return prefixedAttributeName(sym, initVarBits_AttributeMethodPrefix);
     }
  
     Name attributeApplyDefaultsName(Symbol sym) {
-        return prefixedAttributeName(sym, attributeApplyDefaultsMethodNamePrefix);
+        return prefixedAttributeName(sym, applyDefaults_AttributeMethodPrefix);
     }
 
     Name boundFunctionObjectParamName(Name suffix) {

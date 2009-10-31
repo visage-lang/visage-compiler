@@ -596,7 +596,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new ExpressionTranslator(tree.pos()) {
             ExpressionResult doit() {
                 JCExpression receiver = vsym.isStatic() ? Call(scriptLevelAccessMethod(vsym.owner)) : null;
-                JCStatement applyDefaultCall = CallStmt(receiver, defs.attributeApplyDefaultsPrefixMethodName, Offset(vsym));
+                JCStatement applyDefaultCall = CallStmt(receiver, defs.applyDefaults_ObjectMethodName, Offset(vsym));
                 return toResult(makeBlockExpression(List.of(applyDefaultCall), id(attributeValueName(vsym))), vsym.type);
         }}.doit();
     }
@@ -1016,7 +1016,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         JCExpression computeSliceEnd() {
             JCExpression endPos;
             if (lastIndex == null) {
-                endPos = Call(seq, defs.sizeMethodName);
+                endPos = Call(seq, defs.sizeSequenceMethodName);
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
                     endPos = m().Binary(JCTree.MINUS, endPos, Int(1));
                 }

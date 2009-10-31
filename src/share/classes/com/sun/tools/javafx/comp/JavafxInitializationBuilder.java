@@ -364,10 +364,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
 
         if (cDecl.isMixinClass()) {
-            implementing.append(makeIdentifier(diagPos, fxObjectString));
-            implementing.append(makeIdentifier(diagPos, fxMixinString));
+            implementing.append(makeIdentifier(diagPos, cFXObject));
+            implementing.append(makeIdentifier(diagPos, cFXMixin));
         } else {
-            implementing.append(makeIdentifier(diagPos, fxObjectString));
+            implementing.append(makeIdentifier(diagPos, cFXObject));
         }
 
         for (JFXExpression intf : cDecl.getImplementing()) {
@@ -409,7 +409,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (typeOwner != null) {
                 // Only return an interface class if it's a mixin.
                 return !isMixinClass((ClassSymbol)typeOwner) ? (ClassSymbol)typeOwner.type.tsym :
-                        reader.jreader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
+                        reader.jreader.enterClass(names.fromString(typeOwner.type.toString() + mixinClassSuffix));
             }
         }
         return null;
@@ -1128,7 +1128,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
 
                         // applyDefaults$(VOFF$var)
-                        addStmt(CallStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, Offset(varSym)));
+                        addStmt(CallStmt(getReceiver(), defs.applyDefaults_ObjectMethodName, Offset(varSym)));
 
                         // Is it uninitialized (and not bound)
                         JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1148,13 +1148,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                              *
                              * With be$(int, Object), we need not worry about type conversion.
                              */
-                            JCExpression get$call = call(
+                            JCExpression get$call = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.attributeGetMethodNamePrefix,
+                                    defs.get_ObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
 
                             addStmt(CallStmt(getReceiver(),
-                                    defs.attributeBePrefixName,
+                                    defs.attributeBeMethodPrefixName,
                                     Offset(varSym), get$call));
 
                             // Is it invalid?
@@ -1212,7 +1212,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
                             JCExpression apply = call(
                                     id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.attributeGetElementMethodNamePrefix,
+                                    defs.getElement_AttributeMethodPrefix,
                                     id(boundFunctionVarNumParamName(varSym.name)),
                                     id(defs.getArgNamePos));
                             addStmt(m().Return(castFromObject(apply, varInfo.getElementType())));
@@ -1245,7 +1245,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
                             JCExpression apply = call(
                                     id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.attributeSizeMethodNamePrefix,
+                                    defs.size_AttributeMethodPrefix,
                                     id(boundFunctionVarNumParamName(varSym.name)));
                             addStmt(m().Return(apply));
                         } else {
@@ -1524,7 +1524,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             beginBlock();
     
                                 // applyDefaults$(VOFF$var)
-                            addStmt(CallStmt(getReceiver(), defs.attributeApplyDefaultsPrefixMethodName, Offset(varSym)));
+                            addStmt(CallStmt(getReceiver(), defs.applyDefaults_ObjectMethodName, Offset(varSym)));
     
                             // Is it uninitialized (and not bound)
                             JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1544,13 +1544,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                              *
                              * With be$(int, Object), we need not worry about type conversion.
                              */
-                            JCExpression get$call = call(
+                            JCExpression get$call = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.attributeGetMethodNamePrefix,
+                                    defs.get_ObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
 
                             addStmt(CallStmt(getReceiver(),
-                                    defs.attributeBePrefixName,
+                                    defs.attributeBeMethodPrefixName,
                                     Offset(varSym),
                                     get$call));
 
@@ -2266,7 +2266,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // The method constructs the count$ method for the current class.
         //
         public void makecount$() {
-            MethodBuilder smb = new MethodBuilder(defs.attributeCountMethodName, syms.intType) {
+            MethodBuilder smb = new MethodBuilder(defs.count_ObjectMethodName, syms.intType) {
                 @Override
                 public void statements() {
                     // Construct and add: return VCNT$();
@@ -2474,7 +2474,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's applyDefaults$ method.
         //
         public void makeApplyDefaultsMethod(final List<VarInfo> attrInfos, final int count) {
-            MethodBuilder mb = new MethodBuilder(defs.attributeApplyDefaultsPrefixMethodName, syms.voidType) {
+            MethodBuilder mb = new MethodBuilder(defs.applyDefaults_ObjectMethodName, syms.voidType) {
                 @Override
                 public void initialize() {
                     addParam(syms.intType, varNumName);
@@ -2582,7 +2582,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method sets the initial var flags.
         //
         private void makeInitVarBitsMethod(final List<VarInfo> attrInfos) {
-            MethodBuilder mb = new MethodBuilder(defs.attributeInitVarBitsPrefixMethodName, syms.voidType) {
+            MethodBuilder mb = new MethodBuilder(defs.initVarBitsAttributeMethodPrefixName, syms.voidType) {
 
                 @Override
                 public void statements() {
@@ -2630,7 +2630,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's update$ method.
         //
         public void makeUpdateMethod(final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap, final boolean isSequenceVersion) {
-            MethodBuilder mb = new MethodBuilder(defs.attributeUpdatePrefixMethodName, syms.voidType) {
+            MethodBuilder mb = new MethodBuilder(defs.update_ObjectMethodName, syms.voidType) {
                 @Override
                 public void initialize() {
                     addParam(syms.javafx_FXObjectType, updateInstanceName);
@@ -2751,7 +2751,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's get$ method.
         //
         public void makeGetMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeGetPrefixName, syms.objectType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.get_ObjectMethodName, syms.objectType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void statements() {
@@ -2769,7 +2769,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's get$(varnum, pos) method.
         //
         public void makeGetPosMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeGetPrefixName, syms.objectType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.get_ObjectMethodName, syms.objectType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void initialize() {
@@ -2794,7 +2794,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's size$(varnum) method.
         //
         public void makeSizeMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeSizePrefixMethodName, syms.intType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.size_ObjectMethodName, syms.intType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void statements() {
@@ -2814,7 +2814,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's set$ method.
         //
         public void makeSetMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeSetPrefixName, syms.voidType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeSetMethodPrefixName, syms.voidType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void initialize() {
@@ -2845,7 +2845,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's be$ method.
         //
         public void makeBeMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeBePrefixName, syms.voidType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeBeMethodPrefixName, syms.voidType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void initialize() {
@@ -2872,7 +2872,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's invalidate$(varnum, ...) method.
         //
         public void makeInvalidateMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.attributeInvalidatePrefixMethodName, syms.voidType,
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.invalidate_ObjectMethodName, syms.voidType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void initialize() {
@@ -3057,7 +3057,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             if (attrInfo != null) {
-                stmts.append(CallStmt(Call(scriptLevelAccessMethod(sym)), defs.attributeApplyDefaultsPrefixMethodName));
+                stmts.append(CallStmt(Call(scriptLevelAccessMethod(sym)), defs.applyDefaults_ObjectMethodName));
             }
              
             addDefinition(m().Block(Flags.STATIC, stmts.toList()));
@@ -3131,7 +3131,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             //    }
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             stmts.append(CallStmt(names._this, Boolean(false)));
-            stmts.append(CallStmt(defs.initializeName));
+            stmts.append(CallStmt(defs.initialize_FXObjectMethodName));
             if (isBoundFuncClass) {
                 /*
                  * For each bound function param (FXObject+varNum pair), at the
@@ -3334,7 +3334,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
     
                 if (typeOwner != null) {
-                    ClassSymbol returnSym = reader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
+                    ClassSymbol returnSym = reader.enterClass(names.fromString(typeOwner.type.toString() + mixinClassSuffix));
                     JCMethodDecl accessorMethod = makeMethod(
                             Flags.PUBLIC,
                             returnSym.type,

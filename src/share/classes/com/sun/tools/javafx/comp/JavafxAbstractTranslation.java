@@ -1824,7 +1824,7 @@ public abstract class JavafxAbstractTranslation
             if (tree.getLastIndex() == null) {
                 endPos = Call(
                         translateExpr(tree.getSequence(), null),
-                        defs.sizeMethodName);
+                        defs.sizeSequenceMethodName);
                 if (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE) {
                     endPos = make.at(tree).Binary(JCTree.MINUS,
                             endPos, make.Literal(TypeTags.INT, 1));
@@ -2256,9 +2256,9 @@ public abstract class JavafxAbstractTranslation
                     ListBuffer<JCStatement> stats = ListBuffer.lb();
                     JCVariableDecl tmpVar = makeTmpVar(sourceType, translated);
                     stats.append(tmpVar);
-                    JCVariableDecl sizeVar = makeTmpVar(syms.intType, call(id(tmpVar.name), "size"));
+                    JCVariableDecl sizeVar = makeTmpVar(syms.intType, Call(id(tmpVar), defs.sizeArrayMethodName));
                     stats.append(sizeVar);
-                    JCVariableDecl arrVar = makeTmpVar("arr", targettedType, make.at(diagPos).NewArray(
+                    JCVariableDecl arrVar = makeTmpVar("arr", targettedType, m().NewArray(
                             makeType(elemType, true),
                             List.<JCExpression>of(id(sizeVar.name)),
                             null));
@@ -2508,7 +2508,7 @@ public abstract class JavafxAbstractTranslation
 
             JCVariableDecl loopVar = makeTmpLoopVar(diagPos, 0);
             Name loopName = loopVar.name;
-            JCExpression loopLimit = Call(id(receiverName), defs.attributeCountMethodName);
+            JCExpression loopLimit = Call(id(receiverName), defs.count_ObjectMethodName);
             JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
             addPreface(loopLimitVar);
             JCExpression loopTest = LT(id(loopName), id(loopLimitVar.name));
@@ -2516,7 +2516,7 @@ public abstract class JavafxAbstractTranslation
             JCStatement loopBody;
 
             List<JCExpression> args = List.<JCExpression>of(id(loopName));
-            JCStatement applyDefaultsExpr = CallStmt(id(receiverName), defs.attributeApplyDefaultsPrefixMethodName, args);
+            JCStatement applyDefaultsExpr = CallStmt(id(receiverName), defs.applyDefaults_ObjectMethodName, args);
 
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
@@ -2645,12 +2645,12 @@ public abstract class JavafxAbstractTranslation
                 if (varSyms.nonEmpty()) {
                     makeInitApplyDefaults(type, tmpVarName);
                 } else {
-                    makeInitSupportCall(defs.attributeApplyDefaultsPrefixMethodName, tmpVarName);
+                    makeInitSupportCall(defs.applyDefaults_ObjectMethodName, tmpVarName);
                 }
 
                 // Call complete$ to do user's init and postinit blocks
                 //       jfx$0objlit.complete$();
-                makeInitSupportCall(defs.completeName, tmpVarName);
+                makeInitSupportCall(defs.complete_FXObjectMethodName, tmpVarName);
 
                 // Return the instance from the block expressions
                 //       jfx$0objlit
