@@ -1023,7 +1023,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             } else {
                 endPos = translateExpr(lastIndex, syms.intType);
                 if (endKind == SequenceSliceTree.END_INCLUSIVE) {
-                    endPos = makeBinary(JCTree.PLUS, endPos, makeInt(1));
+                    endPos = PLUS(endPos, makeInt(1));
                 }
             }
             return endPos;
@@ -1157,7 +1157,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             }
             JCExpression position = translateExpr(indexOrNull, syms.intType);
             if (tree.shouldInsertAfter()) {
-                position = makeBinary(JCTree.PLUS, position, makeInt(1));
+                position = PLUS(position, makeInt(1));
             }
             return position;
         }
@@ -1545,12 +1545,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             if (last == null) {
                 limitExpr = sizeExpr;
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE)
-                    limitExpr = makeBinary(JCTree.MINUS, limitExpr, makeInt(1));
+                    limitExpr = MINUS(limitExpr, makeInt(1));
             }
             else {
                 limitExpr = translateExpr(last, syms.intType);
                 if (endKind == SequenceSliceTree.END_INCLUSIVE)
-                    limitExpr = makeBinary(JCTree.PLUS, limitExpr, makeInt(1));
+                    limitExpr = PLUS(limitExpr, makeInt(1));
                 // FIXME can optimize if last is replace-trigger endPos and seq is oldValue
                 if (true)
                     setDiagPos(last);
@@ -1560,7 +1560,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCVariableDecl limitVar = makeTmpVar("limit", syms.intType, limitExpr);
             tinits.append(limitVar);
             // The condition that will be tested each time through the loop
-            JCExpression tcond = makeBinary(JCTree.LT, id(inductionVar), id(limitVar));
+            JCExpression tcond = LT(id(inductionVar), id(limitVar));
             // Generate the step statement as: x += 1
             List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(inductionVar), m().Literal(TypeTags.INT, 1))));
             tinits.append(m().ForLoop(List.<JCStatement>nil(), tcond, tstep, body));
@@ -1610,7 +1610,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     JCVariableDecl stepVar = makeTmpVar("step", stepVal);
                     tinits.append(stepVar);
                     tstepIncrExpr = id(stepVar);
-                    JCVariableDecl negativeVar = makeTmpVar("negative", syms.booleanType, makeBinary(JCTree.LT, id(stepVar), m().Literal(inductionVarType.tag, 0)));
+                    JCVariableDecl negativeVar = makeTmpVar("negative", syms.booleanType, LT(id(stepVar), m().Literal(inductionVarType.tag, 0)));
                     tinits.append(negativeVar);
                     tcond = m().Conditional(id(negativeVar), condTest(range, true, upperVar), condTest(range, false, upperVar));
                 }

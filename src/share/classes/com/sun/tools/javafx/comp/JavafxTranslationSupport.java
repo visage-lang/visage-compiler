@@ -1145,32 +1145,61 @@ public abstract class JavafxTranslationSupport {
         }
 
         //
-        // This method simplifies NOT expressions.
+        // Binary and Unary operators
         //
-        protected JCExpression makeNot(JCExpression expr) {
-            return makeUnary(JCTree.NOT, expr);
-        }
 
-        /*
-         * Do a == compare
-         */
-        protected JCExpression makeEqual(JCExpression arg1, JCExpression arg2) {
-            return makeBinary(JCTree.EQ, arg1, arg2);
+        JCExpression LT(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.LT, v1, v2);
         }
-
-        protected JCExpression makeNotEqual(JCExpression arg1, JCExpression arg2) {
-            return makeBinary(JCTree.NE, arg1, arg2);
+        JCExpression LE(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.LE, v1, v2);
+        }
+        JCExpression GT(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.GT, v1, v2);
+        }
+        JCExpression GE(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.GE, v1, v2);
+        }
+        JCExpression EQ(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.EQ, v1, v2);
+        }
+        JCExpression NE(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.NE, v1, v2);
+        }
+        JCExpression AND(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.AND, v1, v2);
+        }
+        JCExpression OR(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.OR, v1, v2);
+        }
+        JCExpression PLUS(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.PLUS, v1, v2);
+        }
+        JCExpression MINUS(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.MINUS, v1, v2);
+        }
+        JCExpression MUL(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.MUL, v1, v2);
+        }
+        JCExpression DIV(JCExpression v1, JCExpression v2) {
+            return makeBinary(JCTree.DIV, v1, v2);
+        }
+        JCExpression NEG(JCExpression v1) {
+            return makeUnary(JCTree.NEG, v1);
+        }
+        JCExpression NOT(JCExpression v1) {
+            return makeUnary(JCTree.NOT, v1);
         }
 
         /**
          * Compare against null
          */
         protected JCExpression makeNullCheck(JCExpression targ) {
-            return makeEqual(targ, makeNull());
+            return EQ(targ, makeNull());
         }
 
         protected JCExpression makeNotNullCheck(JCExpression targ) {
-            return makeNotEqual(targ, makeNull());
+            return NE(targ, makeNull());
         }
 
         /**
@@ -1619,7 +1648,7 @@ public abstract class JavafxTranslationSupport {
             return callStmt(makeQualifiedTree("java.lang.System.err"), "println",
                     obj==null?
                           makeString(msg)
-                        : makeBinary(JCTree.PLUS, makeString(msg + " "), obj));
+                        : PLUS(makeString(msg + " "), obj));
         }
 
         List<JCStatement> makeDebugTrace(String msg) {

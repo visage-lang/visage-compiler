@@ -1017,7 +1017,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Add statement if there were some cases.
                     if (cases.nonEmpty()) {
                         // varNum - VCNT$
-                        JCExpression tagExpr = makeBinary(JCTree.MINUS, id(varNumName), id(defs.varCountName));
+                        JCExpression tagExpr = MINUS(id(varNumName), id(defs.varCountName));
                         // Construct and add: switch(varNum - VCNT$) { ... }
                         addStmt(m().Switch(tagExpr, cases.toList()));
                     }
@@ -1401,7 +1401,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                         id(defs.sliceArgNameNewLength)));
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
-                        JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.varFlagNEEDS_TRIGGER));
+                        JCExpression ifTriggerPhase = EQ(id(phaseName), id(defs.varFlagNEEDS_TRIGGER));
                        
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
                         addStmt(m().If(ifTriggerPhase, endBlock(), null));
@@ -1687,9 +1687,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // varOldValue$ != varNewValue$
                     // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
                     JCExpression testExpr = type.isPrimitive() ?
-                        makeNotEqual(id(defs.attributeOldValueName), id(defs.attributeNewValueName))
-                      : makeNot(call(defs.Util_isEqual, id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
-                    testExpr = makeBinary(JCTree.OR, testExpr, makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagDEFAULT_APPLIED, null));
+                        NE(id(defs.attributeOldValueName), id(defs.attributeNewValueName))
+                      : NOT(call(defs.Util_isEqual, id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
+                    testExpr = OR(testExpr, makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagDEFAULT_APPLIED, null));
                     
                     // End of then block.
                     JCBlock thenBlock = endBlock();
@@ -1793,7 +1793,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                    addStmt(m().If(makeNot(ifValidTest), endBlock(), null));
+                    addStmt(m().If(NOT(ifValidTest), endBlock(), null));
                     
                     if (varInfo.onReplace() != null) {
                         // Begin the get$ block.
@@ -1803,7 +1803,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(callStmt(getReceiver(), attributeGetterName(proxyVarSym)));
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
-                        JCExpression ifTriggerPhase = makeBinary(JCTree.EQ, id(phaseName), id(defs.varFlagNEEDS_TRIGGER));
+                        JCExpression ifTriggerPhase = EQ(id(phaseName), id(defs.varFlagNEEDS_TRIGGER));
                        
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
                         addStmt(m().If(ifTriggerPhase, endBlock(), null));
@@ -2229,7 +2229,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
                     // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
                     JCExpression setVCNT$Expr = superClassSym == null ?  makeInt(varCount) :
-                                                                         makeBinary(JCTree.PLUS,
+                                                                         PLUS(
                                                                                     call(superClassSym.type, defs.varCountName),
                                                                                     makeInt(varCount));
                     Name countName = names.fromString("$count");
@@ -2244,14 +2244,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Offset var name.
                             Name name = attributeOffsetName(ai.getSymbol());
                             // VCNT$ - n + i;
-                            JCExpression setVOFF$Expr = makeBinary(JCTree.PLUS, id(countName), makeInt(ai.getEnumeration() - varCount));
+                            JCExpression setVOFF$Expr = PLUS(id(countName), makeInt(ai.getEnumeration() - varCount));
                             // VOFF$var = VCNT$ - n + i;
                             addStmt(makeExec(m().Assign(id(name), setVOFF$Expr)));
                         }
                     }
         
                     // VCNT$ == -1
-                    JCExpression condition = makeEqual(id(defs.varCountName), makeInt(-1));
+                    JCExpression condition = EQ(id(defs.varCountName), makeInt(-1));
                     // if (VCNT$ == -1) { ...
                     addStmt(m().If(condition, endBlock(), null));
                     // return VCNT$;
@@ -2536,7 +2536,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(m().Return(null));
                             
                             // varNum == VOFF$var
-                            JCExpression isRightVarExpr = makeEqual(id(varNumName), id(attributeOffsetName(ai.getSymbol())));
+                            JCExpression isRightVarExpr = EQ(id(varNumName), id(attributeOffsetName(ai.getSymbol())));
                             // if (varNum == VOFF$var) { init; return; }
                             overrides.append(m().If(isRightVarExpr, endBlock(), null));
                         }
@@ -2554,7 +2554,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // If there were some location vars.
                     if (cases.nonEmpty()) {
                         // varNum - VCNT$
-                        JCExpression tagExpr = makeBinary(JCTree.MINUS, id(varNumName), id(defs.varCountName));
+                        JCExpression tagExpr = MINUS(id(varNumName), id(defs.varCountName));
                         // Construct and add: switch(varNum - VCNT$) { ... }
                         addStmt(m().Switch(tagExpr, cases.toList()));
                     }
@@ -2667,11 +2667,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         for (VarSymbol param : params) {
                             beginBlock();
                             // varNum$ == $$boundVarNum$foo
-                            JCExpression varNumCond = makeBinary(JCTree.EQ, id(varNumName), id(boundFunctionVarNumParamName(param.name)));
+                            JCExpression varNumCond = EQ(id(varNumName), id(boundFunctionVarNumParamName(param.name)));
                             // instance$ == $$boundInstance$foo
-                            JCExpression objCond = makeBinary(JCTree.EQ, id(updateInstanceName), id(boundFunctionObjectParamName(param.name)));
+                            JCExpression objCond = EQ(id(updateInstanceName), id(boundFunctionObjectParamName(param.name)));
                             // && of above two conditions
-                            JCExpression ifReferenceCond = makeBinary(JCTree.AND, varNumCond, objCond);
+                            JCExpression ifReferenceCond = AND(varNumCond, objCond);
                             // invalidate the synthetic instance field for this param
 
                             if (isSequenceVersion) {
@@ -2725,12 +2725,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
 
                             // Reference the class with the instance, if it is script-level append the suffix
-                            JCExpression ifReferenceCond = makeBinary(JCTree.EQ, id(varNumName), Offset(referenceVar));
+                            JCExpression ifReferenceCond = EQ(id(varNumName), Offset(referenceVar));
                             ifReferenceStmt = m().If(ifReferenceCond, endBlock(), ifReferenceStmt);
                         }
                         addStmt(ifReferenceStmt);
                         
-                        JCExpression ifInstanceCond = makeBinary(JCTree.EQ, id(updateInstanceName), makeMixinSafeVarValue(instanceVar));
+                        JCExpression ifInstanceCond = EQ(id(updateInstanceName), makeMixinSafeVarValue(instanceVar));
                         addStmt(m().If(ifInstanceCond, endBlock(), null));
                     }
                     

@@ -1832,7 +1832,7 @@ public abstract class JavafxAbstractTranslation
             } else {
                 endPos = translateExpr(tree.getLastIndex(), syms.intType);
                 if (tree.getEndKind() == SequenceSliceTree.END_INCLUSIVE) {
-                    endPos = makeBinary(JCTree.PLUS, endPos, makeInt(1));
+                    endPos = PLUS(endPos, makeInt(1));
                 }
             }
             return endPos;
@@ -2022,7 +2022,7 @@ public abstract class JavafxAbstractTranslation
         private JCExpression makePrimitiveNullCheck(Type argType, JCExpression arg) {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
             JCExpression defaultValue = makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
-            return makeEqual(arg, defaultValue);
+            return EQ(arg, defaultValue);
         }
 
         /**
@@ -2079,7 +2079,7 @@ public abstract class JavafxAbstractTranslation
                     return makePrimitiveNullCheck(lhsType, lhs(req));
                 } else if (rhsType.isPrimitive()) {
                     // both are primitive, use ==
-                    return makeEqual(lhs(req), rhs(req));
+                    return EQ(lhs(req), rhs(req));
                 } else {
                     // lhs is primitive, rhs is non-primitive, use equals(), but switch them
                     JCVariableDecl sl = makeTmpVar(req!=null? req : lhsType, lhs(req));  // eval first to keep the order correct
@@ -2154,7 +2154,7 @@ public abstract class JavafxAbstractTranslation
             if (tree.getFXTag() == JavafxTag.EQ) {
                 return translateEqualsEquals();
             } else if (tree.getFXTag() == JavafxTag.NE) {
-                return makeNot(translateEqualsEquals());
+                return NOT(translateEqualsEquals());
             } else {
                 // anything other than == or !=
 
@@ -2511,7 +2511,7 @@ public abstract class JavafxAbstractTranslation
             JCExpression loopLimit = call(id(receiverName), defs.attributeCountMethodName);
             JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
             addPreface(loopLimitVar);
-            JCExpression loopTest = makeBinary(JCTree.LT, id(loopName), id(loopLimitVar.name));
+            JCExpression loopTest = LT(id(loopName), id(loopLimitVar.name));
             List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(loopName), makeInt(1))));
             JCStatement loopBody;
 
@@ -2547,7 +2547,7 @@ public abstract class JavafxAbstractTranslation
                 JCExpression varOffsetExpr = Offset(id(receiverName), varSym);
                 JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
-                JCExpression condition = makeEqual(id(loopName), id(offsetVar));
+                JCExpression condition = EQ(id(loopName), id(offsetVar));
                 loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
             }
 

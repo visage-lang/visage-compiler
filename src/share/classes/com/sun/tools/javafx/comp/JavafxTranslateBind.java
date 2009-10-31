@@ -152,9 +152,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
 
                 // oldArg != newArg
-                JCExpression compare = makeNotEqual(id(oldVar), id(newVar));
+                JCExpression compare = NE(id(oldVar), id(newVar));
                 // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
-                condition = condition == null ? compare : makeBinary(JCTree.OR, condition, compare);
+                condition = condition == null ? compare : OR(condition, compare);
 
                 return id(newVar);
             } else {
@@ -412,48 +412,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
         JCExpression iOne() {
             return m().Literal(syms.intType.tag, 1);
-        }
-        JCExpression LT(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.LT, v1, v2);
-        }
-        JCExpression LE(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.LE, v1, v2);
-        }
-        JCExpression GT(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.GT, v1, v2);
-        }
-        JCExpression GE(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.GE, v1, v2);
-        }
-        JCExpression EQ(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.EQ, v1, v2);
-        }
-        JCExpression NE(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.NE, v1, v2);
-        }
-        JCExpression AND(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.AND, v1, v2);
-        }
-        JCExpression OR(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.OR, v1, v2);
-        }
-        JCExpression PLUS(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.PLUS, v1, v2);
-        }
-        JCExpression MINUS(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.MINUS, v1, v2);
-        }
-        JCExpression MUL(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.MUL, v1, v2);
-        }
-        JCExpression DIV(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.DIV, v1, v2);
-        }
-        JCExpression NEG(JCExpression v1) {
-            return makeUnary(JCTree.NEG, v1);
-        }
-        JCExpression NOT(JCExpression v1) {
-            return makeUnary(JCTree.NOT, v1);
         }
         JCStatement Assign(JCExpression vid, JCExpression value) {
             return makeExec(m().Assign(vid, value));
