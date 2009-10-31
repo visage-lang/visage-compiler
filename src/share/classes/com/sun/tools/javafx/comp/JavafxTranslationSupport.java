@@ -1044,46 +1044,6 @@ public abstract class JavafxTranslationSupport {
             return makeType(sym.type, true);
         }
 
-        //TODO: dump this for code in init builder
-        protected JCExpression makeVarSelect(Symbol sym, Type selectorType, Name name) {
-            JCExpression klass;
-            if (isMixinVar(sym)) {
-                // This is a mixin var, get type from selector (if any)
-                if (selectorType == null) {
-                    klass = null;
-                } else {
-                    klass = makeType(selectorType, false);
-                }
-            } else {
-                klass = makeType(sym.owner.type, false);
-                if (sym.isStatic()) {
-                    klass = select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
-                }
-            }
-            return select(klass, name);
-        }
-
-        //
-        // This method returns the correct expression for accessing a VOFF$ depending if in a mixin or not.
-        //
-        protected JCExpression makeVarOffset(Symbol varSym) {
-            if (isMixinClass() && JavafxAnalyzeClass.isMixinClass(varSym.owner)) {
-                // From a mixin class to a mixn var, use the VOFF getter
-                return call(id(defs.receiverName), attributeGetVOFFName(varSym));
-            } else {
-                return makeVarSelect(varSym, null, attributeOffsetName(varSym));
-            }
-        }
-
-        protected JCExpression makeVarOffset(Symbol sym, Symbol selectorSym) {
-            return makeVarSelect(sym, selectorSym==null? null : selectorSym.type, attributeOffsetName(sym));
-        }
-
-        protected JCExpression makeVarOffset(Symbol sym, Type selectorType) {
-            return selectorType==null? makeVarOffset(sym) : makeVarSelect(sym, selectorType, attributeOffsetName(sym));
-        }
-
-        //
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.
         //
         protected JCExpression getReceiver() {
@@ -1128,7 +1088,7 @@ public abstract class JavafxTranslationSupport {
                         setBits != null ? id(setBits) : makeInt(0));
         }
         protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
-            return call(getReceiver(varSym), action, offset(varSym),
+            return call(getReceiver(varSym), action, Offset(varSym),
                         clearBits != null ? clearBits : makeInt(0),
                         setBits != null ? setBits : makeInt(0));
 
@@ -1331,19 +1291,26 @@ public abstract class JavafxTranslationSupport {
          * Var accessors -- returning a JCExpression
          */
 
-        public JCExpression get(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+        public JCExpression Get(Symbol sym) {
             VarSymbol varSym = (VarSymbol)sym;
             
-            if (isMixinVar(varSym) && isMixinClass()) {
+            if (isMixinVar(varSym)) {
                 return call(attributeGetMixinName(varSym));
             } else {
                 return m().Select(getReceiver(varSym), attributeValueName(varSym));
             }
         }
+        public JCExpression Get(JCExpression selector, Symbol sym) {
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            if (isMixinVar(varSym)) {
+                return call(selector, attributeGetMixinName(varSym));
+            } else {
+                return m().Select(selector, attributeValueName(varSym));
+            }
+        }
 
-        public JCExpression offset(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+        public JCExpression Offset(Symbol sym) {
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
@@ -1358,15 +1325,34 @@ public abstract class JavafxTranslationSupport {
                 return m().Select(klass, attributeOffsetName(varSym));
             }
         }
+        public JCExpression Offset(JCExpression selector, Symbol sym) {
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            if (selector != null && isMixinVar(varSym)) {
+                return call(selector, attributeGetVOFFName(varSym));
+            }
+            
+            return Offset(varSym);
+        }
 
-        public JCExpression set(Symbol sym, JCExpression value) {
+        public JCExpression Set(Symbol sym, JCExpression value) {
             assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
             VarSymbol varSym = (VarSymbol)sym;
             
-            if (isMixinVar(varSym) && isMixinClass()) {
+            if (isMixinVar(varSym)) {
                 return call(attributeSetMixinName(varSym), value);
             } else {
                 return m().Assign(m().Select(getReceiver(varSym), attributeValueName(varSym)), value);
+            }
+        }
+        public JCExpression Set(JCExpression selector, Symbol sym, JCExpression value) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            if (isMixinVar(varSym)) {
+                return call(selector, attributeSetMixinName(varSym), value);
+            } else {
+                return m().Assign(m().Select(selector, attributeValueName(varSym)), value);
             }
         }
         
@@ -1436,27 +1422,27 @@ public abstract class JavafxTranslationSupport {
 
 
         JCExpression call(Name methodName, List<JCExpression> args) {
-            return call((JCExpression)null, methodName, args);
+            return call(getReceiver(), methodName, args);
         }
 
         JCExpression call(Name methodName, ListBuffer<JCExpression> args) {
-            return call((JCExpression)null, methodName, args.toList());
+            return call(getReceiver(), methodName, args.toList());
         }
 
         JCExpression call(Name methodName, JCExpression... args) {
-            return call((JCExpression)null, methodName, callArgs(args));
+            return call(getReceiver(), methodName, callArgs(args));
         }
 
         JCExpression call(String methodString, List<JCExpression> args) {
-            return call((JCExpression)null, names.fromString(methodString), args);
+            return call(getReceiver(), names.fromString(methodString), args);
         }
 
         JCExpression call(String methodString, ListBuffer<JCExpression> args) {
-            return call((JCExpression)null, names.fromString(methodString), args.toList());
+            return call(getReceiver(), names.fromString(methodString), args.toList());
         }
 
         JCExpression call(String methodString, JCExpression... args) {
-            return call((JCExpression)null, names.fromString(methodString), callArgs(args));
+            return call(getReceiver(), names.fromString(methodString), callArgs(args));
         }
 
         JCExpression call(RuntimeMethod meth, List<JCExpression> args) {
@@ -1527,28 +1513,28 @@ public abstract class JavafxTranslationSupport {
 
 
         JCStatement callStmt(Name methodName, List<JCExpression> args) {
-            return makeExec(call((JCExpression)null, methodName, args));
+            return makeExec(call(getReceiver(), methodName, args));
         }
 
         JCStatement callStmt(Name methodName, ListBuffer<JCExpression> args) {
-            return makeExec(call((JCExpression)null, methodName, args.toList()));
+            return makeExec(call(getReceiver(), methodName, args.toList()));
         }
 
         JCStatement callStmt(Name methodName, JCExpression... args) {
-            return makeExec(call((JCExpression)null, methodName, callArgs(args)));
+            return makeExec(call(getReceiver(), methodName, callArgs(args)));
         }
 
 
         JCStatement callStmt(String methodString, List<JCExpression> args) {
-            return makeExec(call((JCExpression)null, names.fromString(methodString), args));
+            return makeExec(call(getReceiver(), names.fromString(methodString), args));
         }
 
         JCStatement callStmt(String methodString, ListBuffer<JCExpression> args) {
-            return makeExec(call((JCExpression)null, names.fromString(methodString), args.toList()));
+            return makeExec(call(getReceiver(), names.fromString(methodString), args.toList()));
         }
 
         JCStatement callStmt(String methodString, JCExpression... args) {
-            return makeExec(call((JCExpression)null, names.fromString(methodString), callArgs(args)));
+            return makeExec(call(getReceiver(), names.fromString(methodString), callArgs(args)));
         }
         
         JCStatement callStmt(RuntimeMethod meth, List<JCExpression> args) {

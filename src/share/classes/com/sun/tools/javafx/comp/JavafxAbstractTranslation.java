@@ -1082,15 +1082,16 @@ public abstract class JavafxAbstractTranslation
                 return toResult(wrapInNullCheckExpression(full, tToCheck, resultType, fullType), resultType);
             }
         }
-
-        private JCExpression makeNullCheckCondition(JCExpression tToCheck) {
+        
+        protected JCExpression copyOfTranslatedToCheck(JCExpression tToCheck) {
             // Make an expression to use in null test.
             // If translated toCheck is an identifier (tmp var or not), just make a new identifier.
             // Otherwise, retranslate.
-            JCExpression toTest = (tToCheck instanceof JCIdent) ?
-                  id(((JCIdent)tToCheck).name)
-                : translateToCheck(getToCheck());
-            return makeNotNullCheck(toTest);
+            return (tToCheck instanceof JCIdent) ? id(((JCIdent)tToCheck).name) : translateToCheck(getToCheck());
+        }
+
+        private JCExpression makeNullCheckCondition(JCExpression tToCheck) {
+            return makeNotNullCheck(copyOfTranslatedToCheck(tToCheck));
         }
 
         private JCExpression makeDefault(Type theResultType, Type theFullType) {
@@ -1378,7 +1379,7 @@ public abstract class JavafxAbstractTranslation
                         receiver = select.sym.isStatic() ?
                             call(defs.scriptLevelAccessMethod(names, select.sym.owner), List.<JCExpression>nil()) :
                             translateExpr(select.selected, syms.javafx_FXBaseType);
-                        varOffset = offset(select.sym);
+                        varOffset = Offset(select.sym);
                         break;
                     }
                     case IDENT: {
@@ -1387,7 +1388,7 @@ public abstract class JavafxAbstractTranslation
                             call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
 
-                        varOffset = offset(ident.sym);
+                        varOffset = Offset(ident.sym);
                         break;
                     }
                 }
@@ -1401,7 +1402,7 @@ public abstract class JavafxAbstractTranslation
                     case SELECT: {
                         JFXSelect select = (JFXSelect)args.head;
                         targs.append(translateArg(select.selected, syms.javafx_FXBaseType));
-                        targs.append(offset(select.sym));
+                        targs.append(Offset(select.sym));
                         Type type = types.erasure(select.type);
                         JCExpression varType = m().ClassLiteral(type);
                         targs.append(varType);
@@ -1413,7 +1414,7 @@ public abstract class JavafxAbstractTranslation
                             call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
-                        targs.append(offset(ident.sym));
+                        targs.append(Offset(ident.sym));
                         Type type = types.erasure(ident.type);
                         JCExpression varType = m().ClassLiteral(type);
                         targs.append(varType);
@@ -1808,7 +1809,7 @@ public abstract class JavafxAbstractTranslation
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
                 args.append(instance(tToCheck));
-                args.append(makeVarOffset(refSym, expressionSymbol(selector)));
+                args.append(Offset(copyOfTranslatedToCheck(translateToCheck(selector)), refSym));
                 args.append(buildRHS(rhsTranslated));
                 JCExpression tIndex = translateIndex();
                 if (tIndex != null) {
@@ -2453,7 +2454,7 @@ public abstract class JavafxAbstractTranslation
             JCStatement def;
             if (types.isSequence(vsym.type))
                 def = callStmt(defs.Sequences_set, tc,
-                      makeVarOffset(vsym, tc.type), transInit);
+                      Offset(id(instanceName), vsym), transInit);
             else
                 def = callStmt(tc, attributeBeName(vsym), transInit);
             varInits.append(def);
@@ -2512,7 +2513,7 @@ public abstract class JavafxAbstractTranslation
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
                 VarSymbol varSym = varSyms.first();
-                JCExpression varOffsetExpr = makeVarOffset(varSym, classSym); //TODO: fill-in selectorSym
+                JCExpression varOffsetExpr = Offset(id(receiverName), varSym);
                 JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
                 JCExpression condition = makeEqual(id(loopName), id(offsetVar));
@@ -2531,7 +2532,7 @@ public abstract class JavafxAbstractTranslation
                 addPreface(callStmt(
                         id(receiverName),
                         defs.varFlagActionChange,
-                        makeVarOffset(vsym, contextType),
+                        Offset(id(receiverName), vsym),
                         id(defs.varFlagALL_FLAGS),
                         flagsToSet));
             }

@@ -576,7 +576,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                                       call(vsym.owner.type, scriptLevelAccessMethod(vsym.owner))
                                     : id(names._this)
                                : id(instanceName);
-                    res = call(defs.Sequences_set, tc, offset(vsym), nonNullInit);
+                    res = call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
                 } else if (vmi.useAccessors()) {
                     JCExpression tc = instanceName == null ? null : id(instanceName);
                     res = call(tc, attributeBeName(vsym), nonNullInit);
@@ -596,7 +596,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new ExpressionTranslator(tree.pos()) {
             ExpressionResult doit() {
                 JCExpression receiver = vsym.isStatic() ? call(scriptLevelAccessMethod(vsym.owner)) : null;
-                return toResult(call(receiver, defs.attributeApplyDefaultsPrefixMethodName, offset(vsym)), vsym.type);
+                return toResult(call(receiver, defs.attributeApplyDefaultsPrefixMethodName, Offset(vsym)), vsym.type);
         }}.doit();
     }
 
@@ -966,7 +966,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
                     Symbol sym = info.vmi.getSymbol();
                     args.append(getReceiverOrThis((VarSymbol) sym));
-                    args.append(offset(sym));
+                    args.append(Offset(sym));
                     args.append(make.Ident(paramStartPosName(onReplace)));
                     args.append(make.Ident(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);
@@ -1082,7 +1082,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
                 args.append(instance(tToCheck));
-                args.append(makeVarOffset(refSym, expressionSymbol(selector)));
+                args.append(Offset(copyOfTranslatedToCheck(translateToCheck(selector)), refSym));
             }
             JCExpression tRHS = buildRHS(rhsTranslated);
             if (tRHS != null) {
@@ -1959,7 +1959,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 receiver = null;
             }
             
-            JCExpression varOffsetExpr = makeVarOffset(sym, sym.owner);
+            JCExpression varOffsetExpr = Offset(receiver, sym);
             Type type = types.erasure(tree.attribute.type);
             JCExpression varType = m().ClassLiteral(type);
             return call(defs.Pointer_make, receiver, varOffsetExpr, varType);

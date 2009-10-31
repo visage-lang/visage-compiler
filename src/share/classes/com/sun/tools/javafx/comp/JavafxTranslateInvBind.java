@@ -99,7 +99,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     //selector expression (if selector is XXX$Script class)
                     JCStatement setter = callStmt(id(selector),
                             names.fromString(JavafxDefs.attributeSetMethodNamePrefix),
-                            makeVarOffset(selectVarSymbol, selectSymbol),
+                            Offset(id(selector), selectVarSymbol),
                             id(value)); //FIXME: is this mixin safe?
                     JCExpression conditionExpr = makeBinary(JCTree.NE, id(selector), makeNull());
                     addPreface(m().If(conditionExpr, m().Block(0L, List.<JCStatement>of(setter)), null));

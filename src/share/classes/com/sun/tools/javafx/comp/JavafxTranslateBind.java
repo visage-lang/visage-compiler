@@ -130,7 +130,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
-                        targs.append(offset(ident.sym));
+                        targs.append(Offset(ident.sym));
                     } else {
                         TODO("non-Ident in bound call");
                     }
@@ -333,7 +333,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         newOffset = makeTmpVar(syms.intType, newInit);
                         addPreface(newOffset);
                     } else {
-                        newOffset = oldOffset = makeTmpVar(syms.intType, makeVarOffset(tree.sym, selectorSym));
+                        newOffset = oldOffset = makeTmpVar(syms.intType, Offset(tree.sym));
                         addPreface(oldOffset);
                     }
 
@@ -342,7 +342,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
                             selectorOffset = makeTmpVar(syms.intType, call(id(defs.receiverName), attributeGetVOFFName(targetSymbol)));
                         } else {
-                            selectorOffset = makeTmpVar(syms.intType, makeVarOffset(targetSymbol, targetSymbol.owner));
+                            selectorOffset = makeTmpVar(syms.intType, Offset(targetSymbol));
                         }
 
                         addPreface(selectorOffset);
