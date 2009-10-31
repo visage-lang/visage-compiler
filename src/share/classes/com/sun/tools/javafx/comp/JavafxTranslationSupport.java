@@ -615,7 +615,7 @@ public abstract class JavafxTranslationSupport {
     }
     
     Name attributeValueName(Symbol sym) {
-        return prefixedAttributeName(sym, varValueString);
+        return prefixedAttributeName(sym, value_AttributeFieldNamePrefix);
     }
 
     Name attributeGetterName(Symbol sym) {
@@ -692,12 +692,12 @@ public abstract class JavafxTranslationSupport {
     }
 
     Name paramOldValueName(JFXOnReplace onReplace) {
-        return onReplace == null || onReplace.getOldValue() == null ? defs.attributeOldValueName
+        return onReplace == null || onReplace.getOldValue() == null ? defs.oldValue_LocalVarName
                 : onReplace.getOldValue().getName();
     }
 
     Name paramNewValueName(JFXOnReplace onReplace) {
-        return onReplace == null || onReplace.getNewElements() == null ? defs.attributeNewValueName
+        return onReplace == null || onReplace.getNewElements() == null ? defs.newValue_ArgName
                 : onReplace.getNewElements().getName();
     }
 

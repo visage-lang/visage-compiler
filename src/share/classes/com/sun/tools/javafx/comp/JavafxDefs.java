@@ -58,6 +58,7 @@ public class JavafxDefs {
     /**
      * Field prefix strings for attributes
      */
+    public static final String value_AttributeFieldNamePrefix = "$";
     public static final String saved_AttributeFieldNamePrefix = "saved$";
 
     /**
@@ -79,19 +80,21 @@ public class JavafxDefs {
     /**
      * Class name strings
      */
+    // in sequence package
     public  static final String cSequences = sequence_PackageNameString + ".Sequences";
     public  static final String cSequence  = sequence_PackageNameString + ".Sequence";
     public  static final String cSequenceRef  = sequence_PackageNameString + ".SequenceRef";
     public  static final String cArraySequence  = sequence_PackageNameString + ".ArraySequence";
-
+    // in runtime package -- public
+    public  static final String cFXBase = runtime_PackageNameString + ".FXBase";
+    public  static final String cFXObject = runtime_PackageNameString + ".FXObject";
+    public  static final String cFXMixin = runtime_PackageNameString + ".FXMixin";
+    // in runtime package
     private static final String cUtil = runtime_PackageNameString + ".Util";
     private static final String cChecks = runtime_PackageNameString + ".Checks";
-    private static final String cFXBase = runtime_PackageNameString + ".FXBase";
-    public static final String cFXObject = runtime_PackageNameString + ".FXObject";
-    public static final String cFXMixin = runtime_PackageNameString + ".FXMixin";
     private static final String cFXVariable = runtime_PackageNameString + ".FXVariable";
     private static final String cPointer = runtime_PackageNameString + ".Pointer";
-
+    // in java.lang package
     private static final String cMath = javaLang_PackageNameString + ".Math";
 
     /**
@@ -102,16 +105,10 @@ public class JavafxDefs {
     public static final String boundFunctionObjectParamPrefix = "$$boundInstance$";
     public static final String boundFunctionVarNumParamPrefix = "$$boundVarNum$";
     public static final String implFunctionSuffix = "$impl";
-    public static final String attributeOldValueNameString = "varOldValue$";
-    public static final String attributeNewValueNameString = "varNewValue$";
     public static final String fxBaseString = "com.sun.javafx.runtime.FXBase";
     public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfo";
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
     public static final String receiverNameString = "receiver$";
-    public static final String addStaticDependentNameString = "addStaticDependent";
-    public static final String makeAttributeMethodNameString = "makeAttribute";
-    public static final String makeWithDefaultMethodNameString = "makeWithDefault";
-    public static final String makeBijectiveMethodNameString = "makeBijective";
     public static final String invokeNameString = "invoke";
     public static final String lambdaNameString = "lambda";
     public static final String isInitializedNameString = "isInitialized";
@@ -122,7 +119,6 @@ public class JavafxDefs {
     public static final String varCountString = "VCNT$";
     public static final String varFlagsString = "VFLGS$";
     public static final String varDependentsManagerString = "DependentsManager$internal$";
-    public static final String varValueString = "$";
     public static final String varMapString = "MAP$";
     public static final String varGetMapString = "GETMAP$";
     public static final String varOFF$valueString = "VOFF$value";
@@ -205,10 +201,8 @@ public class JavafxDefs {
     /**
      * Method Name definitions
      */
-    final Name incrementSharingMethodName;
-    final Name makeAttributeMethodName;
-    final Name makeMethodName;
-    final Name needDefaultsMethodName;
+    final Name incrementSharing_SequenceMethodName;
+    final Name make_PointerMethodName;
     final Name sizeArrayMethodName;
     final Name sizeSequenceMethodName;
     final Name toArrayMethodName;
@@ -238,16 +232,16 @@ public class JavafxDefs {
     public final Name mixinSuffixName;
     public final Name lengthSuffixName;
     public final Name deprecatedInterfaceSuffixName;
-    final Name scriptLevelAccessField;
-    final Name scriptLevelAccessMethodPrefix;
-    final Name durOpAdd;
-    final Name durOpSub;
-    final Name durOpMul;
-    final Name durOpDiv;
-    final Name durOpLE;
-    final Name durOpLT;
-    final Name durOpGE;
-    final Name durOpGT;
+    final Name scriptLevelAccess_FXObjectFieldName;
+    final Name scriptLevelAccess_FXObjectMethodPrefixName;
+    final Name add_DurationMethodName;
+    final Name sub_DurationMethodName;
+    final Name mul_DurationMethodName;
+    final Name div_DurationMethodName;
+    final Name le_DurationMethodName;
+    final Name lt_DurationMethodName;
+    final Name ge_DurationMethodName;
+    final Name gt_DurationMethodName;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
     final Name mainName;
@@ -256,29 +250,20 @@ public class JavafxDefs {
     final Name attributeNotifyDependentsName;
     final Name complete_FXObjectMethodName;
     final Name outerAccessorName;
-    final Name getMethodName;
-    final Name attributeSetMethodParamName;
+    final Name get_PointerMethodName;
     final Name getSliceMethodName;
     final Name defaultingTypeInfoFieldName;
-    final Name invokeName;
+    final Name invoke_MethodName;
     final Name lambdaName;
     final Name lengthName;
     final Name emptySequenceFieldString;
     final Name isInitializedName;
-    final Name hasAnInitializerName;
     final Name bindingIdName;
     final Name varOffsetName;
     final Name varCountName;
-    final Name toTestName;
-    final Name toBeCastName;
-    final Name idName;
-    final Name arg0Name;
-    final Name arg1Name;
-    final Name moreArgsName;
-    final Name dependentsName;
     final Name typeParamName;
-    final Name initDefName;
-    final Name postInitDefName;
+    final Name init_MethodSymbolName;
+    final Name postinit_MethodSymbolName;
     final Name javalangThreadName;
     final Name startName;
     final Name scriptClassSuffixName;
@@ -294,8 +279,8 @@ public class JavafxDefs {
     final Name attributeGetMethodPrefixName;
     final Name attributeSetMethodPrefixName;
     final Name attributeBeMethodPrefixName;
-    final Name attributeOldValueName;
-    final Name attributeNewValueName;
+    final Name oldValue_LocalVarName;
+    final Name newValue_ArgName;
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
     final Name sliceArgNameStartPos;
@@ -305,7 +290,7 @@ public class JavafxDefs {
     final Name onReplaceArgNameLastIndex;
     final Name onReplaceArgNameNewElements;
     final Name getArgNamePos;
-    final Name invalidateArgNamePhase;
+    final Name phase_InvalidateArgName;
 
     final Name internalSuffixName;
     
@@ -372,17 +357,17 @@ public class JavafxDefs {
         final Name.Table names = Name.Table.instance(context);
         final JavafxSymtab syms = (JavafxSymtab)(JavafxSymtab.instance(context));
 
-        durOpAdd = names.fromString("add");
-        durOpSub = names.fromString("sub");
-        durOpMul = names.fromString("mul");
-        durOpDiv = names.fromString("div");
-        durOpLE = names.fromString("le");
-        durOpLT = names.fromString("lt");
-        durOpGE = names.fromString("ge");
-        durOpGT = names.fromString("gt");
+        add_DurationMethodName = names.fromString("add");
+        sub_DurationMethodName = names.fromString("sub");
+        mul_DurationMethodName = names.fromString("mul");
+        div_DurationMethodName = names.fromString("div");
+        le_DurationMethodName = names.fromString("le");
+        lt_DurationMethodName = names.fromString("lt");
+        ge_DurationMethodName = names.fromString("ge");
+        gt_DurationMethodName = names.fromString("gt");
         fxObjectName = names.fromString(cFXObject);
         fxMixinName = names.fromString(cFXMixin);
-        fxBaseName = names.fromString(fxBaseString);
+        fxBaseName = names.fromString(cFXBase);
         mixinSuffixName = names.fromString(mixinClassSuffix);
         lengthSuffixName = names.fromString("$length");
         deprecatedInterfaceSuffixName = names.fromString(deprecatedInterfaceSuffix);
@@ -394,36 +379,25 @@ public class JavafxDefs {
         attributeNotifyDependentsName = names.fromString("notifyDependents$");
         complete_FXObjectMethodName = names.fromString("complete$");
         outerAccessorName = names.fromString("accessOuter$");
-        getMethodName = names.fromString("get");
-        attributeSetMethodParamName = names.fromString("value$");
+        get_PointerMethodName = names.fromString("get");
         getSliceMethodName = names.fromString("getSlice");
         sizeArrayMethodName = names.fromString("size");
         sizeSequenceMethodName = names.fromString("size");
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
-        needDefaultsMethodName = names.fromString("needDefault");
         toArrayMethodName = names.fromString("toArray");
-        makeAttributeMethodName = names.fromString(makeAttributeMethodNameString);
-        makeMethodName = names.fromString("make");
-        invokeName = names.fromString(invokeNameString);
+        make_PointerMethodName = names.fromString("make");
+        invoke_MethodName = names.fromString(invokeNameString);
         lambdaName = names.fromString(lambdaNameString);
         lengthName = names.fromString("length");
         emptySequenceFieldString = names.fromString("emptySequence");
         isInitializedName = names.fromString(isInitializedNameString);
-        hasAnInitializerName = names.fromString(hasAnInitializerNameString);
         bindingIdName = names.fromString(bindingIdString);
         varOffsetName = names.fromString(varOffsetString);
         varCountName = names.fromString(varCountString);
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
-        toTestName = names.fromString("toTest");
-        toBeCastName = names.fromString("toBeCast");
-        idName = names.fromString("id");
-        arg0Name = names.fromString("arg$0");
-        arg1Name = names.fromString("arg$1");
-        moreArgsName = names.fromString("moreArgs");
-        dependentsName = names.fromString("dependents");
         typeParamName = names.fromString("T");
-        initDefName = names.fromString("$init$def$name");
-        postInitDefName = names.fromString("$postinit$def$name");
+        init_MethodSymbolName = names.fromString("$init$def$name");
+        postinit_MethodSymbolName = names.fromString("$postinit$def$name");
         timeName = names.fromString("time");
         javalangThreadName = names.fromString("java.lang.Thread");
         startName = names.fromString("start");
@@ -435,14 +409,14 @@ public class JavafxDefs {
         initFXBaseName = names.fromString("initFXBase$");
         userInitName = names.fromString("userInit$");
         postInitName = names.fromString("postInit$");
-        incrementSharingMethodName = names.fromString("incrementSharing");
+        incrementSharing_SequenceMethodName = names.fromString("incrementSharing");
         onReplaceArgNameOld = names.fromString("oldValue$");
         onReplaceArgNameNew = names.fromString("newValue$");
         sliceArgNameStartPos = names.fromString("startPos$");
         sliceArgNameEndPos = names.fromString("endPos$");
         sliceArgNameNewLength = names.fromString("newLength$");
         getArgNamePos = names.fromString("pos$");
-        invalidateArgNamePhase = names.fromString("phase$");
+        phase_InvalidateArgName = names.fromString("phase$");
         onReplaceArgNameFirstIndex = sliceArgNameStartPos;
         onReplaceArgNameLastIndex = sliceArgNameEndPos;
         onReplaceArgNameNewElements = names.fromString("$newElements$");
@@ -464,10 +438,10 @@ public class JavafxDefs {
         update_ObjectMethodName = names.fromString("update$");
         size_ObjectMethodName = names.fromString(size_AttributeMethodPrefix);
         count_ObjectMethodName = names.fromString("count$");
-        attributeOldValueName =  names.fromString(attributeOldValueNameString);
-        attributeNewValueName =  names.fromString(attributeNewValueNameString);
-        scriptLevelAccessField = names.fromString("$scriptLevel$");
-        scriptLevelAccessMethodPrefix = names.fromString("access$scriptLevel$");
+        oldValue_LocalVarName =  names.fromString("varOldValue$");
+        newValue_ArgName =  names.fromString("varNewValue$");
+        scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
+        scriptLevelAccess_FXObjectMethodPrefixName = names.fromString("access$scriptLevel$");
         
         varFlagActionTest = names.fromString("varTestBits$");
         varFlagActionChange = names.fromString("varChangeBits$");
@@ -570,7 +544,7 @@ public class JavafxDefs {
 
     public Name scriptLevelAccessMethod(Name.Table names, Symbol clazz) {
         StringBuilder buf = new StringBuilder();
-        buf.append(scriptLevelAccessMethodPrefix);
+        buf.append(scriptLevelAccess_FXObjectMethodPrefixName);
         buf.append(clazz.getQualifiedName().toString().replace('.', '$'));
         buf.append('$');
         return names.fromString(buf);

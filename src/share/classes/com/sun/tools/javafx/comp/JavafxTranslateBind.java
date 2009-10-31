@@ -381,7 +381,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement InvalidateCall(JCExpression begin, JCExpression end, JCExpression newLen) {
-            return CallStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.invalidateArgNamePhase));
+            return CallStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.phase_InvalidateArgName));
         }
 
         private Name flagBit = defs.varFlagDEFAULT_APPLIED;
@@ -400,7 +400,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression phaseArg() {
-            return id(defs.invalidateArgNamePhase);
+            return id(defs.phase_InvalidateArgName);
         }
 
         JCExpression IsTriggerPhase() {

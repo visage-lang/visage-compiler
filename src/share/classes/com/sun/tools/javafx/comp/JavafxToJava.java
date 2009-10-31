@@ -956,7 +956,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             if (resultType.isPrimitive())
                 getMethodName = defs.typedGetMethodName[types.kindFromPrimitiveType(resultType.tsym)];
             else
-                getMethodName = defs.getMethodName;
+                getMethodName = defs.get_PointerMethodName;
             if (seq instanceof JFXIdent) {
                 JFXIdent var = (JFXIdent) seq;
                 OnReplaceInfo info = findOnReplaceInfo(var.sym);

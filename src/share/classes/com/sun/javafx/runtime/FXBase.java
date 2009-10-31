@@ -22,11 +22,10 @@
  */
 
 package com.sun.javafx.runtime;
+
 import com.sun.javafx.runtime.sequence.Sequence;
 
 //
-
-import java.lang.reflect.Field;
 
 // CODING/NAMING RESTRICTIONS - In a perfect world, all FX classes would inherit
 // from FXBase.  However, this is not the case.  It's also possible to inherit

@@ -77,7 +77,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final Name varNumName;
     private final Name getPosName;
     private final Name getSizeName;
-    private final Name phaseName = defs.invalidateArgNamePhase;
+    private final Name phaseName = defs.phase_InvalidateArgName;
 
     public static class LiteralInitVarMap {
         private int count = 1;
@@ -1270,17 +1270,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void initialize() {
-                    addParam(type, defs.attributeNewValueName);
+                    addParam(type, defs.newValue_ArgName);
                 }
                 
                 @Override
                 public void statements() {
                     // FIXME - Do the right thing.
                     // T varOldValue$ = $var;
-                    addStmt(makeVar(Flags.FINAL, type, defs.attributeOldValueName, id(varName)));
+                    addStmt(makeVar(Flags.FINAL, type, defs.oldValue_LocalVarName, id(varName)));
     
                     // $var = value
-                    addStmt(Stmt(m().Assign(id(varName), id(defs.attributeNewValueName))));
+                    addStmt(Stmt(m().Assign(id(varName), id(defs.newValue_ArgName))));
     
                     // return $var;
                     addStmt(m().Return(id(varName)));
@@ -1431,7 +1431,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void initialize() {
                     JFXOnReplace onReplace = varInfo.onReplace();
                     
-                    newValueName = defs.attributeNewValueName;
+                    newValueName = defs.newValue_ArgName;
                     firstIndexName = paramStartPosName(onReplace);
                     lastIndexName = paramEndPosName(onReplace);
                     newLengthName = paramNewElementsLengthName(onReplace);
@@ -1476,7 +1476,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(makeVar(type, onReplace.getOldValue().getName(), id(savedName)));
                             addStmt(Stmt(m().Assign(id(savedName),
                                     Call(getReceiver(), attributeGetterName(varInfo.getSymbol())))));
-                            addStmt(CallStmt(id(savedName), defs.incrementSharingMethodName));
+                            addStmt(CallStmt(id(savedName), defs.incrementSharing_SequenceMethodName));
                         }
                         if (newElements != null
                                 && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
@@ -1578,7 +1578,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCExpression initValue = varInfo.boundInit();
                                 if (varInfo.isInitWithBoundFuncResult()) {
                                     // We have a Pointer - need to do Pointer.get() and cast the result
-                                    initValue = castFromObject(Call(initValue, defs.getMethodName), varSym.type);
+                                    initValue = castFromObject(Call(initValue, defs.get_PointerMethodName), varSym.type);
                                 }
                                 addStmt(CallStmt(getReceiver(), attributeBeName(varSym), initValue));
                             }
@@ -1610,7 +1610,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void initialize() {
-                    addParam(type, defs.attributeNewValueName);
+                    addParam(type, defs.newValue_ArgName);
                     buildIf(!varInfo.isDef() && !varInfo.isBareSynth());
                 }
 
@@ -1633,7 +1633,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     // be$var(value)
-                    addStmt(CallStmt(getReceiver(), attributeBeName(varSym), id(defs.attributeNewValueName)));
+                    addStmt(CallStmt(getReceiver(), attributeBeName(varSym), id(defs.newValue_ArgName)));
                     // return $var;
                     addStmt(m().Return(id(varName)));
                 }
@@ -1651,14 +1651,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void initialize() {
-                    addParam(type, defs.attributeNewValueName);
+                    addParam(type, defs.newValue_ArgName);
                     buildIf(!varInfo.isBareSynth());
                 }
                 
                 @Override
                 public void statements() {
                     // T varOldValue$ = $var;
-                    addStmt(makeVar(Flags.FINAL, type, defs.attributeOldValueName, id(varName)));
+                    addStmt(makeVar(Flags.FINAL, type, defs.oldValue_LocalVarName, id(varName)));
     
                     // Prepare to accumulate then statements.
                     beginBlock();
@@ -1670,7 +1670,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(CallStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
     
                     // $var = value
-                    addStmt(Stmt(m().Assign(id(varName), id(defs.attributeNewValueName))));
+                    addStmt(Stmt(m().Assign(id(varName), id(defs.newValue_ArgName))));
     
                     // setValid(VFLGS$IS_INVALID);
                     addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagIS_INVALID, null));
@@ -1682,13 +1682,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(makeFlagStatement(proxyVarSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null));
     
                     // onReplace$(varOldValue$, varNewValue$)
-                    addStmt(CallStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
+                    addStmt(CallStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.oldValue_LocalVarName), id(defs.newValue_ArgName)));
     
                     // varOldValue$ != varNewValue$
                     // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
                     JCExpression testExpr = type.isPrimitive() ?
-                        NE(id(defs.attributeOldValueName), id(defs.attributeNewValueName))
-                      : NOT(Call(defs.Util_isEqual, id(defs.attributeOldValueName), id(defs.attributeNewValueName)));
+                        NE(id(defs.oldValue_LocalVarName), id(defs.newValue_ArgName))
+                      : NOT(Call(defs.Util_isEqual, id(defs.oldValue_LocalVarName), id(defs.newValue_ArgName)));
                     testExpr = OR(testExpr, makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagDEFAULT_APPLIED, null));
                     
                     // End of then block.
@@ -1914,13 +1914,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void initialize() {
-                    addParam(type, defs.attributeNewValueName);
+                    addParam(type, defs.newValue_ArgName);
                 }
                 
                 @Override
                 public void statements() {
                     // Construct and add: return $var;
-                    addStmt(m().Return(m().Assign(id(varName), id(defs.attributeNewValueName))));
+                    addStmt(m().Return(m().Assign(id(varName), id(defs.newValue_ArgName))));
                 }
             };
              
@@ -3354,7 +3354,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public void makeScriptLevelAccess(ClassSymbol sym, boolean scriptLevel, boolean isRunnable) {
             if (!scriptLevel) {
                 // sole instance field
-                addDefinition(makeField(Flags.PRIVATE | Flags.STATIC, scriptClassType, defs.scriptLevelAccessField, null));
+                addDefinition(makeField(Flags.PRIVATE | Flags.STATIC, scriptClassType, defs.scriptLevelAccess_FXObjectFieldName, null));
             }
             
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
@@ -3367,17 +3367,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 flags |= Flags.STATIC;
                 
                 // sole instance lazy creation method
-                JCExpression condition = EQnull(id(defs.scriptLevelAccessField));
+                JCExpression condition = EQnull(id(defs.scriptLevelAccess_FXObjectFieldName));
     
                 JCExpression assignExpr = m().Assign(
-                        id(defs.scriptLevelAccessField),
+                        id(defs.scriptLevelAccess_FXObjectFieldName),
                         m().NewClass(null, null, id(scriptName), List.<JCExpression>nil(), null));
     
                 ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
                 ifStmts.append(Stmt(assignExpr));
     
                 stmts.append(m().If(condition, m().Block(0L, ifStmts.toList()), null));
-                stmts.append(m().Return(id(defs.scriptLevelAccessField)));
+                stmts.append(m().Return(id(defs.scriptLevelAccess_FXObjectFieldName)));
             }
             
             MethodSymbol methSym = makeMethodSymbol(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<Type>nil());

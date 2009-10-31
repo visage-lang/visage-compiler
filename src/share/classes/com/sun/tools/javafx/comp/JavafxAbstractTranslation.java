@@ -1304,7 +1304,7 @@ public abstract class JavafxAbstractTranslation
                  * computed value of bound function. We need to cast to the right
                  * type as Pointer.get() returns Object type value.
                  */
-                full = castFromObject(Call(app, defs.getMethodName), resultType);
+                full = castFromObject(Call(app, defs.get_PointerMethodName), resultType);
             } else {
                 full = app;
                 if (useInvoke) {
@@ -1317,7 +1317,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         Name methodName() {
-            return useInvoke? defs.invokeName : functionName(msym, superToStatic, callBound);
+            return useInvoke? defs.invoke_MethodName : functionName(msym, superToStatic, callBound);
         }
 
         @Override
@@ -1579,7 +1579,7 @@ public abstract class JavafxAbstractTranslation
                     for (JFXVar fxVar : tree.getParams()) {
                         if (types.isSequence(fxVar.sym.type)) {
                             setDiagPos(fxVar);
-                            stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharingMethodName));
+                            stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharing_SequenceMethodName));
                         }
                     }
                 } // else FIXME: what should we do for bound function sequence params?
@@ -2109,11 +2109,11 @@ public abstract class JavafxAbstractTranslation
         JCExpression durationOp() {
             switch (tree.getFXTag()) {
                 case PLUS:
-                    return op(lhs(), defs.durOpAdd, rhs());
+                    return op(lhs(), defs.add_DurationMethodName, rhs());
                 case MINUS:
-                    return op(lhs(), defs.durOpSub, rhs());
+                    return op(lhs(), defs.sub_DurationMethodName, rhs());
                 case DIV:
-                    return op(lhs(), defs.durOpDiv, rhs(isDuration(rhsType)? null : durationNumericType));
+                    return op(lhs(), defs.div_DurationMethodName, rhs(isDuration(rhsType)? null : durationNumericType));
                 case MUL: {
                     // lhs.mul(rhs);
                     JCExpression rcvr;
@@ -2128,16 +2128,16 @@ public abstract class JavafxAbstractTranslation
                         rcvr = rhs();
                         arg = lhs(durationNumericType);
                     }
-                    return op(rcvr, defs.durOpMul, arg);
+                    return op(rcvr, defs.mul_DurationMethodName, arg);
                 }
                 case LT:
-                    return op(lhs(), defs.durOpLT, rhs());
+                    return op(lhs(), defs.lt_DurationMethodName, rhs());
                 case LE:
-                    return op(lhs(), defs.durOpLE, rhs());
+                    return op(lhs(), defs.le_DurationMethodName, rhs());
                 case GT:
-                    return op(lhs(), defs.durOpGT, rhs());
+                    return op(lhs(), defs.gt_DurationMethodName, rhs());
                 case GE:
-                    return op(lhs(), defs.durOpGE, rhs());
+                    return op(lhs(), defs.ge_DurationMethodName, rhs());
             }
             throw new RuntimeException("Internal Error: bad Duration operation");
         }
@@ -2424,7 +2424,7 @@ public abstract class JavafxAbstractTranslation
             }
             JCMethodDecl bridgeDef = m().MethodDef(
                     m().Modifiers(flags),
-                    defs.invokeName,
+                    defs.invoke_MethodName,
                     makeType(rtype),
                     List.<JCTypeParameter>nil(),
                     params.toList(),

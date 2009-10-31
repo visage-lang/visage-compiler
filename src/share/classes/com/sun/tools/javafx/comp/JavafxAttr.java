@@ -2334,7 +2334,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
                 msym.owner.type.tsym == syms.javafx_PointerType.tsym &&
-                methName == defs.makeMethodName &&
+                methName == defs.make_PointerMethodName &&
                 argcount == 1) {
             msym.flags_field |= JavafxFlags.FUNC_POINTER_MAKE;
             for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
@@ -2997,7 +2997,7 @@ public class JavafxAttr implements JavafxVisitor {
         Symbol symOwner = env.info.scope.owner;
         try {
             MethodType mt = new MethodType(List.<Type>nil(), syms.voidType, List.<Type>nil(), (TypeSymbol)symOwner);
-            that.sym = new MethodSymbol(0L, defs.initDefName, mt, symOwner);
+            that.sym = new MethodSymbol(0L, defs.init_MethodSymbolName, mt, symOwner);
             env.info.scope.owner = that.sym;
             JavafxEnv<JavafxAttrContext> localEnv = env.dup(that);
             localEnv.outer = env;
@@ -3012,7 +3012,7 @@ public class JavafxAttr implements JavafxVisitor {
         Symbol symOwner = env.info.scope.owner;
         try {
             MethodType mt = new MethodType(List.<Type>nil(), syms.voidType, List.<Type>nil(), (TypeSymbol)symOwner);
-            that.sym = new MethodSymbol(0L, defs.postInitDefName, mt, symOwner);
+            that.sym = new MethodSymbol(0L, defs.postinit_MethodSymbolName, mt, symOwner);
             env.info.scope.owner = that.sym;
             JavafxEnv<JavafxAttrContext> localEnv = env.dup(that);
             localEnv.outer = env;

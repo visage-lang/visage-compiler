@@ -224,7 +224,7 @@ public class JavafxSymtab extends Symtab {
 
         javafx_FXObjectType = enterClass(JavafxDefs.cFXObject);
         javafx_FXMixinType = enterClass(JavafxDefs.cFXMixin);
-        javafx_FXBaseType = enterClass(JavafxDefs.fxBaseString);
+        javafx_FXBaseType = enterClass(JavafxDefs.cFXBase);
         
         enterOperators();
     }

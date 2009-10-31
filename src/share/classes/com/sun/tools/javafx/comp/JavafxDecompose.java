@@ -436,7 +436,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 types.isJFXClass(tree.sym.owner) &&
                 !currentClass.isSubClass(tree.sym.owner, types) &&
                 inBind &&
-                !(tree.getName().startsWith(defs.scriptLevelAccessMethodPrefix))) {
+                !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName))) {
             //referenced is static script var - if in bind context need shredding
             JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
             meth = shred(meth);
