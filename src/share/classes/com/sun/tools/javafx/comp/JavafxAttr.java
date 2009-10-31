@@ -861,7 +861,7 @@ public class JavafxAttr implements JavafxVisitor {
                         lhsVar.type == syms.javafx_AnyType/* ??? */ ||
                         lhsVar.type == syms.javafx_UnspecifiedType) {
                     if (tree.rhs.type != null && lhsVar.type != tree.rhs.type) {
-                        lhsVar.type = lhsSym.type = types.normalize(tree.rhs.type);
+                        tree.lhs.type = lhsVar.type = lhsSym.type = types.normalize(tree.rhs.type);
                         JFXExpression jcExpr = fxmake.at(tree.pos()).Ident(lhsSym);
                         lhsVar.setJFXType(fxmake.at(tree.pos()).TypeClass(jcExpr, lhsVar.getJFXType().getCardinality()));
                 }
@@ -1994,8 +1994,8 @@ public class JavafxAttr implements JavafxVisitor {
             syms.voidType;
         
         result = check(tree,
-                       capture(condType(tree.pos(), tree.cond.type,
-                                        tree.truepart.type, falsepartType)),
+                       condType(tree.pos(), tree.cond.type,
+                                        tree.truepart.type, falsepartType),
                        VAL, pkind, pt, pSequenceness);
     }
     //where
@@ -2065,7 +2065,7 @@ public class JavafxAttr implements JavafxVisitor {
                     type1 = types.elementType(type1);
                 if (isSequence2)
                     type2 = types.elementType(type2);
-                Type union = unionType(pos, type1, type2);
+                Type union = unionType(pos, types.normalize(type1), types.normalize(type2));
                 return union.tag == ERROR ? union : types.sequenceType(union);
             }
             // If same type, that is the result

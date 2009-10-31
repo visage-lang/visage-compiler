@@ -424,6 +424,36 @@ public class SequencesBase {
         return new ObjectArraySequence<T>(toType, toArray, 0, length);
     }
 
+    /** Convert any numeric sequence to a char sequence */
+    public static<V extends Number>
+    Sequence<Character> convertNumberToCharSequence(NumericTypeInfo<V> fromType, Sequence<? extends V> seq) {
+        if (Sequences.size(seq) == 0)
+            return TypeInfo.Character.emptySequence;
+
+        int length = seq.size();
+        Character[] toArray = new Character[length];
+        int i=0;
+        for (V val : seq) {
+            toArray[i++] = (char)val.intValue();
+        }
+        return new ObjectArraySequence<Character>(TypeInfo.Character, toArray, 0, length);
+    }
+
+    /** Convert a char sequence to any numeric sequence */
+    public static<V extends Number>
+    Sequence<V> convertCharToNumberSequence(NumericTypeInfo<V> targetType, Sequence<? extends Character> seq) {
+        if (Sequences.size(seq) == 0)
+            return targetType.emptySequence;
+
+        int length = seq.size();
+        V[] toArray = targetType.makeArray(length);
+        int i=0;
+        for (Character val : seq) {
+            toArray[i++] = targetType.asPreferred(TypeInfo.Integer, (int)val.charValue());
+        }
+        return new ObjectArraySequence<V>(targetType, toArray, 0, length);
+    }
+
     /** How large is this sequence?  Can be applied to any object.  */
     public static int size(Object seq) {
         if (seq instanceof Sequence)

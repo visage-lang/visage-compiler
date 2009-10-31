@@ -146,6 +146,8 @@ public class JavafxDefs {
     final RuntimeMethod TypeInfo_getTypeInfo;
 
     final RuntimeMethod Sequences_convertNumberSequence;
+    final RuntimeMethod Sequences_convertNumberToCharSequence;
+    final RuntimeMethod Sequences_convertCharToNumberSequence;
     final RuntimeMethod Sequences_forceNonNull;
     final RuntimeMethod Sequences_sizeOfNewElements;
     final RuntimeMethod Sequences_getNewElements;
@@ -473,6 +475,8 @@ public class JavafxDefs {
         TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");
 
         Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
+        Sequences_convertCharToNumberSequence = new RuntimeMethod(names, cSequences, "convertCharToNumberSequence");
+        Sequences_convertNumberToCharSequence = new RuntimeMethod(names, cSequences, "convertNumberToCharSequence");
         Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
         Sequences_sizeOfNewElements = new RuntimeMethod(names, cSequences, "sizeOfNewElements");
         Sequences_getNewElements = new RuntimeMethod(names, cSequences, "getNewElements");

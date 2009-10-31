@@ -596,7 +596,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new ExpressionTranslator(tree.pos()) {
             ExpressionResult doit() {
                 JCExpression receiver = vsym.isStatic() ? call(scriptLevelAccessMethod(vsym.owner)) : null;
-                return toResult(call(receiver, defs.attributeApplyDefaultsPrefixMethodName, Offset(vsym)), vsym.type);
+                JCStatement applyDefaultCall = callStmt(receiver, defs.attributeApplyDefaultsPrefixMethodName, Offset(vsym));
+                return toResult(makeBlockExpression(List.of(applyDefaultCall), id(attributeValueName(vsym))), vsym.type);
         }}.doit();
     }
 

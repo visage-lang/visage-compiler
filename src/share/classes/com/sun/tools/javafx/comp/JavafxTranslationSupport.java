@@ -122,6 +122,8 @@ public abstract class JavafxTranslationSupport {
                 return ((JFXIdent) tree).sym;
             case SELECT:
                 return ((JFXSelect) tree).sym;
+            case TYPECAST:
+                return expressionSymbol(((JFXTypeCast)tree).getExpression());
             default:
                 return null;
         }

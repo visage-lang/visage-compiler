@@ -2198,6 +2198,22 @@ public abstract class JavafxAbstractTranslation
                     targetTypeInfo, inTypeInfo, expr);
         }
 
+        private JCExpression convertNumericToCharSequence(final DiagnosticPosition diagPos,
+                final JCExpression expr, final Type inElementType) {
+            JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
+            return call(
+                    defs.Sequences_convertNumberToCharSequence,
+                    inTypeInfo, expr);
+        }
+
+        private JCExpression convertCharToNumericSequence(final DiagnosticPosition diagPos,
+                final JCExpression expr, final Type targetElementType) {
+            JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
+            return call(
+                    defs.Sequences_convertCharToNumberSequence,
+                    targetTypeInfo, expr);
+        }
+
         protected ExpressionResult doit() {
             return toResult(doitExpr(), targettedType);
         }
@@ -2289,11 +2305,26 @@ public abstract class JavafxAbstractTranslation
             if (targetIsSequence && sourceIsSequence) {
                 Type sourceElementType = types.elementType(sourceType);
                 Type targetElementType = types.elementType(targettedType);
-                if (!types.isSameType(sourceElementType, targetElementType) &&
-                        types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
+                if (types.isSameType(sourceElementType, targetElementType))
+                    return translated;
+                else if (types.isNumeric(sourceElementType) && types.isNumeric(targetElementType)) {
                     return convertNumericSequence(diagPos,
                             translated,
                             sourceElementType,
+                            targetElementType);
+                }
+                else if (types.isNumeric(sourceElementType) &&
+                        types.isSameType(targetElementType, syms.charType)) {
+                    //numeric seq to char seq
+                    return convertNumericToCharSequence(diagPos,
+                            translated,
+                            sourceElementType);
+                }
+                else if (types.isNumeric(targetElementType) &&
+                        types.isSameType(sourceElementType, syms.charType)) {
+                    //char seq to numeric seq
+                    return convertCharToNumericSequence(diagPos,
+                            translated,
                             targetElementType);
                 }
             }
