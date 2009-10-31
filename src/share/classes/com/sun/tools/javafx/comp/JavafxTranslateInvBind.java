@@ -105,7 +105,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     addPreface(CallStmt(attributeSetterName(selectVarSymbol), id(value)));
                 }
                 
-                return toResult(id(defs.newValue_ArgName), targettedType);
+                return toResult(id(defs.varNewValue_ArgName), targettedType);
             }
         }).doit();
     }
@@ -119,7 +119,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         result = (new ExpressionTranslator(tree.pos()) {
             protected ExpressionResult doit() {
                 selectVarSymbol = (VarSymbol)tree.sym;
-                return toResult(id(defs.newValue_ArgName), targettedType);
+                return toResult(id(defs.varNewValue_ArgName), targettedType);
             }
         }).doit();
     }
@@ -132,7 +132,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 JFXIdent selector = (JFXIdent)selectorExpr;
                 selectSymbol = (VarSymbol)selector.sym;
                 selectVarSymbol = (VarSymbol)tree.sym;
-                return toResult(id(defs.newValue_ArgName), targettedType);
+                return toResult(id(defs.varNewValue_ArgName), targettedType);
             }
         }).doit();
     }

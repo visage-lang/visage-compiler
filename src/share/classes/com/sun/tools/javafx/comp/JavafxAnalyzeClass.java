@@ -1269,22 +1269,22 @@ class JavafxAnalyzeClass {
                name == defs.internalRunFunctionName || 
                name == defs.initialize_FXObjectMethodName ||
                name == defs.complete_FXObjectMethodName ||
-               name == defs.postInitName || name == defs.userInitName ||
+               name == defs.postInit_FXObjectMethodName || name == defs.userInit_FXObjectMethodName ||
                name == names.clinit ||
-               name.startsWith(defs.varOffsetName) ||
-               name.startsWith(defs.varCountName) ||
-               name.startsWith(defs.attributeGetMethodPrefixName) ||
-               name.startsWith(defs.attributeSetMethodPrefixName) ||
-               name.startsWith(defs.attributeBeMethodPrefixName) ||
-               name.startsWith(defs.invalidate_ObjectMethodName) ||
+               name.startsWith(defs.offset_AttributeFieldPrefixName) ||
+               name.startsWith(defs.count_FXObjectFieldName) ||
+               name.startsWith(defs.get_AttributeMethodPrefixName) ||
+               name.startsWith(defs.set_AttributeMethodPrefixName) ||
+               name.startsWith(defs.be_AttributeMethodPrefixName) ||
+               name.startsWith(defs.invalidate_FXObjectMethodName) ||
                name.startsWith(defs.onReplaceAttributeMethodPrefixName) ||
                name.startsWith(defs.evaluate_AttributeMethodPrefixName) ||
-               name.startsWith(defs.getMixinAttributeMethodPrefixName) ||
-               name.startsWith(defs.getVOFFAttributeMethodPrefixName) ||
+               name.startsWith(defs.getMixin_AttributeMethodPrefixName) ||
+               name.startsWith(defs.getVOFF_AttributeMethodPrefixName) ||
                name.startsWith(defs.initVarBitsAttributeMethodPrefixName) ||
                name.startsWith(defs.applyDefaults_AttributeMethodPrefixName) ||
-               name.startsWith(defs.update_ObjectMethodName) ||
-               name.startsWith(defs.size_ObjectMethodName);
+               name.startsWith(defs.update_FXObjectMethodName) ||
+               name.startsWith(defs.size_FXObjectMethodName);
     }
 
     //
@@ -1295,10 +1295,10 @@ class JavafxAnalyzeClass {
         Name name = var.name;
         String nameString = name.toString();
         
-        return nameString.startsWith(JavafxDefs.varMapString) ||
-               nameString.startsWith(JavafxDefs.varCountString) ||
-               nameString.startsWith(JavafxDefs.varOffsetString) ||
-               nameString.startsWith(JavafxDefs.varFlagsString);
+        return nameString.startsWith(JavafxDefs.varMap_FXObjectFieldPrefix) ||
+               nameString.startsWith(JavafxDefs.count_FXObjectFieldNameString) ||
+               nameString.startsWith(JavafxDefs.offset_AttributeFieldPrefix) ||
+               nameString.startsWith(JavafxDefs.varFlags_FXObjectFieldPrefix);
     }
 
     //

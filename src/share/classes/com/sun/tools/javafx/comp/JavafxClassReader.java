@@ -496,9 +496,9 @@ public class JavafxClassReader extends ClassReader {
                      it = it.tail) {
                     Type itype = it.head;
                     checkForIntfSymbol(itype.tsym);
-                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName) {
+                    if (((ClassSymbol) itype.tsym).flatname == defs.cFXObjectName) {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
-                    } else if (((ClassSymbol) itype.tsym).flatname == defs.fxMixinName) {
+                    } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
                     } else if ((csym.fullname.len + defs.mixinSuffixName.len ==
                              ((ClassSymbol) itype.tsym).fullname.len) &&
@@ -521,9 +521,9 @@ public class JavafxClassReader extends ClassReader {
                  it = it.tail) {
                     Type itype = it.head;
                     checkForIntfSymbol(itype.tsym);
-                    if (((ClassSymbol) itype.tsym).flatname == defs.fxObjectName) {
+                    if (((ClassSymbol) itype.tsym).flatname == defs.cFXObjectName) {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
-                    } else if (((ClassSymbol) itype.tsym).flatname == defs.fxMixinName) {
+                    } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
                     } else {
                         itype = translateType(itype);

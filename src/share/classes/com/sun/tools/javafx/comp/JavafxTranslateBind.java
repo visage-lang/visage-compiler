@@ -381,7 +381,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement InvalidateCall(JCExpression begin, JCExpression end, JCExpression newLen) {
-            return CallStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.phase_InvalidateArgName));
+            return CallStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.phase_ArgName));
         }
 
         private Name flagBit = defs.varFlagDEFAULT_APPLIED;
@@ -396,11 +396,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression posArg() {
-            return id(defs.getArgNamePos);
+            return id(defs.pos_ArgName);
         }
 
         JCExpression phaseArg() {
-            return id(defs.phase_InvalidateArgName);
+            return id(defs.phase_ArgName);
         }
 
         JCExpression IsTriggerPhase() {
@@ -626,10 +626,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         PLUS(
                             id(attributeValueName(sizeSym)),
                             MINUS(
-                                id(defs.sliceArgNameNewLength),
+                                id(defs.newLength_ArgName),
                                 MINUS(
-                                    id(defs.sliceArgNameEndPos),
-                                    id(defs.sliceArgNameStartPos)
+                                    id(defs.endPos_ArgName),
+                                    id(defs.startPos_ArgName)
                                 )
                             )
                         )
@@ -780,16 +780,16 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     PLUS(
                                         size(),
                                         MINUS(
-                                            id(defs.sliceArgNameNewLength),
-                                            MINUS(id(defs.sliceArgNameEndPos), id(defs.sliceArgNameStartPos))
+                                            id(defs.newLength_ArgName),
+                                            MINUS(id(defs.endPos_ArgName), id(defs.startPos_ArgName))
                                         )
                                     )
                                 )
                             ),
                             InvalidateCall(
-                                PLUS(id(vStart), id(defs.sliceArgNameStartPos)),
-                                PLUS(id(vStart), id(defs.sliceArgNameEndPos)),
-                                id(defs.sliceArgNameNewLength)
+                                PLUS(id(vStart), id(defs.startPos_ArgName)),
+                                PLUS(id(vStart), id(defs.endPos_ArgName)),
+                                id(defs.newLength_ArgName)
                             )
                         )
                     );

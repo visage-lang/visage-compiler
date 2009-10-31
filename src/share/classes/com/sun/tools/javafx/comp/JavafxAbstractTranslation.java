@@ -1951,7 +1951,7 @@ public abstract class JavafxAbstractTranslation
             switch (tree.getFXTag()) {
                 case SIZEOF:
                     if (expr.type.tag == TypeTags.ARRAY) {
-                        return toResult(select(transExpr, defs.lengthName), syms.intType);
+                        return toResult(select(transExpr, defs.length_ArrayFieldName), syms.intType);
                     }
                     return toResult(translateSizeof(expr, transExpr), syms.intType);
                 case REVERSE:
@@ -2256,14 +2256,14 @@ public abstract class JavafxAbstractTranslation
                     ListBuffer<JCStatement> stats = ListBuffer.lb();
                     JCVariableDecl tmpVar = makeTmpVar(sourceType, translated);
                     stats.append(tmpVar);
-                    JCVariableDecl sizeVar = makeTmpVar(syms.intType, Call(id(tmpVar), defs.sizeArrayMethodName));
+                    JCVariableDecl sizeVar = makeTmpVar(syms.intType, Call(id(tmpVar), defs.size_SequenceMethodName));
                     stats.append(sizeVar);
                     JCVariableDecl arrVar = makeTmpVar("arr", targettedType, m().NewArray(
                             makeType(elemType, true),
                             List.<JCExpression>of(id(sizeVar.name)),
                             null));
                     stats.append(arrVar);
-                    stats.append(CallStmt(id(tmpVar.name), defs.toArrayMethodName, List.of(
+                    stats.append(CallStmt(id(tmpVar.name), defs.toArray_SequenceMethodName, List.of(
                             Int(0),
                             id(sizeVar),
                             id(arrVar),
@@ -2281,7 +2281,6 @@ public abstract class JavafxAbstractTranslation
                 } else {
                     args = List.of(makeTypeInfo(diagPos, sourceElemType), translated);
                 }
-                JCExpression cSequences = makeType(syms.javafx_SequencesType, false);
                 return Call(defs.Sequences_fromArray, args);
             }
             if (targetIsSequence && !sourceIsSequence) {
@@ -2508,7 +2507,7 @@ public abstract class JavafxAbstractTranslation
 
             JCVariableDecl loopVar = makeTmpLoopVar(diagPos, 0);
             Name loopName = loopVar.name;
-            JCExpression loopLimit = Call(id(receiverName), defs.count_ObjectMethodName);
+            JCExpression loopLimit = Call(id(receiverName), defs.count_FXObjectMethodName);
             JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
             addPreface(loopLimitVar);
             JCExpression loopTest = LT(id(loopName), id(loopLimitVar.name));

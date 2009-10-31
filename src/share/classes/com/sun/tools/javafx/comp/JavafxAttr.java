@@ -1159,7 +1159,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     //@Override
     public void visitOnReplace(JFXOnReplace tree) {
-        Scope localScope = new Scope(new MethodSymbol(BLOCK, defs.lambdaName, null, env.enclClass.sym));
+        Scope localScope = new Scope(new MethodSymbol(BLOCK, defs.lambda_MethodName, null, env.enclClass.sym));
         JavafxEnv<JavafxAttrContext> localEnv = env.dup(tree, env.info.dup(localScope));        
         localEnv.outer = env;
         JFXVar lastIndex = tree.getLastIndex();
@@ -1650,7 +1650,7 @@ public class JavafxAttr implements JavafxVisitor {
 
     //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
-        JFXFunctionDefinition def = new JFXFunctionDefinition(fxmake.Modifiers(Flags.SYNTHETIC), defs.lambdaName, tree);
+        JFXFunctionDefinition def = new JFXFunctionDefinition(fxmake.Modifiers(Flags.SYNTHETIC), defs.lambda_MethodName, tree);
         def.pos = tree.pos;
         tree.definition = def;
         MethodSymbol m = new MethodSymbol(SYNTHETIC, def.name, null, env.enclClass.sym);
@@ -2355,7 +2355,7 @@ public class JavafxAttr implements JavafxVisitor {
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
                 (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym ||
                  msym.owner.type.tsym == syms.javafx_FXRuntimeType.tsym) &&
-                methName == defs.isInitializedName) {
+                methName == defs.isInitialized_MethodName) {
             msym.flags_field |= JavafxFlags.FUNC_IS_INITIALIZED;
             for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
                 JFXExpression arg = l.head;

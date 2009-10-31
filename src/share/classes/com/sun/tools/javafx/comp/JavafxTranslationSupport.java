@@ -602,7 +602,7 @@ public abstract class JavafxTranslationSupport {
 
     Name varMapName(ClassSymbol sym) {
         String className = sym.fullname.toString();
-        return names.fromString(varMapString + className.replace('.', '$'));
+        return names.fromString(varMap_FXObjectFieldPrefix + className.replace('.', '$'));
     }
 
     Name varGetMapName(ClassSymbol sym) {
@@ -611,7 +611,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     Name attributeOffsetName(Symbol sym) {
-        return prefixedAttributeName(sym, varOffsetString);
+        return prefixedAttributeName(sym, offset_AttributeFieldPrefix);
     }
     
     Name attributeValueName(Symbol sym) {
@@ -692,30 +692,30 @@ public abstract class JavafxTranslationSupport {
     }
 
     Name paramOldValueName(JFXOnReplace onReplace) {
-        return onReplace == null || onReplace.getOldValue() == null ? defs.oldValue_LocalVarName
+        return onReplace == null || onReplace.getOldValue() == null ? defs.varOldValue_LocalVarName
                 : onReplace.getOldValue().getName();
     }
 
     Name paramNewValueName(JFXOnReplace onReplace) {
-        return onReplace == null || onReplace.getNewElements() == null ? defs.newValue_ArgName
+        return onReplace == null || onReplace.getNewElements() == null ? defs.varNewValue_ArgName
                 : onReplace.getNewElements().getName();
     }
 
     Name paramStartPosName(JFXOnReplace onReplace) {
-        return onReplace == null || onReplace.getFirstIndex() == null ? defs.sliceArgNameStartPos
+        return onReplace == null || onReplace.getFirstIndex() == null ? defs.startPos_ArgName
                 : onReplace.getFirstIndex().getName();
     }
 
     Name paramEndPosName(JFXOnReplace onReplace) {
         return onReplace == null || onReplace.getLastIndex() == null ||
-                      onReplace.getEndKind() != JFXSequenceSlice.END_EXCLUSIVE ? defs.sliceArgNameEndPos
+                      onReplace.getEndKind() != JFXSequenceSlice.END_EXCLUSIVE ? defs.endPos_ArgName
                 : onReplace.getLastIndex().getName();
     }
 
     Name paramNewElementsLengthName(JFXOnReplace onReplace) {
         JFXVar newElements = onReplace == null ? null : onReplace.getNewElements();
         if (newElements == null)
-            return defs.sliceArgNameNewLength;
+            return defs.newLength_ArgName;
         else
             return newElements.sym.name.append(defs.lengthSuffixName);
     }
@@ -770,7 +770,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     JCExpression accessEmptySequence(DiagnosticPosition diagPos, Type elemType) {
-        return make.at(diagPos).Select(makeTypeInfo(diagPos, elemType), defs.emptySequenceFieldString);
+        return make.at(diagPos).Select(makeTypeInfo(diagPos, elemType), defs.emptySequence_FieldName);
     }
 
     private String escapeTypeName(Type type) {
@@ -778,7 +778,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     private JCExpression primitiveTypeInfo(DiagnosticPosition diagPos, Name typeName) {
-        return make.at(diagPos).Select(makeQualifiedTree(diagPos, typeInfosString), typeName);
+        return make.at(diagPos).Select(makeQualifiedTree(diagPos, cTypeInfo), typeName);
     }
     
     /**
@@ -810,7 +810,7 @@ public abstract class JavafxTranslationSupport {
         } else if (types.isSameType(type, syms.javafx_StringType)) {
             return primitiveTypeInfo(diagPos, syms.stringTypeName);
         } else if (types.isSameType(type, syms.javafx_DurationType)) {
-            JCExpression fieldRef = make.at(diagPos).Select(makeType(diagPos, type), defs.defaultingTypeInfoFieldName);
+            JCExpression fieldRef = make.at(diagPos).Select(makeType(diagPos, type), defs.defaultingTypeInfo_FieldName);
             // If TYPE_INFO becomes a Location again, ad back this line
             //    fieldRef = getLocationValue(diagPos, fieldRef, TYPE_KIND_OBJECT);
             return fieldRef;

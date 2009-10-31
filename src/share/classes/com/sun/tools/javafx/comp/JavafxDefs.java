@@ -40,6 +40,8 @@ public class JavafxDefs {
 
     /**
      * Method prefix strings for attributes
+     *
+     * Format: <name>_AttributeMethodPrefix
      */
     public static final String applyDefaults_AttributeMethodPrefix = "applyDefaults$";
     public static final String be_AttributeMethodPrefix = "be$";
@@ -57,9 +59,21 @@ public class JavafxDefs {
 
     /**
      * Field prefix strings for attributes
+     *
+     * Format: *_AttributeFieldNamePrefix
      */
     public static final String value_AttributeFieldNamePrefix = "$";
     public static final String saved_AttributeFieldNamePrefix = "saved$";
+    public static final String offset_AttributeFieldPrefix = "VOFF$";
+
+    /**
+     * Prefixes and name strings of generated FXObject fields
+     *
+     * Format: *_FXObjectFieldNameString
+     */
+    public static final String count_FXObjectFieldNameString = "VCNT$";
+    public static final String varFlags_FXObjectFieldPrefix = "VFLGS$";
+    public static final String varMap_FXObjectFieldPrefix = "MAP$";
 
     /**
      * Class suffixes
@@ -70,6 +84,8 @@ public class JavafxDefs {
 
     /**
      * Package name strings
+     *
+     * Format: <name>_PackageNameString
      */
     public  static final String javaLang_PackageNameString = "java.lang";
     public  static final String runtime_PackageNameString = "com.sun.javafx.runtime";
@@ -79,21 +95,24 @@ public class JavafxDefs {
 
     /**
      * Class name strings
+     *
+     * Format: c<className>
      */
     // in sequence package
-    public  static final String cSequences = sequence_PackageNameString + ".Sequences";
-    public  static final String cSequence  = sequence_PackageNameString + ".Sequence";
-    public  static final String cSequenceRef  = sequence_PackageNameString + ".SequenceRef";
+    public  static final String cSequences      = sequence_PackageNameString + ".Sequences";
+    public  static final String cSequence       = sequence_PackageNameString + ".Sequence";
+    public  static final String cSequenceRef    = sequence_PackageNameString + ".SequenceRef";
     public  static final String cArraySequence  = sequence_PackageNameString + ".ArraySequence";
     // in runtime package -- public
-    public  static final String cFXBase = runtime_PackageNameString + ".FXBase";
+    public  static final String cFXBase   = runtime_PackageNameString + ".FXBase";
     public  static final String cFXObject = runtime_PackageNameString + ".FXObject";
-    public  static final String cFXMixin = runtime_PackageNameString + ".FXMixin";
+    public  static final String cFXMixin  = runtime_PackageNameString + ".FXMixin";
+    public  static final String cTypeInfo = runtime_PackageNameString + ".TypeInfo";
     // in runtime package
-    private static final String cUtil = runtime_PackageNameString + ".Util";
-    private static final String cChecks = runtime_PackageNameString + ".Checks";
+    private static final String cUtil       = runtime_PackageNameString + ".Util";
+    private static final String cChecks     = runtime_PackageNameString + ".Checks";
     private static final String cFXVariable = runtime_PackageNameString + ".FXVariable";
-    private static final String cPointer = runtime_PackageNameString + ".Pointer";
+    private static final String cPointer    = runtime_PackageNameString + ".Pointer";
     // in java.lang package
     private static final String cMath = javaLang_PackageNameString + ".Math";
 
@@ -105,23 +124,9 @@ public class JavafxDefs {
     public static final String boundFunctionObjectParamPrefix = "$$boundInstance$";
     public static final String boundFunctionVarNumParamPrefix = "$$boundVarNum$";
     public static final String implFunctionSuffix = "$impl";
-    public static final String fxBaseString = "com.sun.javafx.runtime.FXBase";
-    public static final String typeInfosString = "com.sun.javafx.runtime.TypeInfo";
     public static final String internalRunFunctionNameString = Entry.entryMethodName();
-    public static final String receiverNameString = "receiver$";
-    public static final String invokeNameString = "invoke";
-    public static final String lambdaNameString = "lambda";
-    public static final String isInitializedNameString = "isInitialized";
-    public static final String hasAnInitializerNameString = "hasAnInitializer";
-    public static final String convertNumberSequence = "convertNumberSequence";
-    public static final String bindingIdString = "id";
-    public static final String varOffsetString = "VOFF$";
-    public static final String varCountString = "VCNT$";
-    public static final String varFlagsString = "VFLGS$";
     public static final String varDependentsManagerString = "DependentsManager$internal$";
-    public static final String varMapString = "MAP$";
     public static final String varGetMapString = "GETMAP$";
-    public static final String varOFF$valueString = "VOFF$value";
 
     public  static final String zeroDuration = "javafx.lang.Duration.$ZERO";
 
@@ -130,6 +135,9 @@ public class JavafxDefs {
     public  static final char typeCharToEscape = '.';
     public  static final char escapeTypeChar = '_';
 
+    /**
+     * RuntimeMethod
+     */
     static class RuntimeMethod {
         final String classString;
         final Name methodName;
@@ -142,6 +150,8 @@ public class JavafxDefs {
 
     /**
      * RuntimeMethod definitions
+     *
+     * Format: <className>_<methodName>
      */
     final RuntimeMethod TypeInfo_getTypeInfo;
 
@@ -192,20 +202,20 @@ public class JavafxDefs {
      * Class-wide method Name definitions
      */
     final Name applyDefaults_ObjectMethodName;
-    final Name count_ObjectMethodName;
-    final Name get_ObjectMethodName;
-    final Name invalidate_ObjectMethodName;
-    final Name size_ObjectMethodName;
-    final Name update_ObjectMethodName;
+    final Name count_FXObjectMethodName;
+    final Name get_FXObjectMethodName;
+    final Name invalidate_FXObjectMethodName;
+    final Name size_FXObjectMethodName;
+    final Name update_FXObjectMethodName;
 
     /**
      * Method Name definitions
      */
     final Name incrementSharing_SequenceMethodName;
     final Name make_PointerMethodName;
-    final Name sizeArrayMethodName;
+    final Name size_SequenceMethodName;
     final Name sizeSequenceMethodName;
-    final Name toArrayMethodName;
+    final Name toArray_SequenceMethodName;
 
     final Name[] typedGetMethodName;
     final Name[] typedSetMethodName;
@@ -217,23 +227,32 @@ public class JavafxDefs {
      */
     final Name applyDefaults_AttributeMethodPrefixName;
     final Name evaluate_AttributeMethodPrefixName;
-    final Name getMixinAttributeMethodPrefixName;
-    final Name getVOFFAttributeMethodPrefixName;
+    final Name getMixin_AttributeMethodPrefixName;
+    final Name getVOFF_AttributeMethodPrefixName;
     final Name initVarBitsAttributeMethodPrefixName;
     final Name onReplaceAttributeMethodPrefixName;
-    final Name setMixinAttributeMethodPrefixName;
+    final Name setMixin_AttributeMethodPrefixName;
 
     /**
      * Name definitions
      */
-    public final Name fxObjectName;
-    public final Name fxMixinName;
-    public final Name fxBaseName;
-    public final Name mixinSuffixName;
-    public final Name lengthSuffixName;
-    public final Name deprecatedInterfaceSuffixName;
-    final Name scriptLevelAccess_FXObjectFieldName;
-    final Name scriptLevelAccess_FXObjectMethodPrefixName;
+
+    /**
+     * Classes as Name
+     */
+    public final Name cFXObjectName;
+    public final Name cFXMixinName;
+    public final Name cFXBaseName;
+
+    /**
+     * Method Names
+     */
+
+    final Name complete_FXObjectMethodName;
+    final Name initialize_FXObjectMethodName;
+    final Name userInit_FXObjectMethodName;
+    final Name postInit_FXObjectMethodName;
+
     final Name add_DurationMethodName;
     final Name sub_DurationMethodName;
     final Name mul_DurationMethodName;
@@ -242,25 +261,91 @@ public class JavafxDefs {
     final Name lt_DurationMethodName;
     final Name ge_DurationMethodName;
     final Name gt_DurationMethodName;
+
+    final Name invoke_MethodName;
+    final Name lambda_MethodName;
+
+    final Name isInitialized_MethodName;
+    final Name get_PointerMethodName;
+    final Name initFXBase_MethodName;
+    final Name getSlice_SequenceMethodName;
+
+    /**
+     * Field Names
+     */
+
+    final Name count_FXObjectFieldName;
+
+    final Name length_ArrayFieldName;
+    final Name defaultingTypeInfo_FieldName;
+    final Name emptySequence_FieldName;
+
+    /**
+     * Argument Names
+     */
+    final Name startPos_ArgName;
+    final Name endPos_ArgName;
+    final Name newLength_ArgName;
+    final Name phase_ArgName;
+    final Name varNewValue_ArgName;
+    final Name oldValue_ArgName;
+    final Name newValue_ArgName;
+    final Name pos_ArgName;
+
+    /**
+     * Method prefixes for attributes as Name
+     *
+     * Format: *_AttributeMethodPrefixName
+     */
+    final Name get_AttributeMethodPrefixName;
+    final Name set_AttributeMethodPrefixName;
+    final Name be_AttributeMethodPrefixName;
+
+
+    /**
+     * Field prefixes for attributes as Name
+     *
+     * Format: *_AttributeFieldPrefixName
+     */
+    final Name offset_AttributeFieldPrefixName;
+
+    /**
+     * Names of flags in FXObject
+     */
+    final Name varFlagActionTest;
+    final Name varFlagActionChange;
+    final Name varFlagRestrictSet;
+    final Name varFlagIS_INVALID;
+    final Name varFlagNEEDS_TRIGGER;
+    final Name varFlagIS_BOUND;
+    final Name varFlagIS_READONLY;
+    final Name varFlagDEFAULT_APPLIED;
+    final Name varFlagIS_INITIALIZED;
+    final Name varFlagVALIDITY_FLAGS;
+    final Name varFlagIS_BOUND_INVALID;
+    final Name varFlagIS_BOUND_DEFAULT_APPLIED;
+    final Name varFlagINIT_NORMAL;
+    final Name varFlagINIT_OBJ_LIT;
+    final Name varFlagINIT_OBJ_LIT_DEFAULT;
+    final Name varFlagINIT_READONLY;
+    final Name varFlagINIT_BOUND;
+    final Name varFlagINIT_BOUND_READONLY;
+    final Name varFlagALL_FLAGS;
+
+    /**
+     * Misc Names
+     */
+    public final Name mixinSuffixName;
+    public final Name lengthSuffixName;
+    public final Name deprecatedInterfaceSuffixName;
+    final Name scriptLevelAccess_FXObjectFieldName;
+    final Name scriptLevelAccess_FXObjectMethodPrefixName;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
     final Name mainName;
     final Name receiverName;
-    final Name initialize_FXObjectMethodName;
     final Name attributeNotifyDependentsName;
-    final Name complete_FXObjectMethodName;
     final Name outerAccessorName;
-    final Name get_PointerMethodName;
-    final Name getSliceMethodName;
-    final Name defaultingTypeInfoFieldName;
-    final Name invoke_MethodName;
-    final Name lambdaName;
-    final Name lengthName;
-    final Name emptySequenceFieldString;
-    final Name isInitializedName;
-    final Name bindingIdName;
-    final Name varOffsetName;
-    final Name varCountName;
     final Name typeParamName;
     final Name init_MethodSymbolName;
     final Name postinit_MethodSymbolName;
@@ -273,56 +358,25 @@ public class JavafxDefs {
     final Name valueName;
     final Name targetName;
     final Name interpolateName;
-    final Name initFXBaseName;
-    final Name userInitName;
-    final Name postInitName;
-    final Name attributeGetMethodPrefixName;
-    final Name attributeSetMethodPrefixName;
-    final Name attributeBeMethodPrefixName;
-    final Name oldValue_LocalVarName;
-    final Name newValue_ArgName;
-    final Name onReplaceArgNameOld;
-    final Name onReplaceArgNameNew;
-    final Name sliceArgNameStartPos;
-    final Name sliceArgNameEndPos;
-    final Name sliceArgNameNewLength;
-    final Name onReplaceArgNameFirstIndex;
-    final Name onReplaceArgNameLastIndex;
-    final Name onReplaceArgNameNewElements;
-    final Name getArgNamePos;
-    final Name phase_InvalidateArgName;
+    final Name varOldValue_LocalVarName;
 
     final Name internalSuffixName;
     
-    final Name varFlagActionTest;
-    final Name varFlagActionChange;
-    final Name varFlagRestrictSet;
-    final Name varFlagIS_INVALID;
-    final Name varFlagNEEDS_TRIGGER;
-    final Name varFlagIS_BOUND;
-    final Name varFlagIS_READONLY;
-    final Name varFlagDEFAULT_APPLIED;
-    final Name varFlagIS_INITIALIZED;    
-    final Name varFlagVALIDITY_FLAGS;
-    final Name varFlagIS_BOUND_INVALID;
-    final Name varFlagIS_BOUND_DEFAULT_APPLIED;
-    final Name varFlagINIT_NORMAL;
-    final Name varFlagINIT_OBJ_LIT;
-    final Name varFlagINIT_OBJ_LIT_DEFAULT;
-    final Name varFlagINIT_READONLY;
-    final Name varFlagINIT_BOUND;
-    final Name varFlagINIT_BOUND_READONLY;
-    final Name varFlagALL_FLAGS;
-
     public final Name varOFF$valueName;
 
-    public final Name runtimePackageName;
-    public final Name annotationPackageName;
-    public final Name sequencePackageName;
-    public final Name functionsPackageName;
-    public final Name javaLangPackageName;
+    /**
+     * Packages as Name
+     */
+    public final Name runtime_PackageName;
+    public final Name annotation_PackageName;
+    public final Name sequence_PackageName;
+    public final Name functions_PackageName;
+    public final Name javaLang_PackageName;
     public final Name boundFunctionResultName;
 
+    /**
+     * Type Kinds
+     */
     public static final int TYPE_KIND_OBJECT = 0;
     public static final int TYPE_KIND_BOOLEAN = 1;
     public static final int TYPE_KIND_CHAR = 2;
@@ -365,35 +419,34 @@ public class JavafxDefs {
         lt_DurationMethodName = names.fromString("lt");
         ge_DurationMethodName = names.fromString("ge");
         gt_DurationMethodName = names.fromString("gt");
-        fxObjectName = names.fromString(cFXObject);
-        fxMixinName = names.fromString(cFXMixin);
-        fxBaseName = names.fromString(cFXBase);
+        cFXObjectName = names.fromString(cFXObject);
+        cFXMixinName = names.fromString(cFXMixin);
+        cFXBaseName = names.fromString(cFXBase);
         mixinSuffixName = names.fromString(mixinClassSuffix);
         lengthSuffixName = names.fromString("$length");
         deprecatedInterfaceSuffixName = names.fromString(deprecatedInterfaceSuffix);
         userRunFunctionName = names.fromString("run");
         internalRunFunctionName = names.fromString(internalRunFunctionNameString);
         mainName = names.fromString("main");
-        receiverName = names.fromString(receiverNameString);
+        receiverName = names.fromString("receiver$");
         initialize_FXObjectMethodName = names.fromString("initialize$");
         attributeNotifyDependentsName = names.fromString("notifyDependents$");
         complete_FXObjectMethodName = names.fromString("complete$");
         outerAccessorName = names.fromString("accessOuter$");
         get_PointerMethodName = names.fromString("get");
-        getSliceMethodName = names.fromString("getSlice");
-        sizeArrayMethodName = names.fromString("size");
+        getSlice_SequenceMethodName = names.fromString("getSlice");
+        size_SequenceMethodName = names.fromString("size");
         sizeSequenceMethodName = names.fromString("size");
-        defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
-        toArrayMethodName = names.fromString("toArray");
+        defaultingTypeInfo_FieldName = names.fromString("$TYPE_INFO");
+        toArray_SequenceMethodName = names.fromString("toArray");
         make_PointerMethodName = names.fromString("make");
-        invoke_MethodName = names.fromString(invokeNameString);
-        lambdaName = names.fromString(lambdaNameString);
-        lengthName = names.fromString("length");
-        emptySequenceFieldString = names.fromString("emptySequence");
-        isInitializedName = names.fromString(isInitializedNameString);
-        bindingIdName = names.fromString(bindingIdString);
-        varOffsetName = names.fromString(varOffsetString);
-        varCountName = names.fromString(varCountString);
+        invoke_MethodName = names.fromString("invoke");
+        lambda_MethodName = names.fromString("lambda");
+        length_ArrayFieldName = names.fromString("length");
+        emptySequence_FieldName = names.fromString("emptySequence");
+        isInitialized_MethodName = names.fromString("isInitialized");
+        offset_AttributeFieldPrefixName = names.fromString(offset_AttributeFieldPrefix);
+        count_FXObjectFieldName = names.fromString(count_FXObjectFieldNameString);
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
         typeParamName = names.fromString("T");
         init_MethodSymbolName = names.fromString("$init$def$name");
@@ -406,40 +459,37 @@ public class JavafxDefs {
         targetName = names.fromString("target");
         valueName = names.fromString("value");
         interpolateName = names.fromString("interpolate");
-        initFXBaseName = names.fromString("initFXBase$");
-        userInitName = names.fromString("userInit$");
-        postInitName = names.fromString("postInit$");
+        initFXBase_MethodName = names.fromString("initFXBase$");
+        userInit_FXObjectMethodName = names.fromString("userInit$");
+        postInit_FXObjectMethodName = names.fromString("postInit$");
         incrementSharing_SequenceMethodName = names.fromString("incrementSharing");
-        onReplaceArgNameOld = names.fromString("oldValue$");
-        onReplaceArgNameNew = names.fromString("newValue$");
-        sliceArgNameStartPos = names.fromString("startPos$");
-        sliceArgNameEndPos = names.fromString("endPos$");
-        sliceArgNameNewLength = names.fromString("newLength$");
-        getArgNamePos = names.fromString("pos$");
-        phase_InvalidateArgName = names.fromString("phase$");
-        onReplaceArgNameFirstIndex = sliceArgNameStartPos;
-        onReplaceArgNameLastIndex = sliceArgNameEndPos;
-        onReplaceArgNameNewElements = names.fromString("$newElements$");
+        oldValue_ArgName = names.fromString("oldValue$");
+        newValue_ArgName = names.fromString("newValue$");
+        startPos_ArgName = names.fromString("startPos$");
+        endPos_ArgName = names.fromString("endPos$");
+        newLength_ArgName = names.fromString("newLength$");
+        pos_ArgName = names.fromString("pos$");
+        phase_ArgName = names.fromString("phase$");
         internalSuffixName = names.fromString("$internal$");
         boundFunctionResultName = names.fromString(boundFunctionResult);
-        attributeGetMethodPrefixName = names.fromString(get_AttributeMethodPrefix);
-        get_ObjectMethodName = attributeGetMethodPrefixName;
-        attributeSetMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
-        attributeBeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
-        invalidate_ObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
+        get_AttributeMethodPrefixName = names.fromString(get_AttributeMethodPrefix);
+        get_FXObjectMethodName = get_AttributeMethodPrefixName;
+        set_AttributeMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
+        be_AttributeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
+        invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
         onReplaceAttributeMethodPrefixName = names.fromString(onReplace_AttributeMethodPrefix);
         evaluate_AttributeMethodPrefixName = names.fromString(evaluate_AttributeMethodPrefix);
-        getMixinAttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);
-        getVOFFAttributeMethodPrefixName = names.fromString(getVOFF_AttributeMethodPrefix);
-        setMixinAttributeMethodPrefixName = names.fromString(setMixin_AttributeMethodPrefix);
+        getMixin_AttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);
+        getVOFF_AttributeMethodPrefixName = names.fromString(getVOFF_AttributeMethodPrefix);
+        setMixin_AttributeMethodPrefixName = names.fromString(setMixin_AttributeMethodPrefix);
         initVarBitsAttributeMethodPrefixName = names.fromString(initVarBits_AttributeMethodPrefix);
         applyDefaults_ObjectMethodName = names.fromString(applyDefaults_AttributeMethodPrefix);
         applyDefaults_AttributeMethodPrefixName = names.fromString(applyDefaults_AttributeMethodPrefix);
-        update_ObjectMethodName = names.fromString("update$");
-        size_ObjectMethodName = names.fromString(size_AttributeMethodPrefix);
-        count_ObjectMethodName = names.fromString("count$");
-        oldValue_LocalVarName =  names.fromString("varOldValue$");
-        newValue_ArgName =  names.fromString("varNewValue$");
+        update_FXObjectMethodName = names.fromString("update$");
+        size_FXObjectMethodName = names.fromString(size_AttributeMethodPrefix);
+        count_FXObjectMethodName = names.fromString("count$");
+        varOldValue_LocalVarName =  names.fromString("varOldValue$");
+        varNewValue_ArgName =  names.fromString("varNewValue$");
         scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
         scriptLevelAccess_FXObjectMethodPrefixName = names.fromString("access$scriptLevel$");
         
@@ -464,16 +514,16 @@ public class JavafxDefs {
         varFlagINIT_BOUND_READONLY = names.fromString("VFLGS$INIT_BOUND_READONLY");
         varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
 
-        varOFF$valueName = names.fromString(varOFF$valueString);
+        varOFF$valueName = names.fromString("VOFF$value");
 
-        runtimePackageName = names.fromString(runtime_PackageNameString);
-        annotationPackageName = names.fromString(annotation_PackageNameString);
-        javaLangPackageName = names.fromString(javaLang_PackageNameString);
-        sequencePackageName = names.fromString(sequence_PackageNameString);
-        functionsPackageName = names.fromString(functions_PackageNameString);
+        runtime_PackageName = names.fromString(runtime_PackageNameString);
+        annotation_PackageName = names.fromString(annotation_PackageNameString);
+        javaLang_PackageName = names.fromString(javaLang_PackageNameString);
+        sequence_PackageName = names.fromString(sequence_PackageNameString);
+        functions_PackageName = names.fromString(functions_PackageNameString);
 
         // Initialize RuntimeMethods
-        TypeInfo_getTypeInfo = new RuntimeMethod(names, typeInfosString, "getTypeInfo");
+        TypeInfo_getTypeInfo = new RuntimeMethod(names, cTypeInfo, "getTypeInfo");
 
         Sequences_convertNumberSequence = new RuntimeMethod(names, cSequences, "convertNumberSequence");
         Sequences_convertCharToNumberSequence = new RuntimeMethod(names, cSequences, "convertCharToNumberSequence");

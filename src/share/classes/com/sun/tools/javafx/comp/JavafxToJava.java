@@ -653,7 +653,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXFunctionDefinition def = tree.definition;
-        result = new FunctionValueTranslator(make.Ident(defs.lambdaName), def, tree.pos(), (MethodType) def.type, tree.type).doit();
+        result = new FunctionValueTranslator(make.Ident(defs.lambda_MethodName), def, tree.pos(), (MethodType) def.type, tree.type).doit();
     }
 
    boolean isInnerFunction (MethodSymbol sym) {
@@ -1035,7 +1035,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         protected JCExpression doitExpr() {
             JCExpression tFirstIndex = translateExpr(firstIndex, syms.intType);
-            return Call(seq, defs.getSliceMethodName, tFirstIndex, computeSliceEnd());
+            return Call(seq, defs.getSlice_SequenceMethodName, tFirstIndex, computeSliceEnd());
         }
     }
 

@@ -60,11 +60,11 @@ public class JavaPretty extends Pretty {
         super(out, sourceOutput);
 
 		JavafxDefs defs = JavafxDefs.instance(context);
-		    importedPackages.add(defs.runtimePackageName);
-		    importedPackages.add(defs.annotationPackageName);
-		    importedPackages.add(defs.sequencePackageName);
-		    importedPackages.add(defs.functionsPackageName);
-            importedPackages.add(defs.javaLangPackageName);
+		    importedPackages.add(defs.runtime_PackageName);
+		    importedPackages.add(defs.annotation_PackageName);
+		    importedPackages.add(defs.sequence_PackageName);
+		    importedPackages.add(defs.functions_PackageName);
+            importedPackages.add(defs.javaLang_PackageName);
     }
 
     @Override
