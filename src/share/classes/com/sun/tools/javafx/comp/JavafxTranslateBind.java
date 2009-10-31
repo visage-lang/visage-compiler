@@ -359,71 +359,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     }
                 }
         }
-
-        /**** Select of Sequence ****/
-
-        JCExpression posArg() {
-            return id(defs.getArgNamePos);
-        }
-
-        JCStatement makeSizeBody() {
-            JCExpression tToCheck = translateToCheck(getToCheck());
-            return buildBody(tToCheck, call(tToCheck, attributeSizeName(refSym)), syms.intType);
-        }
-
-        JCStatement makeGetElementBody() {
-            JCExpression tToCheck = translateToCheck(getToCheck());
-            return buildBody(tToCheck, call(tToCheck, attributeGetElementName(refSym), posArg()), types.elementType(refSym.type));
-        }
-
-        protected JCStatement buildBody(JCExpression tToCheck, JCExpression full, Type theResultType) {
-            return wrapInNullCheckStatement(full, tToCheck, theResultType, theResultType);
-        }
-
-        private JCStatement makeInvalidateSelector(List<JCStatement> preface) {
-            return null;
- /**           JCVariableDecl vNewStep = makeTmpVar("newStep", elemType, getStep());
-            JCVariableDecl vOldSize = makeTmpVar("oldSize", syms.intType, size());
-            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
-                                        calculateSize(lower(), upper(), id(vNewStep)));
-
-            return If (isSequenceValid(),
-                      Block(
-                        vNewStep,
-                        If (NE(step(), id(vNewStep)),
-                          Block(
-                              vNewSize,
-                              vOldSize,
-                              If (IsTriggerPhase(),
-                                  Block(
-                                      Assign(step(), id(vNewStep)),
-                                      Assign(size(), id(vNewSize))
-                                  )
-                              ),
-                              InvalidateCall(iZero(), id(vOldSize), id(vNewSize))
-                    )))
-            );
-  * ***/
-        }
-
-        BoundSequenceResult doitSequence() {
-            JFXExpression selectorExpr = tree.getExpression();
-            if (canChange() && (selectorExpr instanceof JFXIdent)) {
-                // cases that need a null check are the same as cases that have changing dependencies
-                JFXIdent selector = (JFXIdent) selectorExpr;
-                Symbol selectorSym = selector.sym;
-                buildDependencies(selectorSym);
-
-                // Use the preface (which has the dependency switching code) in the invalidator
-                addInvalidator((VarSymbol) selectorSym, makeInvalidateSelector(statements()));
-                
-                addInterClassBindee((VarSymbol) selectorSym, refSym);
-            } else {
-                TODO("immutable bound sequence member select");
-            }
-
-            return new BoundSequenceResult(invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
-        }
     }
 
 /****************************************************************************
@@ -442,7 +377,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         BoundSequenceResult doit() {
             setupInvalidators();
-            return new BoundSequenceResult(invalidators(), List.<DependentPair>nil(), makeGetElementBody(), makeSizeBody());
+            return new BoundSequenceResult(invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
         }
 
         JCStatement InvalidateCall(JCExpression begin, JCExpression end, JCExpression newLen) {
@@ -517,6 +452,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCExpression NEG(JCExpression v1) {
             return makeUnary(JCTree.NEG, v1);
         }
+        JCExpression NOT(JCExpression v1) {
+            return makeUnary(JCTree.NOT, v1);
+        }
         JCStatement Assign(JCExpression vid, JCExpression value) {
             return makeExec(m().Assign(vid, value));
         }
@@ -556,6 +494,196 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         void setupInvalidators() {
             mergeResults(exprResult);
+        }
+    }
+
+    private class BoundSelectSequenceTranslator extends BoundSequenceTranslator {
+
+        private final SelectTranslator strans;
+        private final Symbol refSym;
+        private final VarSymbol selfSym = (VarSymbol) targetSymbol;
+        private final VarSymbol selectorSym;
+        private final VarSymbol sizeSym;
+
+
+        BoundSelectSequenceTranslator(JFXSelect tree) {
+            super(tree.pos());
+            this.strans = new SelectTranslator(tree);
+            this.refSym = strans.refSym;
+            this.sizeSym = tree.boundSize.sym;
+            JFXExpression selectorExpr = tree.getExpression();
+            assert canChange();
+            assert (selectorExpr instanceof JFXIdent);
+            JFXIdent selector = (JFXIdent) selectorExpr;
+            this.selectorSym = (VarSymbol) selector.sym;
+        }
+
+        /*** forward to SelectTranslator ***/
+        private JFXExpression getToCheck() { return strans.getToCheck(); }
+        private JCExpression translateToCheck(JFXExpression expr) { return strans.translateToCheck(expr); }
+        private boolean canChange() { return strans.canChange(); }
+        private JCExpression wrapInNullCheckExpression(JCExpression full, JCExpression tToCheck, Type theResultType, Type theFullType) {
+             return strans.wrapInNullCheckExpression(full, tToCheck, theResultType, theFullType);
+        }
+        private JCStatement wrapInNullCheckStatement(JCExpression full, JCExpression tToCheck, Type theResultType, Type theFullType) {
+             return strans.wrapInNullCheckStatement(full, tToCheck, theResultType, theFullType);
+        }
+
+        /**
+         * Size accessor
+         * (
+         *     if ( default-not-set ) {
+         *         set-default-flag;
+         *         clear selector's trigger flag
+         *         invalidate the selector
+         *     }
+         *     // redirect to the size of the referenced sequence, updating the selector
+         *     return get$selector()==null? 0 : get$selector().size$ref();
+         * }
+         *
+         */
+        JCStatement makeSizeBody() {
+            JCExpression tToCheck = translateToCheck(getToCheck());
+
+            return
+                Block(
+                    If (NOT(makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED)),
+                        Block(
+                            makeFlagStatement(selectorSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null),
+                            callStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
+                        )
+                    ),
+                    buildBody(tToCheck, call(tToCheck, attributeSizeName(refSym)), syms.intType)
+                );
+        }
+
+        /**
+         * Get sequence element
+         * {
+         *     size$self(); // Access size to make sure we are initialized
+         *     return get$selector()==null? <default> : get$selector().get$ref(pos);
+         * }
+         */
+        JCStatement makeGetElementBody() {
+            JCExpression tToCheck = translateToCheck(getToCheck());
+
+            return
+                Block(
+                    callStmt(attributeSizeName(selfSym)),
+                    buildBody(tToCheck, call(tToCheck, attributeGetElementName(refSym), posArg()), types.elementType(refSym.type))
+                );
+        }
+
+        protected JCStatement buildBody(JCExpression tToCheck, JCExpression full, Type theResultType) {
+            return wrapInNullCheckStatement(full, tToCheck, theResultType, theResultType);
+        }
+
+        /**
+         *  $selector === null? 0 : $selector.size$ref();
+         */
+        private JCExpression getSize(VarSymbol selectorSym) {
+            return  m().Conditional(makeNullCheck(id(attributeValueName(selectorSym))),
+                        makeInt(0),
+                        call(id(attributeValueName(selectorSym)), attributeSizeName(refSym)));
+        }
+
+        /**
+         * Invalidator for the selector
+         *
+         * invalidator$selector(int phase) {
+         *     if (valid-for-this-phase) {
+         *         clear-valid-for-this-phase;
+         *         int oldSize = $selector === null? 0 : $selector.size$ref();
+         *         if ( is-trigger-phase) {
+         *             get$selector();  // update selector
+         *             int newSize = $selector === null? 0 : $selector.size$ref();
+         *             addDependent($selector, VOFF$ref);
+         *             invalidate$self(0, oldSize, newSize, phase);
+         *         } else {
+         *             // remove dependent, do it now, so updates from referenced don't interject
+         *             removeDependent($selector, VOFF$ref);
+         *             // invalidate with undefined newSize, since we can't compute without enter trigger phase
+         *             invalidate$self(0, oldSize, -1, phase);
+         *         }
+         *     }
+         * }
+         */
+        private JCStatement makeInvalidateSelector(VarSymbol selectorSym) {
+            JCVariableDecl oldSize = makeTmpVar(syms.intType, getSize(selectorSym));
+
+            return
+                If (NOT(makeFlagExpression(selectorSym, defs.varFlagActionChange, null, phaseArg())),
+                    Block(
+                        oldSize,
+                        If (IsTriggerPhase(),
+                            Block(
+                                callStmt(attributeGetterName(selectorSym)),
+                                If (makeNotNullCheck(id(attributeValueName(selectorSym))),
+                                    callStmt(defs.FXBase_addDependent,
+                                        id(attributeValueName(selectorSym)),
+                                        Offset(id(attributeValueName(selectorSym)), refSym),
+                                        getReceiverOrThis(selectorSym)
+                                    )
+                                ),
+                                callStmt(attributeInvalidateName(selfSym),
+                                    makeInt(0),
+                                    id(oldSize),
+                                    getSize(selectorSym),
+                                    phaseArg()
+                                )
+                            ),
+                            Block(
+                                If (makeNotNullCheck(id(attributeValueName(selectorSym))),
+                                    callStmt(defs.FXBase_removeDependent,
+                                       id(attributeValueName(selectorSym)),
+                                       Offset(id(attributeValueName(selectorSym)), refSym),
+                                       getReceiverOrThis(selectorSym)
+                                    )
+                                ),
+                                callStmt(attributeInvalidateName(selfSym),
+                                    makeInt(0),
+                                    id(oldSize),
+                                    makeInt(-1),
+                                    phaseArg())
+                            )
+                        )
+                    )
+                );
+        }
+
+        /**
+         * Addition to the invalidate for this bound select sequence
+         *
+         * invalidate$self(int start, int end, int newLen, int phase) {
+         *     if ( is-trigger-phase ) {
+         *         $size = $size + newLen - (end - start);
+         *     }
+         *     ....
+         * }
+         */
+        private JCStatement makeInvalidateSelf() {
+            return
+                If (IsTriggerPhase(),
+                    Assign(id(attributeValueName(sizeSym)),
+                        PLUS(
+                            id(attributeValueName(sizeSym)),
+                            MINUS(
+                                id(defs.sliceArgNameNewLength),
+                                MINUS(
+                                    id(defs.sliceArgNameEndPos),
+                                    id(defs.sliceArgNameStartPos)
+                                )
+                            )
+                        )
+                    )
+                );
+        }
+
+        @Override
+        void setupInvalidators() {
+                addInvalidator(selectorSym, makeInvalidateSelector(selectorSym));
+                addInvalidator(selfSym, makeInvalidateSelf());
+                addInterClassBindee(selectorSym, refSym);
         }
     }
 
@@ -1142,12 +1270,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     public void visitSelect(JFXSelect tree) {
-        BoundSelectTranslator bst = new BoundSelectTranslator(tree);
         if (tree == boundExpression && types.isSequence(targetType)) {
             // We want to translate to a bound sequence
-            result = bst.doitSequence();
+            result = new BoundSelectSequenceTranslator(tree).doit();
         } else {
-            result = bst.doit();
+            result = new BoundSelectTranslator(tree).doit();
         }
     }
 

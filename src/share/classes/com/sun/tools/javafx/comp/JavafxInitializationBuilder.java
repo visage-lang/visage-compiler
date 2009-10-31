@@ -1316,8 +1316,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         for (BindeeInvalidator invalidator : invalidatees) {
                             addStmt(invalidator.invalidator);
                         }
-
-                        return;
                     }
 
                     if (varInfo.isOverride()) {
@@ -1335,8 +1333,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.onInvalidate() != null) {
                         addStmt(varInfo.onInvalidateAsInline());
                     }
-                    
-                    for (VarInfo otherVar : varInfo.boundBinders()) {
+
+                    // Hack for bug in boundBinders() which includes invalidators
+                    if (!hasInvalidators) for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.isSequence()) {
                             addStmt(callStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), id(phaseName)));
@@ -1376,8 +1375,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 id(defs.sliceArgNameStartPos), id(defs.sliceArgNameEndPos), id(defs.sliceArgNameNewLength),
                                 id(phaseName)));
                     } 
-                    
-                    if (varInfo.hasBoundDefinition()) {
+
+                    //TODO: remove this -- currently disabled
+                    // Doing this save violates first phase invalidation safety by making calls to size and element getter.
+                    // Saving away of a SequenceRef should now be avoided, so this shouldn't be needed
+                    if (false && varInfo.hasBoundDefinition()) {
                         // Begin seq save block.
                         beginBlock();
                         // seq$.save()

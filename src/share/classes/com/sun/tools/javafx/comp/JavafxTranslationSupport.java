@@ -1062,11 +1062,11 @@ public abstract class JavafxTranslationSupport {
         }
         private JCExpression getReceiverOrThis() {
             JCExpression receiver = getReceiver();
-            
+
             if (receiver == null) {
                 receiver = id(names._this);
             }
-            
+
             return receiver;
         }
         protected JCExpression getReceiverOrThis(VarSymbol varSym) {
@@ -1612,7 +1612,14 @@ public abstract class JavafxTranslationSupport {
 
 
         /* Debugging support */
-        
+
+        JCStatement Debug(String msg, JCExpression obj) {
+            return callStmt(makeQualifiedTree("java.lang.System.err"), "println",
+                    obj==null?
+                          makeString(msg)
+                        : makeBinary(JCTree.PLUS, makeString(msg + " "), obj));
+        }
+
         List<JCStatement> makeDebugTrace(String msg) {
             return makeDebugTrace(msg, makeString(""));
         }
@@ -1620,8 +1627,7 @@ public abstract class JavafxTranslationSupport {
         List<JCStatement> makeDebugTrace(String msg, JCExpression obj) {
             String trace = options.get("debugTrace");
             return trace != null ?
-                List.<JCStatement>of(callStmt(makeQualifiedTree("java.lang.System.err"), "println",
-                    makeBinary(JCTree.PLUS, makeString(msg + " "), obj)))
+                List.<JCStatement>of(Debug(msg, obj))
               : List.<JCStatement>nil();
         }
     }

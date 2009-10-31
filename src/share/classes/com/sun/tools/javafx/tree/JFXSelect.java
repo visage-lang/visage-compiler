@@ -41,6 +41,8 @@ public class JFXSelect extends JFXExpression implements MemberSelectTree {
     public Name name;
     public Symbol sym;
 
+    public JFXVar boundSize;
+
     protected JFXSelect(JFXExpression selected, Name name, Symbol sym) {
         this.selected = selected;
         this.name = name;

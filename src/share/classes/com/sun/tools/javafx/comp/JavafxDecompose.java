@@ -396,6 +396,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitSelect(JFXSelect tree) {
+        DiagnosticPosition diagPos = tree.pos();
         JFXExpression selected;
         if (tree.sym.isStatic() &&
                 tree.sym.kind == Kinds.VAR &&
@@ -416,6 +417,14 @@ public class JavafxDecompose implements JavafxVisitor {
         }
         JFXSelect res = fxmake.at(tree.pos).Select(selected, tree.name);
         res.sym = tree.sym;
+        if (inBind && types.isSequence(tree.type)) {
+            // Add a prevSize field to hold the previous size on selector switch
+            JFXExpression zero = fxmake.at(diagPos).Literal(0);
+            zero.type = syms.intType;
+            JFXVar v = makeVar(diagPos, "size", zero, JavafxBindStatus.UNIDIBIND, syms.intType);
+            v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+            res.boundSize = v;
+        }
         result = res;
     }
 
