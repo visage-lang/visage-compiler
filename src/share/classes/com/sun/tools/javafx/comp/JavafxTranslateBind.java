@@ -219,7 +219,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             ExpressionResult res = translateToExpressionResult(expr, type);
             addBindees(res.bindees());
             addInterClassBindees(res.interClass());
-            return m().Block(0L, res.statements().append(makeExec(m().Assign(id(resVar), res.expr()))));
+            return m().Block(0L, res.statements().append(Stmt(m().Assign(id(resVar), res.expr()))));
         }
 
         protected ExpressionResult doit() {
@@ -323,13 +323,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     addPreface(newSelector);
 
                     if ((selectorSym.type.tsym.flags() & JavafxFlags.MIXIN) != 0) {
-                        JCExpression oldNullCheck = makeNullCheck(id(oldSelector));
-                        JCExpression oldInit = m().Conditional(oldNullCheck, makeInt(0), call(id(oldSelector), attributeGetVOFFName(tree.sym)));
+                        JCExpression oldNullCheck = EQnull(id(oldSelector));
+                        JCExpression oldInit = m().Conditional(oldNullCheck, Int(0), call(id(oldSelector), attributeGetVOFFName(tree.sym)));
                         oldOffset = makeTmpVar(syms.intType, oldInit);
                         addPreface(oldOffset);
 
-                        JCExpression newNullCheck = makeNullCheck(id(newSelector));
-                        JCExpression newInit = m().Conditional(newNullCheck, makeInt(0), call(id(newSelector), attributeGetVOFFName(tree.sym)));
+                        JCExpression newNullCheck = EQnull(id(newSelector));
+                        JCExpression newInit = m().Conditional(newNullCheck, Int(0), call(id(newSelector), attributeGetVOFFName(tree.sym)));
                         newOffset = makeTmpVar(syms.intType, newInit);
                         addPreface(newOffset);
                     } else {
@@ -414,7 +414,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return m().Literal(syms.intType.tag, 1);
         }
         JCStatement Assign(JCExpression vid, JCExpression value) {
-            return makeExec(m().Assign(vid, value));
+            return Stmt(m().Assign(vid, value));
         }
         JCStatement Assign(JCVariableDecl var, JCExpression value) {
             return Assign(id(var), value);
@@ -440,11 +440,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            return makeReturn(call(attributeSizeName(tree.sym)));
+            return Return(call(attributeSizeName(tree.sym)));
         }
 
         JCStatement makeGetElementBody() {
-            return makeReturn(call(attributeGetElementName(tree.sym), posArg()));
+            return Return(call(attributeGetElementName(tree.sym), posArg()));
         }
 
         /**
@@ -540,8 +540,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *  $selector === null? 0 : $selector.size$ref();
          */
         private JCExpression getSize(VarSymbol selectorSym) {
-            return  m().Conditional(makeNullCheck(id(attributeValueName(selectorSym))),
-                        makeInt(0),
+            return  m().Conditional(EQnull(id(attributeValueName(selectorSym))),
+                        Int(0),
                         call(id(attributeValueName(selectorSym)), attributeSizeName(refSym)));
         }
 
@@ -576,7 +576,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         If (IsTriggerPhase(),
                             Block(
                                 callStmt(attributeGetterName(selectorSym)),
-                                If (makeNotNullCheck(id(attributeValueName(selectorSym))),
+                                If (NEnull(id(attributeValueName(selectorSym))),
                                     callStmt(defs.FXBase_addDependent,
                                         id(attributeValueName(selectorSym)),
                                         Offset(id(attributeValueName(selectorSym)), refSym),
@@ -584,14 +584,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     )
                                 ),
                                 callStmt(attributeInvalidateName(selfSym),
-                                    makeInt(0),
+                                    Int(0),
                                     id(oldSize),
                                     getSize(selectorSym),
                                     phaseArg()
                                 )
                             ),
                             Block(
-                                If (makeNotNullCheck(id(attributeValueName(selectorSym))),
+                                If (NEnull(id(attributeValueName(selectorSym))),
                                     callStmt(defs.FXBase_removeDependent,
                                        id(attributeValueName(selectorSym)),
                                        Offset(id(attributeValueName(selectorSym)), refSym),
@@ -599,9 +599,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     )
                                 ),
                                 callStmt(attributeInvalidateName(selfSym),
-                                    makeInt(0),
+                                    Int(0),
                                     id(oldSize),
-                                    makeInt(-1),
+                                    Int(-1),
                                     phaseArg())
                             )
                         )
@@ -694,7 +694,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (isSequence(index)) {
                 return call(attributeSizeName(vsym(index)));
             } else if (isNullable(index)) {
-                return m().Conditional(makeNullCheck(value), iZero(), iOne());
+                return m().Conditional(EQnull(value), iZero(), iOne());
             } else {
                 return iOne();
             }
@@ -721,7 +721,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            return makeReturn(call(attributeGetterName(sizeSymbol)));
+            return Return(call(attributeGetterName(sizeSymbol)));
         }
 
         /**
@@ -751,15 +751,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vNext = makeMutableTmpVar("next", syms.intType, iZero());
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            stmts.append(If(LT(posArg(), iZero()), makeReturn(makeDefaultValue(elemType))));
+            stmts.append(If(LT(posArg(), iZero()), Return(makeDefaultValue(elemType))));
             stmts.append(vStart);
             stmts.append(vNext);
             for (int index = 0; index < length; ++index) {
                 stmts.append(Assign(vNext, PLUS(id(vNext), computeSize(index))));
-                stmts.append(If(LT(posArg(), id(vNext)), makeReturn(element(index, MINUS(posArg(), id(vStart))))));
+                stmts.append(If(LT(posArg(), id(vNext)), Return(element(index, MINUS(posArg(), id(vStart))))));
                 stmts.append(Assign(vStart, id(vNext)));
             }
-            stmts.append(makeReturn(makeDefaultValue(elemType)));
+            stmts.append(Return(makeDefaultValue(elemType)));
             return m().Block(0L, stmts.toList());
         }
 
@@ -935,7 +935,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 : MUL(v1, step());
         }
         private JCExpression exclusive() {
-            return makeBoolean(exclusive);
+            return Boolean(exclusive);
         }
 
         private JCExpression calculateSize(JCExpression vl, JCExpression vu, JCExpression vs) {
@@ -952,7 +952,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * }
          */
         JCStatement makeSizeBody() {
-            return makeReturn(getSize());
+            return Return(getSize());
         }
 
         /**
@@ -969,7 +969,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     );
             JCExpression value = PLUS(MULstep(posArg()), lower());
             JCExpression res = m().Conditional(cond, value, zero());
-            return makeReturn(res);
+            return Return(res);
         }
 
         /**
@@ -1016,7 +1016,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                               vLoss,
                               vGain,
                               vDelta,
-                              If (OR(EQ(size(), iZero()), NE(makeBinary(JCTree.MOD, id(vDelta), step()), zero())),
+                              If (OR(EQ(size(), iZero()), NE(MOD(id(vDelta), step()), zero())),
                                   Block(
                                       Assign(vLoss, size()),
                                       Assign(vGain, id(vNewSize))),

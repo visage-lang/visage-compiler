@@ -1086,62 +1086,54 @@ public abstract class JavafxTranslationSupport {
         //
         protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
             return makeFlagExpression(varSym, action,
-                        clearBits != null ? id(clearBits) : makeInt(0),
-                        setBits != null ? id(setBits) : makeInt(0));
+                        clearBits != null ? id(clearBits) : Int(0),
+                        setBits != null ? id(setBits) : Int(0));
         }
         protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
             return call(getReceiver(varSym), action, Offset(varSym),
-                        clearBits != null ? clearBits : makeInt(0),
-                        setBits != null ? setBits : makeInt(0));
+                        clearBits != null ? clearBits : Int(0),
+                        setBits != null ? setBits : Int(0));
 
         }
         protected JCExpression makeFlagExpression(JCExpression offset, Name action, Name clearBits, Name setBits) {
             return call(action, offset,
-                        clearBits != null ? id(clearBits) : makeInt(0),
-                        setBits != null ? id(setBits) : makeInt(0));
+                        clearBits != null ? id(clearBits) : Int(0),
+                        setBits != null ? id(setBits) : Int(0));
         }
 
         //
         // These methods returns a statement for setting/clearing a var flag.
         //
         protected JCStatement makeFlagStatement(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
-            return makeExec(makeFlagExpression(varSym, action, clearBits, setBits));
+            return Stmt(makeFlagExpression(varSym, action, clearBits, setBits));
         }
         protected JCStatement makeFlagStatement(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
-            return makeExec(makeFlagExpression(varSym, action, clearBits, setBits));
+            return Stmt(makeFlagExpression(varSym, action, clearBits, setBits));
         }
         protected JCStatement makeFlagStatement(JCExpression offset, Name action, Name clearBits, Name setBits) {
-            return makeExec(makeFlagExpression(offset, action, clearBits, setBits));
+            return Stmt(makeFlagExpression(offset, action, clearBits, setBits));
         }
 
         //
         // Methods to generate simple constants.
         //
-        protected JCExpression makeInt(int value)         { return m().Literal(TypeTags.INT, value); }
-        protected JCExpression makeBoolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
-        protected JCExpression makeNull()                 { return m().Literal(TypeTags.BOT, null); }
-        protected JCExpression makeString(String str)     { return m().Literal(TypeTags.CLASS, str); }
+        protected JCExpression Int(int value)         { return m().Literal(TypeTags.INT, value); }
+        protected JCExpression Boolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
+        protected JCExpression Null()                 { return m().Literal(TypeTags.BOT, null); }
+        protected JCExpression String(String str)     { return m().Literal(TypeTags.CLASS, str); }
 
-        protected JCExpression makeUnary(int tag, JCExpression arg) {
-            return m().Unary(tag, arg);
-        }
-
-        protected JCExpression makeBinary(int tag, JCExpression arg1, JCExpression arg2) {
-            return m().Binary(tag, arg1, arg2);
-        }
-
-        protected JCStatement makeExec(JCExpression expr) {
+        protected JCStatement Stmt(JCExpression expr) {
             return m().Exec(expr);
         }
 
-        protected JCStatement makeReturn(JCExpression expr) {
+        protected JCStatement Return(JCExpression expr) {
             return m().Return(expr);
         }
 
-        protected JCStatement makeStatement(JCExpression expr, Type returnType) {
+        protected JCStatement Stmt(JCExpression expr, Type returnType) {
             return (returnType==null || returnType==syms.voidType)? 
-                  makeExec(expr)
-                : makeReturn(expr);
+                  Stmt(expr)
+                : Return(expr);
         }
 
         //
@@ -1149,57 +1141,60 @@ public abstract class JavafxTranslationSupport {
         //
 
         JCExpression LT(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.LT, v1, v2);
+            return m().Binary(JCTree.LT, v1, v2);
         }
         JCExpression LE(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.LE, v1, v2);
+            return m().Binary(JCTree.LE, v1, v2);
         }
         JCExpression GT(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.GT, v1, v2);
+            return m().Binary(JCTree.GT, v1, v2);
         }
         JCExpression GE(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.GE, v1, v2);
+            return m().Binary(JCTree.GE, v1, v2);
         }
         JCExpression EQ(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.EQ, v1, v2);
+            return m().Binary(JCTree.EQ, v1, v2);
         }
         JCExpression NE(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.NE, v1, v2);
+            return m().Binary(JCTree.NE, v1, v2);
         }
         JCExpression AND(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.AND, v1, v2);
+            return m().Binary(JCTree.AND, v1, v2);
         }
         JCExpression OR(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.OR, v1, v2);
+            return m().Binary(JCTree.OR, v1, v2);
         }
         JCExpression PLUS(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.PLUS, v1, v2);
+            return m().Binary(JCTree.PLUS, v1, v2);
         }
         JCExpression MINUS(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.MINUS, v1, v2);
+            return m().Binary(JCTree.MINUS, v1, v2);
         }
         JCExpression MUL(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.MUL, v1, v2);
+            return m().Binary(JCTree.MUL, v1, v2);
+        }
+        JCExpression MOD(JCExpression v1, JCExpression v2) {
+            return m().Binary(JCTree.MOD, v1, v2);
         }
         JCExpression DIV(JCExpression v1, JCExpression v2) {
-            return makeBinary(JCTree.DIV, v1, v2);
+            return m().Binary(JCTree.DIV, v1, v2);
         }
         JCExpression NEG(JCExpression v1) {
-            return makeUnary(JCTree.NEG, v1);
+            return m().Unary(JCTree.NEG, v1);
         }
         JCExpression NOT(JCExpression v1) {
-            return makeUnary(JCTree.NOT, v1);
+            return m().Unary(JCTree.NOT, v1);
         }
 
         /**
          * Compare against null
          */
-        protected JCExpression makeNullCheck(JCExpression targ) {
-            return EQ(targ, makeNull());
+        protected JCExpression EQnull(JCExpression targ) {
+            return EQ(targ, Null());
         }
 
-        protected JCExpression makeNotNullCheck(JCExpression targ) {
-            return NE(targ, makeNull());
+        protected JCExpression NEnull(JCExpression targ) {
+            return NE(targ, Null());
         }
 
         /**
@@ -1493,91 +1488,91 @@ public abstract class JavafxTranslationSupport {
          */
 
         JCStatement callStmt(JCExpression receiver, Name methodName, List<JCExpression> args) {
-            return makeExec(call(receiver, methodName, args));
+            return Stmt(call(receiver, methodName, args));
         }
 
         JCStatement callStmt(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
-            return makeExec(call(receiver, methodName, args.toList()));
+            return Stmt(call(receiver, methodName, args.toList()));
         }
 
         JCStatement callStmt(JCExpression receiver, Name methodName, JCExpression... args) {
-            return makeExec(call(receiver, methodName, callArgs(args)));
+            return Stmt(call(receiver, methodName, callArgs(args)));
         }
 
         JCStatement callStmt(JCExpression receiver, String methodString, List<JCExpression> args) {
-            return makeExec(call(receiver, names.fromString(methodString), args));
+            return Stmt(call(receiver, names.fromString(methodString), args));
         }
 
         JCStatement callStmt(JCExpression receiver, String methodString, ListBuffer<JCExpression> args) {
-            return makeExec(call(receiver, names.fromString(methodString), args.toList()));
+            return Stmt(call(receiver, names.fromString(methodString), args.toList()));
         }
 
         JCStatement callStmt(JCExpression receiver, String methodString, JCExpression... args) {
-            return makeExec(call(receiver, names.fromString(methodString), callArgs(args)));
+            return Stmt(call(receiver, names.fromString(methodString), callArgs(args)));
         }
 
 
         JCStatement callStmt(Type selector, Name methodName, List<JCExpression> args) {
-            return makeExec(call(makeType(selector), methodName, args));
+            return Stmt(call(makeType(selector), methodName, args));
         }
 
         JCStatement callStmt(Type selector, Name methodName, ListBuffer<JCExpression> args) {
-            return makeExec(call(makeType(selector), methodName, args.toList()));
+            return Stmt(call(makeType(selector), methodName, args.toList()));
         }
 
         JCStatement callStmt(Type selector, Name methodName, JCExpression... args) {
-            return makeExec(call(makeType(selector), methodName, callArgs(args)));
+            return Stmt(call(makeType(selector), methodName, callArgs(args)));
         }
 
 
         JCStatement callStmt(Type selector, String methodString, List<JCExpression> args) {
-            return makeExec(call(makeType(selector), names.fromString(methodString), args));
+            return Stmt(call(makeType(selector), names.fromString(methodString), args));
         }
 
         JCStatement callStmt(Type selector, String methodString, ListBuffer<JCExpression> args) {
-            return makeExec(call(makeType(selector), names.fromString(methodString), args.toList()));
+            return Stmt(call(makeType(selector), names.fromString(methodString), args.toList()));
         }
 
         JCStatement callStmt(Type selector, String methodString, JCExpression... args) {
-            return makeExec(call(makeType(selector), names.fromString(methodString), callArgs(args)));
+            return Stmt(call(makeType(selector), names.fromString(methodString), callArgs(args)));
         }
 
 
         JCStatement callStmt(Name methodName, List<JCExpression> args) {
-            return makeExec(call(getReceiver(), methodName, args));
+            return Stmt(call(getReceiver(), methodName, args));
         }
 
         JCStatement callStmt(Name methodName, ListBuffer<JCExpression> args) {
-            return makeExec(call(getReceiver(), methodName, args.toList()));
+            return Stmt(call(getReceiver(), methodName, args.toList()));
         }
 
         JCStatement callStmt(Name methodName, JCExpression... args) {
-            return makeExec(call(getReceiver(), methodName, callArgs(args)));
+            return Stmt(call(getReceiver(), methodName, callArgs(args)));
         }
 
 
         JCStatement callStmt(String methodString, List<JCExpression> args) {
-            return makeExec(call(getReceiver(), names.fromString(methodString), args));
+            return Stmt(call(getReceiver(), names.fromString(methodString), args));
         }
 
         JCStatement callStmt(String methodString, ListBuffer<JCExpression> args) {
-            return makeExec(call(getReceiver(), names.fromString(methodString), args.toList()));
+            return Stmt(call(getReceiver(), names.fromString(methodString), args.toList()));
         }
 
         JCStatement callStmt(String methodString, JCExpression... args) {
-            return makeExec(call(getReceiver(), names.fromString(methodString), callArgs(args)));
+            return Stmt(call(getReceiver(), names.fromString(methodString), callArgs(args)));
         }
         
         JCStatement callStmt(RuntimeMethod meth, List<JCExpression> args) {
-            return makeExec(call(meth, args));
+            return Stmt(call(meth, args));
         }
 
         JCStatement callStmt(RuntimeMethod meth, ListBuffer<JCExpression> args) {
-            return makeExec(call(meth, args));
+            return Stmt(call(meth, args));
         }
 
         JCStatement callStmt(RuntimeMethod meth, JCExpression... args) {
-            return makeExec(call(meth, args));
+            return Stmt(call(meth, args));
         }
         
         /**
@@ -1585,7 +1580,7 @@ public abstract class JavafxTranslationSupport {
          */
         JCStatement makeThrow(Type type, String message) {
             if (message != null) {
-                return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>of(makeString(message)), null));
+                return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>of(String(message)), null));
             } else {
                 return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>nil(), null));
             }
@@ -1647,12 +1642,12 @@ public abstract class JavafxTranslationSupport {
         JCStatement Debug(String msg, JCExpression obj) {
             return callStmt(makeQualifiedTree("java.lang.System.err"), "println",
                     obj==null?
-                          makeString(msg)
-                        : PLUS(makeString(msg + " "), obj));
+                          String(msg)
+                        : PLUS(String(msg + " "), obj));
         }
 
         List<JCStatement> makeDebugTrace(String msg) {
-            return makeDebugTrace(msg, makeString(""));
+            return makeDebugTrace(msg, String(""));
         }
 
         List<JCStatement> makeDebugTrace(String msg, JCExpression obj) {

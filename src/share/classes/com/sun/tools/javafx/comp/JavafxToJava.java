@@ -496,7 +496,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 return null;
             }
             Name instanceName = (var.isStatic() || !isMixinClass) ? null : defs.receiverName;
-            return makeExec(translateDefinitionalAssignmentToSetExpression(
+            return Stmt(translateDefinitionalAssignmentToSetExpression(
                     var.pos(),
                     var.getInitializer(),
                     typeMorpher.varMorphInfo(var.sym),
@@ -709,7 +709,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     if (value != null) {
                         if (value.getFXTag() == JavafxTag.VAR_SCRIPT_INIT && targetType != syms.voidType) {
                             translateStmt(value, syms.voidType);
-                            addPreface(makeStatement(id(attributeValueName(((JFXVarInit) value).getSymbol())), targetType));
+                            addPreface(Stmt(id(attributeValueName(((JFXVarInit) value).getSymbol())), targetType));
                         } else {
                             translateStmt(value, targetType);
                         }
@@ -765,7 +765,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     JCExpression method = select(lhsTranslated, tree.operator.name);
                     return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
                 } else {
-                    JCExpression ret = makeBinary(getBinaryOp(), lhsTranslated, rhsTranslated);
+                    JCExpression ret = m().Binary(getBinaryOp(), lhsTranslated, rhsTranslated);
                     if (!types.isSameType(rhsType(), ref.type)) {
                         // Because the RHS is a different type than the LHS, a cast may be needed
                         ret = m().TypeCast(ref.type, ret);
@@ -1018,12 +1018,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             if (lastIndex == null) {
                 endPos = call(seq, defs.sizeMethodName);
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
-                    endPos = m().Binary(JCTree.MINUS, endPos, makeInt(1));
+                    endPos = m().Binary(JCTree.MINUS, endPos, Int(1));
                 }
             } else {
                 endPos = translateExpr(lastIndex, syms.intType);
                 if (endKind == SequenceSliceTree.END_INCLUSIVE) {
-                    endPos = PLUS(endPos, makeInt(1));
+                    endPos = PLUS(endPos, Int(1));
                 }
             }
             return endPos;
@@ -1157,7 +1157,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             }
             JCExpression position = translateExpr(indexOrNull, syms.intType);
             if (tree.shouldInsertAfter()) {
-                position = PLUS(position, makeInt(1));
+                position = PLUS(position, Int(1));
             }
             return position;
         }
@@ -1470,7 +1470,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     op = JCTree.LE;
                 }
             }
-            return makeBinary(op, id(inductionVar), id(upperVar));
+            return m().Binary(op, id(inductionVar), id(upperVar));
         }
 
         /**
@@ -1525,7 +1525,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCExpression init;
             boolean maxForStartNeeded = true;
             if (first == null)
-                init = makeInt(0);
+                init = Int(0);
             else {
                 init = translateExpr(first, syms.intType);
                 if (first.getFXTag() == JavafxTag.LITERAL && ! isNegative(first))
@@ -1533,7 +1533,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 // FIXME set maxForStartNeeded false if first is replace-trigger startPos and seq is oldValue
                 if (maxForStartNeeded)
                     setDiagPos(first);
-                    init = call(defs.Math_max, init, makeInt(0));
+                    init = call(defs.Math_max, init, Int(0));
             }
             setDiagPos(clause);
             inductionVar.init = init;
@@ -1545,12 +1545,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             if (last == null) {
                 limitExpr = sizeExpr;
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE)
-                    limitExpr = MINUS(limitExpr, makeInt(1));
+                    limitExpr = MINUS(limitExpr, Int(1));
             }
             else {
                 limitExpr = translateExpr(last, syms.intType);
                 if (endKind == SequenceSliceTree.END_INCLUSIVE)
-                    limitExpr = PLUS(limitExpr, makeInt(1));
+                    limitExpr = PLUS(limitExpr, Int(1));
                 // FIXME can optimize if last is replace-trigger endPos and seq is oldValue
                 if (true)
                     setDiagPos(last);
@@ -1655,7 +1655,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 setDiagPos(var);
                 if (clause.getIndexUsed()) {
-                    incrementingIndexVar = makeMutableTmpVar("incrindex", syms.javafx_IntegerType, makeInt(0));
+                    incrementingIndexVar = makeMutableTmpVar("incrindex", syms.javafx_IntegerType, Int(0));
                     JCVariableDecl finalIndexVar = makeVar(
 
                             syms.javafx_IntegerType,
@@ -1709,7 +1709,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     // Compile: { var tmp = seq; if (tmp!=null) body; }
                     if (!inductionVarType.isPrimitive()) {
                         body = m().If(
-                                makeNotNullCheck(id(inductionVar)),
+                                NEnull(id(inductionVar)),
                                 body,
                                 null);
                     }
