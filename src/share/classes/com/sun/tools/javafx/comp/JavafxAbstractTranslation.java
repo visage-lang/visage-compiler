@@ -738,7 +738,7 @@ public abstract class JavafxAbstractTranslation
                     siteCursor = siteOwner;
                     while (numOfOuters > 0) {
                         if (siteCursor.kind == Kinds.TYP) {
-                            ret = call(ret, defs.outerAccessorName);
+                            ret = Call(ret, defs.outerAccessorName);
                         }
                         if (siteCursor.kind == Kinds.TYP) {
                             numOfOuters--;
@@ -875,7 +875,7 @@ public abstract class JavafxAbstractTranslation
                     return id(paramNewElementsLengthName(info.onReplace));
                 }
             }
-            return call(defs.Sequences_size, transExpr);
+            return Call(defs.Sequences_size, transExpr);
         }
 
    }
@@ -909,7 +909,7 @@ public abstract class JavafxAbstractTranslation
                 JFXExpression exp = parts.head;
                 JCExpression texp;
                 if (exp != null && types.isSameType(exp.type, syms.javafx_DurationType)) {
-                    texp = call(translateExpr(exp, syms.javafx_DurationType), names.fromString("toMillis"));
+                    texp = Call(translateExpr(exp, syms.javafx_DurationType), names.fromString("toMillis"));
                     texp = typeCast(diagPos, syms.javafx_LongType, syms.javafx_DoubleType, texp);
                     sb.append(format.length() == 0 ? "%dms" : format);
                 } else {
@@ -978,7 +978,7 @@ public abstract class JavafxAbstractTranslation
                         default:
                             throw new AssertionError();
                     }
-                    expr = call(instance, attributeGetterName(vsym));
+                    expr = Call(instance, attributeGetterName(vsym));
                 }
             }
 
@@ -1304,7 +1304,7 @@ public abstract class JavafxAbstractTranslation
                  * computed value of bound function. We need to cast to the right
                  * type as Pointer.get() returns Object type value.
                  */
-                full = castFromObject(call(app, defs.getMethodName), resultType);
+                full = castFromObject(Call(app, defs.getMethodName), resultType);
             } else {
                 full = app;
                 if (useInvoke) {
@@ -1362,7 +1362,7 @@ public abstract class JavafxAbstractTranslation
                     formal = t.head;
                     t = t.tail;
                     // pass FXVariable wrapper for argument expression
-                    targs.append(call(defs.FXVariable_make, translateExpr(arg, formal)));
+                    targs.append(Call(defs.FXVariable_make, translateExpr(arg, formal)));
 
                     // pass FXVariable.VOFF$value as offset value
                     targs.append(select(makeType(syms.javafx_FXVariableType), defs.varOFF$valueName));
@@ -1377,7 +1377,7 @@ public abstract class JavafxAbstractTranslation
                     case SELECT: {
                         JFXSelect select = (JFXSelect)args.head;
                         receiver = select.sym.isStatic() ?
-                            call(defs.scriptLevelAccessMethod(names, select.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, select.sym.owner), List.<JCExpression>nil()) :
                             translateExpr(select.selected, syms.javafx_FXBaseType);
                         varOffset = Offset(select.sym);
                         break;
@@ -1385,7 +1385,7 @@ public abstract class JavafxAbstractTranslation
                     case IDENT: {
                         JFXIdent ident = (JFXIdent)args.head;
                         receiver = ident.sym.isStatic() ?
-                            call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
 
                         varOffset = Offset(ident.sym);
@@ -1411,7 +1411,7 @@ public abstract class JavafxAbstractTranslation
                     case IDENT: {
                         JFXIdent ident = (JFXIdent)args.head;
                         JCExpression receiver = ident.sym.isStatic() ?
-                            call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
                         targs.append(Offset(ident.sym));
@@ -1579,7 +1579,7 @@ public abstract class JavafxAbstractTranslation
                     for (JFXVar fxVar : tree.getParams()) {
                         if (types.isSequence(fxVar.sym.type)) {
                             setDiagPos(fxVar);
-                            stmts.append(callStmt(id(fxVar.getName()), defs.incrementSharingMethodName));
+                            stmts.append(CallStmt(id(fxVar.getName()), defs.incrementSharingMethodName));
                         }
                     }
                 } // else FIXME: what should we do for bound function sequence params?
@@ -1780,7 +1780,7 @@ public abstract class JavafxAbstractTranslation
         // Figure out the instance containing the variable
         JCExpression instance(JCExpression tToCheck) {
             if (staticReference) {
-                return call(tToCheck, scriptLevelAccessMethod(refSym.owner));
+                return Call(tToCheck, scriptLevelAccessMethod(refSym.owner));
             } else if (tToCheck == null) {
                 return id(names._this);
             } else {
@@ -1803,7 +1803,7 @@ public abstract class JavafxAbstractTranslation
                 if (tIndex != null) {
                     args.append(tIndex);
                 }
-                JCExpression res = call(meth, args);
+                JCExpression res = Call(meth, args);
                 return makeBlockExpression(List.<JCStatement>of(tv, Stmt(m().Assign(id(refSym.name), res))), id(tv));
             } else {
                 // Instance variable sequence -- roughly:
@@ -1815,14 +1815,14 @@ public abstract class JavafxAbstractTranslation
                 if (tIndex != null) {
                     args.append(tIndex);
                 }
-                return call(meth, args);
+                return Call(meth, args);
             }
         }
 
         JCExpression makeSliceEndPos(JFXSequenceSlice tree) {
             JCExpression endPos;
             if (tree.getLastIndex() == null) {
-                endPos = call(
+                endPos = Call(
                         translateExpr(tree.getSequence(), null),
                         defs.sizeMethodName);
                 if (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE) {
@@ -1892,11 +1892,11 @@ public abstract class JavafxAbstractTranslation
         }
 
         JCExpression buildSetter(JCExpression tc, JCExpression rhsComplete) {
-            return call(tc, attributeSetterName(refSym), rhsComplete);
+            return Call(tc, attributeSetterName(refSym), rhsComplete);
         }
 
         JCExpression buildGetter(JCExpression tc) {
-            return call(tc, attributeGetterName(refSym));
+            return Call(tc, attributeGetterName(refSym));
         }
     }
 
@@ -1958,7 +1958,7 @@ public abstract class JavafxAbstractTranslation
                     if (types.isSequence(expr.type)) {
                         // call runtime reverse of a sequence
                         return toResult(
-                             call(syms.javafx_SequencesType, "reverse", transExpr),
+                             Call(defs.Sequences_reverse, transExpr),
                              expr.type);
                     } else {
                         // this isn't a sequence, just make it a sequence
@@ -1975,7 +1975,7 @@ public abstract class JavafxAbstractTranslation
                 case NEG:
                     if (types.isSameType(tree.type, syms.javafx_DurationType)) {
                         return toResult(
-                                call(translateExpr(tree.arg, tree.arg.type), names.fromString("negate")),
+                                Call(translateExpr(tree.arg, tree.arg.type), names.fromString("negate")),
                                 syms.javafx_DurationType);
                     }
                 default:
@@ -2031,7 +2031,7 @@ public abstract class JavafxAbstractTranslation
         private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
             if (tmi.isSequence() || tmi.getRealType() == syms.javafx_StringType) {
-                return call(defs.Checks_isNull, arg);
+                return Call(defs.Checks_isNull, arg);
             } else {
                 return EQnull(arg);
             }
@@ -2041,7 +2041,7 @@ public abstract class JavafxAbstractTranslation
          * Make a .equals() comparison with a null check on the receiver
          */
         private JCExpression makeFullCheck(JCExpression lhs, JCExpression rhs) {
-            return call(defs.Checks_equals, lhs, rhs);
+            return Call(defs.Checks_equals, lhs, rhs);
         }
 
         /**
@@ -2097,7 +2097,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         JCExpression op(JCExpression leftSide, Name methodName, JCExpression rightSide) {
-            return call(leftSide, methodName, rightSide);
+            return Call(leftSide, methodName, rightSide);
         }
 
         boolean isDuration(Type type) {
@@ -2193,7 +2193,7 @@ public abstract class JavafxAbstractTranslation
                 final JCExpression expr, final Type inElementType, final Type targetElementType) {
             JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
             JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
-            return call(
+            return Call(
                     defs.Sequences_convertNumberSequence,
                     targetTypeInfo, inTypeInfo, expr);
         }
@@ -2201,7 +2201,7 @@ public abstract class JavafxAbstractTranslation
         private JCExpression convertNumericToCharSequence(final DiagnosticPosition diagPos,
                 final JCExpression expr, final Type inElementType) {
             JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
-            return call(
+            return Call(
                     defs.Sequences_convertNumberToCharSequence,
                     inTypeInfo, expr);
         }
@@ -2209,7 +2209,7 @@ public abstract class JavafxAbstractTranslation
         private JCExpression convertCharToNumericSequence(final DiagnosticPosition diagPos,
                 final JCExpression expr, final Type targetElementType) {
             JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
-            return call(
+            return Call(
                     defs.Sequences_convertCharToNumberSequence,
                     targetTypeInfo, expr);
         }
@@ -2263,7 +2263,7 @@ public abstract class JavafxAbstractTranslation
                             List.<JCExpression>of(id(sizeVar.name)),
                             null));
                     stats.append(arrVar);
-                    stats.append(callStmt(id(tmpVar.name), "toArray", List.of(
+                    stats.append(CallStmt(id(tmpVar.name), defs.toArrayMethodName, List.of(
                             Int(0),
                             id(sizeVar),
                             id(arrVar),
@@ -2282,7 +2282,7 @@ public abstract class JavafxAbstractTranslation
                     args = List.of(makeTypeInfo(diagPos, sourceElemType), translated);
                 }
                 JCExpression cSequences = makeType(syms.javafx_SequencesType, false);
-                return call(cSequences, "fromArray", args);
+                return Call(defs.Sequences_fromArray, args);
             }
             if (targetIsSequence && !sourceIsSequence) {
                 //if (sourceType.tag == TypeTags.BOT) {
@@ -2484,10 +2484,10 @@ public abstract class JavafxAbstractTranslation
             JCExpression tc = instanceName == null ? null : id(instanceName);
             JCStatement def;
             if (types.isSequence(vsym.type))
-                def = callStmt(defs.Sequences_set, tc,
+                def = CallStmt(defs.Sequences_set, tc,
                       Offset(id(instanceName), vsym), transInit);
             else
-                def = callStmt(tc, attributeBeName(vsym), transInit);
+                def = CallStmt(tc, attributeBeName(vsym), transInit);
             varInits.append(def);
             varSyms.append(vsym);
         }
@@ -2499,7 +2499,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         void makeInitSupportCall(Name methName, Name receiverName) {
-            addPreface(callStmt(id(receiverName), methName));
+            addPreface(CallStmt(id(receiverName), methName));
         }
 
         void makeInitApplyDefaults(Type classType, Name receiverName) {
@@ -2508,7 +2508,7 @@ public abstract class JavafxAbstractTranslation
 
             JCVariableDecl loopVar = makeTmpLoopVar(diagPos, 0);
             Name loopName = loopVar.name;
-            JCExpression loopLimit = call(id(receiverName), defs.attributeCountMethodName);
+            JCExpression loopLimit = Call(id(receiverName), defs.attributeCountMethodName);
             JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
             addPreface(loopLimitVar);
             JCExpression loopTest = LT(id(loopName), id(loopLimitVar.name));
@@ -2516,11 +2516,11 @@ public abstract class JavafxAbstractTranslation
             JCStatement loopBody;
 
             List<JCExpression> args = List.<JCExpression>of(id(loopName));
-            JCStatement applyDefaultsExpr = callStmt(id(receiverName), defs.attributeApplyDefaultsPrefixMethodName, args);
+            JCStatement applyDefaultsExpr = CallStmt(id(receiverName), defs.attributeApplyDefaultsPrefixMethodName, args);
 
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
-                JCExpression getmapExpr = call(varGetMapName(classSym));
+                JCExpression getmapExpr = Call(varGetMapName(classSym));
                 JCVariableDecl mapVar = makeTmpVar("map", syms.javafx_ShortArray, getmapExpr);
                 addPreface(mapVar);
 
@@ -2560,7 +2560,7 @@ public abstract class JavafxAbstractTranslation
                     id(defs.varFlagINIT_OBJ_LIT_DEFAULT) :
                     id(defs.varFlagINIT_OBJ_LIT);
 
-                addPreface(callStmt(
+                addPreface(CallStmt(
                         id(receiverName),
                         defs.varFlagActionChange,
                         Offset(id(receiverName), vsym),
@@ -2792,7 +2792,7 @@ public abstract class JavafxAbstractTranslation
                 tExpr = makeBox(expr.pos(), tExpr, expr.type);
             }
             if (types.isSequence(expr.type) && !types.isSequence(classType)) {
-                tExpr = call(syms.javafx_SequencesType, "getSingleValue", tExpr);
+                tExpr = Call(defs.Sequences_getSingleValue, tExpr);
             }
             JCTree clazz = makeType(classType);
             return toResult(

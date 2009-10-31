@@ -127,7 +127,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     if (arg.getFXTag() == JavafxTag.IDENT) {
                         JFXIdent ident = (JFXIdent)args.head;
                         JCExpression receiver = ident.sym.isStatic() ?
-                            call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
                         targs.append(Offset(ident.sym));
@@ -146,7 +146,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (arg instanceof JFXIdent) {
                 Symbol sym = ((JFXIdent) arg).sym;
                 JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
-                JCVariableDecl newVar = makeTmpVar("new", formal, call(attributeGetterName(sym)));
+                JCVariableDecl newVar = makeTmpVar("new", formal, Call(attributeGetterName(sym)));
                 addPreface(oldVar);
                 addPreface(newVar);
                 addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
@@ -311,12 +311,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
                     if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
                         rcvr = id(defs.receiverName);
-                        oldSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
-                        newSelector = makeTmpVar(selectorType, call(id(defs.receiverName), attributeGetterName(selectorSym)));
+                        oldSelector = makeTmpVar(selectorType, Call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
+                        newSelector = makeTmpVar(selectorType, Call(id(defs.receiverName), attributeGetterName(selectorSym)));
                     } else {
-                        rcvr = selectorSym.isStatic() ? call(scriptLevelAccessMethod(selectorSym.owner)) : id(names._this);
+                        rcvr = selectorSym.isStatic() ? Call(scriptLevelAccessMethod(selectorSym.owner)) : id(names._this);
                         oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
-                        newSelector = makeTmpVar(selectorType, call(attributeGetterName(selectorSym)));
+                        newSelector = makeTmpVar(selectorType, Call(attributeGetterName(selectorSym)));
                     }
 
                     addPreface(oldSelector);
@@ -324,12 +324,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
                     if ((selectorSym.type.tsym.flags() & JavafxFlags.MIXIN) != 0) {
                         JCExpression oldNullCheck = EQnull(id(oldSelector));
-                        JCExpression oldInit = m().Conditional(oldNullCheck, Int(0), call(id(oldSelector), attributeGetVOFFName(tree.sym)));
+                        JCExpression oldInit = m().Conditional(oldNullCheck, Int(0), Call(id(oldSelector), attributeGetVOFFName(tree.sym)));
                         oldOffset = makeTmpVar(syms.intType, oldInit);
                         addPreface(oldOffset);
 
                         JCExpression newNullCheck = EQnull(id(newSelector));
-                        JCExpression newInit = m().Conditional(newNullCheck, Int(0), call(id(newSelector), attributeGetVOFFName(tree.sym)));
+                        JCExpression newInit = m().Conditional(newNullCheck, Int(0), Call(id(newSelector), attributeGetVOFFName(tree.sym)));
                         newOffset = makeTmpVar(syms.intType, newInit);
                         addPreface(newOffset);
                     } else {
@@ -340,19 +340,19 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     if (isBidiBind) {
                         JCVariableDecl selectorOffset;
                         if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
-                            selectorOffset = makeTmpVar(syms.intType, call(id(defs.receiverName), attributeGetVOFFName(targetSymbol)));
+                            selectorOffset = makeTmpVar(syms.intType, Call(id(defs.receiverName), attributeGetVOFFName(targetSymbol)));
                         } else {
                             selectorOffset = makeTmpVar(syms.intType, Offset(targetSymbol));
                         }
 
                         addPreface(selectorOffset);
-                        addPreface(callStmt(defs.FXBase_switchBiDiDependence,
+                        addPreface(CallStmt(defs.FXBase_switchBiDiDependence,
                                 rcvr,
                                 id(selectorOffset),
                                 id(oldSelector), id(oldOffset),
                                 id(newSelector), id(newOffset)));
                     } else {
-                        addPreface(callStmt(defs.FXBase_switchDependence,
+                        addPreface(CallStmt(defs.FXBase_switchDependence,
                                 rcvr,
                                 id(oldSelector), id(oldOffset),
                                 id(newSelector), id(newOffset)));
@@ -381,7 +381,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement InvalidateCall(JCExpression begin, JCExpression end, JCExpression newLen) {
-            return callStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.invalidateArgNamePhase));
+            return CallStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.invalidateArgNamePhase));
         }
 
         private Name flagBit = defs.varFlagDEFAULT_APPLIED;
@@ -440,11 +440,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            return Return(call(attributeSizeName(tree.sym)));
+            return Return(Call(attributeSizeName(tree.sym)));
         }
 
         JCStatement makeGetElementBody() {
-            return Return(call(attributeGetElementName(tree.sym), posArg()));
+            return Return(Call(attributeGetElementName(tree.sym), posArg()));
         }
 
         /**
@@ -508,10 +508,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (NOT(makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED)),
                         Block(
                             makeFlagStatement(selectorSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null),
-                            callStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
+                            CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
                         )
                     ),
-                    buildBody(tToCheck, call(tToCheck, attributeSizeName(refSym)), syms.intType)
+                    buildBody(tToCheck, Call(tToCheck, attributeSizeName(refSym)), syms.intType)
                 );
         }
 
@@ -527,8 +527,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             return
                 Block(
-                    callStmt(attributeSizeName(selfSym)),
-                    buildBody(tToCheck, call(tToCheck, attributeGetElementName(refSym), posArg()), types.elementType(refSym.type))
+                    CallStmt(attributeSizeName(selfSym)),
+                    buildBody(tToCheck, Call(tToCheck, attributeGetElementName(refSym), posArg()), types.elementType(refSym.type))
                 );
         }
 
@@ -542,7 +542,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private JCExpression getSize(VarSymbol selectorSym) {
             return  m().Conditional(EQnull(id(attributeValueName(selectorSym))),
                         Int(0),
-                        call(id(attributeValueName(selectorSym)), attributeSizeName(refSym)));
+                        Call(id(attributeValueName(selectorSym)), attributeSizeName(refSym)));
         }
 
         /**
@@ -575,15 +575,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         oldSize,
                         If (IsTriggerPhase(),
                             Block(
-                                callStmt(attributeGetterName(selectorSym)),
+                                CallStmt(attributeGetterName(selectorSym)),
                                 If (NEnull(id(attributeValueName(selectorSym))),
-                                    callStmt(defs.FXBase_addDependent,
+                                    CallStmt(defs.FXBase_addDependent,
                                         id(attributeValueName(selectorSym)),
                                         Offset(id(attributeValueName(selectorSym)), refSym),
                                         getReceiverOrThis(selectorSym)
                                     )
                                 ),
-                                callStmt(attributeInvalidateName(selfSym),
+                                CallStmt(attributeInvalidateName(selfSym),
                                     Int(0),
                                     id(oldSize),
                                     getSize(selectorSym),
@@ -592,13 +592,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             ),
                             Block(
                                 If (NEnull(id(attributeValueName(selectorSym))),
-                                    callStmt(defs.FXBase_removeDependent,
+                                    CallStmt(defs.FXBase_removeDependent,
                                        id(attributeValueName(selectorSym)),
                                        Offset(id(attributeValueName(selectorSym)), refSym),
                                        getReceiverOrThis(selectorSym)
                                     )
                                 ),
-                                callStmt(attributeInvalidateName(selfSym),
+                                CallStmt(attributeInvalidateName(selfSym),
                                     Int(0),
                                     id(oldSize),
                                     Int(-1),
@@ -687,12 +687,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCExpression get(int index) {
-            return call(attributeGetterName(vsym(index)));
+            return Call(attributeGetterName(vsym(index)));
         }
 
         private JCExpression computeSize(int index, JCExpression value) {
             if (isSequence(index)) {
-                return call(attributeSizeName(vsym(index)));
+                return Call(attributeSizeName(vsym(index)));
             } else if (isNullable(index)) {
                 return m().Conditional(EQnull(value), iZero(), iOne());
             } else {
@@ -714,14 +714,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private JCExpression element(int index, JCExpression pos) {
             if (isSequence(index)) {
-                return call(attributeGetElementName(vsym(index)), pos);
+                return Call(attributeGetElementName(vsym(index)), pos);
             } else {
                 return get(index);
             }
         }
 
         JCStatement makeSizeBody() {
-            return Return(call(attributeGetterName(sizeSymbol)));
+            return Return(Call(attributeGetterName(sizeSymbol)));
         }
 
         /**
@@ -907,7 +907,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCExpression get(JFXVar var) {
-            return call(attributeGetterName(var.getSymbol()));
+            return Call(attributeGetterName(var.getSymbol()));
         }
         private JCExpression getLower() {
             return get(varLower);
@@ -943,7 +943,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     (elemType == syms.javafx_NumberType)?
                           defs.Sequences_calculateFloatRangeSize
                         : defs.Sequences_calculateIntRangeSize;
-            return call(rm, vl, vu, vs, exclusive());
+            return Call(rm, vl, vu, vs, exclusive());
         }
 
         /**

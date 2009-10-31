@@ -145,25 +145,29 @@ public class JavafxDefs {
      */
     final RuntimeMethod TypeInfo_getTypeInfo;
 
+    final RuntimeMethod Sequences_calculateIntRangeSize;
+    final RuntimeMethod Sequences_calculateFloatRangeSize;
+    final RuntimeMethod Sequences_convertCharToNumberSequence;
     final RuntimeMethod Sequences_convertNumberSequence;
     final RuntimeMethod Sequences_convertNumberToCharSequence;
-    final RuntimeMethod Sequences_convertCharToNumberSequence;
-    final RuntimeMethod Sequences_forceNonNull;
-    final RuntimeMethod Sequences_sizeOfNewElements;
-    final RuntimeMethod Sequences_getNewElements;
-    final RuntimeMethod Sequences_range;
-    final RuntimeMethod Sequences_rangeExclusive;
-    final RuntimeMethod Sequences_size;
-    final RuntimeMethod Sequences_replaceSlice;
-    final RuntimeMethod Sequences_set;
-    final RuntimeMethod Sequences_insert;
-    final RuntimeMethod Sequences_insertBefore;
     final RuntimeMethod Sequences_deleteIndexed;
     final RuntimeMethod Sequences_deleteSlice;
     final RuntimeMethod Sequences_deleteValue;
     final RuntimeMethod Sequences_deleteAll;
-    final RuntimeMethod Sequences_calculateIntRangeSize;
-    final RuntimeMethod Sequences_calculateFloatRangeSize;
+    final RuntimeMethod Sequences_forceNonNull;
+    final RuntimeMethod Sequences_fromArray;
+    final RuntimeMethod Sequences_getSingleValue;
+    final RuntimeMethod Sequences_getNewElements;
+    final RuntimeMethod Sequences_insert;
+    final RuntimeMethod Sequences_insertBefore;
+    final RuntimeMethod Sequences_range;
+    final RuntimeMethod Sequences_rangeExclusive;
+    final RuntimeMethod Sequences_replaceSlice;
+    final RuntimeMethod Sequences_reverse;
+    final RuntimeMethod Sequences_set;
+    final RuntimeMethod Sequences_size;
+    final RuntimeMethod Sequences_sizeOfNewElements;
+
     final RuntimeMethod SequencesRef_save;
 
     final RuntimeMethod Util_isEqual; //TODO: replace uses with Checks_equals
@@ -183,6 +187,30 @@ public class JavafxDefs {
 
     final RuntimeMethod Pointer_make;
     final RuntimeMethod Pointer_get;
+
+    /**
+     * Method Name definitions
+     */
+    final Name attributeCountMethodName;
+    final Name incrementSharingMethodName;
+    final Name makeAttributeMethodName;
+    final Name makeMethodName;
+    final Name needDefaultsMethodName;
+    final Name toArrayMethodName;
+
+    final Name[] typedGetMethodName;
+    final Name[] typedSetMethodName;
+
+    final Name attributeInvalidatePrefixMethodName;
+    final Name attributeOnReplacePrefixMethodName;
+    final Name attributeEvaluatePrefixMethodName;
+    final Name attributeGetMixinPrefixMethodName;
+    final Name attributeGetVOFFPrefixMethodName;
+    final Name attributeSetMixinPrefixMethodName;
+    final Name attributeInitVarBitsPrefixMethodName;
+    final Name attributeApplyDefaultsPrefixMethodName;
+    final Name attributeUpdatePrefixMethodName;
+    final Name attributeSizePrefixMethodName;
 
     /**
      * Name definitions
@@ -216,9 +244,6 @@ public class JavafxDefs {
     final Name getSliceMethodName;
     final Name sizeMethodName;
     final Name defaultingTypeInfoFieldName;
-    final Name needDefaultsMethodName;
-    final Name makeAttributeMethodName;
-    final Name makeMethodName;
     final Name invokeName;
     final Name lambdaName;
     final Name lengthName;
@@ -254,25 +279,11 @@ public class JavafxDefs {
     final Name attributeGetPrefixName;
     final Name attributeSetPrefixName;
     final Name attributeBePrefixName;
-    final Name attributeInvalidatePrefixMethodName;
-    final Name attributeOnReplacePrefixMethodName;
-    final Name attributeEvaluatePrefixMethodName;
-    final Name attributeGetMixinPrefixMethodName;
-    final Name attributeGetVOFFPrefixMethodName;
-    final Name attributeSetMixinPrefixMethodName;
-    final Name attributeInitVarBitsPrefixMethodName;
-    final Name attributeApplyDefaultsPrefixMethodName;
-    final Name attributeUpdatePrefixMethodName;
-    final Name attributeSizePrefixMethodName;
-    final Name attributeCountMethodName;
     final Name attributeOldValueName;
     final Name attributeNewValueName;
     final Name isInitializedPrefixName;
-    final Name incrementSharingMethodName;
     final Name onReplaceArgNameOld;
     final Name onReplaceArgNameNew;
-    final Name[] typedGetMethodName;
-    final Name[] typedSetMethodName;
     final Name sliceArgNameStartPos;
     final Name sliceArgNameEndPos;
     final Name sliceArgNameNewLength;
@@ -375,6 +386,7 @@ public class JavafxDefs {
         sizeMethodName = names.fromString(sizeMethodNameString);
         defaultingTypeInfoFieldName = names.fromString("$TYPE_INFO");
         needDefaultsMethodName = names.fromString(needDefaultMethodNameString);
+        toArrayMethodName = names.fromString("toArray");
         makeAttributeMethodName = names.fromString(makeAttributeMethodNameString);
         makeMethodName = names.fromString(makeMethodNameString);
         invokeName = names.fromString(invokeNameString);
@@ -478,12 +490,15 @@ public class JavafxDefs {
         Sequences_convertCharToNumberSequence = new RuntimeMethod(names, cSequences, "convertCharToNumberSequence");
         Sequences_convertNumberToCharSequence = new RuntimeMethod(names, cSequences, "convertNumberToCharSequence");
         Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
+        Sequences_fromArray = new RuntimeMethod(names, cSequences, "fromArray");
         Sequences_sizeOfNewElements = new RuntimeMethod(names, cSequences, "sizeOfNewElements");
         Sequences_getNewElements = new RuntimeMethod(names, cSequences, "getNewElements");
+        Sequences_getSingleValue = new RuntimeMethod(names, cSequences, "getSingleValue");
         Sequences_range = new RuntimeMethod(names, cSequences, "range");
         Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");
         Sequences_size = new RuntimeMethod(names, cSequences, "size");
         Sequences_replaceSlice = new RuntimeMethod(names, cSequences, "replaceSlice");
+        Sequences_reverse = new RuntimeMethod(names, cSequences, "reverse");
         Sequences_set = new RuntimeMethod(names, cSequences, "set");
         Sequences_insert = new RuntimeMethod(names, cSequences, "insert");
         Sequences_insertBefore = new RuntimeMethod(names, cSequences, "insertBefore");

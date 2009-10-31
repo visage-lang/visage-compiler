@@ -1057,7 +1057,7 @@ public abstract class JavafxTranslationSupport {
         }
         protected JCExpression getReceiver(VarSymbol varSym) {
             if (varSym.isStatic()) {
-                return call(scriptLevelAccessMethod(varSym.owner));
+                return Call(scriptLevelAccessMethod(varSym.owner));
             }
             
             return getReceiver();
@@ -1090,13 +1090,13 @@ public abstract class JavafxTranslationSupport {
                         setBits != null ? id(setBits) : Int(0));
         }
         protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
-            return call(getReceiver(varSym), action, Offset(varSym),
+            return Call(getReceiver(varSym), action, Offset(varSym),
                         clearBits != null ? clearBits : Int(0),
                         setBits != null ? setBits : Int(0));
 
         }
         protected JCExpression makeFlagExpression(JCExpression offset, Name action, Name clearBits, Name setBits) {
-            return call(action, offset,
+            return Call(action, offset,
                         clearBits != null ? id(clearBits) : Int(0),
                         setBits != null ? id(setBits) : Int(0));
         }
@@ -1321,7 +1321,7 @@ public abstract class JavafxTranslationSupport {
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
-                return call(attributeGetMixinName(varSym));
+                return Call(attributeGetMixinName(varSym));
             } else {
                 return m().Select(getReceiver(varSym), attributeValueName(varSym));
             }
@@ -1330,7 +1330,7 @@ public abstract class JavafxTranslationSupport {
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
-                return call(selector, attributeGetMixinName(varSym));
+                return Call(selector, attributeGetMixinName(varSym));
             } else {
                 return m().Select(selector, attributeValueName(varSym));
             }
@@ -1340,7 +1340,7 @@ public abstract class JavafxTranslationSupport {
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
-                return call(getReceiver(varSym), attributeGetVOFFName(varSym));
+                return Call(getReceiver(varSym), attributeGetVOFFName(varSym));
             } else {
                 JCExpression klass = makeType(varSym.owner.type, false);
                 
@@ -1355,7 +1355,7 @@ public abstract class JavafxTranslationSupport {
             VarSymbol varSym = (VarSymbol)sym;
             
             if (selector != null && isMixinVar(varSym)) {
-                return call(selector, attributeGetVOFFName(varSym));
+                return Call(selector, attributeGetVOFFName(varSym));
             }
             
             return Offset(varSym);
@@ -1366,7 +1366,7 @@ public abstract class JavafxTranslationSupport {
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
-                return call(attributeSetMixinName(varSym), value);
+                return Call(attributeSetMixinName(varSym), value);
             } else {
                 return m().Assign(m().Select(getReceiver(varSym), attributeValueName(varSym)), value);
             }
@@ -1376,7 +1376,7 @@ public abstract class JavafxTranslationSupport {
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
-                return call(selector, attributeSetMixinName(varSym), value);
+                return Call(selector, attributeSetMixinName(varSym), value);
             } else {
                 return m().Assign(m().Select(selector, attributeValueName(varSym)), value);
             }
@@ -1396,183 +1396,113 @@ public abstract class JavafxTranslationSupport {
             return argBuffer.toList();
         }
 
-        JCExpression call(JCExpression receiver, Name methodName, List<JCExpression> args) {
+        JCExpression Call(JCExpression receiver, Name methodName, List<JCExpression> args) {
             JCExpression expr = select(receiver, methodName);
             return m().Apply(List.<JCExpression>nil(), expr, args);
         }
 
-        JCExpression call(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
-            return call(receiver, methodName, args.toList());
+        JCExpression Call(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
+            return Call(receiver, methodName, args.toList());
         }
 
-        JCExpression call(JCExpression receiver, Name methodName, JCExpression... args) {
-            return call(receiver, methodName, callArgs(args));
+        JCExpression Call(JCExpression receiver, Name methodName, JCExpression... args) {
+            return Call(receiver, methodName, callArgs(args));
         }
 
-        JCExpression call(JCExpression receiver, String methodString, List<JCExpression> args) {
-            return call(receiver, names.fromString(methodString), args);
-        }
-
-        JCExpression call(JCExpression receiver, String methodString, ListBuffer<JCExpression> args) {
-            return call(receiver, names.fromString(methodString), args.toList());
-        }
 
         JCExpression call(JCExpression receiver, String methodString, JCExpression... args) {
-            return call(receiver, names.fromString(methodString), callArgs(args));
+            return Call(receiver, names.fromString(methodString), callArgs(args));
         }
 
 
         JCExpression call(Type selector, Name methodName, List<JCExpression> args) {
-            return call(makeType(selector), methodName, args);
+            return Call(makeType(selector), methodName, args);
         }
 
         JCExpression call(Type selector, Name methodName, ListBuffer<JCExpression> args) {
-            return call(makeType(selector), methodName, args.toList());
+            return Call(makeType(selector), methodName, args.toList());
         }
 
         JCExpression call(Type selector, Name methodName, JCExpression... args) {
-            return call(makeType(selector), methodName, callArgs(args));
+            return Call(makeType(selector), methodName, callArgs(args));
         }
 
-        JCExpression call(Type selector, String methodString, List<JCExpression> args) {
-            return call(makeType(selector), names.fromString(methodString), args);
-        }
-
+        
         JCExpression call(Type selector, String methodString, ListBuffer<JCExpression> args) {
-            return call(makeType(selector), names.fromString(methodString), args.toList());
-        }
-
-        JCExpression call(Type selector, String methodString, JCExpression... args) {
-            return call(makeType(selector), names.fromString(methodString), callArgs(args));
+            return Call(makeType(selector), names.fromString(methodString), args.toList());
         }
 
 
-        JCExpression call(Name methodName, List<JCExpression> args) {
-            return call(getReceiver(), methodName, args);
+        JCExpression Call(Name methodName, List<JCExpression> args) {
+            return Call(getReceiver(), methodName, args);
         }
 
-        JCExpression call(Name methodName, ListBuffer<JCExpression> args) {
-            return call(getReceiver(), methodName, args.toList());
+        JCExpression Call(Name methodName, ListBuffer<JCExpression> args) {
+            return Call(getReceiver(), methodName, args.toList());
         }
 
-        JCExpression call(Name methodName, JCExpression... args) {
-            return call(getReceiver(), methodName, callArgs(args));
+        JCExpression Call(Name methodName, JCExpression... args) {
+            return Call(getReceiver(), methodName, callArgs(args));
         }
 
-        JCExpression call(String methodString, List<JCExpression> args) {
-            return call(getReceiver(), names.fromString(methodString), args);
+
+        JCExpression Call(RuntimeMethod meth, List<JCExpression> args) {
+            return Call(makeQualifiedTree(meth.classString), meth.methodName, args);
         }
 
-        JCExpression call(String methodString, ListBuffer<JCExpression> args) {
-            return call(getReceiver(), names.fromString(methodString), args.toList());
+        JCExpression Call(RuntimeMethod meth, ListBuffer<JCExpression> args) {
+            return Call(meth, args.toList());
         }
 
-        JCExpression call(String methodString, JCExpression... args) {
-            return call(getReceiver(), names.fromString(methodString), callArgs(args));
-        }
-
-        JCExpression call(RuntimeMethod meth, List<JCExpression> args) {
-            return call(makeQualifiedTree(meth.classString), meth.methodName, args);
-        }
-
-        JCExpression call(RuntimeMethod meth, ListBuffer<JCExpression> args) {
-            return call(meth, args.toList());
-        }
-
-        JCExpression call(RuntimeMethod meth, JCExpression... args) {
-            return call(meth, callArgs(args));
+        JCExpression Call(RuntimeMethod meth, JCExpression... args) {
+            return Call(meth, callArgs(args));
         }
 
         /**
          * Method calls -- returning a JCStatement
          */
 
-        JCStatement callStmt(JCExpression receiver, Name methodName, List<JCExpression> args) {
-            return Stmt(call(receiver, methodName, args));
+        JCStatement CallStmt(JCExpression receiver, Name methodName, List<JCExpression> args) {
+            return Stmt(Call(receiver, methodName, args));
         }
 
-        JCStatement callStmt(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
-            return Stmt(call(receiver, methodName, args.toList()));
+        JCStatement CallStmt(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
+            return Stmt(Call(receiver, methodName, args.toList()));
         }
 
-        JCStatement callStmt(JCExpression receiver, Name methodName, JCExpression... args) {
-            return Stmt(call(receiver, methodName, callArgs(args)));
+        JCStatement CallStmt(JCExpression receiver, Name methodName, JCExpression... args) {
+            return Stmt(Call(receiver, methodName, callArgs(args)));
         }
 
-        JCStatement callStmt(JCExpression receiver, String methodString, List<JCExpression> args) {
-            return Stmt(call(receiver, names.fromString(methodString), args));
-        }
-
-        JCStatement callStmt(JCExpression receiver, String methodString, ListBuffer<JCExpression> args) {
-            return Stmt(call(receiver, names.fromString(methodString), args.toList()));
-        }
 
         JCStatement callStmt(JCExpression receiver, String methodString, JCExpression... args) {
-            return Stmt(call(receiver, names.fromString(methodString), callArgs(args)));
+            return Stmt(Call(receiver, names.fromString(methodString), callArgs(args)));
         }
 
 
-        JCStatement callStmt(Type selector, Name methodName, List<JCExpression> args) {
-            return Stmt(call(makeType(selector), methodName, args));
+        JCStatement CallStmt(Name methodName, List<JCExpression> args) {
+            return Stmt(Call(getReceiver(), methodName, args));
         }
 
-        JCStatement callStmt(Type selector, Name methodName, ListBuffer<JCExpression> args) {
-            return Stmt(call(makeType(selector), methodName, args.toList()));
+        JCStatement CallStmt(Name methodName, ListBuffer<JCExpression> args) {
+            return Stmt(Call(getReceiver(), methodName, args.toList()));
         }
 
-        JCStatement callStmt(Type selector, Name methodName, JCExpression... args) {
-            return Stmt(call(makeType(selector), methodName, callArgs(args)));
-        }
-
-
-        JCStatement callStmt(Type selector, String methodString, List<JCExpression> args) {
-            return Stmt(call(makeType(selector), names.fromString(methodString), args));
-        }
-
-        JCStatement callStmt(Type selector, String methodString, ListBuffer<JCExpression> args) {
-            return Stmt(call(makeType(selector), names.fromString(methodString), args.toList()));
-        }
-
-        JCStatement callStmt(Type selector, String methodString, JCExpression... args) {
-            return Stmt(call(makeType(selector), names.fromString(methodString), callArgs(args)));
+        JCStatement CallStmt(Name methodName, JCExpression... args) {
+            return Stmt(Call(getReceiver(), methodName, callArgs(args)));
         }
 
 
-        JCStatement callStmt(Name methodName, List<JCExpression> args) {
-            return Stmt(call(getReceiver(), methodName, args));
+        JCStatement CallStmt(RuntimeMethod meth, List<JCExpression> args) {
+            return Stmt(Call(meth, args));
         }
 
-        JCStatement callStmt(Name methodName, ListBuffer<JCExpression> args) {
-            return Stmt(call(getReceiver(), methodName, args.toList()));
+        JCStatement CallStmt(RuntimeMethod meth, ListBuffer<JCExpression> args) {
+            return Stmt(Call(meth, args));
         }
 
-        JCStatement callStmt(Name methodName, JCExpression... args) {
-            return Stmt(call(getReceiver(), methodName, callArgs(args)));
-        }
-
-
-        JCStatement callStmt(String methodString, List<JCExpression> args) {
-            return Stmt(call(getReceiver(), names.fromString(methodString), args));
-        }
-
-        JCStatement callStmt(String methodString, ListBuffer<JCExpression> args) {
-            return Stmt(call(getReceiver(), names.fromString(methodString), args.toList()));
-        }
-
-        JCStatement callStmt(String methodString, JCExpression... args) {
-            return Stmt(call(getReceiver(), names.fromString(methodString), callArgs(args)));
-        }
-        
-        JCStatement callStmt(RuntimeMethod meth, List<JCExpression> args) {
-            return Stmt(call(meth, args));
-        }
-
-        JCStatement callStmt(RuntimeMethod meth, ListBuffer<JCExpression> args) {
-            return Stmt(call(meth, args));
-        }
-
-        JCStatement callStmt(RuntimeMethod meth, JCExpression... args) {
-            return Stmt(call(meth, args));
+        JCStatement CallStmt(RuntimeMethod meth, JCExpression... args) {
+            return Stmt(Call(meth, args));
         }
         
         /**

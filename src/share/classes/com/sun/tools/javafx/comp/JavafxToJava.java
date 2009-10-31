@@ -576,10 +576,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                                       call(vsym.owner.type, scriptLevelAccessMethod(vsym.owner))
                                     : id(names._this)
                                : id(instanceName);
-                    res = call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
+                    res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
                 } else if (vmi.useAccessors()) {
                     JCExpression tc = instanceName == null ? null : id(instanceName);
-                    res = call(tc, attributeBeName(vsym), nonNullInit);
+                    res = Call(tc, attributeBeName(vsym), nonNullInit);
                 } else {
                     // TODO: Java inherited.
                     final JCExpression varRef = id(vsym);
@@ -595,8 +595,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         result = new ExpressionTranslator(tree.pos()) {
             ExpressionResult doit() {
-                JCExpression receiver = vsym.isStatic() ? call(scriptLevelAccessMethod(vsym.owner)) : null;
-                JCStatement applyDefaultCall = callStmt(receiver, defs.attributeApplyDefaultsPrefixMethodName, Offset(vsym));
+                JCExpression receiver = vsym.isStatic() ? Call(scriptLevelAccessMethod(vsym.owner)) : null;
+                JCStatement applyDefaultCall = CallStmt(receiver, defs.attributeApplyDefaultsPrefixMethodName, Offset(vsym));
                 return toResult(makeBlockExpression(List.of(applyDefaultCall), id(attributeValueName(vsym))), vsym.type);
         }}.doit();
     }
@@ -915,7 +915,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 args.append(translateExpr(step, elemType));
             }
             return toResult(
-                    call(rm, args),
+                    Call(rm, args),
                     type);
         }
     }
@@ -974,7 +974,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     return call(syms.javafx_SequencesType, mname, args);
                 }
             }
-            return call(tSeq, getMethodName, tIndex);
+            return Call(tSeq, getMethodName, tIndex);
         }
 
         protected ExpressionResult doit() {
@@ -1016,7 +1016,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         JCExpression computeSliceEnd() {
             JCExpression endPos;
             if (lastIndex == null) {
-                endPos = call(seq, defs.sizeMethodName);
+                endPos = Call(seq, defs.sizeMethodName);
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
                     endPos = m().Binary(JCTree.MINUS, endPos, Int(1));
                 }
@@ -1035,7 +1035,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         protected JCExpression doitExpr() {
             JCExpression tFirstIndex = translateExpr(firstIndex, syms.intType);
-            return call(seq, defs.getSliceMethodName, tFirstIndex, computeSliceEnd());
+            return Call(seq, defs.getSliceMethodName, tFirstIndex, computeSliceEnd());
         }
     }
 
@@ -1097,7 +1097,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     args.append(tIndex2);
                 }
             }
-            JCExpression res = call(meth, args);
+            JCExpression res = Call(meth, args);
             if (refSym.owner.kind != Kinds.TYP) {
                 // It is a local variable sequence, assign the result
                 res = m().Assign(id(refSym.name), res);
@@ -1214,8 +1214,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     }
                 }
                 
-                stmts.append(callStmt(receiver0, attributeInvalidateName(vsym), id(defs.varFlagIS_INVALID)));
-                stmts.append(callStmt(receiver1, attributeInvalidateName(vsym), id(defs.varFlagNEEDS_TRIGGER)));
+                stmts.append(CallStmt(receiver0, attributeInvalidateName(vsym), id(defs.varFlagIS_INVALID)));
+                stmts.append(CallStmt(receiver1, attributeInvalidateName(vsym), id(defs.varFlagNEEDS_TRIGGER)));
                 return toStatementResult(m().Block(0L, stmts.toList()));
             }
         }).doit();
@@ -1321,7 +1321,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         abstract List<JCExpression> makeConstructorArgs();
 
         JCStatement makeAdd(JCExpression expr) {
-            return callStmt(makeBuilderVarAccess(), names.fromString("add"), expr);
+            return CallStmt(makeBuilderVarAccess(), names.fromString("add"), expr);
         }
 
         abstract JCExpression makeToSequence();
@@ -1533,7 +1533,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 // FIXME set maxForStartNeeded false if first is replace-trigger startPos and seq is oldValue
                 if (maxForStartNeeded)
                     setDiagPos(first);
-                    init = call(defs.Math_max, init, Int(0));
+                    init = Call(defs.Math_max, init, Int(0));
             }
             setDiagPos(clause);
             inductionVar.init = init;
@@ -1554,7 +1554,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 // FIXME can optimize if last is replace-trigger endPos and seq is oldValue
                 if (true)
                     setDiagPos(last);
-                    limitExpr = call(defs.Math_min, limitExpr, sizeExpr);
+                    limitExpr = Call(defs.Math_min, limitExpr, sizeExpr);
             }
             setDiagPos(clause);
             JCVariableDecl limitVar = makeTmpVar("limit", syms.intType, limitExpr);
@@ -1696,7 +1696,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 JCExpression tseq = asExpression(translateToExpressionResult(seq, null), null);
                 if (types.isSequence(seq.type)) {
                     // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
-                    tseq = call(defs.Sequences_forceNonNull,
+                    tseq = Call(defs.Sequences_forceNonNull,
                             makeTypeInfo(diagPos, inductionVarType), tseq);
                     translateSliceInClause(seq, null, null, SequenceSliceTree.END_INCLUSIVE, seqVar);
                     //body = m().ForeachLoop(inductionVar, tseq, body);
@@ -1945,7 +1945,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCExpression receiver;
             if (tag == JavafxTag.IDENT) {
                 if (sym.isStatic()) {
-                    receiver = call(staticReference(sym), scriptLevelAccessMethod(sym.owner));
+                    receiver = Call(staticReference(sym), scriptLevelAccessMethod(sym.owner));
                 } else {
                     receiver = makeReceiver(sym, false);
                 }
@@ -1963,7 +1963,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCExpression varOffsetExpr = Offset(receiver, sym);
             Type type = types.erasure(tree.attribute.type);
             JCExpression varType = m().ClassLiteral(type);
-            return call(defs.Pointer_make, receiver, varOffsetExpr, varType);
+            return Call(defs.Pointer_make, receiver, varOffsetExpr, varType);
         }
 
         @Override

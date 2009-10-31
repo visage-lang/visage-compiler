@@ -92,19 +92,19 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 addPreface(value);
                 
                 if (selectSymbol != null) {
-                    JCVariableDecl selector = makeTmpVar(selectSymbol.type, call(attributeGetterName(selectSymbol)));
+                    JCVariableDecl selector = makeTmpVar(selectSymbol.type, Call(attributeGetterName(selectSymbol)));
                     addPreface(selector);
                     //note: we have to use the set$(int, FXBase) version because
                     //the set$xxx version is not always accessible from the
                     //selector expression (if selector is XXX$Script class)
-                    JCStatement setter = callStmt(id(selector),
+                    JCStatement setter = CallStmt(id(selector),
                             names.fromString(JavafxDefs.attributeSetMethodNamePrefix),
                             Offset(id(selector), selectVarSymbol),
                             id(value)); //FIXME: is this mixin safe?
                     JCExpression conditionExpr = NE(id(selector), Null());
                     addPreface(m().If(conditionExpr, m().Block(0L, List.<JCStatement>of(setter)), null));
                 } else {
-                    addPreface(callStmt(attributeSetterName(selectVarSymbol), id(value)));
+                    addPreface(CallStmt(attributeSetterName(selectVarSymbol), id(value)));
                 }
                 
                 return toResult(id(defs.attributeNewValueName), targettedType);
