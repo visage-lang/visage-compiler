@@ -61,6 +61,7 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.tree.JCTree.JCBlock;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.util.Options;
 import java.util.Set;
@@ -1297,6 +1298,34 @@ public abstract class JavafxTranslationSupport {
             return BlockExpression(stmts.toList(), value);
         }
 
+       /**
+         * Block
+         */
+
+        JCBlock Block(List<JCStatement> stmts) {
+            return m().Block(0L, stmts);
+        }
+
+        JCBlock Block(ListBuffer<JCStatement> stmts) {
+            return Block(stmts.toList());
+        }
+
+        JCBlock Block(JCStatement... stmts) {
+            return Block(List.from(stmts));
+        }
+
+       /**
+         * If
+         */
+
+        JCStatement If(JCExpression cond, JCStatement thenStmt, JCStatement elseStmt) {
+            return m().If(cond, thenStmt, elseStmt);
+        }
+
+        JCStatement If(JCExpression cond, JCStatement thenStmt) {
+            return m().If(cond, thenStmt, null);
+        }
+
         /**
          * Make methods
          */
@@ -1317,7 +1346,7 @@ public abstract class JavafxTranslationSupport {
                                         List.<JCTypeParameter>nil(),
                                         params != null ? params : List.<JCVariableDecl>nil(),
                                         List.<JCExpression>nil(),
-                                        stmts == null ? null : m().Block(0L, stmts),
+                                        stmts == null ? null : Block(stmts),
                                         null);
             methDecl.sym = methSym;
             return methDecl;

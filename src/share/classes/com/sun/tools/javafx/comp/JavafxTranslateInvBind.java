@@ -100,7 +100,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                             Offset(id(selector), selectVarSymbol),
                             id(value)); //FIXME: is this mixin safe?
                     JCExpression conditionExpr = NE(id(selector), Null());
-                    addPreface(m().If(conditionExpr, m().Block(0L, List.<JCStatement>of(setter)), null));
+                    addPreface(If(conditionExpr, Block(setter)));
                 } else {
                     addPreface(CallStmt(attributeSetterName(selectVarSymbol), id(value)));
                 }

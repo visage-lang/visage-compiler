@@ -564,8 +564,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         JCBlock asBlock() {
-            List<JCStatement> stmts = asStatements();
-            return m().Block(0L, stmts);
+            return Block(asStatements());
         }
 
         JCExpression asExpression() {
@@ -1122,7 +1121,9 @@ public abstract class JavafxAbstractTranslation
                 if (theResultType != null && theResultType != syms.voidType) {
                     nullAction = Stmt(makeDefault(theResultType, theFullType), theResultType);
                 }
-                return m().If(makeNullCheckCondition(tToCheck), Stmt(full, theResultType), nullAction);
+                return If(makeNullCheckCondition(tToCheck), 
+                        Stmt(full, theResultType),
+                        nullAction);
             } else {
                 return Stmt(full, theResultType);
             }
@@ -1586,7 +1587,7 @@ public abstract class JavafxAbstractTranslation
 
                 setDiagPos(bexpr);
                 stmts.appendList(translateToStatementsResult(bexpr, isBound? syms.javafx_PointerType : mtype.getReturnType()).statements());
-                body = m().Block(0L, stmts.toList());
+                body = Block(stmts);
             }
 
             if (isInstanceFunction && !isMixinClass) {
@@ -2405,7 +2406,7 @@ public abstract class JavafxAbstractTranslation
                     List.<JCTypeParameter>nil(),
                     params.toList(),
                     m().Types(mtype.getThrownTypes()),
-                    m().Block(0, stats),
+                    Block(stats),
                     null);
 
             members.append(bridgeDef);
@@ -2531,7 +2532,9 @@ public abstract class JavafxAbstractTranslation
                 JCVariableDecl offsetVar = TmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
                 JCExpression condition = EQ(id(loopName), id(offsetVar));
-                loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
+                loopBody = If(condition, 
+                        varInits.first(),
+                        applyDefaultsExpr);
             }
 
             addPreface(m().ForLoop(List.<JCStatement>of(loopVar), loopTest, loopStep, loopBody));

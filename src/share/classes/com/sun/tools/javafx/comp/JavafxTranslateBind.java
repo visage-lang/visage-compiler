@@ -218,14 +218,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             ExpressionResult res = translateToExpressionResult(expr, type);
             addBindees(res.bindees());
             addInterClassBindees(res.interClass());
-            return m().Block(0L, res.statements().append(Stmt(m().Assign(id(resVar), res.expr()))));
+            return Block(res.statements().append(Stmt(m().Assign(id(resVar), res.expr()))));
         }
 
         protected ExpressionResult doit() {
             JCExpression cond = translateExpr(tree.getCondition(), syms.booleanType);
             addPreface(resVar);
-            addPreface(m().If(
-                    cond,
+            addPreface(If (cond,
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
             return toResult( id(resVar), type );
@@ -417,15 +416,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
         JCStatement Assign(JCVariableDecl var, JCExpression value) {
             return Assign(id(var), value);
-        }
-        JCStatement Block(JCStatement... stmts) {
-            return m().Block(0L, List.from(stmts));
-        }
-        JCStatement If(JCExpression cond, JCStatement thenStmt, JCStatement elseStmt) {
-            return m().If(cond, thenStmt, elseStmt);
-        }
-        JCStatement If(JCExpression cond, JCStatement thenStmt) {
-            return m().If(cond, thenStmt, null);
         }
     }
 
@@ -759,7 +749,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 stmts.append(Assign(vStart, id(vNext)));
             }
             stmts.append(Return(DefaultValue(elemType)));
-            return m().Block(0L, stmts.toList());
+            return Block(stmts);
         }
 
         /**
@@ -834,7 +824,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     stmts.append(Assign(id(i), get(i)));
                 }
             }
-            JCStatement varInits = m().Block(0L, stmts.toList());
+            JCStatement varInits = Block(stmts);
 
             return
                 Block(
@@ -1154,7 +1144,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     vNewStep,
                     vNewSize,
                     If (IsTriggerPhase(),
-                        m().Block(0L, inits.toList())
+                        Block(inits)
                     ),
                     InvalidateCall(iZero(), iZero(), id(vNewSize))
                    );

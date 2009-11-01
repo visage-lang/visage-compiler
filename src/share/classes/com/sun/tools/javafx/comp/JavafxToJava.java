@@ -715,7 +715,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         }
                     }
                     List<JCStatement> localDefs = prependToStatements.appendList(statements()).toList();
-                    return new StatementsResult(localDefs.size() == 1 ? localDefs.head : m().Block(0L, localDefs));
+                    return new StatementsResult(localDefs.size() == 1 ? localDefs.head : Block(localDefs));
                 }
             } finally {
                 prependToStatements = prevPrependToStatements;
@@ -1212,7 +1212,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 
                 stmts.append(CallStmt(receiver0, attributeInvalidateName(vsym), id(defs.varFlagIS_INVALID)));
                 stmts.append(CallStmt(receiver1, attributeInvalidateName(vsym), id(defs.varFlagNEEDS_TRIGGER)));
-                return toStatementResult(m().Block(0L, stmts.toList()));
+                return toStatementResult(Block(stmts));
             }
         }).doit();
     }
@@ -1560,7 +1560,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             // Generate the step statement as: x += 1
             List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(inductionVar), m().Literal(TypeTags.INT, 1))));
             tinits.append(m().ForLoop(List.<JCStatement>nil(), tcond, tstep, body));
-            body = m().Block(0L, tinits.toList());
+            body = Block(tinits);
         }
 
         /**
@@ -1630,7 +1630,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         protected JCStatement doitStmt() {
             // If there is a where expression, make the execution of the body conditional on the where condition
             if (clause.getWhereExpression() != null) {
-                body = m().If(translateExpr(clause.getWhereExpression(), syms.booleanType), body, null);
+                body = If(translateExpr(clause.getWhereExpression(), syms.booleanType), body);
             }
 
             // Because the induction variable may be used in inner contexts, make a final
@@ -1675,7 +1675,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
                 stmts.append(Var(var.getName(), varInit));
                 stmts.append(body);
-                body = m().Block(0L, stmts.toList());
+                body = Block(stmts);
             }
 
             // Translate the sequence into the loop
@@ -1704,21 +1704,19 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     // The "sequence" isn't aactually a sequence, treat it as a singleton.
                     // Compile: { var tmp = seq; if (tmp!=null) body; }
                     if (!inductionVarType.isPrimitive()) {
-                        body = m().If(
-                                NEnull(id(inductionVar)),
-                                body,
-                                null);
+                        body = If (NEnull(id(inductionVar)),
+                                body);
                     }
                     // the "induction" variable will have only one value, set it to that
                     inductionVar.init = tseq;
                     // wrap the induction variable and the body in a block to protect scope
-                    body = m().Block(0L, List.of(inductionVar, body));
+                    body = Block(inductionVar, body);
                 }
             }
 
             if (clause.getIndexUsed()) {
                 // indexof is used, define the index counter variable at the top of everything
-                body = m().Block(0L, List.of(incrementingIndexVar, body));
+                body = Block(incrementingIndexVar, body);
             }
 
             return body;
@@ -1773,7 +1771,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         sideExpr(falseSide)),
                     targetType);
             } else {
-                 return toStatementResult(m().If(
+                 return toStatementResult(If(
                         cond,
                         sideStmt(trueSide),
                         sideStmt(falseSide)));
