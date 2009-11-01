@@ -387,11 +387,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private VarSymbol flagSymbol = (VarSymbol)targetSymbol;
 
         JCExpression isSequenceValid() {
-            return makeFlagExpression(flagSymbol, defs.varFlagActionTest, flagBit, flagBit);
+            return FlagTest(flagSymbol, flagBit, flagBit);
         }
 
         JCStatement setSequenceValid() {
-            return makeFlagStatement(flagSymbol, defs.varFlagActionChange, null, flagBit);
+            return FlagChangeStmt(flagSymbol, null, flagBit);
         }
 
         JCExpression posArg() {
@@ -504,9 +504,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             return
                 Block(
-                    If (NOT(makeFlagExpression((VarSymbol)targetSymbol, defs.varFlagActionChange, null, defs.varFlagDEFAULT_APPLIED)),
+                    If (NOT(FlagChange((VarSymbol)targetSymbol, null, defs.varFlagDEFAULT_APPLIED)),
                         Block(
-                            makeFlagStatement(selectorSym, defs.varFlagActionChange, defs.varFlagNEEDS_TRIGGER, null),
+                            FlagChangeStmt(selectorSym, defs.varFlagNEEDS_TRIGGER, null),
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
                         )
                     ),
@@ -569,7 +569,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl oldSize = TmpVar(syms.intType, getSize(selectorSym));
 
             return
-                If (NOT(makeFlagExpression(selectorSym, defs.varFlagActionChange, null, phaseArg())),
+                If (NOT(FlagChange(selectorSym, null, phaseArg())),
                     Block(
                         oldSize,
                         If (IsTriggerPhase(),

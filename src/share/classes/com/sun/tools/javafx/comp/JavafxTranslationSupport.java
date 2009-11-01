@@ -1066,36 +1066,65 @@ public abstract class JavafxTranslationSupport {
         }
 
         //
-        // These methods return an expression for testing/setting/clearing a var flag.
+        // Private support methods for testing/setting/clearing a var flag.
         //
-        protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
-            return makeFlagExpression(varSym, action,
+
+        private JCExpression FlagAction(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
+            return FlagAction(varSym, action,
                         clearBits != null ? id(clearBits) : Int(0),
                         setBits != null ? id(setBits) : Int(0));
         }
-        protected JCExpression makeFlagExpression(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
+        private JCExpression FlagAction(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
             return Call(getReceiver(varSym), action, Offset(varSym),
                         clearBits != null ? clearBits : Int(0),
                         setBits != null ? setBits : Int(0));
 
         }
-        protected JCExpression makeFlagExpression(JCExpression offset, Name action, Name clearBits, Name setBits) {
+        private JCExpression FlagAction(JCExpression offset, Name action, Name clearBits, Name setBits) {
             return Call(action, offset,
                         clearBits != null ? id(clearBits) : Int(0),
                         setBits != null ? id(setBits) : Int(0));
         }
 
         //
+        // These methods return an expression for testing/setting/clearing a var flag.
+        //
+
+        protected JCExpression FlagTest(VarSymbol varSym, Name clearBits, Name setBits) {
+            return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits);
+        }
+        protected JCExpression FlagTest(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
+            return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits);
+        }
+        protected JCExpression FlagTest(JCExpression offset, Name clearBits, Name setBits) {
+            return FlagAction(offset, defs.varFlagActionTest, clearBits, setBits);
+        }
+
+        protected JCExpression FlagChange(VarSymbol varSym, Name clearBits, Name setBits) {
+            return FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits);
+        }
+        protected JCExpression FlagChange(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
+            return FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits);
+        }
+        protected JCExpression FlagChange(JCExpression offset, Name clearBits, Name setBits) {
+            return FlagAction(offset, defs.varFlagActionChange, clearBits, setBits);
+        }
+
+
+        //
         // These methods returns a statement for setting/clearing a var flag.
         //
-        protected JCStatement makeFlagStatement(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
-            return Stmt(makeFlagExpression(varSym, action, clearBits, setBits));
+
+        protected JCStatement FlagChangeStmt(VarSymbol varSym, Name clearBits, Name setBits) {
+            return Stmt(FlagChange(varSym, clearBits, setBits));
         }
-        protected JCStatement makeFlagStatement(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
-            return Stmt(makeFlagExpression(varSym, action, clearBits, setBits));
+
+        protected JCStatement FlagChangeStmt(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
+            return Stmt(FlagChange(varSym, clearBits, setBits));
         }
-        protected JCStatement makeFlagStatement(JCExpression offset, Name action, Name clearBits, Name setBits) {
-            return Stmt(makeFlagExpression(offset, action, clearBits, setBits));
+
+        protected JCStatement FlagChangeStmt(JCExpression offset, Name clearBits, Name setBits) {
+            return Stmt(FlagChange(offset, clearBits, setBits));
         }
 
         //
