@@ -2546,7 +2546,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(Return(null));
                             
                             // varNum == VOFF$var
-                            JCExpression isRightVarExpr = EQ(varNumArg(), id(attributeOffsetName(ai.getSymbol())));
+                            JCExpression isRightVarExpr = EQ(varNumArg(), Offset(ai.getSymbol()));
                             // if (varNum == VOFF$var) { init; return; }
                             overrides.append(If(isRightVarExpr, endBlock()));
                         }
