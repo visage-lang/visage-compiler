@@ -1057,7 +1057,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCStatement onReplaceCall;
                         if (!varInfo.isSequence()) {
                             onReplaceCall = CallStmt(getReceiver(), attributeOnReplaceName(varSym),
-                                            makeMixinSafeVarValue(varSym), makeMixinSafeVarValue(varSym));
+                                            Get(varSym), Get(varSym));
                         } else {
                             onReplaceCall = CallStmt(getReceiver(), attributeOnReplaceName(varSym),
                                             Int(0), Int(0), Int(0));
@@ -1090,20 +1090,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
         }
 
-        //
-        // This method returns the correct expression for accessing a value depending if in a mixin or not.
-        //
-        private JCExpression makeMixinSafeVarValue(VarSymbol varSym) {
-           if (isMixinClass() && JavafxAnalyzeClass.isMixinClass(varSym.owner)) {
-               return Call(getReceiver(varSym), attributeGetMixinName(varSym));
-           } else if (varSym.isStatic()) {
-               return Select(makeType(varSym.owner.type, false), attributeValueName(varSym));
-           }
-           
-           return id(attributeValueName(varSym));
-        }
-
-                
         //-----------------------------------------------------------------------------------------------------------------------------
         //
         // Sequence var accessors.
@@ -2744,7 +2730,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                         addStmt(ifReferenceStmt);
                         
-                        JCExpression ifInstanceCond = EQ(updateInstanceArg(), makeMixinSafeVarValue(instanceVar));
+                        JCExpression ifInstanceCond = EQ(updateInstanceArg(), Get(instanceVar));
                         addStmt(If(ifInstanceCond,
                                 endBlock()));
                     }
@@ -3196,7 +3182,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // add a parameter and a statement to constructor for the outer instance reference
                 params.append(Param(outerTypeSym.type, defs.outerAccessor_FXObjectFieldName) );
                 types.append(outerTypeSym.type);
-                JCFieldAccess cSelect = m().Select(id(names._this), defs.outerAccessor_FXObjectFieldName);
+                JCExpression cSelect = Select(id(names._this), defs.outerAccessor_FXObjectFieldName);
                 stmts.append(Stmt(m().Assign(cSelect, id(defs.outerAccessor_FXObjectFieldName))));
             }
             params.append(Param(syms.booleanType, dummyParamName));
