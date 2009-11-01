@@ -224,6 +224,7 @@ public class JavafxDefs {
     final Name initialize_FXObjectMethodName;
     final Name userInit_FXObjectMethodName;
     final Name postInit_FXObjectMethodName;
+    final Name initVarBits_FXObjectMethodName;
 
     /**
      * Duration method Names
@@ -293,6 +294,7 @@ public class JavafxDefs {
      */
 
     final Name count_FXObjectFieldName;
+    final Name outerAccessor_FXObjectFieldName;
     final Name scriptLevelAccess_FXObjectFieldName;
 
     final Name length_ArrayFieldName;
@@ -311,6 +313,9 @@ public class JavafxDefs {
     final Name oldValue_ArgName;
     final Name newValue_ArgName;
     final Name pos_ArgName;
+    final Name varNum_ArgName;
+    final Name updateInstance_ArgName;
+    final Name obj_ArgName;
 
     /**
      * Method prefixes for attributes as Name
@@ -491,6 +496,7 @@ public class JavafxDefs {
         getVOFF_AttributeMethodPrefixName = names.fromString(getVOFF_AttributeMethodPrefix);
         setMixin_AttributeMethodPrefixName = names.fromString(setMixin_AttributeMethodPrefix);
         initVarBitsAttributeMethodPrefixName = names.fromString(initVarBits_AttributeMethodPrefix);
+        initVarBits_FXObjectMethodName = initVarBitsAttributeMethodPrefixName;
         applyDefaults_FXObjectMethodName = names.fromString(applyDefaults_AttributeMethodPrefix);
         applyDefaults_AttributeMethodPrefixName = names.fromString(applyDefaults_AttributeMethodPrefix);
         update_FXObjectMethodName = names.fromString("update$");
@@ -501,6 +507,10 @@ public class JavafxDefs {
         varNewValue_ArgName = names.fromString("varNewValue$");
         scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
         scriptLevelAccess_FXObjectMethodPrefixName = names.fromString("access$scriptLevel$");
+        outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
+        updateInstance_ArgName = names.fromString("instance$");
+        obj_ArgName = names.fromString("object$");
+        varNum_ArgName = names.fromString("varNum$");
 
         varFlagActionTest = names.fromString("varTestBits$");
         varFlagActionChange = names.fromString("varChangeBits$");

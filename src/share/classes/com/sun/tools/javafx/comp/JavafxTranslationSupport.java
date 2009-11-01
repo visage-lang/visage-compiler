@@ -1026,6 +1026,36 @@ public abstract class JavafxTranslationSupport {
         }
 
         /**
+         * Standard method parameters
+         */
+
+        JCIdent makeMethodArg(Name name, Type type) {
+            JCIdent id = id(name);
+            id.type = type;
+            return id;
+        }
+
+        JCIdent posArg() {
+            return makeMethodArg(defs.pos_ArgName, syms.intType);
+        }
+
+        JCIdent startPosArg() {
+            return makeMethodArg(defs.startPos_ArgName, syms.intType);
+        }
+
+        JCIdent endPosArg() {
+            return makeMethodArg(defs.endPos_ArgName, syms.intType);
+        }
+
+        JCIdent newLengthArg() {
+            return makeMethodArg(defs.newLength_ArgName, syms.intType);
+        }
+
+        JCIdent phaseArg() {
+            return makeMethodArg(defs.phase_ArgName, syms.intType);
+        }
+
+        /**
          * Convert type to JCExpression
          */
         protected JCExpression makeType(Type type, boolean makeIntf) {

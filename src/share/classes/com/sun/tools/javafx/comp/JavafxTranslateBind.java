@@ -379,7 +379,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement InvalidateCall(JCExpression begin, JCExpression end, JCExpression newLen) {
-            return CallStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, id(defs.phase_ArgName));
+            return CallStmt(attributeInvalidateName(targetSymbol), begin, end, newLen, phaseArg());
         }
 
         private Name flagBit = defs.varFlagDEFAULT_APPLIED;
@@ -393,24 +393,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return FlagChangeStmt(flagSymbol, null, flagBit);
         }
 
-        JCExpression posArg() {
-            return id(defs.pos_ArgName);
-        }
-
-        JCExpression phaseArg() {
-            return id(defs.phase_ArgName);
-        }
-
         JCExpression IsTriggerPhase() {
             return EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
         }
 
-        JCExpression iZero() {
-            return m().Literal(syms.intType.tag, 0);
-        }
-        JCExpression iOne() {
-            return m().Literal(syms.intType.tag, 1);
-        }
         JCStatement Assign(JCExpression vid, JCExpression value) {
             return Stmt(m().Assign(vid, value));
         }
@@ -615,10 +601,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         PLUS(
                             id(attributeValueName(sizeSym)),
                             MINUS(
-                                id(defs.newLength_ArgName),
+                                newLengthArg(),
                                 MINUS(
-                                    id(defs.endPos_ArgName),
-                                    id(defs.startPos_ArgName)
+                                    endPosArg(),
+                                    startPosArg()
                                 )
                             )
                         )
@@ -683,9 +669,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (isSequence(index)) {
                 return Call(attributeSizeName(vsym(index)));
             } else if (isNullable(index)) {
-                return m().Conditional(EQnull(value), iZero(), iOne());
+                return m().Conditional(EQnull(value), Int(0), Int(1));
             } else {
-                return iOne();
+                return Int(1);
             }
         }
 
@@ -694,7 +680,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private JCExpression cummulativeSize(int index) {
-            JCExpression sum = iZero();
+            JCExpression sum = Int(0);
             for (int i = 0; i < index; ++i) {
                 sum = PLUS(sum, computeSize(i));
             }
@@ -736,11 +722,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * return null; // default
          */
         JCStatement makeGetElementBody() {
-            JCVariableDecl vStart = MutableTmpVar("start", syms.intType, iZero());
-            JCVariableDecl vNext = MutableTmpVar("next", syms.intType, iZero());
+            JCVariableDecl vStart = MutableTmpVar("start", syms.intType, Int(0));
+            JCVariableDecl vNext = MutableTmpVar("next", syms.intType, Int(0));
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            stmts.append(If(LT(posArg(), iZero()), Return(DefaultValue(elemType))));
+            stmts.append(If(LT(posArg(), Int(0)), Return(DefaultValue(elemType))));
             stmts.append(vStart);
             stmts.append(vNext);
             for (int index = 0; index < length; ++index) {
@@ -769,16 +755,16 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                     PLUS(
                                         size(),
                                         MINUS(
-                                            id(defs.newLength_ArgName),
-                                            MINUS(id(defs.endPos_ArgName), id(defs.startPos_ArgName))
+                                            newLengthArg(),
+                                            MINUS(endPosArg(), startPosArg())
                                         )
                                     )
                                 )
                             ),
                             InvalidateCall(
-                                PLUS(id(vStart), id(defs.startPos_ArgName)),
-                                PLUS(id(vStart), id(defs.endPos_ArgName)),
-                                id(defs.newLength_ArgName)
+                                PLUS(id(vStart), startPosArg()),
+                                PLUS(id(vStart), endPosArg()),
+                                newLengthArg()
                             )
                         )
                     );
@@ -833,7 +819,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         varInits
                     ),
                     Assign(size(), cummulativeSize(length)),
-                    InvalidateCall(iZero(), iZero(), size())
+                    InvalidateCall(Int(0), Int(0), size())
                 );
         }
 
@@ -953,7 +939,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         JCStatement makeGetElementBody() {
             JCExpression cond = AND(
-                    GE(posArg(), iZero()),
+                    GE(posArg(), Int(0)),
                     LT(posArg(), getSize())
                     );
             JCExpression value = PLUS(MULstep(posArg()), lower());
@@ -992,8 +978,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vNewLower = TmpVar("newLower", elemType, getLower());
             JCVariableDecl vNewSize = TmpVar("newSize", syms.intType,
                                         calculateSize(id(vNewLower), upper(), step()));
-            JCVariableDecl vLoss = MutableTmpVar("loss", syms.intType, iZero());
-            JCVariableDecl vGain = MutableTmpVar("gain", syms.intType, iZero());
+            JCVariableDecl vLoss = MutableTmpVar("loss", syms.intType, Int(0));
+            JCVariableDecl vGain = MutableTmpVar("gain", syms.intType, Int(0));
             JCVariableDecl vDelta = TmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
 
             return If (isSequenceValid(),
@@ -1005,7 +991,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                               vLoss,
                               vGain,
                               vDelta,
-                              If (OR(EQ(size(), iZero()), NE(MOD(id(vDelta), step()), zero())),
+                              If (OR(EQ(size(), Int(0)), NE(MOD(id(vDelta), step()), zero())),
                                   Block(
                                       Assign(vLoss, size()),
                                       Assign(vGain, id(vNewSize))),
@@ -1023,7 +1009,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                       Assign(size(), id(vNewSize))
                                   )
                               ),
-                              InvalidateCall(iZero(), id(vLoss), id(vGain))
+                              InvalidateCall(Int(0), id(vLoss), id(vGain))
                     )))
             );
         }
@@ -1066,7 +1052,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 ),
                                 If (GE(id(vNewSize), id(vOldSize)),
                                     InvalidateCall(id(vOldSize), id(vOldSize), MINUS(id(vNewSize), id(vOldSize))),
-                                    InvalidateCall(id(vNewSize), id(vOldSize), iZero()))
+                                    InvalidateCall(id(vNewSize), id(vOldSize), Int(0)))
                     )))
             );
         }
@@ -1103,7 +1089,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                       Assign(size(), id(vNewSize))
                                   )
                               ),
-                              InvalidateCall(iZero(), id(vOldSize), id(vNewSize))
+                              InvalidateCall(Int(0), id(vOldSize), id(vNewSize))
                     )))
             );
         }
@@ -1146,7 +1132,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (IsTriggerPhase(),
                         Block(inits)
                     ),
-                    InvalidateCall(iZero(), iZero(), id(vNewSize))
+                    InvalidateCall(Int(0), Int(0), id(vNewSize))
                    );
         }
 

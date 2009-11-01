@@ -1014,7 +1014,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             if (lastIndex == null) {
                 endPos = Call(seq, defs.size_SequenceMethodName);
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
-                    endPos = m().Binary(JCTree.MINUS, endPos, Int(1));
+                    endPos = MINUS(endPos, Int(1));
                 }
             } else {
                 endPos = translateExpr(lastIndex, syms.intType);

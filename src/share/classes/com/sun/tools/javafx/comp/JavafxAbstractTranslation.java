@@ -1827,8 +1827,7 @@ public abstract class JavafxAbstractTranslation
                         translateExpr(tree.getSequence(), null),
                         defs.size_SequenceMethodName);
                 if (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE) {
-                    endPos = make.at(tree).Binary(JCTree.MINUS,
-                            endPos, make.Literal(TypeTags.INT, 1));
+                    endPos = MINUS(endPos, Int(1));
                 }
             } else {
                 endPos = translateExpr(tree.getLastIndex(), syms.intType);
@@ -1939,7 +1938,7 @@ public abstract class JavafxAbstractTranslation
                 protected JCExpression postProcessExpression(JCExpression built) {
                     if (postfix) {
                         // this is a postfix operation, undo the value (not the variable) change
-                        return castIfNeeded(m().Binary(binaryOp, (JCExpression) built, m().Literal(-1)));
+                        return castIfNeeded(m().Binary(binaryOp, (JCExpression) built, Int(-1)));
                     } else {
                         // prefix operation
                         return built;
