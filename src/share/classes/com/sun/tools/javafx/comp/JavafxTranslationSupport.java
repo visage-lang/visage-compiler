@@ -509,10 +509,10 @@ public abstract class JavafxTranslationSupport {
         // takes care of most conversions - except in the case of a plain object cast.
         // It would be cleaner to move the makeTypeCast to translateAsValue,
         // but it's painful to get it right.  FIXME.
-        return makeTypeCast(diagPos, targetType, inType, expr);
+        return TypeCast(diagPos, targetType, inType, expr);
     }
 
-    JCExpression makeTypeCast(DiagnosticPosition diagPos, Type clazztype, Type exprtype, JCExpression translatedExpr) {
+    JCExpression TypeCast(DiagnosticPosition diagPos, Type clazztype, Type exprtype, JCExpression translatedExpr) {
         if (types.isSameType(clazztype, exprtype)) {
             return translatedExpr;
         } else {
@@ -770,7 +770,7 @@ public abstract class JavafxTranslationSupport {
     }
 
     JCExpression accessEmptySequence(DiagnosticPosition diagPos, Type elemType) {
-        return make.at(diagPos).Select(makeTypeInfo(diagPos, elemType), defs.emptySequence_FieldName);
+        return make.at(diagPos).Select(TypeInfo(diagPos, elemType), defs.emptySequence_FieldName);
     }
 
     private String escapeTypeName(Type type) {
@@ -787,7 +787,7 @@ public abstract class JavafxTranslationSupport {
      * @param type
      * @return expression representing the TypeInfo of the class
      */
-    JCExpression makeTypeInfo(DiagnosticPosition diagPos, Type type) {
+    JCExpression TypeInfo(DiagnosticPosition diagPos, Type type) {
         Type ubType = types.unboxedType(type);
         if (ubType.tag != TypeTags.NONE)
             type = ubType;
@@ -851,13 +851,6 @@ public abstract class JavafxTranslationSupport {
         AugmentedJCIdent id = new AugmentedJCIdent(name, pkind);
         id.pos = (diagPos == null ? Position.NOPOS : diagPos.getStartPosition());
         return id;
-    }
-
-    JCVariableDecl makeTmpLoopVar(DiagnosticPosition diagPos, int initValue) {
-        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(0),
-                                       getSyntheticName("loop"),
-                                       makeType(diagPos, syms.intType),
-                                       make.at(diagPos).Literal(TypeTags.INT, initValue));
     }
 
     protected JCModifiers addAccessAnnotationModifiers(DiagnosticPosition diagPos, long flags, JCModifiers mods, List<JCAnnotation> annotations) {
@@ -1192,7 +1185,7 @@ public abstract class JavafxTranslationSupport {
          * Make a variable -- final by default
          */
 
-        protected JCVariableDecl makeVar(JCModifiers modifiers, JCExpression varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
+        protected JCVariableDecl Var(JCModifiers modifiers, JCExpression varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
             JCVariableDecl varDecl = m().VarDef(
                                             modifiers,
                                             varName,
@@ -1201,40 +1194,41 @@ public abstract class JavafxTranslationSupport {
             varDecl.sym = varSym;
             return varDecl;
         }
-        protected JCVariableDecl makeVar(long flags, Type varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
-            return makeVar(m().Modifiers(flags), makeType(varType), varName, initialValue, varSym);
+
+        protected JCVariableDecl Var(long flags, Type varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
+            return Var(m().Modifiers(flags), makeType(varType), varName, initialValue, varSym);
         }
 
-        protected JCVariableDecl makeVar(long flags, JCExpression varType, Name varName, JCExpression initialValue) {
-            return makeVar(m().Modifiers(flags), varType, varName, initialValue, null);
+        protected JCVariableDecl Var(long flags, JCExpression varType, Name varName, JCExpression initialValue) {
+            return Var(m().Modifiers(flags), varType, varName, initialValue, null);
         }
 
-        protected JCVariableDecl makeVar(long flags, Type varType, Name varName, JCExpression initialValue) {
-            return makeVar(flags, varType, varName, initialValue, null);
+        protected JCVariableDecl Var(long flags, Type varType, Name varName, JCExpression initialValue) {
+            return Var(flags, varType, varName, initialValue, null);
         }
 
-        protected JCVariableDecl makeVar(Type varType, Name varName, JCExpression value) {
-            return makeVar(Flags.FINAL, varType, varName, value);
+        protected JCVariableDecl Var(Type varType, Name varName, JCExpression value) {
+            return Var(Flags.FINAL, varType, varName, value);
         }
 
-        protected JCVariableDecl makeVar(long flags, Type varType, String varName, JCExpression initialValue) {
-            return makeVar(flags, varType, names.fromString(varName), initialValue);
+        protected JCVariableDecl Var(long flags, Type varType, String varName, JCExpression initialValue) {
+            return Var(flags, varType, names.fromString(varName), initialValue);
         }
         
         /**
          * Make a method paramter
          */
-        protected JCVariableDecl makeParam(Type varType, Name varName) {
-            return makeVar(Flags.PARAMETER | Flags.FINAL, varType, varName, null);
+        protected JCVariableDecl Param(Type varType, Name varName) {
+            return Var(Flags.PARAMETER | Flags.FINAL, varType, varName, null);
         }
 
        /**
         * Make a receiver parameter.
         * Its type is that of the corresponding interface and it is a final parameter.
         * */
-        JCVariableDecl makeReceiverParam(JFXClassDeclaration cDecl) {
-            return make.VarDef(
-                    make.Modifiers(Flags.PARAMETER | Flags.FINAL),
+        JCVariableDecl ReceiverParam(JFXClassDeclaration cDecl) {
+            return m().VarDef(
+                    m().Modifiers(Flags.PARAMETER | Flags.FINAL),
                     defs.receiverName,
                     id(interfaceName(cDecl)),
                     null);
@@ -1244,49 +1238,49 @@ public abstract class JavafxTranslationSupport {
          * Make a variable (synthethic name) -- final by default
          */
 
-        protected JCVariableDecl makeMutableTmpVar(String root, Type varType, JCExpression initialValue) {
-            return makeTmpVar(0L, root, varType, initialValue);
+        protected JCVariableDecl MutableTmpVar(String root, Type varType, JCExpression initialValue) {
+            return TmpVar(0L, root, varType, initialValue);
         }
 
-        protected JCVariableDecl makeTmpVar(Type type, JCExpression value) {
-            return makeTmpVar("tmp", type, value);
+        protected JCVariableDecl TmpVar(Type type, JCExpression value) {
+            return TmpVar("tmp", type, value);
         }
 
-        protected JCVariableDecl makeTmpVar(String root, Type varType, JCExpression value) {
-            return makeTmpVar(Flags.FINAL, root, varType, value);
+        protected JCVariableDecl TmpVar(String root, Type varType, JCExpression value) {
+            return TmpVar(Flags.FINAL, root, varType, value);
         }
 
-        protected JCVariableDecl makeTmpVar(long flags, String root, Type varType, JCExpression initialValue) {
-            return makeVar(flags,varType, getSyntheticName(root), initialValue);
+        protected JCVariableDecl TmpVar(long flags, String root, Type varType, JCExpression initialValue) {
+            return Var(flags,varType, getSyntheticName(root), initialValue);
         }
 
        /**
          * Block Expressions
          */
 
-        BlockExprJCBlockExpression makeBlockExpression(List<JCStatement> stmts, JCExpression value) {
+        BlockExprJCBlockExpression BlockExpression(List<JCStatement> stmts, JCExpression value) {
             BlockExprJCBlockExpression bexpr = new BlockExprJCBlockExpression(0L, stmts, value);
             bexpr.pos = (diagPos == null ? Position.NOPOS : diagPos.getStartPosition());
             return bexpr;
         }
 
-        BlockExprJCBlockExpression makeBlockExpression(ListBuffer<JCStatement> stmts, JCExpression value) {
-            return makeBlockExpression(stmts.toList(), value);
+        BlockExprJCBlockExpression BlockExpression(ListBuffer<JCStatement> stmts, JCExpression value) {
+            return BlockExpression(stmts.toList(), value);
         }
 
         /**
          * Make methods
          */
 
-        protected JCMethodDecl makeMethod(long flags, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
-            return makeMethod(m().Modifiers(flags), returnType, methName, params, stmts, methSym);
+        protected JCMethodDecl Method(long flags, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
+            return Method(m().Modifiers(flags), returnType, methName, params, stmts, methSym);
         }
 
-        protected JCMethodDecl makeMethod(JCModifiers modifiers, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
-            return makeMethod(modifiers, makeType(returnType), methName, params, stmts, methSym);
+        protected JCMethodDecl Method(JCModifiers modifiers, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
+            return Method(modifiers, makeType(returnType), methName, params, stmts, methSym);
         }
 
-        protected JCMethodDecl makeMethod(JCModifiers modifiers, JCExpression returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
+        protected JCMethodDecl Method(JCModifiers modifiers, JCExpression returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
             JCMethodDecl methDecl = m().MethodDef(
                                         modifiers,
                                         methName,
@@ -1300,7 +1294,7 @@ public abstract class JavafxTranslationSupport {
             return methDecl;
         }
 
-        protected JCExpression makeQualifiedTree(String str) {
+        protected JCExpression QualifiedTree(String str) {
             return JavafxTranslationSupport.this.makeQualifiedTree(diagPos, str);
         }
 
@@ -1374,7 +1368,7 @@ public abstract class JavafxTranslationSupport {
         }
         
         /**
-         * Method calls -- returning a JCExpression
+         * Method call support
          */
 
         private List<JCExpression> callArgs(JCExpression[] args) {
@@ -1386,6 +1380,10 @@ public abstract class JavafxTranslationSupport {
 
             return argBuffer.toList();
         }
+
+        /**
+         * Method calls -- returning a JCExpression
+         */
 
         JCExpression Call(JCExpression receiver, Name methodName, List<JCExpression> args) {
             JCExpression expr = Select(receiver, methodName);
@@ -1401,24 +1399,6 @@ public abstract class JavafxTranslationSupport {
         }
 
 
-        JCExpression call(JCExpression receiver, String methodString, JCExpression... args) {
-            return Call(receiver, names.fromString(methodString), callArgs(args));
-        }
-
-
-        JCExpression call(Type selector, Name methodName, List<JCExpression> args) {
-            return Call(makeType(selector), methodName, args);
-        }
-
-        JCExpression call(Type selector, Name methodName, ListBuffer<JCExpression> args) {
-            return Call(makeType(selector), methodName, args.toList());
-        }
-
-        JCExpression call(Type selector, Name methodName, JCExpression... args) {
-            return Call(makeType(selector), methodName, callArgs(args));
-        }
-
-        
         JCExpression Call(Name methodName, List<JCExpression> args) {
             return Call(getReceiver(), methodName, args);
         }
@@ -1433,7 +1413,7 @@ public abstract class JavafxTranslationSupport {
 
 
         JCExpression Call(RuntimeMethod meth, List<JCExpression> args) {
-            return Call(makeQualifiedTree(meth.classString), meth.methodName, args);
+            return Call(QualifiedTree(meth.classString), meth.methodName, args);
         }
 
         JCExpression Call(RuntimeMethod meth, ListBuffer<JCExpression> args) {
@@ -1489,19 +1469,19 @@ public abstract class JavafxTranslationSupport {
         /**
          * These methods simplify throw statements.
          */
-        JCStatement makeThrow(Type type, String message) {
+        JCStatement Throw(Type type, String message) {
             if (message != null) {
                 return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>of(String(message)), null));
             } else {
                 return m().Throw(m().NewClass(null, null, makeType(type), List.<JCExpression>nil(), null));
             }
         }
-        JCStatement makeThrow(Type type) {
-            return makeThrow(type, null);
+        JCStatement Throw(Type type) {
+            return Throw(type, null);
         }
 
         /* Default value per type */
-        JCExpression makeDefaultValue(Type type) {
+        JCExpression DefaultValue(Type type) {
             return JavafxTranslationSupport.this.makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(type));
         }
         
@@ -1551,7 +1531,7 @@ public abstract class JavafxTranslationSupport {
         /* Debugging support */
 
         JCStatement Debug(String msg, JCExpression obj) {
-            return CallStmt(makeQualifiedTree("java.lang.System.err"), names.fromString("println"),
+            return CallStmt(QualifiedTree("java.lang.System.err"), names.fromString("println"),
                     obj==null?
                           String(msg)
                         : PLUS(String(msg + " "), obj));

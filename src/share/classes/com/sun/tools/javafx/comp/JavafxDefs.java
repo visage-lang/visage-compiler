@@ -46,7 +46,6 @@ public class JavafxDefs {
     public static final String be_AttributeMethodPrefix = "be$";
     public static final String evaluate_AttributeMethodPrefix = "evaluate$";
     public static final String get_AttributeMethodPrefix = "get$";
-    public static final String getElement_AttributeMethodPrefix = "get$";
     public static final String getMixin_AttributeMethodPrefix = "getMixin$";
     public static final String getVOFF_AttributeMethodPrefix = "getVOFF$";
     public static final String initVarBits_AttributeMethodPrefix = "initVarBits$";
@@ -55,6 +54,7 @@ public class JavafxDefs {
     public static final String set_AttributeMethodPrefix = "set$";
     public static final String setMixin_AttributeMethodPrefix = "setMixin$";
     public static final String size_AttributeMethodPrefix = "size$";
+    public static final String getElement_AttributeMethodPrefix = "get$";
 
     /**
      * Field prefix strings for attributes
@@ -175,9 +175,11 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_replaceSlice;
     final RuntimeMethod Sequences_reverse;
     final RuntimeMethod Sequences_set;
+    final RuntimeMethod Sequences_singleton;
     final RuntimeMethod Sequences_size;
     final RuntimeMethod Sequences_sizeOfNewElements;
     final RuntimeMethod Sequences_getAsFromNewElements[];
+    final RuntimeMethod Sequences_toArray[];
 
     final RuntimeMethod SequencesRef_save;
 
@@ -193,6 +195,7 @@ public class JavafxDefs {
     final RuntimeMethod FXBase_switchBiDiDependence;
     final RuntimeMethod FXBase_removeDependent;
     final RuntimeMethod FXBase_addDependent;
+    final RuntimeMethod FXBase_makeInitMap;
 
     final RuntimeMethod FXVariable_make;
 
@@ -214,6 +217,7 @@ public class JavafxDefs {
     final Name get_FXObjectMethodName;
     final Name invalidate_FXObjectMethodName;
     final Name notifyDependents_FXObjectMethodName;
+    final Name getElement_FXObjectMethodName;
     final Name size_FXObjectMethodName;
     final Name update_FXObjectMethodName;
     final Name complete_FXObjectMethodName;
@@ -237,6 +241,7 @@ public class JavafxDefs {
     /**
      * Sequence method Names
      */
+    final Name get_SequenceMethodName;
     final Name getSlice_SequenceMethodName;
     final Name size_SequenceMethodName;
     final Name toArray_SequenceMethodName;
@@ -437,6 +442,7 @@ public class JavafxDefs {
         complete_FXObjectMethodName = names.fromString("complete$");
         outerAccessor_MethodName = names.fromString("accessOuter$");
         get_PointerMethodName = names.fromString("get");
+        get_SequenceMethodName = names.fromString("get");
         getSlice_SequenceMethodName = names.fromString("getSlice");
         size_SequenceMethodName = names.fromString("size");
         defaultingTypeInfo_FieldName = names.fromString("$TYPE_INFO");
@@ -488,6 +494,7 @@ public class JavafxDefs {
         applyDefaults_FXObjectMethodName = names.fromString(applyDefaults_AttributeMethodPrefix);
         applyDefaults_AttributeMethodPrefixName = names.fromString(applyDefaults_AttributeMethodPrefix);
         update_FXObjectMethodName = names.fromString("update$");
+        getElement_FXObjectMethodName = names.fromString(getElement_AttributeMethodPrefix);
         size_FXObjectMethodName = names.fromString(size_AttributeMethodPrefix);
         count_FXObjectMethodName = names.fromString("count$");
         varOldValue_LocalVarName = names.fromString("varOldValue$");
@@ -538,6 +545,7 @@ public class JavafxDefs {
         Sequences_getSingleValue = new RuntimeMethod(names, cSequences, "getSingleValue");
         Sequences_range = new RuntimeMethod(names, cSequences, "range");
         Sequences_rangeExclusive = new RuntimeMethod(names, cSequences, "rangeExclusive");
+        Sequences_singleton = new RuntimeMethod(names, cSequences, "singleton");
         Sequences_size = new RuntimeMethod(names, cSequences, "size");
         Sequences_replaceSlice = new RuntimeMethod(names, cSequences, "replaceSlice");
         Sequences_reverse = new RuntimeMethod(names, cSequences, "reverse");
@@ -550,9 +558,12 @@ public class JavafxDefs {
         Sequences_deleteAll = new RuntimeMethod(names, cSequences, "deleteAll");
         Sequences_calculateIntRangeSize = new RuntimeMethod(names, cSequences, "calculateIntRangeSize");
         Sequences_calculateFloatRangeSize = new RuntimeMethod(names, cSequences, "calculateFloatRangeSize");
+
         Sequences_getAsFromNewElements = new RuntimeMethod[TYPE_KIND_COUNT];
+        Sequences_toArray = new RuntimeMethod[TYPE_KIND_COUNT];
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
             Sequences_getAsFromNewElements[kind] = new RuntimeMethod(names, cSequences, "get" + accessorSuffixes[kind] + "FromNewElements");
+            Sequences_toArray[kind] = new RuntimeMethod(names, cSequences, "to" + typePrefixes[kind] + "Array");
         }
 
         SequencesRef_save = new RuntimeMethod(names, cSequenceRef, "save");
@@ -569,6 +580,7 @@ public class JavafxDefs {
         FXBase_switchBiDiDependence = new RuntimeMethod(names, cFXBase, "switchBiDiDependence$");
         FXBase_removeDependent = new RuntimeMethod(names, cFXBase, "removeDependent$");
         FXBase_addDependent = new RuntimeMethod(names, cFXBase, "addDependent$");
+        FXBase_makeInitMap = new RuntimeMethod(names, cFXBase, "makeInitMap$");
 
         FXVariable_make = new RuntimeMethod(names, cFXVariable, "make");
 

@@ -86,11 +86,11 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                   if (tmp1 != null) tmp1.set$varSym(tmp0);
                   varNewValue$
                 */
-                JCVariableDecl value = makeTmpVar(targettedType, invertedExpression.expr());
+                JCVariableDecl value = TmpVar(targettedType, invertedExpression.expr());
                 addPreface(value);
                 
                 if (selectSymbol != null) {
-                    JCVariableDecl selector = makeTmpVar(selectSymbol.type, Call(attributeGetterName(selectSymbol)));
+                    JCVariableDecl selector = TmpVar(selectSymbol.type, Call(attributeGetterName(selectSymbol)));
                     addPreface(selector);
                     //note: we have to use the set$(int, FXBase) version because
                     //the set$xxx version is not always accessible from the

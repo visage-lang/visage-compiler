@@ -31,7 +31,6 @@ import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
@@ -145,8 +144,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCExpression translateArg(JFXExpression arg, Type formal) {
             if (arg instanceof JFXIdent) {
                 Symbol sym = ((JFXIdent) arg).sym;
-                JCVariableDecl oldVar = makeTmpVar("old", formal, id(attributeValueName(sym)));
-                JCVariableDecl newVar = makeTmpVar("new", formal, Call(attributeGetterName(sym)));
+                JCVariableDecl oldVar = TmpVar("old", formal, id(attributeValueName(sym)));
+                JCVariableDecl newVar = TmpVar("new", formal, Call(attributeGetterName(sym)));
                 addPreface(oldVar);
                 addPreface(newVar);
                 addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
@@ -212,7 +211,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             super(tree.pos());
             this.tree = tree;
             this.type = (targetType != null)? targetType : tree.type;
-            this.resVar = makeTmpVar("res", type, null);
+            this.resVar = TmpVar("res", type, null);
         }
 
         JCStatement side(JFXExpression expr) {
@@ -311,12 +310,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
                     if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
                         rcvr = id(defs.receiverName);
-                        oldSelector = makeTmpVar(selectorType, Call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
-                        newSelector = makeTmpVar(selectorType, Call(id(defs.receiverName), attributeGetterName(selectorSym)));
+                        oldSelector = TmpVar(selectorType, Call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
+                        newSelector = TmpVar(selectorType, Call(id(defs.receiverName), attributeGetterName(selectorSym)));
                     } else {
                         rcvr = selectorSym.isStatic() ? Call(scriptLevelAccessMethod(selectorSym.owner)) : id(names._this);
-                        oldSelector = makeTmpVar(selectorType, id(attributeValueName(selectorSym)));
-                        newSelector = makeTmpVar(selectorType, Call(attributeGetterName(selectorSym)));
+                        oldSelector = TmpVar(selectorType, id(attributeValueName(selectorSym)));
+                        newSelector = TmpVar(selectorType, Call(attributeGetterName(selectorSym)));
                     }
 
                     addPreface(oldSelector);
@@ -325,24 +324,24 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     if ((selectorSym.type.tsym.flags() & JavafxFlags.MIXIN) != 0) {
                         JCExpression oldNullCheck = EQnull(id(oldSelector));
                         JCExpression oldInit = m().Conditional(oldNullCheck, Int(0), Call(id(oldSelector), attributeGetVOFFName(tree.sym)));
-                        oldOffset = makeTmpVar(syms.intType, oldInit);
+                        oldOffset = TmpVar(syms.intType, oldInit);
                         addPreface(oldOffset);
 
                         JCExpression newNullCheck = EQnull(id(newSelector));
                         JCExpression newInit = m().Conditional(newNullCheck, Int(0), Call(id(newSelector), attributeGetVOFFName(tree.sym)));
-                        newOffset = makeTmpVar(syms.intType, newInit);
+                        newOffset = TmpVar(syms.intType, newInit);
                         addPreface(newOffset);
                     } else {
-                        newOffset = oldOffset = makeTmpVar(syms.intType, Offset(tree.sym));
+                        newOffset = oldOffset = TmpVar(syms.intType, Offset(tree.sym));
                         addPreface(oldOffset);
                     }
 
                     if (isBidiBind) {
                         JCVariableDecl selectorOffset;
                         if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
-                            selectorOffset = makeTmpVar(syms.intType, Call(id(defs.receiverName), attributeGetVOFFName(targetSymbol)));
+                            selectorOffset = TmpVar(syms.intType, Call(id(defs.receiverName), attributeGetVOFFName(targetSymbol)));
                         } else {
-                            selectorOffset = makeTmpVar(syms.intType, Offset(targetSymbol));
+                            selectorOffset = TmpVar(syms.intType, Offset(targetSymbol));
                         }
 
                         addPreface(selectorOffset);
@@ -567,7 +566,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * }
          */
         private JCStatement makeInvalidateSelector(VarSymbol selectorSym) {
-            JCVariableDecl oldSize = makeTmpVar(syms.intType, getSize(selectorSym));
+            JCVariableDecl oldSize = TmpVar(syms.intType, getSize(selectorSym));
 
             return
                 If (NOT(makeFlagExpression(selectorSym, defs.varFlagActionChange, null, phaseArg())),
@@ -747,11 +746,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * return null; // default
          */
         JCStatement makeGetElementBody() {
-            JCVariableDecl vStart = makeMutableTmpVar("start", syms.intType, iZero());
-            JCVariableDecl vNext = makeMutableTmpVar("next", syms.intType, iZero());
+            JCVariableDecl vStart = MutableTmpVar("start", syms.intType, iZero());
+            JCVariableDecl vNext = MutableTmpVar("next", syms.intType, iZero());
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            stmts.append(If(LT(posArg(), iZero()), Return(makeDefaultValue(elemType))));
+            stmts.append(If(LT(posArg(), iZero()), Return(DefaultValue(elemType))));
             stmts.append(vStart);
             stmts.append(vNext);
             for (int index = 0; index < length; ++index) {
@@ -759,14 +758,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 stmts.append(If(LT(posArg(), id(vNext)), Return(element(index, MINUS(posArg(), id(vStart))))));
                 stmts.append(Assign(vStart, id(vNext)));
             }
-            stmts.append(Return(makeDefaultValue(elemType)));
+            stmts.append(Return(DefaultValue(elemType)));
             return m().Block(0L, stmts.toList());
         }
 
         /**
          */
         private JCStatement makeItemInvalidate(int index) {
-            JCVariableDecl vStart = makeTmpVar("start", syms.intType, cummulativeSize(index));
+            JCVariableDecl vStart = TmpVar("start", syms.intType, cummulativeSize(index));
             
             if (isSequence(index)) {
                 return 
@@ -795,9 +794,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     );
             } else {
                 //TODO: this is eager even for fixed length
-                JCVariableDecl vValue = makeTmpVar("value", type(index), get(index));
-                JCVariableDecl vNewLen = makeTmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
-                JCVariableDecl vOldLen = makeTmpVar("oldLen", syms.intType, computeSize(index));
+                JCVariableDecl vValue = TmpVar("value", type(index), get(index));
+                JCVariableDecl vNewLen = TmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
+                JCVariableDecl vOldLen = TmpVar("oldLen", syms.intType, computeSize(index));
 
                 return 
                     If(isSequenceValid(),
@@ -1000,12 +999,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * }
          */
         private JCStatement makeInvalidateLower() {
-            JCVariableDecl vNewLower = makeTmpVar("newLower", elemType, getLower());
-            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+            JCVariableDecl vNewLower = TmpVar("newLower", elemType, getLower());
+            JCVariableDecl vNewSize = TmpVar("newSize", syms.intType,
                                         calculateSize(id(vNewLower), upper(), step()));
-            JCVariableDecl vLoss = makeMutableTmpVar("loss", syms.intType, iZero());
-            JCVariableDecl vGain = makeMutableTmpVar("gain", syms.intType, iZero());
-            JCVariableDecl vDelta = makeTmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
+            JCVariableDecl vLoss = MutableTmpVar("loss", syms.intType, iZero());
+            JCVariableDecl vGain = MutableTmpVar("gain", syms.intType, iZero());
+            JCVariableDecl vDelta = TmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
 
             return If (isSequenceValid(),
                       Block(
@@ -1057,9 +1056,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * }
          */
         private JCStatement makeInvalidateUpper() {
-            JCVariableDecl vNewUpper = makeTmpVar("newUpper", elemType, getUpper());
-            JCVariableDecl vOldSize = makeTmpVar("oldSize", syms.intType, size());
-            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+            JCVariableDecl vNewUpper = TmpVar("newUpper", elemType, getUpper());
+            JCVariableDecl vOldSize = TmpVar("oldSize", syms.intType, size());
+            JCVariableDecl vNewSize = TmpVar("newSize", syms.intType,
                                         calculateSize(lower(), id(vNewUpper), step()));
 
             return If (isSequenceValid(),
@@ -1096,9 +1095,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * }
          */
         private JCStatement makeInvalidateStep() {
-            JCVariableDecl vNewStep = makeTmpVar("newStep", elemType, getStep());
-            JCVariableDecl vOldSize = makeTmpVar("oldSize", syms.intType, size());
-            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+            JCVariableDecl vNewStep = TmpVar("newStep", elemType, getStep());
+            JCVariableDecl vOldSize = TmpVar("oldSize", syms.intType, size());
+            JCVariableDecl vNewSize = TmpVar("newSize", syms.intType,
                                         calculateSize(lower(), upper(), id(vNewStep)));
 
             return If (isSequenceValid(),
@@ -1135,10 +1134,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * invalidate$range(0, 0, newSize, phase);
          */
         private JCStatement makeInvalidateSize() {
-            JCVariableDecl vNewLower = makeTmpVar("newLower", elemType, getLower());
-            JCVariableDecl vNewUpper = makeTmpVar("newUpper", elemType, getUpper());
-            JCVariableDecl vNewStep = makeTmpVar("newStep", elemType, getStep());
-            JCVariableDecl vNewSize = makeTmpVar("newSize", syms.intType,
+            JCVariableDecl vNewLower = TmpVar("newLower", elemType, getLower());
+            JCVariableDecl vNewUpper = TmpVar("newUpper", elemType, getUpper());
+            JCVariableDecl vNewStep = TmpVar("newStep", elemType, getStep());
+            JCVariableDecl vNewSize = TmpVar("newSize", syms.intType,
                                         calculateSize(id(vNewLower), id(vNewUpper), id(vNewStep)));
             ListBuffer<JCStatement> inits = ListBuffer.lb();
             inits.append(Assign(lower(), id(vNewLower)));

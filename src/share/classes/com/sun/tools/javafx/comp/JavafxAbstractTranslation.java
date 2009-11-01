@@ -235,18 +235,18 @@ public abstract class JavafxAbstractTranslation
 
                 final Type inType = inExpr.type;
                 if (inType == syms.botType || inExpr.getJavaFXKind() == JavaFXKind.NULL_LITERAL) {
-                    return makeDefaultValue(outType);
+                    return DefaultValue(outType);
                 }
 
                 if (!types.isSameType(inType, outType) || isValueFromJava(inExpr)) {
-                    JCVariableDecl daVar = makeTmpVar(outType, expr);
+                    JCVariableDecl daVar = TmpVar(outType, expr);
                     JCExpression toTest = id(daVar.name);
                     JCExpression cond = NEnull(toTest);
                     JCExpression ret = m().Conditional(
                             cond,
                             id(daVar.name),
-                            makeDefaultValue(outType));
-                    return makeBlockExpression(List.<JCStatement>of(daVar), ret);
+                            DefaultValue(outType));
+                    return BlockExpression(List.<JCStatement>of(daVar), ret);
                 }
                 return expr;
             }
@@ -681,7 +681,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         JCVariableDecl convertParam(JFXVar param) {
-            return makeParam(param.type, param.name);
+            return Param(param.type, param.name);
         }
 
         /**
@@ -942,7 +942,7 @@ public abstract class JavafxAbstractTranslation
             } else {
                 formatMethod = "java.lang.String.format";
             }
-            JCExpression formatter = makeQualifiedTree(formatMethod);
+            JCExpression formatter = QualifiedTree(formatMethod);
             return toResult(m().Apply(null, formatter, values.toList()), syms.stringType);
         }
     }
@@ -1027,7 +1027,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         protected JCExpression addTempVar(Type varType, JCExpression trans) {
-            JCVariableDecl tmpVar = makeTmpVar("pse", varType, trans);
+            JCVariableDecl tmpVar = TmpVar("pse", varType, trans);
             addPreface(tmpVar);
             return id(tmpVar);
         }
@@ -1095,9 +1095,9 @@ public abstract class JavafxAbstractTranslation
         }
 
         private JCExpression makeDefault(Type theResultType, Type theFullType) {
-            JCExpression defaultValue = makeDefaultValue(theFullType);
+            JCExpression defaultValue = DefaultValue(theFullType);
             return defaultValue.type == syms.botType ?
-                makeDefaultValue(theResultType) :
+                DefaultValue(theResultType) :
                 convertTranslated(defaultValue, diagPos, theFullType, theResultType);
         }
 
@@ -1546,13 +1546,13 @@ public abstract class JavafxAbstractTranslation
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
             if (isInstanceFunctionAsStaticMethod) {
                 // if we are converting a standard instance function (to a static method), the first parameter becomes a reference to the receiver
-                params.prepend(makeReceiverParam(currentClass()));
+                params.prepend(ReceiverParam(currentClass()));
             }
             if (isBound) {
                 for (JFXVar fxVar : tree.getParams()) {
-                    params.append(makeParam(syms.javafx_FXObjectType, 
+                    params.append(Param(syms.javafx_FXObjectType,
                             boundFunctionObjectParamName(fxVar.name)));
-                    params.append(makeParam(syms.javafx_IntegerType, 
+                    params.append(Param(syms.javafx_IntegerType,
                             boundFunctionVarNumParamName(fxVar.name)));
                 }
             } else {
@@ -1797,14 +1797,14 @@ public abstract class JavafxAbstractTranslation
                 //   tmp;
                 // }
                 args.append(id(refSym.name));
-                JCVariableDecl tv = makeTmpVar(types.boxedTypeOrType(rhsType()), buildRHS(rhsTranslated));
+                JCVariableDecl tv = TmpVar(types.boxedTypeOrType(rhsType()), buildRHS(rhsTranslated));
                 args.append(id(tv));
                 JCExpression tIndex = translateIndex();
                 if (tIndex != null) {
                     args.append(tIndex);
                 }
                 JCExpression res = Call(meth, args);
-                return makeBlockExpression(List.<JCStatement>of(tv, Stmt(m().Assign(id(refSym.name), res))), id(tv));
+                return BlockExpression(List.<JCStatement>of(tv, Stmt(m().Assign(id(refSym.name), res))), id(tv));
             } else {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
@@ -2082,8 +2082,8 @@ public abstract class JavafxAbstractTranslation
                     return EQ(lhs(req), rhs(req));
                 } else {
                     // lhs is primitive, rhs is non-primitive, use equals(), but switch them
-                    JCVariableDecl sl = makeTmpVar(req!=null? req : lhsType, lhs(req));  // eval first to keep the order correct
-                    return makeBlockExpression(List.<JCStatement>of(sl), makeFullCheck(rhs(req), id(sl.name)));
+                    JCVariableDecl sl = TmpVar(req!=null? req : lhsType, lhs(req));  // eval first to keep the order correct
+                    return BlockExpression(List.<JCStatement>of(sl), makeFullCheck(rhs(req), id(sl.name)));
                 }
             } else {
                 if (rhsType.getKind() == TypeKind.NULL) {
@@ -2191,8 +2191,8 @@ public abstract class JavafxAbstractTranslation
 
         private JCExpression convertNumericSequence(final DiagnosticPosition diagPos,
                 final JCExpression expr, final Type inElementType, final Type targetElementType) {
-            JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
-            JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
+            JCExpression inTypeInfo = TypeInfo(diagPos, inElementType);
+            JCExpression targetTypeInfo = TypeInfo(diagPos, targetElementType);
             return Call(
                     defs.Sequences_convertNumberSequence,
                     targetTypeInfo, inTypeInfo, expr);
@@ -2200,7 +2200,7 @@ public abstract class JavafxAbstractTranslation
 
         private JCExpression convertNumericToCharSequence(final DiagnosticPosition diagPos,
                 final JCExpression expr, final Type inElementType) {
-            JCExpression inTypeInfo = makeTypeInfo(diagPos, inElementType);
+            JCExpression inTypeInfo = TypeInfo(diagPos, inElementType);
             return Call(
                     defs.Sequences_convertNumberToCharSequence,
                     inTypeInfo, expr);
@@ -2208,7 +2208,7 @@ public abstract class JavafxAbstractTranslation
 
         private JCExpression convertCharToNumericSequence(final DiagnosticPosition diagPos,
                 final JCExpression expr, final Type targetElementType) {
-            JCExpression targetTypeInfo = makeTypeInfo(diagPos, targetElementType);
+            JCExpression targetTypeInfo = TypeInfo(diagPos, targetElementType);
             return Call(
                     defs.Sequences_convertCharToNumberSequence,
                     targetTypeInfo, expr);
@@ -2232,33 +2232,14 @@ public abstract class JavafxAbstractTranslation
                 Type elemType = types.elemtype(targettedType);
                 if (sourceIsSequence) {
                     if (elemType.isPrimitive()) {
-                        String mname;
-                        if (elemType == syms.byteType) {
-                            mname = "toByteArray";
-                        } else if (elemType == syms.shortType) {
-                            mname = "toShortArray";
-                        } else if (elemType == syms.intType) {
-                            mname = "toIntArray";
-                        } else if (elemType == syms.longType) {
-                            mname = "toLongArray";
-                        } else if (elemType == syms.floatType) {
-                            mname = "toFloatArray";
-                        } else if (elemType == syms.doubleType) {
-                            mname = "toDoubleArray";
-                        } else if (elemType == syms.booleanType) {
-                            mname = "toBooleanArray";
-                        } else {
-                            mname = "toArray";
-                        }
-                        return call(makeType(syms.javafx_SequencesType, false),
-                                mname, translated);
+                        return Call(defs.Sequences_toArray[types.typeKind(elemType)], translated);
                     }
                     ListBuffer<JCStatement> stats = ListBuffer.lb();
-                    JCVariableDecl tmpVar = makeTmpVar(sourceType, translated);
+                    JCVariableDecl tmpVar = TmpVar(sourceType, translated);
                     stats.append(tmpVar);
-                    JCVariableDecl sizeVar = makeTmpVar(syms.intType, Call(id(tmpVar), defs.size_SequenceMethodName));
+                    JCVariableDecl sizeVar = TmpVar(syms.intType, Call(id(tmpVar), defs.size_SequenceMethodName));
                     stats.append(sizeVar);
-                    JCVariableDecl arrVar = makeTmpVar("arr", targettedType, m().NewArray(
+                    JCVariableDecl arrVar = TmpVar("arr", targettedType, m().NewArray(
                             makeType(elemType, true),
                             List.<JCExpression>of(id(sizeVar.name)),
                             null));
@@ -2268,7 +2249,7 @@ public abstract class JavafxAbstractTranslation
                             id(sizeVar),
                             id(arrVar),
                             Int(0))));
-                    return makeBlockExpression(stats, id(arrVar));
+                    return BlockExpression(stats, id(arrVar));
                 } else {
                     //TODO: conversion may be needed here, but this is better than what we had
                     return translated;
@@ -2279,7 +2260,7 @@ public abstract class JavafxAbstractTranslation
                 if (sourceElemType.isPrimitive()) {
                     args = List.of(translated);
                 } else {
-                    args = List.of(makeTypeInfo(diagPos, sourceElemType), translated);
+                    args = List.of(TypeInfo(diagPos, sourceElemType), translated);
                 }
                 return Call(defs.Sequences_fromArray, args);
             }
@@ -2291,15 +2272,11 @@ public abstract class JavafxAbstractTranslation
                 //    return makeEmptySequenceCreator(diagPos, elemType);
                 //}
                 Type targetElemType = types.elementType(targettedType);
-                JCExpression cSequences = makeType(syms.javafx_SequencesType, false);
                 JCExpression expr = convertTranslated(translated, diagPos, sourceType, targetElemType);
 
                 // This would be redundant, if convertTranslated did a cast if needed.
-                expr = makeTypeCast(diagPos, targetElemType, sourceType, expr);
-                return call(
-                        cSequences,
-                        "singleton",
-                        makeTypeInfo(diagPos, targetElemType), expr);
+                expr = TypeCast(diagPos, targetElemType, sourceType, expr);
+                return Call(defs.Sequences_singleton, TypeInfo(diagPos, targetElemType), expr);
             }
             if (targetIsSequence && sourceIsSequence) {
                 Type sourceElementType = types.elementType(sourceType);
@@ -2390,7 +2367,7 @@ public abstract class JavafxAbstractTranslation
             JCExpression encl = null;
             int nargs = mtype.argtypes.size();
             Type ftype = syms.javafx_FunctionTypes[nargs];
-            JCExpression t = makeQualifiedTree(ftype.tsym.getQualifiedName().toString());
+            JCExpression t = QualifiedTree(ftype.tsym.getQualifiedName().toString());
             ListBuffer<JCExpression> typeargs = new ListBuffer<JCExpression>();
             Type rtype = types.boxedTypeOrType(mtype.restype);
             typeargs.append(makeType(rtype));
@@ -2400,7 +2377,7 @@ public abstract class JavafxAbstractTranslation
             for (List<Type> l = mtype.argtypes; l.nonEmpty(); l = l.tail) {
                 Name pname = make.paramName(i++);
                 Type ptype = types.boxedTypeOrType(l.head);
-                JCVariableDecl param = makeParam(ptype, pname);
+                JCVariableDecl param = Param(ptype, pname);
                 params.append(param);
                 JCExpression marg = id(pname);
                 margs.append(marg);
@@ -2501,14 +2478,21 @@ public abstract class JavafxAbstractTranslation
             addPreface(CallStmt(id(receiverName), methName));
         }
 
+        JCVariableDecl makeTmpLoopVar(int initValue) {
+            return m().VarDef(m().Modifiers(0),
+                    getSyntheticName("loop"),
+                    makeType(syms.intType),
+                    Int(initValue));
+        }
+
         void makeInitApplyDefaults(Type classType, Name receiverName) {
             ClassSymbol classSym = (ClassSymbol)classType.tsym;
             int count = varSyms.size();
 
-            JCVariableDecl loopVar = makeTmpLoopVar(diagPos, 0);
+            JCVariableDecl loopVar = makeTmpLoopVar(0);
             Name loopName = loopVar.name;
             JCExpression loopLimit = Call(id(receiverName), defs.count_FXObjectMethodName);
-            JCVariableDecl loopLimitVar = makeTmpVar("count", syms.intType, loopLimit);
+            JCVariableDecl loopLimitVar = TmpVar("count", syms.intType, loopLimit);
             addPreface(loopLimitVar);
             JCExpression loopTest = LT(id(loopName), id(loopLimitVar.name));
             List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(loopName), Int(1))));
@@ -2520,7 +2504,7 @@ public abstract class JavafxAbstractTranslation
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
                 JCExpression getmapExpr = Call(varGetMapName(classSym));
-                JCVariableDecl mapVar = makeTmpVar("map", syms.javafx_ShortArray, getmapExpr);
+                JCVariableDecl mapVar = TmpVar("map", syms.javafx_ShortArray, getmapExpr);
                 addPreface(mapVar);
 
                 LiteralInitVarMap varMap = getLiteralInitClassMap().getVarMap(classSym);
@@ -2544,7 +2528,7 @@ public abstract class JavafxAbstractTranslation
             } else {
                 VarSymbol varSym = varSyms.first();
                 JCExpression varOffsetExpr = Offset(id(receiverName), varSym);
-                JCVariableDecl offsetVar = makeTmpVar("off", syms.intType, varOffsetExpr);
+                JCVariableDecl offsetVar = TmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
                 JCExpression condition = EQ(id(loopName), id(offsetVar));
                 loopBody = m().If(condition, varInits.first(), applyDefaultsExpr);
@@ -2621,7 +2605,7 @@ public abstract class JavafxAbstractTranslation
 
                 // Create the new instance, placing it in a temporary variable "jfx$0objlit"
                 //       final X jfx$0objlit = new X(true);
-                addPreface(makeVar(
+                addPreface(Var(
                         type,
                         tmpVarName,
                         m().NewClass(null, null, classTypeExpr, newClassArgs, null)));

@@ -573,7 +573,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     JCExpression tc = 
                             instanceName == null ?
                                 vsym.isStatic()?
-                                      call(vsym.owner.type, scriptLevelAccessMethod(vsym.owner))
+                                      Call(makeType(vsym.owner.type), scriptLevelAccessMethod(vsym.owner))
                                     : id(names._this)
                                : id(instanceName);
                     res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
@@ -597,7 +597,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             ExpressionResult doit() {
                 JCExpression receiver = vsym.isStatic() ? Call(scriptLevelAccessMethod(vsym.owner)) : null;
                 JCStatement applyDefaultCall = CallStmt(receiver, defs.applyDefaults_FXObjectMethodName, Offset(vsym));
-                return toResult(makeBlockExpression(List.of(applyDefaultCall), id(attributeValueName(vsym))), vsym.type);
+                return toResult(BlockExpression(List.of(applyDefaultCall), id(attributeValueName(vsym))), vsym.type);
         }}.doit();
     }
 
@@ -636,12 +636,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 //TODO: this case probably won't be used any more, but it will
                 // be again if we optimize the case for initializer which don't reference locals
                 init = translateNonBoundInit(diagPos, tree.getInitializer(),typeMorpher.varMorphInfo(vsym));
-                JCStatement var = makeVar(modFlags, tree.type, tree.name, init);
+                JCStatement var = Var(modFlags, tree.type, tree.name, init);
                 prependToStatements.append(var);
                 return new StatementsResult(diagPos, List.<JCStatement>nil());
             }
             init = JavafxToJava.this.makeDefaultValue(diagPos, vmi);
-            prependToStatements.prepend(makeVar(modFlags, tree.type, tree.name, init));
+            prependToStatements.prepend(Var(modFlags, tree.type, tree.name, init));
 
             return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vmi, null);
         }
@@ -700,7 +700,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     JCExpression tvalue = translateExpr(rawValue, targetType); // must be before prepend
                     List<JCStatement> localDefs = prependToStatements.appendList(statements()).toList();
                     return new ExpressionResult(
-                            localDefs.size() == 0 ? tvalue : makeBlockExpression(localDefs, tvalue),
+                            localDefs.size() == 0 ? tvalue : BlockExpression(localDefs, tvalue),
                             invalidators(),
                             interClass(),
                             targetType);
@@ -1203,7 +1203,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     JFXSelect sel = (JFXSelect)tree.getVariable();
                     JCExpression receiver = translateToExpression(sel.selected, sel.selected.type);
                     if (receiver != null) {
-                        JCVariableDecl invalVar = makeTmpVar("inval", sel.selected.type, receiver);
+                        JCVariableDecl invalVar = TmpVar("inval", sel.selected.type, receiver);
                         stmts.append(invalVar);
                         receiver0 = id(invalVar.name);
                         receiver1 = id(invalVar.name);
@@ -1233,7 +1233,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     lb.append(make.at(diagPos).Literal(Integer.valueOf(initLength)));
                 }
                 if (addTypeInfoArg)
-                    lb.append(makeTypeInfo(diagPos, elemType));
+                    lb.append(TypeInfo(diagPos, elemType));
                 return lb.toList();
             }
 
@@ -1285,8 +1285,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 else
                     localSeqBuilder = sequenceBuilderString;
             }
-            JCExpression builderTypeExpr = makeQualifiedTree(localSeqBuilder);
-            JCExpression builderClassExpr = makeQualifiedTree(localSeqBuilder);
+            JCExpression builderTypeExpr = QualifiedTree(localSeqBuilder);
+            JCExpression builderClassExpr = QualifiedTree(localSeqBuilder);
             if (! primitive) {
                 builderTypeExpr = m().TypeApply(builderTypeExpr,
                         List.of(makeType(elemType)));
@@ -1305,7 +1305,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 );
 
             // Build the sequence builder variable
-            return makeVar(0L, builderTypeExpr, sbName, newExpr);
+            return Var(0L, builderTypeExpr, sbName, newExpr);
         }
 
         JCIdent makeBuilderVarAccess() {
@@ -1430,21 +1430,21 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     (seq.getFXTag() == JavafxTag.SEQUENCE_SLICE ||
                      (seq.getFXTag() != JavafxTag.SEQUENCE_RANGE &&
                       types.isSequence(seq.type)));
-            this.inductionVar = makeMutableTmpVar("ind", indexedLoop ? syms.intType : inductionVarType, null);
+            this.inductionVar = MutableTmpVar("ind", indexedLoop ? syms.intType : inductionVarType, null);
         }
 
-        private JCVariableDecl makeTmpVar(String root, JCExpression value) {
-            return makeTmpVar(root, inductionVarType, value);
+        private JCVariableDecl TmpVar(String root, JCExpression value) {
+            return TmpVar(root, inductionVarType, value);
         }
 
-        private JCVariableDecl makeVar(Name varName, JCExpression value) {
-            return makeVar(inductionVarType, varName, value);
+        private JCVariableDecl Var(Name varName, JCExpression value) {
+            return Var(inductionVarType, varName, value);
         }
 
         @Override
-        protected JCVariableDecl makeTmpVar(long flags, String root, Type varType, JCExpression initialValue) {
+        protected JCVariableDecl TmpVar(long flags, String root, Type varType, JCExpression initialValue) {
             Name varName = names.fromString(var.name.toString() + "$" + root);
-            return makeVar(flags, varType, varName, initialValue);
+            return Var(flags, varType, varName, initialValue);
         }
 
         /**
@@ -1553,7 +1553,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     limitExpr = Call(defs.Math_min, limitExpr, sizeExpr);
             }
             setDiagPos(clause);
-            JCVariableDecl limitVar = makeTmpVar("limit", syms.intType, limitExpr);
+            JCVariableDecl limitVar = TmpVar("limit", syms.intType, limitExpr);
             tinits.append(limitVar);
             // The condition that will be tested each time through the loop
             JCExpression tcond = LT(id(inductionVar), id(limitVar));
@@ -1586,7 +1586,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             inductionVar.init = translateExpr(range.getLower(), inductionVarType);
             tinits.append(inductionVar);
             // Record the upper end of the range in a final variable, and add it the the initializing statements
-            JCVariableDecl upperVar = makeTmpVar("upper", translateExpr(range.getUpper(), inductionVarType));
+            JCVariableDecl upperVar = TmpVar("upper", translateExpr(range.getUpper(), inductionVarType));
             tinits.append(upperVar);
             // The expression which will be used in increment the induction variable
             JCExpression tstepIncrExpr;
@@ -1603,10 +1603,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     tcond = condTest(range, isNegative(step), upperVar);
                 } else {
                     // Arbitrary step expression, do all the madness shown in the method comment
-                    JCVariableDecl stepVar = makeTmpVar("step", stepVal);
+                    JCVariableDecl stepVar = TmpVar("step", stepVal);
                     tinits.append(stepVar);
                     tstepIncrExpr = id(stepVar);
-                    JCVariableDecl negativeVar = makeTmpVar("negative", syms.booleanType, LT(id(stepVar), m().Literal(inductionVarType.tag, 0)));
+                    JCVariableDecl negativeVar = TmpVar("negative", syms.booleanType, LT(id(stepVar), m().Literal(inductionVarType.tag, 0)));
                     tinits.append(negativeVar);
                     tcond = m().Conditional(id(negativeVar), condTest(range, true, upperVar), condTest(range, false, upperVar));
                 }
@@ -1651,8 +1651,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
                 setDiagPos(var);
                 if (clause.getIndexUsed()) {
-                    incrementingIndexVar = makeMutableTmpVar("incrindex", syms.javafx_IntegerType, Int(0));
-                    JCVariableDecl finalIndexVar = makeVar(
+                    incrementingIndexVar = MutableTmpVar("incrindex", syms.javafx_IntegerType, Int(0));
+                    JCVariableDecl finalIndexVar = Var(
 
                             syms.javafx_IntegerType,
                             indexVarName(clause),m().Unary(JCTree.POSTINC, id(incrementingIndexVar)));
@@ -1667,13 +1667,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     } else {
                         sseq = clause.seqExpr;
                     }
-                    seqVar = makeTmpVar("seq", seq.type, translateExpr(sseq, seq.type));
+                    seqVar = TmpVar("seq", seq.type, translateExpr(sseq, seq.type));
                     varInit = new SequenceIndexedTranslator(diagPos, sseq, id(seqVar), id(inductionVar), inductionVarType).doitExpr();
                 } else {
                     varInit = id(inductionVar);
                 }
 
-                stmts.append(makeVar(var.getName(), varInit));
+                stmts.append(Var(var.getName(), varInit));
                 stmts.append(body);
                 body = m().Block(0L, stmts.toList());
             }
@@ -1693,7 +1693,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 if (types.isSequence(seq.type)) {
                     // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
                     tseq = Call(defs.Sequences_forceNonNull,
-                            makeTypeInfo(diagPos, inductionVarType), tseq);
+                            TypeInfo(diagPos, inductionVarType), tseq);
                     translateSliceInClause(seq, null, null, SequenceSliceTree.END_INCLUSIVE, seqVar);
                     //body = m().ForeachLoop(inductionVar, tseq, body);
                 } else if (seq.type.tag == TypeTags.ARRAY ||
