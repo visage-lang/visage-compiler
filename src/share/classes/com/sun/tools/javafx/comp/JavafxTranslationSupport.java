@@ -1428,11 +1428,6 @@ public abstract class JavafxTranslationSupport {
         }
 
         
-        JCExpression call(Type selector, String methodString, ListBuffer<JCExpression> args) {
-            return Call(makeType(selector), names.fromString(methodString), args.toList());
-        }
-
-
         JCExpression Call(Name methodName, List<JCExpression> args) {
             return Call(getReceiver(), methodName, args);
         }
@@ -1472,11 +1467,6 @@ public abstract class JavafxTranslationSupport {
 
         JCStatement CallStmt(JCExpression receiver, Name methodName, JCExpression... args) {
             return Stmt(Call(receiver, methodName, callArgs(args)));
-        }
-
-
-        JCStatement callStmt(JCExpression receiver, String methodString, JCExpression... args) {
-            return Stmt(Call(receiver, names.fromString(methodString), callArgs(args)));
         }
 
 
@@ -1570,7 +1560,7 @@ public abstract class JavafxTranslationSupport {
         /* Debugging support */
 
         JCStatement Debug(String msg, JCExpression obj) {
-            return callStmt(makeQualifiedTree("java.lang.System.err"), "println",
+            return CallStmt(makeQualifiedTree("java.lang.System.err"), names.fromString("println"),
                     obj==null?
                           String(msg)
                         : PLUS(String(msg + " "), obj));

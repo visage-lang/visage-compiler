@@ -88,7 +88,9 @@ public class JavafxTypes extends Types {
         return new ClassType(clazzOuter, actuals, seqtype.tsym);
     }
 
-    public int kindFromPrimitiveType(TypeSymbol tsym) {
+    public int typeKind(Type type) {
+        TypeSymbol tsym = type.tsym;
+
         if (tsym == syms.booleanType.tsym) return JavafxDefs.TYPE_KIND_BOOLEAN;
         if (tsym == syms.charType.tsym) return JavafxDefs.TYPE_KIND_CHAR;
         if (tsym == syms.byteType.tsym) return JavafxDefs.TYPE_KIND_BYTE;
@@ -97,13 +99,16 @@ public class JavafxTypes extends Types {
         if (tsym == syms.longType.tsym) return JavafxDefs.TYPE_KIND_LONG;
         if (tsym == syms.floatType.tsym) return JavafxDefs.TYPE_KIND_FLOAT;
         if (tsym == syms.doubleType.tsym) return JavafxDefs.TYPE_KIND_DOUBLE;
-        assert false : "should not reach here";
-        return JavafxDefs.TYPE_KIND_OBJECT;
+        if (isSequence(type)) {
+            return JavafxDefs.TYPE_KIND_SEQUENCE;
+        } else {
+            return JavafxDefs.TYPE_KIND_OBJECT;
+        }
     }
 
     public Type arraySequenceType(Type elemType) {
         if (elemType.isPrimitive()) {
-            String tname = JavafxDefs.getTypePrefix(kindFromPrimitiveType(elemType.tsym));
+            String tname = JavafxDefs.getTypePrefix(typeKind(elemType));
             return syms.enterClass(JavafxDefs.sequence_PackageNameString + "." + tname + "ArraySequence");
         }
         Type seqtype = syms.enterClass("com.sun.javafx.runtime.sequence.ObjectArraySequence");

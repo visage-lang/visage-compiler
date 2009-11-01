@@ -952,17 +952,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
 
         JCExpression translateSequenceIndexed() {
-            Name getMethodName;
-            if (resultType.isPrimitive())
-                getMethodName = defs.typedGetMethodName[types.kindFromPrimitiveType(resultType.tsym)];
-            else
-                getMethodName = defs.get_PointerMethodName;
+            int typeKind = types.typeKind(resultType);
             if (seq instanceof JFXIdent) {
                 JFXIdent var = (JFXIdent) seq;
                 OnReplaceInfo info = findOnReplaceInfo(var.sym);
                 if (info != null
                         && (var.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {
-                    String mname = getMethodName.toString() + "FromNewElements";
                     JFXOnReplace onReplace = info.onReplace;
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
                     Symbol sym = info.vmi.getSymbol();
@@ -971,9 +966,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     args.append(make.Ident(paramStartPosName(onReplace)));
                     args.append(make.Ident(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);
-                    return call(syms.javafx_SequencesType, mname, args);
+                    return Call(defs.Sequences_getAsFromNewElements[typeKind], args);
                 }
             }
+            Name getMethodName = defs.typedGet_MethodName[typeKind];
             return Call(tSeq, getMethodName, tIndex);
         }
 
@@ -1283,7 +1279,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 if (elemType.isPrimitive()) {
                     primitive = true;
                     addTypeInfoArg = false;
-                    int kind = types.kindFromPrimitiveType(elemType.tsym);
+                    int kind = types.typeKind(elemType);
                     localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxDefs.getTypePrefix(kind) + "ArraySequence";
                 }
                 else

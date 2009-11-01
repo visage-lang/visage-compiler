@@ -81,26 +81,19 @@ public class JavafxTypeMorpher {
     }
 
     public class TypeMorphInfo {
-        private Type realType;
-        private int typeKind;
-        private Type elementType = null;
+        private final Type realType;
+        private final int typeKind;
+        private final Type elementType;
 
         TypeMorphInfo(Type symType) {
-            TypeSymbol realTsym = symType.tsym;
-
             this.realType = symType;
-
-            if (symType.isPrimitive()) {
-                typeKind = types.kindFromPrimitiveType(realTsym);
-            } else {
-                if (isSequence()) {
-                    typeKind = TYPE_KIND_SEQUENCE;
-                    elementType = types.elementType(symType);
-                } else {
-                    typeKind = TYPE_KIND_OBJECT;
-                    elementType = realType;
-                }
-            }
+            this.typeKind = types.typeKind(realType);
+            this.elementType =
+                    symType.isPrimitive() ?
+                        null :
+                        isSequence() ?
+                            types.elementType(symType) :
+                            realType;
         }
 
         protected boolean isSequence() {

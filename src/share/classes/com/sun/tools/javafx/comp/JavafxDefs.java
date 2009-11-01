@@ -177,6 +177,7 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_set;
     final RuntimeMethod Sequences_size;
     final RuntimeMethod Sequences_sizeOfNewElements;
+    final RuntimeMethod Sequences_getAsFromNewElements[];
 
     final RuntimeMethod SequencesRef_save;
 
@@ -217,8 +218,8 @@ public class JavafxDefs {
     final Name sizeSequenceMethodName;
     final Name toArray_SequenceMethodName;
 
-    final Name[] typedGetMethodName;
-    final Name[] typedSetMethodName;
+    final Name[] typedGet_MethodName;
+    final Name[] typedSet_MethodName;
 
 
     /**
@@ -390,6 +391,8 @@ public class JavafxDefs {
     public static final int TYPE_KIND_COUNT = 10;
 
     static final String[] typePrefixes = new String[] { "Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence" };
+    static final String[] accessorSuffixes = new String[] { "", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence" };
+
 
     /**
      * Context set-up
@@ -496,7 +499,8 @@ public class JavafxDefs {
         varFlagActionTest = names.fromString("varTestBits$");
         varFlagActionChange = names.fromString("varChangeBits$");
         varFlagRestrictSet = names.fromString("restrictSet$");
-        
+
+        // Initialize VFLG Names
         varFlagIS_INVALID = names.fromString("VFLGS$IS_INVALID");
         varFlagNEEDS_TRIGGER = names.fromString("VFLGS$NEEDS_TRIGGER");
         varFlagIS_BOUND = names.fromString("VFLGS$IS_BOUND");
@@ -547,6 +551,11 @@ public class JavafxDefs {
         Sequences_deleteAll = new RuntimeMethod(names, cSequences, "deleteAll");
         Sequences_calculateIntRangeSize = new RuntimeMethod(names, cSequences, "calculateIntRangeSize");
         Sequences_calculateFloatRangeSize = new RuntimeMethod(names, cSequences, "calculateFloatRangeSize");
+        Sequences_getAsFromNewElements = new RuntimeMethod[TYPE_KIND_COUNT];
+        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+            Sequences_getAsFromNewElements[kind] = new RuntimeMethod(names, cSequences, "get" + accessorSuffixes[kind] + "FromNewElements");
+        }
+
         SequencesRef_save = new RuntimeMethod(names, cSequenceRef, "save");
 
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
@@ -568,11 +577,11 @@ public class JavafxDefs {
         Pointer_get = new RuntimeMethod(names, cPointer, "get");
 
         // Initialize per Kind names and types
-        typedGetMethodName = new Name[TYPE_KIND_COUNT];
-        typedSetMethodName = new Name[TYPE_KIND_COUNT];
+        typedGet_MethodName = new Name[TYPE_KIND_COUNT];
+        typedSet_MethodName = new Name[TYPE_KIND_COUNT];
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
-            typedGetMethodName[kind] = names.fromString("get" + accessorSuffixes[kind]);
-            typedSetMethodName[kind] = names.fromString("set" + accessorSuffixes[kind]);
+            typedGet_MethodName[kind] = names.fromString("get" + accessorSuffixes[kind]);
+            typedSet_MethodName[kind] = names.fromString("set" + accessorSuffixes[kind]);
         }
 
         realTypeByKind = new Type[TYPE_KIND_COUNT];
@@ -588,8 +597,6 @@ public class JavafxDefs {
         realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
     }
 
-    static final String[] accessorSuffixes = new String[] { "", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence" };
-    
     public static String getTypePrefix(int index) { return typePrefixes[index]; }
 
     public Name scriptLevelAccessMethod(Name.Table names, Symbol clazz) {
@@ -598,6 +605,5 @@ public class JavafxDefs {
         buf.append(clazz.getQualifiedName().toString().replace('.', '$'));
         buf.append('$');
         return names.fromString(buf);
- 
     }
 }
