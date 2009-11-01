@@ -96,7 +96,7 @@ public class Util {
      * occur, which is ok because it isn't legal in jfx to cast a non numeric
      * to a numeric.
      */
-    static public char objectToCharacter(Object p1) {
+    static public char objectToChar(Object p1) {
         if (p1 == null) {
             return 0;
         }

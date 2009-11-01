@@ -463,73 +463,6 @@ public abstract class JavafxTranslationSupport {
         return makeType(diagPos, returnType);
     }
 
-    JCExpression typeCast(final DiagnosticPosition diagPos, final Type targetType, final Type inType, final JCExpression expr) {
-        TypeMorphInfo tmi = typeMorpher.typeMorphInfo(inType);
-        if (tmi.getTypeKind() == TYPE_KIND_OBJECT) {
-            // We can't just cast the Object to Float (for example)
-            // because if the Object is not Float, we will get a ClassCastException at runtime.
-            // And we can't just call java.lang.Number.floatValue() because java.lang.Number
-            // doesn't exist on mobile, at least not as of Jan 2009.
-            String method = null;
-            switch (targetType.tag) {
-                case TypeTags.BOOLEAN:
-                    method="objectToBoolean";
-                    break;
-                case TypeTags.CHAR:
-                    method="objectToCharacter";
-                    break;
-                case TypeTags.BYTE:
-                    method="objectToByte";
-                    break;
-                case TypeTags.SHORT:
-                    method="objectToShort";
-                    break;
-                case TypeTags.INT:
-                    method="objectToInt";
-                    break;
-                case TypeTags.LONG:
-                    method="objectToLong";
-                    break;
-                case TypeTags.FLOAT:
-                    method="objectToFloat";
-                    break;
-                case TypeTags.DOUBLE:
-                    method="objectToDouble";
-                    break;
-            }
-            if (method != null) {
-                //TODO: Use RuntimeMethod
-                return call(diagPos,
-                                        makeQualifiedTree(diagPos, "com.sun.javafx.runtime.Util"),
-                                        names.fromString(method),
-                                        expr);
-            }
-        }
-
-        // The makeTypeCast below is usually redundant, since translateAsValue
-        // takes care of most conversions - except in the case of a plain object cast.
-        // It would be cleaner to move the makeTypeCast to translateAsValue,
-        // but it's painful to get it right.  FIXME.
-        return TypeCast(diagPos, targetType, inType, expr);
-    }
-
-    JCExpression TypeCast(DiagnosticPosition diagPos, Type clazztype, Type exprtype, JCExpression translatedExpr) {
-        if (types.isSameType(clazztype, exprtype)) {
-            return translatedExpr;
-        } else {
-            Type castType = clazztype;
-            if (!exprtype.isPrimitive()) {
-                castType = types.boxedTypeOrType(castType);
-            }
-            if (castType.isPrimitive() && exprtype.isPrimitive()) {
-                JCTree clazz = makeType(diagPos, exprtype, true);
-                translatedExpr = make.at(diagPos).TypeCast(clazz, translatedExpr);
-            }
-            JCTree clazz = makeType(diagPos, castType, true);
-            return make.at(diagPos).TypeCast(clazz, translatedExpr);
-        }
-    }
-
     boolean needsDefaultValue(TypeMorphInfo tmi) {
         return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ||
                tmi.getRealType() == syms.javafx_StringType ||
@@ -931,11 +864,6 @@ public abstract class JavafxTranslationSupport {
         }catch(Exception ex) {
             System.err.println("Pretty print got: " + ex);
         }
-    }
-
-    protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
-        JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
-        return call(diagPos, durClass, defs.valueOf_DurationMethodName, value);
     }
 
     protected JCExpression castFromObject (JCExpression arg, Type castType) {
@@ -1574,6 +1502,42 @@ public abstract class JavafxTranslationSupport {
         }
         JCStatement Throw(Type type) {
             return Throw(type, null);
+        }
+
+        JCExpression typeCast(final Type targetType, final Type inType, final JCExpression expr) {
+            if (types.typeKind(inType) == TYPE_KIND_OBJECT) {
+                // We can't just cast the Object to Float (for example)
+                // because if the Object is not Float, we will get a ClassCastException at runtime.
+                // And we can't just call java.lang.Number.floatValue() because java.lang.Number
+                // doesn't exist on mobile, at least not as of Jan 2009.
+                int targetKind = types.typeKind(targetType);
+                if (targetKind != TYPE_KIND_OBJECT && targetKind != TYPE_KIND_SEQUENCE) {
+                    return Call(defs.Util_objectTo[targetKind], expr);
+                }
+            }
+
+            // The makeTypeCast below is usually redundant, since translateAsValue
+            // takes care of most conversions - except in the case of a plain object cast.
+            // It would be cleaner to move the makeTypeCast to translateAsValue,
+            // but it's painful to get it right.  FIXME.
+            return TypeCast(targetType, inType, expr);
+        }
+
+        JCExpression TypeCast(Type clazztype, Type exprtype, JCExpression translatedExpr) {
+            if (types.isSameType(clazztype, exprtype)) {
+                return translatedExpr;
+            } else {
+                Type castType = clazztype;
+                if (!exprtype.isPrimitive()) {
+                    castType = types.boxedTypeOrType(castType);
+                }
+                if (castType.isPrimitive() && exprtype.isPrimitive()) {
+                    JCTree clazz = makeType(exprtype, true);
+                    translatedExpr = m().TypeCast(clazz, translatedExpr);
+                }
+                JCTree clazz = makeType(castType, true);
+                return m().TypeCast(clazz, translatedExpr);
+            }
         }
 
         /* Default value per type */

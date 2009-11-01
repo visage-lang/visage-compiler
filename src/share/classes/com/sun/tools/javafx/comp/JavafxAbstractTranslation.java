@@ -908,8 +908,8 @@ public abstract class JavafxAbstractTranslation
                 JFXExpression exp = parts.head;
                 JCExpression texp;
                 if (exp != null && types.isSameType(exp.type, syms.javafx_DurationType)) {
-                    texp = Call(translateExpr(exp, syms.javafx_DurationType), names.fromString("toMillis"));
-                    texp = typeCast(diagPos, syms.javafx_LongType, syms.javafx_DoubleType, texp);
+                    texp = Call(translateExpr(exp, syms.javafx_DurationType), defs.toMillis_DurationMethodName);
+                    texp = typeCast(syms.javafx_LongType, syms.javafx_DoubleType, texp);
                     sb.append(format.length() == 0 ? "%dms" : format);
                 } else {
                     texp = translateExpr(exp, null);
@@ -1459,7 +1459,7 @@ public abstract class JavafxAbstractTranslation
 
         protected ExpressionResult doit() {
             return toResult(
-                    makeDurationLiteral(diagPos, translateExpr(value, syms.doubleType)),
+                    Call(defs.Duration_valueOf, translateExpr(value, syms.doubleType)),
                     syms.javafx_DurationType);
         }
     }
@@ -1978,7 +1978,7 @@ public abstract class JavafxAbstractTranslation
                 case NEG:
                     if (types.isSameType(tree.type, syms.javafx_DurationType)) {
                         return toResult(
-                                Call(translateExpr(tree.arg, tree.arg.type), names.fromString("negate")),
+                                Call(translateExpr(tree.arg, tree.arg.type), defs.negate_DurationMethodName),
                                 syms.javafx_DurationType);
                     }
                 default:
@@ -2280,7 +2280,7 @@ public abstract class JavafxAbstractTranslation
                 JCExpression expr = convertTranslated(translated, diagPos, sourceType, targetElemType);
 
                 // This would be redundant, if convertTranslated did a cast if needed.
-                expr = TypeCast(diagPos, targetElemType, sourceType, expr);
+                expr = TypeCast(targetElemType, sourceType, expr);
                 return Call(defs.Sequences_singleton, TypeInfo(diagPos, targetElemType), expr);
             }
             if (targetIsSequence && sourceIsSequence) {
@@ -2762,7 +2762,7 @@ public abstract class JavafxAbstractTranslation
             // takes care of most conversions - except in the case of a plain object cast.
             // It would be cleaner to move the makeTypeCast to translateAsValue,
             // but it's painful to get it right.  FIXME.
-            JCExpression ret = typeCast(diagPos, clazz.type, expr.type, tExpr);
+            JCExpression ret = typeCast(clazz.type, expr.type, tExpr);
             ret = convertNullability(diagPos, ret, expr, clazz.type);
             return toResult(ret, clazz.type);
         }

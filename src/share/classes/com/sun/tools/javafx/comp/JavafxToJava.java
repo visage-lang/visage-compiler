@@ -975,7 +975,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     return Call(defs.Sequences_getAsFromNewElements[typeKind], args);
                 }
             }
-            Name getMethodName = defs.typedGet_MethodName[typeKind];
+            Name getMethodName = defs.typedGet_SequenceMethodName[typeKind];
             return Call(tSeq, getMethodName, tIndex);
         }
 

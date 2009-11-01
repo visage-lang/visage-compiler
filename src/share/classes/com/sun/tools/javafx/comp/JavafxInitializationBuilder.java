@@ -2840,7 +2840,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     if (!varInfo.isDef() && !varInfo.isBareSynth()) {
                          // (type)object$
-                        JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, objArg());
+                        JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
                         if (varInfo.isSequence()) {
                             addStmt(CallStmt(defs.Sequences_set, id(names._this), Offset(varInfo.getSymbol()), objCast));
                         } else {
@@ -2871,7 +2871,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     if (!varInfo.isBareSynth()) {
                         // (type)object$
-                        JCExpression objCast = typeCast(diagPos, varInfo.getRealType(), syms.objectType, objArg());
+                        JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
                         // be$var((type)object$)
                         addStmt(CallStmt(attributeBeName(varInfo.getSymbol()), objCast));
                     }

@@ -96,7 +96,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     //the set$xxx version is not always accessible from the
                     //selector expression (if selector is XXX$Script class)
                     JCStatement setter = CallStmt(id(selector),
-                            names.fromString(JavafxDefs.set_AttributeMethodPrefix),
+                            defs.set_FXObjectMethodName,
                             Offset(id(selector), selectVarSymbol),
                             id(value)); //FIXME: is this mixin safe?
                     JCExpression conditionExpr = NE(id(selector), Null());

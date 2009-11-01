@@ -70,8 +70,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** The current symbol table. */
     protected JavafxSymtab syms;
-    
-    protected final Name missingIdent;
 
     /** Create a tree maker with null toplevel and NOPOS as initial position.
      */
@@ -82,24 +80,22 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         this.names = Name.Table.instance(context);
         this.syms = (JavafxSymtab)JavafxSymtab.instance(context);
         this.types = Types.instance(context);
-        this.missingIdent = names.fromString("<missing IDENTIFIER>");
     }
 
     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
      */
-    protected JavafxTreeMaker(JFXScript toplevel, Name.Table names, Types types, JavafxSymtab syms, Name missingIdent) {
+    protected JavafxTreeMaker(JFXScript toplevel, Name.Table names, Types types, JavafxSymtab syms) {
         this.pos = Position.FIRSTPOS;
         this.toplevel = toplevel;
         this.names = names;
         this.types = types;
         this.syms = syms;
-        this.missingIdent = missingIdent;
     }
 
     /** Create a new tree maker for a given toplevel.
      */
     public JavafxTreeMaker forToplevel(JFXScript toplevel) {
-        return new JavafxTreeMaker(toplevel, names, types, syms, missingIdent);
+        return new JavafxTreeMaker(toplevel, names, types, syms);
     }
 
     /** Reassign current position.

@@ -91,6 +91,7 @@ public class JavafxDefs {
     public static final String annotation_PackageString = "com.sun.javafx.runtime.annotation";
     public static final String functions_PackageString = "com.sun.javafx.functions";
     public static final String sequence_PackageString = "com.sun.javafx.runtime.sequence";
+    public static final String fxLang_PackageString = "javafx.lang";
 
     /**
      * Class name strings
@@ -114,6 +115,8 @@ public class JavafxDefs {
     private static final String cPointer = runtime_PackageString + ".Pointer";
     // in java.lang package
     private static final String cMath = javaLang_PackageString + ".Math";
+    // in javafx.lang package
+    private static final String cDuration = fxLang_PackageString + ".Duration";
 
     /**
      * Misc strings
@@ -184,6 +187,7 @@ public class JavafxDefs {
     final RuntimeMethod SequencesRef_save;
 
     final RuntimeMethod Util_isEqual; //TODO: replace uses with Checks_equals
+    final RuntimeMethod Util_objectTo[];
 
     final RuntimeMethod Checks_equals;
     final RuntimeMethod Checks_isNull;
@@ -202,6 +206,8 @@ public class JavafxDefs {
     final RuntimeMethod Pointer_make;
     final RuntimeMethod Pointer_get;
 
+    final RuntimeMethod Duration_valueOf;
+
     /**
      * Classes as Name
      */
@@ -215,6 +221,7 @@ public class JavafxDefs {
     final Name applyDefaults_FXObjectMethodName;
     final Name count_FXObjectMethodName;
     final Name get_FXObjectMethodName;
+    final Name set_FXObjectMethodName;
     final Name invalidate_FXObjectMethodName;
     final Name notifyDependents_FXObjectMethodName;
     final Name getElement_FXObjectMethodName;
@@ -237,7 +244,8 @@ public class JavafxDefs {
     final Name lt_DurationMethodName;
     final Name ge_DurationMethodName;
     final Name gt_DurationMethodName;
-    final Name valueOf_DurationMethodName;
+    final Name toMillis_DurationMethodName;
+    final Name negate_DurationMethodName;
 
     /**
      * Sequence method Names
@@ -274,8 +282,8 @@ public class JavafxDefs {
     final Name outerAccessor_MethodName;
     final Name main_MethodName;
 
-    final Name[] typedGet_MethodName;
-    final Name[] typedSet_MethodName;
+    final Name[] typedGet_SequenceMethodName;
+    final Name[] typedSet_SequenceMethodName;
 
     /**
      * Method prefixes for attributes as Names
@@ -425,6 +433,7 @@ public class JavafxDefs {
         final Name.Table names = Name.Table.instance(context);
         final JavafxSymtab syms = (JavafxSymtab) (JavafxSymtab.instance(context));
 
+        // Initialize Duration method names
         add_DurationMethodName = names.fromString("add");
         sub_DurationMethodName = names.fromString("sub");
         mul_DurationMethodName = names.fromString("mul");
@@ -433,6 +442,9 @@ public class JavafxDefs {
         lt_DurationMethodName = names.fromString("lt");
         ge_DurationMethodName = names.fromString("ge");
         gt_DurationMethodName = names.fromString("gt");
+        toMillis_DurationMethodName = names.fromString("toMillis");
+        negate_DurationMethodName = names.fromString("negate");
+
         cFXObjectName = names.fromString(cFXObject);
         cFXMixinName = names.fromString(cFXMixin);
         mixinClassSuffixName = names.fromString(mixinClassSuffix);
@@ -467,7 +479,6 @@ public class JavafxDefs {
         time_KeyFrameMethodName = names.fromString("time");
         cJavaLangThreadName = names.fromString("java.lang.Thread");
         start_ThreadMethodName = names.fromString("start");
-        valueOf_DurationMethodName = names.fromString("valueOf");
         values_KeyFrameMethodName = names.fromString("values");
         target_InterpolateMethodName = names.fromString("target");
         value_InterpolateMethodName = names.fromString("value");
@@ -488,6 +499,7 @@ public class JavafxDefs {
         get_AttributeMethodPrefixName = names.fromString(get_AttributeMethodPrefix);
         get_FXObjectMethodName = get_AttributeMethodPrefixName;
         set_AttributeMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
+        set_FXObjectMethodName = set_AttributeMethodPrefixName;
         be_AttributeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
         invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
         onReplaceAttributeMethodPrefixName = names.fromString(onReplace_AttributeMethodPrefix);
@@ -579,6 +591,10 @@ public class JavafxDefs {
         SequencesRef_save = new RuntimeMethod(names, cSequenceRef, "save");
 
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
+        Util_objectTo = new RuntimeMethod[TYPE_KIND_COUNT];
+        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+            Util_objectTo[kind] = new RuntimeMethod(names, cUtil, "objectTo" + typePrefixes[kind]);
+        }
 
         Checks_equals = new RuntimeMethod(names, cChecks, "equals"); //TODO: looks like dup
         Checks_isNull = new RuntimeMethod(names, cChecks, "isNull");
@@ -597,12 +613,14 @@ public class JavafxDefs {
         Pointer_make = new RuntimeMethod(names, cPointer, "make");
         Pointer_get = new RuntimeMethod(names, cPointer, "get");
 
+        Duration_valueOf = new RuntimeMethod(names, cDuration, "valueOf");
+
         // Initialize per Kind names and types
-        typedGet_MethodName = new Name[TYPE_KIND_COUNT];
-        typedSet_MethodName = new Name[TYPE_KIND_COUNT];
+        typedGet_SequenceMethodName = new Name[TYPE_KIND_COUNT];
+        typedSet_SequenceMethodName = new Name[TYPE_KIND_COUNT];
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
-            typedGet_MethodName[kind] = names.fromString("get" + accessorSuffixes[kind]);
-            typedSet_MethodName[kind] = names.fromString("set" + accessorSuffixes[kind]);
+            typedGet_SequenceMethodName[kind] = names.fromString("get" + accessorSuffixes[kind]);
+            typedSet_SequenceMethodName[kind] = names.fromString("set" + accessorSuffixes[kind]);
         }
 
         realTypeByKind = new Type[TYPE_KIND_COUNT];

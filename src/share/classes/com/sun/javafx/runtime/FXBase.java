@@ -452,7 +452,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
         return getAsChar$(this, varNum, position);
     }
     public static char getAsChar$(FXObject obj, int varNum, int position) {
-        return Util.objectToCharacter(obj.get$(varNum, position));
+        return Util.objectToChar(obj.get$(varNum, position));
     }
 
     public byte getAsByte$(int varNum, int position) {

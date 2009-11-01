@@ -840,7 +840,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         private final JFXVar varStep;
         private final JFXVar varSize;
         private final Type elemType;
-        private final Type szType;
         private final boolean exclusive;
 
         BoundRangeSequenceTranslator(JFXSequenceRange tree) {
@@ -851,10 +850,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.varSize = tree.boundSizeVar;
             if (varLower.type == syms.javafx_IntegerType) {
                 this.elemType = syms.javafx_IntegerType;
-                this.szType = syms.intType;
             } else {
                 this.elemType = syms.javafx_NumberType;
-                this.szType = syms.longType;
             }
             this.exclusive = tree.isExclusive();
         }
