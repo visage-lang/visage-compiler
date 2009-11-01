@@ -3326,7 +3326,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     scriptName,
                     List.<JCTypeParameter>nil(),
                     makeType(syms.javafx_FXBaseType),
-                    List.<JCExpression>of(makeType(syms.javafx_FXObjectType)),
+                    List.of(makeType(syms.javafx_FXObjectType)),
                     definitions);
             script.sym = scriptClassSymbol;
         

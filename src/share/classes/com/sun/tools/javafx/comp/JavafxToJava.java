@@ -597,7 +597,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             ExpressionResult doit() {
                 JCExpression receiver = vsym.isStatic() ? Call(scriptLevelAccessMethod(vsym.owner)) : null;
                 JCStatement applyDefaultCall = CallStmt(receiver, defs.applyDefaults_FXObjectMethodName, Offset(vsym));
-                return toResult(BlockExpression(List.of(applyDefaultCall), id(attributeValueName(vsym))), vsym.type);
+                return toResult(
+                        BlockExpression(
+                            applyDefaultCall,
+                            id(attributeValueName(vsym))),
+                        vsym.type);
         }}.doit();
     }
 
@@ -762,8 +766,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCExpression buildRHS(JCExpression rhsTranslated) {
                 final JCExpression lhsTranslated = translateExpr(ref, null);
                 if (useDurationOperations()) {
-                    JCExpression method = Select(lhsTranslated, tree.operator.name);
-                    return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
+                    return Call(
+                            lhsTranslated,
+                            tree.operator.name,
+                            rhsTranslated);
                 } else {
                     JCExpression ret = m().Binary(getBinaryOp(), lhsTranslated, rhsTranslated);
                     if (!types.isSameType(rhsType(), ref.type)) {

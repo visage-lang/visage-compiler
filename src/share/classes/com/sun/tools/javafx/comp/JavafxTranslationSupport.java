@@ -1328,6 +1328,14 @@ public abstract class JavafxTranslationSupport {
             return BlockExpression(stmts.toList(), value);
         }
 
+        BlockExprJCBlockExpression BlockExpression(JCStatement stmt1, JCExpression value) {
+            return BlockExpression(List.of(stmt1), value);
+        }
+
+        BlockExprJCBlockExpression BlockExpression(JCStatement stmt1, JCStatement stmt2, JCExpression value) {
+            return BlockExpression(List.of(stmt1, stmt2), value);
+        }
+
        /**
          * Block
          */

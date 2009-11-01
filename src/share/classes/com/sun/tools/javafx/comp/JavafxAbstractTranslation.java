@@ -246,7 +246,7 @@ public abstract class JavafxAbstractTranslation
                             cond,
                             id(daVar.name),
                             DefaultValue(outType));
-                    return BlockExpression(List.<JCStatement>of(daVar), ret);
+                    return BlockExpression(daVar, ret);
                 }
                 return expr;
             }
@@ -481,7 +481,7 @@ public abstract class JavafxAbstractTranslation
             return "SpecialResult-" + tree.getClass() + " = " + tree;
         }
         List<JCTree> trees() {
-            return tree==null? List.<JCTree>nil() : List.<JCTree>of(tree);
+            return tree==null? List.<JCTree>nil() : List.of(tree);
         }
     }
 
@@ -1805,7 +1805,10 @@ public abstract class JavafxAbstractTranslation
                     args.append(tIndex);
                 }
                 JCExpression res = Call(meth, args);
-                return BlockExpression(List.<JCStatement>of(tv, Stmt(m().Assign(id(refSym.name), res))), id(tv));
+                return BlockExpression(
+                        tv,
+                        Stmt(m().Assign(id(refSym.name), res)),
+                        id(tv));
             } else {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
@@ -2083,7 +2086,9 @@ public abstract class JavafxAbstractTranslation
                 } else {
                     // lhs is primitive, rhs is non-primitive, use equals(), but switch them
                     JCVariableDecl sl = TmpVar(req!=null? req : lhsType, lhs(req));  // eval first to keep the order correct
-                    return BlockExpression(List.<JCStatement>of(sl), makeFullCheck(rhs(req), id(sl.name)));
+                    return BlockExpression(
+                            sl,
+                            makeFullCheck(rhs(req), id(sl.name)));
                 }
             } else {
                 if (rhsType.getKind() == TypeKind.NULL) {
@@ -2498,8 +2503,11 @@ public abstract class JavafxAbstractTranslation
             List<JCExpressionStatement> loopStep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(loopName), Int(1))));
             JCStatement loopBody;
 
-            List<JCExpression> args = List.<JCExpression>of(id(loopName));
-            JCStatement applyDefaultsExpr = CallStmt(id(receiverName), defs.applyDefaults_FXObjectMethodName, args);
+            JCStatement applyDefaultsExpr =
+                    CallStmt(
+                        id(receiverName),
+                        defs.applyDefaults_FXObjectMethodName,
+                        id(loopName));
 
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
