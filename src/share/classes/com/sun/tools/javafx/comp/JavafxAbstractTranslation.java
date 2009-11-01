@@ -700,7 +700,7 @@ public abstract class JavafxAbstractTranslation
         JCExpression makeReceiver(Symbol sym, boolean nullForThis) {
             final Symbol owner = sym==null? null : sym.owner;
             final Symbol siteOwner = currentClass().sym;
-            final JCExpression thisExpr = select(makeType(siteOwner.type), names._this);
+            final JCExpression thisExpr = Select(makeType(siteOwner.type), names._this);
             JCExpression ret = types.isMixin(owner) ?
                 id(defs.receiverName) :   // referenced member is a mixin member, access it through receiver var
                 thisExpr;
@@ -738,7 +738,7 @@ public abstract class JavafxAbstractTranslation
                     siteCursor = siteOwner;
                     while (numOfOuters > 0) {
                         if (siteCursor.kind == Kinds.TYP) {
-                            ret = Call(ret, defs.outerAccessorName);
+                            ret = Call(ret, defs.outerAccessor_MethodName);
                         }
                         if (siteCursor.kind == Kinds.TYP) {
                             numOfOuters--;
@@ -1189,10 +1189,10 @@ public abstract class JavafxAbstractTranslation
         JCExpression fullExpression(JCExpression tToCheck) {
             if (isFunctionReference) {
                 MethodType mtype = (MethodType) refSym.type;
-                JCExpression translated = select(tToCheck, name);
+                JCExpression translated = Select(tToCheck, name);
                 return new FunctionValueTranslator(translated, null, diagPos, mtype, fullType).doitExpr();
             } else {
-                JCExpression translated = select(tToCheck, name);
+                JCExpression translated = Select(tToCheck, name);
                 return convertVariableReference(translated, refSym);
             }
         }
@@ -1292,7 +1292,7 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
-            JCExpression tMeth = select(mungedToCheckTranslated, methodName());
+            JCExpression tMeth = Select(mungedToCheckTranslated, methodName());
             JCMethodInvocation app = m().Apply(translateExprs(typeargs), tMeth, determineArgs());
 
             JCExpression full = null;
@@ -1365,7 +1365,7 @@ public abstract class JavafxAbstractTranslation
                     targs.append(Call(defs.FXVariable_make, translateExpr(arg, formal)));
 
                     // pass FXVariable.VOFF$value as offset value
-                    targs.append(select(makeType(syms.javafx_FXVariableType), defs.varOFF$valueName));
+                    targs.append(Select(makeType(syms.javafx_FXVariableType), defs.varOFF$valueName));
                 }
             } else if (magicIsInitializedFunction) {
                 //isInitialized has just one argument -- we need to split into
@@ -1686,13 +1686,13 @@ public abstract class JavafxAbstractTranslation
             boolean isStatic = sym.isStatic();
             if (isStatic) {
                 // make class-based direct static reference:   Foo.x
-                convert = select(staticReference(sym),tree.getName());
+                convert = Select(staticReference(sym),tree.getName());
             } else {
                 if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                         sym.owner.kind == Kinds.TYP) {
                     // it is a non-static attribute or function class member
                     // reference it through the receiver
-                    convert = select(makeReceiver(sym),tree.getName());
+                    convert = Select(makeReceiver(sym),tree.getName());
                 } else {
                     convert = id(tree.getName());
                 }
@@ -1824,7 +1824,7 @@ public abstract class JavafxAbstractTranslation
             if (tree.getLastIndex() == null) {
                 endPos = Call(
                         translateExpr(tree.getSequence(), null),
-                        defs.sizeSequenceMethodName);
+                        defs.size_SequenceMethodName);
                 if (tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE) {
                     endPos = make.at(tree).Binary(JCTree.MINUS,
                             endPos, make.Literal(TypeTags.INT, 1));
@@ -1951,7 +1951,7 @@ public abstract class JavafxAbstractTranslation
             switch (tree.getFXTag()) {
                 case SIZEOF:
                     if (expr.type.tag == TypeTags.ARRAY) {
-                        return toResult(select(transExpr, defs.length_ArrayFieldName), syms.intType);
+                        return toResult(Select(transExpr, defs.length_ArrayFieldName), syms.intType);
                     }
                     return toResult(translateSizeof(expr, transExpr), syms.intType);
                 case REVERSE:
@@ -2515,7 +2515,7 @@ public abstract class JavafxAbstractTranslation
             JCStatement loopBody;
 
             List<JCExpression> args = List.<JCExpression>of(id(loopName));
-            JCStatement applyDefaultsExpr = CallStmt(id(receiverName), defs.applyDefaults_ObjectMethodName, args);
+            JCStatement applyDefaultsExpr = CallStmt(id(receiverName), defs.applyDefaults_FXObjectMethodName, args);
 
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
@@ -2644,7 +2644,7 @@ public abstract class JavafxAbstractTranslation
                 if (varSyms.nonEmpty()) {
                     makeInitApplyDefaults(type, tmpVarName);
                 } else {
-                    makeInitSupportCall(defs.applyDefaults_ObjectMethodName, tmpVarName);
+                    makeInitSupportCall(defs.applyDefaults_FXObjectMethodName, tmpVarName);
                 }
 
                 // Call complete$ to do user's init and postinit blocks

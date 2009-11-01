@@ -131,9 +131,9 @@ public class JavafxClassReader extends ClassReader {
 
     public JavafxClassSymbol enterClass(ClassSymbol jsymbol) {
         Name className = jsymbol.flatname;
-        boolean mixin = className.endsWith(defs.mixinSuffixName);
+        boolean mixin = className.endsWith(defs.mixinClassSuffixName);
         if (mixin)
-            className = className.subName(0, className.len - defs.mixinSuffixName.len);
+            className = className.subName(0, className.len - defs.mixinClassSuffixName.len);
         JavafxClassSymbol cSym = (JavafxClassSymbol) enterClass(className);
         //cSym.flags_field |= jsymbol.flags_field;
         if (mixin)
@@ -276,7 +276,7 @@ public class JavafxClassReader extends ClassReader {
             case CLASS:
                 TypeSymbol tsym = type.tsym;
                 if (tsym instanceof ClassSymbol) {
-                    if (tsym.name.endsWith(defs.mixinSuffixName)) {
+                    if (tsym.name.endsWith(defs.mixinClassSuffixName)) {
                         t = enterClass((ClassSymbol) tsym).type;
                         break;
                     }
@@ -442,7 +442,7 @@ public class JavafxClassReader extends ClassReader {
                  e != null;  e = e.sibling) {
                  if (e.sym instanceof ClassSymbol) {
                      ClassSymbol jsym = (ClassSymbol) e.sym;
-                     if (jsym.name.endsWith(defs.mixinSuffixName))
+                     if (jsym.name.endsWith(defs.mixinClassSuffixName))
                          continue;
                      JavafxClassSymbol csym = enterClass(jsym);
                      psym.members_field.enter(csym);
@@ -500,10 +500,10 @@ public class JavafxClassReader extends ClassReader {
                         csym.flags_field |= JavafxFlags.FX_CLASS;
                     } else if (((ClassSymbol) itype.tsym).flatname == defs.cFXMixinName) {
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;
-                    } else if ((csym.fullname.len + defs.mixinSuffixName.len ==
+                    } else if ((csym.fullname.len + defs.mixinClassSuffixName.len ==
                              ((ClassSymbol) itype.tsym).fullname.len) &&
                             ((ClassSymbol) itype.tsym).fullname.startsWith(csym.fullname) &&
-                            itype.tsym.name.endsWith(defs.mixinSuffixName)) {
+                            itype.tsym.name.endsWith(defs.mixinClassSuffixName)) {
                         iface = itype;
                         iface.tsym.complete();
                         csym.flags_field |= JavafxFlags.MIXIN | JavafxFlags.FX_CLASS;

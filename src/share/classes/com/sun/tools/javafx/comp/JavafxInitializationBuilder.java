@@ -1101,7 +1101,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
            if (isMixinClass() && JavafxAnalyzeClass.isMixinClass(varSym.owner)) {
                return Call(getReceiver(varSym), attributeGetMixinName(varSym));
            } else if (varSym.isStatic()) {
-               return select(makeType(varSym.owner.type, false), attributeValueName(varSym));
+               return Select(makeType(varSym.owner.type, false), attributeValueName(varSym));
            }
            
            return id(attributeValueName(varSym));
@@ -1128,7 +1128,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
 
                         // applyDefaults$(VOFF$var)
-                        addStmt(CallStmt(getReceiver(), defs.applyDefaults_ObjectMethodName, Offset(varSym)));
+                        addStmt(CallStmt(getReceiver(), defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
 
                         // Is it uninitialized (and not bound)
                         JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1371,7 +1371,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     } else if (!varInfo.isOverride()) {
                         // notifyDependents(VOFF$var, phase$);
-                        addStmt(CallStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, Offset(proxyVarSym),
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym),
                                 id(defs.startPos_ArgName), id(defs.endPos_ArgName), id(defs.newLength_ArgName),
                                 id(phaseName)));
                     } 
@@ -1524,7 +1524,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             beginBlock();
     
                                 // applyDefaults$(VOFF$var)
-                            addStmt(CallStmt(getReceiver(), defs.applyDefaults_ObjectMethodName, Offset(varSym)));
+                            addStmt(CallStmt(getReceiver(), defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
     
                             // Is it uninitialized (and not bound)
                             JCExpression initCondition = makeFlagExpression(proxyVarSym, defs.varFlagActionTest, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1781,7 +1781,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     } else if (!varInfo.isOverride()) {
                         // notifyDependents(VOFF$var, phase$);
-                        addStmt(CallStmt(getReceiver(varInfo), defs.attributeNotifyDependentsName, Offset(proxyVarSym), id(phaseName)));
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), id(phaseName)));
                     } 
                     
                     // isValid
@@ -2474,7 +2474,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the current class's applyDefaults$ method.
         //
         public void makeApplyDefaultsMethod(final List<VarInfo> attrInfos, final int count) {
-            MethodBuilder mb = new MethodBuilder(defs.applyDefaults_ObjectMethodName, syms.voidType) {
+            MethodBuilder mb = new MethodBuilder(defs.applyDefaults_FXObjectMethodName, syms.voidType) {
                 @Override
                 public void initialize() {
                     addParam(syms.intType, varNumName);
@@ -2915,7 +2915,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             for (VarSymbol vSym : varMap.varList.toList()) {
                 // ..., X.VOFF$x, ...
 
-                args.append(select(makeType(cSym.type), attributeOffsetName(vSym)));
+                args.append(Select(makeType(cSym.type), attributeOffsetName(vSym)));
             }
 
             // FXBase.makeInitMap$(X.VCNT$(), X.VOFF$a, ...)
@@ -3057,7 +3057,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             if (attrInfo != null) {
-                stmts.append(CallStmt(Call(scriptLevelAccessMethod(sym)), defs.applyDefaults_ObjectMethodName));
+                stmts.append(CallStmt(Call(scriptLevelAccessMethod(sym)), defs.applyDefaults_FXObjectMethodName));
             }
              
             addDefinition(m().Block(Flags.STATIC, stmts.toList()));
@@ -3209,8 +3209,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             VarSymbol vs = new VarSymbol(Flags.PUBLIC, outerAccessorFieldName, outerTypeSym.type, getCurrentClassSymbol());
             stmts.append(m().Return(id(vs)));
-            MethodSymbol methSym = makeMethodSymbol(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessorName, List.<Type>nil());
-            addDefinition(makeMethod(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessorName, List.<JCVariableDecl>nil(), stmts.toList(), methSym));
+            MethodSymbol methSym = makeMethodSymbol(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<Type>nil());
+            addDefinition(makeMethod(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<JCVariableDecl>nil(), stmts.toList(), methSym));
         }
         
         //
@@ -3338,10 +3338,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCMethodDecl accessorMethod = makeMethod(
                             Flags.PUBLIC,
                             returnSym.type,
-                            defs.outerAccessorName,
+                            defs.outerAccessor_MethodName,
                             List.<JCVariableDecl>nil(),
                             null,
-                            makeMethodSymbol(Flags.PUBLIC, returnSym.type, defs.outerAccessorName, List.<Type>nil()));
+                            makeMethodSymbol(Flags.PUBLIC, returnSym.type, defs.outerAccessor_MethodName, List.<Type>nil()));
                     addDefinition(accessorMethod);
                     optStat.recordProxyMethod();
                 }

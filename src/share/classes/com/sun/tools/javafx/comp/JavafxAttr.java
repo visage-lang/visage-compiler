@@ -1521,7 +1521,7 @@ public class JavafxAttr implements JavafxVisitor {
 
             }
 
-            if (((ClassSymbol) clazztype.tsym).fullname == defs.javalangThreadName) {
+            if (((ClassSymbol) clazztype.tsym).fullname == defs.cJavaLangThreadName) {
                 log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_EXPLICIT_THREAD);
             }
 
@@ -2327,8 +2327,8 @@ public class JavafxAttr implements JavafxVisitor {
         // If it becomes too hairy, it should be moved into a separate method,
         // and perhaps be table-driven.  FIXME.
         if (msym != null && msym.owner instanceof ClassSymbol &&
-                ((ClassSymbol) msym.owner).fullname == defs.javalangThreadName &&
-                msym.name == defs.startName) {
+                ((ClassSymbol) msym.owner).fullname == defs.cJavaLangThreadName &&
+                msym.name == defs.start_ThreadMethodName) {
             log.warning(tree.pos(), MsgSym.MESSAGE_JAVAFX_EXPLICIT_THREAD);
         }
 

@@ -166,7 +166,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCExpression fullExpression(JCExpression mungedToCheckTranslated) {
             if (callBound) {
                 // call to a bound function in bind context
-                JCExpression tMeth = select(mungedToCheckTranslated, methodName());
+                JCExpression tMeth = Select(mungedToCheckTranslated, methodName());
                 return m().Apply(translateExprs(typeargs), tMeth, determineArgs());
             } else {
                 JCExpression full = super.fullExpression(mungedToCheckTranslated);

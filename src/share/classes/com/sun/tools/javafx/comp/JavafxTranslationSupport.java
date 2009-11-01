@@ -541,7 +541,7 @@ public abstract class JavafxTranslationSupport {
             tmi.getRealType() == syms.javafx_StringType ?
                 make.Literal("") :
             tmi.getRealType() == syms.javafx_DurationType ?
-                makeQualifiedTree(diagPos, JavafxDefs.zeroDuration) :
+                makeQualifiedTree(diagPos, JavafxDefs.zero_DurationFieldName) :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
     }
 
@@ -615,7 +615,7 @@ public abstract class JavafxTranslationSupport {
     }
     
     Name attributeValueName(Symbol sym) {
-        return prefixedAttributeName(sym, value_AttributeFieldNamePrefix);
+        return prefixedAttributeName(sym, value_AttributeFieldPrefix);
     }
 
     Name attributeGetterName(Symbol sym) {
@@ -663,7 +663,7 @@ public abstract class JavafxTranslationSupport {
     }
     
     Name attributeSavedName(Symbol sym) {
-        return prefixedAttributeName(sym, saved_AttributeFieldNamePrefix);
+        return prefixedAttributeName(sym, saved_AttributeFieldPrefix);
     }
 
     Name attributeInitVarBitsName(Symbol sym) {
@@ -941,7 +941,7 @@ public abstract class JavafxTranslationSupport {
 
     protected JCExpression makeDurationLiteral(DiagnosticPosition diagPos, JCExpression value) {
         JCExpression durClass = makeType(diagPos, syms.javafx_DurationType);
-        return call(diagPos, durClass, defs.valueOfName, value);
+        return call(diagPos, durClass, defs.valueOf_DurationMethodName, value);
     }
 
     protected JCExpression castFromObject (JCExpression arg, Type castType) {
@@ -1027,7 +1027,7 @@ public abstract class JavafxTranslationSupport {
         /**
          * Make a member select or an identifier depending on the selector
          */
-        protected JCExpression select(JCExpression selector, Name name) {
+        protected JCExpression Select(JCExpression selector, Name name) {
             return (selector==null)? id(name) : m().Select(selector, name);
         }
 
@@ -1061,15 +1061,6 @@ public abstract class JavafxTranslationSupport {
             }
             
             return getReceiver();
-        }
-        private JCExpression getReceiverOrThis() {
-            JCExpression receiver = getReceiver();
-
-            if (receiver == null) {
-                receiver = id(names._this);
-            }
-
-            return receiver;
         }
         protected JCExpression getReceiverOrThis(VarSymbol varSym) {
             JCExpression receiver = getReceiver(varSym);
@@ -1345,7 +1336,7 @@ public abstract class JavafxTranslationSupport {
                 JCExpression klass = makeType(varSym.owner.type, false);
                 
                 if (varSym.isStatic()) {
-                    klass = select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
+                    klass = Select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
                 }
                 
                 return m().Select(klass, attributeOffsetName(varSym));
@@ -1397,7 +1388,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         JCExpression Call(JCExpression receiver, Name methodName, List<JCExpression> args) {
-            JCExpression expr = select(receiver, methodName);
+            JCExpression expr = Select(receiver, methodName);
             return m().Apply(List.<JCExpression>nil(), expr, args);
         }
 

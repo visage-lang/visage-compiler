@@ -109,7 +109,7 @@ public class JavafxTypes extends Types {
     public Type arraySequenceType(Type elemType) {
         if (elemType.isPrimitive()) {
             String tname = JavafxDefs.getTypePrefix(typeKind(elemType));
-            return syms.enterClass(JavafxDefs.sequence_PackageNameString + "." + tname + "ArraySequence");
+            return syms.enterClass(JavafxDefs.sequence_PackageString + "." + tname + "ArraySequence");
         }
         Type seqtype = syms.enterClass("com.sun.javafx.runtime.sequence.ObjectArraySequence");
         List<Type> actuals = List.of(elemType);

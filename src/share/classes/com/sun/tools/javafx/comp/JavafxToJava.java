@@ -596,7 +596,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new ExpressionTranslator(tree.pos()) {
             ExpressionResult doit() {
                 JCExpression receiver = vsym.isStatic() ? Call(scriptLevelAccessMethod(vsym.owner)) : null;
-                JCStatement applyDefaultCall = CallStmt(receiver, defs.applyDefaults_ObjectMethodName, Offset(vsym));
+                JCStatement applyDefaultCall = CallStmt(receiver, defs.applyDefaults_FXObjectMethodName, Offset(vsym));
                 return toResult(makeBlockExpression(List.of(applyDefaultCall), id(attributeValueName(vsym))), vsym.type);
         }}.doit();
     }
@@ -762,7 +762,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCExpression buildRHS(JCExpression rhsTranslated) {
                 final JCExpression lhsTranslated = translateExpr(ref, null);
                 if (useDurationOperations()) {
-                    JCExpression method = select(lhsTranslated, tree.operator.name);
+                    JCExpression method = Select(lhsTranslated, tree.operator.name);
                     return m().Apply(null, method, List.<JCExpression>of(rhsTranslated));
                 } else {
                     JCExpression ret = m().Binary(getBinaryOp(), lhsTranslated, rhsTranslated);
@@ -1012,7 +1012,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         JCExpression computeSliceEnd() {
             JCExpression endPos;
             if (lastIndex == null) {
-                endPos = Call(seq, defs.sizeSequenceMethodName);
+                endPos = Call(seq, defs.size_SequenceMethodName);
                 if (endKind == SequenceSliceTree.END_EXCLUSIVE) {
                     endPos = m().Binary(JCTree.MINUS, endPos, Int(1));
                 }
@@ -1970,15 +1970,15 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         @Override
         protected void initInstanceVariables(Name instName) {
             // value
-            setInstanceVariable(instName, defs.valueName, tree.value);
+            setInstanceVariable(instName, defs.value_InterpolateMethodName, tree.value);
 
             // interpolator kind
             if (tree.interpolation != null) {
-                setInstanceVariable(instName, defs.interpolateName, tree.interpolation);
+                setInstanceVariable(instName, defs.interpolate_InterpolateMethodName, tree.interpolation);
             }
 
             // target -- convert to Pointer
-            setInstanceVariable(tree.attribute.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.targetName), translateTarget());
+            setInstanceVariable(tree.attribute.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.target_InterpolateMethodName), translateTarget());
         }
     }
 
@@ -1997,7 +1997,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             @Override
             protected void initInstanceVariables(Name instName) {
                 // start time
-                setInstanceVariable(instName, defs.timeName, tree.start);
+                setInstanceVariable(instName, defs.time_KeyFrameMethodName, tree.start);
 
                 // key values -- as sequence
                 JCExpression values = asExpression(
@@ -2009,7 +2009,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         ).doit(),
                         null //FIXME
                 );
-                setInstanceVariable(tree.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.valuesName), values);
+                setInstanceVariable(tree.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.values_KeyFrameMethodName), values);
             }
         }.doit();
     }

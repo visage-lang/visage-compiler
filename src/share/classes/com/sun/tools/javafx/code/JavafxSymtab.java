@@ -40,7 +40,7 @@ import com.sun.tools.javafx.comp.JavafxDefs;
  */
 public class JavafxSymtab extends Symtab {
 
-    private static final String anno = JavafxDefs.annotation_PackageNameString;
+    private static final String anno = JavafxDefs.annotation_PackageString;
     public static final String privateAnnotationClassNameString = anno + ".Private";
     public static final String protectedAnnotationClassNameString = anno + ".Protected";
     public static final String packageAnnotationClassNameString = anno + ".Package";
@@ -220,7 +220,7 @@ public class JavafxSymtab extends Symtab {
         stringTypeName = names.fromString("String");
         voidTypeName = names.fromString("Void");
 
-        runMethodName = names.fromString(JavafxDefs.internalRunFunctionNameString);
+        runMethodName = names.fromString(JavafxDefs.internalRunFunctionString);
 
         javafx_FXObjectType = enterClass(JavafxDefs.cFXObject);
         javafx_FXMixinType = enterClass(JavafxDefs.cFXMixin);

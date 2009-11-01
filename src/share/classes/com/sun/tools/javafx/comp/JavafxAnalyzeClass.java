@@ -1252,7 +1252,7 @@ class JavafxAnalyzeClass {
         Name name = meth.name;
         
         // if this is a main method in an FX class then it is synthetic, ignore it
-        if (name == defs.mainName) {
+        if (name == defs.main_MethodName) {
             if (meth.type instanceof MethodType) {
                 MethodType mt = (MethodType)meth.type;
                 List<Type> paramTypes = mt.getParameterTypes();
@@ -1296,7 +1296,7 @@ class JavafxAnalyzeClass {
         String nameString = name.toString();
         
         return nameString.startsWith(JavafxDefs.varMap_FXObjectFieldPrefix) ||
-               nameString.startsWith(JavafxDefs.count_FXObjectFieldNameString) ||
+               nameString.startsWith(JavafxDefs.count_FXObjectFieldString) ||
                nameString.startsWith(JavafxDefs.offset_AttributeFieldPrefix) ||
                nameString.startsWith(JavafxDefs.varFlags_FXObjectFieldPrefix);
     }
