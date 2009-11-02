@@ -88,6 +88,7 @@ public class JavafxDefs {
      */
     public static final String javaLang_PackageString = "java.lang";
     public static final String runtime_PackageString = "com.sun.javafx.runtime";
+    public static final String runtimeUtil_PackageString = "com.sun.javafx.runtime.util";
     public static final String annotation_PackageString = "com.sun.javafx.runtime.annotation";
     public static final String functions_PackageString = "com.sun.javafx.functions";
     public static final String sequence_PackageString = "com.sun.javafx.runtime.sequence";
@@ -113,8 +114,12 @@ public class JavafxDefs {
     private static final String cChecks = runtime_PackageString + ".Checks";
     private static final String cFXVariable = runtime_PackageString + ".FXVariable";
     private static final String cPointer = runtime_PackageString + ".Pointer";
+    // in runtime.util package
+    private static final String cStringLocalization = runtimeUtil_PackageString + ".StringLocalization";
+    private static final String cFXFormatter = runtimeUtil_PackageString + ".FXFormatter";
     // in java.lang package
     private static final String cMath = javaLang_PackageString + ".Math";
+    private static final String cString = javaLang_PackageString + ".String";
     // in javafx.lang package
     private static final String cDuration = fxLang_PackageString + ".Duration";
 
@@ -207,6 +212,10 @@ public class JavafxDefs {
     final RuntimeMethod Pointer_get;
 
     final RuntimeMethod Duration_valueOf;
+
+    final RuntimeMethod StringLocalization_getLocalizedString;
+    final RuntimeMethod FXFormatter_sprintf;
+    final RuntimeMethod String_format;
 
     /**
      * Classes as Name
@@ -614,6 +623,10 @@ public class JavafxDefs {
         Pointer_get = new RuntimeMethod(names, cPointer, "get");
 
         Duration_valueOf = new RuntimeMethod(names, cDuration, "valueOf");
+
+        StringLocalization_getLocalizedString = new RuntimeMethod(names, cStringLocalization, "getLocalizedString");
+        FXFormatter_sprintf = new RuntimeMethod(names, cFXFormatter, "sprintf");
+        String_format = new RuntimeMethod(names, cString, "format");
 
         // Initialize per Kind names and types
         typedGet_SequenceMethodName = new Name[TYPE_KIND_COUNT];

@@ -923,26 +923,26 @@ public abstract class JavafxAbstractTranslation
                 sb.append(part.replace("%", "%%"));              // escape percent signs
                 parts = parts.tail;
             }
-            JCLiteral formatLiteral = m().Literal(TypeTags.CLASS, sb.toString());
-            values.prepend(formatLiteral);
-            String formatMethod;
+            values.prepend(String(sb.toString()));
+            RuntimeMethod formatMethod;
             if (tree.translationKey != null) {
-                formatMethod = "com.sun.javafx.runtime.util.StringLocalization.getLocalizedString";
+                formatMethod = defs.StringLocalization_getLocalizedString;
                 if (tree.translationKey.length() == 0) {
                     values.prepend(Null());
                 } else {
-                    values.prepend(m().Literal(TypeTags.CLASS, tree.translationKey));
+                    values.prepend(String(tree.translationKey));
                 }
                 String resourceName =
                        currentClass().sym.flatname.toString().replace('.', '/').replaceAll("\\$.*", "");
-                values.prepend(m().Literal(TypeTags.CLASS, resourceName));
+                values.prepend(String(resourceName));
             } else if (containsDateTimeFormat) {
-                formatMethod = "com.sun.javafx.runtime.util.FXFormatter.sprintf";
+                formatMethod = defs.FXFormatter_sprintf;
             } else {
-                formatMethod = "java.lang.String.format";
+                formatMethod = defs.String_format;
             }
-            JCExpression formatter = QualifiedTree(formatMethod);
-            return toResult(m().Apply(null, formatter, values.toList()), syms.stringType);
+            return toResult(
+                    Call(formatMethod, values),
+                    syms.stringType);
         }
     }
 
@@ -2068,7 +2068,7 @@ public abstract class JavafxAbstractTranslation
             if (lhsType.getKind() == TypeKind.NULL) {
                 if (rhsType.getKind() == TypeKind.NULL) {
                     // both are known to be null
-                    return m().Literal(TypeTags.BOOLEAN, 1);
+                    return Boolean(true);
                 } else if (rhsType.isPrimitive()) {
                     // lhs is null, rhs is primitive, do default check
                     return makePrimitiveNullCheck(rhsType, rhs(req));
