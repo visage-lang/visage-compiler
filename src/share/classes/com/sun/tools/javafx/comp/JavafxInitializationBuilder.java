@@ -2684,22 +2684,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             JCExpression ifReferenceCond = AND(varNumCond, objCond);
                             // invalidate the synthetic instance field for this param
 
-                            if (isSequenceVersion) {
-                                if (types.isSequence(param.type)) {
-                                    // Sequence: update$ is only used on select, so, for sequences, we can just pass through
-                                    addStmt(CallStmt(getReceiver(), attributeInvalidateName(param),
-                                            startPosArg(),
-                                            endPosArg(),
-                                            newLengthArg(),
-                                            phaseArg()));
-                                }
-                            } else {
-                                if (!types.isSequence(param.type)) {
-                                    // Non-sequence
-                                    addStmt(CallStmt(getReceiver(), attributeInvalidateName(param), phaseArg()));
-                                }
-                            }
-                            ifReferenceStmt = If(ifReferenceCond, 
+                            addStmt(invalidate(types.isSequence(param.type), param));
+
+                            ifReferenceStmt = If(ifReferenceCond,
                                     endBlock(),
                                     ifReferenceStmt);
                             addStmt(ifReferenceStmt);
@@ -2715,25 +2702,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         for (VarSymbol referenceVar : instanceMap.keySet()) {
                             HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
                             beginBlock();
-                             
+ 
                             // Loop for local vars.
                             for (VarInfo varInfo : referenceSet) {
-                                VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                                if (isSequenceVersion) {
-                                    if (varInfo.isSequence()) {
-                                        // Sequence: update$ is only used on select, so, for sequences, we can just pass through
-                                        addStmt(CallStmt(getReceiver(), attributeInvalidateName(proxyVarSym),
-                                                startPosArg(),
-                                                endPosArg(),
-                                                newLengthArg(),
-                                                phaseArg()));
-                                    }
-                                } else {
-                                    if (!varInfo.isSequence()) {
-                                        // Non-sequence
-                                        addStmt(CallStmt(getReceiver(), attributeInvalidateName(proxyVarSym), phaseArg()));
-                                    }
-                                }
+                                addStmt(invalidate(varInfo.isSequence(), varInfo.proxyVarSym()));
                             }
 
                             // Reference the class with the instance, if it is script-level append the suffix
@@ -2756,6 +2728,24 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     callMixins();
                     
                     buildIf(stmts.nonEmpty());
+                }
+
+                JCStatement invalidate(boolean isSequence, VarSymbol vsym) {
+                    if (isSequence) {
+                        if (isSequenceVersion) {
+                            // Sequence: update$ is only used on select, so, for sequences, we can just pass through
+                            return CallStmt(getReceiver(), attributeInvalidateName(vsym),
+                                    startPosArg(),
+                                    endPosArg(),
+                                    newLengthArg(),
+                                    phaseArg());
+                        } else {
+                            return Throw(syms.runtimeExceptionType, "Not expecting a non-sequence to be sending update$ to a sequence");
+                        }
+                    } else {
+                        // Non-sequence
+                        return CallStmt(getReceiver(), attributeInvalidateName(vsym), phaseArg());
+                    }
                 }
             };
             

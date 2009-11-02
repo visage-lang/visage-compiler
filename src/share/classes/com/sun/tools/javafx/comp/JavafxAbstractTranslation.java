@@ -2538,8 +2538,7 @@ public abstract class JavafxAbstractTranslation
                 JCExpression varOffsetExpr = Offset(id(receiverName), varSym);
                 JCVariableDecl offsetVar = TmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
-                JCExpression condition = EQ(id(loopName), id(offsetVar));
-                loopBody = If(condition, 
+                loopBody = If(EQ(id(loopName), id(offsetVar)),
                         varInits.first(),
                         applyDefaultsExpr);
             }
