@@ -1331,8 +1331,10 @@ public abstract class JavafxTranslationSupport {
             
             if (isMixinVar(varSym)) {
                 return Call(attributeGetMixinName(varSym));
+            } else if (varSym.isStatic()) {
+                return id(attributeValueName(varSym));
             } else {
-                return m().Select(getReceiver(varSym), attributeValueName(varSym));
+                return Select(getReceiver(varSym), attributeValueName(varSym));
             }
         }
         public JCExpression Get(JCExpression selector, Symbol sym) {
@@ -1341,7 +1343,7 @@ public abstract class JavafxTranslationSupport {
             if (isMixinVar(varSym)) {
                 return Call(selector, attributeGetMixinName(varSym));
             } else {
-                return m().Select(selector, attributeValueName(varSym));
+                return Select(selector, attributeValueName(varSym));
             }
         }
 
@@ -1357,7 +1359,7 @@ public abstract class JavafxTranslationSupport {
                     klass = Select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
                 }
                 
-                return m().Select(klass, attributeOffsetName(varSym));
+                return Select(klass, attributeOffsetName(varSym));
             }
         }
         public JCExpression Offset(JCExpression selector, Symbol sym) {
@@ -1376,8 +1378,10 @@ public abstract class JavafxTranslationSupport {
             
             if (isMixinVar(varSym)) {
                 return Call(attributeSetMixinName(varSym), value);
+            } else if (varSym.isStatic()) {
+                return m().Assign(id(attributeValueName(varSym)), value);
             } else {
-                return m().Assign(m().Select(getReceiver(varSym), attributeValueName(varSym)), value);
+                return m().Assign(Select(getReceiver(varSym), attributeValueName(varSym)), value);
             }
         }
         public JCExpression Set(JCExpression selector, Symbol sym, JCExpression value) {
@@ -1387,7 +1391,7 @@ public abstract class JavafxTranslationSupport {
             if (isMixinVar(varSym)) {
                 return Call(selector, attributeSetMixinName(varSym), value);
             } else {
-                return m().Assign(m().Select(selector, attributeValueName(varSym)), value);
+                return m().Assign(Select(selector, attributeValueName(varSym)), value);
             }
         }
         
