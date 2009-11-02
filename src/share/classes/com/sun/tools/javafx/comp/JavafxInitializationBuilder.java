@@ -1129,7 +1129,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     defs.get_FXObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
 
-                            addStmt(CallStmt(getReceiver(),
+                            addStmt(CallStmt(
                                     defs.be_AttributeMethodPrefixName,
                                     Offset(varSym), get$call));
 
@@ -1526,7 +1526,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     defs.get_FXObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
 
-                            addStmt(CallStmt(getReceiver(),
+                            addStmt(CallStmt(
                                     defs.be_AttributeMethodPrefixName,
                                     Offset(varSym),
                                     get$call));
