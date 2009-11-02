@@ -906,8 +906,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             protected VarSymbol varSym;
             // Symbol used when accessing the variable.
             protected VarSymbol proxyVarSym;
-            // Name of var field.
-            protected Name varName;
             // Is a sequence type.
             protected boolean isSequence;
             // Real type of the var.
@@ -922,7 +920,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.needsBody = needsBody;
                 this.varSym = varInfo.getSymbol();
                 this.proxyVarSym = varInfo.proxyVarSym();
-                this.varName = attributeValueName(proxyVarSym);
                 this.isSequence = varInfo.isSequence();
                 this.type = varInfo.getRealType();
                 this.elementType = isSequence ? varInfo.getElementType() : null;
@@ -947,8 +944,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             protected VarSymbol varSym;
             // Symbol used when accessing the variable.
             protected VarSymbol proxyVarSym;
-            // Name of var field.
-            protected Name varName;
             // Real type of the var.
             protected Type type;
             // Is a sequence type.
@@ -959,7 +954,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.varInfo = varInfo;
                 this.varSym = varInfo.getSymbol();
                 this.proxyVarSym = varInfo.proxyVarSym();
-                this.varName = attributeValueName(proxyVarSym);
                 this.type = varInfo.getRealType();
                 this.isSequence = varInfo.isSequence();
             }
@@ -1158,17 +1152,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                         List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, elementType), receiver, Offset(varSym));
                         JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
-                        addStmt(Stmt(m().Assign(id(varName), newExpr)));
+                        addStmt(SetStmt(proxyVarSym, newExpr));
                         
                         // If (seq$ == null) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
-                        addStmt(If(EQnull(id(varName)),
+                        addStmt(If(EQnull(Get(proxyVarSym)),
                                 endBlock()));
                     } else {
                         addStmt(initIf);
                     }
                     
                     // Construct and add: return $var;
-                    addStmt(Return(id(varName)));
+                    addStmt(Return(Get(proxyVarSym)));
                 }
             };
 
@@ -1204,7 +1198,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     } else {
                         // Construct and add: return $var.get(pos$);
-                        addStmt(Return(Call(id(varName), defs.get_SequenceMethodName, posArg())));
+                        addStmt(Return(Call(Get(proxyVarSym), defs.get_SequenceMethodName, posArg())));
                     }
                 }
             };
@@ -1236,7 +1230,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     } else {
                         // Construct and add: return $var.size();
-                        addStmt(Return(Call(id(varName), defs.size_SequenceMethodName)));
+                        addStmt(Return(Call(Get(proxyVarSym), defs.size_SequenceMethodName)));
                     }
                 }
             };
@@ -1259,14 +1253,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     // FIXME - Do the right thing.
-                    // T varOldValue$ = $var;
-                    addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, id(varName)));
-    
                     // $var = value
-                    addStmt(Stmt(m().Assign(id(varName), id(defs.varNewValue_ArgName))));
+                    addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
     
                     // return $var;
-                    addStmt(Return(id(varName)));
+                    addStmt(Return(Get(proxyVarSym)));
                 }
             };
 
@@ -1365,12 +1356,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (false && varInfo.hasBoundDefinition()) {
                         // Begin seq save block.
                         beginBlock();
-                        // seq$.save()
-                        addStmt(CallStmt(defs.SequencesRef_save, id(varName)));
+                        // SequenceRef.save($seq)
+                        addStmt(CallStmt(defs.SequencesRef_save, Get(proxyVarSym)));
                         // seq$ = null;
-                        addStmt(Stmt(m().Assign(id(varName), Null())));
-                        // If (seq$ != null) { seq$.save(); seq$ = null; }
-                        addStmt(If(NEnull(id(varName)),
+                        addStmt(SetStmt(proxyVarSym, Null()));
+                        // If (seq$ != null) { SequenceRef.save($seq); seq$ = null; }
+                        addStmt(If(NEnull(Get(proxyVarSym)),
                                 endBlock()));
                     }
                     
@@ -1583,7 +1574,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
     
                         // Construct and add: return $var;
-                        addStmt(Return(id(varName)));
+                        addStmt(Return(Get(proxyVarSym)));
                     }
                 }
             };
@@ -1626,7 +1617,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // be$var(value)
                     addStmt(CallStmt(getReceiver(), attributeBeName(varSym), id(defs.varNewValue_ArgName)));
                     // return $var;
-                    addStmt(Return(id(varName)));
+                    addStmt(Return(Get(proxyVarSym)));
                 }
             };
 
@@ -1649,7 +1640,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     // T varOldValue$ = $var;
-                    addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, id(varName)));
+                    addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
     
                     // Prepare to accumulate then statements.
                     beginBlock();
@@ -1661,7 +1652,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(CallStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
     
                     // $var = value
-                    addStmt(Stmt(m().Assign(id(varName), id(defs.varNewValue_ArgName))));
+                    addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
     
                     // setValid(VFLGS$IS_INVALID);
                     addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagIS_INVALID, null));
@@ -1700,7 +1691,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             elseBlock));
    
                     // return $var;
-                    addStmt(Return(id(varName)));
+                    addStmt(Return(Get(proxyVarSym)));
                 }
             };
 
@@ -1877,7 +1868,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     // Construct and add: return $var;
-                    addStmt(Return(id(varName)));
+                    addStmt(Return(id(attributeValueName(proxyVarSym))));
                 }
             };
              
@@ -1904,7 +1895,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs a setMixin$ method.
         //
         private void makeSetMixinAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetMixinName(varInfo.getSymbol()),
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetMixinName(varInfo.getSymbol()),
                                                                          varInfo.getRealType(),
                                                                          varInfo, needsBody) {
                 @Override
@@ -1915,7 +1906,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     // Construct and add: return $var;
-                    addStmt(Return(m().Assign(id(varName), id(defs.varNewValue_ArgName))));
+                    addStmt(Return(m().Assign(id(attributeValueName(proxyVarSym)), id(defs.varNewValue_ArgName))));
                 }
             };
              

@@ -600,7 +600,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 return toResult(
                         BlockExpression(
                             applyDefaultCall,
-                            id(attributeValueName(vsym))),
+                            Get(vsym)),
                         vsym.type);
         }}.doit();
     }
@@ -713,7 +713,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     if (value != null) {
                         if (value.getFXTag() == JavafxTag.VAR_SCRIPT_INIT && targetType != syms.voidType) {
                             translateStmt(value, syms.voidType);
-                            addPreface(Stmt(id(attributeValueName(((JFXVarInit) value).getSymbol())), targetType));
+                            addPreface(Stmt(Get(((JFXVarInit) value).getSymbol()), targetType));
                         } else {
                             translateStmt(value, targetType);
                         }

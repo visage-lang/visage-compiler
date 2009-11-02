@@ -1394,7 +1394,13 @@ public abstract class JavafxTranslationSupport {
                 return m().Assign(Select(selector, attributeValueName(varSym)), value);
             }
         }
-        
+        public JCStatement SetStmt(Symbol sym, JCExpression value) {
+            return Stmt(Set(sym, value));
+        }
+        public JCStatement SetStmt(JCExpression selector, Symbol sym, JCExpression value) {
+            return Stmt(Set(selector, sym, value));
+        }
+       
         /**
          * Method call support
          */
