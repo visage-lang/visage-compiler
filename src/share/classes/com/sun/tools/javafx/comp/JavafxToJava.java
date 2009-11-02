@@ -1201,23 +1201,39 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = (new ExpressionTranslator(tree.pos()) {
             protected AbstractStatementsResult doit() {
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
-                JCExpression receiver0 = null;
-                JCExpression receiver1 = null;
+                JCExpression receiver = null;
+                ListBuffer<JCExpression> args0 = ListBuffer.lb();
+                ListBuffer<JCExpression> args1 = ListBuffer.lb();
                 
                 Symbol vsym = JavafxTreeInfo.symbol(tree.getVariable());
                 if (tree.getVariable().getFXTag() == JavafxTag.SELECT) {
                     JFXSelect sel = (JFXSelect)tree.getVariable();
-                    JCExpression receiver = translateToExpression(sel.selected, sel.selected.type);
-                    if (receiver != null) {
-                        JCVariableDecl invalVar = TmpVar("inval", sel.selected.type, receiver);
+                    JCExpression selected = translateToExpression(sel.selected, sel.selected.type);
+                    if (selected != null) {
+                        JCVariableDecl invalVar = TmpVar("inval", sel.selected.type, selected);
                         stmts.append(invalVar);
-                        receiver0 = id(invalVar.name);
-                        receiver1 = id(invalVar.name);
+                        receiver = id(invalVar.name);
                     }
                 }
+                if (types.isSequence(vsym.type)) {
+                    JCExpression begin = makeLit(tree.pos(), syms.intType, 0);
+                    JCVariableDecl newLenVar = TmpVar("newLen", syms.intType, Call(receiver, attributeSizeName(vsym)));
+                    stmts.append(newLenVar);
+                    JCExpression newLen = id(newLenVar.name);
+                    JCExpression end = MINUS(newLen, makeLit(tree.pos(), syms.intType, 1));
+                    args0.append(begin);
+                    args0.append(end);
+                    args0.append(newLen);
+                    args1.append(begin);
+                    args1.append(end);
+                    args1.append(newLen);
+                }
+
+                args0.append(id(defs.varFlagIS_INVALID));
+                args1.append(id(defs.varFlagNEEDS_TRIGGER));
                 
-                stmts.append(CallStmt(receiver0, attributeInvalidateName(vsym), id(defs.varFlagIS_INVALID)));
-                stmts.append(CallStmt(receiver1, attributeInvalidateName(vsym), id(defs.varFlagNEEDS_TRIGGER)));
+                stmts.append(CallStmt(receiver, attributeInvalidateName(vsym), args0.toList()));
+                stmts.append(CallStmt(receiver, attributeInvalidateName(vsym), args1.toList()));
                 return toStatementResult(Block(stmts));
             }
         }).doit();

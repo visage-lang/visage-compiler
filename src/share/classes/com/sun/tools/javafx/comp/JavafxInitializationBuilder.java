@@ -1070,7 +1070,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Must be in sync with makeInvalidateAccessorMethod
         //
         private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
-            if (varInfo.isMixinVar() || varInfo.onReplace() != null) {
+            if (varInfo.isMixinVar() ||
+                    varInfo.onReplace() != null ||
+                    varInfo.onInvalidate() != null) {
                 // based on makeInvalidateAccessorMethod
                 return true;
             } else if (varInfo.hasBoundDefinition()) {
@@ -1302,11 +1304,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Mixin.invalidate$var(this, phase$);
                         callMixin((ClassSymbol)varSym.owner);
                     }
-                    
-                    // Add on-invalidate trigger if any
-                    if (varInfo.onInvalidate() != null) {
-                        addStmt(varInfo.onInvalidateAsInline());
-                    }
 
                     // Hack for bug in boundBinders() which includes invalidators
                     if (!hasInvalidators) for (VarInfo otherVar : varInfo.boundBinders()) {
@@ -1365,15 +1362,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 endBlock()));
                     }
                     
-                    if (varInfo.onReplace() != null) {
+                    if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
                         beginBlock();
-                        
+
+                        // Add on-invalidate trigger if any
+                        if (varInfo.onInvalidate() != null) {
+                            addStmt(varInfo.onInvalidateAsInline());
+                        }
+
                         // Call the onReplace$var to force evaluation.
+                        if (varInfo.onReplace() != null) {
                         addStmt(CallStmt(attributeOnReplaceName(proxyVarSym),
-                                                        startPosArg(),
-                                                        endPosArg(),
-                                                        newLengthArg()));
+                                                            startPosArg(),
+                                                            endPosArg(),
+                                                            newLengthArg()));
+                        }
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
                         JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
@@ -1738,11 +1742,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Mixin.invalidate$var(this, phase$);
                         callMixin((ClassSymbol)varSym.owner);
                     }
-
-                    // Add on-invalidate trigger if any
-                    if (varInfo.onInvalidate() != null) {
-                        addStmt(varInfo.onInvalidateAsInline());
-                    }
                     
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
@@ -1780,11 +1779,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt( If (NOT(ifValidTest),
                             endBlock()));
                     
-                    if (varInfo.onReplace() != null) {
+                    if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
                         beginBlock();
+
+                        // Add on-invalidate trigger if any
+                        if (varInfo.onInvalidate() != null) {
+                            addStmt(varInfo.onInvalidateAsInline());
+                        }
                         
                         // Call the get$var to force evaluation.
+                        if (varInfo.onReplace() != null)
                         addStmt(CallStmt(attributeGetterName(proxyVarSym)));
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
