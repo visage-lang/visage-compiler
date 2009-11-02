@@ -68,10 +68,9 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public JFXTree convertTypes(JavafxEnv<JavafxAttrContext> attrEnv) {
-        return attrEnv.toplevel;
-//        attrEnv.toplevel = convert(attrEnv.toplevel);
-//        System.out.println(result);
-//        return result;
+        attrEnv.toplevel = convert(attrEnv.toplevel);
+        //System.out.println(result);
+        return result;
     }
 
     public JFXExpression convertExpr(JFXExpression tree, Type pt) {
@@ -163,12 +162,13 @@ public class JavafxConvertTypes implements JavafxVisitor {
                 || tree.type == syms.unreachableType
                 || type == syms.unreachableType)
             return tree;
-        else
+        else {
             return (!types.isSubtypeUnchecked(tree.type, type) ||
                 (tree.type.isPrimitive() &&
                 type.isPrimitive() && !types.isSameType(tree.type, type))) ?
                 makeCast(tree, type) :
                 tree;
+        }
     }
 
     private JFXExpression makeCast(JFXExpression tree, Type type) {
@@ -199,17 +199,19 @@ public class JavafxConvertTypes implements JavafxVisitor {
     @Override
     public void visitBinary(JFXBinary tree) {
         boolean isDurationBinaryExpr = tree.operator == null;
-        boolean isSequenceEqualExpr = (tree.getFXTag() == JavafxTag.EQ ||
-                tree.getFXTag() == JavafxTag.NE) &&
-                types.isSequence(tree.lhs.type) ||
+        boolean isEqualExpr = (tree.getFXTag() == JavafxTag.EQ ||
+                tree.getFXTag() == JavafxTag.NE);
+        boolean isSequenceOp = types.isSequence(tree.lhs.type) ||
                 types.isSequence(tree.rhs.type);
+        boolean isBoxedOp = (tree.lhs.type.isPrimitive() && !tree.rhs.type.isPrimitive()) ||
+                (tree.rhs.type.isPrimitive() && !tree.lhs.type.isPrimitive());
         Type lhsType = tree.lhs.type;
         Type rhsType = tree.rhs.type;
         if (!isDurationBinaryExpr) {
-            lhsType = isSequenceEqualExpr ?                
+            lhsType = isSequenceOp && isEqualExpr ?
                 types.sequenceType(tree.operator.type.getParameterTypes().head) :
                 tree.operator.type.getParameterTypes().head;
-            rhsType = isSequenceEqualExpr ?                
+            rhsType = isSequenceOp && isEqualExpr ?
                 types.sequenceType(tree.operator.type.getParameterTypes().tail.head) :
                 tree.operator.type.getParameterTypes().tail.head;
         }
@@ -222,8 +224,12 @@ public class JavafxConvertTypes implements JavafxVisitor {
                 lhsType = syms.javafx_DurationType;
             }
         }
-        JFXExpression lhs = convertExpr(tree.lhs, lhsType);
-        JFXExpression rhs = convertExpr(tree.rhs, rhsType);
+        JFXExpression lhs = isEqualExpr && isBoxedOp ?
+            convert(tree.lhs) :
+            convertExpr(tree.lhs, lhsType);
+        JFXExpression rhs = isEqualExpr && isBoxedOp ?
+            convert(tree.rhs) :
+            convertExpr(tree.rhs, rhsType);
         JFXBinary res = m.at(tree.pos).Binary(tree.getFXTag(), lhs, rhs);
         res.operator = tree.operator;
         result = res.setType(tree.type);
@@ -372,7 +378,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
         JFXExpression seq = convert(that.getSequence());
         JFXExpression el = that.getElement();
         if (that.getElement() != null) {
-            Type typeToCheck = types.isSequence(that.getElement().type) ?
+            Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ?
                     that.getSequence().type :
                     types.elementType(that.getSequence().type);
             el = convertExpr(that.getElement(), typeToCheck);
@@ -389,7 +395,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
     public void visitSequenceExplicit(JFXSequenceExplicit that) {
         ListBuffer<JFXExpression> buf = ListBuffer.lb();
         for (JFXExpression item : that.getItems()) {
-            Type typeToCheck = types.isSequence(item.type) ?
+            Type typeToCheck = types.isArrayOrSequenceType(item.type) ?
                 that.type :
                 types.elementType(that.type);
             buf.append(convertExpr(item, typeToCheck));
@@ -407,7 +413,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
     @Override
     public void visitSequenceInsert(JFXSequenceInsert that) {
         JFXExpression seq = convert(that.getSequence());
-        Type typeToCheck = types.isSequence(that.getElement().type) ?
+        Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ?
                 that.getSequence().type :
                 types.elementType(that.getSequence().type);
         JFXExpression el = convertExpr(that.getElement(), typeToCheck);

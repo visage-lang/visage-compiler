@@ -68,11 +68,15 @@ public class JavafxTypes extends Types {
         syms = (JavafxSymtab) JavafxSymtab.instance(context);
     }
 
-   public boolean isSequence(Type type) {
-       return type != Type.noType && type != null
-                && type.tag != TypeTags.ERROR 
-                && type.tag != TypeTags.METHOD && type.tag != TypeTags.FORALL
-                && erasure(type) == syms.javafx_SequenceTypeErasure;
+    public boolean isSequence(Type type) {
+        return type != Type.noType && type != null
+            && type.tag != TypeTags.ERROR
+            && type.tag != TypeTags.METHOD && type.tag != TypeTags.FORALL
+            && erasure(type) == syms.javafx_SequenceTypeErasure;
+    }
+
+    public boolean isArrayOrSequenceType(Type type) {
+        return isArray(type) || isSequence(type);
     }
 
     public Type sequenceType(Type elemType) {

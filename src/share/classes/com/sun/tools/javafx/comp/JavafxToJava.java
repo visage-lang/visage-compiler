@@ -1798,7 +1798,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         if (exp == null) {
             result = new StatementsResult(make.at(tree).Return(null));
         } else {
-            result = translateToStatementsResult(exp, tree.returnType);
+            result = translateToStatementsResult(exp, exp.type);
         }
     }
 

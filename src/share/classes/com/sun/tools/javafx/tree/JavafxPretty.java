@@ -632,6 +632,8 @@ public class JavafxPretty implements JavafxVisitor {
     public void visitLiteral(JFXLiteral tree) {
         try {
             switch (tree.typetag) {
+                case TypeTags.BYTE:
+                case TypeTags.SHORT:
                 case TypeTags.INT:
                     print(tree.value.toString());
                     break;
