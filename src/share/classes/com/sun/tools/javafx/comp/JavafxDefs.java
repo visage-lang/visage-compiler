@@ -132,7 +132,6 @@ public class JavafxDefs {
     public static final String boundFunctionVarNumParamPrefix = "$$boundVarNum$";
     public static final String implFunctionSuffix = "$impl";
     public static final String internalRunFunctionString = Entry.entryMethodName();
-    public static final String varDependentsManagerString = "DependentsManager$internal$";
     public static final String varGetMapString = "GETMAP$";
     public static final String zero_DurationFieldName = "javafx.lang.Duration.$ZERO";
 
