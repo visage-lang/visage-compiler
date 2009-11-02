@@ -1043,17 +1043,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (varInfo.onReplaceAsInline() != null) {
                     if (varInfo.hasBoundDefinition()) {
                         if (!varInfo.isSequence()) {
-                            init = CallStmt(getReceiver(), attributeGetterName(varSym));
+                            init = CallStmt(attributeGetterName(varSym));
                         } else {
-                            init = CallStmt(getReceiver(), attributeSizeName(varSym));
+                            init = CallStmt(attributeSizeName(varSym));
                         }
                     } else if(!varInfo.isOverride()) {
                         JCStatement onReplaceCall;
                         if (!varInfo.isSequence()) {
-                            onReplaceCall = CallStmt(getReceiver(), attributeOnReplaceName(varSym),
+                            onReplaceCall = CallStmt(attributeOnReplaceName(varSym),
                                             Get(varSym), Get(varSym));
                         } else {
-                            onReplaceCall = CallStmt(getReceiver(), attributeOnReplaceName(varSym),
+                            onReplaceCall = CallStmt(attributeOnReplaceName(varSym),
                                             Int(0), Int(0), Int(0));
                         }
                         JCStatement flagSet = FlagChangeStmt(varSym, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED);
@@ -1104,7 +1104,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
 
                         // applyDefaults$(VOFF$var)
-                        addStmt(CallStmt(getReceiver(), defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
+                        addStmt(CallStmt(defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
 
                         // Is it uninitialized (and not bound)
                         JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1145,7 +1145,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
 
                         // Be sure the sequence is initialized before returning the SequenceRef -- call the size accessor to initialize
-                        addStmt(CallStmt(getReceiver(), attributeSizeName(varSym)));
+                        addStmt(CallStmt(attributeSizeName(varSym)));
                         
                         // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
                         JCExpression receiver = getReceiverOrThis(proxyVarSym);
@@ -1312,9 +1312,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (!hasInvalidators) for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.isSequence()) {
-                            addStmt(CallStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
                         } else {
-                            addStmt(CallStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()),
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()),
                                              startPosArg(),
                                              endPosArg(),
                                              newLengthArg(),
@@ -1326,7 +1326,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         for (VarSymbol bindeeSym : varInfo.boundBindees()) {
                             if (!types.isSequence(bindeeSym.type)) {
-                                addStmt(CallStmt(getReceiver(), attributeInvalidateName(bindeeSym), phaseArg()));
+                                addStmt(CallStmt(attributeInvalidateName(bindeeSym), phaseArg()));
                             } else {
                                 addStmt(CallStmt(getReceiver(bindeeSym), attributeInvalidateName(bindeeSym),
                                                  startPosArg(),
@@ -1370,7 +1370,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
                         
                         // Call the onReplace$var to force evaluation.
-                        addStmt(CallStmt(getReceiver(), attributeOnReplaceName(proxyVarSym),
+                        addStmt(CallStmt(attributeOnReplaceName(proxyVarSym),
                                                         startPosArg(),
                                                         endPosArg(),
                                                         newLengthArg()));
@@ -1451,13 +1451,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (savedName != null) {
                             addStmt(Var(type, onReplace.getOldValue().getName(), id(savedName)));
                             addStmt(Stmt(m().Assign(id(savedName),
-                                    Call(getReceiver(), attributeGetterName(varInfo.getSymbol())))));
+                                    Call(attributeGetterName(varInfo.getSymbol())))));
                             addStmt(CallStmt(id(savedName), defs.incrementSharing_SequenceMethodName));
                         }
                         if (newElements != null
                                 && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
                                    JCExpression seq = savedName != null ? id(savedName)
-                                           : Call(getReceiver(), attributeGetterName(varInfo.getSymbol()));
+                                           : Call(attributeGetterName(varInfo.getSymbol()));
                                    JCExpression init = Call(defs.Sequences_getNewElements,
                                            seq, id(firstIndexName), id(newLengthName));
                             addStmt(Var(newElements.type, newElements.name, init));
@@ -1500,7 +1500,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             beginBlock();
     
                                 // applyDefaults$(VOFF$var)
-                            addStmt(CallStmt(getReceiver(), defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
+                            addStmt(CallStmt(defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
     
                             // Is it uninitialized (and not bound)
                             JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
@@ -1559,7 +1559,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     // We have a Pointer - need to do Pointer.get() and cast the result
                                     initValue = castFromObject(Call(initValue, defs.get_PointerMethodName), varSym.type);
                                 }
-                                addStmt(CallStmt(getReceiver(), attributeBeName(varSym), initValue));
+                                addStmt(CallStmt(attributeBeName(varSym), initValue));
                             }
                           
                             // Is it bound and invalid?
@@ -1615,7 +1615,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     
                     // be$var(value)
-                    addStmt(CallStmt(getReceiver(), attributeBeName(varSym), id(defs.varNewValue_ArgName)));
+                    addStmt(CallStmt(attributeBeName(varSym), id(defs.varNewValue_ArgName)));
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
                 }
@@ -1649,7 +1649,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED));
 
                     // invalidate$(VFLGS$IS_INVALID)
-                    addStmt(CallStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
+                    addStmt(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
     
                     // $var = value
                     addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
@@ -1658,13 +1658,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagIS_INVALID, null));
 
                     // invalidate$(VFLGS$NEEDS_TRIGGER)
-                    addStmt(CallStmt(getReceiver(), attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
+                    addStmt(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
 
                     // setValid(VFLGS$NEEDS_TRIGGER); and set as initialized;
                     addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagNEEDS_TRIGGER, null));
     
                     // onReplace$(varOldValue$, varNewValue$)
-                    addStmt(CallStmt(getReceiver(), attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
+                    addStmt(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
     
                     // varOldValue$ != varNewValue$
                     // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
@@ -1747,14 +1747,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.isSequence()) {
-                            addStmt(CallStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
                         }
                     }
                     
                     // Invalidate back to inverse.
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         for (VarSymbol bindeeSym : varInfo.boundBindees()) {
-                            addStmt(CallStmt(getReceiver(), attributeInvalidateName(bindeeSym), phaseArg()));
+                            addStmt(CallStmt(attributeInvalidateName(bindeeSym), phaseArg()));
                             break;
                         }
                     }
@@ -1785,7 +1785,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         beginBlock();
                         
                         // Call the get$var to force evaluation.
-                        addStmt(CallStmt(getReceiver(), attributeGetterName(proxyVarSym)));
+                        addStmt(CallStmt(attributeGetterName(proxyVarSym)));
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
                         JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
@@ -1987,7 +1987,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.hasBoundDefinition() && !varInfo.isBareSynth()) {
                         // set$var(init/bound expression)
                         addStmts(varInfo.boundPreface());
-                        addStmt(CallStmt(getReceiver(), attributeBeName(varSym), varInfo.boundInit()));
+                        addStmt(CallStmt(attributeBeName(varSym), varInfo.boundInit()));
                     } 
                 }
             };
@@ -2022,15 +2022,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // FIXME - do the right thing.
                         if (!otherVar.isSequence()) {
-                            addStmt(CallStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
                         } else if (isSequence) {
-                            addStmt(CallStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()),
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()),
                                              startPosArg(),
                                              endPosArg(),
                                              newLengthArg(),
                                              phaseArg()));
                         } else {
-                            addStmt(CallStmt(getReceiver(), attributeInvalidateName(otherVar.getSymbol()),
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()),
                                              Int(-1),
                                              Int(-1),
                                              Int(-1),
@@ -2711,7 +2711,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (isSequence) {
                         if (isSequenceVersion) {
                             // Sequence: update$ is only used on select, so, for sequences, we can just pass through
-                            return CallStmt(getReceiver(), attributeInvalidateName(vsym),
+                            return CallStmt(attributeInvalidateName(vsym),
                                     startPosArg(),
                                     endPosArg(),
                                     newLengthArg(),
@@ -2721,7 +2721,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     } else {
                         // Non-sequence
-                        return CallStmt(getReceiver(), attributeInvalidateName(vsym), phaseArg());
+                        return CallStmt(attributeInvalidateName(vsym), phaseArg());
                     }
                 }
             };
