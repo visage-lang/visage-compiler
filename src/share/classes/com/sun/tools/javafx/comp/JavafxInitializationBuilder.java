@@ -3141,19 +3141,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 /*
                  * For each bound function param (FXObject+varNum pair), at the
                  * end of object creation register "this" as a dependent by
-                 * calling FXBase.addDependent$ method:
+                 * calling addDependent$ method:
                  *
-                 *     FXBase.addDependent$(boundFuncObjParam1, boundFunctionVarNumParam1, this);
-                 *     FXBase.addDependent$(boundFuncObjParam1, boundFunctionVarNumParam1, this);
+                 *     boundFuncObjParam1.addDependent$(boundFunctionVarNumParam1, this);
+                 *     boundFuncObjParam2.addDependent$(boundFunctionVarNumParam2, this);
                  *     ....
                  */
                 for (VarInfo vi : varInfos) {
                     if ((vi.getFlags() & Flags.PARAMETER) != 0L) {
-                        // call FXBase.addDependent$(FXObject, int, FXObject)
+                        // call FXObject.addDependent$(int varNum, FXObject dep)
                         Symbol varSym = vi.getSymbol();
                         stmts.append(CallStmt(
-                                defs.FXBase_addDependent,
                                 id(boundFunctionObjectParamName(varSym.name)),
+                                defs.FXBase_addDependent.methodName,
                                 id(boundFunctionVarNumParamName(varSym.name)),
                                 id(names._this)));
                     }

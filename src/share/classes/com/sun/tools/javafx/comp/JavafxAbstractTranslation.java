@@ -1354,7 +1354,7 @@ public abstract class JavafxAbstractTranslation
 
                 /*
                  * For each source bound function argument expression, we create a wrapper
-                 * variable of type FXVariable and pass it along with FXVariable.VOFF$value
+                 * variable of type FXConstant and pass it along with FXConstant.VOFF$value
                  * as the arguments to the bound function.
                  */
                 Type formal = null;
@@ -1362,11 +1362,11 @@ public abstract class JavafxAbstractTranslation
                 for (JFXExpression arg : args) {
                     formal = t.head;
                     t = t.tail;
-                    // pass FXVariable wrapper for argument expression
-                    targs.append(Call(defs.FXVariable_make, translateExpr(arg, formal)));
+                    // pass FXConstant wrapper for argument expression
+                    targs.append(Call(defs.FXConstant_make, translateExpr(arg, formal)));
 
-                    // pass FXVariable.VOFF$value as offset value
-                    targs.append(Select(makeType(syms.javafx_FXVariableType), defs.varOFF$valueName));
+                    // pass FXConstant.VOFF$value as offset value
+                    targs.append(Select(makeType(syms.javafx_FXConstantType), defs.varOFF$valueName));
                 }
             } else if (magicIsInitializedFunction) {
                 //isInitialized has just one argument -- we need to split into

@@ -112,7 +112,7 @@ public class JavafxDefs {
     // in runtime package
     private static final String cUtil = runtime_PackageString + ".Util";
     private static final String cChecks = runtime_PackageString + ".Checks";
-    private static final String cFXVariable = runtime_PackageString + ".FXVariable";
+    private static final String cFXConstant = runtime_PackageString + ".FXConstant";
     private static final String cPointer = runtime_PackageString + ".Pointer";
     // in runtime.util package
     private static final String cStringLocalization = runtimeUtil_PackageString + ".StringLocalization";
@@ -206,7 +206,7 @@ public class JavafxDefs {
     final RuntimeMethod FXBase_addDependent;
     final RuntimeMethod FXBase_makeInitMap;
 
-    final RuntimeMethod FXVariable_make;
+    final RuntimeMethod FXConstant_make;
 
     final RuntimeMethod Pointer_make;
     final RuntimeMethod Pointer_get;
@@ -617,7 +617,7 @@ public class JavafxDefs {
         FXBase_addDependent = new RuntimeMethod(names, cFXBase, "addDependent$");
         FXBase_makeInitMap = new RuntimeMethod(names, cFXBase, "makeInitMap$");
 
-        FXVariable_make = new RuntimeMethod(names, cFXVariable, "make");
+        FXConstant_make = new RuntimeMethod(names, cFXConstant, "make");
 
         Pointer_make = new RuntimeMethod(names, cPointer, "make");
         Pointer_get = new RuntimeMethod(names, cPointer, "get");
