@@ -86,7 +86,7 @@ public class ToByte extends FXTestCase {
     }
 
     function assertEquals127() {
-        assertEquals(128 as Byte, b);
+        assertEquals(127 as Byte, b);
     }
 }
 
