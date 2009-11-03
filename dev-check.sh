@@ -24,7 +24,12 @@ echo "-- target run was: $target"
 
 # Note these filenames only have the last of the dirs between the test and test/, and they contain
 # / instead of \
-passes=`fgrep '<td>Success' build/test/reports/junit-noframes.html  | sed -e 's@<td>@@' -e 's@<.*@@' | fgrep /`
+#passes=`fgrep '<td>Success' build/test/reports/junit-noframes.html  | sed -e 's@<td>@@' -e 's@<.*@@' | fgrep /`
+
+
+# This includes successes from junit which have no / in their paths.  These are not filenames, but 
+# names of tests inside a file.
+passes=`fgrep '<td>Success' build/test/reports/junit-noframes.html  | sed -e 's@<td>@@' -e 's@<.*@@'`
 
 # all tests run should have passed
 # This fail list DOES contain the whole test/... prefix
@@ -67,14 +72,14 @@ if [ ! -z "$runtimeFails1" ] ; then
     done
 fi
 
-#      echo "$compilationFails" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
-#@g' | sort
-#echo aaaaaaaaaa
-#      echo "$runtimeFails" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
-#@g' | sort
-#echo aaaaaaaaaa
-#      echo "$runtimeFails1" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
-#@g' | sort
+      echo "$compilationFails" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
+@g' | sort > ./build/test/dev-compilation-fails
+
+      echo "$runtimeFails" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
+@g' | sort > ./build/test/dev-runtime-fails
+
+      echo "$runtimeFails1" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
+@g' | sort > ./build/test/dev-runtime-fails1
 
       # count failures
       echo "$compilationFails $runtimeFails $runtimeFails1" | sed -e 's@^ *@@' -e 's@ *$@@' -e '/^$/d' -e 's@ @\
@@ -107,10 +112,13 @@ fi
          # An unexpected pass is on the pass list and on the actual fail list
          rm -f ./build/test/dev-unexpected-passes
          touch ./build/test/dev-unexpected-passes
+         rm -rf jj
+         touch jj
          for ii in $passes ; do
-            fgrep $ii ./build/test/dev-expected-fails1 > /dev/null 2>&1
+echo $ii >> jj
+            grep "^$ii\$" ./build/test/dev-expected-fails1 > /dev/null 2>&1
             if [ $? = 0 ] ; then
-                fgrep $ii ./build/test/allTests >> ./build/test/dev-unexpected-passes
+                grep "^$ii\$" ./build/test/allTests >> ./build/test/dev-unexpected-passes
             fi
          done
 
@@ -138,4 +146,19 @@ fi
      # This only works if we only ran the fail list tests.
      # diff ./build/test/dev-expected-fails1 ./build/test/dev-actual-fails | fgrep '< test'
 
+if [ $# != 0 ] ; then
+    # get all the tests from 3555, 3561, and those from ABORT into allknown, and this will
+    # then find tests that fail but are not in any of the above.
+    if [ ! -r allknown ] ; then
+        echo "  Get all the tests from 3555, 3561, and those with ABORT into ./allknown"
+        echo "  and this will show failures that are in none of them"
+        exit 1
+    fi
+    for ii in `cat ./build/test/dev-actual-fails` ; do
+        fgrep $ii allknown > /dev/null 2>&1
+        if [ $? != 0 ] ; then
+           echo "Not found: " $ii
+       fi
+    done
+fi
 exit
