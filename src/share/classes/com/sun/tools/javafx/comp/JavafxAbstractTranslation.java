@@ -1095,8 +1095,11 @@ public abstract class JavafxAbstractTranslation
 
         private JCExpression makeDefault(Type theResultType, Type theFullType) {
             JCExpression defaultValue = DefaultValue(theFullType);
+            // Return default value for Pointer type to be null
             return defaultValue.type == syms.botType ?
                 DefaultValue(theResultType) :
+                (types.isSameType(theResultType, syms.javafx_PointerType)) ?
+                Null() :
                 convertTranslated(defaultValue, diagPos, theFullType, theResultType);
         }
 

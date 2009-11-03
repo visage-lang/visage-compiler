@@ -350,13 +350,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             VarMorphInfo vmi = typeMorpher.varMorphInfo(attrDef.sym);
                             JFXExpression initializer = attrDef.getInitializer();
                             boolean initWithBoundFuncResult = 
-                                attrDef.isBound() && (initializer instanceof JFXIdent) &&
+                                (initializer instanceof JFXIdent) &&
                                 isBoundFunctionResult(((JFXIdent)initializer).sym);
                             TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
                                     vmi,
                                     translateVarInit(attrDef),
-                                    initWithBoundFuncResult,
+                                    initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
                                     attrDef.isBound() ? translateBind.translateBoundExpression(initializer, attrDef.type, attrDef.sym, attrDef.isBidiBind()) : null,
                                     attrDef.isBidiBind() ? translateInvBind.translate(initializer, attrDef.type, attrDef.sym) : null,
                                     attrDef.getOnReplace(),

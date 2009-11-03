@@ -521,6 +521,15 @@ public class JavafxLocalToClass {
             Symbol prevOwner = owner;
             owner = that.sym;
             if (that.isBound()) {
+                MethodSymbol oldSym = that.sym;
+                MethodType oldFuncType = oldSym.type.asMethodType();
+                MethodType newFuncType = new MethodType(
+                    oldFuncType.getParameterTypes(), // arg types
+                    syms.javafx_PointerType,         // return type
+                    oldFuncType.getThrownTypes(),    // Throws type
+                    oldFuncType.tsym);               // TypeSymbol
+                that.sym = new MethodSymbol(oldSym.flags(), oldSym.name, newFuncType, oldSym.owner);
+
                 /*
                  * For bound functions, make a synthetic bound variable with
                  * initialization expression to be the return expression and return

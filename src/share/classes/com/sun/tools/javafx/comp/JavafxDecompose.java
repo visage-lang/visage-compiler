@@ -430,20 +430,33 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitIdent(JFXIdent tree) {
         JFXExpression res = null;
-        if (tree.sym.isStatic() &&
-                tree.sym.kind == Kinds.VAR &&
+        if (tree.sym.kind == Kinds.VAR &&
                 (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
                 types.isJFXClass(tree.sym.owner) &&
-                !currentClass.isSubClass(tree.sym.owner, types) &&
-                inBind &&
-                !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName))) {
-            //referenced is static script var - if in bind context need shredding
-            JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
-            meth = shred(meth);
-            res = fxmake.Select(meth, tree.getName());
-            ((JFXSelect)res).sym = tree.sym;
+                !currentClass.isSubClass(tree.sym.owner, types) && inBind) {
+            if (tree.sym.isStatic()) {
+                if (!(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName))) {
+                    //referenced is static script var - if in bind context need shredding
+                    JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
+                    meth = shred(meth);
+                    res = fxmake.Select(meth, tree.getName());
+                    ((JFXSelect)res).sym = tree.sym;
+                }
+            } else if (tree.sym.name != names._this) {
+                // instance field from outer class. We transform "foo" as "this.foo"
+                // and shred "this" part so that local classes generated for local
+                // binds will have proper dependency.
+                JFXIdent thisExpr = fxmake.Ident(names._this);
+                thisExpr.sym = new VarSymbol(0L, names._this, tree.sym.owner.type, tree.sym.owner.type.tsym);
+                thisExpr.type = thisExpr.sym.type;
+                JFXSelect select = fxmake.Select(shred(thisExpr), tree.getName());
+                select.sym = tree.sym;
+                res = select;
+            }
         }
-        else {
+
+        if (res == null) {
+            // not covered in above cases.
             res = fxmake.at(tree.pos).Ident(tree.getName());
             ((JFXIdent)res).sym = tree.sym;
         }

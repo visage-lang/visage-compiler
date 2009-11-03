@@ -125,4 +125,12 @@ public class Pointer implements KeyValueTarget {
     public int hashCode() {
         return System.identityHashCode(obj) ^ varnum;
     }
+
+    public void addDependency(FXObject dep) {
+        obj.addDependent$(varnum, dep);
+    }
+
+    public void removeDependency(FXObject dep) {
+        obj.removeDependent$(varnum, dep);
+    }
 }

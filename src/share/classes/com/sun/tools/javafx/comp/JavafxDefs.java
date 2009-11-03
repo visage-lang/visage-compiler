@@ -277,6 +277,9 @@ public class JavafxDefs {
 
     final Name get_PointerMethodName;
     final Name make_PointerMethodName;
+    final Name getVarNum_PointerMethodName;
+    final Name getFXObject_PointerMethodName;
+    final Name addDependency_PointerMethodName;
 
     final Name values_KeyFrameMethodName;
     final Name time_KeyFrameMethodName;
@@ -473,6 +476,9 @@ public class JavafxDefs {
         defaultingTypeInfo_FieldName = names.fromString("$TYPE_INFO");
         toArray_SequenceMethodName = names.fromString("toArray");
         make_PointerMethodName = names.fromString("make");
+        getVarNum_PointerMethodName = names.fromString("getVarNum");
+        getFXObject_PointerMethodName = names.fromString("getFXObject");
+        addDependency_PointerMethodName = names.fromString("addDependency");
         invoke_MethodName = names.fromString("invoke");
         lambda_MethodName = names.fromString("lambda");
         length_ArrayFieldName = names.fromString("length");
