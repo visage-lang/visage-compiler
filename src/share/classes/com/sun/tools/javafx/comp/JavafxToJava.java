@@ -152,12 +152,16 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    private boolean substitute(Symbol sym) {
-        Name name = getSubstitutionMap().get(sym);
+    private boolean substitute(DiagnosticPosition diagPos, final Symbol sym) {
+        final Name name = getSubstitutionMap().get(sym);
         if (name == null) {
             return false;
         } else {
-            result = new ExpressionResult(make.Ident(name), sym.type);
+            result = new ExpressionTranslator(diagPos) {
+                protected ExpressionResult doit() {
+                    return toResult(id(name), sym.type);
+                }
+            }.doit();
             return true;
         }
     }
@@ -704,6 +708,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     JCExpression tvalue = translateExpr(rawValue, targetType); // must be before prepend
                     List<JCStatement> localDefs = prependToStatements.appendList(statements()).toList();
                     return new ExpressionResult(
+                            diagPos,
+                            List.<JCStatement>nil(), //TODO: statements rolled into expression (below) is this needed?
                             localDefs.size() == 0 ? tvalue : BlockExpression(localDefs, tvalue),
                             invalidators(),
                             interClass(),
@@ -818,14 +824,14 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitSelect(JFXSelect tree) {
-        if (substitute(tree.sym)) {
+        if (substitute(tree.pos(),tree.sym)) {
             return;
         }
         result = new SelectTranslator(tree).doit();
     }
 
     public void visitIdent(JFXIdent tree) {
-        if (substitute(tree.sym)) {
+        if (substitute(tree.pos(),tree.sym)) {
             return;
         }
         result = new IdentTranslator(tree).doit();
@@ -1745,12 +1751,14 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    public void visitIndexof(JFXIndexof tree) {
-        final DiagnosticPosition diagPos = tree.pos();
+    public void visitIndexof(final JFXIndexof tree) {
         assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
-        result = new ExpressionResult(
-                make.at(diagPos).Ident(indexVarName(tree.fname)),
-                tree.type);
+        result = new ExpressionTranslator(tree) {
+
+            protected ExpressionResult doit() {
+                return toResult(id(indexVarName(tree.fname)), tree.type);
+            }
+        }.doit();
     }
 
 
@@ -1835,9 +1843,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitLiteral(JFXLiteral tree) {
-        result = new ExpressionResult(
-                translateLiteral(tree),
-                tree.type);
+         result = new LiteralTranslator(tree).doit();
     }
 
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {

@@ -382,15 +382,7 @@ public abstract class JavafxAbstractTranslation
             this.interClass = interClass;
             this.resultType = resultType;
         }
-        ExpressionResult(DiagnosticPosition diagPos, ListBuffer<JCStatement> buf, JCExpression value, ListBuffer<BindeeInvalidator> invalidators, ListBuffer<DependentPair> interClass, Type resultType) {
-            this(diagPos, buf.toList(), value, invalidators.toList(), interClass.toList(), resultType);
-        }
-        ExpressionResult(JCExpression value, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, Type resultType) {
-            this(value.pos(), List.<JCStatement>nil(), value, invalidators, interClass, resultType);
-        }
-        ExpressionResult(JCExpression value, Type resultType) {
-            this(value, List.<BindeeInvalidator>nil(), List.<DependentPair>nil(), resultType);
-        }
+
         public JCExpression expr() {
             return value;
         }
@@ -623,16 +615,6 @@ public abstract class JavafxAbstractTranslation
         return new FunctionTranslator(tree, maintainContext).doit().tree();
     }
 
-    JCExpression translateLiteral(JFXLiteral tree) {
-        if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
-            Type elemType = types.boxedElementType(tree.type);
-            JCExpression expr = accessEmptySequence(tree.pos(), elemType);
-            return castFromObject(expr, syms.javafx_SequenceTypeErasure);
-        } else {
-            return make.at(tree.pos).Literal(tree.typetag, tree.value);
-        }
-    }
-
     /** Translate a single tree.
      */
     SpecialResult translateToSpecialResult(JFXTree tree) {
@@ -824,7 +806,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         ExpressionResult toResult(JCExpression translated, Type resultType) {
-            return new ExpressionResult(diagPos, stmts, translated, invalidators, interClass, resultType);
+            return new ExpressionResult(diagPos, statements(), translated, invalidators(), interClass(), resultType);
         }
 
         StatementsResult toStatementResult(JCExpression translated, Type resultType, Type targettedType) {
@@ -878,6 +860,24 @@ public abstract class JavafxAbstractTranslation
         }
 
    }
+
+    class LiteralTranslator extends ExpressionTranslator {
+
+        protected final JFXLiteral tree;
+
+        LiteralTranslator(JFXLiteral tree) {
+            super(tree.pos());
+            this.tree = tree;
+        }
+
+        protected ExpressionResult doit() {
+            if (tree.typetag == TypeTags.BOT && types.isSequence(tree.type)) {
+                throw new AssertionError("Should have been converted");
+            }
+            // Just translate to literal value
+            return toResult(m().Literal(tree.typetag, tree.value), tree.type);
+        }
+    }
 
     class StringExpressionTranslator extends ExpressionTranslator {
 
@@ -1381,7 +1381,7 @@ public abstract class JavafxAbstractTranslation
                     case SELECT: {
                         JFXSelect select = (JFXSelect)args.head;
                         receiver = select.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, select.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, select.sym.owner)) :
                             translateExpr(select.selected, syms.javafx_FXBaseType);
                         varOffset = Offset(select.sym);
                         break;
@@ -1389,7 +1389,7 @@ public abstract class JavafxAbstractTranslation
                     case IDENT: {
                         JFXIdent ident = (JFXIdent)args.head;
                         receiver = ident.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
                             makeReceiver(ident.sym, false);
 
                         varOffset = Offset(ident.sym);
@@ -1415,7 +1415,7 @@ public abstract class JavafxAbstractTranslation
                     case IDENT: {
                         JFXIdent ident = (JFXIdent)args.head;
                         JCExpression receiver = ident.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
                         targs.append(Offset(ident.sym));

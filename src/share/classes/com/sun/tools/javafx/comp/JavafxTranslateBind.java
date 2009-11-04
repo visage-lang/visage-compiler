@@ -126,7 +126,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     if (arg.getFXTag() == JavafxTag.IDENT) {
                         JFXIdent ident = (JFXIdent)args.head;
                         JCExpression receiver = ident.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
                         targs.append(Offset(ident.sym));
@@ -1221,8 +1221,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     public void visitLiteral(JFXLiteral tree) {
-        // Just translate to literal value
-        result = new ExpressionResult(translateLiteral(tree), tree.type);
+         result = new LiteralTranslator(tree).doit();
     }
 
     public void visitParens(JFXParens tree) {
