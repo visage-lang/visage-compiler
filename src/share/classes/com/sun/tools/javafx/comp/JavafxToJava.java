@@ -1881,6 +1881,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitUnary(final JFXUnary tree) {
+        if (tree.getFXTag().isIncDec()) {
+            //we shouldn't be here - arithmetic unary expressions should
+            //have been lowered to standard binary expressions
+            throw new AssertionError("Unexpecetd unary operator tag: " + tree.getFXTag());
+        }
         result = new UnaryOperationTranslator(tree).doit();
     }
 

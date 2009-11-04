@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -31,49 +32,64 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
 
 import com.sun.tools.javafx.tree.JFXExpression;
+import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
 
 /**
- *
+ * Normalize tree before translation. This includes adding explicit type conversions
+ * (e.g. for autoboxing, sequence conversions, etc.) and rewriting unary/assignop operations
+ * as binary operations.
+ * 
  * @author Maurizio Cimadamore
  */
-public class JavafxConvertTypes implements JavafxVisitor {
-    protected static final Context.Key<JavafxConvertTypes> convertTypesKey =
-            new Context.Key<JavafxConvertTypes>();
+public class JavafxLower implements JavafxVisitor {
+    protected static final Context.Key<JavafxLower> convertTypesKey =
+            new Context.Key<JavafxLower>();
 
     private JavafxTypes types;
+    private JavafxResolve rs;
     private JavafxSymtab syms;
     private JavafxTreeMaker m;
     private Type pt;
+    private JavafxEnv<JavafxAttrContext> env;
     private JFXTree enclFunc;
     private JFXTree result;
+    private Name.Table names;
+    private Symbol currentClass;
+    private int varCount;
 
-    public static JavafxConvertTypes instance(Context context) {
-        JavafxConvertTypes instance = context.get(convertTypesKey);
+    public static JavafxLower instance(Context context) {
+        JavafxLower instance = context.get(convertTypesKey);
         if (instance == null)
-            instance = new JavafxConvertTypes(context);
+            instance = new JavafxLower(context);
         return instance;
     }
 
-    JavafxConvertTypes(Context context) {
+    JavafxLower(Context context) {
         context.put(convertTypesKey, this);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         m = JavafxTreeMaker.instance(context);
+        rs = JavafxResolve.instance(context);
+        names = Name.Table.instance(context);
     }
 
-    public JFXTree convertTypes(JavafxEnv<JavafxAttrContext> attrEnv) {
-        attrEnv.toplevel = convert(attrEnv.toplevel);
+    public JFXTree lower(JavafxEnv<JavafxAttrContext> attrEnv) {
+        this.env = attrEnv;
+        attrEnv.toplevel = lower(attrEnv.toplevel);
         //System.out.println(result);
         return result;
     }
 
-    public JFXExpression convertExpr(JFXExpression tree, Type pt) {
+    public JFXExpression lowerExpr(JFXExpression tree, Type pt) {
         Type prevPt = this.pt;
         try {
             this.pt = pt;
@@ -90,7 +106,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends JFXTree> T convert(T tree) {
+    public <T extends JFXTree> T lower(T tree) {
         Type prevPt = this.pt;
         try {
             this.pt = Type.noType;
@@ -106,18 +122,18 @@ public class JavafxConvertTypes implements JavafxVisitor {
         }
     }
 
-    public <T extends JFXTree> List<T> convert(List<T> trees) {
+    public <T extends JFXTree> List<T> lower(List<T> trees) {
         ListBuffer<T> buf = ListBuffer.lb();
         for (T tree : trees) {
-            buf.append(convert(tree));
+            buf.append(lower(tree));
         }
         return buf.toList();
     }
 
-    public List<JFXExpression> convertExprs(List<? extends JFXExpression> trees, List<Type> pts) {
+    public List<JFXExpression> lowerExprs(List<? extends JFXExpression> trees, List<Type> pts) {
         ListBuffer<JFXExpression> buf = ListBuffer.lb();
         for (JFXExpression tree : trees) {
-            buf.append(convertExpr(tree, pts.head));
+            buf.append(lowerExpr(tree, pts.head));
             pts = pts.tail;
         }
         return buf.toList();
@@ -138,6 +154,21 @@ public class JavafxConvertTypes implements JavafxVisitor {
                 ((!types.isSequence(tree.type) &&
                 !types.isArray(tree.type)) ||
                 isNull(tree)));
+    }
+
+    /**
+     * It is necessary to add an extra cast if either source type or target type
+     * is a boxed Java type - this is required because we might want to go from
+     * java.Lang.Long to int and vice-versa
+     */
+    private boolean needNumericBoxConversion(JFXExpression tree, Type type) {
+        boolean sourceIsPrimitive = tree.type.isPrimitive();
+        boolean targetIsPrimitive = type.isPrimitive();
+        Type unboxedSource = types.unboxedType(tree.type);
+        Type unboxedTarget = types.unboxedType(type);
+        return (sourceIsPrimitive && !targetIsPrimitive && unboxedTarget != Type.noType && !types.isSameType(unboxedTarget, tree.type)) ||
+                (targetIsPrimitive && !sourceIsPrimitive && unboxedSource != Type.noType && !types.isSameType(unboxedSource, type)) ||
+                (!sourceIsPrimitive && !targetIsPrimitive && unboxedTarget != Type.noType && unboxedSource!= Type.noType && !types.isSameType(type, tree.type));
     }
 
     private boolean isNull(JFXTree tree) {
@@ -163,11 +194,30 @@ public class JavafxConvertTypes implements JavafxVisitor {
                 || type == syms.unreachableType)
             return tree;
         else {
+            tree = makeNumericBoxConversionIfNeeded(tree, type);
             return (!types.isSubtypeUnchecked(tree.type, type) ||
                 (tree.type.isPrimitive() &&
                 type.isPrimitive() && !types.isSameType(tree.type, type))) ?
                 makeCast(tree, type) :
                 tree;
+        }
+    }
+
+    private JFXExpression makeNumericBoxConversionIfNeeded(JFXExpression tree, Type type) {
+        if (needNumericBoxConversion(tree, type)) {
+           //either tree.type or type is primitive!
+           if (tree.type.isPrimitive() && !type.isPrimitive()) {
+               return makeCast(tree, types.unboxedType(type));
+           }
+           else if (type.isPrimitive() && !tree.type.isPrimitive()) {
+               return makeCast(tree, types.unboxedType(tree.type));
+           }
+           else { //both are boxed types
+               return makeCast(makeCast(tree, types.unboxedType(tree.type)), types.unboxedType(type));
+           }
+        }
+        else {
+            return tree;
         }
     }
 
@@ -180,17 +230,39 @@ public class JavafxConvertTypes implements JavafxVisitor {
         return expr;
     }
 
+    private Name tempName(String label) {
+        return names.fromString("$" + label + "$" + varCount++);
+    }
+
+    private JFXVar makeTmpVar(DiagnosticPosition diagPos, String name, JFXExpression init, Type type) {
+        VarSymbol vsym = new VarSymbol(0L, tempName(name), type, makeDummyMethodSymbol(currentClass));
+        return makeTmpVar(diagPos, vsym, init);
+    }
+
+    private JFXVar makeTmpVar(DiagnosticPosition diagPos, VarSymbol vSym, JFXExpression init) {
+        JFXModifiers mod = m.at(diagPos).Modifiers(vSym.flags());
+        JFXType fxType = m.at(diagPos).TypeClass(m.at(diagPos).Type(vSym.type), Cardinality.SINGLETON);
+        JFXVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, JavafxBindStatus.UNBOUND, null, null);
+        v.sym = vSym;
+        v.type = vSym.type;
+        return v;
+    }
+
+    private MethodSymbol makeDummyMethodSymbol(Symbol owner) {
+        return new MethodSymbol(Flags.BLOCK, names.empty, null, owner);
+    }
+
     @Override
     public void visitAssign(JFXAssign tree) {
-        JFXExpression lhs = convert(tree.lhs);
-        JFXExpression rhs = convertExpr(tree.rhs, tree.lhs.type);
+        JFXExpression lhs = lower(tree.lhs);
+        JFXExpression rhs = lowerExpr(tree.rhs, tree.lhs.type);
         result = m.at(tree.pos).Assign(lhs, rhs).setType(tree.type);
     }
 
     @Override
     public void visitAssignop(JFXAssignOp tree) {
-        JFXExpression lhs = convert(tree.lhs);
-        JFXExpression rhs = convertExpr(tree.rhs, tree.operator.type.getParameterTypes().head);
+        JFXExpression lhs = lower(tree.lhs);
+        JFXExpression rhs = lowerExpr(tree.rhs, tree.operator.type.getParameterTypes().head);
         JFXAssignOp assign = m.at(tree.pos).Assignop(tree.getFXTag(), lhs, rhs);
         assign.operator = tree.operator;
         result = assign.setType(tree.type);
@@ -224,12 +296,12 @@ public class JavafxConvertTypes implements JavafxVisitor {
                 lhsType = syms.javafx_DurationType;
             }
         }
-        JFXExpression lhs = isEqualExpr && isBoxedOp ?
-            convert(tree.lhs) :
-            convertExpr(tree.lhs, lhsType);
-        JFXExpression rhs = isEqualExpr && isBoxedOp ?
-            convert(tree.rhs) :
-            convertExpr(tree.rhs, rhsType);
+        JFXExpression lhs = isEqualExpr && isBoxedOp && !isSequenceOp ?
+            lower(tree.lhs) :
+            lowerExpr(tree.lhs, lhsType);
+        JFXExpression rhs = isEqualExpr && isBoxedOp && !isSequenceOp ?
+            lower(tree.rhs) :
+            lowerExpr(tree.rhs, rhsType);
         JFXBinary res = m.at(tree.pos).Binary(tree.getFXTag(), lhs, rhs);
         res.operator = tree.operator;
         result = res.setType(tree.type);
@@ -237,13 +309,13 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        JFXExpression whereExpr = convert(that.whereExpr);
+        JFXExpression whereExpr = lower(that.whereExpr);
         JFXExpression seqExpr = null;
         if (types.isSequence(that.seqExpr.type)) {
-            seqExpr = convertExpr(that.seqExpr, types.sequenceType(that.var.type));
+            seqExpr = lowerExpr(that.seqExpr, types.sequenceType(that.var.type));
         }
         else {//sure that this is what we want?
-            seqExpr = convert(that.seqExpr);
+            seqExpr = lower(that.seqExpr);
         }
         JFXForExpressionInClause res = m.at(that.pos).InClause(that.getVar(), seqExpr, whereExpr);
         res.setIndexUsed(that.getIndexUsed());
@@ -255,7 +327,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
         JFXTree prevFunc = enclFunc;
         try {
             enclFunc = tree;
-            JFXBlock body  = (JFXBlock)convertExpr(tree.getBodyExpression(), tree.type != null ? tree.type.getReturnType() : Type.noType);
+            JFXBlock body  = (JFXBlock)lowerExpr(tree.getBodyExpression(), tree.type != null ? tree.type.getReturnType() : Type.noType);
             JFXFunctionDefinition res = m.FunctionDefinition(tree.mods, tree.name, tree.getJFXReturnType(), tree.getParams(), body);
             res.operation.definition = res;
             res.sym = tree.sym;
@@ -268,7 +340,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
-        JFXExpression meth = convert(tree.meth);
+        JFXExpression meth = lower(tree.meth);
         List<Type> paramTypes = tree.meth.type.getParameterTypes();
         Symbol sym = JavafxTreeInfo.symbolFor(tree.meth);
         if (sym instanceof MethodSymbol &&
@@ -283,10 +355,10 @@ public class JavafxConvertTypes implements JavafxVisitor {
         if (!(sym instanceof MethodSymbol) ||
                 ((sym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) == 0 &&
                 (sym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) == 0)) {
-            args = convertExprs(tree.args, paramTypes);
+            args = lowerExprs(tree.args, paramTypes);
         }
         else {
-            args = convert(tree.args);
+            args = lower(tree.args);
         }
          
         result = m.Apply(tree.typeargs, meth, args);
@@ -298,7 +370,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
         JFXTree prevFunc = enclFunc;
         try {
             enclFunc = tree;
-            tree.bodyExpression = (JFXBlock)convertExpr(tree.bodyExpression, tree.type.getReturnType());
+            tree.bodyExpression = (JFXBlock)lowerExpr(tree.bodyExpression, tree.type.getReturnType());
             result = tree;
         }
         finally {
@@ -308,9 +380,9 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitIfExpression(JFXIfExpression tree) {
-        JFXExpression cond = convertExpr(tree.cond, syms.booleanType);
-        JFXExpression truePart = convertExpr(tree.truepart, tree.type);
-        JFXExpression falsePart = convertExpr(tree.falsepart, tree.type);
+        JFXExpression cond = lowerExpr(tree.cond, syms.booleanType);
+        JFXExpression truePart = lowerExpr(tree.truepart, tree.type);
+        JFXExpression falsePart = lowerExpr(tree.falsepart, tree.type);
         result = m.Conditional(cond, truePart, falsePart).setType(tree.type);
     }
 
@@ -321,13 +393,16 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitInstanceOf(JFXInstanceOf tree) {
-        JFXExpression expr = convert(tree.getExpression());
+        Type typeToCheck = needSequenceConversion(tree.getExpression(), tree.clazz.type) ?
+            types.sequenceType(tree.getExpression().type) :
+            tree.getExpression().type;
+        JFXExpression expr = lowerExpr(tree.getExpression(), typeToCheck);
         result = m.at(tree.pos).TypeTest(expr, tree.clazz).setType(tree.type);
     }
 
     @Override
     public void visitInterpolateValue(JFXInterpolateValue that) {
-        JFXExpression funcValue = convert(that.funcValue);
+        JFXExpression funcValue = lower(that.funcValue);
         JFXInterpolateValue res = m.at(that.pos).InterpolateValue(that.attribute, funcValue, that.interpolation);
         res.funcValue = funcValue; //to make Decompose happy
         res.sym = that.sym;
@@ -336,8 +411,8 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
-        List<JFXExpression> values = convert(that.values);
-        JFXExpression trigger = convert(that.trigger);
+        List<JFXExpression> values = lower(that.values);
+        JFXExpression trigger = lower(that.trigger);
         result = m.at(that.pos).KeyFrameLiteral(that.start, values, trigger).setType(that.type);
     }
 
@@ -348,7 +423,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-        JFXExpression expr = convertExpr(tree.getExpression(), tree.sym.type);
+        JFXExpression expr = lowerExpr(tree.getExpression(), tree.sym.type);
         JFXObjectLiteralPart res = m.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getBindStatus());
         res.sym = tree.sym;
         result = res.setType(tree.type);
@@ -356,9 +431,9 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        JFXExpression init = convertExpr(tree.getInitializer(), tree.type);
-        JFXOnReplace onReplace = convert(tree.getOnReplace());
-        JFXOnReplace onInvalidate = convert(tree.getOnInvalidate());
+        JFXExpression init = lowerExpr(tree.getInitializer(), tree.type);
+        JFXOnReplace onReplace = lower(tree.getOnReplace());
+        JFXOnReplace onInvalidate = lower(tree.getOnInvalidate());
         JFXOverrideClassVar res = m.at(tree.pos).OverrideClassVar(tree.name, tree.mods, tree.getId(), init, tree.getBindStatus(), onReplace, onInvalidate);
         res.sym = tree.sym;
         result = res.setType(tree.type);
@@ -369,19 +444,19 @@ public class JavafxConvertTypes implements JavafxVisitor {
         Type typeToCheck = enclFunc.type != null ?
             enclFunc.type.getReturnType() :
             syms.objectType; //nedded because run function has null type
-        JFXExpression retExpr = convertExpr(tree.getExpression(), typeToCheck);
+        JFXExpression retExpr = lowerExpr(tree.getExpression(), typeToCheck);
         result = m.at(tree.pos).Return(retExpr).setType(tree.type);
     }
 
     @Override
     public void visitSequenceDelete(JFXSequenceDelete that) {
-        JFXExpression seq = convert(that.getSequence());
+        JFXExpression seq = lower(that.getSequence());
         JFXExpression el = that.getElement();
         if (that.getElement() != null) {
             Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ?
                     that.getSequence().type :
                     types.elementType(that.getSequence().type);
-            el = convertExpr(that.getElement(), typeToCheck);
+            el = lowerExpr(that.getElement(), typeToCheck);
         }
         result = m.at(that.pos).SequenceDelete(seq, el).setType(that.type);
     }
@@ -398,34 +473,34 @@ public class JavafxConvertTypes implements JavafxVisitor {
             Type typeToCheck = types.isArrayOrSequenceType(item.type) ?
                 that.type :
                 types.elementType(that.type);
-            buf.append(convertExpr(item, typeToCheck));
+            buf.append(lowerExpr(item, typeToCheck));
         }
         result = m.at(that.pos).ExplicitSequence(buf.toList()).setType(that.type);
     }
 
     @Override
     public void visitSequenceIndexed(JFXSequenceIndexed that) {
-        JFXExpression index = convertExpr(that.getIndex(), syms.intType);
-        JFXExpression seq = convert(that.getSequence());
+        JFXExpression index = lowerExpr(that.getIndex(), syms.intType);
+        JFXExpression seq = lower(that.getSequence());
         result = m.at(that.pos).SequenceIndexed(seq, index).setType(that.type);
     }
 
     @Override
     public void visitSequenceInsert(JFXSequenceInsert that) {
-        JFXExpression seq = convert(that.getSequence());
+        JFXExpression seq = lower(that.getSequence());
         Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ?
                 that.getSequence().type :
                 types.elementType(that.getSequence().type);
-        JFXExpression el = convertExpr(that.getElement(), typeToCheck);
-        JFXExpression pos = convertExpr(that.getPosition(), syms.intType);
+        JFXExpression el = lowerExpr(that.getElement(), typeToCheck);
+        JFXExpression pos = lowerExpr(that.getPosition(), syms.intType);
         result = m.at(that.pos).SequenceInsert(seq, el, pos, that.shouldInsertAfter()).setType(that.type);
     }
 
     @Override
     public void visitSequenceRange(JFXSequenceRange that) {
-        JFXExpression lower = convertExpr(that.getLower(), types.elementType(that.type));
-        JFXExpression upper = convertExpr(that.getUpper(), types.elementType(that.type));
-        JFXExpression step = convertExpr(that.getStepOrNull(), types.elementType(that.type));
+        JFXExpression lower = lowerExpr(that.getLower(), types.elementType(that.type));
+        JFXExpression upper = lowerExpr(that.getUpper(), types.elementType(that.type));
+        JFXExpression step = lowerExpr(that.getStepOrNull(), types.elementType(that.type));
         JFXSequenceRange res = m.at(that.pos).RangeSequence(lower, upper, step, that.isExclusive());
         res.boundSizeVar = that.boundSizeVar;
         result = res.setType(that.type);
@@ -433,34 +508,123 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitSequenceSlice(JFXSequenceSlice that) {
-        JFXExpression seq = convert(that.getSequence());
-        JFXExpression start = convertExpr(that.getFirstIndex(), syms.intType);
-        JFXExpression end = convertExpr(that.getLastIndex(), syms.intType);
+        JFXExpression seq = lower(that.getSequence());
+        JFXExpression start = lowerExpr(that.getFirstIndex(), syms.intType);
+        JFXExpression end = lowerExpr(that.getLastIndex(), syms.intType);
         result = m.at(that.pos).SequenceSlice(seq, start, end, that.getEndKind()).setType(that.type);
     }
 
     @Override
     public void visitStringExpression(JFXStringExpression tree) {
-        List<JFXExpression> parts = convert(tree.parts);
+        List<JFXExpression> parts = lower(tree.parts);
         result = m.at(tree.pos).StringExpression(parts, tree.translationKey).setType(tree.type);
     }
 
     @Override
     public void visitUnary(JFXUnary tree) {
-        JFXExpression arg = tree.getFXTag().isIncDec() ?
-            convertExpr(tree.getExpression(), tree.getOperator().type.getParameterTypes().head) :
-            convert(tree.getExpression());
-        JFXUnary res = m.at(tree.pos).Unary(tree.getFXTag(), arg);
-        res.operator = tree.operator;
-        res.type = tree.type;
-        result = res;
+        if (tree.getFXTag().isIncDec()) {
+            result = lowerArithmeticUnary(tree);
+        }
+        else {
+            JFXExpression arg = tree.getFXTag().isIncDec() ?
+                lowerExpr(tree.getExpression(), tree.getOperator().type.getParameterTypes().head) :
+                lower(tree.getExpression());
+            JFXUnary res = m.at(tree.pos).Unary(tree.getFXTag(), arg);
+            res.operator = tree.operator;
+            res.type = tree.type;
+            result = res;
+        }
+    }
+
+    private JFXExpression lowerArithmeticUnary(JFXUnary tree) {
+        boolean postFix = isPostfix(tree.getFXTag());
+        JavafxTag opTag = unaryToBinaryOpTag(tree.getFXTag());
+        Type opType = types.unboxedTypeOrType(tree.getExpression().type);
+        if (types.isSameType(opType, syms.charType)) {
+            opType = syms.intType;
+        }
+        ListBuffer<JFXExpression> stats = ListBuffer.lb();
+
+        //if the unary operand is a select of the kind a.x
+        //then we need to cache the selected part (a), so that
+        //it won't be recomputed twice.
+        //
+        // var $expr$ = a;
+        JFXIdent selector = null;
+
+        if (tree.getExpression().getFXTag() == JavafxTag.SELECT) {
+            JFXExpression selected = ((JFXSelect)tree.getExpression()).selected;
+            JFXVar varDef = makeTmpVar(tree.pos(), "expr", selected, selected.type);
+            selector = m.at(tree.pos).Ident(varDef.sym);
+            selector.sym = varDef.sym;
+            selector.type = varDef.type;
+            stats.append(varDef);
+        }
+
+        JFXExpression varRef = tree.getExpression();
+
+        if (selector != null) {
+            VarSymbol vsym = (VarSymbol)JavafxTreeInfo.symbol(tree.getExpression());
+            varRef = m.at(tree.pos).Select(selector, vsym);
+            ((JFXSelect)varRef).sym = vsym;
+        }
+
+        //cache the old value of the unary operand. The translated expression
+        //depends on whether the operand is a select or not:
+        //
+        //(SELECT) var $oldVal$ = $expr$.x;
+        //(IDENT)  var $oldVal$ = x;
+        JFXVar oldValDef = makeTmpVar(tree.pos(), "oldVal", varRef, varRef.type);
+        stats.append(oldValDef);
+
+        JFXIdent oldVal = m.at(tree.pos).Ident(oldValDef.sym);
+        oldVal.sym = oldValDef.sym;
+
+        //Generate the binary expression this unary translates to
+        //
+        //(SELECT) $expr$.x = $oldVal [+/-] 1;
+        //(IDENT)  x = $oldVal [+/-] 1;
+        JFXBinary binary = (JFXBinary)m.at(tree.pos).Binary(opTag, oldVal, m.at(tree.pos).Literal(opType.tag, 1).setType(opType));
+        binary.operator = rs.resolveBinaryOperator(tree.pos(), opTag, env, opType, opType);
+        binary.setType(binary.operator.type.asMethodType().getReturnType());
+        JFXExpression incDecStat = (JFXExpression)m.at(tree.pos).Assign(varRef, binary).setType(opType);
+
+        //If this is a postfix unary expression, the old value is returned
+        JFXExpression blockValue = incDecStat;
+        if (postFix) {
+            stats.append(incDecStat);
+            blockValue = oldVal;
+        }
+
+        JFXBlock block = (JFXBlock)m.at(tree.pos).Block(0L, stats.toList(), blockValue).setType(opType);
+        return lowerExpr(block, Type.noType);
+    }
+    //where
+    private JavafxTag unaryToBinaryOpTag(JavafxTag tag) {
+        switch (tag) {
+            case POSTINC:
+            case PREINC: return JavafxTag.PLUS;
+            case POSTDEC:
+            case PREDEC: return JavafxTag.MINUS;
+            default: throw new AssertionError("Unexpecetd unary operator tag: " + tag);
+        }
+    }
+    //where
+    private boolean isPostfix(JavafxTag tag) {
+        switch (tag) {
+            case POSTINC:
+            case POSTDEC: return true;
+            case PREINC:
+            case PREDEC: return false;
+            default: throw new AssertionError("Unexpecetd unary operator tag: " + tag);
+        }
     }
 
     @Override
     public void visitVar(JFXVar tree) {
-        JFXExpression init = convertExpr(tree.getInitializer(), tree.type);
-        JFXOnReplace onReplace = convert(tree.getOnReplace());
-        JFXOnReplace onInvalidate = convert(tree.getOnInvalidate());
+        JFXExpression init = lowerExpr(tree.getInitializer(), tree.type);
+        JFXOnReplace onReplace = lower(tree.getOnReplace());
+        JFXOnReplace onInvalidate = lower(tree.getOnInvalidate());
         JFXVar res = m.at(tree.pos).Var(tree.name, tree.getJFXType(), tree.mods, init, tree.getBindStatus(), onReplace, onInvalidate);
         res.sym = tree.sym;
         result = res.setType(tree.type);
@@ -468,14 +632,14 @@ public class JavafxConvertTypes implements JavafxVisitor {
 
     @Override
     public void visitVarInit(JFXVarInit tree) {
-        JFXVar var = convert(tree.getVar());
+        JFXVar var = lower(tree.getVar());
         result = m.VarInit(var).setType(tree.type); //avoid cast
     }
 
     public void visitBlockExpression(JFXBlock tree) {
-        List<JFXExpression> stats = convert(tree.stats);
+        List<JFXExpression> stats = lower(tree.stats);
         JFXExpression value = tree.value != null ?
-            convertExpr(tree.value, pt) :
+            lowerExpr(tree.value, pt) :
             null;
         result = m.Block(tree.flags, stats, value);
         result.type = value != null ?
@@ -488,23 +652,20 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitCatch(JFXCatch tree) {
-        JFXBlock body = convert(tree.body);
+        JFXBlock body = lower(tree.body);
         result = m.at(tree.pos).Catch(tree.param, body).setType(tree.type);
     }
 
     public void visitClassDeclaration(JFXClassDeclaration tree) {
-        List<JFXTree> defs = convert(tree.getMembers());
-        tree.setMembers(defs);
-        result = tree;/*
-        JFXFunctionDefinition runMethod = convert(tree.runMethod);
-        JFXClassDeclaration res = m.at(tree.pos).ClassDeclaration(tree.mods, tree.getName(), tree.getSupertypes(), defs);
-        res.hasBeenTranslated = tree.hasBeenTranslated;
-        res.isScriptClass = tree.isScriptClass;
-        res.runBodyScope = tree.runBodyScope;
-        res.runMethod = runMethod;
-        res.setDifferentiatedExtendingImplementing(tree.getExtending(), tree.getImplementing(), tree.getMixing());
-        res.sym = tree.sym;
-        result = res.setType(tree.type);*/
+        Symbol prevClass = currentClass;
+        try {
+            List<JFXTree> defs = lower(tree.getMembers());
+            tree.setMembers(defs);
+            result = tree;
+        }
+        finally {
+            currentClass = prevClass;
+        }
     }
 
     public void visitContinue(JFXContinue tree) {
@@ -519,8 +680,8 @@ public class JavafxConvertTypes implements JavafxVisitor {
         Type typeToCheck = types.isSequence(tree.getBodyExpression().type) ?
                 tree.type :
                 types.elementType(tree.type);
-        JFXExpression body = convertExpr(tree.bodyExpr, typeToCheck);
-        List<JFXForExpressionInClause> clauses = convert(tree.getForExpressionInClauses());
+        JFXExpression body = lowerExpr(tree.bodyExpr, typeToCheck);
+        List<JFXForExpressionInClause> clauses = lower(tree.getForExpressionInClauses());
         result = m.at(tree.pos).ForExpression(clauses, body).setType(tree.type);
     }
 
@@ -533,16 +694,16 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitInitDefinition(JFXInitDefinition tree) {
-        JFXBlock body = convert(tree.body);
+        JFXBlock body = lower(tree.body);
         JFXInitDefinition res = m.at(tree.pos).InitDefinition(body);
         res.sym = tree.sym;
         result = res.setType(tree.type);
     }
 
     public void visitInstanciate(JFXInstanciate tree) {
-       List<JFXObjectLiteralPart> parts = convert(tree.getParts());
-       JFXClassDeclaration cdecl = convert(tree.getClassBody());
-       List<JFXExpression> args = convert(tree.getArgs());
+       List<JFXObjectLiteralPart> parts = lower(tree.getParts());
+       JFXClassDeclaration cdecl = lower(tree.getClassBody());
+       List<JFXExpression> args = lower(tree.getArgs());
        JFXInstanciate res = m.at(tree.pos).Instanciate(tree.getJavaFXKind(), tree.getIdentifier(), cdecl, args, parts, tree.getLocalvars());
        res.sym = tree.sym;
        res.constructor = tree.constructor;
@@ -551,7 +712,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitInvalidate(JFXInvalidate tree) {
-        JFXExpression expr = convert(tree.getVariable());
+        JFXExpression expr = lower(tree.getVariable());
         result = m.at(tree.pos).Invalidate(expr).setType(tree.type);
     }
 
@@ -560,7 +721,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitOnReplace(JFXOnReplace tree) {
-        JFXBlock body = convert(tree.getBody());
+        JFXBlock body = lower(tree.getBody());
         JFXOnReplace res = tree.getTriggerKind() == JFXOnReplace.Kind.ONREPLACE ?
                 m.at(tree.pos).OnReplace(tree.getOldValue(), tree.getFirstIndex(), tree.getLastIndex(), tree.getNewElements(), body) :
                 m.at(tree.pos).OnInvalidate(body);
@@ -568,24 +729,28 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitParens(JFXParens tree) {
-        JFXExpression expr = convert(tree.expr);
+        JFXExpression expr = lower(tree.expr);
         result = m.at(tree.pos).Parens(expr).setType(tree.type);
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-        JFXBlock body = convert(tree.body);
+        JFXBlock body = lower(tree.body);
         JFXPostInitDefinition res = m.at(tree.pos).PostInitDefinition(body);
         res.sym = tree.sym;
         result = res.setType(tree.type);
     }
 
     public void visitScript(JFXScript tree) {
-        tree.defs = convert(tree.defs);
+        varCount = 0;
+        tree.defs = lower(tree.defs);
         result = tree;
     }
 
     public void visitSelect(JFXSelect tree) {
-        result = tree;
+        JFXExpression selected = lower(tree.selected);
+        JFXSelect res = (JFXSelect)m.Select(selected, tree.sym);
+        res.name = tree.name;
+        result = res.setType(tree.type);
     }
 
     public void visitSkip(JFXSkip tree) {
@@ -593,7 +758,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitThrow(JFXThrow tree) {
-        JFXExpression expr = convert(tree.getExpression());
+        JFXExpression expr = lower(tree.getExpression());
         result = m.at(tree.pos).Throw(expr).setType(tree.type);
     }
 
@@ -602,9 +767,9 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitTry(JFXTry tree) {
-        JFXBlock body = convert(tree.getBlock());
-        List<JFXCatch> catches = convert(tree.catchers);
-        JFXBlock finallyBlock = convert(tree.getFinallyBlock());
+        JFXBlock body = lower(tree.getBlock());
+        List<JFXCatch> catches = lower(tree.catchers);
+        JFXBlock finallyBlock = lower(tree.getFinallyBlock());
         result = m.at(tree.pos).Try(body, catches, finallyBlock).setType(tree.type);
     }
 
@@ -617,7 +782,7 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitTypeCast(JFXTypeCast tree) {
-        JFXExpression expr = convert(tree.getExpression());
+        JFXExpression expr = lowerExpr(tree.getExpression(), tree.clazz.type);
         result = m.at(tree.pos).TypeCast(tree.clazz, expr).setType(tree.type);
     }
 
@@ -634,8 +799,8 @@ public class JavafxConvertTypes implements JavafxVisitor {
     }
 
     public void visitWhileLoop(JFXWhileLoop tree) {
-        JFXExpression cond = convertExpr(tree.getCondition(), syms.booleanType);
-        JFXExpression body = convert(tree.getStatement());
+        JFXExpression cond = lowerExpr(tree.getCondition(), syms.booleanType);
+        JFXExpression body = lower(tree.getStatement());
         result = m.at(tree.pos).WhileLoop(cond, body).setType(tree.type);
     }
 }

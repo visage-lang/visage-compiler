@@ -1919,40 +1919,6 @@ public abstract class JavafxAbstractTranslation
             this.transExpr = translateExpr(expr, expr.type);
         }
 
-        private AbstractStatementsResult doIncDec(final int binaryOp, final boolean postfix) {
-            return (AbstractStatementsResult) new AssignTranslator(diagPos, expr, fxm().Literal(1)) {
-
-                private JCExpression castIfNeeded(JCExpression transExpr) {
-                    int ttag = expr.type.tag;
-                    if (ttag == TypeTags.BYTE || ttag == TypeTags.SHORT) {
-                        return m().TypeCast(expr.type, transExpr);
-                    }
-                    return transExpr;
-                }
-
-                @Override
-                JCExpression buildRHS(JCExpression rhsTranslated) {
-                    return castIfNeeded(m().Binary(binaryOp, transExpr, rhsTranslated));
-                }
-
-                @Override
-                JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated) {
-                    return m().Unary(tree.getOperatorTag(), lhsTranslated);
-                }
-
-                @Override
-                protected JCExpression postProcessExpression(JCExpression built) {
-                    if (postfix) {
-                        // this is a postfix operation, undo the value (not the variable) change
-                        return castIfNeeded(m().Binary(binaryOp, (JCExpression) built, Int(-1)));
-                    } else {
-                        // prefix operation
-                        return built;
-                    }
-                }
-            }.doit();
-        }
-
         protected AbstractStatementsResult doit() {
             switch (tree.getFXTag()) {
                 case SIZEOF:
@@ -1970,14 +1936,6 @@ public abstract class JavafxAbstractTranslation
                         // this isn't a sequence, just make it a sequence
                         return toResult(convertTranslated(transExpr, diagPos, expr.type, targetType), targetType);
                     }
-                case PREINC:
-                    return doIncDec(JCTree.PLUS, false);
-                case PREDEC:
-                    return doIncDec(JCTree.MINUS, false);
-                case POSTINC:
-                    return doIncDec(JCTree.PLUS, true);
-                case POSTDEC:
-                    return doIncDec(JCTree.MINUS, true);
                 case NEG:
                     if (types.isSameType(tree.type, syms.javafx_DurationType)) {
                         return toResult(
@@ -2272,20 +2230,6 @@ public abstract class JavafxAbstractTranslation
                 }
                 return Call(defs.Sequences_fromArray, args);
             }
-            if (targetIsSequence && !sourceIsSequence) {
-                //if (sourceType.tag == TypeTags.BOT) {
-                //    // it is a null, convert to empty sequence
-                //    //TODO: should we leave this null?
-                //    Type elemType = types.elemtype(type);
-                //    return makeEmptySequenceCreator(diagPos, elemType);
-                //}
-                Type targetElemType = types.elementType(targettedType);
-                JCExpression expr = convertTranslated(translated, diagPos, sourceType, targetElemType);
-
-                // This would be redundant, if convertTranslated did a cast if needed.
-                expr = TypeCast(targetElemType, sourceType, expr);
-                return Call(defs.Sequences_singleton, TypeInfo(diagPos, targetElemType), expr);
-            }
             if (targetIsSequence && sourceIsSequence) {
                 Type sourceElementType = types.elementType(sourceType);
                 Type targetElementType = types.elementType(targettedType);
@@ -2314,36 +2258,14 @@ public abstract class JavafxAbstractTranslation
             }
 
             // Convert primitive/Object types
-            Type unboxedTargetType = targettedType.isPrimitive() ? targettedType : types.unboxedType(targettedType);
-            Type unboxedSourceType = sourceType.isPrimitive() ? sourceType : types.unboxedType(sourceType);
-            JCExpression res = translated;
-            Type curType = sourceType;
-            if (unboxedTargetType != Type.noType && unboxedSourceType != Type.noType) {
-                // (boxed or unboxed) primitive to (boxed or unboxed) primitive
-                if (!curType.isPrimitive()) {
-                    // unboxed source if sourceboxed
-                    res = make.at(diagPos).TypeCast(unboxedSourceType, res);
-                    curType = unboxedSourceType;
-                }
-                if (unboxedSourceType != unboxedTargetType) {
-                    // convert as primitive types
-                    res = make.at(diagPos).TypeCast(unboxedTargetType, make.at(diagPos).TypeCast(unboxedSourceType, res));
-                    curType = unboxedTargetType;
-                }
-                if (!targettedType.isPrimitive()) {
-                    // box target if target boxed
-                    res = make.at(diagPos).TypeCast(makeType(targettedType, false), res);
-                    curType = targettedType;
-                }
-            } else {
-                if (curType.isCompound() || curType.isPrimitive()) {
-                    res = make.at(diagPos).TypeCast(makeType(types.erasure(targettedType), true), res);
-                }
+            if (sourceType.isCompound() || sourceType.isPrimitive()) {
+                return make.at(diagPos).TypeCast(makeType(types.erasure(targettedType), true), translated);
             }
+
             // We should add a cast "when needed".  Then visitTypeCast would just
             // call this function, and not need to call makeTypeCast on the result.
             // However, getting that to work is a pain - giving up for now.  FIXME
-            return res;
+            return translated;
         }
     }
 
