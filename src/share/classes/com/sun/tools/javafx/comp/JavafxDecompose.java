@@ -183,25 +183,40 @@ public class JavafxDecompose implements JavafxVisitor {
     /**
      * If we are in a bound expression, break this expression out into a separate synthetic bound variable.
      */
-    private JFXExpression shred(JFXExpression tree) {
+    private JFXExpression shred(JFXExpression tree, Type contextType) {
         if (tree == null) {
             return null;
         }
         JFXExpression pose = decompose(tree);
         if (inBind) {
-            JFXVar v = shredVar("", pose, tree.type);
+            Type varType = tree.type;
+            if (tree.type == syms.botType && contextType != null) {
+                // If the tree type is bottom, try to use contextType
+                varType = contextType;
+            }
+            JFXVar v = shredVar("", pose, varType);
             return id(v);
         } else {
             return pose;
         }
     }
 
-    private List<JFXExpression> shred(List<JFXExpression> trees) {
+    private JFXExpression shred(JFXExpression tree) {
+        return shred(tree, null);
+    }
+
+    private List<JFXExpression> shred(List<JFXExpression> trees, List<Type> paramTypes) {
         if (trees == null)
             return null;
         ListBuffer<JFXExpression> lb = new ListBuffer<JFXExpression>();
-        for (JFXExpression tree: trees)
-            lb.append(shred(tree));
+        Type paramType = paramTypes != null? paramTypes.head : null;
+        for (JFXExpression tree: trees) {
+            lb.append(shred(tree, paramType));
+            if (paramTypes != null) {
+                paramTypes = paramTypes.tail;
+                paramType = paramTypes.head;
+            }
+        }
         return lb.toList();
     }
 
@@ -341,7 +356,17 @@ public class JavafxDecompose implements JavafxVisitor {
             }
             args = tree.args;
         } else {
-            args = shred(tree.args);
+            List<Type> paramTypes = tree.meth.type.getParameterTypes();
+            Symbol sym = JavafxTreeInfo.symbolFor(tree.meth);
+            if (sym instanceof MethodSymbol &&
+                ((MethodSymbol)sym).isVarArgs()) {
+                Type varargType = paramTypes.reverse().head;
+                paramTypes = paramTypes.reverse().tail.reverse(); //remove last formal
+                while (paramTypes.size() < tree.args.size()) {
+                    paramTypes = paramTypes.append(types.elemtype(varargType));
+                }
+            }
+            args = shred(tree.args, paramTypes);
         }
         result = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
     }
