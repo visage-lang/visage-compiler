@@ -1507,8 +1507,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                         if (savedName != null) {
                             addStmt(Var(type, onReplace.getOldValue().getName(), id(savedName)));
-                            addStmt(Stmt(m().Assign(id(savedName),
-                                    Call(attributeGetterName(varInfo.getSymbol())))));
+                            addStmt(Stmt(
+                                m().Assign(id(savedName),
+                                    Call(defs.Sequences_set,
+                                        id(savedName),
+                                        Call(attributeGetterName(varInfo.getSymbol()))
+                                    ))));
                             addStmt(CallStmt(id(savedName), defs.incrementSharing_SequenceMethodName));
                         }
                         if (newElements != null

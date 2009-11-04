@@ -462,6 +462,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
              return strans.wrapInNullCheckStatement(full, tToCheck, theResultType, theFullType);
         }
 
+        private JCExpression selector() {
+            return Get(selectorSym);
+        }
+
         /**
          * Size accessor
          * (
@@ -514,10 +518,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         /**
          *  $selector === null? 0 : $selector.size$ref();
          */
-        private JCExpression getSize(VarSymbol selectorSym) {
-            return  m().Conditional(EQnull(Get(selectorSym)),
+        private JCExpression getSize() {
+            if (refSym.isStatic()) {
+                return Call(attributeSizeName(refSym));
+            } else {
+                return m().Conditional(EQnull(selector()),
                         Int(0),
-                        Call(Get(selectorSym), attributeSizeName(refSym)));
+                        Call(selector(), attributeSizeName(refSym)));
+            }
         }
 
         /**
@@ -541,8 +549,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *     }
          * }
          */
-        private JCStatement makeInvalidateSelector(VarSymbol selectorSym) {
-            JCVariableDecl oldSize = TmpVar(syms.intType, getSize(selectorSym));
+        private JCStatement makeInvalidateSelector() {
+            JCVariableDecl oldSize = TmpVar(syms.intType, getSize());  //TODO: This is unsafe in invalidation phase
 
             return
                 If (NOT(FlagChange(selectorSym, null, phaseArg())),
@@ -551,25 +559,25 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         If (IsTriggerPhase(),
                             Block(
                                 CallStmt(attributeGetterName(selectorSym)),
-                                If (NEnull(Get(selectorSym)),
+                                If (NEnull(selector()),
                                     CallStmt(defs.FXBase_addDependent,
-                                        Get(selectorSym),
-                                        Offset(Get(selectorSym), refSym),
+                                        selector(),
+                                        Offset(selector(), refSym),
                                         getReceiverOrThis(selectorSym)
                                     )
                                 ),
                                 CallStmt(attributeInvalidateName(selfSym),
                                     Int(0),
                                     id(oldSize),
-                                    getSize(selectorSym),
+                                    getSize(),
                                     phaseArg()
                                 )
                             ),
                             Block(
-                                If (NEnull(Get(selectorSym)),
+                                If (NEnull(selector()),
                                     CallStmt(defs.FXBase_removeDependent,
-                                       Get(selectorSym),
-                                       Offset(Get(selectorSym), refSym),
+                                       selector(),
+                                       Offset(selector(), refSym),
                                        getReceiverOrThis(selectorSym)
                                     )
                                 ),
@@ -614,7 +622,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         @Override
         void setupInvalidators() {
-                addInvalidator(selectorSym, makeInvalidateSelector(selectorSym));
+                addInvalidator(selectorSym, makeInvalidateSelector());
                 addInvalidator(selfSym, makeInvalidateSelf());
                 addInterClassBindee(selectorSym, refSym);
         }

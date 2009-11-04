@@ -396,7 +396,6 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitSelect(JFXSelect tree) {
-        DiagnosticPosition diagPos = tree.pos();
         JFXExpression selected;
         if (tree.sym.isStatic() &&
                 tree.sym.kind == Kinds.VAR &&
@@ -415,13 +414,18 @@ public class JavafxDecompose implements JavafxVisitor {
         } else {
             selected = shred(tree.selected);
         }
-        JFXSelect res = fxmake.at(tree.pos).Select(selected, tree.name);
-        res.sym = tree.sym;
+        setSelectResult(tree, selected, tree.sym);
+    }
+
+    void setSelectResult(JFXExpression tree, JFXExpression selector, Symbol sym) {
+        DiagnosticPosition diagPos = tree.pos();
+        JFXSelect res = fxmake.at(diagPos).Select(selector, sym.name);
+        res.sym = sym;
         if (inBind && types.isSequence(tree.type)) {
-            // Add a prevSize field to hold the previous size on selector switch
+            // Add a size field to hold the previous size on selector switch
             JFXExpression zero = fxmake.at(diagPos).Literal(0);
             zero.type = syms.intType;
-            JFXVar v = makeVar(diagPos, "size", zero, JavafxBindStatus.UNIDIBIND, syms.intType);
+            JFXVar v = makeVar(diagPos, "size"+sym.name, zero, JavafxBindStatus.UNIDIBIND, syms.intType);
             v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
             res.boundSize = v;
         }
@@ -429,37 +433,33 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitIdent(JFXIdent tree) {
-        JFXExpression res = null;
         if (tree.sym.kind == Kinds.VAR &&
                 (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
                 types.isJFXClass(tree.sym.owner) &&
-                !currentClass.isSubClass(tree.sym.owner, types) && inBind) {
+                !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName)) &&
+                inBind) {
             if (tree.sym.isStatic()) {
-                if (!(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName))) {
+                if (!inScriptLevel) {
                     //referenced is static script var - if in bind context need shredding
                     JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
                     meth = shred(meth);
-                    res = fxmake.Select(meth, tree.getName());
-                    ((JFXSelect)res).sym = tree.sym;
+                    setSelectResult(tree, meth, tree.sym);
+                    return;
                 }
-            } else if (tree.sym.name != names._this) {
+            } else if (tree.sym.name != names._this && tree.sym.name != names._super && !currentClass.isSubClass(tree.sym.owner, types)) {
                 // instance field from outer class. We transform "foo" as "this.foo"
                 // and shred "this" part so that local classes generated for local
                 // binds will have proper dependency.
                 JFXIdent thisExpr = fxmake.Ident(names._this);
                 thisExpr.sym = new VarSymbol(0L, names._this, tree.sym.owner.type, tree.sym.owner.type.tsym);
                 thisExpr.type = thisExpr.sym.type;
-                JFXSelect select = fxmake.Select(shred(thisExpr), tree.getName());
-                select.sym = tree.sym;
-                res = select;
+                setSelectResult(tree, shred(thisExpr), tree.sym);
+                return;
             }
         }
 
-        if (res == null) {
-            // not covered in above cases.
-            res = fxmake.at(tree.pos).Ident(tree.getName());
-            ((JFXIdent)res).sym = tree.sym;
-        }
+        JFXIdent res = fxmake.at(tree.pos).Ident(tree.getName());
+        res.sym = tree.sym;
         result = res;
     }
 
