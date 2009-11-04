@@ -1195,6 +1195,33 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     id(boundFunctionVarNumParamName(varSym.name)),
                                     posArg());
                             addStmt(Return(castFromObject(apply, varInfo.getElementType())));
+                        } else if (varInfo.isInitWithBoundFuncResult()) {
+                            /**
+                             * If this var "foo" is initialized with bound function result var, then
+                             * we want to get element from the Pointer. We translate as:
+                             *
+                             *    public static int get$foo(final int pos$) {
+                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
+                             *        if (ifx$0tmp != null)
+                             *            return (Integer)ifx$0tmp.get(pos$);
+                             *        else
+                             *            return 0;
+                             *    }
+                             */
+                            Name ptrAccessorName = attributeGetterName(varInfo.boundFuncResultInitSym());
+                            JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Call(ptrAccessorName));
+                            addStmt(tmpPtrVar);
+
+                            JCExpression ptrNonNullCond = NEnull(id(tmpPtrVar));
+                            JCExpression apply = Call(
+                                    id(tmpPtrVar),
+                                    defs.get_PointerMethodName,
+                                    posArg());
+                            addStmt(If(ptrNonNullCond, 
+                                        Return(castFromObject(apply, varInfo.getElementType())),
+                                        Return(makeDefaultValue(varInfo.pos(), typeMorpher.typeMorphInfo(varInfo.getElementType())))
+                                      )
+                                   );
                         } else {
                             addStmt(varInfo.boundElementGetter());
                         }
@@ -1227,6 +1254,32 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     defs.size_FXObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
                             addStmt(Return(apply));
+                        } else if (varInfo.isInitWithBoundFuncResult()) {
+                            /**
+                             * If this var "foo" is initialized with bound function result var, then
+                             * we want to get element from the Pointer. We translate as:
+                             *
+                             *    public static int get$foo(final int pos$) {
+                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
+                             *        if (ifx$0tmp != null)
+                             *            return (Integer)ifx$0tmp.size();
+                             *        else
+                             *            return 0;
+                             *    }
+                             */
+                            Name ptrAccessorName = attributeGetterName(varInfo.boundFuncResultInitSym());
+                            JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Call(ptrAccessorName));
+                            addStmt(tmpPtrVar);
+
+                            JCExpression ptrNonNullCond = NEnull(id(tmpPtrVar));
+                            JCExpression apply = Call(
+                                    Call(ptrAccessorName),
+                                    defs.size_PointerMethodName);
+                            addStmt(If(ptrNonNullCond,
+                                        Return(apply),
+                                        Return(makeLit(diagPos, syms.intType, 0))
+                                      )
+                                   );
                         } else {
                             addStmt(varInfo.boundSizeGetter());
                         }

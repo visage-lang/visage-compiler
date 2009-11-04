@@ -99,8 +99,23 @@ public class Pointer implements KeyValueTarget {
         return obj.get$(varnum);
     }
 
+    public Object get(int pos) {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        return obj.get$(varnum, pos);
+    }
+
     public void set(Object value) {
         obj.set$(varnum, value);
+    }
+
+    public void set(int pos, Object value) {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        obj.set$(varnum, value);
+    }
+
+    public int size() {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        return obj.size$(varnum);
     }
 
     public Object getValue() {

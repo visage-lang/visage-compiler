@@ -208,7 +208,6 @@ public class JavafxDefs {
     final RuntimeMethod FXConstant_make;
 
     final RuntimeMethod Pointer_make;
-    final RuntimeMethod Pointer_get;
 
     final RuntimeMethod Duration_valueOf;
 
@@ -280,6 +279,7 @@ public class JavafxDefs {
     final Name getVarNum_PointerMethodName;
     final Name getFXObject_PointerMethodName;
     final Name addDependency_PointerMethodName;
+    final Name size_PointerMethodName;
 
     final Name values_KeyFrameMethodName;
     final Name time_KeyFrameMethodName;
@@ -479,6 +479,7 @@ public class JavafxDefs {
         getVarNum_PointerMethodName = names.fromString("getVarNum");
         getFXObject_PointerMethodName = names.fromString("getFXObject");
         addDependency_PointerMethodName = names.fromString("addDependency");
+        size_PointerMethodName = size_SequenceMethodName;
         invoke_MethodName = names.fromString("invoke");
         lambda_MethodName = names.fromString("lambda");
         length_ArrayFieldName = names.fromString("length");
@@ -625,7 +626,6 @@ public class JavafxDefs {
         FXConstant_make = new RuntimeMethod(names, cFXConstant, "make");
 
         Pointer_make = new RuntimeMethod(names, cPointer, "make");
-        Pointer_get = new RuntimeMethod(names, cPointer, "get");
 
         Duration_valueOf = new RuntimeMethod(names, cDuration, "valueOf");
 
