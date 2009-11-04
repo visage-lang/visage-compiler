@@ -1614,15 +1614,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCExpression initValue = varInfo.boundInit();
                                 if (varInfo.isInitWithBoundFuncResult()) {
                                     /**
+                                     * For a field named "foo" that is initialized from the bound function
+                                     * result Pointer, we generate the following:
+                                     *
                                      * Pointer oldPtr = $$$bound$result$$foo;
                                      * Pointer newPtr = get$$$bound$result$$foo();
+                                     * if (oldPtr != null) {
+                                     *      // remove old Pointer depenency, if any
+                                     *      oldPtr.removeDependency(receiver);
+                                     * }
                                      * if (newPtr != null) {
                                      *      be$foo((ExpectedType)newPtr.get());
-                                     *      if (oldPtr != null) {
-                                     *          // Pointer set to non-null from null. Add dependency.
-                                     *          // Pointer will issue update$ from now onwards.
-                                     *          oldPtr.addDependency(receiver);
-                                     *      }
+                                     *      // Add dependency - Pointer will issue update$ from now onwards.
+                                     *      newPtr.addDependency(receiver);
+                                     * } else {
+                                     *      be$foo(<default-value>);
                                      * }
                                      */
                                     Name ptrVarName = attributeValueName(varInfo.boundFuncResultInitSym());
@@ -1633,18 +1639,25 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, initValue);
                                     addStmt(newPtrVar);
 
+                                    JCExpression receiver = getReceiverOrThis(varSym);
+
+                                    JCStatement removeDepToOldPtrStmt = CallStmt(id(oldPtrVar),
+                                            defs.removeDependency_PointerMethodName, receiver);
+                                    addStmt(If(NEnull(id(oldPtrVar)), removeDepToOldPtrStmt));
+
                                     // We have a Pointer - we need to call Pointer.get() and cast the result.
                                     initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
-                                    JCStatement invalidateStmt = CallStmt(attributeBeName(varSym), initValue);
+                                    JCStatement beStmt = CallStmt(attributeBeName(varSym), initValue);
 
                                     // Add the receiver of the current Var symbol as dependency to the Pointer, so that
                                     // we will get notification whenever the result of the bound function evaluation changes.
-                                    JCStatement addDepToPtrStmt = 
-                                           If(EQnull(id(oldPtrVar)), CallStmt(id(ptrVarName), defs.addDependency_PointerMethodName, getReceiverOrThis(varSym)));
+                                    JCStatement addDepToNewPtrStmt = CallStmt(id(newPtrVar),
+                                            defs.addDependency_PointerMethodName, receiver);
 
-
-                                    JCBlock blk = Block(invalidateStmt, addDepToPtrStmt);
-                                    addStmt(If(NEnull(id(newPtrVar)), blk));
+                                    JCBlock blk = Block(beStmt, addDepToNewPtrStmt);
+                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
+                                            makeDefaultValue(diagPos, varInfo.getVMI()));
+                                    addStmt(If(NEnull(id(newPtrVar)), blk, beDefaultStmt));
                                 } else {
                                     addStmt(CallStmt(attributeBeName(varSym), initValue));
                                 }

@@ -279,6 +279,7 @@ public class JavafxDefs {
     final Name getVarNum_PointerMethodName;
     final Name getFXObject_PointerMethodName;
     final Name addDependency_PointerMethodName;
+    final Name removeDependency_PointerMethodName;
     final Name size_PointerMethodName;
 
     final Name values_KeyFrameMethodName;
@@ -479,6 +480,7 @@ public class JavafxDefs {
         getVarNum_PointerMethodName = names.fromString("getVarNum");
         getFXObject_PointerMethodName = names.fromString("getFXObject");
         addDependency_PointerMethodName = names.fromString("addDependency");
+        removeDependency_PointerMethodName = names.fromString("removeDependency");
         size_PointerMethodName = size_SequenceMethodName;
         invoke_MethodName = names.fromString("invoke");
         lambda_MethodName = names.fromString("lambda");
