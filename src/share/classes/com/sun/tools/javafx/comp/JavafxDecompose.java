@@ -126,7 +126,13 @@ public class JavafxDecompose implements JavafxVisitor {
         if (tree==null) {
             return false;
         }
-        return tree.getFXTag() == JavafxTag.APPLY;
+        switch (tree.getFXTag()) {
+            case APPLY:
+            case SEQUENCE_EXPLICIT:
+            case SEQUENCE_RANGE:
+                return true;
+        }
+        return false;
     }
 
     private JFXExpression decomposeComponent(JFXExpression tree) {

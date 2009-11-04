@@ -363,7 +363,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
  *                     Bound Sequence Translators
  ****************************************************************************/
 
-    abstract class BoundSequenceTranslator extends ExpressionTranslator {
+    private abstract class BoundSequenceTranslator extends ExpressionTranslator {
 
         abstract JCStatement makeSizeBody();
         abstract JCStatement makeGetElementBody();
@@ -427,6 +427,26 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         void setupInvalidators() {
             mergeResults(exprResult);
+        }
+    }
+
+    class BoundEmptySequenceTranslator extends BoundSequenceTranslator {
+        private final Type elemType;
+        BoundEmptySequenceTranslator(JFXSequenceEmpty tree) {
+            super(tree.pos());
+            this.elemType = types.elementType(tree.type);
+        }
+
+        JCStatement makeSizeBody() {
+            return Return(Int(0));
+        }
+
+        JCStatement makeGetElementBody() {
+            return Return(DefaultValue(elemType));
+        }
+
+        void setupInvalidators() {
+            // nada
         }
     }
 
@@ -1219,7 +1239,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        result = new SequenceEmptyTranslator(tree).doit();
+        if (tree == boundExpression && types.isSequence(targetType)) {
+            // We want to translate to a bound sequence
+            result = new BoundEmptySequenceTranslator(tree).doit();
+        } else {
+            result = new SequenceEmptyTranslator(tree).doit();
+        }
     }
 
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
