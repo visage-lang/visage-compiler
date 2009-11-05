@@ -261,11 +261,92 @@ public class JavafxLower implements JavafxVisitor {
 
     @Override
     public void visitAssignop(JFXAssignOp tree) {
-        JFXExpression lhs = lower(tree.lhs);
-        JFXExpression rhs = lowerExpr(tree.rhs, tree.operator.type.getParameterTypes().head);
-        JFXAssignOp assign = m.at(tree.pos).Assignop(tree.getFXTag(), lhs, rhs);
-        assign.operator = tree.operator;
-        result = assign.setType(tree.type);
+        result = visitNumericAssignop(tree, types.isSameType(tree.lhs.type, syms.javafx_DurationType));
+    }
+    //where
+    private JFXExpression visitNumericAssignop(JFXAssignOp tree, boolean isDurationOperation) {
+
+        JavafxTag opTag = tree.getNormalOperatorFXTag();
+        ListBuffer<JFXExpression> stats = ListBuffer.lb();
+
+        //if the assignop operand is an indexed expression of the kind a.x[i]
+        //then we need to cache the index value (not to recumpute it twice).
+
+        JFXExpression lhs = tree.lhs;
+        JFXIdent index = null;
+        
+        if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
+            JFXSequenceIndexed indexed = (JFXSequenceIndexed)tree.lhs;
+            JFXVar varDef = makeTmpVar(tree.pos(), "index", indexed.getIndex(), indexed.getIndex().type);
+            index = m.at(tree.pos).Ident(varDef.sym);
+            index.sym = varDef.sym;
+            index.type = varDef.type;
+            stats.append(varDef);
+            lhs = indexed.getSequence();
+        }
+
+        //if the assignop operand is a select of the kind a.x
+        //then we need to cache the selected part (a), so that
+        //it won't be recomputed twice.
+        //
+        // var $expr$ = a;
+
+        JFXIdent selector = null;
+
+        if (lhs.getFXTag() == JavafxTag.SELECT) {
+            JFXExpression selected = ((JFXSelect)lhs).selected;
+            JFXVar varDef = makeTmpVar(tree.pos(), "expr", selected, selected.type);
+            selector = m.at(tree.pos).Ident(varDef.sym);
+            selector.sym = varDef.sym;
+            selector.type = varDef.type;
+            stats.append(varDef);
+        }
+
+        JFXExpression varRef = lhs;
+
+        //create a reference to the cached var. The translated expression
+        //depends on whether the operand is a select or not:
+        //
+        //(SELECT)  $expr$.x;
+        //(IDENT)   x;
+
+        if (selector != null) {
+            VarSymbol vsym = (VarSymbol)JavafxTreeInfo.symbol(lhs);
+            varRef = m.at(tree.pos).Select(selector, vsym);
+            ((JFXSelect)varRef).sym = vsym;
+        }
+
+        if (index != null) {
+            varRef = m.at(tree.pos).SequenceIndexed(varRef, index).setType(tree.lhs.type);
+        }
+
+        //Generate the binary expression this assignop translates to
+        JFXExpression op = null;
+
+        if (isDurationOperation) {
+            //duration assignop
+            //
+            //(SELECT) $expr$.x = $expr$.x.[add/sub/mul/div](lhs);
+            //(IDENT)  x = x.[add/sub/mul/div](lhs);
+            JFXSelect meth = (JFXSelect)m.at(tree.pos).Select(varRef, tree.operator.name);
+            meth.setType(tree.operator.type);
+            meth.sym = tree.operator;
+            op = m.at(tree.pos).Apply(List.<JFXExpression>nil(), meth, List.of(tree.rhs));
+            op.setType(tree.type);
+        }
+        else {
+            //numeric assignop
+            //
+            //(SELECT) $expr$.x = $expr$.x [+|-|*|/] lhs;
+            //(IDENT)  x = $expr$.x [+|-|*|/] lhs;
+            op = m.at(tree.pos).Binary(opTag, varRef, tree.rhs);
+            ((JFXBinary)op).operator = tree.operator;
+            op.setType(tree.operator.type.asMethodType().getReturnType());
+        }
+        JFXExpression assignOpStat = (JFXExpression)m.at(tree.pos).Assign(varRef, op).setType(op.type);
+
+        JFXBlock block = (JFXBlock)m.at(tree.pos).Block(0L, stats.toList(), assignOpStat).setType(op.type);
+        return lowerExpr(block, Type.noType);
     }
 
     @Override
@@ -523,7 +604,7 @@ public class JavafxLower implements JavafxVisitor {
     @Override
     public void visitUnary(JFXUnary tree) {
         if (tree.getFXTag().isIncDec()) {
-            result = lowerArithmeticUnary(tree);
+            result = visitNumericUnary(tree);
         }
         else {
             JFXExpression arg = tree.getFXTag().isIncDec() ?
@@ -536,7 +617,7 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    private JFXExpression lowerArithmeticUnary(JFXUnary tree) {
+    private JFXExpression visitNumericUnary(JFXUnary tree) {
         boolean postFix = isPostfix(tree.getFXTag());
         JavafxTag opTag = unaryToBinaryOpTag(tree.getFXTag());
         Type opType = types.unboxedTypeOrType(tree.getExpression().type);
@@ -545,6 +626,22 @@ public class JavafxLower implements JavafxVisitor {
         }
         ListBuffer<JFXExpression> stats = ListBuffer.lb();
 
+        //if the unary operand is an indexed expression of the kind a.x[i]
+        //then we need to cache the index value (not to recumpute it twice).
+
+        JFXExpression expr = tree.getExpression();
+        JFXIdent index = null;
+
+        if (tree.getExpression().getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
+            JFXSequenceIndexed indexed = (JFXSequenceIndexed)tree.getExpression();
+            JFXVar varDef = makeTmpVar(tree.pos(), "index", indexed.getIndex(), indexed.getIndex().type);
+            index = m.at(tree.pos).Ident(varDef.sym);
+            index.sym = varDef.sym;
+            index.type = varDef.type;
+            stats.append(varDef);
+            expr = indexed.getSequence();
+        }
+
         //if the unary operand is a select of the kind a.x
         //then we need to cache the selected part (a), so that
         //it won't be recomputed twice.
@@ -552,8 +649,8 @@ public class JavafxLower implements JavafxVisitor {
         // var $expr$ = a;
         JFXIdent selector = null;
 
-        if (tree.getExpression().getFXTag() == JavafxTag.SELECT) {
-            JFXExpression selected = ((JFXSelect)tree.getExpression()).selected;
+        if (expr.getFXTag() == JavafxTag.SELECT) {
+            JFXExpression selected = ((JFXSelect)expr).selected;
             JFXVar varDef = makeTmpVar(tree.pos(), "expr", selected, selected.type);
             selector = m.at(tree.pos).Ident(varDef.sym);
             selector.sym = varDef.sym;
@@ -561,12 +658,16 @@ public class JavafxLower implements JavafxVisitor {
             stats.append(varDef);
         }
 
-        JFXExpression varRef = tree.getExpression();
+        JFXExpression varRef = expr;
 
         if (selector != null) {
-            VarSymbol vsym = (VarSymbol)JavafxTreeInfo.symbol(tree.getExpression());
+            VarSymbol vsym = (VarSymbol)JavafxTreeInfo.symbol(expr);
             varRef = m.at(tree.pos).Select(selector, vsym);
             ((JFXSelect)varRef).sym = vsym;
+        }
+
+        if (index != null) {
+            varRef = m.at(tree.pos).SequenceIndexed(varRef, index).setType(tree.getExpression().type);
         }
 
         //cache the old value of the unary operand. The translated expression

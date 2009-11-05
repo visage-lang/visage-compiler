@@ -757,65 +757,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     @Override
     public void visitAssignop(final JFXAssignOp tree) {
-        result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
-
-            private boolean useDurationOperations() {
-                return types.isSameType(ref.type, syms.javafx_DurationType);
-            }
-
-            @Override
-            JCExpression buildRHS(JCExpression rhsTranslated) {
-                final JCExpression lhsTranslated = translateExpr(ref, null);
-                if (useDurationOperations()) {
-                    return Call(
-                            lhsTranslated,
-                            tree.operator.name,
-                            rhsTranslated);
-                } else {
-                    JCExpression ret = m().Binary(getBinaryOp(), lhsTranslated, rhsTranslated);
-                    if (!types.isSameType(rhsType(), ref.type)) {
-                        // Because the RHS is a different type than the LHS, a cast may be needed
-                        ret = m().TypeCast(ref.type, ret);
-                    }
-                    return ret;
-                }
-            }
-
-            @Override
-            protected Type rhsType() {
-                switch (tree.getFXTag()) {
-                    case MUL_ASG:
-                    case DIV_ASG:
-                        // Allow for cases like 'k *= 0.5' where k is an Integer or Duration
-                        return operationalType(useDurationOperations()? syms.javafx_NumberType : rhs.type);
-                    default:
-                        return operationalType(ref.type);
-                }
-            }
-
-            @Override
-            JCExpression defaultFullExpression( JCExpression lhsTranslated, JCExpression rhsTranslated) {
-                return useDurationOperations()?
-                    m().Assign(lhsTranslated, buildRHS(rhsTranslated)) :
-                    m().Assignop(tree.getOperatorTag(), lhsTranslated, rhsTranslated);
-            }
-
-            private int getBinaryOp() {
-                switch (tree.getFXTag()) {
-                    case PLUS_ASG:
-                        return JCTree.PLUS;
-                    case MINUS_ASG:
-                        return JCTree.MINUS;
-                    case MUL_ASG:
-                        return JCTree.MUL;
-                    case DIV_ASG:
-                        return JCTree.DIV;
-                    default:
-                        assert false : "unexpected assign op kind";
-                        return JCTree.PLUS;
-                }
-            }
-        }.doit();
+        throw new AssertionError("Assignop should have been lowered");
     }
 
     public void visitSelect(JFXSelect tree) {
