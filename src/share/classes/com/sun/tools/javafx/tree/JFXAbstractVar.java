@@ -70,9 +70,9 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
         return sym.isStatic();
     }
 
-    public void markBound() {
-        if (!bindStatus.isBound()) {
-            bindStatus = JavafxBindStatus.UNIDIBIND;
+    public void markBound(JavafxBindStatus bindStatus) {
+        if (!this.bindStatus.isBound()) {
+            this.bindStatus = bindStatus;
         }
     }
 
@@ -112,20 +112,20 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
         return bindStatus;
     }
 
-    public boolean isBidiBind() {
-        return bindStatus.isBidiBind();
-    }
-
     public boolean isBound() {
         return bindStatus.isBound();
     }
 
-    public boolean isLazy() {
-        return bindStatus.isLazy();
+    public boolean isDependent() {
+        return bindStatus.isDependent();
     }
 
     public boolean isUnidiBind() {
         return bindStatus.isUnidiBind();
+    }
+
+    public boolean isBidiBind() {
+        return bindStatus.isBidiBind();
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {

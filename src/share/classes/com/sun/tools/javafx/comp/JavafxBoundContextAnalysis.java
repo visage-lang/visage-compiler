@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 import com.sun.tools.mjavac.util.Context;
@@ -42,7 +43,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     private final Log log;
     private final JCDiagnostic.Factory diags;
 
-    private boolean inBindContext;
+    private JavafxBindStatus bindStatus;
 
     public static JavafxBoundContextAnalysis instance(Context context) {
         JavafxBoundContextAnalysis instance = context.get(bindAnalysisKey);
@@ -57,7 +58,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         log = Log.instance(context);
         diags = JCDiagnostic.Factory.instance(context);
 
-        inBindContext = false;
+        bindStatus = JavafxBindStatus.UNBOUND;
     }
 
     public void analyzeBindContexts(JavafxEnv<JavafxAttrContext> attrEnv) {
@@ -65,14 +66,14 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     private void mark(JFXBoundMarkable tree) {
-        if (inBindContext) {
-        tree.markBound();
+        if (bindStatus != JavafxBindStatus.UNBOUND) {
+            tree.markBound(bindStatus);
         }
     }
 
     @Override
     public void visitScript(JFXScript tree) {
-        inBindContext = false;
+        bindStatus = JavafxBindStatus.UNBOUND;
         super.visitScript(tree);
     }
 
@@ -80,18 +81,19 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     public void visitVarInit(JFXVarInit tree) {
     }
 
-    @Override
-    public void visitVar(JFXVar tree) {
+    private void analyzeVar(JFXAbstractVar tree) {
         // any changes here should also go into visitOverrideClassVar
-        boolean wasInBindContext = inBindContext;
-        inBindContext |= tree.isBound();
+        JavafxBindStatus prevBindStatus = bindStatus;
+        bindStatus = tree.isBound()?
+                            JavafxBindStatus.UNIDIBIND :
+                            prevBindStatus;
         mark(tree);
         scan(tree.getInitializer());
-        inBindContext = wasInBindContext;
+        bindStatus = prevBindStatus;
         for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
             JFXOnReplace trigger = tree.getTrigger(triggerKind);
             if (trigger != null) {
-                if (inBindContext) {
+                if (bindStatus != JavafxBindStatus.UNBOUND) {
                     log.error(trigger.pos(), MsgSym.MESSAGE_TRIGGER_IN_BIND_NOT_ALLOWED, triggerKind);
                 }
             }
@@ -101,36 +103,36 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
+    public void visitVar(JFXVar tree) {
+        analyzeVar(tree);
+    }
+
+    @Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        boolean wasInBindContext = inBindContext;
-        inBindContext |= tree.isBound();
-        scan(tree.getInitializer());
-        inBindContext = wasInBindContext;
-        scan(tree.getOnReplace());
-        scan(tree.getOnInvalidate());
+        analyzeVar(tree);
     }
 
     @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         // these start over in a class definition
-        boolean wasInBindContext = inBindContext;
-        inBindContext = false;
+        JavafxBindStatus prevBindStatus = bindStatus;
+        bindStatus = JavafxBindStatus.UNBOUND;
 
         super.visitClassDeclaration(tree);
 
-        inBindContext = wasInBindContext;
+        bindStatus = prevBindStatus;
     }
 
     @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         // start over in a function definition
-        boolean wasInBindContext = inBindContext;
+        JavafxBindStatus prevBindStatus = bindStatus;
 
-        inBindContext = tree.isBound();
+        bindStatus = tree.isBound()? JavafxBindStatus.UNIDIBIND : JavafxBindStatus.UNBOUND;
         // don't use super, since we don't want to cancel the inBindContext
         scan(tree.getParams());
         scan(tree.getBodyExpression());
-        inBindContext = wasInBindContext;
+        bindStatus = prevBindStatus;
     }
 
     @Override
@@ -142,26 +144,30 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     @Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         // these start over in a function value
-        boolean wasInBindContext = inBindContext;
-        inBindContext = false;
+        JavafxBindStatus prevBindStatus = bindStatus;
+        bindStatus = JavafxBindStatus.UNBOUND;
         super.visitFunctionValue(tree);
-        inBindContext = wasInBindContext;
+        bindStatus = prevBindStatus;
     }
 
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-        boolean wasInBindContext = inBindContext;
+        JavafxBindStatus prevBindStatus = bindStatus;
 
         // bind doesn't permiate object literals, but...
-        // ... it is still makes it a bound context
-        inBindContext |= tree.isBound();
+        // ... it does make it a dependent context
+        bindStatus = tree.isBound()?
+                            tree.getBindStatus() :
+                            prevBindStatus == JavafxBindStatus.UNIDIBIND?
+                                JavafxBindStatus.DEPENDENT :
+                                prevBindStatus;
         scan(tree.getExpression());
-        inBindContext = wasInBindContext;
+        bindStatus = prevBindStatus;
     }
 
     @Override
     public void visitAssignop(JFXAssignOp tree) {
-        if (inBindContext) {
+        if (bindStatus != JavafxBindStatus.UNBOUND) {
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "compound assignment");
         }
         super.visitAssignop(tree);
@@ -169,7 +175,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitUnary(JFXUnary tree) {
-        if (inBindContext) {
+        if (bindStatus != JavafxBindStatus.UNBOUND) {
             switch (tree.getFXTag()) {
                 case PREINC:
                 case POSTINC:
@@ -186,15 +192,15 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitInterpolateValue(final JFXInterpolateValue tree) {
-        boolean wasInBindContext = inBindContext;
-        inBindContext = true;
+        JavafxBindStatus prevBindStatus = bindStatus;
+        bindStatus = JavafxBindStatus.UNBOUND;  //TODO: ???
         super.visitInterpolateValue(tree);
-        inBindContext = wasInBindContext;
+        bindStatus = prevBindStatus;
     }
 
     @Override
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        if (inBindContext) {
+        if (bindStatus != JavafxBindStatus.UNBOUND) {
             log.error(tree.pos(),
                     MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT,
                     diags.fragment(MsgSym.MESSAGE_JAVAFX_KEYFRAME_LIT));
@@ -204,7 +210,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitBlockExpression(JFXBlock tree) {
-        if (inBindContext) {
+        if (bindStatus != JavafxBindStatus.UNBOUND) {
             for (List<JFXExpression> l = tree.stats; l.nonEmpty(); l = l.tail) {
                 if (l.head.getFXTag() != JavafxTag.VAR_DEF) {
                     log.error(l.head.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, l.head.toString());

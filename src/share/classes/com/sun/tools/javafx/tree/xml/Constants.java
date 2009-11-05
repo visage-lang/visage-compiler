@@ -240,9 +240,6 @@ public final class Constants {
         bindStatus2String.put(JavafxBindStatus.UNBOUND, "unbound");
         bindStatus2String.put(JavafxBindStatus.UNIDIBIND, "bind");
         bindStatus2String.put(JavafxBindStatus.BIDIBIND, "bind-with-inverse");
-        bindStatus2String.put(JavafxBindStatus.LAZY_UNIDIBIND,"bind-lazy");
-        bindStatus2String.put(JavafxBindStatus.LAZY_BIDIBIND, "bind-lazy-with-inverse");
-        bindStatus2String.put(JavafxBindStatus.LAZY_UNBOUND, "unbound-lazy");
     }
 
     public static String bindStatusToString(JavafxBindStatus bs) {

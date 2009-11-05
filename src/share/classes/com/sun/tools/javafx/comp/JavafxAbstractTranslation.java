@@ -2382,8 +2382,9 @@ public abstract class JavafxAbstractTranslation
         protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
         protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
-            JCExpression trans = translateExpr(init, vsym.type);
-            return convertNullability(init.pos(), trans, init, vsym.type);
+            ExpressionResult eres = toJava().translateToExpressionResult(init, vsym.type);
+            mergeResults(eres);
+            return convertNullability(init.pos(), eres.expr(), init, vsym.type);
         }
 
         void setInstanceVariable(DiagnosticPosition diagPos, Name instanceName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {

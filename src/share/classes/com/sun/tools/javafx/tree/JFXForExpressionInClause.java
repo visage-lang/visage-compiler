@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
@@ -34,8 +35,9 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
     public final JFXVar var;
     public final JFXExpression seqExpr;
     public final JFXExpression whereExpr;
+
     private boolean indexUsed;
-    private boolean isBound = false;;
+    private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
 
     protected JFXForExpressionInClause() {
         this.var        = null;
@@ -93,11 +95,15 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
         return v.visitForExpressionInClause(this, d);
     }
 
-    public void markBound() {
-        isBound = true;
+    public void markBound(JavafxBindStatus bindStatus) {
+        this.bindStatus = bindStatus;
     }
 
     public boolean isBound() {
-        return isBound;
+        return bindStatus.isBound();
+    }
+
+    public boolean isDependent() {
+        return bindStatus.isDependent();
     }
 }

@@ -574,7 +574,7 @@ public class JavafxLocalToClass {
                                 JavafxBindStatus.UNIDIBIND, null, null);
                         returnVar.type = returnExpr.type;
                         returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnExpr.type, that.sym);
-                        returnVar.markBound();
+                        returnVar.markBound(JavafxBindStatus.UNIDIBIND);
                         stmts.append(returnVar);
 
                         // find the symbol of Pointer.make(Object) method.

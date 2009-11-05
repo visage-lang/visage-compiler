@@ -34,28 +34,26 @@ public final class JavafxBindStatus {
     public static final JavafxBindStatus UNBOUND          = new JavafxBindStatus("unbound",                   false, false, false);
     public static final JavafxBindStatus UNIDIBIND        = new JavafxBindStatus("unidirectional bind",       true,  false, false);
     public static final JavafxBindStatus BIDIBIND         = new JavafxBindStatus("bidirectional bind",        false, true,  false);
-    public static final JavafxBindStatus LAZY_UNIDIBIND   = new JavafxBindStatus("lazy unidirectional bind",  true,  false, true);
-    public static final JavafxBindStatus LAZY_BIDIBIND    = new JavafxBindStatus("lazy bidirectional bind",   false, true,  true);
-    public static final JavafxBindStatus LAZY_UNBOUND     = new JavafxBindStatus("lazy unbound",              false, false, true);
+    public static final JavafxBindStatus DEPENDENT        = new JavafxBindStatus("unbound dependent",         false, false, true);
     
     private final String description;
     private final boolean isBound;
     private final boolean isUnidiBind;
     private final boolean isBidiBind;
-    private final boolean isLazy;
+    private final boolean isDependent;
     
     public String description()  { return description; }
     public boolean isBound()     { return isBound; }
     public boolean isUnidiBind() { return isUnidiBind; }
     public boolean isBidiBind()  { return isBidiBind; }
-    public boolean isLazy()      { return isLazy; }
+    public boolean isDependent() { return isDependent; }
 
     /** Creates a new instance of JavafxBindStatus */
-    private JavafxBindStatus(String description, boolean isUnidiBind, boolean isBidiBind, final boolean isLazy) {
+    private JavafxBindStatus(String description, boolean isUnidiBind, boolean isBidiBind, final boolean isDependent) {
         this.description = description;
         this.isUnidiBind = isUnidiBind;
         this.isBidiBind = isBidiBind;
         this.isBound = isUnidiBind || isBidiBind;
-        this.isLazy = isLazy;
+        this.isDependent = isDependent;
     }
 }

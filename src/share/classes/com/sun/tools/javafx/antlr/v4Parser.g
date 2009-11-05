@@ -2946,7 +2946,6 @@ boundExpression
 
 @init 
 { 
-	boolean isLazy      	= false; 	// Signals presence of LAZY
 	boolean isBidirectional	= false; 	// Signals presence of INVERSE
 
 	// Used to accumulate a list of anything that we manage to build up in the parse
@@ -2963,9 +2962,8 @@ boundExpression
 	  
       ( LAZY
 			{
-				// Update status
-				//
-				isLazy = true;
+				// Ignore
+				//TODO: warning
 			}
 	  )?
 	  
@@ -2996,7 +2994,7 @@ boundExpression
 				
 				// Update the status
 				//
-				$status	= isLazy? isBidirectional? LAZY_BIDIBIND : LAZY_UNIDIBIND :  isBidirectional? BIDIBIND : UNIDIBIND;
+				$status	= isBidirectional? BIDIBIND : UNIDIBIND;
 			}
 	
 	| e2=expression

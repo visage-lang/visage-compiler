@@ -881,7 +881,7 @@ public class JavafxPretty implements JavafxVisitor {
             if (bindStatus.isBidiBind()) {
                 print(" bind /*tie*/ ");
             }
-            if (bindStatus.isLazy()) {
+            if (bindStatus.isDependent()) {
                 print(" bind /*lazy*/ ");
             }
         } catch (IOException e) {

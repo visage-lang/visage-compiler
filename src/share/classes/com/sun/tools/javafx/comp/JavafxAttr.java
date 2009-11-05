@@ -946,8 +946,9 @@ public class JavafxAttr implements JavafxVisitor {
             //chk.validateAnnotations(tree.mods.annotations, v);
             if (types.isArray(v.type) &&
                     (tree.isBound() ||
+                     tree.isDependent() ||
                     tree.getOnReplaceTree() != null)) {
-                String key = tree.isBound() ? "bind" : "trigger";
+                String key = (tree.isBound() || tree.isDependent()) ? "bind" : "trigger";
                 JCDiagnostic err = diags.fragment("javafx.unsupported.type.in." + key);
                 chk.typeError(tree, err, v.type, messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
                         MsgSym.MESSAGE_JAVAFX_OBJ_OR_SEQ));
