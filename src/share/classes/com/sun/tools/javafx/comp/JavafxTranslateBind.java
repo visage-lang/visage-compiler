@@ -1176,9 +1176,16 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
-/* ***************************************************************************
- * Visitor methods -- implemented (alphabetical order)
- ****************************************************************************/
+    /***********************************************************************
+     *
+     * Visitors  (alphabetical order)
+     *
+     * Override those that need special bind handling
+     */
+
+    JCExpression TODO(JFXTree tree) {
+        return TODO("BIND functionality: " + tree.getClass().getSimpleName());
+    }
 
     private void checkForSequenceVersionUnimplemented(JFXExpression tree) {
         if (tree == boundExpression && types.isSequence(targetType)) {
@@ -1187,10 +1194,22 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    public void visitBlockExpression(JFXBlock tree) {
+        TODO(tree);
+    }
+
+    public void visitForExpression(JFXForExpression tree) {
+        TODO(tree);
+    }
+
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         checkForSequenceVersionUnimplemented(tree);
         result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
+    }
+
+    public void visitFunctionValue(JFXFunctionValue tree) {
+        TODO(tree);
     }
 
     @Override
@@ -1210,6 +1229,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         checkForSequenceVersionUnimplemented(tree);
             result = exprResult;
 
+    }
+
+    @Override
+    public void visitIndexof(JFXIndexof tree) {
+        TODO(tree);
+    }
+
+    public void visitInterpolateValue(JFXInterpolateValue tree) {
+        TODO(tree);
     }
 
     @Override
@@ -1242,9 +1270,17 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         result = new BoundExplicitSequenceTranslator(tree).doit();
     }
 
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        TODO(tree);
+    }
+
     @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         result = new BoundRangeSequenceTranslator(tree).doit();
+    }
+
+    public void visitSequenceSlice(JFXSequenceSlice tree) {
+        TODO(tree);
     }
 
     @Override
@@ -1257,74 +1293,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     public void visitUnary(JFXUnary tree) {
         checkForSequenceVersionUnimplemented(tree);
         super.visitUnary(tree);
-    }
-
-
-/* ***************************************************************************
- * Visitor methods -- NOT implemented yet
- ****************************************************************************/
-
-    JCExpression TODO(JFXTree tree) {
-        return TODO("BIND functionality: " + tree.getClass().getSimpleName());
-    }
-
-    public void visitAssign(JFXAssign tree) {
-        TODO(tree);
-        //(tree.lhs);
-        //(tree.rhs);
-    }
-
-    public void visitFunctionValue(JFXFunctionValue tree) {
-        TODO(tree);
-        for (JFXVar param : tree.getParams()) {
-            //(param);
-        }
-        //(tree.getBodyExpression());
-    }
-
-    //@Override
-    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
-        TODO(tree);
-        //(that.getSequence());
-        //(that.getIndex());
-    }
-    
-    public void visitSequenceSlice(JFXSequenceSlice tree) {
-        TODO(tree);
-        //(that.getSequence());
-        //(that.getFirstIndex());
-        //(that.getLastIndex());
-    }
-
-    //@Override
-    public void visitForExpression(JFXForExpression tree) {
-        TODO(tree);
-        for (ForExpressionInClauseTree cl : tree.getInClauses()) {
-            JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
-            //(clause);
-        }
-        //(that.getBodyExpression());
-    }
-
-    //@Override
-    public void visitBlockExpression(JFXBlock tree) {
-        TODO(tree);
-        //(that.stats);
-        //(that.value);
-    }
-    
-    @Override
-    public void visitIndexof(JFXIndexof tree) {
-        TODO(tree);
-    }
-
-    public void visitInterpolateValue(JFXInterpolateValue tree) {
-        TODO(tree);
-        //(that.attribute);
-        //(that.value);
-        if  (tree.interpolation != null) {
-            //(that.interpolation);
-        }
     }
 
 

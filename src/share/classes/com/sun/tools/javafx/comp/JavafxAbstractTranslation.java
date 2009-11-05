@@ -822,6 +822,11 @@ public abstract class JavafxAbstractTranslation
             return new StatementsResult(diagPos, stmts.append(translated));
         }
 
+         StatementsResult toStatementResult() {
+            assert invalidators.length() == 0;
+            return new StatementsResult(diagPos, stmts);
+        }
+
         List<JCStatement> statements() {
             return stmts.toList();
         }
@@ -2803,6 +2808,23 @@ public abstract class JavafxAbstractTranslation
     }
 
     /***********************************************************************
+     * Bad visitor support
+     */
+
+    void badVisitor(String msg) {
+        throw new AssertionError(msg);
+    }
+
+    private void disallowedInBind() {
+        badVisitor("should not be processed as part of a binding");
+    }
+
+    private void processedInParent() {
+        badVisitor("should be processed by parent tree");
+    }
+
+
+    /***********************************************************************
      *
      * Visitors  (alphabetical order)
      * 
@@ -2810,16 +2832,8 @@ public abstract class JavafxAbstractTranslation
      * Assume non-bound non-notifying implementations -- override where needed
      */
 
-    private void badTree(String msg) {
-        throw new AssertionError(msg);
-    }
-
-    private void disallowedInBind() {
-        badTree("should not be processed as part of a binding");
-    }
-
-    private void processedInParent() {
-        badTree("should be processed by parent tree");
+    public void visitAssign(JFXAssign tree) {
+        disallowedInBind();
     }
 
     public void visitAssignop(JFXAssignOp tree) {
@@ -2849,7 +2863,7 @@ public abstract class JavafxAbstractTranslation
     }
 
     public void visitErroneous(JFXErroneous tree) {
-        badTree("erroneous nodes shouldn't have gotten this far");
+        badVisitor("erroneous nodes shouldn't have gotten this far");
     }
 
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
@@ -2959,7 +2973,7 @@ public abstract class JavafxAbstractTranslation
    }
 
     public void visitTree(JFXTree that) {
-        badTree("Should not be here!!!");
+        badVisitor("Should not be here!!!");
     }
 
     public void visitTry(JFXTry tree) {
@@ -2994,7 +3008,7 @@ public abstract class JavafxAbstractTranslation
         if (tree.getFXTag().isIncDec()) {
             //we shouldn't be here - arithmetic unary expressions should
             //have been lowered to standard binary expressions
-            badTree("Unexpected unary operator tag: " + tree.getFXTag());
+            badVisitor("Unexpected unary operator tag: " + tree.getFXTag());
         }
         result = new UnaryOperationTranslator(tree).doit();
     }
