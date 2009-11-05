@@ -107,6 +107,7 @@ public class JavafxDefs {
     // in runtime package -- public
     public static final String cFXBase = runtime_PackageString + ".FXBase";
     public static final String cFXObject = runtime_PackageString + ".FXObject";
+    public static final String cErrorHandler = runtime_PackageString + ".ErrorHandler";
     public static final String cFXMixin = runtime_PackageString + ".FXMixin";
     public static final String cTypeInfo = runtime_PackageString + ".TypeInfo";
     // in runtime package
@@ -198,6 +199,8 @@ public class JavafxDefs {
 
     final RuntimeMethod Math_min;
     final RuntimeMethod Math_max;
+
+    final RuntimeMethod ErrorHandler_bindException;
 
     final RuntimeMethod FXBase_switchDependence;
     final RuntimeMethod FXBase_switchBiDiDependence;
@@ -618,6 +621,9 @@ public class JavafxDefs {
 
         Math_min = new RuntimeMethod(names, cMath, "min");
         Math_max = new RuntimeMethod(names, cMath, "max");
+
+
+        ErrorHandler_bindException = new RuntimeMethod(names, cErrorHandler, "bindException");
 
         FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
         FXBase_switchBiDiDependence = new RuntimeMethod(names, cFXBase, "switchBiDiDependence$");

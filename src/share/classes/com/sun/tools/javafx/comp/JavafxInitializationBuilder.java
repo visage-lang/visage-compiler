@@ -1553,7 +1553,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.isBareSynth()) {
                         // return bound-expression
                         addStmts(varInfo.boundPreface());
-                        addStmt(Return(varInfo.boundInit()));
+                        JCStatement returnDefault = Return(makeDefaultValue(diagPos, varInfo.getVMI()));
+                        addStmt(TryWithErrorHandler(Return(varInfo.boundInit()), returnDefault));
                     } else {
                         JCStatement initIf = null;
                         if (!varInfo.isStatic()) {
@@ -1663,7 +1664,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                             makeDefaultValue(diagPos, varInfo.getVMI()));
                                     addStmt(If(NEnull(id(newPtrVar)), blk, beDefaultStmt));
                                 } else {
-                                    addStmt(CallStmt(attributeBeName(varSym), initValue));
+                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
+                                            makeDefaultValue(diagPos, varInfo.getVMI()));
+                                    addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
                                 }
                             }
                           
@@ -2093,7 +2096,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.hasBoundDefinition() && !varInfo.isBareSynth()) {
                         // set$var(init/bound expression)
                         addStmts(varInfo.boundPreface());
-                        addStmt(CallStmt(attributeBeName(varSym), varInfo.boundInit()));
+                        addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), varInfo.boundInit())));
                     } 
                 }
             };

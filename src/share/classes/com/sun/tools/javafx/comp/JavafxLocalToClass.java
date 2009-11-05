@@ -572,8 +572,8 @@ public class JavafxLocalToClass {
                                 fxmake.Modifiers(0), 
                                 returnExprIsVar? fxmake.Ident((JFXVar)returnExpr) : returnExpr,
                                 JavafxBindStatus.UNIDIBIND, null, null);
-                        returnVar.type = returnExpr.type;
-                        returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnExpr.type, that.sym);
+                        returnVar.type = oldSym.type.getReturnType();
+                        returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnVar.type, that.sym);
                         returnVar.markBound(JavafxBindStatus.UNIDIBIND);
                         stmts.append(returnVar);
 

@@ -62,6 +62,7 @@ import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.tree.JCTree.JCBlock;
+import com.sun.tools.mjavac.tree.JCTree.JCCatch;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.util.Options;
 import java.util.Set;
@@ -1290,6 +1291,38 @@ public abstract class JavafxTranslationSupport {
 
         JCStatement If(JCExpression cond, JCStatement thenStmt) {
             return m().If(cond, thenStmt, null);
+        }
+
+        /**
+         * Try
+         */
+        JCStatement Try(JCBlock body, JCCatch cat, JCBlock finalizer) {
+            ListBuffer<JCCatch> catches = ListBuffer.lb();
+            catches.append(cat);
+            return m().Try(body, catches.toList(), finalizer);
+        }
+        JCStatement Try(JCBlock body, JCCatch cat) {
+            return Try(body, cat, null);
+        }
+
+        // generates catch(RuntimeException re) { ErrorHandler.bindException(re); <onCatchStat> }
+        JCCatch ErrorHandler(JCStatement onCatchStat) {
+            JCVariableDecl tmpVar = TmpVar(syms.runtimeExceptionType, null);
+            JCStatement callErrorHandler = CallStmt(defs.ErrorHandler_bindException, id(tmpVar));
+            JCBlock blk = (onCatchStat != null)? Block(callErrorHandler, onCatchStat) : Block(callErrorHandler);
+            return m().Catch(tmpVar, blk);
+        }
+
+        JCStatement TryWithErrorHandler(JCBlock body, JCStatement onCatchStat) {
+            return Try(body, ErrorHandler(onCatchStat));
+        }
+
+        JCStatement TryWithErrorHandler(JCStatement tryStat, JCStatement onCatchStat) {
+            return TryWithErrorHandler(Block(tryStat), onCatchStat);
+        }
+
+        JCStatement TryWithErrorHandler(JCStatement tryStat) {
+            return TryWithErrorHandler(tryStat, null);
         }
 
         /**
