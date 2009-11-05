@@ -233,9 +233,9 @@ import com.sun.javafx.runtime.sequence.Sequence;
     public static void restrictSet$(FXObject obj, final int varNum) {
         if (varTestBits$(obj, varNum, VFLGS$IS_READONLY, VFLGS$IS_READONLY)) {
             if (varTestBits$(obj, varNum, VFLGS$IS_BOUND, VFLGS$IS_BOUND)) {
-                throw new AssignToBoundException();
+                throw new AssignToBoundException("Cannot assign to bound variable");
             } else {
-                throw new AssignToDefException();
+                throw new AssignToDefException("Cannot assign to a variable defined with 'def'");
             }
         }
     }
