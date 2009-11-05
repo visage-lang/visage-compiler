@@ -185,18 +185,22 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         assert false : "should not be processed as part of a binding with inverse";
     }
 
+    @Override
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
+    @Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
+    @Override
     public void visitIfExpression(JFXIfExpression tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
+    @Override
     public void visitIndexof(JFXIndexof tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }

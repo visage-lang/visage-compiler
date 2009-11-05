@@ -515,27 +515,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    @Override
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
-        JFXClassDeclaration prevClass = currentClass();
-        setCurrentClass(tree);
-        
-        if (tree.isScriptClass()) {
-            scriptBegin();
-        }
-
-        try {
-            if (tree.isScriptClass()) {
-                setLiteralInitClassMap(new LiteralInitClassMap());
-            }
-
-            result = new ClassDeclarationTranslator(tree).doit();
-
-        } finally {
-            setCurrentClass(prevClass);
-        }
-    }
-
     private JCExpression translateNonBoundInit(DiagnosticPosition diagPos,
             JFXExpression init, VarMorphInfo vmi) {
         // normal init -- unbound
@@ -652,20 +631,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new VarTranslator(tree).doit();
     }
 
-    public void visitFunctionValue(JFXFunctionValue tree) {
-        JFXFunctionDefinition def = tree.definition;
-        result = new FunctionValueTranslator(make.Ident(defs.lambda_MethodName), def, tree.pos(), (MethodType) def.type, tree.type).doit();
-    }
-
    boolean isInnerFunction (MethodSymbol sym) {
        return sym.owner != null && sym.owner.kind != Kinds.TYP
                 && (sym.flags() & Flags.SYNTHETIC) == 0;
    }
-
-    @Override
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        result = new FunctionTranslator(tree, false).doit();
-    }
 
     private class BlockExpressionTranslator extends ExpressionTranslator {
 
@@ -727,51 +696,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    public void visitBlockExpression(JFXBlock tree) {
-        result = (new BlockExpressionTranslator(tree)).doit();
-    }
-
-    public void visitAssign(final JFXAssign tree) {
-        if (types.isSequence(tree.type)) {
-            if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
-                result = new SequenceSliceActionTranslator((JFXSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.type, tree.rhs).doit();
-            } else {
-                result = new SequenceActionTranslator(tree.pos(), tree.lhs, defs.Sequences_set, null, tree.type, tree.rhs) {
-
-                    @Override
-                    protected Type rhsType() {
-                        return tree.type;
-                    }
-                }.doit();
-            }
-        } else {
-            result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
-
-                @Override
-                JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated) {
-                    return m().Assign(lhsTranslated, rhsTranslated);
-                }
-            }.doit();
-        }
-    }
-
-    @Override
-    public void visitAssignop(final JFXAssignOp tree) {
-        throw new AssertionError("Assignop should have been lowered");
-    }
-
     public void visitSelect(JFXSelect tree) {
         if (substitute(tree.pos(),tree.sym)) {
             return;
         }
         result = new SelectTranslator(tree).doit();
-    }
-
-    public void visitIdent(JFXIdent tree) {
-        if (substitute(tree.pos(),tree.sym)) {
-            return;
-        }
-        result = new IdentTranslator(tree).doit();
     }
 
     private class ExplicitSequenceTranslator extends ExpressionTranslator {
@@ -1287,11 +1216,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         abstract JCExpression makeToSequence();
     }
 
-    @Override
-    public void visitBreak(JFXBreak tree) {
-        result = new StatementsResult(make.at(tree.pos).Break(tree.label));
-    }
-
     /**
      * assume seq is a sequence of element type U
      * convert   for (x in seq where cond) { body }
@@ -1364,10 +1288,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
     
-    public void visitForExpression(JFXForExpression tree) {
-        result = (new ForExpressionTranslator(tree)).doit();
-    }
-
     /**
      * Translator class for for-expression in/where clauses
      */
@@ -1683,73 +1603,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    public void visitIndexof(final JFXIndexof tree) {
-        assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
-        result = new ExpressionTranslator(tree) {
-
-            protected ExpressionResult doit() {
-                return toResult(id(indexVarName(tree.fname)), tree.type);
-            }
-        }.doit();
-    }
-
-
-    /**
-     * Translate if-expression
-     */
-    private class IfTranslator extends ExpressionTranslator {
-
-        private final JFXIfExpression tree;
-
-        IfTranslator(JFXIfExpression tree) {
-            super(tree.pos());
-            this.tree = tree;
-        }
-
-        JCExpression sideExpr(JFXExpression expr) {
-            ExpressionResult res = translateToExpressionResult(expr, targetType);
-            addBindees(res.bindees());
-            addInterClassBindees(res.interClass());
-            return asExpression(res, targetType);
-        }
-
-        JCStatement sideStmt(JFXExpression expr) {
-            if (expr == null) {
-                return null;
-            } else {
-                return translateToStatement(expr, targetType);
-            }
-        }
-
-        protected AbstractStatementsResult doit() {
-            JCExpression cond = translateExpr(tree.getCondition(), syms.booleanType);
-            JFXExpression trueSide = tree.getTrueExpression();
-            JFXExpression falseSide = tree.getFalseExpression();
-            if (yield() == ToExpression) {
-                return toResult(
-                    m().Conditional(
-                        cond,
-                        sideExpr(trueSide),
-                        sideExpr(falseSide)),
-                    targetType);
-            } else {
-                 return toStatementResult(If(
-                        cond,
-                        sideStmt(trueSide),
-                        sideStmt(falseSide)));
-            }
-        }
-    }
-
-    public void visitIfExpression(JFXIfExpression tree) {
-        result = new IfTranslator(tree).doit();
-    }
-
-    @Override
-    public void visitContinue(JFXContinue tree) {
-        result = new StatementsResult(make.at(tree.pos).Continue(tree.label));
-    }
-
     @Override
     public void visitReturn(JFXReturn tree) {
         JFXExpression exp = tree.getExpression();
@@ -1766,10 +1619,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         } else {
             result = translateToStatementsResult(tree.expr, targetType);
         }
-    }
-
-    public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
-        result = new FunctionCallTranslator(tree).doit();
     }
 
     @Override
@@ -2039,4 +1888,98 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         new FillClassesWithOuters().scan(tree);
     }
+
+    /***********************************************************************
+     *
+     * Visitors  (alphabetical order)
+     *
+     * Overrides to add contructs allowed in non-bound contexts.
+     */
+
+    public void visitAssign(final JFXAssign tree) {
+        if (types.isSequence(tree.type)) {
+            if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
+                result = new SequenceSliceActionTranslator((JFXSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.type, tree.rhs).doit();
+            } else {
+                result = new SequenceActionTranslator(tree.pos(), tree.lhs, defs.Sequences_set, null, tree.type, tree.rhs) {
+
+                    @Override
+                    protected Type rhsType() {
+                        return tree.type;
+                    }
+                }.doit();
+            }
+        } else {
+            result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
+
+                @Override
+                JCExpression defaultFullExpression(JCExpression lhsTranslated, JCExpression rhsTranslated) {
+                    return m().Assign(lhsTranslated, rhsTranslated);
+                }
+            }.doit();
+        }
+    }
+
+    @Override
+    public void visitAssignop(final JFXAssignOp tree) {
+        throw new AssertionError("Assignop should have been lowered");
+    }
+
+    public void visitBlockExpression(JFXBlock tree) {
+        result = (new BlockExpressionTranslator(tree)).doit();
+    }
+
+    @Override
+    public void visitBreak(JFXBreak tree) {
+        result = new StatementsResult(make.at(tree.pos).Break(tree.label));
+    }
+
+    @Override
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
+        JFXClassDeclaration prevClass = currentClass();
+        setCurrentClass(tree);
+
+        if (tree.isScriptClass()) {
+            scriptBegin();
+        }
+
+        try {
+            if (tree.isScriptClass()) {
+                setLiteralInitClassMap(new LiteralInitClassMap());
+            }
+
+            result = new ClassDeclarationTranslator(tree).doit();
+
+        } finally {
+            setCurrentClass(prevClass);
+        }
+    }
+
+    @Override
+    public void visitContinue(JFXContinue tree) {
+        result = new StatementsResult(make.at(tree.pos).Continue(tree.label));
+    }
+
+    public void visitForExpression(JFXForExpression tree) {
+        result = (new ForExpressionTranslator(tree)).doit();
+    }
+
+    @Override
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        result = new FunctionTranslator(tree, false).doit();
+    }
+
+    public void visitFunctionValue(JFXFunctionValue tree) {
+        JFXFunctionDefinition def = tree.definition;
+        result = new FunctionValueTranslator(make.Ident(defs.lambda_MethodName), def, tree.pos(), (MethodType) def.type, tree.type).doit();
+    }
+
+    public void visitIdent(JFXIdent tree) {
+        if (substitute(tree.pos(),tree.sym)) {
+            return;
+        }
+        result = new IdentTranslator(tree).doit();
+    }
+
+
 }

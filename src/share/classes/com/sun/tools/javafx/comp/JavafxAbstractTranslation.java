@@ -629,8 +629,6 @@ public abstract class JavafxAbstractTranslation
         return ret;
     }
 
-    /********** Translators **********/
-
     static class OnReplaceInfo {
         public OnReplaceInfo outer;
         VarMorphInfo vmi;
@@ -648,6 +646,8 @@ public abstract class JavafxAbstractTranslation
             info = info.outer;
         return info;
     }
+
+    /****************************** Translators ******************************/
 
     abstract class Translator extends JavaTreeBuilder {
 
@@ -2743,18 +2743,144 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
+    /**
+     * Translate if-expression
+     */
+    class IfTranslator extends ExpressionTranslator {
+
+        private final JFXIfExpression tree;
+
+        IfTranslator(JFXIfExpression tree) {
+            super(tree.pos());
+            this.tree = tree;
+        }
+
+        JCExpression sideExpr(JFXExpression expr) {
+            ExpressionResult res = translateToExpressionResult(expr, targetType);
+            addBindees(res.bindees());
+            addInterClassBindees(res.interClass());
+            return asExpression(res, targetType);
+        }
+
+        JCStatement sideStmt(JFXExpression expr) {
+            if (expr == null) {
+                return null;
+            } else {
+                return translateToStatement(expr, targetType);
+            }
+        }
+
+        protected AbstractStatementsResult doit() {
+            JCExpression cond = translateExpr(tree.getCondition(), syms.booleanType);
+            JFXExpression trueSide = tree.getTrueExpression();
+            JFXExpression falseSide = tree.getFalseExpression();
+            if (yield() == ToExpression) {
+                return toResult(
+                    m().Conditional(
+                        cond,
+                        sideExpr(trueSide),
+                        sideExpr(falseSide)),
+                    targetType);
+            } else {
+                 return toStatementResult(If(
+                        cond,
+                        sideStmt(trueSide),
+                        sideStmt(falseSide)));
+            }
+        }
+    }
+
+    class IndexOfTranslator extends ExpressionTranslator {
+        final JFXIndexof tree;
+        IndexOfTranslator(JFXIndexof tree) {
+            super(tree.pos());
+            assert tree.clause.getIndexUsed() : "assert that index used is set correctly";
+            this.tree = tree;
+        }
+            protected ExpressionResult doit() {
+                return toResult(id(indexVarName(tree.fname)), tree.type);
+            }
+    }
+
     /***********************************************************************
      *
-     * Shared (default) visitors
+     * Visitors  (alphabetical order)
+     * 
+     * Disallow constructs disallowed in bind -- override where non-bound contructs are allowed (JavafxToJava)
+     * Assume non-bound non-notifying implementations -- override where needed
      */
+
+    private void badTree(String msg) {
+        throw new AssertionError(msg);
+    }
+
+    private void disallowedInBind() {
+        badTree("should not be processed as part of a binding");
+    }
+
+    private void processedInParent() {
+        badTree("should be processed by parent tree");
+    }
+
+    public void visitAssignop(JFXAssignOp tree) {
+        disallowedInBind();
+    }
 
     public void visitBinary(JFXBinary tree) {
         result = (new BinaryOperationTranslator(tree.pos(), tree)).doit();
     }
 
-    public abstract void visitFunctionInvocation(final JFXFunctionInvocation tree);
+    public void visitBreak(JFXBreak tree) {
+        disallowedInBind();
+    }
+
+    public void visitCatch(JFXCatch tree) {
+        processedInParent();
+    }
+
+    public void visitClassDeclaration(JFXClassDeclaration tree) {
+        // redirected back to JavafxToJava
+        toJava.visitClassDeclaration(tree);
+        result = toJava.result;
+    }
+
+    public void visitContinue(JFXContinue tree) {
+        disallowedInBind();
+    }
+
+    public void visitErroneous(JFXErroneous tree) {
+        badTree("erroneous nodes shouldn't have gotten this far");
+    }
+
+    public void visitForExpressionInClause(JFXForExpressionInClause that) {
+        processedInParent();
+    }
+
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        disallowedInBind();
+    }
+
+    public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
+        result = new FunctionCallTranslator(tree).doit();
+    }
 
     public abstract void visitIdent(JFXIdent tree);
+
+    public void visitIfExpression(JFXIfExpression tree) {
+        result = new IfTranslator(tree).doit();
+    }
+
+    public void visitImport(JFXImport tree) {
+        processedInParent();
+    }
+
+    public void visitIndexof(final JFXIndexof tree) {
+        result = new IndexOfTranslator(tree).doit();
+    }
+
+    public void visitInitDefinition(JFXInitDefinition tree) {
+        processedInParent();
+    }
 
     public void visitInstanceOf(JFXInstanceOf tree) {
         result = new InstanceOfTranslator(tree).doit();
@@ -2764,79 +2890,36 @@ public abstract class JavafxAbstractTranslation
         result = new InstanciateTranslator(tree).doit();
     }
 
-    public void visitLiteral(JFXLiteral tree) {
-         result = new LiteralTranslator(tree).doit();
-    }
-
-    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        result = new SequenceEmptyTranslator(tree).doit();
-    }
-
-    public void visitStringExpression(JFXStringExpression tree) {
-        result = new StringExpressionTranslator(tree).doit();
-    }
-
-    public void visitTimeLiteral(final JFXTimeLiteral tree) {
-        result = new TimeLiteralTranslator(tree).doit();
-   }
-
-    public void visitTypeCast(final JFXTypeCast tree) {
-        result = new TypeCastTranslator(tree).doit();
-    }
-
-    public void visitUnary(JFXUnary tree) {
-        if (tree.getFXTag().isIncDec()) {
-            //we shouldn't be here - arithmetic unary expressions should
-            //have been lowered to standard binary expressions
-            throw new AssertionError("Unexpecetd unary operator tag: " + tree.getFXTag());
-        }
-        result = new UnaryOperationTranslator(tree).doit();
-    }
-
-    /***********************************************************************
-     *
-     * Visitors redirected back to JavafxToJava
-     */
-
-    public void visitClassDeclaration(JFXClassDeclaration tree) {
-        toJava.visitClassDeclaration(tree);
-        result = toJava.result;
-    }
-
-
-    /***********************************************************************
-     *
-     * Visitors disallowed in a bind context  (alphabetical order)
-     * 
-     * Assume bound, override where non-bound contructs are allowed (JavafxToJava)
-     */
-
-    private void disallowedInBind() {
-        throw new AssertionError("should not be processed as part of a binding");
-    }
-
-    public void visitAssignop(JFXAssignOp tree) {
-        disallowedInBind();
-    }
-
-    public void visitBreak(JFXBreak tree) {
-        disallowedInBind();
-    }
-
-    public void visitContinue(JFXContinue tree) {
-        disallowedInBind();
-    }
-
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        disallowedInBind();
-    }
-
     public void visitInvalidate(JFXInvalidate tree) {
         disallowedInBind();
     }
 
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
         disallowedInBind();
+    }
+
+    public void visitLiteral(JFXLiteral tree) {
+         result = new LiteralTranslator(tree).doit();
+    }
+
+   public void visitModifiers(JFXModifiers tree) {
+        processedInParent();
+    }
+
+    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
+        processedInParent();
+    }
+
+    public void visitOnReplace(JFXOnReplace tree) {
+        processedInParent();
+    }
+
+    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
+        processedInParent();
+    }
+
+    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+        processedInParent();
     }
 
     public void visitReturn(JFXReturn tree) {
@@ -2851,6 +2934,10 @@ public abstract class JavafxAbstractTranslation
         disallowedInBind();
     }
 
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        result = new SequenceEmptyTranslator(tree).doit();
+    }
+
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         disallowedInBind();
     }
@@ -2859,12 +2946,57 @@ public abstract class JavafxAbstractTranslation
         disallowedInBind();
     }
 
+    public void visitStringExpression(JFXStringExpression tree) {
+        result = new StringExpressionTranslator(tree).doit();
+    }
+
     public void visitThrow(JFXThrow tree) {
         disallowedInBind();
     }
 
+    public void visitTimeLiteral(final JFXTimeLiteral tree) {
+        result = new TimeLiteralTranslator(tree).doit();
+   }
+
+    public void visitTree(JFXTree that) {
+        badTree("Should not be here!!!");
+    }
+
     public void visitTry(JFXTry tree) {
         disallowedInBind();
+    }
+
+    public void visitTypeAny(JFXTypeAny that) {
+        processedInParent();
+    }
+
+    public void visitTypeCast(final JFXTypeCast tree) {
+        result = new TypeCastTranslator(tree).doit();
+    }
+
+    public void visitTypeClass(JFXTypeClass that) {
+        processedInParent();
+    }
+
+    public void visitTypeFunctional(JFXTypeFunctional that) {
+        processedInParent();
+    }
+
+    public void visitTypeArray(JFXTypeArray tree) {
+        processedInParent();
+    }
+
+    public void visitTypeUnknown(JFXTypeUnknown that) {
+        processedInParent();
+    }
+
+    public void visitUnary(JFXUnary tree) {
+        if (tree.getFXTag().isIncDec()) {
+            //we shouldn't be here - arithmetic unary expressions should
+            //have been lowered to standard binary expressions
+            badTree("Unexpected unary operator tag: " + tree.getFXTag());
+        }
+        result = new UnaryOperationTranslator(tree).doit();
     }
 
     public void visitVar(JFXVar tree) {
@@ -2878,75 +3010,4 @@ public abstract class JavafxAbstractTranslation
     public void visitWhileLoop(JFXWhileLoop tree) {
         disallowedInBind();
     }
-
-    /***********************************************************************
-     *
-     * Goofy visitors    (alphabetical order)
-     * 
-     * Many of these should go away
-     */
-
-    public void visitCatch(JFXCatch tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitErroneous(JFXErroneous tree) {
-        assert false : "erroneous nodes shouldn't have gotten this far";
-    }
-
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitInitDefinition(JFXInitDefinition tree) {
-        assert false : "should be processed by class tree";
-    }
-
-    public void visitImport(JFXImport tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-   public void visitModifiers(JFXModifiers tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitObjectLiteralPart(JFXObjectLiteralPart that) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitOnReplace(JFXOnReplace tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-        assert false : "should be processed by class tree";
-    }
-
-    public void visitTree(JFXTree that) {
-        assert false : "Should not be here!!!";
-    }
-    public void visitTypeAny(JFXTypeAny that) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitTypeClass(JFXTypeClass that) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitTypeArray(JFXTypeArray tree) {
-        assert false : "should be processed by parent tree";
-    }
-
-    public void visitTypeUnknown(JFXTypeUnknown that) {
-        assert false : "should be processed by parent tree";
-    }
 }
-

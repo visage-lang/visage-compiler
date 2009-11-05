@@ -1313,7 +1313,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         //(that.value);
     }
     
-    //@Override
+    @Override
     public void visitIndexof(JFXIndexof tree) {
         TODO(tree);
     }
