@@ -2743,14 +2743,148 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
-    /********** visitors redirected back to JavafxToJava **********/
+    /***********************************************************************
+     *
+     * Shared (default) visitors
+     */
+
+    public void visitBinary(JFXBinary tree) {
+        result = (new BinaryOperationTranslator(tree.pos(), tree)).doit();
+    }
+
+    public abstract void visitFunctionInvocation(final JFXFunctionInvocation tree);
+
+    public abstract void visitIdent(JFXIdent tree);
+
+    public void visitInstanceOf(JFXInstanceOf tree) {
+        result = new InstanceOfTranslator(tree).doit();
+    }
+
+    public void visitInstanciate(JFXInstanciate tree) {
+        result = new InstanciateTranslator(tree).doit();
+    }
+
+    public void visitLiteral(JFXLiteral tree) {
+         result = new LiteralTranslator(tree).doit();
+    }
+
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        result = new SequenceEmptyTranslator(tree).doit();
+    }
+
+    public void visitStringExpression(JFXStringExpression tree) {
+        result = new StringExpressionTranslator(tree).doit();
+    }
+
+    public void visitTimeLiteral(final JFXTimeLiteral tree) {
+        result = new TimeLiteralTranslator(tree).doit();
+   }
+
+    public void visitTypeCast(final JFXTypeCast tree) {
+        result = new TypeCastTranslator(tree).doit();
+    }
+
+    public void visitUnary(JFXUnary tree) {
+        if (tree.getFXTag().isIncDec()) {
+            //we shouldn't be here - arithmetic unary expressions should
+            //have been lowered to standard binary expressions
+            throw new AssertionError("Unexpecetd unary operator tag: " + tree.getFXTag());
+        }
+        result = new UnaryOperationTranslator(tree).doit();
+    }
+
+    /***********************************************************************
+     *
+     * Visitors redirected back to JavafxToJava
+     */
 
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         toJava.visitClassDeclaration(tree);
         result = toJava.result;
     }
 
-    /********** goofy visitors, alpha order -- many of which should go away **********/
+
+    /***********************************************************************
+     *
+     * Visitors disallowed in a bind context  (alphabetical order)
+     * 
+     * Assume bound, override where non-bound contructs are allowed (JavafxToJava)
+     */
+
+    private void disallowedInBind() {
+        throw new AssertionError("should not be processed as part of a binding");
+    }
+
+    public void visitAssignop(JFXAssignOp tree) {
+        disallowedInBind();
+    }
+
+    public void visitBreak(JFXBreak tree) {
+        disallowedInBind();
+    }
+
+    public void visitContinue(JFXContinue tree) {
+        disallowedInBind();
+    }
+
+    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
+        disallowedInBind();
+    }
+
+    public void visitInvalidate(JFXInvalidate tree) {
+        disallowedInBind();
+    }
+
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+        disallowedInBind();
+    }
+
+    public void visitReturn(JFXReturn tree) {
+        disallowedInBind();
+    }
+
+    public void visitScript(JFXScript tree) {
+        disallowedInBind();
+    }
+
+    public void visitSequenceDelete(JFXSequenceDelete tree) {
+        disallowedInBind();
+    }
+
+    public void visitSequenceInsert(JFXSequenceInsert tree) {
+        disallowedInBind();
+    }
+
+    public void visitSkip(JFXSkip tree) {
+        disallowedInBind();
+    }
+
+    public void visitThrow(JFXThrow tree) {
+        disallowedInBind();
+    }
+
+    public void visitTry(JFXTry tree) {
+        disallowedInBind();
+    }
+
+    public void visitVar(JFXVar tree) {
+        disallowedInBind();
+    }
+
+    public void visitVarInit(JFXVarInit tree) {
+        disallowedInBind();
+    }
+
+    public void visitWhileLoop(JFXWhileLoop tree) {
+        disallowedInBind();
+    }
+
+    /***********************************************************************
+     *
+     * Goofy visitors    (alphabetical order)
+     * 
+     * Many of these should go away
+     */
 
     public void visitCatch(JFXCatch tree) {
         assert false : "should be processed by parent tree";

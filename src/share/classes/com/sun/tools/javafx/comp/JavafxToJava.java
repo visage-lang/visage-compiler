@@ -97,8 +97,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
      * static information
      */
     private static final String sequenceBuilderString = "com.sun.javafx.runtime.sequence.ObjectArraySequence";
-    private static final String toSequenceString = "toSequence";
-
+ 
     public static JavafxToJava instance(Context context) {
         JavafxToJava instance = context.get(jfxToJavaKey);
         if (instance == null)
@@ -258,7 +257,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     void scriptBegin() {
     }
 
-    //@Override
+    @Override
     public void visitScript(JFXScript tree) {
         // add to the hasOuters set the class symbols for classes that need a reference to the outer class
         fillClassesWithOuters(tree);
@@ -537,14 +536,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    public void visitInstanciate(JFXInstanciate tree) {
-        result = new InstanciateTranslator(tree).doit();
-    }
-
-    public void visitStringExpression(JFXStringExpression tree) {
-        result = new StringExpressionTranslator(tree).doit();
-    }
-
     private JCExpression translateNonBoundInit(DiagnosticPosition diagPos,
             JFXExpression init, VarMorphInfo vmi) {
         // normal init -- unbound
@@ -594,6 +585,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }.doit();
     }
 
+    @Override
     public void visitVarInit(JFXVarInit tree) {
         final VarSymbol vsym = tree.getSymbol();
 
@@ -655,6 +647,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
+    @Override
     public void visitVar(JFXVar tree) {
         result = new VarTranslator(tree).doit();
     }
@@ -669,6 +662,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 && (sym.flags() & Flags.SYNTHETIC) == 0;
    }
 
+    @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         result = new FunctionTranslator(tree, false).doit();
     }
@@ -761,6 +755,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
+    @Override
     public void visitAssignop(final JFXAssignOp tree) {
         result = new AssignTranslator(tree.pos(), tree.lhs, tree.rhs) {
 
@@ -934,10 +929,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     public void visitSequenceRange(JFXSequenceRange tree) {
         result = new SequenceRangeTranslator(tree).doit();
-    }
-
-    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        result = new SequenceEmptyTranslator(tree).doit();
     }
 
     private class SequenceIndexedTranslator extends ExpressionTranslator {
@@ -1171,10 +1162,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
+    @Override
     public void visitSequenceInsert(JFXSequenceInsert tree) {
         result = new SequenceInsertTranslator(tree).doit();
     }
 
+    @Override
     public void visitSequenceDelete(JFXSequenceDelete tree) {
         DiagnosticPosition diagPos = tree.pos();
         JFXExpression seq = tree.getSequence();
@@ -1203,6 +1196,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = trans.doit();
     }
 
+    @Override
     public void visitInvalidate(final JFXInvalidate tree) {
         result = (new ExpressionTranslator(tree.pos()) {
             protected AbstractStatementsResult doit() {
@@ -1351,11 +1345,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         abstract JCExpression makeToSequence();
     }
 
-    //@Override
-    public void visitBinary(final JFXBinary tree) {
-        result = new BinaryOperationTranslator(tree.pos(), tree).doit();
-    }
-
+    @Override
     public void visitBreak(JFXBreak tree) {
         result = new StatementsResult(make.at(tree.pos).Break(tree.label));
     }
@@ -1813,10 +1803,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new IfTranslator(tree).doit();
     }
 
+    @Override
     public void visitContinue(JFXContinue tree) {
         result = new StatementsResult(make.at(tree.pos).Continue(tree.label));
     }
 
+    @Override
     public void visitReturn(JFXReturn tree) {
         JFXExpression exp = tree.getExpression();
         if (exp == null) {
@@ -1834,26 +1826,16 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    public void visitInstanceOf(JFXInstanceOf tree) {
-        result = new InstanceOfTranslator(tree).doit();
-    }
-
-    public void visitTypeCast(final JFXTypeCast tree) {
-        result = new TypeCastTranslator(tree).doit();
-    }
-
-    public void visitLiteral(JFXLiteral tree) {
-         result = new LiteralTranslator(tree).doit();
-    }
-
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
         result = new FunctionCallTranslator(tree).doit();
     }
 
+    @Override
     public void visitSkip(JFXSkip tree) {
         result = new StatementsResult(make.at(tree.pos).Skip());
     }
 
+    @Override
     public void visitThrow(JFXThrow tree) {
         JCTree expr = translateToExpression(tree.expr, tree.type);
         result = new StatementsResult(make.at(tree.pos).Throw(expr));
@@ -1882,17 +1864,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
+    @Override
     public void visitTry(JFXTry tree) {
         result = new TryTranslator(tree).doit();
-    }
-
-    public void visitUnary(final JFXUnary tree) {
-        if (tree.getFXTag().isIncDec()) {
-            //we shouldn't be here - arithmetic unary expressions should
-            //have been lowered to standard binary expressions
-            throw new AssertionError("Unexpecetd unary operator tag: " + tree.getFXTag());
-        }
-        result = new UnaryOperationTranslator(tree).doit();
     }
 
     private class WhileTranslator extends ExpressionTranslator {
@@ -1913,13 +1887,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
+    @Override
     public void visitWhileLoop(JFXWhileLoop tree) {
         result = new WhileTranslator(tree).doit();
     }
-
-    public void visitTimeLiteral(final JFXTimeLiteral tree) {
-        result = new TimeLiteralTranslator(tree).doit();
-   }
 
     /**
      * Translate to a built-in construct
@@ -2017,6 +1988,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new InterpolateValueTranslator(tree).doit();
     }
 
+    @Override
     public void visitKeyFrameLiteral(final JFXKeyFrameLiteral tree) {
         result = new NewBuiltInInstanceTranslator(tree.pos(), syms.javafx_KeyFrameType) {
 

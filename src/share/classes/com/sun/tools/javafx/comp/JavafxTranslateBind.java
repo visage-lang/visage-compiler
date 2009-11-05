@@ -201,13 +201,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      *   res
      *
      */
-    private class IfExpressionTranslator extends ExpressionTranslator {
+    private class BoundIfExpressionTranslator extends ExpressionTranslator {
 
         private final JFXIfExpression tree;
         private final JCVariableDecl resVar;
         private final Type type;
 
-        IfExpressionTranslator(JFXIfExpression tree) {
+        BoundIfExpressionTranslator(JFXIfExpression tree) {
             super(tree.pos());
             this.tree = tree;
             this.type = (targetType != null)? targetType : tree.type;
@@ -1180,18 +1180,20 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
  * Visitor methods -- implemented (alphabetical order)
  ****************************************************************************/
 
-    public void visitBinary(JFXBinary tree) {
-        result = (new BinaryOperationTranslator(tree.pos(), tree)).doit();
-    }
-
-    public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
+    private void checkForSequenceVersionUnimplemented(JFXExpression tree) {
         if (tree == boundExpression && types.isSequence(targetType)) {
             // We want to translate to a bound sequence
             TODO("bound sequence", tree);
         }
+    }
+
+    @Override
+    public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
+        checkForSequenceVersionUnimplemented(tree);
         result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
     }
 
+    @Override
     public void visitIdent(JFXIdent tree) {
         final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();
         if (tree == boundExpression && types.isSequence(targetType)) {
@@ -1202,32 +1204,20 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    @Override
     public void visitIfExpression(JFXIfExpression tree) {
-        final ExpressionResult exprResult = new IfExpressionTranslator(tree).doit();
-        if (tree == boundExpression && types.isSequence(targetType)) {
-            // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
-        } else {
+        final ExpressionResult exprResult = new BoundIfExpressionTranslator(tree).doit();
+        checkForSequenceVersionUnimplemented(tree);
             result = exprResult;
-        }
+
     }
 
-    public void visitInstanceOf(JFXInstanceOf tree) {
-        result = new InstanceOfTranslator(tree).doit();
-    }
-
-    public void visitInstanciate(JFXInstanciate tree) {
-        result = new InstanciateTranslator(tree).doit();
-    }
-
-    public void visitLiteral(JFXLiteral tree) {
-         result = new LiteralTranslator(tree).doit();
-    }
-
+    @Override
     public void visitParens(JFXParens tree) {
         result = translateBoundExpression(tree.expr, targetType, targetSymbol, isBidiBind);
     }
 
+    @Override
     public void visitSelect(JFXSelect tree) {
         if (tree == boundExpression && types.isSequence(targetType)) {
             // We want to translate to a bound sequence
@@ -1237,45 +1227,36 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         if (tree == boundExpression && types.isSequence(targetType)) {
             // We want to translate to a bound sequence
             result = new BoundEmptySequenceTranslator(tree).doit();
         } else {
-            result = new SequenceEmptyTranslator(tree).doit();
+            super.visitSequenceEmpty(tree);
         }
     }
 
+    @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         result = new BoundExplicitSequenceTranslator(tree).doit();
     }
 
+    @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         result = new BoundRangeSequenceTranslator(tree).doit();
     }
 
-    public void visitStringExpression(JFXStringExpression tree) {
-        result = new StringExpressionTranslator(tree).doit();
-    }
-
-    public void visitTimeLiteral(final JFXTimeLiteral tree) {
-        result = new TimeLiteralTranslator(tree).doit();
-   }
-
+    @Override
     public void visitTypeCast(final JFXTypeCast tree) {
-        if (tree == boundExpression && types.isSequence(targetType)) {
-            // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
-        }
-        result = new TypeCastTranslator(tree).doit();
+        checkForSequenceVersionUnimplemented(tree);
+        super.visitTypeCast(tree);
     }
 
+    @Override
     public void visitUnary(JFXUnary tree) {
-        if (tree == boundExpression && types.isSequence(targetType)) {
-            // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
-        }
-        result = new UnaryOperationTranslator(tree).doit();
+        checkForSequenceVersionUnimplemented(tree);
+        super.visitUnary(tree);
     }
 
 
@@ -1350,85 +1331,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     /***********************************************************************
      *
      * Utilities
-     *s
+     *
      */
 
     protected String getSyntheticPrefix() {
         return "bfx$";
     }
 
-
-    /***********************************************************************
-     *
-     * Moot visitors  (alphabetical order)
-     *
-     */
-
-    private void wrong() {
-        throw new AssertionError("should not be processed as part of a binding");
-    }
-
-    public void visitAssignop(JFXAssignOp tree) {
-        wrong();
-    }
-
-    public void visitBreak(JFXBreak tree) {
-        wrong();
-    }
-
-    public void visitContinue(JFXContinue tree) {
-        wrong();
-    }
-
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        wrong();
-    }
-
-    public void visitInvalidate(JFXInvalidate tree) {
-        wrong();
-    }
-
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        wrong();
-    }
-
-    public void visitReturn(JFXReturn tree) {
-        wrong();
-    }
-
-    public void visitScript(JFXScript tree) {
-        wrong();
-    }
-
-    public void visitSequenceDelete(JFXSequenceDelete tree) {
-        wrong();
-    }
-
-    public void visitSequenceInsert(JFXSequenceInsert tree) {
-        wrong();
-    }
-
-    public void visitSkip(JFXSkip tree) {
-        wrong();
-    }
-
-    public void visitThrow(JFXThrow tree) {
-        wrong();
-    }
-
-    public void visitTry(JFXTry tree) {
-        wrong();
-    }
-
-    public void visitVar(JFXVar tree) {
-        wrong();
-    }
-
-    public void visitVarInit(JFXVarInit tree) {
-        wrong();
-    }
-
-    public void visitWhileLoop(JFXWhileLoop tree) {
-        wrong();
-    }
 }

@@ -28,9 +28,7 @@ import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
-import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Context;
 
 /**
@@ -159,10 +157,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitAssignop(JFXAssignOp tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
+    @Override
     public void visitBinary(JFXBinary tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
@@ -171,23 +166,8 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitBreak(JFXBreak tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitCatch(JFXCatch tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
+    @Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitContinue(JFXContinue tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitErroneous(JFXErroneous tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
@@ -195,10 +175,12 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         assert false : "should not be processed as part of a binding with inverse";
     }
 
+    @Override
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
+    @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
@@ -215,22 +197,16 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitImport(JFXImport tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
     public void visitIndexof(JFXIndexof tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitInitDefinition(JFXInitDefinition tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
+    @Override
     public void visitInstanceOf(JFXInstanceOf tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
+    @Override
     public void visitInstanciate(JFXInstanciate tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
@@ -239,55 +215,12 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitInvalidate(JFXInvalidate tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
+    @Override
     public void visitLiteral(JFXLiteral tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitModifiers(JFXModifiers tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitOnReplace(JFXOnReplace tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
     public void visitParens(JFXParens tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitReturn(JFXReturn tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitScript(JFXScript tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitSequenceDelete(JFXSequenceDelete tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
@@ -299,10 +232,6 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitSequenceInsert(JFXSequenceInsert tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
     public void visitSequenceRange(JFXSequenceRange tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
@@ -311,63 +240,23 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitSkip(JFXSkip tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
+    @Override
     public void visitStringExpression(JFXStringExpression tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitThrow(JFXThrow tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
+    @Override
     public void visitTimeLiteral(JFXTimeLiteral tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitTry(JFXTry tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitTypeAny(JFXTypeAny tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitTypeArray(JFXTypeArray tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
+    @Override
     public void visitTypeCast(JFXTypeCast tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
-    public void visitTypeClass(JFXTypeClass tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitTypeFunctional(JFXTypeFunctional tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitTypeUnknown(JFXTypeUnknown tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
+    @Override
     public void visitUnary(JFXUnary tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitVar(JFXVar tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitVarInit(JFXVarInit tree) {
-        assert false : "should not be processed as part of a binding with inverse";
-    }
-
-    public void visitWhileLoop(JFXWhileLoop tree) {
         assert false : "should not be processed as part of a binding with inverse";
     }
 
