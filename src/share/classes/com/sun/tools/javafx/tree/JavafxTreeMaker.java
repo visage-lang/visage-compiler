@@ -681,31 +681,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                List.convert(JFXVar.class, varsBuffer.toList()),
                null);
        tree.pos = pos;
-       
-        //ObjLit {
-        //  local var 1;
-        //  local var 2;
-        //  ...
-        //  local var n;
-        //}
-        //
-        //is equivalent to:
-        //
-        //{
-        //
-        //  local var 1;
-        //  local var 2;
-        //  ...
-        //  local var n;
-        //
-        //  ObjLit {
-        //    ...
-        //  }
-        //}
-
-       if (varsBuffer.nonEmpty()) {
-           tree = Block(0L, varsBuffer.toList(), tree);
-       }
        return tree;
    }
 
@@ -717,12 +692,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
                 new JFXObjectLiteralPart(attrName, expr, bindStatus, null);
         tree.pos = pos;
         return tree;
-    }
-
-    public JFXObjectLiteralPart ObjectLiteralPart(
-            Name attrName,
-            JFXExpression expr) {
-        return ObjectLiteralPart(attrName, expr, JavafxBindStatus.UNBOUND);
     }
 
     public JFXType  TypeAny(Cardinality cardinality) {

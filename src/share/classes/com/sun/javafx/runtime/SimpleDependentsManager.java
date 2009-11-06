@@ -96,7 +96,11 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
                 FXObject binder = dep.get();
                 if (binder != null) {
                     if (varNum == dep.varNum) {
-                        binder.update$(bindee, varNum, phase);
+                        try {
+                            binder.update$(bindee, varNum, phase);
+                        } catch (RuntimeException re) {
+                            ErrorHandler.bindException(re);
+                        }
                     }
                 } else {
                     Linkables.remove(dep);
@@ -118,7 +122,11 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
                 FXObject binder = dep.get();
                 if (binder != null) {
                     if (varNum == dep.varNum) {
-                        binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                        try {
+                            binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                        } catch (RuntimeException re) {
+                            ErrorHandler.bindException(re);
+                        }
                     }
                 } else {
                     Linkables.remove(dep);

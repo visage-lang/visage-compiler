@@ -280,7 +280,20 @@ public class JavafxLocalToClass {
 
         // Fill out class fields.
         classSym.completer = null;
-        classSym.flags_field = 0L;
+        /*
+         * These class symbol flags of the local classes are used in translation.
+         * For FX_SYNTHETIC_LOCAL_CLASS classes, initialize$ is not called from
+         * Java entry constructor so that function code executes in source order.
+         * See comment in JavafxInitializationBuilder.makeJavaEntryConstructor().
+         * FX_BOUND_FUNCTION_CLASS classes are treated specially for many aspects
+         * like handling Pointer/FXObject+varNum registration stuff for bound
+         * function implementation.
+         */
+        classSym.flags_field = JavafxFlags.FX_SYNTHETIC_LOCAL_CLASS;
+        if (classSym.owner instanceof MethodSymbol &&
+            (classSym.owner.flags() & JavafxFlags.BOUND) != 0L) {
+            classSym.flags_field |= JavafxFlags.FX_BOUND_FUNCTION_CLASS;
+        }
         classSym.sourcefile = env.toplevel.sourcefile;
         classSym.members_field = new Scope(classSym);
 
@@ -521,6 +534,15 @@ public class JavafxLocalToClass {
             Symbol prevOwner = owner;
             owner = that.sym;
             if (that.isBound()) {
+                MethodSymbol oldSym = that.sym;
+                MethodType oldFuncType = oldSym.type.asMethodType();
+                MethodType newFuncType = new MethodType(
+                    oldFuncType.getParameterTypes(), // arg types
+                    syms.javafx_PointerType,         // return type
+                    oldFuncType.getThrownTypes(),    // Throws type
+                    oldFuncType.tsym);               // TypeSymbol
+                that.sym = new MethodSymbol(oldSym.flags(), oldSym.name, newFuncType, oldSym.owner);
+
                 /*
                  * For bound functions, make a synthetic bound variable with
                  * initialization expression to be the return expression and return
@@ -563,9 +585,9 @@ public class JavafxLocalToClass {
                                 fxmake.Modifiers(0), 
                                 returnExprIsVar? fxmake.Ident((JFXVar)returnExpr) : returnExpr,
                                 JavafxBindStatus.UNIDIBIND, null, null);
-                        returnVar.type = returnExpr.type;
-                        returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnExpr.type, that.sym);
-                        returnVar.markBound();
+                        returnVar.type = oldSym.type.getReturnType();
+                        returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnVar.type, that.sym);
+                        returnVar.markBound(JavafxBindStatus.UNIDIBIND);
                         stmts.append(returnVar);
 
                         // find the symbol of Pointer.make(Object) method.

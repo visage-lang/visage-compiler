@@ -225,14 +225,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
             if (outerTypeSym == null) {
-                javaCodeMaker.makeJavaEntryConstructor(classVarInfos);
+                javaCodeMaker.makeJavaEntryConstructor();
             } else {
                 javaCodeMaker.makeOuterAccessorField(outerTypeSym);
                 javaCodeMaker.makeOuterAccessorMethod(outerTypeSym);
             }
 
             javaCodeMaker.makeFunctionProxyMethods(needDispatch);
-            javaCodeMaker.makeFXEntryConstructor(outerTypeSym);
+            javaCodeMaker.makeFXEntryConstructor(classVarInfos, outerTypeSym);
             javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
@@ -421,10 +421,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             this.scriptName = analysis.getCurrentClassDecl().getName().append(defs.scriptClassSuffixName);
             this.scriptClassSymbol = makeClassSymbol(Flags.STATIC | Flags.PUBLIC, this.scriptName, getCurrentClassSymbol());
             this.scriptClassType = (ClassType)this.scriptClassSymbol.type;
-
-            Symbol owner = getCurrentOwner().owner;
-            this.isBoundFuncClass = (owner instanceof MethodSymbol) &&
-                                (owner.flags() & JavafxFlags.BOUND) != 0L;
+            this.isBoundFuncClass = (getCurrentOwner().flags() & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
         }
         
         //
@@ -1095,7 +1092,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Must be in sync with makeInvalidateAccessorMethod
         //
         private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
-            if (varInfo.isMixinVar() || varInfo.onReplace() != null) {
+            if (varInfo.isMixinVar() ||
+                    varInfo.onReplace() != null ||
+                    varInfo.onInvalidate() != null) {
                 // based on makeInvalidateAccessorMethod
                 return true;
             } else if (varInfo.hasBoundDefinition()) {
@@ -1218,6 +1217,33 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     id(boundFunctionVarNumParamName(varSym.name)),
                                     posArg());
                             addStmt(Return(castFromObject(apply, varInfo.getElementType())));
+                        } else if (varInfo.isInitWithBoundFuncResult()) {
+                            /**
+                             * If this var "foo" is initialized with bound function result var, then
+                             * we want to get element from the Pointer. We translate as:
+                             *
+                             *    public static int get$foo(final int pos$) {
+                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
+                             *        if (ifx$0tmp != null)
+                             *            return (Integer)ifx$0tmp.get(pos$);
+                             *        else
+                             *            return 0;
+                             *    }
+                             */
+                            Name ptrAccessorName = attributeGetterName(varInfo.boundFuncResultInitSym());
+                            JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Call(ptrAccessorName));
+                            addStmt(tmpPtrVar);
+
+                            JCExpression ptrNonNullCond = NEnull(id(tmpPtrVar));
+                            JCExpression apply = Call(
+                                    id(tmpPtrVar),
+                                    defs.get_PointerMethodName,
+                                    posArg());
+                            addStmt(If(ptrNonNullCond, 
+                                        Return(castFromObject(apply, varInfo.getElementType())),
+                                        Return(makeDefaultValue(varInfo.pos(), typeMorpher.typeMorphInfo(varInfo.getElementType())))
+                                      )
+                                   );
                         } else {
                             addStmt(varInfo.boundElementGetter());
                         }
@@ -1250,6 +1276,32 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     defs.size_FXObjectMethodName,
                                     id(boundFunctionVarNumParamName(varSym.name)));
                             addStmt(Return(apply));
+                        } else if (varInfo.isInitWithBoundFuncResult()) {
+                            /**
+                             * If this var "foo" is initialized with bound function result var, then
+                             * we want to get element from the Pointer. We translate as:
+                             *
+                             *    public static int get$foo(final int pos$) {
+                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
+                             *        if (ifx$0tmp != null)
+                             *            return (Integer)ifx$0tmp.size();
+                             *        else
+                             *            return 0;
+                             *    }
+                             */
+                            Name ptrAccessorName = attributeGetterName(varInfo.boundFuncResultInitSym());
+                            JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Call(ptrAccessorName));
+                            addStmt(tmpPtrVar);
+
+                            JCExpression ptrNonNullCond = NEnull(id(tmpPtrVar));
+                            JCExpression apply = Call(
+                                    Call(ptrAccessorName),
+                                    defs.size_PointerMethodName);
+                            addStmt(If(ptrNonNullCond,
+                                        Return(apply),
+                                        Return(makeLit(diagPos, syms.intType, 0))
+                                      )
+                                   );
                         } else {
                             addStmt(varInfo.boundSizeGetter());
                         }
@@ -1327,11 +1379,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Mixin.invalidate$var(this, phase$);
                         callMixin((ClassSymbol)varSym.owner);
                     }
-                    
-                    // Add on-invalidate trigger if any
-                    if (varInfo.onInvalidate() != null) {
-                        addStmt(varInfo.onInvalidateAsInline());
-                    }
 
                     // Hack for bug in boundBinders() which includes invalidators
                     if (!hasInvalidators) for (VarInfo otherVar : varInfo.boundBinders()) {
@@ -1390,15 +1437,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 endBlock()));
                     }
                     
-                    if (varInfo.onReplace() != null) {
+                    if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
                         beginBlock();
-                        
+
+                        // Add on-invalidate trigger if any
+                        if (varInfo.onInvalidate() != null) {
+                            addStmt(varInfo.onInvalidateAsInline());
+                        }
+
                         // Call the onReplace$var to force evaluation.
+                        if (varInfo.onReplace() != null) {
                         addStmt(CallStmt(attributeOnReplaceName(proxyVarSym),
-                                                        startPosArg(),
-                                                        endPosArg(),
-                                                        newLengthArg()));
+                                                            startPosArg(),
+                                                            endPosArg(),
+                                                            newLengthArg()));
+                        }
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
                         JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
@@ -1475,8 +1529,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                         if (savedName != null) {
                             addStmt(Var(type, onReplace.getOldValue().getName(), id(savedName)));
-                            addStmt(Stmt(m().Assign(id(savedName),
-                                    Call(attributeGetterName(varInfo.getSymbol())))));
+                            addStmt(Stmt(
+                                m().Assign(id(savedName),
+                                    Call(defs.Sequences_set,
+                                        id(savedName),
+                                        Call(attributeGetterName(varInfo.getSymbol()))
+                                    ))));
                             addStmt(CallStmt(id(savedName), defs.incrementSharing_SequenceMethodName));
                         }
                         if (newElements != null
@@ -1517,7 +1575,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.isBareSynth()) {
                         // return bound-expression
                         addStmts(varInfo.boundPreface());
-                        addStmt(Return(varInfo.boundInit()));
+                        JCStatement returnDefault = Return(makeDefaultValue(diagPos, varInfo.getVMI()));
+                        addStmt(TryWithErrorHandler(Return(varInfo.boundInit()), returnDefault));
                     } else {
                         JCStatement initIf = null;
                         if (!varInfo.isStatic()) {
@@ -1569,14 +1628,69 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             beginBlock();
                             
                             // Set to new value.
-                            // set$var(init/bound expression)
-                            addStmts(varInfo.boundPreface());
-                            JCExpression initValue = varInfo.boundInit();
-                            if (varInfo.isInitWithBoundFuncResult()) {
-                                // We have a Pointer - need to do Pointer.get() and cast the result
-                                initValue = castFromObject(Call(initValue, defs.get_PointerMethodName), varSym.type);
+                            if (varInfo.isMixinVar()) {
+                                // Mixin.evaluate$var(this);
+                                addStmt(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
+                                // Make valid.
+                                addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
+                            } else {
+                                assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
+
+                                // set$var(init/bound expression)
+                                addStmts(varInfo.boundPreface());
+                                JCExpression initValue = varInfo.boundInit();
+                                if (varInfo.isInitWithBoundFuncResult()) {
+                                    /**
+                                     * For a field named "foo" that is initialized from the bound function
+                                     * result Pointer, we generate the following:
+                                     *
+                                     * Pointer oldPtr = $$$bound$result$$foo;
+                                     * Pointer newPtr = get$$$bound$result$$foo();
+                                     * if (oldPtr != null) {
+                                     *      // remove old Pointer depenency, if any
+                                     *      oldPtr.removeDependency(receiver);
+                                     * }
+                                     * if (newPtr != null) {
+                                     *      be$foo((ExpectedType)newPtr.get());
+                                     *      // Add dependency - Pointer will issue update$ from now onwards.
+                                     *      newPtr.addDependency(receiver);
+                                     * } else {
+                                     *      be$foo(<default-value>);
+                                     * }
+                                     */
+                                    Name ptrVarName = attributeValueName(varInfo.boundFuncResultInitSym());
+                                    // declare a temp variable of type Pointer to store old value of Pointer field
+                                    JCVariableDecl oldPtrVar = TmpVar("old", syms.javafx_PointerType, id(ptrVarName));
+                                    addStmt(oldPtrVar);
+
+                                    JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, initValue);
+                                    addStmt(newPtrVar);
+
+                                    JCExpression receiver = getReceiverOrThis(varSym);
+
+                                    JCStatement removeDepToOldPtrStmt = CallStmt(id(oldPtrVar),
+                                            defs.removeDependency_PointerMethodName, receiver);
+                                    addStmt(If(NEnull(id(oldPtrVar)), removeDepToOldPtrStmt));
+
+                                    // We have a Pointer - we need to call Pointer.get() and cast the result.
+                                    initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
+                                    JCStatement beStmt = CallStmt(attributeBeName(varSym), initValue);
+
+                                    // Add the receiver of the current Var symbol as dependency to the Pointer, so that
+                                    // we will get notification whenever the result of the bound function evaluation changes.
+                                    JCStatement addDepToNewPtrStmt = CallStmt(id(newPtrVar),
+                                            defs.addDependency_PointerMethodName, receiver);
+
+                                    JCBlock blk = Block(beStmt, addDepToNewPtrStmt);
+                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
+                                            makeDefaultValue(diagPos, varInfo.getVMI()));
+                                    addStmt(If(NEnull(id(newPtrVar)), blk, beDefaultStmt));
+                                } else {
+                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
+                                            makeDefaultValue(diagPos, varInfo.getVMI()));
+                                    addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
+                                }
                             }
-                            addStmt(CallStmt(attributeBeName(varSym), initValue));
                           
                             // Is it bound and invalid?
                             JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
@@ -1749,11 +1863,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     }
 
-                    // Add on-invalidate trigger if any
-                    if (varInfo.onInvalidate() != null) {
-                        addStmt(varInfo.onInvalidateAsInline());
-                    }
-                    
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.isSequence()) {
@@ -1790,11 +1899,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt( If (NOT(ifValidTest),
                             endBlock()));
                     
-                    if (varInfo.onReplace() != null) {
+                    if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
                         beginBlock();
+
+                        // Add on-invalidate trigger if any
+                        if (varInfo.onInvalidate() != null) {
+                            addStmt(varInfo.onInvalidateAsInline());
+                        }
                         
                         // Call the get$var to force evaluation.
+                        if (varInfo.onReplace() != null)
                         addStmt(CallStmt(attributeGetterName(proxyVarSym)));
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
@@ -2295,8 +2410,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             makeApplyDefaultsMethod(varInfos, varCount);
             makeInitVarBitsMethod(varInfos);
             
-            makeUpdateMethod(updateMap, false);
-            makeUpdateMethod(updateMap, true);
+            makeUpdateMethod(varInfos, updateMap, false);
+            makeUpdateMethod(varInfos, updateMap, true);
             
             if (!isMixinClass() && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
@@ -2473,7 +2588,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method constructs the current class's update$ method.
         //
-        public void makeUpdateMethod(final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap, final boolean isSequenceVersion) {
+        public void makeUpdateMethod(final List<VarInfo> varInfos, final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap, final boolean isSequenceVersion) {
             MethodBuilder mb = new MethodBuilder(defs.update_FXObjectMethodName, syms.voidType) {
                 @Override
                 public void initialize() {
@@ -2489,6 +2604,51 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
                 @Override
                 public void statements() {
+                    /*
+                     * If the current class has bound function call expressions in bind call sites,
+                     * then we would have introduced Pointer synthetic instance vars to store
+                     * bound call result. We need to check if the update$ call is from the Pointer
+                     * value change. If so, invalidate appropriate bound function result cache var.
+                     * Note that the bound function call may not yet have been called - only after
+                     * first call, the Pointer synthetic var has non-null value. So we need to check
+                     * check null Pointer value.
+                     */
+                    for (VarInfo vi : varInfos) {
+                        JCStatement ifReferenceStmt = null;
+                        if (vi.isInitWithBoundFuncResult()) {
+                            VarSymbol varSym = vi.getSymbol();
+                            Symbol initSym = vi.boundFuncResultInitSym();
+                            Name ptrVarName = attributeValueName(initSym);
+                            beginBlock();
+
+                            /**
+                             * For each "foo" field that stores result of a bound function call expression,
+                             * we generate pointer dependency update check as follows:
+                             *
+                             *    if ($$$bound$result$foo != null &&
+                             *        (varNum$ == $$$bound$result$foo.getVarNum() &&
+                             *        instance$ == $$$bound$result$foo.getFXObject())) {
+                             *        invalidate$foo(phase$);
+                             *    }
+                             */
+                            // ptrVar != null
+                            JCExpression ptrNonNullCond = NEnull(id(ptrVarName));
+                            // varNum$ == ptrVar.getVarNum()
+                            JCExpression varNumCond = EQ(varNumArg(), Call(id(ptrVarName), defs.getVarNum_PointerMethodName));
+                            // instance$ == ptrVar.getFXObject()
+                            JCExpression objCond = EQ(updateInstanceArg(), Call(id(ptrVarName), defs.getFXObject_PointerMethodName));
+                            // && of above two conditions
+                            JCExpression ifReferenceCond = AND(ptrNonNullCond , AND(varNumCond, objCond));
+                            // invalidate the synthetic instance field for this param
+
+                            addStmt(invalidate(types.isSequence(varSym.type), varSym));
+
+                            ifReferenceStmt = If(ifReferenceCond,
+                                    endBlock(),
+                                    ifReferenceStmt);
+                            addStmt(ifReferenceStmt);
+                        }
+                    }
                     /*
                      * For bound functions, we generate a local class. If the current
                      * class is such a class, we need to invalidate the synthetic
@@ -2967,36 +3127,25 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Make a constructor to be called by Java code.
         // Simply pass up to super, unless this is the last JavaFX class, in which case add object initialization
         //
-        public void makeJavaEntryConstructor(List<VarInfo> varInfos) {
+        public void makeJavaEntryConstructor() {
             //    public Foo() {
             //        this(false);
-            //        initialize$();
-            //        // register dependencies for bound function class
+            //        if (not <fx-local-synthetic-class> initialize$();
             //    }
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             stmts.append(CallStmt(names._this, Boolean(false)));
-            stmts.append(CallStmt(defs.initialize_FXObjectMethodName));
-            if (isBoundFuncClass) {
-                /*
-                 * For each bound function param (FXObject+varNum pair), at the
-                 * end of object creation register "this" as a dependent by
-                 * calling addDependent$ method:
-                 *
-                 *     boundFuncObjParam1.addDependent$(boundFunctionVarNumParam1, this);
-                 *     boundFuncObjParam2.addDependent$(boundFunctionVarNumParam2, this);
-                 *     ....
-                 */
-                for (VarInfo vi : varInfos) {
-                    if ((vi.getFlags() & Flags.PARAMETER) != 0L) {
-                        // call FXObject.addDependent$(int varNum, FXObject dep)
-                        Symbol varSym = vi.getSymbol();
-                        stmts.append(CallStmt(
-                                id(boundFunctionObjectParamName(varSym.name)),
-                                defs.FXBase_addDependent.methodName,
-                                id(boundFunctionVarNumParamName(varSym.name)),
-                                id(names._this)));
-                    }
-                }
+            /*
+             * Certain local functions executed code in out-of-order. See JFXC-3080.
+             * For certain functions, we generate a local class inside the function.
+             * For such FX synthetic local classes, applyDefaults$(int) is called inside
+             * "doit$x" method of the local class. The "doit$x" contains code in source order.
+             * We don't want to call "initialize$" - which calls "applyDefaults$" for all
+             * variables. If we don't avoid the "initialize$" call, "applyDefaults$" execution
+             * occurs before "doit$" is called which resulted in out-of-order execution.
+             * 
+             */
+            if ((getCurrentOwner().flags() & JavafxFlags.FX_SYNTHETIC_LOCAL_CLASS) == 0) {
+                stmts.append(CallStmt(defs.initialize_FXObjectMethodName));
             }
             makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(), stmts.toList());
         }
@@ -3004,7 +3153,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Make a constructor to be called by JavaFX code.
         //
-        public void makeFXEntryConstructor(ClassSymbol outerTypeSym) {
+        public void makeFXEntryConstructor(List<VarInfo> varInfos, ClassSymbol outerTypeSym) {
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             Name dummyParamName = names.fromString("dummy");
     
@@ -3030,6 +3179,30 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             params.append(Param(syms.booleanType, dummyParamName));
             types.append(syms.booleanType);
+
+            if (isBoundFuncClass) {
+                /*
+                 * For each bound function param (FXObject+varNum pair), at the
+                 * end of object creation register "this" as a dependent by
+                 * calling addDependent$ method:
+                 *
+                 *     boundFuncObjParam1.addDependent$(boundFunctionVarNumParam1, this);
+                 *     boundFuncObjParam2.addDependent$(boundFunctionVarNumParam2, this);
+                 *     ....
+                 */
+                for (VarInfo vi : varInfos) {
+                    if ((vi.getFlags() & Flags.PARAMETER) != 0L) {
+                        // call FXObject.addDependent$(int varNum, FXObject dep)
+                        Symbol varSym = vi.getSymbol();
+                        stmts.append(CallStmt(
+                                id(boundFunctionObjectParamName(varSym.name)),
+                                defs.FXBase_addDependent.methodName,
+                                id(boundFunctionVarNumParamName(varSym.name)),
+                                id(names._this)));
+                    }
+                }
+            }
+
     
             makeConstructor(params.toList(), types.toList(), stmts.toList());
         }

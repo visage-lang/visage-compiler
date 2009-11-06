@@ -224,6 +224,11 @@ class JavafxAnalyzeClass {
         // is this initialzed with a bound function result var?
         public boolean isInitWithBoundFuncResult() { return false; }
 
+        // Is this variable is initialized by another synthetic variable
+        // of Pointer type and that var stores result from a bound function call?
+        // If so, return the symbol of the synthetic variable.
+        public Symbol boundFuncResultInitSym() { return null; }
+
         // Return true if the var has a bound definition.
         public boolean hasBoundDefinition() { return false; }
         
@@ -509,10 +514,10 @@ class JavafxAnalyzeClass {
     static class TranslatedVarInfo extends TranslatedVarInfoBase {
         // Tree for the javafx var.
         private final JFXVar var;
-        private final boolean initWithBoundFuncResult;
+        private final Symbol boundFuncResultInitSym;
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, boolean initWithBoundFuncResult,
+                JCStatement initStmt, Symbol boundFuncResultInitSym,
                 BoundResult bindOrNull, ExpressionResult invBindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
@@ -520,14 +525,21 @@ class JavafxAnalyzeClass {
                   initStmt, bindOrNull, invBindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.var = var;
-            this.initWithBoundFuncResult = initWithBoundFuncResult;
+            this.boundFuncResultInitSym = boundFuncResultInitSym;
         }
 
         // Returns the tree for the javafx var.
         public JFXVar jfxVar() { return var; }
         
         @Override
-        public boolean isInitWithBoundFuncResult() { return initWithBoundFuncResult; }
+        public boolean isInitWithBoundFuncResult() {
+            return boundFuncResultInitSym != null;
+        }
+
+        @Override
+        public Symbol boundFuncResultInitSym() {
+            return boundFuncResultInitSym;
+        }
     }
 
     //

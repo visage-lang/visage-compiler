@@ -31,12 +31,12 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.javafx.api.JavafxBindStatus;
 
 /**
- * In object literal  "Identifier ':' [ 'bind' 'lazy'?] expression"
+ * In object literal  "Identifier ':' [ 'bind'] expression"
  */
-public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteralPartTree {
+public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteralPartTree, JFXBoundMarkable {
     public Name name; // Make this an Ident. Tools might need position information.
     private JFXExpression expr;
-    private final JavafxBindStatus bindStatus;
+    private JavafxBindStatus bindStatus;
     public Symbol sym;
    /*
     * @param selector member name and class name of member
@@ -62,7 +62,11 @@ public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteral
     public boolean isBound()     { return getBindStatus().isBound(); }
     public boolean isUnidiBind() { return getBindStatus().isUnidiBind(); }
     public boolean isBidiBind()  { return getBindStatus().isBidiBind(); }
-    public boolean isLazy()      { return getBindStatus().isLazy(); }
+    public boolean isDependent() { return getBindStatus().isDependent(); }
+
+    public void markBound(JavafxBindStatus bindStatus) {
+        this.bindStatus = bindStatus;
+    }
 
     @Override
     public JavafxTag getFXTag() {

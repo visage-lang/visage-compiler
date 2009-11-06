@@ -104,9 +104,11 @@ public class JavafxDefs {
     public static final String cSequence = sequence_PackageString + ".Sequence";
     public static final String cSequenceRef = sequence_PackageString + ".SequenceRef";
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
+    public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
     // in runtime package -- public
     public static final String cFXBase = runtime_PackageString + ".FXBase";
     public static final String cFXObject = runtime_PackageString + ".FXObject";
+    public static final String cErrorHandler = runtime_PackageString + ".ErrorHandler";
     public static final String cFXMixin = runtime_PackageString + ".FXMixin";
     public static final String cTypeInfo = runtime_PackageString + ".TypeInfo";
     // in runtime package
@@ -199,6 +201,8 @@ public class JavafxDefs {
     final RuntimeMethod Math_min;
     final RuntimeMethod Math_max;
 
+    final RuntimeMethod ErrorHandler_bindException;
+
     final RuntimeMethod FXBase_switchDependence;
     final RuntimeMethod FXBase_switchBiDiDependence;
     final RuntimeMethod FXBase_removeDependent;
@@ -208,7 +212,6 @@ public class JavafxDefs {
     final RuntimeMethod FXConstant_make;
 
     final RuntimeMethod Pointer_make;
-    final RuntimeMethod Pointer_get;
 
     final RuntimeMethod Duration_valueOf;
 
@@ -277,6 +280,11 @@ public class JavafxDefs {
 
     final Name get_PointerMethodName;
     final Name make_PointerMethodName;
+    final Name getVarNum_PointerMethodName;
+    final Name getFXObject_PointerMethodName;
+    final Name addDependency_PointerMethodName;
+    final Name removeDependency_PointerMethodName;
+    final Name size_PointerMethodName;
 
     final Name values_KeyFrameMethodName;
     final Name time_KeyFrameMethodName;
@@ -473,6 +481,11 @@ public class JavafxDefs {
         defaultingTypeInfo_FieldName = names.fromString("$TYPE_INFO");
         toArray_SequenceMethodName = names.fromString("toArray");
         make_PointerMethodName = names.fromString("make");
+        getVarNum_PointerMethodName = names.fromString("getVarNum");
+        getFXObject_PointerMethodName = names.fromString("getFXObject");
+        addDependency_PointerMethodName = names.fromString("addDependency");
+        removeDependency_PointerMethodName = names.fromString("removeDependency");
+        size_PointerMethodName = size_SequenceMethodName;
         invoke_MethodName = names.fromString("invoke");
         lambda_MethodName = names.fromString("lambda");
         length_ArrayFieldName = names.fromString("length");
@@ -610,6 +623,9 @@ public class JavafxDefs {
         Math_min = new RuntimeMethod(names, cMath, "min");
         Math_max = new RuntimeMethod(names, cMath, "max");
 
+
+        ErrorHandler_bindException = new RuntimeMethod(names, cErrorHandler, "bindException");
+
         FXBase_switchDependence = new RuntimeMethod(names, cFXBase, "switchDependence$");
         FXBase_switchBiDiDependence = new RuntimeMethod(names, cFXBase, "switchBiDiDependence$");
         FXBase_removeDependent = new RuntimeMethod(names, cFXBase, "removeDependent$");
@@ -619,7 +635,6 @@ public class JavafxDefs {
         FXConstant_make = new RuntimeMethod(names, cFXConstant, "make");
 
         Pointer_make = new RuntimeMethod(names, cPointer, "make");
-        Pointer_get = new RuntimeMethod(names, cPointer, "get");
 
         Duration_valueOf = new RuntimeMethod(names, cDuration, "valueOf");
 

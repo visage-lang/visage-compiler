@@ -87,7 +87,11 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
                             dep.binderRef = null;
                             binderRef.cleanup();
                         } else {
-                            binder.update$(bindee, varNum, phase);
+                            try {
+                                binder.update$(bindee, varNum, phase);
+                            } catch (RuntimeException re) {
+                                ErrorHandler.bindException(re);
+                            }
                         }
                     }
                 } else {
@@ -115,7 +119,11 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
                             dep.binderRef = null;
                             binderRef.cleanup();
                         } else {
-                            binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                            try {
+                                binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                            } catch (RuntimeException re) {
+                                ErrorHandler.bindException(re);
+                            }
                         }
                     }
                 } else {

@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
@@ -124,9 +123,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (callBound) {
                 for (JFXExpression arg : args) {
                     if (arg.getFXTag() == JavafxTag.IDENT) {
-                        JFXIdent ident = (JFXIdent)args.head;
+                        JFXIdent ident = (JFXIdent)arg;
                         JCExpression receiver = ident.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner), List.<JCExpression>nil()) :
+                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
                             makeReceiver(ident.sym, false);
                         targs.append(receiver);
                         targs.append(Offset(ident.sym));
@@ -201,13 +200,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      *   res
      *
      */
-    private class IfExpressionTranslator extends ExpressionTranslator {
+    private class BoundIfExpressionTranslator extends ExpressionTranslator {
 
         private final JFXIfExpression tree;
         private final JCVariableDecl resVar;
         private final Type type;
 
-        IfExpressionTranslator(JFXIfExpression tree) {
+        BoundIfExpressionTranslator(JFXIfExpression tree) {
             super(tree.pos());
             this.tree = tree;
             this.type = (targetType != null)? targetType : tree.type;
@@ -228,34 +227,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
             return toResult( id(resVar), type );
-        }
-    }
-
-    /**
-     * Bound identifier reference (non-sequence)
-     */
-    private class BoundIdentTranslator extends IdentTranslator {
-
-        BoundIdentTranslator(JFXIdent tree) {
-            super(tree);
-        }
-
-        @Override
-        protected ExpressionResult doit() {
-            if (sym instanceof VarSymbol) {
-                VarSymbol vsym = (VarSymbol) sym;
-                if (currentClass().sym.isSubClass(sym.owner, types)) {
-                    // The var is in our class (or a superclass)
-                    if ((receiverContext() == ReceiverContext.ScriptAsStatic) || !sym.isStatic()) {
-                        addBindee(vsym);
-                    }
-                } else {
-                    // The reference is to a presumably outer class
-                    //TODO:
-                    }
-
-            }
-            return super.doit();
         }
     }
 
@@ -363,7 +334,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
  *                     Bound Sequence Translators
  ****************************************************************************/
 
-    abstract class BoundSequenceTranslator extends ExpressionTranslator {
+    private abstract class BoundSequenceTranslator extends ExpressionTranslator {
 
         abstract JCStatement makeSizeBody();
         abstract JCStatement makeGetElementBody();
@@ -430,6 +401,26 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    class BoundEmptySequenceTranslator extends BoundSequenceTranslator {
+        private final Type elemType;
+        BoundEmptySequenceTranslator(JFXSequenceEmpty tree) {
+            super(tree.pos());
+            this.elemType = types.elementType(tree.type);
+        }
+
+        JCStatement makeSizeBody() {
+            return Return(Int(0));
+        }
+
+        JCStatement makeGetElementBody() {
+            return Return(DefaultValue(elemType));
+        }
+
+        void setupInvalidators() {
+            // nada
+        }
+    }
+
     private class BoundSelectSequenceTranslator extends BoundSequenceTranslator {
 
         private final SelectTranslator strans;
@@ -460,6 +451,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
         private JCStatement wrapInNullCheckStatement(JCExpression full, JCExpression tToCheck, Type theResultType, Type theFullType) {
              return strans.wrapInNullCheckStatement(full, tToCheck, theResultType, theFullType);
+        }
+
+        private JCExpression selector() {
+            return Get(selectorSym);
         }
 
         /**
@@ -514,10 +509,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         /**
          *  $selector === null? 0 : $selector.size$ref();
          */
-        private JCExpression getSize(VarSymbol selectorSym) {
-            return  m().Conditional(EQnull(Get(selectorSym)),
+        private JCExpression getSize() {
+            if (refSym.isStatic()) {
+                return Call(attributeSizeName(refSym));
+            } else {
+                return m().Conditional(EQnull(selector()),
                         Int(0),
-                        Call(Get(selectorSym), attributeSizeName(refSym)));
+                        Call(selector(), attributeSizeName(refSym)));
+            }
         }
 
         /**
@@ -541,8 +540,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *     }
          * }
          */
-        private JCStatement makeInvalidateSelector(VarSymbol selectorSym) {
-            JCVariableDecl oldSize = TmpVar(syms.intType, getSize(selectorSym));
+        private JCStatement makeInvalidateSelector() {
+            JCVariableDecl oldSize = TmpVar(syms.intType, getSize());  //TODO: This is unsafe in invalidation phase
 
             return
                 If (NOT(FlagChange(selectorSym, null, phaseArg())),
@@ -551,25 +550,25 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         If (IsTriggerPhase(),
                             Block(
                                 CallStmt(attributeGetterName(selectorSym)),
-                                If (NEnull(Get(selectorSym)),
+                                If (NEnull(selector()),
                                     CallStmt(defs.FXBase_addDependent,
-                                        Get(selectorSym),
-                                        Offset(Get(selectorSym), refSym),
+                                        selector(),
+                                        Offset(selector(), refSym),
                                         getReceiverOrThis(selectorSym)
                                     )
                                 ),
                                 CallStmt(attributeInvalidateName(selfSym),
                                     Int(0),
                                     id(oldSize),
-                                    getSize(selectorSym),
+                                    getSize(),
                                     phaseArg()
                                 )
                             ),
                             Block(
-                                If (NEnull(Get(selectorSym)),
+                                If (NEnull(selector()),
                                     CallStmt(defs.FXBase_removeDependent,
-                                       Get(selectorSym),
-                                       Offset(Get(selectorSym), refSym),
+                                       selector(),
+                                       Offset(selector(), refSym),
                                        getReceiverOrThis(selectorSym)
                                     )
                                 ),
@@ -614,7 +613,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         @Override
         void setupInvalidators() {
-                addInvalidator(selectorSym, makeInvalidateSelector(selectorSym));
+                addInvalidator(selectorSym, makeInvalidateSelector());
                 addInvalidator(selfSym, makeInvalidateSelf());
                 addInterClassBindee(selectorSym, refSym);
         }
@@ -1148,22 +1147,44 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
-/* ***************************************************************************
- * Visitor methods -- implemented (alphabetical order)
- ****************************************************************************/
+    /***********************************************************************
+     *
+     * Visitors  (alphabetical order)
+     *
+     * Override those that need special bind handling
+     */
 
-    public void visitBinary(JFXBinary tree) {
-        result = (new BinaryOperationTranslator(tree.pos(), tree)).doit();
+    JCExpression TODO(JFXTree tree) {
+        return TODO("BIND functionality: " + tree.getClass().getSimpleName());
     }
 
-    public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
+    private void checkForSequenceVersionUnimplemented(JFXExpression tree) {
         if (tree == boundExpression && types.isSequence(targetType)) {
             // We want to translate to a bound sequence
             TODO("bound sequence", tree);
         }
+    }
+
+    public void visitBlockExpression(JFXBlock tree) {
+        TODO(tree);
+    }
+
+    @Override
+    public void visitForExpression(JFXForExpression tree) {
+        TODO(tree);
+    }
+
+    @Override
+    public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
+        checkForSequenceVersionUnimplemented(tree);
         result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
     }
 
+    public void visitFunctionValue(JFXFunctionValue tree) {
+        TODO(tree);
+    }
+
+    @Override
     public void visitIdent(JFXIdent tree) {
         final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();
         if (tree == boundExpression && types.isSequence(targetType)) {
@@ -1174,33 +1195,29 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    @Override
     public void visitIfExpression(JFXIfExpression tree) {
-        final ExpressionResult exprResult = new IfExpressionTranslator(tree).doit();
-        if (tree == boundExpression && types.isSequence(targetType)) {
-            // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
-        } else {
+        final ExpressionResult exprResult = new BoundIfExpressionTranslator(tree).doit();
+        checkForSequenceVersionUnimplemented(tree);
             result = exprResult;
-        }
+
     }
 
-    public void visitInstanceOf(JFXInstanceOf tree) {
-        result = new InstanceOfTranslator(tree).doit();
+    @Override
+    public void visitIndexof(JFXIndexof tree) {
+        TODO(tree);
     }
 
-    public void visitInstanciate(JFXInstanciate tree) {
-        result = new InstanciateTranslator(tree).doit();
+    public void visitInterpolateValue(JFXInterpolateValue tree) {
+        TODO(tree);
     }
 
-    public void visitLiteral(JFXLiteral tree) {
-        // Just translate to literal value
-        result = new ExpressionResult(translateLiteral(tree), tree.type);
-    }
-
+    @Override
     public void visitParens(JFXParens tree) {
         result = translateBoundExpression(tree.expr, targetType, targetSymbol, isBidiBind);
     }
 
+    @Override
     public void visitSelect(JFXSelect tree) {
         if (tree == boundExpression && types.isSequence(targetType)) {
             // We want to translate to a bound sequence
@@ -1210,193 +1227,57 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        result = new SequenceEmptyTranslator(tree).doit();
+        if (tree == boundExpression && types.isSequence(targetType)) {
+            // We want to translate to a bound sequence
+            result = new BoundEmptySequenceTranslator(tree).doit();
+        } else {
+            super.visitSequenceEmpty(tree);
+        }
     }
 
+    @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         result = new BoundExplicitSequenceTranslator(tree).doit();
     }
 
+    @Override
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        TODO(tree);
+    }
+
+    @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         result = new BoundRangeSequenceTranslator(tree).doit();
     }
 
-    public void visitStringExpression(JFXStringExpression tree) {
-        result = new StringExpressionTranslator(tree).doit();
-    }
-
-    public void visitTimeLiteral(final JFXTimeLiteral tree) {
-        result = new TimeLiteralTranslator(tree).doit();
-   }
-
-    public void visitTypeCast(final JFXTypeCast tree) {
-        if (tree == boundExpression && types.isSequence(targetType)) {
-            // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
-        }
-        result = new TypeCastTranslator(tree).doit();
-    }
-
-    public void visitUnary(JFXUnary tree) {
-        if (tree == boundExpression && types.isSequence(targetType)) {
-            // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
-        }
-        result = new UnaryOperationTranslator(tree).doit();
-    }
-
-
-/* ***************************************************************************
- * Visitor methods -- NOT implemented yet
- ****************************************************************************/
-
-    JCExpression TODO(JFXTree tree) {
-        return TODO("BIND functionality: " + tree.getClass().getSimpleName());
-    }
-
-    public void visitAssign(JFXAssign tree) {
-        TODO(tree);
-        //(tree.lhs);
-        //(tree.rhs);
-    }
-
-    public void visitFunctionValue(JFXFunctionValue tree) {
-        TODO(tree);
-        for (JFXVar param : tree.getParams()) {
-            //(param);
-        }
-        //(tree.getBodyExpression());
-    }
-
-    //@Override
-    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
-        TODO(tree);
-        //(that.getSequence());
-        //(that.getIndex());
-    }
-    
+    @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         TODO(tree);
-        //(that.getSequence());
-        //(that.getFirstIndex());
-        //(that.getLastIndex());
     }
 
-    //@Override
-    public void visitForExpression(JFXForExpression tree) {
-        TODO(tree);
-        for (ForExpressionInClauseTree cl : tree.getInClauses()) {
-            JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
-            //(clause);
-        }
-        //(that.getBodyExpression());
+    @Override
+    public void visitTypeCast(final JFXTypeCast tree) {
+        checkForSequenceVersionUnimplemented(tree);
+        super.visitTypeCast(tree);
     }
 
-    //@Override
-    public void visitBlockExpression(JFXBlock tree) {
-        TODO(tree);
-        //(that.stats);
-        //(that.value);
-    }
-    
-    //@Override
-    public void visitIndexof(JFXIndexof tree) {
-        TODO(tree);
-    }
-
-    public void visitInterpolateValue(JFXInterpolateValue tree) {
-        TODO(tree);
-        //(that.attribute);
-        //(that.value);
-        if  (tree.interpolation != null) {
-            //(that.interpolation);
-        }
+    @Override
+    public void visitUnary(JFXUnary tree) {
+        checkForSequenceVersionUnimplemented(tree);
+        super.visitUnary(tree);
     }
 
 
     /***********************************************************************
      *
      * Utilities
-     *s
+     *
      */
 
     protected String getSyntheticPrefix() {
         return "bfx$";
     }
 
-
-    /***********************************************************************
-     *
-     * Moot visitors  (alphabetical order)
-     *
-     */
-
-    private void wrong() {
-        throw new AssertionError("should not be processed as part of a binding");
-    }
-
-    public void visitAssignop(JFXAssignOp tree) {
-        wrong();
-    }
-
-    public void visitBreak(JFXBreak tree) {
-        wrong();
-    }
-
-    public void visitContinue(JFXContinue tree) {
-        wrong();
-    }
-
-    public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        wrong();
-    }
-
-    public void visitInvalidate(JFXInvalidate tree) {
-        wrong();
-    }
-
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        wrong();
-    }
-
-    public void visitReturn(JFXReturn tree) {
-        wrong();
-    }
-
-    public void visitScript(JFXScript tree) {
-        wrong();
-    }
-
-    public void visitSequenceDelete(JFXSequenceDelete tree) {
-        wrong();
-    }
-
-    public void visitSequenceInsert(JFXSequenceInsert tree) {
-        wrong();
-    }
-
-    public void visitSkip(JFXSkip tree) {
-        wrong();
-    }
-
-    public void visitThrow(JFXThrow tree) {
-        wrong();
-    }
-
-    public void visitTry(JFXTry tree) {
-        wrong();
-    }
-
-    public void visitVar(JFXVar tree) {
-        wrong();
-    }
-
-    public void visitVarInit(JFXVarInit tree) {
-        wrong();
-    }
-
-    public void visitWhileLoop(JFXWhileLoop tree) {
-        wrong();
-    }
 }

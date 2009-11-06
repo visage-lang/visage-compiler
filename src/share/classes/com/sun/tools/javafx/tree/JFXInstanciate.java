@@ -88,9 +88,10 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     }
 
     /**
-     *  For API uses only (object literals locals are desugared in a block
-     *  surrounding the object literal - the compiler doesn't have to deal with
-     *  them explicitly - we need to maintain access for IDE.
+     *  For API uses only - object literals locals are desugared in a block
+     *  surrounding the object literal. This is done in JavafxLower. After lowering,
+     *  the compiler doesn't have to deal with them explicitly. Note that we still
+     *  need to maintain access for IDE.
      */
     public List<JFXVar> getLocalvars() {
         return localVars;

@@ -23,12 +23,15 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.JavafxBindStatus;
+
 /**
  * Marker interface -- can mark as bound
  *
  * @author Robert Field
  */
 public interface JFXBoundMarkable {
-    void markBound();
+    void markBound(JavafxBindStatus bindStatus);
     boolean isBound();
+    boolean isDependent();
 }

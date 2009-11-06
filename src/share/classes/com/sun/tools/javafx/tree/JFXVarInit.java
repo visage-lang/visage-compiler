@@ -102,22 +102,6 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
         return var.getBindStatus();
     }
 
-    public boolean isBound() {
-        return var.isBound();
-    }
-
-    public boolean isUnidiBind() {
-        return var.isUnidiBind();
-    }
-
-    public boolean isBidiBind() {
-        return var.isBidiBind();
-    }
-
-    public boolean isLazy() {
-        return var.isLazy();
-    }
-
     @Override
     public JavafxTag getFXTag() {
         return JavafxTag.VAR_SCRIPT_INIT;

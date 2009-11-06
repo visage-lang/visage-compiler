@@ -717,7 +717,7 @@ public class JavafxCheck {
     }
 
     void checkBidiBind(JFXExpression init, JavafxBindStatus bindStatus, JavafxEnv<JavafxAttrContext> env, Type pt) {
-        if (init.type != null && types.isArray(init.type) && bindStatus.isBound()) {
+        if (init.type != null && types.isArray(init.type) && (bindStatus.isBound() || bindStatus.isDependent())) {
                 JCDiagnostic err = diags.fragment(MsgSym.MESSAGE_JAVAFX_UNSUPPORTED_TARGET_IN_BIND);
                 typeError(init, err, init.type, messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC +
                         MsgSym.MESSAGE_JAVAFX_OBJ_OR_SEQ));

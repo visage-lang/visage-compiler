@@ -99,8 +99,23 @@ public class Pointer implements KeyValueTarget {
         return obj.get$(varnum);
     }
 
+    public Object get(int pos) {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        return obj.get$(varnum, pos);
+    }
+
     public void set(Object value) {
         obj.set$(varnum, value);
+    }
+
+    public void set(int pos, Object value) {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        obj.set$(varnum, value);
+    }
+
+    public int size() {
+        assert type == Type.SEQUENCE : "expecting a sequence type";
+        return obj.size$(varnum);
     }
 
     public Object getValue() {
@@ -124,5 +139,13 @@ public class Pointer implements KeyValueTarget {
     @Override
     public int hashCode() {
         return System.identityHashCode(obj) ^ varnum;
+    }
+
+    public void addDependency(FXObject dep) {
+        obj.addDependent$(varnum, dep);
+    }
+
+    public void removeDependency(FXObject dep) {
+        obj.removeDependent$(varnum, dep);
     }
 }

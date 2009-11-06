@@ -234,7 +234,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** The type conversion inserter.
      */
-    protected JavafxConvertTypes convertTypes;
+    protected JavafxLower convertTypes;
 
     /** The attributor.
      */
@@ -328,7 +328,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         attr = JavafxAttr.instance(context);
         bindAnalyzer = JavafxBoundContextAnalysis.instance(context);
         localToClass = JavafxLocalToClass.instance(context);
-        convertTypes = JavafxConvertTypes.instance(context);
+        convertTypes = JavafxLower.instance(context);
         chk = JavafxCheck.instance(context);
         annotate = JavafxAnnotate.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
@@ -826,16 +826,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(convertTypes(attribute(bindAnalysis(todo))))))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(bindAnalysis(todo))))))), results);
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(convertTypes(attribute(bindAnalysis(todo))))))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(bindAnalysis(todo))))))), results);
                 break;
 
             case BY_FILE: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
-                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(convertTypes(attribute(bindAnalysis(todo))))))).values())
+                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(bindAnalysis(todo))))))).values())
                     envbuff.appendList(prepForBackEnd(list));
                 backEnd(envbuff.toList(), results);
                 break;
@@ -846,7 +846,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                     envbuff.append(attribute(bindAnalysis(todo.next())));
                 }
 
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(convertTypes(stopIfError(envbuff)))))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(stopIfError(envbuff)))))), results);
                 break;
             }
             default:
@@ -953,7 +953,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Check for errors -- called by JavafxTaskImpl.
      */
     public void errorCheck() throws IOException {
-        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(convertTypes(attribute(bindAnalysis(todo))))))), null);
+        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(bindAnalysis(todo))))))), null);
     }
 
     /**
@@ -1114,21 +1114,21 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     }
 
     /**
-     * Insert explicit type conversions
+     * Normalize tree before translation
      * @returns the list of attributed parse trees
      */
-    public List<JavafxEnv<JavafxAttrContext>> convertTypes(List<JavafxEnv<JavafxAttrContext>> envs) {
+    public List<JavafxEnv<JavafxAttrContext>> lower(List<JavafxEnv<JavafxAttrContext>> envs) {
         for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
-            convertTypes(l.head);
+            lower(l.head);
         }
         return envs;
     }
 
     /**
-     * Insert explicit type conversions
+     * Normalize tree before translation
      * @returns the attributed parse tree
      */
-    public JavafxEnv<JavafxAttrContext> convertTypes(JavafxEnv<JavafxAttrContext> env) {
+    public JavafxEnv<JavafxAttrContext> lower(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
             Log.printLines(log.noticeWriter, "[type-conv " + env.enclClass.sym + "]");
 
@@ -1137,7 +1137,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                   env.enclClass.sym.sourcefile :
                                   env.toplevel.sourcefile);
         try {
-            convertTypes.convertTypes(env);
+            convertTypes.lower(env);
         }
         finally {
             log.useSource(prev);
