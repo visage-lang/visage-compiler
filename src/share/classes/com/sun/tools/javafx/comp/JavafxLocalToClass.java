@@ -47,6 +47,7 @@ import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
+import java.util.HashMap;
 
 /**
  * Convert local contexts into classes if need be.
@@ -180,6 +181,52 @@ public class JavafxLocalToClass {
      * @return True if tree needs to be inflated
      */
     private boolean needsToBeInflatedToClass(JFXTree tree) {
+        class SelfReferenceChecker extends JavafxTreeScanner {
+
+            HashMap<Symbol, JFXFunctionValue> varDecls = new HashMap<Symbol, JFXFunctionValue>();
+            JFXFunctionValue enclFunctionValue = null;
+            boolean foundSelfRef;
+
+            @Override
+            public void visitIdent(JFXIdent tree) {
+                if (varDecls.containsKey(tree.sym) &&
+                        varDecls.get(tree.sym) != enclFunctionValue) {
+                    foundSelfRef = true;
+                }
+            }
+
+            @Override
+            public void visitVar(JFXVar that) {
+                boolean prevFoundSelfRef = foundSelfRef;
+                try {
+                    varDecls.put(that.sym, enclFunctionValue);
+                    super.visitVar(that);
+                }
+                finally {
+                    varDecls.remove(that.sym);
+                    foundSelfRef = prevFoundSelfRef;
+                }
+            }
+
+            @Override
+            public void visitFunctionValue(JFXFunctionValue tree) {
+                JFXFunctionValue prevEnclFunctionValue = enclFunctionValue;
+                try {
+                    enclFunctionValue = tree;
+                    super.visitFunctionValue(tree);
+                }
+                finally {
+                    enclFunctionValue = prevEnclFunctionValue;
+                }
+            }
+
+            boolean checkSelfRef(JFXVar tree) {
+                varDecls.put(tree.sym, null);
+                scan(tree.getInitializer());
+                return foundSelfRef;
+            }
+        }
+
         class InflationChecker extends TreeScannerWithinChunk {
 
             boolean needed = false;
@@ -190,6 +237,7 @@ public class JavafxLocalToClass {
                 needed |= that.isBound();
                 needed |= that.getOnReplace() != null;
                 needed |= that.getOnInvalidate() != null;
+                needed |= new SelfReferenceChecker().checkSelfRef(that);
                 super.visitVar(that);
             }
 
