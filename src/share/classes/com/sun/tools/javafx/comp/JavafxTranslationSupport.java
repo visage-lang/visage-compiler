@@ -573,10 +573,6 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, onReplace_AttributeMethodPrefix);
     }
     
-    Name attributeEvaluateName(Symbol sym) {
-        return prefixedAttributeName(sym, evaluate_AttributeMethodPrefix);
-    }
-    
     Name attributeGetMixinName(Symbol sym) {
         return prefixedAttributeName(sym, getMixin_AttributeMethodPrefix);
     }

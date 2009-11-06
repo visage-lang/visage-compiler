@@ -1628,68 +1628,61 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             beginBlock();
                             
                             // Set to new value.
-                            if (varInfo.isMixinVar()) {
-                                // Mixin.evaluate$var(this);
-                                addStmt(makeSuperCall((ClassSymbol)varSym.owner, attributeEvaluateName(varSym), id(names._this)));
-                                // Make valid.
-                                addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
+                            assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
+
+                            // set$var(init/bound expression)
+                            addStmts(varInfo.boundPreface());
+                            JCExpression initValue = varInfo.boundInit();
+                            if (varInfo.isInitWithBoundFuncResult()) {
+                                /**
+                                 * For a field named "foo" that is initialized from the bound function
+                                 * result Pointer, we generate the following:
+                                 *
+                                 * Pointer oldPtr = $$$bound$result$$foo;
+                                 * Pointer newPtr = get$$$bound$result$$foo();
+                                 * if (oldPtr != null) {
+                                 *      // remove old Pointer depenency, if any
+                                 *      oldPtr.removeDependency(receiver);
+                                 * }
+                                 * if (newPtr != null) {
+                                 *      be$foo((ExpectedType)newPtr.get());
+                                 *      // Add dependency - Pointer will issue update$ from now onwards.
+                                 *      newPtr.addDependency(receiver);
+                                 * } else {
+                                 *      be$foo(<default-value>);
+                                 * }
+                                 */
+                                Name ptrVarName = attributeValueName(varInfo.boundFuncResultInitSym());
+                                // declare a temp variable of type Pointer to store old value of Pointer field
+                                JCVariableDecl oldPtrVar = TmpVar("old", syms.javafx_PointerType, id(ptrVarName));
+                                addStmt(oldPtrVar);
+
+                                JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, initValue);
+                                addStmt(newPtrVar);
+
+                                JCExpression receiver = getReceiverOrThis(varSym);
+
+                                JCStatement removeDepToOldPtrStmt = CallStmt(id(oldPtrVar),
+                                        defs.removeDependency_PointerMethodName, receiver);
+                                addStmt(If(NEnull(id(oldPtrVar)), removeDepToOldPtrStmt));
+
+                                // We have a Pointer - we need to call Pointer.get() and cast the result.
+                                initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
+                                JCStatement beStmt = CallStmt(attributeBeName(varSym), initValue);
+
+                                // Add the receiver of the current Var symbol as dependency to the Pointer, so that
+                                // we will get notification whenever the result of the bound function evaluation changes.
+                                JCStatement addDepToNewPtrStmt = CallStmt(id(newPtrVar),
+                                        defs.addDependency_PointerMethodName, receiver);
+
+                                JCBlock blk = Block(beStmt, addDepToNewPtrStmt);
+                                JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
+                                        makeDefaultValue(diagPos, varInfo.getVMI()));
+                                addStmt(If(NEnull(id(newPtrVar)), blk, beDefaultStmt));
                             } else {
-                                assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
-
-                                // set$var(init/bound expression)
-                                addStmts(varInfo.boundPreface());
-                                JCExpression initValue = varInfo.boundInit();
-                                if (varInfo.isInitWithBoundFuncResult()) {
-                                    /**
-                                     * For a field named "foo" that is initialized from the bound function
-                                     * result Pointer, we generate the following:
-                                     *
-                                     * Pointer oldPtr = $$$bound$result$$foo;
-                                     * Pointer newPtr = get$$$bound$result$$foo();
-                                     * if (oldPtr != null) {
-                                     *      // remove old Pointer depenency, if any
-                                     *      oldPtr.removeDependency(receiver);
-                                     * }
-                                     * if (newPtr != null) {
-                                     *      be$foo((ExpectedType)newPtr.get());
-                                     *      // Add dependency - Pointer will issue update$ from now onwards.
-                                     *      newPtr.addDependency(receiver);
-                                     * } else {
-                                     *      be$foo(<default-value>);
-                                     * }
-                                     */
-                                    Name ptrVarName = attributeValueName(varInfo.boundFuncResultInitSym());
-                                    // declare a temp variable of type Pointer to store old value of Pointer field
-                                    JCVariableDecl oldPtrVar = TmpVar("old", syms.javafx_PointerType, id(ptrVarName));
-                                    addStmt(oldPtrVar);
-
-                                    JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, initValue);
-                                    addStmt(newPtrVar);
-
-                                    JCExpression receiver = getReceiverOrThis(varSym);
-
-                                    JCStatement removeDepToOldPtrStmt = CallStmt(id(oldPtrVar),
-                                            defs.removeDependency_PointerMethodName, receiver);
-                                    addStmt(If(NEnull(id(oldPtrVar)), removeDepToOldPtrStmt));
-
-                                    // We have a Pointer - we need to call Pointer.get() and cast the result.
-                                    initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
-                                    JCStatement beStmt = CallStmt(attributeBeName(varSym), initValue);
-
-                                    // Add the receiver of the current Var symbol as dependency to the Pointer, so that
-                                    // we will get notification whenever the result of the bound function evaluation changes.
-                                    JCStatement addDepToNewPtrStmt = CallStmt(id(newPtrVar),
-                                            defs.addDependency_PointerMethodName, receiver);
-
-                                    JCBlock blk = Block(beStmt, addDepToNewPtrStmt);
-                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
-                                            makeDefaultValue(diagPos, varInfo.getVMI()));
-                                    addStmt(If(NEnull(id(newPtrVar)), blk, beDefaultStmt));
-                                } else {
-                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
-                                            makeDefaultValue(diagPos, varInfo.getVMI()));
-                                    addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
-                                }
+                                JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
+                                        makeDefaultValue(diagPos, varInfo.getVMI()));
+                                addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
                             }
                           
                             // Is it bound and invalid?
