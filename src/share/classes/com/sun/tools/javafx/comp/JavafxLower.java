@@ -809,7 +809,33 @@ public class JavafxLower implements JavafxVisitor {
        res.sym = tree.sym;
        res.constructor = tree.constructor;
        res.varDefinedByThis = tree.varDefinedByThis;
-       result = res.setType(tree.type);
+       res.type = tree.type;
+       if (tree.getLocalvars().nonEmpty()) {
+            //ObjLit {
+            //  local var 1;
+            //  local var 2;
+            //  ...
+            //  local var n;
+            //}
+            //
+            //is equivalent to:
+            //
+            //{
+            //
+            //  local var 1;
+            //  local var 2;
+            //  ...
+            //  local var n;
+            //
+            //  ObjLit {
+            //    ...
+            //  }
+            //}
+           result = m.Block(0L, List.convert(JFXExpression.class, tree.getLocalvars()), res).setType(tree.type);
+       }
+       else {
+           result = res;
+       }
     }
 
     public void visitInvalidate(JFXInvalidate tree) {
