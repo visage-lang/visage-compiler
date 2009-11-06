@@ -44,7 +44,6 @@ public class JavafxDefs {
      */
     public static final String applyDefaults_AttributeMethodPrefix = "applyDefaults$";
     public static final String be_AttributeMethodPrefix = "be$";
-    public static final String evaluate_AttributeMethodPrefix = "evaluate$";
     public static final String get_AttributeMethodPrefix = "get$";
     public static final String getMixin_AttributeMethodPrefix = "getMixin$";
     public static final String getVOFF_AttributeMethodPrefix = "getVOFF$";
@@ -306,7 +305,6 @@ public class JavafxDefs {
      * mostly for Name comparison
      */
     final Name applyDefaults_AttributeMethodPrefixName;
-    final Name evaluate_AttributeMethodPrefixName;
     final Name getMixin_AttributeMethodPrefixName;
     final Name getVOFF_AttributeMethodPrefixName;
     final Name initVarBitsAttributeMethodPrefixName;
@@ -524,7 +522,6 @@ public class JavafxDefs {
         be_AttributeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
         invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
         onReplaceAttributeMethodPrefixName = names.fromString(onReplace_AttributeMethodPrefix);
-        evaluate_AttributeMethodPrefixName = names.fromString(evaluate_AttributeMethodPrefix);
         getMixin_AttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);
         getVOFF_AttributeMethodPrefixName = names.fromString(getVOFF_AttributeMethodPrefix);
         setMixin_AttributeMethodPrefixName = names.fromString(setMixin_AttributeMethodPrefix);
