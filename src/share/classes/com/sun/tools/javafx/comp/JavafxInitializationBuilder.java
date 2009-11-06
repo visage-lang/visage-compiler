@@ -237,26 +237,30 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
 
-            if (isScriptClass && hasStatics) {
-                ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
-                 
-                // script-level into class X
-                javaCodeMaker.makeAttributeFields(scriptVarInfos);
-                javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
-                javaCodeMaker.gatherFunctions(scriptFuncInfos);
+            if (isScriptClass) {
+
                 javaCodeMaker.makeInitClassMaps(initClassMap);
 
-                // script-level into class X.X$Script
-                javaCodeMaker.setContext(true, sDefinitions);
-                javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
-                javaCodeMaker.makeVarNumMethods();
-                javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, isRunnable);
-                javaCodeMaker.setContext(false, cDefinitions);
+                if  (hasStatics) {
+                    ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
 
-                // script-level into class X
-                javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false, isRunnable);
-                javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, true, isLibrary ? scriptVarInfos : null, initMap);
-                javaCodeMaker.makeScript(sDefinitions.toList());
+                    // script-level into class X
+                    javaCodeMaker.makeAttributeFields(scriptVarInfos);
+                    javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
+                    javaCodeMaker.gatherFunctions(scriptFuncInfos);
+
+                    // script-level into class X.X$Script
+                    javaCodeMaker.setContext(true, sDefinitions);
+                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeVarNumMethods();
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, isRunnable);
+                    javaCodeMaker.setContext(false, cDefinitions);
+
+                    // script-level into class X
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false, isRunnable);
+                    javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, true, isLibrary ? scriptVarInfos : null, initMap);
+                    javaCodeMaker.makeScript(sDefinitions.toList());
+                }
             } else {
                 javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, null, initMap);
             }
