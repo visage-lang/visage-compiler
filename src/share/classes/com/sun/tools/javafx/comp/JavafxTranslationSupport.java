@@ -1015,6 +1015,13 @@ public abstract class JavafxTranslationSupport {
             
             return getReceiver();
         }
+        protected JCExpression getReceiverOrThis() {
+            if (isMixinClass()) {
+                return id(defs.receiverName);
+            }
+            
+            return id(names._this);
+        }
         protected JCExpression getReceiverOrThis(VarSymbol varSym) {
             JCExpression receiver = getReceiver(varSym);
 
