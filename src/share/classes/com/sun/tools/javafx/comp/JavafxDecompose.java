@@ -193,18 +193,22 @@ public class JavafxDecompose implements JavafxVisitor {
         if (tree == null) {
             return null;
         }
-        JFXExpression pose = decompose(tree);
         if (bindStatus.isBound()) {
-            Type varType = tree.type;
-            if (tree.type == syms.botType && contextType != null) {
-                // If the tree type is bottom, try to use contextType
-                varType = contextType;
-            }
-            JFXVar v = shredVar("", pose, varType);
-            return id(v);
+            return unconditionalShred(tree, contextType);
         } else {
-            return pose;
+            return decompose(tree);
         }
+    }
+
+    private JFXExpression unconditionalShred(JFXExpression tree, Type contextType) {
+        JFXExpression pose = decompose(tree);
+        Type varType = tree.type;
+        if (tree.type == syms.botType && contextType != null) {
+            // If the tree type is bottom, try to use contextType
+            varType = contextType;
+        }
+        JFXVar v = shredVar("", pose, varType);
+        return id(v);
     }
 
     private JFXExpression shred(JFXExpression tree) {
@@ -433,11 +437,11 @@ public class JavafxDecompose implements JavafxVisitor {
                 (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
                 types.isJFXClass(tree.sym.owner) &&
                 !currentClass.isSubClass(tree.sym.owner, types) &&
-                bindStatus.isBound() &&
+                (bindStatus.isBound() || bindStatus.isDependent()) &&
                 tree.name != names._class) {
             //referenced is static script var - if in bind context need shredding
             JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
-            selected = shred(meth);
+            selected = unconditionalShred(meth, null);
         }
         else if (tree.sym.isStatic() || !types.isJFXClass(tree.sym.owner)) {
             // Referenced is static, then selected is a class reference
@@ -468,12 +472,12 @@ public class JavafxDecompose implements JavafxVisitor {
                 (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
                 types.isJFXClass(tree.sym.owner) &&
                 !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName)) &&
-                bindStatus.isBound()) {
+                (bindStatus.isBound() || bindStatus.isDependent())) {
             if (tree.sym.isStatic()) {
                 if (!inScriptLevel) {
                     //referenced is static script var - if in bind context need shredding
                     JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
-                    meth = shred(meth);
+                    meth = unconditionalShred(meth, null);
                     setSelectResult(tree, meth, tree.sym);
                     return;
                 }

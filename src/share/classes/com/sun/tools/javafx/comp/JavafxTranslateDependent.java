@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.tree.JCTree.JCExpression;
 import com.sun.tools.mjavac.tree.JCTree.JCVariableDecl;
@@ -73,17 +74,28 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
 
         @Override
         JCExpression fullExpression(JCExpression tToCheck) {
-            VarSymbol selectorSym = (VarSymbol) JavafxTreeInfo.symbol(getToCheck());
-            addInterClassBindee(selectorSym, refSym);
-            JCVariableDecl resVar = TmpVar(fullType, super.fullExpression(tToCheck));
-            return BlockExpression(
-                    resVar,
-                    CallStmt(defs.FXBase_addDependent,
-                        copyOfTranslatedToCheck(tToCheck),
-                        Offset(copyOfTranslatedToCheck(tToCheck), refSym),
-                        getReceiverOrThis(selectorSym)
-                    ),
-                    id(resVar));
+            JCExpression full = super.fullExpression(tToCheck);
+            JFXExpression sel = getToCheck();
+            Symbol checkSym = expressionSymbol(sel);
+            if (checkSym == null | !(checkSym instanceof VarSymbol)) {
+                return full;
+            } else {
+                // This is a "real" select, selector is a variable
+                VarSymbol selectorSym = (VarSymbol) checkSym;
+                addInterClassBindee(selectorSym, refSym);
+                JCVariableDecl resVar = TmpVar(fullType, full);
+                // If this is a synthetic selector, use it in addDependent
+                JCExpression selected = staticReference ?
+                                            translateExpr(sel, sel.type) :
+                                            copyOfTranslatedToCheck(tToCheck);
+                return BlockExpression(
+                        resVar,
+                        CallStmt(defs.FXBase_addDependent,
+                            selected,
+                            Offset(copyOfTranslatedToCheck(tToCheck), refSym),
+                            getReceiverOrThis(selectorSym)),
+                        id(resVar));
+            }
         }
     }
 
