@@ -171,6 +171,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         disallowedInInverseBind();
     }
 
+    @Override
     public void visitForExpression(JFXForExpression tree) {
         disallowedInInverseBind();
     }
@@ -228,18 +229,22 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         disallowedInInverseBind();
     }
 
+    @Override
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
         disallowedInInverseBind();
     }
 
+    @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         disallowedInInverseBind();
     }
 
+    @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         disallowedInInverseBind();
     }
 
+    @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         disallowedInInverseBind();
     }

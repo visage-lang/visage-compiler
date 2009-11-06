@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
@@ -228,34 +227,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
             return toResult( id(resVar), type );
-        }
-    }
-
-    /**
-     * Bound identifier reference (non-sequence)
-     */
-    private class BoundIdentTranslator extends IdentTranslator {
-
-        BoundIdentTranslator(JFXIdent tree) {
-            super(tree);
-        }
-
-        @Override
-        protected ExpressionResult doit() {
-            if (sym instanceof VarSymbol) {
-                VarSymbol vsym = (VarSymbol) sym;
-                if (currentClass().sym.isSubClass(sym.owner, types)) {
-                    // The var is in our class (or a superclass)
-                    if ((receiverContext() == ReceiverContext.ScriptAsStatic) || !sym.isStatic()) {
-                        addBindee(vsym);
-                    }
-                } else {
-                    // The reference is to a presumably outer class
-                    //TODO:
-                    }
-
-            }
-            return super.doit();
         }
     }
 
@@ -1198,6 +1169,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         TODO(tree);
     }
 
+    @Override
     public void visitForExpression(JFXForExpression tree) {
         TODO(tree);
     }
@@ -1270,6 +1242,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         result = new BoundExplicitSequenceTranslator(tree).doit();
     }
 
+    @Override
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         TODO(tree);
     }
@@ -1279,6 +1252,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         result = new BoundRangeSequenceTranslator(tree).doit();
     }
 
+    @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
         TODO(tree);
     }

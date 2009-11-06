@@ -104,6 +104,7 @@ public class JavafxDefs {
     public static final String cSequence = sequence_PackageString + ".Sequence";
     public static final String cSequenceRef = sequence_PackageString + ".SequenceRef";
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
+    public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
     // in runtime package -- public
     public static final String cFXBase = runtime_PackageString + ".FXBase";
     public static final String cFXObject = runtime_PackageString + ".FXObject";
