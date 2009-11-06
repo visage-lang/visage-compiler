@@ -3259,7 +3259,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public void makeJavaEntryConstructor() {
             //    public Foo() {
             //        this(false);
-            //        if (<fx-local-synthetic-class> initialize$();
+            //        if (not <fx-local-synthetic-class> initialize$();
             //    }
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             stmts.append(CallStmt(names._this, Boolean(false)));
