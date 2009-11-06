@@ -390,7 +390,6 @@ import com.sun.javafx.runtime.sequence.Sequence;
         applyDefaults$(this, varNum);
     }
     public static void applyDefaults$(FXObject obj, final int varNum) {
-        obj.varChangeBits$(varNum, 0, VFLGS$DEFAULT_APPLIED);
     }
 
     public void applyDefaults$() {

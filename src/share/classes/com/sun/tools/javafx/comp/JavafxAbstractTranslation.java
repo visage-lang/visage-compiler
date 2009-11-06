@@ -2733,8 +2733,8 @@ public abstract class JavafxAbstractTranslation
             if (tree.getClassBody() != null &&
                     tree.getClassBody().sym != null && getHasOuters().contains(tree.getClassBody().sym) ||
                     idSym != null && getHasOuters().contains(idSym)) {
-                JCIdent thisIdent = id(defs.receiverName);
-                translated = translated.prepend(thisIdent);
+                JCExpression receiver = getReceiverOrThis();
+                translated = translated.prepend(receiver);
             }
             return translated;
         }

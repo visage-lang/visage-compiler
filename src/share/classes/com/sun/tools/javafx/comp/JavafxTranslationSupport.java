@@ -1007,15 +1007,22 @@ public abstract class JavafxTranslationSupport {
             
             return null;
         }
-        protected JCExpression getReceiver(VarSymbol varSym) {
-            if (varSym.isStatic()) {
-                return Call(scriptLevelAccessMethod(varSym.owner));
+        protected JCExpression getReceiverOrThis() {
+            if (isMixinClass()) {
+                return id(defs.receiverName);
+            }
+            
+            return id(names._this);
+        }
+        protected JCExpression getReceiver(Symbol sym) {
+            if (sym.isStatic()) {
+                return Call(scriptLevelAccessMethod(sym.owner));
             }
             
             return getReceiver();
         }
-        protected JCExpression getReceiverOrThis(VarSymbol varSym) {
-            JCExpression receiver = getReceiver(varSym);
+        protected JCExpression getReceiverOrThis(Symbol sym) {
+            JCExpression receiver = getReceiver(sym);
 
             if (receiver == null) {
                 receiver = id(names._this);

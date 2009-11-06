@@ -423,15 +423,18 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     translatedPostInitBlocks);
             additionalImports.appendList(model.additionalImports);
 
+            // build the list of implemented interfaces
+            List<JCExpression> implementing = model.interfaces;
+
             // include the interface only once
             if (!tree.hasBeenTranslated) {
                 if (isMixinClass) {
-                    JCModifiers mods = make.Modifiers(Flags.PUBLIC | Flags.INTERFACE);
+                    JCModifiers mods = m().Modifiers(Flags.PUBLIC | Flags.INTERFACE);
                     mods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, mods);
 
-                    JCClassDecl cInterface = make.ClassDef(mods,
+                    JCClassDecl cInterface = m().ClassDef(mods,
                             model.interfaceName, List.<JCTypeParameter>nil(), null,
-                            model.interfaces, model.iDefinitions);
+                            implementing, model.iDefinitions);
         
                     cInterface.sym = makeClassSymbol(mods.flags, cInterface.name, tree.sym.owner);
                     
@@ -443,9 +446,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             }
 
             translatedDefs.appendList(model.additionalClassMembers);
-
-            // build the list of implemented interfaces
-            List<JCExpression> implementing = model.interfaces;
 
             // Class must be visible for reflection.
             long flags = tree.mods.flags & (Flags.FINAL | Flags.ABSTRACT | Flags.SYNTHETIC);
