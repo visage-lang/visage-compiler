@@ -3478,7 +3478,7 @@ public abstract class JavafxAbstractTranslation
                     } else {
                         sseq = clause.seqExpr;
                     }
-                    seqVar = TmpVar("seq", seq.type, translateExpr(sseq, seq.type));
+                    seqVar = TmpVar("seq", seq.type, asExpression(translateToExpressionResult(sseq, seq.type), seq.type));
                     varInit = new SequenceIndexedTranslator(diagPos, sseq, id(seqVar), id(inductionVar), inductionVarType).doitExpr();
                 } else {
                     varInit = id(inductionVar);
