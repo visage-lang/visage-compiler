@@ -778,12 +778,23 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitForExpression(JFXForExpression tree) {
-        Type typeToCheck = types.isSequence(tree.getBodyExpression().type) ?
+        JFXForExpressionInClause clause = lower(tree.getForExpressionInClauses().head);
+        JFXExpression body = null;
+        if (tree.getForExpressionInClauses().size() > 1) {
+            // for (INCLAUSE(1), INCLAUSE(2), ... INCLAUSE(n)) BODY
+            // (n>1) is lowered to:
+            // for (INCLAUSE(1) Lower(for (INCLAUSE(2) (... for (INCLAUSE(n)) ... )) BODY
+            JFXForExpression nestedFor = m.ForExpression(tree.getForExpressionInClauses().tail, tree.bodyExpr);
+            body = lower(nestedFor.setType(tree.type));
+        }
+        else {
+            //single clause for expression - standard lowering
+            Type typeToCheck = types.isSequence(tree.getBodyExpression().type) ?
                 tree.type :
                 types.elementType(tree.type);
-        JFXExpression body = lowerExpr(tree.bodyExpr, typeToCheck);
-        List<JFXForExpressionInClause> clauses = lower(tree.getForExpressionInClauses());
-        result = m.at(tree.pos).ForExpression(clauses, body).setType(tree.type);
+            body = lowerExpr(tree.bodyExpr, typeToCheck);
+        }
+        result = m.at(tree.pos).ForExpression(List.of(clause), body).setType(tree.type);
     }
 
     public void visitIdent(JFXIdent tree) {
