@@ -107,7 +107,7 @@ class JavafxAnalyzeClass {
     private final ListBuffer<FuncInfo> scriptFuncInfos = ListBuffer.lb();
 
     // List of all attributes.  Used to track overridden and mixin attributes.
-    private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
+    private final Map<VarSymbol, VarInfo> visitedAttributes = new HashMap<VarSymbol, VarInfo>();
     
     // Map of all bind selects used to construct the class update$ method.
     private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
@@ -179,7 +179,7 @@ class JavafxAnalyzeClass {
         
         // Inversion of invalidators.
         private ListBuffer<BindeeInvalidator> boundInvalidatees;
-
+        
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
             this.diagPos = diagPos;
@@ -596,7 +596,7 @@ class JavafxAnalyzeClass {
     //
     static class MixinClassVarInfo extends VarInfo {
         // Override from mixee.
-        VarInfo overrideVar;
+        private VarInfo overrideVar;
         
         MixinClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
@@ -829,7 +829,7 @@ class JavafxAnalyzeClass {
         // Add any bindees to binders.
         for (VarSymbol bindeeSym : tai.boundBindees()) {
             // Find the varInfo
-            VarInfo bindee = visitedAttributes.get(bindeeSym.name);
+            VarInfo bindee = visitedAttributes.get(bindeeSym);
             
             if (bindee != null) {
                 bindee.bindersOrNull.add((VarInfo)tai);
@@ -844,7 +844,7 @@ class JavafxAnalyzeClass {
         // If the tai has invalidators.
         for (BindeeInvalidator invalidator: tai.boundInvalidators()) {
             // Find the varInfo
-            VarInfo bindee = visitedAttributes.get(invalidator.bindee.name);
+            VarInfo bindee = visitedAttributes.get(invalidator.bindee);
             
             if (bindee != null && invalidator.invalidator != null) {
                bindee.boundInvalidatees.append(invalidator);
@@ -1042,9 +1042,12 @@ class JavafxAnalyzeClass {
     //
     public List<MethodSymbol> needDispatch() {
         ListBuffer<MethodSymbol> meths = ListBuffer.lb();
-
-        for (FuncInfo fi : needDispatchMethods.values()) {
-            meths.append(fi.getSymbol());
+        
+        // Never add dispatch methods to mixins.
+        if (!isMixinClass()) {
+            for (FuncInfo fi : needDispatchMethods.values()) {
+                meths.append(fi.getSymbol());
+            }
         }
 
         return meths.toList();
@@ -1125,7 +1128,7 @@ class JavafxAnalyzeClass {
         // Track the current vars to the instance attribute results.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
             // Track the var for overrides and mixin duplication.
-            visitedAttributes.put(tai.getName(), tai);
+            visitedAttributes.put(tai.getSymbol(), tai);
         }
 
         // Map the current methods so they are filtered out of the results.
@@ -1143,7 +1146,7 @@ class JavafxAnalyzeClass {
         // Track the override vars to the instance attribute results.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
             // Find the overridden var.
-            VarInfo oldVarInfo = visitedAttributes.get(tai.getName());
+            VarInfo oldVarInfo = visitedAttributes.get(tai.getSymbol());
 
             // Test because it's possible to find the override before the mixin.
             if (oldVarInfo != null) {
@@ -1156,7 +1159,7 @@ class JavafxAnalyzeClass {
             }
 
             // Track the var for overrides and mixin duplication.
-            visitedAttributes.put(tai.getName(), tai);
+            visitedAttributes.put(tai.getSymbol(), tai);
         }
 
         // Add the current vars to the var results.
@@ -1191,18 +1194,18 @@ class JavafxAnalyzeClass {
             }
         }
     }
-
+    
     private void analyzeClass(Symbol sym, boolean isImmediateSuper, boolean needsCloning) {
         // Ignore pure java interfaces, classes we've visited before and non-javafx classes.
         if (!isInterface(sym) && !addedBaseClasses.contains(sym) && types.isJFXClass(sym)) {
             // Get the current class symbol and add it to the visited map.
-            ClassSymbol cSym = (ClassSymbol) sym;
+            ClassSymbol cSym = (ClassSymbol)sym;
             addedBaseClasses.add(cSym);
 
             // Only continue cloning up the hierarchy if this is a mixin class.
             boolean isMixinClass = isMixinClass(cSym);
             needsCloning = needsCloning && isMixinClass;
-
+            
             // Process up the super class chain first.
             Type superType = cSym.getSuperclass();
             if (isValidClass(superType)) {
@@ -1210,7 +1213,6 @@ class JavafxAnalyzeClass {
                 // anything in the super chain.
                 analyzeClass(superType.tsym, false, false);
             }
-
             // Class loaded from .class file.
             if (cSym.members() != null) {
                 // Scope information is held in reverse order of declaration.
@@ -1231,7 +1233,7 @@ class JavafxAnalyzeClass {
 
                         // Filter out methods generated by the compiler.
                         if (isRootClass(cSym) || !filterMethods(meth)) {
-                            processMethod(meth, needsCloning);
+                            processMethod(meth, needsCloning, cSym);
                         }
                     } else if (mem instanceof VarSymbol) {
                         // Attribute member.
@@ -1279,24 +1281,20 @@ class JavafxAnalyzeClass {
         
         return name == names.init || name == names.clinit ||
                name == defs.internalRunFunctionName || 
-               name == defs.initialize_FXObjectMethodName ||
+               name == defs.applyDefaults_FXObjectMethodName ||
+               name == defs.count_FXObjectMethodName ||
+               name == defs.get_FXObjectMethodName ||
+               name == defs.set_FXObjectMethodName ||
+               name == defs.invalidate_FXObjectMethodName ||
+               name == defs.notifyDependents_FXObjectMethodName ||
+               name == defs.getElement_FXObjectMethodName ||
+               name == defs.size_FXObjectMethodName ||
+               name == defs.update_FXObjectMethodName ||
                name == defs.complete_FXObjectMethodName ||
-               name == defs.postInit_FXObjectMethodName || name == defs.userInit_FXObjectMethodName ||
-               name == names.clinit ||
-               name.startsWith(defs.offset_AttributeFieldPrefixName) ||
-               name.startsWith(defs.count_FXObjectFieldName) ||
-               name.startsWith(defs.get_AttributeMethodPrefixName) ||
-               name.startsWith(defs.set_AttributeMethodPrefixName) ||
-               name.startsWith(defs.be_AttributeMethodPrefixName) ||
-               name.startsWith(defs.invalidate_FXObjectMethodName) ||
-               name.startsWith(defs.onReplaceAttributeMethodPrefixName) ||
-               name.startsWith(defs.evaluate_AttributeMethodPrefixName) ||
-               name.startsWith(defs.getMixin_AttributeMethodPrefixName) ||
-               name.startsWith(defs.getVOFF_AttributeMethodPrefixName) ||
-               name.startsWith(defs.initVarBitsAttributeMethodPrefixName) ||
-               name.startsWith(defs.applyDefaults_AttributeMethodPrefixName) ||
-               name.startsWith(defs.update_FXObjectMethodName) ||
-               name.startsWith(defs.size_FXObjectMethodName);
+               name == defs.initialize_FXObjectMethodName ||
+               name == defs.userInit_FXObjectMethodName ||
+               name == defs.postInit_FXObjectMethodName ||
+               name == defs.initVarBits_FXObjectMethodName;
     }
 
     //
@@ -1340,13 +1338,13 @@ class JavafxAnalyzeClass {
 
     //
     // This method determines if a method should be added to the list of methods
-    // needing $impl dispatch.  This method is only called for inherited methods.
+    // needing dispatch.  This method is only called for inherited methods.
     //
-    private void processMethod(MethodSymbol sym, boolean needsCloning) {
+    private void processMethod(MethodSymbol sym, boolean needsCloning, ClassSymbol cSym) {
         long flags = sym.flags();
-
+        
         // Only look at real instance methods.
-        if ((flags & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0) {
+        if ((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
             // Generate a name/signature string for uniqueness.
             String nameSig = methodSignature(sym);
             // Look to see if we've seen a method like this before.
@@ -1357,15 +1355,14 @@ class JavafxAnalyzeClass {
             boolean oldIsMixin = oldMethod != null && isMixinClass(oldMethod.getSymbol().owner);
             // Create new info.
             FuncInfo newMethod = newIsMixin ? new MixinFuncInfo(sym) :  new SuperClassFuncInfo(sym);
-            
 
             // Are we are still cloning this far up the hierarchy?
             if (needsCloning && (sym.flags() & Flags.PRIVATE) == 0) {
                 // If the method didn't occur before or is a real method overshadowing a prior mixin.
-                if (oldMethod == null || (oldIsMixin && !newIsMixin)) {
-                    // Add to the methods needing $impl dispatch.
-                    needDispatchMethods.put(nameSig, newMethod);
-                }
+                if ((oldMethod == null || (oldIsMixin && !newIsMixin)) && sym.owner == cSym) {
+                      // Add to the methods needing $impl dispatch.
+                      needDispatchMethods.put(nameSig, newMethod);
+                  }
             }
 
             // Map the fact we've seen this name/signature.
@@ -1382,9 +1379,8 @@ class JavafxAnalyzeClass {
 
         // If the var is in a class and not a static (ie., an instance attribute.)
         if (var.owner.kind == Kinds.TYP && !isStatic) {
-            // See if we've seen this class before.
-            Name attrName = var.name;
-            VarInfo oldVarInfo = visitedAttributes.get(attrName);
+            // See if we've seen this var before.
+            VarInfo oldVarInfo = visitedAttributes.get(var);
 
             // If we've seen this class before, it must be the same symbol and type,
             // otherwise in doesn't conflict.
@@ -1401,10 +1397,15 @@ class JavafxAnalyzeClass {
                 if (oldVarInfo == null || oldVarInfo instanceof TranslatedOverrideClassVarInfo) {
                     // Construct a new mixin VarInfo.
                     MixinClassVarInfo newVarInfo = new MixinClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
-                    // Add the new mixin VarInfo to the result list.
-                    classVarInfos.append(newVarInfo);
+                    
+                    // Don't add mixin vars to mixin classes.
+                    if (!isMixinClass()) {
+                        // Add the new mixin VarInfo to the result list.
+                        classVarInfos.append(newVarInfo);
+                    }
+                    
                     // Map the fact we've seen this var.
-                    visitedAttributes.put(attrName, newVarInfo);
+                    visitedAttributes.put(var, newVarInfo);
                 } else if (oldVarInfo instanceof TranslatedOverrideClassVarInfo) {
                 }
             } else {
@@ -1413,7 +1414,7 @@ class JavafxAnalyzeClass {
                 // Add the new superclass VarInfo to the result list.
                 classVarInfos.append(newVarInfo);
                 // Map the fact we've seen this var.
-                visitedAttributes.put(attrName, newVarInfo);
+                visitedAttributes.put(var, newVarInfo);
             }
         }
     }

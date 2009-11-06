@@ -432,7 +432,6 @@ public class FXLocal {
             "be$",
             "update$",
             "invalidate$",
-	    "evaluate$",
 	    "size$",
             "onReplace$",
 	    "initVarBits$",
