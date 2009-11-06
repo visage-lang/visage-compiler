@@ -24,7 +24,9 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.tree.JCTree.JCExpression;
+import com.sun.tools.mjavac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.mjavac.util.Context;
 
 /**
@@ -59,6 +61,35 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
 
     /***********************************************************************
      *
+     * Translators
+     *
+     */
+
+    class DependentSelectTranslator extends SelectTranslator {
+
+         protected DependentSelectTranslator(JFXSelect tree) {
+            super(tree);
+        }
+
+        @Override
+        JCExpression fullExpression(JCExpression tToCheck) {
+            VarSymbol selectorSym = (VarSymbol) JavafxTreeInfo.symbol(getToCheck());
+            addInterClassBindee(selectorSym, refSym);
+            JCVariableDecl resVar = TmpVar(fullType, super.fullExpression(tToCheck));
+            return BlockExpression(
+                    resVar,
+                    CallStmt(defs.FXBase_addDependent,
+                        copyOfTranslatedToCheck(tToCheck),
+                        Offset(copyOfTranslatedToCheck(tToCheck), refSym),
+                        getReceiverOrThis(selectorSym)
+                    ),
+                    id(resVar));
+        }
+    }
+
+
+    /***********************************************************************
+     *
      * Visitors  (alphabetical order)
      *
      */
@@ -85,8 +116,7 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
     }
 
     public void visitSelect(JFXSelect tree) {
-        //TODO: this needs to be fixed
-        result = new SelectTranslator(tree).doit();
+        result = new DependentSelectTranslator(tree).doit();
     }
 
 
