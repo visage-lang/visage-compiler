@@ -24,10 +24,7 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
-import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.tree.JCTree.*;
+import com.sun.tools.mjavac.tree.JCTree.JCExpression;
 import com.sun.tools.mjavac.util.Context;
 
 /**
@@ -39,9 +36,6 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
 
     protected static final Context.Key<JavafxTranslateDependent> jfxDependentTranslation =
         new Context.Key<JavafxTranslateDependent>();
-
-    // Symbol for the var whose bound expression we are translating.
-    private VarSymbol targetSymbol;
 
     public static JavafxTranslateDependent instance(Context context) {
         JavafxTranslateDependent instance = context.get(jfxDependentTranslation);
@@ -60,22 +54,6 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
 
     static JCExpression TODO(String msg, JFXExpression tree) {
         return TODO(msg + " -- " + tree.getClass());
-    }
-
-    /**
-     * Entry-point into JavafxTranslateBind.
-     *
-     * @param expr Bound expression to translate.  Directly held by a var (or bound function?). Not a sub-expression/
-     * @param targettedType Type of the result.  Note: this may be different from the type of expr.
-     * @param targetSymbol Symbol for the var whose bound expression we are translating.
-     * @param isBidiBind Is this a bi-diractional bind?
-     * @return
-     */
-    ExpressionResult translateDependentExpression(JFXExpression expr, Type targettedType, VarSymbol targetSymbol) {
-        this.targetSymbol = targetSymbol;
-        ExpressionResult res = translateToExpressionResult(expr, targettedType);
-        this.targetSymbol = null;
-        return res;
     }
 
 
@@ -103,16 +81,12 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {
-        TODO(tree);
-    }
-
-    @Override
-    public void visitParens(JFXParens tree) {
-        result = translateDependentExpression(tree.expr, targetType, targetSymbol);
+        result = new InterpolateValueTranslator(tree).doit();
     }
 
     public void visitSelect(JFXSelect tree) {
-        TODO(tree);
+        //TODO: this needs to be fixed
+        result = new SelectTranslator(tree).doit();
     }
 
 

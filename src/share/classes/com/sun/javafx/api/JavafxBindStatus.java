@@ -28,13 +28,12 @@ package com.sun.javafx.api;
  * 
  * @author Robert Field
  */
-public final class JavafxBindStatus {
+public enum JavafxBindStatus {
     
-    // sole instances
-    public static final JavafxBindStatus UNBOUND          = new JavafxBindStatus("unbound",                   false, false, false);
-    public static final JavafxBindStatus UNIDIBIND        = new JavafxBindStatus("unidirectional bind",       true,  false, false);
-    public static final JavafxBindStatus BIDIBIND         = new JavafxBindStatus("bidirectional bind",        false, true,  false);
-    public static final JavafxBindStatus DEPENDENT        = new JavafxBindStatus("unbound dependent",         false, false, true);
+    UNBOUND   ("unbound",                   false, false, false),
+    UNIDIBIND ("unidirectional bind",       true,  false, false),
+    BIDIBIND  ("bidirectional bind",        false, true,  false),
+    DEPENDENT ("unbound dependent",         false, false, true);
     
     private final String description;
     private final boolean isBound;

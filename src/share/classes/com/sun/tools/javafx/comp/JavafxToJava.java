@@ -193,7 +193,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     protected JavafxToJava toJava() {
         return this;
     }
-    
+
+    @Override
+    protected JavafxTranslateDependent translateDependent() {
+        return translateDependent;
+    }
+
     /**
      * @param attrEnv the attrEnv to set
      */
@@ -786,98 +791,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    /**
-     * Translate to a built-in construct
-     */
-    abstract class NewBuiltInInstanceTranslator extends NewInstanceTranslator {
-
-        protected final Type builtIn;
-
-        NewBuiltInInstanceTranslator(DiagnosticPosition diagPos, Type builtIn) {
-            super(diagPos);
-            this.builtIn = builtIn;
-        }
-
-        /**
-         * Arguments for the constructor.
-         * There are no user arguments to built-in class constructors.
-         * Just generate the default init 'true' flag for JavaFX generated constructors.
-         */
-        protected List<JCExpression> completeTranslatedConstructorArgs() {
-            return List.<JCExpression>nil();
-        }
-
-        VarSymbol varSym(Name varName) {
-            return (VarSymbol) builtIn.tsym.members().lookup(varName).sym;
-        }
-
-        void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
-            VarSymbol vsym = varSym(varName);
-            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
-        }
-
-        @Override
-        protected ExpressionResult doit() {
-            return buildInstance(builtIn, null, true);
-        }
-    }
-
-    private class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
-
-        final JFXInterpolateValue tree;
-
-        InterpolateValueTranslator(JFXInterpolateValue tree) {
-            super(tree.pos(), syms.javafx_KeyValueType);
-            this.tree = tree;
-        }
-
-        protected JCExpression translateTarget() {
-            JavafxTag tag = tree.attribute.getFXTag();
-            Symbol sym = JavafxTreeInfo.symbol(tree.attribute);
-            JCExpression receiver;
-            if (tag == JavafxTag.IDENT) {
-                if (sym.isStatic()) {
-                    receiver = Call(staticReference(sym), scriptLevelAccessMethod(sym.owner));
-                } else {
-                    receiver = makeReceiver(sym, false);
-                }
-            } else if (tag == JavafxTag.SELECT) {
-                receiver = translateExpr(((JFXSelect)tree.attribute).selected, null);
-            } else {
-                // FIXME: JavafxAttr enforces "attribute" of JFXInterpolateValue
-                // to be either a select or an identifier. Do I need TODO here?
-                TODO("JFXInterpolateValue.attribute should be either a select or an identifier");
-                // should not reach here. TODO always throws exception.
-                // This is just to satisfy the compiler for calls below.
-                receiver = null;
-            }
-            
-            JCExpression varOffsetExpr = Offset(receiver, sym);
-            Type type = types.erasure(tree.attribute.type);
-            JCExpression varType = m().ClassLiteral(type);
-            return Call(defs.Pointer_make, receiver, varOffsetExpr, varType);
-        }
-
-        @Override
-        protected boolean hasInstanceVariableInits() {
-            return true;
-        }
-
-        @Override
-        protected void initInstanceVariables(Name instName) {
-            // value
-            setInstanceVariable(instName, defs.value_InterpolateMethodName, tree.value);
-
-            // interpolator kind
-            if (tree.interpolation != null) {
-                setInstanceVariable(instName, defs.interpolate_InterpolateMethodName, tree.interpolation);
-            }
-
-            // target -- convert to Pointer
-            setInstanceVariable(tree.attribute.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.target_InterpolateMethodName), translateTarget());
-        }
-    }
-
     class KeyFrameTranslator extends NewBuiltInInstanceTranslator {
         private final JFXKeyFrameLiteral tree;
         KeyFrameTranslator(JFXKeyFrameLiteral tree) {
@@ -1202,6 +1115,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new KeyFrameTranslator(tree).doit();
     }
 
+    @Override
     public void visitParens(JFXParens tree) {
         if (yield() == ToExpression) {
             result = translateToExpressionResult(tree.expr, targetType);

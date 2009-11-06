@@ -622,7 +622,7 @@ public class JavafxDecompose implements JavafxVisitor {
                                 JavafxBindStatus.DEPENDENT :
                                 prevBindStatus;
         JFXExpression expr = decompose(tree.getExpression());
-        JFXObjectLiteralPart res = fxmake.at(tree.pos).ObjectLiteralPart(tree.name, expr, null);
+        JFXObjectLiteralPart res = fxmake.at(tree.pos).ObjectLiteralPart(tree.name, expr, bindStatus);
         res.sym = tree.sym;
         result = res;
         bindStatus = prevBindStatus;

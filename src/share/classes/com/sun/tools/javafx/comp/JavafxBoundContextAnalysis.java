@@ -162,6 +162,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
                                 JavafxBindStatus.DEPENDENT :
                                 prevBindStatus;
         scan(tree.getExpression());
+        mark(tree);
         bindStatus = prevBindStatus;
     }
 

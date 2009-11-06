@@ -233,7 +233,7 @@ public class JavafxTreeCopier implements JavafxVisitor {
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         JFXExpression expr = copy(tree.getExpression());
-        result = maker.at(tree.pos).ObjectLiteralPart(tree.name, expr, null);
+        result = maker.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getBindStatus());
     }
 
     public void visitTypeAny(JFXTypeAny tree) {

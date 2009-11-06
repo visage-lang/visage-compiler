@@ -137,6 +137,10 @@ public abstract class JavafxAbstractTranslation
         return toJava;
     }
 
+    protected JavafxTranslateDependent translateDependent() {
+        return toJava.translateDependent();
+    }
+
     /********** Utility routines **********/
 
     /**
@@ -1840,7 +1844,7 @@ public abstract class JavafxAbstractTranslation
                 VarSymbol vsym = (VarSymbol) sym;
                 if (currentClass().sym.isSubClass(sym.owner, types)) {
                     // The var is in our class (or a superclass)
-                    if ((receiverContext() == ReceiverContext.ScriptAsStatic) || !sym.isStatic()) {
+                    if ((receiverContext() == ReceiverContext.ScriptAsStatic) == sym.isStatic()) {
                         addBindee(vsym);
                     }
                 } else {
@@ -2523,7 +2527,19 @@ public abstract class JavafxAbstractTranslation
         protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
         protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
-            ExpressionResult eres = toJava().translateToExpressionResult(init, vsym.type);
+            ExpressionResult eres;
+            switch (bindStatus) {
+                case UNBOUND:
+                    eres = toJava().translateToExpressionResult(init, vsym.type);
+                    break;
+                case DEPENDENT:
+                    eres = translateDependent().translateToExpressionResult(init, vsym.type);
+                    break;
+                case UNIDIBIND:
+                case BIDIBIND:
+                default: // javac is confused
+                    throw new AssertionError("Should have been inflated to class");
+            }
             mergeResults(eres);
             return convertNullability(init.pos(), eres.expr(), init, vsym.type);
         }
@@ -3518,6 +3534,98 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
+    /**
+     * Translate to a built-in construct
+     */
+    abstract class NewBuiltInInstanceTranslator extends NewInstanceTranslator {
+
+        protected final Type builtIn;
+
+        NewBuiltInInstanceTranslator(DiagnosticPosition diagPos, Type builtIn) {
+            super(diagPos);
+            this.builtIn = builtIn;
+        }
+
+        /**
+         * Arguments for the constructor.
+         * There are no user arguments to built-in class constructors.
+         * Just generate the default init 'true' flag for JavaFX generated constructors.
+         */
+        protected List<JCExpression> completeTranslatedConstructorArgs() {
+            return List.<JCExpression>nil();
+        }
+
+        VarSymbol varSym(Name varName) {
+            return (VarSymbol) builtIn.tsym.members().lookup(varName).sym;
+        }
+
+        void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
+            VarSymbol vsym = varSym(varName);
+            setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
+        }
+
+        @Override
+        protected ExpressionResult doit() {
+            return buildInstance(builtIn, null, true);
+        }
+    }
+
+    class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
+
+        final JFXInterpolateValue tree;
+
+        InterpolateValueTranslator(JFXInterpolateValue tree) {
+            super(tree.pos(), syms.javafx_KeyValueType);
+            this.tree = tree;
+        }
+
+        protected JCExpression translateTarget() {
+            JavafxTag tag = tree.attribute.getFXTag();
+            Symbol sym = JavafxTreeInfo.symbol(tree.attribute);
+            JCExpression receiver;
+            if (tag == JavafxTag.IDENT) {
+                if (sym.isStatic()) {
+                    receiver = Call(staticReference(sym), scriptLevelAccessMethod(sym.owner));
+                } else {
+                    receiver = makeReceiver(sym, false);
+                }
+            } else if (tag == JavafxTag.SELECT) {
+                receiver = translateExpr(((JFXSelect)tree.attribute).selected, null);
+            } else {
+                // FIXME: JavafxAttr enforces "attribute" of JFXInterpolateValue
+                // to be either a select or an identifier. Do I need TODO here?
+                TODO("JFXInterpolateValue.attribute should be either a select or an identifier");
+                // should not reach here. TODO always throws exception.
+                // This is just to satisfy the compiler for calls below.
+                receiver = null;
+            }
+
+            JCExpression varOffsetExpr = Offset(receiver, sym);
+            Type type = types.erasure(tree.attribute.type);
+            JCExpression varType = m().ClassLiteral(type);
+            return Call(defs.Pointer_make, receiver, varOffsetExpr, varType);
+        }
+
+        @Override
+        protected boolean hasInstanceVariableInits() {
+            return true;
+        }
+
+        @Override
+        protected void initInstanceVariables(Name instName) {
+            // value
+            setInstanceVariable(instName, defs.value_InterpolateMethodName, tree.value);
+
+            // interpolator kind
+            if (tree.interpolation != null) {
+                setInstanceVariable(instName, defs.interpolate_InterpolateMethodName, tree.interpolation);
+            }
+
+            // target -- convert to Pointer
+            setInstanceVariable(tree.attribute.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.target_InterpolateMethodName), translateTarget());
+        }
+    }
+
     /***********************************************************************
      * Bad visitor support
      */
@@ -3645,6 +3753,10 @@ public abstract class JavafxAbstractTranslation
 
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         processedInParent();
+    }
+
+    public void visitParens(JFXParens tree) {
+        result = translateToExpressionResult(tree.expr, targetType);
     }
 
     public void visitPostInitDefinition(JFXPostInitDefinition tree) {

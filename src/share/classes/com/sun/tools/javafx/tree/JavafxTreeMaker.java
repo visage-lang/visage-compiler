@@ -719,12 +719,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXObjectLiteralPart ObjectLiteralPart(
-            Name attrName,
-            JFXExpression expr) {
-        return ObjectLiteralPart(attrName, expr, JavafxBindStatus.UNBOUND);
-    }
-
     public JFXType  TypeAny(Cardinality cardinality) {
         JFXType tree = new JFXTypeAny(cardinality);
         tree.pos = pos;
