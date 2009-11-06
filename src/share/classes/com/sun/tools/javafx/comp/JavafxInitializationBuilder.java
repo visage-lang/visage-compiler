@@ -416,10 +416,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             this.scriptName = analysis.getCurrentClassDecl().getName().append(defs.scriptClassSuffixName);
             this.scriptClassSymbol = makeClassSymbol(Flags.STATIC | Flags.PUBLIC, this.scriptName, getCurrentClassSymbol());
             this.scriptClassType = (ClassType)this.scriptClassSymbol.type;
-
-            Symbol owner = getCurrentOwner().owner;
-            this.isBoundFuncClass = (owner instanceof MethodSymbol) &&
-                                (owner.flags() & JavafxFlags.BOUND) != 0L;
+            this.isBoundFuncClass = (getCurrentOwner().flags() & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
         }
         
         //
@@ -3262,11 +3259,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public void makeJavaEntryConstructor() {
             //    public Foo() {
             //        this(false);
-            //        initialize$();
+            //        if (<fx-local-synthetic-class> initialize$();
             //    }
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
             stmts.append(CallStmt(names._this, Boolean(false)));
-            stmts.append(CallStmt(defs.initialize_FXObjectMethodName));
+            /*
+             * Certain local functions executed code in out-of-order. See JFXC-3080.
+             * For certain functions, we generate a local class inside the function.
+             * For such FX synthetic local classes, applyDefaults$(int) is called inside
+             * "doit$x" method of the local class. The "doit$x" contains code in source order.
+             * We don't want to call "initialize$" - which calls "applyDefaults$" for all
+             * variables. If we don't avoid the "initialize$" call, "applyDefaults$" execution
+             * occurs before "doit$" is called which resulted in out-of-order execution.
+             * 
+             */
+            if ((getCurrentOwner().flags() & JavafxFlags.FX_SYNTHETIC_LOCAL_CLASS) == 0) {
+                stmts.append(CallStmt(defs.initialize_FXObjectMethodName));
+            }
             makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(), stmts.toList());
         }
 
