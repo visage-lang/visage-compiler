@@ -1050,7 +1050,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     public void visitBlockExpression(JFXBlock tree) {
-        result = (new BlockExpressionTranslator(tree)).doit();
+        result = new BlockExpressionTranslator(tree).doit();
     }
 
     @Override
@@ -1199,22 +1199,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     @Override
     public void visitVar(JFXVar tree) {
         result = new VarTranslator(tree).doit();
-    }
-
-    @Override
-    public void visitVarInit(JFXVarInit tree) {
-        final VarSymbol vsym = tree.getSymbol();
-
-        result = new ExpressionTranslator(tree.pos()) {
-            ExpressionResult doit() {
-                JCExpression receiver = vsym.isStatic() ? Call(scriptLevelAccessMethod(vsym.owner)) : null;
-                JCStatement applyDefaultCall = CallStmt(receiver, defs.applyDefaults_FXObjectMethodName, Offset(vsym));
-                return toResult(
-                        BlockExpression(
-                            applyDefaultCall,
-                            Get(vsym)),
-                        vsym.type);
-        }}.doit();
     }
 
     @Override

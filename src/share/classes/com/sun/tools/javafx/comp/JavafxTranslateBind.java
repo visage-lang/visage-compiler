@@ -1167,6 +1167,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     public void visitBlockExpression(JFXBlock tree) {
         TODO(tree);
+        // result = new BoundBlockExpressionTranslator(tree).doit();
     }
 
     @Override

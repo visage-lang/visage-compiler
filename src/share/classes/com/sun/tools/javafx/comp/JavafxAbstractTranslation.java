@@ -1857,6 +1857,26 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
+    class BoundBlockExpressionTranslator extends ExpressionTranslator {
+
+        private final JFXExpression value;
+        private final List<JFXExpression> statements;
+
+        BoundBlockExpressionTranslator(JFXBlock tree) {
+            super(tree.pos());
+            this.value = tree.value;
+            this.statements = tree.getStmts();
+        }
+
+        protected ExpressionResult doit() {
+            for (JFXExpression expr : statements) {
+                translateStmt(expr, syms.voidType);
+            }
+            JCExpression tvalue = translateExpr(value, targetType);
+            return toResult(tvalue, targetType);
+        }
+    }
+
     /**
      * Translator for assignment, and other mutating operations
      */
@@ -3626,6 +3646,26 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
+    class VarInitTranslator extends ExpressionTranslator {
+
+        private final VarSymbol vsym;
+
+        VarInitTranslator(JFXVarInit tree) {
+            super(tree.pos());
+            this.vsym = tree.getSymbol();
+        }
+
+        ExpressionResult doit() {
+            JCExpression receiver = vsym.isStatic() ? Call(scriptLevelAccessMethod(vsym.owner)) : null; //TODO: this probably needs to be updated
+            return toResult(
+                    BlockExpression(
+                        CallStmt(receiver, defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
+                        Get(vsym)
+                    ),
+                    vsym.type);
+        }
+    }
+
     /***********************************************************************
      * Bad visitor support
      */
@@ -3866,7 +3906,7 @@ public abstract class JavafxAbstractTranslation
     }
 
     public void visitVarInit(JFXVarInit tree) {
-        disallowedInBind();
+        result = new VarInitTranslator(tree).doit();
     }
 
     public void visitWhileLoop(JFXWhileLoop tree) {

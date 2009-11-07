@@ -111,7 +111,7 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
     }
 
     public void visitBlockExpression(JFXBlock tree) {
-        TODO(tree);
+        result = new BoundBlockExpressionTranslator(tree).doit();
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
