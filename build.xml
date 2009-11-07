@@ -1174,6 +1174,11 @@
                 =========================
             -->
     <target depends="init,compile" if="have.tests" name="-pre-compile-test">
+        <!-- Not sure why but if we don't rm -rf the build/test dir, it takes more than a minute longer to run the tests.
+           As if the compiler has to do extra work if the .class file already exists.  Note, I don't use ${build.test.dir}
+           here to avoid doing a disaterous rm -rf if something goes wrong.
+        -->
+        <delete dir="${build.dir}/test"/>
         <mkdir dir="${build.test.classes.dir}"/>
     </target>
 <!--
@@ -1260,9 +1265,9 @@
     <target name="dev-fail"  depends="-init-dev-fail,binaries,-do-test" description="Build binaries and run tests that currently fail"/>
 
     <target name="dev-find-passes" depends="-init-dev-fail" description="Report tests that passed instead of failed in a dev-fail run">
-      <echo message="${test.fx.dev.fail.list}" file="./build/test/dev-expected-fails" />
+      <echo message="${test.fx.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
       <exec dir="." executable="sh">
-        <arg line="./dev-find-passes.sh ./build/test/dev-expected-fails ${log}"/>
+        <arg line="./dev-find-passes.sh ${build.test.dir}/dev-expected-fails ${log}"/>
       </exec>
     </target>
 
@@ -1272,32 +1277,32 @@
       </exec>
     </target>
 
-    <target name="-init-dev-pass" depends="init">
+    <target name="-init-dev-pass" depends="-pre-compile-test">
       <property name="testFile" value="**/*Test.java"/>
       <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list} ${test.fx.dev.fail.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
-      <echo message="dev-pass" file="./build/test/dev-target" />
+      <echo message="dev-pass" file="${build.test.dir}/dev-target" />
     </target>
 
-    <target name="-init-dev-test" depends="init">
+    <target name="-init-dev-test" depends="-pre-compile-test">
       <property name="testFile" value="**/*Test.java"/>
       <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
-      <echo message="dev-test" file="./build/test/dev-target" />
+      <echo message="dev-test" file="${build.test.dir}/dev-target" />
     </target>
 
-    <target name="-init-dev-no-hang" depends="init">
+    <target name="-init-dev-no-hang" depends="-pre-compile-test">
       <property name="testFile" value="**/*Test.java"/>
       <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.hang.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
-      <echo message="dev-no-hang" file="./build/test/dev-target" />
+      <echo message="dev-no-hang" file="${build.test.dir}/dev-target" />
     </target>
 
-    <target name="-init-dev-fail" depends="init">
+    <target name="-init-dev-fail" depends="-pre-compile-test">
       <property name="testFile" value="**/FXCompilerTest.java"/>
       <property name="test-sys-prop.test.fx.list" value="${test.fx.dev.fail.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
-      <echo message="dev-fail" file="./build/test/dev-target" />
+      <echo message="dev-fail" file="${build.test.dir}/dev-target" />
     </target>
 
     <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
@@ -1343,7 +1348,7 @@
           <fileset dir="build/test/results"/>
           <report format="noframes" todir="build/test/reports"/>
        </junitreport>
-      <echo message="${test.fx.dev.fail.list}" file="./build/test/dev-expected-fails" />
+      <echo message="${test.fx.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
     </target>
 
     <target depends="init" if="netbeans.home+have.tests" name="-test-browse"/>
