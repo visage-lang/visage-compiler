@@ -747,7 +747,7 @@
          Depends on  environment params JOB_NAME.
          Publishes result of findbugs analysis, where it can later be combined into
          a multi-version bug database. -->
-    <target name="hudson-post-build" depends="init" if="export.dir">
+    <target name="hudson-post-build" depends="init, bundle" if="export.dir">
         <property environment="env"/>
         <mkdir dir="${export.dir}/findbugs"/>
         <exec executable="sh" failonerror="true">
@@ -764,6 +764,7 @@
         <copy todir="${export.dir}/ROOT/current-build/doc">
             <fileset dir="doc" includes="**/*.pdf"/>
         </copy>
+        <copy file="${zip.bundle}" todir="${export.dir}/ROOT/current-build"/>
     </target>
 
     <target name="javafxdoc" depends="jar">
