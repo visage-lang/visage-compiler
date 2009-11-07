@@ -3014,8 +3014,8 @@ public abstract class JavafxAbstractTranslation
                     Symbol sym = info.vmi.getSymbol();
                     args.append(getReceiverOrThis((VarSymbol) sym));
                     args.append(Offset(sym));
-                    args.append(make.Ident(paramStartPosName(onReplace)));
-                    args.append(make.Ident(paramNewElementsLengthName(onReplace)));
+                    args.append(id(paramStartPosName(onReplace)));
+                    args.append(id(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);
                     return Call(defs.Sequences_getAsFromNewElements[typeKind], args);
                 }

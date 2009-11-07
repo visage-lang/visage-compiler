@@ -1285,11 +1285,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     @Override
-    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
-        TODO(tree);
-    }
-
-    @Override
     public void visitSequenceRange(JFXSequenceRange tree) {
         result = new BoundRangeSequenceTranslator(tree).doit();
     }
