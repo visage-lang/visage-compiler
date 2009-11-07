@@ -13,13 +13,13 @@ class A {
 }
 
 var a = A{}
-def bsi = bind a.seq[a.k];
+def bsi = bind "big {a.seq[a.k]}";;
 println(bsi);
 a.k = 1;
 println(bsi);
 delete a.seq[0];
 println(bsi);
-a.seq = ["ram", "deer"];
+a.seq = ["ram", "moose"];
 println(bsi);
 a.k = 9;
 println(bsi);
