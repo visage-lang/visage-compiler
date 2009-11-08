@@ -326,7 +326,17 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression cond = decomposeComponent(tree.cond);
         JFXExpression truepart = decomposeComponent(tree.truepart);
         JFXExpression falsepart = decomposeComponent(tree.falsepart);
-        result = fxmake.at(tree.pos).Conditional(cond, truepart, falsepart);
+        JFXIfExpression res = fxmake.at(tree.pos).Conditional(cond, truepart, falsepart);
+        if (bindStatus.isBound() && types.isSequence(tree.type)) {
+            res.boundCondVar = synthVar("cond", cond, cond.type);
+            res.boundThenVar = synthVar("then", truepart, truepart.type);
+            res.boundElseVar = synthVar("else", falsepart, falsepart.type);
+            // Add a size field to hold the previous size on condition switch
+            JFXVar v = makeSizeVar(tree.pos(), 0, JavafxBindStatus.UNBOUND);
+            v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+            res.boundSizeVar = v;
+        }
+        result = res;
     }
 
     public void visitBreak(JFXBreak tree) {
@@ -458,9 +468,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.sym = sym;
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
             // Add a size field to hold the previous size on selector switch
-            JFXExpression zero = fxmake.at(diagPos).Literal(0);
-            zero.type = syms.intType;
-            JFXVar v = makeVar(diagPos, "size"+sym.name, zero, JavafxBindStatus.UNIDIBIND, syms.intType);
+            JFXVar v = makeSizeVar(diagPos, 0, JavafxBindStatus.UNIDIBIND);
             v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
             res.boundSize = v;
         }
@@ -744,10 +752,10 @@ public class JavafxDecompose implements JavafxVisitor {
         return v;
     }
 
-    private JFXVar makeSizeVar(DiagnosticPosition diagPos) {
-        JFXExpression dummy = fxmake.at(diagPos).Literal(-99);
-        dummy.type = syms.intType;
-        JFXVar v = makeVar(diagPos, "size", dummy, JavafxBindStatus.UNIDIBIND, syms.intType);
+    private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial, JavafxBindStatus bindStatus) {
+        JFXExpression initialSize = fxmake.at(diagPos).Literal(initial);
+        initialSize.type = syms.intType;
+        JFXVar v = makeVar(diagPos, "size", initialSize, bindStatus, syms.intType);
         return v;
     }
 
@@ -779,7 +787,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (bindStatus.isBound()) {
             // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos());
+            res.boundSizeVar = makeSizeVar(tree.pos(), -99, JavafxBindStatus.UNIDIBIND);
         }
         result = res;
     }
@@ -800,7 +808,7 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundItemsVars = vb.toList();
 
             // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos());
+            res.boundSizeVar = makeSizeVar(tree.pos(), -99, JavafxBindStatus.UNIDIBIND);
         }
         result = res;
     }
@@ -837,6 +845,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitForExpression(JFXForExpression tree) {
+        if (bindStatus.isBound()) TODO("bound for-expression");
         List<JFXForExpressionInClause> inClauses = decompose(tree.inClauses);
         JFXExpression bodyExpr = decompose(tree.bodyExpr);
         result = fxmake.at(tree.pos).ForExpression(inClauses, bodyExpr);

@@ -1188,6 +1188,100 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+
+    private class BoundIfSequenceTranslator extends BoundSequenceTranslator {
+
+        private final JFXIfExpression tree;
+        private final VarSymbol condSym;
+        private final VarSymbol thenSym;
+        private final VarSymbol elseSym;
+        private final VarSymbol sizeSym;
+
+        BoundIfSequenceTranslator(JFXIfExpression tree) {
+            super(tree.pos());
+            this.tree = tree;
+            this.condSym = tree.boundCondVar.sym;
+            this.thenSym = tree.boundThenVar.sym;
+            this.elseSym = tree.boundElseVar.sym;
+            this.sizeSym = tree.boundSizeVar.sym;
+        }
+
+
+        JCStatement makeSizeBody() {
+            return Return(Call(attributeGetterName(sizeSym)));
+        }
+
+        /**
+         */
+        JCStatement makeGetElementBody() {
+            JCVariableDecl vStart = MutableTmpVar("start", syms.intType, Int(0));
+            JCVariableDecl vNext = MutableTmpVar("next", syms.intType, Int(0));
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+            return Block(stmts);
+        }
+
+        /**
+         *
+        private JCStatement makeItemInvalidate(int index) {
+            JCVariableDecl vStart = TmpVar("start", syms.intType, cummulativeSize(index));
+
+                return
+                    If(isSequenceValid(),
+                        Block(
+                            vStart,
+                            If(IsTriggerPhase(),
+                                // Update the size by the difference
+                                // size = size + newLen - (end - begin)
+                                SetStmt(sizeSymbol,
+                                    PLUS(
+                                        Get(sizeSymbol),
+                                        MINUS(
+                                            newLengthArg(),
+                                            MINUS(endPosArg(), startPosArg())
+                                        )
+                                    )
+                                )
+                            ),
+                            CallSeqInvalidate(
+                                PLUS(id(vStart), startPosArg()),
+                                m().Conditional(EQ(endPosArg(), Undefined()),
+                                    Undefined(),
+                                    PLUS(id(vStart), endPosArg())
+                                ),
+                                newLengthArg()
+                            )
+                        )
+                    );
+         }
+         * */
+
+        /**
+         * Invalidate (and computation) for synthetic size var.
+         */
+        private JCStatement makeInvalidateSize() {
+            // Initialize the singleton synthetic item vars (during IS_VALID phase)
+            // Bound sequences don't have a value
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            JCStatement varInits = Block(stmts);
+
+            return
+                Block(
+                    If(IsTriggerPhase(),
+                        setSequenceValid(),
+                        varInits
+                    )
+                    );
+        }
+
+        /**
+         * For each item, and for size, set-up the invalidate method
+         */
+        void setupInvalidators() {
+            addInvalidator(sizeSym, makeInvalidateSize());
+        }
+    }
+
     /***********************************************************************
      *
      * Visitors  (alphabetical order)
