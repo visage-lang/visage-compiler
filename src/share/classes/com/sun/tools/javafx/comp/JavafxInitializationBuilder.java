@@ -2973,7 +2973,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)
                     JCExpression assignExpr = m().Assign(id(mapName), makeInitVarMapExpression(cSym, varMap));
                     // Construct and add: return MAP$X == null ? (MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)) : MAP$X;
-                    stmts.append(Return(m().Conditional(condition, assignExpr, id(mapName))));
+                    stmts.append(
+                        Return(
+                            If (condition,
+                                assignExpr,
+                                id(mapName))));
                 }
                 
                 // Construct the method symbol.

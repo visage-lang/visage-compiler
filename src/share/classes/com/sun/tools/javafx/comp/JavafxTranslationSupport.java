@@ -1243,7 +1243,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         protected JCVariableDecl TmpVar(long flags, String root, Type varType, JCExpression initialValue) {
-            return Var(flags,varType, getSyntheticName(root), initialValue);
+            return Var(flags, varType, getSyntheticName(root), initialValue);
         }
 
        /**
@@ -1285,7 +1285,7 @@ public abstract class JavafxTranslationSupport {
         }
 
        /**
-         * If
+         * If / Condition
          */
 
         JCStatement If(JCExpression cond, JCStatement thenStmt, JCStatement elseStmt) {
@@ -1294,6 +1294,10 @@ public abstract class JavafxTranslationSupport {
 
         JCStatement If(JCExpression cond, JCStatement thenStmt) {
             return m().If(cond, thenStmt, null);
+        }
+
+        JCExpression If(JCExpression cond, JCExpression thenExpr, JCExpression elseExpr) {
+            return m().Conditional(cond, thenExpr, elseExpr);
         }
 
         /**

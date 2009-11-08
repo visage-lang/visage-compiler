@@ -248,8 +248,8 @@ public abstract class JavafxAbstractTranslation
                     JCVariableDecl daVar = TmpVar(outType, expr);
                     JCExpression toTest = id(daVar.name);
                     JCExpression cond = NEnull(toTest);
-                    JCExpression ret = m().Conditional(
-                            cond,
+                    JCExpression ret = 
+                        If (cond,
                             id(daVar.name),
                             DefaultValue(outType));
                     return BlockExpression(daVar, ret);
@@ -1226,7 +1226,10 @@ public abstract class JavafxAbstractTranslation
                 // we have a testable guard for null, test before the invoke (boxed conversions don't need a test)
                 // an expression is the desired result of the translation, convert it to a conditional expression
                 // if it would dereference null, then the full expression instead yields the default value
-                return m().Conditional(makeNullCheckCondition(tToCheck), full, makeDefault(theResultType, theFullType));
+                return 
+                    If (makeNullCheckCondition(tToCheck),
+                        full,
+                        makeDefault(theResultType, theFullType));
             } else {
                 return full;
             }
@@ -2953,14 +2956,13 @@ public abstract class JavafxAbstractTranslation
             JFXExpression falseSide = tree.getFalseExpression();
             if (yield() == ToExpression) {
                 return toResult(
-                    m().Conditional(
-                        cond,
+                    If (cond,
                         sideExpr(trueSide),
                         sideExpr(falseSide)),
                     targetType);
             } else {
-                 return toStatementResult(If(
-                        cond,
+                 return toStatementResult(
+                     If (cond,
                         sideStmt(trueSide),
                         sideStmt(falseSide)));
             }
@@ -3439,7 +3441,10 @@ public abstract class JavafxAbstractTranslation
                     tstepIncrExpr = id(stepVar);
                     JCVariableDecl negativeVar = TmpVar("negative", syms.booleanType, LT(id(stepVar), m().Literal(inductionVarType.tag, 0)));
                     tinits.append(negativeVar);
-                    tcond = m().Conditional(id(negativeVar), condTest(range, true, upperVar), condTest(range, false, upperVar));
+                    tcond = 
+                        If(id(negativeVar),
+                            condTest(range, true, upperVar),
+                            condTest(range, false, upperVar));
                 }
             } else {
                 // No step expression, use one as the increment

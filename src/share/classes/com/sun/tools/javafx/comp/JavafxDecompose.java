@@ -332,7 +332,7 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundThenVar = synthVar("then", truepart, truepart.type);
             res.boundElseVar = synthVar("else", falsepart, falsepart.type);
             // Add a size field to hold the previous size on condition switch
-            JFXVar v = makeSizeVar(tree.pos(), 0, JavafxBindStatus.UNBOUND);
+            JFXVar v = makeSizeVar(tree.pos(), 0);
             v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
             res.boundSizeVar = v;
         }
@@ -468,7 +468,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.sym = sym;
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
             // Add a size field to hold the previous size on selector switch
-            JFXVar v = makeSizeVar(diagPos, 0, JavafxBindStatus.UNIDIBIND);
+            JFXVar v = makeSizeVar(diagPos, 0);
             v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
             res.boundSize = v;
         }
@@ -752,10 +752,10 @@ public class JavafxDecompose implements JavafxVisitor {
         return v;
     }
 
-    private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial, JavafxBindStatus bindStatus) {
+    private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial) {
         JFXExpression initialSize = fxmake.at(diagPos).Literal(initial);
         initialSize.type = syms.intType;
-        JFXVar v = makeVar(diagPos, "size", initialSize, bindStatus, syms.intType);
+        JFXVar v = makeVar(diagPos, "size", initialSize, JavafxBindStatus.UNIDIBIND, syms.intType);
         return v;
     }
 
@@ -787,7 +787,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (bindStatus.isBound()) {
             // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos(), -99, JavafxBindStatus.UNIDIBIND);
+            res.boundSizeVar = makeSizeVar(tree.pos(), -99);
         }
         result = res;
     }
@@ -808,7 +808,7 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundItemsVars = vb.toList();
 
             // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos(), -99, JavafxBindStatus.UNIDIBIND);
+            res.boundSizeVar = makeSizeVar(tree.pos(), -99);
         }
         result = res;
     }
