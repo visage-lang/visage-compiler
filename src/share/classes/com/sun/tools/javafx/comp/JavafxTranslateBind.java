@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
-import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.mjavac.code.Symbol;
@@ -334,6 +333,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return new BoundSequenceResult(invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
         }
 
+        JCExpression CallSize(Symbol sym) {
+            return CallSize(null, sym);
+        }
+
+        JCExpression CallSize(JCExpression rcvr, Symbol sym) {
+            return Call(rcvr, attributeSizeName(sym));
+        }
+
         JCExpression Undefined() {
             return Int(JavafxDefs.UNDEFINED_INVALIDATE_ARG);
         }
@@ -391,7 +398,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            return Return(Call(attributeSizeName(tree.sym)));
+            return Return(CallSize(tree.sym));
         }
 
         JCStatement makeGetElementBody() {
@@ -486,7 +493,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
                         )
                     ),
-                    buildBody(tToCheck, Call(tToCheck, attributeSizeName(refSym)), syms.intType)
+                    buildBody(tToCheck, CallSize(tToCheck, refSym), syms.intType)
                 );
         }
 
@@ -502,7 +509,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             return
                 Block(
-                    CallStmt(attributeSizeName(selfSym)),
+                    Stmt(CallSize(selfSym)),
                     buildBody(tToCheck, Call(tToCheck, attributeGetElementName(refSym), posArg()), types.elementType(refSym.type))
                 );
         }
@@ -516,11 +523,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         private JCExpression getSize() {
             if (refSym.isStatic()) {
-                return Call(attributeSizeName(refSym));
+                return CallSize(refSym);
             } else {
                 return m().Conditional(EQnull(selector()),
                         Int(0),
-                        Call(selector(), attributeSizeName(refSym)));
+                        CallSize(selector(), refSym));
             }
         }
 
@@ -659,7 +666,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private JCExpression computeSize(int index, JCExpression value) {
             if (isSequence(index)) {
-                return Call(attributeSizeName(vsym(index)));
+                return CallSize(vsym(index));
             } else if (isNullable(index)) {
                 return m().Conditional(EQnull(value), Int(0), Int(1));
             } else {
