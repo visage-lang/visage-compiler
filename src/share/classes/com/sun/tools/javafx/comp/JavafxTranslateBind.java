@@ -270,35 +270,24 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         protected void buildDependencies(Symbol selectorSym) {
                 if (types.isJFXClass(selectorSym.owner)) {
                     Type selectorType = selectorSym.type;
-                    JCExpression rcvr;
-                    JCVariableDecl oldSelector;
-                    JCVariableDecl newSelector;
+                    JCExpression rcvr = getReceiverOrThis(targetSymbol);
+ 
+                    JCVariableDecl oldSelector = TmpVar(selectorType, Get(selectorSym));
+                    addPreface(oldSelector);
+                    JCVariableDecl newSelector = TmpVar(selectorType, Call(attributeGetterName(selectorSym)));
+                    addPreface(newSelector);
+                    
                     JCVariableDecl oldOffset;
                     JCVariableDecl newOffset;
-
-                    //
-
-                    if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
-                        rcvr = id(defs.receiverName);
-                        oldSelector = TmpVar(selectorType, Call(id(defs.receiverName), attributeGetMixinName(selectorSym)));
-                        newSelector = TmpVar(selectorType, Call(id(defs.receiverName), attributeGetterName(selectorSym)));
-                    } else {
-                        rcvr = selectorSym.isStatic() ? Call(scriptLevelAccessMethod(selectorSym.owner)) : id(names._this);
-                        oldSelector = TmpVar(selectorType, Get(selectorSym));
-                        newSelector = TmpVar(selectorType, Call(attributeGetterName(selectorSym)));
-                    }
-
-                    addPreface(oldSelector);
-                    addPreface(newSelector);
-
-                    if ((selectorSym.type.tsym.flags() & JavafxFlags.MIXIN) != 0) {
+                  
+                    if (isMixinVar(selectorSym)) {
                         JCExpression oldNullCheck = EQnull(id(oldSelector));
-                        JCExpression oldInit = m().Conditional(oldNullCheck, Int(0), Call(id(oldSelector), attributeGetVOFFName(tree.sym)));
+                        JCExpression oldInit = m().Conditional(oldNullCheck, Int(0), Offset(id(oldSelector), tree.sym));
                         oldOffset = TmpVar(syms.intType, oldInit);
                         addPreface(oldOffset);
-
+                        
                         JCExpression newNullCheck = EQnull(id(newSelector));
-                        JCExpression newInit = m().Conditional(newNullCheck, Int(0), Call(id(newSelector), attributeGetVOFFName(tree.sym)));
+                        JCExpression newInit = m().Conditional(newNullCheck, Int(0), Offset(id(newSelector), tree.sym));
                         newOffset = TmpVar(syms.intType, newInit);
                         addPreface(newOffset);
                     } else {
@@ -307,14 +296,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     }
 
                     if (isBidiBind) {
-                        JCVariableDecl selectorOffset;
-                        if ((targetSymbol.owner.flags() & JavafxFlags.MIXIN) != 0) {
-                            selectorOffset = TmpVar(syms.intType, Call(id(defs.receiverName), attributeGetVOFFName(targetSymbol)));
-                        } else {
-                            selectorOffset = TmpVar(syms.intType, Offset(targetSymbol));
-                        }
-
+                        JCVariableDecl selectorOffset = TmpVar(syms.intType, Offset(targetSymbol));
                         addPreface(selectorOffset);
+                        
                         addPreface(CallStmt(defs.FXBase_switchBiDiDependence,
                                 rcvr,
                                 id(selectorOffset),
