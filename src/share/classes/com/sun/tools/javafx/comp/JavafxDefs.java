@@ -141,7 +141,7 @@ public class JavafxDefs {
     public static final char typeCharToEscape = '.';
     public static final char escapeTypeChar = '_';
 
-    public static int UNDEFINED_INVALIDATE_ARG = -1000;
+    public static int UNDEFINED_MARKER_INT = -1000;
 
 
     /**

@@ -359,15 +359,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression Undefined() {
-            return Int(JavafxDefs.UNDEFINED_INVALIDATE_ARG);
+            return Int(JavafxDefs.UNDEFINED_MARKER_INT);
         }
 
         JCStatement CallSeqInvalidate() {
-            return CallSeqInvalidate(targetSymbol);
+            return CallSeqInvalidateUndefined(targetSymbol);
         }
 
-        JCStatement CallSeqInvalidate(Symbol sym) {
-            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined());
+        JCStatement CallSeqInvalidateUndefined(Symbol sym) {
+            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined(), id(defs.varFlagIS_INVALID));
         }
 
         JCStatement CallSeqInvalidate(JCExpression begin, JCExpression end, JCExpression newLen) {
@@ -375,22 +375,26 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen) {
-            return CallStmt(attributeInvalidateName(sym), begin, end, newLen, phaseArg());
+            return CallSeqInvalidate(sym, begin, end, newLen, phaseArg());
         }
 
-        private Name flagBit = defs.varFlagDEFAULT_APPLIED;
-        private VarSymbol flagSymbol = (VarSymbol)targetSymbol;
-
-        JCExpression isSequenceValid() {
-            return FlagTest(flagSymbol, flagBit, flagBit);
+        JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen, JCExpression phase) {
+            return CallStmt(attributeInvalidateName(sym), begin, end, newLen, phase);
         }
 
-        JCExpression isSequenceInvalidSetValid() {
-            return NOT(FlagChange(flagSymbol, null, flagBit));
+        private Name activeFlagBit = defs.varFlagDEFAULT_APPLIED;
+        VarSymbol flagSymbol = (VarSymbol)targetSymbol;
+
+        JCExpression isSequenceActive() {
+            return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
         }
 
-        JCStatement setSequenceValid() {
-            return FlagChangeStmt(flagSymbol, null, flagBit);
+        JCExpression isSequenceDormantSetActive() {
+            return NOT(FlagChange(flagSymbol, null, activeFlagBit));
+        }
+
+        JCStatement setSequenceActive() {
+            return FlagChangeStmt(flagSymbol, null, activeFlagBit);
         }
 
         JCExpression IsInvalidatePhase() {
@@ -508,7 +512,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             return
                 Block(
-                    If (isSequenceInvalidSetValid(),
+                    If (isSequenceDormantSetActive(),
                         Block(
                             FlagChangeStmt(selectorSym, defs.varFlagNEEDS_TRIGGER, null),
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
@@ -589,7 +593,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                        getReceiverOrThis(selectorSym)
                                     )
                                 ),
-                                CallSeqInvalidate(selfSym)
+                                CallSeqInvalidateUndefined(selfSym)
                             ),
                         /*Else (Trigger phase)*/
                             Block(
@@ -766,7 +770,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             
             if (isSequence(index)) {
                 return 
-                    If(isSequenceValid(),
+                    If(isSequenceActive(),
                         Block(
                             vStart,
                             If(IsTriggerPhase(),
@@ -799,7 +803,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCVariableDecl vNewLen = TmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
 
                 return 
-                    If(isSequenceValid(),
+                    If(isSequenceActive(),
                         Block(
                             vStart,
                             vOldLen,
@@ -845,7 +849,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 Block(
                     If(IsTriggerPhase(),
-                        setSequenceValid(),
+                        setSequenceActive(),
                         varInits
                     ),
                     SetStmt(sizeSymbol, cummulativeSize(length)),
@@ -1024,7 +1028,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vDelta = TmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
 
             return
-                If (isSequenceValid(),
+                If (isSequenceActive(),
                   If (IsInvalidatePhase(),
                       CallSeqInvalidate(),
                   /*Else (Trigger phase)*/
@@ -1082,7 +1086,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         calculateSize(lower(), id(vNewUpper), step()));
 
             return
-                If (isSequenceValid(),
+                If (isSequenceActive(),
                   If (IsInvalidatePhase(),
                       CallSeqInvalidate(),
                   /*Else (Trigger phase)*/
@@ -1125,7 +1129,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         calculateSize(lower(), upper(), id(vNewStep)));
 
             return
-                If (isSequenceValid(),
+                If (isSequenceActive(),
                   If (IsInvalidatePhase(),
                       CallSeqInvalidate(),
                   /*Else (Trigger phase)*/
@@ -1177,7 +1181,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 inits.append(setStep(id(vNewStep)));
             }
             inits.append(setSize(id(vNewSize)));
-            inits.append(setSequenceValid());
+            inits.append(setSequenceActive());
             inits.append(CallSeqInvalidate(Int(0), Int(0), id(vNewSize)));
 
             return
@@ -1202,9 +1206,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
 
+    /**
+     * Bound if-expression over sequences.
+     *
+     * Assumptions:
+     *   No eager compution and no invalate calls until sequence is active.
+     *   Sequence is made active by a call to size.
+     *   Once the sequence is active, 
+     *     the cond field is kept up-to-date (by condition invalidator);
+     *     the size field is kept up-to-date (by the condition and arm invalidators
+     */
     private class BoundIfSequenceTranslator extends BoundSequenceTranslator {
 
-        private final JFXIfExpression tree;
         private final VarSymbol condSym;
         private final VarSymbol thenSym;
         private final VarSymbol elseSym;
@@ -1212,7 +1225,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         BoundIfSequenceTranslator(JFXIfExpression tree) {
             super(tree.pos());
-            this.tree = tree;
             this.condSym = tree.boundCondVar.sym;
             this.thenSym = tree.boundThenVar.sym;
             this.elseSym = tree.boundElseVar.sym;
@@ -1223,94 +1235,135 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return CallGetter(condSym);
         }
 
+        /**
+         * Body of the sequence size method.
+         *
+         * If the sequence is dormant
+         *   Set it active.
+         *   Eagerly calculate the if-condition.
+         *   Use that to determine (and set) the size from appropriate branch arm.
+         *   Send initial update nodification.
+         * Else (already active)
+         *   If the size has been marked invalid,
+         *     determine (and set) the size
+         * In either case, return the (possibly updated) size field
+         */
         JCStatement makeSizeBody() {
             return
                 Block(
-                    Stmt(Set(sizeSym,
-                        If (CallGetCond(),
-                            CallSize(thenSym),
-                            CallSize(elseSym)
-                        )
-                    )),
-                    If (isSequenceInvalidSetValid(),
+                    If (isSequenceDormantSetActive(),
                         Block(
-                           // FlagChangeStmt(selectorSym, defs.varFlagNEEDS_TRIGGER, null),
-                           // CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
+                            SetStmt(condSym, CallGetCond()),
+                            SetStmt(sizeSym,
+                                If (Get(condSym),
+                                    CallSize(thenSym),
+                                    CallSize(elseSym)
+                                )
+                            ),
+                            CallSeqInvalidateUndefined(flagSymbol),
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), Get(sizeSym), id(defs.varFlagNEEDS_TRIGGER))
+                        ),
+                    /*Else (already active)*/
+                        Block(
+                            If (LT(Get(sizeSym), Int(0)),
+                                SetStmt(sizeSym,
+                                    If (Get(condSym),
+                                        CallSize(thenSym),
+                                        CallSize(elseSym)
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    Return(Get(sizeSym))
+                );
+        }
+
+        /**
+         * Body of the sequence get element method.
+         *
+         * Make sure the sequence is initialized, by calling the size method.
+         * Redirect to the arm sequence to get the element.
+         */
+        JCStatement makeGetElementBody() {
+            return
+                Block(
+                    Stmt(CallSize(targetSymbol)),  // Assure initialized
+                    If (Get(condSym),
+                        Return(CallGetElement(thenSym, posArg())),
+                        Return(CallGetElement(elseSym, posArg()))
+                    )
+                );
+        }
+
+        /**
+         * Body of a invalidate$ method for the synthetic condition boolean.
+         *
+         * Do nothing if the sequence is dormant.
+         * If this is invalidation phase, send a blanket invalidation of the sequence.
+         * If this is trigger phase and the condition has changed,
+         *   update the condition field
+         *   mark the size field as invalid
+         *   call invalidate as a whole sequence replacement
+         */
+        private JCStatement makeInvalidateCond() {
+            JCVariableDecl oldCondVar = TmpVar("oldCond", syms.booleanType, Get(condSym));
+            JCVariableDecl newCondVar = TmpVar("newCond", syms.booleanType, CallGetCond());
+            JCVariableDecl oldSizeVar = TmpVar("oldSize", syms.intType, Get(sizeSym));
+
+            return
+                If(isSequenceActive(),
+                    If(IsInvalidatePhase(),
+                        CallSeqInvalidateUndefined(targetSymbol),
+                        Block(
+                            oldCondVar,
+                            newCondVar,
+                            If (NE(id(newCondVar), id(oldCondVar)),
+                                Block(
+                                    oldSizeVar,
+                                    SetStmt(condSym, id(newCondVar)),
+                                    SetStmt(sizeSym, Int(JavafxDefs.UNDEFINED_MARKER_INT)),
+                                    CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), CallSize(targetSymbol))
+                                )
+                            )
                         )
                     )
                 );
         }
 
         /**
-         */
-        JCStatement makeGetElementBody() {
-            JCVariableDecl vStart = MutableTmpVar("start", syms.intType, Int(0));
-            JCVariableDecl vNext = MutableTmpVar("next", syms.intType, Int(0));
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-            return Block(stmts);
-        }
-
-        /**
+         * Body of a invalidate$ method for the synthetic bound sequences
+         * that is a branch arm.
          *
-        private JCStatement makeItemInvalidate(int index) {
-            JCVariableDecl vStart = TmpVar("start", syms.intType, cummulativeSize(index));
-
-                return
-                    If(isSequenceValid(),
+         * Do nothing if the sequence is dormant.
+         * If this is invalidation phase, send a blanket invalidation of the sequence.
+         * If this is trigger phase and we are the active arm, update the sequence size,
+         * and just pass the invalidation through.
+         */
+        private JCStatement makeInvalidateArm(VarSymbol armSym, boolean take) {
+            return
+                If(isSequenceActive(),
+                    If(IsInvalidatePhase(),
+                        CallSeqInvalidateUndefined(targetSymbol),
                         Block(
-                            vStart,
-                            If(IsTriggerPhase(),
-                                // Update the size by the difference
-                                // size = size + newLen - (end - begin)
-                                SetStmt(sizeSymbol,
-                                    PLUS(
-                                        Get(sizeSymbol),
-                                        MINUS(
-                                            newLengthArg(),
-                                            MINUS(endPosArg(), startPosArg())
-                                        )
-                                    )
+                            If (EQ(Get(condSym), Boolean(take)),
+                                Block(
+                                    SetStmt(sizeSym, CallSize(armSym)), // update the size
+                                    CallSeqInvalidate(targetSymbol, startPosArg(), endPosArg(), newLengthArg())
                                 )
-                            ),
-                            CallSeqInvalidate(
-                                PLUS(id(vStart), startPosArg()),
-                                m().Conditional(EQ(endPosArg(), Undefined()),
-                                    Undefined(),
-                                    PLUS(id(vStart), endPosArg())
-                                ),
-                                newLengthArg()
                             )
                         )
-                    );
-         }
-         * */
-
-        /**
-         * Invalidate (and computation) for synthetic size var.
-         */
-        private JCStatement makeInvalidateSize() {
-            // Initialize the singleton synthetic item vars (during IS_VALID phase)
-            // Bound sequences don't have a value
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            JCStatement varInits = Block(stmts);
-
- //                If(isSequenceValid(),
-
-            return
-                Block(
-                    If(IsTriggerPhase(),
-                        setSequenceValid(),
-                        varInits
                     )
-                    );
+                );
         }
 
         /**
-         * For each item, and for size, set-up the invalidate method
+         * Set-up the condition and branch arm invalidators.
          */
         void setupInvalidators() {
-            addInvalidator(sizeSym, makeInvalidateSize());
+            addInvalidator(condSym, makeInvalidateCond());
+            addInvalidator(thenSym, makeInvalidateArm(thenSym, true));
+            addInvalidator(elseSym, makeInvalidateArm(elseSym, false));
         }
     }
 
@@ -1365,9 +1418,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitIfExpression(JFXIfExpression tree) {
-        final ExpressionResult exprResult = new BoundIfExpressionTranslator(tree).doit();
-        checkForSequenceVersionUnimplemented(tree);
-            result = exprResult;
+        if (tree == boundExpression && types.isSequence(targetType)) {
+            // We are translating to a bound sequence
+            result = new BoundIfSequenceTranslator(tree).doit();
+        } else {
+            result = new BoundIfExpressionTranslator(tree).doit();
+        }
 
     }
 

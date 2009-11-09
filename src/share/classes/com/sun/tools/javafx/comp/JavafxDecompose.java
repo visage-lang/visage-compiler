@@ -131,6 +131,8 @@ public class JavafxDecompose implements JavafxVisitor {
             case SEQUENCE_EXPLICIT:
             case SEQUENCE_RANGE:
                 return true;
+            case CONDEXPR:
+                return types.isSequence(tree.type);
         }
         return false;
     }
@@ -332,7 +334,7 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundThenVar = synthVar("then", truepart, truepart.type);
             res.boundElseVar = synthVar("else", falsepart, falsepart.type);
             // Add a size field to hold the previous size on condition switch
-            JFXVar v = makeSizeVar(tree.pos(), 0);
+            JFXVar v = makeSizeVar(tree.pos(), defs.UNDEFINED_MARKER_INT);
             v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
             res.boundSizeVar = v;
         }
@@ -787,7 +789,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (bindStatus.isBound()) {
             // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos(), -99);
+            res.boundSizeVar = makeSizeVar(tree.pos(), defs.UNDEFINED_MARKER_INT);
         }
         result = res;
     }
@@ -808,7 +810,7 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundItemsVars = vb.toList();
 
             // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos(), -99);
+            res.boundSizeVar = makeSizeVar(tree.pos(), defs.UNDEFINED_MARKER_INT);
         }
         result = res;
     }
