@@ -432,7 +432,9 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitTypeCast(JFXTypeCast tree) {
         JFXTree clazz = decompose(tree.clazz);
-        JFXExpression expr = decomposeComponent(tree.expr);
+        JFXExpression expr = (bindStatus.isBound() && types.isSequence(tree.type))?
+            shred(tree.expr) :
+            decomposeComponent(tree.expr);
         result = fxmake.at(tree.pos).TypeCast(clazz, expr);
     }
 

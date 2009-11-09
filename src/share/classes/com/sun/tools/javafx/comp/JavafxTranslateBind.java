@@ -435,6 +435,36 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    class BoundTypeCastSequenceTranslator extends BoundSequenceTranslator {
+
+        private final VarSymbol exprSym;
+        private final Type elemType;
+
+        BoundTypeCastSequenceTranslator(JFXTypeCast tree) {
+            super(tree.pos());
+            assert types.isSequence(tree.type);
+            assert tree.getExpression() instanceof JFXIdent; // Decompose should shred
+            this.exprSym = (VarSymbol)((JFXIdent)tree.getExpression()).sym;
+            assert types.isSequence(tree.getExpression().type);
+            this.elemType = types.elementType(tree.type);
+        }
+
+        JCStatement makeSizeBody() {
+            return Return(CallSize(exprSym));
+        }
+
+        JCStatement makeGetElementBody() {
+            return Return(m().TypeCast(elemType, CallGetElement(exprSym, posArg())));
+        }
+
+        /**
+         * Simple bindee info from normal translation will do it
+         */
+        void setupInvalidators() {
+            addBindee(exprSym);
+        }
+    }
+
     class BoundEmptySequenceTranslator extends BoundSequenceTranslator {
         private final Type elemType;
         BoundEmptySequenceTranslator(JFXSequenceEmpty tree) {
@@ -1479,8 +1509,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitTypeCast(final JFXTypeCast tree) {
-        checkForSequenceVersionUnimplemented(tree);
-        super.visitTypeCast(tree);
+        if (tree == boundExpression && isTargettedToSequence()) {
+            // We want to translate to a bound sequence
+            result = new BoundTypeCastSequenceTranslator(tree).doit();
+        } else {
+            super.visitTypeCast(tree);
+        }
     }
 
     @Override
