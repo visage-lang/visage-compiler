@@ -78,16 +78,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * Entry-point into JavafxTranslateBind.
      *
      * @param expr Bound expression to translate.  Directly held by a var (or bound function?). Not a sub-expression/
-     * @param targettedType Type of the result.  Note: this may be different from the type of expr.
      * @param targetSymbol Symbol for the var whose bound expression we are translating.
      * @param isBidiBind Is this a bi-diractional bind?
      * @return
      */
-    ExpressionResult translateBoundExpression(JFXExpression expr, Type targettedType, VarSymbol targetSymbol, boolean isBidiBind) {
+    ExpressionResult translateBoundExpression(JFXExpression expr, VarSymbol targetSymbol, boolean isBidiBind) {
         this.targetSymbol = targetSymbol;
         this.isBidiBind = isBidiBind;
         this.boundExpression = expr;
-        ExpressionResult res = translateToExpressionResult(expr, targettedType);
+        // Special case: If the targetSymbol is a bound function result, then 
+        // make the expected type to be Pointer or else make it null.
+        ExpressionResult res = translateToExpressionResult(expr,
+                isBoundFunctionResult(targetSymbol)? syms.javafx_PointerType : null);
         this.targetSymbol = null;
         this.boundExpression = null;
         return res;
@@ -1469,7 +1471,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitParens(JFXParens tree) {
-        result = translateBoundExpression(tree.expr, targetSymbol.type, targetSymbol, isBidiBind);
+        result = translateBoundExpression(tree.expr, targetSymbol, isBidiBind);
     }
 
     @Override
