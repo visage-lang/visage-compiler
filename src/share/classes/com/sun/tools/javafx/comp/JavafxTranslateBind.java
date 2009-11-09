@@ -87,9 +87,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         this.targetSymbol = targetSymbol;
         this.isBidiBind = isBidiBind;
         this.boundExpression = expr;
-        if (types.isSequence(targetType) && !types.isSequence(expr.type)) {
-            TODO("bound sequence implicit up-conversion", expr);
-        }
         ExpressionResult res = translateToExpressionResult(expr, targettedType);
         this.targetSymbol = null;
         this.boundExpression = null;
@@ -1378,8 +1375,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         return TODO("BIND functionality: " + tree.getClass().getSimpleName());
     }
 
+    private boolean isTargettedToSequence() {
+        return types.isSequence(targetSymbol.type);
+    }
+
     private void checkForSequenceVersionUnimplemented(JFXExpression tree) {
-        if (tree == boundExpression && types.isSequence(targetType)) {
+        if (tree == boundExpression && isTargettedToSequence()) {
             // We want to translate to a bound sequence
             TODO("bound sequence", tree);
         }
@@ -1408,7 +1409,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     @Override
     public void visitIdent(JFXIdent tree) {
         final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();
-        if (tree == boundExpression && types.isSequence(targetType)) {
+        if (tree == boundExpression && isTargettedToSequence()) {
             // We are translating to a bound sequence
             result = new BoundIdentSequenceTranslator(tree, exprResult).doit();
         } else {
@@ -1418,7 +1419,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitIfExpression(JFXIfExpression tree) {
-        if (tree == boundExpression && types.isSequence(targetType)) {
+        if (tree == boundExpression && isTargettedToSequence()) {
             // We are translating to a bound sequence
             result = new BoundIfSequenceTranslator(tree).doit();
         } else {
@@ -1438,12 +1439,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitParens(JFXParens tree) {
-        result = translateBoundExpression(tree.expr, targetType, targetSymbol, isBidiBind);
+        result = translateBoundExpression(tree.expr, targetSymbol.type, targetSymbol, isBidiBind);
     }
 
     @Override
     public void visitSelect(JFXSelect tree) {
-        if (tree == boundExpression && types.isSequence(targetType)) {
+        if (tree == boundExpression && isTargettedToSequence()) {
             // We want to translate to a bound sequence
             result = new BoundSelectSequenceTranslator(tree).doit();
         } else {
@@ -1453,7 +1454,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitSequenceEmpty(JFXSequenceEmpty tree) {
-        if (tree == boundExpression && types.isSequence(targetType)) {
+        if (tree == boundExpression && isTargettedToSequence()) {
             // We want to translate to a bound sequence
             result = new BoundEmptySequenceTranslator(tree).doit();
         } else {

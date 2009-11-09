@@ -311,13 +311,17 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             boolean initWithBoundFuncResult = 
                                 (initializer instanceof JFXIdent) &&
                                 isBoundFunctionResult(((JFXIdent)initializer).sym);
+                            Type targettedType = attrDef.type;
+                            if (initWithBoundFuncResult) {
+                                targettedType = initializer.type;
+                            }
                             TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
                                     vmi,
                                     translateVarInit(attrDef),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
-                                    attrDef.isBound() ? translateBind.translateBoundExpression(initializer, attrDef.type, attrDef.sym, attrDef.isBidiBind()) : null,
-                                    attrDef.isBidiBind() ? translateInvBind.translate(initializer, attrDef.type, attrDef.sym) : null,
+                                    attrDef.isBound() ? translateBind.translateBoundExpression(initializer, targettedType, attrDef.sym, attrDef.isBidiBind()) : null,
+                                    attrDef.isBidiBind() ? translateInvBind.translate(initializer, targettedType, attrDef.sym) : null,
                                     attrDef.getOnReplace(),
                                     translateTriggerAsInline(vmi, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
