@@ -5,6 +5,9 @@
 #    created by ant dev-* targets from the lists in project.properties
 # - ./build/test/reports/junit-noframes.html  contains the result of the test run
 
+if [ "$1" = -vv ] ; then
+    set -x
+fi
 
 # dev-expected-fails list in canonical form, eg:
 # test/regress/jfxc979.fx
