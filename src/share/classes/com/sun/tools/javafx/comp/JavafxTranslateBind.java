@@ -321,6 +321,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
  *                     Bound Sequence Translators
  ****************************************************************************/
 
+    /**
+     * Abstract super class of bound sequence Translators.
+     *
+     * Provides the framework of abstract methods that must be implemented:
+     *       makeSizeBody(), makeGetElementBody(), setupInvalidators()
+     *
+     * And provides common utilities
+     */
     private abstract class BoundSequenceTranslator extends ExpressionTranslator {
 
 
@@ -412,6 +420,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    /**
+     * Bound identifier Translator for identifiers referencing sequences
+     *
+     * Just forward the requests for size and elements
+     */
     class BoundIdentSequenceTranslator extends BoundSequenceTranslator {
         private final JFXIdent tree;
         private final ExpressionResult exprResult;
@@ -437,6 +450,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    /**
+     * Bound type-cast Translator for type-cast from-and-to sequences
+     *
+     * Just forward the requests for size and elements, the latter type-converted
+     * to its the desired element type.
+     */
     class BoundTypeCastSequenceTranslator extends BoundSequenceTranslator {
 
         private final VarSymbol exprSym;
@@ -467,6 +486,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    /**
+     * Bound empty sequence Translator
+     *
+     * Size is always zero, element is always an error (so return default value)
+     */
     class BoundEmptySequenceTranslator extends BoundSequenceTranslator {
         private final Type elemType;
         BoundEmptySequenceTranslator(JFXSequenceEmpty tree) {
@@ -487,6 +511,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    /**
+     * Bound member-select reference to a sequence Translator
+     *
+     *
+     */
     private class BoundSelectSequenceTranslator extends BoundSequenceTranslator {
 
         private final SelectTranslator strans;
@@ -682,6 +711,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    /**
+     * Bound explicit sequence Translator ["hi", [2..k], x]
+     *
+     *
+     */
     private class BoundExplicitSequenceTranslator extends BoundSequenceTranslator {
         private final List<JFXVar> vars;
         private final Type elemType;
@@ -897,6 +931,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    /**
+     * Bound range sequence Translator [10..100 step 10]
+     *
+     *
+     */
     private class BoundRangeSequenceTranslator extends BoundSequenceTranslator {
         private final JFXVar varLower;
         private final JFXVar varUpper;
