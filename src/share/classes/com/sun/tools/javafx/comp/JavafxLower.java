@@ -794,6 +794,10 @@ public class JavafxLower implements JavafxVisitor {
                 types.elementType(tree.type);
             body = lowerExpr(tree.bodyExpr, typeToCheck);
         }
+        // Standard form is that the body is a block-expression
+        if(!(body instanceof JFXBlock)) {
+            body = m.Block(0L, List.<JFXExpression>nil(), body).setType(body.type);
+        }
         result = m.at(tree.pos).ForExpression(List.of(clause), body).setType(tree.type);
     }
 
@@ -939,6 +943,11 @@ public class JavafxLower implements JavafxVisitor {
     public void visitWhileLoop(JFXWhileLoop tree) {
         JFXExpression cond = lowerExpr(tree.getCondition(), syms.booleanType);
         JFXExpression body = lower(tree.getStatement());
-        result = m.at(tree.pos).WhileLoop(cond, body).setType(tree.type);
+        // Standard form is that the body is a block-expression
+        if(!(body instanceof JFXBlock)) {
+            body = m.Block(0L, List.<JFXExpression>nil(), body);
+        }
+        body.setType(syms.voidType);
+        result = m.at(tree.pos).WhileLoop(cond, body).setType(syms.voidType);
     }
 }
