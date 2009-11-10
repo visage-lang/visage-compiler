@@ -122,10 +122,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 for (JFXExpression arg : args) {
                     if (arg.getFXTag() == JavafxTag.IDENT) {
                         JFXIdent ident = (JFXIdent)arg;
-                        JCExpression receiver = ident.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
-                            makeReceiver(ident.sym, false);
-                        targs.append(receiver);
+                        targs.append(getReceiverOrThis(ident.sym));
                         targs.append(Offset(ident.sym));
                     } else {
                         TODO("non-Ident in bound call");
