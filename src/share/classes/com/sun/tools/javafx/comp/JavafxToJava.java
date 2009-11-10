@@ -276,6 +276,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         protected StatementsResult doit() {
             final ListBuffer<JCStatement> translatedInitBlocks = ListBuffer.lb();
             final ListBuffer<JCStatement> translatedPostInitBlocks = ListBuffer.lb();
+            
+            ListBuffer<JFXClassDeclaration> deferredClasses = ListBuffer.lb();
 
             ListBuffer<TranslatedVarInfo> attrInfo = ListBuffer.lb();
             ListBuffer<TranslatedOverrideClassVarInfo> overrideInfo = ListBuffer.lb();
@@ -350,8 +352,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         }
                         case CLASS_DEF: {
                             // Handle other classes.
-                            inInstanceContext = ReceiverContext.Oops;
-                            translatedDefs.appendList(translateToStatementsResult((JFXClassDeclaration)def, syms.voidType).trees());
+                            if (isMixinClass) {
+                                deferredClasses.append((JFXClassDeclaration)def);
+                            } else {
+                                inInstanceContext = ReceiverContext.Oops;
+                                translatedDefs.appendList(translateToStatementsResult((JFXClassDeclaration)def, syms.voidType).trees());
+                            }
                             break;
                         }
                         default: {
@@ -363,12 +369,16 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     }
                 }
             }
+            
             inInstanceContext = ReceiverContext.Oops;
 
             // the translated defs have prepends in front
             for (JCTree prepend : prependToDefinitions) {
                 translatedDefs.prepend(prepend);
             }
+
+            inInstanceContext = ReceiverContext.Oops;
+
             prependToDefinitions = prevPrependToDefinitions;
             prependToStatements = prevPrependToStatements;
             // WARNING: translate can't be called directly or indirectly after this point in the method, or the prepends won't be included
@@ -382,6 +392,29 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     translatedPostInitBlocks);
             additionalImports.appendList(model.additionalImports);
 
+            translatedDefs.appendList(model.additionalClassMembers);
+
+            if (isMixinClass && deferredClasses.nonEmpty()) {
+                ListBuffer<JCStatement> savedPrependToDefinitions = prependToDefinitions;
+                ListBuffer<JCStatement> savedPrependToStatements = prependToStatements;
+                prependToStatements = prependToDefinitions = ListBuffer.lb();
+                
+                // Add partial list of member symbols to mixin class symbol so that
+                // nested classes will "see" synthesized mixin methods.
+                membersToSymbol((ClassSymbol)tree.sym, translatedDefs.toList());
+                
+                for (JFXClassDeclaration deferredClass : deferredClasses) {
+                    inInstanceContext = ReceiverContext.Oops;
+                    translatedDefs.appendList(translateToStatementsResult(deferredClass, syms.voidType).trees());
+                }
+                
+                if (prependToDefinitions.nonEmpty()) System.err.println("prependToDefinitions: " + prependToDefinitions);
+                if (prependToStatements.nonEmpty()) System.err.println("prependToStatements: " + prependToStatements);
+                
+                prependToDefinitions = savedPrependToDefinitions;
+                prependToStatements = savedPrependToStatements;
+            }
+            
             // build the list of implemented interfaces
             List<JCExpression> implementing = model.interfaces;
 
@@ -403,8 +436,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 }
                 tree.hasBeenTranslated = true;
             }
-
-            translatedDefs.appendList(model.additionalClassMembers);
 
             // Class must be visible for reflection.
             long flags = tree.mods.flags & (Flags.FINAL | Flags.ABSTRACT | Flags.SYNTHETIC);

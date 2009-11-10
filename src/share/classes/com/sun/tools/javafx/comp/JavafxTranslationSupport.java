@@ -66,6 +66,7 @@ import com.sun.tools.mjavac.tree.JCTree.JCCatch;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.util.Options;
 import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Common support routines needed for translation
@@ -1636,8 +1637,37 @@ public abstract class JavafxTranslationSupport {
             
             cSym.members_field = members;
         }
+        protected void membersToSymbol(ClassSymbol cSym, List<JCTree> adding) {
+            HashSet<Symbol> symbols = new HashSet<Symbol>();
+            Scope members = cSym.members();
+           
+            for (Scope.Entry e = members.elems; e != null && e.sym != null; e = e.sibling) {
+                symbols.add(e.sym);
+            }
 
-
+            for (JCTree tree : adding) {
+                if (tree instanceof JCVariableDecl) {
+                    JCVariableDecl varDecl = (JCVariableDecl)tree;
+                    
+                    if (varDecl.sym != null && symbols.add(varDecl.sym)) {
+                        members.enter(varDecl.sym);
+                    }
+                } else if (tree instanceof JCMethodDecl) {
+                    JCMethodDecl methDecl = (JCMethodDecl)tree;
+                    
+                    if (methDecl.sym != null && symbols.add(methDecl.sym)) {
+                        members.enter(methDecl.sym);
+                    }
+                } else if (tree instanceof JCClassDecl) {
+                    JCClassDecl classDecl = (JCClassDecl)tree;
+                    
+                    if (classDecl.sym != null && symbols.add(classDecl.sym)) {
+                        members.enter(classDecl.sym);
+                    }
+                }
+            }
+        }
+        
         /* Debugging support */
 
         JCStatement Debug(String msg, JCExpression obj) {

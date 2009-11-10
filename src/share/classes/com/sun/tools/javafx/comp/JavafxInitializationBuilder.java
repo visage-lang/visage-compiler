@@ -300,6 +300,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
+            javaCodeMaker.gatherFunctions(scriptFuncInfos);
             
             javaCodeMaker.setContext(false, iDefinitions);
             javaCodeMaker.makeMemberVariableAccessorInterfaceMethods();
@@ -749,7 +750,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 return params.toList();
             }
             
-            
             // This method returns all the parameters for the current method as a
             // list of JCExpression.
             protected List<JCExpression> argList() {
@@ -766,6 +766,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             protected MethodSymbol methodSymbol(boolean isAbstract) {
                 if (methodSymbol == null) {
                     ListBuffer<Type> argtypes = ListBuffer.lb();
+                    long flags = rawFlags();
                     
                     if (isMixinClass() && !isAbstract) {
                         argtypes.append(getCurrentOwner().type);
@@ -3227,6 +3228,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             addDefinition(Method(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<JCVariableDecl>nil(), stmts.toList(), methSym));
         }
         
+        // 
+        // Test to see if a name is a var accessor function.
+        //
+        private boolean isVarAccessor(Name name) {
+            return name.startsWith(defs.get_AttributeMethodPrefixName) ||
+                   name.startsWith(defs.set_AttributeMethodPrefixName) ||
+                   name.startsWith(defs.be_AttributeMethodPrefixName) ||
+                   name.startsWith(defs.onReplaceAttributeMethodPrefixName) ||
+                   name.startsWith(defs.applyDefaults_FXObjectMethodName) ||
+                   name.startsWith(defs.getElement_FXObjectMethodName) ||
+                   name.startsWith(defs.initVarBits_FXObjectMethodName) ||
+                   name.startsWith(defs.invalidate_FXObjectMethodName) ||
+                   name.startsWith(defs.size_FXObjectMethodName);
+        }
+        
         //
         // Make a method from a MethodSymbol and an optional method body.
         // Make a bound version if "isBound" is set.
@@ -3244,10 +3260,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             ListBuffer<JCVariableDecl> params = ListBuffer.lb();
             ListBuffer<JCExpression> args = ListBuffer.lb();
             ListBuffer<Type> argTypes = ListBuffer.lb();
-             
-            args.append(id(names._this));
             
-            boolean skipFirst = isStatic;
+            boolean isProxy = isStatic &&
+                              !parameters.isEmpty() &&
+                              parameters.get(0).type == methSym.owner.type &&
+                              isVarAccessor(methSym.name);
+            
+            if (!isStatic || isProxy) {
+                args.append(id(names._this));
+            }
+            
+            boolean skipFirst = isProxy;
             for (VarSymbol vsym : parameters) {
                 if (!skipFirst) {
                    args.append(id(vsym.name));
