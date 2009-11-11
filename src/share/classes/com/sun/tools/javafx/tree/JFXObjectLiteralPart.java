@@ -33,10 +33,9 @@ import com.sun.javafx.api.JavafxBindStatus;
 /**
  * In object literal  "Identifier ':' [ 'bind'] expression"
  */
-public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteralPartTree, JFXBoundMarkable {
-    public Name name; // Make this an Ident. Tools might need position information.
-    private JFXExpression expr;
-    private JavafxBindStatus bindStatus;
+public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteralPartTree {
+    public final Name name;
+    private final JFXExpression expr;
     public Symbol sym;
    /*
     * @param selector member name and class name of member
@@ -48,24 +47,22 @@ public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteral
             JFXExpression expr,
             JavafxBindStatus bindStatus,
             Symbol sym) {
+        super(bindStatus);
         this.name = name;
         this.expr = expr;
-        this.bindStatus = bindStatus==null? JavafxBindStatus.UNBOUND : bindStatus;
         this.sym = sym;
     }
 
-    public void accept(JavafxVisitor v) { v.visitObjectLiteralPart(this); }
-    
-    public javax.lang.model.element.Name getName() { return name; }
-    public JFXExpression getExpression() { return expr; }
-    public JavafxBindStatus getBindStatus() { return bindStatus; }
-    public boolean isBound()     { return getBindStatus().isBound(); }
-    public boolean isUnidiBind() { return getBindStatus().isUnidiBind(); }
-    public boolean isBidiBind()  { return getBindStatus().isBidiBind(); }
-    public boolean isDependent() { return getBindStatus().isDependent(); }
+    public void accept(JavafxVisitor v) {
+        v.visitObjectLiteralPart(this);
+    }
 
-    public void markBound(JavafxBindStatus bindStatus) {
-        this.bindStatus = bindStatus;
+    public javax.lang.model.element.Name getName() {
+        return name;
+    }
+
+    public JFXExpression getExpression() {
+        return expr;
     }
 
     @Override

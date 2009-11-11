@@ -34,12 +34,11 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
  *
  * @author Robert Field
  */
-public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMarkable, VariableTree {
+public abstract class JFXAbstractVar extends JFXExpression implements VariableTree {
     public final Name name;
     private JFXType jfxtype;
     public final JFXModifiers mods;
     private final JFXExpression init;
-    private JavafxBindStatus bindStatus;
     private final JFXOnReplace[] triggers;
     
     public VarSymbol sym;
@@ -49,15 +48,15 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
             JFXType jfxtype,
             JFXModifiers mods,
             JFXExpression init,
-            JavafxBindStatus bindStat,
+            JavafxBindStatus bindStatus,
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
             VarSymbol sym) {
+        super(bindStatus);
         this.name = name;
         this.jfxtype = jfxtype;
         this.mods = mods;
         this.init = init;
-        this.bindStatus = bindStat == null ? JavafxBindStatus.UNBOUND : bindStat;
         this.triggers = new JFXOnReplace[JFXOnReplace.Kind.values().length];
         this.triggers[JFXOnReplace.Kind.ONREPLACE.ordinal()] = onReplace;
         this.triggers[JFXOnReplace.Kind.ONINVALIDATE.ordinal()] = onInvalidate;
@@ -68,12 +67,6 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
 
     public boolean isStatic() {
         return sym.isStatic();
-    }
-
-    public void markBound(JavafxBindStatus bindStatus) {
-        if (!this.bindStatus.isBound()) {
-            this.bindStatus = bindStatus;
-        }
     }
 
     public JFXExpression getInitializer() {
@@ -106,26 +99,6 @@ public abstract class JFXAbstractVar extends JFXExpression implements JFXBoundMa
 
     public VarSymbol getSymbol() {
         return sym;
-    }
-
-    public JavafxBindStatus getBindStatus() {
-        return bindStatus;
-    }
-
-    public boolean isBound() {
-        return bindStatus.isBound();
-    }
-
-    public boolean isDependent() {
-        return bindStatus.isDependent();
-    }
-
-    public boolean isUnidiBind() {
-        return bindStatus.isUnidiBind();
-    }
-
-    public boolean isBidiBind() {
-        return bindStatus.isBidiBind();
     }
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {

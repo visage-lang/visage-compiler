@@ -176,6 +176,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitUnary(JFXUnary tree) {
+        mark(tree);
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             switch (tree.getFXTag()) {
                 case PREINC:
@@ -211,6 +212,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitBlockExpression(JFXBlock tree) {
+        mark(tree);
         if (bindStatus != JavafxBindStatus.UNBOUND) {
             for (List<JFXExpression> l = tree.stats; l.nonEmpty(); l = l.tail) {
                 if (l.head.getFXTag() != JavafxTag.VAR_DEF) {
@@ -221,5 +223,118 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         super.visitBlockExpression(tree);
     }
 
+    @Override
+    public void visitIfExpression(JFXIfExpression tree) {
+        mark(tree);
+        super.visitIfExpression(tree);
+    }
+
+    @Override
+    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+        mark(tree);
+        super.visitFunctionInvocation(tree);
+    }
+
+    @Override
+    public void visitParens(JFXParens tree) {
+        mark(tree);
+        super.visitParens(tree);
+    }
+
+    @Override
+    public void visitBinary(JFXBinary tree) {
+        mark(tree);
+        super.visitBinary(tree);
+    }
+
+    @Override
+    public void visitTypeCast(JFXTypeCast tree) {
+        mark(tree);
+        super.visitTypeCast(tree);
+    }
+
+    @Override
+    public void visitInstanceOf(JFXInstanceOf tree) {
+        mark(tree);
+        super.visitInstanceOf(tree);
+    }
+
+    @Override
+    public void visitSelect(JFXSelect tree) {
+        mark(tree);
+        super.visitSelect(tree);
+    }
+
+    @Override
+    public void visitIdent(JFXIdent tree) {
+        mark(tree);
+        super.visitIdent(tree);
+    }
+
+    @Override
+    public void visitLiteral(JFXLiteral tree) {
+        mark(tree);
+        super.visitLiteral(tree);
+    }
+
+    @Override
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
+        mark(tree);
+        super.visitSequenceEmpty(tree);
+    }
+
+    @Override
+    public void visitSequenceRange(JFXSequenceRange tree) {
+        mark(tree);
+        super.visitSequenceRange(tree);
+    }
+
+    @Override
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        mark(tree);
+        super.visitSequenceExplicit(tree);
+    }
+
+    @Override
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        mark(tree);
+        super.visitSequenceIndexed(tree);
+    }
+
+    @Override
+    public void visitSequenceSlice(JFXSequenceSlice tree) {
+        mark(tree);
+        super.visitSequenceSlice(tree);
+    }
+
+    @Override
+    public void visitStringExpression(JFXStringExpression tree) {
+        mark(tree);
+        super.visitStringExpression(tree);
+    }
+
+    @Override
+    public void visitInstanciate(JFXInstanciate tree) {
+        mark(tree);
+        super.visitInstanciate(tree);
+    }
+
+    @Override
+    public void visitForExpression(JFXForExpression tree) {
+        mark(tree);
+        super.visitForExpression(tree);
+    }
+
+    @Override
+    public void visitIndexof(JFXIndexof tree) {
+        mark(tree);
+        super.visitIndexof(tree);
+    }
+
+    @Override
+    public void visitTimeLiteral(JFXTimeLiteral tree) {
+        mark(tree);
+        super.visitTimeLiteral(tree);
+    }
 }
 

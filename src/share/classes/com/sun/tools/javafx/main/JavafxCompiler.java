@@ -1067,10 +1067,15 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     protected void decomposeBinds(JavafxEnv<JavafxAttrContext> env) {
         try {
-            localToClass.inflateAsNeeded(env);  // Uncomment to turn on local-to-class inflation
+            // Lower has smashed our analysis
+            bindAnalyzer.analyzeBindContexts(env);
+
+            localToClass.inflateAsNeeded(env); 
             printJavafxSource("dumpinflate", env.toplevel, null);
+
             decomposeBindExpressions.decompose(env);
             printJavafxSource("dumpdecompose", env.toplevel, null);
+
         } catch (RuntimeException ex) {
             if (env.where != null) {
                 log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR,
