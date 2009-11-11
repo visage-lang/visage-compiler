@@ -53,10 +53,10 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE previnst, LPSTR cmdline, int cmdsho
     // construct command
     std::string cmd;
 
-    if(! config.profile_emulator.empty()) {
-        cmd = "\"" + util.evaluatePath(config.javafxpath, config.profile_emulator) + "\" ";
-    } else {
+    if(config.profile_emulator.empty()) {
         cmd = "\"" + config.javacmd + "\" ";
+    } else {
+        cmd = "\"" + util.evaluatePath(config.javafxpath, config.profile_emulator) + "\" ";
     }
 
     if (! config.vmargs.empty()) {

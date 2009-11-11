@@ -86,8 +86,7 @@ exec_java() {
 
     EMUL_CMD=`eval echo \\${${default_toolkit}_execute_emulator}`
 
-    if [ "${EMUL_CMD}" ]
-    then
+    if [ "${EMUL_CMD}" ]; then
 	# Using some form of a native application for the launcher/JVM
 	if [ "$platform" = "windows" ]
 	then
