@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="performance" default="run" basedir=".">
+    <property name="openjfxdir" location="${basedir}/.."/>
+    <property name="jfxdir" location="${openjfxdir}/.."/>
+    <property name="builddir" location="${basedir}/../build/performance"/>
+    <property name="javafx.home" location="${basedir}/../dist"/>
+    <property name="srcdir"   location="${basedir}/src"/>
+    <property name="bm.srcdir" location="${basedir}/benchmarks"/>
+    <property name="bm.builddir" location="${builddir}/benchmarks"/>
+    <property name="bm.outdir" location="${builddir}/output"/>
+    <property name="ant.jar" location="${jfxdir}/import/ant-1.7.1/apache-ant-1.7.1/lib/ant.jar"/>
+    <property name="javafxc.jar" location="${openjfxdir}/dist/lib/shared/javafxc.jar"/>
+    <property name="javac.source" value="1.5"/>
+    <property name="javac.target" value="1.5"/>
+
+    <target name="clean">
+        <delete dir="${builddir}"/>
+    </target>
+  
+    <target name="init" depends="clean">
+        <tstamp/>
+        <mkdir dir="${builddir}"/>
+        <mkdir dir="${bm.builddir}"/>
+        <mkdir dir="${bm.outdir}"/>
+        <taskdef name="javafxc"
+            classname="com.sun.tools.javafx.ant.JavaFxAntTask">
+            <classpath>
+                <pathelement location="${ant.jar}"/>
+                <pathelement location="${javafxc.jar}"/>
+            </classpath>
+        </taskdef>
+    </target>
+    
+    <target name="compile" depends="init">
+        <javac srcdir="${srcdir}"
+               destdir="${builddir}"
+               debug="true"
+        />
+        <javafxc destdir="${bm.builddir}"
+                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+                 srcdir="${bm.srcdir}" target="${javac.target}"
+                 compilerclasspath="${javafxc.jar}">
+        </javafxc>
+    </target>
+
+    <target name="mathcalc" depends="compile"> 
+        <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+            <sysproperty key="app.name"         value="mathcalc"/>
+            <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+            <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+            <sysproperty key="javafx.home"      value="${javafx.home}"/>
+            <sysproperty key="base.dir"         value="${basedir}"/>
+            <sysproperty key="debug"            value="true"/>
+            <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
+        </java>
+    </target>
+    <target name="mathcalcb" depends="compile">
+        <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+            <sysproperty key="app.name"         value="mathcalcb"/>
+            <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+            <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+            <sysproperty key="javafx.home"      value="${javafx.home}"/>
+            <sysproperty key="base.dir"         value="${basedir}"/>
+            <sysproperty key="debug"            value="true"/>
+            <sysproperty key="Runner.vmoptions" value="-Xmx1g"/>
+        </java>
+    </target>
+        <target name="bsort" depends="compile">
+        <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+            <sysproperty key="app.name"         value="bsort"/>
+            <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+            <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+            <sysproperty key="javafx.home"      value="${javafx.home}"/>
+            <sysproperty key="base.dir"         value="${basedir}"/>
+            <sysproperty key="debug"            value="true"/>
+            <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
+        </java>
+    </target>
+    <target name="run" depends="mathcalc, mathcalcb, bsort"/>
+</project>

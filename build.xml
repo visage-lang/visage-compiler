@@ -718,11 +718,19 @@
         </exec>
     </target>
 
+    <target name="performance-clean">
+        <ant antfile="build.xml" dir="performance" target="clean" inheritall="false"/>
+    </target>
+
+     <target name="performance" depends="binaries">
+        <ant antfile="build.xml" dir="performance" target="run" inheritall="false"/>
+    </target>
+
     <target name="staticsizes-clean">
         <delete dir="${build.staticsizes.dir}" />
     </target>
 
-    <target name="plot-data" depends="staticsizes, ldclassreport"/>
+    <target name="plot-data" depends="staticsizes, ldclassreport, performance"/>
     
     <target name="staticsizes" depends="jar, staticsizes-clean">
         <mkdir dir="${build.staticsizes.dir}"/>
