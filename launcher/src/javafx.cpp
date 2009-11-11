@@ -38,7 +38,14 @@ int main(int argc, char** argv) {
     }
     
     // construct command
-    std::string cmd = "\"" + config.javacmd + "\" ";
+    std::string cmd;
+
+    if(! config.profile_emulator.empty()) {
+        cmd = "\"" + util.evaluatePath(config.javafxpath, config.profile_emulator) + "\" ";
+    } else {
+        cmd = "\"" + config.javacmd + "\" ";
+    }
+
     if (! config.vmargs.empty()) {
         cmd += config.vmargs + " ";
     }
@@ -56,6 +63,11 @@ int main(int argc, char** argv) {
     }
     if (! config.profile_bootnativelibpath.empty()) {
         cmd += "-Dsun.boot.library.path=\"" + util.evaluatePath(config.javafxpath, config.profile_bootnativelibpath + "\" ");
+    }
+    if (! config.securitypolicy.empty()) {
+        cmd += "-Djava.security.policy=\"" + config.securitypolicy + "\" ";
+    } else if (! config.profile_security_policy.empty()) {
+        cmd += "-Djava.security.policy=\"" + util.evaluatePath(config.javafxpath, config.profile_security_policy + "\" ");
     }
     if (! config.profile_bootclasspath_prepend.empty()) {
         cmd += "\"-Xbootclasspath/p:" + util.evaluatePath(config.javafxpath, config.profile_bootclasspath_prepend) + "\" ";
@@ -79,7 +91,7 @@ int main(int argc, char** argv) {
     cmd += "com.sun.javafx.runtime.Main ";
     cmd += config.fxargs;
     
-    
+
     return util.createProcess(cmd);
 }
 
