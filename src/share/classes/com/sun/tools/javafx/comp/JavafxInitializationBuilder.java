@@ -572,9 +572,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct the value field
                     addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
-                                                    needsDefaultValue(ai.getVMI()) && !(ai.isSequence() && ai.hasBoundDefinition()) ? 
-                                                          JavafxInitializationBuilder.this.makeDefaultValue(diagPos, ai.getVMI())
-                                                        : null));
+                                                    needsDefaultValue(ai.getVMI()) ? makeDefaultValue(diagPos, ai.getVMI()) : null));
                 }
             }
         }
@@ -1138,31 +1136,31 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
 
                     if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
-                            // Prepare to accumulate body of if.
-                            beginBlock();
+                        // Prepare to accumulate body of if.
+                        beginBlock();
 
-                            /*
-                             * if "foo" is the variable name, then we generate
-                             *
-                             *     be$(varNum, $$boundInstance$foo.get($$boundVarNum$foo));
-                             *
-                             * With be$(int, Object), we need not worry about type conversion.
-                             */
-                            JCExpression get$call = Call(
-                                    id(boundFunctionObjectParamName(varSym.name)),
-                                    defs.get_FXObjectMethodName,
-                                    id(boundFunctionVarNumParamName(varSym.name)));
+                        /*
+                         * if "foo" is the variable name, then we generate
+                         *
+                         *     be$(varNum, $$boundInstance$foo.get($$boundVarNum$foo));
+                         *
+                         * With be$(int, Object), we need not worry about type conversion.
+                         */
+                        JCExpression get$call = Call(
+                                id(boundFunctionObjectParamName(varSym.name)),
+                                defs.get_FXObjectMethodName,
+                                id(boundFunctionVarNumParamName(varSym.name)));
 
-                            addStmt(CallStmt(
-                                    defs.be_AttributeMethodPrefixName,
-                                    Offset(varSym), get$call));
+                        addStmt(CallStmt(
+                                defs.be_AttributeMethodPrefixName,
+                                Offset(varSym), get$call));
 
-                            // Is it invalid?
-                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
+                        // Is it invalid?
+                        JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
-                            // if (invalid) { set$var(init/bound expression); }
-                            addStmt(If(condition, endBlock(), initIf));
-                    } else if (varInfo.hasBoundDefinition()) {  
+                        // if (invalid) { set$var(init/bound expression); }
+                        addStmt(If(condition, endBlock(), initIf));
+                    } else {  
                         // Begin if block.
                         beginBlock();
 
@@ -1176,11 +1174,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
                         addStmt(SetStmt(proxyVarSym, newExpr));
                         
-                        // If (seq$ == null) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
-                        addStmt(If(EQnull(Get(proxyVarSym)),
-                                endBlock()));
-                    } else {
-                        addStmt(initIf);
+                        // If (seq$ == null && isBound) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
+                        addStmt(If(AND(EQ(Get(proxyVarSym), makeDefaultValue(diagPos, varInfo.getVMI())), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
+                                endBlock(), initIf));
                     }
                     
                     // Construct and add: return $var;
@@ -2347,44 +2343,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             }
         }
-
-        //
-        // This method constructs the statements needed to apply defaults to a given var.
-        //
-        private JCStatement makeApplyDefaultsStatement(VarInfo ai, boolean isMixinClass) {
-            // Assume the worst.
-            JCStatement stmt = null;
-            // Get init statement.
-            JCStatement init = getDefaultInitStatement(ai);
-
-            if (init != null) {
-                // a default exists, either on the direct attribute or on an override
-                stmt = init;
-            } else if (!isMixinClass) {
-                if (ai.isMixinVar()) {
-                    // Fetch the attribute symbol.
-                    VarSymbol varSym = ai.getSymbol();
-                    // Construct the name of the method.
-                    Name methodName = attributeApplyDefaultsName(varSym);
-                    // Include defaults for mixins into real classes.
-                    // Return immediately -- don't wrap in a test and set of IS_INITIALIZED, because it would double wrap and fail
-                    return makeSuperCall((ClassSymbol)varSym.owner, defs.applyDefaults_FXObjectMethodName, id(names._this), Offset(varSym));
-                } else if (ai instanceof TranslatedVarInfoBase) {
-                    //TODO: see SequenceVariable.setDefault() and JFXC-885
-                    // setDefault() isn't really done for sequences
-                    /**
-                    if (!ai.isSequence()) {
-                        // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
-                        JCStatement setter = makeSetDefaultStatement(ai);
-                        if (setter != null) {
-                            stmt = setter;
-                        }
-                    }
-                    * ***/
-                }
-            }
-            return stmt;
-        }
         
         //-----------------------------------------------------------------------------------------------------------------------------
         //
@@ -2453,7 +2411,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagIS_INITIALIZED));
                             }
                             // Get body of applyDefaults$.
-                            addStmt(makeApplyDefaultsStatement(varInfo, isMixinClass()));
+                            addStmt(getDefaultInitStatement(varInfo));
                             
                             if (!stmts.isEmpty()) {
                                 // return
