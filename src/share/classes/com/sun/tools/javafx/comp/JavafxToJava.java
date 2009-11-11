@@ -408,8 +408,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                     translatedDefs.appendList(translateToStatementsResult(deferredClass, syms.voidType).trees());
                 }
                 
-                if (prependToDefinitions.nonEmpty()) System.err.println("prependToDefinitions: " + prependToDefinitions);
-                if (prependToStatements.nonEmpty()) System.err.println("prependToStatements: " + prependToStatements);
+                assert prependToDefinitions.isEmpty() : "prependToDefinitions is non-empty";
+                assert prependToStatements.isEmpty() : "prependToStatements is non-empty";
                 
                 prependToDefinitions = savedPrependToDefinitions;
                 prependToStatements = savedPrependToStatements;

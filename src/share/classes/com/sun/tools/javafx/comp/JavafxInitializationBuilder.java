@@ -184,7 +184,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
         boolean isRunnable = toJava.getAttrEnv().toplevel.isRunnable;
 
-        JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(diagPos,
+        JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(this, diagPos,
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo, translatedFuncInfo,
                 names, types, defs, syms, reader, typeMorpher);
                 
@@ -1163,8 +1163,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                             // if (invalid) { set$var(init/bound expression); }
                             addStmt(If(condition, endBlock(), initIf));
-                    } else if (varInfo.isMixinVar()) {
-                        assert false : "Mixin sequences not implemented";
                     } else if (varInfo.hasBoundDefinition()) {  
                         // Begin if block.
                         beginBlock();
@@ -1208,9 +1206,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    if (varInfo.isMixinVar()) {
-                        TODO("mixin sequences");
-                    } else if (varInfo.hasBoundDefinition()) {
+                    if (varInfo.hasBoundDefinition()) {
                         if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
                             JCExpression apply = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
@@ -1268,9 +1264,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                          varInfo, needsBody) {
                 @Override
                 public void statements() {
-                    if (varInfo.isMixinVar()) {
-                        assert false : "Mixin sequences not implemented";
-                    } else if (varInfo.hasBoundDefinition()) {
+                    if (varInfo.hasBoundDefinition()) {
                         if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
                             JCExpression apply = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
@@ -2083,6 +2077,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
                         }
                     }
+                } else if (ai instanceof MixinClassVarInfo && needsBody) {
+                    MixinClassVarInfo mixinVar = (MixinClassVarInfo)ai;
+                    
+                    for (FuncInfo funcInfo : mixinVar.getAccessors()) {
+                        appendMethodClones(funcInfo.getSymbol(), needsBody);
+                    }
                 }
                 
                 if (ai.isMixinVar() && !isMixinClass() == needsBody) {
@@ -2855,9 +2855,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
                         // be$var((type)object$)
                         addStmt(CallStmt(attributeBeName(varInfo.getSymbol()), objCast));
+                        
+                        // return
+                        addStmt(Return(null));
                     }
-                    // return
-                    addStmt(Return(null));
                 }
             };
 
@@ -3235,12 +3236,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return name.startsWith(defs.get_AttributeMethodPrefixName) ||
                    name.startsWith(defs.set_AttributeMethodPrefixName) ||
                    name.startsWith(defs.be_AttributeMethodPrefixName) ||
-                   name.startsWith(defs.onReplaceAttributeMethodPrefixName) ||
-                   name.startsWith(defs.applyDefaults_FXObjectMethodName) ||
-                   name.startsWith(defs.getElement_FXObjectMethodName) ||
-                   name.startsWith(defs.initVarBits_FXObjectMethodName) ||
                    name.startsWith(defs.invalidate_FXObjectMethodName) ||
-                   name.startsWith(defs.size_FXObjectMethodName);
+                   name.startsWith(defs.onReplaceAttributeMethodPrefixName) ||
+                   name.startsWith(defs.getElement_FXObjectMethodName) ||
+                   name.startsWith(defs.size_FXObjectMethodName) ||
+                   name.startsWith(defs.applyDefaults_FXObjectMethodName) ||
+                   name.startsWith(defs.initVarBits_FXObjectMethodName);
         }
         
         //
