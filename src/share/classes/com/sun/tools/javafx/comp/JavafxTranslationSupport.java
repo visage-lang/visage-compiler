@@ -999,34 +999,66 @@ public abstract class JavafxTranslationSupport {
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.
         //
         protected JCExpression getReceiver() {
-            if (isMixinClass()) {
-                return id(defs.receiverName);
-            }
-            
-            return null;
+            return getReceiverInternal(enclosingClassDecl.sym, true);
         }
+
         protected JCExpression getReceiverOrThis() {
-            if (isMixinClass()) {
-                return id(defs.receiverName);
-            }
-            
-            return id(names._this);
+            return getReceiverInternal(enclosingClassDecl.sym, false);
         }
+
         protected JCExpression getReceiver(Symbol sym) {
             if (sym.isStatic()) {
                 return Call(scriptLevelAccessMethod(sym.owner));
             }
-            
-            return getReceiver();
+            return getReceiverInternal(sym.owner, true);
         }
+
         protected JCExpression getReceiverOrThis(Symbol sym) {
-            JCExpression receiver = getReceiver(sym);
-
-            if (receiver == null) {
-                receiver = id(names._this);
+            if (sym.isStatic()) {
+                return Call(scriptLevelAccessMethod(sym.owner));
             }
+            return getReceiverInternal(sym.owner, false);
+        }
+        
+        private JCExpression getReceiverInternal(Symbol sym, boolean nullForThis) {
+            return (isMixinClass()) ?
+                id(defs.receiverName) :
+                resolveThis(sym, nullForThis);
+        }
 
-            return receiver;
+        protected JCExpression resolveThis(Symbol owner, boolean nullForThis) {
+            JCExpression _this = resolveThisInternal(owner, enclosingClassDecl.sym, false);
+            return (nullForThis && _this.getTag() == JCTree.IDENT) ?
+                null :
+                _this;
+        }
+        //where
+        private JCExpression resolveThisInternal(Symbol ownerThis, Symbol currentThis, boolean rec) {
+            JCExpression thisExpr = rec ? 
+                Select(makeType(currentThis.type), names._this) :
+                id(names._this);
+            if (!currentThis.isSubClass(ownerThis, types)) {
+                Type encl = currentThis.type.getEnclosingType();
+                if (encl == null || encl == Type.noType || types.isMixin(encl.tsym)) {
+                    return resolveThisInternal(ownerThis, currentThis, thisExpr);
+                }
+                return resolveThisInternal(ownerThis, currentThis.type.getEnclosingType().tsym, true);
+            }
+            else {
+                return thisExpr;
+            }
+        }
+        //where
+        private JCExpression resolveThisInternal(Symbol ownerThis, Symbol currentThis, JCExpression receiver) {
+            if (currentThis == null) {
+                throw new AssertionError("Cannot find owner");
+            }
+            else if (!currentThis.isSubClass(ownerThis, types)) {
+                return resolveThisInternal(ownerThis, currentThis.owner.enclClass(), Call(receiver, defs.outerAccessor_MethodName));
+            }
+            else {
+                return receiver;
+            }
         }
 
         //

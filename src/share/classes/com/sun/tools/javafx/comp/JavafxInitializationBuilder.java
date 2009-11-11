@@ -390,8 +390,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (typeOwner != null) {
                 // Only return an interface class if it's a mixin.
-                return !isMixinClass((ClassSymbol)typeOwner) ? (ClassSymbol)typeOwner.type.tsym :
-                        reader.jreader.enterClass(names.fromString(typeOwner.type.toString() + mixinClassSuffix));
+                return (ClassSymbol)typeOwner.type.tsym;
             }
         }
         return null;

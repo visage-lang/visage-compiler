@@ -319,7 +319,8 @@ public class JavafxLocalToClass {
     }
 
     private JavafxClassSymbol makeClassSymbol(Name name) {
-        JavafxClassSymbol classSym = (JavafxClassSymbol)reader.defineClass(name, owner);
+        //JavafxClassSymbol classSym = (JavafxClassSymbol)reader.defineClass(name, owner);
+        JavafxClassSymbol classSym = new JavafxClassSymbol(0L, name, owner);
         classSym.flatname = chk.localClassName(classSym);
         chk.compiled.put(classSym.flatname, classSym);
 
@@ -350,11 +351,7 @@ public class JavafxLocalToClass {
         // Set outer_field of this class to closest enclosing class
         // which contains this class in a non-static context
         // (its "enclosing instance class"), provided such a class exists.
-        Symbol owner1 = owner;
-        while ((owner1.kind & (Kinds.VAR | Kinds.MTH)) != 0 &&
-                (owner1.flags_field & Flags.STATIC) == 0) {
-            owner1 = owner1.owner;
-        }
+        Symbol owner1 = owner.enclClass();
         if (owner1.kind == Kinds.TYP) {
             ct.setEnclosingType(owner1.type);
         }
@@ -467,16 +464,6 @@ public class JavafxLocalToClass {
             }
 
             @Override
-            public void visitClassDeclaration(JFXClassDeclaration that) {
-                Scope oldScope = getEnclosingScope(that.sym);
-                if (oldScope != null)
-                    oldScope.remove(that.sym);
-                ((ClassType)that.type).setEnclosingType(classSym.type);
-                that.sym.owner = funcSym;
-                classSym.members().enter(that.sym);
-            }
-
-            @Override
             public void visitBlockExpression(JFXBlock that) {
                 ListBuffer<JFXExpression> stmts = ListBuffer.lb();
                 for (JFXExpression stat : that.stats) {
@@ -510,7 +497,7 @@ public class JavafxLocalToClass {
         doit.sym = funcSym;
         doit.type = funcType;
 
-        JFXClassDeclaration cdecl = fxmake.ClassDeclaration(
+        final JFXClassDeclaration cdecl = fxmake.ClassDeclaration(
                 fxmake.Modifiers(Flags.SYNTHETIC),
                 className,
                 List.<JFXExpression>nil(),
@@ -535,6 +522,25 @@ public class JavafxLocalToClass {
         JFXFunctionInvocation apply = fxmake.Apply(null, select, null);
         apply.type = tree.type;
 
+        class NestedClassTypeLifter extends JavafxTreeScanner {
+
+            @Override
+            public void visitClassDeclaration(JFXClassDeclaration that) {
+                super.visitClassDeclaration(that);
+                if (that.sym != classSym &&
+                        (that.type.getEnclosingType() == Type.noType ||
+                        that.type.getEnclosingType().tsym == classSym.type.getEnclosingType().tsym)) {
+                    Scope oldScope = getEnclosingScope(that.sym);
+                    if (oldScope != null)
+                        oldScope.remove(that.sym);
+                    ((ClassType)that.type).setEnclosingType(classSym.type);
+                    that.sym.owner = funcSym;
+                    classSym.members().enter(that.sym);
+                }
+            }
+        }
+
+        new NestedClassTypeLifter().scan(cdecl);
 
         // Replace the guts of the block-expression with the class wrapping the previous body
         // and a call to the doit function of that class.

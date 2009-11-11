@@ -1564,10 +1564,6 @@ public class JavafxAttr implements JavafxVisitor {
                 //       }
                 //       ...
                 //     }
-//               if (JavafxResolve.isStatic(env)) cdef.mods.flags |= STATIC;
-
-                // always need to be static, because they will have generated static members
-                cdef.mods.flags |= STATIC;
 
                 if (cdef.sym == null)
                     enter.classEnter(cdef, env);

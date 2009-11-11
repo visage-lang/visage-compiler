@@ -1161,7 +1161,7 @@ public abstract class JavafxAbstractTranslation
                 if (refSym != null && refSym.owner.kind == Kinds.TYP) {
                     // it is a non-static attribute or function class member
                     // reference it through the receiver
-                    return makeReceiver(refSym);
+                    return getReceiver(refSym);
                 }
                 return null;
             }
@@ -1169,7 +1169,7 @@ public abstract class JavafxAbstractTranslation
             // If this is OuterClass.memberName or MixinClass.memberName, then
             // we want to create expression to get the proper receiver.
             if (selectorSym != null && selectorSym.kind == Kinds.TYP) {
-                return makeReceiver(refSym);
+                return getReceiver(refSym);
             }
             Type exprType = expr.type;
 
@@ -1510,7 +1510,7 @@ public abstract class JavafxAbstractTranslation
                         JFXIdent ident = (JFXIdent)args.head;
                         receiver = ident.sym.isStatic() ?
                             Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
-                            makeReceiver(ident.sym, false);
+                            getReceiverOrThis(ident.sym);
 
                         varOffset = Offset(ident.sym);
                         break;
@@ -1536,7 +1536,7 @@ public abstract class JavafxAbstractTranslation
                         JFXIdent ident = (JFXIdent)args.head;
                         JCExpression receiver = ident.sym.isStatic() ?
                             Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
-                            makeReceiver(ident.sym, false);
+                            getReceiverOrThis(ident.sym);
                         targs.append(receiver);
                         targs.append(Offset(ident.sym));
                         Type type = types.erasure(ident.type);
@@ -1786,7 +1786,7 @@ public abstract class JavafxAbstractTranslation
         protected JCExpression doitExpr() {
             if (tree.getName() == names._this) {
                 // in the static implementation method, "this" becomes "receiver$"
-                return makeReceiver(sym, false);
+                return getReceiverOrThis(sym);
             } else if (tree.getName() == names._super) {
                 if (types.isMixin(tree.type.tsym)) {
                     // "super" becomes just the class where the static implementation method is defined
@@ -1816,7 +1816,7 @@ public abstract class JavafxAbstractTranslation
                         sym.owner.kind == Kinds.TYP) {
                     // it is a non-static attribute or function class member
                     // reference it through the receiver
-                    convert = Select(makeReceiver(sym),tree.getName());
+                    convert = Select(getReceiver(sym),tree.getName());
                 } else {
                     convert = id(tree.getName());
                 }
@@ -3612,7 +3612,7 @@ public abstract class JavafxAbstractTranslation
                 if (sym.isStatic()) {
                     receiver = Call(staticReference(sym), scriptLevelAccessMethod(sym.owner));
                 } else {
-                    receiver = makeReceiver(sym, false);
+                    receiver = getReceiverOrThis(sym);
                 }
             } else if (tag == JavafxTag.SELECT) {
                 receiver = translateExpr(((JFXSelect)tree.attribute).selected, null);
