@@ -1325,7 +1325,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    // FIXME - Do the right thing.
                     // $var = value
                     addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
     
@@ -1417,21 +1416,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 startPosArg(), endPosArg(), newLengthArg(),
                                 phaseArg()));
                     } 
-
-                    //TODO: remove this -- currently disabled
-                    // Doing this save violates first phase invalidation safety by making calls to size and element getter.
-                    // Saving away of a SequenceRef should now be avoided, so this shouldn't be needed
-                    if (false && varInfo.hasBoundDefinition()) {
-                        // Begin seq save block.
-                        beginBlock();
-                        // SequenceRef.save($seq)
-                        addStmt(CallStmt(defs.SequencesRef_save, Get(proxyVarSym)));
-                        // seq$ = null;
-                        addStmt(SetStmt(proxyVarSym, Null()));
-                        // If (seq$ != null) { SequenceRef.save($seq); seq$ = null; }
-                        addStmt(If(NEnull(Get(proxyVarSym)),
-                                endBlock()));
-                    }
                     
                     if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
@@ -2031,7 +2015,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             setDiagPos(ai.pos());
 
             if (ai.useAccessors()) {
-                if (ai.isMixinVar() == isMixinClass()) {
+                if (!(ai instanceof MixinClassVarInfo)) {
                     if (ai.isSequence()) {
                          if (!ai.isOverride()) {
                             makeSeqGetterAccessorMethod(ai, needsBody);
@@ -2042,12 +2026,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             makeSeqOnReplaceAccessorMethod(ai, needsBody);
                         } else if (needsBody) {
                             if (ai.hasInitializer()) {
-                                // Bound or not, we need getter & setter on override since we
-                                // may be switching between bound and non-bound or visa versa
-                                makeSeqGetterAccessorMethod(ai, needsBody);
+                                // We only need to worry about computational methods
+                                // The getter and be are generic.
                                 makeSeqGetPosAccessorMethod(ai, needsBody);
                                 makeSeqGetSizeAccessorMethod(ai, needsBody);
-                                makeSeqBeAccessorMethod(ai, needsBody);
                             }
                             if (needOverrideInvalidateAccessorMethod(ai)) {
                                 makeSeqInvalidateAccessorMethod(ai, needsBody);
@@ -2077,16 +2059,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 makeOnReplaceAccessorMethod(ai, needsBody);
                             }
                         }
-                    }
-                } else if (ai instanceof MixinClassVarInfo && needsBody) {
-                    MixinClassVarInfo mixinVar = (MixinClassVarInfo)ai;
-                    
-                    for (FuncInfo funcInfo : mixinVar.getAccessors()) {
-                        appendMethodClones(funcInfo.getSymbol(), needsBody);
+                    }                    
+               } else {
+                    if (ai.needsCloning()) {
+                        MixinClassVarInfo mixinVar = (MixinClassVarInfo)ai;
+                        
+                        for (FuncInfo funcInfo : mixinVar.getAccessors()) {
+                            appendMethodClones(funcInfo.getSymbol(), needsBody);
+                        }
                     }
                 }
                 
-                if (ai.isMixinVar() && !isMixinClass() == needsBody) {
+                if ((isMixinClass() && !needsBody) || (ai instanceof MixinClassVarInfo && ai.needsCloning())) {
                     makeGetMixinAccessorMethod(ai, needsBody);
                     makeGetVOFFAccessorMethod(ai, needsBody);
                     makeSetMixinAccessorMethod(ai, needsBody);

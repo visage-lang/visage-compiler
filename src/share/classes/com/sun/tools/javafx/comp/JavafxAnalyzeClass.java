@@ -825,7 +825,7 @@ class JavafxAnalyzeClass {
         }
 
         // Useful debugging tool.
-        // printAnalysis(false);
+        //printAnalysis(false);
     }
     
     private void addInterClassBinder(VarInfo varInfo, VarSymbol instanceSymbol, VarSymbol referenceSymbol) {
