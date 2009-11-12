@@ -556,9 +556,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     setDiagPos(ai);
                     // Grab the variable symbol.
                     VarSymbol varSym = ai.getSymbol();
-                    // The fields need to be available to reflection.
-                    // TODO deal with defs.
-                    JCModifiers mods = m().Modifiers(Flags.PUBLIC | (ai.getFlags() & Flags.STATIC));
+                    // Static vars are public since they are accessed directly.
+                    // Synthetic vars should be hidden (private) since they are internal only and
+                    // they may be arbitrarily overridden in subclasses.
+                    // Others are protected since they should only be accessed via accessors, but may be
+                    // overridden by subclasses.
+                    long flags = ai.isStatic() ? (Flags.STATIC | Flags.PUBLIC) :
+                                 ai.isBareSynth() ? Flags.PRIVATE :
+                                                    Flags.PROTECTED;
+                    JCModifiers mods = m().Modifiers(flags);
 
                     // Apply annotations, if current class then add source annotations.
                     if (isCurrentClassSymbol(varSym.owner)) {
@@ -576,7 +582,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             }
         }
-        
+      
         //
         // This method constructs modifiers for getters/setters and proxies.
         //
@@ -616,7 +622,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private JCExpression getReceiverOrThis(VarInfo varInfo) {
             return getReceiverOrThis(varInfo.getSymbol());
         }
-
+        
         //
         // This method gathers all the translated functions in funcInfos.
         //
