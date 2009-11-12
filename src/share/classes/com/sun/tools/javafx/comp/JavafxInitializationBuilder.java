@@ -1836,12 +1836,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callSuper();
                     }
                     
-                    // Mixin invalidate$
-                    if (!isMixinClass() && varInfo.isMixinVar()) {
-                        // Mixin.invalidate$var(this, phase$);
-                        callMixin((ClassSymbol)varSym.owner);
-                    }
-
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.isSequence()) {
@@ -1868,7 +1862,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // isValid
                     JCExpression ifValidTest;
-                    if (isSuperVarInfo || varInfo.isOverride()) {
+                    if (isSuperVarInfo || varInfo.isOverride() || isMixinClass()) {
                         ifValidTest = FlagTest(proxyVarSym, phaseArg(), phaseArg());
                     } else {
                         ifValidTest = FlagChange(proxyVarSym, null, phaseArg());
@@ -1878,6 +1872,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addStmt( If (NOT(ifValidTest),
                             endBlock()));
                     
+                    // Mixin invalidate$
+                    if (!isMixinClass() && varInfo.isMixinVar()) {
+                        // Mixin.invalidate$var(this, phase$);
+                        callMixin((ClassSymbol)varSym.owner);
+                    }
+
                     if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
                         beginBlock();
