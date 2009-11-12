@@ -352,12 +352,9 @@ public class JavafxTreeCopier implements JavafxVisitor {
     }
 
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
-        JFXVar var = copy(tree.var);
-        JFXExpression seqExpr = copy(tree.seqExpr);
-        JFXExpression whereExpr = copy(tree.whereExpr);
-        JFXForExpressionInClause res = maker.at(tree.pos).InClause(var, seqExpr, whereExpr);
-        res.label = tree.label;
-        result = res;
+        tree.seqExpr = copy(tree.seqExpr);
+        tree.whereExpr = copy(tree.whereExpr);
+        result = tree;
     }
 
     public void visitIndexof(JFXIndexof tree) {

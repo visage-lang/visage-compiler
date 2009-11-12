@@ -35,8 +35,8 @@ import com.sun.tools.mjavac.util.Name;
 public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree, JFXBoundMarkable {
 
     public final JFXVar var;
-    public final JFXExpression seqExpr;
-    public final JFXExpression whereExpr;
+    public JFXExpression seqExpr;
+    public JFXExpression whereExpr;
     public Name label;
 
     private boolean indexUsed;
