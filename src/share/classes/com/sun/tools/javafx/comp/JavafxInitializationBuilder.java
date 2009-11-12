@@ -1368,7 +1368,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Call super first.
                         callSuper();
                     }
-
+                    
                     // Mixin invalidate$
                     if (!isMixinClass() && varInfo.isMixinVar()) {
                         // Mixin.invalidate$var(this, phase$);
@@ -1835,6 +1835,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Call super first.
                         callSuper();
                     }
+                    
+                    // Mixin invalidate$
+                    if (!isMixinClass() && varInfo.isMixinVar()) {
+                        // Mixin.invalidate$var(this, phase$);
+                        callMixin((ClassSymbol)varSym.owner);
+                    }
 
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
@@ -2065,7 +2071,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         MixinClassVarInfo mixinVar = (MixinClassVarInfo)ai;
                         
                         for (FuncInfo funcInfo : mixinVar.getAccessors()) {
-                            appendMethodClones(funcInfo.getSymbol(), needsBody);
+                            if (funcInfo.getSymbol().name.startsWith(defs.invalidate_FXObjectMethodName)) {
+                                if (ai.isSequence()) {
+                                     makeSeqInvalidateAccessorMethod(ai, needsBody);
+                                } else {
+                                     makeInvalidateAccessorMethod(ai, needsBody);
+                                }
+                            } else {
+                                appendMethodClones(funcInfo.getSymbol(), needsBody);
+                            }
                         }
                     }
                 }
@@ -3236,6 +3250,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (needsBody) {
                 stmts = ListBuffer.lb();
+                
                 Name callName = functionName(methSym, !isStatic, isBound);
                 JCExpression receiver = makeType(methSym.owner.type, false);
                 
