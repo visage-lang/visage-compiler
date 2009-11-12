@@ -135,6 +135,7 @@ public class JavafxDefs {
     public static final String internalRunFunctionString = Entry.entryMethodName();
     public static final String varGetMapString = "GETMAP$";
     public static final String zero_DurationFieldName = "javafx.lang.Duration.$ZERO";
+    public static final String synthForLabelPrefix = "synth_for$";
 
     public static final Pattern DATETIME_FORMAT_PATTERN = Pattern.compile("%[<$0-9]*[tT]");
 

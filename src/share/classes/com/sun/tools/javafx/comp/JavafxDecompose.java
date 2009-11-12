@@ -861,6 +861,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression whereExpr = decompose(tree.whereExpr);
         JFXForExpressionInClause res = fxmake.at(tree.pos).InClause(var, seqExpr, whereExpr);
         res.setIndexUsed(tree.getIndexUsed());
+        res.label = tree.label;
         result = res;
     }
 

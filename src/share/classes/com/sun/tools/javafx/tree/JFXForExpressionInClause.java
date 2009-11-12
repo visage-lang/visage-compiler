@@ -27,6 +27,8 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
+import com.sun.tools.mjavac.util.Name;
+
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
@@ -35,6 +37,7 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
     public final JFXVar var;
     public final JFXExpression seqExpr;
     public final JFXExpression whereExpr;
+    public Name label;
 
     private boolean indexUsed;
     private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;

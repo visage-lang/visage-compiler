@@ -85,7 +85,7 @@ public class JavafxLower implements JavafxVisitor {
     public JFXTree lower(JavafxEnv<JavafxAttrContext> attrEnv) {
         this.env = attrEnv;
         attrEnv.toplevel = lower(attrEnv.toplevel);
-        //System.out.println(result);
+//        System.out.println(result);
         return result;
     }
 
@@ -760,6 +760,7 @@ public class JavafxLower implements JavafxVisitor {
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         Symbol prevClass = currentClass;
         try {
+            currentClass = tree.sym;
             List<JFXTree> defs = lower(tree.getMembers());
             tree.setMembers(defs);
             result = tree;
@@ -798,7 +799,53 @@ public class JavafxLower implements JavafxVisitor {
         if(!(body instanceof JFXBlock)) {
             body = m.Block(0L, List.<JFXExpression>nil(), body).setType(body.type);
         }
-        result = m.at(tree.pos).ForExpression(List.of(clause), body).setType(tree.type);
+        result = (JFXForExpression)m.at(tree.pos).ForExpression(List.of(clause), body).setType(tree.type);
+        patchFor(result, tree.getForExpressionInClauses().head, clause);
+    }
+
+    private void patchFor(JFXTree forExpr, JFXForExpressionInClause fromClause, JFXForExpressionInClause toClause) {
+        class ForLoopPatcher extends JavafxTreeScanner {
+
+            int synthNameCount = 0;
+            Name breakContinueTarget;
+            JFXForExpressionInClause fromClause, toClause;
+
+            ForLoopPatcher(JFXForExpressionInClause fromClause, JFXForExpressionInClause toClause) {
+                this.fromClause = fromClause;
+                this.toClause = toClause;
+            }
+
+            private Name newLabelName() {
+                return names.fromString(JavafxDefs.synthForLabelPrefix + synthNameCount++);
+            }
+
+            @Override
+            public void visitBreak(JFXBreak tree) {
+                tree.label = breakContinueTarget;
+            }
+
+            @Override
+            public void visitContinue(JFXContinue tree) {
+                tree.label = breakContinueTarget;
+            }
+
+            @Override
+            public void visitIndexof(JFXIndexof tree) {
+                if (tree.clause == fromClause) {
+                    tree.clause = toClause;
+                }
+            }
+
+            @Override
+            public void visitForExpressionInClause(JFXForExpressionInClause tree) {
+                tree.label = newLabelName();
+                if (breakContinueTarget == null) {
+                    breakContinueTarget = tree.label;
+                }
+                super.visitForExpressionInClause(tree);
+            }
+        }
+        new ForLoopPatcher(fromClause, toClause).scan(forExpr);
     }
 
     public void visitIdent(JFXIdent tree) {

@@ -3329,6 +3329,16 @@ public abstract class JavafxAbstractTranslation
             }
         }
 
+        JCStatement makeForLoop(List<JCStatement> init, JCExpression cond, List<JCExpressionStatement> step, JCStatement body) {
+            JCStatement loop = m().ForLoop(init, cond, step, body);
+            if (clause.label != null) {
+                // Wrap in a labeled stmt if the for has a label (that was created because
+                // it translated into nested loops, and the body contained a break or continue.)
+                loop = m().Labelled(clause.label, loop);
+                }
+            return loop;
+        }
+
         /**
          * Generate the loop for a slice sequence.  Loop wraps the current body.
          * For the loop:
@@ -3392,7 +3402,7 @@ public abstract class JavafxAbstractTranslation
             JCExpression tcond = LT(id(inductionVar), id(limitVar));
             // Generate the step statement as: x += 1
             List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(inductionVar), m().Literal(TypeTags.INT, 1))));
-            tinits.append(m().ForLoop(List.<JCStatement>nil(), tcond, tstep, body));
+            tinits.append(makeForLoop(List.<JCStatement>nil(), tcond, tstep, body));
             body = Block(tinits);
         }
 
@@ -3454,7 +3464,7 @@ public abstract class JavafxAbstractTranslation
             // Generate the step statement as: x += x$step
             List<JCExpressionStatement> tstep = List.of(m().Exec(m().Assignop(JCTree.PLUS_ASG, id(inductionVar), tstepIncrExpr)));
             // Finally, build the for loop
-            body = m().ForLoop(tinits.toList(), tcond, tstep, body);
+            body = makeForLoop(tinits.toList(), tcond, tstep, body);
         }
 
         /**

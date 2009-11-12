@@ -355,7 +355,9 @@ public class JavafxTreeCopier implements JavafxVisitor {
         JFXVar var = copy(tree.var);
         JFXExpression seqExpr = copy(tree.seqExpr);
         JFXExpression whereExpr = copy(tree.whereExpr);
-        result = maker.at(tree.pos).InClause(var, seqExpr, whereExpr);
+        JFXForExpressionInClause res = maker.at(tree.pos).InClause(var, seqExpr, whereExpr);
+        res.label = tree.label;
+        result = res;
     }
 
     public void visitIndexof(JFXIndexof tree) {
