@@ -110,6 +110,7 @@ public class JavafxDefs {
     public static final String cErrorHandler = runtime_PackageString + ".ErrorHandler";
     public static final String cFXMixin = runtime_PackageString + ".FXMixin";
     public static final String cTypeInfo = runtime_PackageString + ".TypeInfo";
+    public static final String cNonLocalReturnException = runtime_PackageString + ".NonLocalReturnException";
     // in runtime package
     private static final String cUtil = runtime_PackageString + ".Util";
     private static final String cChecks = runtime_PackageString + ".Checks";
@@ -322,6 +323,8 @@ public class JavafxDefs {
     final Name count_FXObjectFieldName;
     final Name outerAccessor_FXObjectFieldName;
     final Name scriptLevelAccess_FXObjectFieldName;
+
+    final Name value_NonLocalReturnExceptionFieldName;
 
     final Name length_ArrayFieldName;
 
@@ -540,6 +543,7 @@ public class JavafxDefs {
         varOldValue_LocalVarName = names.fromString("varOldValue$");
         varNewValue_ArgName = names.fromString("varNewValue$");
         scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
+        value_NonLocalReturnExceptionFieldName = names.fromString("value");
         scriptLevelAccess_FXObjectMethodPrefixName = names.fromString("access$scriptLevel$");
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
         updateInstance_ArgName = names.fromString("instance$");

@@ -919,6 +919,7 @@ public class JavafxLower implements JavafxVisitor {
             //  }
             //}
            result = m.Block(0L, List.convert(JFXExpression.class, tree.getLocalvars()), res).setType(tree.type);
+           res.clearLocalVars();
        }
        else {
            result = res;
@@ -1014,7 +1015,7 @@ public class JavafxLower implements JavafxVisitor {
 
     public void visitWhileLoop(JFXWhileLoop tree) {
         JFXExpression cond = lowerExpr(tree.getCondition(), syms.booleanType);
-        JFXExpression body = lower(tree.getStatement());
+        JFXExpression body = lower(tree.getBody());
         // Standard form is that the body is a block-expression
         if(!(body instanceof JFXBlock)) {
             body = m.Block(0L, List.<JFXExpression>nil(), body);

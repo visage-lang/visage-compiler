@@ -2609,22 +2609,27 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                          *     }
                          */
                         JCStatement ifReferenceStmt = null;
-                        for (VarSymbol param : params) {
-                            beginBlock();
-                            // varNum$ == $$boundVarNum$foo
-                            JCExpression varNumCond = EQ(varNumArg(), id(boundFunctionVarNumParamName(param.name)));
-                            // instance$ == $$boundInstance$foo
-                            JCExpression objCond = EQ(updateInstanceArg(), id(boundFunctionObjectParamName(param.name)));
-                            // && of above two conditions
-                            JCExpression ifReferenceCond = AND(varNumCond, objCond);
-                            // invalidate the synthetic instance field for this param
+                        for (VarSymbol mParam : params) {
+                            Scope.Entry e = getCurrentClassSymbol().members().lookup(mParam.name);
+                            if (e.sym.kind == Kinds.VAR) {
+                                VarSymbol param = (VarSymbol) e.sym;
 
-                            addStmt(invalidate(types.isSequence(param.type), param));
+                                beginBlock();
+                                // varNum$ == $$boundVarNum$foo
+                                JCExpression varNumCond = EQ(varNumArg(), id(boundFunctionVarNumParamName(param.name)));
+                                // instance$ == $$boundInstance$foo
+                                JCExpression objCond = EQ(updateInstanceArg(), id(boundFunctionObjectParamName(param.name)));
+                                // && of above two conditions
+                                JCExpression ifReferenceCond = AND(varNumCond, objCond);
+                                // invalidate the synthetic instance field for this param
 
-                            ifReferenceStmt = If(ifReferenceCond,
-                                    endBlock(),
-                                    ifReferenceStmt);
-                            addStmt(ifReferenceStmt);
+                                addStmt(invalidate(types.isSequence(param.type), param));
+
+                                ifReferenceStmt = If(ifReferenceCond,
+                                        endBlock(),
+                                        ifReferenceStmt);
+                                addStmt(ifReferenceStmt);
+                            }
                         }
                     }
                     // Loop for instance symbol.

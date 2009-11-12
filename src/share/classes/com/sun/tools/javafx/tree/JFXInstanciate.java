@@ -40,7 +40,7 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
     private final JFXClassDeclaration def;
     private final List<JFXExpression> args;
     private final List<JFXObjectLiteralPart> parts;
-    private final List<JFXVar> localVars;
+    private List<JFXVar> localVars;
     public ClassSymbol sym;
     public Symbol constructor;
     public Symbol varDefinedByThis;
@@ -95,6 +95,10 @@ public class JFXInstanciate extends JFXExpression implements InstantiateTree {
      */
     public List<JFXVar> getLocalvars() {
         return localVars;
+    }
+
+    public void clearLocalVars() {
+        localVars = List.nil();
     }
 
     public List<JFXObjectLiteralPart> getParts() {

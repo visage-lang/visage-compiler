@@ -90,6 +90,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_KeyValueTargetType;
     public final Type javafx_PointerType;
     public final Type javafx_FXConstantType;
+    public final Type javafx_NonLocalReturnExceptionType;
 
     public final Type javafx_protectedAnnotationType;
     public final Type javafx_packageAnnotationType;
@@ -194,6 +195,7 @@ public class JavafxSymtab extends Symtab {
         javafx_KeyValueTargetType = enterClass("javafx.animation.KeyValueTarget");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_FXConstantType = enterClass("com.sun.javafx.runtime.FXConstant");
+        javafx_NonLocalReturnExceptionType = enterClass(JavafxDefs.cNonLocalReturnException);
         javafx_protectedAnnotationType = enterClass(protectedAnnotationClassNameString);
         javafx_packageAnnotationType = enterClass(packageAnnotationClassNameString);
         javafx_publicAnnotationType = enterClass(publicAnnotationClassNameString);

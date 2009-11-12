@@ -351,7 +351,21 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitReturn(JFXReturn tree) {
         tree.expr = decompose(tree.expr);
-        result = tree;
+        if (tree.nonLocalReturn) {
+            // A non-local return gets turned into an exception
+            JFXIdent nonLocalExceptionClass = fxmake.Ident(names.fromString(JavafxDefs.cNonLocalReturnException));
+            nonLocalExceptionClass.sym = syms.javafx_NonLocalReturnExceptionType.tsym;
+            nonLocalExceptionClass.type = syms.javafx_NonLocalReturnExceptionType;
+            List<JFXExpression> valueArg = tree.expr==null? List.<JFXExpression>nil() : List.of(tree.expr);
+            JFXInstanciate expInst = fxmake.InstanciateNew(
+                    nonLocalExceptionClass,
+                    valueArg);
+            expInst.sym = (ClassSymbol)syms.javafx_NonLocalReturnExceptionType.tsym;
+            expInst.type = syms.javafx_NonLocalReturnExceptionType;
+            result = fxmake.Throw(expInst);
+        } else {
+            result = tree;
+        }
     }
 
     public void visitThrow(JFXThrow tree) {

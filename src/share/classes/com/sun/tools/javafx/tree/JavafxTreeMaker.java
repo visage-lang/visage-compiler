@@ -299,7 +299,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** Create an identifier that refers to the variable declared in given variable
      *  declaration.
      */
-    public JFXExpression Ident(JFXVar param) {
+    public JFXIdent Ident(JFXVar param) {
         return Ident(param.sym);
     }
 

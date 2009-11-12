@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,47 +21,22 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.tree;
-
-import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
+package com.sun.javafx.runtime;
 
 /**
- * A while loop
+ * For returning from a local context that has been converted to a class
+ *
+ * @author Robert Field
  */
-public class JFXWhileLoop extends JFXExpression implements WhileLoopTree {
+public class NonLocalReturnException extends Throwable {
 
-    public final JFXExpression cond;
-    public final JFXExpression body;
+    public final Object value;
 
-    protected JFXWhileLoop(JFXExpression cond, JFXExpression body) {
-        this.cond = cond;
-        this.body = body;
+    public NonLocalReturnException() {
+        this.value = null;
     }
 
-    @Override
-    public void accept(JavafxVisitor v) {
-        v.visitWhileLoop(this);
-    }
-
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.WHILE_LOOP;
-    }
-
-    public JFXExpression getCondition() {
-        return cond;
-    }
-
-    public JFXExpression getBody() {
-        return body;
-    }
-
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
-        return v.visitWhileLoop(this, d);
-    }
-
-    @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.WHILELOOP;
+    public NonLocalReturnException(Object value) {
+        this.value = value;
     }
 }

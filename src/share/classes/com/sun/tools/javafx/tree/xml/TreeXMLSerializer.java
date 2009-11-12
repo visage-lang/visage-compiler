@@ -423,7 +423,7 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
     public Void visitWhileLoop(WhileLoopTree wl, Void v) {
         startElement(WHILE, wl);
         emitTree(TEST, wl.getCondition());
-        emitTree(STATEMENT, wl.getStatement());
+        emitTree(STATEMENT, wl.getBody());
         endElement(WHILE);
         return null;
     }
