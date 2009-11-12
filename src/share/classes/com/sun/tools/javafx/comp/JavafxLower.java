@@ -55,6 +55,7 @@ public class JavafxLower implements JavafxVisitor {
     protected static final Context.Key<JavafxLower> convertTypesKey =
             new Context.Key<JavafxLower>();
 
+    private JavafxPreTranslationSupport preTrans;
     private JavafxTypes types;
     private JavafxResolve rs;
     private JavafxSymtab syms;
@@ -77,6 +78,7 @@ public class JavafxLower implements JavafxVisitor {
 
     JavafxLower(Context context) {
         context.put(convertTypesKey, this);
+        preTrans = JavafxPreTranslationSupport.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         m = JavafxTreeMaker.instance(context);
@@ -238,7 +240,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private JFXVar makeTmpVar(DiagnosticPosition diagPos, String name, JFXExpression init, Type type) {
-        VarSymbol vsym = new VarSymbol(0L, tempName(name), type, makeDummyMethodSymbol(currentClass));
+        VarSymbol vsym = new VarSymbol(0L, tempName(name), type,         preTrans.makeDummyMethodSymbol(currentClass));
         return makeTmpVar(diagPos, vsym, init);
     }
 
@@ -249,10 +251,6 @@ public class JavafxLower implements JavafxVisitor {
         v.sym = vSym;
         v.type = vSym.type;
         return v;
-    }
-
-    private MethodSymbol makeDummyMethodSymbol(Symbol owner) {
-        return new MethodSymbol(Flags.BLOCK, names.empty, null, owner);
     }
 
     @Override

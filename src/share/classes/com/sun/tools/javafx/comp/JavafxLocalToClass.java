@@ -31,7 +31,6 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
-import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
@@ -71,6 +70,7 @@ import java.util.Stack;
  */
 public class JavafxLocalToClass {
 
+    private final JavafxPreTranslationSupport preTrans;
     private final JavafxTreeMaker fxmake;
     private final JavafxDefs defs;
     private final Name.Table names;
@@ -99,6 +99,7 @@ public class JavafxLocalToClass {
     private JavafxLocalToClass(Context context) {
         context.put(localToClass, this);
 
+        preTrans = JavafxPreTranslationSupport.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
         defs = JavafxDefs.instance(context);
         names = Name.Table.instance(context);
@@ -177,7 +178,7 @@ public class JavafxLocalToClass {
 
         @Override
         public void visitOnReplace(JFXOnReplace tree) {
-            pushOwner(makeDummyMethodSymbol(owner), false);
+            pushOwner(preTrans.makeDummyMethodSymbol(owner), false);
             blockWithin(tree.getBody());
             popOwner();
         }
@@ -208,7 +209,7 @@ public class JavafxLocalToClass {
 
         @Override
         public void visitVar(JFXVar tree) {
-            pushOwner(makeDummyMethodSymbol(owner), tree.isStatic());
+            pushOwner(preTrans.makeDummyMethodSymbol(owner), tree.isStatic());
             scan(tree.getInitializer());
             popOwner();
             scan(tree.getOnReplace());
@@ -340,7 +341,7 @@ public class JavafxLocalToClass {
             if (expr instanceof JFXVar) {
                 JFXVar var = (JFXVar) expr;
                 vars.append(var);
-                Scope oldScope = getEnclosingScope(var.sym);
+                Scope oldScope = preTrans.getEnclosingScope(var.sym);
                 if (oldScope != null) {
                     oldScope.remove(var.sym);
                 }
@@ -353,7 +354,7 @@ public class JavafxLocalToClass {
                 }
                 classSym.members().enter(var.sym);
                 var.sym.owner = classSym;
-                pushOwner(makeDummyMethodSymbol(classSym), isStatic);
+                pushOwner(preTrans.makeDummyMethodSymbol(classSym), isStatic);
                 scan(var.getInitializer());
                 popOwner();
                 scan(var.getOnReplace());
@@ -411,10 +412,10 @@ public class JavafxLocalToClass {
      *   }
      */
     private void inflateBlockToClass(JFXBlock block) {
-        final Name funcName = syntheticName("doit$");
-        final Name className = syntheticName("local_klass");
+        final Name funcName = preTrans.syntheticName("doit$");
+        final Name className = preTrans.syntheticName("local_klass");
 
-        final JavafxClassSymbol classSymbol = makeClassSymbol(className);
+        final JavafxClassSymbol classSymbol = preTrans.makeClassSymbol(className, owner);
 
         final MethodType funcType = new MethodType(
                 List.<Type>nil(),    // arg types
@@ -501,7 +502,7 @@ public class JavafxLocalToClass {
         if (vc.returnFound) {
             // We have a non-local return -- wrap it in try-catch
             JFXBlock tryBody = fxmake.Block(0L, stats, value);
-            JFXVar param = fxmake.Param(syntheticName("expt"), null);
+            JFXVar param = fxmake.Param(preTrans.syntheticName("expt"), null);
             param.setType(syms.javafx_NonLocalReturnExceptionType);
             param.sym = new VarSymbol(0L, param.name, param.type, owner);
             JFXExpression retValue = vc.returnType == null?
@@ -532,7 +533,7 @@ public class JavafxLocalToClass {
                 if (that.sym != classSymbol &&
                         (that.type.getEnclosingType() == Type.noType ||
                         that.type.getEnclosingType().tsym == classSymbol.type.getEnclosingType().tsym)) {
-                    Scope oldScope = getEnclosingScope(that.sym);
+                    Scope oldScope = preTrans.getEnclosingScope(that.sym);
                     if (oldScope != null)
                         oldScope.remove(that.sym);
                     ((ClassType)that.type).setEnclosingType(classSymbol.type);
@@ -603,10 +604,6 @@ public class JavafxLocalToClass {
 
     /************************** Utilities ******************************/
 
-    private Name syntheticName(String prefix) {
-        return names.fromString(prefix + ++tmpCount);
-    }
-
     private boolean hasSelfReference(JFXVar checkedVar) {
 
         class SelfReferenceChecker extends JavafxTreeScanner {
@@ -654,64 +651,6 @@ public class JavafxLocalToClass {
         }
 
         return new SelfReferenceChecker().checkSelfRef(checkedVar);
-    }
-
-    private Scope getEnclosingScope(Symbol s) {
-        if (s.owner.kind == Kinds.TYP) {
-            return ((ClassSymbol)s.owner).members();
-        }
-        else if (s.owner.kind == Kinds.PCK) {
-            return ((PackageSymbol)s.owner).members();
-        }
-        else
-            return null;
-    }
-
-    private JavafxClassSymbol makeClassSymbol(Name name) {
-        JavafxClassSymbol classSym = new JavafxClassSymbol(0L, name, owner);
-        classSym.flatname = chk.localClassName(classSym);
-        chk.compiled.put(classSym.flatname, classSym);
-
-        // we may be able to get away without any scope stuff
-        //  s.enter(sym);
-
-        // Fill out class fields.
-        classSym.completer = null;
-        /*
-         * These class symbol flags of the local classes are used in translation.
-         * For FX_SYNTHETIC_LOCAL_CLASS classes, initialize$ is not called from
-         * Java entry constructor so that function code executes in source order.
-         * See comment in JavafxInitializationBuilder.makeJavaEntryConstructor().
-         * FX_BOUND_FUNCTION_CLASS classes are treated specially for many aspects
-         * like handling Pointer/FXObject+varNum registration stuff for bound
-         * function implementation.
-         */
-        classSym.flags_field = JavafxFlags.FX_SYNTHETIC_LOCAL_CLASS;
-        if (classSym.owner instanceof MethodSymbol &&
-            (classSym.owner.flags() & JavafxFlags.BOUND) != 0L) {
-            classSym.flags_field |= JavafxFlags.FX_BOUND_FUNCTION_CLASS;
-        }
-        classSym.sourcefile = env.toplevel.sourcefile;
-        classSym.members_field = new Scope(classSym);
-
-        ClassType ct = (ClassType) classSym.type;
-        // We are seeing a local or inner class.
-        // Set outer_field of this class to closest enclosing class
-        // which contains this class in a non-static context
-        // (its "enclosing instance class"), provided such a class exists.
-        Symbol owner1 = owner.enclClass();
-        if (owner1.kind == Kinds.TYP) {
-            ct.setEnclosingType(owner1.type);
-        }
-
-        ct.supertype_field = syms.javafx_FXBaseType;
-        classSym.addSuperType(syms.javafx_FXBaseType);
-
-        return classSym;
-    }
-
-    private MethodSymbol makeDummyMethodSymbol(Symbol owner) {
-        return new MethodSymbol(Flags.BLOCK, names.empty, null, owner);
     }
 
     private void pushOwner(Symbol newOwner, boolean newIsStatic) {
