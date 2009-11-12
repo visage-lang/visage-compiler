@@ -33,6 +33,7 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
@@ -58,6 +59,7 @@ public class JavafxLower implements JavafxVisitor {
     private JavafxResolve rs;
     private JavafxSymtab syms;
     private JavafxTreeMaker m;
+    private JavafxDefs defs;
     private Type pt;
     private JavafxEnv<JavafxAttrContext> env;
     private JFXTree enclFunc;
@@ -80,6 +82,7 @@ public class JavafxLower implements JavafxVisitor {
         m = JavafxTreeMaker.instance(context);
         rs = JavafxResolve.instance(context);
         names = Name.Table.instance(context);
+        defs = JavafxDefs.instance(context);
     }
 
     public JFXTree lower(JavafxEnv<JavafxAttrContext> attrEnv) {
@@ -483,11 +486,33 @@ public class JavafxLower implements JavafxVisitor {
 
     @Override
     public void visitInterpolateValue(JFXInterpolateValue that) {
-        JFXExpression funcValue = lower(that.funcValue);
-        JFXInterpolateValue res = m.at(that.pos).InterpolateValue(that.attribute, funcValue, that.interpolation);
-        res.funcValue = funcValue; //to make Decompose happy
-        res.sym = that.sym;
-        result = res.setType(that.type);
+        JFXExpression pointerType = m.at(that.pos).Type(syms.javafx_PointerType).setType(syms.javafx_PointerType);
+        Symbol pointerMakeSym = rs.resolveQualifiedMethod(that.pos(),
+                env, syms.javafx_PointerType,
+                defs.Pointer_make.methodName,
+                rs.newMethTemplate(List.of(syms.objectType),
+                List.<Type>nil()));
+        pointerMakeSym.flags_field |= JavafxFlags.FUNC_POINTER_MAKE;
+        JFXSelect pointerMake = (JFXSelect)m.at(that.pos).Select(pointerType, pointerMakeSym);
+        pointerMake.sym = pointerMakeSym;
+        JFXExpression pointerCall = m.at(that.pos).Apply(List.<JFXExpression>nil(),
+                pointerMake,
+                List.of(that.attribute)).setType(pointerMakeSym.type.getReturnType());
+        ListBuffer<JFXTree> parts = ListBuffer.lb();
+        parts.append(makeObjectLiteralPart(that.pos(), syms.javafx_KeyValueType, defs.value_InterpolateMethodName, that.funcValue));
+        parts.append(makeObjectLiteralPart(that.pos(), syms.javafx_KeyValueType, defs.target_InterpolateMethodName, pointerCall));
+        if (that.interpolation != null) {
+            parts.append(makeObjectLiteralPart(that.pos(), syms.javafx_KeyValueType, defs.interpolate_InterpolateMethodName, that.interpolation));
+        }
+        JFXExpression res = m.at(that.pos).ObjectLiteral(m.at(that.pos).Type(syms.javafx_KeyValueType), parts.toList()).setType(syms.javafx_KeyValueType);
+        result = lower(res);
+    }
+    //where
+    private JFXObjectLiteralPart makeObjectLiteralPart(DiagnosticPosition pos, Type site, Name varName, JFXExpression value) {
+        JFXObjectLiteralPart part = m.at(pos).ObjectLiteralPart(defs.value_InterpolateMethodName, value, JavafxBindStatus.UNBOUND);
+        part.setType(value.type);
+        part.sym = rs.findIdentInType(env, site, varName, Kinds.VAR);
+        return part;
     }
 
     @Override

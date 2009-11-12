@@ -114,17 +114,9 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
         result = new BoundBlockExpressionTranslator(tree).doit();
     }
 
-    public void visitFunctionValue(JFXFunctionValue tree) {
-        TODO(tree);
-    }
-
     @Override
     public void visitIdent(JFXIdent tree) {
         result = new BoundIdentTranslator(tree).doit();
-    }
-
-    public void visitInterpolateValue(JFXInterpolateValue tree) {
-        result = new InterpolateValueTranslator(tree).doit();
     }
 
     public void visitSelect(JFXSelect tree) {

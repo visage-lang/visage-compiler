@@ -1469,11 +1469,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         checkForSequenceVersionUnimplemented(tree);
         result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
     }
-
-    public void visitFunctionValue(JFXFunctionValue tree) {
-        TODO(tree);
-    }
-
+    
     @Override
     public void visitIdent(JFXIdent tree) {
         final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();

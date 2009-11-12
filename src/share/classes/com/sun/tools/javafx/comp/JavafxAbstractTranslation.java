@@ -3605,62 +3605,6 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
-    class InterpolateValueTranslator extends NewBuiltInInstanceTranslator {
-
-        final JFXInterpolateValue tree;
-
-        InterpolateValueTranslator(JFXInterpolateValue tree) {
-            super(tree.pos(), syms.javafx_KeyValueType);
-            this.tree = tree;
-        }
-
-        protected JCExpression translateTarget() {
-            JavafxTag tag = tree.attribute.getFXTag();
-            Symbol sym = JavafxTreeInfo.symbol(tree.attribute);
-            JCExpression receiver;
-            if (tag == JavafxTag.IDENT) {
-                if (sym.isStatic()) {
-                    receiver = Call(staticReference(sym), scriptLevelAccessMethod(sym.owner));
-                } else {
-                    receiver = getReceiverOrThis(sym);
-                }
-            } else if (tag == JavafxTag.SELECT) {
-                receiver = translateExpr(((JFXSelect)tree.attribute).selected, null);
-            } else {
-                // FIXME: JavafxAttr enforces "attribute" of JFXInterpolateValue
-                // to be either a select or an identifier. Do I need TODO here?
-                TODO("JFXInterpolateValue.attribute should be either a select or an identifier");
-                // should not reach here. TODO always throws exception.
-                // This is just to satisfy the compiler for calls below.
-                receiver = null;
-            }
-
-            JCExpression varOffsetExpr = Offset(receiver, sym);
-            Type type = types.erasure(tree.attribute.type);
-            JCExpression varType = m().ClassLiteral(type);
-            return Call(defs.Pointer_make, receiver, varOffsetExpr, varType);
-        }
-
-        @Override
-        protected boolean hasInstanceVariableInits() {
-            return true;
-        }
-
-        @Override
-        protected void initInstanceVariables(Name instName) {
-            // value
-            setInstanceVariable(instName, defs.value_InterpolateMethodName, tree.value);
-
-            // interpolator kind
-            if (tree.interpolation != null) {
-                setInstanceVariable(instName, defs.interpolate_InterpolateMethodName, tree.interpolation);
-            }
-
-            // target -- convert to Pointer
-            setInstanceVariable(tree.attribute.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.target_InterpolateMethodName), translateTarget());
-        }
-    }
-
     class VarInitTranslator extends ExpressionTranslator {
 
         private final VarSymbol vsym;
@@ -3756,6 +3700,11 @@ public abstract class JavafxAbstractTranslation
         result = new FunctionCallTranslator(tree).doit();
     }
 
+    public void visitFunctionValue(JFXFunctionValue tree) {
+        JFXFunctionDefinition def = tree.definition;
+        result = new FunctionValueTranslator(make.Ident(defs.lambda_MethodName), def, tree.pos(), (MethodType) def.type, tree.type).doit();
+    }
+
     public abstract void visitIdent(JFXIdent tree);
 
     public void visitIfExpression(JFXIfExpression tree) {
@@ -3780,6 +3729,10 @@ public abstract class JavafxAbstractTranslation
 
     public void visitInstanciate(JFXInstanciate tree) {
         result = new InstanciateTranslator(tree).doit();
+    }
+
+    public void visitInterpolateValue(final JFXInterpolateValue tree) {
+        throw new AssertionError("KeyFrame should have been lowered");
     }
 
     public void visitInvalidate(JFXInvalidate tree) {
