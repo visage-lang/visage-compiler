@@ -265,6 +265,11 @@ public class JavafxTreeCopier implements JavafxVisitor {
     public void visitVarInit(JFXVarInit tree) {
     }
 
+    //@Override
+    public void visitVarRef(JFXVarRef tree) {
+        result = maker.at(tree.pos).VarRef(tree.getExpression(), tree.getVarRefKind());
+    }
+
     public void visitVar(JFXVar tree) {
         Name name = tree.name;
         JFXType type = copy(tree.getJFXType());

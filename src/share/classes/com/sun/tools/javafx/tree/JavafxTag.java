@@ -168,6 +168,10 @@ public enum JavafxTag {
      */
     VAR_DEF,
 
+    /** variable reference of the kind (inst, varNum)
+     */
+    VAR_REF,
+
     /** the run function initialization of a script-level var
      */
     VAR_SCRIPT_INIT,

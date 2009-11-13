@@ -283,6 +283,9 @@ public class JavafxTreeScanner implements JavafxVisitor {
     public void visitVarInit(JFXVarInit tree) {
     }
 
+    public void visitVarRef(JFXVarRef tree) {
+    }
+
     public void visitVar(JFXVar tree) {
         scan(tree.getJFXType());
         scan(tree.mods);

@@ -366,6 +366,17 @@ public class JavafxTreeInfo {
             return null;
         }
     }
+    
+    public static void setSymbol(JFXTree tree, Symbol sym) {
+	tree = skipParens(tree);
+	switch (tree.getFXTag()) {
+	case IDENT:
+	    ((JFXIdent) tree).sym = sym; break;
+	case SELECT:
+	    ((JFXSelect) tree).sym = sym; break;
+	}
+    }
+
     /** If this tree is an identifier or a field, return its symbol,
      *  otherwise return null.
      */
@@ -380,6 +391,8 @@ public class JavafxTreeInfo {
             return symbol(((JFXSequenceIndexed) tree).getSequence());
         case SEQUENCE_SLICE:
             return symbol(((JFXSequenceSlice) tree).getSequence());
+        case VAR_REF:
+            return ((JFXVarRef)tree).getVarSymbol();
 	default:
 	    return null;
 	}
@@ -447,6 +460,8 @@ public class JavafxTreeInfo {
             return ((JFXClassDeclaration) node).sym;
         case FUNCTION_DEF:
             return ((JFXFunctionDefinition) node).sym;
+        case FUNCTIONEXPRESSION:
+            return symbolFor(((JFXFunctionValue) node).definition);
         case OBJECT_LITERAL_PART:
             return ((JFXObjectLiteralPart) node).sym;
         case TYPECLASS:

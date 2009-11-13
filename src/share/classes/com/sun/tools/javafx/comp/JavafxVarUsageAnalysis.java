@@ -206,11 +206,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     @Override
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
         super.visitFunctionInvocation(tree);
-        Symbol msym = expressionSymbol(tree.meth);
-        if (msym != null && msym instanceof MethodSymbol && (msym.flags_field & FUNC_IS_INITIALIZED) != 0) {
-            Symbol asym = expressionSymbol(tree.args.head);
-            asym.flags_field |= VARUSE_IS_INITIALIZED_USED;
-        }
     }
 
     @Override
@@ -362,18 +357,6 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         if (restoreOptTrigger)
             sym.flags_field |= VARUSE_OPT_TRIGGER;
         scan(that.getWhereExpression());
-    }
-
-    //TODO: cloned from JavafxTranslationSupport, common locaion is needed
-    private Symbol expressionSymbol(JFXExpression tree) {
-        switch (tree.getFXTag()) {
-            case IDENT:
-                return ((JFXIdent) tree).sym;
-            case SELECT:
-                return ((JFXSelect) tree).sym;
-            default:
-                return null;
-        }
     }
 
     JFXOnReplace findOnReplace(Symbol sym, JFXOnReplace current) {

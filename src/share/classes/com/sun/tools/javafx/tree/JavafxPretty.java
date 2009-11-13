@@ -1151,6 +1151,16 @@ public class JavafxPretty implements JavafxVisitor {
         }
    }
 
+    //@Override
+    public void visitVarRef(JFXVarRef tree) {
+        try {
+            print(tree.getVarRefKind() + "(" + tree.getExpression() + ")");
+        }
+        catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void visitVar(JFXVar tree) {
         try {
             if (docComments != null && docComments.get(tree) != null) {

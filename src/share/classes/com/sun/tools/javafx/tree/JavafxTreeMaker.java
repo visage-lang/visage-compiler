@@ -790,6 +790,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
          return tree;
      }
 
+     public JFXVarRef VarRef(JFXExpression expr, JFXVarRef.RefKind kind) {
+         JFXVarRef tree = new JFXVarRef(expr, kind);
+         tree.pos = pos;
+         return tree;
+     }
+
     public JFXVar Var(Name name,
             JFXType type,
             JFXModifiers mods,

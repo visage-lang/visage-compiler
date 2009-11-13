@@ -964,6 +964,11 @@ public class JavafxAttr implements JavafxVisitor {
     public void visitVarInit(JFXVarInit tree) {
         result = tree.type = attribExpr(tree.getVar(), env);
     }
+
+    //@Override
+    public void visitVarRef(JFXVarRef tree) {
+        throw new AssertionError("Shouldn't be here!");
+    }
             
     //@Override
     public void visitVar(JFXVar tree) {

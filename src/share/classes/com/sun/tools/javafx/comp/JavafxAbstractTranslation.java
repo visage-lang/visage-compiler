@@ -1270,7 +1270,6 @@ public abstract class JavafxAbstractTranslation
         protected final boolean superToStatic;
         protected final boolean useInvoke;
         protected final boolean callBound;
-        protected final boolean magicIsInitializedFunction;
         protected final boolean magicPointerMakeFunction;
 
         // Call info
@@ -1314,11 +1313,9 @@ public abstract class JavafxAbstractTranslation
             callBound = msym != null && !useInvoke &&
                   ((msym.flags() & JavafxFlags.BOUND) != 0);
 
-            magicIsInitializedFunction = (msym != null) &&
-                    (msym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
             magicPointerMakeFunction = (msym != null) &&
                     (msym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
-            
+
             // Call info
             this.typeargs = tree.getTypeArguments();
             this.args = tree.getArguments();
@@ -1425,60 +1422,6 @@ public abstract class JavafxAbstractTranslation
                     // pass FXConstant.VOFF$value as offset value
                     targs.append(Select(makeType(syms.javafx_FXConstantType), defs.varOFF$valueName));
                 }
-            } else if (magicIsInitializedFunction) {
-                //isInitialized has just one argument -- we need to split into
-                //an inst/var offset pair so that the builtins function can be called
-                //Note: in principle this could be inlined as an FXBase call
-                JCExpression receiver = null;
-                JCExpression varOffset = null;
-                switch (args.head.getFXTag()) {
-                    case SELECT: {
-                        JFXSelect select = (JFXSelect)args.head;
-                        receiver = select.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, select.sym.owner)) :
-                            translateExpr(select.selected, syms.javafx_FXBaseType);
-                        varOffset = Offset(select.sym);
-                        break;
-                    }
-                    case IDENT: {
-                        JFXIdent ident = (JFXIdent)args.head;
-                        receiver = ident.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
-                            getReceiverOrThis(ident.sym);
-
-                        varOffset = Offset(ident.sym);
-                        break;
-                    }
-                }
-                targs.append(receiver);
-                targs.append(varOffset);
-            } else if (magicPointerMakeFunction) {
-                // Pointer.make has just one argument -- we need to split into
-                // three args - an inst, var offset and var type - so that the
-                // Pointer.make(FXObject, int, Class) is called.
-                switch (args.head.getFXTag()) {
-                    case SELECT: {
-                        JFXSelect select = (JFXSelect)args.head;
-                        targs.append(translateArg(select.selected, syms.javafx_FXBaseType));
-                        targs.append(Offset(select.sym));
-                        Type type = types.erasure(select.type);
-                        JCExpression varType = m().ClassLiteral(type);
-                        targs.append(varType);
-                        break;
-                    }
-                    case IDENT: {
-                        JFXIdent ident = (JFXIdent)args.head;
-                        JCExpression receiver = ident.sym.isStatic() ?
-                            Call(defs.scriptLevelAccessMethod(names, ident.sym.owner)) :
-                            getReceiverOrThis(ident.sym);
-                        targs.append(receiver);
-                        targs.append(Offset(ident.sym));
-                        Type type = types.erasure(ident.type);
-                        JCExpression varType = m().ClassLiteral(type);
-                        targs.append(varType);
-                        break;
-                    }
-                }
             }
             else {
                 boolean handlingVarargs = false;
@@ -1495,6 +1438,13 @@ public abstract class JavafxAbstractTranslation
                         }
                     }
                     targs.append(translateArg(arg, formal));
+                }
+                if (magicPointerMakeFunction) {
+                    // Pointer.make has just two arguments (inst, varNum) -- we need to
+                    // add an extra argument - so that the Pointer.make(FXObject, int, Class) is called.
+                    JFXVarRef varRef = (JFXVarRef)args.head;
+                    JCExpression varType = m().ClassLiteral(varRef.getVarSymbol().type);
+                    targs.append(varType);
                 }
             }
             return targs.toList();
@@ -3559,6 +3509,33 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
+    class VarRefTranslator extends ExpressionTranslator {
+
+        Symbol varSymbol;
+        JFXExpression receiver;
+        JFXVarRef.RefKind kind;
+        Type expectedType;
+
+
+        VarRefTranslator(JFXVarRef tree) {
+            super(tree.pos());
+            this.varSymbol = tree.getVarSymbol();
+            this.receiver = tree.getReceiver();
+            this.kind = tree.getVarRefKind();
+            this.expectedType = tree.type;
+        }
+
+        ExpressionResult doit() {
+            switch (kind) {
+                case INST: return toResult(receiver != null ?
+                    translateExpr(receiver, expectedType) :
+                    getReceiverOrThis(varSymbol), expectedType);
+                case VARNUM: return toResult(Offset(varSymbol), expectedType);
+            }
+            throw new AssertionError("Shouldn't be here!");
+        }
+    }
+
     /***********************************************************************
      * Bad visitor support
      */
@@ -3809,6 +3786,10 @@ public abstract class JavafxAbstractTranslation
 
     public void visitVarInit(JFXVarInit tree) {
         result = new VarInitTranslator(tree).doit();
+    }
+
+    public void visitVarRef(JFXVarRef tree) {
+        result = new VarRefTranslator(tree).doit();
     }
 
     public void visitWhileLoop(JFXWhileLoop tree) {

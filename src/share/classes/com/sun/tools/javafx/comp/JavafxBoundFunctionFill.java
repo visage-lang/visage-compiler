@@ -146,7 +146,8 @@ public class JavafxBoundFunctionFill extends JavafxTreeScanner {
                 ident.type = returnVar.type;
                 ident.sym = returnVar.sym;
                 ListBuffer<JFXExpression> pointerMakeArgs = ListBuffer.lb();
-                pointerMakeArgs.append(ident);
+                pointerMakeArgs.append(fxmake.VarRef(ident, JFXVarRef.RefKind.INST).setType(syms.javafx_FXObjectType));
+                pointerMakeArgs.append(fxmake.VarRef(ident, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
 
                 // call Pointer.make($$bound$result$)
                 JFXFunctionInvocation apply = fxmake.Apply(null, select, pointerMakeArgs.toList());
@@ -167,7 +168,7 @@ public class JavafxBoundFunctionFill extends JavafxTreeScanner {
                 e1 = e1.sibling) {
                 Symbol sym = e1.sym;
                 MethodSymbol msym = (MethodSymbol) sym;
-                if (msym.params().size() == 1) {
+                if (msym.params().size() == 3) {
                     pointerMakeMethodSym = msym;
                     break;
                 }

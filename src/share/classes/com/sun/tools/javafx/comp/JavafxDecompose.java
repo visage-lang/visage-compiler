@@ -386,9 +386,9 @@ public class JavafxDecompose implements JavafxVisitor {
          */
         List<JFXExpression> args;
         if (magicPointerMakeFunction) {
-            if (tree.args.head.getFXTag() == JavafxTag.SELECT) {
-                JFXSelect select = (JFXSelect) tree.args.head;
-                select.selected = shred(select.selected);
+            JFXVarRef varRef = (JFXVarRef)tree.args.head;
+            if (varRef.getReceiver() != null) {
+                varRef.setReceiver(shred(varRef.getReceiver()));
             }
             args = tree.args;
         } else {
@@ -680,6 +680,10 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitVarInit(JFXVarInit tree) {
         // Handled in visitVar
+        result = tree;
+    }
+
+    public void visitVarRef(JFXVarRef tree) {
         result = tree;
     }
 
