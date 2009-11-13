@@ -81,3 +81,28 @@ println(ptr.get());
 person = Person { name: "Buddha" };
 println(ptr.get());
 
+// Test bound pointers
+
+var name : String = "random name";
+
+// Make a bound pointer. This is equivalent to 
+//    var name = bind person.name;
+var bptr = Pointer.make(name).bind(ptr);
+println(name); // should print "Buddha"
+
+person.name = "Gautama";
+// should print "Gautama"
+println(name);
+
+// unbind 'name' from 'person.name'
+bptr.unbind(); 
+
+person.name = "Asoka";
+// should still print "Guatama" as the pointer is unbound!
+println(name);
+
+// re-bind 'name' with 'person.name'
+bptr = Pointer.make(name).bind(ptr);
+
+// should print "Asoka"
+println(name);

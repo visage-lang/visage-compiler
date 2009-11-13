@@ -148,4 +148,74 @@ public class Pointer implements KeyValueTarget {
     public void removeDependency(FXObject dep) {
         obj.removeDependent$(varnum, dep);
     }
+
+    /**
+     * A BoundPointer is returned from the Pointer.bind(Pointer) method.
+     * BoundPointer instance has to be kept alive till you want bind to be
+     * effective. You can explicitly unbind the pointer using the "unbind"
+     * method is this class.
+     */
+    public static class BoundPointer extends Pointer {
+        private Pointer srcPtr;
+        private FXObject listener;
+
+        private BoundPointer(Pointer destPtr, Pointer srcPtr, FXObject listener) {
+            super(destPtr.getType(), destPtr.getFXObject(), destPtr.getVarNum());
+            this.srcPtr = srcPtr;
+            this.listener = listener;
+        }
+
+        /**
+         * Uubind the current Pointer from the srcPtr. Repeated calls are fine
+         * but subsequent calls are just no-ops. After unbind call, the BoundPointer
+         * becomes effectively a regular, unbound Pointer. There is no need to
+         * explicitly call 'unbind'. If this BoundPointer instance is unreachable,
+         * GC will collect it and srcPtr will eventually see that the listener
+         * object is not alive and so remove it from it's dependencies.
+         */
+        public void unbind() {
+            if (srcPtr != null) {
+                srcPtr.removeDependency(listener);
+            }
+            // clear everything related to Pointer bind.
+            srcPtr = null;
+            listener = null;
+        }
+    }
+
+    /**
+     * Implements identity bind expression between "srcPtr" and the current Pointer.
+     * Whenever the value pointed by srcPtr changes, the current Pointer's value
+     * is set from that.
+     *
+     * @param srcPtr The source Pointer object to which the current Pointer is bound to
+     */
+    public BoundPointer bind(Pointer srcPtr) {
+        final FXObject thisObj = getFXObject();
+        final int thisVarNum = getVarNum();
+        FXObject listener = new FXBase() {
+            @Override
+            public void update$(FXObject src, int varNum, int phase) {
+                if (phase == VFLGS$NEEDS_TRIGGER) {
+                    // update value from "src"
+                    thisObj.set$(thisVarNum, src.get$(varNum));
+                }
+            }
+
+            @Override
+            public void update$(FXObject src, final int varNum,
+                    int startPos, int endPos, int newLength, final int phase) {
+                if (phase == VFLGS$NEEDS_TRIGGER) {
+                    // update value from "src"
+                    thisObj.set$(thisVarNum, src.get$(varNum));
+                }
+            }
+        };
+        // initial update from "srcPtr"
+        thisObj.set$(thisVarNum, srcPtr.getFXObject().get$(srcPtr.getVarNum()));
+        // add dependency so that we will get notified with update$ calls
+        srcPtr.addDependency(listener);
+        // return a BoundPointer so that use can call call "unbind()" later, if needed
+        return new BoundPointer(this, srcPtr, listener);
+    }
 }
