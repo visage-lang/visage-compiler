@@ -30,19 +30,22 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
-
 import com.sun.tools.javafx.tree.JFXExpression;
-import com.sun.tools.mjavac.code.Flags;
+
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
+
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
+
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Normalize tree before translation. This includes adding explicit type conversions
@@ -62,6 +65,7 @@ public class JavafxLower implements JavafxVisitor {
     private JavafxTreeMaker m;
     private JavafxDefs defs;
     private Type pt;
+    private Map<JFXForExpressionInClause, JFXForExpressionInClause> forClauseMap; //TODO this should be refactord into a common translation support
     private JavafxEnv<JavafxAttrContext> env;
     private JFXTree enclFunc;
     private JFXTree result;
@@ -90,7 +94,7 @@ public class JavafxLower implements JavafxVisitor {
     public JFXTree lower(JavafxEnv<JavafxAttrContext> attrEnv) {
         this.env = attrEnv;
         attrEnv.toplevel = lower(attrEnv.toplevel);
-//        System.out.println(result);
+        //System.out.println(result);
         return result;
     }
 
@@ -190,19 +194,20 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private JFXExpression makeCastIfNeeded(JFXExpression tree, Type type) {
-        if (type == Type.noType
-                || type == null
-                || type.isErroneous()
-                || type == syms.voidType
-                || tree.type == syms.voidType
-                || tree.type == syms.unreachableType
-                || type == syms.unreachableType)
+        if (type == Type.noType ||
+                type == null ||
+                type.isErroneous() ||
+                type == syms.voidType ||
+                tree.type == syms.voidType ||
+                tree.type == syms.unreachableType ||
+                type == syms.unreachableType)
             return tree;
         else {
             tree = makeNumericBoxConversionIfNeeded(tree, type);
             return (!types.isSubtypeUnchecked(tree.type, type) ||
-                (tree.type.isPrimitive() &&
-                type.isPrimitive() && !types.isSameType(tree.type, type))) ?
+                    types.isSameType(tree.type, syms.javafx_EmptySequenceType) ||
+                    (tree.type.isPrimitive() &&
+                    type.isPrimitive() && !types.isSameType(tree.type, type))) ?
                 makeCast(tree, type) :
                 tree;
         }
@@ -401,6 +406,7 @@ public class JavafxLower implements JavafxVisitor {
         }
         JFXForExpressionInClause res = m.at(that.pos).InClause(that.getVar(), seqExpr, whereExpr);
         res.setIndexUsed(that.getIndexUsed());
+        forClauseMap.put(that, res);
         result = res.setType(that.type);
     }
 
@@ -470,7 +476,9 @@ public class JavafxLower implements JavafxVisitor {
 
     @Override
     public void visitIndexof(JFXIndexof that) {
-        result = that;
+        JFXIndexof res = m.at(that.pos).Indexof(that.fname);
+        res.clause = that.clause;
+        result = res.setType(that.type);
     }
 
     @Override
@@ -752,12 +760,16 @@ public class JavafxLower implements JavafxVisitor {
         JFXVar res = m.at(tree.pos).Var(tree.name, tree.getJFXType(), tree.mods, init, tree.getBindStatus(), onReplace, onInvalidate);
         res.sym = tree.sym;
         result = res.setType(tree.type);
+        JFXVarInit vsi = tree.getVarInit();
+        if (vsi != null) {
+            // update the var in the var-init
+            vsi.resetVar(res);
+        }
     }
 
     @Override
     public void visitVarInit(JFXVarInit tree) {
-        JFXVar var = lower(tree.getVar());
-        result = m.VarInit(var).setType(tree.type); //avoid cast
+        result = tree;
     }
 
     public void visitBlockExpression(JFXBlock tree) {
@@ -802,14 +814,20 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitForExpression(JFXForExpression tree) {
+        forClauseMap = new HashMap<JFXForExpressionInClause, JFXForExpressionInClause>();
+        result = lowerForExpression(tree);
+        patchForLoop(result);
+    }
+
+    public JFXExpression lowerForExpression(JFXForExpression tree) {
         JFXForExpressionInClause clause = lower(tree.getForExpressionInClauses().head);
-        JFXExpression body = null;
+        JFXExpression body = tree.getBodyExpression();
         if (tree.getForExpressionInClauses().size() > 1) {
             // for (INCLAUSE(1), INCLAUSE(2), ... INCLAUSE(n)) BODY
             // (n>1) is lowered to:
             // for (INCLAUSE(1) Lower(for (INCLAUSE(2) (... for (INCLAUSE(n)) ... )) BODY
-            JFXForExpression nestedFor = m.ForExpression(tree.getForExpressionInClauses().tail, tree.bodyExpr);
-            body = lower(nestedFor.setType(tree.type));
+            JFXForExpression nestedFor = (JFXForExpression)m.ForExpression(tree.getForExpressionInClauses().tail, tree.bodyExpr).setType(tree.type);
+            body = lowerForExpression(nestedFor);
         }
         else {
             //single clause for expression - standard lowering
@@ -822,21 +840,15 @@ public class JavafxLower implements JavafxVisitor {
         if(!(body instanceof JFXBlock)) {
             body = m.Block(0L, List.<JFXExpression>nil(), body).setType(body.type);
         }
-        result = (JFXForExpression)m.at(tree.pos).ForExpression(List.of(clause), body).setType(tree.type);
-        patchFor(result, tree.getForExpressionInClauses().head, clause);
+        JFXForExpression res = m.at(tree.pos).ForExpression(List.of(clause), body);
+        return (JFXForExpression)res.setType(tree.type);
     }
 
-    private void patchFor(JFXTree forExpr, JFXForExpressionInClause fromClause, JFXForExpressionInClause toClause) {
+    private void patchForLoop(JFXTree forExpr) {
         class ForLoopPatcher extends JavafxTreeScanner {
-
+            
+            Name targetLabel;
             int synthNameCount = 0;
-            Name breakContinueTarget;
-            JFXForExpressionInClause fromClause, toClause;
-
-            ForLoopPatcher(JFXForExpressionInClause fromClause, JFXForExpressionInClause toClause) {
-                this.fromClause = fromClause;
-                this.toClause = toClause;
-            }
 
             private Name newLabelName() {
                 return names.fromString(JavafxDefs.synthForLabelPrefix + synthNameCount++);
@@ -844,31 +856,29 @@ public class JavafxLower implements JavafxVisitor {
 
             @Override
             public void visitBreak(JFXBreak tree) {
-                tree.label = breakContinueTarget;
+                tree.label = targetLabel;
             }
 
             @Override
             public void visitContinue(JFXContinue tree) {
-                tree.label = breakContinueTarget;
+                tree.label = targetLabel;
             }
 
             @Override
             public void visitIndexof(JFXIndexof tree) {
-                if (tree.clause == fromClause) {
-                    tree.clause = toClause;
-                }
+                tree.clause = forClauseMap.get(tree.clause);
             }
 
             @Override
             public void visitForExpressionInClause(JFXForExpressionInClause tree) {
                 tree.label = newLabelName();
-                if (breakContinueTarget == null) {
-                    breakContinueTarget = tree.label;
+                if (targetLabel == null) {
+                    targetLabel = tree.label;
                 }
                 super.visitForExpressionInClause(tree);
             }
         }
-        new ForLoopPatcher(fromClause, toClause).scan(forExpr);
+        new ForLoopPatcher().scan(forExpr);
     }
 
     public void visitIdent(JFXIdent tree) {
