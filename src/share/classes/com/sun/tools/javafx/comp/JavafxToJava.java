@@ -822,36 +822,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
     }
 
-    class KeyFrameTranslator extends NewBuiltInInstanceTranslator {
-        private final JFXKeyFrameLiteral tree;
-        KeyFrameTranslator(JFXKeyFrameLiteral tree) {
-            super(tree.pos(), syms.javafx_KeyFrameType);
-            this.tree = tree;
-        }
-
-        @Override
-        protected boolean hasInstanceVariableInits() {
-            return true;
-        }
-
-        @Override
-        protected void initInstanceVariables(Name instName) {
-            // start time
-            setInstanceVariable(instName, defs.time_KeyFrameMethodName, tree.start);
-
-            // key values -- as sequence
-            JCExpression values = asExpression(
-                    new ExplicitSequenceTranslator(
-                    tree.pos(),
-                    tree.getInterpolationValues(),
-                    syms.javafx_KeyValueType,
-                    types.sequenceType(syms.javafx_KeyValueType)).doit(),
-                    null //FIXME
-                    );
-            setInstanceVariable(tree.pos(), instName, JavafxBindStatus.UNBOUND, varSym(defs.values_KeyFrameMethodName), values);
-        }
-    }
-
     class ScriptTranslator extends Translator {
 
         final JFXScript tree;
@@ -1130,11 +1100,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     @Override
     public void visitInvalidate(final JFXInvalidate tree) {
         result = new InvalidateTranslator(tree).doit();
-    }
-
-    @Override
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
-        result = new KeyFrameTranslator(tree).doit();
     }
 
     @Override

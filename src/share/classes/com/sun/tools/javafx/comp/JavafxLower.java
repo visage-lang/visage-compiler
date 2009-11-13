@@ -523,9 +523,12 @@ public class JavafxLower implements JavafxVisitor {
 
     @Override
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
-        List<JFXExpression> values = lower(that.values);
-        JFXExpression trigger = lower(that.trigger);
-        result = m.at(that.pos).KeyFrameLiteral(that.start, values, trigger).setType(that.type);
+        ListBuffer<JFXTree> parts = ListBuffer.lb();
+        JFXExpression keyValues = m.at(that.pos).ExplicitSequence(that.values).setType(types.sequenceType(syms.javafx_KeyValueType));
+        parts.append(makeObjectLiteralPart(that.pos(), syms.javafx_KeyFrameType, defs.time_KeyFrameMethodName, that.start));
+        parts.append(makeObjectLiteralPart(that.pos(), syms.javafx_KeyFrameType, defs.values_KeyFrameMethodName, keyValues));
+        JFXExpression res = m.at(that.pos).ObjectLiteral(m.at(that.pos).Type(syms.javafx_KeyValueType), parts.toList()).setType(syms.javafx_KeyFrameType);
+        result = lower(res);
     }
 
     @Override
