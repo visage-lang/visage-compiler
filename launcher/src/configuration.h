@@ -35,6 +35,7 @@ public:
     std::string vmargs;
     std::string fxargs;
     std::string librarypath;
+    std::string securitypolicy;
     
     std::string profile_classpath;
     std::string profile_bootclasspath;
@@ -43,6 +44,8 @@ public:
     std::string profile_nativelibpath;
     std::string profile_bootnativelibpath;
     std::string profile_vmargs;
+    std::string profile_security_policy;
+    std::string profile_emulator;
     bool        is_desktop() { return device_profile == "desktop"; };
     bool        is_mobile()  { return device_profile == "mobile" ; };
     

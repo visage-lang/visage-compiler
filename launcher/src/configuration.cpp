@@ -187,8 +187,17 @@ int Configuration::readConfigFile() {
             if (key == "vmargs_common") {
                 profile_vmargs += value + " ";
             } else
+            if (key == "security_policy") {
+                profile_security_policy = value;
+            } else
             if (key == "vmargs_windows") {
                 profile_vmargs += value + " ";
+            } else
+            if (key == "emulator_windows") {
+                profile_emulator = value;
+            } else
+            if (key == "emulator") {
+                profile_emulator = value;
             };
         }
     }
@@ -260,6 +269,9 @@ int Configuration::parseArgs(int argc, char** argv) {
         } else if (islauncher && 0 == strncmp(arg, "-Djava.library.path", strlen("-Djava.library.path"))) {
             librarypath = arg;
             librarypath.erase(0, strlen("-Djava.library.path="));
+        } else if (islauncher && 0 == strncmp(arg, "-Djava.security.policy", strlen("-Djava.security.policy"))) {
+            securitypolicy = arg;
+            securitypolicy.erase(0, strlen("-Djava.security.policy="));
         } else if (islauncher && !seen_main && 0 == strncmp("-", arg, 1)) {
             vmargs += " \"";
             vmargs += arg;
