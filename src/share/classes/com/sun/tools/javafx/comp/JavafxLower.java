@@ -90,6 +90,7 @@ public class JavafxLower implements JavafxVisitor {
         rs = JavafxResolve.instance(context);
         names = Name.Table.instance(context);
         defs = JavafxDefs.instance(context);
+        forClauseMap = new HashMap<JFXForExpressionInClause, JFXForExpressionInClause>();
     }
 
     public JFXTree lower(JavafxEnv<JavafxAttrContext> attrEnv) {
@@ -840,9 +841,11 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitForExpression(JFXForExpression tree) {
-        forClauseMap = new HashMap<JFXForExpressionInClause, JFXForExpressionInClause>();
         result = lowerForExpression(tree);
         patchForLoop(result);
+        for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
+            forClauseMap.remove(clause);
+        }
     }
 
     public JFXExpression lowerForExpression(JFXForExpression tree) {
