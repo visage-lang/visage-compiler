@@ -61,7 +61,7 @@ public class visibleNode extends cbm {
         top = Node{}
         curr = top;
 
-        for (n in [1..1000]) {
+        for (n in [1..300]) {
             addNode();
         }
         for (n in [1..1000]) {
