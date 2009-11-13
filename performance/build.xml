@@ -51,7 +51,7 @@
             <sysproperty key="app.workdir"      value="${bm.outdir}"/>
             <sysproperty key="javafx.home"      value="${javafx.home}"/>
             <sysproperty key="base.dir"         value="${basedir}"/>
-            <sysproperty key="debug"            value="true"/>
+            <sysproperty key="debug"            value="false"/>
             <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
         </java>
     </target>
@@ -63,11 +63,11 @@
             <sysproperty key="app.workdir"      value="${bm.outdir}"/>
             <sysproperty key="javafx.home"      value="${javafx.home}"/>
             <sysproperty key="base.dir"         value="${basedir}"/>
-            <sysproperty key="debug"            value="true"/>
+            <sysproperty key="debug"            value="false"/>
             <sysproperty key="Runner.vmoptions" value="-Xmx1g"/>
         </java>
     </target>
-        <target name="bsort" depends="compile">
+    <target name="bsort" depends="compile">
         <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
               classpath="${builddir}" failonerror="true" dir="${builddir}" >
             <sysproperty key="app.name"         value="bsort"/>
@@ -75,9 +75,21 @@
             <sysproperty key="app.workdir"      value="${bm.outdir}"/>
             <sysproperty key="javafx.home"      value="${javafx.home}"/>
             <sysproperty key="base.dir"         value="${basedir}"/>
-            <sysproperty key="debug"            value="true"/>
+            <sysproperty key="debug"            value="false"/>
             <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
         </java>
     </target>
-    <target name="run" depends="mathcalc, mathcalcb, bsort"/>
+    <target name="visibleNode" depends="compile">
+        <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+            <sysproperty key="app.name"         value="visibleNode"/>
+            <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+            <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+            <sysproperty key="javafx.home"      value="${javafx.home}"/>
+            <sysproperty key="base.dir"         value="${basedir}"/>
+            <sysproperty key="debug"            value="false"/>
+            <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
+        </java>
+    </target>
+    <target name="run" depends="mathcalc, mathcalcb, bsort, visibleNode"/>
 </project>
