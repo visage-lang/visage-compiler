@@ -3219,8 +3219,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             final boolean isStatic = methSym.isStatic();
             final Name functionName = functionName(methSym, false, isBound);
             
-            if (isBound) TODO("bound appendMethodClones");
-
             resetDiagPos();
             List<VarSymbol> parameters = methSym.getParameters();
             ListBuffer<JCStatement> stmts = null;

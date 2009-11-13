@@ -33,10 +33,8 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.ListBuffer;
-import com.sun.tools.mjavac.util.Name;
 
 /**
  * Fill in the synthetic definitions needed in a bound function
@@ -87,24 +85,6 @@ public class JavafxBoundFunctionFill extends JavafxTreeScanner {
     }
 
     private void boundFunctionFiller(JFXFunctionDefinition tree) {
-        MethodSymbol oldSym = tree.sym;
-        MethodType oldFuncType = oldSym.type.asMethodType();
-        MethodType newFuncType = new MethodType(
-                oldFuncType.getParameterTypes(), // arg types
-                syms.javafx_PointerType, // return type
-                oldFuncType.getThrownTypes(), // Throws type
-                oldFuncType.tsym);               // TypeSymbol
-        tree.sym = new MethodSymbol(oldSym.flags(), oldSym.name, newFuncType, oldSym.owner);
-
-        // Save the parameter names in the MethodSymbol
-        {
-            ListBuffer<Name> pNames = ListBuffer.lb();
-            for (JFXVar fxVar : tree.getParams()) {
-                pNames.append(fxVar.getName());
-            }
-            tree.sym.savedParameterNames = pNames.toList();
-        }
-
         /*
          * For bound functions, make a synthetic bound variable with
          * initialization expression to be the return expression and return
@@ -147,7 +127,7 @@ public class JavafxBoundFunctionFill extends JavafxTreeScanner {
                         fxmake.Modifiers(0),
                         returnExprIsVar ? fxmake.Ident((JFXVar) returnExpr) : returnExpr,
                         JavafxBindStatus.UNIDIBIND, null, null);
-                returnVar.type = oldSym.type.getReturnType();
+                returnVar.type = tree.sym.type.getReturnType();
                 returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnVar.type, tree.sym);
                 returnVar.markBound(JavafxBindStatus.UNIDIBIND);
                 stmts.append(returnVar);
