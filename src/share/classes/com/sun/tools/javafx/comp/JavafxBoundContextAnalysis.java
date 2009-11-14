@@ -175,6 +175,14 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     }
 
     @Override
+    public void visitAssign(JFXAssign tree) {
+        if (bindStatus != JavafxBindStatus.UNBOUND) {
+            log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_NOT_ALLOWED_IN_BIND_CONTEXT, "=");
+        }
+        super.visitAssign(tree);
+    }
+
+    @Override
     public void visitUnary(JFXUnary tree) {
         mark(tree);
         if (bindStatus != JavafxBindStatus.UNBOUND) {

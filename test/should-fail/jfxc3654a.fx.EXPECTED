@@ -1,0 +1,4 @@
+test/should-fail/jfxc3654a.fx:22: Not allowed in bind context =
+      [firstInner = 
+       ^
+1 error
