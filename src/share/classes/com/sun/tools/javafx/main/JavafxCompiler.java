@@ -1151,6 +1151,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                   env.toplevel.sourcefile);
         try {
             convertTypes.lower(env);
+            printJavafxSource("dumplower", env.toplevel, null);
         }
         finally {
             log.useSource(prev);
