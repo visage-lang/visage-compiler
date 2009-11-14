@@ -1060,6 +1060,23 @@ public abstract class JavafxTranslationSupport {
                 return receiver;
             }
         }
+        
+        protected JCExpression resolveSuper(Symbol owner) {
+            return resolveSuperInternal(owner, enclosingClassDecl.sym, false);
+        }
+
+        private JCExpression resolveSuperInternal(Symbol ownerSym, Symbol currentSym, boolean rec) {
+            JCExpression superExpr = rec ?
+                Select(makeType(currentSym.type), names._super) :
+                id(names._super);
+            if (!currentSym.isSubClass(ownerSym, types)) {
+                Type encl = currentSym.type.getEnclosingType();
+                return resolveSuperInternal(ownerSym, currentSym.type.getEnclosingType().tsym, true);
+            }
+            else {
+                return superExpr;
+            }
+        }
 
         //
         // Private support methods for testing/setting/clearing a var flag.

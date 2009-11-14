@@ -460,6 +460,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
+        Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);
         if (tree.sym.isStatic() &&
                 tree.sym.kind == Kinds.VAR &&
                 (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
@@ -471,8 +472,11 @@ public class JavafxDecompose implements JavafxVisitor {
             JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
             selected = unconditionalShred(meth, null);
         }
-        else if (tree.sym.isStatic() || !types.isJFXClass(tree.sym.owner)) {
-            // Referenced is static, then selected is a class reference
+        else if ( tree.sym.isStatic() ||
+                (selectSym != null && selectSym.kind == Kinds.TYP) ||
+                !types.isJFXClass(tree.sym.owner)) {
+            // Referenced is static, or qualified super access
+            // then selected is a class reference
             selected = decompose(tree.selected);
         } else {
             selected = shred(tree.selected);

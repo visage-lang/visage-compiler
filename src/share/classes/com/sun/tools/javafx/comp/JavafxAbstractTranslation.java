@@ -1272,11 +1272,7 @@ public abstract class JavafxAbstractTranslation
 
             useInvoke = meth.type instanceof FunctionType;
             selectorSym = selector != null? expressionSymbol(selector) : null;
-            boolean namedSuperCall =
-                    msym != null && !msym.isStatic() &&
-                    selectorSym instanceof ClassSymbol &&
-                    // FIXME should also allow other enclosing classes:
-                    types.isSuperType(selectorSym.type, csym);
+            boolean namedSuperCall = isNamedSuperCall();
             boolean isMixinSuper = namedSuperCall && (selectorSym.flags_field & JavafxFlags.MIXIN) != 0;
             boolean canRename = namedSuperCall && !isMixinSuper;
             renameToThis = canRename && selectorSym == csym;
@@ -1308,13 +1304,29 @@ public abstract class JavafxAbstractTranslation
         @Override
         JCExpression translateToCheck(JFXExpression expr) {
             if (renameToSuper || superCall) {
-                return id(names._super);
+                return resolveSuper(msym.owner);
             } else if (renameToThis || thisCall) {
                 return id(names._this);
             } else if (superToStatic) {
                 return staticReference(msym);
             } else {
                 return super.translateToCheck(expr);
+            }
+        }
+
+        private boolean isNamedSuperCall() {
+            if (msym == null || msym.isStatic() ||
+                    !(selectorSym instanceof ClassSymbol))
+                return false;
+            else {
+                Type currentType = currentClass().type;
+                while (currentType != Type.noType) {
+                    if (types.isSubtype(currentType, selectorSym.type)) {
+                        return true;
+                    }
+                    currentType = currentType.getEnclosingType();
+                }
+                return false;
             }
         }
 
