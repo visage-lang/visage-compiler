@@ -1497,10 +1497,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         TODO(tree);
     }
 
-    public void visitInterpolateValue(JFXInterpolateValue tree) {
-        TODO(tree);
-    }
-
     @Override
     public void visitParens(JFXParens tree) {
         result = translateBoundExpression(tree.expr, targetSymbol, isBidiBind);

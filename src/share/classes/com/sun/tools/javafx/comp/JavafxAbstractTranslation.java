@@ -55,7 +55,6 @@ import com.sun.tools.mjavac.jvm.Target;
 import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.tree.TreeTranslator;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.lang.model.type.TypeKind;
@@ -349,33 +348,7 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
-    public interface BoundResult {
-
-        // Has getter expression of bound variable
-        boolean hasExpr();
-
-        // Java code for getter expression of bound variable
-        JCExpression expr();
-
-        // Java preface code for getter of bound variable
-        List<JCStatement> statements();
-
-        // Variable symbols on which this variable depends
-        List<VarSymbol> bindees();
-
-        // Invalidators for this variable
-        List<BindeeInvalidator> invalidators();
-
-        List<DependentPair> interClass();
-
-        // Java code for getting the element of a bound sequence
-        JCStatement getElementMethodBody();
-
-        // Java code for getting the size of a bound sequence
-        JCStatement getSizeMethodBody();
-    }
-
-    public static class ExpressionResult extends AbstractStatementsResult implements BoundResult {
+    public static class ExpressionResult extends AbstractStatementsResult {
         private final JCExpression value;
         private final List<BindeeInvalidator> invalidators;
         private final List<DependentPair> interClass;
@@ -429,7 +402,7 @@ public abstract class JavafxAbstractTranslation
     /**
      * Bound sequence get element / size method body pair as Result
      */
-    public static class BoundSequenceResult extends ExpressionResult implements BoundResult {
+    public static class BoundSequenceResult extends ExpressionResult {
         private final JCStatement getElement;
         private final JCStatement getSize;
         BoundSequenceResult(List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {

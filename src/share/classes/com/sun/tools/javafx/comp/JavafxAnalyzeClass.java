@@ -41,15 +41,11 @@ import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 
-import com.sun.tools.javafx.comp.JavafxInitializationBuilder;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.comp.JavafxDefs;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
-import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import com.sun.tools.javafx.tree.*;
 
 import static com.sun.tools.mjavac.code.Flags.*;
@@ -418,13 +414,13 @@ class JavafxAnalyzeClass {
         private final JCStatement onInvalidateAsInline;
 
         // Result of bind translation
-        private final BoundResult bindOrNull;
+        private final ExpressionResult bindOrNull;
 
         // Result of bind with inverse translation
         private final ExpressionResult invBindOrNull;
 
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
-                JCStatement initStmt, BoundResult bindOrNull, ExpressionResult invBindOrNull,
+                JCStatement initStmt, ExpressionResult bindOrNull, ExpressionResult invBindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(diagPos, name, attrSym, vmi, initStmt);
@@ -525,7 +521,7 @@ class JavafxAnalyzeClass {
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
                 JCStatement initStmt, Symbol boundFuncResultInitSym,
-                BoundResult bindOrNull, ExpressionResult invBindOrNull,
+                ExpressionResult bindOrNull, ExpressionResult invBindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi,
@@ -558,7 +554,7 @@ class JavafxAnalyzeClass {
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, BoundResult bindOrNull, ExpressionResult invBindOrNull,
+                JCStatement initStmt, ExpressionResult bindOrNull, ExpressionResult invBindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer()!=null, vmi,
