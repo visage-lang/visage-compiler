@@ -1202,14 +1202,19 @@ public class JavafxPretty implements JavafxVisitor {
         }
     }
 
-    //@Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         try {
-            print("override attribute ");
+            print("override var ");
             printExpr(tree.getId());
             if (tree.getInitializer() != null) {
                 print(" = ");
+                if (tree.isBound()) {
+                    print("bind ");
+                }
                 printExpr(tree.getInitializer());
+                if (tree.isBidiBind()) {
+                    print(" with inverse");
+                }
             }
             print(" ");
             align();

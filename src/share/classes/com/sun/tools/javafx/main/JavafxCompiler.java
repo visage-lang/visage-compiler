@@ -1049,6 +1049,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         try {
             attr.attribClass(env.tree.pos(), env.tree instanceof JFXClassDeclaration ? (JFXClassDeclaration)env.tree : null,
                 env.enclClass.sym);
+            printJavafxSource("dumpattr", env.toplevel, null);
         }
         finally {
             log.useSource(prev);
