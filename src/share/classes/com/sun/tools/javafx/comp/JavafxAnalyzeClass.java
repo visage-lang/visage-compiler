@@ -327,6 +327,13 @@ class JavafxAnalyzeClass {
         // Empty or bound select pairs.
         public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
 
+        // Predicate for generating sequence style accessors -- if bound, must be virtual
+        public boolean generateSequenceAccessors() { return isSequence() &&
+                                    (hasBoundDefinition() == isBoundVirtualSequence()); }
+
+        // Predicate for bound sequence represented as virtual sequence
+        public boolean isBoundVirtualSequence() { return false; }
+
         // Null or Java code for getting the element of a bound sequence
         public JCStatement boundElementGetter() { return null; }
 
@@ -474,13 +481,17 @@ class JavafxAnalyzeClass {
         @Override
         public List<DependentPair> boundBoundSelects() { return bindOrNull == null? List.<DependentPair>nil() : bindOrNull.interClass(); }
 
+        // Return true if this is a bound sequence represented as virtual sequence
+        @Override
+        public boolean isBoundVirtualSequence() { return bindOrNull==null? false : bindOrNull.isBoundVirtualSequence(); }
+
         // Null or Java code for getting the element of a bound sequence
         @Override
-        public JCStatement boundElementGetter() { return !isSequence() || bindOrNull == null ? null : bindOrNull.getElementMethodBody(); }
+        public JCStatement boundElementGetter() { return !generateSequenceAccessors() || bindOrNull == null ? null : bindOrNull.getElementMethodBody(); }
 
         // Null or Java code for getting the size of a bound sequence
         @Override
-        public JCStatement boundSizeGetter() { return !isSequence() || bindOrNull == null ? null : bindOrNull.getSizeMethodBody(); }
+        public JCStatement boundSizeGetter() { return !generateSequenceAccessors() || bindOrNull == null ? null : bindOrNull.getSizeMethodBody(); }
         
         // Null or Java code for invalidation of a bound sequence
         @Override
@@ -690,6 +701,12 @@ class JavafxAnalyzeClass {
         @Override
         public List<DependentPair> boundBoundSelects() {
             return hasOverrideVar() ? overrideVar().boundBoundSelects() : super.boundBoundSelects();
+        }
+
+        // Return true if this is a bound sequence represented as virtual sequence
+        @Override
+        public boolean isBoundVirtualSequence() {
+            return hasOverrideVar() ? overrideVar().isBoundVirtualSequence() : super.isBoundVirtualSequence();
         }
 
         // Null or Java code for getting the element of a bound sequence

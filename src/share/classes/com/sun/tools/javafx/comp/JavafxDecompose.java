@@ -334,7 +334,7 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundThenVar = synthVar("then", truepart, truepart.type);
             res.boundElseVar = synthVar("else", falsepart, falsepart.type);
             // Add a size field to hold the previous size on condition switch
-            JFXVar v = makeSizeVar(tree.pos(), defs.UNDEFINED_MARKER_INT);
+            JFXVar v = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
             v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
             res.boundSizeVar = v;
         }
@@ -813,14 +813,16 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (bindStatus.isBound()) {
             // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos(), defs.UNDEFINED_MARKER_INT);
+            res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
         }
         result = res;
     }
 
     public void visitSequenceExplicit(JFXSequenceExplicit tree) {
-        List<JFXExpression> items = null; // bound should not use items
-        if (!bindStatus.isBound()) {
+        List<JFXExpression> items;
+        if (bindStatus.isBound()) {
+            items = List.nil(); // bound should not use items - non-null for pretty-printing
+        } else {
             items = decomposeComponents(tree.getItems());
         }
         JFXSequenceExplicit res = fxmake.at(tree.pos).ExplicitSequence(items);
@@ -834,7 +836,7 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundItemsVars = vb.toList();
 
             // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos(), defs.UNDEFINED_MARKER_INT);
+            res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
         }
         result = res;
     }

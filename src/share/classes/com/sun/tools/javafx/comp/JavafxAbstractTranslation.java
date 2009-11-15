@@ -383,6 +383,9 @@ public abstract class JavafxAbstractTranslation
         public List<DependentPair> interClass() {
             return interClass;
         }
+        public boolean isBoundVirtualSequence() {
+            return false;
+        }
         public JCStatement getElementMethodBody() {
             TODO("sequence element getter for: " + value);
             return null;
@@ -409,6 +412,9 @@ public abstract class JavafxAbstractTranslation
             super(getElement.pos(), null, null, invalidators, interClass, null);
             this.getElement = getElement;
             this.getSize = getSize;
+        }
+        public boolean isBoundVirtualSequence() {
+            return true;
         }
         // Java code for getting the element of a bound sequence
         @Override

@@ -1068,14 +1068,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // If we need to prime the on replace trigger.
                 if (varInfo.onReplaceAsInline() != null) {
                     if (varInfo.hasBoundDefinition()) {
-                        if (!varInfo.isSequence()) {
+                        if (!varInfo.generateSequenceAccessors()) {
                             init = CallStmt(attributeGetterName(varSym));
                         } else {
                             init = CallStmt(attributeSizeName(varSym));
                         }
                     } else if(!varInfo.isOverride()) {
                         JCStatement onReplaceCall;
-                        if (!varInfo.isSequence()) {
+                        if (!varInfo.generateSequenceAccessors()) {
                             onReplaceCall = CallStmt(attributeOnReplaceName(varSym),
                                             Get(varSym), Get(varSym));
                         } else {
@@ -1301,7 +1301,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         } else {
                             addStmt(varInfo.boundSizeGetter());
                         }
-                    } else {
+                    } else {  
                         // Construct and add: return $var.size();
                         addStmt(Return(Call(Get(proxyVarSym), defs.size_SequenceMethodName)));
                     }
@@ -1378,7 +1378,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Hack for bug in boundBinders() which includes invalidators
                     if (!hasInvalidators) for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
-                        if (!otherVar.isSequence()) {
+                        if (!otherVar.generateSequenceAccessors()) {
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
                         } else {
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()),
@@ -1838,7 +1838,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
-                        if (!otherVar.isSequence()) {
+                        if (!otherVar.generateSequenceAccessors()) {
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
                         }
                     }
@@ -2022,7 +2022,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             if (ai.useAccessors()) {
                 if (!(ai instanceof MixinClassVarInfo)) {
-                    if (ai.isSequence()) {
+                    if (ai.generateSequenceAccessors()) {
                          if (!ai.isOverride()) {
                             makeSeqGetterAccessorMethod(ai, needsBody);
                             makeSeqGetPosAccessorMethod(ai, needsBody);
@@ -2072,7 +2072,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         
                         for (FuncInfo funcInfo : mixinVar.getAccessors()) {
                             if (funcInfo.getSymbol().name.startsWith(defs.invalidate_FXObjectMethodName)) {
-                                if (ai.isSequence()) {
+                                if (ai.generateSequenceAccessors()) {
                                      makeSeqInvalidateAccessorMethod(ai, needsBody);
                                 } else {
                                      makeInvalidateAccessorMethod(ai, needsBody);
@@ -2659,7 +2659,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
  
                             // Loop for local vars.
                             for (VarInfo varInfo : referenceSet) {
-                                addStmt(invalidate(varInfo.isSequence(), varInfo.proxyVarSym()));
+                                addStmt(invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym()));
                             }
 
                             // Reference the class with the instance, if it is script-level append the suffix
@@ -2740,7 +2740,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     if (!varInfo.isOverride()) {
-                        if (varInfo.isSequence()) {
+                        if (varInfo.generateSequenceAccessors()) {
                             // return get$var(pos$)
                             addStmt(Return(Call(attributeGetterName(varInfo.getSymbol()), posArg())));
                         }
@@ -2760,7 +2760,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     if (!varInfo.isOverride()) {
-                        if (varInfo.isSequence()) {
+                        if (varInfo.generateSequenceAccessors()) {
                             // return size$var()
                             addStmt(Return(Call(attributeSizeName(varInfo.getSymbol()))));
                         }
@@ -2787,7 +2787,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (!varInfo.isDef() && !varInfo.isOverride() && !varInfo.isBareSynth()) {
                          // (type)object$
                         JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
-                        if (varInfo.isSequence()) {
+                        if (varInfo.generateSequenceAccessors()) {
                             addStmt(CallStmt(defs.Sequences_set, id(names._this), Offset(varInfo.getSymbol()), objCast));
                         } else {
                             // set$var((type)object$)
@@ -2849,7 +2849,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     // FIXME - do the right thing.
                     if (!varInfo.isOverride()) {
-                        if (varInfo.isSequence()) {
+                        if (varInfo.generateSequenceAccessors()) {
                             addStmt(CallStmt(attributeInvalidateName(varInfo.getSymbol()),
                                     startPosArg(), endPosArg(), newLengthArg(), phaseArg()));
                         } else {

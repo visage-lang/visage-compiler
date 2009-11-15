@@ -33,7 +33,9 @@ import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
+import static com.sun.tools.mjavac.code.TypeTags.*;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import javax.tools.JavaFileObject;
@@ -79,6 +81,44 @@ public class JavafxPreTranslationSupport {
 
     public Name syntheticName(String prefix) {
         return names.fromString(prefix + "$" + tmpCount++);
+    }
+
+    public JFXExpression defaultValue(Type type) {
+        JFXExpression res;
+        if (types.isSequence(type)) {
+            res = fxmake.EmptySequence();
+        } else {
+            switch (type.tag) {
+                case FLOAT:
+                    res = fxmake.Literal(0F);
+                    break;
+                case DOUBLE:
+                    res = fxmake.Literal(0.0);
+                    break;
+                case CHAR:
+                    res = fxmake.Literal((char) 0);
+                    break;
+                case BYTE:
+                    res = fxmake.Literal((byte) 0);
+                    break;
+                case SHORT:
+                    res = fxmake.Literal((short) 0);
+                    break;
+                case INT:
+                    res = fxmake.Literal((int) 0);
+                    break;
+                case LONG:
+                    res = fxmake.Literal(0L);
+                    break;
+                case BOOLEAN:
+                    res = fxmake.Literal(false);
+                    break;
+                default:
+                    res = fxmake.Literal(BOT, null);
+            }
+        }
+        res.type = type;
+        return res;
     }
 
     public Scope getEnclosingScope(Symbol s) {

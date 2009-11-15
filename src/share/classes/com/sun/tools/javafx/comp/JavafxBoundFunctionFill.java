@@ -28,6 +28,7 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXExpression;
+import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
@@ -43,6 +44,7 @@ import com.sun.tools.mjavac.util.ListBuffer;
  */
 public class JavafxBoundFunctionFill extends JavafxTreeScanner {
 
+    private final JavafxPreTranslationSupport preTrans;
     private final JavafxTreeMaker fxmake;
     private final JavafxDefs defs;
     private final JavafxSymtab syms;
@@ -65,6 +67,7 @@ public class JavafxBoundFunctionFill extends JavafxTreeScanner {
     private JavafxBoundFunctionFill(Context context) {
         context.put(boundFuncFill, this);
 
+        preTrans = JavafxPreTranslationSupport.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
         defs = JavafxDefs.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
@@ -106,8 +109,8 @@ public class JavafxBoundFunctionFill extends JavafxTreeScanner {
                     JFXVar localVar = fxmake.Var(
                             fxVar.name,
                             fxVar.getJFXType(),
-                            fxVar.mods,
-                            null,
+                            fxmake.Modifiers(fxVar.mods.flags & ~Flags.PARAMETER),
+                            preTrans.defaultValue(fxVar.type),
                             JavafxBindStatus.UNIDIBIND, null, null);
                     localVar.type = fxVar.type;
                     localVar.sym = fxVar.sym;
