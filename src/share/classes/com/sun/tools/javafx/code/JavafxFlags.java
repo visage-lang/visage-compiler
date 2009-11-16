@@ -65,7 +65,8 @@ public class JavafxFlags {
     public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 8;  // temp flag, set while inside var's initializing expression
     public static final long VARUSE_OPT_TRIGGER      = FIRST_VARUSE_FLAG << 9;
     public static final long VARUSE_BARE_SYNTH       = FIRST_VARUSE_FLAG << 10; // synthetic that should only have field and invalidate generated for it (no accessors)
-    public static final long VARUSE_HAS_ON_INVALIDATE= FIRST_VARUSE_FLAG << 11;  // has 'on invalidate' either in definition or override
+    public static final long VARUSE_HAS_ON_INVALIDATE= FIRST_VARUSE_FLAG << 11; // has 'on invalidate' either in definition or override
+    public static final long VARUSE_SEQUENCE_AS_NON  = FIRST_VARUSE_FLAG << 12; // a sequence variable which should be treated as a non-sequence
     // This last shift + the last for modifiers must be < 24 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags

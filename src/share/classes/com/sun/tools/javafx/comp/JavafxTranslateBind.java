@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
@@ -423,20 +424,36 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * Just forward the requests for size and elements
      */
     class BoundIdentSequenceTranslator extends BoundSequenceTranslator {
-        private final JFXIdent tree;
+        // Symbol of the referenced
+        private final Symbol sym;
+
+        // If true, reference via getter and Sequence queries
+        private final boolean isRefToSequenceInNonSequenceForm;
+
+        // ExpressionResult for etracting bindee info
         private final ExpressionResult exprResult;
+
         BoundIdentSequenceTranslator(JFXIdent tree, ExpressionResult exprResult) {
             super(tree.pos());
-            this.tree = tree;
+            this.sym = tree.sym;
+            this.isRefToSequenceInNonSequenceForm = (sym.flags() & JavafxFlags.VARUSE_SEQUENCE_AS_NON) != 0L;
             this.exprResult = exprResult;
         }
 
         JCStatement makeSizeBody() {
-            return Return(CallSize(tree.sym));
+            if (isRefToSequenceInNonSequenceForm) {
+                return Return(Call(CallGetter(sym), defs.size_SequenceMethodName));
+            } else {
+                return Return(CallSize(sym));
+            }
         }
 
         JCStatement makeGetElementBody() {
-            return Return(CallGetElement(tree.sym, posArg()));
+            if (isRefToSequenceInNonSequenceForm) {
+                return Return(Call(CallGetter(sym), defs.get_SequenceMethodName, posArg()));
+            } else {
+                return Return(CallGetElement(sym, posArg()));
+            }
         }
 
         /**
@@ -1466,7 +1483,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
-        checkForSequenceVersionUnimplemented(tree);
+        if (tree == boundExpression &&
+                isTargettedToSequence() &&
+                (targetSymbol.flags() & JavafxFlags.VARUSE_SEQUENCE_AS_NON) == 0L) {
+            throw new AssertionError("bound sequence function invocation not proxied");
+        }
         result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
     }
     

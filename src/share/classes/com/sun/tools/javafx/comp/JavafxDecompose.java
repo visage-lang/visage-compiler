@@ -181,7 +181,7 @@ public class JavafxDecompose implements JavafxVisitor {
         }
     }
 
-    private JFXExpression id(JFXVar v) {
+    private JFXIdent id(JFXVar v) {
         JFXIdent id = fxmake.at(v.pos).Ident(v.getName());
         id.sym = v.sym;
         id.type = v.type;
@@ -202,7 +202,7 @@ public class JavafxDecompose implements JavafxVisitor {
         }
     }
 
-    private JFXExpression unconditionalShred(JFXExpression tree, Type contextType) {
+    private JFXIdent unconditionalShred(JFXExpression tree, Type contextType) {
         JFXExpression pose = decompose(tree);
         Type varType = tree.type;
         if (tree.type == syms.botType && contextType != null) {
@@ -404,7 +404,14 @@ public class JavafxDecompose implements JavafxVisitor {
             }
             args = shred(tree.args, paramTypes);
         }
-        result = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
+        JFXExpression res = fxmake.at(tree.pos).Apply(tree.typeargs, fn, args);
+        res.type = tree.type;
+        if (bindStatus.isBound() && types.isSequence(tree.type)) {
+            JFXVar v = shredVar("sii", res, tree.type);
+            v.sym.flags_field |= JavafxFlags.VARUSE_SEQUENCE_AS_NON;
+            res = id(v);
+        }
+        result = res;
     }
 
     public void visitParens(JFXParens tree) {
