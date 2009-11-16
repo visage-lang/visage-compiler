@@ -84,15 +84,26 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * @return
      */
     ExpressionResult translateBoundExpression(JFXExpression expr, VarSymbol targetSymbol, boolean isBidiBind) {
+        // Bind translation is re-entrant -- save and restore state
+        VarSymbol prevTargetSymbol = this.targetSymbol;
+        boolean prevIsBidiBind = this.isBidiBind;
+        JFXExpression prevBoundExpression = this.boundExpression;
+
         this.targetSymbol = targetSymbol;
         this.isBidiBind = isBidiBind;
         this.boundExpression = expr;
-        // Special case: If the targetSymbol is a bound function result, then 
+
+        // Special case: If the targetSymbol is a bound function result, then
         // make the expected type to be Pointer or else make it null.
-        ExpressionResult res = translateToExpressionResult(expr,
-                isBoundFunctionResult(targetSymbol)? syms.javafx_PointerType : null);
-        this.targetSymbol = null;
-        this.boundExpression = null;
+        ExpressionResult res = translateToExpressionResult(
+                expr,
+                isBoundFunctionResult(targetSymbol) ?
+                    syms.javafx_PointerType :
+                    null);
+
+        this.targetSymbol = prevTargetSymbol;
+        this.isBidiBind = prevIsBidiBind;
+        this.boundExpression = prevBoundExpression;
         return res;
     }
 
