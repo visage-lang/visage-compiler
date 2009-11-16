@@ -163,6 +163,7 @@ public class JavafxLower implements JavafxVisitor {
     private boolean needSequenceConversion(JFXExpression tree, Type type) {
         return (types.isSequence(type) &&
                 ((!types.isSequence(tree.type) &&
+                tree.type != syms.unreachableType &&
                 !types.isArray(tree.type)) ||
                 isNull(tree)));
     }
