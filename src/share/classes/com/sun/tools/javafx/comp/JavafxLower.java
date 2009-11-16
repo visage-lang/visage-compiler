@@ -566,7 +566,7 @@ public class JavafxLower implements JavafxVisitor {
 
     @Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
-        JFXExpression init = lowerExpr(tree.getInitializer(), tree.type);
+        JFXExpression init = lowerExpr(tree.getInitializer(), tree.getId().sym.type);
         JFXOnReplace onReplace = lower(tree.getOnReplace());
         JFXOnReplace onInvalidate = lower(tree.getOnInvalidate());
         JFXOverrideClassVar res = m.at(tree.pos).OverrideClassVar(tree.name, tree.mods, tree.getId(), init, tree.getBindStatus(), onReplace, onInvalidate);
