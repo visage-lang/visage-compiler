@@ -571,6 +571,8 @@ public class JavafxDecompose implements JavafxVisitor {
         // Bound functions are handled by local variable bind facility.
         // The return value is transformed already in JavafxLocalToClass.
         // So, we are not changing bind state "inBind".
+        JavafxBindStatus prevBindStatus = bindStatus;
+        bindStatus = JavafxBindStatus.UNBOUND;
         inScriptLevel = tree.isStatic();
         Symbol prevVarOwner = varOwner;
         varOwner = null;
@@ -582,6 +584,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXFunctionDefinition res = fxmake.at(tree.pos).FunctionDefinition(mods, name, restype, params, bodyExpression);
         res.sym = tree.sym;
         result = res;
+        bindStatus = prevBindStatus;
         inScriptLevel = wasInScriptLevel;
         varOwner = prevVarOwner;
     }
