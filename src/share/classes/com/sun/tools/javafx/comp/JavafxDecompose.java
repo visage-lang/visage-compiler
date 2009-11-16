@@ -750,8 +750,8 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitBlockExpression(JFXBlock tree) {
         tree.stats = decomposeContainer(tree.stats);
         tree.value = decompose(tree.value);
-        result = tree;
-    }
+            result = tree;
+        }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
         JavafxBindStatus prevBindStatus = bindStatus;

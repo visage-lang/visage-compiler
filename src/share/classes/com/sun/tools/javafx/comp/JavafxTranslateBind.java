@@ -139,16 +139,20 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCExpression translateArg(JFXExpression arg, Type formal) {
             if (arg instanceof JFXIdent) {
                 Symbol sym = ((JFXIdent) arg).sym;
-                JCVariableDecl oldVar = TmpVar("old", formal, Get(sym));
-                JCVariableDecl newVar = TmpVar("new", formal, Call(attributeGetterName(sym)));
-                addPreface(oldVar);
-                addPreface(newVar);
                 addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
 
-                // oldArg != newArg
-                JCExpression compare = NE(id(oldVar), id(newVar));
-                // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
-                condition = condition == null ? compare : OR(condition, compare);
+                JCVariableDecl oldVar = TmpVar("old", formal, Get(sym));
+                JCVariableDecl newVar = TmpVar("new", formal, Call(attributeGetterName(sym)));
+
+                if (!types.isSequence(arg.type)) {
+                    addPreface(oldVar);
+
+                    // oldArg != newArg
+                    JCExpression compare = NE(id(oldVar), id(newVar));
+                    // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
+                    condition = condition == null ? compare : OR(condition, compare);
+                }
+                addPreface(newVar);
 
                 return id(newVar);
             } else {
@@ -1471,6 +1475,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
+    private void checkForUnproxiedSequence(JFXExpression tree) {
+        if (tree == boundExpression &&
+                isTargettedToSequence() &&
+                (targetSymbol.flags() & JavafxFlags.VARUSE_SEQUENCE_AS_NON) == 0L) {
+            throw new AssertionError("bound sequence function invocation not proxied");
+        }
+    }
+
     public void visitBlockExpression(JFXBlock tree) {
         checkForSequenceVersionUnimplemented(tree);
         result = new BoundBlockExpressionTranslator(tree).doit();
@@ -1483,11 +1495,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
-        if (tree == boundExpression &&
-                isTargettedToSequence() &&
-                (targetSymbol.flags() & JavafxFlags.VARUSE_SEQUENCE_AS_NON) == 0L) {
-            throw new AssertionError("bound sequence function invocation not proxied");
-        }
+        checkForUnproxiedSequence(tree);
         result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
     }
     
