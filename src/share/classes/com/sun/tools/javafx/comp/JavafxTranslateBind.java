@@ -170,9 +170,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCExpression full = super.fullExpression(mungedToCheckTranslated);
                 if (condition != null) {
                     // if no args have changed, don't call function, just return previous value
+                    // Always call function if the default has not been applied yet
                     //TODO: must call if selector changes
                     full = 
-                        If (condition,
+                        If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
                             full,
                             Get(targetSymbol));
                 }
