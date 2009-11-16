@@ -105,13 +105,25 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     private class BoundFunctionCallTranslator extends FunctionCallTranslator {
 
+        // Call function only if conditions met
+        private JCExpression condition = null;
+
+        // True if any arguments are sequences, we can't pre-test arguments
+        private boolean hasSequenceArg = false;
+
         BoundFunctionCallTranslator(JFXFunctionInvocation tree) {
             super(tree);
         }
-        JCExpression condition = null;
 
         @Override
         List<JCExpression> determineArgs() {
+            // Determine if any arguments are sequences, if so, we can't pre-test arguments
+            for (JFXExpression arg : args) {
+                if (types.isSequence(arg.type)) {
+                    hasSequenceArg = true;
+                }
+            }
+
             ListBuffer<JCExpression> targs = ListBuffer.lb();
             // if this is a super.foo(x) call, "super" will be translated to referenced class,
             // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
@@ -137,22 +149,19 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         @Override
         JCExpression translateArg(JFXExpression arg, Type formal) {
-            if (arg instanceof JFXIdent) {
+            if (!hasSequenceArg && arg instanceof JFXIdent) {
                 Symbol sym = ((JFXIdent) arg).sym;
                 addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
 
                 JCVariableDecl oldVar = TmpVar("old", formal, Get(sym));
                 JCVariableDecl newVar = TmpVar("new", formal, Call(attributeGetterName(sym)));
-
-                if (!types.isSequence(arg.type)) {
-                    addPreface(oldVar);
-
-                    // oldArg != newArg
-                    JCExpression compare = NE(id(oldVar), id(newVar));
-                    // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
-                    condition = condition == null ? compare : OR(condition, compare);
-                }
+                addPreface(oldVar);
                 addPreface(newVar);
+
+                // oldArg != newArg
+                JCExpression compare = NE(id(oldVar), id(newVar));
+                // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
+                condition = condition == null ? compare : OR(condition, compare);
 
                 return id(newVar);
             } else {
