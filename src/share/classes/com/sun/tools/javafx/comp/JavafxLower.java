@@ -573,7 +573,7 @@ public class JavafxLower implements JavafxVisitor {
     }
     //where
     private JFXObjectLiteralPart makeObjectLiteralPart(DiagnosticPosition pos, Type site, Name varName, JFXExpression value) {
-        JFXObjectLiteralPart part = m.at(pos).ObjectLiteralPart(defs.value_InterpolateMethodName, value, JavafxBindStatus.UNBOUND);
+        JFXObjectLiteralPart part = m.at(pos).ObjectLiteralPart(varName, value, JavafxBindStatus.UNBOUND);
         part.setType(value.type);
         part.sym = rs.findIdentInType(env, site, varName, Kinds.VAR);
         return part;
