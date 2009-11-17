@@ -32,13 +32,13 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.JFXExpression;
 
-import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 
+import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.mjavac.util.List;
@@ -488,10 +488,34 @@ public class JavafxLower implements JavafxVisitor {
 
     @Override
     public void visitIfExpression(JFXIfExpression tree) {
-        JFXExpression cond = lowerExpr(tree.cond, syms.booleanType);
+        if (tree.type.tag != TypeTags.VOID &&
+                (tree.truepart.type == syms.unreachableType ||
+                (tree.falsepart != null && tree.falsepart.type == syms.unreachableType))) {
+            result = lowerUnreachableIfExpression(tree);
+        }
+        else {
+            JFXExpression cond = lowerExpr(tree.cond, syms.booleanType);
+            JFXExpression truePart = lowerExpr(tree.truepart, tree.type);
+            JFXExpression falsePart = lowerExpr(tree.falsepart, tree.type);
+            result = m.Conditional(cond, truePart, falsePart).setType(tree.type);
+        }
+    }
+
+    public JFXTree lowerUnreachableIfExpression(JFXIfExpression tree) {
+        boolean inverted = tree.truepart.type == syms.unreachableType;
         JFXExpression truePart = lowerExpr(tree.truepart, tree.type);
         JFXExpression falsePart = lowerExpr(tree.falsepart, tree.type);
-        result = m.Conditional(cond, truePart, falsePart).setType(tree.type);
+        JFXVar varDef = makeTmpVar(tree.pos(), "res", null, tree.type == syms.botType ? syms.objectType : tree.type);
+        JFXIdent varRef = m.at(tree.pos).Ident(varDef.sym);
+        varRef.sym = varDef.sym;
+        varRef.type = varDef.type;
+
+        JFXExpression assign = m.at(tree.pos).Assign(varRef, inverted ? falsePart : truePart).setType(syms.voidType); //we need void here!
+
+        JFXExpression ifExpr = m.at(tree.pos).Conditional(tree.cond,
+                inverted ? truePart : assign, inverted ? assign : falsePart).setType(syms.voidType); //we need void here!
+
+        return m.at(tree.pos()).Block(0L, List.of(varDef, ifExpr), varRef).setType(varRef.type);
     }
 
     @Override

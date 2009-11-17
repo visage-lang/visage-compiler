@@ -634,12 +634,15 @@ public abstract class JavafxAbstractTranslation
 
     /**** utility methods ******/
 
-    private UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength) {
+    private UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, final int initLength, final boolean nonLocal) {
         return new UseSequenceBuilder(diagPos, elemType, null) {
 
             JCStatement addElement(JFXExpression exprToAdd) {
                 JCExpression expr = translateToExpression(exprToAdd, targettedType(exprToAdd));
-                return makeAdd(expr);
+                JCVariableDecl varDef = TmpVar(targettedType(exprToAdd), expr);
+                return nonLocal ?
+                    Block(varDef, makeAdd(id(varDef))) :
+                    makeAdd(expr);
             }
 
             List<JCExpression> makeConstructorArgs() {
@@ -659,8 +662,8 @@ public abstract class JavafxAbstractTranslation
         };
     }
 
-    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType) {
-        return useSequenceBuilder(diagPos, elemType, -1);
+    UseSequenceBuilder useSequenceBuilder(DiagnosticPosition diagPos, Type elemType, boolean nonLocal) {
+        return useSequenceBuilder(diagPos, elemType, -1, nonLocal);
     }
 
     abstract class UseSequenceBuilder extends JavaTreeBuilder {
@@ -2988,7 +2991,7 @@ public abstract class JavafxAbstractTranslation
         result = make.at(diagPos).Apply(typeArgs, meth, args.toList());
         */
         protected ExpressionResult doit() {
-            UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType, items.length());
+            UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType, items.length(), false);
             addPreface(builder.makeBuilderVar());
             for (JFXExpression item : items) {
                 if (item.getJavaFXKind() != JavaFXKind.NULL_LITERAL) {
@@ -3093,7 +3096,7 @@ public abstract class JavafxAbstractTranslation
                 assert tree.type.getTypeArguments().size() == 1;
                 Type elemType = types.elementType(tree.type);
 
-                UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType);
+                UseSequenceBuilder builder = useSequenceBuilder(diagPos, elemType, true);
                 addPreface(builder.makeBuilderVar());
 
                 // Build innermost loop body
