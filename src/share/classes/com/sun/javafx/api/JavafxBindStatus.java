@@ -30,29 +30,25 @@ package com.sun.javafx.api;
  */
 public enum JavafxBindStatus {
     
-    UNBOUND   ("unbound",                   false, false, false),
-    UNIDIBIND ("unidirectional bind",       true,  false, false),
-    BIDIBIND  ("bidirectional bind",        false, true,  false),
-    DEPENDENT ("unbound dependent",         false, false, true);
+    UNBOUND   ("unbound",                   false, false),
+    UNIDIBIND ("unidirectional bind",       true,  false),
+    BIDIBIND  ("bidirectional bind",        false, true);
     
     private final String description;
     private final boolean isBound;
     private final boolean isUnidiBind;
     private final boolean isBidiBind;
-    private final boolean isDependent;
     
     public String description()  { return description; }
     public boolean isBound()     { return isBound; }
     public boolean isUnidiBind() { return isUnidiBind; }
     public boolean isBidiBind()  { return isBidiBind; }
-    public boolean isDependent() { return isDependent; }
 
     /** Creates a new instance of JavafxBindStatus */
-    private JavafxBindStatus(String description, boolean isUnidiBind, boolean isBidiBind, final boolean isDependent) {
+    private JavafxBindStatus(String description, boolean isUnidiBind, boolean isBidiBind) {
         this.description = description;
         this.isUnidiBind = isUnidiBind;
         this.isBidiBind = isBidiBind;
         this.isBound = isUnidiBind || isBidiBind;
-        this.isDependent = isDependent;
     }
 }

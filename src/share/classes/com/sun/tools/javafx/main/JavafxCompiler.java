@@ -230,7 +230,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Fill in the synthetic definitions needed in a bound function.
      */
-    protected JavafxBoundFunctionFill boundFunctionFill;
+    protected JavafxBoundFiller boundFunctionFill;
 
     /** The local var bind converter.
      */
@@ -331,7 +331,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         source = Source.instance(context);
         attr = JavafxAttr.instance(context);
         bindAnalyzer = JavafxBoundContextAnalysis.instance(context);
-        boundFunctionFill = JavafxBoundFunctionFill.instance(context);
+        boundFunctionFill = JavafxBoundFiller.instance(context);
         localToClass = JavafxLocalToClass.instance(context);
         convertTypes = JavafxLower.instance(context);
         chk = JavafxCheck.instance(context);

@@ -471,7 +471,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
                 types.isJFXClass(tree.sym.owner) &&
                 !currentClass.isSubClass(tree.sym.owner, types) &&
-                (bindStatus.isBound() || bindStatus.isDependent()) &&
+                bindStatus.isBound() &&
                 tree.name != names._class) {
             //referenced is static script var - if in bind context need shredding
             JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
@@ -507,7 +507,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
                 types.isJFXClass(tree.sym.owner) &&
                 !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName)) &&
-                (bindStatus.isBound() || bindStatus.isDependent())) {
+                bindStatus.isBound()) {
             if (tree.sym.isStatic()) {
                 if (!inScriptLevel) {
                     //referenced is static script var - if in bind context need shredding
@@ -614,39 +614,11 @@ public class JavafxDecompose implements JavafxVisitor {
 
    public void visitInstanciate(JFXInstanciate tree) {
        JFXExpression klassExpr = tree.getIdentifier();
-       List<JFXObjectLiteralPart> parts = tree.getParts();
-       ListBuffer<JFXTree> newOverrides = ListBuffer.<JFXTree>lb();
-       ListBuffer<JFXObjectLiteralPart> dparts = ListBuffer.<JFXObjectLiteralPart>lb();
-       for (JFXObjectLiteralPart part : parts) {
-           if (part.isBound()) {
-               fxmake.at(part.pos());  // create at part position
-               JFXIdent id = fxmake.Ident(part.name);
-               id.sym = part.sym;
-               id.type = part.sym.type;
-               JFXOverrideClassVar ocv =
-                  fxmake.OverrideClassVar(
-                       part.name,
-                       fxmake.Modifiers(part.sym.flags_field),
-                       id,
-                       part.getExpression(),
-                       part.getBindStatus(),
-                       null,
-                       null);
-               ocv.sym = (VarSymbol)part.sym;
-               ocv.type = part.sym.type;
-               newOverrides.append(ocv);
-           } else {
-               dparts.append(decompose(part));
-           }
-       }
-       JFXClassDeclaration cdecl = tree.getClassBody();
-       if (newOverrides.nonEmpty()) {
-           cdecl.setMembers(cdecl.getMembers().appendList(newOverrides));
-       }
-       JFXClassDeclaration dcdel = decompose(cdecl);
+       List<JFXObjectLiteralPart> dparts = decompose(tree.getParts());
+       JFXClassDeclaration dcdel = decompose(tree.getClassBody());
        List<JFXExpression> dargs = decomposeComponents(tree.getArgs());
        
-       JFXInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getJavaFXKind(), klassExpr, dcdel, dargs, dparts.toList(), tree.getLocalvars());
+       JFXInstanciate res = fxmake.at(tree.pos).Instanciate(tree.getJavaFXKind(), klassExpr, dcdel, dargs, dparts, tree.getLocalvars());
        res.sym = tree.sym;
        res.constructor = tree.constructor;
        res.varDefinedByThis = tree.varDefinedByThis;
@@ -654,20 +626,11 @@ public class JavafxDecompose implements JavafxVisitor {
    }
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-        JavafxBindStatus prevBindStatus = bindStatus;
-
-        // bind doesn't permiate object literals, but...
-        // ... it does make it a dependent context
-        bindStatus = tree.isBound()?
-                            tree.getBindStatus() :
-                            prevBindStatus == JavafxBindStatus.UNIDIBIND?
-                                JavafxBindStatus.DEPENDENT :
-                                prevBindStatus;
-        JFXExpression expr = decompose(tree.getExpression());
+        assert !tree.isBound() : "bound parts should have been converted to overrides";
+        JFXExpression expr = shred(tree.getExpression());
         JFXObjectLiteralPart res = fxmake.at(tree.pos).ObjectLiteralPart(tree.name, expr, bindStatus);
         res.sym = tree.sym;
         result = res;
-        bindStatus = prevBindStatus;
     }
 
     public void visitTypeAny(JFXTypeAny tree) {

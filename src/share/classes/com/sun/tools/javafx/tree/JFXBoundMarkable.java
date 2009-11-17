@@ -33,5 +33,6 @@ import com.sun.javafx.api.JavafxBindStatus;
 public interface JFXBoundMarkable {
     void markBound(JavafxBindStatus bindStatus);
     boolean isBound();
-    boolean isDependent();
+    boolean isUnidiBind();
+    boolean isBidiBind();
 }

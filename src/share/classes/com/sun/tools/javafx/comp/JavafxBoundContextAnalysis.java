@@ -153,16 +153,10 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         JavafxBindStatus prevBindStatus = bindStatus;
-
-        // bind doesn't permiate object literals, but...
-        // ... it does make it a dependent context
         bindStatus = tree.isBound()?
                             tree.getBindStatus() :
-                            prevBindStatus == JavafxBindStatus.UNIDIBIND?
-                                JavafxBindStatus.DEPENDENT :
-                                prevBindStatus;
+                            prevBindStatus;
         scan(tree.getExpression());
-        mark(tree);
         bindStatus = prevBindStatus;
     }
 

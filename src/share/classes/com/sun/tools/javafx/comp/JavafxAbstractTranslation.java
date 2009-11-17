@@ -205,6 +205,7 @@ public abstract class JavafxAbstractTranslation
                 diagPos,
                 res.statements(),
                 new TypeConversionTranslator(diagPos, res.expr(), res.resultType, targettedType).doitExpr(),
+                res.bindees(),
                 res.invalidators(),
                 res.interClass,
                 targettedType);
@@ -350,13 +351,15 @@ public abstract class JavafxAbstractTranslation
 
     public static class ExpressionResult extends AbstractStatementsResult {
         private final JCExpression value;
+        private final List<VarSymbol> bindees;
         private final List<BindeeInvalidator> invalidators;
         private final List<DependentPair> interClass;
         private final Type resultType;
 
-        ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, Type resultType) {
+        ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, Type resultType) {
             super(diagPos, stmts);
             this.value = value;
+            this.bindees = bindees;
             this.invalidators = invalidators;
             this.interClass = interClass;
             this.resultType = resultType;
@@ -374,14 +377,13 @@ public abstract class JavafxAbstractTranslation
         }
 
         public List<VarSymbol> bindees() {
-            ListBuffer<VarSymbol> bindees = ListBuffer.lb();
-            for (BindeeInvalidator bi : invalidators) {
-                bindees.append(bi.bindee);
-            }
-            return bindees.toList();
+            return bindees;
         }
         public List<DependentPair> interClass() {
             return interClass;
+        }
+        public Type resultType() {
+            return resultType;
         }
         public boolean isBoundVirtualSequence() {
             return false;
@@ -408,11 +410,12 @@ public abstract class JavafxAbstractTranslation
     public static class BoundSequenceResult extends ExpressionResult {
         private final JCStatement getElement;
         private final JCStatement getSize;
-        BoundSequenceResult(List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {
-            super(getElement.pos(), null, null, invalidators, interClass, null);
+        BoundSequenceResult(List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {
+            super(getElement.pos(), null, null, bindees, invalidators, interClass, null);
             this.getElement = getElement;
             this.getSize = getSize;
         }
+        @Override
         public boolean isBoundVirtualSequence() {
             return true;
         }
@@ -764,6 +767,7 @@ public abstract class JavafxAbstractTranslation
 
         private final ListBuffer<JCStatement> stmts = ListBuffer.lb();
         private final ListBuffer<BindeeInvalidator> invalidators = ListBuffer.lb();
+        private final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
         private final ListBuffer<DependentPair> interClass = ListBuffer.lb();
 
         ExpressionTranslator(DiagnosticPosition diagPos) {
@@ -814,13 +818,11 @@ public abstract class JavafxAbstractTranslation
         }
 
         void addBindee(VarSymbol sym) {
-            addInvalidator(sym, null);
+            bindees.append(sym);
         }
 
         void addBindees(List<VarSymbol> syms) {
-            for (VarSymbol sym : syms) {
-                addBindee(sym);
-            }
+            bindees.appendList(syms);
         }
 
         void addInterClassBindee(VarSymbol instanceSym, Symbol referencedSym) {
@@ -834,7 +836,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         ExpressionResult toResult(JCExpression translated, Type resultType) {
-            return new ExpressionResult(diagPos, statements(), translated, invalidators(), interClass(), resultType);
+            return new ExpressionResult(diagPos, statements(), translated, bindees(), invalidators(), interClass(), resultType);
         }
 
         StatementsResult toStatementResult(JCExpression translated, Type resultType, Type targettedType) {
@@ -857,6 +859,10 @@ public abstract class JavafxAbstractTranslation
 
         List<JCStatement> statements() {
             return stmts.toList();
+        }
+
+        List<VarSymbol> bindees() {
+            return bindees.toList();
         }
 
         List<BindeeInvalidator> invalidators() {
@@ -2426,40 +2432,24 @@ public abstract class JavafxAbstractTranslation
          */
         protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
-        protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxBindStatus bindStatus, VarSymbol vsym) {
-            ExpressionResult eres;
-            switch (bindStatus) {
-                case UNBOUND:
-                    eres = toJava().translateToExpressionResult(init, vsym.type);
-                    break;
-                case DEPENDENT:
-                    eres = translateDependent().translateToExpressionResult(init, vsym.type);
-                    break;
-                case UNIDIBIND:
-                case BIDIBIND:
-                default: // javac is confused
-                    throw new AssertionError("Should have been inflated to class");
-            }
+        protected JCExpression translateInstanceVariableInit(JFXExpression init, VarSymbol vsym) {
+            ExpressionResult eres = translateToExpressionResult(init, vsym.type);
             mergeResults(eres);
             return convertNullability(init.pos(), eres.expr(), init, vsym.type);
         }
 
-        void setInstanceVariable(DiagnosticPosition diagPos, Name instanceName, JavafxBindStatus bindStatus, VarSymbol vsym, JCExpression transInit) {
+        void setInstanceVariable(Name instanceName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
+            JCExpression transInit = translateInstanceVariableInit(init, vsym);
             JCExpression tc = instanceName == null ? null : id(instanceName);
             JCStatement def;
-            if (types.isSequence(vsym.type))
+            if (types.isSequence(vsym.type)) {
                 def = CallStmt(defs.Sequences_set, tc,
-                      Offset(id(instanceName), vsym), transInit);
-            else
+                        Offset(id(instanceName), vsym), transInit);
+            } else {
                 def = CallStmt(tc, attributeBeName(vsym), transInit);
+            }
             varInits.append(def);
             varSyms.append(vsym);
-        }
-
-        void setInstanceVariable(Name instName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
-            DiagnosticPosition initPos = init.pos();
-            JCExpression transInit = translateInstanceVariableInit(init, bindStatus, vsym);
-            setInstanceVariable(initPos, instName, bindStatus, vsym, transInit);
         }
 
         void makeInitSupportCall(Name methName, Name receiverName) {

@@ -876,13 +876,10 @@ public class JavafxPretty implements JavafxVisitor {
     void printBind(JavafxBindStatus bindStatus) {
         try {
             if (bindStatus.isUnidiBind()) {
-                print(" bind /*stays*/ ");
+                print(" bind ");
             }
             if (bindStatus.isBidiBind()) {
-                print(" bind /*tie*/ ");
-            }
-            if (bindStatus.isDependent()) {
-                print(" bind /*lazy*/ ");
+                print(" bind /*bi-directional*/ ");
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -1031,7 +1028,8 @@ public class JavafxPretty implements JavafxVisitor {
                 print("(");
                 printExprs(tree.getArgs());
                 print(")");
-            } else {
+            }
+            {
                 // JFX instantiation
                 print(" {");
                 if (tree.getParts().nonEmpty()) {
@@ -1045,6 +1043,9 @@ public class JavafxPretty implements JavafxVisitor {
                     undent();
                     println();
                     align();
+                }
+                if (tree.getClassBody() != null) {
+                    printExpr(tree.getClassBody());
                 }
                 print("}");
             }

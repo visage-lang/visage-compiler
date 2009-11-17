@@ -35,14 +35,17 @@ import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 
 /**
  * Fill in the synthetic definitions needed in a bound function
+ * and bound object literal.
  * 
  * @author A. Sundararajan
+ * @author Robert Field
  */
-public class JavafxBoundFunctionFill extends JavafxTreeScanner {
+public class JavafxBoundFiller extends JavafxTreeScanner {
 
     private final JavafxPreTranslationSupport preTrans;
     private final JavafxTreeMaker fxmake;
@@ -53,18 +56,18 @@ public class JavafxBoundFunctionFill extends JavafxTreeScanner {
     // Pointer.make(Object) method.
     private MethodSymbol pointerMakeMethodSym;
 
-    protected static final Context.Key<JavafxBoundFunctionFill> boundFuncFill =
-            new Context.Key<JavafxBoundFunctionFill>();
+    protected static final Context.Key<JavafxBoundFiller> boundFuncFill =
+            new Context.Key<JavafxBoundFiller>();
 
-    public static JavafxBoundFunctionFill instance(Context context) {
-        JavafxBoundFunctionFill instance = context.get(boundFuncFill);
+    public static JavafxBoundFiller instance(Context context) {
+        JavafxBoundFiller instance = context.get(boundFuncFill);
         if (instance == null) {
-            instance = new JavafxBoundFunctionFill(context);
+            instance = new JavafxBoundFiller(context);
         }
         return instance;
     }
 
-    private JavafxBoundFunctionFill(Context context) {
+    private JavafxBoundFiller(Context context) {
         context.put(boundFuncFill, this);
 
         preTrans = JavafxPreTranslationSupport.instance(context);
@@ -78,6 +81,48 @@ public class JavafxBoundFunctionFill extends JavafxTreeScanner {
     }
 
     @Override
+    public void visitInstanciate(JFXInstanciate tree) {
+        boundObjectLiteralConverter(tree);
+        super.visitInstanciate(tree);
+    }
+
+    /**
+     * Convert bound object literal initializers into override var
+     * in the (formerly empty) class created by JavafxTreeMaker.
+     */
+    private void boundObjectLiteralConverter(JFXInstanciate tree) {
+        ListBuffer<JFXTree> newOverrides = ListBuffer.<JFXTree>lb();
+        ListBuffer<JFXObjectLiteralPart> unboundParts = ListBuffer.<JFXObjectLiteralPart>lb();
+        for (JFXObjectLiteralPart part : tree.getParts()) {
+            if (part.isBound()) {
+                fxmake.at(part.pos());  // create at part position
+                JFXIdent id = fxmake.Ident(part.name);
+                id.sym = part.sym;
+                id.type = part.sym.type;
+                JFXOverrideClassVar ocv =
+                        fxmake.OverrideClassVar(
+                        part.name,
+                        fxmake.Modifiers(part.sym.flags_field),
+                        id,
+                        part.getExpression(),
+                        part.getBindStatus(),
+                        null,
+                        null);
+                ocv.sym = (VarSymbol) part.sym;
+                ocv.type = part.sym.type;
+                newOverrides.append(ocv);
+            } else {
+                unboundParts.append(part);
+            }
+        }
+        if (newOverrides.nonEmpty()) {
+            JFXClassDeclaration cdecl = tree.getClassBody();
+            cdecl.setMembers(cdecl.getMembers().appendList(newOverrides));
+            tree.setParts(unboundParts.toList());
+        }
+    }
+
+   @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         if (tree.isBound()) {
             // Fill out the bound function support vars before

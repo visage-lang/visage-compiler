@@ -639,6 +639,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             diagPos,
                             List.<JCStatement>nil(), //TODO: statements rolled into expression (below) is this needed?
                             localDefs.size() == 0 ? tvalue : BlockExpression(localDefs, tvalue),
+                            bindees(),
                             invalidators(),
                             interClass(),
                             targetType);

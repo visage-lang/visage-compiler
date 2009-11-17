@@ -69,10 +69,6 @@ public abstract class JFXExpression extends JFXTree implements ExpressionTree, J
         return bindStatus.isBound();
     }
 
-    public boolean isDependent() {
-        return bindStatus.isDependent();
-    }
-
     public boolean isUnidiBind() {
         return bindStatus.isUnidiBind();
     }

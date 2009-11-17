@@ -1375,8 +1375,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         callMixin((ClassSymbol)varSym.owner);
                     }
 
-                    // Hack for bug in boundBinders() which includes invalidators
-                    if (!hasInvalidators) for (VarInfo otherVar : varInfo.boundBinders()) {
+                    for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.generateSequenceAccessors()) {
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));

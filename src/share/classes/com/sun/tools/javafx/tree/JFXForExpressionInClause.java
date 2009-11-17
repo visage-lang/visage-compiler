@@ -106,7 +106,11 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
         return bindStatus.isBound();
     }
 
-    public boolean isDependent() {
-        return bindStatus.isDependent();
+    public boolean isUnidiBind() {
+        return bindStatus.isUnidiBind();
+    }
+
+    public boolean isBidiBind() {
+        return bindStatus.isBidiBind();
     }
 }

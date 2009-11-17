@@ -74,8 +74,6 @@ public class JavafxLocalToClass {
     private final JavafxPreTranslationSupport preTrans;
     private final JavafxTreeMaker fxmake;
     private final JavafxDefs defs;
-    private final Name.Table names;
-    private final JavafxCheck chk;
     private final JavafxTypes types;
     private final JavafxSymtab syms;
 
@@ -84,7 +82,6 @@ public class JavafxLocalToClass {
     private boolean isStatic;
     private Stack<Symbol> prevOwners = new Stack();
     private Stack<Boolean> prevIsStatics = new Stack();
-    private int tmpCount = 0;
 
     protected static final Context.Key<JavafxLocalToClass> localToClass =
             new Context.Key<JavafxLocalToClass>();
@@ -103,8 +100,6 @@ public class JavafxLocalToClass {
         preTrans = JavafxPreTranslationSupport.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
         defs = JavafxDefs.instance(context);
-        names = Name.Table.instance(context);
-        chk = JavafxCheck.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
     }

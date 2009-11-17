@@ -112,6 +112,98 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
  ****************************************************************************/
 
     /**
+     * Translator for bound object literals
+     */
+    class BoundInstanciateTranslator extends InstanciateTranslator {
+
+        // Call function only if conditions met
+        private JCExpression condition = null;
+
+        // If we are wrapping with a test, collect the preface
+        private ListBuffer<JCStatement> wrappingPreface = ListBuffer.lb();
+
+        BoundInstanciateTranslator(JFXInstanciate tree) {
+            super(tree);
+        }
+
+        @Override
+        protected void initInstanceVariables(Name instName) {
+            // True if any of the initializers are sequences, we can't pre-test arguments
+            boolean hasSequenceInitializer = false;
+
+            for (JFXObjectLiteralPart olpart : tree.getParts()) {
+                if (types.isSequence(olpart.sym.type)) {
+                    hasSequenceInitializer = true;
+                }
+            }
+            if (!hasSequenceInitializer) {
+                // Always create a new instance if the default has not been applied yet
+                condition = FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null);
+            }
+            super.initInstanceVariables(instName);
+        }
+
+        @Override
+        protected JCExpression translateInstanceVariableInit(JFXExpression init, VarSymbol vsym) {
+            if (init instanceof JFXIdent) {
+                Symbol isym = ((JFXIdent) init).sym;
+                addBindee((VarSymbol) isym);
+
+                if (condition != null) {
+                    JCVariableDecl oldVar = TmpVar("old", vsym.type, Get(isym));
+                    JCVariableDecl newVar = TmpVar("new", vsym.type, Call(attributeGetterName(isym)));
+                    wrappingPreface.append(oldVar);
+                    wrappingPreface.append(newVar);
+
+                    // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
+                    condition = OR(condition, NE(id(oldVar), id(newVar)));
+
+                    return id(newVar);
+                } else {
+                    return super.translateInstanceVariableInit(init, vsym);
+                }
+            } else {
+                return super.translateInstanceVariableInit(init, vsym);
+            }
+        }
+
+        /**
+         * If we can, wrap the instance creation in a test to be sure an initializer really changed
+         *
+         * T res;
+         * if (DefaultsNotApplied || oldArg1 != newArg1 || oldArg2 != newArg2) {
+         *   T objlit = ... instance creation stuff
+         *   res = objectLit;
+         * } else {
+         *   res = prevValue;
+         * }
+         */
+        @Override
+        protected ExpressionResult doit() {
+            ExpressionResult eres = super.doit();
+            if (condition != null) {
+                // if no initializers have changed, don't create a new instance, just return previous value\
+                JCVariableDecl resVar = MutableTmpVar("res", tree.type, null);
+                JCStatement setRes =
+                    If(condition,
+                        Block(
+                            eres.statements().append(Stmt(m().Assign(id(resVar), eres.expr())))),
+                        Stmt(m().Assign(id(resVar), Get(targetSymbol))));
+                return new ExpressionResult(
+                        diagPos,
+                        wrappingPreface.toList().append(resVar).append(setRes),
+                        id(resVar),
+                        eres.bindees(),
+                        eres.invalidators(),
+                        eres.interClass(),
+                        eres.resultType());
+            } else {
+                return eres;
+            }
+        }
+    }
+
+    /**
      * Translate a bound function call
      */
     private class BoundFunctionCallTranslator extends FunctionCallTranslator {
@@ -378,7 +470,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         BoundSequenceResult doit() {
             setupInvalidators();
-            return new BoundSequenceResult(invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
+            return new BoundSequenceResult(bindees(), invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
         }
 
         JCExpression CallSize(Symbol sym) {
@@ -1563,6 +1655,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     @Override
     public void visitIndexof(JFXIndexof tree) {
         TODO(tree);
+    }
+
+    @Override
+    public void visitInstanciate(JFXInstanciate tree) {
+        result = new BoundInstanciateTranslator(tree).doit();
     }
 
     @Override
