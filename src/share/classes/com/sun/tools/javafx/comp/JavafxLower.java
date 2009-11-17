@@ -434,15 +434,8 @@ public class JavafxLower implements JavafxVisitor {
         JFXExpression meth = lower(tree.meth);
         List<Type> paramTypes = tree.meth.type.getParameterTypes();
         Symbol sym = JavafxTreeInfo.symbolFor(tree.meth);
-        if (sym instanceof MethodSymbol &&
-                ((MethodSymbol)sym).isVarArgs()) {
-            Type varargType = paramTypes.reverse().head;
-            paramTypes = paramTypes.reverse().tail.reverse(); //remove last formal
-            while (paramTypes.size() < tree.args.size()) {
-                paramTypes = paramTypes.append(types.elemtype(varargType));
-            }
-        }
-        List<JFXExpression> args = null;
+        
+        List<JFXExpression> args = List.nil();
         boolean pointer_Make = types.isSyntheticPointerFunction(sym);
         boolean builtins_isInitialized = types.isSyntheticIsInitializedFunction(sym);
         if (pointer_Make || builtins_isInitialized) {
@@ -464,6 +457,27 @@ public class JavafxLower implements JavafxVisitor {
                 JavafxTreeInfo.setSymbol(meth, methSym);
                 meth.type = methSym.type;
                 args = syntheticArgs.toList();
+        }
+        else if (sym instanceof MethodSymbol &&
+                ((MethodSymbol)sym).isVarArgs()) {
+            List<JFXExpression> actuals = tree.args;
+            while (paramTypes.tail.nonEmpty()) {
+                args = args.append(lowerExpr(actuals.head, paramTypes.head));
+                actuals = actuals.tail;
+                paramTypes = paramTypes.tail;
+            }
+            Type varargType = paramTypes.head;
+            if (actuals.size() == 1 && 
+                    (types.isSequence(actuals.head.type) ||
+                    types.isArray(actuals.head.type))) {
+                args = args.append(lowerExpr(actuals.head, varargType));
+            }
+            else if (actuals.size() > 0) {
+                while (actuals.nonEmpty()) {
+                    args = args.append(lowerExpr(actuals.head, types.elemtype(varargType)));
+                    actuals = actuals.tail;
+                }
+            }
         }
         else {
             args = lowerExprs(tree.args, paramTypes);
