@@ -188,11 +188,24 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 return m().Apply(translateExprs(typeargs), tMeth, determineArgs());
             } else {
                 JCExpression full = super.fullExpression(mungedToCheckTranslated);
+                // If the receiver changes, then we have to call the function again
+                if (selectorSym instanceof VarSymbol && !useInvoke && !selectorSym.type.isPrimitive()) {
+                    JCVariableDecl oldVar = TmpVar("old", selectorSym.type, Get(selectorSym));
+                    JCVariableDecl newVar = TmpVar("new", selectorSym.type, Call(attributeGetterName(selectorSym)));
+                    addPreface(oldVar);
+                    addPreface(newVar);
+                    // oldRcvr != newRcvr
+                    JCExpression rcvrNotEq = NE(id(oldVar), id(newVar));
+                    condition = condition != null? OR(condition, rcvrNotEq) : rcvrNotEq;
+                }
+
                 if (condition != null) {
+                    // FIXME: If there is no argument(s) check and no receiver check, then we
+                    // re-evaluate the function everytime. Revisit this.
+
                     // if no args have changed, don't call function, just return previous value
                     // Always call function if the default has not been applied yet
-                    //TODO: must call if selector changes
-                    full = 
+                    full =
                         If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
                             full,
                             Get(targetSymbol));
