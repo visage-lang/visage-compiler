@@ -839,13 +839,25 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitBlockExpression(JFXBlock tree) {
-        List<JFXExpression> stats = lower(tree.stats);
-        JFXExpression value = tree.value != null ?
-            lowerExpr(tree.value, pt) :
+        List<JFXExpression> stats = tree.stats;
+        JFXExpression value = tree.value;
+        if (value != null &&
+                JavafxTreeInfo.skipParens(value).getFXTag() == JavafxTag.VAR_DEF) {
+            JFXVar varDef = (JFXVar)JavafxTreeInfo.skipParens(value);
+            JFXIdent varRef = m.at(tree.value.pos).Ident(varDef.sym);
+            varRef.sym = varDef.sym;
+            varRef.type = varDef.type;
+            value = varRef;
+            stats = stats.append(varDef);
+        }
+        List<JFXExpression> loweredStats = lower(stats);
+        JFXExpression loweredValue = value != null ?
+            lowerExpr(value, pt) :
             null;
-        result = m.Block(tree.flags, stats, value);
+        
+        result = m.Block(tree.flags, loweredStats, loweredValue);
         result.type = value != null ?
-            value.type :
+            loweredValue.type :
             tree.type;
     }
 
