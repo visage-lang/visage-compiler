@@ -1291,8 +1291,7 @@ public abstract class JavafxAbstractTranslation
             callBound = msym != null && !useInvoke &&
                   ((msym.flags() & JavafxFlags.BOUND) != 0);
 
-            magicPointerMakeFunction = (msym != null) &&
-                    (msym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
+            magicPointerMakeFunction = types.isSyntheticPointerFunction(msym);
 
             // Call info
             this.typeargs = tree.getTypeArguments();
@@ -3606,8 +3605,8 @@ public abstract class JavafxAbstractTranslation
     }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
-        JFXFunctionDefinition def = tree.definition;
-        result = new FunctionValueTranslator(make.Ident(defs.lambda_MethodName), def, tree.pos(), (MethodType) def.type, tree.type).doit();
+        System.out.println(this.getClass().getCanonicalName());
+        disallowedInBind();
     }
 
     public abstract void visitIdent(JFXIdent tree);

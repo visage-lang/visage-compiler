@@ -75,6 +75,16 @@ public class JavafxTypes extends Types {
             && erasure(type) == syms.javafx_SequenceTypeErasure;
     }
 
+    public boolean isSyntheticIsInitializedFunction(Symbol sym) {
+        return  sym != null && sym.kind == Kinds.MTH &&
+                (sym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
+    }
+
+    public boolean isSyntheticPointerFunction(Symbol sym) {
+        return  sym != null && sym.kind == Kinds.MTH &&
+                (sym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
+    }
+
     public boolean isArrayOrSequenceType(Type type) {
         return isArray(type) || isSequence(type);
     }

@@ -1090,6 +1090,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         result = new FunctionTranslator(tree, false).doit();
     }
 
+    @Override
+    public void visitFunctionValue(JFXFunctionValue tree) {
+        JFXFunctionDefinition def = tree.definition;
+        result = new FunctionValueTranslator(make.Ident(defs.lambda_MethodName), def, tree.pos(), (MethodType) def.type, tree.type).doit();
+    }
+
     public void visitIdent(JFXIdent tree) {
         if (substitute(tree.pos(),tree.sym)) {
             return;

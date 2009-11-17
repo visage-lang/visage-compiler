@@ -123,6 +123,10 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
         result = new DependentSelectTranslator(tree).doit();
     }
 
+    @Override
+    public void visitFunctionValue(JFXFunctionValue tree) {
+        result = toJava().translateToExpressionResult(tree, targetType);
+    }
 
     /***********************************************************************
      *

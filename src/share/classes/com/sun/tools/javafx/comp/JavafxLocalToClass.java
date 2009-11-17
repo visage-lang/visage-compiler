@@ -31,6 +31,7 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
@@ -264,9 +265,7 @@ public class JavafxLocalToClass {
                 // If the function call is the magic Pointer.make(Object)
                 // function and argument involves a local var, then make a local
                 // context class.
-                boolean magicPointerMakeFunction = (msym != null) &&
-                    (msym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
-                if (magicPointerMakeFunction) {
+                if (types.isSyntheticPointerFunction(msym)) {
                     Symbol sym = JavafxTreeInfo.symbol(tree.args.head);
                     if (sym.isLocal()) {
                         needed = true;

@@ -1532,6 +1532,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         checkForUnproxiedSequence(tree);
         result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
     }
+
+    @Override
+    public void visitFunctionValue(final JFXFunctionValue tree) {
+        result = toJava().translateToExpressionResult(tree, targetSymbol.type);
+    }
     
     @Override
     public void visitIdent(JFXIdent tree) {

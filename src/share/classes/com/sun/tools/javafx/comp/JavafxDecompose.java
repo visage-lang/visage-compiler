@@ -375,8 +375,6 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
         JFXExpression fn = decompose(tree.meth);
         Symbol msym = JavafxTreeInfo.symbol(tree.meth);
-        boolean magicPointerMakeFunction = (msym != null) &&
-                    (msym.flags() & JavafxFlags.FUNC_POINTER_MAKE) != 0;
         /*
          * Do *not* shred select expression if it is passed to intrinsic function
          * Pointer.make(Object). Shred only the "selected" portion of it. If
@@ -385,7 +383,7 @@ public class JavafxDecompose implements JavafxVisitor {
          * Pointer.set() on that would throw assign-to-bind-variable exception.
          */
         List<JFXExpression> args;
-        if (magicPointerMakeFunction) {
+        if (types.isSyntheticPointerFunction(msym)) {
             JFXVarRef varRef = (JFXVarRef)tree.args.head;
             if (varRef.getReceiver() != null) {
                 varRef.setReceiver(shred(varRef.getReceiver()));

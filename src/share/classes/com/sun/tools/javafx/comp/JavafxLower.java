@@ -434,8 +434,6 @@ public class JavafxLower implements JavafxVisitor {
         JFXExpression meth = lower(tree.meth);
         List<Type> paramTypes = tree.meth.type.getParameterTypes();
         Symbol sym = JavafxTreeInfo.symbolFor(tree.meth);
-        boolean pointer_Make = (sym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
-        boolean builtins_isInitialized = (sym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
         if (sym instanceof MethodSymbol &&
                 ((MethodSymbol)sym).isVarArgs()) {
             Type varargType = paramTypes.reverse().head;
@@ -445,25 +443,27 @@ public class JavafxLower implements JavafxVisitor {
             }
         }
         List<JFXExpression> args = null;
+        boolean pointer_Make = types.isSyntheticPointerFunction(sym);
+        boolean builtins_isInitialized = types.isSyntheticIsInitializedFunction(sym);
         if (pointer_Make || builtins_isInitialized) {
-            JFXExpression varExpr = lower(tree.args.head);
-            ListBuffer<JFXExpression> syntheticArgs = ListBuffer.lb();
-            List<Type> argTypes = List.of(syms.javafx_FXObjectType, syms.intType);
-            syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.INST).setType(syms.javafx_FXObjectType));
-            syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
-            if (pointer_Make) {
-                argTypes = argTypes.append(syms.classType);
-            }
+                JFXExpression varExpr = lower(tree.args.head);
+                ListBuffer<JFXExpression> syntheticArgs = ListBuffer.lb();
+                List<Type> argTypes = List.of(syms.javafx_FXObjectType, syms.intType);
+                syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.INST).setType(syms.javafx_FXObjectType));
+                syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
+                if (pointer_Make) {
+                    argTypes = argTypes.append(syms.classType);
+                }
 
-            Symbol methSym = rs.resolveQualifiedMethod(tree.pos(),
-                    env,
-                    pointer_Make ? syms.javafx_PointerType : syms.javafx_AutoImportRuntimeType,
-                    pointer_Make ? defs.make_PointerMethodName : defs.isInitialized_MethodName,
-                    rs.newMethTemplate(argTypes, List.<Type>nil()));
-            methSym.flags_field = sym.flags();
-            JavafxTreeInfo.setSymbol(meth, methSym);
-            meth.type = methSym.type;
-            args = syntheticArgs.toList();
+                Symbol methSym = rs.resolveQualifiedMethod(tree.pos(),
+                        env,
+                        pointer_Make ? syms.javafx_PointerType : syms.javafx_AutoImportRuntimeType,
+                        pointer_Make ? defs.make_PointerMethodName : defs.isInitialized_MethodName,
+                        rs.newMethTemplate(argTypes, List.<Type>nil()));
+                methSym.flags_field = sym.flags();
+                JavafxTreeInfo.setSymbol(meth, methSym);
+                meth.type = methSym.type;
+                args = syntheticArgs.toList();
         }
         else {
             args = lowerExprs(tree.args, paramTypes);
