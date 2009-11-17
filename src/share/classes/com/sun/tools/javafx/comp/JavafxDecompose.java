@@ -480,7 +480,7 @@ public class JavafxDecompose implements JavafxVisitor {
             selected = unconditionalShred(meth, null);
         }
         else if ( tree.sym.isStatic() ||
-                (selectSym != null && selectSym.kind == Kinds.TYP) ||
+                (selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
                 !types.isJFXClass(tree.sym.owner)) {
             // Referenced is static, or qualified super access
             // then selected is a class reference
