@@ -343,7 +343,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CallSize(Symbol sym) {
-            return CallSize(null, sym);
+            return CallSize(getReceiver(), sym);
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
@@ -351,7 +351,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CallGetElement(Symbol sym, JCExpression pos) {
-            return CallGetElement(null, sym, pos);
+            return CallGetElement(getReceiver(), sym, pos);
         }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {

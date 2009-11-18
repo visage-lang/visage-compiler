@@ -728,8 +728,9 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXVar firstIndex = tree.getFirstIndex();
         JFXVar lastIndex = tree.getLastIndex();
         JFXVar newElements = tree.getNewElements();
+        JFXVar saveVar = oldValue != null && types.isSequence(oldValue.type) ? makeSaveVar(tree.pos(), oldValue.type) : null;
         JFXBlock body = decompose(tree.getBody());
-        result = fxmake.at(tree.pos).OnReplace(oldValue, firstIndex, lastIndex, tree.getEndKind(), newElements, body);
+        result = fxmake.at(tree.pos).OnReplace(oldValue, firstIndex, lastIndex, tree.getEndKind(), newElements, saveVar, body);
     }
 
     public void visitBlockExpression(JFXBlock tree) {
@@ -774,6 +775,12 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression initialSize = fxmake.at(diagPos).Literal(initial);
         initialSize.type = syms.intType;
         JFXVar v = makeVar(diagPos, "size", initialSize, JavafxBindStatus.UNIDIBIND, syms.intType);
+        return v;
+    }
+
+    private JFXVar makeSaveVar(DiagnosticPosition diagPos, Type type) {
+        JFXVar v = makeVar(diagPos, "save", null, JavafxBindStatus.UNBOUND, type);
+        v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
         return v;
     }
 

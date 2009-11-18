@@ -167,10 +167,10 @@ class JavafxAnalyzeClass {
         private final DiagnosticPosition diagPos;
 
         // Var symbol (unique to symbol.)
-        private final VarSymbol sym;
+        protected final VarSymbol sym;
 
         // Translated type information.
-        private final VarMorphInfo vmi;
+        protected final VarMorphInfo vmi;
 
         // Name of the var (is it the same as sym.name?)
         private final Name name;
@@ -186,7 +186,7 @@ class JavafxAnalyzeClass {
         
         // Inversion of invalidators.
         private ListBuffer<BindeeInvalidator> boundInvalidatees;
-        
+
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
             this.diagPos = diagPos;
@@ -338,7 +338,7 @@ class JavafxAnalyzeClass {
         public JCStatement boundSizeGetter() { return null; }
         
         // Null or Java code for invalidation of a bound sequence
-        public List<BindeeInvalidator> boundInvalidators() { return List.<BindeeInvalidator>nil(); }
+        public List<BindeeInvalidator> boundInvalidators() { return List.<BindeeInvalidator>nil(); }        
 
         @Override
         public String toString() { return getNameString(); }
@@ -523,6 +523,13 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
         private final Symbol boundFuncResultInitSym;
 
+        TranslatedVarInfo(DiagnosticPosition diagPos, VarSymbol sym, Name name, VarMorphInfo vmi, JavafxBindStatus bindStatus) {
+            super(diagPos, name, sym, bindStatus, false, vmi,
+                  null, null, null,
+                  null, null, null, null);
+            var = null;
+            boundFuncResultInitSym = null;
+        }
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
                 JCStatement initStmt, Symbol boundFuncResultInitSym,
                 BoundResult bindOrNull, ExpressionResult invBindOrNull,
@@ -825,7 +832,7 @@ class JavafxAnalyzeClass {
         }
 
         // Useful debugging tool.
-        //printAnalysis(false);
+        // printAnalysis(false);
     }
     
     private void addInterClassBinder(VarInfo varInfo, VarSymbol instanceSymbol, VarSymbol referenceSymbol) {
@@ -1139,6 +1146,30 @@ class JavafxAnalyzeClass {
     // Returns resulting list of all mixin classes in top down order.
     //
     public List<ClassSymbol> getAllMixins() { return allMixins.toList(); }
+    
+    //
+    // Add a var to the proper vars list.
+    //
+    public void addVarToList(VarInfo varInfo) {
+        if (varInfo.isStatic()) {
+            scriptVarInfos.append(varInfo);
+        } else {
+            classVarInfos.append(varInfo);
+        }
+    }
+    
+    //
+    // Check to see if a mixin has an override.
+    //
+    public void checkMixinOverride(MixinClassVarInfo varInfo) {
+        for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
+            if (tai.getSymbol() == varInfo.getSymbol()) {
+                varInfo.setOverride(tai);
+                tai.setProxyVar(varInfo);
+                break;
+            }
+        }
+    }
 
     //
     // This method analyzes the current javafx class.
@@ -1180,16 +1211,12 @@ class JavafxAnalyzeClass {
             // Find the overridden var.
             VarInfo oldVarInfo = visitedAttributes.get(tai.getSymbol());
 
-            // Test because it's possible to find the override before the mixin.
-            if (oldVarInfo != null) {
+            // Test because it's possible to find the override before the var.
+            if (oldVarInfo != null && !(oldVarInfo instanceof MixinClassVarInfo)) {
                 // Proxy to the overridden var.
                 tai.setProxyVar(oldVarInfo);
-                
-                if (oldVarInfo instanceof MixinClassVarInfo) {
-                    ((MixinClassVarInfo)oldVarInfo).setOverride(tai);
-                }
             }
-
+            
             // Track the var for overrides and mixin duplication.
             visitedAttributes.put(tai.getSymbol(), tai);
         }
@@ -1197,22 +1224,14 @@ class JavafxAnalyzeClass {
         // Add the current vars to the var results.
         // JFXC-3043 - This needs to be done after mixins.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            if (tai.isStatic()) {
-                scriptVarInfos.append(tai);
-            } else {
-                classVarInfos.append(tai);
-            }
+            addVarToList(tai);
         }
 
         // Add the override vars to the var results.
         // JFXC-3043 - This needs to be done after mixins.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
             if (!tai.overridesMixin()) {
-                if (tai.isStatic()) {
-                    scriptVarInfos.append(tai);
-                } else {
-                    classVarInfos.append(tai);
-                }
+                addVarToList(tai);
             }
         }
 
@@ -1417,7 +1436,9 @@ class JavafxAnalyzeClass {
                       if (varName != null) {
                           // Associate the accessor with the var.
                           MixinClassVarInfo varInfo = mixinVarMap.get(varName);
-                          varInfo.addAccessor(newMethod);
+                          if (varInfo != null) {
+                              varInfo.addAccessor(newMethod);
+                          }
                       } else {
                           // Add to the methods needing $impl dispatch.
                           needDispatchMethods.put(nameSig, newMethod);
@@ -1454,9 +1475,11 @@ class JavafxAnalyzeClass {
             boolean newIsMixin = isMixinClass(var.owner);
             if (newIsMixin && needsCloning) {
                 // Only process the mixin var if we've not seen it before.
-                if (oldVarInfo == null || oldVarInfo instanceof TranslatedOverrideClassVarInfo) {
+                if ((oldVarInfo == null || oldVarInfo instanceof TranslatedOverrideClassVarInfo) && (var.flags() & Flags.PRIVATE) == 0) {
                     // Construct a new mixin VarInfo.
                     MixinClassVarInfo newVarInfo = new MixinClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
+                    // Check for overriding var.
+                    checkMixinOverride(newVarInfo);
                     
                     // Add var to map.
                     Name varName = initBuilder.attributeValueName(var);
@@ -1465,12 +1488,11 @@ class JavafxAnalyzeClass {
                     // Don't add mixin vars to mixin classes.
                     if (!isMixinClass()) {
                         // Add the new mixin VarInfo to the result list.
-                        classVarInfos.append(newVarInfo);
+                        addVarToList(newVarInfo);
                     }
                     
                     // Map the fact we've seen this var.
                     visitedAttributes.put(var, newVarInfo);
-                } else if (oldVarInfo instanceof TranslatedOverrideClassVarInfo) {
                 }
             } else {
                 // Construct a new superclass VarInfo.
