@@ -83,6 +83,22 @@ runtimeFails1=`grep '<td.*Output written' build/test/reports/junit-noframes.html
     -e 's@\.fx.*@.fx@' \
     -e 's@\\\@/@g'`
 
+# Here is another form of failure.  This one only contains testname.fx.
+# <br>junit.framework.AssertionFailedError: expected:<[ 900 ]> but was:<[ 90 ]><br/>	at bindIfSelect$1local_klass$3.doit$$2(bindIfSelect.fx:188)<br/>	at bindIfSelect.testBoundSelectInverse(bindIfSelect.fx:189)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
+
+runtimeFails2=`fgrep 'junit.framework.AssertionFailedError: expected' build/test/reports/junit-noframes.html | \
+    sed -e 's@\.fx.*@.fx@' -e 's@.*<br/>@@' -e 's@.*(@@'`
+
+runtimeFails1="$runtimeFails1 $runtimeFails2"
+
+# yet another form of failure:
+# <br>junit.framework.ComparisonFailure: null expected:<A[E]C> but was:<A[]C><br/>	at MxOnSeq01.testA02(MxOnSeq01.fx:70)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
+
+runtimeFails2=`fgrep 'junit.framework.ComparisonFailure' build/test/reports/junit-noframes.html | \
+    sed -e 's@\.fx.*@.fx@' -e 's@.*<br/>@@' -e 's@.*(@@'`
+
+runtimeFails1="$runtimeFails1 $runtimeFails2"
+
 # put full paths into runtimeFails1   
 if [ ! -z "$runtimeFails1" ] ; then
     jjxx="$runtimeFails1"
@@ -98,32 +114,24 @@ if [ ! -z "$runtimeFails1" ] ; then
     done
 fi
 
-# Here is another form of failure -  we don't handle this one:
-#<tr valign="top" class="Error">
-#<td>testMethodOverloadInstance</td><td>Failure</td><td>null expected:&lt;[jj]&gt; but was:&lt;[kk]&gt;<code>
-#<br>
-#<br>junit.framework.ComparisonFailure: null expected:<[jj]> but was:<[kk]><br/>	at MethodOverload$TesterInstance.testInstanceRetInt(MethodOverload.fx:175)<br/>	at MethodOverload.testMethodOverloadInstance(MethodOverload.fx:336)<br/>	at framework.FXUnitTestWrapper.runTest(FXUnitTestWrapper.java:86)<br/></code></td><td>0.000</td>
-#</tr>
-# The test is MethodOverload.fx but it contains several subtests.  One of them can fail, but that doesn't cause MethodOverload itself to fail.
-
       echo "$compilationFails" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
-@g' | sort > ./build/test/dev-compilation-fails
+@g' | sort | uniq > ./build/test/dev-compilation-fails
 
       echo "$runtimeFails" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
-@g' | sort > ./build/test/dev-runtime-fails
+@g' | sort | uniq > ./build/test/dev-runtime-fails
 
       echo "$runtimeFails1" | sed -e 's@^ @@' -e 's@ $@@' | sed -e 's@ @\
-@g' | sort > ./build/test/dev-runtime-fails1
+@g' | sort | uniq > ./build/test/dev-runtime-fails1
 
       # count failures
       echo "$compilationFails $runtimeFails $runtimeFails1" | sed -e 's@^ *@@' -e 's@ *$@@' -e '/^$/d' -e 's@ @\
-@g' | sort > ./build/test/dev-actual-fails
+@g' | sort | uniq > ./build/test/dev-actual-fails
      nFails=`cat ./build/test/dev-actual-fails | wc -l`
 
      # count passes
      if [ ! -z "$passes" -o ! -z "$passingTests" ] ; then
          echo $passes $passingTests  | sed -e 's@ @\
-@g' | sort > ./build/test/dev-passes
+@g' | sort | uniq > ./build/test/dev-passes
          nPasses=`cat ./build/test/dev-passes | wc -l`
      else
          nPasses=0
