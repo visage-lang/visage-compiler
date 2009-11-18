@@ -777,11 +777,19 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
      public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
              JFXVar lastIndex, int endKind, JFXVar newElements, JFXBlock body) {
-         JFXOnReplace tree = new JFXOnReplace(oldValue, firstIndex, lastIndex,
-                 endKind, newElements, body, JFXOnReplace.Kind.ONREPLACE);
+         JFXOnReplace tree = OnReplace(oldValue, firstIndex, lastIndex,
+                 endKind, newElements, null, body);
         tree.pos = pos;
         return tree;
-    }
+     }
+
+     public JFXOnReplace OnReplace(JFXVar oldValue, JFXVar firstIndex,
+             JFXVar lastIndex, int endKind, JFXVar newElements, JFXVar saveVar, JFXBlock body) {
+         JFXOnReplace tree = new JFXOnReplace(oldValue, firstIndex, lastIndex,
+                 endKind, newElements, saveVar, body, JFXOnReplace.Kind.ONREPLACE);
+        tree.pos = pos;
+        return tree;
+     }
 
      public JFXOnReplace OnInvalidate(JFXBlock body) {
         JFXOnReplace tree = new JFXOnReplace(null, body, JFXOnReplace.Kind.ONINVALIDATE);
