@@ -595,6 +595,66 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     /**
+     * Bound block Translator block of sequence type
+     *
+     * Assumptions:
+     *   Block vars have been moved out to class and replaced with VarInits.
+     *   Block value has been made into a synthetic value, and a VarInit for has
+     *   been added to block vars
+     *
+     * Core is that VarInits are run when size is first queried.
+     */
+    class BoundBlockSequenceTranslator extends BoundSequenceTranslator {
+
+        // Symbol of the referenced
+        private final VarSymbol vsym;
+
+        // The VarInits aka the non-value part of the block
+        private final List<JFXExpression> varInits;
+
+        BoundBlockSequenceTranslator(JFXBlock tree) {
+            super(tree.pos());
+            JFXIdent id = (JFXIdent) (tree.value);
+            this.vsym = (VarSymbol) id.sym;
+            this.varInits = tree.stats;
+        }
+
+        JCStatement makeSizeBody() {
+            ListBuffer<JCStatement> tVarInits = ListBuffer.lb();
+            for (JFXExpression init : varInits) {
+                tVarInits.append(translateToStatement(init, syms.voidType));
+            }
+
+            return
+                Block(
+                    If (isSequenceDormantSetActive(),
+                        Block(
+                            tVarInits.toList()
+                        )
+                    ),
+                    Return(CallSize(vsym))
+                );
+        }
+
+        JCStatement makeGetElementBody() {
+            return
+                Block(
+                    If (NOT(isSequenceActive()),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return(CallGetElement(vsym, posArg()))
+                );
+        }
+
+        /**
+         * Updates through value
+         */
+        void setupInvalidators() {
+            addBindee(vsym);
+        }
+    }
+
+    /**
      * Bound type-cast Translator for type-cast from-and-to sequences
      *
      * Just forward the requests for size and elements, the latter type-converted
@@ -1610,8 +1670,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     public void visitBlockExpression(JFXBlock tree) {
-        checkForSequenceVersionUnimplemented(tree);
-        result = new BoundBlockExpressionTranslator(tree).doit();
+        if (tree == boundExpression && isTargettedToSequence()) {
+            // We are translating to a bound sequence
+            result = new BoundBlockSequenceTranslator(tree).doit();
+        } else {
+            result = new BoundBlockExpressionTranslator(tree).doit();
+        }
     }
 
     @Override
@@ -1649,7 +1713,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         } else {
             result = new BoundIfExpressionTranslator(tree).doit();
         }
-
     }
 
     @Override

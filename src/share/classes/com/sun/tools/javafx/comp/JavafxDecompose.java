@@ -711,11 +711,37 @@ public class JavafxDecompose implements JavafxVisitor {
         result = fxmake.at(tree.pos).OnReplace(oldValue, firstIndex, lastIndex, tree.getEndKind(), newElements, body);
     }
 
+    /**
+     * Block-expressions
+     *
+     * For bound sequence block-expressions, get the initialization right by
+     *   The block vars have already been made into VarInits.
+     *   Making block value into a synthetic var, and add a VarInit for it
+     *   to the block vars
+     */
     public void visitBlockExpression(JFXBlock tree) {
-        tree.stats = decomposeContainer(tree.stats);
-        tree.value = decompose(tree.value);
-            result = tree;
+        List<JFXExpression> stats;
+        JFXExpression value;
+        if (bindStatus.isBound() && types.isSequence(tree.type)) {
+            for (JFXExpression stat : tree.stats) {
+                if (!(stat instanceof JFXVarInit)) {
+                    throw new AssertionError("the statements in a bound block should already be just VarInit");
+                }
+            }
+            JFXVar v = shredVar("value", decompose(tree.value), tree.type);
+            JFXVarInit vi = fxmake.at(tree.value.pos()).VarInit(v);
+            vi.type = tree.type;
+            stats = tree.stats.append(vi);
+            JFXIdent val = id(v);
+            val.sym = v.sym;
+            val.type = tree.type;
+            value = val;
+        } else {
+            stats = decomposeContainer(tree.stats);
+            value = decompose(tree.value);
         }
+        result = fxmake.at(tree.pos()).Block(tree.flags, stats, value);
+    }
 
     public void visitFunctionValue(JFXFunctionValue tree) {
         JavafxBindStatus prevBindStatus = bindStatus;
