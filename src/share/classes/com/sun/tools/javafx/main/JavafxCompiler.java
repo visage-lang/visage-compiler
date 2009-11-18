@@ -1076,6 +1076,9 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             // Lower has smashed our analysis
             bindAnalyzer.analyzeBindContexts(env);
 
+            if (verboseCompilePolicy)
+                Log.printLines(log.noticeWriter, "[decompose " + env.enclClass.sym + "]");
+
             boundFill.fill(env);
             printJavafxSource("dumpfill", env.toplevel, null);
 
@@ -1084,7 +1087,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
             localToClass.inflateAsNeeded(env);
             printJavafxSource("dumpinflate", env.toplevel, null);
-
+            
             decomposeBindExpressions.decompose(env);
             printJavafxSource("dumpdecompose", env.toplevel, null);
 
@@ -1147,7 +1150,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     public JavafxEnv<JavafxAttrContext> lower(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
-            Log.printLines(log.noticeWriter, "[type-conv " + env.enclClass.sym + "]");
+            Log.printLines(log.noticeWriter, "[lower " + env.enclClass.sym + "]");
 
         JavaFileObject prev = log.useSource(
                                   env.enclClass.sym.sourcefile != null ?

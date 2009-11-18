@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -189,6 +190,13 @@ public class JavafxPreTranslationSupport {
 
     public MethodSymbol makeDummyMethodSymbol(Symbol owner) {
         return new MethodSymbol(Flags.BLOCK, names.empty, null, owner);
+    }
+
+    JFXType makeTypeTree(Type type) {
+        Type elemType = types.elementTypeOrType(type);
+        JFXExpression typeExpr = fxmake.Type(elemType).setType(elemType);
+        JavafxTreeInfo.setSymbol(typeExpr, elemType.tsym);
+        return (JFXType)fxmake.TypeClass(typeExpr, types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON, (ClassSymbol)type.tsym).setType(type);
     }
 }
 

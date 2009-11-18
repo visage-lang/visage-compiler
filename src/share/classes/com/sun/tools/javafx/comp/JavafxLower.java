@@ -37,6 +37,7 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Type;
 
 import com.sun.tools.mjavac.code.TypeTags;
@@ -236,9 +237,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private JFXExpression makeCast(JFXExpression tree, Type type) {
-        JFXExpression typeTree = m.TypeClass(m.Type(types.elementTypeOrType(type)),
-                types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON);
-        typeTree.type = type;
+        JFXExpression typeTree = preTrans.makeTypeTree(type);
         JFXExpression expr = m.at(tree.pos).TypeCast(typeTree, tree);
         expr.type = type;
         return expr;
@@ -255,7 +254,7 @@ public class JavafxLower implements JavafxVisitor {
 
     private JFXVar makeTmpVar(DiagnosticPosition diagPos, VarSymbol vSym, JFXExpression init) {
         JFXModifiers mod = m.at(diagPos).Modifiers(vSym.flags());
-        JFXType fxType = m.at(diagPos).TypeClass(m.at(diagPos).Type(vSym.type), Cardinality.SINGLETON);
+        JFXType fxType = preTrans.makeTypeTree(vSym.type);
         JFXVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, JavafxBindStatus.UNBOUND, null, null);
         v.sym = vSym;
         v.type = vSym.type;

@@ -30,6 +30,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
@@ -719,7 +720,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     }
 
     public JFXType  TypeClass(JFXExpression className,Cardinality cardinality) {
-        JFXType tree = new JFXTypeClass(className, cardinality, null);
+        return TypeClass(className, cardinality, null);
+    }
+
+    public JFXType  TypeClass(JFXExpression className,Cardinality cardinality, ClassSymbol sym) {
+        JFXType tree = new JFXTypeClass(className, cardinality, sym);
         tree.pos = pos;
         return tree;
     }

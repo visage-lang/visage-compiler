@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -76,6 +77,7 @@ public class JavafxLocalToClass {
     private final JavafxDefs defs;
     private final JavafxTypes types;
     private final JavafxSymtab syms;
+    private final JavafxResolve rs;
 
     private JavafxEnv<JavafxAttrContext> env;
     private Symbol owner;
@@ -102,6 +104,7 @@ public class JavafxLocalToClass {
         defs = JavafxDefs.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        rs = JavafxResolve.instance(context);
     }
 
     public void inflateAsNeeded(JavafxEnv<JavafxAttrContext> attrEnv) {
@@ -496,25 +499,30 @@ public class JavafxLocalToClass {
 
         if (vc.returnFound) {
             // We have a non-local return -- wrap it in try-catch
-            JFXBlock tryBody = fxmake.Block(0L, stats, value);
-            JFXVar param = fxmake.Param(preTrans.syntheticName("expt"), null);
+            JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(vc.returnType);
+            JFXVar param = fxmake.Param(preTrans.syntheticName("expt"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
             param.setType(syms.javafx_NonLocalReturnExceptionType);
             param.sym = new VarSymbol(0L, param.name, param.type, owner);
-            JFXExpression retValue = vc.returnType == null?
-                null :
-                fxmake.TypeCast(vc.returnType,
-                    fxmake.Select(
-                        fxmake.Ident(param),
-                        defs.value_NonLocalReturnExceptionFieldName));
+            JFXExpression retValue = null;
+            if (vc.returnType != null) {
+                JFXIdent nlParam = fxmake.Ident(param);
+                nlParam.type = param.type;
+                nlParam.sym = param.sym;
+                JFXSelect nlValue = fxmake.Select(nlParam,
+                        defs.value_NonLocalReturnExceptionFieldName);
+                nlValue.type = syms.objectType;
+                nlValue.sym = rs.findIdentInType(env, syms.javafx_NonLocalReturnExceptionType, nlValue.name, Kinds.VAR);
+                retValue = fxmake.TypeCast(preTrans.makeTypeTree(vc.returnType), nlValue).setType(vc.returnType);
+            }
             stats = List.nil();
             value =
                 fxmake.Try(
                     tryBody,
                     List.of(
                         fxmake.Catch(param,
-                            fxmake.Block(0L,
+                            (JFXBlock)fxmake.Block(0L,
                                 List.<JFXExpression>nil(),
-                                fxmake.Return(retValue)))
+                                fxmake.Return(retValue)).setType(vc.returnType))
                     ),
                     null);
         }
