@@ -1335,6 +1335,10 @@ public abstract class JavafxAbstractTranslation
             else {
                 Type currentType = currentClass().type;
                 while (currentType != Type.noType) {
+                    // selector type is same as some enclosing type, so not a super call
+                    if (types.isSameType(currentType, selectorSym.type)) {
+                        return false;
+                    }
                     if (types.isSubtype(currentType, selectorSym.type)) {
                         return true;
                     }
