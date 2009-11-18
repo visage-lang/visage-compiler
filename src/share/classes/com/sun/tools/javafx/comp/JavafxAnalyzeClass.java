@@ -523,13 +523,6 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
         private final Symbol boundFuncResultInitSym;
 
-        TranslatedVarInfo(DiagnosticPosition diagPos, VarSymbol sym, Name name, VarMorphInfo vmi, JavafxBindStatus bindStatus) {
-            super(diagPos, name, sym, bindStatus, false, vmi,
-                  null, null, null,
-                  null, null, null, null);
-            var = null;
-            boundFuncResultInitSym = null;
-        }
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
                 JCStatement initStmt, Symbol boundFuncResultInitSym,
                 BoundResult bindOrNull, ExpressionResult invBindOrNull,
@@ -831,8 +824,9 @@ class JavafxAnalyzeClass {
            }
         }
 
-        // Useful debugging tool.
-        // printAnalysis(false);
+        if (initBuilder.options.get("dumpvarinfo") != null) {
+            printAnalysis(false);
+        }
     }
     
     private void addInterClassBinder(VarInfo varInfo, VarSymbol instanceSymbol, VarSymbol referenceSymbol) {
