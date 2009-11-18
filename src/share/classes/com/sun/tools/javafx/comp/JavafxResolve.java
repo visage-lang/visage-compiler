@@ -606,9 +606,6 @@ public class JavafxResolve {
                     if ((e.sym.flags_field & SYNTHETIC) != 0)
                         continue;
                     if ((e.sym.kind & (MTH|VAR)) != 0) {
-                        if (innerAccess || !attr.inSameEnclosingScope(e.sym, env)) {
-                            e.sym.flags_field |= JavafxFlags.VARUSE_INNER_ACCESS;
-                        }
                         if (checkArgs) {
                             return checkArgs(e.sym, mtype);
                         }

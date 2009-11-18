@@ -566,7 +566,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         BoundIdentSequenceTranslator(JFXIdent tree, ExpressionResult exprResult) {
             super(tree.pos());
             this.sym = tree.sym;
-            this.isRefToSequenceInNonSequenceForm = (sym.flags() & JavafxFlags.VARUSE_SEQUENCE_AS_NON) != 0L;
+            this.isRefToSequenceInNonSequenceForm = (sym.flags() & JavafxFlags.VARMARK_SEQUENCE_AS_NON) != 0L;
             this.exprResult = exprResult;
         }
 
@@ -1604,7 +1604,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     private void checkForUnproxiedSequence(JFXExpression tree) {
         if (tree == boundExpression &&
                 isTargettedToSequence() &&
-                (targetSymbol.flags() & JavafxFlags.VARUSE_SEQUENCE_AS_NON) == 0L) {
+                (targetSymbol.flags() & JavafxFlags.VARMARK_SEQUENCE_AS_NON) == 0L) {
             throw new AssertionError("bound sequence function invocation not proxied");
         }
     }

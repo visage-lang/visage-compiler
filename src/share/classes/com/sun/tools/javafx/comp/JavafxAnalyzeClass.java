@@ -218,7 +218,7 @@ class JavafxAnalyzeClass {
         
         // Return true if the var is a bare bones synthesize var (bind temp.)
         public boolean isBareSynth() {
-            return (getFlags() & JavafxFlags.VARUSE_BARE_SYNTH) != 0;
+            return (getFlags() & JavafxFlags.VARMARK_BARE_SYNTH) != 0;
         }
         
         // Return true if the var/override has an initializing expression

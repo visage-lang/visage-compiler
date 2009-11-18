@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.code.Symbol;
@@ -551,49 +550,46 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }.doit();
     }
 
+    /**
+     * Translate a local variable
+     */
     private class VarTranslator extends ExpressionTranslator {
 
         final JFXVar tree;
-        final JFXModifiers mods;
         final VarSymbol vsym;
         final VarMorphInfo vmi;
-        final long flags;
-        final boolean isParameter;
-        final boolean hasInnerAccess;
+        final boolean hasForwardReference;
+        final boolean isAssignedTo;
         final long modFlags;
 
         VarTranslator(JFXVar tree) {
             super(tree.pos());
             this.tree = tree;
-            mods = tree.getModifiers();
+            JFXModifiers mods = tree.getModifiers();
             vsym = tree.getSymbol();
             vmi = typeMorpher.varMorphInfo(vsym);
+            long flags = vsym.flags();
             assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here: " + tree.name;
-            flags = vsym.flags();
-            isParameter = (flags & Flags.PARAMETER) != 0;
-            hasInnerAccess = (flags & JavafxFlags.VARUSE_INNER_ACCESS) != 0;
-            modFlags = (mods.flags & ~Flags.FINAL) | ((hasInnerAccess | isParameter) ? Flags.FINAL : 0L);
+            assert (flags & Flags.PARAMETER) == 0L : "we should not see parameters here" + tree.name;
+            hasForwardReference = (flags & JavafxFlags.VARUSE_FORWARD_REFERENCE) != 0L;
+            isAssignedTo = (flags & JavafxFlags.VARUSE_ASSIGNED_TO) != 0L;
+            modFlags = (mods.flags & ~Flags.FINAL) | ((hasForwardReference || isAssignedTo) ? 0L : Flags.FINAL);
         }
 
         protected AbstractStatementsResult doit() {
-            // for class vars, initialization happens during class init, so set to
-            // default Location.  For local vars translate as definitional
-            assert !isParameter;
-            JCExpression init;
-            // create a blank variable declaration and move the declaration to the beginning of the block
             optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
-            if ((modFlags & Flags.FINAL) != 0) {
-                //TODO: this case probably won't be used any more, but it will
-                // be again if we optimize the case for initializer which don't reference locals
-                init = translateNonBoundInit(diagPos, tree.getInitializer(),typeMorpher.varMorphInfo(vsym));
-                JCStatement var = Var(modFlags, tree.type, tree.name, init);
-                prependToStatements.append(var);
-                return new StatementsResult(diagPos, List.<JCStatement>nil());
-            }
-            init = JavafxToJava.this.makeDefaultValue(diagPos, vmi);
-            prependToStatements.prepend(Var(modFlags, tree.type, tree.name, init));
 
-            return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vmi, null);
+            if (hasForwardReference) {
+                // create a blank variable declaration and move the declaration to the beginning of the block
+                JCExpression init = JavafxToJava.this.makeDefaultValue(diagPos, vmi);
+                prependToStatements.prepend(Var(modFlags, tree.type, tree.name, init));
+                return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vmi, null);
+            } else {
+                // Translate in-place
+                JCExpression init = translateNonBoundInit(diagPos, tree.getInitializer(), typeMorpher.varMorphInfo(vsym));
+                JCStatement var = Var(modFlags, tree.type, tree.name, init);
+                return new StatementsResult(var);
+            }
         }
     }
 

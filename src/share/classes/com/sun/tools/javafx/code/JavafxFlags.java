@@ -52,22 +52,25 @@ public class JavafxFlags {
     public static final long OBJ_LIT_INIT              = FIRST_FX_MOD_FLAG << 9;
     private static final long LAST_FX_MOD_FLAG         = OBJ_LIT_INIT;
 
-    // Var/def usage info -- all usage info is within the script only //TODO: many no longer used
-    private static final long FIRST_VARUSE_FLAG      = LAST_FX_MOD_FLAG << 1;
-    public static final long VARUSE_BOUND_INIT       = FIRST_VARUSE_FLAG << 0;  // defined as bound, initially, in obj lit, or override
-    public static final long VARUSE_HAS_ON_REPLACE   = FIRST_VARUSE_FLAG << 1;  // has 'on replace' either in definition or override
-    public static final long VARUSE_USED_IN_BIND     = FIRST_VARUSE_FLAG << 2;  // used in a bound expression
-    public static final long VARUSE_ASSIGNED_TO      = FIRST_VARUSE_FLAG << 3;  // assigned ("=") to outside of an init
-    public static final long VARUSE_INIT_ASSIGNED_TO = FIRST_VARUSE_FLAG << 4;  // assigned to inside of an init
-    public static final long VARUSE_OBJ_LIT_INIT     = FIRST_VARUSE_FLAG << 5;  // initialized in an obj lit, bound or not
-    public static final long VARUSE_INNER_ACCESS     = FIRST_VARUSE_FLAG << 6;  // var accessed within an inner class
-    public static final long VARUSE_SELF_REFERENCE   = FIRST_VARUSE_FLAG << 7;  // the initializing expression references the var
-    public static final long VARUSE_TMP_IN_INIT_EXPR = FIRST_VARUSE_FLAG << 8;  // temp flag, set while inside var's initializing expression
-    public static final long VARUSE_OPT_TRIGGER      = FIRST_VARUSE_FLAG << 9;
-    public static final long VARUSE_BARE_SYNTH       = FIRST_VARUSE_FLAG << 10; // synthetic that should only have field and invalidate generated for it (no accessors)
-    public static final long VARUSE_HAS_ON_INVALIDATE= FIRST_VARUSE_FLAG << 11; // has 'on invalidate' either in definition or override
-    public static final long VARUSE_SEQUENCE_AS_NON  = FIRST_VARUSE_FLAG << 12; // a sequence variable which should be treated as a non-sequence
-    // This last shift + the last for modifiers must be < 24 or we get overflow
+    // Flags on vars to inform translation
+    private static final long FIRST_VARMARK_FLAG       = LAST_FX_MOD_FLAG << 1;
+    public static final long VARMARK_BARE_SYNTH        = FIRST_VARMARK_FLAG << 0; // synthetic that should only have field and invalidate generated for it (no accessors)
+    public static final long VARMARK_SEQUENCE_AS_NON   = FIRST_VARMARK_FLAG << 1; // a sequence variable which should be treated as a non-sequence
+    private static final long LAST_VARMARK_FLAG        = VARMARK_SEQUENCE_AS_NON;
+
+    // Var/def usage info -- all usage info is within the script only 
+    private static final long FIRST_VARUSE_FLAG        = LAST_VARMARK_FLAG << 1;
+    public static final long VARUSE_HAS_ON_REPLACE     = FIRST_VARUSE_FLAG << 0;  // has 'on replace' either in definition or override
+    public static final long VARUSE_HAS_ON_INVALIDATE  = FIRST_VARUSE_FLAG << 1;  // has 'on invalidate' either in definition or override
+    public static final long VARUSE_BOUND_INIT         = FIRST_VARUSE_FLAG << 2;  // defined as bound, initially, in obj lit, or override
+    public static final long VARUSE_ASSIGNED_TO        = FIRST_VARUSE_FLAG << 3;  // assigned ("=") to
+    public static final long VARUSE_OBJ_LIT_INIT       = FIRST_VARUSE_FLAG << 4;  // initialized in an obj lit, bound or not
+    public static final long VARUSE_FORWARD_REFERENCE  = FIRST_VARUSE_FLAG << 5;  // used before referenced
+    public static final long VARUSE_SELF_REFERENCE     = FIRST_VARUSE_FLAG << 6;  // the initializing expression references the var
+    public static final long VARUSE_DEFINITION_SEEN    = FIRST_VARUSE_FLAG << 7;  // we have seen the definition of the var (for forward reference)
+    public static final long VARUSE_OPT_TRIGGER        = FIRST_VARUSE_FLAG << 8;  // please document
+    public static final long VARUSE_TMP_IN_INIT_EXPR   = FIRST_VARUSE_FLAG << 9;  // temp flag, set while inside var's initializing expression
+    // This last shift + the last for modifiers + the last on marks must be <= 22 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_FUNC_FLAG    = LAST_FX_MOD_FLAG << 1;

@@ -106,7 +106,7 @@ public class JavafxLocalToClass {
 
     public void inflateAsNeeded(JavafxEnv<JavafxAttrContext> attrEnv) {
         this.env = attrEnv;
-        descendWasInflated(attrEnv.tree);
+        descend(attrEnv.tree);
     }
 
     /**
@@ -230,11 +230,12 @@ public class JavafxLocalToClass {
                 // Do not descend -- this analysis is within the chunk
             }
 
-            void classWithin(JFXClassDeclaration block) {
+            void classWithin(JFXClassDeclaration klass) {
                 // Do not descend -- this analysis is within the chunk
 
-                assert false : "if there was a class within, shouldn't be here testing inflation";
-                needed = true;
+                // If this block holds a class definition that references a local var that is
+                // assigned to (and thus cannot be final), we need to inflate the block
+                needed |= referencesMutatedLocal(klass);
             }
 
             @Override
@@ -250,7 +251,7 @@ public class JavafxLocalToClass {
             @Override
             public void visitFunctionValue(JFXFunctionValue tree) {
                 // Funtion value may reference (non-final) locals
-                needed = true;
+                needed |= referencesMutatedLocal(tree);
             }
 
             @Override
@@ -559,92 +560,59 @@ public class JavafxLocalToClass {
 
     /**
      * Descend to the next level of chunk
-     * @return true if that chunk was inflated
      */
-    private boolean descendWasInflated(JFXTree tree) {
+    private void descend(JFXTree tree) {
         BottomUpChunkWalker bucw = new BottomUpChunkWalker();
         bucw.scan(tree);
-        return bucw.wasInflated;
     }
 
     private class BottomUpChunkWalker extends AbstractTreeChunker {
 
-        boolean wasInflated = false;
-
         void blockWithin(JFXBlock block) {
             // Descend into inner chunks
-            boolean innerWasInflated = descendWasInflated(block);
+            descend(block);
 
-            // If inner was inflated, that can force outer to be inflated
-            //TODO: refine that
-            // otherwise check if the block needs inflation
-            if (innerWasInflated || needsToBeInflatedToClass(block)) {
+            // check if the block needs inflation, if so, inflate
+            if (needsToBeInflatedToClass(block)) {
                 inflateBlockToClass(block);
-                wasInflated = true;
             }
         }
 
         void classWithin(JFXClassDeclaration klass) {
             for (JFXTree member : klass.getMembers()) {
-                descendWasInflated(member);
+                descend(member);
             }
             flattenVarsIntoClass(klass);
-
-            // Effectively pre-inflated
-            wasInflated = true;
         }
     }
 
 
     /************************** Utilities ******************************/
 
-    private boolean hasSelfReference(JFXVar checkedVar) {
+    private boolean referencesMutatedLocal(JFXTree tree) {
 
-        class SelfReferenceChecker extends JavafxTreeScanner {
+        class ReferenceChecker extends JavafxTreeScanner {
 
-            HashMap<Symbol, JFXFunctionValue> varDecls = new HashMap<Symbol, JFXFunctionValue>();
-            JFXFunctionValue enclFunctionValue = null;
-            boolean foundSelfRef;
+            boolean hasMutatedLocal = false;
 
             @Override
             public void visitIdent(JFXIdent tree) {
-                if (varDecls.containsKey(tree.sym) &&
-                        varDecls.get(tree.sym) != enclFunctionValue) {
-                    foundSelfRef = true;
+                if (tree.sym instanceof VarSymbol) {
+                    VarSymbol vsym = (VarSymbol) tree.sym;
+                    if (vsym.owner.kind != Kinds.TYP &&
+                            (vsym.flags() & (JavafxFlags.VARUSE_ASSIGNED_TO | JavafxFlags.VARUSE_SELF_REFERENCE | JavafxFlags.VARUSE_FORWARD_REFERENCE)) != 0L) {
+                        hasMutatedLocal = true;
+                    }
                 }
-            }
-
-            @Override
-            public void visitVar(JFXVar tree) {
-                boolean prevFoundSelfRef = foundSelfRef;
-                try {
-                    varDecls.put(tree.sym, enclFunctionValue);
-                    super.visitVar(tree);
-                } finally {
-                    varDecls.remove(tree.sym);
-                    foundSelfRef = prevFoundSelfRef;
-                }
-            }
-
-            @Override
-            public void visitFunctionValue(JFXFunctionValue tree) {
-                JFXFunctionValue prevEnclFunctionValue = enclFunctionValue;
-                try {
-                    enclFunctionValue = tree;
-                    super.visitFunctionValue(tree);
-                } finally {
-                    enclFunctionValue = prevEnclFunctionValue;
-                }
-            }
-
-            boolean checkSelfRef(JFXVar tree) {
-                varDecls.put(tree.sym, null);
-                scan(tree.getInitializer());
-                return foundSelfRef;
             }
         }
+        ReferenceChecker rc = new ReferenceChecker();
+        rc.scan(tree);
+        return rc.hasMutatedLocal;
+    }
 
-        return new SelfReferenceChecker().checkSelfRef(checkedVar);
+    private boolean hasSelfReference(JFXVar checkedVar) {
+        return (checkedVar.sym.flags() & JavafxFlags.VARUSE_SELF_REFERENCE) != 0L;
     }
 
     private void pushOwner(Symbol newOwner, boolean newIsStatic) {

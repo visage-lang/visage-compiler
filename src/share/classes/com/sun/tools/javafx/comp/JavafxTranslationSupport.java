@@ -155,7 +155,7 @@ public abstract class JavafxTranslationSupport {
         boolean isKnown = isLocal || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
         long flags = sym.flags();
         boolean isWritable = (flags & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS)) != 0L;
-        boolean isAssignedTo = (flags & (JavafxFlags.VARUSE_INIT_ASSIGNED_TO | JavafxFlags.VARUSE_ASSIGNED_TO)) != 0;
+        boolean isAssignedTo = (flags & JavafxFlags.VARUSE_ASSIGNED_TO) != 0;
         boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
         boolean isDefinedBound = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0;
         return

@@ -335,7 +335,7 @@ public class JavafxDecompose implements JavafxVisitor {
             res.boundElseVar = synthVar("else", falsepart, falsepart.type);
             // Add a size field to hold the previous size on condition switch
             JFXVar v = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
-            v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+            v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
             res.boundSizeVar = v;
         }
         result = res;
@@ -406,7 +406,7 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
             JFXVar v = shredVar("sii", res, tree.type);
-            v.sym.flags_field |= JavafxFlags.VARUSE_SEQUENCE_AS_NON;
+            v.sym.flags_field |= JavafxFlags.VARMARK_SEQUENCE_AS_NON;
             res = id(v);
         }
         result = res;
@@ -496,7 +496,7 @@ public class JavafxDecompose implements JavafxVisitor {
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
             // Add a size field to hold the previous size on selector switch
             JFXVar v = makeSizeVar(diagPos, 0);
-            v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+            v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
             res.boundSize = v;
         }
         result = res;
@@ -745,7 +745,7 @@ public class JavafxDecompose implements JavafxVisitor {
         }
 
         JFXVar v = shredVar(label, expr, type);
-        v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+        v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
         return v;
     }
 

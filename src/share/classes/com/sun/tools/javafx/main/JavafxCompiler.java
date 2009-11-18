@@ -230,7 +230,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Fill in the synthetic definitions needed in a bound function.
      */
-    protected JavafxBoundFiller boundFunctionFill;
+    protected JavafxBoundFiller boundFill;
 
     /** The local var bind converter.
      */
@@ -331,7 +331,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         source = Source.instance(context);
         attr = JavafxAttr.instance(context);
         bindAnalyzer = JavafxBoundContextAnalysis.instance(context);
-        boundFunctionFill = JavafxBoundFiller.instance(context);
+        boundFill = JavafxBoundFiller.instance(context);
         localToClass = JavafxLocalToClass.instance(context);
         convertTypes = JavafxLower.instance(context);
         chk = JavafxCheck.instance(context);
@@ -1076,8 +1076,11 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             // Lower has smashed our analysis
             bindAnalyzer.analyzeBindContexts(env);
 
-            boundFunctionFill.fill(env);
-            printJavafxSource("dumpboundfunc", env.toplevel, null);
+            boundFill.fill(env);
+            printJavafxSource("dumpfill", env.toplevel, null);
+
+            // JavafxLocalToClass needs var analysis info
+            varUsageAnalysis.analyzeVarUse(env);
 
             localToClass.inflateAsNeeded(env);
             printJavafxSource("dumpinflate", env.toplevel, null);
