@@ -496,7 +496,7 @@ public class JavafxDecompose implements JavafxVisitor {
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
             // Add a size field to hold the previous size on selector switch
             JFXVar v = makeSizeVar(diagPos, 0);
-            v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
+            v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
             res.boundSize = v;
         }
         result = res;
@@ -786,7 +786,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
     private JFXVar makeSaveVar(DiagnosticPosition diagPos, Type type) {
         JFXVar v = makeVar(diagPos, "save", null, JavafxBindStatus.UNBOUND, type);
-        v.sym.flags_field |= JavafxFlags.VARUSE_BARE_SYNTH;
+        v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
         return v;
     }
 

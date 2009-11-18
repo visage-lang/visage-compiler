@@ -221,6 +221,11 @@ class JavafxAnalyzeClass {
             return (getFlags() & JavafxFlags.VARMARK_BARE_SYNTH) != 0;
         }
         
+        public boolean isHiddenBareSynth() {
+            long flags = JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
+            return (getFlags() & flags) == flags;
+        }
+        
         // Return true if the var/override has an initializing expression
         public boolean hasInitializer() { return false; }
 
