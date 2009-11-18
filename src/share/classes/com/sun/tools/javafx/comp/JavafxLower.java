@@ -306,10 +306,15 @@ public class JavafxLower implements JavafxVisitor {
         if (lhs.getFXTag() == JavafxTag.SELECT) {
             JFXExpression selected = ((JFXSelect)lhs).selected;
             JFXVar varDef = makeTmpVar(tree.pos(), "expr", selected, selected.type);
-            selector = m.at(tree.pos).Ident(varDef.sym);
-            selector.sym = varDef.sym;
-            selector.type = varDef.type;
-            stats.append(varDef);
+            // But, if this select is ClassName.foo, then we don't want
+            // to create "var $expr = a;"
+            Symbol sym = JavafxTreeInfo.symbolFor(selected);
+            if (sym == null || sym.kind != Kinds.TYP) {
+                selector = m.at(tree.pos).Ident(varDef.sym);
+                selector.sym = varDef.sym;
+                selector.type = varDef.type;
+                stats.append(varDef);
+            }
         }
 
         JFXExpression varRef = lhs;
@@ -747,7 +752,7 @@ public class JavafxLower implements JavafxVisitor {
             Symbol sym = JavafxTreeInfo.symbolFor(selected);
             // But, if this select is ClassName.foo, then we don't want
             // to create "var $expr = a;"
-            if (! (sym instanceof ClassSymbol)) {
+            if (sym == null || sym.kind != Kinds.TYP) {
                 JFXVar varDef = makeTmpVar(tree.pos(), "expr", selected, selected.type);
                 selector = m.at(tree.pos).Ident(varDef.sym);
                 selector.sym = varDef.sym;
