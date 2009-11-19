@@ -878,20 +878,34 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitForExpression(JFXForExpression tree) {
-        if (bindStatus.isBound()) TODO("bound for-expression");
-        List<JFXForExpressionInClause> inClauses = decompose(tree.inClauses);
-        JFXExpression bodyExpr = decompose(tree.bodyExpr);
-        result = fxmake.at(tree.pos).ForExpression(inClauses, bodyExpr);
+        JFXForExpressionInClause clause = tree.inClauses.head;
+        clause.seqExpr = shred(clause.seqExpr, null);
+        clause.whereExpr = decompose(clause.whereExpr);
+        tree.bodyExpr = decompose(tree.bodyExpr);
+        if (bindStatus.isBound()) {
+            // Create the BoundForHelper variable:
+            // FIXME it might make more sense to move this to JavafxTranslateBit,
+            // since that's when we actually make use it.  The reason we do it
+            // here because it might be better to call makeVar here - but
+            // creating a raw Java field during translation might be better,
+            // as long as we've got a container class.
+            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type));
+            JFXExpression init = fxmake.Literal(com.sun.tools.mjavac.code.TypeTags.BOT, null); // FIXME
+            init.type = helperType;
+            Name helperName = names.fromString("helper$"+clause.var.name); // FIXME
+            JFXVar helper = makeVar(tree, helperName, null/*tree.bodyExpr*/, JavafxBindStatus.UNBOUND, helperType);
+            helper.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
+            clause.helper = helper;
+        }
+        result = tree;
     }
 
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
-        tree.seqExpr = decompose(tree.seqExpr);
-        tree.whereExpr = decompose(tree.whereExpr);
-        result = tree;
+        throw new Error();
     }
 
     public void visitIndexof(JFXIndexof tree) {
-        result = tree;
+        result = tree.clause.indexVar == null ? tree : fxmake.Ident(tree.clause.indexVar);
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {

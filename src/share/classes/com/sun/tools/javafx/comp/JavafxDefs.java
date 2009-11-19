@@ -54,6 +54,7 @@ public class JavafxDefs {
     public static final String setMixin_AttributeMethodPrefix = "setMixin$";
     public static final String size_AttributeMethodPrefix = "size$";
     public static final String getElement_AttributeMethodPrefix = "get$";
+    public static final String makeForPart_AttributeMethodPrefix = "makeForPart$";
 
     /**
      * Field prefix strings for attributes
@@ -103,7 +104,12 @@ public class JavafxDefs {
     public static final String cSequence = sequence_PackageString + ".Sequence";
     public static final String cSequenceRef = sequence_PackageString + ".SequenceRef";
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
+    public static final String cBoundForHelper = sequence_PackageString + ".BoundForHelper";
+    public static final String cBoundForPart = "javafx.util.BoundForPart";
+    public static final String cBoundForPartSingleton = "javafx.util.BoundForPartSingleton";
+    public static final String cBoundForPartI = cBoundForHelper + "$ForPart";
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
+
     // in runtime package -- public
     public static final String cFXBase = runtime_PackageString + ".FXBase";
     public static final String cFXObject = runtime_PackageString + ".FXObject";

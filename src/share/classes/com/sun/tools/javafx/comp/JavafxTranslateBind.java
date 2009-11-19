@@ -30,6 +30,8 @@ import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
@@ -46,6 +48,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     protected static final Context.Key<JavafxTranslateBind> jfxBoundTranslation =
         new Context.Key<JavafxTranslateBind>();
+    private JavafxToJava toJava;
 
     // Symbol for the var whose bound expression we are translating.
     private VarSymbol targetSymbol;
@@ -67,6 +70,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     public JavafxTranslateBind(Context context, JavafxToJava toJava) {
         super(context, toJava);
+        this.toJava = toJava;
 
         context.put(jfxBoundTranslation, this);
     }
@@ -1476,6 +1480,74 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             addInvalidator(varSize.sym, makeInvalidateSize());
         }
     }
+    
+    private class BoundForExpressionTranslator extends BoundSequenceTranslator {
+        private final Type elemType;
+        JFXForExpression forExpr;
+        JFXForExpressionInClause clause;
+
+        BoundForExpressionTranslator(JFXForExpression tree) {
+            super(tree.pos());
+            this.elemType = types.elementType(tree.type);
+            this.forExpr = tree;
+            this.clause = tree.inClauses.head; // KLUDGE - FIXME
+        }
+
+        JCStatement makeSizeBody() {
+            VarSymbol helperSym = clause.helper.sym;
+            JCExpression createHelper;
+            // Translate
+            //   var y = bind for (x in xs) body(x, indexof x)
+            // to (roughly, using a hybrid of Java with object-literals):
+            //   y$helper = new BoundForHelper() {
+            //      ForPart makeForPart(int $index$) {
+            //        // The following body of makeForPart is created
+            //        // by JavafxDecompose.visitForExpression,
+            //        // and stashed in.clause.convertedBody.
+            //        return ForPart {
+            //          $indexof$x: Integer = $index$;
+            //          x: bind xs[$indexof$x];
+            //          result: body(x, $indexof$x)
+            //      };
+            //   }
+
+            // First translate the part created during JavaDecompose:
+            JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, forExpr.bodyExpr.type);
+            // JCExpression makePart = asExpression(translateBoundExpression(clause.convertedBody, targetSymbol, false), clause.convertedBody.type);
+
+            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(forExpr.type));
+            Type partType = types.applySimpleGenericType(syms.javafx_BoundForPartIType, types.boxedElementType(forExpr.type));
+            JCVariableDecl indexParam = Var(syms.intType, names.fromString("$index$"), null); // FIXME
+            JCMethodDecl makeDecl = m().MethodDef(m().Modifiers(Flags.PUBLIC),
+                                        names.fromString(defs.makeForPart_AttributeMethodPrefix),
+                                        makeType(partType),
+                                        List.<JCTypeParameter>nil(),
+                                        List.<JCVariableDecl>of(indexParam),
+                                        List.<JCExpression>nil(),
+                                        Block(Return(makePart)),
+                                        null);
+            // makeDecl.sym = methSym;
+            JCClassDecl helperClass = m().AnonymousClassDef(m().Modifiers(0), List.<JCTree>of(makeDecl));
+            createHelper = m().NewClass(null, null, // FIXME
+                    makeType(helperType),
+                    List.<JCExpression>of(getReceiver(helperSym), Offset(helperSym), Boolean(true)), helperClass);
+            return Block(
+                    If(EQnull(Get(helperSym)),
+                        Stmt(Set(clause.helper.sym, createHelper))),
+                    Return(Call(Get(clause.helper.sym), defs.size_SequenceMethodName)));
+        }
+
+        JCStatement makeGetElementBody() {
+            return Block(If(EQnull(Get(clause.helper.sym)),
+                    Stmt(CallSize(targetSymbol))),
+                    Return(Call(Get(clause.helper.sym), defs.get_SequenceMethodName, posArg()))
+                    );
+        }
+       
+        void setupInvalidators() {
+        }
+    }
+
 
 
     /**
@@ -1680,7 +1752,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitForExpression(JFXForExpression tree) {
-        TODO(tree);
+        result = new BoundForExpressionTranslator(tree).doit();
     }
 
     @Override

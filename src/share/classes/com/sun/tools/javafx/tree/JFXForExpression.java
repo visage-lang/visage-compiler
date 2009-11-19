@@ -35,7 +35,7 @@ public class JFXForExpression extends JFXExpression implements ForExpressionTree
 
     private final JavaFXKind fxKind;
     public final List<JFXForExpressionInClause> inClauses;
-    public final JFXExpression bodyExpr;
+    public JFXExpression bodyExpr;
 
     protected JFXForExpression(
             JavaFXKind fxKind,

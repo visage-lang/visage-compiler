@@ -26,6 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 
 import com.sun.tools.mjavac.util.Name;
 
@@ -40,6 +41,9 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
     public Name label;
 
     private boolean indexUsed;
+
+    public JFXVar helper;
+    public VarSymbol indexVar;
     private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
 
     protected JFXForExpressionInClause() {

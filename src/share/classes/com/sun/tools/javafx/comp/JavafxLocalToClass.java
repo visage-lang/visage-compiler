@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -75,6 +76,7 @@ public class JavafxLocalToClass {
     private final JavafxPreTranslationSupport preTrans;
     private final JavafxTreeMaker fxmake;
     private final JavafxDefs defs;
+    private final Name.Table names;
     private final JavafxTypes types;
     private final JavafxSymtab syms;
     private final JavafxResolve rs;
@@ -102,6 +104,7 @@ public class JavafxLocalToClass {
         preTrans = JavafxPreTranslationSupport.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
         defs = JavafxDefs.instance(context);
+        names = Name.Table.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         rs = JavafxResolve.instance(context);
@@ -130,6 +133,10 @@ public class JavafxLocalToClass {
 
         abstract void classWithin(JFXClassDeclaration block);
 
+        void forWithin(JFXForExpression tree) {
+            blockWithin((JFXBlock) tree.getBodyExpression());
+        }
+
         @Override
         public void visitClassDeclaration(JFXClassDeclaration tree) {
             // The class is a new chunk
@@ -156,7 +163,7 @@ public class JavafxLocalToClass {
             }
             // The body of the for-expression begins a new chunk
             // Lower has made the body a block-expression
-            blockWithin((JFXBlock) tree.getBodyExpression());
+            forWithin(tree);
         }
 
         @Override
@@ -318,7 +325,7 @@ public class JavafxLocalToClass {
             this.classSym = classSym;
         }
 
-        ListBuffer<JFXVar> vars = ListBuffer.lb();
+        ListBuffer<JFXTree> vars = ListBuffer.lb();
 
         List<JFXTree> varsAsMembers() {
             return List.convert(JFXTree.class, vars.toList());
@@ -381,7 +388,7 @@ public class JavafxLocalToClass {
         }
     }
 
-    /**
+   /**
      * Inflate a block-expression into a class:
      *   {
      *     var x = 4;
@@ -409,12 +416,14 @@ public class JavafxLocalToClass {
      *     (new local_klass44()).doit$();
      *   }
      */
-    private void inflateBlockToClass(JFXBlock block) {
+
+    private void inflateBlockToClass(JFXBlock block, JFXForExpression forExpr) {
         final Name funcName = preTrans.syntheticName("doit$");
         final Name className = preTrans.syntheticName("local_klass");
 
         final JavafxClassSymbol classSymbol = preTrans.makeClassSymbol(className, owner);
-
+        List<JFXExpression> superClassList;
+        Type superClass = null;
         final MethodType funcType = new MethodType(
                 List.<Type>nil(),    // arg types
                 block.type,          // return type
@@ -447,6 +456,86 @@ public class JavafxLocalToClass {
             }
         }
         BlockVarAndClassConverter vc = new BlockVarAndClassConverter();
+
+        if (forExpr == null) {
+            superClassList = List.<JFXExpression>nil();
+        }
+        else {
+            JFXForExpressionInClause clause = forExpr.inClauses.head;
+            // The plan is to translate:
+            //   bind for (x in xs) body(x, indexof x)
+            // to (roughly, using a hybrid of Java with object-literals):
+            //   new BoundForHelper() {
+            //      public ForPart makeForPart(int $index$) {
+            //        // The following object-literal in created below.
+            //        ForPart {
+            //          $indexof$x: Integer = $index$;
+            //          x: bind xs[$indexof$x];
+            //          result: body(x, $indexof$x);
+            //          ... some methods ...
+            //      };
+            //   }
+            // However, note that the outer anonymous class (extending
+            // BoundForHelper) along with the makeForPart method is created
+            // later, JavafxTranslateBind.  Only the ForPart object-literal
+            // is created in this method.  This reason for this is that we need
+            // to pass some translation-created values (such as varnum), so
+            // we can't create the constructor call yet.
+            // (It might be possible to create a placeholder now, and patch
+            // it at translation-time.)
+            Name helperClassName = preTrans.syntheticName("BoundForHelper");
+            Name forPartMakerName = names.fromString(defs.makeForPart_AttributeMethodPrefix);
+            Name indexParamName = names.fromString("$index$"); //FIXME-move to defs.
+            superClass = types.isSequence(forExpr.bodyExpr.type) ? syms.javafx_BoundForPartType
+                : syms.javafx_BoundForPartSingletonType;
+            superClassList = List.<JFXExpression>of(fxmake.Type(superClass));
+            // A dummy place-holder for the surrounding method.
+            JavafxClassSymbol helperClassSym = preTrans.makeClassSymbol(helperClassName,
+                    new MethodSymbol(0L, null, null, owner));
+            MethodSymbol forPartMakerSym = new MethodSymbol(0L, forPartMakerName, null, helperClassSym);
+
+            // Create the '$indexof$x' variable in the anonymous class bsym.
+            Name indexName = JavafxTranslationSupport.indexVarName(clause.getVar().getName(), names);
+            VarSymbol indexParamSym = new VarSymbol(0, indexParamName, syms.intType, forPartMakerSym);
+            JFXExpression indexInit = fxmake.Ident(indexParamSym);
+            JFXVar indexDecl = fxmake.Var(indexName,
+                    fxmake.TypeClass(fxmake.Identifier(syms.integerTypeName), Cardinality.SINGLETON),
+                    fxmake.Modifiers(0), indexInit, JavafxBindStatus.UNBOUND, null, null);
+            indexDecl.type = syms.intType;
+            indexDecl.sym = new VarSymbol(0, indexName, syms.intType, classSymbol); // dummy
+            // Stash the created variable so it can be used when we visit a
+            // JFXIndexof, and convert that to a JFXIdent referencing the indexDecl.
+            clause.indexVar = indexDecl.sym;
+
+            // Create method 'void adjustIndex(int delta) { $indexof$x += delta }' in ForPart:
+            Name adjustIndexName  = names.fromString("adjustIndex"); // FIXME move to defs
+            final MethodType adjustIndexType = new MethodType(
+                    List.<Type>of(syms.intType), syms.voidType,
+                    List.<Type>nil(), classSymbol);
+            MethodSymbol adjustIndexSym = new MethodSymbol(0L, adjustIndexName, adjustIndexType, classSymbol);
+            JFXType adjustIndexNameResultType = fxmake.TypeClass(fxmake.Identifier(syms.voidTypeName), Cardinality.SINGLETON);
+            adjustIndexNameResultType.type = syms.voidType;
+            JFXType adjustIndexNameParam1Type = fxmake.TypeClass(fxmake.Identifier(syms.integerTypeName), Cardinality.SINGLETON);
+            adjustIndexNameParam1Type.type = syms.intType;
+            JFXVar adjustIndexNameParam1 = fxmake.Param(names.fromString("delta"),
+                   fxmake.TypeClass(fxmake.Identifier(syms.integerTypeName), Cardinality.SINGLETON));
+            adjustIndexNameParam1.type = syms.intType;
+            adjustIndexNameParam1.sym = new VarSymbol(0, adjustIndexNameParam1.name, syms.intType,
+                    adjustIndexSym);
+            JFXExpression adjustIndexAdd = fxmake.Binary(JavafxTag.PLUS, fxmake.Ident(indexDecl), fxmake.Ident(adjustIndexNameParam1));
+            adjustIndexAdd.type = syms.intType;
+            JFXAssign adjustIndexAction = fxmake.Assign(fxmake.Ident(indexDecl), adjustIndexAdd);
+            JFXBlock adjustIndexBlock = fxmake.Block(0, List.<JFXExpression>nil(), adjustIndexAction);
+            JFXFunctionDefinition adjustIndex =
+                    fxmake.FunctionDefinition(fxmake.Modifiers(Flags.PUBLIC),
+                        adjustIndexName, adjustIndexNameResultType, List.<JFXVar>of(adjustIndexNameParam1),
+                        adjustIndexBlock);
+            adjustIndex.type = adjustIndexType;
+            adjustIndex.sym = adjustIndexSym;
+            vc.vars.append(indexDecl);
+            // FIXME: vc.vars.append(adjustIndex);
+        }
+        
         vc.scan(block);
 
         // set position of class etc as block-expression position
@@ -472,12 +561,16 @@ public class JavafxLocalToClass {
         final JFXClassDeclaration cdecl = fxmake.ClassDeclaration(
                 fxmake.Modifiers(Flags.SYNTHETIC),
                 className,
-                List.<JFXExpression>nil(),
+                superClassList,
                 vc.varsAsMembers().append(doit));
         cdecl.sym = classSymbol;
         cdecl.type = classSymbol.type;
         types.addFxClass(classSymbol, cdecl);
-        cdecl.setDifferentiatedExtendingImplementing(List.<JFXExpression>nil(), List.<JFXExpression>nil(), List.<JFXExpression>nil());
+        cdecl.setDifferentiatedExtendingImplementing(superClassList, List.<JFXExpression>nil(), List.<JFXExpression>nil());
+        if (superClass != null) {
+            ((ClassType) cdecl.type).supertype_field = superClass;
+            classSymbol.addSuperType(superClass);
+        }
 
         JFXIdent classId = fxmake.Ident(className);
         classId.sym = classSymbol;
@@ -582,7 +675,19 @@ public class JavafxLocalToClass {
 
             // check if the block needs inflation, if so, inflate
             if (needsToBeInflatedToClass(block)) {
-                inflateBlockToClass(block);
+                inflateBlockToClass(block, null);
+            }
+        }
+
+        void forWithin(JFXForExpression tree) {
+            JFXBlock block = (JFXBlock) tree.getBodyExpression();
+            // Descend into inner chunks
+            descend(block);
+
+            // check if the block needs inflation, if so, inflate
+            // If inner was inflated, that can force outer to be inflated
+            if (needsToBeInflatedToClass(block)) {
+                inflateBlockToClass(block, tree.isBound() ? tree : null);
             }
         }
 

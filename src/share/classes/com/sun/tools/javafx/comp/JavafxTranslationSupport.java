@@ -770,12 +770,12 @@ public abstract class JavafxTranslationSupport {
     }
 
     public Name indexVarName(JFXForExpressionInClause clause) {
-        return indexVarName(clause.getVar().getName());
+        return indexVarName(clause.getVar().getName(), names);
     }
     public Name indexVarName(JFXIdent var) {
-        return indexVarName(var.getName());
+        return indexVarName(var.getName(), names);
     }
-    private Name indexVarName(Name name) {
+    public static Name indexVarName(Name name, Name.Table names) {
         return names.fromString("$indexof$" + name.toString());
     }
 
