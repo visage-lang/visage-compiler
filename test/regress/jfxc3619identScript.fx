@@ -15,7 +15,9 @@ class jfxc3619identScript {
     def ol = bind jfxc3619identScript { a: x }
   
     println(ol.a);
+    def hash1 = java.lang.System.identityHashCode(ol);
     --x;
+    if (hash1 == java.lang.System.identityHashCode(ol)) println("Error: No new object for --x");
     println(ol.a);
     --x;
     println(ol.a);

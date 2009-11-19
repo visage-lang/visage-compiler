@@ -174,7 +174,7 @@ fi
          cat ./build/test/dev-unexpected-passes | sed -e 's@^@ @'
      fi
 
-     if [ "$target" != dev-pass ] ; then
+     if [ "$target" != dev-pass -a "$target" != dev-xxx ] ; then
          didit=
          for ii in `cat ./build/test/dev-expected-fails` ; do
              fgrep $ii ./build/test/dev-actual-fails ./build/test/dev-passes > /dev/null 2>&1
