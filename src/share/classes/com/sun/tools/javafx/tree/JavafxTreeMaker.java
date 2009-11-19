@@ -624,7 +624,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXExpression ObjectLiteral(JFXExpression ident,
+    public JFXInstanciate ObjectLiteral(JFXExpression ident,
             List<JFXTree> defs) {
         return Instanciate(JavaFXKind.INSTANTIATE_OBJECT_LITERAL,
                 ident,
@@ -634,13 +634,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     public JFXInstanciate InstanciateNew(JFXExpression ident,
             List<JFXExpression> args) {
-        return (JFXInstanciate)Instanciate(JavaFXKind.INSTANTIATE_NEW,
+        return Instanciate(JavaFXKind.INSTANTIATE_NEW,
                 ident,
                 args != null? args : List.<JFXExpression>nil(),
                 List.<JFXTree>nil());
     }
 
-   public JFXExpression Instanciate(JavaFXKind kind, JFXExpression ident,
+   public JFXInstanciate Instanciate(JavaFXKind kind, JFXExpression ident,
            List<JFXExpression> args,
            List<JFXTree> defs) {
 
@@ -675,7 +675,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
        }
 
-       JFXExpression tree = new JFXInstanciate(kind, ident,
+       JFXInstanciate tree = new JFXInstanciate(kind, ident,
                klass,
                args==null? List.<JFXExpression>nil() : args,
                partsBuffer.toList(),
