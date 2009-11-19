@@ -459,6 +459,7 @@ public class FXLocal {
             "applyDefaults$",
             "be$",
             "get$",
+            "elem$",
             "initVarBits$",
             "invalidate$",
             "onReplace$",

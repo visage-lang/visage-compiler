@@ -116,7 +116,7 @@ public interface FXObject {
     public int      count$        ();
 
     public int size$(int varNum);
-    public Object get$(int varNum, int position);
+    public Object elem$(int varNum, int position);
     public boolean getAsBoolean$(int varNum, int position);
     public char getAsChar$(int varNum, int position);
     public byte getAsByte$(int varNum, int position);

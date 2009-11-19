@@ -63,7 +63,7 @@ public class SequenceRef<T> extends AbstractSequence<T> {
     }
 
     public T get(int position) {
-        return saved != null ? saved.get(position) : (T) instance.get$(varNum, position);
+        return saved != null ? saved.get(position) : (T) instance.elem$(varNum, position);
     }
 
     @Override

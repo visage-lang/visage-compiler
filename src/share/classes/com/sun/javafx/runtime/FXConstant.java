@@ -121,12 +121,12 @@ public final class FXConstant extends Object implements FXObject {
         return FXBase.get$(this, varNum$);
     }
 
-    public Object get$(final int varNum$, final int pos$) {
+    public Object elem$(final int varNum$, final int pos$) {
         switch (varNum$ - VCNT$) {
         case -1:
             return null;
         }
-        return FXBase.get$(this, varNum$, pos$);
+        return FXBase.elem$(this, varNum$, pos$);
     }
 
     public int size$(final int varNum$) {

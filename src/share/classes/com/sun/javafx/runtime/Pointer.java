@@ -101,7 +101,7 @@ public class Pointer implements KeyValueTarget {
 
     public Object get(int pos) {
         assert type == Type.SEQUENCE : "expecting a sequence type";
-        return obj.get$(varnum, pos);
+        return obj.elem$(varnum, pos);
     }
 
     public void set(Object value) {

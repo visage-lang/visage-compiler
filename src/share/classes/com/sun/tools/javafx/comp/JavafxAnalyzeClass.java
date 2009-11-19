@@ -150,9 +150,6 @@ class JavafxAnalyzeClass {
     // Javafx to Java type translator (supplied by JavafxInitializationBuilder.)
     private final JavafxTypeMorpher typeMorpher;
     
-    // Prefixes for var accessor methods.
-    private Name[] accessorPrefixes;
-    
 
     //
     // This class supers all classes used to hold var information. Consumed by
@@ -816,15 +813,6 @@ class JavafxAnalyzeClass {
         this.translatedFuncInfo = translatedFuncInfo;
         this.classVarCount = 0;
         this.scriptVarCount = 0;
-        this.accessorPrefixes = new Name[] {
-            defs.get_AttributeMethodPrefixName,
-            defs.set_AttributeMethodPrefixName,
-            defs.be_AttributeMethodPrefixName,
-            defs.invalidate_FXObjectMethodName,
-            defs.onReplaceAttributeMethodPrefixName,
-            defs.getElement_FXObjectMethodName,
-            defs.size_FXObjectMethodName
-        };
         
         // Start by analyzing the current class.
         analyzeCurrentClass();
@@ -1417,7 +1405,7 @@ class JavafxAnalyzeClass {
     // This method strips the var name out of an accessor method.
     //
     private Name getAccessorVarName(Name name) {
-        for (Name prefix : accessorPrefixes) {
+        for (Name prefix : defs.accessorPrefixes) {
             if (name.startsWith(prefix)) {
                 return name.subName(prefix.length() - 1, name.length());
             }

@@ -434,10 +434,10 @@ import com.sun.javafx.runtime.sequence.Sequence;
         return ((Sequence<?>) obj.get$(varNum)).size();
     }
 
-    public Object get$(int varNum, int position) {
+    public Object elem$(int varNum, int position) {
         return ((Sequence<?>) get$(varNum)).get(position);
     }
-    public static Object get$(FXObject obj, int varNum, int position) {
+    public static Object elem$(FXObject obj, int varNum, int position) {
         return ((Sequence<?>) obj.get$(varNum)).get(position);
     }
 
@@ -445,55 +445,55 @@ import com.sun.javafx.runtime.sequence.Sequence;
         return getAsBoolean$(this, varNum, position);
     }
     public static boolean getAsBoolean$(FXObject obj, int varNum, int position) {
-        return Util.objectToBoolean(obj.get$(varNum, position));
+        return Util.objectToBoolean(obj.elem$(varNum, position));
     }
 
     public char getAsChar$(int varNum, int position) {
         return getAsChar$(this, varNum, position);
     }
     public static char getAsChar$(FXObject obj, int varNum, int position) {
-        return Util.objectToChar(obj.get$(varNum, position));
+        return Util.objectToChar(obj.elem$(varNum, position));
     }
 
     public byte getAsByte$(int varNum, int position) {
         return getAsByte$(this, varNum, position);
     }
     public static byte getAsByte$(FXObject obj, int varNum, int position) {
-        return Util.objectToByte(obj.get$(varNum, position));
+        return Util.objectToByte(obj.elem$(varNum, position));
     }
 
     public short getAsShort$(int varNum, int position) {
         return getAsShort$(this, varNum, position);
     }
     public static short getAsShort$(FXObject obj, int varNum, int position) {
-        return Util.objectToShort(obj.get$(varNum, position));
+        return Util.objectToShort(obj.elem$(varNum, position));
     }
 
     public int getAsInt$(int varNum, int position) {
         return getAsInt$(this, varNum, position);
     }
     public static int getAsInt$(FXObject obj, int varNum, int position) {
-        return Util.objectToInt(obj.get$(varNum, position));
+        return Util.objectToInt(obj.elem$(varNum, position));
     }
 
     public long getAsLong$(int varNum, int position) {
         return getAsLong$(this, varNum, position);
     }
     public static long getAsLong$(FXObject obj, int varNum, int position) {
-        return Util.objectToLong(obj.get$(varNum, position));
+        return Util.objectToLong(obj.elem$(varNum, position));
     }
 
     public float getAsFloat$(int varNum, int position) {
         return getAsFloat$(this, varNum, position);
     }
     public static float getAsFloat$(FXObject obj, int varNum, int position) {
-        return Util.objectToFloat(obj.get$(varNum, position));
+        return Util.objectToFloat(obj.elem$(varNum, position));
     }
 
     public double getAsDouble$(int varNum, int position) {
         return getAsDouble$(this, varNum, position);
     }
     public static double getAsDouble$(FXObject obj, int varNum, int position) {
-        return Util.objectToDouble(obj.get$(varNum, position));
+        return Util.objectToDouble(obj.elem$(varNum, position));
     }
 }

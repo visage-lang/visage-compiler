@@ -918,7 +918,7 @@ public class SequencesBase {
             k = -1;
         else if (k >= 0)
             k += loIndex;
-        return (T) instance.get$(varNum, k);
+        return (T) instance.elem$(varNum, k);
     }
 
     public static <T> Sequence<? extends T> getNewElements(Sequence<? extends T> current, int startPos, int inserted) {

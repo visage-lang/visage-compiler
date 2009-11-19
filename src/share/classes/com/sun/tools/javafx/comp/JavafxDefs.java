@@ -53,7 +53,7 @@ public class JavafxDefs {
     public static final String set_AttributeMethodPrefix = "set$";
     public static final String setMixin_AttributeMethodPrefix = "setMixin$";
     public static final String size_AttributeMethodPrefix = "size$";
-    public static final String getElement_AttributeMethodPrefix = "get$";
+    public static final String getElement_AttributeMethodPrefix = "elem$";
     public static final String makeForPart_AttributeMethodPrefix = "makeForPart$";
 
     /**
@@ -445,6 +445,11 @@ public class JavafxDefs {
 
     static final String[] typePrefixes = new String[]{"Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence"};
     static final String[] accessorSuffixes = new String[]{"", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence"};
+ 
+    /**
+     * Accessor prefixes.
+     */
+    public final Name[] accessorPrefixes;
 
     /**
      * Context set-up
@@ -665,6 +670,16 @@ public class JavafxDefs {
         FXFormatter_sprintf = new RuntimeMethod(names, cFXFormatter, "sprintf");
         String_format = new RuntimeMethod(names, cString, "format");
 
+        accessorPrefixes = new Name[] {
+                get_AttributeMethodPrefixName,
+                set_AttributeMethodPrefixName,
+                be_AttributeMethodPrefixName,
+                invalidate_FXObjectMethodName,
+                onReplaceAttributeMethodPrefixName,
+                getElement_FXObjectMethodName,
+                size_FXObjectMethodName
+             };
+     
         // Initialize per Kind names and types
         typedGet_SequenceMethodName = new Name[TYPE_KIND_COUNT];
         typedSet_SequenceMethodName = new Name[TYPE_KIND_COUNT];

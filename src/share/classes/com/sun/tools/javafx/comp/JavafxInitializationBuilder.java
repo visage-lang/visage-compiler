@@ -1203,10 +1203,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This method constructs the get position method for a sequence attribute.
+        // This method constructs the get element method for a sequence attribute.
         //
-        private void makeSeqGetPosAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
+        private void makeSeqGetElementAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetElementName(varInfo.getSymbol()),
                                                                          varInfo.getElementType(),
                                                                          varInfo, needsBody) {
                 @Override
@@ -2023,7 +2023,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // on replace savedVar
                         } else if (!ai.isOverride()) {
                             makeSeqGetterAccessorMethod(ai, needsBody);
-                            makeSeqGetPosAccessorMethod(ai, needsBody);
+                            makeSeqGetElementAccessorMethod(ai, needsBody);
                             makeSeqGetSizeAccessorMethod(ai, needsBody);
                             makeSeqBeAccessorMethod(ai, needsBody);
                             makeSeqInvalidateAccessorMethod(ai, needsBody);
@@ -2032,7 +2032,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             if (ai.hasInitializer()) {
                                 // We only need to worry about computational methods
                                 // The getter and be are generic.
-                                makeSeqGetPosAccessorMethod(ai, needsBody);
+                                makeSeqGetElementAccessorMethod(ai, needsBody);
                                 makeSeqGetSizeAccessorMethod(ai, needsBody);
                             }
                             if (needOverrideInvalidateAccessorMethod(ai)) {
@@ -2065,25 +2065,57 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }                    
                } else {
+                    // Mixins.
                     if (ai.needsCloning() && !ai.isHiddenBareSynth()) {
                         MixinClassVarInfo mixinVar = (MixinClassVarInfo)ai;
+                        Name varName = attributeValueName(ai.getSymbol());
+                        int varNameLength = varName.length();
                         
-                        for (FuncInfo funcInfo : mixinVar.getAccessors()) {
-                            if (funcInfo.getSymbol().name.startsWith(defs.invalidate_FXObjectMethodName)) {
-                                if (ai.generateSequenceAccessors()) {
-                                     makeSeqInvalidateAccessorMethod(ai, needsBody);
-                                } else {
-                                     makeInvalidateAccessorMethod(ai, needsBody);
-                                }
-                            } else if (funcInfo.getSymbol().name.startsWith(defs.onReplaceAttributeMethodPrefixName)) {
-                                if (ai.generateSequenceAccessors()) {
-                                     makeSeqOnReplaceAccessorMethod(ai, needsBody);
-                                } else {
-                                     makeOnReplaceAccessorMethod(ai, needsBody);
-                                }
+                        // Gather all the cloneable accessors into a map.
+                        HashMap<Name, MethodSymbol> funcMap = new HashMap<Name, MethodSymbol>();
+                        for (FuncInfo func : mixinVar.getAccessors()) {
+                            MethodSymbol methSym = func.getSymbol();
+                            Name methName = methSym.name;
+                            Name key = methName.subName(0, methName.length() - varNameLength + 1);
+                            funcMap.put(key, methSym);
+                        }
+                        
+                        // Initializers overrides mixin initializer.
+                        if (ai.hasInitializer()) {
+                            if (ai.generateSequenceAccessors()) {
+                                makeSeqGetElementAccessorMethod(ai, needsBody);
+                                funcMap.remove(defs.getElement_FXObjectMethodName);
+                                
+                                makeSeqGetSizeAccessorMethod(ai, needsBody);
+                                funcMap.remove(defs.size_FXObjectMethodName);
                             } else {
-                                appendMethodClones(funcInfo.getSymbol(), needsBody);
+                                makeGetterAccessorMethod(ai, needsBody);
+                                funcMap.remove(defs.get_AttributeMethodPrefixName);
+                                
+                                makeSetterAccessorMethod(ai, needsBody);
+                                funcMap.remove(defs.set_AttributeMethodPrefixName);
                             }
+                        }
+                        
+                        // Must handle binders and such.
+                        if (ai.generateSequenceAccessors()) {
+                            makeSeqInvalidateAccessorMethod(ai, needsBody);
+                        } else {
+                            makeInvalidateAccessorMethod(ai, needsBody);
+                        }
+                        funcMap.remove(defs.invalidate_FXObjectMethodName);
+                    
+                        // Must handle overriding on replace.
+                        if (ai.generateSequenceAccessors()) {
+                            makeSeqOnReplaceAccessorMethod(ai, needsBody);
+                        } else {
+                            makeOnReplaceAccessorMethod(ai, needsBody);
+                        }
+                        funcMap.remove(defs.onReplaceAttributeMethodPrefixName);
+                        
+                        // Emit any accessors left over.
+                        for (MethodSymbol methSym : funcMap.values()) {
+                            appendMethodClones(methSym, needsBody);
                         }
                     }
                 }
@@ -2371,7 +2403,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             if (!isMixinClass() && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
-                makeGetPosMethod(varInfos, varCount);
+                makeGetElementMethod(varInfos, varCount);
                 makeSizeMethod(varInfos, varCount);
                 makeSetMethod(varInfos, varCount);
                 makeBeMethod(varInfos, varCount);
@@ -2740,10 +2772,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This method constructs the current class's get$(varnum, pos) method.
+        // This method constructs the current class's elem$(varnum, pos) method.
         //
-        public void makeGetPosMethod(List<VarInfo> attrInfos, int varCount) {
-            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.get_FXObjectMethodName, syms.objectType,
+        public void makeGetElementMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getElement_FXObjectMethodName, syms.objectType,
                                                                  attrInfos, varCount) {
                 @Override
                 public void initialize() {
@@ -2754,8 +2786,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     if (!varInfo.isOverride()) {
                         if (varInfo.generateSequenceAccessors()) {
-                            // return get$var(pos$)
-                            addStmt(Return(Call(attributeGetterName(varSym), posArg())));
+                            // return elem$var(pos$)
+                            addStmt(Return(Call(attributeGetElementName(varSym), posArg())));
                         }
                     }
                 }
