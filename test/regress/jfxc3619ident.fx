@@ -14,10 +14,12 @@ class A {
 class jfxc3619ident {
   var x = 10;
   def ol = bind A { a: x }
-  
+
   function doit() {
     println(ol.a);
+    def hash1 = java.lang.System.identityHashCode(ol);
     --x;
+    if (hash1 == java.lang.System.identityHashCode(ol)) println("Error: No new object for --x");
     println(ol.a);
     --x;
     println(ol.a);

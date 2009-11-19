@@ -15,19 +15,38 @@ class Test {
   var ref = this;
   var x = 10;
   def obla = bind jfxc3619select { a: ref.x }
-  
+
   function doit() {
     println(obla.a);
+
+    var hash1 = java.lang.System.identityHashCode(obla);
+    --x;
+    if (hash1 == java.lang.System.identityHashCode(obla)) println("Error: No new object for --x");
+    println(obla.a);
     --x;
     println(obla.a);
     --x;
     println(obla.a);
-    --x;
+
+    hash1 = java.lang.System.identityHashCode(obla);
+    x = x;
+    if (hash1 != java.lang.System.identityHashCode(obla)) println("Error: New object for x = x");
     println(obla.a);
-    ref = null;
-    println(obla.a);
+
     ref = this;
+    if (hash1 != java.lang.System.identityHashCode(obla)) println("Error: New object for ref = this");
     println(obla.a);
+
+    hash1 = java.lang.System.identityHashCode(obla);
+    ref = Test{};
+    if (hash1 == java.lang.System.identityHashCode(obla)) println("Error: No new object for ref = Test\{\}");
+    println(obla.a);
+
+    hash1 = java.lang.System.identityHashCode(obla);
+    ref = null;
+    if (hash1 == java.lang.System.identityHashCode(obla)) println("Error: No new object for ref = null");
+    println(obla.a);
+
   }
 }
 

@@ -115,6 +115,8 @@
             dev-fail:    run tests that are currently failing - see lists in project.properties
             dev-check:   find unexpected passes and unexpected failures in a previous dev-* test run.  EG
                             ant dev-test dev-check
+            dev-xxx:     run tests named in file -Dxxx=filename; default filename is ./xxx.
+
       name="help"
       name="jar"                                               description="Build compiler .jar files"
       name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
@@ -1272,6 +1274,7 @@
     <target name="dev-no-hang"  depends="-init-dev-no-hang,binaries,-do-test" description="Build binaries and run tests that do not hang"/>
     <target name="dev-pass"  depends="-init-dev-pass,binaries,-do-test" description="Build binaries and run tests that should pass"/>
     <target name="dev-fail"  depends="-init-dev-fail,binaries,-do-test" description="Build binaries and run tests that currently fail"/>
+    <target name="dev-xxx"   depends="-init-dev-xxx,binaries,-do-test" description="Build binaries and run tests named in file 'xxx'"/>
 
     <target name="dev-find-passes" depends="-init-dev-fail" description="Report tests that passed instead of failed in a dev-fail run">
       <echo message="${test.fx.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
@@ -1312,6 +1315,18 @@
       <property name="test-sys-prop.test.fx.list" value="${test.fx.dev.fail.list}"/>
       <mkdir dir="${build.test.results.dir}"/>
       <echo message="dev-fail" file="${build.test.dir}/dev-target" />
+    </target>
+
+    <target name="-init-dev-xxx" depends="-pre-compile-test">
+      <property name="testFile" value="**/FXCompilerTest.java"/>
+      <copy file="${xxx}" tofile="${build.test.dir}/dev-xxx"/>
+      <replaceregexp file="${build.test.dir}/dev-xxx"
+                         flags="gs"
+                         match="\.fx."
+                         replace=".fx "/>
+      <loadfile property="test-sys-prop.test.fx.list" srcFile="${build.test.dir}/dev-xxx"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-xxx" file="${build.test.dir}/dev-target" />
     </target>
 
     <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
