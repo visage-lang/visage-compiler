@@ -155,16 +155,6 @@ public class JavafxPreTranslationSupport {
 
         // Fill out class fields.
         classSym.completer = null;
-        /*
-         * These class symbol flags of the local classes are used in translation.
-         * For FX_SYNTHETIC_LOCAL_CLASS classes, initialize$ is not called from
-         * Java entry constructor so that function code executes in source order.
-         * See comment in JavafxInitializationBuilder.makeJavaEntryConstructor().
-         * FX_BOUND_FUNCTION_CLASS classes are treated specially for many aspects
-         * like handling Pointer/FXObject+varNum registration stuff for bound
-         * function implementation.
-         */
-        classSym.flags_field = JavafxFlags.FX_SYNTHETIC_LOCAL_CLASS;
         if (classSym.owner instanceof MethodSymbol &&
             (classSym.owner.flags() & JavafxFlags.BOUND) != 0L) {
             classSym.flags_field |= JavafxFlags.FX_BOUND_FUNCTION_CLASS;

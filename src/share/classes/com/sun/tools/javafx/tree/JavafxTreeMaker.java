@@ -240,6 +240,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
+    public JFXIdentSequenceProxy IdentSequenceProxy(Name name, Symbol sym, VarSymbol boundSizeSym) {
+        JFXIdentSequenceProxy tree = new JFXIdentSequenceProxy(name, sym, boundSizeSym);
+        tree.pos = pos;
+        return tree;
+    }
+
     public JFXIdent Ident(Name name) {
         JFXIdent tree = new JFXIdent(name, null);
         tree.pos = pos;

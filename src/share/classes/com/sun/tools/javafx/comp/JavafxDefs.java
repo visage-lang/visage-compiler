@@ -380,15 +380,21 @@ public class JavafxDefs {
     final Name varFlagIS_READONLY;
     final Name varFlagDEFAULT_APPLIED;
     final Name varFlagIS_INITIALIZED;
+    final Name varFlagAWAIT_VARINIT;
     final Name varFlagVALIDITY_FLAGS;
     final Name varFlagIS_BOUND_INVALID;
     final Name varFlagIS_BOUND_DEFAULT_APPLIED;
+    final Name varFlagDEFAULT_APPLIED_VARINIT;
     final Name varFlagINIT_NORMAL;
     final Name varFlagINIT_OBJ_LIT;
     final Name varFlagINIT_OBJ_LIT_DEFAULT;
     final Name varFlagINIT_READONLY;
     final Name varFlagINIT_BOUND;
     final Name varFlagINIT_BOUND_READONLY;
+    final Name varFlagINIT_VARINIT;
+    final Name varFlagINIT_READONLY_VARINIT;
+    final Name varFlagINIT_BOUND_VARINIT;
+    final Name varFlagINIT_BOUND_READONLY_VARINIT;
     final Name varFlagALL_FLAGS;
 
     /**
@@ -567,15 +573,21 @@ public class JavafxDefs {
         varFlagIS_READONLY = names.fromString("VFLGS$IS_READONLY");
         varFlagDEFAULT_APPLIED = names.fromString("VFLGS$DEFAULT_APPLIED");
         varFlagIS_INITIALIZED = names.fromString("VFLGS$IS_INITIALIZED");
+        varFlagAWAIT_VARINIT = names.fromString("VFLGS$AWAIT_VARINIT");
         varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
         varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
         varFlagIS_BOUND_DEFAULT_APPLIED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED");
+        varFlagDEFAULT_APPLIED_VARINIT = names.fromString("VFLGS$DEFAULT_APPLIED_VARINIT");
         varFlagINIT_NORMAL = names.fromString("VFLGS$INIT_NORMAL");
         varFlagINIT_OBJ_LIT = names.fromString("VFLGS$INIT_OBJ_LIT");
         varFlagINIT_OBJ_LIT_DEFAULT = names.fromString("VFLGS$INIT_OBJ_LIT_DEFAULT");
         varFlagINIT_READONLY = names.fromString("VFLGS$INIT_READONLY");
         varFlagINIT_BOUND = names.fromString("VFLGS$INIT_BOUND");
         varFlagINIT_BOUND_READONLY = names.fromString("VFLGS$INIT_BOUND_READONLY");
+        varFlagINIT_VARINIT = names.fromString("VFLGS$INIT_VARINIT");
+        varFlagINIT_READONLY_VARINIT = names.fromString("VFLGS$INIT_READONLY_VARINIT");
+        varFlagINIT_BOUND_VARINIT = names.fromString("VFLGS$INIT_BOUND_VARINIT");
+        varFlagINIT_BOUND_READONLY_VARINIT = names.fromString("VFLGS$INIT_BOUND_READONLY_VARINIT");
         varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
 
         varOFF$valueName = names.fromString("VOFF$value");

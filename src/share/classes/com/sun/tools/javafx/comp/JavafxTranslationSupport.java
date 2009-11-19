@@ -1334,6 +1334,10 @@ public abstract class JavafxTranslationSupport {
             return Block(List.from(stmts));
         }
 
+        List<JCStatement> Stmts(JCStatement... stmts) {
+            return List.from(stmts);
+        }
+
        /**
          * If / Condition
          */

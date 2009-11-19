@@ -406,8 +406,8 @@ public class JavafxDecompose implements JavafxVisitor {
         res.type = tree.type;
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
             JFXVar v = shredVar("sii", res, tree.type);
-            v.sym.flags_field |= JavafxFlags.VARMARK_SEQUENCE_AS_NON;
-            res = id(v);
+            JFXVar sz = makeSizeVar(v.pos(), JavafxDefs.UNDEFINED_MARKER_INT, JavafxBindStatus.UNBOUND);
+            res = fxmake.IdentSequenceProxy(v.name, v.sym, sz.sym);
         }
         result = res;
     }
@@ -778,9 +778,13 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial) {
+        return makeSizeVar( diagPos,  initial, JavafxBindStatus.UNIDIBIND);
+    }
+
+    private JFXVar makeSizeVar(DiagnosticPosition diagPos, int initial, JavafxBindStatus bindStatus) {
         JFXExpression initialSize = fxmake.at(diagPos).Literal(initial);
         initialSize.type = syms.intType;
-        JFXVar v = makeVar(diagPos, "size", initialSize, JavafxBindStatus.UNIDIBIND, syms.intType);
+        JFXVar v = makeVar(diagPos, "size", initialSize, bindStatus, syms.intType);
         return v;
     }
 

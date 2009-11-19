@@ -55,8 +55,7 @@ public class JavafxFlags {
     // Flags on vars to inform translation
     private static final long FIRST_VARMARK_FLAG       = LAST_FX_MOD_FLAG << 1;
     public static final long VARMARK_BARE_SYNTH        = FIRST_VARMARK_FLAG << 0; // synthetic that should only have field and invalidate generated for it (no accessors)
-    public static final long VARMARK_SEQUENCE_AS_NON   = FIRST_VARMARK_FLAG << 1; // a sequence variable which should be treated as a non-sequence
-    private static final long LAST_VARMARK_FLAG        = VARMARK_SEQUENCE_AS_NON;
+    private static final long LAST_VARMARK_FLAG        = VARMARK_BARE_SYNTH;
 
     // Var/def usage info -- all usage info is within the script only 
     private static final long FIRST_VARUSE_FLAG        = LAST_VARMARK_FLAG << 1;
@@ -82,8 +81,7 @@ public class JavafxFlags {
     private static final long FIRST_FX_CLASS_FLAG    = LAST_FX_MOD_FLAG << 1;
     public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // JavaFX class
     public static final long CLASS_HAS_INIT_BLOCK    = FIRST_FX_CLASS_FLAG << 2;  // there is an init block on the class
-    public static final long FX_SYNTHETIC_LOCAL_CLASS = FIRST_FX_CLASS_FLAG << 3; // This is a JavaFX synthetic function local class
-    public static final long FX_BOUND_FUNCTION_CLASS = FIRST_FX_CLASS_FLAG << 4;  // This is a local class that implements bound functions
+    public static final long FX_BOUND_FUNCTION_CLASS = FIRST_FX_CLASS_FLAG << 3;  // This is a local class that implements bound functions
 
     public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
     public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;

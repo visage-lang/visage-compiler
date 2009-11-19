@@ -253,6 +253,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.setContext(true, sDefinitions);
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
                     javaCodeMaker.makeVarNumMethods();
+                    javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
                     javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, isRunnable);
                     javaCodeMaker.setContext(false, cDefinitions);
     
@@ -2473,9 +2474,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Control build.
                     buildIf(stmts.nonEmpty());
 
-                    // if (!default_applied)
-                    JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagDEFAULT_APPLIED, null);
-                    // if (!default_applied) { body } 
+                    // if (!default_applied && !varinit)
+                    JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagDEFAULT_APPLIED_VARINIT, null);
+                    // if (!default_applied && !varinit) { body }
                     addStmt(If(ifExpr, endBlock()));
                 }
             };
@@ -2507,15 +2508,27 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             boolean isBound = ai.hasBoundDefinition();
                             boolean isReadonly = ai.isDef() || (isBound && !ai.hasBiDiBoundDefinition());
                             Name setBits = null;
-                            
-                            if (isReadonly && isBound) {
-                                setBits = defs.varFlagINIT_BOUND_READONLY;
-                            } else if (isReadonly) {
-                                setBits = defs.varFlagINIT_READONLY;
-                            } else if (isBound) {
-                                setBits = defs.varFlagINIT_BOUND;
+
+                            if (ai.hasVarInit()) {
+                                if (isReadonly && isBound) {
+                                    setBits = defs.varFlagINIT_BOUND_READONLY_VARINIT;
+                                } else if (isReadonly) {
+                                    setBits = defs.varFlagINIT_READONLY_VARINIT;
+                                } else if (isBound) {
+                                    setBits = defs.varFlagINIT_BOUND_VARINIT;
+                                } else {
+                                    setBits = defs.varFlagINIT_VARINIT;
+                                }
+                            } else {
+                                if (isReadonly && isBound) {
+                                    setBits = defs.varFlagINIT_BOUND_READONLY;
+                                } else if (isReadonly) {
+                                    setBits = defs.varFlagINIT_READONLY;
+                                } else if (isBound) {
+                                    setBits = defs.varFlagINIT_BOUND;
+                                }
                             }
-                            
+                           
                             if (setBits != null) {
                                 addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagALL_FLAGS, setBits));
                             } else if (ai.isOverride() && hasDefaultInitStatement(ai)) {
@@ -3095,24 +3108,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public void makeJavaEntryConstructor() {
             //    public Foo() {
             //        this(false);
-            //        if (not <fx-local-synthetic-class> initialize$();
+            //        initialize$();
             //    }
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            stmts.append(CallStmt(names._this, Boolean(false)));
-            /*
-             * Certain local functions executed code in out-of-order. See JFXC-3080.
-             * For certain functions, we generate a local class inside the function.
-             * For such FX synthetic local classes, applyDefaults$(int) is called inside
-             * "doit$x" method of the local class. The "doit$x" contains code in source order.
-             * We don't want to call "initialize$" - which calls "applyDefaults$" for all
-             * variables. If we don't avoid the "initialize$" call, "applyDefaults$" execution
-             * occurs before "doit$" is called which resulted in out-of-order execution.
-             * 
-             */
-            if ((getCurrentOwner().flags() & JavafxFlags.FX_SYNTHETIC_LOCAL_CLASS) == 0) {
-                stmts.append(CallStmt(defs.initialize_FXObjectMethodName));
-            }
-            makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(), stmts.toList());
+            makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(),
+                Stmts(
+                    CallStmt(names._this, Boolean(false)),
+                    CallStmt(defs.initialize_FXObjectMethodName)
+                )
+            );
         }
 
         //
@@ -3365,31 +3368,43 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 addDefinition(makeField(Flags.PRIVATE | Flags.STATIC, scriptClassType, defs.scriptLevelAccess_FXObjectFieldName, null));
             }
             
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            List<JCStatement> stmts;
             long flags = Flags.PUBLIC;
             
             if (scriptLevel) {
-                stmts.append(Return(id(names._this)));
+                stmts = 
+                    Stmts(
+                        Return(id(names._this))
+                    );
             } else {
-                // class needs to be static.
+                // method is static.
                 flags |= Flags.STATIC;
                 
                 // sole instance lazy creation method
-                JCExpression condition = EQnull(id(defs.scriptLevelAccess_FXObjectFieldName));
-    
-                JCExpression assignExpr = m().Assign(
+                //
+                // if (scriptLevelAccess == null) {
+                //    scriptLevelAccess = new Foo$Script(false);
+                //    scriptLevelAccess.initialize$();
+                // }
+                // return scriptLevelAccess;
+                JCStatement assignNew = Stmt( m().Assign(
                         id(defs.scriptLevelAccess_FXObjectFieldName),
-                        m().NewClass(null, null, id(scriptName), List.<JCExpression>nil(), null));
+                        m().NewClass(null, null, id(scriptName), List.<JCExpression>of(Boolean(false)), null)) );
     
-                ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
-                ifStmts.append(Stmt(assignExpr));
-    
-                stmts.append(If(condition, Block(ifStmts)));
-                stmts.append(Return(id(defs.scriptLevelAccess_FXObjectFieldName)));
+                stmts =
+                    Stmts(
+                        If(EQnull(id(defs.scriptLevelAccess_FXObjectFieldName)),
+                            Block(
+                                assignNew,
+                                CallStmt(id(defs.scriptLevelAccess_FXObjectFieldName), defs.initialize_FXObjectMethodName)
+                            )
+                        ),
+                        Return (id(defs.scriptLevelAccess_FXObjectFieldName))
+                    );
             }
             
             MethodSymbol methSym = makeMethodSymbol(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<Type>nil());
-            addDefinition(Method(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<JCVariableDecl>nil(), stmts.toList(), methSym));
+            addDefinition(Method(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<JCVariableDecl>nil(), stmts, methSym));
         }
     }
 }

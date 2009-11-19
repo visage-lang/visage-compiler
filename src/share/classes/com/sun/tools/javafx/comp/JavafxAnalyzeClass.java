@@ -229,6 +229,9 @@ class JavafxAnalyzeClass {
         // Return true if the var/override has an initializing expression
         public boolean hasInitializer() { return false; }
 
+        // Return true if the var has a VarInit
+        public boolean hasVarInit() { return false; }
+
         // is this initialzed with a bound function result var?
         public boolean isInitWithBoundFuncResult() { return false; }
 
@@ -550,6 +553,10 @@ class JavafxAnalyzeClass {
         // Returns the tree for the javafx var.
         public JFXVar jfxVar() { return var; }
         
+        // Return true if the var has a VarInit
+        @Override
+        public boolean hasVarInit() { return var.getVarInit() != null; }
+
         @Override
         public boolean isInitWithBoundFuncResult() {
             return boundFuncResultInitSym != null;

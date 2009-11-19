@@ -355,6 +355,7 @@ import com.sun.javafx.runtime.sequence.Sequence;
      */
     public FXBase() {
       this(false);
+      initialize$();
     }
 
     /**

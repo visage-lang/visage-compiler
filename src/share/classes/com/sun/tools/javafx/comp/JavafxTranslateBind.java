@@ -23,7 +23,6 @@
 
 package com.sun.tools.javafx.comp;
 
-import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
@@ -561,33 +560,21 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         // Symbol of the referenced
         private final Symbol sym;
 
-        // If true, reference via getter and Sequence queries
-        private final boolean isRefToSequenceInNonSequenceForm;
-
         // ExpressionResult for etracting bindee info
         private final ExpressionResult exprResult;
 
         BoundIdentSequenceTranslator(JFXIdent tree, ExpressionResult exprResult) {
             super(tree.pos());
             this.sym = tree.sym;
-            this.isRefToSequenceInNonSequenceForm = (sym.flags() & JavafxFlags.VARMARK_SEQUENCE_AS_NON) != 0L;
             this.exprResult = exprResult;
         }
 
         JCStatement makeSizeBody() {
-            if (isRefToSequenceInNonSequenceForm) {
-                return Return(Call(CallGetter(sym), defs.size_SequenceMethodName));
-            } else {
-                return Return(CallSize(sym));
-            }
+            return Return(CallSize(sym));
         }
 
         JCStatement makeGetElementBody() {
-            if (isRefToSequenceInNonSequenceForm) {
-                return Return(Call(CallGetter(sym), defs.get_SequenceMethodName, posArg()));
-            } else {
-                return Return(CallGetElement(sym, posArg()));
-            }
+            return Return(CallGetElement(sym, posArg()));
         }
 
         /**
@@ -595,6 +582,112 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         void setupInvalidators() {
             mergeResults(exprResult);
+        }
+    }
+
+    /**
+     * Bound identifier Translator for identifiers referencing sequences but pretending tto be non-sequences
+     *
+     * Use the referenced as a sequence
+     */
+    class BoundIdentSequenceFromNonTranslator extends BoundSequenceTranslator {
+
+        // Symbol of the referenced
+        private final VarSymbol sym;
+
+        // Size holder
+        private final VarSymbol sizeSym;
+
+        BoundIdentSequenceFromNonTranslator(JFXIdentSequenceProxy tree) {
+            super(tree.pos());
+            this.sym = (VarSymbol) tree.sym;
+            this.sizeSym = tree.boundSizeSym();
+        }
+
+        JCExpression makeSizeValue() {
+            return Call(CallGetter(sym), defs.size_SequenceMethodName);
+        }
+
+        /**
+         * Body of the sequence size method.
+         *
+         * Get the stored size.
+         * If the sequence is uninitialized (size is invalid)
+         *   Set the size var, from the proxied result. (thus initializing the sequence).
+         *   Send initial update nodification.
+         * Return the size
+         */
+        JCStatement makeSizeBody() {
+            JCVariableDecl sizeVar = MutableTmpVar("size", syms.intType, Get(sizeSym));
+
+            return
+                Block(
+                    sizeVar,
+                    If(EQ(id(sizeVar), Int(JavafxDefs.UNDEFINED_MARKER_INT)),
+                        Block(
+                            Stmt(m().Assign(id(sizeVar), makeSizeValue())),
+                            SetStmt(sizeSym, id(sizeVar)),
+                            CallSeqInvalidateUndefined(flagSymbol),
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(sizeVar), id(defs.varFlagNEEDS_TRIGGER))
+                        )
+                    ),
+                    Return(id(sizeVar))
+                );
+        }
+
+        /**
+         * Body of the sequence get element method.
+         *
+         * Make sure the sequence is initialized, by calling the size method.
+         * Redirect to the proxied sequence to get the element.
+         */
+        JCStatement makeGetElementBody() {
+            return
+                Block(
+                    If(EQ(Get(sizeSym), Int(JavafxDefs.UNDEFINED_MARKER_INT)),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return (Call(CallGetter(sym), defs.get_SequenceMethodName, posArg()))
+                );
+        }
+
+        /**
+         * Body of a invalidate$ method for the proxied sequences
+         *
+         * Do nothing if the sequence is uninitialized.
+         * If this is invalidation phase,
+         *     send a blanket invalidation of the sequence.
+         * If this is trigger phase,
+         *     send an invalidation of the whole sequence
+         *     update the sequence size,
+         */
+        private JCStatement makeInvalidateFuncValue() {
+            JCVariableDecl oldSizeVar = TmpVar("oldSize", syms.intType, Get(sizeSym));
+            JCVariableDecl newSizeVar = TmpVar("newSize", syms.intType, makeSizeValue());
+
+            return
+                Block(
+                    oldSizeVar,
+                    If(AND(NE(id(oldSizeVar), Int(JavafxDefs.UNDEFINED_MARKER_INT)), NOT(FlagChange(sym, null, phaseArg()))),
+                        If(IsInvalidatePhase(),
+                            Block(
+                                CallSeqInvalidateUndefined(targetSymbol)
+                            ),
+                            Block(
+                                newSizeVar,
+                                SetStmt(sizeSym, id(newSizeVar)),
+                                CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
+                            )
+                        )
+                    )
+                );
+        }
+
+        /**
+         * Set-up proxy's invalidator.
+         */
+        void setupInvalidators() {
+            addInvalidator(sym, makeInvalidateFuncValue());
         }
     }
 
@@ -1733,14 +1826,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
     }
 
-    private void checkForUnproxiedSequence(JFXExpression tree) {
-        if (tree == boundExpression &&
-                isTargettedToSequence() &&
-                (targetSymbol.flags() & JavafxFlags.VARMARK_SEQUENCE_AS_NON) == 0L) {
-            throw new AssertionError("bound sequence function invocation not proxied");
-        }
-    }
-
     public void visitBlockExpression(JFXBlock tree) {
         if (tree == boundExpression && isTargettedToSequence()) {
             // We are translating to a bound sequence
@@ -1757,7 +1842,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
-        checkForUnproxiedSequence(tree);
         result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
     }
 
@@ -1771,7 +1855,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();
         if (tree == boundExpression && isTargettedToSequence()) {
             // We are translating to a bound sequence
-            result = new BoundIdentSequenceTranslator(tree, exprResult).doit();
+            if (tree instanceof JFXIdentSequenceProxy) {
+                result = new BoundIdentSequenceFromNonTranslator((JFXIdentSequenceProxy)tree).doit();
+            } else {
+                result = new BoundIdentSequenceTranslator(tree, exprResult).doit();
+            }
         } else {
             result = exprResult;
         }
