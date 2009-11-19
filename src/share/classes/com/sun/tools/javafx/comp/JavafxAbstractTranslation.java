@@ -3519,11 +3519,10 @@ public abstract class JavafxAbstractTranslation
         }
 
         ExpressionResult doit() {
+            JCExpression receiverExpr = receiver != null ? translateExpr(receiver, expectedType) : null;
             switch (kind) {
-                case INST: return toResult(receiver != null ?
-                    translateExpr(receiver, expectedType) :
-                    getReceiverOrThis(varSymbol), expectedType);
-                case VARNUM: return toResult(Offset(varSymbol), expectedType);
+                case INST: return toResult(receiverExpr != null ? receiverExpr : getReceiverOrThis(varSymbol), expectedType);
+                case VARNUM: return toResult(Offset(receiverExpr, varSymbol), expectedType);
             }
             throw new AssertionError("Shouldn't be here!");
         }
