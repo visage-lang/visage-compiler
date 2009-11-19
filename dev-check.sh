@@ -162,22 +162,32 @@ fi
              fi
          done
          nUnexpectedPasses=`cat ./build/test/dev-unexpected-passes | wc -l`
-         echo "-- $nPasses total passes, $nUnexpectedPasses unexpected passes:"
+         if [ "$target" == dev-fail ] ; then
+             # We needed to count all the junit testlets that are inside a single .fx file
+             # to get a count that matches hudson.  For dev-fail, there can be some of these,
+             # eg, one testlet fails so the .fx file is on the fail list.  But other testlets
+             # pass.   We don't want to say there were some total passes and 0 unexpected passes.
+             echo "-- $nUnexpectedPasses unexpected passes:"
+         else
+             echo "-- $nPasses total passes, $nUnexpectedPasses unexpected passes:"
+         fi
          cat ./build/test/dev-unexpected-passes | sed -e 's@^@ @'
      fi
 
-     didit=
-     for ii in `cat ./build/test/dev-expected-fails` ; do
-          fgrep $ii ./build/test/dev-actual-fails ./build/test/dev-passes > /dev/null 2>&1
-          if [ $? != 0 ] ; then
-              if [ -z "$didit" ] ; then
-                  echo
-                  echo "--Expected failures for which pass/fail status cannot be determined"
-                  didit=1
-              fi
-              echo "   $ii"
-          fi
-     done
+     if [ "$target" != dev-pass ] ; then
+         didit=
+         for ii in `cat ./build/test/dev-expected-fails` ; do
+             fgrep $ii ./build/test/dev-actual-fails ./build/test/dev-passes > /dev/null 2>&1
+             if [ $? != 0 ] ; then
+                 if [ -z "$didit" ] ; then
+                     echo
+                     echo "--Expected failures for which pass/fail status cannot be determined"
+                     didit=1
+                 fi
+                 echo "   $ii"
+             fi
+         done
+     fi
 
 ###  This shows a number of non FXCompilerTest tests run; don't know why 
 ###     echo "-- Result URL: file:///$thisDir/build/test/reports/junit-noframes.html"
