@@ -96,10 +96,13 @@ public class JavafxTypes extends Types {
         elemType = boxedTypeOrType(elemType);
         if (withExtends)
             elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
-        Type seqtype = syms.javafx_SequenceType;
-        List<Type> actuals = List.of(elemType);
-        Type clazzOuter = seqtype.getEnclosingType();
-        return new ClassType(clazzOuter, actuals, seqtype.tsym);
+        return applySimpleGenericType(syms.javafx_SequenceType, elemType);
+    }
+
+    public Type applySimpleGenericType(Type base, Type parameter) {
+        List<Type> actuals = List.of(parameter);
+        Type clazzOuter = base.getEnclosingType();
+        return new ClassType(clazzOuter, actuals, base.tsym);
     }
 
     public int typeKind(Type type) {
@@ -126,9 +129,7 @@ public class JavafxTypes extends Types {
             return syms.enterClass(JavafxDefs.sequence_PackageString + "." + tname + "ArraySequence");
         }
         Type seqtype = syms.enterClass("com.sun.javafx.runtime.sequence.ObjectArraySequence");
-        List<Type> actuals = List.of(elemType);
-        Type clazzOuter = seqtype.getEnclosingType();
-        return new ClassType(clazzOuter, actuals, seqtype.tsym);
+        return applySimpleGenericType(seqtype, elemType);
     }
 
     public Type boxedElementType(Type seqType) {
