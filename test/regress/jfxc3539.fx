@@ -1,3 +1,10 @@
+/*
+ * Regression test: JFXC-3539 - missing update for mixins and bind with var override.
+ *
+ * @test
+ * @run
+ */
+
 mixin class B { 
    var x = 10; 
    var y = 10; 
