@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
@@ -65,6 +64,7 @@ public class JavafxDecompose implements JavafxVisitor {
     private boolean inScriptLevel = true;
 
     protected final JavafxTreeMaker fxmake;
+    protected final JavafxPreTranslationSupport preTrans;
     protected final JavafxDefs defs;
     protected final Name.Table names;
     protected final JavafxResolve rs;
@@ -83,6 +83,7 @@ public class JavafxDecompose implements JavafxVisitor {
         context.put(decomposeKey, this);
 
         fxmake = JavafxTreeMaker.instance(context);
+        preTrans = JavafxPreTranslationSupport.instance(context);
         names = Name.Table.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
@@ -161,12 +162,12 @@ public class JavafxDecompose implements JavafxVisitor {
 
     private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
+        VarSymbol sym = new VarSymbol(flags, vName, types.normalize(type), varOwner);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
-        JFXType fxType = fxmake.at(diagPos).TypeAny(Cardinality.ANY);
+        JFXType fxType = preTrans.makeTypeTree(sym.type);
         JFXVar v = fxmake.at(diagPos).Var(vName, fxType, mod, pose, bindStatus, null, null);
-        VarSymbol sym = new VarSymbol(flags, vName, type, varOwner);
         v.sym = sym;
-        v.type = type;
+        v.type = sym.type;
         lbVar.append(v);
         return v;
     }

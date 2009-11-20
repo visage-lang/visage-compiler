@@ -248,7 +248,7 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private JFXVar makeTmpVar(DiagnosticPosition diagPos, String name, JFXExpression init, Type type) {
-        VarSymbol vsym = new VarSymbol(0L, tempName(name), type,         preTrans.makeDummyMethodSymbol(currentClass));
+        VarSymbol vsym = new VarSymbol(0L, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
         return makeTmpVar(diagPos, vsym, init);
     }
 

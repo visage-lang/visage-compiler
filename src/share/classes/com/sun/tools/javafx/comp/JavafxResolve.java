@@ -1982,7 +1982,7 @@ public class JavafxResolve {
                         kindname = JCDiagnostic.fragment(MsgSym.KINDNAME_CONSTRUCTOR);
                         idname = site.tsym.name.toString();
                     }
-                    args = "(" + Type.toString(argtypes) + ")";
+                    args = "(" + types.toJavaFXString(argtypes) + ")";
                     if (typeargtypes != null && typeargtypes.nonEmpty())
                         typeargs = "<" + Type.toString(typeargtypes) + ">";
                 }
@@ -2007,7 +2007,7 @@ public class JavafxResolve {
                     else
                         log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE_LOCATION,
                                   kindname, idname, args, typeargs,
-                                  typeKindName(site), site);
+                                  typeKindName(site), types.toJavaFXString(site));
                 } else {
                     log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE, kindname, idname, args, typeargs);
                 }

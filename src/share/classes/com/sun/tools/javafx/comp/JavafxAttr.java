@@ -931,12 +931,6 @@ public class JavafxAttr implements JavafxVisitor {
                 }
                 chk.checkType(tree.pos(), initType, declType,
                         types.isSequence(declType) ? Sequenceness.REQUIRED : Sequenceness.DISALLOWED, false);
-                if (initType == syms.botType
-                        || initType == syms.unreachableType)
-                    initType = syms.objectType;
-                else if (initType == syms.javafx_EmptySequenceType)
-                    initType = types.sequenceType(syms.objectType);
-                //FIXME - following if should be remove now that we have arrays (see JFXC-2784)                
                 chk.checkBidiBind( tree.getInitializer(),tree.getBindStatus(), initEnv, v.type);
             }
             else if (tree.type != null)
@@ -2073,7 +2067,7 @@ public class JavafxAttr implements JavafxVisitor {
                     type1 = types.elementType(type1);
                 if (isSequence2)
                     type2 = types.elementType(type2);
-                Type union = unionType(pos, types.normalize(type1), types.normalize(type2));
+                Type union = unionType(pos, type1, type2);
                 return union.tag == ERROR ? union : types.sequenceType(union);
             }
             // If same type, that is the result

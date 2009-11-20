@@ -676,7 +676,18 @@ public class JavafxTypes extends Types {
             }
 
             public Type visitType(Type t, Boolean preserveWildcards) {
-                return t;
+                if (t == syms.botType) {
+                    return syms.objectType;
+                }
+                else if (isSameType(t, syms.javafx_EmptySequenceType)) {
+                    return sequenceType(syms.objectType);
+                }
+                else if (t == syms.unreachableType) {
+                    return syms.objectType;
+                }
+                else {
+                    return t;
+                }
             }
 
             public List<Type> visit(List<Type> ts, Boolean preserveWildcards) {
