@@ -1084,7 +1084,14 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
-        result = new FunctionTranslator(tree, false).doit();
+        JFXFunctionDefinition prevFunction = currentFunction();
+        try {
+            setCurrentFunction(tree);
+            result = new FunctionTranslator(tree, false).doit();
+        }
+        finally {
+            setCurrentFunction(prevFunction);
+        }
     }
 
     @Override

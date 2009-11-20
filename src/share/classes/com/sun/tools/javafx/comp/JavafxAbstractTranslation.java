@@ -116,8 +116,16 @@ public abstract class JavafxAbstractTranslation
         return getAttrEnv().enclClass;
     }
 
+    JFXFunctionDefinition currentFunction() {
+        return getAttrEnv().enclFunction;
+    }
+
     void setCurrentClass(JFXClassDeclaration tree) {
         getAttrEnv().enclClass = tree;
+    }
+
+    void setCurrentFunction(JFXFunctionDefinition tree) {
+        getAttrEnv().enclFunction = tree;
     }
 
     protected JavafxEnv<JavafxAttrContext> getAttrEnv() {
@@ -2352,8 +2360,22 @@ public abstract class JavafxAbstractTranslation
         JCExpression doitExpr() {
             ListBuffer<JCTree> members = new ListBuffer<JCTree>();
             if (def != null) {
-                // Translate the definition, maintaining the current inInstanceContext
-                members.append(translateFunction(def, true));
+                //we need a synthetic enclosing JFX class declaration so that
+                //translation can handle getReceiver() calls trasparently
+                //probably this would be unnecessary if we lowered func values away
+                JFXClassDeclaration funClass = fxmake.ClassDeclaration(null, names.empty, List.<JFXExpression>nil(), List.<JFXTree>nil());
+                funClass.sym = new ClassSymbol(0, names.empty, currentFunction() != null ? currentFunction().sym : currentClass().sym);
+                funClass.type = new Type.ClassType(currentClass().type, List.<Type>nil(), funClass.sym);
+                funClass.sym.type = funClass.type;
+                JFXClassDeclaration prevClass = currentClass();
+                try {
+                    setCurrentClass(funClass);
+                    // Translate the definition, maintaining the current inInstanceContext
+                    members.append(translateFunction(def, true));
+                }
+                finally {
+                    setCurrentClass(prevClass);
+                }
             }
             JCExpression encl = null;
             int nargs = mtype.argtypes.size();
