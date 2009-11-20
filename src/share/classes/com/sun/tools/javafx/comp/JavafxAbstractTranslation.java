@@ -1778,7 +1778,7 @@ public abstract class JavafxAbstractTranslation
         protected final JFXExpression selector;
         protected final JCExpression rhsTranslated;
         private final JCExpression rhsTranslatedPreserved;
-        protected final boolean useSetters;
+        protected final boolean useAccessors;
 
         /**
          *
@@ -1796,7 +1796,7 @@ public abstract class JavafxAbstractTranslation
             this.selector = (ref instanceof JFXSelect) ? ((JFXSelect) ref).getExpression() : null;
             this.rhsTranslated = rhs==null? null : convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
             this.rhsTranslatedPreserved = rhs==null? null : preserveSideEffects(fullType, rhs, rhsTranslated);
-            this.useSetters = refSym==null? false : typeMorpher.varMorphInfo(refSym).useAccessors();
+            this.useAccessors = refSym==null? false : typeMorpher.varMorphInfo(refSym).useAccessors();
         }
 
         /**
@@ -1904,14 +1904,20 @@ public abstract class JavafxAbstractTranslation
             if (indexOrNull != null) {
                 if (ref.type.tag == TypeTags.ARRAY) {
                     // set of an array element --  s[i]=8, set the array element
-                    JCExpression tArray = buildGetter(instance(tToCheck));
+                    JCExpression tArray = id(refSym);
+                    if (useAccessors) {
+                        JCExpression inst = refSym.isStatic() ?
+                            makeType(refSym.owner) :
+                            tToCheck != null ? tToCheck : getReceiver(refSym);
+                        tArray = buildGetter(inst);
+                    }
                     return m().Assign(m().Indexed(tArray, translateIndex()), buildRHS(rhsTranslated));
                 } else {
                     // set of a sequence element --  s[i]=8, call the sequence set method
                     return sequencesOp(defs.Sequences_set, tToCheck);
                 }
             } else {
-                if (useSetters) {
+                if (useAccessors) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
                 } else {
                     //TODO: possibly should use, or be unified with convertVariableReference
@@ -1933,7 +1939,7 @@ public abstract class JavafxAbstractTranslation
                 if (types.isArray(rhs.type) || types.isSequence(rhs.type)) {
                     return ref.type;
                 } else {
-                    return types.elementType(ref.type);
+                    return types.arrayOrSequenceElementType(ref.type);
                 }
             } else {
                 if (refSym == null) {

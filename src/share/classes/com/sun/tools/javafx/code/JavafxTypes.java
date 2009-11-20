@@ -89,6 +89,12 @@ public class JavafxTypes extends Types {
         return isArray(type) || isSequence(type);
     }
 
+    public Type arrayOrSequenceElementType(Type type) {
+        return isArray(type) ?
+            elemtype(type) :
+            elementType(type);
+    }
+
     public Type sequenceType(Type elemType) {
         return sequenceType(elemType, true);
     }
