@@ -149,6 +149,16 @@ public class Pointer implements KeyValueTarget {
         obj.removeDependent$(varnum, dep);
     }
 
+    public static void switchDependence(Pointer oldPtr, Pointer newPtr, FXObject dep) {
+        if (oldPtr != newPtr) {
+            FXObject oldSrc = (oldPtr != null)? oldPtr.getFXObject() : null;
+            FXObject newSrc = (newPtr != null)? newPtr.getFXObject() : null;
+            int oldVarNum = (oldPtr != null)? oldPtr.getVarNum() : 0;
+            int newVarNum = (newPtr != null)? newPtr.getVarNum() : 0;
+            dep.switchDependence$(oldSrc, oldVarNum, newSrc, newVarNum);
+        }
+    }
+
     /**
      * A BoundPointer is returned from the Pointer.bind(Pointer) method.
      * BoundPointer instance has to be kept alive till you want bind to be
