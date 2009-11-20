@@ -1912,13 +1912,7 @@ public abstract class JavafxAbstractTranslation
             if (indexOrNull != null) {
                 if (ref.type.tag == TypeTags.ARRAY) {
                     // set of an array element --  s[i]=8, set the array element
-                    JCExpression tArray = id(refSym);
-                    if (useAccessors) {
-                        JCExpression inst = refSym.isStatic() ?
-                            makeType(refSym.owner) :
-                            tToCheck != null ? tToCheck : getReceiver(refSym);
-                        tArray = buildGetter(inst);
-                    }
+                    JCExpression tArray = translateExpr(ref, ref.type);
                     return m().Assign(m().Indexed(tArray, translateIndex()), buildRHS(rhsTranslated));
                 } else {
                     // set of a sequence element --  s[i]=8, call the sequence set method
