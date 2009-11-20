@@ -115,7 +115,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         return mixing;
     }
 
-    public void setDifferentiatedExtendingImplementing(List<JFXExpression> extending,
+    public void setDifferentiatedExtendingImplementingMixing(List<JFXExpression> extending,
                                                        List<JFXExpression> implementing,
                                                        List<JFXExpression> mixing) {
         this.extending    = extending;

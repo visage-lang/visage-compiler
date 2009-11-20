@@ -1587,7 +1587,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            VarSymbol helperSym = clause.helper.sym;
+            VarSymbol helperSym = clause.boundHelper.sym;
             JCExpression createHelper;
             // Translate
             //   var y = bind for (x in xs) body(x, indexof x)
@@ -1609,10 +1609,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             // JCExpression makePart = asExpression(translateBoundExpression(clause.convertedBody, targetSymbol, false), clause.convertedBody.type);
 
             Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(forExpr.type));
-            Type partType = types.applySimpleGenericType(syms.javafx_BoundForPartIType, types.boxedElementType(forExpr.type));
+            Type partType = types.applySimpleGenericType(syms.javafx_FXForPartInterfaceType, types.boxedElementType(forExpr.type));
             JCVariableDecl indexParam = Var(syms.intType, names.fromString("$index$"), null); // FIXME
             JCMethodDecl makeDecl = m().MethodDef(m().Modifiers(Flags.PUBLIC),
-                                        names.fromString(defs.makeForPart_AttributeMethodPrefix),
+                                        names.fromString(JavafxDefs.makeForPart_AttributeMethodPrefix),
                                         makeType(partType),
                                         List.<JCTypeParameter>nil(),
                                         List.<JCVariableDecl>of(indexParam),
@@ -1624,17 +1624,23 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             createHelper = m().NewClass(null, null, // FIXME
                     makeType(helperType),
                     List.<JCExpression>of(getReceiver(helperSym), Offset(helperSym), Boolean(true)), helperClass);
-            return Block(
+            return
+                Block(
                     If(EQnull(Get(helperSym)),
-                        Stmt(Set(clause.helper.sym, createHelper))),
-                    Return(Call(Get(clause.helper.sym), defs.size_SequenceMethodName)));
+                        Stmt(Set(clause.boundHelper.sym, createHelper))
+                    ),
+                    Return(Call(Get(clause.boundHelper.sym), defs.size_SequenceMethodName))
+                );
         }
 
         JCStatement makeGetElementBody() {
-            return Block(If(EQnull(Get(clause.helper.sym)),
-                    Stmt(CallSize(targetSymbol))),
-                    Return(Call(Get(clause.helper.sym), defs.get_SequenceMethodName, posArg()))
-                    );
+            return 
+                Block(
+                    If(EQnull(Get(clause.boundHelper.sym)),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return(Call(Get(clause.boundHelper.sym), defs.get_SequenceMethodName, posArg()))
+                );
         }
        
         void setupInvalidators() {

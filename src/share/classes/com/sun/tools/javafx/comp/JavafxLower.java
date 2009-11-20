@@ -414,7 +414,7 @@ public class JavafxLower implements JavafxVisitor {
         }
         JFXForExpressionInClause res = m.at(that.pos).InClause(that.getVar(), seqExpr, whereExpr);
         res.setIndexUsed(that.getIndexUsed());
-        res.indexVar = that.indexVar;
+        res.boundIndexVarSym = that.boundIndexVarSym;
         forClauseMap.put(that, res);
         result = res.setType(that.type);
     }

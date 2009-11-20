@@ -39,6 +39,7 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
+import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.jvm.ClassReader;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
@@ -882,34 +883,81 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitForExpression(JFXForExpression tree) {
-        JFXForExpressionInClause clause = tree.inClauses.head;
-        clause.seqExpr = shred(clause.seqExpr, null);
-        clause.whereExpr = decompose(clause.whereExpr);
-        tree.bodyExpr = decompose(tree.bodyExpr);
         if (bindStatus.isBound()) {
+            // Consider this block unbound
+            JavafxBindStatus prevBindStatus = bindStatus;
+            bindStatus = JavafxBindStatus.UNBOUND;
+
+            JFXForExpressionInClause clause = tree.inClauses.head;
+            // clause.seqExpr = shred(clause.seqExpr, null);
+            // clause.whereExpr = decompose(clause.whereExpr);
+
             // Create the BoundForHelper variable:
-            // FIXME it might make more sense to move this to JavafxTranslateBit,
-            // since that's when we actually make use it.  The reason we do it
-            // here because it might be better to call makeVar here - but
-            // creating a raw Java field during translation might be better,
-            // as long as we've got a container class.
             Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type));
-            JFXExpression init = fxmake.Literal(com.sun.tools.mjavac.code.TypeTags.BOT, null); // FIXME
+            JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
             init.type = helperType;
             Name helperName = names.fromString("helper$"+clause.var.name); // FIXME
-            JFXVar helper = makeVar(tree, helperName, null/*tree.bodyExpr*/, JavafxBindStatus.UNBOUND, helperType);
+            JFXVar helper = makeVar(tree, helperName, null, JavafxBindStatus.UNBOUND, helperType);
             helper.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
-            clause.helper = helper;
+            clause.boundHelper = helper;
+
+            // Fix up the class
+            JFXBlock body = (JFXBlock) tree.getBodyExpression();
+            JFXClassDeclaration cdecl = (JFXClassDeclaration) decompose(body.stats.head);
+            JFXFunctionDefinition indexFunction = makeAdjustIndexFunction(clause.boundIndexVarSym, cdecl.sym);
+            cdecl.setMembers(cdecl.getMembers().append(indexFunction)); // add function to class
+            Type intfc = syms.javafx_FXForPartInterfaceType;
+            cdecl.setDifferentiatedExtendingImplementingMixing(
+                    List.<JFXExpression>nil(),
+                    List.<JFXExpression>of(fxmake.Type(intfc)),  // implement interface
+                    List.<JFXExpression>nil());
+
+            bindStatus = prevBindStatus;
+        } else {
+            List<JFXForExpressionInClause> inClauses = decompose(tree.inClauses);
+            JFXExpression bodyExpr = decompose(tree.bodyExpr);
+            result = fxmake.at(tree.pos).ForExpression(inClauses, bodyExpr);
         }
         result = tree;
     }
 
+    // Create method 'void adjustIndex(int delta) { $indexof$x = $indexof$x + delta }' in ForPart:
+    private JFXFunctionDefinition makeAdjustIndexFunction(VarSymbol boundIndexVarSym, ClassSymbol classSymbol) {
+        Name funcName = names.fromString("adjustIndex"); // FIXME move to defs
+        final MethodType funcType = new MethodType(
+                List.<Type>of(syms.intType),  // arg types
+                syms.voidType,                // return type
+                List.<Type>nil(),             // Throws type
+                syms.methodClass);            // TypeSymbol
+        MethodSymbol funcSym = new MethodSymbol(0L, funcName, funcType, classSymbol);
+        JFXVar param = fxmake.Param(names.fromString("delta"), null);
+        param.type = syms.intType;
+        param.sym = new VarSymbol(0, param.name, syms.intType, funcSym);
+        JFXExpression add = fxmake.Binary(JavafxTag.PLUS, fxmake.Ident(boundIndexVarSym), fxmake.Ident(param));
+        add.type = syms.intType;
+        JFXBlock block = fxmake.Block(0, List.<JFXExpression>nil(),
+                fxmake.Assign(fxmake.Ident(boundIndexVarSym), add)
+                    .setType(syms.voidType));
+        block.type = syms.voidType;
+        JFXFunctionDefinition func = fxmake.FunctionDefinition(
+                fxmake.Modifiers(Flags.PUBLIC),
+                funcName,
+                null,
+                List.<JFXVar>of(param),
+                block);
+        func.type = funcType;
+        func.sym = funcSym;
+        return func;
+    }
+
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
-        throw new Error();
+        tree.seqExpr = decompose(tree.seqExpr);
+        tree.whereExpr = decompose(tree.whereExpr);
+        result = tree;
     }
 
     public void visitIndexof(JFXIndexof tree) {
-        result = tree.clause.indexVar == null ? tree : fxmake.Ident(tree.clause.indexVar);
+        result = tree.clause.boundIndexVarSym == null ? tree : fxmake.Ident(tree.clause.boundIndexVarSym);
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {

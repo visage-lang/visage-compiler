@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -187,6 +188,31 @@ public class JavafxPreTranslationSupport {
         JFXExpression typeExpr = fxmake.Type(elemType).setType(elemType);
         JavafxTreeInfo.setSymbol(typeExpr, elemType.tsym);
         return (JFXType)fxmake.TypeClass(typeExpr, types.isSequence(type) ? Cardinality.ANY : Cardinality.SINGLETON, (ClassSymbol)type.tsym).setType(type);
+    }
+
+    JFXVar BoundLocalVar(Type type, Name name, JFXExpression boundExpr, Symbol owner) {
+        return Var(JavafxFlags.IS_DEF, type, name, JavafxBindStatus.UNIDIBIND, boundExpr, owner);
+    }
+
+    JFXVar LocalVar(Type type, Name name, JFXExpression expr, Symbol owner) {
+        return Var(0L, type, name, JavafxBindStatus.UNBOUND, expr, owner);
+    }
+
+    JFXVar Var(long flags, Type type, Name name, JavafxBindStatus bindStatus, JFXExpression expr, Symbol owner) {
+        JFXVar var = fxmake.Var(
+                name,
+                makeTypeTree(type),
+                fxmake.Modifiers(flags),
+                expr,
+                bindStatus,
+                null, null);
+        var.type = type;
+        var.sym = new VarSymbol(
+                flags,
+                name,
+                type,
+                owner);
+        return var;
     }
 }
 

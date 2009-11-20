@@ -794,7 +794,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if ((sym.flags() & JavafxFlags.MIXIN) != 0)
                     c.flags_field |= JavafxFlags.MIXIN;
 
-                tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList(), mixing.toList());
+                tree.setDifferentiatedExtendingImplementingMixing(extending.toList(), implementing.toList(), mixing.toList());
             }
             
             if (supertype == null) {

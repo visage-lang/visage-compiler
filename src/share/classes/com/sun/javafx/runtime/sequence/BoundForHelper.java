@@ -71,13 +71,7 @@ import com.sun.javafx.runtime.FXObject;
 public abstract class BoundForHelper<T> {
 
     /** The bfElem class in the design document implements this interface. */
-    public static interface ForPart<T> extends FXObject {
-        /** Get the result variable as a Sequence. */
-        public Sequence<T> getResult();
-        /** Equivalent to getResult().get(index) but may be more efficient. */
-        public T get(int index);
-        /** Equivalent to getResult().size() but may be more efficient. */
-        public int size();
+    public static interface FXForPart extends FXObject {
         /** Adjust the indexof variable by delta.
          * May cause re-calculation.
          * This may cause size() to change - what then?  FIXME.
@@ -88,10 +82,10 @@ public abstract class BoundForHelper<T> {
     // cumulatedLengths[i] = size(i)+cumulatedLengths[i-1];
     // Inariant: cumulatedLengths.length == elements.length;
     int[] cumulatedLengths;
-    ForPart<T>[] elements;
+    FXForPart[] elements;
     int numParts;
     FXObject container;
-    int varNum;
+    int forSeqVarNum;
 
     // Invariant: numParts == elements.length - (gapEnd - gapStart).
     int gapStart, gapEnd;
@@ -102,9 +96,9 @@ public abstract class BoundForHelper<T> {
     int cachePart;
     public boolean dependsOnIndex = true;
 
-    public BoundForHelper(FXObject container, int varNum, boolean dependsOnIndex) {
+    public BoundForHelper(FXObject container, int forSeqVarNum, boolean dependsOnIndex) {
         this.container = container;
-        this.varNum = varNum;
+        this.forSeqVarNum = forSeqVarNum;
         this.dependsOnIndex = dependsOnIndex;
     }
 
@@ -121,7 +115,7 @@ public abstract class BoundForHelper<T> {
         return cumulatedLengths[part] + postGapExtra;
     }
 
-    protected ForPart<T> getPart(int part) {
+    protected FXForPart getPart(int part) {
         if (part < gapStart)
             return elements[part];
         part += gapEnd - gapStart;
@@ -130,12 +124,12 @@ public abstract class BoundForHelper<T> {
 
     /** Get the size of part ipart. */
     protected int size(int ipart) {
-        return getPart(ipart).size();
+return 0; //        return getPart(ipart).size();
     }
 
     /** Get the j'th item of part ipart. */
     protected T get(int ipart, int j) {
-        return getPart(ipart).get(j);
+return null; //        return getPart(ipart).get(j);
     }
 
     // Called by invalidate when the result of part[ipart] changes.
@@ -165,7 +159,7 @@ public abstract class BoundForHelper<T> {
         if (cumulatedLengths == null) {
             int newLength = insertedParts+10;
             cumulatedLengths = new int[newLength];
-            elements = new ForPart[newLength];
+            elements = new FXForPart[newLength];
             gapStart = 0;
             gapEnd = cumulatedLengths.length;
         } else if (numParts + deltaParts > cumulatedLengths.length) {
@@ -175,7 +169,7 @@ public abstract class BoundForHelper<T> {
             int oldLength = cumulatedLengths.length;
             int newLength = numParts + deltaParts + oldLength;
             int[] tmpL = new int[newLength];
-            ForPart<T>[] tmpP = (ForPart<T>[]) new ForPart<?>[newLength];
+            FXForPart[] tmpP = new FXForPart[newLength];
             int postGap = oldLength - gapEnd;
             System.arraycopy(cumulatedLengths, 0, tmpL, 0, gapStart);
             System.arraycopy(cumulatedLengths, oldLength-postGap, tmpL, newLength-postGap, postGap);
@@ -229,7 +223,7 @@ public abstract class BoundForHelper<T> {
         }
     }
 
-    public abstract ForPart<T> makeForPart$(int index);
+    public abstract FXForPart makeForPart$(int index);
     /*{
         return (ForPart<T>) container.makeForPart$(varNum, index);
     }*/

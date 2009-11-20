@@ -24,6 +24,8 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.*;
@@ -37,6 +39,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Fill in the synthetic definitions needed in a bound function
@@ -51,6 +54,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     private final JavafxTreeMaker fxmake;
     private final JavafxDefs defs;
     private final JavafxSymtab syms;
+    private final Name.Table names;
 
     // assigned lazily on the first usage. This is symbol of
     // Pointer.make(Object) method.
@@ -74,10 +78,89 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         fxmake = JavafxTreeMaker.instance(context);
         defs = JavafxDefs.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        names = Name.Table.instance(context);
     }
 
     public void fill(JavafxEnv<JavafxAttrContext> attrEnv) {
         scan(attrEnv.tree);
+    }
+
+    /**
+     * Add variables needed when a bound for-expression body is converted into a class:
+     * 
+     *           var $indexof$x: Integer = $index$;
+     *           def x = bind xs[$indexof$x];
+     *           def result = bind block_value;
+     */
+    @Override
+    public void visitForExpression(JFXForExpression tree) {
+        if (tree.isBound()) {
+            JFXBlock body = (JFXBlock) tree.getBodyExpression();
+            assert tree.getInClauses().size() == 1 : "lower is supposed to flatten to exactly one in-clause";
+            JFXForExpressionInClause clause = tree.getForExpressionInClauses().get(0);
+            MethodSymbol dummyOwner = preTrans.makeDummyMethodSymbol(clause.var.sym.owner);
+            JFXVar idxv = createIndexVar(clause, dummyOwner);
+            JFXVar iv = createInductionVar(clause, idxv.sym, dummyOwner);
+            JFXVar rv = createResultVar(clause, body.value, dummyOwner);
+            body.stats = body.stats.prepend(iv).prepend(idxv).append(rv);
+            body.value = preTrans.defaultValue(body.type); // just fill the spot
+        } else {
+            super.visitForExpression(tree);
+        }
+    }
+
+    /**
+     * Create the '$indexof$x' variable
+     */
+    private JFXVar createIndexVar(JFXForExpressionInClause clause, Symbol owner) {
+        // Create the method parameter
+        // $index$
+        Name indexParamName = names.fromString("$index$"); //FIXME-move to defs.
+        Name indexName = JavafxTranslationSupport.indexVarName(clause.getVar().getName(), names);
+        VarSymbol indexParamSym = new VarSymbol(Flags.FINAL | Flags.PARAMETER, indexParamName, syms.intType, owner);
+
+        // Create the index var
+        // var $indexof$x = $index$
+        JFXVar indexVar = preTrans.LocalVar(syms.intType, indexName, fxmake.Ident(indexParamSym), owner);
+        // Stash the created variable so it can be used when we visit a
+        // JFXIndexof, where we convert that to a JFXIdent referencing the indexDecl.
+        clause.boundIndexVarSym = indexVar.sym;
+        return indexVar;
+    }
+
+    /**
+     * Create the induction var in the body
+     *  def x = bind xs[$indexof$x];
+     */
+    private JFXVar createInductionVar(JFXForExpressionInClause clause, VarSymbol boundIndexVarSym, Symbol owner) {
+        JFXVar param = clause.getVar();
+        JFXExpression seq = clause.getSequenceExpression();
+        JFXExpression boundExpr = fxmake.SequenceIndexed(seq, fxmake.Ident(boundIndexVarSym)).setType(param.type);
+        JFXVar inductionVar =  preTrans.BoundLocalVar(param.type, param.name, boundExpr, owner);
+        clause.boundInductionVarSym = inductionVar.sym;
+        return inductionVar;
+    }
+
+    /**
+     * Create the bound result:
+     *  def result = bind block_value;
+     */
+    private JFXVar createResultVar(JFXForExpressionInClause clause, JFXExpression value, Symbol owner) {
+        JFXVar param = clause.getVar();
+        Name resName = resultVarName(param.name);
+        JFXVar resultVar =  preTrans.BoundLocalVar(param.type, resName, value, owner);
+        clause.boundResultVarSym = resultVar.sym;
+        return resultVar;
+    }
+
+    public Name resultVarName(Name name) {
+        return names.fromString("$result$" + name.toString());
+    }
+
+    @Override
+    public void visitIndexof(JFXIndexof tree) {
+        // Convert
+        super.visitIndexof(tree);
     }
 
     @Override

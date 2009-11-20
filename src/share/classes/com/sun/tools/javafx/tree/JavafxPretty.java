@@ -231,10 +231,9 @@ public class JavafxPretty implements JavafxVisitor {
     /** Print a set of modifiers.
      */
     public void printFlags(long flags) throws IOException {
-        // Redundant
-        // if ((flags & SYNTHETIC) != 0) print("/*synthetic*/ ");
-        print(JavafxTreeInfo.flagNames(flags, true));
-        if ((flags & StandardFlags) != 0) print(" ");
+        String sf = JavafxTreeInfo.flagNames(flags, true);
+        print(sf);
+        if (sf.length() > 0) print(" ");
         if ((flags & ANNOTATION) != 0) print("@");
     }
 
@@ -1131,7 +1130,6 @@ public class JavafxPretty implements JavafxVisitor {
     }
 
     String ary(JFXType tree) {
-        String show;
         switch (tree.getCardinality()) {
             case ANY:
                 return "[]";
@@ -1141,16 +1139,14 @@ public class JavafxPretty implements JavafxVisitor {
         return "";
     }
 
-    //@Override
     public void visitVarInit(JFXVarInit tree) {
-        // REMOVE
         try {
-        print("variable initialization for ");
-           print(tree.getVar());
-    } catch (IOException e) {
+            print("var-init: ");
+            print(tree.getVar());
+        } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-   }
+    }
 
     //@Override
     public void visitVarRef(JFXVarRef tree) {
@@ -1177,7 +1173,9 @@ public class JavafxPretty implements JavafxVisitor {
                 }
             }
             print(tree.getName());
-            printTypeSpecifier(tree.getJFXType());
+            if (tree.getJFXType() != null && tree.getJFXType().getFXTag() != JavafxTag.TYPEANY) {
+                printTypeSpecifier(tree.getJFXType());
+            }
             if (variableScope != SCOPE_PARAMS) {
                 if (tree.getInitializer() != null) {
                     print(" = ");

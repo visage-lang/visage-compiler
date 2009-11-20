@@ -41,10 +41,12 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
     public Name label;
 
     private boolean indexUsed;
-
-    public JFXVar helper;
-    public VarSymbol indexVar;
     private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
+
+    public JFXVar boundHelper;
+    public VarSymbol boundIndexVarSym;
+    public VarSymbol boundInductionVarSym;
+    public VarSymbol boundResultVarSym;
 
     protected JFXForExpressionInClause() {
         this.var        = null;

@@ -105,8 +105,6 @@ public class JavafxDefs {
     public static final String cSequenceRef = sequence_PackageString + ".SequenceRef";
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
     public static final String cBoundForHelper = sequence_PackageString + ".BoundForHelper";
-    public static final String cBoundForPart = "javafx.util.BoundForPart";
-    public static final String cBoundForPartSingleton = "javafx.util.BoundForPartSingleton";
     public static final String cBoundForPartI = cBoundForHelper + "$ForPart";
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
 

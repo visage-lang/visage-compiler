@@ -289,11 +289,14 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** Create an identifier from a symbol.
      */
     public JFXIdent Ident(Symbol sym) {
-        return (JFXIdent)new JFXIdent((sym.name != names.empty)
+        JFXIdent id = new JFXIdent(
+                (sym.name != names.empty)
                                 ? sym.name
-                                : sym.flatName(), sym)
-            .setPos(pos)
-            .setType(sym.type);
+                                : sym.flatName(), sym);
+        id.setPos(pos);
+        id.setType(sym.type);
+        id.sym = sym;
+        return id;
     }
 
     /** Create a selection node from a qualifier tree and a symbol.
