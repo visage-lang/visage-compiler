@@ -3210,6 +3210,16 @@ public abstract class JavafxAbstractTranslation
             return loop;
         }
 
+        JCStatement makeForEachLoop(JCVariableDecl var, JCExpression iterable, JCStatement body) {
+            JCStatement loop = m().ForeachLoop(var, iterable, body);
+            if (clause.label != null) {
+                // Wrap in a labeled stmt if the for has a label (that was created because
+                // it translated into nested loops, and the body contained a break or continue.)
+                loop = m().Labelled(clause.label, loop);
+                }
+            return loop;
+        }
+
         /**
          * Generate the loop for a slice sequence.  Loop wraps the current body.
          * For the loop:
@@ -3416,7 +3426,7 @@ public abstract class JavafxAbstractTranslation
                 } else if (seq.type.tag == TypeTags.ARRAY ||
                              types.asSuper(seq.type, syms.iterableType.tsym) != null) {
                     // Iterating over an array or iterable type, use a foreach loop
-                    body = m().ForeachLoop(inductionVar, tseq, body);
+                    body = makeForEachLoop(inductionVar, tseq, body);
                 } else {
                     // The "sequence" isn't aactually a sequence, treat it as a singleton.
                     // Compile: { var tmp = seq; if (tmp!=null) body; }
