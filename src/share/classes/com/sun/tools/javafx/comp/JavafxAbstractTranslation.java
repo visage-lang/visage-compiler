@@ -781,8 +781,24 @@ public abstract class JavafxAbstractTranslation
             return res.expr();
         }
 
+        JCExpression mergeResultsToBlockExpression(ExpressionResult res) {
+            addBindees(res.bindees());
+            addInterClassBindees(res.interClass());
+            if (!res.statements().isEmpty()) {
+                return BlockExpression(res.statements(), res.expr());
+            } else {
+                return res.expr();
+            }
+        }
+
         JCExpression translateExpr(JFXExpression expr, Type type) {
-            return mergeResults(translateToExpressionResult(expr, type));
+            ExpressionResult result = translateToExpressionResult(expr, type);
+            return mergeResults(result);
+        }
+
+        JCExpression translateExprToBlockExpression(JFXExpression expr, Type type) {
+            ExpressionResult result = translateToExpressionResult(expr, type);
+            return mergeResultsToBlockExpression(result);
         }
 
         List<JCExpression> translateExprs(List<JFXExpression> list) {
@@ -3363,7 +3379,7 @@ public abstract class JavafxAbstractTranslation
         protected JCStatement doitStmt() {
             // If there is a where expression, make the execution of the body conditional on the where condition
             if (clause.getWhereExpression() != null) {
-                body = If(translateExpr(clause.getWhereExpression(), syms.booleanType), body);
+                body = If(translateExprToBlockExpression(clause.getWhereExpression(), syms.booleanType), body);
             }
 
             // Because the induction variable may be used in inner contexts, make a final

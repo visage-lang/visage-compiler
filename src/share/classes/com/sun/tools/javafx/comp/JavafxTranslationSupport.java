@@ -1322,6 +1322,20 @@ public abstract class JavafxTranslationSupport {
          * Block
          */
 
+        JCBlock Block(List<JCStatement> prolog, JCStatement... epilog) {
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            for (JCStatement p : prolog) stmts.append(p);
+            for (JCStatement e : epilog) stmts.append(e);
+            return Block(stmts);
+        }
+
+        JCBlock Block(ListBuffer<JCStatement> prolog, JCStatement... epilog) {
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            for (JCStatement p : prolog) stmts.append(p);
+            for (JCStatement e : epilog) stmts.append(e);
+            return Block(stmts);
+        }
+
         JCBlock Block(List<JCStatement> stmts) {
             return m().Block(0L, stmts);
         }
