@@ -2357,6 +2357,18 @@ public abstract class JavafxAbstractTranslation
         }
     }
 
+    JFXClassDeclaration functionValueClass() {
+        //we need a synthetic enclosing JFX class declaration so that
+        //translation can handle getReceiver() calls trasparently
+        //probably this would be unnecessary if we lowered func values away
+        boolean inMixin = types.isMixin(currentClass().sym);
+        JFXClassDeclaration funClass = fxmake.ClassDeclaration(null, names.empty, List.<JFXExpression>nil(), List.<JFXTree>nil());
+        funClass.sym = new ClassSymbol(inMixin ? JavafxFlags.MIXIN : 0, names.empty, currentFunction() != null ? currentFunction().sym : currentClass().sym);
+        funClass.type = new Type.ClassType(currentClass().type, List.<Type>nil(), funClass.sym);
+        funClass.sym.type = funClass.type;
+        return funClass;
+    }
+
     class FunctionValueTranslator extends ExpressionTranslator {
 
         private final JCExpression meth;
@@ -2379,16 +2391,9 @@ public abstract class JavafxAbstractTranslation
         JCExpression doitExpr() {
             ListBuffer<JCTree> members = new ListBuffer<JCTree>();
             if (def != null) {
-                //we need a synthetic enclosing JFX class declaration so that
-                //translation can handle getReceiver() calls trasparently
-                //probably this would be unnecessary if we lowered func values away
-                JFXClassDeclaration funClass = fxmake.ClassDeclaration(null, names.empty, List.<JFXExpression>nil(), List.<JFXTree>nil());
-                funClass.sym = new ClassSymbol(0, names.empty, currentFunction() != null ? currentFunction().sym : currentClass().sym);
-                funClass.type = new Type.ClassType(currentClass().type, List.<Type>nil(), funClass.sym);
-                funClass.sym.type = funClass.type;
                 JFXClassDeclaration prevClass = currentClass();
                 try {
-                    setCurrentClass(funClass);
+                    setCurrentClass(functionValueClass());
                     // Translate the definition, maintaining the current inInstanceContext
                     members.append(translateFunction(def, true));
                 }
