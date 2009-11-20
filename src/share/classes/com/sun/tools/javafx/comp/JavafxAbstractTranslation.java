@@ -1093,9 +1093,14 @@ public abstract class JavafxAbstractTranslation
         }
 
         protected JCExpression addTempVar(Type varType, JCExpression trans) {
-            JCVariableDecl tmpVar = TmpVar("pse", varType, trans);
-            addPreface(tmpVar);
-            return id(tmpVar);
+            if (varType == syms.voidType) {
+                // If void is passed in then the temp will be ignored.
+                return trans;
+            } else {
+                JCVariableDecl tmpVar = TmpVar("pse", varType, trans);
+                addPreface(tmpVar);
+                return id(tmpVar);
+            }
         }
 
         /**
