@@ -137,7 +137,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         JFXExpression seq = clause.getSequenceExpression();
         JFXExpression boundExpr = fxmake.SequenceIndexed(seq, fxmake.Ident(boundIndexVarSym)).setType(param.type);
         JFXVar inductionVar =  preTrans.BoundLocalVar(param.type, param.name, boundExpr, owner);
-        clause.boundInductionVarSym = inductionVar.sym;
+        clause.boundInductionVarSym = inductionVar.sym = param.sym;
         return inductionVar;
     }
 

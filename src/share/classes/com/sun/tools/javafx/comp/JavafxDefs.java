@@ -105,7 +105,7 @@ public class JavafxDefs {
     public static final String cSequenceRef = sequence_PackageString + ".SequenceRef";
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
     public static final String cBoundForHelper = sequence_PackageString + ".BoundForHelper";
-    public static final String cBoundForPartI = cBoundForHelper + "$ForPart";
+    public static final String cBoundForPartI = cBoundForHelper + "$FXForPart";
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
 
     // in runtime package -- public
@@ -335,6 +335,8 @@ public class JavafxDefs {
     final Name defaultingTypeInfo_FieldName;
     final Name emptySequence_FieldName;
 
+    final Name partResultVarNum_BoundForHelper;
+
     /**
      * Argument Names
      */
@@ -510,6 +512,7 @@ public class JavafxDefs {
         lambda_MethodName = names.fromString("lambda");
         length_ArrayFieldName = names.fromString("length");
         emptySequence_FieldName = names.fromString("emptySequence");
+        partResultVarNum_BoundForHelper = names.fromString("partResultVarNum");
         isInitialized_MethodName = names.fromString("isInitialized");
         offset_AttributeFieldPrefixName = names.fromString(offset_AttributeFieldPrefix);
         count_FXObjectFieldName = names.fromString(count_FXObjectFieldString);

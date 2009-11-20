@@ -420,7 +420,7 @@ public class JavafxLocalToClass {
                 block.type,          // return type
                 List.<Type>nil(),    // Throws type
                 syms.methodClass);   // TypeSymbol
-        final MethodSymbol funcSym = new MethodSymbol(0L, funcName, funcType, classSymbol);
+        final MethodSymbol funcSym = new MethodSymbol(JavafxFlags.FUNC_SYNTH_LOCAL_DOIT, funcName, funcType, classSymbol);
 
         class BlockVarAndClassConverter extends VarAndClassConverter {
             boolean returnFound = false;

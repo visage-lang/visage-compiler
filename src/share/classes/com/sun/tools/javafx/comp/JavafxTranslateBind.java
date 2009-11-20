@@ -1593,27 +1593,30 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             //   var y = bind for (x in xs) body(x, indexof x)
             // to (roughly, using a hybrid of Java with object-literals):
             //   y$helper = new BoundForHelper() {
-            //      ForPart makeForPart(int $index$) {
-            //        // The following body of makeForPart is created
-            //        // by JavafxDecompose.visitForExpression,
-            //        // and stashed in.clause.convertedBody.
-            //        return ForPart {
-            //          $indexof$x: Integer = $index$;
-            //          x: bind xs[$indexof$x];
-            //          result: body(x, $indexof$x)
+            //      FXForPart makeForPart(int $index$) {
+            //        // The following body of makeForPart 
+            //        // is the body of the for
+            //        class anon implements FXForPart {
+            //          var $indexof$x: Integer = $index$;
+            //          def x = bind xs[$indexof$x];
+            //          def result = bind value
             //      };
             //   }
 
-            // First translate the part created during JavaDecompose:
+            // First translate the part created in the FX AST
             JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, forExpr.bodyExpr.type);
-            // JCExpression makePart = asExpression(translateBoundExpression(clause.convertedBody, targetSymbol, false), clause.convertedBody.type);
-
+            BlockExprJCBlockExpression jcb = (BlockExprJCBlockExpression) makePart;
+            jcb.stats = jcb.stats.append(
+                If(NEnull(Get(helperSym)),
+                    Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
+                )
+            );
+ 
             Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(forExpr.type));
-            Type partType = types.applySimpleGenericType(syms.javafx_FXForPartInterfaceType, types.boxedElementType(forExpr.type));
             JCVariableDecl indexParam = Var(syms.intType, names.fromString("$index$"), null); // FIXME
             JCMethodDecl makeDecl = m().MethodDef(m().Modifiers(Flags.PUBLIC),
                                         names.fromString(JavafxDefs.makeForPart_AttributeMethodPrefix),
-                                        makeType(partType),
+                                        makeType(syms.javafx_FXForPartInterfaceType),
                                         List.<JCTypeParameter>nil(),
                                         List.<JCVariableDecl>of(indexParam),
                                         List.<JCExpression>nil(),
@@ -1623,7 +1626,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCClassDecl helperClass = m().AnonymousClassDef(m().Modifiers(0), List.<JCTree>of(makeDecl));
             createHelper = m().NewClass(null, null, // FIXME
                     makeType(helperType),
-                    List.<JCExpression>of(getReceiver(helperSym), Offset(helperSym), Boolean(true)), helperClass);
+                    List.<JCExpression>of(
+                        getReceiverOrThis(helperSym),
+                        Offset(helperSym),
+                        Boolean(true)
+                    ),
+                    helperClass);
             return
                 Block(
                     If(EQnull(Get(helperSym)),
@@ -1644,6 +1652,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
        
         void setupInvalidators() {
+            // Must be filled in
         }
     }
 

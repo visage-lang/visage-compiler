@@ -897,15 +897,25 @@ public class JavafxDecompose implements JavafxVisitor {
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
             init.type = helperType;
             Name helperName = names.fromString("helper$"+clause.var.name); // FIXME
-            JFXVar helper = makeVar(tree, helperName, null, JavafxBindStatus.UNBOUND, helperType);
-            helper.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
+            JFXVar helper = makeVar(tree, helperName, init, JavafxBindStatus.UNBOUND, helperType);
+            //helper.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
             clause.boundHelper = helper;
 
             // Fix up the class
             JFXBlock body = (JFXBlock) tree.getBodyExpression();
             JFXClassDeclaration cdecl = (JFXClassDeclaration) decompose(body.stats.head);
+            
+            // Patch the type of the doit function
+            patchDoitFunction(cdecl);
+            
+            // Patch the type of the anon{}.doit() call
+            body.value.type = cdecl.type;  //TODO: probably need to go deeper
+
+            // Add the adjustIndex() function
             JFXFunctionDefinition indexFunction = makeAdjustIndexFunction(clause.boundIndexVarSym, cdecl.sym);
             cdecl.setMembers(cdecl.getMembers().append(indexFunction)); // add function to class
+
+            // Add FXForPart as implemented interface
             Type intfc = syms.javafx_FXForPartInterfaceType;
             cdecl.setDifferentiatedExtendingImplementingMixing(
                     List.<JFXExpression>nil(),
@@ -919,6 +929,34 @@ public class JavafxDecompose implements JavafxVisitor {
             result = fxmake.at(tree.pos).ForExpression(inClauses, bodyExpr);
         }
         result = tree;
+    }
+
+    private void patchDoitFunction(JFXClassDeclaration cdecl) {
+        Type ctype = cdecl.type;
+        for (JFXTree mem : cdecl.getMembers()) {
+            if (mem.getFXTag() == JavafxTag.FUNCTION_DEF) {
+                JFXFunctionDefinition func = (JFXFunctionDefinition) mem;
+                if ((func.sym.flags() & JavafxFlags.FUNC_SYNTH_LOCAL_DOIT) != 0L) {
+                    // Change the value to be "this"
+                    JFXBlock body = func.getBodyExpression();
+                    JFXIdent thisIdent = fxmake.Ident(names._this);
+                    thisIdent.type = ctype;
+                    thisIdent.sym = new VarSymbol(Flags.FINAL | Flags.HASINIT, names._this, ctype, cdecl.sym);
+                    body.value = thisIdent;
+                    body.type = ctype;
+
+                    // Adjust function to return class type
+                    final MethodType funcType = new MethodType(
+                            List.<Type>nil(), // arg types
+                            ctype, // return type
+                            List.<Type>nil(), // Throws type
+                            syms.methodClass);   // TypeSymbol
+                    func.sym.type = funcType;
+                    func.type = funcType;
+               }
+            }
+        }
+
     }
 
     // Create method 'void adjustIndex(int delta) { $indexof$x = $indexof$x + delta }' in ForPart:

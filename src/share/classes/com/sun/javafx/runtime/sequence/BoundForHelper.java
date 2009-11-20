@@ -86,6 +86,7 @@ public abstract class BoundForHelper<T> {
     int numParts;
     FXObject container;
     int forSeqVarNum;
+    public int partResultVarNum; // This gets magically assigned when a part is created
 
     // Invariant: numParts == elements.length - (gapEnd - gapStart).
     int gapStart, gapEnd;
@@ -103,6 +104,7 @@ public abstract class BoundForHelper<T> {
     }
 
     public int size() {
+        System.err.println("BoundForHelper.size()");
         // cumLength handles the part==-1 case.
         return cumLength(numParts-1);
     }
@@ -124,12 +126,16 @@ public abstract class BoundForHelper<T> {
 
     /** Get the size of part ipart. */
     protected int size(int ipart) {
-return 0; //        return getPart(ipart).size();
+//        return (int)(Integer) getPart(ipart).size$(partResultVarNum); // sequence version
+        System.err.println("size " + ipart);
+        return 1;
     }
 
     /** Get the j'th item of part ipart. */
     protected T get(int ipart, int j) {
-return null; //        return getPart(ipart).get(j);
+       // return (T) getPart(ipart).elem$(partResultVarNum, j);  // sequence version
+        System.err.println("get " + ipart + " -- " + j);
+        return (T) getPart(ipart).get$(partResultVarNum);
     }
 
     // Called by invalidate when the result of part[ipart] changes.
