@@ -842,7 +842,9 @@ public abstract class JavafxAbstractTranslation
         }
 
         void addBindee(VarSymbol sym) {
-            bindees.append(sym);
+            if (types.isJFXClass(sym.owner)) {
+                bindees.append(sym);
+            }
         }
 
         void addBindees(List<VarSymbol> syms) {
@@ -850,7 +852,9 @@ public abstract class JavafxAbstractTranslation
         }
 
         void addInterClassBindee(VarSymbol instanceSym, Symbol referencedSym) {
-            interClass.append(new DependentPair( instanceSym,  referencedSym));
+            if (types.isJFXClass(instanceSym.owner) && types.isJFXClass(referencedSym.owner)) {
+                interClass.append(new DependentPair( instanceSym,  referencedSym));
+            }
         }
 
         void addInterClassBindees(List<DependentPair> pairs) {

@@ -212,7 +212,7 @@ class JavafxAnalyzeClass {
 
         // Return modifier flags from the symbol.
         public long getFlags() { return sym.flags(); }
-        
+
         // Return true if the var is a bare bones synthesize var (bind temp.)
         public boolean isBareSynth() {
             return (getFlags() & JavafxFlags.VARMARK_BARE_SYNTH) != 0;
@@ -372,6 +372,16 @@ class JavafxAnalyzeClass {
                                (isBareSynth() ? ", bare" : "") +
                                ", class=" + getClass().getSimpleName());
             if (detail) {
+                if (!boundBoundSelects().isEmpty()) {
+                    for (DependentPair pair : boundBoundSelects()) {
+                        System.err.println("        select=" + pair.instanceSym + " " + pair.referencedSym);
+                    }
+                }
+                if (!boundBindees().isEmpty()) {
+                    for (VarSymbol bindeeSym : boundBindees()) {
+                        System.err.println("        bindee=" + bindeeSym);
+                    }
+                }
                 if (hasProxyVar()) {
                     System.err.print("        proxy=");
                     proxyVar().printInfo(false);

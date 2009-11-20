@@ -83,7 +83,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      *
      * @param expr Bound expression to translate.  Directly held by a var (or bound function?). Not a sub-expression/
      * @param targetSymbol Symbol for the var whose bound expression we are translating.
-     * @param isBidiBind Is this a bi-diractional bind?
+     * @param isBidiBind Is this a bi-directional bind?
      * @return
      */
     ExpressionResult translateBoundExpression(JFXExpression expr, VarSymbol targetSymbol, boolean isBidiBind) {
@@ -400,7 +400,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          *	}
          */
         protected void buildDependencies(Symbol selectorSym) {
-                if (types.isJFXClass(selectorSym.owner)) {
+                if (types.isJFXClass(selectorSym.owner) && types.isJFXClass(targetSymbol.owner) && types.isJFXClass(tree.sym.owner)) {
                     Type selectorType = selectorSym.type;
                     JCExpression rcvr = getReceiverOrThis(targetSymbol);
  
