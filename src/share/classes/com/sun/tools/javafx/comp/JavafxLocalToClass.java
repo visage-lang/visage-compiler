@@ -156,7 +156,10 @@ public class JavafxLocalToClass {
             }
             // The body of the for-expression begins a new chunk
             // Lower has made the body a block-expression
+            boolean prevStatic = isStatic;
+            isStatic = false;
             blockWithin((JFXBlock) tree.getBodyExpression());
+            isStatic = prevStatic;
         }
 
         @Override
