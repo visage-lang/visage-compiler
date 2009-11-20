@@ -1284,27 +1284,43 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         } else if (varInfo.isInitWithBoundFuncResult()) {
                             /**
                              * If this var "foo" is initialized with bound function result var, then
-                             * we want to get element from the Pointer. We translate as:
+                             * we want to get sequence size from the Pointer. We translate as:
                              *
-                             *    public static int get$foo(final int pos$) {
-                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
-                             *        if (ifx$0tmp != null)
+                             *    public static int size$foo() {
+                             *        Pointer oldPtr = $$$bound$result$$foo;
+                             *        Pointer newPtr = get$$$bound$result$$foo();
+                             *        Pointer.switchDependence(oldPtr, newPtr, receiver);
+                             *
+                             *        if (newPtr != null) {
+                             *            <make-it-valid>
                              *            return (Integer)ifx$0tmp.size();
-                             *        else
-                             *            return 0;
+                             *        } else {
+                             *            return -1000;
+                             *        }
                              *    }
                              */
-                            Name ptrAccessorName = attributeGetterName(varInfo.boundFuncResultInitSym());
-                            JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Call(ptrAccessorName));
-                            addStmt(tmpPtrVar);
+                            Name ptrVarName = attributeValueName(varInfo.boundFuncResultInitSym());
+                            // declare a temp variable of type Pointer to store old value of Pointer field
+                            JCVariableDecl oldPtrVar = TmpVar("old", syms.javafx_PointerType, id(ptrVarName));
+                            addStmt(oldPtrVar);
 
-                            JCExpression ptrNonNullCond = NEnull(id(tmpPtrVar));
+                            Name ptrAccessorName = attributeGetterName(varInfo.boundFuncResultInitSym());
+                            JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, Call(ptrAccessorName));
+                            addStmt(newPtrVar);
+
+                            // Add the receiver of the current Var symbol as dependency to the Pointer, so that
+                            // we will get notification whenever the result of the bound function evaluation changes.
+                            JCExpression receiver = getReceiverOrThis(varSym);
+                            addStmt(CallStmt(defs.Pointer_switchDependence,id(oldPtrVar), id(newPtrVar), receiver));
+
+                            // setValid(VFLGS$VALIDITY_FLAGS);
+                            JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED);
                             JCExpression apply = Call(
                                     Call(ptrAccessorName),
                                     defs.size_PointerMethodName);
-                            addStmt(If(ptrNonNullCond,
-                                        Return(apply),
-                                        Return(makeLit(diagPos, syms.intType, 0))
+                            addStmt(If(NEnull(id(newPtrVar)),
+                                        Block(setValid, Return(apply)),
+                                        Return(Int(JavafxDefs.UNDEFINED_MARKER_INT))
                                       )
                                    );
                         } else {
@@ -1613,14 +1629,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                  *
                                  * Pointer oldPtr = $$$bound$result$$foo;
                                  * Pointer newPtr = get$$$bound$result$$foo();
-                                 * if (oldPtr != null) {
-                                 *      // remove old Pointer depenency, if any
-                                 *      oldPtr.removeDependency(receiver);
-                                 * }
+                                 * Pointer.switchDependence(oldPtr, newPtr, receiver);
+                                 *
                                  * if (newPtr != null) {
                                  *      be$foo((ExpectedType)newPtr.get());
-                                 *      // Add dependency - Pointer will issue update$ from now onwards.
-                                 *      newPtr.addDependency(receiver);
                                  * } else {
                                  *      be$foo(<default-value>);
                                  * }
@@ -1633,25 +1645,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, initValue);
                                 addStmt(newPtrVar);
 
+                                // Add the receiver of the current Var symbol as dependency to the Pointer, so that
+                                // we will get notification whenever the result of the bound function evaluation changes.
                                 JCExpression receiver = getReceiverOrThis(varSym);
-
-                                JCStatement removeDepToOldPtrStmt = CallStmt(id(oldPtrVar),
-                                        defs.removeDependency_PointerMethodName, receiver);
-                                addStmt(If(NEnull(id(oldPtrVar)), removeDepToOldPtrStmt));
+                                addStmt(CallStmt(defs.Pointer_switchDependence, id(oldPtrVar), id(newPtrVar), receiver));
 
                                 // We have a Pointer - we need to call Pointer.get() and cast the result.
                                 initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
                                 JCStatement beStmt = CallStmt(attributeBeName(varSym), initValue);
 
-                                // Add the receiver of the current Var symbol as dependency to the Pointer, so that
-                                // we will get notification whenever the result of the bound function evaluation changes.
-                                JCStatement addDepToNewPtrStmt = CallStmt(id(newPtrVar),
-                                        defs.addDependency_PointerMethodName, receiver);
-
-                                JCBlock blk = Block(beStmt, addDepToNewPtrStmt);
                                 JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
                                         makeDefaultValue(diagPos, varInfo.getVMI()));
-                                addStmt(If(NEnull(id(newPtrVar)), blk, beDefaultStmt));
+                                addStmt(If(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
                             } else {
                                 JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
                                         makeDefaultValue(diagPos, varInfo.getVMI()));

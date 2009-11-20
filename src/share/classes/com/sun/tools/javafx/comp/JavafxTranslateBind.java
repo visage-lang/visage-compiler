@@ -186,7 +186,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             ExpressionResult eres = super.doit();
             if (condition != null) {
                 // if no initializers have changed, don't create a new instance, just return previous value\
-                JCVariableDecl resVar = MutableTmpVar("res", tree.type, null);
+                JCVariableDecl resVar = MutableTmpVar("res", targetSymbol.type, null);
                 JCStatement setRes =
                     If(condition,
                         Block(
