@@ -1606,10 +1606,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             // First translate the part created in the FX AST
             JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, forExpr.bodyExpr.type);
             BlockExprJCBlockExpression jcb = (BlockExprJCBlockExpression) makePart;
-            jcb.stats = jcb.stats.append(
-                If(NEnull(Get(helperSym)),
-                    Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
-                )
+            jcb.stats = jcb.stats
+                    .append(CallStmt(makeType(((JFXBlock)forExpr.bodyExpr).value.type), defs.count_FXObjectFieldName))
+                    .append(Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
             );
  
             Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(forExpr.type));
@@ -1652,7 +1651,17 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
        
         void setupInvalidators() {
-            // Must be filled in
+            if (clause.seqExpr instanceof JFXIdent) {
+                Symbol bindee = ((JFXIdent) clause.seqExpr).sym;
+                JCStatement inv =
+                    Block(
+                        If(EQnull(Get(clause.boundHelper.sym)),
+                            Stmt(CallSize(targetSymbol))),
+                        CallStmt(Get(clause.boundHelper.sym),
+                             defs.replaceParts_BoundForHelperMethodName,
+                             startPosArg(), endPosArg(), newLengthArg(), phaseArg()));
+                addInvalidator((VarSymbol) bindee, inv);
+            }
         }
     }
 

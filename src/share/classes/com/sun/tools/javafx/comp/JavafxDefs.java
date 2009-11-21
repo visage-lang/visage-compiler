@@ -276,6 +276,8 @@ public class JavafxDefs {
     final Name toArray_SequenceMethodName;
     final Name incrementSharing_SequenceMethodName;
 
+    final Name replaceParts_BoundForHelperMethodName;
+
     /**
      * Interpolate method Names
      */
@@ -542,6 +544,7 @@ public class JavafxDefs {
         set_AttributeMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
         set_FXObjectMethodName = set_AttributeMethodPrefixName;
         be_AttributeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
+        replaceParts_BoundForHelperMethodName = names.fromString("replaceParts");
         invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
         onReplaceAttributeMethodPrefixName = names.fromString(onReplace_AttributeMethodPrefix);
         getMixin_AttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);

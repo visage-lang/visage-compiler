@@ -148,7 +148,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     private JFXVar createResultVar(JFXForExpressionInClause clause, JFXExpression value, Symbol owner) {
         JFXVar param = clause.getVar();
         Name resName = resultVarName(param.name);
-        JFXVar resultVar =  preTrans.BoundLocalVar(param.type, resName, value, owner);
+        JFXVar resultVar =  preTrans.BoundLocalVar(value.type, resName, value, owner);
         clause.boundResultVarSym = resultVar.sym;
         return resultVar;
     }
