@@ -28,6 +28,7 @@ import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
@@ -54,6 +55,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     private final JavafxTreeMaker fxmake;
     private final JavafxDefs defs;
     private final JavafxSymtab syms;
+    protected final JavafxTypes types;
     private final Name.Table names;
 
     // assigned lazily on the first usage. This is symbol of
@@ -78,6 +80,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         fxmake = JavafxTreeMaker.instance(context);
         defs = JavafxDefs.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
+        types = JavafxTypes.instance(context);
         names = Name.Table.instance(context);
     }
 
@@ -146,9 +149,15 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      *  def result = bind block_value;
      */
     private JFXVar createResultVar(JFXForExpressionInClause clause, JFXExpression value, Symbol owner) {
+        Type valtype = value.type;
+        if (! types.isSequence(valtype)) {
+            value = fxmake.ExplicitSequence(List.of(value));
+            valtype = types.sequenceType(valtype);
+            value.type = valtype;
+        }
         JFXVar param = clause.getVar();
         Name resName = resultVarName(param.name);
-        JFXVar resultVar =  preTrans.BoundLocalVar(value.type, resName, value, owner);
+        JFXVar resultVar =  preTrans.BoundLocalVar(valtype, resName, value, owner);
         clause.boundResultVarSym = resultVar.sym;
         return resultVar;
     }
