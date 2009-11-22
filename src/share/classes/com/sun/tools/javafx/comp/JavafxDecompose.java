@@ -60,6 +60,7 @@ public class JavafxDecompose implements JavafxVisitor {
     private ListBuffer<JFXTree> lbVar;
     private int varCount = 0;
     private Symbol varOwner = null;
+    private Symbol currentVarSymbol;
     private Symbol currentClass = null;
     private boolean inScriptLevel = true;
 
@@ -628,11 +629,14 @@ public class JavafxDecompose implements JavafxVisitor {
    }
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+        Symbol prevVarSymbol = currentVarSymbol;
+        currentVarSymbol = tree.sym;
         if (tree.isBound())
             throw new AssertionError("bound parts should have been converted to overrides");
         JFXExpression expr = shred(tree.getExpression());
         JFXObjectLiteralPart res = fxmake.at(tree.pos).ObjectLiteralPart(tree.name, expr, bindStatus);
         res.sym = tree.sym;
+        currentVarSymbol = prevVarSymbol;
         result = res;
     }
 
@@ -668,6 +672,9 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.isStatic();
+        Symbol prevVarSymbol = currentVarSymbol;
+        currentVarSymbol = tree.sym;
+
         JavafxBindStatus prevBindStatus = bindStatus;
         // for on-replace, decompose as unbound
         bindStatus = JavafxBindStatus.UNBOUND;
@@ -702,6 +709,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
         bindStatus = prevBindStatus;
         inScriptLevel = wasInScriptLevel;
+        currentVarSymbol = prevVarSymbol;
         result = res;
     }
 
@@ -897,7 +905,7 @@ public class JavafxDecompose implements JavafxVisitor {
             Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type));
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
             init.type = helperType;
-            Name helperName = names.fromString("helper$"+clause.var.name); // FIXME
+            Name helperName = names.fromString("helper$"+currentVarSymbol.name);
             JFXVar helper = makeVar(tree, helperName, init, JavafxBindStatus.UNBOUND, helperType);
             //helper.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
             clause.boundHelper = helper;
