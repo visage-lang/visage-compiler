@@ -1616,12 +1616,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Prepare to accumulate body of if.
                             beginBlock();
                             
-                            // Set to new value.
-                            assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
+                            // Set to new value. Bogus assert, it seems an local var can be bound have no init.
+                            // assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
 
                             // set$var(init/bound expression)
                             addStmts(varInfo.boundPreface());
                             JCExpression initValue = varInfo.boundInit();
+                            if (initValue == null) {
+                                initValue = makeDefaultValue(diagPos, varInfo.getVMI());
+                            }
                             if (varInfo.isInitWithBoundFuncResult()) {
                                 /**
                                  * For a field named "foo" that is initialized from the bound function
@@ -1658,8 +1661,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                         makeDefaultValue(diagPos, varInfo.getVMI()));
                                 addStmt(If(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
                             } else {
-                                JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
-                                        makeDefaultValue(diagPos, varInfo.getVMI()));
+                                JCExpression defaultValue = makeDefaultValue(diagPos, varInfo.getVMI());
+                                JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym), defaultValue);
                                 addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
                             }
                           
