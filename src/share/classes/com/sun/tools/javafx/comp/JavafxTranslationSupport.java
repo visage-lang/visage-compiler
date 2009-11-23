@@ -897,11 +897,26 @@ public abstract class JavafxTranslationSupport {
             return (sym.flags() & JavafxFlags.MIXIN) != 0;
         }
         
+        public boolean isLocalClass(Symbol sym) {
+            return sym.owner.kind == Kinds.MTH;
+         }
+        
+        public boolean isLocalClass() {
+            return isLocalClass(enclosingClassDecl.sym);
+        }
+                
         public boolean isMixinVar(Symbol sym) {
             assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
             VarSymbol varSym = (VarSymbol)sym;
             
             return isMixinClass(varSym.owner);
+        }
+        
+        public boolean isLocalClassVar(Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            return isLocalClass(varSym.owner);
         }
         
         public boolean setIsScript(boolean newState) {
@@ -1459,7 +1474,7 @@ public abstract class JavafxTranslationSupport {
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
-                return Call(getReceiver(varSym), attributeGetVOFFName(varSym));
+                return Call(getReceiver(), attributeGetVOFFName(varSym));
             } else {
                 JCExpression klass = makeType(varSym.owner.type, false);
                 

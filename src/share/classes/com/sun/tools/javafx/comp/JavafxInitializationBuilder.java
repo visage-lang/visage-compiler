@@ -2713,8 +2713,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
 
                             // Reference the class with the instance, if it is script-level append the suffix
-                            JCExpression ifReferenceCond = EQ(varNumArg(), Offset(referenceVar));
-                            ifReferenceStmt = If(ifReferenceCond, 
+                            JCExpression offsetExpr = Offset(referenceVar);
+                            if (isMixinVar(referenceVar)) {
+                                offsetExpr = If(EQnull(id(attributeValueName(instanceVar))), Int(0), Offset(id(attributeValueName(instanceVar)), referenceVar));
+                            }
+                            ifReferenceStmt = If(EQ(varNumArg(), offsetExpr), 
                                     endBlock(),
                                     ifReferenceStmt);
                         }

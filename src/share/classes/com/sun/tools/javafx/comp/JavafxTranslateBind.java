@@ -411,10 +411,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     
                     JCExpression oldOffset;
                     JCExpression newOffset;
-                  
-                    if (isMixinVar(selectorSym)) {
+                    
+                    if (isMixinVar(tree.sym)) {
                         oldOffset =
-                            If (EQnull(id(newSelector)),
+                            If (EQnull(id(oldSelector)),
                                 Int(0),
                                 Offset(id(oldSelector), tree.sym));
                         
