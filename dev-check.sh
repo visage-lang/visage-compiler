@@ -70,6 +70,14 @@ compilationFails=`grep '^<td>.* errors' build/test/reports/junit-noframes.html |
     -e 's@ in@@' \
     -e 's@<.*@@'`
 
+# another form of compile time fail
+compilationFails1=`grep '<td>expected compiler error' build/test/reports/junit-noframes.html | \
+  sed -e 's@\\\@/@g' \
+    -e 's@</.*@@' \
+    -e 's@<td>@test/@'`
+
+compilationFails="$compilationFails $compilationFails1"
+
 # form is ... <td>Output written...  or ...<td>Program output  or ...<td>Expected output
 # This fail list DOES contain the whole test/... prefix
 runtimeFails=`grep '<td.* output' build/test/reports/junit-noframes.html | \
