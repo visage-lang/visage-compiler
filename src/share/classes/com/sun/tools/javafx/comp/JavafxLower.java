@@ -942,17 +942,21 @@ public class JavafxLower implements JavafxVisitor {
             int synthNameCount = 0;
 
             private Name newLabelName() {
-                return names.fromString(JavafxDefs.synthForLabelPrefix + synthNameCount++);
+                return names.fromString(JavafxDefs.synthForLabelPrefix + forClauseMap.size() + "$" + synthNameCount++);
             }
 
             @Override
             public void visitBreak(JFXBreak tree) {
-                tree.label = targetLabel;
+                tree.label = tree.label == null ?
+                    targetLabel :
+                    tree.label;
             }
 
             @Override
             public void visitContinue(JFXContinue tree) {
-                tree.label = targetLabel;
+                tree.label = tree.label == null ?
+                    targetLabel :
+                    tree.label;
             }
 
             @Override
@@ -964,7 +968,9 @@ public class JavafxLower implements JavafxVisitor {
 
             @Override
             public void visitForExpressionInClause(JFXForExpressionInClause tree) {
-                tree.label = newLabelName();
+                tree.label = tree.label == null ?
+                    newLabelName() :
+                    tree.label;
                 if (targetLabel == null) {
                     targetLabel = tree.label;
                 }
