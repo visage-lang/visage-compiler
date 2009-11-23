@@ -39,7 +39,8 @@
         <javafxc destdir="${bm.builddir}"
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${bm.srcdir}" target="${javac.target}"
-                 compilerclasspath="${javafxc.jar}">
+                 compilerclasspath="${javafxc.jar}"
+                 failonerror="true">
         </javafxc>
     </target>
 
@@ -80,6 +81,7 @@
         </java>
     </target>
     <target name="visibleNode" depends="compile">
+    <!-- commented out for JFXC-3693
         <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
               classpath="${builddir}" failonerror="true" dir="${builddir}" >
             <sysproperty key="app.name"         value="visibleNode"/>
@@ -90,6 +92,58 @@
             <sysproperty key="debug"            value="false"/>
             <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
         </java>
+    -->
     </target>
-    <target name="run" depends="mathcalc, mathcalcb, bsort, visibleNode"/>
+    <target name="linkedListLocalMax" depends="compile">
+        <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+            <sysproperty key="app.name"         value="linkedListLocalMax"/>
+            <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+            <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+            <sysproperty key="javafx.home"      value="${javafx.home}"/>
+            <sysproperty key="base.dir"         value="${basedir}"/>
+            <sysproperty key="debug"            value="false"/>
+            <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
+        </java>
+    </target>
+    <target name="linkedListMax" depends="compile">
+        <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+            <sysproperty key="app.name"         value="linkedListMax"/>
+            <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+            <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+            <sysproperty key="javafx.home"      value="${javafx.home}"/>
+            <sysproperty key="base.dir"         value="${basedir}"/>
+            <sysproperty key="debug"            value="false"/>
+            <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
+        </java>
+    </target>
+    <target name="linkedListBound" depends="compile">
+        <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+            <sysproperty key="app.name"         value="linkedListBound"/>
+            <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+            <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+            <sysproperty key="javafx.home"      value="${javafx.home}"/>
+            <sysproperty key="base.dir"         value="${basedir}"/>
+            <sysproperty key="debug"            value="false"/>
+            <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
+        </java>
+    </target>
+    <target name="linkedListOnReplace" depends="compile">
+        <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+            <sysproperty key="app.name"         value="linkedListOnReplace"/>
+            <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+            <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+            <sysproperty key="javafx.home"      value="${javafx.home}"/>
+            <sysproperty key="base.dir"         value="${basedir}"/>
+            <sysproperty key="debug"            value="false"/>
+            <sysproperty key="Runner.vmoptions" value="-Xmx512m"/>
+        </java>
+    </target>
+    <target name="run1" depends="mathcalc, mathcalcb, bsort, visibleNode"/>
+    <target name="run2" depends="linkedListLocalMax, linkedListMax,
+                        linkedListBound, linkedListOnReplace"/>
+    <target name="run"  depends="run1, run2"/>
 </project>

@@ -42,6 +42,8 @@ public class Runner {
     static int duration = 30*1000;
     
     static final String msg[] = { " none "};
+    static boolean runExecution = true;
+    static boolean runFootPrint = true;
 
     public static void main(String... args) {
         init(args);
@@ -50,6 +52,23 @@ public class Runner {
     }
     
     static void init(String[] args) {
+        String rtype = System.getProperty(RUNNER_NAME + ".runtype");
+
+        if (rtype != null) {
+            runExecution = false;
+            runFootPrint = false;
+            String values[] = rtype.split("\\|");
+            for (String x : values) {
+                if (x.equals("EXECUTION")) {
+                    runExecution = true;
+                }
+                if (x.equals("FOOTPRINT")) {
+                    runFootPrint = true;
+                }
+            }
+        }
+
+
         boolean mustExit = false;
         for (String x : args) {
             appArgs.add(x);
@@ -89,11 +108,34 @@ public class Runner {
         cmdsList.add("-time");
         cmdsList.add("-iter");
         cmdsList.add(Integer.toString(ITERATIONS));
-        String value = analyzePerformance(cmdsList);
-        duration += Math.round(Float.parseFloat(value)) * ITERATIONS;
+        float timeToSleep = 0.0f;
 
-        cmdsList.add("-pause");
-        analyzeFootPrint(cmdsList);
+        if (runExecution) {
+            String value = analyzePerformance(cmdsList);
+            timeToSleep = Math.round(Float.parseFloat(value)) * ITERATIONS;
+        }
+        if (runFootPrint) {
+            duration += (timeToSleep == 0.0f) ? 2 * 60 * 1000 : timeToSleep;
+            cmdsList.add("-pause");
+            analyzeFootPrint(cmdsList);
+        }
+    }
+    
+    static String analyzePerformance(List<String> cmds) {
+       List<String> output = TestProcess.doExec(cmds);
+       String value = "0";
+       for (String x : output) {
+           if (x.matches("average time:.*ms.*")) {
+               String f[] = x.split("\\s");
+               value = f[2];
+               System.out.println(TestProcess.APP_NAME +
+                       " Execution time: " + value + " mSecs");
+               Utils.toPlotFile(new File(TestProcess.APP_WORKDIR,
+                       TestProcess.APP_NAME + "-perf.txt"), value);
+               return value;
+           }
+       }
+       return null;
     }
 
     static public void printClasses(Process testProc) {
@@ -106,7 +148,8 @@ public class Runner {
         try {
             jmpos = new FileOutputStream(
                     File.createTempFile(
-                    "jmap-" + TestProcess.APP_NAME, ".txt", new File(TestProcess.APP_WORKDIR)));
+                    "jmap-" + TestProcess.APP_NAME, ".txt",
+                    new File(TestProcess.APP_WORKDIR)));
             jps = new PrintStream(jmpos);
             List<String> jmapOutput = TestProcess.doExec(
                     TestProcess.JMAP_EXE, "-histo:live", appIds[0]);
@@ -116,6 +159,8 @@ public class Runner {
                     String[] flds = x.split("\\s");
                     float msize = Float.parseFloat(flds[flds.length - 1]);
                     String yvalue = Float.toString(msize / 1024 / 1024);
+                    System.out.println(TestProcess.APP_NAME + " Footprint: " +
+                            yvalue + " MBytes");
                     File outFile = new File(TestProcess.APP_WORKDIR,
                             TestProcess.APP_NAME + "-dfp.txt");
                     Utils.toPlotFile(outFile, yvalue);
@@ -141,21 +186,6 @@ public class Runner {
         }
     }
     
-    static String analyzePerformance(List<String> cmds) {
-       List<String> output = TestProcess.doExec(cmds);
-       String value = "0";
-       for (String x : output) {
-           if (x.matches("average time:.*ms.*")) {
-               String f[] = x.split("\\s");
-               value = f[2];
-               System.out.println("value=" + value);
-               Utils.toPlotFile(new File(TestProcess.APP_WORKDIR,
-                       TestProcess.APP_NAME + "-perf.txt"), value);
-           }
-       }
-       return value;
-    }
-
     static void analyzeFootPrint(List<String> cmds) {
         if (TestProcess.debug) {
             System.out.println("----Test-Execution args----");
