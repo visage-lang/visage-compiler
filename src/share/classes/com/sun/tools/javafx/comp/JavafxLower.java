@@ -904,7 +904,7 @@ public class JavafxLower implements JavafxVisitor {
 
     public void visitForExpression(JFXForExpression tree) {
         result = lowerForExpression(tree);
-        patchForLoop(result);
+        patchForLoop(result, tree.getForExpressionInClauses());
         for (JFXForExpressionInClause clause : tree.getForExpressionInClauses()) {
             forClauseMap.remove(clause);
         }
@@ -935,9 +935,9 @@ public class JavafxLower implements JavafxVisitor {
         return (JFXForExpression)res.setType(tree.type);
     }
 
-    private void patchForLoop(JFXTree forExpr) {
+    private void patchForLoop(JFXTree forExpr, final List<JFXForExpressionInClause> clausesToPatch) {
         class ForLoopPatcher extends JavafxTreeScanner {
-            
+
             Name targetLabel;
             int synthNameCount = 0;
 
@@ -957,7 +957,9 @@ public class JavafxLower implements JavafxVisitor {
 
             @Override
             public void visitIndexof(JFXIndexof tree) {
-                tree.clause = forClauseMap.get(tree.clause);
+                tree.clause = clausesToPatch.contains(tree.clause) ?
+                    forClauseMap.get(tree.clause) :
+                    tree.clause;
             }
 
             @Override
