@@ -102,7 +102,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 expr,
                 isBoundFunctionResult(targetSymbol) ?
                     syms.javafx_PointerType :
-                    null);
+                    targetSymbol.type);
 
         this.targetSymbol = prevTargetSymbol;
         this.isBidiBind = prevIsBidiBind;

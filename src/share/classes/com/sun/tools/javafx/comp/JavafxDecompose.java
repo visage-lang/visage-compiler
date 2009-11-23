@@ -333,9 +333,9 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXExpression falsepart = decomposeComponent(tree.falsepart);
         JFXIfExpression res = fxmake.at(tree.pos).Conditional(cond, truepart, falsepart);
         if (bindStatus.isBound() && types.isSequence(tree.type)) {
-            res.boundCondVar = synthVar("cond", cond, cond.type);
-            res.boundThenVar = synthVar("then", truepart, truepart.type);
-            res.boundElseVar = synthVar("else", falsepart, falsepart.type);
+            res.boundCondVar = synthVar("cond", cond, cond.type, false);
+            res.boundThenVar = synthVar("then", truepart, truepart.type, false);
+            res.boundElseVar = synthVar("else", falsepart, falsepart.type, false);
             // Add a size field to hold the previous size on condition switch
             JFXVar v = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
             v.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
@@ -779,10 +779,14 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     private JFXVar synthVar(String label, JFXExpression tree, Type type) {
+        return synthVar(label, tree, type, true);
+    }
+
+    private JFXVar synthVar(String label, JFXExpression tree, Type type, boolean decompose) {
         if (tree == null) {
             return null;
         }
-        JFXExpression expr = decompose(tree);
+        JFXExpression expr = decompose ? decompose(tree) : tree;
 
         fxmake.at(tree.pos()); // set position
 

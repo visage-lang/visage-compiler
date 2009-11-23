@@ -107,6 +107,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
             JFXVar rv = createResultVar(clause, body.value, dummyOwner);
             body.stats = body.stats.prepend(iv).prepend(idxv).append(rv);
             body.value = preTrans.defaultValue(body.type); // just fill the spot
+            scan(body);
         } else {
             super.visitForExpression(tree);
         }
