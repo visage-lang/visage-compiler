@@ -236,7 +236,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             // If the function has a sequence arg or if this is a Function.invoke
             // we avoid conditional reevaluation. (i.e., force re-evaluation always)
-            conditionallyReevaluate = !hasSequenceArg && !useInvoke;
+            conditionallyReevaluate = !hasSequenceArg && !useInvoke &&
+                    !(selectorSym != null && types.isJFXClass(selectorSym.owner));
 
             // If the receiver changes, then we have to call the function again
             if (conditionallyReevaluate && !knownNonNull && selectorSym instanceof VarSymbol) {

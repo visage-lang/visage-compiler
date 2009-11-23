@@ -429,6 +429,7 @@ public class JavafxDefs {
 
     final Name varOFF$valueName;
 
+    final Name outerThisName;
     /**
      * Type Kinds
      */
@@ -598,6 +599,8 @@ public class JavafxDefs {
 
         varOFF$valueName = names.fromString("VOFF$value");
 
+        outerThisName = names.fromString("outer$this");
+        
         runtime_PackageName = names.fromString(runtime_PackageString);
         annotation_PackageName = names.fromString(annotation_PackageString);
         javaLang_PackageName = names.fromString(javaLang_PackageString);
