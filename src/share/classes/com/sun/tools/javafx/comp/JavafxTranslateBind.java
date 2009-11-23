@@ -211,6 +211,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     private class BoundFunctionCallTranslator extends FunctionCallTranslator {
 
+        /*
+         * True if the (bind) call is made conditionally, false if function call
+         * is executed always (no condition check). This conditional evaluation
+         * is an optimization for calls in bind expressions - we would like to
+         * avoid calling the function whenever possible.
+         */
+        private boolean conditionallyReevaluate = false;
+
         // Call function only if conditions met
         private JCExpression condition = null;
 
@@ -219,10 +227,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         BoundFunctionCallTranslator(JFXFunctionInvocation tree) {
             super(tree);
-        }
-
-        @Override
-        List<JCExpression> determineArgs() {
             // Determine if any arguments are sequences, if so, we can't pre-test arguments
             for (JFXExpression arg : args) {
                 if (types.isSequence(arg.type)) {
@@ -230,6 +234,23 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 }
             }
 
+            // If the function has a sequence arg or if this is a Function.invoke
+            // we avoid conditional reevaluation. (i.e., force re-evaluation always)
+            conditionallyReevaluate = !hasSequenceArg && !useInvoke;
+
+            // If the receiver changes, then we have to call the function again
+            if (conditionallyReevaluate && !knownNonNull && selectorSym instanceof VarSymbol) {
+                JCVariableDecl oldVar = TmpVar("old", selectorSym.type, Get(selectorSym));
+                JCVariableDecl newVar = TmpVar("new", selectorSym.type, Call(attributeGetterName(selectorSym)));
+                addPreface(oldVar);
+                addPreface(newVar);
+                // oldRcvr != newRcvr
+                condition = NE(id(oldVar), id(newVar));
+            }
+        }
+
+        @Override
+        List<JCExpression> determineArgs() {
             ListBuffer<JCExpression> targs = ListBuffer.lb();
             // if this is a super.foo(x) call, "super" will be translated to referenced class,
             // so we add a receiver arg to make a direct call to the implementing method  MyClass.foo(receiver$, x)
@@ -255,7 +276,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         @Override
         JCExpression translateArg(JFXExpression arg, Type formal) {
-            if (!hasSequenceArg && arg instanceof JFXIdent) {
+            if (conditionallyReevaluate && arg instanceof JFXIdent) {
+                // if no args have changed, don't call function, just return previous value
                 Symbol sym = ((JFXIdent) arg).sym;
                 addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
 
@@ -267,7 +289,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 // oldArg != newArg
                 JCExpression compare = NE(id(oldVar), id(newVar));
                 // concatenate with OR --  oldArg1 != newArg1 || oldArg2 != newArg2
-                condition = condition == null ? compare : OR(condition, compare);
+                condition = condition != null? OR(condition, compare) : compare;
 
                 return id(newVar);
             } else {
@@ -283,27 +305,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 return m().Apply(translateExprs(typeargs), tMeth, determineArgs());
             } else {
                 JCExpression full = super.fullExpression(mungedToCheckTranslated);
-                // If the receiver changes, then we have to call the function again
-                if (selectorSym instanceof VarSymbol && !useInvoke && !selectorSym.type.isPrimitive()) {
-                    JCVariableDecl oldVar = TmpVar("old", selectorSym.type, Get(selectorSym));
-                    JCVariableDecl newVar = TmpVar("new", selectorSym.type, Call(attributeGetterName(selectorSym)));
-                    addPreface(oldVar);
-                    addPreface(newVar);
-                    // oldRcvr != newRcvr
-                    JCExpression rcvrNotEq = NE(id(oldVar), id(newVar));
-                    condition = condition != null? OR(condition, rcvrNotEq) : rcvrNotEq;
-                }
-
                 if (condition != null) {
-                    // FIXME: If there is no argument(s) check and no receiver check, then we
-                    // re-evaluate the function everytime. Revisit this.
-
-                    // if no args have changed, don't call function, just return previous value
                     // Always call function if the default has not been applied yet
                     full =
-                        If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
-                            full,
-                            Get(targetSymbol));
+                          If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
+                              full,
+                              Get(targetSymbol));
                 }
                 return full;
             }
