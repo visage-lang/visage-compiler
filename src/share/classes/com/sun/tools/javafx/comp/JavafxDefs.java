@@ -276,6 +276,8 @@ public class JavafxDefs {
     final Name toArray_SequenceMethodName;
     final Name incrementSharing_SequenceMethodName;
 
+    final Name replaceParts_BoundForHelperMethodName;
+
     /**
      * Interpolate method Names
      */
@@ -427,6 +429,7 @@ public class JavafxDefs {
 
     final Name varOFF$valueName;
 
+    final Name outerThisName;
     /**
      * Type Kinds
      */
@@ -542,6 +545,7 @@ public class JavafxDefs {
         set_AttributeMethodPrefixName = names.fromString(set_AttributeMethodPrefix);
         set_FXObjectMethodName = set_AttributeMethodPrefixName;
         be_AttributeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
+        replaceParts_BoundForHelperMethodName = names.fromString("replaceParts");
         invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
         onReplaceAttributeMethodPrefixName = names.fromString(onReplace_AttributeMethodPrefix);
         getMixin_AttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);
@@ -595,6 +599,8 @@ public class JavafxDefs {
 
         varOFF$valueName = names.fromString("VOFF$value");
 
+        outerThisName = names.fromString("outer$this");
+        
         runtime_PackageName = names.fromString(runtime_PackageString);
         annotation_PackageName = names.fromString(annotation_PackageString);
         javaLang_PackageName = names.fromString(javaLang_PackageString);

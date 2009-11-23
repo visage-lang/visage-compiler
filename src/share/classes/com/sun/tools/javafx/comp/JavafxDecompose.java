@@ -60,6 +60,7 @@ public class JavafxDecompose implements JavafxVisitor {
     private ListBuffer<JFXTree> lbVar;
     private int varCount = 0;
     private Symbol varOwner = null;
+    private Symbol currentVarSymbol;
     private Symbol currentClass = null;
     private boolean inScriptLevel = true;
 
@@ -478,8 +479,19 @@ public class JavafxDecompose implements JavafxVisitor {
             //referenced is static script var - if in bind context need shredding
             JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
             selected = unconditionalShred(meth, null);
-        }
-        else if ( tree.sym.isStatic() ||
+        } else if (!tree.sym.isStatic() && selectSym != null && selectSym.kind == Kinds.TYP &&
+                currentClass.isEnclosedBy((ClassSymbol)selectSym)) {
+            // This is some outer class access. We introduce a special identifier
+            // to indicate that this is a outer.this access - so that translator
+            // can generate appropriate OuterClassName.this.
+            if (bindStatus.isBound()) {
+                Symbol outerThisSym = new VarSymbol(0L, defs.outerThisName, tree.selected.type, currentClass);
+                JFXIdent outerThis = fxmake.Ident(outerThisSym);
+                selected = shred(outerThis);
+            } else {
+                selected = decompose(tree.selected);
+            }
+        } else if ( tree.sym.isStatic() ||
                 (selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
                 !types.isJFXClass(tree.sym.owner)) {
             // Referenced is static, or qualified super access
@@ -628,11 +640,14 @@ public class JavafxDecompose implements JavafxVisitor {
    }
 
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
+        Symbol prevVarSymbol = currentVarSymbol;
+        currentVarSymbol = tree.sym;
         if (tree.isBound())
             throw new AssertionError("bound parts should have been converted to overrides");
         JFXExpression expr = shred(tree.getExpression());
         JFXObjectLiteralPart res = fxmake.at(tree.pos).ObjectLiteralPart(tree.name, expr, bindStatus);
         res.sym = tree.sym;
+        currentVarSymbol = prevVarSymbol;
         result = res;
     }
 
@@ -668,6 +683,9 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitVar(JFXVar tree) {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.isStatic();
+        Symbol prevVarSymbol = currentVarSymbol;
+        currentVarSymbol = tree.sym;
+
         JavafxBindStatus prevBindStatus = bindStatus;
         // for on-replace, decompose as unbound
         bindStatus = JavafxBindStatus.UNBOUND;
@@ -702,6 +720,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
         bindStatus = prevBindStatus;
         inScriptLevel = wasInScriptLevel;
+        currentVarSymbol = prevVarSymbol;
         result = res;
     }
 
@@ -897,7 +916,7 @@ public class JavafxDecompose implements JavafxVisitor {
             Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type));
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
             init.type = helperType;
-            Name helperName = names.fromString("helper$"+clause.var.name); // FIXME
+            Name helperName = names.fromString("helper$"+currentVarSymbol.name);
             JFXVar helper = makeVar(tree, helperName, init, JavafxBindStatus.UNBOUND, helperType);
             //helper.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
             clause.boundHelper = helper;
@@ -1007,6 +1026,8 @@ public class JavafxDecompose implements JavafxVisitor {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.isStatic();
         JavafxBindStatus prevBindStatus = bindStatus;
+        Symbol prevVarSymbol = currentVarSymbol;
+        currentVarSymbol = tree.sym;
         // on-replace is always unbound
         bindStatus = JavafxBindStatus.UNBOUND;
         JFXOnReplace onReplace = decompose(tree.getOnReplace());
@@ -1025,6 +1046,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 onInvalidate);
         res.sym = tree.sym;
         bindStatus = prevBindStatus;
+        currentVarSymbol = prevVarSymbol;
         inScriptLevel = wasInScriptLevel;
         result = res;
     }

@@ -104,7 +104,7 @@ public abstract class BoundForHelper<T> {
     }
 
     public int size() {
-        System.err.println("BoundForHelper.size()");
+        //System.err.println("BoundForHelper.size(): "+cumLength(numParts-1));
         // cumLength handles the part==-1 case.
         return cumLength(numParts-1);
     }
@@ -126,21 +126,20 @@ public abstract class BoundForHelper<T> {
 
     /** Get the size of part ipart. */
     protected int size(int ipart) {
-//        return (int)(Integer) getPart(ipart).size$(partResultVarNum); // sequence version
-        System.err.println("size " + ipart);
-        return 1;
+        return (int)(Integer) getPart(ipart).size$(partResultVarNum); // sequence version
     }
 
     /** Get the j'th item of part ipart. */
     protected T get(int ipart, int j) {
-       // return (T) getPart(ipart).elem$(partResultVarNum, j);  // sequence version
-        System.err.println("get " + ipart + " -- " + j);
-        return (T) getPart(ipart).get$(partResultVarNum);
+        FXForPart part = getPart(ipart);
+        // return (T) getPart(ipart).elem$(partResultVarNum, j);  // sequence version
+        //System.err.println("get " + ipart + " -- " + j+" vnum:"+partResultVarNum+" pcnt:"+part.count$());
+        return (T) part.elem$(partResultVarNum, j);
     }
 
     // Called by invalidate when the result of part[ipart] changes.
     public void updateForPart(int ipart, int begin, int end, int newLen, int phase) {
-        if (phase != FXObject.VFLGS$IS_INVALID) // FIXME - is this right?
+        if (phase != FXObject.VFLGS$NEEDS_TRIGGER)
             return;
         int len = cumulatedLengths.length;
         int delta = newLen - begin + end;
@@ -156,7 +155,10 @@ public abstract class BoundForHelper<T> {
     }
 
     // Called by invalidate when the input sequence changes.
-    public void replaceParts(int startPart, int endPart, int insertedParts) {
+    public void replaceParts(int startPart, int endPart, int insertedParts, int phase) {
+        //System.err.println("replaceParts("+startPart+", "+endPart+", "+insertedParts+", "+phase+")");
+        if (phase != FXObject.VFLGS$NEEDS_TRIGGER)
+            return;
         int removedParts = endPart - startPart;
         int deltaParts = insertedParts - removedParts;
         int gapDelta = startPart - gapStart; // distance we need to move gap
@@ -209,8 +211,11 @@ public abstract class BoundForHelper<T> {
         int cumulate = itemsBeforeChange;
         for (int i = 0;  i < insertedParts;  i++) {
             int index = startPart+i;
-            elements[index] = makeForPart$(index);
-            cumulate += size(index);
+            FXForPart part = makeForPart$(index);
+            elements[index] = part;
+            int psize = part.size$(partResultVarNum);
+            cumulate += psize;
+            //System.err.println("makeForPart$("+index+")->"+part+" size:"+psize+" varnum:"+partResultVarNum+" of "+part.count$());
             cumulatedLengths[index] = cumulate;
         }
         int insertedItems = cumulate - itemsBeforeChange;
@@ -236,9 +241,15 @@ public abstract class BoundForHelper<T> {
 
     public T get(int index) {
         // FIXME - should use binary search if not in cache.
-        int i = index >= cacheIndex ? cachePart : 0;
-        int cumPrev = 0;
-        for (;;) {
+        int i, cumPrev;
+        if (index >= cacheIndex) {
+            i = cachePart;
+            cumPrev = cumLength(i-1);
+        } else {
+            i = 0;
+            cumPrev = 0;
+        }
+        for (;; i++) {
             if (i >= numParts)
                 return null;
             int cum = cumLength(i);
