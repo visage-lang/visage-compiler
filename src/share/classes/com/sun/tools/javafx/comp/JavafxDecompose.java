@@ -1015,6 +1015,8 @@ public class JavafxDecompose implements JavafxVisitor {
         boolean wasInScriptLevel = inScriptLevel;
         inScriptLevel = tree.isStatic();
         JavafxBindStatus prevBindStatus = bindStatus;
+        Symbol prevVarSymbol = currentVarSymbol;
+        currentVarSymbol = tree.sym;
         // on-replace is always unbound
         bindStatus = JavafxBindStatus.UNBOUND;
         JFXOnReplace onReplace = decompose(tree.getOnReplace());
@@ -1033,6 +1035,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 onInvalidate);
         res.sym = tree.sym;
         bindStatus = prevBindStatus;
+        currentVarSymbol = prevVarSymbol;
         inScriptLevel = wasInScriptLevel;
         result = res;
     }

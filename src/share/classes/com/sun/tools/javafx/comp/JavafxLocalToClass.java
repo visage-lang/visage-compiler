@@ -158,7 +158,9 @@ public class JavafxLocalToClass {
             // Lower has made the body a block-expression
             boolean prevStatic = isStatic;
             isStatic = false;
+            pushOwner(preTrans.makeDummyMethodSymbol(owner), false);
             blockWithin((JFXBlock) tree.getBodyExpression());
+            popOwner();
             isStatic = prevStatic;
         }
 
