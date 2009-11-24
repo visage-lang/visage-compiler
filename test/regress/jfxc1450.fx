@@ -11,7 +11,7 @@ class DragNode {
     println("Creating new DragNode");
   }
 }
-
+ 
 class DragInfo {
   var x : Integer;
   function setX(v : Integer) : Void {

@@ -14,7 +14,7 @@ class DragNode {
 }
 
 var dragNode = bind DragNode {
-  var dragX : Integer;
+  var dragX : Integer; 
   onMouseDragged:
     function(newX : Integer):Void {
       dragX = newX;
