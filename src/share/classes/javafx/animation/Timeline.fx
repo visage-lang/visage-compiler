@@ -231,7 +231,21 @@ public class Timeline {
      * @defaultvalue 0ms
      *
      */
-    public var time: Duration = 0ms;
+    public var time: Duration = 0ms on replace old {
+        if (old != time) {
+            doInterpolate(time.toMillis() as Number);
+        }
+    }
+
+    // inner Timeline's engine should ALWAYS use this function
+    // instead of direct assignment to {@code time}
+    // to avoid inconsistancy
+    function movePlayhead(pos: Number) {
+        if (pos != curPos) {
+            curPos = pos;
+            time = Duration.valueOf(curPos);
+        }
+    }
 
    /**
     * Enable/disable interpolation.
@@ -491,8 +505,7 @@ public class Timeline {
         if(rate != 0.0) {
             rate = Math.abs(rate);
             getTotalDur();
-            curPos = 0.0;
-            time = 0ms;
+            movePlayhead(0);
             start();
         }
     }
@@ -557,8 +570,7 @@ public class Timeline {
         forward = rate >= 0;
 
         if(not running) {
-            curPos = 0.0;
-            time = 0ms;
+            movePlayhead(0);
         }
     }
 
@@ -714,7 +726,6 @@ public class Timeline {
         if(curPos != timeInMillis) {
             // external time change is limited to the current cycle's bounds
             timeInMillis = Math.min(timelineDur, Math.max(timeInMillis, 0));
-            time = makeDur(timeInMillis);
 
             // update the base values
             baseTick = lastTick;
@@ -729,8 +740,6 @@ public class Timeline {
             if (not visitFrames(curPos, timeInMillis, true, true)) {
                 return;
             }
-            curPos = timeInMillis;
-            time = makeDur(curPos);
         }
 
         // isReverse rewinds elapsed time
@@ -781,10 +790,6 @@ public class Timeline {
             if (not visitFrames(curPos, newPos, false, true)) {
                 return;
             }
-            curPos = newPos;
-            time = makeDur(curPos);
-
-            doInterpolate(curPos);
         }
         lastTick = currentTick;
 
@@ -863,8 +868,6 @@ public class Timeline {
         if (not visitFrames(curPos, cycleT, catchingUp, false)) {
             return false;
         }
-        curPos = cycleT;
-        time = makeDur(cycleT);
         prepareForNextCycle(catchingUp);
         return true;
     }
@@ -878,8 +881,7 @@ public class Timeline {
         } else {
             frameIndex = if (forward) 0 else sortedFrames.size() - 1;
             lastKF = -1;
-            curPos = if (forward) 0 else timelineDur;
-            time = makeDur(curPos);
+            movePlayhead(if (forward) 0 else timelineDur);
         }
     }
 
@@ -947,6 +949,9 @@ public class Timeline {
             }
         }
         lastKFForward = fwd;
+        if (not aborted) {
+            movePlayhead(toTime);
+        }
         return not aborted;
     }
 
@@ -958,15 +963,10 @@ public class Timeline {
             var kfMillis = kf.time.toMillis() as Number;
 
             if (not (catchingUp and kf.canSkip) or visitLast and kfMillis == toTime) {
-                curPos = kfMillis;
-                time = makeDur(curPos);
-                var savedTime = curPos;
+                movePlayhead(kfMillis);
                 var savedCurRate = currentRate;
                 kf.visit();
-                var timeChanged = savedTime != (time.toMillis() as Number);
-                if (not timeChanged) {
-                    time = makeDur(curPos);
-                }
+                var timeChanged = curPos != (time.toMillis() as Number);
                 if (timeChanged or savedCurRate != currentRate or stopping) {
                     // if time, speed or direction has been changed at the kf's action,
                     // or the timeline has been stopped, abort further visiting
@@ -1015,8 +1015,7 @@ public class Timeline {
                 lastTick = 0.0;
                 baseTick = 0.0;
 
-                curPos = Math.min(timelineDur, Math.max(time.toMillis() as Number, 0)) as Number;
-                time = makeDur(curPos);
+                movePlayhead(Math.min(timelineDur, Math.max(time.toMillis() as Number, 0)) as Number);
 
                 if(forward) {
                     lastElapsed = curPos;
@@ -1071,8 +1070,7 @@ public class Timeline {
                         // INDEFINITE duration timeline can never reach to the end,
                         // must be explicit stop
                         dur < 0) {
-                    curPos = 0.0;
-                    time = 0ms;
+                    movePlayhead(0);
                 }
             }
         }
