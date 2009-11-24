@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -980,6 +981,14 @@ public class JavafxAttr implements JavafxVisitor {
         if (isClassVar && (flags & STATIC) == 0L) {
             // Check that instance variables don't override
             chk.checkVarOverride(tree, (VarSymbol)sym);
+        }
+
+        //variable decl in bind context with no initializer are not allowed
+        if ((tree.sym.flags_field & Flags.PARAMETER) == 0 &&
+                env.tree.getFXTag() != JavafxTag.FOR_EXPRESSION &&
+                tree.getInitializer() == null &&
+                tree.getBindStatus() != JavafxBindStatus.UNBOUND) {
+            log.error(tree.pos(), MsgSym.MESSAGE_TRIGGER_VAR_IN_BIND_MUST_HAVE_INIT, tree.sym);
         }
 
         for (JFXOnReplace.Kind triggerKind : JFXOnReplace.Kind.values()) {
