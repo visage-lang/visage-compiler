@@ -113,13 +113,17 @@ public abstract class BoundForHelper<T, PT> {
         this.dependsOnIndex = dependsOnIndex;
     }
 
-    public int size() {
-        //System.err.println("BoundForHelper.size(): "+cumLength(numParts-1));
+    private void initializeIfNeeded() {
         if (uninitialized) {
             uninitialized = false;
             // Init the induction sequence -- this sends invalidate
             container.size$(inductionSeqVarNum);
         }
+    }
+
+    public int size() {
+        //System.err.println("BoundForHelper.size(): "+cumLength(numParts-1));
+        initializeIfNeeded();
         // cumLength handles the part==-1 case.
         return cumLength(numParts-1);
     }
@@ -154,6 +158,8 @@ public abstract class BoundForHelper<T, PT> {
 
     // Called by invalidate when the result of part[ipart] changes.
     public void updateForPart(int ipart, int begin, int end, int newLen, int phase) {
+        if (uninitialized)
+            return;
         if (phase != FXObject.VFLGS$NEEDS_TRIGGER)
             return;
         int len = cumulatedLengths.length;
@@ -172,6 +178,8 @@ public abstract class BoundForHelper<T, PT> {
     // Called by invalidate when the input sequence changes.
     public void replaceParts(int startPart, int endPart, int insertedParts, int phase) {
         //System.err.println("replaceParts("+startPart+", "+endPart+", "+insertedParts+", "+phase+")");
+        if (uninitialized)
+            return;
         if (phase != FXObject.VFLGS$NEEDS_TRIGGER)
             return;
         int removedParts = endPart - startPart;
@@ -257,6 +265,8 @@ public abstract class BoundForHelper<T, PT> {
     }*/
 
     public T get(int index) {
+        initializeIfNeeded();
+        
         // FIXME - should use binary search if not in cache.
         int i, cumPrev;
         if (index >= cacheIndex) {
