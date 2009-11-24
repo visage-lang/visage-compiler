@@ -1040,7 +1040,7 @@ public class JavafxDecompose implements JavafxVisitor {
         bindStatus = tree.isBound()?
                             JavafxBindStatus.UNIDIBIND :
                             prevBindStatus;
-        JFXExpression initializer = decompose(tree.getInitializer());
+        JFXExpression initializer = shred(tree.getInitializer());
         JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getName(),
                 tree.getModifiers(),
                 tree.getId(),

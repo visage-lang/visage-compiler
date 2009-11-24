@@ -581,15 +581,18 @@ class JavafxAnalyzeClass {
     static class TranslatedOverrideClassVarInfo extends TranslatedVarInfoBase {
         // Reference to the var information the override overshadows.
         private VarInfo proxyVar;
+        private final Symbol boundFuncResultInitSym;
+
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
                  VarMorphInfo vmi,
-                JCStatement initStmt, ExpressionResult bindOrNull, ExpressionResult invBindOrNull,
-                JFXOnReplace onReplace, JCStatement onReplaceAsInline,
+                JCStatement initStmt,  Symbol boundFuncResultInitSym, ExpressionResult bindOrNull,
+                ExpressionResult invBindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer()!=null, vmi,
                   initStmt, bindOrNull, invBindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
+            this.boundFuncResultInitSym = boundFuncResultInitSym;
         }
         
         // Return true if the var is an override.
@@ -606,6 +609,16 @@ class JavafxAnalyzeClass {
         // Returns true is this var overrides a mixin.
         public boolean overridesMixin() {
             return proxyVar != null && proxyVar instanceof MixinClassVarInfo;
+        }
+
+        @Override
+        public boolean isInitWithBoundFuncResult() {
+            return boundFuncResultInitSym != null;
+        }
+
+        @Override
+        public Symbol boundFuncResultInitSym() {
+            return boundFuncResultInitSym;
         }
     }
 
