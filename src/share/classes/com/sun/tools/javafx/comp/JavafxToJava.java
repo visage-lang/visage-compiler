@@ -330,10 +330,15 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             setContext(override.isStatic());
                             VarMorphInfo vmi = typeMorpher.varMorphInfo(override.sym);
+                            JFXExpression initializer = override.getInitializer();
+                            boolean initWithBoundFuncResult =
+                                (initializer instanceof JFXIdent) &&
+                                isBoundFunctionResult(((JFXIdent)initializer).sym);
                             TranslatedOverrideClassVarInfo ai = new TranslatedOverrideClassVarInfo(
                                     override,
                                     vmi,
                                     translateVarInit(override),
+                                    initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
                                     override.isBound() ? translateBind.translateBoundExpression(override.getInitializer(), override.sym, override.isBidiBind()) : null,
                                     override.isBidiBind() ? translateInvBind.translate(override.getInitializer(), override.type, override.sym) : null,
                                     override.getOnReplace(),
