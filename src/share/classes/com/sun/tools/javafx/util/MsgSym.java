@@ -285,6 +285,7 @@ public class MsgSym {
     public static final String MESSAGE_BIND_TOO_COMPLEX = "javafx.bind.too.complex";
     public static final String MESSAGE_CATCH_WITHIN_EXPRESSION = "catch.within.expression";
     public static final String MESSAGE_TRIGGER_IN_BIND_NOT_ALLOWED = "trigger.in.bind.not.allowed";
+    public static final String MESSAGE_TRIGGER_VAR_IN_BIND_MUST_HAVE_INIT = "var.in.bind.must.have.init";
     public static final String MESSAGE_ON_INVALIDATE_UNBOUND_NOT_ALLOWED = "on.invalidate.unbound.not.allowed";
     public static final String MESSAGE_CANNOT_INVALIDATE_UNBOUND_VAR = "cant.invalidate.unbound.var";
     public static final String MESSAGE_CANNOT_REF_INVALIDATE_VAR = "cant.ref.invalidate.var";
