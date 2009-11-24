@@ -233,7 +233,14 @@ public class Timeline {
      */
     public var time: Duration = 0ms on replace old {
         if (old != time) {
-            doInterpolate(time.toMillis() as Number);
+            validate();
+            if (time < 0s) {
+                time = 0s;
+            } else if (time > Duration.valueOf(timelineDur)) {
+                time = Duration.valueOf(timelineDur);
+            } else {
+                doInterpolate(time.toMillis() as Number);
+            }
         }
     }
 
@@ -836,7 +843,7 @@ public class Timeline {
                     // find keyframes on either side of the curT value
                     var kfpair2 = pairlist.get(j);
                     var rightT = kfpair2.frame.time.toMillis() as Number;
-                    if (curT < rightT) {
+                    if (curT <= rightT) {
                         v1 = kfpair1.value;
                         v2 = kfpair2.value;
                         segT = (curT - leftT) / (rightT - leftT);
@@ -844,9 +851,6 @@ public class Timeline {
                     }
                     kfpair1 = kfpair2;
                     leftT = kfpair1.frame.time.toMillis() as Number;
-                }
-                if (segT == 0.0 or segT == 1.0) {
-                    continue;
                 }
                 if (v1 != null and v2 != null) {
                     if (v2.interpolate == null) {
