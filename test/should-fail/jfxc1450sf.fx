@@ -1,8 +1,9 @@
 /**
- * Regression test JFXC-1450 : object literal local in bind
+ * Should-fail test JFXC-1450 : object literal local in bind
  *
- * @test
- * @run
+ * Original test.  Should now fail because of JFXC-3563
+ *
+ * @test/compile-error
  */
 
 class DragNode { 
@@ -12,18 +13,11 @@ class DragNode {
   }
 }
 
-class DragInfo {
-  var x : Integer;
-  function setX(v : Integer) : Void {
-    x = v
-  }
-}
-
 var dragNode = bind DragNode {
-  var drag = new DragInfo;
+  var dragX : Integer;
   onMouseDragged:
     function(newX : Integer):Void {
-      drag.setX(newX);
+      dragX = newX;
     }
 }
 
