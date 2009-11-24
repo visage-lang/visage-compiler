@@ -95,6 +95,10 @@ exec_java() {
 	eval "${EMUL_CMD}" "$jargs"
 	exit $?
     else
+        if [ ! -x "$JAVA_CMD" ] ; then
+            echo 'Error: JAVA_HOME is not defined, cannot find "java" command.'
+            exit 1
+        fi
 	eval '"$JAVA_CMD"' "$jargs"
     fi
 }
@@ -130,11 +134,6 @@ else
   if [ -z "$JAVA_CMD" ] ; then
       JAVA_CMD=java
   fi
-fi
-
-if [ ! -x "$JAVA_CMD" ] ; then
-  echo 'Error: JAVA_HOME is not defined, cannot find "java" command.'
-  exit 1
 fi
 
 if [ -z "$CLASSPATH" ] ; then
