@@ -298,6 +298,9 @@ public class JavafxDefs {
     final Name values_KeyFrameMethodName;
     final Name time_KeyFrameMethodName;
 
+    final Name adjustIndex_BoundForPartMethodName;
+    final Name setInductionVar_BoundForPartMethodName;
+
     final Name invoke_MethodName;
     final Name lambda_MethodName;
 
@@ -352,6 +355,7 @@ public class JavafxDefs {
     final Name varNum_ArgName;
     final Name updateInstance_ArgName;
     final Name obj_ArgName;
+    final Name value_ArgName;
 
     /**
      * Method prefixes for attributes as Name
@@ -498,6 +502,8 @@ public class JavafxDefs {
         notifyDependents_FXObjectMethodName = names.fromString("notifyDependents$");
         complete_FXObjectMethodName = names.fromString("complete$");
         outerAccessor_MethodName = names.fromString("accessOuter$");
+        adjustIndex_BoundForPartMethodName = names.fromString("adjustIndex$");
+        setInductionVar_BoundForPartMethodName = names.fromString("setInductionVar$");
         get_PointerMethodName = names.fromString("get");
         get_SequenceMethodName = names.fromString("get");
         getSlice_SequenceMethodName = names.fromString("getSlice");
@@ -567,6 +573,7 @@ public class JavafxDefs {
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
         updateInstance_ArgName = names.fromString("instance$");
         obj_ArgName = names.fromString("object$");
+        value_ArgName = names.fromString("value$");
         varNum_ArgName = names.fromString("varNum$");
 
         varFlagActionTest = names.fromString("varTestBits$");

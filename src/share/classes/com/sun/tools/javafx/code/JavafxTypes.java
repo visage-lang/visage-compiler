@@ -105,8 +105,8 @@ public class JavafxTypes extends Types {
         return applySimpleGenericType(syms.javafx_SequenceType, elemType);
     }
 
-    public Type applySimpleGenericType(Type base, Type parameter) {
-        List<Type> actuals = List.of(parameter);
+    public Type applySimpleGenericType(Type base, Type... parameter) {
+        List<Type> actuals = List.from(parameter);
         Type clazzOuter = base.getEnclosingType();
         return new ClassType(clazzOuter, actuals, base.tsym);
     }

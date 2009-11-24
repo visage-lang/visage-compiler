@@ -312,6 +312,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
 
+        // Include any definitions explicitly added during translation
+        cDefinitions.appendList(cDecl.translationDefs);
+
         return new JavafxClassModel(
                 interfaceName,
                 makeImplementingInterfaces(diagPos, cDecl, immediateMixinClasses),

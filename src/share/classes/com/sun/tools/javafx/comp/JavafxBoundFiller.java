@@ -91,8 +91,8 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     /**
      * Add variables needed when a bound for-expression body is converted into a class:
      * 
-     *           var $indexof$x: Integer = $index$;
-     *           def x = bind xs[$indexof$x];
+     *           var $indexof$x : Integer = $index$;
+     *           var x : T;
      *           def result = bind block_value;
      */
     @Override
@@ -128,20 +128,18 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         JFXVar indexVar = preTrans.LocalVar(syms.intType, indexName, fxmake.Ident(indexParamSym), owner);
         // Stash the created variable so it can be used when we visit a
         // JFXIndexof, where we convert that to a JFXIdent referencing the indexDecl.
-        clause.boundIndexVarSym = indexVar.sym;
+        clause.indexVarSym = indexVar.sym;
         return indexVar;
     }
 
     /**
      * Create the induction var in the body
-     *  def x = bind xs[$indexof$x];
+     *  var x
      */
     private JFXVar createInductionVar(JFXForExpressionInClause clause, VarSymbol boundIndexVarSym, Symbol owner) {
         JFXVar param = clause.getVar();
-        JFXExpression seq = clause.getSequenceExpression();
-        JFXExpression boundExpr = fxmake.SequenceIndexed(seq, fxmake.Ident(boundIndexVarSym)).setType(param.type);
-        JFXVar inductionVar =  preTrans.BoundLocalVar(param.type, param.name, boundExpr, owner);
-        clause.boundInductionVarSym = inductionVar.sym = param.sym;
+        JFXVar inductionVar =  preTrans.LocalVar(param.type, param.name, null, owner);
+        clause.inductionVarSym = inductionVar.sym = param.sym;
         return inductionVar;
     }
 

@@ -1583,13 +1583,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
     
     private class BoundForExpressionTranslator extends BoundSequenceTranslator {
-        private final Type elemType;
         JFXForExpression forExpr;
         JFXForExpressionInClause clause;
 
         BoundForExpressionTranslator(JFXForExpression tree) {
             super(tree.pos());
-            this.elemType = types.elementType(tree.type);
             this.forExpr = tree;
             this.clause = tree.inClauses.head; // KLUDGE - FIXME
         }
@@ -1606,12 +1604,44 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             //        // is the body of the for
             //        class anon implements FXForPart {
             //          var $indexof$x: Integer = $index$;
-            //          def x = bind xs[$indexof$x];
+            //          var x;
             //          def result = bind value
             //      };
             //   }
 
-            // First translate the part created in the FX AST
+            // Extract the BoundForPart subclass
+            JFXClassDeclaration cdecl = (JFXClassDeclaration) ((JFXBlock)(forExpr.bodyExpr)).stats.head;
+            Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
+
+            // Add a set induction variable method
+            cdecl.translationDefs.append(
+                    Method(
+                        Flags.PUBLIC,
+                        syms.voidType,
+                        defs.setInductionVar_BoundForPartMethodName,
+                        List.of(Param(inductionType, defs.value_ArgName)),
+                        Stmts(
+                            Stmt(m().Assign(id(attributeValueName(clause.inductionVarSym)), id(defs.value_ArgName)))
+                        ),
+                        null
+                    )
+                );
+
+            // Add adjust index variable method
+            cdecl.translationDefs.append(
+                    Method(
+                        Flags.PUBLIC,
+                        syms.voidType,
+                        defs.adjustIndex_BoundForPartMethodName,
+                        List.of(Param(syms.intType, defs.value_ArgName)),
+                        Stmts(
+                            Stmt(m().Assignop(JCTree.PLUS_ASG, id(attributeValueName(clause.indexVarSym)), id(defs.value_ArgName)))
+                        ),
+                        null
+                    )
+                );
+
+            // Translate the part created in the FX AST
             JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, forExpr.bodyExpr.type);
             BlockExprJCBlockExpression jcb = (BlockExprJCBlockExpression) makePart;
             jcb.stats = jcb.stats
@@ -1619,23 +1649,24 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     .append(Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
             );
  
-            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(forExpr.type));
+            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(forExpr.type), inductionType);
             JCVariableDecl indexParam = Var(syms.intType, names.fromString("$index$"), null); // FIXME
-            JCMethodDecl makeDecl = m().MethodDef(m().Modifiers(Flags.PUBLIC),
+            Type partType = types.applySimpleGenericType(syms.javafx_FXForPartInterfaceType, inductionType);
+            JCMethodDecl makeDecl = Method(Flags.PUBLIC,
+                                        partType,
                                         names.fromString(JavafxDefs.makeForPart_AttributeMethodPrefix),
-                                        makeType(syms.javafx_FXForPartInterfaceType),
-                                        List.<JCTypeParameter>nil(),
                                         List.<JCVariableDecl>of(indexParam),
-                                        List.<JCExpression>nil(),
-                                        Block(Return(makePart)),
+                                        Stmts(Return(makePart)),
                                         null);
             // makeDecl.sym = methSym;
             JCClassDecl helperClass = m().AnonymousClassDef(m().Modifiers(0), List.<JCTree>of(makeDecl));
+            Symbol seqSym = ((JFXIdent)(clause.getSequenceExpression())).sym;
             createHelper = m().NewClass(null, null, // FIXME
                     makeType(helperType),
                     List.<JCExpression>of(
-                        getReceiverOrThis(helperSym),
-                        Offset(helperSym),
+                        getReceiverOrThis(targetSymbol),
+                        Offset(targetSymbol),
+                        Offset(seqSym),
                         Boolean(true)
                     ),
                     helperClass);

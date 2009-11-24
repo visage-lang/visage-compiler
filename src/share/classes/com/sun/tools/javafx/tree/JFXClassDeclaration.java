@@ -32,6 +32,7 @@ import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.tree.JCTree;
 
 /**
  * A class declaration
@@ -53,6 +54,9 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     public boolean isScriptClass;
 
     public boolean hasBeenTranslated = false; // prevent multiple translations
+
+    // Definitions explicitly added during translation
+    public ListBuffer<JCTree> translationDefs = ListBuffer.<JCTree>lb();
     
     protected JFXClassDeclaration()
     {

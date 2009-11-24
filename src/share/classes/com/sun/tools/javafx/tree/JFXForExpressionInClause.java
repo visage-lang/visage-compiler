@@ -44,8 +44,8 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
     private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
 
     public JFXVar boundHelper;
-    public VarSymbol boundIndexVarSym;
-    public VarSymbol boundInductionVarSym;
+    public VarSymbol indexVarSym;
+    public VarSymbol inductionVarSym;
     public VarSymbol boundResultVarSym;
 
     protected JFXForExpressionInClause() {

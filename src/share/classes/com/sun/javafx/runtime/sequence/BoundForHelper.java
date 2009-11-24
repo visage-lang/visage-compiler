@@ -68,24 +68,33 @@ import com.sun.javafx.runtime.FXObject;
  *
  * @author Per Bothner
  */
-public abstract class BoundForHelper<T> {
+public abstract class BoundForHelper<T, PT> {
 
     /** The bfElem class in the design document implements this interface. */
-    public static interface FXForPart extends FXObject {
-        /** Adjust the indexof variable by delta.
+    public static interface FXForPart<PT> extends FXObject {
+        /**
+         * Set the indexof variable
          * May cause re-calculation.
          * This may cause size() to change - what then?  FIXME.
          */
-        public void adjustIndex(int delta);
+        public void adjustIndex$(int value$);
+
+        /**
+         * Set the induction variable
+         */
+        public void setInductionVar$(PT value$);
     };
 
     // cumulatedLengths[i] = size(i)+cumulatedLengths[i-1];
     // Inariant: cumulatedLengths.length == elements.length;
     int[] cumulatedLengths;
-    FXForPart[] elements;
+    FXForPart<PT>[] elements;
     int numParts;
-    FXObject container;
-    int forSeqVarNum;
+    private final FXObject container;
+    private final int forVarNum;
+    private final int inductionSeqVarNum;
+    private boolean uninitialized = true;
+
     public int partResultVarNum; // This gets magically assigned when a part is created
 
     // Invariant: numParts == elements.length - (gapEnd - gapStart).
@@ -95,16 +104,22 @@ public abstract class BoundForHelper<T> {
 
     int cacheIndex;
     int cachePart;
-    public boolean dependsOnIndex = true;
+    private final boolean dependsOnIndex;
 
-    public BoundForHelper(FXObject container, int forSeqVarNum, boolean dependsOnIndex) {
+    public BoundForHelper(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         this.container = container;
-        this.forSeqVarNum = forSeqVarNum;
+        this.forVarNum = forVarNum;
+        this.inductionSeqVarNum = inductionSeqVarNum;
         this.dependsOnIndex = dependsOnIndex;
     }
 
     public int size() {
         //System.err.println("BoundForHelper.size(): "+cumLength(numParts-1));
+        if (uninitialized) {
+            uninitialized = false;
+            // Init the induction sequence -- this sends invalidate
+            container.size$(inductionSeqVarNum);
+        }
         // cumLength handles the part==-1 case.
         return cumLength(numParts-1);
     }
@@ -117,7 +132,7 @@ public abstract class BoundForHelper<T> {
         return cumulatedLengths[part] + postGapExtra;
     }
 
-    protected FXForPart getPart(int part) {
+    protected FXForPart<PT> getPart(int part) {
         if (part < gapStart)
             return elements[part];
         part += gapEnd - gapStart;
@@ -177,12 +192,12 @@ public abstract class BoundForHelper<T> {
             int oldLength = cumulatedLengths.length;
             int newLength = numParts + deltaParts + oldLength;
             int[] tmpL = new int[newLength];
-            FXForPart[] tmpP = new FXForPart[newLength];
+            FXForPart<PT>[] tmpP = (FXForPart<PT>[]) new FXForPart[newLength];
             int postGap = oldLength - gapEnd;
             System.arraycopy(cumulatedLengths, 0, tmpL, 0, gapStart);
             System.arraycopy(cumulatedLengths, oldLength-postGap, tmpL, newLength-postGap, postGap);
-            System.arraycopy(cumulatedLengths, 0, tmpP, 0, gapStart);
-            System.arraycopy(cumulatedLengths, oldLength-postGap, tmpP, newLength-postGap, postGap);
+            System.arraycopy(elements, 0, tmpP, 0, gapStart);
+            System.arraycopy(elements, oldLength-postGap, tmpP, newLength-postGap, postGap);
             cumulatedLengths = tmpL;
             elements = tmpP;
             gapEnd = newLength - postGap;
@@ -212,6 +227,8 @@ public abstract class BoundForHelper<T> {
         for (int i = 0;  i < insertedParts;  i++) {
             int index = startPart+i;
             FXForPart part = makeForPart$(index);
+            part.adjustIndex$(index);
+            part.setInductionVar$(container.elem$(inductionSeqVarNum, index));
             elements[index] = part;
             int psize = part.size$(partResultVarNum);
             cumulate += psize;
@@ -229,7 +246,7 @@ public abstract class BoundForHelper<T> {
             for (int i = gapEnd;  i < end;  i++) {
                 // Note the following might cause the part.result to be
                 // re-calculated, hence re-sized, hence modifying cumulatedLengths.
-                elements[i].adjustIndex(deltaParts);
+                elements[i].adjustIndex$(deltaParts);
             }
         }
     }

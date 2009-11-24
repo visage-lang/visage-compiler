@@ -908,16 +908,13 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitForExpression(JFXForExpression tree) {
         if (bindStatus.isBound()) {
-            // Consider this block unbound
-            JavafxBindStatus prevBindStatus = bindStatus;
-            bindStatus = JavafxBindStatus.UNBOUND;
-
             JFXForExpressionInClause clause = tree.inClauses.head;
-            // clause.seqExpr = shred(clause.seqExpr, null);
+            clause.seqExpr = shred(clause.seqExpr, null);
             // clause.whereExpr = decompose(clause.whereExpr);
 
             // Create the BoundForHelper variable:
-            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type));
+            Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
+            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type), inductionType);
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
             init.type = helperType;
             Name helperName = names.fromString("helper$"+currentVarSymbol.name);
@@ -928,6 +925,7 @@ public class JavafxDecompose implements JavafxVisitor {
             // Fix up the class
             JFXBlock body = (JFXBlock) tree.getBodyExpression();
             JFXClassDeclaration cdecl = (JFXClassDeclaration) decompose(body.stats.head);
+            body.stats.head = cdecl;
             
             // Patch the type of the doit function
             patchDoitFunction(cdecl);
@@ -935,24 +933,19 @@ public class JavafxDecompose implements JavafxVisitor {
             // Patch the type of the anon{}.doit() call
             body.value.type = cdecl.type;  //TODO: probably need to go deeper
 
-            // Add the adjustIndex() function
-            JFXFunctionDefinition indexFunction = makeAdjustIndexFunction(clause.boundIndexVarSym, cdecl.sym);
-            cdecl.setMembers(cdecl.getMembers().append(indexFunction)); // add function to class
-
-            // Add FXForPart as implemented interface
-            Type intfc = syms.javafx_FXForPartInterfaceType;
+            // Add FXForPart as implemented interface -- FXForPart<T>
+            Type intfc = types.applySimpleGenericType(types.erasure(syms.javafx_FXForPartInterfaceType), inductionType);
             cdecl.setDifferentiatedExtendingImplementingMixing(
                     List.<JFXExpression>nil(),
                     List.<JFXExpression>of(fxmake.Type(intfc)),  // implement interface
                     List.<JFXExpression>nil());
 
-            bindStatus = prevBindStatus;
+            result = fxmake.at(tree.pos).ForExpression(List.of(clause), body);
         } else {
             List<JFXForExpressionInClause> inClauses = decompose(tree.inClauses);
             JFXExpression bodyExpr = decompose(tree.bodyExpr);
             result = fxmake.at(tree.pos).ForExpression(inClauses, bodyExpr);
         }
-        result = tree;
     }
 
     private void patchDoitFunction(JFXClassDeclaration cdecl) {
@@ -983,35 +976,6 @@ public class JavafxDecompose implements JavafxVisitor {
 
     }
 
-    // Create method 'void adjustIndex(int delta) { $indexof$x = $indexof$x + delta }' in ForPart:
-    private JFXFunctionDefinition makeAdjustIndexFunction(VarSymbol boundIndexVarSym, ClassSymbol classSymbol) {
-        Name funcName = names.fromString("adjustIndex"); // FIXME move to defs
-        final MethodType funcType = new MethodType(
-                List.<Type>of(syms.intType),  // arg types
-                syms.voidType,                // return type
-                List.<Type>nil(),             // Throws type
-                syms.methodClass);            // TypeSymbol
-        MethodSymbol funcSym = new MethodSymbol(0L, funcName, funcType, classSymbol);
-        JFXVar param = fxmake.Param(names.fromString("delta"), null);
-        param.type = syms.intType;
-        param.sym = new VarSymbol(0, param.name, syms.intType, funcSym);
-        JFXExpression add = fxmake.Binary(JavafxTag.PLUS, fxmake.Ident(boundIndexVarSym), fxmake.Ident(param));
-        add.type = syms.intType;
-        JFXBlock block = fxmake.Block(0, List.<JFXExpression>nil(),
-                fxmake.Assign(fxmake.Ident(boundIndexVarSym), add)
-                    .setType(syms.voidType));
-        block.type = syms.voidType;
-        JFXFunctionDefinition func = fxmake.FunctionDefinition(
-                fxmake.Modifiers(Flags.PUBLIC),
-                funcName,
-                null,
-                List.<JFXVar>of(param),
-                block);
-        func.type = funcType;
-        func.sym = funcSym;
-        return func;
-    }
-
     public void visitForExpressionInClause(JFXForExpressionInClause tree) {
         tree.seqExpr = decompose(tree.seqExpr);
         tree.whereExpr = decompose(tree.whereExpr);
@@ -1019,7 +983,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitIndexof(JFXIndexof tree) {
-        result = tree.clause.boundIndexVarSym == null ? tree : fxmake.Ident(tree.clause.boundIndexVarSym);
+        result = tree.clause.indexVarSym == null ? tree : fxmake.Ident(tree.clause.indexVarSym);
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {
