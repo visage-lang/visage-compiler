@@ -197,7 +197,7 @@ public class JavafxSymtab extends Symtab {
         javafx_KeyValueTargetType = enterClass("javafx.animation.KeyValueTarget");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_FXConstantType = enterClass("com.sun.javafx.runtime.FXConstant");
-        javafx_BoundForHelperType = enterClass(JavafxDefs.cBoundForHelper);
+        javafx_BoundForHelperType = enterClass(JavafxDefs.cBoundForHelperNaive);
         javafx_FXForPartInterfaceType = enterClass(JavafxDefs.cBoundForPartI);
         javafx_NonLocalReturnExceptionType = enterClass(JavafxDefs.cNonLocalReturnException);
         javafx_protectedAnnotationType = enterClass(protectedAnnotationClassNameString);
