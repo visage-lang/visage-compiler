@@ -876,7 +876,13 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
-        JFXExpression sequence = decomposeComponent(tree.getSequence());
+        JFXExpression sequence = null;
+        if (bindStatus.isBound()) {
+            sequence = shred(tree.getSequence());
+        }
+        else {
+            sequence = decomposeComponent(tree.getSequence());
+        }
         JFXExpression index = decomposeComponent(tree.getIndex());
         result = fxmake.at(tree.pos).SequenceIndexed(sequence, index);
     }

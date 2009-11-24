@@ -784,7 +784,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeGetElementBody() {
-            return Return(m().TypeCast(elemType, CallGetElement(exprSym, posArg())));
+            //we could have a sequence of Object converted into sequence of Integers
+            //in this case the target type of the cast should be the boxed sequence
+            //element type (this doesn't get handled in lower)
+            Type targetType = elemType.isPrimitive() &&
+                    !types.elementType(exprSym.type).isPrimitive() ?
+                types.boxedTypeOrType(elemType) :
+                elemType;
+            return Return(m().TypeCast(targetType, CallGetElement(exprSym, posArg())));
         }
 
         /**
