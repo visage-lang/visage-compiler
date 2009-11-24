@@ -1400,7 +1400,7 @@ public abstract class JavafxAbstractTranslation
                 full = app;
                 if (useInvoke) {
                     if (resultType != syms.voidType) {
-                        full = castFromObject(full, resultType);
+                        full = typeCast(resultType, meth.type.getReturnType(), full);
                     }
                 }
             }
