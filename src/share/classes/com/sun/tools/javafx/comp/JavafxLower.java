@@ -1025,7 +1025,7 @@ public class JavafxLower implements JavafxVisitor {
             //    ...
             //  }
             //}
-           result = m.Block(0L, List.convert(JFXExpression.class, tree.getLocalvars()), res).setType(tree.type);
+           result = m.Block(0L, List.convert(JFXExpression.class, lower(tree.getLocalvars())), res).setType(tree.type);
            res.clearLocalVars();
        }
        else {
