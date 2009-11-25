@@ -993,13 +993,14 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         ctype = ctype.getEnclosingType();
                     }
                     if (!foundOwner) {
-                        Symbol csym = currentClass;
-                        while (csym != null) {
-                            if (csym.isSubClass(sym.owner, types)) {
-                                getHasOuters().add((ClassSymbol)currentClass);
+                        Symbol csym = null;
+                        while (currentClass != null) {
+                            if (currentClass.isSubClass(sym.owner, types)) {
+                                getHasOuters().add((ClassSymbol)csym);
                                 break;
                             }
-                            csym = csym.owner.enclClass();
+                            csym = currentClass;
+                            currentClass = currentClass.owner.enclClass();
                         }
                     }
                 }
