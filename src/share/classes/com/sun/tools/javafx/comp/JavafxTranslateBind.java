@@ -308,10 +308,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCExpression full = super.fullExpression(mungedToCheckTranslated);
                 if (condition != null) {
                     // Always call function if the default has not been applied yet
-                    full =
-                          If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
-                              full,
-                              Get(targetSymbol));
+                    full = TypeCast(targetSymbol.type, Type.noType,
+                              If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
+                                  full,
+                                  Get(targetSymbol)));
                 }
                 return full;
             }
