@@ -1953,11 +1953,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     @Override
-    public void visitIndexof(JFXIndexof tree) {
-        TODO(tree);
-    }
-
-    @Override
     public void visitInstanciate(JFXInstanciate tree) {
         result = new BoundInstanciateTranslator(tree).doit();
     }

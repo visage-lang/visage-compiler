@@ -24,8 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
