@@ -536,11 +536,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 JCExpression res;
                 if (vmi.isMemberVariable() && vmi.isSequence()) {
                     JCExpression tc = 
-                            instanceName == null ?
-                                vsym.isStatic()?
-                                      Call(makeType(vsym.owner.type), scriptLevelAccessMethod(vsym.owner))
-                                    : id(names._this)
-                               : id(instanceName);
+                            instanceName == null ? getReceiverOrThis(vsym) : id(instanceName);
                     res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
                 } else if (vmi.useAccessors()) {
                     JCExpression tc = instanceName == null ? null : id(instanceName);

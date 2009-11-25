@@ -1872,7 +1872,7 @@ public abstract class JavafxAbstractTranslation
         // Figure out the instance containing the variable
         JCExpression instance(JCExpression tToCheck) {
             if (staticReference) {
-                return Call(tToCheck, scriptLevelAccessMethod(refSym.owner));
+                return getReceiver(refSym);
             } else if (tToCheck == null) {
                 return id(names._this);
             } else {
@@ -3554,11 +3554,10 @@ public abstract class JavafxAbstractTranslation
          * value is var value.
          */
         ExpressionResult doit() {
-            JCExpression receiver = vsym.isStatic() ? Call(scriptLevelAccessMethod(vsym.owner)) : null; //TODO: this probably needs to be updated
             return toResult(
                     BlockExpression(
                         FlagChangeStmt(vsym, defs.varFlagAWAIT_VARINIT, null),
-                        CallStmt(receiver, defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
+                        CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
                         Get(vsym)
                     ),
                     vsym.type);

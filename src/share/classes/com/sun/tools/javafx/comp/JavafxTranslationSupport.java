@@ -909,7 +909,7 @@ public abstract class JavafxTranslationSupport {
             assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
             VarSymbol varSym = (VarSymbol)sym;
             
-            return isMixinClass(varSym.owner);
+            return isMixinClass(varSym.owner) && !varSym.isStatic();
         }
         
         public boolean isLocalClassVar(Symbol sym) {
@@ -1036,7 +1036,7 @@ public abstract class JavafxTranslationSupport {
         }
         
         private JCExpression getReceiverInternal(Symbol sym, boolean nullForThis) {
-            return (isMixinClass()) ?
+            return (isMixinClass() && !isScript) ?
                 id(defs.receiverName) :
                 resolveThis(sym, nullForThis);
         }

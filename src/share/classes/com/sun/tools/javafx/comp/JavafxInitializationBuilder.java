@@ -238,7 +238,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.gatherFunctions(classFuncInfos);
 
             if (isScriptClass) {
-
                 javaCodeMaker.makeInitClassMaps(initClassMap);
 
                 if  (hasStatics) {
@@ -288,20 +287,43 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         } else {
             // Mixin class
-
             javaCodeMaker.makeAttributeFields(classVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
-
-            // Static(script) vars are exposed in class
-            javaCodeMaker.makeAttributeFields(scriptVarInfos);
-            javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
             javaCodeMaker.makeVarNumMethods();
-            javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, null, null);
+
+            if (isScriptClass) {
+                javaCodeMaker.makeInitClassMaps(initClassMap);
+
+                if  (hasStatics) {
+                    ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
+                     
+                    // script-level into class X
+                    javaCodeMaker.makeAttributeFields(scriptVarInfos);
+                    javaCodeMaker.setContext(true, cDefinitions);
+                    javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
+                    javaCodeMaker.setContext(false, cDefinitions);
+                    javaCodeMaker.gatherFunctions(scriptFuncInfos);
+    
+                    // script-level into class X.X$Script
+                    javaCodeMaker.setContext(true, sDefinitions);
+                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeVarNumMethods();
+                    javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, false);
+                    javaCodeMaker.setContext(false, cDefinitions);
+    
+                    // script-level into class X
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false, false);
+                    javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, true, isLibrary ? scriptVarInfos : null, null);
+                    javaCodeMaker.makeScript(sDefinitions.toList());
+                }
+            } else {
+                javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, null, null);
+            }
 
             javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
             javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
             javaCodeMaker.gatherFunctions(classFuncInfos);
-            javaCodeMaker.gatherFunctions(scriptFuncInfos);
             
             javaCodeMaker.setContext(false, iDefinitions);
             javaCodeMaker.makeMemberVariableAccessorInterfaceMethods(classVarInfos);
@@ -496,7 +518,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Return raw flags for current class.
         //
         public long rawFlags() {
-            return isMixinClass() ? (Flags.STATIC | Flags.PUBLIC) : Flags.PUBLIC;
+            return (isMixinClass() && !isScript()) ? (Flags.STATIC | Flags.PUBLIC) : Flags.PUBLIC;
         }
         
         //
@@ -650,6 +672,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             protected boolean isVoidReturnType;
             // True if we're to stop the build.
             protected boolean stopBuild = false;
+            // True if needs a receiver arg.
+            protected boolean needsReceiver = isMixinClass() && !isScript();
+
             // True if body is required.
             protected boolean needsBody = true;
             // Cached method symbol.
@@ -739,14 +764,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // This method returns all the parameters for the current method as a
             // list of JCVariableDecl.
             protected List<JCVariableDecl> paramList() {
-                return paramList(false);
-            }
-            protected List<JCVariableDecl> paramList(boolean isAbstract) {
                 Iterator<Type> typeIter = paramTypes.iterator();
                 Iterator<Name> nameIter = paramNames.iterator();
                 ListBuffer<JCVariableDecl> params = ListBuffer.lb();
                 
-                if (isMixinClass() && !isAbstract) {
+                if (needsReceiver) {
                     params.append(ReceiverParam(getCurrentClassDecl()));
                 }
      
@@ -770,12 +792,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
             
             // This method generates a method symbol for the current method.
-            protected MethodSymbol methodSymbol(boolean isAbstract) {
+            protected MethodSymbol methodSymbol() {
                 if (methodSymbol == null) {
                     ListBuffer<Type> argtypes = ListBuffer.lb();
                     long flags = rawFlags();
                     
-                    if (isMixinClass() && !isAbstract) {
+                    if (needsReceiver) {
                         argtypes.append(getCurrentOwner().type);
                     }
                     
@@ -791,8 +813,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             // This method generates a call to the mixin symbol.
             public void callMixin(ClassSymbol mixin) {
-                JCExpression receiver = id(isMixinClass() ? defs.receiverName : names._this);
-                List<JCExpression> mixinArgs = List.<JCExpression>of(receiver).appendList(argList());
+                List<JCExpression> mixinArgs =  List.<JCExpression>of(getReceiverOrThis()).appendList(argList());
                 JCExpression selector = makeType(mixin.type, false);
  
                 if (isVoidReturnType) {
@@ -844,9 +865,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addDefinition(Method(flags(),
                                              returnType,
                                              methodName,
-                                             paramList(!needsBody),
+                                             paramList(),
                                              needsBody ? stmts.toList() : null,
-                                             methodSymbol(!needsBody)));
+                                             methodSymbol()));
                 }
             }
 
@@ -854,8 +875,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             public void generate() {
                 // Reset diagnostic position to current class.
                 resetDiagPos();
-                // Emit prologue statements.
-                prologue();
                 
                 // Reset diagnostic position to current class.
                 resetDiagPos();
@@ -864,21 +883,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 // Reset diagnostic position to current class.
                 resetDiagPos();
-                // Emit epilog statements.
-                epilogue();
             }
 
             
             // This method contains any code to initialize the builder.
             public void initialize() {
-            }
-            
-            // This method generates any code needed before the body of the method.
-            public void prologue() {
-            }
-             
-            // This method generates any code needed after the body of the method.
-            public void epilogue() {
             }
             
             // This method generates the body of the method.
@@ -935,7 +944,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 this.isSequence = varInfo.isSequence();
                 this.type = varInfo.getRealType();
                 this.elementType = isSequence ? varInfo.getElementType() : null;
-                this.needsBody = needsBody;
+                this.needsReceiver = isMixinClass() && needsBody && !varInfo.isStatic();
             }
             
             // Return the method flags.
@@ -2535,7 +2544,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         private void makeInitVarBitsMethod(final List<VarInfo> attrInfos) {
             MethodBuilder mb = new MethodBuilder(defs.initVarBits_FXObjectMethodName, syms.voidType) {
-
                 @Override
                 public void statements() {
                     // Begin collecting statements.
@@ -3083,11 +3091,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
 
             if (isScriptLevel) {
-                stmts.append(CallStmt(scriptLevelAccessMethod(sym)));
+                stmts.append(CallStmt(null, scriptLevelAccessMethod(sym)));
             }
             
             if (attrInfo != null) {
-                stmts.append(CallStmt(Call(scriptLevelAccessMethod(sym)), defs.applyDefaults_FXObjectMethodName));
+                stmts.append(CallStmt(Call(null, scriptLevelAccessMethod(sym)), defs.applyDefaults_FXObjectMethodName));
             }
              
             addDefinition(m().Block(Flags.STATIC, stmts.toList()));
@@ -3106,11 +3114,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                 // Mixin super calls will be handled when inserted into real classes.
                 if (!isMixinClass()) {
-                    //TODO:
-                    // Some implementation code is still generated assuming a receiver parameter.  Until this is fixed
-                    //    var receiver = this;
-                    
-                    stmts.append(Var(Flags.FINAL, id(interfaceName(getCurrentClassDecl())), defs.receiverName, id(names._this)));
                     receiverVarDeclList = List.<JCVariableDecl>nil();
     
                     if (superClassSym != null) {
