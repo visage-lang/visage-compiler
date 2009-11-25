@@ -405,13 +405,17 @@ public class JavafxLower implements JavafxVisitor {
     @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         JFXExpression whereExpr = lower(that.whereExpr);
-        JFXExpression seqExpr = null;
-        if (types.isSequence(that.seqExpr.type)) {
-            seqExpr = lowerExpr(that.seqExpr, types.sequenceType(that.var.type));
+        Type typeToCheck = that.seqExpr.type;
+        if  (that.seqExpr.type.tag == TypeTags.BOT ||
+                types.isSameType(that.seqExpr.type, syms.javafx_EmptySequenceType)) {
+            typeToCheck = types.sequenceType(that.var.type);
         }
-        else {//sure that this is what we want?
-            seqExpr = lower(that.seqExpr);
+        else if (!types.isSequence(that.seqExpr.type) &&
+                !types.isArray(that.seqExpr.type) &&
+                types.asSuper(that.seqExpr.type, syms.iterableType.tsym) == null) {
+            typeToCheck = types.sequenceType(that.seqExpr.type);
         }
+        JFXExpression seqExpr = lowerExpr(that.seqExpr, typeToCheck);
         JFXForExpressionInClause res = m.at(that.pos).InClause(that.getVar(), seqExpr, whereExpr);
         res.setIndexUsed(that.getIndexUsed());
         res.indexVarSym = that.indexVarSym;
