@@ -180,7 +180,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         DiagnosticPosition diagPos = cDecl.pos();
         Type superType = types.superType(cDecl);
-        ClassSymbol outerTypeSym = outerTypeSymbol(cDecl); // null unless inner class with outer reference
+        ClassSymbol outerTypeSym = outerTypeSymbol(cDecl.sym); // null unless inner class with outer reference
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
         boolean isRunnable = toJava.getAttrEnv().toplevel.isRunnable;
 
@@ -385,9 +385,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter
     // to handle the instantiation of the classes that access outer members
-    private ClassSymbol outerTypeSymbol(JFXClassDeclaration cdecl) {
-        if (cdecl.sym != null && toJava.getHasOuters().contains(cdecl.sym)) {
-            Symbol typeOwner = cdecl.sym.owner;
+    private ClassSymbol outerTypeSymbol(Symbol csym) {
+        if (csym != null && toJava.getHasOuters().contains(csym)) {
+            Symbol typeOwner = csym.owner;
             while (typeOwner != null && typeOwner.kind != Kinds.TYP) {
                 typeOwner = typeOwner.owner;
             }
@@ -2202,7 +2202,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 // Add to var map if an anon class.
                 // Exclude the bogus $internal$ fields of FXBase/FXObject
-                if (varMap != null && !ai.getSymbol().name.endsWith(defs.internalSuffixName)) {
+                if (varMap != null &&
+                        !ai.getSymbol().name.endsWith(defs.internalSuffixName) &&
+                        !ai.getSymbol().name.endsWith(defs.outerAccessor_FXObjectFieldName)) {
                     varMap.addVar(ai.getSymbol());
                 }
             }
@@ -3176,7 +3178,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             //        super(dummy);
             //    }
             if (analysis.getFXSuperClassSym() != null) {
-                stmts.append(CallStmt(names._super, id(dummyParamName)));
+                Symbol outerSuper = outerTypeSymbol(types.supertype(getCurrentClassDecl().type).tsym);
+                if (outerSuper == null) {
+                    stmts.append(CallStmt(names._super, id(dummyParamName)));
+                }
+                else {
+                    stmts.append(CallStmt(names._super, resolveThis(outerSuper, false), id(dummyParamName)));
+                }
             } else {
                 stmts.append(CallStmt(defs.initFXBase_MethodName));
             }

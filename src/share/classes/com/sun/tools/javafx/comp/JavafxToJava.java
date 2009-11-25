@@ -984,28 +984,26 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             }
 
             private void addOutersForOuterAccess(Symbol sym, Symbol currentClass) {
-                if (sym != null && sym.owner != null && sym.owner.type != null
-                        && !sym.isStatic() && currentClass != null) {
-                    Symbol outerSym = currentClass;
-                    ListBuffer<ClassSymbol> potentialOuters = new ListBuffer<ClassSymbol>();
-                    boolean foundOuterOwner = false;
-                    while (outerSym != null) {
-                        if (outerSym.kind == Kinds.TYP) {
-                            ClassSymbol outerCSym = (ClassSymbol) outerSym;
-                            if (types.isSuperType(sym.owner.type, outerCSym)) {
-                                foundOuterOwner = true;
-                                break;
-                             }
-                            potentialOuters.append(outerCSym);
-                        }
-                        else if (sym.owner == outerSym)
+                if (sym != null && (sym.kind == Kinds.VAR || sym.kind == Kinds.MTH)
+                        && !sym.isStatic() && sym.owner.kind == Kinds.TYP && currentClass != null) {
+                    Type ctype = currentClass.type;
+                    boolean foundOwner = false;
+                    while (ctype != Type.noType &&
+                            types.isMixin(ctype.tsym) == types.isMixin(currentClass)) {
+                        if (ctype.tsym.isSubClass(sym.owner, types)) {
+                            foundOwner = true;
                             break;
-                        outerSym = outerSym.owner;
+                        }
+                        ctype = ctype.getEnclosingType();
                     }
-
-                    if (foundOuterOwner) {
-                        for (ClassSymbol cs : potentialOuters) {
-                            getHasOuters().add(cs);
+                    if (!foundOwner) {
+                        Symbol csym = currentClass;
+                        while (csym != null) {
+                            if (csym.isSubClass(sym.owner, types)) {
+                                getHasOuters().add((ClassSymbol)currentClass);
+                                break;
+                            }
+                            csym = csym.owner.enclClass();
                         }
                     }
                 }

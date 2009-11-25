@@ -147,7 +147,7 @@ public class JavafxPreTranslationSupport {
     }
 
     public JavafxClassSymbol makeClassSymbol(Name name, Symbol owner) {
-        JavafxClassSymbol classSym = new JavafxClassSymbol(0L, name, owner);
+        JavafxClassSymbol classSym = new JavafxClassSymbol(Flags.SYNTHETIC, name, owner);
         classSym.flatname = chk.localClassName(classSym);
         chk.compiled.put(classSym.flatname, classSym);
 

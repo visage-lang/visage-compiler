@@ -2768,9 +2768,10 @@ public abstract class JavafxAbstractTranslation
         @Override
         protected List<JCExpression> completeTranslatedConstructorArgs() {
             List<JCExpression> translated = translatedConstructorArgs();
-            if (tree.getClassBody() != null &&
-                    tree.getClassBody().sym != null && getHasOuters().contains(tree.getClassBody().sym) ||
-                    idSym != null && getHasOuters().contains(idSym)) {
+            Symbol clazz = tree.getClassBody() != null ?
+                tree.getClassBody().sym :
+                idSym;
+            if (getHasOuters().contains(clazz)) {
                 JCExpression receiver = getReceiverOrThis();
                 translated = translated.prepend(receiver);
             }
