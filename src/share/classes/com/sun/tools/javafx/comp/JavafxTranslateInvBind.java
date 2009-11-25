@@ -25,6 +25,7 @@ package com.sun.tools.javafx.comp;
 
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
+import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -43,7 +44,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
     Type targettedType;
     Symbol targetSymbol;
-    VarSymbol selectSymbol;
+    Symbol selectSymbol;
     VarSymbol selectVarSymbol;
     
 
@@ -88,16 +89,29 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 addPreface(value);
                 
                 if (selectSymbol != null) {
-                    JCVariableDecl selector = TmpVar(selectSymbol.type, Call(attributeGetterName(selectSymbol)));
-                    addPreface(selector);
+                    JCExpression receiver = null;
+                    if (!selectVarSymbol.isStatic() && selectSymbol.kind == Kinds.TYP &&
+                        currentClass().sym.isSubClass(selectSymbol, types)) {
+                        receiver = id(names._super);
+                    } else {
+                        JCVariableDecl selector =
+                            TmpVar(syms.javafx_FXObjectType,
+                                selectVarSymbol.isStatic() ? 
+                                    Call(makeType(selectSymbol.type), scriptLevelAccessMethod(selectSymbol)) :
+                                    Call(attributeGetterName(selectSymbol)));
+                        addPreface(selector);
+                        receiver = id(selector);
+                    }
+
+
                     //note: we have to use the set$(int, FXBase) version because
                     //the set$xxx version is not always accessible from the
                     //selector expression (if selector is XXX$Script class)
-                    JCStatement setter = CallStmt(id(selector),
+                    JCStatement setter = CallStmt(receiver,
                             defs.set_FXObjectMethodName,
-                            Offset(id(selector), selectVarSymbol),
+                            Offset(receiver, selectVarSymbol),
                             id(value)); //FIXME: is this mixin safe?
-                    JCExpression conditionExpr = NE(id(selector), Null());
+                    JCExpression conditionExpr = NE(receiver, Null());
                     addPreface(If(conditionExpr, Block(setter)));
                 } else {
                     addPreface(CallStmt(attributeSetterName(selectVarSymbol), id(value)));
@@ -139,7 +153,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 JFXExpression selectorExpr = tree.getExpression();
                 assert selectorExpr instanceof JFXIdent : "should be another var in the same instance.";
                 JFXIdent selector = (JFXIdent)selectorExpr;
-                selectSymbol = (VarSymbol)selector.sym;
+                selectSymbol = selector.sym;
                 selectVarSymbol = (VarSymbol)tree.sym;
                 return toResult(id(defs.varNewValue_ArgName), targettedType);
             }
