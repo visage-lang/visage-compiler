@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.javafx.api.tree.TypeTree.Cardinality;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
@@ -34,10 +33,8 @@ import com.sun.tools.javafx.tree.JFXExpression;
 
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
-import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
-import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Type;
 
 import com.sun.tools.mjavac.code.TypeTags;
@@ -889,8 +886,8 @@ public class JavafxLower implements JavafxVisitor {
         Symbol prevClass = currentClass;
         try {
             currentClass = tree.sym;
-            List<JFXTree> defs = lower(tree.getMembers());
-            tree.setMembers(defs);
+            List<JFXTree> cdefs = lower(tree.getMembers());
+            tree.setMembers(cdefs);
             result = tree;
         }
         finally {

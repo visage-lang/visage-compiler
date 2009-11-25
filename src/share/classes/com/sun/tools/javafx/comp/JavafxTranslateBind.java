@@ -791,7 +791,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     !types.elementType(exprSym.type).isPrimitive() ?
                 types.boxedTypeOrType(elemType) :
                 elemType;
-            return Return(m().TypeCast(targetType, CallGetElement(exprSym, posArg())));
+            return Return(m().TypeCast(makeType(targetType), CallGetElement(exprSym, posArg())));
         }
 
         /**
