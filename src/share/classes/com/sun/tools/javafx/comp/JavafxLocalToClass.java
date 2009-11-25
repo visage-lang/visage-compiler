@@ -533,25 +533,7 @@ public class JavafxLocalToClass {
         }
 
 
-        class NestedClassTypeLifter extends JavafxTreeScanner {
-
-            @Override
-            public void visitClassDeclaration(JFXClassDeclaration that) {
-                super.visitClassDeclaration(that);
-                if (that.sym != classSymbol &&
-                        (that.type.getEnclosingType() == Type.noType ||
-                        that.type.getEnclosingType().tsym == classSymbol.type.getEnclosingType().tsym)) {
-                    Scope oldScope = preTrans.getEnclosingScope(that.sym);
-                    if (oldScope != null)
-                        oldScope.remove(that.sym);
-                    ((ClassType)that.type).setEnclosingType(classSymbol.type);
-                    that.sym.owner = funcSym;
-                    classSymbol.members().enter(that.sym);
-                }
-            }
-        }
-
-        new NestedClassTypeLifter().scan(cdecl);
+        preTrans.liftTypes(cdecl, classSymbol.type, funcSym);
 
         // Replace the guts of the block-expression with the class wrapping the previous body
         // and a call to the doit function of that class.

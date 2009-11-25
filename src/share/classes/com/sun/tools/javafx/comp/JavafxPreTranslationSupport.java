@@ -214,5 +214,26 @@ public class JavafxPreTranslationSupport {
                 owner);
         return var;
     }
+    
+    void liftTypes(final JFXClassDeclaration cdecl, final Type newEncl, final Symbol newOwner) {
+        class NestedClassTypeLifter extends JavafxTreeScanner {
+
+            @Override
+            public void visitClassDeclaration(JFXClassDeclaration that) {
+                super.visitClassDeclaration(that);
+                if (that.sym != newEncl.tsym &&
+                        (that.type.getEnclosingType() == Type.noType ||
+                        that.type.getEnclosingType().tsym == newEncl.getEnclosingType().tsym)) {
+                    Scope oldScope = getEnclosingScope(that.sym);
+                    if (oldScope != null)
+                        oldScope.remove(that.sym);
+                    ((ClassType)that.type).setEnclosingType(newEncl);
+                    that.sym.owner = newOwner;
+                    newEncl.tsym.members().enter(that.sym);
+                }
+            }
+        }
+        new NestedClassTypeLifter().scan(cdecl);
+    }
 }
 
