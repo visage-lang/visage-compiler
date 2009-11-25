@@ -173,8 +173,8 @@ public abstract class BoundForHelperGap<T, PT> extends BoundForHelper<T, PT> {
         gapEnd += gapDelta;
 
         // Evaluate and insert new parts.
-        int itemsBeforeChange = cumLength(startPart-1);
-        int removedItems = cumLength(endPart-1) - itemsBeforeChange;
+        int itemsBeforeChange = cumLength(startPart);
+        int removedItems = cumLength(endPart) - itemsBeforeChange;
         int cumulate = itemsBeforeChange;
         for (int i = 0;  i < insertedParts;  i++) {
             int index = startPart+i;

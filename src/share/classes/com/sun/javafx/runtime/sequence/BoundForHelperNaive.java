@@ -23,20 +23,22 @@
 
 package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.FXObject;
+import com.sun.tools.javafx.comp.JavafxDefs;
 
 
 public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
 
-    private FXForPart<PT>[] elements;
+    private FXForPart<PT>[] parts;
     private int[] cumulatedLengths;
     private boolean areCumulatedLengthsValid = false;
+    private boolean inWholesaleUpdate = true; // ignore initial individual updates
 
     public BoundForHelperNaive(FXObject container, int forVarNum, int inductionSeqVarNum, boolean dependsOnIndex) {
         super(container, forVarNum, inductionSeqVarNum, dependsOnIndex);
     }
 
     protected int cumLength(int ipart) {
-        if (ipart < 0) {
+        if (ipart <= 0) {
             return 0;
         }
         if (!areCumulatedLengthsValid) {
@@ -52,11 +54,11 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
             }
             areCumulatedLengthsValid = true;
         }
-        return cumulatedLengths[ipart];
+        return cumulatedLengths[ipart-1];
     }
 
     protected FXForPart<PT> getPart(int ipart) {
-        return elements[ipart];
+        return parts[ipart];
     }
 
     // Called by invalidate when the result of part[ipart] changes.
@@ -74,49 +76,88 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
         part.setInductionVar$(container.elem$(inductionSeqVarNum, ipart));
     }
 
+    private void buildParts(int ipFrom, int ipTo) {
+        for (int ips = ipFrom; ips < ipTo; ++ips) {
+            parts[ips] = makeForPart$(ips);
+            syncInductionVar(ips);
+        }
+    }
+
     // Called by invalidate when the input sequence changes.
     public void replaceParts(int startPart, int endPart, int insertedParts, int phase) {
         if (uninitialized)
             return;
-        if (phase != FXObject.VFLGS$NEEDS_TRIGGER)
+        if (phase != FXObject.VFLGS$NEEDS_TRIGGER) {
+            container.invalidate$(forVarNum, 0, JavafxDefs.UNDEFINED_MARKER_INT, JavafxDefs.UNDEFINED_MARKER_INT, phase);
             return;
+        }
+        //System.err.println("startPart: " + startPart + ", endPart: " + endPart + ", insertedParts: " + insertedParts);
         int removedParts = endPart - startPart;
         int deltaParts = insertedParts - removedParts;
         int newNumParts = numParts + deltaParts;
 
-        if (elements == null) {
-            // First time, create the elements
-            elements = new FXForPart[newNumParts];
-        } else if (deltaParts != 0) {
-            // Changing size.  Copy the existing parts
-            int toCopy = deltaParts > 0? numParts : newNumParts;
-            FXForPart<PT>[] tmpP = (FXForPart<PT>[]) new FXForPart[newNumParts];
-            System.arraycopy(elements, 0, tmpP, 0, toCopy);
-            elements = tmpP;
+        if (parts == null || deltaParts != 0) {
+            // Changing size or first time.
 
-            // invalid, new one created lazily
+            int oldStartPos;
+            int oldEndPos;
+            int trailingLength;
+
+            // Allocate the new elements
+            FXForPart<PT>[] newParts = (FXForPart<PT>[]) new FXForPart[newNumParts];
+
+            if (parts == null) {
+                assert startPart == 0;
+                assert endPart == 0;
+                oldStartPos = 0;
+                oldEndPos = 0;
+                trailingLength = 0;
+            } else {
+                // Remember old positions (for invalidate)
+                oldStartPos = cumLength(startPart);
+                oldEndPos = cumLength(endPart);
+                trailingLength = numParts - endPart;
+
+                // Copy the existing parts
+                System.arraycopy(parts, 0, newParts, 0, startPart);
+                //System.err.println("parts.len: " + parts.length + ", start: " + startPart +  ", end: " + endPart + ", newParts.len: " + newParts.length + ", s+i: " + (startPart + insertedParts) + ", trail: " + trailingLength);
+                System.arraycopy(parts, endPart, newParts, startPart + insertedParts, trailingLength);
+            }
+
+            // Install new parts
+            parts = newParts;
+            numParts = newNumParts;
+
+            // Don't generate individual updates
+            inWholesaleUpdate = true;
+
+            // Fill in the new parts
+            buildParts(startPart, startPart + insertedParts);
+
+            // Set-up to lazily update lengths
             cumulatedLengths = null;
             areCumulatedLengthsValid = false;
 
-            // Conservative: resync the induction var for on copied parts past the change point
-            for (int ips = startPart; ips < toCopy; ++ips) {
-                syncInductionVar(ips);
+            // Calculate the inserted length (in the new parts)
+            int newStartPos = oldStartPos;
+            int newEndPos = cumLength(startPart + insertedParts);
+            int insertedLength = newEndPos - newStartPos;
+
+            // Send wholesale invalidation
+            container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, phase);
+            inWholesaleUpdate = false;
+
+            // Adjust the index of trailing parts
+            for (int ips = startPart + insertedParts; ips < startPart + insertedParts + trailingLength; ++ips) {
+                getPart(ips).adjustIndex$(deltaParts);
             }
         } else {
-            // In-place modification.  Update induction var
+            // In-place modification.  Update induction var.  Invalidation from parts.
             for (int ips = startPart; ips < endPart; ++ips) {
                 syncInductionVar(ips);
             }
+            areCumulatedLengthsValid = false;
         }
-
-        // Build new parts.
-        for (int i = 0; i < deltaParts; i++) {
-            int ipart = numParts + i;
-            elements[ipart] = makeForPart$(ipart);
-            syncInductionVar(ipart);
-        }
-        
-        numParts = newNumParts;
     }
 }
 

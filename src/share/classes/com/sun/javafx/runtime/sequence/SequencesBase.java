@@ -36,6 +36,9 @@ import com.sun.javafx.runtime.NumericTypeInfo;
  * @author Brian Goetz
  */
 public class SequencesBase {
+
+    // Must match JavafxDefs.UNDEFINED_MARKER_INT
+    public static final int UNDEFINED_MARKER_INT = -1000;
    
     /*******************************************/
     /* Converting between sequences and arrays */

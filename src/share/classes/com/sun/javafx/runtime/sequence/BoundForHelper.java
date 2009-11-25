@@ -74,22 +74,24 @@ public abstract class BoundForHelper<T, PT> {
 
     // Shared implementation interface (optional)
 
+    // Cumulative length, exclusive
     protected abstract int cumLength(int ipart);
+
     protected abstract FXForPart<PT> getPart(int part);
 
     protected void initializeIfNeeded() {
         if (uninitialized) {
+            // Init the induction sequence
+            int sz = container.size$(inductionSeqVarNum);
+
             uninitialized = false;
-            // Init the induction sequence -- this sends invalidate
-            container.size$(inductionSeqVarNum);
+            replaceParts(0, 0, sz, FXObject.VFLGS$NEEDS_TRIGGER);
         }
     }
 
     public int size() {
-        //System.err.println("BoundForHelper.size(): "+cumLength(numParts-1));
         initializeIfNeeded();
-        // cumLength handles the part==-1 case.
-        return cumLength(numParts-1);
+        return cumLength(numParts);
     }
 
     public T get(int index) {
@@ -99,7 +101,7 @@ public abstract class BoundForHelper<T, PT> {
         int i, cumPrev;
         if (index >= cacheIndex) {
             i = cachePart;
-            cumPrev = cumLength(i-1);
+            cumPrev = cumLength(i);
         } else {
             i = 0;
             cumPrev = 0;
@@ -107,7 +109,7 @@ public abstract class BoundForHelper<T, PT> {
         for (;; i++) {
             if (i >= numParts)
                 return null;
-            int cum = cumLength(i);
+            int cum = cumLength(i+1);
             if (index < cum) {
                 cachePart = i;
                 cacheIndex = cumPrev;
@@ -126,8 +128,6 @@ public abstract class BoundForHelper<T, PT> {
     /** Get the j'th item of part ipart. */
     protected T get(int ipart, int j) {
         FXForPart part = getPart(ipart);
-        // return (T) getPart(ipart).elem$(partResultVarNum, j);  // sequence version
-        //System.err.println("get " + ipart + " -- " + j+" vnum:"+partResultVarNum+" pcnt:"+part.count$());
         return (T) part.elem$(partResultVarNum, j);
     }
 }

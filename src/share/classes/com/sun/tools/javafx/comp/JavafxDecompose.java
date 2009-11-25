@@ -133,6 +133,7 @@ public class JavafxDecompose implements JavafxVisitor {
             case APPLY:
             case SEQUENCE_EXPLICIT:
             case SEQUENCE_RANGE:
+            case FOR_EXPRESSION:
                 return true;
             case CONDEXPR:
                 return types.isSequence(tree.type);

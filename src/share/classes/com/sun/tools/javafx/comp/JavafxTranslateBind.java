@@ -1410,6 +1410,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vLoss = MutableTmpVar("loss", syms.intType, Int(0));
             JCVariableDecl vGain = MutableTmpVar("gain", syms.intType, Int(0));
             JCVariableDecl vDelta = TmpVar("delta", elemType, MINUS(id(vNewLower), lower()));
+            JCVariableDecl vUnits = TmpVar("units", elemType, DIVstep(id(vDelta)));
 
             return
                 If (isSequenceActive(),
@@ -1425,17 +1426,25 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                               vGain,
                               vDelta,
                               If (OR(EQ(size(), Int(0)), NE(MOD(id(vDelta), step()), zero())),
-                                  Block(
+                                  Block( // was empty, or re-aligned on step
                                       Assign(vLoss, size()),
-                                      Assign(vGain, id(vNewSize))),
-                              If (GT(id(vNewLower), lower()),
+                                      Assign(vGain, id(vNewSize))
+                                  ),
+                              /* else */
                                   Block(
-                                      Assign(vLoss, m().TypeCast(syms.intType, DIVstep(id(vDelta)))),
-                                      If (GT(id(vLoss), size()),
-                                         Assign(vLoss, size()))
-                                      ),
-                                  Assign(vGain, m().TypeCast(syms.intType, DIVstep(NEG(id(vDelta)))))
-                              )),
+                                      vUnits,
+                                      If (GT(id(vUnits), zero()),
+                                          Block(
+                                              Assign(vLoss, m().TypeCast(syms.intType, id(vUnits))),
+                                              If (GT(id(vLoss), size()),
+                                                  Assign(vLoss, size())
+                                              )
+                                          ),
+                                      /* else */
+                                          Assign(vGain, m().TypeCast(syms.intType, NEG(id(vUnits))))
+                                      )
+                                  )
+                              ),
                               setLower(id(vNewLower)),
                               setSize(id(vNewSize)),
                               CallSeqInvalidate(Int(0), id(vLoss), id(vGain))
@@ -1700,9 +1709,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (clause.seqExpr instanceof JFXIdent) {
                 Symbol bindee = ((JFXIdent) clause.seqExpr).sym;
                 JCStatement inv =
-                    Block(
-                        If(EQnull(Get(clause.boundHelper.sym)),
-                            Stmt(CallSize(targetSymbol))),
+                    If(NEnull(Get(clause.boundHelper.sym)),
                         CallStmt(Get(clause.boundHelper.sym),
                              defs.replaceParts_BoundForHelperMethodName,
                              startPosArg(), endPosArg(), newLengthArg(), phaseArg()));

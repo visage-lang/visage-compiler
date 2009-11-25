@@ -148,7 +148,8 @@ public class JavafxDefs {
     public static final char typeCharToEscape = '.';
     public static final char escapeTypeChar = '_';
 
-    public static int UNDEFINED_MARKER_INT = -1000;
+    // Must match com.sun.tools.runtime.sequence.Sequences.UNDEFINED_MARKER_INT
+    public static final int UNDEFINED_MARKER_INT = -1000;
 
 
     /**
