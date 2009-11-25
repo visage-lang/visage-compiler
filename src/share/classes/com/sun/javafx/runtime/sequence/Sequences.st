@@ -44,13 +44,37 @@ public final class Sequences extends SequencesBase {
     // Inhibit instantiation
     private Sequences() { }
 
-$PREFIX:{T|
-    public static $PRIM_MAP.(T)$ getAs$T$FromNewElements(FXObject instance, int varNum, int loIndex, int inserted, int k) {
+$TEMPLATE_FROM$
+
+$PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
+    public static $Tprim$ getAs$T$FromNewElements(FXObject instance, int varNum, int loIndex, int inserted, int k) {
         if (k >= inserted)
             k = -1;
         else if (k >= 0)
             k += loIndex;
         return instance.getAs$T$\$(varNum, k);
     }
+
+     public static Sequence<? extends $Tboxed$> insert(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue) {
+        int oldSize = oldValue.size();
+        $T$ArraySequence arr;
+        if (! (oldValue instanceof $T$ArraySequence)
+            || (arr = ($T$ArraySequence) oldValue).isShared()) {
+            arr = new $T$ArraySequence(oldValue);
+            arr.incrementSharing();
+        }
+        arr.replace(oldSize, oldSize, newValue, true);
+        return arr;
+    }
+
+   public static void insert(FXObject instance, int varNum, $Tprim$ newValue) {
+        Sequence<? extends $Tboxed$> oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
+        int oldSize = oldValue.size();
+        Sequence<? extends $Tboxed$> arr = insert(oldValue, newValue);
+        instance.invalidate\$(varNum, oldSize, oldSize, 1, FXObject.VFLGS\$IS_INVALID);
+        instance.be\$(varNum, arr);
+        instance.invalidate\$(varNum, oldSize, oldSize, 1,  FXObject.VFLGS\$NEEDS_TRIGGER);
+    }
+
 }$
 }
