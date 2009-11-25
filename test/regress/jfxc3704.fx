@@ -1,6 +1,7 @@
 /*
  * Regression test JFXC-3704 : Compiled bind: Mixin statics missing accessors.
  *
+ * @compile jfxc3704m.fx
  * @test
  */
 
