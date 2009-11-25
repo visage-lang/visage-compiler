@@ -1760,16 +1760,7 @@ public abstract class JavafxAbstractTranslation
         BoundIdentTranslator(JFXIdent tree) {
             super(tree);
         }
-
-        @Override
-        protected JCExpression doitExpr() {
-            if (sym.name == defs.outerThisName) {
-                return getReceiverOrThis(new VarSymbol(sym.flags(), names._this, sym.type, sym.type.tsym));
-            } else {
-                return super.doitExpr();
-            }
-        }
-
+        
         @Override
         protected ExpressionResult doit() {
             if (sym instanceof VarSymbol) {

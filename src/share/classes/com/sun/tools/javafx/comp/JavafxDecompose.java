@@ -481,12 +481,10 @@ public class JavafxDecompose implements JavafxVisitor {
             JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
             selected = unconditionalShred(meth, null);
         } else if (!tree.sym.isStatic() && selectSym != null && selectSym.kind == Kinds.TYP &&
-                currentClass.isEnclosedBy((ClassSymbol)selectSym)) {
-            // This is some outer class access. We introduce a special identifier
-            // to indicate that this is a outer.this access - so that translator
-            // can generate appropriate OuterClassName.this.
+               tree.sym.kind != Kinds.MTH) {
+            // This is some outer instance variable access
             if (bindStatus.isBound()) {
-                Symbol outerThisSym = new VarSymbol(0L, defs.outerThisName, tree.selected.type, currentClass);
+                Symbol outerThisSym = new VarSymbol(0L, names._this, selectSym.type, selectSym);
                 JFXIdent outerThis = fxmake.Ident(outerThisSym);
                 selected = shred(outerThis);
             } else {
