@@ -571,6 +571,18 @@ public class Main {
                        boolean preserveSymbols,
                        List<JavaFileObject> fileObjects)
     {
+        try {
+            String envArgs = System.getenv("JAVAFXC_OPTIONS");
+            if (envArgs != null && !envArgs.equals("")) {
+                String[] moreArgs = envArgs.split(" ");
+                String[] modifiedArgs = new String[args.length + moreArgs.length];
+                System.arraycopy(args, 0, modifiedArgs, 0, args.length);
+                System.arraycopy(moreArgs, 0, modifiedArgs, args.length, moreArgs.length);
+                args = modifiedArgs;
+            }
+        } catch (Exception ignored) {
+        }
+
         registerServices(context, args);
         if (options == null)
             options = Options.instance(context); // creates a new one
