@@ -210,7 +210,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
             JFXClassDeclaration cdecl = tree.getClassBody();
             cdecl.setMembers(cdecl.getMembers().appendList(newOverrides));
             tree.setParts(unboundParts.toList());
-            preTrans.liftTypes(cdecl, cdecl.type, cdecl.sym);
+            preTrans.liftTypes(cdecl, cdecl.type, preTrans.makeDummyMethodSymbol(cdecl.sym));
         }
     }
 
