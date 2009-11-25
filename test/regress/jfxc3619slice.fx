@@ -4,7 +4,7 @@
  *  Assure that new objects are created when a non bound initializer changes, and that
  *  the initted ivar contains the updated value.
  *
- * @test/fail
+ * @test
  * @run
  */
 class Foo {
