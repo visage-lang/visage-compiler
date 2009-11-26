@@ -61,14 +61,38 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
         return parts[ipart];
     }
 
-    // Called by invalidate when the result of part[ipart] changes.
-    public void updateForPart(int ipart, int begin, int end, int newLen, int phase) {
-        if (uninitialized)
+    private void blanketInvalidationOfBoundFor() {
+        container.invalidate$(forVarNum, 0, JavafxDefs.UNDEFINED_MARKER_INT, JavafxDefs.UNDEFINED_MARKER_INT, FXObject.VFLGS$IS_INVALID);
+    }
+
+    // Called by invalidate when the result of a part changes.
+    @Override
+    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+        if (uninitialized || inWholesaleUpdate)
             return;
-        if (phase != FXObject.VFLGS$NEEDS_TRIGGER)
+        if (phase != FXObject.VFLGS$NEEDS_TRIGGER) {
+            blanketInvalidationOfBoundFor();
             return;
+        }
+        //System.err.println("updateForPart src: " + ((FXForPart)src).getIndex$() + ", newLength: " + newLength);
+        
+        // Do invalidation
+        
+        int ipart = ((FXForPart) src).getIndex$();
+        int oldStartPos = cumLength(ipart);
+        int oldEndPos = cumLength(ipart + 1);
+
+        // Set-up to lazily update lengths
+        cumulatedLengths = null;
         areCumulatedLengthsValid = false;
-        //TODO: add invalidation
+
+        // Calculate the inserted length (in the new parts)
+        int newStartPos = oldStartPos;
+        int newEndPos = cumLength(ipart + 1);
+        int insertedLength = newEndPos - newStartPos;
+
+        // Send wholesale invalidation
+        container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, phase);
     }
 
     private void syncInductionVar(int ipart) {
@@ -78,8 +102,10 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
 
     private void buildParts(int ipFrom, int ipTo) {
         for (int ips = ipFrom; ips < ipTo; ++ips) {
-            parts[ips] = makeForPart$(ips);
+            FXForPart part = makeForPart$(ips);
+            parts[ips] = part;
             syncInductionVar(ips);
+            addDependent$(part, partResultVarNum, this);
         }
     }
 
@@ -88,7 +114,7 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
         if (uninitialized)
             return;
         if (phase != FXObject.VFLGS$NEEDS_TRIGGER) {
-            container.invalidate$(forVarNum, 0, JavafxDefs.UNDEFINED_MARKER_INT, JavafxDefs.UNDEFINED_MARKER_INT, phase);
+            blanketInvalidationOfBoundFor();
             return;
         }
         //System.err.println("startPart: " + startPart + ", endPart: " + endPart + ", insertedParts: " + insertedParts);

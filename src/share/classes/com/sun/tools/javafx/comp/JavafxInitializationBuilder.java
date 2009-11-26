@@ -334,9 +334,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
 
-        // Include any definitions explicitly added during translation
-        cDefinitions.appendList(cDecl.translationDefs);
-
         return new JavafxClassModel(
                 interfaceName,
                 makeImplementingInterfaces(diagPos, cDecl, immediateMixinClasses),
@@ -526,10 +523,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public MethodSymbol makeMethodSymbol(long flags, Type returnType, Name methodName, List<Type> argTypes) {
             return makeMethodSymbol(flags, returnType, methodName, getCurrentOwner(), argTypes);
-        }
-        public MethodSymbol makeMethodSymbol(long flags, Type returnType, Name methodName, Symbol owner, List<Type> argTypes) {
-            MethodType methodType = new MethodType(argTypes, returnType, List.<Type>nil(), syms.methodClass);
-            return new MethodSymbol(flags, methodName, methodType, owner);
         }
 
         //

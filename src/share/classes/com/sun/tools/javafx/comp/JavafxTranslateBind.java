@@ -30,6 +30,7 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
@@ -1625,41 +1626,19 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             //      };
             //   }
 
-            // Extract the BoundForPart subclass
-            JFXClassDeclaration cdecl = (JFXClassDeclaration) ((JFXBlock)(forExpr.bodyExpr)).stats.head;
             Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
-
-            // Add a set induction variable method
-            cdecl.translationDefs.append(
-                    Method(
-                        Flags.PUBLIC,
-                        syms.voidType,
-                        defs.setInductionVar_BoundForPartMethodName,
-                        List.of(Param(inductionType, defs.value_ArgName)),
-                        Stmts(
-                            Stmt(m().Assign(id(attributeValueName(clause.inductionVarSym)), id(defs.value_ArgName)))
-                        ),
-                        null
-                    )
-                );
-
-            // Add adjust index variable method
-            cdecl.translationDefs.append(
-                    Method(
-                        Flags.PUBLIC,
-                        syms.voidType,
-                        defs.adjustIndex_BoundForPartMethodName,
-                        List.of(Param(syms.intType, defs.value_ArgName)),
-                        Stmts(
-                            Stmt(m().Assignop(JCTree.PLUS_ASG, id(attributeValueName(clause.indexVarSym)), id(defs.value_ArgName)))
-                        ),
-                        null
-                    )
-                );
 
             // Translate the part created in the FX AST
             JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, forExpr.bodyExpr.type);
             BlockExprJCBlockExpression jcb = (BlockExprJCBlockExpression) makePart;
+            
+            // Add access methods
+            JCClassDecl tcdecl = (JCClassDecl) jcb.stats.head;
+            ClassSymbol csym = tcdecl.sym;
+            tcdecl.defs = tcdecl.defs
+                    .append(makeSetInductionVarMethod(csym, inductionType))
+                    .append(makeGetIndexMethod(csym))
+                    .append(makeAdjustIndexMethod(csym));
             jcb.stats = jcb.stats
                     .append(CallStmt(makeType(((JFXBlock)forExpr.bodyExpr).value.type), defs.count_FXObjectFieldName))
                     .append(Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
@@ -1672,9 +1651,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                         partType,
                                         names.fromString(JavafxDefs.makeForPart_AttributeMethodPrefix),
                                         List.<JCVariableDecl>of(indexParam),
-                                        Stmts(Return(makePart)),
-                                        null);
-            // makeDecl.sym = methSym;
+                                        currentClass().sym,
+                                        Return(makePart)
+                                    );
             JCClassDecl helperClass = m().AnonymousClassDef(m().Modifiers(0), List.<JCTree>of(makeDecl));
             Symbol seqSym = ((JFXIdent)(clause.getSequenceExpression())).sym;
             createHelper = m().NewClass(null, null, // FIXME
@@ -1693,6 +1672,53 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     ),
                     Return(Call(Get(clause.boundHelper.sym), defs.size_SequenceMethodName))
                 );
+        }
+
+        private JCMethodDecl Method(long flags, Type returnType, Name methodName, List<JCVariableDecl> params, Symbol owner, JCStatement stmt) {
+            ListBuffer<Type> paramTypes = ListBuffer.lb();
+            for (JCVariableDecl param : params) {
+                paramTypes.append(param.getType().type);
+            }
+            return Method(flags, returnType, methodName, paramTypes.toList(), params, owner, Stmts(stmt));
+        }
+
+        // Make a set induction variable method
+        private JCTree makeSetInductionVarMethod(ClassSymbol owner, Type inductionType) {
+              return
+                    Method(
+                        Flags.PUBLIC,
+                        syms.voidType,
+                        defs.setInductionVar_BoundForPartMethodName,
+                        List.of(Param(inductionType, defs.value_ArgName)),
+                        owner,
+                        Stmt(m().Assign(id(attributeValueName(clause.inductionVarSym)), id(defs.value_ArgName)))
+                    );
+        }
+
+        // Make an adjust index variable method
+        private JCTree makeAdjustIndexMethod(ClassSymbol owner) {
+              return
+                    Method(
+                        Flags.PUBLIC,
+                        syms.voidType,
+                        defs.adjustIndex_BoundForPartMethodName,
+                        List.of(Param(syms.intType, defs.value_ArgName)),
+                        owner,
+                        Stmt(m().Assignop(JCTree.PLUS_ASG, id(attributeValueName(clause.indexVarSym)), id(defs.value_ArgName)))
+                    );
+        }
+
+        // Make a get index variable method
+        private JCTree makeGetIndexMethod(ClassSymbol owner) {
+              return
+                    Method(
+                        Flags.PUBLIC,
+                        syms.intType,
+                        defs.getIndex_BoundForPartMethodName,
+                        List.<JCVariableDecl>nil(),
+                        owner,
+                        Return(id(attributeValueName(clause.indexVarSym)))
+                    );
         }
 
         JCStatement makeGetElementBody() {

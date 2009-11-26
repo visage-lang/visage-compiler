@@ -300,6 +300,7 @@ public class JavafxDefs {
     final Name values_KeyFrameMethodName;
     final Name time_KeyFrameMethodName;
 
+    final Name getIndex_BoundForPartMethodName;
     final Name adjustIndex_BoundForPartMethodName;
     final Name setInductionVar_BoundForPartMethodName;
 
@@ -503,6 +504,7 @@ public class JavafxDefs {
         notifyDependents_FXObjectMethodName = names.fromString("notifyDependents$");
         complete_FXObjectMethodName = names.fromString("complete$");
         outerAccessor_MethodName = names.fromString("accessOuter$");
+        getIndex_BoundForPartMethodName = names.fromString("getIndex$");
         adjustIndex_BoundForPartMethodName = names.fromString("adjustIndex$");
         setInductionVar_BoundForPartMethodName = names.fromString("setInductionVar$");
         get_PointerMethodName = names.fromString("get");

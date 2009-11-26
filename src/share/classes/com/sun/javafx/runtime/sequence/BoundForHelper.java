@@ -22,21 +22,27 @@
  */
 
 package com.sun.javafx.runtime.sequence;
+import com.sun.javafx.runtime.FXBase;
 import com.sun.javafx.runtime.FXObject;
 
-public abstract class BoundForHelper<T, PT> {
+public abstract class BoundForHelper<T, PT> extends FXBase {
 
     /** The bfElem class in the design document implements this interface. */
     public static interface FXForPart<PT> extends FXObject {
         /**
-         * Set the indexof variable
+         * Get the indexof variable
+         */
+        public int getIndex$();
+
+        /**
+         * Adjust the indexof variable
          * May cause re-calculation.
-         * This may cause size() to change - what then?  FIXME.
          */
         public void adjustIndex$(int value$);
 
         /**
          * Set the induction variable
+         * May cause re-calculation.
          */
         public void setInductionVar$(PT value$);
     };
@@ -64,9 +70,6 @@ public abstract class BoundForHelper<T, PT> {
     // Required public interface
 
     public abstract FXForPart makeForPart$(int index);
-
-    // Called by invalidate when the result of part[ipart] changes.
-    public abstract void updateForPart(int ipart, int begin, int end, int newLen, int phase);
 
     // Called by invalidate when the input sequence changes.
     public abstract void replaceParts(int startPart, int endPart, int insertedParts, int phase);
