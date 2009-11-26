@@ -106,7 +106,7 @@ class JavafxAnalyzeClass {
     private final ListBuffer<FuncInfo> scriptFuncInfos = ListBuffer.lb();
 
     // List of all attributes.  Used to track overridden and mixin attributes.
-    private final Map<VarSymbol, VarInfo> visitedAttributes = new HashMap<VarSymbol, VarInfo>();
+    private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     
     // Map of all bind selects used to construct the class update$ method.
     private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
@@ -179,6 +179,9 @@ class JavafxAnalyzeClass {
         
         // Inversion of invalidators.
         private ListBuffer<BindeeInvalidator> boundInvalidatees;
+        
+        // True if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
+        private boolean needsMixinInterface;
 
         private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
@@ -221,6 +224,16 @@ class JavafxAnalyzeClass {
         public boolean isHiddenBareSynth() {
             long flags = JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
             return (getFlags() & flags) == flags;
+        }
+        
+        // Returns true if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
+        public boolean needsMixinInterface() {
+            return needsMixinInterface;
+        }
+        
+        // Indicate if the var needs a mixin interface.
+        public void setNeedsMixinInterface(boolean needs) {
+            needsMixinInterface = needs;
         }
         
         // Return true if the var/override has an initializing expression
@@ -362,6 +375,7 @@ class JavafxAnalyzeClass {
                                ", owner=" + getSymbol().owner +
                                (isStatic() ? ", static" : "") +
                                (isPrivateAccess() ? ", private" : "") +
+                               (useAccessors() ? ", useAccessors" : "") +
                                (needsCloning() ? ", clone" : "") +
                                (isDef() ? ", isDef" : "") +
                                (!boundBindees().isEmpty() ? ", intra binds" : "") + 
@@ -370,6 +384,7 @@ class JavafxAnalyzeClass {
                                (!boundInvalidatees.isEmpty() ?  ", invalidators" : "") + 
                                (getDefaultInitStatement() != null ? ", init" : "") +
                                (isBareSynth() ? ", bare" : "") +
+                               (needsMixinInterface() ? ", needsMixinInterface" : "") +
                                ", class=" + getClass().getSimpleName());
             if (detail) {
                 if (!boundBoundSelects().isEmpty()) {
@@ -653,6 +668,12 @@ class JavafxAnalyzeClass {
             this.overrideVar = null;
         }
 
+        // Returns true if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
+        @Override
+        public boolean needsMixinInterface() {
+            return true;
+        }
+
         // Return true if the var/override has an initializing expression
         @Override
         public boolean hasInitializer() {
@@ -898,7 +919,7 @@ class JavafxAnalyzeClass {
         // Add any bindees to binders.
         for (VarSymbol bindeeSym : tai.boundBindees()) {
             // Find the varInfo
-            VarInfo bindee = visitedAttributes.get(bindeeSym);
+            VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(bindeeSym));
             
             if (bindee != null) {
                 bindee.bindersOrNull.add((VarInfo)tai);
@@ -913,7 +934,7 @@ class JavafxAnalyzeClass {
         // If the tai has invalidators.
         for (BindeeInvalidator invalidator: tai.boundInvalidators()) {
             // Find the varInfo
-            VarInfo bindee = visitedAttributes.get(invalidator.bindee);
+            VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(invalidator.bindee));
             
             if (bindee != null && invalidator.invalidator != null) {
                bindee.boundInvalidatees.append(invalidator);
@@ -1221,7 +1242,7 @@ class JavafxAnalyzeClass {
         // Track the current vars to the instance attribute results.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
             // Track the var for overrides and mixin duplication.
-            visitedAttributes.put(tai.getSymbol(), tai);
+            visitedAttributes.put(initBuilder.attributeValueName(tai.getSymbol()), tai);
         }
 
         // Map the current methods so they are filtered out of the results.
@@ -1239,16 +1260,18 @@ class JavafxAnalyzeClass {
         // Track the override vars to the instance attribute results.
         for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
             // Find the overridden var.
-            VarInfo oldVarInfo = visitedAttributes.get(tai.getSymbol());
+            VarInfo oldVarInfo = visitedAttributes.get(initBuilder.attributeValueName(tai.getSymbol()));
 
             // Test because it's possible to find the override before the var.
             if (oldVarInfo != null && !(oldVarInfo instanceof MixinClassVarInfo)) {
                 // Proxy to the overridden var.
                 tai.setProxyVar(oldVarInfo);
+                tai.setNeedsMixinInterface(tai.needsMixinInterface() || oldVarInfo.needsMixinInterface());
+                oldVarInfo.setNeedsMixinInterface(false);
             }
             
             // Track the var for overrides and mixin duplication.
-            visitedAttributes.put(tai.getSymbol(), tai);
+            visitedAttributes.put(initBuilder.attributeValueName(tai.getSymbol()), tai);
         }
 
         // Add the current vars to the var results.
@@ -1491,13 +1514,13 @@ class JavafxAnalyzeClass {
         // If the var is in a class and not a static (ie., an instance attribute.)
         if (var.owner.kind == Kinds.TYP && !isStatic) {
             // See if we've seen this var before.
-            VarInfo oldVarInfo = visitedAttributes.get(var);
+            VarInfo oldVarInfo = visitedAttributes.get(initBuilder.attributeValueName(var));
 
             // If we've seen this class before, it must be the same symbol and type,
             // otherwise in doesn't conflict.
             if (oldVarInfo != null &&
-                (oldVarInfo.getSymbol() != var ||
-                 oldVarInfo.getSymbol().type != var.type)) {
+                (!oldVarInfo.getSymbol().name.equals(var.name) ||
+                 !types.erasure(oldVarInfo.getSymbol().type).equals(types.erasure(var.type)))) {
                 oldVarInfo = null;
             }
 
@@ -1522,7 +1545,10 @@ class JavafxAnalyzeClass {
                     }
                     
                     // Map the fact we've seen this var.
-                    visitedAttributes.put(var, newVarInfo);
+                    visitedAttributes.put(initBuilder.attributeValueName(var), newVarInfo);
+                } else if (oldVarInfo != null) {
+                    // Still needs the interface.
+                    oldVarInfo.setNeedsMixinInterface(true);
                 }
             } else {
                 // Construct a new superclass VarInfo.
@@ -1530,7 +1556,7 @@ class JavafxAnalyzeClass {
                 // Add the new superclass VarInfo to the result list.
                 classVarInfos.append(newVarInfo);
                 // Map the fact we've seen this var.
-                visitedAttributes.put(var, newVarInfo);
+                visitedAttributes.put(initBuilder.attributeValueName(var), newVarInfo);
             }
         }
     }

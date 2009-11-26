@@ -21,7 +21,7 @@
  *  test/features/F19-multiple-inheritance/MxResInitConf03.fx
  *  test/features/F19-multiple-inheritance/MxResInitConf04.fx
  *
- * @test/fail
+ * @test
  */
 
 mixin class Mixin1 {

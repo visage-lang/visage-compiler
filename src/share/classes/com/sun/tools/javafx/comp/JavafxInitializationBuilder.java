@@ -2139,13 +2139,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }
                 }
-                
-                if ((isMixinClass() && !needsBody) || (ai instanceof MixinClassVarInfo && ai.needsCloning())) {
-                    makeGetMixinAccessorMethod(ai, needsBody);
-                    makeGetVOFFAccessorMethod(ai, needsBody);
-                    makeSetMixinAccessorMethod(ai, needsBody);
-                }
             }
+        }
+        
+        //
+        // This method constructs mixin interfaces for the specified var.
+        //
+        public void makeAttributeMixinInterfaces(VarInfo ai, boolean needsBody) {
+            makeGetMixinAccessorMethod(ai, needsBody);
+            makeGetVOFFAccessorMethod(ai, needsBody);
+            makeSetMixinAccessorMethod(ai, needsBody);
         }
         
         //
@@ -2162,6 +2165,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         makeInvalidateAccessorMethod(ai, true);
                     }
                 }
+                
+                if (ai.needsMixinInterface()) {
+                    makeAttributeMixinInterfaces(ai, true);
+                }
             }
         }
 
@@ -2174,6 +2181,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             for (VarInfo ai : attrInfos) {
                 if (ai.needsCloning()) {
                     makeAnAttributeAccessorMethods(ai, false);
+                    
+                    if (isMixinClass()) {
+                        makeAttributeMixinInterfaces(ai, false);
+                    }
                 }
             }
         }
