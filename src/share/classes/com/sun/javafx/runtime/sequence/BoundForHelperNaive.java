@@ -148,6 +148,10 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
                 System.arraycopy(parts, 0, newParts, 0, startPart);
                 //System.err.println("parts.len: " + parts.length + ", start: " + startPart +  ", end: " + endPart + ", newParts.len: " + newParts.length + ", s+i: " + (startPart + insertedParts) + ", trail: " + trailingLength);
                 System.arraycopy(parts, endPart, newParts, startPart + insertedParts, trailingLength);
+
+                for (int ips = startPart; ips < endPart; ++ips) {
+                    removeDependent$(parts[ips], partResultVarNum, this);
+                }
             }
 
             // Install new parts
