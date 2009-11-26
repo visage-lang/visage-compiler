@@ -1532,6 +1532,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 					$value = F.at($pos).OverrideClassVar
 						(
                                                         $name.value,
+                                                        $typeReference.rtype,
                                                         $mods,
                                                         part,
 							bValue,
@@ -1539,15 +1540,7 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 							onReplaceValue,
                                                         onInvalidateValue
 						);
-						
-					// Need to check that the override did not specify at type as
-					// the type comes from whatever you are overriding
-					//
-					if	(!($typeReference.rtype instanceof JFXTypeUnknown)) {
-					
-						log.error($typeReference.rtype, MsgSym.MESSAGE_JAVAFX_TYPED_OVERRIDE);
-					}
-			
+
 	    		} else {
 			    
 			    	$value = F.at($pos).Var

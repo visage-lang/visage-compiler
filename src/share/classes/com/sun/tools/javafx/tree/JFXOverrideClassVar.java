@@ -39,6 +39,7 @@ public class JFXOverrideClassVar extends JFXAbstractVar {
     
     protected JFXOverrideClassVar(
             Name name,
+            JFXType type,
             JFXModifiers mods,
             JFXIdent expr,
             JFXExpression init,
@@ -46,7 +47,7 @@ public class JFXOverrideClassVar extends JFXAbstractVar {
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
             VarSymbol sym) {
-        super(name, null, mods, init, bindStat, onReplace, onInvalidate, sym);
+        super(name, type, mods, init, bindStat, onReplace, onInvalidate, sym);
         this.expr = expr;
     }
     
