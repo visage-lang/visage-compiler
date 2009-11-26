@@ -408,7 +408,9 @@ public abstract class JavafxTranslationSupport {
             // which would confuse the back-end.
             t = wtype.kind == BoundKind.EXTENDS ? wtype.type : wtype;
         }
-        return makeTypeTreeInner(diagPos, t, makeIntf);
+        JCExpression texp = makeTypeTreeInner(diagPos, t, makeIntf);
+        texp.type = t;
+        return texp;
     }
 
     private JCExpression makeTypeTreeInner(DiagnosticPosition diagPos, Type t, boolean makeIntf) {
@@ -1419,19 +1421,20 @@ public abstract class JavafxTranslationSupport {
          * Make methods
          */
 
-        protected JCMethodDecl Method(long flags, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
-            return Method(m().Modifiers(flags), returnType, methName, params, stmts, methSym);
+        protected JCMethodDecl Method(long flags, Type returnType, Name methodName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
+            return Method(m().Modifiers(flags), returnType, methodName, params, stmts, methSym);
         }
 
-        protected JCMethodDecl Method(JCModifiers modifiers, Type returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
-            return Method(modifiers, makeType(returnType), methName, params, stmts, methSym);
+        protected JCMethodDecl Method(long flags, Type returnType, Name methodName, List<Type> paramTypes, List<JCVariableDecl> params, Symbol owner, List<JCStatement> stmts) {
+            MethodSymbol methSym = makeMethodSymbol(flags, returnType, methodName, owner, paramTypes);
+            return Method(m().Modifiers(flags), returnType, methodName, params, stmts, methSym);
         }
 
-        protected JCMethodDecl Method(JCModifiers modifiers, JCExpression returnType, Name methName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
+        protected JCMethodDecl Method(JCModifiers modifiers, Type returnType, Name methodName, List<JCVariableDecl> params, List<JCStatement> stmts, MethodSymbol methSym) {
             JCMethodDecl methDecl = m().MethodDef(
                                         modifiers,
-                                        methName,
-                                        returnType,
+                                        methodName,
+                                        makeType(returnType),
                                         List.<JCTypeParameter>nil(),
                                         params != null ? params : List.<JCVariableDecl>nil(),
                                         List.<JCExpression>nil(),
@@ -1686,6 +1689,14 @@ public abstract class JavafxTranslationSupport {
             ClassType type = new ClassType(Type.noType, List.<Type>nil(), classSym);
             classSym.type = type;
             return classSym;
+        }
+
+        /**
+         * Create a method symbol.
+         */
+        public MethodSymbol makeMethodSymbol(long flags, Type returnType, Name methodName, Symbol owner, List<Type> argTypes) {
+            MethodType methodType = new MethodType(argTypes, returnType, List.<Type>nil(), syms.methodClass);
+            return new MethodSymbol(flags, methodName, methodType, owner);
         }
 
         /*

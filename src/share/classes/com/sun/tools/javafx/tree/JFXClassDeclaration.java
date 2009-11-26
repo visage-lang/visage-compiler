@@ -55,9 +55,6 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
 
     public boolean hasBeenTranslated = false; // prevent multiple translations
 
-    // Definitions explicitly added during translation
-    public ListBuffer<JCTree> translationDefs = ListBuffer.<JCTree>lb();
-    
     protected JFXClassDeclaration()
     {
         this.mods       = null;

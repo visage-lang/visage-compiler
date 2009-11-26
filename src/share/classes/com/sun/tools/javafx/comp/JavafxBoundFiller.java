@@ -24,8 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
@@ -154,6 +152,13 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
             valtype = types.sequenceType(valtype);
             value.type = valtype;
         }
+        if (clause.whereExpr != null) {
+            JFXExpression empty = fxmake.EmptySequence();
+            empty.type = valtype;
+            value = fxmake.Conditional(clause.whereExpr, value, empty);
+            value.type = valtype;
+            clause.whereExpr = null;
+        }
         JFXVar param = clause.getVar();
         Name resName = resultVarName(param.name);
         JFXVar resultVar =  preTrans.BoundLocalVar(valtype, resName, value, owner);
@@ -210,7 +215,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
             JFXClassDeclaration cdecl = tree.getClassBody();
             cdecl.setMembers(cdecl.getMembers().appendList(newOverrides));
             tree.setParts(unboundParts.toList());
-            preTrans.liftTypes(cdecl, cdecl.type, cdecl.sym);
+            preTrans.liftTypes(cdecl, cdecl.type, preTrans.makeDummyMethodSymbol(cdecl.sym));
         }
     }
 
