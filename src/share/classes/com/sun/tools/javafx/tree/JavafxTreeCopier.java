@@ -375,10 +375,11 @@ public class JavafxTreeCopier implements JavafxVisitor {
         Name name = tree.getName();
         JFXModifiers mods = copy(tree.getModifiers());
         JFXIdent expr = copy(tree.getId());
+        JFXType jfxtype = copy(tree.getJFXType());
         JFXExpression initializer = copy(tree.getInitializer());
         JFXOnReplace onReplace = copy(tree.getOnReplace());
         JFXOnReplace onInvalidate = copy(tree.getOnInvalidate());
-        result = maker.at(tree.pos).OverrideClassVar(name, mods, expr, initializer, tree.getBindStatus(), onReplace, onInvalidate);
+        result = maker.at(tree.pos).OverrideClassVar(name, jfxtype, mods, expr, initializer, tree.getBindStatus(), onReplace, onInvalidate);
     }
 
     public void visitInterpolateValue(JFXInterpolateValue tree) {

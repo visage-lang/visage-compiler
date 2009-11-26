@@ -198,6 +198,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
                 JFXOverrideClassVar ocv =
                         fxmake.OverrideClassVar(
                         part.name,
+                        preTrans.makeTypeTree(part.type),
                         fxmake.Modifiers(part.sym.flags_field),
                         id,
                         part.getExpression(),

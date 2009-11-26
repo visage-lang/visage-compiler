@@ -1059,6 +1059,24 @@ public class JavafxAttr implements JavafxVisitor {
         Type declType = tree.getId().type;
         result = tree.type = declType;
 
+        // Need to check that the override did not specify a different type
+        // w.r.t. the one that comes from overriden variable
+        Type jfxType = attribType(tree.getJFXType(), env);
+        if (jfxType != syms.javafx_UnspecifiedType &&
+                !types.isSameType(declType, jfxType)) {
+            chk.typeError(tree.getJFXType().pos(),
+                    messages.getLocalizedString(MsgSym.MESSAGEPREFIX_COMPILER_MISC + 
+                    MsgSym.MESSAGE_JAVAFX_TYPED_OVERRIDE),
+                    jfxType,
+                    declType);
+        }
+        else if (jfxType == syms.javafx_UnspecifiedType) {
+            tree.setJFXType(fxmake.at(tree.pos).TypeClass(fxmake.at(tree.pos).Type(declType),
+                    types.isSequence(declType) ?
+                        Cardinality.ANY :
+                        Cardinality.SINGLETON));
+        }
+
         if (types.isSameType(env.enclClass.type, v.owner.type)) {
             log.error(tree.getId().pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_OWN,tree.getId().getName());
         }

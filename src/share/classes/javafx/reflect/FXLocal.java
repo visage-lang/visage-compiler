@@ -812,7 +812,11 @@ public class FXLocal {
         public void setValue(FXObjectValue obj, FXValue value) {
             Object robj = obj == null ? null : ((ObjectValue) obj).obj;
             try {
-                if (fld != null || getter != null || setter != null) {
+                if(type instanceof FXSequenceType && robj instanceof FXObject) {
+                    Sequences.set((FXObject)robj, offset,(Sequence)((Value) value).asObject());
+                    return;
+                }
+                if (fld != null || setter != null) {
                    
                     if (setter != null) {
                         setter.invoke(robj, ((Value) value).asObject());
