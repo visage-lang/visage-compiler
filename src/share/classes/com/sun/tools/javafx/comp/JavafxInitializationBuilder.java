@@ -2465,7 +2465,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Constrain the var.
                         if (varInfo.needsCloning() &&
                             !varInfo.isBareSynth() &&
-                             ((!varInfo.isOverride() && !(varInfo instanceof MixinClassVarInfo)) || varInfo.hasInitializer())) {
+                             (!varInfo.isOverride() || varInfo.hasInitializer() || varInfo instanceof MixinClassVarInfo)) {
                             // Construct the case.
                             beginBlock();
 
@@ -2473,8 +2473,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             if (varInfo.hasInitializer()) {
                                 addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagIS_INITIALIZED));
                             }
-                            // Get body of applyDefaults$.
-                            addStmt(getDefaultInitStatement(varInfo));
+                            
+                            if (varInfo instanceof MixinClassVarInfo && !varInfo.hasInitializer()) {
+                                // Call the appropriate mixin owner.
+                                callMixin((ClassSymbol)varInfo.getSymbol().owner);
+                            } else {
+                                // Get body of applyDefaults$.
+                                addStmt(getDefaultInitStatement(varInfo));
+                            }
                             
                             if (!stmts.isEmpty()) {
                                 // return
@@ -2507,9 +2513,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Add ifs if present.
                     addStmt(ifStmt);
                         
-                    // call mixins.
-                    callMixins();
-                    
                     // Add statement if there were some cases.
                     if (cases.nonEmpty()) {
                         // Add the block as 
