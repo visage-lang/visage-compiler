@@ -221,6 +221,11 @@ public class JavafxDecompose implements JavafxVisitor {
         return shred(tree, null);
     }
 
+    private JFXExpression shredUnlessSideEffectFree(JFXExpression tree) {
+        //TODO: for now just shred
+        return shred(tree);
+    }
+
     private List<JFXExpression> shred(List<JFXExpression> trees, List<Type> paramTypes) {
         if (trees == null)
             return null;
@@ -445,9 +450,12 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitBinary(JFXBinary tree) {
-        JFXExpression lhs = decomposeComponent(tree.lhs);
-        JFXExpression rhs = decomposeComponent(tree.rhs);
         JavafxTag tag = tree.getFXTag();
+        boolean cutOff = tag==JavafxTag.AND || tag==JavafxTag.OR;
+        JFXExpression lhs = decomposeComponent(tree.lhs);
+        JFXExpression rhs = cutOff?
+            shredUnlessSideEffectFree(tree.rhs) :  // If cut-off operation, preface code must be evaluated separately
+            decomposeComponent(tree.rhs);
         JFXBinary res = fxmake.at(tree.pos).Binary(tag, lhs, rhs);
         res.operator = tree.operator;
         result = res;
