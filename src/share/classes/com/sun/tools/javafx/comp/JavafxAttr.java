@@ -1531,7 +1531,8 @@ public class JavafxAttr implements JavafxVisitor {
             // that we are referring to a superclass instance of the
             // current instance (JLS ???).
             else {
-                localEnv.info.selectSuper = cdef != null;
+                localEnv.info.selectSuper = cdef != null &&
+                        cdef.getMembers().nonEmpty();
                 localEnv.info.varArgs = false;
 
                 if (! types.isJFXClass(clazztype.tsym))
