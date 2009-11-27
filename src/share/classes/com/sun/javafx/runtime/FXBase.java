@@ -24,6 +24,7 @@
 package com.sun.javafx.runtime;
 
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
 
 //
 
@@ -445,55 +446,71 @@ import com.sun.javafx.runtime.sequence.Sequence;
         return getAsBoolean$(this, varNum, position);
     }
     public static boolean getAsBoolean$(FXObject obj, int varNum, int position) {
-        return Util.objectToBoolean(obj.elem$(varNum, position));
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToBoolean(obj.elem$(varNum, position)) :
+            false;
     }
 
     public char getAsChar$(int varNum, int position) {
         return getAsChar$(this, varNum, position);
     }
     public static char getAsChar$(FXObject obj, int varNum, int position) {
-        return Util.objectToChar(obj.elem$(varNum, position));
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToChar(obj.elem$(varNum, position)) :
+            '\0';
     }
 
     public byte getAsByte$(int varNum, int position) {
         return getAsByte$(this, varNum, position);
     }
     public static byte getAsByte$(FXObject obj, int varNum, int position) {
-        return Util.objectToByte(obj.elem$(varNum, position));
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToByte(obj.elem$(varNum, position)) :
+            0;
     }
 
     public short getAsShort$(int varNum, int position) {
         return getAsShort$(this, varNum, position);
     }
     public static short getAsShort$(FXObject obj, int varNum, int position) {
-        return Util.objectToShort(obj.elem$(varNum, position));
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToShort(obj.elem$(varNum, position)) :
+            0;
     }
 
     public int getAsInt$(int varNum, int position) {
         return getAsInt$(this, varNum, position);
     }
     public static int getAsInt$(FXObject obj, int varNum, int position) {
-        return Util.objectToInt(obj.elem$(varNum, position));
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToInt(obj.elem$(varNum, position)) :
+            0;
     }
 
     public long getAsLong$(int varNum, int position) {
         return getAsLong$(this, varNum, position);
     }
     public static long getAsLong$(FXObject obj, int varNum, int position) {
-        return Util.objectToLong(obj.elem$(varNum, position));
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToLong(obj.elem$(varNum, position)) :
+            0L;
     }
 
     public float getAsFloat$(int varNum, int position) {
         return getAsFloat$(this, varNum, position);
     }
     public static float getAsFloat$(FXObject obj, int varNum, int position) {
-        return Util.objectToFloat(obj.elem$(varNum, position));
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToFloat(obj.elem$(varNum, position)) :
+            0f;
     }
 
     public double getAsDouble$(int varNum, int position) {
         return getAsDouble$(this, varNum, position);
     }
     public static double getAsDouble$(FXObject obj, int varNum, int position) {
-        return Util.objectToDouble(obj.elem$(varNum, position));
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToDouble(obj.elem$(varNum, position)) :
+            0.0;
     }
 }

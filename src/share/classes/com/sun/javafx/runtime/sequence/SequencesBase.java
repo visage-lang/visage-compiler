@@ -1150,4 +1150,8 @@ public class SequencesBase {
         int oldSize = instance.size$(varNum);
         replaceSlice(instance, varNum, (Sequence<? extends T>)null, 0, oldSize);
     }
+
+    public static boolean withinBounds(FXObject obj, int varNum, int position) {
+        return (position >= 0 && position < obj.size$(varNum));
+    }
 }
