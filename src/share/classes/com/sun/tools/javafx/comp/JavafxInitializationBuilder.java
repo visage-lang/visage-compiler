@@ -1425,7 +1425,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             if (!types.isSequence(bindeeSym.type)) {
                                 addStmt(CallStmt(attributeInvalidateName(bindeeSym), phaseArg()));
                             } else {
-                                addStmt(CallStmt(getReceiver(bindeeSym), attributeInvalidateName(bindeeSym),
+                                addStmt(CallStmt(attributeInvalidateName(bindeeSym),
                                                  startPosArg(),
                                                  endPosArg(),
                                                  newLengthArg(),
