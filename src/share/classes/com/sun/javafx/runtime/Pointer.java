@@ -53,6 +53,7 @@ public class Pointer implements KeyValueTarget {
         classToType.put(Character.TYPE, Type.INTEGER);
     }
 
+    @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Lcom/sun/javafx/runtime/Pointer;")
     public static Pointer make(FXObject obj, int varnum, Class varType) {
         Type type = classToType.get(varType);
         if (type == null) {
@@ -63,10 +64,6 @@ public class Pointer implements KeyValueTarget {
             }
         }
         return new Pointer(type, obj, varnum);
-    }
-
-    public static Pointer make(Object var) {
-        throw new UnsupportedOperationException("compiler should have rewritten this call!");
     }
     
     public static boolean equals(Pointer p1, Pointer p2) {

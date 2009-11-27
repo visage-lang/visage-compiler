@@ -71,10 +71,6 @@ public class FX {
         Builtins.println(val);
     }
 
-    public static boolean isInitialized(Object obj) {
-        return Builtins.isInitialized(obj);
-    }
-
     /**
      * Test if an instance variable has been initialized.
      *
@@ -82,6 +78,7 @@ public class FX {
      * @param offset offset of variable to be tested
      * @return true if the variable has been initialized
      */
+    @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
     public static boolean isInitialized(FXObject instance, int varOffset) {
         return Builtins.isInitialized(instance, varOffset);
     }

@@ -31,6 +31,7 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.JFXExpression;
 
+import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
@@ -448,21 +449,14 @@ public class JavafxLower implements JavafxVisitor {
         if (pointer_Make || builtins_isInitialized) {
                 JFXExpression varExpr = lower(tree.args.head);
                 ListBuffer<JFXExpression> syntheticArgs = ListBuffer.lb();
-                List<Type> argTypes = List.of(syms.javafx_FXObjectType, syms.intType);
                 syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.INST).setType(syms.javafx_FXObjectType));
                 syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
-                if (pointer_Make) {
-                    argTypes = argTypes.append(syms.classType);
-                }
-
-                Symbol methSym = rs.resolveQualifiedMethod(tree.pos(),
-                        env,
-                        pointer_Make ? syms.javafx_PointerType : syms.javafx_AutoImportRuntimeType,
-                        pointer_Make ? defs.make_PointerMethodName : defs.isInitialized_MethodName,
-                        rs.newMethTemplate(argTypes, List.<Type>nil()));
-                methSym.flags_field = sym.flags();
-                JavafxTreeInfo.setSymbol(meth, methSym);
-                meth.type = methSym.type;
+                
+                Symbol msym = builtins_isInitialized ?
+                    preTrans.makeSyntheticIsInitialized() :
+                    preTrans.makeSyntheticPointerMake();
+                JavafxTreeInfo.setSymbol(meth, msym);
+                meth.type = msym.type;
                 args = syntheticArgs.toList();
         }
         else if (sym instanceof MethodSymbol &&

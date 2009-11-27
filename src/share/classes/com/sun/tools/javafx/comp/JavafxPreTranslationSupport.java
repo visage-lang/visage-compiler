@@ -39,6 +39,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import static com.sun.tools.mjavac.code.TypeTags.*;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.Name;
 import javax.tools.JavaFileObject;
 
@@ -234,6 +235,30 @@ public class JavafxPreTranslationSupport {
             }
         }
         new NestedClassTypeLifter().scan(cdecl);
+    }
+
+    Symbol makeSyntheticIsInitialized() {
+        return new MethodSymbol(
+                Flags.PUBLIC | Flags.STATIC | JavafxFlags.FUNC_IS_INITIALIZED,
+                defs.isInitialized_MethodName,
+                new Type.MethodType(
+                    List.of(syms.javafx_FXObjectType, syms.intType),
+                    syms.booleanType,
+                    List.<Type>nil(),
+                    syms.methodClass),
+                syms.javafx_AutoImportRuntimeType.tsym);
+    }
+
+    Symbol makeSyntheticPointerMake() {
+        return new MethodSymbol(
+                Flags.PUBLIC | Flags.STATIC | JavafxFlags.FUNC_POINTER_MAKE,
+                defs.Pointer_make.methodName,
+                new Type.MethodType(
+                    List.of(syms.javafx_FXObjectType, syms.intType, types.erasure(syms.classType)),
+                    syms.javafx_PointerType,
+                    List.<Type>nil(),
+                    syms.methodClass),
+                syms.javafx_PointerType.tsym);
     }
 }
 

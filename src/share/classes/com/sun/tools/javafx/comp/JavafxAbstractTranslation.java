@@ -1659,7 +1659,17 @@ public abstract class JavafxAbstractTranslation
                     null);
             meth.sym = sym;
             meth.type = tree.type;
+            if (isBound) {
+                meth.mods.annotations = meth.mods.annotations.append(methodSignature());
+            }
             return meth;
+        }
+
+        private JCAnnotation methodSignature() {
+            JCAnnotation sig = make.Annotation(
+                    makeIdentifier(diagPos, syms.signatureAnnotationClassNameString),
+                    List.<JCExpression>of(makeLit(diagPos, syms.stringType, types.toSignature(sym.type))));
+            return sig;
         }
 
         protected SpecialResult doit() {

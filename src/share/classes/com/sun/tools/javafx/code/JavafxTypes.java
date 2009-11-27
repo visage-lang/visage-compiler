@@ -29,6 +29,7 @@ import com.sun.tools.mjavac.code.Type.*;
 import java.util.HashMap;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.jvm.ClassWriter;
 import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
@@ -40,6 +41,7 @@ import java.util.Set;
  */
 public class JavafxTypes extends Types {
     JavafxSymtab syms;
+    ClassWriter writer;
 
     private HashMap<ClassSymbol, JFXClassDeclaration> fxClasses;
 
@@ -66,6 +68,7 @@ public class JavafxTypes extends Types {
     protected JavafxTypes(Context context) {
         super(context);
         syms = (JavafxSymtab) JavafxSymtab.instance(context);
+        writer = ClassWriter.instance(context);
     }
 
     public boolean isSequence(Type type) {
@@ -699,5 +702,9 @@ public class JavafxTypes extends Types {
             }
         }
         return new TypeNormalizer().visit(t, false);
+    }
+
+    public String toSignature(Type t) {
+        return writer.typeSig(t).toString();
     }
 }

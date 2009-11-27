@@ -75,10 +75,6 @@ public class Builtins {
         }
     }
 
-    public static boolean isInitialized(Object instance) {
-        throw new UnsupportedOperationException("compiler should have rewritten this call!");
-    }
-
     /**
      * Test if an instance variable has been initialized.
      *
@@ -86,6 +82,7 @@ public class Builtins {
      * @param offset offset of variable to be tested
      * @return true if the variable has been initialized
      */
+    @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
     public static boolean isInitialized(FXObject instance, int offset) {
         return !instance.varTestBits$(offset,
                 FXObject.VFLGS$IS_INITIALIZED | FXObject.VFLGS$IS_BOUND,

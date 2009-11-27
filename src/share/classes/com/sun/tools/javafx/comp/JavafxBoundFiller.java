@@ -280,11 +280,9 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
 
                 // find the symbol of Pointer.make(Object) method.
                 // The select expression Pointer.make
-                Type pointerMakeType = pointerMakeMethodSym().type;
                 JFXSelect select = fxmake.Select(fxmake.Type(syms.javafx_PointerType), defs.make_PointerMethodName);
-                select.sym = pointerMakeMethodSym();
-                select.sym.flags_field |= JavafxFlags.FUNC_POINTER_MAKE;
-                select.type = pointerMakeType;
+                select.sym = preTrans.makeSyntheticPointerMake();
+                select.type = select.sym.type;
 
 
                 // args for Pointer.make(Object)
@@ -305,23 +303,4 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
             }
         }
     }
-
-    private MethodSymbol pointerMakeMethodSym() {
-        if (pointerMakeMethodSym == null) {
-            Symbol pointerSym = syms.javafx_PointerType.tsym;
-            for (Scope.Entry e1 = pointerSym.members().lookup(defs.make_PointerMethodName);
-                e1 != null;
-                e1 = e1.sibling) {
-                Symbol sym = e1.sym;
-                MethodSymbol msym = (MethodSymbol) sym;
-                if (msym.params().size() == 3) {
-                    pointerMakeMethodSym = msym;
-                    break;
-                }
-            }
-        }
-        assert pointerMakeMethodSym != null : "can't find Pointer.make(Object) method";
-        return pointerMakeMethodSym;
-    }
 }
-

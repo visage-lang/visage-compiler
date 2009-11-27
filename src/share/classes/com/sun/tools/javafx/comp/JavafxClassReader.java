@@ -382,7 +382,7 @@ public class JavafxClassReader extends ClassReader {
     
     MethodSymbol translateMethodSymbol(long flags, Symbol sym, Symbol owner) {
         Name name = sym.name;
-        Type type = translateType(sym.type);
+        Type mtype = sym.type;
         String nameString = name.toString();
         
         int boundStringIndex = nameString.indexOf(JavafxDefs.boundFunctionDollarSuffix);
@@ -392,7 +392,20 @@ public class JavafxClassReader extends ClassReader {
             nameString = nameString.substring(0, boundStringIndex);
             flags |= JavafxFlags.BOUND;
         }
-        
+        JavafxSymtab javafxSyms = (JavafxSymtab) this.syms;
+        for (Attribute.Compound ann : sym.getAnnotationMirrors()) {
+            if (ann.type.tsym.flatName() == javafxSyms.javafx_signatureAnnotationType.tsym.flatName()) {
+                String sig = (String)ann.values.head.snd.getValue();
+                signatureBuffer = new byte[sig.length()];
+                try {
+                    mtype = sigToType(names.fromString(sig));
+                }
+                catch (Exception e) {
+                    throw new AssertionError("Bad Javafx signature");
+                }
+            }
+        }
+        Type type = translateType(mtype);
         if (type instanceof MethodType) {
             boolean convertToStatic = false;
             
