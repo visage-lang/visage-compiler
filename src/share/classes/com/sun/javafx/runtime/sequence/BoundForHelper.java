@@ -65,6 +65,7 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
         this.forVarNum = forVarNum;
         this.inductionSeqVarNum = inductionSeqVarNum;
         this.dependsOnIndex = dependsOnIndex;
+        resetCache();
     }
 
     // Required public interface
@@ -120,6 +121,10 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
             }
             cumPrev = cum;
         }
+    }
+
+    protected void resetCache() {
+        cachePart = 0;
     }
 
     /** Get the size of part ipart. */

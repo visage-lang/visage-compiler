@@ -91,7 +91,10 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
         int newEndPos = cumLength(ipart + 1);
         int insertedLength = newEndPos - newStartPos;
 
-        // Send wholesale invalidation
+        resetCache();
+
+        // Send invalidation
+        //System.out.println("ipart: " + ipart + ", oldStart: " + oldStartPos + ", oldEndPos: " + oldEndPos + ", newEndPos: " + newEndPos + ", insertedLength: " + insertedLength);
         container.invalidate$(forVarNum, oldStartPos, oldEndPos, insertedLength, phase);
     }
 
@@ -188,6 +191,7 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
             }
             areCumulatedLengthsValid = false;
         }
+        resetCache();
     }
 }
 
