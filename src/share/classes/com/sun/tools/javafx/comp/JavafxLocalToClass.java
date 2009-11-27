@@ -354,9 +354,9 @@ public class JavafxLocalToClass {
                 if (oldScope != null) {
                     oldScope.remove(var.sym);
                 }
-                while (classSym.members().lookup(var.sym.name).sym != null) {
-                    var.sym.name = var.sym.name.append('$', var.sym.name);
-                }
+                
+                var.sym.name = preTrans.makeUniqueVarNameIn(var.sym.name, classSym);
+                
                 if (isStatic) {
                     var.sym.flags_field |= Flags.STATIC;
                     var.mods.flags |= Flags.STATIC;

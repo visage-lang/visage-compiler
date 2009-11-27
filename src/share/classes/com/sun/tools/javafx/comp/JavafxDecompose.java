@@ -165,6 +165,7 @@ public class JavafxDecompose implements JavafxVisitor {
     private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
         VarSymbol sym = new VarSymbol(flags, vName, types.normalize(type), varOwner);
+        varOwner.members().enter(sym);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
         JFXType fxType = preTrans.makeTypeTree(sym.type);
         JFXVar v = fxmake.at(diagPos).Var(vName, fxType, mod, pose, bindStatus, null, null);
@@ -930,7 +931,7 @@ public class JavafxDecompose implements JavafxVisitor {
             Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type), inductionType);
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
             init.type = helperType;
-            Name helperName = names.fromString("helper$"+currentVarSymbol.name);
+            Name helperName = preTrans.makeUniqueVarNameIn(names.fromString("helper$"+currentVarSymbol.name), varOwner);
             JFXVar helper = makeVar(tree, helperName, init, JavafxBindStatus.UNBOUND, helperType);
             //helper.sym.flags_field |= JavafxFlags.VARMARK_BARE_SYNTH;
             clause.boundHelper = helper;

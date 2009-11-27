@@ -260,5 +260,12 @@ public class JavafxPreTranslationSupport {
                     syms.methodClass),
                 syms.javafx_PointerType.tsym);
     }
+
+    Name makeUniqueVarNameIn(Name name, Symbol owner) {
+        while (owner.members().lookup(name).sym != null) {
+            name = name.append('$', name);
+        }
+        return name;
+    }
 }
 
