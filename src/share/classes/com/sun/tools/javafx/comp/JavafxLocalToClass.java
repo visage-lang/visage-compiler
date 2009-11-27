@@ -257,6 +257,12 @@ public class JavafxLocalToClass {
             }
 
             @Override
+            public void visitForExpression(JFXForExpression tree) {
+                needed |= needsToBeInflatedToClass(tree.getBodyExpression()) && referencesMutatedLocal(tree);
+                super.visitForExpression(tree);
+            }
+
+            @Override
             public void visitFunctionValue(JFXFunctionValue tree) {
                 // Funtion value may reference (non-final) locals
                 needed |= referencesMutatedLocal(tree);
