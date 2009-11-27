@@ -1691,7 +1691,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         defs.setInductionVar_BoundForPartMethodName,
                         List.of(Param(inductionType, defs.value_ArgName)),
                         owner,
-                        Stmt(m().Assign(id(attributeValueName(clause.inductionVarSym)), id(defs.value_ArgName)))
+                        CallStmt(attributeSetterName(clause.inductionVarSym), id(defs.value_ArgName))
                     );
         }
 
@@ -1704,7 +1704,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         defs.adjustIndex_BoundForPartMethodName,
                         List.of(Param(syms.intType, defs.value_ArgName)),
                         owner,
-                        Stmt(m().Assignop(JCTree.PLUS_ASG, id(attributeValueName(clause.indexVarSym)), id(defs.value_ArgName)))
+                        CallStmt(attributeSetterName(clause.indexVarSym),
+                            PLUS(
+                                id(attributeValueName(clause.indexVarSym)),
+                                id(defs.value_ArgName)))
                     );
         }
 
