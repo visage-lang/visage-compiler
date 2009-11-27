@@ -2550,7 +2550,7 @@ public abstract class JavafxAbstractTranslation
 
             if (1 < count) {
                 // final short[] jfx$0map = GETMAP$X();
-                JCExpression getmapExpr = Call(varGetMapName(classSym));
+                JCExpression getmapExpr = Call(null, varGetMapName(classSym)); //static method in toplevel class - no need for receiver
                 JCVariableDecl mapVar = TmpVar("map", syms.javafx_ShortArray, getmapExpr);
                 addPreface(mapVar);
 
