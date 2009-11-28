@@ -1183,15 +1183,17 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCVariableDecl vNewLen = TmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
 
                 return 
-                    If(isSequenceActive(),
+                    If(AND(isSequenceActive(), NOT(FlagChange(vsym(index), null, phaseArg()))),
                         Block(
                             vStart,
                             vOldLen,
                             If(IsInvalidatePhase(),
-                                CallSeqInvalidate(
-                                    id(vStart),
-                                    PLUS(id(vStart), id(vOldLen)),
-                                    Undefined()
+                                Block(
+                                    CallSeqInvalidate(
+                                        id(vStart),
+                                        PLUS(id(vStart), id(vOldLen)),
+                                        Undefined()
+                                    )
                                 ),
                             /*Else (Trigger phase)*/
                                 Block(

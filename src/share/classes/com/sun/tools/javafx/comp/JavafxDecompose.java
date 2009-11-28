@@ -873,7 +873,7 @@ public class JavafxDecompose implements JavafxVisitor {
             // Generate bare synth vars for the items
             ListBuffer<JFXVar> vb = ListBuffer.lb();
             for (JFXExpression item : tree.getItems()) {
-                vb.append(synthVar("item", item, item.type));
+                vb.append(shredVar("item", decompose(item), item.type));
             }
             res.boundItemsVars = vb.toList();
 
