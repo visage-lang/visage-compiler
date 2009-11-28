@@ -37,7 +37,7 @@ public interface FXObject {
     /**
      * Number of bits needed for each var.
      */
-    public static final int VFLGS$BITS_PER_VAR = 7;
+    public static final int VFLGS$BITS_PER_VAR = 8;
     
     /**
      * Number of var slots per word.
@@ -75,8 +75,8 @@ public interface FXObject {
     
     public int      getVFLGS$small$internal$();
     public void     setVFLGS$small$internal$(final int small);
-    public int[]    getVFLGS$large$internal$();
-    public void     setVFLGS$large$internal$(final int[] large);
+    public byte[]   getVFLGS$large$internal$();
+    public void     setVFLGS$large$internal$(final byte[] large);
 
     public boolean varTestBits$(final int varNum, int maskBits, int testBits);
     public boolean varChangeBits$(final int varNum, int clearBits, int setBits);

@@ -121,12 +121,12 @@ import com.sun.javafx.runtime.sequence.Sequences;
     /**
      * Status bits for vars.  Array is for bits greater than 32, null if not needed.
      */
-    public int   VFLGS$small$internal$;
-    public int[] VFLGS$large$internal$;
-    public int   getVFLGS$small$internal$()            { return VFLGS$small$internal$; }
-    public void  setVFLGS$small$internal$(int small)   { VFLGS$small$internal$ = small; }
-    public int[] getVFLGS$large$internal$()            { return VFLGS$large$internal$; }
-    public void  setVFLGS$large$internal$(int[] large) { VFLGS$large$internal$ = large; }
+    public int    VFLGS$small$internal$;
+    public byte[] VFLGS$large$internal$;
+    public int    getVFLGS$small$internal$()             { return VFLGS$small$internal$; }
+    public void   setVFLGS$small$internal$(int small)    { VFLGS$small$internal$ = small; }
+    public byte[] getVFLGS$large$internal$()             { return VFLGS$large$internal$; }
+    public void   setVFLGS$large$internal$(byte[] large) { VFLGS$large$internal$ = large; }
 
     /**
      * Allocate var status bits.
@@ -139,8 +139,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
 
         if (count > VFLGS$VARS_PER_WORD) {
             if (obj.getVFLGS$large$internal$() == null) {
-                int length = (count - 1) / VFLGS$VARS_PER_WORD;
-                obj.setVFLGS$large$internal$(new int[length]);
+                int length = count - VFLGS$VARS_PER_WORD;
+                obj.setVFLGS$large$internal$(new byte[length]);
             }
         }
     }
@@ -161,19 +161,17 @@ import com.sun.javafx.runtime.sequence.Sequences;
         printBits$(bits1);
         printBits$(bits2);
 
-        int index = varNum / VFLGS$VARS_PER_WORD;
-        int slot = varNum % VFLGS$VARS_PER_WORD;
-        int shift = slot * VFLGS$BITS_PER_VAR;
-        int word;
+        int index = varNum - VFLGS$VARS_PER_WORD;
+        int flags;
 
-        if (index > 0) {
-            index--;
-            int[] large = obj.getVFLGS$large$internal$();
-            word = large[index];
+        if (index >= 0) {
+            byte[] large = obj.getVFLGS$large$internal$();
+            flags = large[index];
         } else {
-            word = obj.getVFLGS$small$internal$();
+            int shift = varNum * VFLGS$BITS_PER_VAR;
+            flags = obj.getVFLGS$small$internal$() >> shift;
         }
-        printBits$((word >> shift) & ((1 << VFLGS$BITS_PER_VAR) - 1));
+        printBits$(flags);
 
         System.err.println();
     }
@@ -183,22 +181,18 @@ import com.sun.javafx.runtime.sequence.Sequences;
     }
     public static boolean varTestBits$(FXObject obj, final int varNum, int maskBits, int testBits) {
         //printBitsAction$("Tst", obj, varNum, maskBits, testBits);
-        int index = varNum / VFLGS$VARS_PER_WORD;
-        int slot = varNum % VFLGS$VARS_PER_WORD;
-        int shift = slot * VFLGS$BITS_PER_VAR;
-        maskBits <<= shift;
-        testBits <<= shift;
-        int word;
+        int index = varNum - VFLGS$VARS_PER_WORD;
+        int flags;
 
-        if (index > 0) {
-            index--;
-            int[] large = obj.getVFLGS$large$internal$();
-            word = large[index];
+        if (index >= 0) {
+            byte[] large = obj.getVFLGS$large$internal$();
+            flags = large[index];
         } else {
-            word = obj.getVFLGS$small$internal$();
+            int shift = varNum * VFLGS$BITS_PER_VAR;
+            flags = obj.getVFLGS$small$internal$() >> shift;
         }
 
-        return (word & maskBits) == testBits;
+        return (flags & maskBits) == testBits;
     }
 
     public boolean varChangeBits$(final int varNum, int clearBits, int setBits) {
@@ -206,26 +200,23 @@ import com.sun.javafx.runtime.sequence.Sequences;
     }
     public static boolean varChangeBits$(FXObject obj, final int varNum, int clearBits, int setBits) {
         //printBitsAction$("Chg", obj, varNum, clearBits, setBits);
-        int index = varNum / VFLGS$VARS_PER_WORD;
-        int slot = varNum % VFLGS$VARS_PER_WORD;
-        int shift = slot * VFLGS$BITS_PER_VAR;
-        clearBits <<= shift;
-        setBits <<= shift;
-        int word;
+        int index = varNum - VFLGS$VARS_PER_WORD;
+        int flags;
 
-        if (index > 0) {
-            index--;
-            int[] large = obj.getVFLGS$large$internal$();
-            word = large[index];
-            large[index] = (word & ~clearBits) | setBits;
+        if (index >= 0) {
+            byte[] large = obj.getVFLGS$large$internal$();
+            flags = large[index];
+            large[index] = (byte)((flags & ~clearBits) | setBits);
         } else {
-            word = obj.getVFLGS$small$internal$();
-            obj.setVFLGS$small$internal$((word & ~clearBits) | setBits);
+            flags = obj.getVFLGS$small$internal$();
+            int shift = varNum * VFLGS$BITS_PER_VAR;
+            obj.setVFLGS$small$internal$((flags & ~(clearBits << shift)) | (setBits << shift));
+            flags >>= shift;
         }
 
         int bits = clearBits | setBits;
 
-        return (word & bits) == bits;
+        return (flags & bits) == bits;
     }
 
     public void restrictSet$(final int varNum) {

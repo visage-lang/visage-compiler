@@ -204,11 +204,11 @@ public final class FXConstant extends Object implements FXObject {
     }
 
     // This class has only one field and is final. We don't need large flag field
-    public int[] getVFLGS$large$internal$() {
+    public byte[] getVFLGS$large$internal$() {
         throw new UnsupportedOperationException("large flags field is not needed for FXConstant!");
     }
 
-    public void setVFLGS$large$internal$(final int[] value) {
+    public void setVFLGS$large$internal$(final byte[] value) {
     }
 
     public int VFLGS$small$internal$;
