@@ -153,6 +153,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
         if ((bits & VFLGS$IS_READONLY) != 0)            System.err.print(" Readonly");
         if ((bits & VFLGS$DEFAULT_APPLIED) != 0)        System.err.print(" DefaultApplied");
         if ((bits & VFLGS$IS_INITIALIZED) != 0)         System.err.print(" Initialized");
+        if ((bits & VFLGS$AWAIT_VARINIT) != 0)          System.err.print(" Await");
         System.err.print(" )");
     }
 
