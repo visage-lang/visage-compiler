@@ -30,6 +30,7 @@ import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.mjavac.util.*;
 
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -67,7 +68,11 @@ public class JavafxTypeMorpher {
         boolean useAccessors() {
             // Don't use accessors for local variables. Without this
             // compiler generates method invoke for local var access!
-            return isFXMemberVariable();
+            return isFXMemberVariable()
+            /* FUTURE:
+            &&
+                    ((sym.flags_field & JavafxFlags.SCRIPT_PRIVATE) == 0
+                    || (sym.flags_field & JavafxFlags.VARUSE_NEED_ACCESSOR) != 0)*/;
         }
 
         boolean isMemberVariable() {

@@ -59,16 +59,16 @@ public class JavafxFlags {
 
     // Var/def usage info -- all usage info is within the script only 
     private static final long FIRST_VARUSE_FLAG        = LAST_VARMARK_FLAG << 1;
-    public static final long VARUSE_HAS_ON_REPLACE     = FIRST_VARUSE_FLAG << 0;  // has 'on replace' either in definition or override
-    public static final long VARUSE_HAS_ON_INVALIDATE  = FIRST_VARUSE_FLAG << 1;  // has 'on invalidate' either in definition or override
-    public static final long VARUSE_BOUND_INIT         = FIRST_VARUSE_FLAG << 2;  // defined as bound, initially, in obj lit, or override
-    public static final long VARUSE_ASSIGNED_TO        = FIRST_VARUSE_FLAG << 3;  // assigned ("=") to
-    public static final long VARUSE_OBJ_LIT_INIT       = FIRST_VARUSE_FLAG << 4;  // initialized in an obj lit, bound or not
-    public static final long VARUSE_FORWARD_REFERENCE  = FIRST_VARUSE_FLAG << 5;  // used before referenced
-    public static final long VARUSE_SELF_REFERENCE     = FIRST_VARUSE_FLAG << 6;  // the initializing expression references the var
-    public static final long VARUSE_DEFINITION_SEEN    = FIRST_VARUSE_FLAG << 7;  // we have seen the definition of the var (for forward reference)
-    public static final long VARUSE_OPT_TRIGGER        = FIRST_VARUSE_FLAG << 8;  // please document
-    public static final long VARUSE_TMP_IN_INIT_EXPR   = FIRST_VARUSE_FLAG << 9;  // temp flag, set while inside var's initializing expression
+    public static final long VARUSE_HAS_TRIGGER        = FIRST_VARUSE_FLAG << 0;  // has 'on replace' or 'on invalidate' either in definition or override
+    public static final long VARUSE_BOUND_INIT         = FIRST_VARUSE_FLAG << 1;  // defined as bound, initially, in obj lit, or override
+    public static final long VARUSE_ASSIGNED_TO        = FIRST_VARUSE_FLAG << 2;  // assigned ("=") to
+    public static final long VARUSE_OBJ_LIT_INIT       = FIRST_VARUSE_FLAG << 3;  // initialized in an obj lit, bound or not
+    public static final long VARUSE_FORWARD_REFERENCE  = FIRST_VARUSE_FLAG << 4;  // used before referenced
+    public static final long VARUSE_SELF_REFERENCE     = FIRST_VARUSE_FLAG << 5;  // the initializing expression references the var
+    public static final long VARUSE_DEFINITION_SEEN    = FIRST_VARUSE_FLAG << 6;  // we have seen the definition of the var (for forward reference)
+    public static final long VARUSE_OPT_TRIGGER        = FIRST_VARUSE_FLAG << 7;  // please document
+    public static final long VARUSE_TMP_IN_INIT_EXPR   = FIRST_VARUSE_FLAG << 8;  // temp flag, set while inside var's initializing expression
+    public static final long VARUSE_NEED_ACCESSOR      = FIRST_VARUSE_FLAG << 9;
     // This last shift + the last for modifiers + the last on marks must be <= 22 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags

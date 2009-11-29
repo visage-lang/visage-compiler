@@ -68,8 +68,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
                 VARUSE_FORWARD_REFERENCE |
                 VARUSE_SELF_REFERENCE |
                 VARUSE_OPT_TRIGGER |
-                VARUSE_HAS_ON_REPLACE |
-                VARUSE_HAS_ON_INVALIDATE |
+                VARUSE_HAS_TRIGGER |
                 VARUSE_OBJ_LIT_INIT;
 
         private void clearMark(Symbol sym) {
@@ -110,7 +109,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     private void markVarAccess(Symbol sym) {
         if (sym instanceof VarSymbol) {
             if (inBindContext) {
-                //mark(sym, VARUSE_USED_IN_BIND);
+                mark(sym, VARUSE_NEED_ACCESSOR);
             } else {
                 if (inLHS) {
                     // note the assignment the assignment
@@ -143,7 +142,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     private void scanVar(JFXAbstractVar tree) {
         boolean wasInBindContext = inBindContext;
-        inBindContext |= tree.isBound();
+        if (tree.isBound()) {
+            mark(tree.sym, VARUSE_NEED_ACCESSOR);
+            inBindContext = true;
+        }
         if (tree.getInitializer() != null) {
             tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
             scan(tree.getInitializer());
@@ -152,11 +154,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         mark(tree.sym, VARUSE_DEFINITION_SEEN);
         inBindContext = wasInBindContext;
         if (tree.getOnReplace() != null) {
-            mark(tree.sym, VARUSE_HAS_ON_REPLACE);
+            mark(tree.sym, VARUSE_HAS_TRIGGER);
+            mark(tree.sym, VARUSE_NEED_ACCESSOR);
             scan(tree.getOnReplace());
         }
         if (tree.getOnInvalidate() != null) {
-            mark(tree.sym, VARUSE_HAS_ON_INVALIDATE);
+            mark(tree.sym, VARUSE_HAS_TRIGGER);
+            mark(tree.sym, VARUSE_NEED_ACCESSOR);
             scan(tree.getOnInvalidate());
         }
     }
