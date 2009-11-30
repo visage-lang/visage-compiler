@@ -1364,6 +1364,10 @@ public abstract class JavafxTranslationSupport {
         JCBlock Block(JCStatement... stmts) {
             return Block(List.from(stmts));
         }
+        
+        boolean isBlockEmpty(JCBlock block) {
+            return block == null || block.getStatements().isEmpty();
+        }
 
         List<JCStatement> Stmts(JCStatement... stmts) {
             return List.from(stmts);
@@ -1383,6 +1387,28 @@ public abstract class JavafxTranslationSupport {
 
         JCExpression If(JCExpression cond, JCExpression thenExpr, JCExpression elseExpr) {
             return m().Conditional(cond, thenExpr, elseExpr);
+        }
+        
+        
+       /**
+         * Optimal If
+         */
+
+        JCStatement OptIf(JCExpression cond, JCStatement thenStmt) {
+            return OptIf(cond, thenStmt, null);
+        }
+
+        JCStatement OptIf(JCExpression cond, JCStatement thenStmt, JCStatement elseStmt) {
+            boolean noThen = thenStmt == null || (thenStmt instanceof JCBlock && isBlockEmpty((JCBlock)thenStmt));
+            boolean noElse = elseStmt == null || (elseStmt instanceof JCBlock && isBlockEmpty((JCBlock)elseStmt));
+            
+            if (!noThen) {
+                return If(cond, thenStmt, noElse ? null : elseStmt);
+            } if (!noElse) {
+                return If(NOT(cond), elseStmt, null);
+            }
+            
+            return null;
         }
 
         /**
