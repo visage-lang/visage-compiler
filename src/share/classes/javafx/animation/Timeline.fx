@@ -236,7 +236,7 @@ public class Timeline {
             validate();
             if (time < 0s) {
                 time = 0s;
-            } else if (time > Duration.valueOf(timelineDur)) {
+            } else if (timelineDur >= 0 and time > Duration.valueOf(timelineDur)) {
                 time = Duration.valueOf(timelineDur);
             } else {
                 doInterpolate(time.toMillis() as Number);
