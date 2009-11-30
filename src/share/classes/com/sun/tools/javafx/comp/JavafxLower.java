@@ -31,7 +31,6 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.tree.JFXExpression;
 
-import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
@@ -151,21 +150,17 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     JFXExpression convertTree(JFXExpression tree, Type type) {
-        boolean needSeqConversion = needSequenceConversion(tree, type);
-        if (needSeqConversion) {
-            type = types.elementType(type);
-        }
-        return tree = needSeqConversion ?
+        return tree = needSequenceConversion(tree, type) ?
             toSequence(tree, type) :
             makeCastIfNeeded(tree, type);
     }
 
     private boolean needSequenceConversion(JFXExpression tree, Type type) {
         return (types.isSequence(type) &&
-                ((!types.isSequence(tree.type) &&
-                tree.type != syms.unreachableType &&
-                !types.isArray(tree.type)) ||
-                isNull(tree)));
+            ((!types.isSequence(tree.type) &&
+            tree.type != syms.unreachableType &&
+            !types.isArray(tree.type)) ||
+            isNull(tree)));
     }
 
     /**
@@ -189,11 +184,26 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private JFXExpression toSequence(JFXExpression tree, Type type) {
-        JFXExpression expr = isNull(tree) ? 
-            m.at(tree.pos).EmptySequence() :
-            m.at(tree.pos).ExplicitSequence(List.of(makeCastIfNeeded(tree, type)));
-        expr.type = types.sequenceType(type);
-        return expr;
+        JFXExpression seqExpr = null;
+        if (isNull(tree)) {
+            seqExpr = m.at(tree.pos).EmptySequence().setType(type);
+        }
+        else if (types.isSameType(tree.type, syms.objectType) &&
+                types.isSubtypeUnchecked(syms.javafx_SequenceTypeErasure, type)) { //synthetic call
+            MethodSymbol msym = (MethodSymbol)rs.findIdentInType(env, syms.javafx_SequencesType, defs.Sequences_convertObjectToSequence.methodName, Kinds.MTH);
+            JFXExpression sequencesType = m.at(tree.pos).Type(syms.javafx_SequencesType).setType(syms.javafx_SequencesType);
+            JavafxTreeInfo.setSymbol(sequencesType, syms.javafx_SequencesType.tsym);
+            JFXIdent convertMeth = m.at(tree.pos).Ident(defs.Sequences_convertObjectToSequence.methodName);
+            convertMeth.sym = msym;
+            convertMeth.type = msym.type;
+            seqExpr = m.at(tree.pos).Apply(List.<JFXExpression>nil(), convertMeth, List.of(tree)).setType(msym.type.getReturnType());
+
+        }
+        else {
+            seqExpr = m.at(tree.pos).ExplicitSequence(List.of(makeCastIfNeeded(tree, types.elementType(type))));
+            seqExpr.type = type;
+        }
+        return seqExpr;
     }
 
     private JFXExpression makeCastIfNeeded(JFXExpression tree, Type type) {
@@ -644,7 +654,8 @@ public class JavafxLower implements JavafxVisitor {
     public void visitSequenceExplicit(JFXSequenceExplicit that) {
         ListBuffer<JFXExpression> buf = ListBuffer.lb();
         for (JFXExpression item : that.getItems()) {
-            Type typeToCheck = types.isArrayOrSequenceType(item.type) ?
+            Type typeToCheck = types.isSameType(item.type, syms.objectType) ||
+                    types.isArrayOrSequenceType(item.type) ?
                 that.type :
                 types.elementType(that.type);
             buf.append(lowerExpr(item, typeToCheck));
@@ -917,7 +928,8 @@ public class JavafxLower implements JavafxVisitor {
         }
         else {
             //single clause for expression - standard lowering
-            Type typeToCheck = types.isSequence(tree.getBodyExpression().type) ?
+            Type typeToCheck = types.isSameType(tree.getBodyExpression().type, syms.objectType) ||
+                    types.isSequence(tree.getBodyExpression().type) ?
                 tree.type :
                 types.elementType(tree.type);
             body = lowerExpr(tree.bodyExpr, typeToCheck);

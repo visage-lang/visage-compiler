@@ -413,6 +413,16 @@ public class SequencesBase {
     }
 
     /** Convert any numeric sequence to any other numeric sequence */
+    @SuppressWarnings("unchecked")
+    public static Sequence<? extends Object> convertObjectToSequence(Object obj) {
+        if (obj instanceof Sequence) {
+            return (Sequence<? extends Object>)obj;
+        }
+        else
+            return singleton(TypeInfo.Object, obj);
+    }
+
+    /** Convert any numeric sequence to any other numeric sequence */
     public static<T extends Number, V extends Number>
     Sequence<T> convertNumberSequence(NumericTypeInfo<T> toType, NumericTypeInfo<V> fromType, Sequence<? extends V> seq) {
         if (Sequences.size(seq) == 0) 
