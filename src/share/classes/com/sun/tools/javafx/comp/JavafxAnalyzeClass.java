@@ -294,6 +294,9 @@ class JavafxAnalyzeClass {
         // Predicate for def (constant) var.
         public boolean isDef() { return (getFlags() & JavafxFlags.IS_DEF) != 0; }
 
+        // Predicate for self-reference in init.
+        public boolean hasSelfReference() { return (getFlags() & JavafxFlags.VARUSE_SELF_REFERENCE) != 0; }
+
         // Predicate whether the var came from a mixin.
         public boolean isMixinVar() { return isMixinClass(sym.owner); }
 

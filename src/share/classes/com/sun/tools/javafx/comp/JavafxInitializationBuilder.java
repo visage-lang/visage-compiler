@@ -1072,7 +1072,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 VarSymbol varSym = varInfo.getSymbol();
                 
                 // If we need to prime the on replace trigger.
-                if (varInfo.onReplaceAsInline() != null) {
+                if (varInfo.onReplaceAsInline() != null || varInfo.isOverride()) {
                     if (varInfo.hasBoundDefinition()) {
                         if (!varInfo.generateSequenceAccessors()) {
                             init = CallStmt(attributeGetterName(varSym));
@@ -2481,6 +2481,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Set initialized flag if need be.
                             if (varInfo.hasInitializer()) {
                                 addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagIS_INITIALIZED));
+                            }
+
+                            // Variable with self-reference needs to have its VARINIT flag set eagerly
+                            if (varInfo.hasSelfReference()) {
+                                addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagDEFAULT_APPLIED_VARINIT));
                             }
                             
                             if (varInfo instanceof MixinClassVarInfo && !varInfo.hasInitializer()) {
