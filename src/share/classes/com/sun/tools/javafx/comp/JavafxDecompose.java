@@ -222,8 +222,10 @@ public class JavafxDecompose implements JavafxVisitor {
         return shred(tree, null);
     }
 
-    private JFXExpression shredUnlessSideEffectFree(JFXExpression tree) {
-        //TODO: for now just shred
+    private JFXExpression shredUnlessIdent(JFXExpression tree) {
+        if (tree instanceof JFXIdent) {
+            return decompose(tree);
+        }
         return shred(tree);
     }
 
@@ -455,7 +457,7 @@ public class JavafxDecompose implements JavafxVisitor {
         boolean cutOff = tag==JavafxTag.AND || tag==JavafxTag.OR;
         JFXExpression lhs = decomposeComponent(tree.lhs);
         JFXExpression rhs = cutOff?
-            shredUnlessSideEffectFree(tree.rhs) :  // If cut-off operation, preface code must be evaluated separately
+            shredUnlessIdent(tree.rhs) :  // If cut-off operation, preface code must be evaluated separately
             decomposeComponent(tree.rhs);
         JFXBinary res = fxmake.at(tree.pos).Binary(tag, lhs, rhs);
         res.operator = tree.operator;
@@ -465,7 +467,7 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitTypeCast(JFXTypeCast tree) {
         JFXTree clazz = decompose(tree.clazz);
         JFXExpression expr = (bindStatus.isBound() && types.isSequence(tree.type))?
-            shred(tree.expr) :
+            shredUnlessIdent(tree.expr) :
             decomposeComponent(tree.expr);
         result = fxmake.at(tree.pos).TypeCast(clazz, expr);
     }
@@ -526,7 +528,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitIdent(JFXIdent tree) {
         if (tree.sym.kind == Kinds.VAR &&
-                (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
+                (tree.sym.flags() & JavafxFlags.IS_DEF) == 0L &&
                 types.isJFXClass(tree.sym.owner) &&
                 !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName)) &&
                 bindStatus.isBound()) {
@@ -701,7 +703,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXOnReplace onInvalidate = decompose(tree.getOnInvalidate());
         // bound if was bind context or is bound variable
         bindStatus = tree.isBound()?
-                            JavafxBindStatus.UNIDIBIND :
+                            tree.getBindStatus() :
                             prevBindStatus;
 
         JFXExpression initExpr = decompose(tree.getInitializer());
@@ -886,9 +888,8 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitSequenceIndexed(JFXSequenceIndexed tree) {
         JFXExpression sequence = null;
         if (bindStatus.isBound()) {
-            sequence = shred(tree.getSequence());
-        }
-        else {
+            sequence = shredUnlessIdent(tree.getSequence());
+        } else {
             sequence = decomposeComponent(tree.getSequence());
         }
         JFXExpression index = decomposeComponent(tree.getIndex());
@@ -1016,7 +1017,7 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXOnReplace onInvalidate = decompose(tree.getOnInvalidate());
         // bound if was bind context or is bound variable
         bindStatus = tree.isBound()?
-                            JavafxBindStatus.UNIDIBIND :
+                            tree.getBindStatus() :
                             prevBindStatus;
         JFXExpression initializer = shred(tree.getInitializer());
         JFXOverrideClassVar res = fxmake.at(tree.pos).OverrideClassVar(tree.getName(),

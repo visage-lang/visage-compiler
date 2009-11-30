@@ -85,7 +85,7 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
         // any changes here should also go into visitOverrideClassVar
         JavafxBindStatus prevBindStatus = bindStatus;
         bindStatus = tree.isBound()?
-                            JavafxBindStatus.UNIDIBIND :
+                            tree.getBindStatus() :
                             prevBindStatus;
         mark(tree);
         scan(tree.getInitializer());
