@@ -239,6 +239,11 @@ class JavafxAnalyzeClass {
         // Return true if the var/override has an initializing expression
         public boolean hasInitializer() { return false; }
 
+        // true if this variable is initialized with a "safe" expression -
+        // so that we don't need a try..catch error handler wrapper in it's
+        // getter method.
+        public boolean hasSafeInitializer() { return false; }
+
         // Return true if the var has a VarInit
         public boolean hasVarInit() { return false; }
 
@@ -567,6 +572,20 @@ class JavafxAnalyzeClass {
 
         // Returns the tree for the javafx var.
         public JFXVar jfxVar() { return var; }
+
+        @Override
+        public boolean hasSafeInitializer() {
+            // For now, we check if initializer expression is a literal or ident
+            // or a select. Revisit this for more opportunities for optimization.
+            if (hasInitializer()) {
+                JavafxTag tag = var.getInitializer().getFXTag();
+                return tag == JavafxTag.LITERAL ||
+                       tag == JavafxTag.IDENT ||
+                       tag == JavafxTag.SELECT;
+            } else {
+                return false;
+            }
+        }
         
         // Return true if the var has a VarInit
         @Override

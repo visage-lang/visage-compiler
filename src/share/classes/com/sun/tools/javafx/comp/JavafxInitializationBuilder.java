@@ -1569,8 +1569,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (varInfo.isBareSynth()) {
                         // return bound-expression
                         addStmts(varInfo.boundPreface());
-                        JCStatement returnDefault = Return(makeDefaultValue(diagPos, varInfo.getVMI()));
-                        addStmt(TryWithErrorHandler(Return(varInfo.boundInit()), returnDefault));
+                        if (varInfo.hasSafeInitializer()) {
+                            addStmt(Return(varInfo.boundInit()));
+                        } else {
+                            JCStatement returnDefault = Return(makeDefaultValue(diagPos, varInfo.getVMI()));
+                            addStmt(TryWithErrorHandler(Return(varInfo.boundInit()), returnDefault));
+                        }
                     } else {
                         JCStatement initIf = null;
                         if (!varInfo.isStatic()) {
@@ -1666,9 +1670,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                         makeDefaultValue(diagPos, varInfo.getVMI()));
                                 addStmt(If(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
                             } else {
-                                JCExpression defaultValue = makeDefaultValue(diagPos, varInfo.getVMI());
-                                JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym), defaultValue);
-                                addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
+                                if (varInfo.hasSafeInitializer()) {
+                                    addStmt(CallStmt(attributeBeName(varSym), initValue));
+                                } else {
+                                    JCExpression defaultValue = makeDefaultValue(diagPos, varInfo.getVMI());
+                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym), defaultValue);
+                                    addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
+                                }
                             }
                           
                             // Is it bound and invalid?
