@@ -164,15 +164,14 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
                 if (selectorSymbol != null) {
                     JCExpression receiver = null;
-                    if (!selectedVarSymbol.isStatic() && selectorSymbol.kind == Kinds.TYP &&
-                        currentClass().sym.isSubClass(selectorSymbol, types)) {
+                    if (!selectedVarSymbol.isStatic() &&
+                            selectorSymbol.kind == Kinds.TYP &&
+                            currentClass().sym.isSubClass(selectorSymbol, types)) {
                         receiver = id(names._super);
                     } else {
                         JCVariableDecl selector =
                             TmpVar(syms.javafx_FXObjectType,
-                                selectedVarSymbol.isStatic() ?
-                                    Call(makeType(selectorSymbol.type), scriptLevelAccessMethod(selectorSymbol)) :
-                                    Call(attributeGetterName(selectorSymbol)));
+                                Call(attributeGetterName(selectorSymbol)));
                         addPreface(selector);
                         receiver = id(selector);
                     }
@@ -181,12 +180,16 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     //note: we have to use the set$(int, FXBase) version because
                     //the set$xxx version is not always accessible from the
                     //selector expression (if selector is XXX$Script class)
-                    JCStatement setter = CallStmt(receiver,
-                            defs.set_FXObjectMethodName,
-                            Offset(receiver, selectedVarSymbol),
-                            id(value)); //FIXME: is this mixin safe?
-                    JCExpression conditionExpr = NE(receiver, Null());
-                    addPreface(If(conditionExpr, Block(setter)));
+                    addPreface(
+                        If(NEnull(receiver),
+                            Block(
+                                CallStmt(receiver, defs.set_FXObjectMethodName,
+                                    Offset(receiver, selectedVarSymbol),
+                                    id(value)   //FIXME: is this mixin safe?
+                                )
+                            )
+                        )
+                    );
                 } else {
                     addPreface(CallStmt(attributeSetterName(selectedVarSymbol), id(value)));
                 }
