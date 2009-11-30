@@ -376,8 +376,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     private class BoundSelectTranslator extends SelectTranslator {
 
-        BoundSelectTranslator(JFXSelect tree) {
+        protected final VarSymbol selectResSym;
+
+        BoundSelectTranslator(JFXSelect tree, VarSymbol selectResSym) {
             super(tree);
+            this.selectResSym = selectResSym;
         }
 
         @Override
@@ -394,66 +397,50 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return (ExpressionResult) super.doit();
         }
 
-        /**
-         * Override to handle mutable selector changing dependencies
-         *
-         *  // def w = bind r.v
-         * 	String get$w() {
-         *	  if ( ! isValidValue$( VOFF$w ) ) {
-         *	    Baz oldSelector = $r;
-         *	    Baz newSelector = get$r();
-         *	    switchDependence$(VOFF$v, oldSelector, newSelector);
-         *	    be$w( (newSelector==null)? "" : newSelector.get$v() );
-         *	  }
-         *	  return $w;
-         *	}
-         */
         protected void buildDependencies(Symbol selectorSym) {
-                if (types.isJFXClass(selectorSym.owner) && types.isJFXClass(targetSymbol.owner) && types.isJFXClass(tree.sym.owner)) {
+                if (types.isJFXClass(selectorSym.owner) && types.isJFXClass(tree.sym.owner)) {
                     Type selectorType = selectorSym.type;
-                    JCExpression rcvr = getReceiverOrThis(targetSymbol);
  
                     JCVariableDecl oldSelector = TmpVar(selectorType, Get(selectorSym));
                     addPreface(oldSelector);
                     JCVariableDecl newSelector = TmpVar(selectorType, Call(attributeGetterName(selectorSym)));
                     addPreface(newSelector);
                     
-                    JCExpression oldOffset;
-                    JCExpression newOffset;
-                    
                     if (isMixinVar(tree.sym)) {
-                        oldOffset =
+                        JCExpression oldOffset =
                             If (EQnull(id(oldSelector)),
                                 Int(0),
                                 Offset(id(oldSelector), tree.sym));
-                        
-                        newOffset =
+                         JCExpression newOffset =
                             If (EQnull(id(newSelector)),
                                 Int(0),
                                 Offset(id(newSelector), tree.sym));
+                        addSwitchDependence(id(oldSelector), id(newSelector), newOffset, oldOffset);
                     } else {
                         JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(tree.sym));
                         addPreface(offsetVar);
-                        oldOffset = id(offsetVar);
-                        newOffset = id(offsetVar);
+                        addSwitchDependence(id(oldSelector), id(newSelector), id(offsetVar), id(offsetVar));
                     }
+                }
+        }
 
+        protected void addSwitchDependence(JCExpression oldSelector, JCExpression newSelector, JCExpression oldOffset, JCExpression newOffset) {
+                    JCExpression rcvr = getReceiverOrThis(selectResSym);
                     if (isBidiBind) {
-                        JCVariableDecl selectorOffset = TmpVar(syms.intType, Offset(targetSymbol));
+                        JCVariableDecl selectorOffset = TmpVar(syms.intType, Offset(selectResSym));
                         addPreface(selectorOffset);
-                        
+
                         addPreface(CallStmt(defs.FXBase_switchBiDiDependence,
                                 rcvr,
                                 id(selectorOffset),
-                                id(oldSelector), oldOffset,
-                                id(newSelector), newOffset));
+                                oldSelector, oldOffset,
+                                newSelector, newOffset));
                     } else {
-                        addPreface(CallStmt(defs.FXBase_switchDependence,
+                       addPreface(CallStmt(defs.FXBase_switchDependence,
                                 rcvr,
-                                id(oldSelector), oldOffset,
-                                id(newSelector), newOffset));
-                    }
-                }
+                                oldSelector, oldOffset,
+                                newSelector, newOffset));
+                     }
         }
     }
 
@@ -1999,7 +1986,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             // We want to translate to a bound sequence
             result = new BoundSelectSequenceTranslator(tree).doit();
         } else {
-            result = new BoundSelectTranslator(tree).doit();
+            result = new BoundSelectTranslator(tree, targetSymbol).doit();
         }
     }
 

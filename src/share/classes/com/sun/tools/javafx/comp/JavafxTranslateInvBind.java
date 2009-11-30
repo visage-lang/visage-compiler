@@ -135,6 +135,16 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     Return (Call(Get(targetSymbol), defs.get_SequenceMethodName, posArg()))
                 );
         }
+
+        /**
+         * Redirecting invalidate
+         */
+        JCStatement makeInvalidate() {
+            return
+                Block(
+//                    CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
+                );
+        }
     }
 
     private class BidirectionalBoundTranslator extends ExpressionTranslator {

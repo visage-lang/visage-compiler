@@ -327,9 +327,6 @@ class JavafxAnalyzeClass {
         // Empty or Java preface code for getter of bound variable
         public List<JCStatement> boundPreface() { return List.<JCStatement>nil(); }
 
-        // Null or Java code for setting of bound with inverse variable
-        public JCExpression boundInvSetter() { return null; }
-
         // Empty or Java preface code for setting of bound with inverse variable
         public List<JCStatement> boundInvSetterPreface() { return List.<JCStatement>nil(); }
 
@@ -494,10 +491,6 @@ class JavafxAnalyzeClass {
         // Null or Java preface code for getter of bound variable
         @Override
         public List<JCStatement> boundPreface() { return bindOrNull==null? List.<JCStatement>nil() : bindOrNull.statements(); }
-
-        // Null or Java code for setting of bound with inverse variable
-        @Override
-        public JCExpression boundInvSetter() { return invBindOrNull==null? null : invBindOrNull.expr(); }
 
         // Empty or Java preface code for setting of bound with inverse variable
         @Override
@@ -718,12 +711,6 @@ class JavafxAnalyzeClass {
         @Override
         public List<JCStatement> boundPreface() {
             return hasOverrideVar() ? overrideVar().boundPreface() : super.boundPreface();
-        }
-
-        // Null or Java code for setting of bound with inverse variable
-        @Override
-        public JCExpression boundInvSetter() {
-            return hasOverrideVar() ? overrideVar().boundInvSetter() : super.boundInvSetter();
         }
 
         // Empty or Java preface code for setting of bound with inverse variable
