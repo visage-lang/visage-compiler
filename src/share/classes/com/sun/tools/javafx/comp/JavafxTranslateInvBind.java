@@ -31,6 +31,7 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
 /**
  * Translate an inversion of bind expressions.
@@ -43,9 +44,9 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         new Context.Key<JavafxTranslateInvBind>();
 
     Type targettedType;
-    Symbol targetSymbol;
-    Symbol selectSymbol;
-    VarSymbol selectVarSymbol;
+    VarSymbol targetSymbol;
+    Symbol selectorSymbol;
+    VarSymbol selectedVarSymbol;
     
 
     public static JavafxTranslateInvBind instance(Context context) {
@@ -65,21 +66,94 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
     ExpressionResult translate(JFXExpression expr, Type type, Symbol symbol) {
         targettedType = type;
-        targetSymbol = symbol;
-        selectSymbol = null;
-        selectVarSymbol = null;
+        targetSymbol = (VarSymbol) symbol;
+        selectorSymbol = null;
+        selectedVarSymbol = null;
         
         final ExpressionResult invertedExpression = translateToExpressionResult(expr, targettedType);
 
-        return (new ExpressionTranslator(expr.pos()) {
-            protected ExpressionResult doit() {
+        if (types.isSequence(type)) {
+            return new BidirectionalBoundSequenceTranslator(expr.pos()).doit();
+        } else {
+            return new BidirectionalBoundTranslator(expr.pos(), invertedExpression).doit();
+        }
+    }
+
+    private class BidirectionalBoundSequenceTranslator extends ExpressionTranslator {
+
+        BidirectionalBoundSequenceTranslator(DiagnosticPosition diagPos) {
+            super(diagPos);
+        }
+
+        BoundSequenceResult doit() {
+            return new BoundSequenceResult(bindees(), invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
+        }
+
+        // ---- Stolen from BoundSequenceTranslator ----
+        //TODO: unify
+
+        JCExpression isSequenceDormantSetActive() {
+            return NOT(FlagChange(targetSymbol, null, defs.varFlagDEFAULT_APPLIED));
+        }
+
+        JCExpression isSequenceActive() {
+            return FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED);
+        }
+
+        JCExpression CallSize(Symbol sym) {
+            return CallSize(getReceiver(), sym);
+        }
+
+        JCExpression CallSize(JCExpression rcvr, Symbol sym) {
+            return Call(rcvr, attributeSizeName(sym));
+        }
+
+
+        /**
+         * size$ method
+         */
+        JCStatement makeSizeBody() {
+            return
+                Block(
+                    If(isSequenceDormantSetActive(),
+                        Block(
+                         )
+                    ),
+                    Return( Call(Get(targetSymbol), defs.size_SequenceMethodName) )
+                );
+        }
+
+        /**
+         * elem$ method
+         */
+        JCStatement makeGetElementBody() {
+            return
+                Block(
+                    If(NOT(isSequenceActive()),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return (Call(Get(targetSymbol), defs.get_SequenceMethodName, posArg()))
+                );
+        }
+    }
+
+    private class BidirectionalBoundTranslator extends ExpressionTranslator {
+
+        private final ExpressionResult invertedExpression;
+
+        BidirectionalBoundTranslator(DiagnosticPosition diagPos, ExpressionResult invertedExpression) {
+            super(diagPos);
+            this.invertedExpression = invertedExpression;
+        }
+
+        protected ExpressionResult doit() {
                 /*
                   type tmp0 = inv expression(varNewValue$);
                   set$varSym(tmp0);
                   varNewValue$
-                  
+
                   or
-                  
+
                   type tmp0 = inv expression(varNewValue$);
                   seltype tmp1 = get$select();
                   if (tmp1 != null) tmp1.set$varSym(tmp0);
@@ -87,18 +161,18 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 */
                 JCVariableDecl value = TmpVar(targettedType, invertedExpression.expr());
                 addPreface(value);
-                
-                if (selectSymbol != null) {
+
+                if (selectorSymbol != null) {
                     JCExpression receiver = null;
-                    if (!selectVarSymbol.isStatic() && selectSymbol.kind == Kinds.TYP &&
-                        currentClass().sym.isSubClass(selectSymbol, types)) {
+                    if (!selectedVarSymbol.isStatic() && selectorSymbol.kind == Kinds.TYP &&
+                        currentClass().sym.isSubClass(selectorSymbol, types)) {
                         receiver = id(names._super);
                     } else {
                         JCVariableDecl selector =
                             TmpVar(syms.javafx_FXObjectType,
-                                selectVarSymbol.isStatic() ? 
-                                    Call(makeType(selectSymbol.type), scriptLevelAccessMethod(selectSymbol)) :
-                                    Call(attributeGetterName(selectSymbol)));
+                                selectedVarSymbol.isStatic() ?
+                                    Call(makeType(selectorSymbol.type), scriptLevelAccessMethod(selectorSymbol)) :
+                                    Call(attributeGetterName(selectorSymbol)));
                         addPreface(selector);
                         receiver = id(selector);
                     }
@@ -109,18 +183,18 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     //selector expression (if selector is XXX$Script class)
                     JCStatement setter = CallStmt(receiver,
                             defs.set_FXObjectMethodName,
-                            Offset(receiver, selectVarSymbol),
+                            Offset(receiver, selectedVarSymbol),
                             id(value)); //FIXME: is this mixin safe?
                     JCExpression conditionExpr = NE(receiver, Null());
                     addPreface(If(conditionExpr, Block(setter)));
                 } else {
-                    addPreface(CallStmt(attributeSetterName(selectVarSymbol), id(value)));
+                    addPreface(CallStmt(attributeSetterName(selectedVarSymbol), id(value)));
                 }
-                
+
                 return toResult(id(defs.varNewValue_ArgName), targettedType);
             }
-        }).doit();
     }
+
 
     /***********************************************************************
      *
@@ -141,7 +215,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
     public void visitIdent(final JFXIdent tree) {
         result = (new ExpressionTranslator(tree.pos()) {
             protected ExpressionResult doit() {
-                selectVarSymbol = (VarSymbol)tree.sym;
+                selectedVarSymbol = (VarSymbol)tree.sym;
                 return toResult(id(defs.varNewValue_ArgName), targettedType);
             }
         }).doit();
@@ -153,8 +227,8 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                 JFXExpression selectorExpr = tree.getExpression();
                 assert selectorExpr instanceof JFXIdent : "should be another var in the same instance.";
                 JFXIdent selector = (JFXIdent)selectorExpr;
-                selectSymbol = selector.sym;
-                selectVarSymbol = (VarSymbol)tree.sym;
+                selectorSymbol = selector.sym;
+                selectedVarSymbol = (VarSymbol)tree.sym;
                 return toResult(id(defs.varNewValue_ArgName), targettedType);
             }
         }).doit();
@@ -230,6 +304,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         disallowedInInverseBind();
     }
 
+    @Override
     public void visitInterpolateValue(JFXInterpolateValue tree) {
         disallowedInInverseBind();
     }
@@ -239,6 +314,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         disallowedInInverseBind();
     }
 
+    @Override
     public void visitParens(JFXParens tree) {
         disallowedInInverseBind();
     }
