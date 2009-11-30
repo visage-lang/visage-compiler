@@ -1013,7 +1013,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 cases.append(m().Case(tag, endBlockAsList()));
                             } else {
                                 // Test to see if it's the correct var.
-                                ifStmt = If(EQ(Offset(varInfo.getSymbol()), varNumArg()), endBlock(), ifStmt);
+                                ifStmt = OptIf(EQ(Offset(varInfo.getSymbol()), varNumArg()), endBlock(), ifStmt);
                             }
                         } else {
                             endBlock();
@@ -1152,7 +1152,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
 
                         // if (uninitialized) { applyDefaults$(VOFF$var); }
-                        initIf = If(initCondition, endBlock(), null);
+                        initIf = OptIf(initCondition, endBlock(), null);
                     }
 
                     if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
@@ -1179,7 +1179,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
                         // if (invalid) { set$var(init/bound expression); }
-                        addStmt(If(condition, endBlock(), initIf));
+                        addStmt(OptIf(condition, endBlock(), initIf));
                     } else {  
                         // Begin if block.
                         beginBlock();
@@ -1195,7 +1195,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(SetStmt(proxyVarSym, newExpr));
                         
                         // If (seq$ == null && isBound) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
-                        addStmt(If(AND(EQ(Get(proxyVarSym), makeDefaultValue(diagPos, varInfo.getVMI())), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
+                        addStmt(OptIf(AND(EQ(Get(proxyVarSym), makeDefaultValue(diagPos, varInfo.getVMI())), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
                                 endBlock(), initIf));
                     }
                     
@@ -1251,7 +1251,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     id(tmpPtrVar),
                                     defs.get_PointerMethodName,
                                     posArg());
-                            addStmt(If(ptrNonNullCond, 
+                            addStmt(OptIf(ptrNonNullCond, 
                                         Return(castFromObject(apply, varInfo.getElementType())),
                                         Return(makeDefaultValue(varInfo.pos(), typeMorpher.typeMorphInfo(varInfo.getElementType())))
                                       )
@@ -1323,7 +1323,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             JCExpression apply = Call(
                                     Call(ptrAccessorName),
                                     defs.size_PointerMethodName);
-                            addStmt(If(NEnull(id(newPtrVar)),
+                            addStmt(OptIf(NEnull(id(newPtrVar)),
                                         Block(setValid, Return(apply)),
                                         Return(Int(JavafxDefs.UNDEFINED_MARKER_INT))
                                       )
@@ -1464,7 +1464,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
                        
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
-                        addStmt(If(ifTriggerPhase,
+                        addStmt(OptIf(ifTriggerPhase,
                                 endBlock()));
                     }
                 }
@@ -1588,7 +1588,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
     
                             // if (uninitialized) { applyDefaults$(VOFF$var); }
-                            initIf = If(initCondition,
+                            initIf = OptIf(initCondition,
                                     endBlock());
                         }
 
@@ -1617,7 +1617,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
 
                             // if (invalid) { set$var(init/bound expression); }
-                            addStmt(If(condition, 
+                            addStmt(OptIf(condition, 
                                     endBlock(),
                                     initIf));
 
@@ -1668,7 +1668,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                                 JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
                                         makeDefaultValue(diagPos, varInfo.getVMI()));
-                                addStmt(If(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
+                                addStmt(OptIf(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
                             } else {
                                 if (varInfo.hasSafeInitializer()) {
                                     addStmt(CallStmt(attributeBeName(varSym), initValue));
@@ -1683,7 +1683,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
                             
                             // if (bound and invalid) { set$var(init/bound expression); }
-                            addStmt(If(condition, 
+                            addStmt(OptIf(condition, 
                                     endBlock(),
                                     initIf));
                         } else {
@@ -1727,7 +1727,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Test to see if bound.
                         JCExpression ifBoundTest = FlagTest(varSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND);
                         // if (!isBound$(VOFF$var)) { set$other(inv bound expression); }
-                        addStmt(If(ifBoundTest,
+                        addStmt(OptIf(ifBoundTest,
                                 endBlock()));
                     }
                     
@@ -1803,7 +1803,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     JCBlock elseBlock = endBlock();
     
                     // if (varOldValue$ != varNewValue$) { handle change }
-                    addStmt(If(testExpr, 
+                    addStmt(OptIf(testExpr, 
                             thenBlock,
                             elseBlock));
    
@@ -1871,7 +1871,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }
                     
-                   // Wrap up main block.
+                    // Wrap up main block.
                     JCBlock mainBlock = endBlock();
                     
                     // Necessary to call mixin parent in else in case the var is a bare synth.
@@ -1884,12 +1884,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     if (override) {
                         // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                        addStmt(If(NOT(FlagTest(proxyVarSym, phaseArg(), phaseArg())),
+                        addStmt(OptIf(NOT(FlagTest(proxyVarSym, phaseArg(), phaseArg())),
                                 mainBlock, mixinBlock));
                     } else {
                         // notifyDependents(VOFF$var, phase$);
                         addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
-                         // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
+                    
+                        // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
                         addStmt(If(NOT(FlagChange(proxyVarSym, null, phaseArg())),
                                 mainBlock, mixinBlock));
                     }
@@ -1911,7 +1912,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
                        
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
-                        addStmt(If(ifTriggerPhase,
+                        addStmt(OptIf(ifTriggerPhase,
                                 endBlock()));
                     }
                 }
@@ -2267,7 +2268,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // VCNT$ == -1
                     JCExpression condition = EQ(id(defs.count_FXObjectFieldName), Int(-1));
                     // if (VCNT$ == -1) { ...
-                    addStmt(If(condition,
+                    addStmt(OptIf(condition,
                             endBlock()));
                     // return VCNT$;
                     addStmt(Return(id(defs.count_FXObjectFieldName)));
@@ -2503,7 +2504,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     cases.append(m().Case(tag, endBlockAsList()));
                                 } else {
                                     // Test to see if it's the correct var.
-                                    ifStmt = If(EQ(Offset(varInfo.getSymbol()), varNumArg()), endBlock(), ifStmt);
+                                    ifStmt = OptIf(EQ(Offset(varInfo.getSymbol()), varNumArg()), endBlock(), ifStmt);
                                 }
                             } else {
                                 endBlock();
@@ -2546,7 +2547,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // if (!default_applied && !varinit)
                     JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagDEFAULT_APPLIED_VARINIT, null);
                     // if (!default_applied && !varinit) { body }
-                    addStmt(If(ifExpr, endBlock()));
+                    addStmt(OptIf(ifExpr, endBlock()));
                 }
             };
             
@@ -2679,7 +2680,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                             addStmt(invalidate(types.isSequence(varSym.type), varSym));
 
-                            ifReferenceStmt = If(ifReferenceCond,
+                            ifReferenceStmt = OptIf(ifReferenceCond,
                                     endBlock(),
                                     ifReferenceStmt);
                             addStmt(ifReferenceStmt);
@@ -2720,7 +2721,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                                 addStmt(invalidate(types.isSequence(param.type), param));
 
-                                ifReferenceStmt = If(ifReferenceCond,
+                                ifReferenceStmt = OptIf(ifReferenceCond,
                                         endBlock(),
                                         ifReferenceStmt);
                                 addStmt(ifReferenceStmt);
@@ -2748,14 +2749,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             if (isMixinVar(referenceVar)) {
                                 offsetExpr = If(EQnull(id(attributeValueName(instanceVar))), Int(0), Offset(id(attributeValueName(instanceVar)), referenceVar));
                             }
-                            ifReferenceStmt = If(EQ(varNumArg(), offsetExpr), 
+                            ifReferenceStmt = OptIf(EQ(varNumArg(), offsetExpr), 
                                     endBlock(),
                                     ifReferenceStmt);
                         }
                         addStmt(ifReferenceStmt);
                         
                         JCExpression ifInstanceCond = EQ(updateInstanceArg(), Get(instanceVar));
-                        addStmt(If(ifInstanceCond,
+                        addStmt(OptIf(ifInstanceCond,
                                 endBlock()));
                     }
                     
@@ -3465,7 +3466,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                 stmts =
                     Stmts(
-                        If(EQnull(id(defs.scriptLevelAccess_FXObjectFieldName)),
+                        OptIf(EQnull(id(defs.scriptLevelAccess_FXObjectFieldName)),
                             Block(
                                 assignNew,
                                 CallStmt(id(defs.scriptLevelAccess_FXObjectFieldName), defs.initialize_FXObjectMethodName)

@@ -287,6 +287,9 @@ class JavafxAnalyzeClass {
 
         // Predicate for private var test.
         public boolean isPrivateAccess() { return (getFlags() & Flags.PRIVATE) != 0L; }
+        
+        // Predicate for script private var test.
+        public boolean isScriptPrivate() { return (getFlags() & JavafxFlags.SCRIPT_PRIVATE) != 0L; }
 
         // Predicate for def (constant) var.
         public boolean isDef() { return (getFlags() & JavafxFlags.IS_DEF) != 0; }
@@ -377,6 +380,7 @@ class JavafxAnalyzeClass {
                                ", owner=" + getSymbol().owner +
                                (isStatic() ? ", static" : "") +
                                (isPrivateAccess() ? ", private" : "") +
+                               (isScriptPrivate() ? ", script private" : "") +
                                (useAccessors() ? ", useAccessors" : "") +
                                (needsCloning() ? ", clone" : "") +
                                (isDef() ? ", isDef" : "") +
