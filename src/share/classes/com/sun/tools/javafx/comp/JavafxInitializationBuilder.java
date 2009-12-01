@@ -563,6 +563,32 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
             return var;
         }
+        
+        //
+        // Determine if a var can be initialized simply.
+        //
+        public boolean useSimpleInit(VarInfo varInfo) {
+            if (!varInfo.useAccessors() && !varInfo.isSequence() && varInfo instanceof TranslatedVarInfo) {
+                JFXVar var = ((TranslatedVarInfo)varInfo).jfxVar();
+                JFXExpression init = var.getInitializer();
+                return init != null && init instanceof JFXLiteral;
+            }
+            
+            return false;
+        }
+        
+        //
+        // Generate a simple init expression for the var.
+        //
+        public JCExpression getSimpleInit(VarInfo varInfo) {
+            if (useSimpleInit(varInfo)) {
+                JFXVar var = ((TranslatedVarInfo)varInfo).jfxVar();
+                return toJava.translateToExpression(var.getInitializer(), varInfo.getRealType());
+            }
+            
+            return null;
+        }
+        
 
         //
         // Build the location and value field for each attribute.
@@ -580,9 +606,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // they may be arbitrarily overridden in subclasses.
                     // Others are protected since they should only be accessed via accessors, but may be
                     // overridden by subclasses.
-                    long flags = ai.isStatic() ? (Flags.STATIC | Flags.PUBLIC) :
-                                 ai.isBareSynth() ? Flags.PRIVATE :
-                                                    Flags.PROTECTED;
+                    long flags = ai.isStatic()     ? (Flags.STATIC | Flags.PUBLIC) :
+                                 ai.isBareSynth()  ? Flags.PRIVATE :
+                                 ai.useAccessors() ? Flags.PROTECTED :
+                                                     Flags.PUBLIC;
                     JCModifiers mods = m().Modifiers(flags);
 
                     // Apply annotations, if current class then add source annotations.
@@ -596,8 +623,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
 
                     // Construct the value field
-                    addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
-                                                    needsDefaultValue(ai.getVMI()) ? makeDefaultValue(diagPos, ai.getVMI()) : null));
+                    JCExpression init = useSimpleInit(ai)              ? getSimpleInit(ai) :
+                                        needsDefaultValue(ai.getVMI()) ? makeDefaultValue(diagPos, ai.getVMI()) :
+                                                                         null;
+                    addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym), init));
                 }
             }
         }
@@ -1075,7 +1104,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (varInfo.onReplaceAsInline() != null) {
                     if (varInfo.hasBoundDefinition()) {
                         if (!varInfo.generateSequenceAccessors()) {
-                            init = CallStmt(attributeGetterName(varSym));
+                            init = Stmt(Getter(varSym));
                         } else {
                             init = CallStmt(attributeSizeName(varSym));
                         }
@@ -1242,8 +1271,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                              *            return 0;
                              *    }
                              */
-                            Name ptrAccessorName = attributeGetterName(varInfo.boundFuncResultInitSym());
-                            JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Call(ptrAccessorName));
+                            JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Getter(varInfo.boundFuncResultInitSym()));
                             addStmt(tmpPtrVar);
 
                             JCExpression ptrNonNullCond = NEnull(id(tmpPtrVar));
@@ -1309,8 +1337,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             JCVariableDecl oldPtrVar = TmpVar("old", syms.javafx_PointerType, id(ptrVarName));
                             addStmt(oldPtrVar);
 
-                            Name ptrAccessorName = attributeGetterName(varInfo.boundFuncResultInitSym());
-                            JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, Call(ptrAccessorName));
+                            JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, Getter(varInfo.boundFuncResultInitSym()));
                             addStmt(newPtrVar);
 
                             // Add the receiver of the current Var symbol as dependency to the Pointer, so that
@@ -1321,7 +1348,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // setValid(VFLGS$VALIDITY_FLAGS);
                             JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED);
                             JCExpression apply = Call(
-                                    Call(ptrAccessorName),
+                                    Getter(varInfo.boundFuncResultInitSym()),
                                     defs.size_PointerMethodName);
                             addStmt(OptIf(NEnull(id(newPtrVar)),
                                         Block(setValid, Return(apply)),
@@ -1529,13 +1556,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(SetStmt(savedVarSym, 
                                     Call(defs.Sequences_set,
                                         Get(savedVarSym),
-                                        Call(attributeGetterName(varSym))
+                                        Getter(varSym)
                                     )));
                             addStmt(CallStmt(Get(savedVarSym), defs.incrementSharing_SequenceMethodName));
                         }
                         if (newElements != null
                                 && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
-                                   JCExpression seq = savedVarSym != null ? Get(savedVarSym) : Call(attributeGetterName(varSym));
+                                   JCExpression seq = savedVarSym != null ? Get(savedVarSym) : Getter(varSym);
                                    JCExpression init = Call(defs.Sequences_getNewElements, seq, id(firstIndexName), id(newLengthName));
                             addStmt(Var(newElements.type, newElements.name, init));
                         }
@@ -1906,7 +1933,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         
                         // Call the get$var to force evaluation.
                         if (varInfo.onReplace() != null)
-                        addStmt(CallStmt(attributeGetterName(proxyVarSym)));
+                        addStmt(Stmt(Getter(proxyVarSym)));
                             
                         // phase$ == VFLGS$NEEDS_TRIGGER
                         JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
@@ -2474,6 +2501,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Constrain the var.
                         if (varInfo.needsCloning() &&
                             !varInfo.isBareSynth() &&
+                            !useSimpleInit(varInfo) &&
                              (!varInfo.isOverride() || varInfo.hasInitializer() || varInfo instanceof MixinClassVarInfo)) {
                             // Construct the case.
                             beginBlock();
@@ -2578,7 +2606,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             boolean isReadonly = ai.isDef() || (isBound && !ai.hasBiDiBoundDefinition());
                             Name setBits = null;
 
-                            if (ai.hasVarInit()) {
+                            if (useSimpleInit(ai)) {
+                                if (isReadonly) {
+                                    setBits = defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY;
+                                } else {
+                                    setBits = defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED;
+                                }
+                            } else if (ai.hasVarInit()) {
                                 if (isReadonly && isBound) {
                                     setBits = defs.varFlagINIT_BOUND_READONLY_VARINIT;
                                 } else if (isReadonly) {
@@ -2801,7 +2835,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     if (!varInfo.isOverride()) {
                         // get$var()
-                        JCExpression getterExp = Call(attributeGetterName(varSym));
+                        JCExpression getterExp = Getter(varSym);
                         // return get$var()
                         addStmt(Return(getterExp));
                     }
@@ -2876,7 +2910,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(CallStmt(defs.Sequences_set, id(names._this), Offset(varSym), objCast));
                         } else {
                             // set$var((type)object$)
-                            addStmt(CallStmt(attributeSetterName(varSym), objCast));
+                            addStmt(SetterStmt(varSym, objCast));
                         }
                         
                         // return
@@ -2898,10 +2932,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void initialize() {
                     addParam(objArg());
                 }
-  
                 @Override
                 public void statements() {
-                    if (!varInfo.isOverride() && !varInfo.isBareSynth()) {
+                    if (varInfo.useAccessors() && !varInfo.isOverride() && !varInfo.isBareSynth()) {
                         // (type)object$
                         JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
                         // be$var((type)object$)
@@ -2933,7 +2966,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     // FIXME - do the right thing.
-                    if (!varInfo.isOverride()) {
+                    if (varInfo.useAccessors() && !varInfo.isOverride()) {
                         if (varInfo.generateSequenceAccessors()) {
                             addStmt(CallStmt(attributeInvalidateName(varSym),
                                     startPosArg(), endPosArg(), newLengthArg(), phaseArg()));

@@ -824,7 +824,7 @@ public class FXLocal {
                     } else {
                         // FIXME: yet to be implemented for compiled binds
                         if (fld != null) {
-                            fld.set(robj, value);
+                            fld.set(robj, ((Value) value).asObject());
                             return;
                         }
                     }

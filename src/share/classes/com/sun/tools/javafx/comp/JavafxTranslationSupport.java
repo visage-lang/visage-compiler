@@ -1479,6 +1479,7 @@ public abstract class JavafxTranslationSupport {
          */
 
         public JCExpression Get(Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
@@ -1490,6 +1491,7 @@ public abstract class JavafxTranslationSupport {
             }
         }
         public JCExpression Get(JCExpression selector, Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
@@ -1500,6 +1502,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         public JCExpression Offset(Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
             VarSymbol varSym = (VarSymbol)sym;
             
             if (isMixinVar(varSym)) {
@@ -1515,6 +1518,7 @@ public abstract class JavafxTranslationSupport {
             }
         }
         public JCExpression Offset(JCExpression selector, Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
             VarSymbol varSym = (VarSymbol)sym;
             
             if (selector != null && isMixinVar(varSym)) {
@@ -1552,6 +1556,42 @@ public abstract class JavafxTranslationSupport {
         public JCStatement SetStmt(JCExpression selector, Symbol sym, JCExpression value) {
             return Stmt(Set(selector, sym, value));
         }
+        
+        public JCExpression Getter(Symbol sym) {
+            return Getter(getReceiver(), sym);
+        }
+        public JCExpression Getter(JCExpression selector, Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            if (typeMorpher.varMorphInfo(sym).useAccessors()) {
+                return Call(selector, attributeGetterName(sym));
+            } else {
+                return Get(selector, sym);
+            }
+        }
+        
+        public JCExpression Setter(Symbol sym, JCExpression value) {
+            return Setter(getReceiver(), sym, value);
+        }
+        public JCExpression Setter(JCExpression selector, Symbol sym, JCExpression value) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            
+            if (typeMorpher.varMorphInfo(sym).useAccessors()) {
+                return Call(selector, attributeSetterName(sym), value);
+            } else {
+                return Set(selector, sym, value);
+            }
+        }
+        
+        public JCStatement SetterStmt(Symbol sym, JCExpression value) {
+            return SetterStmt(null, sym, value);
+        }
+        public JCStatement SetterStmt(JCExpression selector, Symbol sym, JCExpression value) {
+            return Stmt(Setter(selector, sym, value));
+        }
+        
        
         /**
          * Method call support

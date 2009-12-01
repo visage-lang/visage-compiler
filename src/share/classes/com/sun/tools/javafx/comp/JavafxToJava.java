@@ -541,10 +541,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 } else if (vmi.useAccessors()) {
                     JCExpression tc = instanceName == null ? null : id(instanceName);
                     res = Call(tc, attributeBeName(vsym), nonNullInit);
+                } else if (vmi.isFXMemberVariable()) {
+                    res = Setter(vsym, nonNullInit);
                 } else {
-                    // TODO: Java inherited.
-                    final JCExpression varRef = id(vsym);
-                    res = m().Assign(varRef, nonNullInit);
+                    res = m().Assign(id(vsym), nonNullInit);
                 }
                 return toResult(res, vmi.getRealType());
             }
