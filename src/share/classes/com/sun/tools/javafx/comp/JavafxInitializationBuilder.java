@@ -568,10 +568,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Determine if a var can be initialized simply.
         //
         public boolean useSimpleInit(VarInfo varInfo) {
-            if (!varInfo.useAccessors() && !varInfo.isSequence() && varInfo instanceof TranslatedVarInfo) {
+            if (!varInfo.useAccessors() && varInfo instanceof TranslatedVarInfo) {
                 JFXVar var = ((TranslatedVarInfo)varInfo).jfxVar();
-                JFXExpression init = var.getInitializer();
-                return init != null && init instanceof JFXLiteral;
+                return var.isLiteralInit();
             }
             
             return false;

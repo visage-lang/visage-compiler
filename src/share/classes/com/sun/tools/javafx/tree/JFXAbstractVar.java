@@ -128,4 +128,8 @@ public abstract class JFXAbstractVar extends JFXExpression implements VariableTr
     public JFXModifiers getModifiers() {
         return mods;
     }
+    
+    public boolean isLiteralInit() {
+        return init != null && init instanceof JFXLiteral;
+    }
 }

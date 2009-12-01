@@ -3638,11 +3638,12 @@ public abstract class JavafxAbstractTranslation
     }
 
     class VarInitTranslator extends ExpressionTranslator {
-
+        private final JFXVar var;
         private final VarSymbol vsym;
 
         VarInitTranslator(JFXVarInit tree) {
             super(tree.pos());
+            this.var = tree.getVar();
             this.vsym = tree.getSymbol();
         }
 
@@ -3652,13 +3653,20 @@ public abstract class JavafxAbstractTranslation
          * value is var value.
          */
         ExpressionResult doit() {
-            return toResult(
-                    BlockExpression(
-                        FlagChangeStmt(vsym, defs.varFlagAWAIT_VARINIT, null),
-                        CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
-                        Get(vsym)
-                    ),
-                    vsym.type);
+            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
+            if (vmi.useAccessors() || !var.isLiteralInit()) {
+                return toResult(
+                        BlockExpression(
+                            FlagChangeStmt(vsym, defs.varFlagAWAIT_VARINIT, null),
+                            CallStmt(getReceiver(vsym), defs.applyDefaults_FXObjectMethodName, Offset(vsym)),
+                            Get(vsym)
+                        ),
+                        vsym.type);
+            } else {
+                return toResult(
+                        Get(vsym),
+                        vsym.type);
+            }
         }
     }
 
