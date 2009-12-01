@@ -55,26 +55,68 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         return instance.getAs$T$\$(varNum, k);
     }
 
-     public static Sequence<? extends $Tboxed$> insert(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue) {
+    public static Sequence<? extends $Tboxed$> replaceSlice(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
         int oldSize = oldValue.size();
+        if (startPos < 0)
+            startPos = 0;
+        else if (startPos > oldSize)
+            startPos = oldSize;
+        if (endPos > oldSize)
+            endPos = oldSize;
+        else if (endPos < startPos)
+            endPos = startPos;
+
+        if (endPos == startPos+1 && newValue == oldValue.getAs$T$(startPos)) {
+            // FIXME set valid??
+            return oldValue;
+        }
+
         $T$ArraySequence arr;
         if (! (oldValue instanceof $T$ArraySequence)
             || (arr = ($T$ArraySequence) oldValue).isShared()) {
             arr = new $T$ArraySequence(oldValue);
             arr.incrementSharing();
         }
-        arr.replace(oldSize, oldSize, newValue, true);
+        arr.replace(startPos, endPos, newValue, true);
         return arr;
     }
 
-   public static void insert(FXObject instance, int varNum, $Tprim$ newValue) {
+    public static Sequence<? extends $Tboxed$> replaceSlice(FXObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
         Sequence<? extends $Tboxed$> oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
-        int oldSize = oldValue.size();
-        Sequence<? extends $Tboxed$> arr = insert(oldValue, newValue);
-        instance.invalidate\$(varNum, oldSize, oldSize, 1, FXObject.VFLGS\$IS_INVALID);
+        instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$IS_INVALID);
+        Sequence<? extends $Tboxed$> arr = replaceSlice(oldValue, newValue, startPos, endPos);
         instance.be\$(varNum, arr);
-        instance.invalidate\$(varNum, oldSize, oldSize, 1,  FXObject.VFLGS\$NEEDS_TRIGGER);
+        instance.invalidate\$(varNum, startPos, endPos, 1,  FXObject.VFLGS\$NEEDS_TRIGGER);
+        return arr;
     }
 
-}$
+    public static Sequence<? extends $Tboxed$> set(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int index) {
+        return replaceSlice(oldValue, newValue, index, index + 1);
+    }
+
+    public static $Tprim$ set(FXObject instance, int varNum, $Tprim$ newValue, int index) {
+        instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$IS_INITIALIZED);
+        replaceSlice(instance, varNum, newValue, index, index + 1);
+        return newValue;
+    }
+
+    public static Sequence<? extends $Tboxed$> insert(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue) {
+        int oldSize = oldValue.size();
+        return replaceSlice(oldValue, newValue, oldSize, oldSize);
+    }
+
+    public static void insert(FXObject instance, int varNum, $Tprim$ newValue) {
+        int oldSize = instance.size\$(varNum);
+        replaceSlice(instance, varNum, newValue, oldSize, oldSize);
+    }
+
+    public static <T> Sequence<? extends $Tboxed$> insertBefore(Sequence<? extends $Tboxed$> oldValue, $Tprim$ value, int position) {
+        return replaceSlice(oldValue, value, position, position);
+    }
+
+    public static void insertBefore(FXObject instance, int varNum, $Tprim$ value, int position) {
+        replaceSlice(instance, varNum, value, position, position);
+    }
+
+ }$
 }
