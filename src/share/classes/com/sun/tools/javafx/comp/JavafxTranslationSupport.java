@@ -1025,14 +1025,20 @@ public abstract class JavafxTranslationSupport {
 
         protected JCExpression getReceiver(Symbol sym) {
             if (sym.isStatic()) {
-                return Call(scriptLevelAccessMethod(sym.owner));
+                Symbol enclClassSym = enclosingClassDecl.sym;
+                return enclClassSym != sym.owner?
+                    Call(makeType(sym.owner), scriptLevelAccessMethod(sym.owner)) :
+                    Call(scriptLevelAccessMethod(sym.owner));
             }
             return getReceiverInternal(sym.owner, true);
         }
 
         protected JCExpression getReceiverOrThis(Symbol sym) {
             if (sym.isStatic()) {
-                return Call(scriptLevelAccessMethod(sym.owner));
+                Symbol enclClassSym = enclosingClassDecl.sym;
+                return enclClassSym != sym.owner?
+                    Call(makeType(sym.owner), scriptLevelAccessMethod(sym.owner)) :
+                    Call(scriptLevelAccessMethod(sym.owner));
             }
             return getReceiverInternal(sym.owner, false);
         }
