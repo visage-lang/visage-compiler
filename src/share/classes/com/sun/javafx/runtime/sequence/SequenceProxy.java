@@ -25,17 +25,24 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.*;
 
 /**
- *
- * @author Per Bothner
+ * @author Robert Field
  */
-public class SequenceRef<T> extends AbstractSequence<T> {
+public class SequenceProxy<T> extends AbstractSequence<T> {
     FXObject instance;
     int varNum;
 
-    public SequenceRef(TypeInfo<T> ti, FXObject instance, int varNum) {
+    public SequenceProxy(TypeInfo<T> ti, FXObject instance, int varNum) {
         super(ti);
         this.instance = instance;
         this.varNum = varNum;
+    }
+
+    public FXObject instance() {
+        return instance;
+    }
+
+    public int varNum() {
+        return varNum;
     }
     
     public int size() {

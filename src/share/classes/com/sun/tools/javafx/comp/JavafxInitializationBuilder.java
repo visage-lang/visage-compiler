@@ -1102,10 +1102,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // If we need to prime the on replace trigger.
                 if (varInfo.onReplaceAsInline() != null || varInfo.isOverride()) {
                     if (varInfo.hasBoundDefinition()) {
-                        if (!varInfo.generateSequenceAccessors()) {
-                            init = Stmt(Getter(varSym));
+                        JCStatement poke;
+                        if (varInfo.generateSequenceAccessors()) {
+                            poke = CallStmt(attributeSizeName(varSym));
                         } else {
-                            init = CallStmt(attributeSizeName(varSym));
+                            poke = Stmt(Getter(varSym));
+                        }
+                        if (init != null) {
+                            init = Block(init, poke);
+                        } else {
+                            init = poke;
                         }
                     } else if(!varInfo.isOverride()) {
                         if (!varInfo.generateSequenceAccessors()) {
@@ -1123,7 +1129,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                          );
                         }
                     }
-                } if (init == null && varInfo.isSequence()) {
+                }
+                if (init == null && varInfo.isSequence()) {
                     if (!varInfo.hasBoundDefinition()) {
                         init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
                     }
@@ -1381,12 +1388,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    // $var = value
-                    addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
-    
-                    // return $var;
-                    addStmt(Return(Get(proxyVarSym)));
-                }
+                        // $var = value
+                        addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
+
+                        // return $var;
+                        addStmt(Return(Get(proxyVarSym)));
+                    }
             };
 
             vamb.build();
@@ -1406,20 +1413,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addParam(newLengthArg());
                     addParam(phaseArg());
                 }
-                                                                         
+
                 @Override
                 public void statements() {
                     // Handle invalidators if present.
                     List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
                     boolean hasInvalidators = !invalidatees.isEmpty();
-                     
+
                     if (hasInvalidators) {
                         // Insert invalidators.
                         for (BindeeInvalidator invalidator : invalidatees) {
                             addStmt(invalidator.invalidator);
                         }
                     }
-                    
+
                     boolean override = varInfo.isOverride();
                     boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
 
@@ -1444,31 +1451,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                              phaseArg()));
                         }
                     }
-                    
-                    // Invalidate back to inverse.
-                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
-                        for (VarSymbol bindeeSym : varInfo.boundBindees()) {
-                            if (!types.isSequence(bindeeSym.type)) {
-                                addStmt(CallStmt(attributeInvalidateName(bindeeSym), phaseArg()));
-                            } else {
-                                addStmt(CallStmt(attributeInvalidateName(bindeeSym),
-                                                 startPosArg(),
-                                                 endPosArg(),
-                                                 newLengthArg(),
-                                                 phaseArg()));
-                            }
-                            // rest are duplicates.
-                            break;
-                        }
-                    }
-                    
+
                     if (!override) {
                         // notifyDependents(VOFF$var, phase$);
                         addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym),
                                 startPosArg(), endPosArg(), newLengthArg(),
                                 phaseArg()));
                     }
-                    
+
                     if (!override || varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
                         beginBlock();
@@ -1485,10 +1475,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                 endPosArg(),
                                                                 newLengthArg()));
                         }
-                            
+
                         // phase$ == VFLGS$NEEDS_TRIGGER
                         JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
-                       
+
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
                         addStmt(OptIf(ifTriggerPhase,
                                 endBlock()));
@@ -2085,7 +2075,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
                             if (needOverrideInvalidateAccessorMethod(ai)) {
                                 makeSeqInvalidateAccessorMethod(ai, needsBody);
-                            }
+                                }
                             if (ai.onReplace() != null || ai.isMixinVar()) {
                                 makeSeqOnReplaceAccessorMethod(ai, needsBody);
                             }

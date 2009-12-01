@@ -312,12 +312,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             boolean initWithBoundFuncResult = 
                                 (initializer instanceof JFXIdent) &&
                                 isBoundFunctionResult(((JFXIdent)initializer).sym);
+                            ExpressionResult bindResult = translateBind(attrDef);
                             TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
                                     vmi,
-                                    translateVarInit(attrDef),
+                                    translateVarInit(attrDef, bindResult),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
-                                    translateBind(attrDef),
+                                    bindResult,
                                     attrDef.getOnReplace(),
                                     translateTriggerAsInline(vmi, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
@@ -333,12 +334,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             boolean initWithBoundFuncResult =
                                 (initializer instanceof JFXIdent) &&
                                 isBoundFunctionResult(((JFXIdent)initializer).sym);
+                            ExpressionResult bindResult = translateBind(override);
                             TranslatedOverrideClassVarInfo ai = new TranslatedOverrideClassVarInfo(
                                     override,
                                     vmi,
-                                    translateVarInit(override),
+                                    translateVarInit(override, bindResult),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
-                                    translateBind(override),
+                                    bindResult,
                                     override.getOnReplace(),
                                     translateTriggerAsInline(vmi, override.getOnReplace()),
                                     override.getOnInvalidate(),
@@ -490,7 +492,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         null;
         }
 
-        private JCStatement translateVarInit(JFXAbstractVar var) {
+        private JCStatement translateVarInit(JFXAbstractVar var, ExpressionResult bindResult) {
+            if (var.isBidiBind() && types.isSequence(var.type)) {
+                // Install the proxy sequence
+                return asStatement(bindResult, syms.voidType);
+            }
             if (var.getInitializer()==null || var.isBound()) {
                 // no init, or init handled by bind or JavafxVarInit
                 return null;

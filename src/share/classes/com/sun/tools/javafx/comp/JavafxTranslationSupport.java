@@ -1568,7 +1568,6 @@ public abstract class JavafxTranslationSupport {
         }
         public JCExpression Getter(JCExpression selector, Symbol sym) {
             assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
             
             if (typeMorpher.varMorphInfo(sym).useAccessors()) {
                 return Call(selector, attributeGetterName(sym));

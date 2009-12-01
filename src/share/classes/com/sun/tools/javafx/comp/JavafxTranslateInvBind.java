@@ -31,6 +31,7 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
+import com.sun.tools.mjavac.util.List;
 
 /**
  * Translate an inversion of bind expressions.
@@ -80,10 +81,25 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
         @Override
         protected BoundSequenceResult doit() {
-            JCExpression tToCheck = translateToCheck(getToCheck());
-            return new BoundSequenceResult(bindees(), invalidators(), interClass(), 
-                    makeGetElementBody(tToCheck),
-                    makeSizeBody(tToCheck));
+            buildDependencies(selectorSym);
+            addInterClassBindee((VarSymbol) selectorSym, refSym);
+            return new BoundSequenceResult(
+                    List.of(init()),
+                    null,
+                    bindees(),
+                    invalidators(),
+                    interClass(),
+                    makeGetElementBody(),
+                    makeSizeBody(),
+                    targetSymbol.type);
+        }
+
+        JCStatement init() {
+            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), translateToCheck(getToCheck()), Offset(getReceiver(selectorSym), refSym));
+            return
+                SetStmt(targetSymbol,
+                    m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceProxyType)), args, null)
+                );
         }
 
         // ---- Stolen from BoundSequenceTranslator ----
@@ -100,46 +116,49 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         /**
          * size$ method
          */
-        JCStatement makeSizeBody(JCExpression tToCheck) {
+        JCStatement makeSizeBody() {
             return
-                Block(
-                    Return (CallSize(tToCheck, refSym) )
-                );
+                Return (CallSize(translateToCheck(getToCheck()), refSym) );
         }
 
         /**
          * elem$ method
          */
-        JCStatement makeGetElementBody(JCExpression tToCheck) {
+        JCStatement makeGetElementBody() {
             return
-                Block(
-                    Return (CallGetElement(tToCheck, refSym, posArg()))
-                );
-        }
-
-        /**
-         * Redirecting invalidate
-         */
-        JCStatement makeInvalidate() {
-            return
-                Block(
-//                    CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
-                );
+                Return (CallGetElement(translateToCheck(getToCheck()), refSym, posArg()));
         }
     }
 
     private class BiBoundSequenceIdentTranslator extends ExpressionTranslator {
 
-        private final Symbol refSym;
+        private final VarSymbol refSym;
 
         BiBoundSequenceIdentTranslator(JFXIdent tree) {
             super(tree.pos());
-            this.refSym = tree.sym;
+            this.refSym = (VarSymbol) tree.sym;
         }
 
         @Override
         BoundSequenceResult doit() {
-            return new BoundSequenceResult(bindees(), invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
+            addBindee(refSym);
+            return new BoundSequenceResult(
+                    List.of(init()),
+                    null,
+                    bindees(),
+                    invalidators(),
+                    interClass(),
+                    makeGetElementBody(),
+                    makeSizeBody(),
+                    targetSymbol.type);
+        }
+
+        JCStatement init() {
+            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), getReceiverOrThis(), Offset(refSym));
+            return
+                SetStmt(targetSymbol, 
+                    m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceProxyType)), args, null)
+                );
         }
 
         // ---- Stolen from BoundSequenceTranslator ----
@@ -166,9 +185,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
          */
         JCStatement makeSizeBody() {
             return
-                Block(
-                    Return (CallSize(refSym) )
-                );
+                Return (CallSize(refSym) );
         }
 
         /**
@@ -176,32 +193,20 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
          */
         JCStatement makeGetElementBody() {
             return
-                Block(
-                    Return (CallGetElement(refSym, posArg()))
-                );
-        }
-
-        /**
-         * Redirecting invalidate
-         */
-        JCStatement makeInvalidate() {
-            return
-                Block(
-//                    CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
-                );
+                Return (CallGetElement(refSym, posArg()));
         }
     }
 
     private class BiBoundSelectTranslator extends BoundSelectTranslator {
 
-        final Symbol selectorSymbol;
+        final Symbol selectorSym;
 
         BiBoundSelectTranslator(JFXSelect tree) {
             super(tree, targetSymbol);
             JFXExpression selectorExpr = tree.getExpression();
             assert selectorExpr instanceof JFXIdent : "should be another var in the same instance.";
             JFXIdent selector = (JFXIdent) selectorExpr;
-            selectorSymbol = selector.sym;
+            selectorSym = selector.sym;
         }
 
         @Override
@@ -214,15 +219,15 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
              */
             JCExpression receiver;
             if (!refSym.isStatic() &&
-                    selectorSymbol.kind == Kinds.TYP &&
-                    currentClass().sym.isSubClass(selectorSymbol, types)) {
+                    selectorSym.kind == Kinds.TYP &&
+                    currentClass().sym.isSubClass(selectorSym, types)) {
                 receiver = id(names._super);
-            } else if (!(selectorSymbol instanceof VarSymbol)) {
-                receiver = id(selectorSymbol);
+            } else if (!(selectorSym instanceof VarSymbol)) {
+                receiver = id(selectorSym);
             } else {
                 JCVariableDecl selector =
                         TmpVar(syms.javafx_FXObjectType,
-                        Getter(selectorSymbol));
+                        Getter(selectorSym));
                 addSetterPreface(selector);
                 receiver = id(selector);
             }

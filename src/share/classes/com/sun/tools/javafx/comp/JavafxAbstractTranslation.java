@@ -428,7 +428,13 @@ public abstract class JavafxAbstractTranslation
         private final JCStatement getElement;
         private final JCStatement getSize;
         BoundSequenceResult(List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {
-            super(getElement.pos(), null, null, bindees, invalidators, interClass, null, null);
+            this(null, null, bindees, invalidators, interClass, getElement, getSize, null);
+        }
+        BoundSequenceResult(
+                List<JCStatement> stmts, JCExpression value,
+                List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
+                JCStatement getElement, JCStatement getSize, Type resultType) {
+            super(getElement.pos(), stmts, value, bindees, invalidators, interClass, null, resultType);
             this.getElement = getElement;
             this.getSize = getSize;
         }
@@ -445,14 +451,6 @@ public abstract class JavafxAbstractTranslation
         @Override
         public JCStatement getSizeMethodBody() {
             return getSize;
-        }
-        @Override
-        public JCExpression expr() {
-            throw new AssertionError("Shouldn't be asking for this");
-        }
-        @Override
-        public List<JCStatement> statements() {
-            throw new AssertionError("Shouldn't be asking for this");
         }
         @Override
         public String toString() {
@@ -1840,7 +1838,7 @@ public abstract class JavafxAbstractTranslation
 
                 JCVariableDecl oldSelector = TmpVar(selectorType, Get(selectorSym));
                 addPreface(oldSelector);
-                JCVariableDecl newSelector = TmpVar(selectorType, Call(attributeGetterName(selectorSym)));
+                JCVariableDecl newSelector = TmpVar(selectorType, Getter(selectorSym));
                 addPreface(newSelector);
 
                 if (isMixinVar(tree.sym)) {

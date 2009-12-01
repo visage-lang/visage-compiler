@@ -103,6 +103,7 @@ public class JavafxDefs {
     public static final String cSequences = sequence_PackageString + ".Sequences";
     public static final String cSequence = sequence_PackageString + ".Sequence";
     public static final String cSequenceRef = sequence_PackageString + ".SequenceRef";
+    public static final String cSequenceProxy = sequence_PackageString + ".SequenceProxy";
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
     public static final String cBoundForHelper = sequence_PackageString + ".BoundForHelper";
     public static final String cBoundForHelperNaive = sequence_PackageString + ".BoundForHelperNaive";
@@ -200,8 +201,6 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_sizeOfNewElements;
     final RuntimeMethod Sequences_getAsFromNewElements[];
     final RuntimeMethod Sequences_toArray[];
-
-    final RuntimeMethod SequencesRef_save;
 
     final RuntimeMethod Util_isEqual; //TODO: replace uses with Checks_equals
     final RuntimeMethod Util_objectTo[];
@@ -654,8 +653,6 @@ public class JavafxDefs {
             Sequences_getAsFromNewElements[kind] = new RuntimeMethod(names, cSequences, "get" + accessorSuffixes[kind] + "FromNewElements");
             Sequences_toArray[kind] = new RuntimeMethod(names, cSequences, "to" + typePrefixes[kind] + "Array");
         }
-
-        SequencesRef_save = new RuntimeMethod(names, cSequenceRef, "save");
 
         Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
         Util_objectTo = new RuntimeMethod[TYPE_KIND_COUNT];
