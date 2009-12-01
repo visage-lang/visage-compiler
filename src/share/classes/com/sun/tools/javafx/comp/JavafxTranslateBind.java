@@ -53,10 +53,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     // Symbol for the var whose bound expression we are translating.
     private VarSymbol targetSymbol;
 
-    // Is this a bi-diractional bind?
-    private boolean isBidiBind;
-
-    // The outer bound expression
+    // The outermost bound expression
     private JFXExpression boundExpression;
 
     public static JavafxTranslateBind instance(Context context) {
@@ -87,14 +84,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * @param isBidiBind Is this a bi-directional bind?
      * @return
      */
-    ExpressionResult translateBoundExpression(JFXExpression expr, VarSymbol targetSymbol, boolean isBidiBind) {
+    ExpressionResult translateBoundExpression(JFXExpression expr, VarSymbol targetSymbol) {
         // Bind translation is re-entrant -- save and restore state
         VarSymbol prevTargetSymbol = this.targetSymbol;
-        boolean prevIsBidiBind = this.isBidiBind;
         JFXExpression prevBoundExpression = this.boundExpression;
 
         this.targetSymbol = targetSymbol;
-        this.isBidiBind = isBidiBind;
         this.boundExpression = expr;
 
         // Special case: If the targetSymbol is a bound function result, then
@@ -106,7 +101,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     targetSymbol.type);
 
         this.targetSymbol = prevTargetSymbol;
-        this.isBidiBind = prevIsBidiBind;
         this.boundExpression = prevBoundExpression;
         return res;
     }
@@ -200,6 +194,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         eres.bindees(),
                         eres.invalidators(),
                         eres.interClass(),
+                        eres.setterPreface(),
                         eres.resultType());
             } else {
                 return eres;
@@ -368,79 +363,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     side(tree.getTrueExpression()),
                     side(tree.getFalseExpression())));
             return toResult( id(resVar), type );
-        }
-    }
-
-    /**
-     * Bound member select (non-sequence)
-     */
-    private class BoundSelectTranslator extends SelectTranslator {
-
-        protected final VarSymbol selectResSym;
-
-        BoundSelectTranslator(JFXSelect tree, VarSymbol selectResSym) {
-            super(tree);
-            this.selectResSym = selectResSym;
-        }
-
-        @Override
-        protected ExpressionResult doit() {
-            JFXExpression selectorExpr = tree.getExpression();
-            if (canChange() && (selectorExpr instanceof JFXIdent)) {
-                // cases that need a null check are the same as cases that have changing dependencies
-                JFXIdent selector = (JFXIdent) selectorExpr;
-                Symbol selectorSym = selector.sym;
-                buildDependencies(selectorSym);
-                addBindee((VarSymbol) selectorSym);
-                addInterClassBindee((VarSymbol) selectorSym, refSym);
-            }
-            return (ExpressionResult) super.doit();
-        }
-
-        protected void buildDependencies(Symbol selectorSym) {
-                if (types.isJFXClass(selectorSym.owner) && types.isJFXClass(tree.sym.owner)) {
-                    Type selectorType = selectorSym.type;
- 
-                    JCVariableDecl oldSelector = TmpVar(selectorType, Get(selectorSym));
-                    addPreface(oldSelector);
-                    JCVariableDecl newSelector = TmpVar(selectorType, Call(attributeGetterName(selectorSym)));
-                    addPreface(newSelector);
-                    
-                    if (isMixinVar(tree.sym)) {
-                        JCExpression oldOffset =
-                            If (EQnull(id(oldSelector)),
-                                Int(0),
-                                Offset(id(oldSelector), tree.sym));
-                         JCExpression newOffset =
-                            If (EQnull(id(newSelector)),
-                                Int(0),
-                                Offset(id(newSelector), tree.sym));
-                        addSwitchDependence(id(oldSelector), id(newSelector), newOffset, oldOffset);
-                    } else {
-                        JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(tree.sym));
-                        addPreface(offsetVar);
-                        addSwitchDependence(id(oldSelector), id(newSelector), id(offsetVar), id(offsetVar));
-                    }
-                }
-        }
-
-        protected void addSwitchDependence(JCExpression oldSelector, JCExpression newSelector, JCExpression oldOffset, JCExpression newOffset) {
-                    JCExpression rcvr = getReceiverOrThis(selectResSym);
-                    if (isBidiBind) {
-                        JCVariableDecl selectorOffset = TmpVar(syms.intType, Offset(selectResSym));
-                        addPreface(selectorOffset);
-
-                        addPreface(CallStmt(defs.FXBase_switchBiDiDependence,
-                                rcvr,
-                                id(selectorOffset),
-                                oldSelector, oldOffset,
-                                newSelector, newOffset));
-                    } else {
-                       addPreface(CallStmt(defs.FXBase_switchDependence,
-                                rcvr,
-                                oldSelector, oldOffset,
-                                newSelector, newOffset));
-                     }
         }
     }
 
@@ -1977,7 +1899,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitParens(JFXParens tree) {
-        result = translateBoundExpression(tree.expr, targetSymbol, isBidiBind);
+        result = translateBoundExpression(tree.expr, targetSymbol);
     }
 
     @Override

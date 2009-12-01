@@ -462,18 +462,14 @@ class JavafxAnalyzeClass {
         // Result of bind translation
         private final ExpressionResult bindOrNull;
 
-        // Result of bind with inverse translation
-        private final ExpressionResult invBindOrNull;
-
         TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
-                JCStatement initStmt, ExpressionResult bindOrNull, ExpressionResult invBindOrNull,
+                JCStatement initStmt, ExpressionResult bindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(diagPos, name, attrSym, vmi, initStmt);
             this.hasInitializer = hasInitializer;
             this.bindStatus = bindStatus;
             this.bindOrNull = bindOrNull;
-            this.invBindOrNull = invBindOrNull;
             this.onReplace = onReplace;
             this.onReplaceAsInline = onReplaceAsInline;
             this.onInvalidate = onInvalidate;
@@ -506,7 +502,7 @@ class JavafxAnalyzeClass {
 
         // Empty or Java preface code for setting of bound with inverse variable
         @Override
-        public List<JCStatement> boundInvSetterPreface() { return invBindOrNull==null? List.<JCStatement>nil() : invBindOrNull.statements(); }
+        public List<JCStatement> boundInvSetterPreface() { return bindOrNull==null? List.<JCStatement>nil() : bindOrNull.setterPreface(); }
 
         // Variable symbols on which this variable depends
         @Override
@@ -567,11 +563,11 @@ class JavafxAnalyzeClass {
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
                 JCStatement initStmt, Symbol boundFuncResultInitSym,
-                ExpressionResult bindOrNull, ExpressionResult invBindOrNull,
+                ExpressionResult bindOrNull, 
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi,
-                  initStmt, bindOrNull, invBindOrNull,
+                  initStmt, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.var = var;
             this.boundFuncResultInitSym = boundFuncResultInitSym;
@@ -619,12 +615,13 @@ class JavafxAnalyzeClass {
 
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
-                 VarMorphInfo vmi,
-                JCStatement initStmt,  Symbol boundFuncResultInitSym, ExpressionResult bindOrNull,
-                ExpressionResult invBindOrNull, JFXOnReplace onReplace, JCStatement onReplaceAsInline,
+                VarMorphInfo vmi,
+                JCStatement initStmt, Symbol boundFuncResultInitSym,
+                ExpressionResult bindOrNull,
+                JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
-            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer()!=null, vmi,
-                  initStmt, bindOrNull, invBindOrNull,
+            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer() != null, vmi,
+                    initStmt, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.boundFuncResultInitSym = boundFuncResultInitSym;
         }
