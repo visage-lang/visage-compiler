@@ -54,7 +54,7 @@ public class JavaPretty extends Pretty {
 	private HashSet<Name> importedClasses = new HashSet<Name>();
     private boolean seenImport;
 
-    public static final boolean showAnnotations = false;
+    public static final boolean showAnnotations = true;
 	
     public JavaPretty(Writer out, boolean sourceOutput, Context context) {
         super(out, sourceOutput);
@@ -70,7 +70,18 @@ public class JavaPretty extends Pretty {
     @Override
     public void visitAnnotation(JCAnnotation tree) {
         if (showAnnotations) {
-            super.visitAnnotation(tree);
+            // Super class implementation prints only simple name for
+            // annotation type. So, com.sun.javafx.runtime.Package is
+            // printed as Package which clashes with java.lang.Package!!
+            try {
+                print("@");
+                print(tree.annotationType);
+                print("(");
+                printExprs(tree.args);
+                print(")");
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 
