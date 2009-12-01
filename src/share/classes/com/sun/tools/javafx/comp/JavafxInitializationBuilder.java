@@ -3393,8 +3393,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs a script class.
         //
         public void makeScript(List<JCTree> definitions) {
-            JCModifiers classMods = m().Modifiers(Flags.PUBLIC | Flags.STATIC);
-            classMods = addAccessAnnotationModifiers(diagPos, 0, classMods);
+            long flags = Flags.PUBLIC | Flags.STATIC;
+            JCModifiers classMods = m().Modifiers(flags);
+            classMods = addAccessAnnotationModifiers(diagPos, flags, classMods);
             JCClassDecl script = m().ClassDef(
                     classMods,
                     scriptName,
