@@ -90,6 +90,7 @@ public class JavafxFlags {
     public static final long JavafxUserFlags            = JavafxExplicitAccessFlags | MIXIN | STATIC | ABSTRACT | BOUND | OVERRIDE | PUBLIC_READ | PUBLIC_INIT;
     public static final long JavafxLocalVarFlags        = PARAMETER;
     public static final long JavafxInstanceVarFlags     = JavafxExplicitAccessFlags | PUBLIC_READ | PUBLIC_INIT;
+    public static final long JavafxAllInstanceVarFlags  = JavafxExplicitAccessFlags | PUBLIC_READ | PUBLIC_INIT | SCRIPT_PRIVATE;
     public static final long JavafxScriptVarFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
     public static final long JavafxMemberDefFlags       = JavafxExplicitAccessFlags | STATIC | PUBLIC_READ;
     public static final long JavafxFunctionFlags        = JavafxExplicitAccessFlags | ABSTRACT | BOUND | OVERRIDE;

@@ -1062,7 +1062,7 @@ public abstract class JavafxAbstractTranslation
                         default:
                             throw new AssertionError();
                     }
-                    expr = Call(instance, attributeGetterName(vsym));
+                    expr = Getter(instance, vsym);
                 }
             }
 
@@ -2036,11 +2036,17 @@ public abstract class JavafxAbstractTranslation
             } else {
                 if (useAccessors) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
+                } else if (typeMorpher.varMorphInfo(refSym).isFXMemberVariable()) {
+                    JCExpression lhsTranslated = selector != null ?
+                        Select(tToCheck, attributeValueName(refSym)) :
+                        id(attributeValueName(refSym));
+                    JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
+                    return res;
                 } else {
                     //TODO: possibly should use, or be unified with convertVariableReference
                     JCExpression lhsTranslated = selector != null ?
-                        m().Select(tToCheck, refSym.name) :
-                        m().Ident(refSym);
+                        Select(tToCheck, refSym.name) :
+                        id(refSym.name);
                     JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
                     return res;
                 }
@@ -2076,11 +2082,11 @@ public abstract class JavafxAbstractTranslation
         }
 
         JCExpression buildSetter(JCExpression tc, JCExpression rhsComplete) {
-            return Call(tc, attributeSetterName(refSym), rhsComplete);
+            return Setter(tc, refSym, rhsComplete);
         }
 
         JCExpression buildGetter(JCExpression tc) {
-            return Call(tc, attributeGetterName(refSym));
+            return Getter(tc, refSym);
         }
     }
 
@@ -2591,6 +2597,8 @@ public abstract class JavafxAbstractTranslation
             if (types.isSequence(vsym.type)) {
                 def = CallStmt(defs.Sequences_set, tc,
                         Offset(id(instanceName), vsym), transInit);
+            } else if (!typeMorpher.varMorphInfo(vsym).useAccessors()) {
+                def = SetStmt(tc, vsym, transInit);
             } else {
                 def = CallStmt(tc, attributeBeName(vsym), transInit);
             }

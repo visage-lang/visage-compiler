@@ -404,6 +404,8 @@ public class JavafxDefs {
     final Name varFlagINIT_READONLY_VARINIT;
     final Name varFlagINIT_BOUND_VARINIT;
     final Name varFlagINIT_BOUND_READONLY_VARINIT;
+    final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED;
+    final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY;
     final Name varFlagALL_FLAGS;
 
     /**
@@ -606,6 +608,8 @@ public class JavafxDefs {
         varFlagINIT_READONLY_VARINIT = names.fromString("VFLGS$INIT_READONLY_VARINIT");
         varFlagINIT_BOUND_VARINIT = names.fromString("VFLGS$INIT_BOUND_VARINIT");
         varFlagINIT_BOUND_READONLY_VARINIT = names.fromString("VFLGS$INIT_BOUND_READONLY_VARINIT");
+        varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED = names.fromString("VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED");
+        varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY = names.fromString("VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY");
         varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
 
         varOFF$valueName = names.fromString("VOFF$value");

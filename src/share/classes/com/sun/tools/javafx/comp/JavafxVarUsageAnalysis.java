@@ -119,6 +119,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             if ((sym.flags_field & VARUSE_DEFINITION_SEEN) == 0L) {
                 // this is a reference to this variable for which we have not yet seen a definition
                 mark(sym, VARUSE_FORWARD_REFERENCE);
+                mark(sym, VARUSE_NEED_ACCESSOR);
             }
             if ((sym.flags_field & VARUSE_TMP_IN_INIT_EXPR) != 0L) {
                 // this is a reference to this variable from within its own initializer

@@ -217,10 +217,12 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     selectorSymbol.kind == Kinds.TYP &&
                     currentClass().sym.isSubClass(selectorSymbol, types)) {
                 receiver = id(names._super);
+            } else if (!(selectorSymbol instanceof VarSymbol)) {
+                receiver = id(selectorSymbol);
             } else {
                 JCVariableDecl selector =
                         TmpVar(syms.javafx_FXObjectType,
-                        Call(attributeGetterName(selectorSymbol)));
+                        Getter(selectorSymbol));
                 addSetterPreface(selector);
                 receiver = id(selector);
             }
@@ -269,7 +271,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
             set$varSym(tmp0);
             varNewValue$
              */
-            addSetterPreface(CallStmt(attributeSetterName(sym), id(defs.varNewValue_ArgName)));
+            addSetterPreface(SetterStmt(sym, id(defs.varNewValue_ArgName)));
 
             return super.doit();
         }
