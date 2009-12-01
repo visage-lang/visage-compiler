@@ -317,8 +317,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                                     vmi,
                                     translateVarInit(attrDef),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
-                                    attrDef.isBound() ? translateBind.translateBoundExpression(initializer, attrDef.sym, attrDef.isBidiBind()) : null,
-                                    attrDef.isBidiBind() ? translateInvBind.translate(initializer, attrDef.type, attrDef.sym) : null,
+                                    translateBind(attrDef),
                                     attrDef.getOnReplace(),
                                     translateTriggerAsInline(vmi, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
@@ -339,8 +338,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                                     vmi,
                                     translateVarInit(override),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
-                                    override.isBound() ? translateBind.translateBoundExpression(override.getInitializer(), override.sym, override.isBidiBind()) : null,
-                                    override.isBidiBind() ? translateInvBind.translate(override.getInitializer(), override.type, override.sym) : null,
+                                    translateBind(override),
                                     override.getOnReplace(),
                                     translateTriggerAsInline(vmi, override.getOnReplace()),
                                     override.getOnInvalidate(),
@@ -482,6 +480,14 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                           ReceiverContext.InstanceAsStatic
                         : ReceiverContext.InstanceAsInstance );
 
+        }
+
+        private ExpressionResult translateBind(JFXAbstractVar var) {
+            return var.isBidiBind() ?
+                    translateInvBind.translate(var.getInitializer(), var.type, var.sym) :
+                    var.isBound() ?
+                        translateBind.translateBoundExpression(var.getInitializer(), var.sym) :
+                        null;
         }
 
         private JCStatement translateVarInit(JFXAbstractVar var) {
@@ -639,6 +645,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             bindees(),
                             invalidators(),
                             interClass(),
+                            setterPreface(),
                             targetType);
                 } else {
                     // make into block

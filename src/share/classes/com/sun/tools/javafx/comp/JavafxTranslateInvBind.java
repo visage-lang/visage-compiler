@@ -31,23 +31,24 @@ import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
-import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
 /**
  * Translate an inversion of bind expressions.
  * 
  * @author Jim Laskey
+ * @author Robert Field
  */
 public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements JavafxVisitor {
 
     protected static final Context.Key<JavafxTranslateInvBind> jfxBoundInvTranslation =
         new Context.Key<JavafxTranslateInvBind>();
 
-    Type targettedType;
-    VarSymbol targetSymbol;
-    Symbol selectorSymbol;
-    VarSymbol selectedVarSymbol;
-    
+
+    // Symbol for the var whose bound expression we are translating.
+    private VarSymbol targetSymbol;
+
+    // The outermost bound expression
+    private JFXExpression boundExpression;
 
     public static JavafxTranslateInvBind instance(Context context) {
         JavafxTranslateInvBind instance = context.get(jfxBoundInvTranslation);
@@ -65,74 +66,54 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
     }
 
     ExpressionResult translate(JFXExpression expr, Type type, Symbol symbol) {
-        targettedType = type;
-        targetSymbol = (VarSymbol) symbol;
-        selectorSymbol = null;
-        selectedVarSymbol = null;
+        this.targetSymbol = (VarSymbol) symbol;
+        this.boundExpression = expr;
         
-        final ExpressionResult invertedExpression = translateToExpressionResult(expr, targettedType);
-
-        if (types.isSequence(type)) {
-            return new BidirectionalBoundSequenceTranslator(expr.pos()).doit();
-        } else {
-            return new BidirectionalBoundTranslator(expr.pos(), invertedExpression).doit();
-        }
+        return translateToExpressionResult(expr, type);
     }
 
-    private class BidirectionalBoundSequenceTranslator extends ExpressionTranslator {
+    private class BiBoundSequenceSelectTranslator extends BiBoundSelectTranslator {
 
-        BidirectionalBoundSequenceTranslator(DiagnosticPosition diagPos) {
-            super(diagPos);
+        BiBoundSequenceSelectTranslator(JFXSelect tree) {
+            super(tree);
         }
 
-        BoundSequenceResult doit() {
-            return new BoundSequenceResult(bindees(), invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
+        @Override
+        protected BoundSequenceResult doit() {
+            JCExpression tToCheck = translateToCheck(getToCheck());
+            return new BoundSequenceResult(bindees(), invalidators(), interClass(), 
+                    makeGetElementBody(tToCheck),
+                    makeSizeBody(tToCheck));
         }
 
         // ---- Stolen from BoundSequenceTranslator ----
         //TODO: unify
 
-        JCExpression isSequenceDormantSetActive() {
-            return NOT(FlagChange(targetSymbol, null, defs.varFlagDEFAULT_APPLIED));
-        }
-
-        JCExpression isSequenceActive() {
-            return FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED);
-        }
-
-        JCExpression CallSize(Symbol sym) {
-            return CallSize(getReceiver(), sym);
+        JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
+            return Call(rcvr, attributeGetElementName(sym), pos);
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
             return Call(rcvr, attributeSizeName(sym));
         }
 
-
         /**
          * size$ method
          */
-        JCStatement makeSizeBody() {
+        JCStatement makeSizeBody(JCExpression tToCheck) {
             return
                 Block(
-                    If(isSequenceDormantSetActive(),
-                        Block(
-                         )
-                    ),
-                    Return( Call(Get(targetSymbol), defs.size_SequenceMethodName) )
+                    Return (CallSize(tToCheck, refSym) )
                 );
         }
 
         /**
          * elem$ method
          */
-        JCStatement makeGetElementBody() {
+        JCStatement makeGetElementBody(JCExpression tToCheck) {
             return
                 Block(
-                    If(NOT(isSequenceActive()),
-                        Stmt(CallSize(targetSymbol))
-                    ),
-                    Return (Call(Get(targetSymbol), defs.get_SequenceMethodName, posArg()))
+                    Return (CallGetElement(tToCheck, refSym, posArg()))
                 );
         }
 
@@ -147,65 +128,151 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         }
     }
 
-    private class BidirectionalBoundTranslator extends ExpressionTranslator {
+    private class BiBoundSequenceIdentTranslator extends ExpressionTranslator {
 
-        private final ExpressionResult invertedExpression;
+        private final Symbol refSym;
 
-        BidirectionalBoundTranslator(DiagnosticPosition diagPos, ExpressionResult invertedExpression) {
-            super(diagPos);
-            this.invertedExpression = invertedExpression;
+        BiBoundSequenceIdentTranslator(JFXIdent tree) {
+            super(tree.pos());
+            this.refSym = tree.sym;
         }
 
+        @Override
+        BoundSequenceResult doit() {
+            return new BoundSequenceResult(bindees(), invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
+        }
+
+        // ---- Stolen from BoundSequenceTranslator ----
+        //TODO: unify
+
+        JCExpression CallSize(Symbol sym) {
+            return CallSize(getReceiver(), sym);
+        }
+
+        JCExpression CallSize(JCExpression rcvr, Symbol sym) {
+            return Call(rcvr, attributeSizeName(sym));
+        }
+
+        JCExpression CallGetElement(Symbol sym, JCExpression pos) {
+            return CallGetElement(getReceiver(), sym, pos);
+        }
+
+        JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
+            return Call(rcvr, attributeGetElementName(sym), pos);
+        }
+
+        /**
+         * size$ method
+         */
+        JCStatement makeSizeBody() {
+            return
+                Block(
+                    Return (CallSize(refSym) )
+                );
+        }
+
+        /**
+         * elem$ method
+         */
+        JCStatement makeGetElementBody() {
+            return
+                Block(
+                    Return (CallGetElement(refSym, posArg()))
+                );
+        }
+
+        /**
+         * Redirecting invalidate
+         */
+        JCStatement makeInvalidate() {
+            return
+                Block(
+//                    CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
+                );
+        }
+    }
+
+    private class BiBoundSelectTranslator extends BoundSelectTranslator {
+
+        final Symbol selectorSymbol;
+
+        BiBoundSelectTranslator(JFXSelect tree) {
+            super(tree, targetSymbol);
+            JFXExpression selectorExpr = tree.getExpression();
+            assert selectorExpr instanceof JFXIdent : "should be another var in the same instance.";
+            JFXIdent selector = (JFXIdent) selectorExpr;
+            selectorSymbol = selector.sym;
+        }
+
+        @Override
         protected ExpressionResult doit() {
-                /*
-                  type tmp0 = inv expression(varNewValue$);
-                  set$varSym(tmp0);
-                  varNewValue$
+            /*
+            type tmp0 = inv expression(varNewValue$);
+            seltype tmp1 = get$select();
+            if (tmp1 != null) tmp1.set$varSym(tmp0);
+            varNewValue$
+             */
+            JCExpression receiver;
+            if (!refSym.isStatic() &&
+                    selectorSymbol.kind == Kinds.TYP &&
+                    currentClass().sym.isSubClass(selectorSymbol, types)) {
+                receiver = id(names._super);
+            } else {
+                JCVariableDecl selector =
+                        TmpVar(syms.javafx_FXObjectType,
+                        Call(attributeGetterName(selectorSymbol)));
+                addSetterPreface(selector);
+                receiver = id(selector);
+            }
 
-                  or
-
-                  type tmp0 = inv expression(varNewValue$);
-                  seltype tmp1 = get$select();
-                  if (tmp1 != null) tmp1.set$varSym(tmp0);
-                  varNewValue$
-                */
-                JCVariableDecl value = TmpVar(targettedType, invertedExpression.expr());
-                addPreface(value);
-
-                if (selectorSymbol != null) {
-                    JCExpression receiver = null;
-                    if (!selectedVarSymbol.isStatic() &&
-                            selectorSymbol.kind == Kinds.TYP &&
-                            currentClass().sym.isSubClass(selectorSymbol, types)) {
-                        receiver = id(names._super);
-                    } else {
-                        JCVariableDecl selector =
-                            TmpVar(syms.javafx_FXObjectType,
-                                Call(attributeGetterName(selectorSymbol)));
-                        addPreface(selector);
-                        receiver = id(selector);
-                    }
-
-
-                    //note: we have to use the set$(int, FXBase) version because
-                    //the set$xxx version is not always accessible from the
-                    //selector expression (if selector is XXX$Script class)
-                    addPreface(
-                        If(NEnull(receiver),
-                            Block(
-                                CallStmt(receiver, defs.set_FXObjectMethodName,
-                                    Offset(receiver, selectedVarSymbol),
-                                    id(value)   //FIXME: is this mixin safe?
-                                )
+            //note: we have to use the set$(int, FXBase) version because
+            //the set$xxx version is not always accessible from the
+            //selector expression (if selector is XXX$Script class)
+            addSetterPreface(
+                    If(NEnull(receiver),
+                        Block(
+                            CallStmt(receiver, defs.set_FXObjectMethodName,
+                                Offset(receiver, refSym),
+                                id(defs.varNewValue_ArgName)
                             )
                         )
-                    );
-                } else {
-                    addPreface(CallStmt(attributeSetterName(selectedVarSymbol), id(value)));
-                }
+                    )
+            );
 
-                return toResult(id(defs.varNewValue_ArgName), targettedType);
-            }
+            return super.doit();
+        }
+
+        @Override
+        protected void addSwitchDependence(JCExpression oldSelector, JCExpression newSelector, JCExpression oldOffset, JCExpression newOffset) {
+            JCExpression rcvr = getReceiverOrThis(selectResSym);
+            JCVariableDecl selectorOffset = TmpVar(syms.intType, Offset(selectResSym));
+            addPreface(selectorOffset);
+
+            addPreface(CallStmt(defs.FXBase_switchBiDiDependence,
+                    rcvr,
+                    id(selectorOffset),
+                    oldSelector, oldOffset,
+                    newSelector, newOffset));
+        }
+    }
+
+    private class BiBoundIdentTranslator extends BoundIdentTranslator {
+
+        BiBoundIdentTranslator(JFXIdent tree) {
+            super(tree);
+        }
+
+        @Override
+        protected ExpressionResult doit() {
+            /*
+            type tmp0 = inv expression(varNewValue$);
+            set$varSym(tmp0);
+            varNewValue$
+             */
+            addSetterPreface(CallStmt(attributeSetterName(sym), id(defs.varNewValue_ArgName)));
+
+            return super.doit();
+        }
     }
 
 
@@ -224,27 +291,24 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
  * Visitor methods -- implemented (alphabetical order)
  ****************************************************************************/
 
+    private boolean isTargettedToSequence() {
+        return types.isSequence(targetSymbol.type);
+    }
     
-    public void visitIdent(final JFXIdent tree) {
-        result = (new ExpressionTranslator(tree.pos()) {
-            protected ExpressionResult doit() {
-                selectedVarSymbol = (VarSymbol)tree.sym;
-                return toResult(id(defs.varNewValue_ArgName), targettedType);
-            }
-        }).doit();
+    public void visitIdent(JFXIdent tree) {
+        if (tree == boundExpression && isTargettedToSequence()) {
+            result = new BiBoundSequenceIdentTranslator(tree).doit();
+        } else {
+            result = new BiBoundIdentTranslator(tree).doit();
+        }
     }
 
-    public void visitSelect(final JFXSelect tree) {
-        result = (new ExpressionTranslator(tree.pos()) {
-            protected ExpressionResult doit() {
-                JFXExpression selectorExpr = tree.getExpression();
-                assert selectorExpr instanceof JFXIdent : "should be another var in the same instance.";
-                JFXIdent selector = (JFXIdent)selectorExpr;
-                selectorSymbol = selector.sym;
-                selectedVarSymbol = (VarSymbol)tree.sym;
-                return toResult(id(defs.varNewValue_ArgName), targettedType);
-            }
-        }).doit();
+    public void visitSelect(JFXSelect tree) {
+        if (tree == boundExpression && isTargettedToSequence()) {
+            result = new BiBoundSequenceSelectTranslator(tree).doit();
+        } else {
+            result = new BiBoundSelectTranslator(tree).doit();
+        }
     }
 
 
