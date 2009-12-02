@@ -55,7 +55,37 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         return instance.getAs$T$\$(varNum, k);
     }
 
-    public static Sequence<? extends $Tboxed$> replaceSlice(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
+    private static Sequence<? extends $Tboxed$> replaceSlice(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
+        if (preReplaceSlice(oldValue, newValue, startPos, endPos)) {
+            return replaceSliceInternal(oldValue, newValue, startPos, endPos);
+        }
+        else {
+            return oldValue;
+        }
+    }
+    //where
+    private static Sequence<? extends $Tboxed$> replaceSliceInternal(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
+        int oldSize = oldValue.size();
+        if (startPos < 0)
+            startPos = 0;
+        else if (startPos > oldSize)
+            startPos = oldSize;
+        if (endPos > oldSize)
+            endPos = oldSize;
+        else if (endPos < startPos)
+            endPos = startPos;
+
+        $T$ArraySequence arr;
+        if (! (oldValue instanceof $T$ArraySequence)
+            || (arr = ($T$ArraySequence) oldValue).isShared()) {
+            arr = new $T$ArraySequence(oldValue);
+            arr.incrementSharing();
+        }
+        arr.replace(startPos, endPos, newValue, true);
+        return arr;
+    }
+    //where
+    private static boolean preReplaceSlice(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -68,20 +98,16 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
 
         if (endPos == startPos+1 && newValue == oldValue.getAs$T$(startPos)) {
             // FIXME set valid??
-            return oldValue;
+            return false;
         }
-
-        $T$ArraySequence arr;
-        if (! (oldValue instanceof $T$ArraySequence)
-            || (arr = ($T$ArraySequence) oldValue).isShared()) {
-            arr = new $T$ArraySequence(oldValue);
-            arr.incrementSharing();
+        else {
+            return true;
         }
-        arr.replace(startPos, endPos, newValue, true);
-        return arr;
     }
 
     public static Sequence<? extends $Tboxed$> replaceSlice(FXObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
+        boolean wasUninitialized =
+                instance.varTestBits\$(varNum, FXObject.VFLGS\$DEFAULT_APPLIED, 0);
         instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends $Tboxed$> oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
         while (oldValue instanceof SequenceProxy) {
@@ -91,11 +117,17 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
             instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
             oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
         }
-        instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$IS_INVALID);
-        Sequence<? extends $Tboxed$> arr = replaceSlice(oldValue, newValue, startPos, endPos);
-        instance.be\$(varNum, arr);
-        instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$NEEDS_TRIGGER);
-        return arr;
+        if (preReplaceSlice(oldValue, newValue, startPos, endPos) ||
+            wasUninitialized) {
+            instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$IS_INVALID);
+            Sequence<? extends $Tboxed$> arr = replaceSlice(oldValue, newValue, startPos, endPos);
+            instance.be\$(varNum, arr);
+            instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$NEEDS_TRIGGER);
+            return arr;
+        }
+        else {
+            return oldValue;
+        }
     }
 
     public static Sequence<? extends $Tboxed$> set(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int index) {

@@ -939,8 +939,16 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/) {
+        if (preReplaceSlice(oldValue, newValue, startPos, endPos)) {
+            return replaceSliceInternal(oldValue, newValue, startPos, endPos);
+        }
+        else
+            return oldValue;
+    }
+    //where
+    private static <T> boolean preReplaceSlice(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/) {
         if (newValue == null)
-            return replaceSlice(oldValue, (Sequence<? extends T>) null, startPos, endPos);
+            return preReplaceSlice(oldValue, (Sequence<? extends T>) null, startPos, endPos);
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -952,8 +960,25 @@ public class SequencesBase {
             endPos = startPos;
         if (endPos == startPos+1 && newValue.equals(oldValue.get(startPos))) {
             // FIXME set valid??
-            return oldValue;
+            return false;
         }
+        else {
+            return true;
+        }
+    }
+    //where
+    private static <T> Sequence<? extends T> replaceSliceInternal(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/) {
+        if (newValue == null)
+            return replaceSliceInternal(oldValue, (Sequence<? extends T>) null, startPos, endPos);
+        int oldSize = oldValue.size();
+        if (startPos < 0)
+            startPos = 0;
+        else if (startPos > oldSize)
+            startPos = oldSize;
+        if (endPos > oldSize)
+            endPos = oldSize;
+        else if (endPos < startPos)
+            endPos = startPos;
 
         ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
         arr.replace(startPos, endPos, (T) newValue, true);
@@ -962,6 +987,8 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
+        boolean wasUninitialized =
+                instance.varTestBits$(varNum, FXObject.VFLGS$DEFAULT_APPLIED, 0);
         instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
@@ -971,15 +998,28 @@ public class SequencesBase {
             instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
-        int newLength = newValue==null?0:1;
-        instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
-        Sequence<? extends T> arr = replaceSlice(oldValue, newValue, startPos, endPos);
-        instance.be$(varNum, arr);
-        instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
-        return arr;
+        if (preReplaceSlice(oldValue, newValue, startPos, endPos) ||
+                wasUninitialized) {
+            int newLength = newValue==null?0:1;
+            instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
+            Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos);
+            instance.be$(varNum, arr);
+            instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
+            return arr;
+        }
+        else
+            return oldValue;
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
+        if (preReplaceSlice(oldValue, newValues, startPos, endPos)) {
+            return replaceSliceInternal(oldValue, newValues, startPos, endPos);
+        }
+        else
+            return oldValue;
+    }
+    //where
+    private static <T> boolean preReplaceSlice(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -992,8 +1032,24 @@ public class SequencesBase {
         if (newValues == null ? startPos == endPos
             : sliceEqual(oldValue, startPos, endPos, newValues)) {
             // FIXME set valid??
-            return oldValue;
+            return false;
         }
+        else {
+            return true;
+        }
+    }
+    //where
+    private static <T> Sequence<? extends T> replaceSliceInternal(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
+        int oldSize = oldValue.size();
+        if (startPos < 0)
+            startPos = 0;
+        else if (startPos > oldSize)
+            startPos = oldSize;
+        if (endPos > oldSize)
+            endPos = oldSize;
+        else if (endPos < startPos)
+            endPos = startPos;
+
         int inserted = newValues==null? 0 : newValues.size();
         // If we are replacing it all, and, since we don't want copies of SequenceRef, if it isn't a SequenceRef
         if (startPos == 0 && endPos == oldSize && !(newValues instanceof SequenceRef)) {
@@ -1009,6 +1065,8 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
+        boolean wasUninitialized = 
+                instance.varTestBits$(varNum, FXObject.VFLGS$DEFAULT_APPLIED, 0);
         instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
@@ -1018,12 +1076,17 @@ public class SequencesBase {
             instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
             oldValue = (Sequence<? extends T>) instance.get$(varNum);
         }
-        Sequence<? extends T> arr = replaceSlice(oldValue, newValues, startPos, endPos);
-        int newLength = newValues == null ? 0 : newValues.size();
-        instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
-        instance.be$(varNum, arr);
-        instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
-        return arr;
+        if (preReplaceSlice(oldValue, newValues, startPos, endPos) ||
+                wasUninitialized) {
+            int newLength = newValues == null ? 0 : newValues.size();
+            instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
+            Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValues, startPos, endPos);
+            instance.be$(varNum, arr);
+            instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
+            return arr;
+        }
+        else
+            return oldValue;
     }
 
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
