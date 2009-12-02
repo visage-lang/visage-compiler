@@ -1887,6 +1887,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }
                     
+                    if (!override) {
+                        // notifyDependents(VOFF$var, phase$);
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
+                    }
+                    
                     // Wrap up main block.
                     JCBlock mainBlock = endBlock();
                     
@@ -1903,9 +1908,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(OptIf(NOT(FlagTest(proxyVarSym, phaseArg(), phaseArg())),
                                 mainBlock, mixinBlock));
                     } else {
-                        // notifyDependents(VOFF$var, phase$);
-                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
-                    
                         // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
                         addStmt(If(NOT(FlagChange(proxyVarSym, null, phaseArg())),
                                 mainBlock, mixinBlock));
