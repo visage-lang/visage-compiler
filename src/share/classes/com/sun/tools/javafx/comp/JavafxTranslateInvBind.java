@@ -32,6 +32,7 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Translate an inversion of bind expressions.
@@ -94,24 +95,60 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
                     targetSymbol.type);
         }
 
-        JCStatement init() {
-            JCExpression rcvr = refSym.isStatic() ? getReceiver(refSym) : translateToCheck(getToCheck());
-            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), rcvr, Offset(getReceiver(selectorSym), refSym));
+        private JCStatement init() {
+            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), selector(), Offset(getReceiver(selectorSym), refSym));
             return
                 SetStmt(targetSymbol,
                     m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceProxyType)), args, null)
                 );
         }
 
+        private JCExpression selector() {
+            return refSym.isStatic() ?
+                getReceiver(refSym) :
+                concreteSelector();
+        }
+
+        private JCExpression concreteSelector() {
+            return translateToCheck(getToCheck());
+        }
+
         // ---- Stolen from BoundSequenceTranslator ----
         //TODO: unify
+
+        private Name activeFlagBit = defs.varFlagDEFAULT_APPLIED;
+        VarSymbol flagSymbol = (VarSymbol)targetSymbol;
+
+        JCExpression isSequenceActive() {
+            return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
+        }
+
+        JCExpression isSequenceDormantSetActive() {
+            return NOT(FlagChange(flagSymbol, null, activeFlagBit));
+        }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
             return Call(rcvr, attributeGetElementName(sym), pos);
         }
 
+        JCExpression CallSize(Symbol sym) {
+            return CallSize(getReceiver(), sym);
+        }
+
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
             return Call(rcvr, attributeSizeName(sym));
+        }
+
+        JCExpression Undefined() {
+            return Int(JavafxDefs.UNDEFINED_MARKER_INT);
+        }
+
+        JCStatement CallSeqInvalidateUndefined(Symbol sym) {
+            return CallSeqInvalidate(sym, Int(0), Undefined(), Undefined(), id(defs.varFlagIS_INVALID));
+        }
+
+        JCStatement CallSeqInvalidate(Symbol sym, JCExpression begin, JCExpression end, JCExpression newLen, JCExpression phase) {
+            return CallStmt(attributeInvalidateName(sym), begin, end, newLen, phase);
         }
 
         /**
@@ -119,7 +156,20 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
          */
         JCStatement makeSizeBody() {
             return
-                Return (CallSize(translateToCheck(getToCheck()), refSym) );
+                Block(
+                    If (isSequenceDormantSetActive(),
+                        Block(
+                            CallStmt(defs.FXBase_addDependent,
+                                        selector(),
+                                        Offset(selector(), refSym),
+                                        getReceiverOrThis(selectorSym)
+                            ),
+                            CallSeqInvalidateUndefined(targetSymbol),
+                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), CallSize(concreteSelector(), refSym), id(defs.varFlagNEEDS_TRIGGER))
+                        )
+                    ),
+                    Return (CallSize(concreteSelector(), refSym))
+                );
         }
 
         /**
@@ -127,7 +177,12 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
          */
         JCStatement makeGetElementBody() {
             return
-                Return (CallGetElement(translateToCheck(getToCheck()), refSym, posArg()));
+                Block(
+                    If (NOT(isSequenceActive()),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return (CallGetElement(concreteSelector(), refSym, posArg()))
+                );
         }
     }
 
