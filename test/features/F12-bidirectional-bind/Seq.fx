@@ -16,7 +16,7 @@ var bseq : Integer[] = bind aseq with inverse
 insert 101 into aseq;
 insert 102 into bseq;
 aseq[2]=22;
-bseq[1]=11;
+bseq[1]=21;
 print("aseq "); println(aseq);
 print("bseq "); println(bseq);
 
