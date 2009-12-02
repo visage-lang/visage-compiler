@@ -95,7 +95,8 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         }
 
         JCStatement init() {
-            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), translateToCheck(getToCheck()), Offset(getReceiver(selectorSym), refSym));
+            JCExpression rcvr = refSym.isStatic() ? getReceiver(refSym) : translateToCheck(getToCheck());
+            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), rcvr, Offset(getReceiver(selectorSym), refSym));
             return
                 SetStmt(targetSymbol,
                     m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceProxyType)), args, null)
