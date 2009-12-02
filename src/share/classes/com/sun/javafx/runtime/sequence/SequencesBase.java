@@ -962,7 +962,15 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        while (oldValue instanceof SequenceProxy) {
+            SequenceProxy sp = (SequenceProxy) oldValue;
+            instance = sp.instance();
+            varNum = sp.varNum();
+            instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+            oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        }
         int newLength = newValue==null?0:1;
         instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
         Sequence<? extends T> arr = replaceSlice(oldValue, newValue, startPos, endPos);
@@ -1001,8 +1009,15 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
-        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$DEFAULT_APPLIED);
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        while (oldValue instanceof SequenceProxy) {
+            SequenceProxy sp = (SequenceProxy) oldValue;
+            instance = sp.instance();
+            varNum = sp.varNum();
+            instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+            oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        }
         Sequence<? extends T> arr = replaceSlice(oldValue, newValues, startPos, endPos);
         int newLength = newValues == null ? 0 : newValues.size();
         instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
@@ -1021,7 +1036,6 @@ public class SequencesBase {
 
     public static <T> Sequence<? extends T> set(FXObject instance, int varNum, Sequence<? extends T> newValue) {
         //TODO: should give slice invalidations, as if below, but should actually set to the new sequence
-        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$IS_INITIALIZED);
         return replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum));
     }
 
@@ -1030,7 +1044,6 @@ public class SequencesBase {
     }
 
     public static <T> T set(FXObject instance, int varNum, T newValue, int index) {
-        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$IS_INITIALIZED);
         replaceSlice(instance, varNum, newValue, index, index + 1);
         return newValue;
     }
@@ -1047,7 +1060,15 @@ public class SequencesBase {
     public static <T> void insert(FXObject instance, int varNum, T newValue) {
         if (newValue == null)
             return;
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        while (oldValue instanceof SequenceProxy) {
+            SequenceProxy sp = (SequenceProxy) oldValue;
+            instance = sp.instance();
+            varNum = sp.varNum();
+            instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+            oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        }
         int oldSize = oldValue.size();
         int newLength = newValue==null?0:1;
         Sequence<? extends T> arr = insert(oldValue, newValue);
@@ -1070,7 +1091,15 @@ public class SequencesBase {
         int inserted = values.size();
         if (inserted == 0)
             return;
+        instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        while (oldValue instanceof SequenceProxy) {
+            SequenceProxy sp = (SequenceProxy) oldValue;
+            instance = sp.instance();
+            varNum = sp.varNum();
+            instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+            oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        }
         int oldSize = oldValue.size();
         int newLength = values == null ? 0 : values.size();
         Sequence<? extends T> arr = insert(oldValue, values);
@@ -1114,6 +1143,12 @@ public class SequencesBase {
 
     public static <T> void deleteValue(FXObject instance, int varNum, T value) {
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        while (oldValue instanceof SequenceProxy) {
+            SequenceProxy sp = (SequenceProxy) oldValue;
+            instance = sp.instance();
+            varNum = sp.varNum();
+            oldValue = (Sequence<? extends T>) instance.get$(varNum);
+        }
         // It's tempting to just do:
         //   Sequence<? extends T> arr = deleteValue(oldValue, value);
         //   instance.be$(varNum, arr);

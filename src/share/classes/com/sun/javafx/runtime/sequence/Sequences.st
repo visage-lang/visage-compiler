@@ -82,11 +82,19 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
     }
 
     public static Sequence<? extends $Tboxed$> replaceSlice(FXObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
+        instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
         Sequence<? extends $Tboxed$> oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
+        while (oldValue instanceof SequenceProxy) {
+            SequenceProxy sp = (SequenceProxy) oldValue;
+            instance = sp.instance();
+            varNum = sp.varNum();
+            instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+            oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
+        }
         instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$IS_INVALID);
         Sequence<? extends $Tboxed$> arr = replaceSlice(oldValue, newValue, startPos, endPos);
         instance.be\$(varNum, arr);
-        instance.invalidate\$(varNum, startPos, endPos, 1,  FXObject.VFLGS\$NEEDS_TRIGGER);
+        instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$NEEDS_TRIGGER);
         return arr;
     }
 
@@ -95,7 +103,6 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
     }
 
     public static $Tprim$ set(FXObject instance, int varNum, $Tprim$ newValue, int index) {
-        instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$IS_INITIALIZED);
         replaceSlice(instance, varNum, newValue, index, index + 1);
         return newValue;
     }
