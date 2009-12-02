@@ -39,6 +39,7 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.comp.JavafxDefs;
 import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCIdent;
+import com.sun.tools.mjavac.util.Options;
 
 /** Prints out a tree as an indented Java source program.
  *
@@ -54,10 +55,13 @@ public class JavaPretty extends Pretty {
 	private HashSet<Name> importedClasses = new HashSet<Name>();
     private boolean seenImport;
 
-    public static final boolean showAnnotations = true;
+    public final boolean verbose;
 	
     public JavaPretty(Writer out, boolean sourceOutput, Context context) {
         super(out, sourceOutput);
+
+        Options options = Options.instance(context);
+        verbose = options.get("dumpverbosejava") != null;
 
 		JavafxDefs defs = JavafxDefs.instance(context);
 		    importedPackages.add(defs.runtime_PackageName);
@@ -69,7 +73,7 @@ public class JavaPretty extends Pretty {
 
     @Override
     public void visitAnnotation(JCAnnotation tree) {
-        if (showAnnotations) {
+        if (verbose) {
             // Super class implementation prints only simple name for
             // annotation type. So, com.sun.javafx.runtime.Package is
             // printed as Package which clashes with java.lang.Package!!
