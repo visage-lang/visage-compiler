@@ -1050,7 +1050,9 @@ public abstract class JavafxTranslationSupport {
         }
 
         protected JCExpression resolveThis(Symbol owner, boolean nullForThis) {
-            JCExpression _this = resolveThisInternal(owner, enclosingClassDecl.sym, false);
+            JCExpression _this = owner.kind == Kinds.TYP ?
+                resolveThisInternal(owner, enclosingClassDecl.sym, false) :
+                id(names._this);
             return (nullForThis && _this.getTag() == JCTree.IDENT) ?
                 null :
                 _this;
