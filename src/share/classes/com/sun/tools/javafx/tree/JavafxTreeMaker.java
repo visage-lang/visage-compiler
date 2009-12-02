@@ -35,6 +35,7 @@ import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.comp.JavafxDefs;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
@@ -679,7 +680,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
        if (defsBuffer.size() > 0 || boundParts) {
            JFXExpression id = ident;
            while (id instanceof JFXSelect) id = ((JFXSelect)id).getExpression();
-           Name cname = syntheticClassName(((JFXIdent)id).getName());
+           Name cname = objectLiteralClassName(((JFXIdent)id).getName());
            long innerClassFlags = Flags.SYNTHETIC | Flags.FINAL; // to enable, change to Flags.FINAL
            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
        }
@@ -989,8 +990,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     private int syntheticClassNumber = 0;
 
-    Name syntheticClassName(Name superclass) {
-        return names.fromString(superclass.toString() + "$anon" + ++syntheticClassNumber);
+    Name syntheticClassName(Name superclass, String infix) {
+        return names.fromString(superclass.toString() + infix + ++syntheticClassNumber);
+    }
+
+    Name objectLiteralClassName(Name superclass) {
+        return syntheticClassName(superclass, JavafxDefs.objectLiteralClassInfix);
     }
 
     /**

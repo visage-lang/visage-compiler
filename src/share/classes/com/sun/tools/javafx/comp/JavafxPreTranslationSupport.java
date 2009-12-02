@@ -82,8 +82,9 @@ public class JavafxPreTranslationSupport {
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
     }
 
+    // Just adds a counter. prefix is expected to include "$"
     public Name syntheticName(String prefix) {
-        return names.fromString(prefix + "$" + tmpCount++);
+        return names.fromString(prefix + tmpCount++);
     }
 
     public JFXExpression defaultValue(Type type) {
@@ -181,7 +182,11 @@ public class JavafxPreTranslationSupport {
     }
 
     public MethodSymbol makeDummyMethodSymbol(Symbol owner) {
-        return new MethodSymbol(Flags.BLOCK, names.empty, null, owner);
+        return makeDummyMethodSymbol(owner, names.empty);
+    }
+
+    public MethodSymbol makeDummyMethodSymbol(Symbol owner, Name name) {
+        return new MethodSymbol(Flags.BLOCK, name, null, owner);
     }
 
     JFXType makeTypeTree(Type type) {

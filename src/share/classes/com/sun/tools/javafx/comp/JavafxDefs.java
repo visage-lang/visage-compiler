@@ -82,6 +82,20 @@ public class JavafxDefs {
     public static final String scriptClassSuffix = "$Script";
 
     /**
+     * Class prefixes
+     */
+    public static final String boundFunctionClassPrefix = "BFunc$";
+    public static final String boundForPartClassPrefix = "ForPart$";
+    public static final String localContextClassPrefix = "Local$";
+    public static final String anonFunctionClassPrefix = "AnonFunc$";
+    
+    /**
+     * Class name infixes
+     */
+    public static final String objectLiteralClassInfix = "$ObjLit$";
+    
+
+    /**
      * Package name strings
      *
      * Format: <name>_PackageNameString
@@ -438,6 +452,8 @@ public class JavafxDefs {
 
     final Name varOFF$valueName;
 
+    final Name boundForPartName;
+
     /**
      * Type Kinds
      */
@@ -612,6 +628,8 @@ public class JavafxDefs {
         varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
 
         varOFF$valueName = names.fromString("VOFF$value");
+
+        boundForPartName = names.fromString(boundForPartClassPrefix);
         
         runtime_PackageName = names.fromString(runtime_PackageString);
         annotation_PackageName = names.fromString(annotation_PackageString);
