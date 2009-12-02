@@ -271,9 +271,34 @@ public class JavafxLower implements JavafxVisitor {
 
     @Override
     public void visitAssign(JFXAssign tree) {
-        JFXExpression lhs = lower(tree.lhs);
-        JFXExpression rhs = lowerExpr(tree.rhs, tree.lhs.type);
-        result = m.at(tree.pos).Assign(lhs, rhs).setType(tree.type);
+        if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED &&
+                types.isSequence(((JFXSequenceIndexed)tree.lhs).getSequence().type) &&
+                (types.isSequence(tree.rhs.type) || types.isSameType(tree.rhs.type, syms.objectType))) {
+            result = lowerSequenceIndexedAssign(tree.pos(), (JFXSequenceIndexed)tree.lhs, tree.rhs, tree.type);
+        }
+        else {
+            JFXExpression lhs = lower(tree.lhs);
+            JFXExpression rhs = lowerExpr(tree.rhs, tree.lhs.type);
+            result = m.at(tree.pos).Assign(lhs, rhs).setType(tree.type);
+        }
+    }
+
+    JFXExpression lowerSequenceIndexedAssign(DiagnosticPosition pos, JFXSequenceIndexed indexed, JFXExpression val, Type resType) {
+
+        JFXVar indexVar = makeTmpVar(pos, "pos", indexed.getIndex(), indexed.getIndex().type);
+        JFXIdent indexRef = m.at(pos).Ident(indexVar);
+        indexRef.sym = indexVar.sym;
+        indexRef.type = indexVar.type;
+
+        JFXVar seqVar = makeTmpVar(pos, "seq", indexed.getSequence(), indexed.getSequence().type);
+        JFXIdent seqRef = m.at(pos).Ident(seqVar);
+        seqRef.sym = seqVar.sym;
+        seqRef.type = seqVar.type;
+        
+        JFXExpression insertStmt = m.at(pos).SequenceInsert(seqRef, val, indexRef, true).setType(syms.voidType);
+        JFXExpression indexedExpr = m.at(pos).SequenceIndexed(seqRef, indexRef).setType(types.elementType(indexed.getSequence().type));
+        JFXExpression deleteStmt = m.at(pos).SequenceDelete(indexedExpr).setType(syms.voidType);
+        return lower(m.at(pos).Block(0L, List.of(indexVar, seqVar, insertStmt, deleteStmt), indexedExpr).setType(resType));
     }
 
     @Override
@@ -673,7 +698,8 @@ public class JavafxLower implements JavafxVisitor {
     @Override
     public void visitSequenceInsert(JFXSequenceInsert that) {
         JFXExpression seq = lower(that.getSequence());
-        Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ?
+        Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ||
+                types.isSameType(syms.objectType, that.getElement().type) ?
                 that.getSequence().type :
                 types.elementType(that.getSequence().type);
         JFXExpression el = lowerExpr(that.getElement(), typeToCheck);
