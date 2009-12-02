@@ -24,7 +24,6 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
@@ -37,13 +36,11 @@ import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
-import java.util.HashMap;
 import java.util.Stack;
 
 /**
@@ -158,7 +155,7 @@ public class JavafxLocalToClass {
             // Lower has made the body a block-expression
             boolean prevStatic = isStatic;
             isStatic = false;
-            pushOwner(preTrans.makeDummyMethodSymbol(owner), false);
+            pushOwner(preTrans.makeDummyMethodSymbol(owner, defs.boundForPartName), false);
             blockWithin((JFXBlock) tree.getBodyExpression());
             popOwner();
             isStatic = prevStatic;
@@ -421,8 +418,17 @@ public class JavafxLocalToClass {
      *   }
      */
     private void inflateBlockToClass(JFXBlock block) {
-        final Name funcName = preTrans.syntheticName("doit$");
-        final Name className = preTrans.syntheticName("local_klass");
+        final Name funcName = preTrans.syntheticName("doit$$");
+
+        String classNamePrefix;
+        if (owner instanceof MethodSymbol && (owner.flags() & JavafxFlags.BOUND) != 0L) {
+            classNamePrefix = defs.boundFunctionClassPrefix;
+        } else if (owner instanceof MethodSymbol && owner.name == defs.boundForPartName) {
+            classNamePrefix = defs.boundForPartClassPrefix;
+        } else {
+            classNamePrefix = defs.localContextClassPrefix;
+        }
+        final Name className = preTrans.syntheticName(classNamePrefix);
 
         final JavafxClassSymbol classSymbol = preTrans.makeClassSymbol(className, owner);
 
@@ -511,7 +517,7 @@ public class JavafxLocalToClass {
         if (vc.returnFound) {
             // We have a non-local return -- wrap it in try-catch
             JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(vc.returnType);
-            JFXVar param = fxmake.Param(preTrans.syntheticName("expt"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
+            JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
             param.setType(syms.javafx_NonLocalReturnExceptionType);
             param.sym = new VarSymbol(0L, param.name, param.type, owner);
             JFXExpression retValue = null;
