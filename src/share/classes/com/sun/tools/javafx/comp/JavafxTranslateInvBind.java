@@ -82,7 +82,6 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
         @Override
         protected BoundSequenceResult doit() {
-            buildDependencies(selectorSym);
             addInterClassBindee((VarSymbol) selectorSym, refSym);
             return new BoundSequenceResult(
                     List.of(init()),
@@ -105,7 +104,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
         private JCExpression selector() {
             return refSym.isStatic() ?
-                getReceiver(refSym) :
+                Getter(selectorSym) :
                 concreteSelector();
         }
 
