@@ -23,8 +23,6 @@
 
 package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.FXObject;
-import com.sun.tools.javafx.comp.JavafxDefs;
-
 
 public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
 
@@ -62,7 +60,7 @@ public abstract class BoundForHelperNaive<T, PT> extends BoundForHelper<T, PT> {
     }
 
     private void blanketInvalidationOfBoundFor() {
-        container.invalidate$(forVarNum, 0, JavafxDefs.UNDEFINED_MARKER_INT, JavafxDefs.UNDEFINED_MARKER_INT, FXObject.VFLGS$IS_INVALID);
+        container.invalidate$(forVarNum, 0, SequencesBase.UNDEFINED_MARKER_INT, SequencesBase.UNDEFINED_MARKER_INT, FXObject.VFLGS$IS_INVALID);
     }
 
     // Called by invalidate when the result of a part changes.
