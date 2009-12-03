@@ -3396,7 +3396,7 @@ public abstract class JavafxAbstractTranslation
             if (first == null)
                 init = Int(0);
             else {
-                init = translateExpr(first, syms.intType);
+                init = translateToExpression(first, syms.intType);
                 if (first.getFXTag() == JavafxTag.LITERAL && ! isNegative(first))
                     maxForStartNeeded = false;
                 // FIXME set maxForStartNeeded false if first is replace-trigger startPos and seq is oldValue
@@ -3417,7 +3417,7 @@ public abstract class JavafxAbstractTranslation
                     limitExpr = MINUS(limitExpr, Int(1));
             }
             else {
-                limitExpr = translateExpr(last, syms.intType);
+                limitExpr = translateToExpression(last, syms.intType);
                 if (endKind == SequenceSliceTree.END_INCLUSIVE)
                     limitExpr = PLUS(limitExpr, Int(1));
                 // FIXME can optimize if last is replace-trigger endPos and seq is oldValue
@@ -3456,10 +3456,10 @@ public abstract class JavafxAbstractTranslation
             // Collect all the loop initializing statements (variable declarations)
             ListBuffer<JCStatement> tinits = ListBuffer.lb();
             // Set the initial value of the induction variable to be the low end of the range, and add it the the initializing statements
-            inductionVar.init = translateExpr(range.getLower(), inductionVarType);
+            inductionVar.init = translateToExpression(range.getLower(), inductionVarType);
             tinits.append(inductionVar);
             // Record the upper end of the range in a final variable, and add it the the initializing statements
-            JCVariableDecl upperVar = TmpVar("upper", translateExpr(range.getUpper(), inductionVarType));
+            JCVariableDecl upperVar = TmpVar("upper", translateToExpression(range.getUpper(), inductionVarType));
             tinits.append(upperVar);
             // The expression which will be used in increment the induction variable
             JCExpression tstepIncrExpr;
@@ -3469,7 +3469,7 @@ public abstract class JavafxAbstractTranslation
             JFXExpression step = range.getStepOrNull();
             if (step != null) {
                 // There is a user specified step expression
-                JCExpression stepVal = translateExpr(step, inductionVarType);
+                JCExpression stepVal = translateToExpression(step, inductionVarType);
                 if (step.getFXTag() == JavafxTag.LITERAL) {
                     // The step expression is a literal, no need for a variable to hold it, and we can test if the range is scending at compile time
                     tstepIncrExpr = stepVal;
@@ -3543,7 +3543,7 @@ public abstract class JavafxAbstractTranslation
                     } else {
                         sseq = clause.seqExpr;
                     }
-                    seqVar = TmpVar("seq", seq.type, asExpression(translateToExpressionResult(sseq, seq.type), seq.type));
+                    seqVar = TmpVar("seq", seq.type, translateToExpression(sseq, seq.type));
                     varInit = new SequenceIndexedTranslator(diagPos, sseq, id(seqVar), id(inductionVar), inductionVarType).doitExpr();
                 } else {
                     varInit = id(inductionVar);
@@ -3565,7 +3565,7 @@ public abstract class JavafxAbstractTranslation
                         slice.getEndKind(), seqVar);
             } else {
                 // We will be using the sequence as a whole, so translate it
-                JCExpression tseq = asExpression(translateToExpressionResult(seq, null), null);
+                JCExpression tseq = translateToExpression(seq, null);
                 if (types.isSequence(seq.type)) {
                     // Iterating over a non-range sequence, use a foreach loop, but first convert null to an empty sequence
                     tseq = Call(defs.Sequences_forceNonNull,
