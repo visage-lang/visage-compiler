@@ -828,7 +828,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         private JCExpression getSize() {
             if (refSym.isStatic()) {
-                return CallSize(refSym);
+                return CallSize(makeType(refSym.owner), refSym);
             } else {
                 return
                     If (EQnull(selector()),
