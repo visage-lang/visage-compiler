@@ -1618,9 +1618,13 @@ public abstract class JavafxTranslationSupport {
          * Method calls -- returning a JCExpression
          */
 
-        JCExpression Call(JCExpression receiver, Name methodName, List<JCExpression> args) {
+        JCExpression Call(JCExpression receiver, Name methodName, List<JCExpression> typeArgs, List<JCExpression> args) {
             JCExpression expr = Select(receiver, methodName);
-            return m().Apply(List.<JCExpression>nil(), expr, args);
+            return m().Apply(typeArgs, expr, args);
+        }
+
+        JCExpression Call(JCExpression receiver, Name methodName, List<JCExpression> args) {
+            return Call(receiver, methodName, List.<JCExpression>nil(), args);
         }
 
         JCExpression Call(JCExpression receiver, Name methodName, ListBuffer<JCExpression> args) {
@@ -1645,8 +1649,16 @@ public abstract class JavafxTranslationSupport {
         }
 
 
+        JCExpression Call(RuntimeMethod meth, List<JCExpression> typeArgs, List<JCExpression> args) {
+            return Call(QualifiedTree(meth.classString), meth.methodName, typeArgs, args);
+        }
+
+        JCExpression Call(RuntimeMethod meth, ListBuffer<JCExpression> typeArgs, ListBuffer<JCExpression> args) {
+            return Call(meth, typeArgs.toList(), args.toList());
+        }
+
         JCExpression Call(RuntimeMethod meth, List<JCExpression> args) {
-            return Call(QualifiedTree(meth.classString), meth.methodName, args);
+            return Call(meth, List.<JCExpression>nil(), args);
         }
 
         JCExpression Call(RuntimeMethod meth, ListBuffer<JCExpression> args) {

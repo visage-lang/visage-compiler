@@ -3039,7 +3039,22 @@ public abstract class JavafxAbstractTranslation
                     args.append(id(paramStartPosName(onReplace)));
                     args.append(id(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);
-                    return Call(defs.Sequences_getAsFromNewElements[typeKind], args);
+                    List<JCExpression> typeArgs;
+                    if (typeKind == JavafxDefs.TYPE_KIND_OBJECT) {
+                        /*
+                         * We are calling SequencesBase.getFromNewElements() which
+                         * accepts type argument for the returned sequence element type.
+                         * If we don't pass correct type argument, we will get Object type.
+                         * For example, for Sequence<? extends String> we want to pass "String" 
+                         * as type arg, so that the return type is "String" and not "Object".
+                         */
+                        ListBuffer<JCExpression> typeArgsBuf = ListBuffer.lb();
+                        typeArgsBuf.append(makeType(seq.type.getTypeArguments().head.removeBounds()));
+                        typeArgs = typeArgsBuf.toList();
+                    } else {
+                        typeArgs = List.<JCExpression>nil();
+                    }
+                    return Call(defs.Sequences_getAsFromNewElements[typeKind], typeArgs, args.toList());
                 }
             }
             Name getMethodName = defs.typedGet_SequenceMethodName[typeKind];
