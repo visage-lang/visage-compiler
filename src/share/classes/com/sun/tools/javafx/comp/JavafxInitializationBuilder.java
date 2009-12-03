@@ -2470,14 +2470,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 isScript() ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
             final List<VarInfo> varInfos = isScript() ? analysis.scriptVarInfos() : analysis.classVarInfos();
             final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
-
+            
             makeApplyDefaultsMethod(varInfos, varCount);
             makeInitVarBitsMethod(varInfos);
             
             makeUpdateMethod(varInfos, updateMap, false);
             makeUpdateMethod(varInfos, updateMap, true);
             
-            if (!isMixinClass() && varCount > 0) {
+            if ((isScript() || !isMixinClass()) && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
                 makeGetElementMethod(varInfos, varCount);
                 makeSizeMethod(varInfos, varCount);
