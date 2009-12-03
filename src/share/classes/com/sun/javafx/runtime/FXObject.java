@@ -35,16 +35,6 @@ package com.sun.javafx.runtime;
  */
 public interface FXObject {
     /**
-     * Number of bits needed for each var.
-     */
-    public static final int VFLGS$BITS_PER_VAR = 8;
-    
-    /**
-     * Number of var slots per word.
-     */
-    public static final int VFLGS$VARS_PER_WORD = 32 / VFLGS$BITS_PER_VAR;
-    
-    /**
      * Var bit flags.
      */
     public static final int VFLGS$IS_INVALID = 1;
@@ -72,17 +62,12 @@ public interface FXObject {
     public static final int VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED = VFLGS$DEFAULT_APPLIED | VFLGS$IS_INITIALIZED;
     public static final int VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY = VFLGS$DEFAULT_APPLIED | VFLGS$IS_INITIALIZED | VFLGS$IS_READONLY;
 
-
-
-    public static final int VFLGS$ALL_FLAGS = (1 << VFLGS$BITS_PER_VAR) - 1;
+    public static final int VFLGS$ALL_FLAGS = -1;
 
     public void     initFXBase$     ();
-    
-    public int      getVFLGS$small$internal$();
-    public void     setVFLGS$small$internal$(final int small);
-    public byte[]   getVFLGS$large$internal$();
-    public void     setVFLGS$large$internal$(final byte[] large);
 
+    public int getFlags$(final int varNum);
+    public void setFlags$(final int varNum, final int value);
     public boolean varTestBits$(final int varNum, int maskBits, int testBits);
     public boolean varChangeBits$(final int varNum, int clearBits, int setBits);
     public void restrictSet$(final int varNum);

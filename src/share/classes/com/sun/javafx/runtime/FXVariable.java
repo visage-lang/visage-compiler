@@ -204,24 +204,6 @@ public final class FXVariable extends Object implements FXObject {
     public void setDependentsManager$internal$(final DependentsManager value) {
         DependentsManager$internal$ = value;
     }
-
-    // This class has only one field and is final. We don't need large flag field
-    public byte[] getVFLGS$large$internal$() {
-        throw new UnsupportedOperationException("large flags field is not needed for FXVariable!");
-    }
-    
-    public void setVFLGS$large$internal$(final byte[] value) {
-    }
-
-    public int VFLGS$small$internal$;
-
-    public int getVFLGS$small$internal$() {
-        return VFLGS$small$internal$;
-    }
-    
-    public void setVFLGS$small$internal$(final int value) {
-        VFLGS$small$internal$ = value;
-    }
     
     public double getAsDouble$(final int arg0, final int arg1) {
         return FXBase.getAsDouble$(this, arg0, arg1);
@@ -313,6 +295,14 @@ public final class FXVariable extends Object implements FXObject {
     
     public void restrictSet$(final int arg0) {
         FXBase.restrictSet$(this, arg0);
+    }
+
+    public int getFlags$(final int arg0) {
+        return FXBase.getFlags$(this, arg0);
+    }
+
+    public void setFlags$(final int arg0, final int arg1) {
+        FXBase.setFlags$(this, arg0, arg1);
     }
     
     public boolean varChangeBits$(final int arg0, final int arg1, final int arg2) {

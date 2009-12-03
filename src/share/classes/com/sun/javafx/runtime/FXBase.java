@@ -110,7 +110,9 @@ import com.sun.javafx.runtime.sequence.Sequences;
         initFXBase$(this);
     }
     public static void initFXBase$(FXObject obj) {
-        allocateVarBits$(obj);
+        // Make sure the var offsets are set.
+        obj.count$();
+        // Initialize the var flags.
         obj.initVarBits$();
     }
 
@@ -118,105 +120,35 @@ import com.sun.javafx.runtime.sequence.Sequences;
     public static final int VCNT$ = 0;
     public int count$() { return VCNT$(); }
 
-    /**
-     * Status bits for vars.  Array is for bits greater than 32, null if not needed.
-     */
-    public int    VFLGS$small$internal$;
-    public byte[] VFLGS$large$internal$;
-    public int    getVFLGS$small$internal$()             { return VFLGS$small$internal$; }
-    public void   setVFLGS$small$internal$(int small)    { VFLGS$small$internal$ = small; }
-    public byte[] getVFLGS$large$internal$()             { return VFLGS$large$internal$; }
-    public void   setVFLGS$large$internal$(byte[] large) { VFLGS$large$internal$ = large; }
-
-    /**
-     * Allocate var status bits.
-     */
-    private void allocateVarBits$() {
-        allocateVarBits$(this);
+    public int getFlags$(final int varNum) {
+        return getFlags$(this, varNum);
     }
-    private static void allocateVarBits$(FXObject obj) {
-        int count = obj.count$();
-
-        if (count > VFLGS$VARS_PER_WORD) {
-            if (obj.getVFLGS$large$internal$() == null) {
-                int length = count - VFLGS$VARS_PER_WORD;
-                obj.setVFLGS$large$internal$(new byte[length]);
-            }
-        }
+    public static int getFlags$(FXObject obj, final int varNum) {
+        return 0;
     }
-
-    private static void printBits$(final int bits) {
-        System.err.print("(");
-        if ((bits & VFLGS$IS_INVALID) != 0)             System.err.print(" Invalid");
-        if ((bits & VFLGS$NEEDS_TRIGGER) != 0)          System.err.print(" NeedsTrigger");
-        if ((bits & VFLGS$IS_BOUND) != 0)               System.err.print(" Bound");
-        if ((bits & VFLGS$IS_READONLY) != 0)            System.err.print(" Readonly");
-        if ((bits & VFLGS$DEFAULT_APPLIED) != 0)        System.err.print(" DefaultApplied");
-        if ((bits & VFLGS$IS_INITIALIZED) != 0)         System.err.print(" Initialized");
-        if ((bits & VFLGS$AWAIT_VARINIT) != 0)          System.err.print(" Await");
-        System.err.print(" )");
+    
+    public void setFlags$(final int varNum, final int value) {
+        setFlags$(this, varNum, value);
     }
-
-    public static void printBitsAction$(String title, FXObject obj, final int varNum, final int bits1, final int bits2) {
-        System.err.print(title + ": " + obj + "[" + varNum + "] ");
-        printBits$(bits1);
-        printBits$(bits2);
-
-        int index = varNum - VFLGS$VARS_PER_WORD;
-        int flags;
-
-        if (index >= 0) {
-            byte[] large = obj.getVFLGS$large$internal$();
-            flags = large[index];
-        } else {
-            int shift = varNum * VFLGS$BITS_PER_VAR;
-            flags = obj.getVFLGS$small$internal$() >> shift;
-        }
-        printBits$(flags);
-
-        System.err.println();
+    public static void setFlags$(FXObject obj, final int varNum, final int value) {
     }
-
+    
     public boolean varTestBits$(final int varNum, int maskBits, int testBits) {
         return varTestBits$(this, varNum, maskBits, testBits);
     }
     public static boolean varTestBits$(FXObject obj, final int varNum, int maskBits, int testBits) {
-        //printBitsAction$("Tst", obj, varNum, maskBits, testBits);
-        int index = varNum - VFLGS$VARS_PER_WORD;
-        int flags;
-
-        if (index >= 0) {
-            byte[] large = obj.getVFLGS$large$internal$();
-            flags = large[index];
-        } else {
-            int shift = varNum * VFLGS$BITS_PER_VAR;
-            flags = obj.getVFLGS$small$internal$() >> shift;
-        }
-
-        return (flags & maskBits) == testBits;
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        return (obj.getFlags$(varNum) & maskBits) == testBits;
     }
 
     public boolean varChangeBits$(final int varNum, int clearBits, int setBits) {
         return varChangeBits$(this, varNum, clearBits, setBits);
     }
     public static boolean varChangeBits$(FXObject obj, final int varNum, int clearBits, int setBits) {
-        //printBitsAction$("Chg", obj, varNum, clearBits, setBits);
-        int index = varNum - VFLGS$VARS_PER_WORD;
-        int flags;
-
-        if (index >= 0) {
-            byte[] large = obj.getVFLGS$large$internal$();
-            flags = large[index];
-            large[index] = (byte)((flags & ~clearBits) | setBits);
-        } else {
-            flags = obj.getVFLGS$small$internal$();
-            int shift = varNum * VFLGS$BITS_PER_VAR;
-            obj.setVFLGS$small$internal$((flags & ~(clearBits << shift)) | (setBits << shift));
-            flags >>= shift;
-        }
-
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        int flags = obj.getFlags$(varNum);
+        obj.setFlags$(varNum, ((flags & ~clearBits) | setBits));
         int bits = clearBits | setBits;
-
         return (flags & bits) == bits;
     }
 

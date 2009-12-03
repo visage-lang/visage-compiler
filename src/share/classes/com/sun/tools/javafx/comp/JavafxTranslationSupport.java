@@ -552,6 +552,10 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, offset_AttributeFieldPrefix);
     }
     
+    Name attributeFlagsName(Symbol sym) {
+        return prefixedAttributeName(sym, flags_AttributeFieldPrefix);
+    }
+    
     Name attributeValueName(Symbol sym) {
         return prefixedAttributeName(sym, value_AttributeFieldPrefix);
     }
@@ -1104,19 +1108,82 @@ public abstract class JavafxTranslationSupport {
         //
         // Private support methods for testing/setting/clearing a var flag.
         //
+        
+        private boolean isJCIdentName(JCExpression ident, Name name) {
+            return ident instanceof JCIdent && ((JCIdent)ident).getName() == name;
+        }
+        
+        protected JCExpression flagCast(JCExpression expr) {
+            return m().TypeCast(makeType(syms.byteType, true), expr);
+        }
 
-        private JCExpression FlagAction(VarSymbol varSym, Name action, Name clearBits, Name setBits) {
+        private JCExpression FlagAction(VarSymbol varSym, Name action, Name clearBits, Name setBits, boolean isStmt) {
             return FlagAction(varSym, action,
-                        clearBits != null ? id(clearBits) : Int(0),
-                        setBits != null ? id(setBits) : Int(0));
+                        clearBits != null ? id(clearBits) : null,
+                        setBits != null ? id(setBits) : null,
+                        isStmt);
         }
-        private JCExpression FlagAction(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits) {
-            return Call(getReceiver(varSym), action, Offset(varSym),
-                        clearBits != null ? clearBits : Int(0),
-                        setBits != null ? setBits : Int(0));
+        private JCExpression FlagAction(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits, boolean isStmt) {
+            assert clearBits != null || setBits != null : "Need to specify which bits";
+            
+            boolean  clearBitsNull = clearBits == null;
+            boolean  setBitsNull = setBits == null;
+            if (clearBitsNull) clearBits = Int(0);
+            if (setBitsNull) setBits = Int(0);
+            
+            if (!isMixinClass()) {
+                if (action == defs.varFlagActionTest) {
+                    return EQ(BITAND(VarFlags(varSym), clearBits), setBits);
+                } else /* if (action == defs.varFlagActionChange) */ {
+                    JCExpression assignExpr;
 
+                    if (isStmt) {
+                        if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
+                            assignExpr = m().Assign(VarFlags(varSym), flagCast(setBits));
+                        } else if (clearBitsNull) {
+                            assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(setBits));
+                        } else if (setBitsNull) {
+                            assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(clearBits)));
+                        } else {
+                            assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(clearBits)), setBits)));
+                        }
+                        
+                        return assignExpr;
+                    } else {
+                        ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                        JCVariableDecl bitsVar;
+                    
+                        if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
+                            bitsVar = TmpVar(syms.intType, setBits);
+                            assignExpr = m().Assign(VarFlags(varSym), flagCast(id(bitsVar.name)));
+                        } else if (clearBitsNull) {
+                            bitsVar = TmpVar(syms.intType, setBits);
+                            assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(id(bitsVar.name)));
+                        } else if (setBitsNull) {
+                            bitsVar = TmpVar(syms.intType, clearBits);
+                            assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(id(bitsVar.name))));
+                        } else {
+                            JCVariableDecl clearBitsVar = TmpVar(syms.intType, clearBits);
+                            JCVariableDecl setBitsVar = TmpVar(syms.intType, setBits);
+                            stmts.append(clearBitsVar);
+                            stmts.append(setBitsVar);
+                            bitsVar = TmpVar(syms.intType, BITOR(id(clearBitsVar.name), id(setBitsVar.name)));
+                            assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(id(clearBitsVar.name))), id(bitsVar.name))));
+                        }
+                        
+                        stmts.append(bitsVar);
+                        JCVariableDecl testVar = TmpVar(syms.booleanType, EQ(BITAND(VarFlags(varSym), id(bitsVar.name)), id(bitsVar.name)));
+                        stmts.append(testVar);
+                        stmts.append(Stmt(assignExpr));
+                        
+                        return BlockExpression(stmts, id(testVar.name));
+                    }
+                }
+            }
+            
+            return Call(getReceiver(varSym), action, Offset(varSym), clearBits, setBits);
         }
-        private JCExpression FlagAction(JCExpression offset, Name action, Name clearBits, Name setBits) {
+        private JCExpression FlagAction(JCExpression offset, Name action, Name clearBits, Name setBits, boolean isStmt) {
             return Call(action, offset,
                         clearBits != null ? id(clearBits) : Int(0),
                         setBits != null ? id(setBits) : Int(0));
@@ -1127,23 +1194,23 @@ public abstract class JavafxTranslationSupport {
         //
 
         protected JCExpression FlagTest(VarSymbol varSym, Name clearBits, Name setBits) {
-            return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits);
+            return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits, false);
         }
         protected JCExpression FlagTest(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
-            return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits);
+            return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits, false);
         }
         protected JCExpression FlagTest(JCExpression offset, Name clearBits, Name setBits) {
-            return FlagAction(offset, defs.varFlagActionTest, clearBits, setBits);
+            return FlagAction(offset, defs.varFlagActionTest, clearBits, setBits, false);
         }
 
         protected JCExpression FlagChange(VarSymbol varSym, Name clearBits, Name setBits) {
-            return FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits);
+            return FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, false);
         }
         protected JCExpression FlagChange(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
-            return FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits);
+            return FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, false);
         }
         protected JCExpression FlagChange(JCExpression offset, Name clearBits, Name setBits) {
-            return FlagAction(offset, defs.varFlagActionChange, clearBits, setBits);
+            return FlagAction(offset, defs.varFlagActionChange, clearBits, setBits, false);
         }
 
 
@@ -1152,21 +1219,22 @@ public abstract class JavafxTranslationSupport {
         //
 
         protected JCStatement FlagChangeStmt(VarSymbol varSym, Name clearBits, Name setBits) {
-            return Stmt(FlagChange(varSym, clearBits, setBits));
+            return Stmt(FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, true));
         }
 
         protected JCStatement FlagChangeStmt(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
-            return Stmt(FlagChange(varSym, clearBits, setBits));
+            return Stmt(FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, true));
         }
 
         protected JCStatement FlagChangeStmt(JCExpression offset, Name clearBits, Name setBits) {
-            return Stmt(FlagChange(offset, clearBits, setBits));
+            return Stmt(FlagAction(offset, defs.varFlagActionChange, clearBits, setBits, true));
         }
 
         //
         // Methods to generate simple constants.
         //
         protected JCExpression Int(int value)         { return m().Literal(TypeTags.INT, value); }
+        protected JCExpression Byte(int value)        { return m().Literal(TypeTags.BYTE, value); }
         protected JCExpression Boolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
         protected JCExpression Null()                 { return m().Literal(TypeTags.BOT, null); }
         protected JCExpression String(String str)     { return m().Literal(TypeTags.CLASS, str); }
@@ -1233,6 +1301,18 @@ public abstract class JavafxTranslationSupport {
         }
         JCExpression NOT(JCExpression v1) {
             return m().Unary(JCTree.NOT, v1);
+        }
+        JCExpression BITAND(JCExpression v1, JCExpression v2) {
+            return m().Binary(JCTree.BITAND, v1, v2);
+        }
+        JCExpression BITOR(JCExpression v1, JCExpression v2) {
+            return m().Binary(JCTree.BITOR, v1, v2);
+        }
+        JCExpression BITXOR(JCExpression v1, JCExpression v2) {
+            return m().Binary(JCTree.BITXOR, v1, v2);
+        }
+        JCExpression BITNOT(JCExpression v1) {
+            return m().Binary(JCTree.BITXOR, v1, Int(-1));
         }
 
         /**
@@ -1532,6 +1612,17 @@ public abstract class JavafxTranslationSupport {
             }
             
             return Offset(varSym);
+        }
+
+        public JCExpression VarFlags(Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            return Select(getReceiver(varSym), attributeFlagsName(varSym));
+        }
+        public JCExpression VarFlags(JCExpression selector, Symbol sym) {
+            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            VarSymbol varSym = (VarSymbol)sym;
+            return Select(selector, attributeFlagsName(varSym));
         }
 
         public JCExpression Set(Symbol sym, JCExpression value) {
