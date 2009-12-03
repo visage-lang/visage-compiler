@@ -2523,7 +2523,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             beginBlock();
 
                             // Set initialized flag if need be.
-                            if (varInfo.hasInitializer()) {
+                            if (!varInfo.useAccessors()) {
+                                if (varInfo.hasInitializer()) {
+                                    addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED));
+                                } else {
+                                    addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagDEFAULT_APPLIED));
+                                }
+                            } else if (varInfo.hasInitializer()) {
                                 addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagIS_INITIALIZED));
                             }
 
