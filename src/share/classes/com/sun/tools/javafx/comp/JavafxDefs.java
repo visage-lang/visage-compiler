@@ -49,6 +49,8 @@ public class JavafxDefs {
     public static final String getVOFF_AttributeMethodPrefix = "getVOFF$";
     public static final String initVarBits_AttributeMethodPrefix = "initVarBits$";
     public static final String invalidate_AttributeMethodPrefix = "invalidate$";
+    public static final String getFlags_AttributeMethodPrefix = "getFlags$";
+    public static final String setFlags_AttributeMethodPrefix = "setFlags$";
     public static final String onReplace_AttributeMethodPrefix = "onReplace$";
     public static final String set_AttributeMethodPrefix = "set$";
     public static final String setMixin_AttributeMethodPrefix = "setMixin$";
@@ -64,6 +66,7 @@ public class JavafxDefs {
     public static final String value_AttributeFieldPrefix = "$";
     public static final String saved_AttributeFieldPrefix = "saved$";
     public static final String offset_AttributeFieldPrefix = "VOFF$";
+    public static final String flags_AttributeFieldPrefix = "VFLG$";
 
     /**
      * Prefixes and name strings of generated FXObject fields
@@ -259,6 +262,8 @@ public class JavafxDefs {
     final Name get_FXObjectMethodName;
     final Name set_FXObjectMethodName;
     final Name invalidate_FXObjectMethodName;
+    final Name getFlags_FXObjectMethodName;
+    final Name setFlags_FXObjectMethodName;
     final Name notifyDependents_FXObjectMethodName;
     final Name getElement_FXObjectMethodName;
     final Name size_FXObjectMethodName;
@@ -389,6 +394,7 @@ public class JavafxDefs {
      * Format: *_AttributeFieldPrefixName
      */
     final Name offset_AttributeFieldPrefixName;
+    final Name flags_AttributeFieldPrefixName;
 
     /**
      * Names of flags in FXObject
@@ -542,6 +548,7 @@ public class JavafxDefs {
         partResultVarNum_BoundForHelper = names.fromString("partResultVarNum");
         isInitialized_MethodName = names.fromString("isInitialized");
         offset_AttributeFieldPrefixName = names.fromString(offset_AttributeFieldPrefix);
+        flags_AttributeFieldPrefixName = names.fromString(flags_AttributeFieldPrefix);
         count_FXObjectFieldName = names.fromString(count_FXObjectFieldString);
         scriptClassSuffixName = names.fromString(scriptClassSuffix);
         typeParameterName = names.fromString("T");
@@ -574,6 +581,8 @@ public class JavafxDefs {
         be_AttributeMethodPrefixName = names.fromString(be_AttributeMethodPrefix);
         replaceParts_BoundForHelperMethodName = names.fromString("replaceParts");
         invalidate_FXObjectMethodName = names.fromString(invalidate_AttributeMethodPrefix);
+        getFlags_FXObjectMethodName = names.fromString(getFlags_AttributeMethodPrefix);
+        setFlags_FXObjectMethodName = names.fromString(setFlags_AttributeMethodPrefix);
         onReplaceAttributeMethodPrefixName = names.fromString(onReplace_AttributeMethodPrefix);
         getMixin_AttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);
         getVOFF_AttributeMethodPrefixName = names.fromString(getVOFF_AttributeMethodPrefix);
@@ -709,6 +718,8 @@ public class JavafxDefs {
                 set_AttributeMethodPrefixName,
                 be_AttributeMethodPrefixName,
                 invalidate_FXObjectMethodName,
+                getFlags_FXObjectMethodName,
+                setFlags_FXObjectMethodName,
                 onReplaceAttributeMethodPrefixName,
                 getElement_FXObjectMethodName,
                 size_FXObjectMethodName

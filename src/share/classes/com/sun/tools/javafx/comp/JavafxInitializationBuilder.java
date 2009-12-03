@@ -218,6 +218,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         if (!isMixinClass) {
             javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount, varMap);
+            javaCodeMaker.makeAttributeFlags(classVarInfos);
             javaCodeMaker.makeAttributeFields(classVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
             javaCodeMaker.makeVarNumMethods();
@@ -251,6 +252,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
                     javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
                     javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, isRunnable);
@@ -307,6 +309,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
                     javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
                     javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
                     javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, false);
@@ -1115,17 +1118,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     } else if(!varInfo.isOverride()) {
                         if (!varInfo.generateSequenceAccessors()) {
-                            init = Block(FlagChangeStmt(varSym, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED),
+                            init = Block(FlagChangeStmt(varSym, null, defs.varFlagDEFAULT_APPLIED),
                                          CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym))
                                         );
                         } else {
-                            init = Block(FlagChangeStmt(varSym, defs.varFlagDEFAULT_APPLIED, defs.varFlagDEFAULT_APPLIED),
+                            init = Block(FlagChangeStmt(varSym, null, defs.varFlagDEFAULT_APPLIED),
                                          CallStmt(attributeInvalidateName(varSym),
                                                   Int(0), Int(0), Int(0), id(defs.varFlagIS_INVALID)),
-                                         FlagChangeStmt(varSym, defs.varFlagIS_INVALID, defs.varFlagIS_INVALID),
+                                         FlagChangeStmt(varSym, null, defs.varFlagIS_INVALID),
                                          CallStmt(attributeInvalidateName(varSym),
                                               Int(0), Int(0), Int(0), id(defs.varFlagNEEDS_TRIGGER)),
-                                         FlagChangeStmt(varSym, defs.varFlagNEEDS_TRIGGER, defs.varFlagNEEDS_TRIGGER)
+                                         FlagChangeStmt(varSym, null, defs.varFlagNEEDS_TRIGGER)
                                          );
                         }
                     }
@@ -2121,7 +2124,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                         
                         // Initializers overrides mixin initializer.
-                        if (ai.hasInitializer()) {
+                        if (ai.hasInitializer() || ai.hasBoundDefinition()) {
                             if (ai.generateSequenceAccessors()) {
                                 makeSeqGetElementAccessorMethod(ai, needsBody);
                                 funcMap.remove(defs.getElement_FXObjectMethodName);
@@ -2210,7 +2213,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
 
         //
-        // This method generates an enumeration for each of the instance attributes
+        // This method generates an enumeration for each of the class's instance attributes.
         // of the class.
         //
         public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount, LiteralInitVarMap varMap) {
@@ -2246,6 +2249,26 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         !ai.getSymbol().name.endsWith(defs.internalSuffixName) &&
                         !ai.getSymbol().name.endsWith(defs.outerAccessor_FXObjectFieldName)) {
                     varMap.addVar(ai.getSymbol());
+                }
+            }
+        }
+
+        //
+        // This method generates a flags field for each of the class's instance attributes.
+        //
+        public void makeAttributeFlags(List<VarInfo> attrInfos) {
+            // Accumulate variable numbering.
+            for (VarInfo ai : attrInfos) {
+                // Only variables actually declared.
+                if (ai.needsCloning() && !ai.isOverride()) {
+                    // Set diagnostic position for attribute.
+                    setDiagPos(ai.pos());
+
+                    // Construct flags var.
+                    Name name = attributeFlagsName(ai.getSymbol());
+                    // Construct and add: public static int VFLGS$name = n;
+                    
+                    addDefinition(makeField(rawFlags(), syms.byteType, name, null));
                 }
             }
         }
@@ -2461,6 +2484,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 makeSetMethod(varInfos, varCount);
                 makeBeMethod(varInfos, varCount);
                 makeInvalidateMethod(varInfos, varCount);
+                makeGetFlagsMethod(varInfos, varCount);
+                makeSetFlagsMethod(varInfos, varCount);
             }
         }
 
@@ -2977,6 +3002,45 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             vcmb.build();
         }
+        
+        //
+        // This method constructs the current class's getFlags$(varnum, ...) method.
+        //
+        public void makeGetFlagsMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getFlags_FXObjectMethodName, syms.intType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void statements() {
+                    if (varInfo.needsCloning()) {
+                        addStmt(Return(VarFlags(varSym)));
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
+        
+        //
+        // This method constructs the current class's setFlags$(varnum, ...) method.
+        //
+        public void makeSetFlagsMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.setFlags_FXObjectMethodName, syms.voidType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(syms.intType, defs.varNewValue_ArgName);
+                }
+                
+                public void statements() {
+                    if (varInfo.needsCloning()) {
+                        addStmt(Stmt(m().Assign(VarFlags(varSym), flagCast(id(defs.varNewValue_ArgName)))));
+                        addStmt(Return(null));
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
 
         //
         // This method constructs the initializer for a var map.
@@ -3312,7 +3376,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                    name.startsWith(defs.getElement_FXObjectMethodName) ||
                    name.startsWith(defs.size_FXObjectMethodName) ||
                    name.startsWith(defs.applyDefaults_FXObjectMethodName) ||
-                   name.startsWith(defs.initVarBits_FXObjectMethodName);
+                   name.startsWith(defs.initVarBits_FXObjectMethodName) ||
+                   name.startsWith(defs.getFlags_FXObjectMethodName) ||
+                   name.startsWith(defs.setFlags_FXObjectMethodName);
         }
         
         //

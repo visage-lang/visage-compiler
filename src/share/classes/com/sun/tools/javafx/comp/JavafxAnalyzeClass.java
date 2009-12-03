@@ -1430,6 +1430,7 @@ class JavafxAnalyzeClass {
         return nameString.startsWith(JavafxDefs.varMap_FXObjectFieldPrefix) ||
                nameString.startsWith(JavafxDefs.count_FXObjectFieldString) ||
                nameString.startsWith(JavafxDefs.offset_AttributeFieldPrefix) ||
+               nameString.startsWith(JavafxDefs.flags_AttributeFieldPrefix) ||
                nameString.startsWith(JavafxDefs.varFlags_FXObjectFieldPrefix);
     }
 

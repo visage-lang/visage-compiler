@@ -417,7 +417,6 @@ public class FXLocal {
         static final String[] SYSTEM_METHOD_EXCLUDES = {
             // keep in alphabetical order 
             "addDependent$",
-            "allocateVarBits$",
             "complete$",
             "count$",
             "getAsBoolean$",
@@ -431,8 +430,6 @@ public class FXLocal {
             "getDependentsManager$internal$",
             "getListenerCount$",
             "getType$",
-            "getVFLGS$large$internal$",
-            "getVFLGS$small$internal$",
             "initFXBase$",
             "initialize$",
             "isInitialized$",
@@ -445,11 +442,11 @@ public class FXLocal {
             "removeDependent$",
             "restrictSet$",
             "setDependentsManager$internal$",
-            "setVFLGS$large$internal$",
-            "setVFLGS$small$internal$",
             "switchDependence$",
             "switchBiDiDependence$",
             "userInit$",
+            "getFlags$",
+            "setFlags$",
             "varChangeBits$",
             "varTestBits$",
             "VCNT$"
@@ -578,7 +575,7 @@ public class FXLocal {
         }
 
         static final String[] SYSTEM_VAR_PREFIXES = {
-            "VFLGS$",
+            "VFLG$",
             "VCNT$",
             "VOFF$",
             "MAP$",
