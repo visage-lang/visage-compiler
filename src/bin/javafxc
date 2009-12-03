@@ -5,6 +5,33 @@
 # Uses the same arguments as the JDK's javac command.
 #
 
+# $1 - var name
+# $2 - arg name, if empty do not escape the quotes and don't pass through cygpath
+# out: appends value of of ${default_toolkit}_${1} and concatenation with arg $2 to $jargs
+add_jarg() {
+    get_jarg $1 $2
+    if [ -n "${jarg}" ]; then
+        if [ -n "$2" ]; then
+            jargs="$jargs \"${2}${jarg}\""
+        else
+            jargs="$jargs ${jarg}"
+        fi
+    fi
+    unset jarg
+}
+
+# in:  $1 - var name
+# in:  $2 - do cygpath, if empty do not pass argument through cygpath
+# out: jarg is set to the value of ${default_toolkit}_${1}
+get_jarg() {
+    jarg=`eval echo \\${${default_toolkit}_${1}}`
+    if [ -n "${jarg}" ]; then
+        if [ -n "$2" -a "$platform" = "windows" ]; then
+            jarg=`cygpath --path --windows "$jarg"`
+        fi
+    fi
+}
+
 # resolve symlinks
 PRG=$0
 while [ -h "$PRG" ]; do
@@ -18,15 +45,15 @@ while [ -h "$PRG" ]; do
 done
 
 # detect Darwin and Cygwin environments
-darwin=false;
-cygwin=false;
 case "`uname`" in
-  Darwin*) darwin=true;
+  Darwin*) platform="macosx";
            if [ -z "$JAVA_HOME" ] ; then
               JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
            fi
            ;;
-  CYGWIN*) cygwin=true;;
+  CYGWIN*) platform="windows" ; PATHSEP=";";;
+  Linux*)  platform="linux";;
+  SunOS*)  platform="solaris";;
 esac
 
 if [ -n "$JAVA_HOME"  ] ; then
@@ -47,7 +74,7 @@ if [ -z "$CLASSPATH" ] ; then
   USER_CP="."
 else
   USER_CP="$CLASSPATH"
-  if $cygwin ; then
+  if [ "$platform" = "windows" ]; then
     USER_CP=`cygpath --path --unix "$USER_CP"`
   fi
 fi 
@@ -63,6 +90,7 @@ while [ $# -gt 0 ] ; do
         -J*) jopt=`expr "X-$1" : 'X--J\(.*\)'`; jargs="$jargs \"$jopt\"";;
         -cp | -classpath) shift; classpath="$classpath:$1";;
         -profile) shift; profile="$1";;
+        -Xtoolkit) shift; toolkit="$1";;
         *) args="$args \"$1\"";;
     esac
     shift
@@ -85,42 +113,34 @@ else
     exit 1
 fi
 
-classpath="$classpath:$compile_classpath"
+if [ -n "${toolkit}" ]; then
+  default_toolkit=${toolkit}
+fi
+
+get_jarg "compile_classpath" "true"
+if [ -n "${jarg}" ]; then
+  classpath="$classpath:$jarg"
+fi
 
 # Under Cygwin, convert certain environment variables back to Windows format
-if $cygwin ; then
+if [ "$platform" = "windows" ] ; then
   classpath=`cygpath --path --windows "$classpath"`
   JAVA_CMD=`cygpath --unix "$JAVA_CMD"`
 fi
 
-if [ -n "${compile_bootclasspath_prepend}" ]; then
-    if $cygwin ; then
-        compile_bootclasspath_prepend=`cygpath --path --windows "$compile_bootclasspath_prepend"`
-    fi
-    jargs="$jargs \"-Xbootclasspath/p:${compile_bootclasspath_prepend}\""
-fi
-if [ -n "${compile_bootclasspath_append}" ]; then
-    if $cygwin ; then
-        compile_bootclasspath_append=`cygpath --path --windows "$compile_bootclasspath_append"`
-    fi
-    jargs="$jargs \"-Xbootclasspath/a:${compile_bootclasspath_append}\""
-fi
-if [ -n "${compile_nativelibpath}" ]; then
-    if $cygwin ; then
-        compile_nativelibpath=`cygpath --path --windows "$compile_nativelibpath"`
-    fi
-    jargs="$jargs \"-Djava.library.path=${compile_nativelibpath}\""
-fi
+add_jarg "compile_bootclasspath_prepend" "-Xbootclasspath/p:"
+add_jarg "compile_bootclasspath_append" "-Xbootclasspath/a:"
+add_jarg "compile_nativelibpath" "-Djava.library.path="
+
 extra_cp=""
 if [ "$profile" = "mobile" ]; then
     extra_cp="-classpath '"$user_classpath"'"
 fi
 jargs="$jargs $extra_cp com.sun.tools.javafx.Main -classpath '"$classpath"'"
-if [ -n "${compile_bootclasspath}" ]; then
-    if $cygwin ; then
-        compile_bootclasspath=`cygpath --path --windows "$compile_bootclasspath"`
-    fi
-    jargs="$jargs -bootclasspath \"${compile_bootclasspath}\""
+
+get_jarg "compile_bootclasspath" "yes"
+if [ -n "$jarg" ]; then
+    jargs="$jargs -bootclasspath \"$jarg\""
 fi
 if [ -n "$args" ]; then
     jargs="$jargs $args"

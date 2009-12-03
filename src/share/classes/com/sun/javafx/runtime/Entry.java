@@ -180,13 +180,13 @@ public class Entry {
 
         try {
             // Lookup Java 6 public API first
-            loaderClass = Class.forName("java.util.ServiceLoader");
+            loaderClass = Class.forName("java.util.ServiceLoader", true, null);
             loadMethodName = "load";
             usingServiceLoader = true;
         } catch (ClassNotFoundException cnfe) {
             try {
                 // Lookup Java 5 Sun-private API
-                loaderClass = Class.forName("sun.misc.Service");
+                loaderClass = Class.forName("sun.misc.Service", true, null);
                 loadMethodName = "providers";
                 usingServiceLoader = false;
             } catch (ClassNotFoundException cnfe2) {
@@ -231,7 +231,7 @@ public class Entry {
 
         try {
             // Lookup Java 6 public API first
-            loaderClass = Class.forName("java.util.ServiceLoader");
+            loaderClass = Class.forName("java.util.ServiceLoader", true, null);
             loadMethodName = "load";
             usingServiceLoader = true;
         } catch (ClassNotFoundException cnfe) {
@@ -241,7 +241,8 @@ public class Entry {
                     new PrivilegedAction<Void>() {
                         public Void run() {
                             try {
-                                cls[0] = Class.forName("sun.misc.Service");
+                                cls[0] = Class.forName(
+                                        "sun.misc.Service", true, null);
                             } catch (ClassNotFoundException cnfe2) {
                                 cls[0] = null;
                             }

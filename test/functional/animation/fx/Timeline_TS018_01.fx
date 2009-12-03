@@ -2,11 +2,10 @@
  * Timeline_TS018_01.fx
  *
  * @test
+ * @run
  */
 
 /**
- * was: run
- * (this test should be restored after RT-5306 is fixed)
  * @author Baechul Kim
  */
 
