@@ -513,7 +513,7 @@ public class Timeline {
             rate = Math.abs(rate);
             getTotalDur();
             movePlayhead(0);
-            start();
+            play();
         }
     }
 
