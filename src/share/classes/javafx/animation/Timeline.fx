@@ -231,7 +231,28 @@ public class Timeline {
      * @defaultvalue 0ms
      *
      */
-    public var time: Duration = 0ms;
+    public var time: Duration = 0ms on replace old {
+        if (old != time) {
+            validate();
+            if (time < 0s) {
+                time = 0s;
+            } else if (timelineDur >= 0 and time > Duration.valueOf(timelineDur)) {
+                time = Duration.valueOf(timelineDur);
+            } else {
+                doInterpolate(time.toMillis() as Number);
+            }
+        }
+    }
+
+    // inner Timeline's engine should ALWAYS use this function
+    // instead of direct assignment to {@code time}
+    // to avoid inconsistancy
+    function movePlayhead(pos: Number) {
+        if (pos != curPos) {
+            curPos = pos;
+            time = Duration.valueOf(curPos);
+        }
+    }
 
    /**
     * Enable/disable interpolation.
@@ -491,8 +512,7 @@ public class Timeline {
         if(rate != 0.0) {
             rate = Math.abs(rate);
             getTotalDur();
-            curPos = 0.0;
-            time = 0ms;
+            movePlayhead(0);
             start();
         }
     }
@@ -557,8 +577,7 @@ public class Timeline {
         forward = rate >= 0;
 
         if(not running) {
-            curPos = 0.0;
-            time = 0ms;
+            movePlayhead(0);
         }
     }
 
@@ -714,7 +733,6 @@ public class Timeline {
         if(curPos != timeInMillis) {
             // external time change is limited to the current cycle's bounds
             timeInMillis = Math.min(timelineDur, Math.max(timeInMillis, 0));
-            time = makeDur(timeInMillis);
 
             // update the base values
             baseTick = lastTick;
@@ -726,33 +744,23 @@ public class Timeline {
                 baseElapsed = curCycle * dur + adjustedMillis;
             }
             // catch up frames between the current and new positions
-            if (not visitFrames(curPos, timeInMillis, true)) {
+            if (not visitFrames(curPos, timeInMillis, true, true)) {
                 return;
             }
-            curPos = timeInMillis;
-            time = makeDur(curPos);
         }
 
         // isReverse rewinds elapsed time
         var timeDirection = if (isReverse) -1 else 1;
         var elapsed = baseElapsed + (currentTick - baseTick) * Math.abs(rate) * timeDirection;
-
-        var needsStop = false;
-        if(isReverse) {
-            if(elapsed <= 0) {
-                elapsed = 0;
-                needsStop = true;
-            }
-        } else {
-            if(elapsed >= totalDur and totalDur >= 0) {
-                elapsed = totalDur;
-                needsStop = true;
-            }
+        if (totalDur >= 0) {
+            elapsed = Math.min(elapsed, totalDur);
         }
+        elapsed = Math.max(elapsed, 0);
+        lastElapsed = elapsed;
+        var needsStop = playedToEnd();
 
         var curT: Number;
         var cycle: Integer;
-        lastElapsed = elapsed;
 
         if (timelineDur < 0) {
             // indefinite duration (e.g. will occur when a sub-timeline
@@ -765,26 +773,20 @@ public class Timeline {
         }
 
         // check if passed cycle boundary
-        var aborted = false;
         if(isReverse) {
             while(cycle < cycleIndex and (repeatCount < 0 or cycleIndex >= 0)) {
                 if (not visitCycle(cycleIndex > cycle + 1)) {
-                    aborted = true;
-                    break;
+                    return;
                 }
                 cycleIndex --;
             }
         } else {
             while(cycle > cycleIndex and(repeatCount < 0 or cycleIndex < repeatCount)) {
                 if (not visitCycle(cycleIndex < cycle - 1)) {
-                    aborted = true;
-                    break;
+                    return;
                 }
                 cycleIndex ++;
             }
-        }
-        if (aborted) {
-            return;
         }
 
         var cycleForward = if(isReverse) not forward else forward;
@@ -792,19 +794,30 @@ public class Timeline {
         if((not needsStop) or cycleIndex < repeatCount) {
             var newPos = if(cycleForward) curT
                          else if(timelineDur < 0) elapsed else dur - curT;
-            if (not visitFrames(curPos, newPos, false)) {
+            if (not visitFrames(curPos, newPos, false, true)) {
                 return;
             }
-            curPos = newPos;
-            time = makeDur(curPos);
-
-            doInterpolate(curPos);
         }
         lastTick = currentTick;
 
         if(needsStop) {
             stop();
         }
+    }
+
+    function playedToEnd(): Boolean {
+        var endReached = false;
+            var totalDur = getTotalDur();
+        if(isReverse) {
+            if(lastElapsed <= 0) {
+                endReached = true;
+            }
+        } else {
+            if(totalDur >= 0 and lastElapsed >= totalDur) {
+                endReached = true;
+            }
+        }
+        return endReached;
     }
 
     function doInterpolate(curT: Number) {
@@ -830,7 +843,7 @@ public class Timeline {
                     // find keyframes on either side of the curT value
                     var kfpair2 = pairlist.get(j);
                     var rightT = kfpair2.frame.time.toMillis() as Number;
-                    if (curT < rightT) {
+                    if (curT <= rightT) {
                         v1 = kfpair1.value;
                         v2 = kfpair2.value;
                         segT = (curT - leftT) / (rightT - leftT);
@@ -838,9 +851,6 @@ public class Timeline {
                     }
                     kfpair1 = kfpair2;
                     leftT = kfpair1.frame.time.toMillis() as Number;
-                }
-                if (segT == 0.0 or segT == 1.0) {
-                    continue;
                 }
                 if (v1 != null and v2 != null) {
                     if (v2.interpolate == null) {
@@ -859,22 +869,24 @@ public class Timeline {
 
     function visitCycle(catchingUp:Boolean): Boolean  {
         var cycleT = if (forward) timelineDur else 0;
-
-        if (not visitFrames(curPos, cycleT, catchingUp)) {
+        if (not visitFrames(curPos, cycleT, catchingUp, false)) {
             return false;
         }
-        curPos = cycleT;
-        time = makeDur(cycleT);
+        prepareForNextCycle(catchingUp);
+        return true;
+    }
 
-        // prepare for the next cycle
+    function prepareForNextCycle(catchingUp: Boolean) {
+        if (not catchingUp and playedToEnd()) {
+            return;
+        }
         if (autoReverse) {
             forward = not forward;
         } else {
             frameIndex = if (forward) 0 else sortedFrames.size() - 1;
-            curPos = if (forward) 0 else timelineDur;
-            time = makeDur(cycleT);
+            lastKF = -1;
+            movePlayhead(if (forward) 0 else timelineDur);
         }
-        return true;
     }
 
     // track last visited frame to avoid double visiting it on external time
@@ -886,7 +898,7 @@ public class Timeline {
      * if it is the case, we want to abort and re-evaluate at next
      * pulse.
      */
-    function visitFrames(fromTime:Number, toTime:Number, catchingUp:Boolean) : Boolean {
+    function visitFrames(fromTime:Number, toTime:Number, catchingUp:Boolean, visitLast: Boolean) : Boolean {
         var fwd = fromTime <= toTime;
         var aborted = false;
 
@@ -914,7 +926,7 @@ public class Timeline {
                     if (kfMillis > toTime) {
                         break;
                     }
-                    if (not visitKeyFrame(toTime, fi, kf, catchingUp)) {
+                    if (not visitKeyFrame(toTime, fi, kf, catchingUp, visitLast)) {
                         aborted = true;
                         lastTick += Math.abs(kfMillis - fromTime);
                         break;
@@ -932,7 +944,7 @@ public class Timeline {
                     if (kfMillis < toTime) {
                         break;
                     }
-                    if (not visitKeyFrame(toTime, fi, kf, catchingUp)) {
+                    if (not visitKeyFrame(toTime, fi, kf, catchingUp, visitLast)) {
                         aborted = true;
                         lastTick += Math.abs(kfMillis - fromTime);
                         break;
@@ -941,31 +953,56 @@ public class Timeline {
             }
         }
         lastKFForward = fwd;
+        if (not aborted) {
+            movePlayhead(toTime);
+        }
         return not aborted;
     }
 
     function visitKeyFrame(toTime: Number, kfIndex: Integer, kf: KeyFrame,
-                           catchingUp: Boolean): Boolean {
+                           catchingUp: Boolean, visitLast: Boolean): Boolean {
         if (kfIndex != lastKF) { // suppress double visiting on toggle
             frameIndex = kfIndex;
             lastKF = kfIndex;
             var kfMillis = kf.time.toMillis() as Number;
 
-            if (not (catchingUp and kf.canSkip) or kfMillis == toTime) {
-                var savedTime = time.toMillis() as Number;
+            if (not (catchingUp and kf.canSkip) or visitLast and kfMillis == toTime) {
+                movePlayhead(kfMillis);
                 var savedCurRate = currentRate;
-                curPos = kfMillis;
                 kf.visit();
-                var timeChanged = savedTime != (time.toMillis() as Number);
+                var timeChanged = curPos != (time.toMillis() as Number);
                 if (timeChanged or savedCurRate != currentRate or stopping) {
                     // if time, speed or direction has been changed at the kf's action,
                     // or the timeline has been stopped, abort further visiting
                     return false;
                 }
-                time = makeDur(curPos);
             }
         }
         return true;
+    }
+
+    function updateFrameIndex() {
+        var fi = frameIndex;
+        if (forward) {
+            for (i in [0 .. < sortedFrames.size()]) {
+                fi = i;
+                if (sortedFrames[i].time >= time) {
+                    break;
+                }
+            }
+        } else {
+            for (i in [sortedFrames.size() - 1 .. 0 step -1]) {
+                fi = i;
+                if (sortedFrames[i].time <= time) {
+                    break;
+                }
+            }
+        }
+        frameIndex = fi;
+    }
+
+    function updateCurrentRate() {
+        currentRate = if (forward) Math.abs(rate) else -Math.abs(rate);
     }
 
     function createAdapter():TimingTarget {
@@ -981,49 +1018,35 @@ public class Timeline {
 
                 lastTick = 0.0;
                 baseTick = 0.0;
-                baseElapsed = 0.0;
 
-                var totalDur = getTotalDur();
+                movePlayhead(Math.min(timelineDur, Math.max(time.toMillis() as Number, 0)) as Number);
 
                 if(forward) {
-                    lastElapsed = 0;
+                    lastElapsed = curPos;
                     /**
                      * If timeline already reaches the end before it even starts,
                      * and intends to move forward, treat it as a completed
                      * forward cycle.
                      */
                     if((time.toMillis() as Number) >= timelineDur) {
-                        baseElapsed = timelineDur;
                         cycleIndex ++;
-                        if(autoReverse) {
-                            forward = not forward;
+                        prepareForNextCycle(false);
                         }
-                    }
                 } else {
-                    lastElapsed = totalDur;
+                    lastElapsed = timelineDur - curPos;
                     /**
                      * If timeline is at initial position and intends to move backward,
                      * treat it as a completed backward cycle.
                      */
                     if(time <= 0ms) {
-                        baseElapsed = timelineDur;
                         cycleIndex ++;
-                        if(autoReverse) {
-                            forward = not forward;
-                        }
+                        prepareForNextCycle(false);
                     }
                 }
+                baseElapsed = lastElapsed;
 
-                if(forward) {
-                    time = 0s;
-                    frameIndex = 0;
-                    currentRate = Math.abs(rate);
-                } else {
-                    time = Duration.valueOf(timelineDur);
-                    frameIndex = sortedFrames.size() - 1;
-                    currentRate = - Math.abs(rate);
-                }
-                curPos = time.toMillis() as Number;
+                updateFrameIndex();
+                updateCurrentRate();
             }
 
             override function timingEvent(fraction, totalElapsed) : Void {
@@ -1037,12 +1060,8 @@ public class Timeline {
 
             override function resume() : Void {
                 paused = false;
-                if(forward) {
-                    currentRate = Math.abs(rate);
-                } else {
-                    currentRate = - Math.abs(rate);
+                updateCurrentRate();
                 }
-            }
 
             override function end() : Void {
                 running = false;
@@ -1051,12 +1070,11 @@ public class Timeline {
                 isReverse = false;
 
                 var dur = getTotalDur();
-                if((time.toMillis() as Number) != dur or
+                if(not playedToEnd() or
                         // INDEFINITE duration timeline can never reach to the end,
                         // must be explicit stop
                         dur < 0) {
-                    curPos = 0.0;
-                    time = 0ms;
+                    movePlayhead(0);
                 }
             }
         }

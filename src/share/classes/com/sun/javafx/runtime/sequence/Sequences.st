@@ -57,14 +57,14 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
 
     private static Sequence<? extends $Tboxed$> replaceSlice(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
         if (preReplaceSlice(oldValue, newValue, startPos, endPos)) {
-            return replaceSliceInternal(oldValue, newValue, startPos, endPos);
+            return replaceSliceInternal(oldValue, newValue, startPos, endPos, false);
         }
         else {
             return oldValue;
         }
     }
     //where
-    private static Sequence<? extends $Tboxed$> replaceSliceInternal(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
+    private static Sequence<? extends $Tboxed$> replaceSliceInternal(Sequence<? extends $Tboxed$> oldValue, $Tprim$ newValue, int startPos, int endPos/*exclusive*/, boolean hasTrigger) {
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -81,7 +81,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
             arr = new $T$ArraySequence(oldValue);
             arr.incrementSharing();
         }
-        arr.replace(startPos, endPos, newValue, true);
+        arr.replace(startPos, endPos, newValue, hasTrigger);
         return arr;
     }
     //where
@@ -120,7 +120,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         if (preReplaceSlice(oldValue, newValue, startPos, endPos) ||
             wasUninitialized) {
             instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$IS_INVALID);
-            Sequence<? extends $Tboxed$> arr = replaceSlice(oldValue, newValue, startPos, endPos);
+            Sequence<? extends $Tboxed$> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
             instance.be\$(varNum, arr);
             instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$NEEDS_TRIGGER);
             return arr;

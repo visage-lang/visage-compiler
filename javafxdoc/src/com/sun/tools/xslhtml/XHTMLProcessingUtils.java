@@ -91,6 +91,7 @@ import static java.util.logging.Level.*;
  */
 public class XHTMLProcessingUtils {
 
+    private static PrintWriter pw = null;
     private static ResourceBundle messageRB = null;
     private static Logger logger = Logger.getLogger(XHTMLProcessingUtils.class.getName());;
     private static boolean SDK_THEME = true;
@@ -656,7 +657,9 @@ public class XHTMLProcessingUtils {
     private static void renderScriptToImage(File imgFile, String script) throws ScriptException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException, ClassNotFoundException {
         ScriptEngineFactory factory = new JavaFXScriptEngineFactory();
         ScriptEngine scrEng = factory.getScriptEngine();
-        PrintWriter pw = new PrintWriter(System.err);
+        if (pw == null) {
+            pw = new PrintWriter(System.err);
+        }
         scrEng.getContext().setErrorWriter(pw);
         try {
             Object ret = scrEng.eval(script); 
@@ -671,13 +674,16 @@ public class XHTMLProcessingUtils {
                 try {
                     scene = fxStageClass.getMethod("get$scene").invoke(ret); 
                 } catch (Exception ex) {
+                    pw.println("javafxdoc: Exception while processing " + imgFile);
                     ex.printStackTrace(pw);
+                    pw.flush();
                     return;
                 }
             } else if (fxNodeClass.isInstance(ret)) {
                 try {
                     scene = fxNodeClass.getMethod("get$scene").invoke(ret); 
                 } catch (Exception ex) {
+                    pw.println("javafxdoc: Exception while processing " + imgFile);
                     ex.printStackTrace(pw);
                 }
                 if (scene == null) {
@@ -694,6 +700,7 @@ public class XHTMLProcessingUtils {
             } else {
                 Object fxclass = ret.getClass();
                 pw.println("ERROR: Unrecongized JavaFX class: " + fxclass); 
+                pw.flush();
                 return;
             } 
             try {
@@ -701,9 +708,11 @@ public class XHTMLProcessingUtils {
                 BufferedImage img = (BufferedImage) renderToImage.invoke(scene, (Object)null); 
                 ImageIO.write(img, "png", imgFile); 
             } catch (Exception ex) {
+                pw.println("javafxdoc: Exception while processing " + imgFile);
                 ex.printStackTrace(pw);
             }
         } catch (javax.script.ScriptException ex) {
+            pw.println("javafxdoc: Exception while processing " + imgFile);
             pw.println(ex.getMessage());
             pw.println(" at: line = " + ex.getLineNumber() + " column = " + ex.getColumnNumber());
             pw.println("file = " + ex.getFileName());
@@ -713,7 +722,6 @@ public class XHTMLProcessingUtils {
             pw.println("cause = " + ex.getCause());
         } finally {
             pw.flush();
-            pw.close();
         }
     }
 }

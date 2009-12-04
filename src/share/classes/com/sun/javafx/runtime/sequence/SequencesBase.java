@@ -181,7 +181,7 @@ public class SequencesBase {
     }
 
     @SuppressWarnings("unchecked")
-    public static<T> ObjectArraySequence<T> forceNonSharedArraySequence(TypeInfo<T> typeInfo, Sequence<? extends T> value) {
+    public static<T> ObjectArraySequence<T> forceNonSharedObjectArraySequence(TypeInfo<T> typeInfo, Sequence<? extends T> value) {
         ObjectArraySequence<T> arr;
         block: {
             if (value instanceof ObjectArraySequence) {
@@ -197,6 +197,23 @@ public class SequencesBase {
                 }
             }
             arr = new ObjectArraySequence(typeInfo, value);
+        }
+        arr.incrementSharing();
+        return arr;
+    }
+
+    public static<T> ArraySequence<T> forceNonSharedArraySequence(TypeInfo<T> typeInfo, Sequence<? extends T> value) {
+        ArraySequence<T> arr;
+        block: {
+            if (value instanceof ArraySequence) {
+                arr = (ArraySequence) value;
+                if (! arr.isShared()) {
+                    // FIXME: arr.setElementType(typeInfo);
+                    return arr;
+                }
+            }
+            arr = typeInfo.emptySequence.makeNew(0);
+            arr.add(value);
         }
         arr.incrementSharing();
         return arr;
@@ -909,13 +926,6 @@ public class SequencesBase {
         return Sequences.<T>make(seq.getElementType(), array);
     }
 
-    /* Only used by the testing framework - should be moved.  FIXME */
-    public static<T> Sequence<? extends T> insert(TypeInfo<T> typeInfo, Sequence<? extends T> sequence, T value) {
-        ObjectArraySequence<T> arr = forceNonSharedArraySequence(typeInfo, sequence);
-        arr.add(value);
-        return arr;
-    }
-
     /** Returns a new sequence containing the randomly shuffled
      * contents of the existing sequence
      * */
@@ -940,7 +950,7 @@ public class SequencesBase {
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/) {
         if (preReplaceSlice(oldValue, newValue, startPos, endPos)) {
-            return replaceSliceInternal(oldValue, newValue, startPos, endPos);
+            return replaceSliceInternal(oldValue, newValue, startPos, endPos, false);
         }
         else
             return oldValue;
@@ -967,9 +977,9 @@ public class SequencesBase {
         }
     }
     //where
-    private static <T> Sequence<? extends T> replaceSliceInternal(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/) {
+    private static <T> Sequence<? extends T> replaceSliceInternal(Sequence<? extends T> oldValue, T newValue, int startPos, int endPos/*exclusive*/, boolean hasTrigger) {
         if (newValue == null)
-            return replaceSliceInternal(oldValue, (Sequence<? extends T>) null, startPos, endPos);
+            return replaceSliceInternal(oldValue, (Sequence<? extends T>) null, startPos, endPos, hasTrigger);
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -979,10 +989,10 @@ public class SequencesBase {
             endPos = oldSize;
         else if (endPos < startPos)
             endPos = startPos;
-
-        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
-        arr.replace(startPos, endPos, (T) newValue, true);
-        arr.clearOldValues(endPos-startPos);
+        ObjectArraySequence<T> arr = forceNonSharedObjectArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(startPos, endPos, (T) newValue, hasTrigger);
+        if (hasTrigger)
+            arr.clearOldValues(endPos-startPos);
         return arr;
     }
 
@@ -1002,7 +1012,7 @@ public class SequencesBase {
                 wasUninitialized) {
             int newLength = newValue==null?0:1;
             instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
-            Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos);
+            Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
             instance.be$(varNum, arr);
             instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
             return arr;
@@ -1012,11 +1022,34 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
-        if (preReplaceSlice(oldValue, newValues, startPos, endPos)) {
-            return replaceSliceInternal(oldValue, newValues, startPos, endPos);
-        }
-        else
+        int oldSize = oldValue.size();
+        if (startPos < 0)
+            startPos = 0;
+        else if (startPos > oldSize)
+            startPos = oldSize;
+        if (endPos > oldSize)
+            endPos = oldSize;
+        else if (endPos < startPos)
+            endPos = startPos;
+        // FIXME calling sliceEqual is probably not worth it,
+        // at least if oldValue is non-shared, and we can just copy.
+        // FIXME sliceEqual is especially bad if it needs to do boxing.
+        if (newValues == null ? startPos == endPos
+            : sliceEqual(oldValue, startPos, endPos, newValues)) {
+            // FIXME set valid??
             return oldValue;
+        }
+        int inserted = newValues==null? 0 : newValues.size();
+        // If we are replacing it all, and, since we don't want copies of SequenceRef, if it isn't a SequenceRef
+        if (startPos == 0 && endPos == oldSize && !(newValues instanceof SequenceRef)) {
+            if (newValues == null)
+                newValues = oldValue.getEmptySequence();
+            newValues.incrementSharing();
+            return newValues;
+        }
+        ArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(startPos, endPos, newValues, 0, inserted, false);
+        return arr;
     }
     //where
     private static <T> boolean preReplaceSlice(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
@@ -1039,7 +1072,7 @@ public class SequencesBase {
         }
     }
     //where
-    private static <T> Sequence<? extends T> replaceSliceInternal(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
+    private static <T> Sequence<? extends T> replaceSliceInternal(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/, boolean hasTrigger) {
         int oldSize = oldValue.size();
         if (startPos < 0)
             startPos = 0;
@@ -1058,9 +1091,10 @@ public class SequencesBase {
             newValues.incrementSharing();
             return newValues;
         }
-        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
-        arr.replace(startPos, endPos, newValues, 0, inserted, true);
-        arr.clearOldValues(endPos-startPos);
+        ArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        arr.replace(startPos, endPos, newValues, 0, inserted, hasTrigger);
+        if (hasTrigger)
+            arr.clearOldValues(endPos-startPos);
         return arr;
     }
 
@@ -1080,7 +1114,7 @@ public class SequencesBase {
                 wasUninitialized) {
             int newLength = newValues == null ? 0 : newValues.size();
             instance.invalidate$(varNum, startPos, endPos, newLength, FXObject.VFLGS$IS_INVALID);
-            Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValues, startPos, endPos);
+            Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValues, startPos, endPos, true);
             instance.be$(varNum, arr);
             instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
             return arr;
@@ -1115,7 +1149,7 @@ public class SequencesBase {
         if (newValue == null)
             return oldValue;
         int oldSize = oldValue.size();
-        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        ObjectArraySequence<T> arr = forceNonSharedObjectArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
         arr.replace(oldSize, oldSize, (T) newValue, true);
         return arr;
     }
@@ -1145,7 +1179,7 @@ public class SequencesBase {
         if (inserted == 0)
             return oldValue;
         int oldSize = oldValue.size();
-        ObjectArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
+        ArraySequence<T> arr = forceNonSharedArraySequence((TypeInfo<T>) oldValue.getElementType(), oldValue);
         arr.replace(oldSize, oldSize, values, 0, inserted, true);
         return arr;
     }
