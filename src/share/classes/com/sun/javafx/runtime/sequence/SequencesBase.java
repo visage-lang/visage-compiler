@@ -1285,7 +1285,7 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> deleteAll(Sequence<? extends T> oldValue) {
-        return replaceSlice(oldValue, (Sequence<? extends T>)null, 0, oldValue.size());
+        return oldValue.getEmptySequence();
     }
 
     public static <T> void deleteAll(FXObject instance, int varNum) {

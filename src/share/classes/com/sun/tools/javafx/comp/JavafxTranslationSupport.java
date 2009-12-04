@@ -1017,6 +1017,12 @@ public abstract class JavafxTranslationSupport {
             return makeType(sym.type, true);
         }
 
+        protected JCExpression makeClassLiteral(Type type) {
+            return Select(
+                    makeType(type),
+                    names._class);
+        }
+
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.
         //
         protected JCExpression getReceiver() {
