@@ -1495,7 +1495,7 @@ public abstract class JavafxAbstractTranslation
                     // Pointer.make has just two arguments (inst, varNum) -- we need to
                     // add an extra argument - so that the Pointer.make(FXObject, int, Class) is called.
                     JFXVarRef varRef = (JFXVarRef)args.head;
-                    JCExpression varType = m().ClassLiteral(varRef.getVarSymbol().type);
+                    JCExpression varType = makeClassLiteral(varRef.getVarSymbol().type);
                     targs.append(varType);
                 }
             }
