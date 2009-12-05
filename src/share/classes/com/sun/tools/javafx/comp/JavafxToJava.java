@@ -91,6 +91,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     private JavafxEnv<JavafxAttrContext> attrEnv;
     ReceiverContext inInstanceContext = ReceiverContext.Oops;
 
+    private DependencyGraphWriter depGraphWriter;
+
     /*
      * Sole instance creation
      */
@@ -111,6 +113,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         this.translateBind = JavafxTranslateBind.instance(context);
         this.translateInvBind = JavafxTranslateInvBind.instance(context);
         this.translateDependent = JavafxTranslateDependent.instance(context);
+        this.depGraphWriter = DependencyGraphWriter.instance(context);
     }
 
     /**
@@ -1155,7 +1158,16 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     @Override
     public void visitScript(JFXScript tree) {
-        result = new ScriptTranslator(tree).doit();
+        if (depGraphWriter != null) {
+            depGraphWriter.start(tree);
+        }
+        try {
+            result = new ScriptTranslator(tree).doit();
+        } finally {
+            if (depGraphWriter != null) {
+                depGraphWriter.end();
+            }
+        }
     }
 
     public void visitSelect(JFXSelect tree) {
