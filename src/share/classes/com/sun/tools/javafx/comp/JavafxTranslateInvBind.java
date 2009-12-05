@@ -122,8 +122,12 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
             return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
         }
 
-        JCExpression isSequenceDormantSetActive() {
-            return NOT(FlagChange(flagSymbol, null, activeFlagBit));
+        JCExpression isSequenceDormant() {
+            return FlagTest(flagSymbol, activeFlagBit, null);
+        }
+
+        JCStatement setSequenceActive() {
+            return FlagChangeStmt(flagSymbol, null, activeFlagBit);
         }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
@@ -156,8 +160,9 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         JCStatement makeSizeBody() {
             return
                 Block(
-                    If (isSequenceDormantSetActive(),
+                    If (isSequenceDormant(),
                         Block(
+                            setSequenceActive(),
                             CallStmt(defs.FXBase_addDependent,
                                         selector(),
                                         Offset(selector(), refSym),
