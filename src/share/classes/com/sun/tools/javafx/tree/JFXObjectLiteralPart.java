@@ -36,6 +36,7 @@ import com.sun.javafx.api.JavafxBindStatus;
 public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteralPartTree {
     public final Name name;
     private final JFXExpression expr;
+    private final JavafxBindStatus explicitBindStatus;
     public Symbol sym;
    /*
     * @param selector member name and class name of member
@@ -48,6 +49,7 @@ public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteral
             JavafxBindStatus bindStatus,
             Symbol sym) {
         super(bindStatus);
+        this.explicitBindStatus = bindStatus;
         this.name = name;
         this.expr = expr;
         this.sym = sym;
@@ -65,6 +67,14 @@ public class JFXObjectLiteralPart extends JFXExpression implements ObjectLiteral
         return expr;
     }
 
+    public JavafxBindStatus getExplicitBindStatus() {
+        return explicitBindStatus;
+    }
+
+    public boolean isExplicitlyBound() {
+        return explicitBindStatus.isBound();
+    }
+    
     @Override
     public JavafxTag getFXTag() {
         return JavafxTag.OBJECT_LITERAL_PART;

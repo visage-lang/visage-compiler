@@ -738,6 +738,13 @@ public class JavafxPretty implements JavafxVisitor {
             print("class ");
             Name n = tree.getName();
             print(n == null ? "<anonymous>" : n);
+            if (tree.getSupertypes().nonEmpty()) {
+                print(" extends");
+                for (JFXExpression sup : tree.getSupertypes()) {
+                    print(" ");
+                    printExpr(sup);
+                }
+            }
             print(" {");
             println();
             indent();

@@ -255,15 +255,19 @@ public class JavafxLower implements JavafxVisitor {
         return names.fromString("$" + label + "$" + varCount++);
     }
 
-    private JFXVar makeTmpVar(DiagnosticPosition diagPos, String name, JFXExpression init, Type type) {
-        VarSymbol vsym = new VarSymbol(0L, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
-        return makeTmpVar(diagPos, vsym, init);
+    private JFXVar makeVar(DiagnosticPosition diagPos, String name, JFXExpression init, Type type) {
+        return makeVar(diagPos, name, JavafxBindStatus.UNBOUND, init, type);
     }
 
-    private JFXVar makeTmpVar(DiagnosticPosition diagPos, VarSymbol vSym, JFXExpression init) {
+    private JFXVar makeVar(DiagnosticPosition diagPos, String name, JavafxBindStatus bindStatus, JFXExpression init, Type type) {
+        VarSymbol vsym = new VarSymbol(0L, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
+        return makeVar(diagPos, vsym, bindStatus, init);
+    }
+
+    private JFXVar makeVar(DiagnosticPosition diagPos, VarSymbol vSym, JavafxBindStatus bindStatus, JFXExpression init) {
         JFXModifiers mod = m.at(diagPos).Modifiers(vSym.flags());
         JFXType fxType = preTrans.makeTypeTree(vSym.type);
-        JFXVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, JavafxBindStatus.UNBOUND, null, null);
+        JFXVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, bindStatus, null, null);
         v.sym = vSym;
         v.type = vSym.type;
         return v;
@@ -285,12 +289,12 @@ public class JavafxLower implements JavafxVisitor {
 
     JFXExpression lowerSequenceIndexedAssign(DiagnosticPosition pos, JFXSequenceIndexed indexed, JFXExpression val, Type resType) {
 
-        JFXVar indexVar = makeTmpVar(pos, "pos", indexed.getIndex(), indexed.getIndex().type);
+        JFXVar indexVar = makeVar(pos, "pos", indexed.getIndex(), indexed.getIndex().type);
         JFXIdent indexRef = m.at(pos).Ident(indexVar);
         indexRef.sym = indexVar.sym;
         indexRef.type = indexVar.type;
 
-        JFXVar seqVar = makeTmpVar(pos, "seq", indexed.getSequence(), indexed.getSequence().type);
+        JFXVar seqVar = makeVar(pos, "seq", indexed.getSequence(), indexed.getSequence().type);
         JFXIdent seqRef = m.at(pos).Ident(seqVar);
         seqRef.sym = seqVar.sym;
         seqRef.type = seqVar.type;
@@ -319,7 +323,7 @@ public class JavafxLower implements JavafxVisitor {
         
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
             JFXSequenceIndexed indexed = (JFXSequenceIndexed)tree.lhs;
-            JFXVar varDef = makeTmpVar(tree.pos(), "index", indexed.getIndex(), indexed.getIndex().type);
+            JFXVar varDef = makeVar(tree.pos(), "index", indexed.getIndex(), indexed.getIndex().type);
             index = m.at(tree.pos).Ident(varDef.sym);
             index.sym = varDef.sym;
             index.type = varDef.type;
@@ -337,7 +341,7 @@ public class JavafxLower implements JavafxVisitor {
 
         if (lhs.getFXTag() == JavafxTag.SELECT) {
             JFXExpression selected = ((JFXSelect)lhs).selected;
-            JFXVar varDef = makeTmpVar(tree.pos(), "expr", selected, selected.type);
+            JFXVar varDef = makeVar(tree.pos(), "expr", selected, selected.type);
             // But, if this select is ClassName.foo, then we don't want
             // to create "var $expr = a;"
             Symbol sym = JavafxTreeInfo.symbolFor(selected);
@@ -555,7 +559,7 @@ public class JavafxLower implements JavafxVisitor {
         boolean inverted = tree.truepart.type == syms.unreachableType;
         JFXExpression truePart = lowerExpr(tree.truepart, tree.type);
         JFXExpression falsePart = lowerExpr(tree.falsepart, tree.type);
-        JFXVar varDef = makeTmpVar(tree.pos(), "res", null, tree.type == syms.botType ? syms.objectType : tree.type);
+        JFXVar varDef = makeVar(tree.pos(), "res", null, tree.type == syms.botType ? syms.objectType : tree.type);
         JFXIdent varRef = m.at(tree.pos).Ident(varDef.sym);
         varRef.sym = varDef.sym;
         varRef.type = varDef.type;
@@ -764,7 +768,7 @@ public class JavafxLower implements JavafxVisitor {
 
         if (tree.getExpression().getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
             JFXSequenceIndexed indexed = (JFXSequenceIndexed)tree.getExpression();
-            JFXVar varDef = makeTmpVar(tree.pos(), "index", indexed.getIndex(), indexed.getIndex().type);
+            JFXVar varDef = makeVar(tree.pos(), "index", indexed.getIndex(), indexed.getIndex().type);
             index = m.at(tree.pos).Ident(varDef.sym);
             index.sym = varDef.sym;
             index.type = varDef.type;
@@ -785,7 +789,7 @@ public class JavafxLower implements JavafxVisitor {
             // But, if this select is ClassName.foo, then we don't want
             // to create "var $expr = a;"
             if (sym == null || sym.kind != Kinds.TYP) {
-                JFXVar varDef = makeTmpVar(tree.pos(), "expr", selected, selected.type);
+                JFXVar varDef = makeVar(tree.pos(), "expr", selected, selected.type);
                 selector = m.at(tree.pos).Ident(varDef.sym);
                 selector.sym = varDef.sym;
                 selector.type = varDef.type;
@@ -810,7 +814,7 @@ public class JavafxLower implements JavafxVisitor {
         //
         //(SELECT) var $oldVal$ = $expr$.x;
         //(IDENT)  var $oldVal$ = x;
-        JFXVar oldValDef = makeTmpVar(tree.pos(), "oldVal", varRef, varRef.type);
+        JFXVar oldValDef = makeVar(tree.pos(), "oldVal", varRef, varRef.type);
         stats.append(oldValDef);
 
         JFXIdent oldVal = m.at(tree.pos).Ident(oldValDef.sym);
