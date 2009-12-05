@@ -859,7 +859,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * }
          */
         private JCStatement makeInvalidateSelector() {
-            JCVariableDecl oldSize = TmpVar(syms.intType, getSize()); 
+            JCVariableDecl oldSize = TmpVar(syms.intType, getSize());
+            JCVariableDecl newSize = TmpVar(syms.intType, getSize());
 
             return
                 If (NOT(FlagChange(selectorSym, null, phaseArg())),
@@ -879,6 +880,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             Block(
                                 oldSize,
                                 Stmt(Getter(selectorSym)),
+                                newSize,
                                 If (NEnull(selector()),
                                     CallStmt(defs.FXBase_addDependent,
                                         selector(),
@@ -889,7 +891,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                                 CallSeqInvalidate(selfSym,
                                     Int(0),
                                     id(oldSize),
-                                    getSize()
+                                    id(newSize)
                                 )
                             )
                         )
