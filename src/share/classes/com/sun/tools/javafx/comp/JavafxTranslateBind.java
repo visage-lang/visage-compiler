@@ -30,6 +30,7 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Flags;
+import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
@@ -239,7 +240,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     !(selectorSym != null && types.isJFXClass(selectorSym.owner));
 
             // If the receiver changes, then we have to call the function again
-            if (conditionallyReevaluate && !knownNonNull && selectorSym instanceof VarSymbol) {
+            // If selector is local var, then it is going to be final, and thus won't change (and doesn't have a getter)
+            if (conditionallyReevaluate && !knownNonNull && selectorSym instanceof VarSymbol && selectorSym.owner.kind == Kinds.TYP) {
                 JCVariableDecl oldVar = TmpVar("old", selectorSym.type, Get(selectorSym));
                 JCVariableDecl newVar = TmpVar("new", selectorSym.type, Getter(selectorSym));
                 addPreface(oldVar);
