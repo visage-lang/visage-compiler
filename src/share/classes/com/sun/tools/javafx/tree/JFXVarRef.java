@@ -74,22 +74,18 @@ public class JFXVarRef extends JFXExpression {
         INST;
     }
 
-    @Override
     public void accept(JavafxVisitor v) {
         v.visitVarRef(this);
     }
 
-    @Override
     public JavafxTag getFXTag() {
         return JavafxTag.VAR_REF;
     }
 
-    @Override
     public JavaFXKind getJavaFXKind() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
     public <R, D> R accept(JavaFXTreeVisitor<R, D> visitor, D data) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

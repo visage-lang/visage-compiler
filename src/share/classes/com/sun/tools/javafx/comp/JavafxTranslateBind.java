@@ -946,7 +946,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 );
         }
 
-        @Override
         void setupInvalidators() {
                 addInvalidator(selectorSym, makeInvalidateSelector());
                 addInvalidator(selfSym, makeInvalidateSelf());
@@ -1886,7 +1885,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         result = toJava().translateToExpressionResult(tree, targetSymbol.type);
     }
     
-    @Override
     public void visitIdent(JFXIdent tree) {
         final ExpressionResult exprResult = new BoundIdentTranslator(tree).doit();
         if (tree == boundExpression && isTargettedToSequence()) {
@@ -1921,7 +1919,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         result = translateBoundExpression(tree.expr, targetSymbol);
     }
 
-    @Override
     public void visitSelect(JFXSelect tree) {
         if (tree == boundExpression && isTargettedToSequence()) {
             // We want to translate to a bound sequence

@@ -273,7 +273,6 @@ public class JavafxLower implements JavafxVisitor {
         return v;
     }
 
-    @Override
     public void visitAssign(JFXAssign tree) {
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED &&
                 types.isSequence(((JFXSequenceIndexed)tree.lhs).getSequence().type) &&
@@ -305,7 +304,6 @@ public class JavafxLower implements JavafxVisitor {
         return lower(m.at(pos).Block(0L, List.of(indexVar, seqVar, insertStmt, deleteStmt), indexedExpr).setType(resType));
     }
 
-    @Override
     public void visitAssignop(JFXAssignOp tree) {
         result = visitNumericAssignop(tree, types.isSameType(tree.lhs.type, syms.javafx_DurationType));
     }
@@ -400,7 +398,6 @@ public class JavafxLower implements JavafxVisitor {
         return lowerExpr(block, Type.noType);
     }
 
-    @Override
     public void visitBinary(JFXBinary tree) {
         boolean isDurationBinaryExpr = tree.operator == null;
         boolean isEqualExpr = (tree.getFXTag() == JavafxTag.EQ ||
@@ -439,7 +436,6 @@ public class JavafxLower implements JavafxVisitor {
         result = res.setType(tree.type);
     }
 
-    @Override
     public void visitForExpressionInClause(JFXForExpressionInClause that) {
         JFXExpression whereExpr = lower(that.whereExpr);
         Type typeToCheck = that.seqExpr.type;
@@ -460,7 +456,6 @@ public class JavafxLower implements JavafxVisitor {
         result = res.setType(that.type);
     }
 
-    @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         JFXTree prevFunc = enclFunc;
         try {
@@ -476,7 +471,6 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    @Override
     public void visitFunctionInvocation(JFXFunctionInvocation tree) {
         JFXExpression meth = lower(tree.meth);
         List<Type> paramTypes = tree.meth.type.getParameterTypes();
@@ -527,7 +521,6 @@ public class JavafxLower implements JavafxVisitor {
         result.type = tree.type;
     }
 
-    @Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         JFXTree prevFunc = enclFunc;
         try {
@@ -540,7 +533,6 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    @Override
     public void visitIfExpression(JFXIfExpression tree) {
         if (tree.type.tag != TypeTags.VOID &&
                 (tree.truepart.type == syms.unreachableType ||
@@ -572,14 +564,12 @@ public class JavafxLower implements JavafxVisitor {
         return m.at(tree.pos()).Block(0L, List.of(varDef, ifExpr), varRef).setType(varRef.type);
     }
 
-    @Override
     public void visitIndexof(JFXIndexof that) {
         JFXIndexof res = m.at(that.pos).Indexof(that.fname);
         res.clause = that.clause;
         result = res.setType(that.type);
     }
 
-    @Override
     public void visitInstanceOf(JFXInstanceOf tree) {
         Type typeToCheck = needSequenceConversion(tree.getExpression(), tree.clazz.type) ?
             types.sequenceType(tree.getExpression().type) :
@@ -588,7 +578,6 @@ public class JavafxLower implements JavafxVisitor {
         result = m.at(tree.pos).TypeTest(expr, tree.clazz).setType(tree.type);
     }
 
-    @Override
     public void visitInterpolateValue(JFXInterpolateValue that) {
         JFXExpression pointerType = m.at(that.pos).Type(syms.javafx_PointerType).setType(syms.javafx_PointerType);
         Symbol pointerMakeSym = rs.resolveQualifiedMethod(that.pos(),
@@ -619,7 +608,6 @@ public class JavafxLower implements JavafxVisitor {
         return part;
     }
 
-    @Override
     public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
         ListBuffer<JFXTree> parts = ListBuffer.lb();
         JFXExpression keyValues = m.at(that.pos).ExplicitSequence(that.values).setType(types.sequenceType(syms.javafx_KeyValueType));
@@ -629,12 +617,10 @@ public class JavafxLower implements JavafxVisitor {
         result = lower(res);
     }
 
-    @Override
     public void visitLiteral(JFXLiteral tree) {
         result = tree;
     }
 
-    @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         JFXExpression expr = lowerExpr(tree.getExpression(), tree.sym.type);
         JFXObjectLiteralPart res = m.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getExplicitBindStatus());
@@ -643,7 +629,6 @@ public class JavafxLower implements JavafxVisitor {
         result = res.setType(tree.type);
     }
 
-    @Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         JFXExpression init = lowerExpr(tree.getInitializer(), tree.getId().sym.type);
         JFXOnReplace onReplace = lower(tree.getOnReplace());
@@ -653,7 +638,6 @@ public class JavafxLower implements JavafxVisitor {
         result = res.setType(tree.type);
     }
 
-    @Override
     public void visitReturn(JFXReturn tree) {
         Type typeToCheck = enclFunc.type != null ?
             enclFunc.type.getReturnType() :
@@ -662,7 +646,6 @@ public class JavafxLower implements JavafxVisitor {
         result = m.at(tree.pos).Return(retExpr).setType(tree.type);
     }
 
-    @Override
     public void visitSequenceDelete(JFXSequenceDelete that) {
         JFXExpression seq = lower(that.getSequence());
         JFXExpression el = that.getElement();
@@ -675,12 +658,10 @@ public class JavafxLower implements JavafxVisitor {
         result = m.at(that.pos).SequenceDelete(seq, el).setType(that.type);
     }
 
-    @Override
     public void visitSequenceEmpty(JFXSequenceEmpty that) {
         result = that;
     }
 
-    @Override
     public void visitSequenceExplicit(JFXSequenceExplicit that) {
         ListBuffer<JFXExpression> buf = ListBuffer.lb();
         for (JFXExpression item : that.getItems()) {
@@ -693,14 +674,12 @@ public class JavafxLower implements JavafxVisitor {
         result = m.at(that.pos).ExplicitSequence(buf.toList()).setType(that.type);
     }
 
-    @Override
     public void visitSequenceIndexed(JFXSequenceIndexed that) {
         JFXExpression index = lowerExpr(that.getIndex(), syms.intType);
         JFXExpression seq = lower(that.getSequence());
         result = m.at(that.pos).SequenceIndexed(seq, index).setType(that.type);
     }
 
-    @Override
     public void visitSequenceInsert(JFXSequenceInsert that) {
         JFXExpression seq = lower(that.getSequence());
         Type typeToCheck = types.isArrayOrSequenceType(that.getElement().type) ||
@@ -712,7 +691,6 @@ public class JavafxLower implements JavafxVisitor {
         result = m.at(that.pos).SequenceInsert(seq, el, pos, that.shouldInsertAfter()).setType(that.type);
     }
 
-    @Override
     public void visitSequenceRange(JFXSequenceRange that) {
         JFXExpression lower = lowerExpr(that.getLower(), types.elementType(that.type));
         JFXExpression upper = lowerExpr(that.getUpper(), types.elementType(that.type));
@@ -722,7 +700,6 @@ public class JavafxLower implements JavafxVisitor {
         result = res.setType(that.type);
     }
 
-    @Override
     public void visitSequenceSlice(JFXSequenceSlice that) {
         JFXExpression seq = lower(that.getSequence());
         JFXExpression start = lowerExpr(that.getFirstIndex(), syms.intType);
@@ -730,13 +707,11 @@ public class JavafxLower implements JavafxVisitor {
         result = m.at(that.pos).SequenceSlice(seq, start, end, that.getEndKind()).setType(that.type);
     }
 
-    @Override
     public void visitStringExpression(JFXStringExpression tree) {
         List<JFXExpression> parts = lower(tree.parts);
         result = m.at(tree.pos).StringExpression(parts, tree.translationKey).setType(tree.type);
     }
 
-    @Override
     public void visitUnary(JFXUnary tree) {
         if (tree.getFXTag().isIncDec()) {
             result = visitNumericUnary(tree);
@@ -861,7 +836,6 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    @Override
     public void visitVar(JFXVar tree) {
         JFXExpression init = lowerExpr(tree.getInitializer(), tree.type);
         JFXOnReplace onReplace = lower(tree.getOnReplace());
@@ -876,12 +850,10 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    @Override
     public void visitVarInit(JFXVarInit tree) {
         result = tree;
     }
 
-    @Override
     public void visitVarRef(JFXVarRef tree) {
         result = tree;
     }
