@@ -637,7 +637,8 @@ public class JavafxLower implements JavafxVisitor {
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         JFXExpression expr = lowerExpr(tree.getExpression(), tree.sym.type);
-        JFXObjectLiteralPart res = m.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getBindStatus());
+        JFXObjectLiteralPart res = m.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getExplicitBindStatus());
+        res.markBound(tree.getBindStatus());
         res.sym = tree.sym;
         result = res.setType(tree.type);
     }

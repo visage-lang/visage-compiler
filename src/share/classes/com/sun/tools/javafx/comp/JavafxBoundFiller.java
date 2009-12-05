@@ -190,7 +190,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         ListBuffer<JFXTree> newOverrides = ListBuffer.<JFXTree>lb();
         ListBuffer<JFXObjectLiteralPart> unboundParts = ListBuffer.<JFXObjectLiteralPart>lb();
         for (JFXObjectLiteralPart part : tree.getParts()) {
-            if (part.isBound()) {
+            if (part.isExplicitlyBound()) {
                 fxmake.at(part.pos());  // create at part position
                 JFXIdent id = fxmake.Ident(part.name);
                 id.sym = part.sym;

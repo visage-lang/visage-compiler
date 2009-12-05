@@ -209,7 +209,7 @@ public abstract class JavafxTranslationSupport {
 
             @Override
             public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-                if (!tree.isBound()) {
+                if (!tree.isExplicitlyBound()) {
                     super.visitObjectLiteralPart(tree);
                 }
             }

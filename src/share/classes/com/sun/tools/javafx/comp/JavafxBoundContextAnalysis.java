@@ -153,9 +153,10 @@ public class JavafxBoundContextAnalysis extends JavafxTreeScanner {
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         JavafxBindStatus prevBindStatus = bindStatus;
-        bindStatus = tree.isBound()?
+        bindStatus = tree.isExplicitlyBound()?
                             tree.getBindStatus() :
                             prevBindStatus;
+        tree.markBound(bindStatus);
         scan(tree.getExpression());
         bindStatus = prevBindStatus;
     }

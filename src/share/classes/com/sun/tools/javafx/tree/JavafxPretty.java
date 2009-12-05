@@ -1064,7 +1064,7 @@ public class JavafxPretty implements JavafxVisitor {
         try {
             print(tree.getName());
             print(": ");
-            printBind(tree.getBindStatus());
+            printBind(tree.getExplicitBindStatus());
             printExpr(tree.getExpression());
         } catch (IOException e) {
             throw new UncheckedIOException(e);

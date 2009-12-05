@@ -652,10 +652,11 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         Symbol prevVarSymbol = currentVarSymbol;
         currentVarSymbol = tree.sym;
-        if (tree.isBound())
+        if (tree.isExplicitlyBound())
             throw new AssertionError("bound parts should have been converted to overrides");
         JFXExpression expr = shred(tree.getExpression(), tree.sym.type);
-        JFXObjectLiteralPart res = fxmake.at(tree.pos).ObjectLiteralPart(tree.name, expr, bindStatus);
+        JFXObjectLiteralPart res = fxmake.at(tree.pos).ObjectLiteralPart(tree.name, expr, tree.getExplicitBindStatus());
+        res.markBound(bindStatus);
         res.sym = tree.sym;
         currentVarSymbol = prevVarSymbol;
         result = res;
