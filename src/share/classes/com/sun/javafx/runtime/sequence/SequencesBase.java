@@ -1041,7 +1041,7 @@ public class SequencesBase {
         }
         int inserted = newValues==null? 0 : newValues.size();
         // If we are replacing it all, and, since we don't want copies of SequenceRef, if it isn't a SequenceRef
-        if (startPos == 0 && endPos == oldSize && !(newValues instanceof SequenceRef)) {
+        if (startPos == 0 && endPos == oldSize && !(newValues instanceof SequenceRef) && !(newValues instanceof SequenceProxy)) {
             if (newValues == null)
                 newValues = oldValue.getEmptySequence();
             newValues.incrementSharing();
@@ -1085,7 +1085,8 @@ public class SequencesBase {
 
         int inserted = newValues==null? 0 : newValues.size();
         // If we are replacing it all, and, since we don't want copies of SequenceRef, if it isn't a SequenceRef
-        if (startPos == 0 && endPos == oldSize && !(newValues instanceof SequenceRef)) {
+        if (startPos == 0 && endPos == oldSize && !(newValues instanceof SequenceRef) && !(newValues instanceof SequenceProxy)) {
+
             if (newValues == null)
                 newValues = oldValue.getEmptySequence();
             newValues.incrementSharing();
@@ -1124,7 +1125,7 @@ public class SequencesBase {
     }
 
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
-        if (newValue instanceof SequenceRef) {
+        if (newValue instanceof SequenceRef || newValue instanceof SequenceProxy) {
             // Can't have any copies of a SequenceRef
             return replaceSlice(oldValue, newValue, 0, oldValue.size());
         }
