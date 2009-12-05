@@ -1652,7 +1652,7 @@ public class JavafxAttr implements JavafxVisitor {
                 if (v.isStatic()) {
                     log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL, memberSym);
                 }
-                WriteKind kind = part.isBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;
+                WriteKind kind = part.isExplicitlyBound() ? WriteKind.INIT_BIND : WriteKind.INIT_NON_BIND;
                 chk.checkAssignable(part.pos(), v, part, clazz.type, localEnv, kind);
                 chk.checkBidiBind(part.getExpression(), part.getBindStatus(), localEnv, v.type);
             }
