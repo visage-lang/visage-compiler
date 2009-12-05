@@ -1864,18 +1864,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Prepare to accumulate if statements.
                     beginBlock();
     
-                    boolean override = varInfo.isOverride();
                     boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
 
-                    if (override) {
+                    if (varInfo.isOverride()) {
                         // Call super first.
                         callSuper();
                     } else if (mixin) {
                         callMixin((ClassSymbol)varSym.owner);
-                        override = true;
+                    } else {
+                        // Set phase flag.
+                        addStmt(FlagChangeStmt(proxyVarSym, null, phaseArg()));
+                        // notifyDependents(VOFF$var, phase$);
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
                     }
 
-                   for (VarInfo otherVar : varInfo.boundBinders()) {
+                    for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.generateSequenceAccessors()) {
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
@@ -1890,11 +1893,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }
                     
-                    if (!override) {
-                        // notifyDependents(VOFF$var, phase$);
-                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
-                    }
-                    
                     // Wrap up main block.
                     JCBlock mainBlock = endBlock();
                     
@@ -1906,15 +1904,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         mixinBlock = endBlock();
                     }
 
-                    if (override) {
-                        // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                        addStmt(OptIf(NOT(FlagTest(proxyVarSym, phaseArg(), phaseArg())),
-                                mainBlock, mixinBlock));
-                    } else {
-                        // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                        addStmt(If(NOT(FlagChange(proxyVarSym, null, phaseArg())),
-                                mainBlock, mixinBlock));
-                    }
+                    // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
+                    addStmt(If(FlagTest(proxyVarSym, phaseArg(), null),
+                            mainBlock, mixinBlock));
 
                     if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
