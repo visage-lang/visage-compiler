@@ -74,6 +74,10 @@ public class JavafxTypeMorpher {
                     isSequence() ||
                     (sym.owner.flags_field & JavafxFlags.MIXIN) != 0);
         }
+        
+        boolean useGetters() {
+            return useAccessors() || (sym.flags_field & JavafxFlags.VARUSE_NON_LITERAL) != 0;
+        }
 
         boolean isMemberVariable() {
             return sym.owner.kind == Kinds.TYP && sym.name != names._class;

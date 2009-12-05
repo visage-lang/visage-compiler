@@ -151,6 +151,9 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
             scan(tree.getInitializer());
             tree.sym.flags_field &= ~VARUSE_TMP_IN_INIT_EXPR;
+            if (!tree.isLiteralInit()) {
+                mark(tree.sym, VARUSE_NON_LITERAL);
+            }
         }
         mark(tree.sym, VARUSE_DEFINITION_SEEN);
         inBindContext = wasInBindContext;

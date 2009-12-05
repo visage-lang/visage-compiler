@@ -206,6 +206,7 @@ class JavafxAnalyzeClass {
         public Type getRealType()     { return vmi.getRealType(); }
         public Type getElementType()  { return vmi.getElementType(); }
         public boolean useAccessors() { return vmi.useAccessors(); }
+        public boolean useGetters()   { return vmi.useGetters(); }
 
         // Return var name.
         public Name getName() { return name; }

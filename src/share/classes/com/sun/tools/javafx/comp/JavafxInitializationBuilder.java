@@ -2050,8 +2050,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public void makeAnAttributeAccessorMethods(VarInfo ai, boolean needsBody) {
             setDiagPos(ai.pos());
-
-            if (ai.useAccessors()) {
+            
+            if (!ai.useAccessors()) {
+                if (ai.useGetters() && !ai.isOverride()) {
+                    makeGetterAccessorMethod(ai, needsBody);
+                }
+            } else {
                 if (!(ai instanceof MixinClassVarInfo)) {
                     if (ai.generateSequenceAccessors()) {
                         if (ai.isHiddenBareSynth()) {
