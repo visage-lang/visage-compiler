@@ -441,8 +441,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
         }
 
-        JCExpression isSequenceDormantSetActive() {
-            return NOT(FlagChange(flagSymbol, null, activeFlagBit));
+        JCExpression isSequenceDormant() {
+            return FlagTest(flagSymbol, activeFlagBit, null);
         }
 
         JCStatement setSequenceActive() {
@@ -582,15 +582,18 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return
                 Block(
                     oldSizeVar,
-                    If(AND(NE(id(oldSizeVar), Int(JavafxDefs.UNDEFINED_MARKER_INT)), NOT(FlagChange(sym, null, phaseArg()))),
-                        If(IsInvalidatePhase(),
-                            Block(
-                                CallSeqInvalidateUndefined(targetSymbol)
-                            ),
-                            Block(
-                                newSizeVar,
-                                SetStmt(sizeSym, id(newSizeVar)),
-                                CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
+                    If(AND(NE(id(oldSizeVar), Int(JavafxDefs.UNDEFINED_MARKER_INT)), FlagTest(sym,  phaseArg(), null)),
+                        Block(
+                            FlagChangeStmt(sym, null, phaseArg()),
+                            If(IsInvalidatePhase(),
+                                Block(
+                                    CallSeqInvalidateUndefined(targetSymbol)
+                                ),
+                                Block(
+                                    newSizeVar,
+                                    SetStmt(sizeSym, id(newSizeVar)),
+                                    CallSeqInvalidate(targetSymbol, Int(0), id(oldSizeVar), id(newSizeVar))
+                                )
                             )
                         )
                     )
@@ -632,13 +635,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         JCStatement makeSizeBody() {
             ListBuffer<JCStatement> tVarInits = ListBuffer.lb();
+            tVarInits.append(setSequenceActive());
             for (JFXExpression init : varInits) {
                 tVarInits.append(translateToStatement(init, syms.voidType));
             }
 
             return
                 Block(
-                    If (isSequenceDormantSetActive(),
+                    If (isSequenceDormant(),
                         Block(
                             tVarInits.toList()
                         )
@@ -650,7 +654,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCStatement makeGetElementBody() {
             return
                 Block(
-                    If (NOT(isSequenceActive()),
+                    If (isSequenceDormant(),
                         Stmt(CallSize(targetSymbol))
                     ),
                     Return(CallGetElement(vsym, posArg()))
@@ -792,8 +796,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             return
                 Block(
-                    If (isSequenceDormantSetActive(),
+                    If (isSequenceDormant(),
                         Block(
+                            setSequenceActive(),
                             FlagChangeStmt(selectorSym, defs.varFlagNEEDS_TRIGGER, null),
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
                         )
@@ -863,8 +868,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl newSize = TmpVar(syms.intType, getSize());
 
             return
-                If (NOT(FlagChange(selectorSym, null, phaseArg())),
+                If (FlagTest(selectorSym, phaseArg(), null),
                     Block(
+                        FlagChangeStmt(selectorSym, null, phaseArg()),
                         If (IsInvalidatePhase(),
                             Block(
                                 If (NEnull(selector()),
@@ -1090,10 +1096,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCVariableDecl vNewLen = TmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
 
                 return 
-                    If(AND(isSequenceActive(), NOT(FlagChange(vsym(index), null, phaseArg()))),
+                    If(AND(isSequenceActive(), FlagTest(vsym(index), phaseArg(), null)),
                         Block(
                             vStart,
                             vOldLen,
+                            FlagChangeStmt(vsym(index), null, phaseArg()),
                             If(IsInvalidatePhase(),
                                 Block(
                                     CallSeqInvalidate(
@@ -1703,8 +1710,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         JCStatement makeSizeBody() {
             return
                 Block(
-                    If (isSequenceDormantSetActive(),
+                    If (isSequenceDormant(),
                         Block(
+                            setSequenceActive(),
                             SetStmt(condSym, CallGetCond()),
                             SetStmt(sizeSym,
                                 If (Get(condSym),

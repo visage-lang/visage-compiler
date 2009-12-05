@@ -1198,7 +1198,7 @@ public abstract class JavafxTranslationSupport {
         }
 
         //
-        // These methods return an expression for testing/setting/clearing a var flag.
+        // These methods return an expression for testing a var flag.
         //
 
         protected JCExpression FlagTest(VarSymbol varSym, Name clearBits, Name setBits) {
@@ -1209,16 +1209,6 @@ public abstract class JavafxTranslationSupport {
         }
         protected JCExpression FlagTest(JCExpression offset, Name clearBits, Name setBits) {
             return FlagAction(offset, defs.varFlagActionTest, clearBits, setBits, false);
-        }
-
-        protected JCExpression FlagChange(VarSymbol varSym, Name clearBits, Name setBits) {
-            return FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, false);
-        }
-        protected JCExpression FlagChange(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
-            return FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, false);
-        }
-        protected JCExpression FlagChange(JCExpression offset, Name clearBits, Name setBits) {
-            return FlagAction(offset, defs.varFlagActionChange, clearBits, setBits, false);
         }
 
 
