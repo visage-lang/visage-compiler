@@ -1034,15 +1034,8 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitInstanciate(JFXInstanciate tree) {
-       List<JFXObjectLiteralPart> parts = lower(tree.getParts());
-       JFXClassDeclaration cdecl = lower(tree.getClassBody());
-       List<JFXExpression> args = lower(tree.getArgs());
-       JFXInstanciate res = m.at(tree.pos).Instanciate(tree.getJavaFXKind(), tree.getIdentifier(), cdecl, args, parts, tree.getLocalvars());
-       res.sym = tree.sym;
-       res.constructor = tree.constructor;
-       res.varDefinedByThis = tree.varDefinedByThis;
-       res.type = tree.type;
-       if (tree.getLocalvars().nonEmpty()) {
+        ListBuffer<JFXExpression> locals = ListBuffer.lb();
+        if (tree.getLocalvars().nonEmpty()) {
             //ObjLit {
             //  local var 1;
             //  local var 2;
@@ -1063,12 +1056,89 @@ public class JavafxLower implements JavafxVisitor {
             //    ...
             //  }
             //}
-           result = m.Block(0L, List.convert(JFXExpression.class, lower(tree.getLocalvars())), res).setType(tree.type);
-           res.clearLocalVars();
-       }
-       else {
-           result = res;
-       }
+            for (JFXVar var : tree.getLocalvars()) {
+                locals.append(lower(var));
+            }
+        }
+
+        ListBuffer<JFXTree> newOverrides = ListBuffer.<JFXTree>lb();
+        ListBuffer<JFXObjectLiteralPart> unboundParts = ListBuffer.<JFXObjectLiteralPart>lb();
+        for (JFXObjectLiteralPart part : tree.getParts()) {
+            if (part.isExplicitlyBound()) {
+                m.at(part.pos());  // create at part position
+
+                // id for the override
+                JFXIdent id = m.Ident(part.name);
+                id.sym = part.sym;
+                id.type = part.sym.type;
+
+                JFXExpression initExpr;
+
+                if (false) { //TODO: need JFXC-3779  fixed first
+                    // Shread the expression outside the class, so that the context is correct
+                    JFXVar shred = makeVar(
+                            part.pos(),
+                            part.name + "$ol",
+                            part.getBindStatus(),
+                            lowerExpr(part.getExpression(), part.sym.type),
+                            part.sym.type);
+                    JFXIdent sid = m.Ident(shred.name);
+                    sid.sym = shred.sym;
+                    sid.type = part.sym.type;
+                    locals.append(shred);
+                    initExpr = sid;
+                } else {
+                    initExpr = part.getExpression(); // lowered with class
+                }
+
+                // Turn the part into an override var
+                JFXOverrideClassVar ocv =
+                        m.OverrideClassVar(
+                        part.name,
+                        preTrans.makeTypeTree(part.type),
+                        m.Modifiers(part.sym.flags_field),
+                        id,
+                        initExpr,
+                        part.getBindStatus(),
+                        null,
+                        null);
+                ocv.sym = (VarSymbol) part.sym;
+                ocv.type = part.sym.type;
+                newOverrides.append(ocv);
+            } else {
+                unboundParts.append(lower(part));
+            }
+        }
+
+        // Lower the class.  If there are new overrides, fold them into the class first
+        JFXClassDeclaration cdecl = tree.getClassBody();
+        JFXClassDeclaration lowCdecl;
+        if (newOverrides.nonEmpty()) {
+            cdecl.setMembers(cdecl.getMembers().appendList(newOverrides));
+            lowCdecl = lower(cdecl);
+            preTrans.liftTypes(cdecl, cdecl.type, preTrans.makeDummyMethodSymbol(cdecl.sym));
+        } else {
+            lowCdecl = lower(cdecl);
+        }
+
+        // Construct the new instanciate
+        JFXInstanciate res = m.at(tree.pos).Instanciate(tree.getJavaFXKind(),
+                tree.getIdentifier(),
+                lowCdecl,
+                lower(tree.getArgs()),
+                unboundParts.toList(),
+                List.<JFXVar>nil());
+        res.sym = tree.sym;
+        res.constructor = tree.constructor;
+        res.varDefinedByThis = tree.varDefinedByThis;
+        res.type = tree.type;
+
+        // If there are locals wrap the whole thing in a block-expression
+        if (locals.nonEmpty()) {
+            result = m.Block(0L, locals.toList(), res).setType(tree.type);
+        } else {
+            result = res;
+        }
     }
 
     public void visitInvalidate(JFXInvalidate tree) {

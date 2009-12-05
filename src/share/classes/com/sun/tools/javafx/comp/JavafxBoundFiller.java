@@ -24,13 +24,11 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
-import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
-import com.sun.tools.mjavac.code.Scope;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
@@ -177,50 +175,6 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     }
 
     @Override
-    public void visitInstanciate(JFXInstanciate tree) {
-        boundObjectLiteralConverter(tree);
-        super.visitInstanciate(tree);
-    }
-
-    /**
-     * Convert bound object literal initializers into override var
-     * in the (formerly empty) class created by JavafxTreeMaker.
-     */
-    private void boundObjectLiteralConverter(JFXInstanciate tree) {
-        ListBuffer<JFXTree> newOverrides = ListBuffer.<JFXTree>lb();
-        ListBuffer<JFXObjectLiteralPart> unboundParts = ListBuffer.<JFXObjectLiteralPart>lb();
-        for (JFXObjectLiteralPart part : tree.getParts()) {
-            if (part.isExplicitlyBound()) {
-                fxmake.at(part.pos());  // create at part position
-                JFXIdent id = fxmake.Ident(part.name);
-                id.sym = part.sym;
-                id.type = part.sym.type;
-                JFXOverrideClassVar ocv =
-                        fxmake.OverrideClassVar(
-                        part.name,
-                        preTrans.makeTypeTree(part.type),
-                        fxmake.Modifiers(part.sym.flags_field),
-                        id,
-                        part.getExpression(),
-                        part.getBindStatus(),
-                        null,
-                        null);
-                ocv.sym = (VarSymbol) part.sym;
-                ocv.type = part.sym.type;
-                newOverrides.append(ocv);
-            } else {
-                unboundParts.append(part);
-            }
-        }
-        if (newOverrides.nonEmpty()) {
-            JFXClassDeclaration cdecl = tree.getClassBody();
-            cdecl.setMembers(cdecl.getMembers().appendList(newOverrides));
-            tree.setParts(unboundParts.toList());
-            preTrans.liftTypes(cdecl, cdecl.type, preTrans.makeDummyMethodSymbol(cdecl.sym));
-        }
-    }
-
-   @Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         if (tree.isBound()) {
             // Fill out the bound function support vars before
