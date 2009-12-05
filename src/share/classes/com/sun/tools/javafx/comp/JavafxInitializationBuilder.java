@@ -63,6 +63,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final JavafxToJava toJava;
     private final JavafxClassReader reader;
     private final JavafxOptimizationStatistics optStat;
+    private final DependencyGraphWriter depGraphWriter;
 
     public static class LiteralInitVarMap {
         private int count = 1;
@@ -120,6 +121,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         toJava = JavafxToJava.instance(context);
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
+        depGraphWriter = DependencyGraphWriter.instance(context);
     }
 
     /**
@@ -1443,6 +1445,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
 
                     for (VarInfo otherVar : varInfo.boundBinders()) {
+                        if (depGraphWriter != null) {
+                            depGraphWriter.writeDependency(otherVar.sym, varSym);
+                        }
+
                         // invalidate$var(phase$);
                         if (!otherVar.generateSequenceAccessors()) {
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
@@ -1881,6 +1887,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     for (VarInfo otherVar : varInfo.boundBinders()) {
                         // invalidate$var(phase$);
                         if (!otherVar.generateSequenceAccessors()) {
+                            if (depGraphWriter != null) {
+                                depGraphWriter.writeDependency(otherVar.sym, varSym);
+                            }
                             addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
                         }
                     }
@@ -1888,6 +1897,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Invalidate back to inverse.
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         for (VarSymbol bindeeSym : varInfo.boundBindees()) {
+                            if (depGraphWriter != null) {
+                                depGraphWriter.writeDependency(bindeeSym, varSym);
+                            }
                             addStmt(CallStmt(attributeInvalidateName(bindeeSym), phaseArg()));
                             break;
                         }
@@ -2794,6 +2806,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
  
                             // Loop for local vars.
                             for (VarInfo varInfo : referenceSet) {
+                                if (depGraphWriter != null) {
+                                    if (varInfo.generateSequenceAccessors()) {
+                                        if (isSequenceVersion) {
+                                            depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
+                                        } // else do not output dependency
+                                    } else {
+                                        if (! isSequenceVersion) {
+                                            depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
+                                        }
+                                    }
+                                }
                                 addStmt(invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym()));
                             }
 

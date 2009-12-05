@@ -56,6 +56,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     // The outermost bound expression
     private JFXExpression boundExpression;
 
+    private DependencyGraphWriter depGraphWriter;
+
     public static JavafxTranslateBind instance(Context context) {
         JavafxTranslateBind instance = context.get(jfxBoundTranslation);
         if (instance == null) {
@@ -70,6 +72,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         this.toJava = toJava;
 
         context.put(jfxBoundTranslation, this);
+        this.depGraphWriter = DependencyGraphWriter.instance(context);
     }
 
     static JCExpression TODO(String msg, JFXExpression tree) {
@@ -462,6 +465,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
         JCStatement Assign(JCVariableDecl var, JCExpression value) {
             return Assign(id(var), value);
+        }
+
+        @Override
+        void addInvalidator(VarSymbol sym, JCStatement invStmt) {
+            super.addInvalidator(sym, invStmt);
+            if (depGraphWriter != null) {
+                depGraphWriter.writeDependency(targetSymbol, sym);
+            }
         }
     }
 
@@ -1060,7 +1071,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         private JCStatement makeItemInvalidate(int index) {
             JCVariableDecl vStart = TmpVar("start", syms.intType, cummulativeSize(index));
-            
+
             if (isSequence(index)) {
                 return 
                     If(isSequenceActive(),
