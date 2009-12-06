@@ -1493,10 +1493,10 @@ public abstract class JavafxAbstractTranslation
                 }
                 if (magicPointerMakeFunction) {
                     // Pointer.make has just two arguments (inst, varNum) -- we need to
-                    // add an extra argument - so that the Pointer.make(FXObject, int, Class) is called.
+                    // add an extra argument - so that the Pointer.make(Type, FXObject, int) is called.
                     JFXVarRef varRef = (JFXVarRef)args.head;
-                    JCExpression varType = makeClassLiteral(varRef.getVarSymbol().type);
-                    targs.append(varType);
+                    JCExpression varType = makeKeyValueTargetType(varRef.getVarSymbol().type);
+                    targs.prepend(varType);
                 }
             }
             return targs.toList();

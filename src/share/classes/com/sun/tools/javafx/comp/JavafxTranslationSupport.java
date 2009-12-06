@@ -1017,10 +1017,43 @@ public abstract class JavafxTranslationSupport {
             return makeType(sym.type, true);
         }
 
-        protected JCExpression makeClassLiteral(Type type) {
-            return Select(
-                    makeType(type),
-                    names._class);
+        protected JCExpression makeKeyValueTargetType(Type type) {
+            Name fieldName;
+            if (type.isPrimitive()) {
+                switch (type.getKind()) {
+                    case BYTE:
+                        fieldName = defs.BYTE_KeyValueTargetTypeFieldName;
+                        break;
+                    case SHORT:
+                        fieldName = defs.SHORT_KeyValueTargetTypeFieldName;
+                        break;
+                    case INT:
+                    case CHAR:
+                        fieldName = defs.INTEGER_KeyValueTargetTypeFieldName;
+                        break;
+                    case LONG:
+                        fieldName = defs.LONG_KeyValueTargetTypeFieldName;
+                        break;
+                    case FLOAT:
+                        fieldName = defs.FLOAT_KeyValueTargetTypeFieldName;
+                        break;
+                    case DOUBLE:
+                        fieldName = defs.DOUBLE_KeyValueTargetTypeFieldName;
+                        break;
+                    case BOOLEAN:
+                        fieldName = defs.BOOLEAN_KeyValueTargetTypeFieldName;
+                        break;
+                    default:
+                        fieldName = defs.OBJECT_KeyValueTargetTypeFieldName;
+                        break;
+                }
+            } else if (types.isSequence(type)) {
+                fieldName = defs.SEQUENCE_KeyValueTargetTypeFieldName;
+            } else {
+                fieldName = defs.OBJECT_KeyValueTargetTypeFieldName;
+            }
+
+            return Select(makeQualifiedTree(diagPos, defs.cKeyValueTargetType), fieldName);
         }
 
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.

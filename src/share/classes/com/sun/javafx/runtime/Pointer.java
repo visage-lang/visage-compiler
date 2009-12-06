@@ -23,9 +23,6 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.sequence.Sequence;
-import java.util.HashMap;
-import java.util.Map;
 import javafx.animation.KeyValueTarget;
 
 
@@ -40,29 +37,8 @@ public class Pointer implements KeyValueTarget {
     private final FXObject obj;
     private final int varnum;
 
-    private static Map<Class, Type> classToType;
-    static {
-        classToType = new HashMap<Class, Type>();
-        classToType.put(Byte.TYPE, Type.BYTE);
-        classToType.put(Short.TYPE, Type.SHORT);
-        classToType.put(Integer.TYPE, Type.INTEGER);
-        classToType.put(Long.TYPE, Type.LONG);
-        classToType.put(Float.TYPE, Type.FLOAT);
-        classToType.put(Double.TYPE, Type.DOUBLE);
-        classToType.put(Boolean.TYPE, Type.BOOLEAN);
-        classToType.put(Character.TYPE, Type.INTEGER);
-    }
-
     @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Lcom/sun/javafx/runtime/Pointer;")
-    public static Pointer make(FXObject obj, int varnum, Class varType) {
-        Type type = classToType.get(varType);
-        if (type == null) {
-            if (Sequence.class.isAssignableFrom(varType)) {
-                type = Type.SEQUENCE;
-            } else {
-                type = Type.OBJECT;
-            }
-        }
+    public static Pointer make(Type type, FXObject obj, int varnum) {
         return new Pointer(type, obj, varnum);
     }
     
