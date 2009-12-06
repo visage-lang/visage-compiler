@@ -44,9 +44,11 @@ public interface FXObject {
     public static final int VFLGS$DEFAULT_APPLIED = 16;
     public static final int VFLGS$IS_INITIALIZED = 32;
     public static final int VFLGS$AWAIT_VARINIT = 64;
+    public static final int VFLGS$CYCLE = 128;
 
     public static final int VFLGS$VALIDITY_FLAGS = VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
     public static final int VFLGS$IS_BOUND_INVALID = VFLGS$IS_BOUND | VFLGS$IS_INVALID;
+    public static final int VFLGS$IS_BOUND_INVALID_CYCLE = VFLGS$IS_BOUND | VFLGS$IS_INVALID | VFLGS$CYCLE;
     public static final int VFLGS$IS_BOUND_DEFAULT_APPLIED = VFLGS$IS_BOUND | VFLGS$DEFAULT_APPLIED;
     public static final int VFLGS$DEFAULT_APPLIED_VARINIT = VFLGS$AWAIT_VARINIT | VFLGS$DEFAULT_APPLIED;
     public static final int VFLGS$INIT_NORMAL = 0;
