@@ -1046,7 +1046,7 @@ public class JavafxLower implements JavafxVisitor {
 
                 JFXExpression initExpr;
 
-                if (false) { //TODO: need JFXC-3779  fixed first
+                if (true) { // enable bound object literal initializer scoping to object literal level.
                     // Shread the expression outside the class, so that the context is correct
                     JFXVar shred = makeVar(
                             part.pos(),
