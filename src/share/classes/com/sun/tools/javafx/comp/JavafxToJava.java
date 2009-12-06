@@ -86,7 +86,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     private LiteralInitClassMap literalInitClassMap = null;
 
     /** Class symbols for classes that need a reference to the outer class. */
-    private final Set<ClassSymbol> hasOuters = new HashSet<ClassSymbol>();
+    private final Map<ClassSymbol, ClassSymbol> hasOuters = new HashMap<ClassSymbol, ClassSymbol>();
 
     private JavafxEnv<JavafxAttrContext> attrEnv;
     ReceiverContext inInstanceContext = ReceiverContext.Oops;
@@ -220,7 +220,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
      * Class symbols for classes that need a reference to the outer class.
      */
     @Override
-    Set<ClassSymbol> getHasOuters() {
+    Map<ClassSymbol, ClassSymbol> getHasOuters() {
         return hasOuters;
     }
 
@@ -1012,7 +1012,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         Symbol csym = null;
                         while (currentClass != null) {
                             if (currentClass.isSubClass(sym.owner, types)) {
-                                getHasOuters().add((ClassSymbol)csym);
+                                getHasOuters().put((ClassSymbol)csym, (ClassSymbol)currentClass);
                                 break;
                             }
                             csym = currentClass;

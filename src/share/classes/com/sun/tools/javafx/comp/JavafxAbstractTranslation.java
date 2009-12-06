@@ -161,7 +161,7 @@ public abstract class JavafxAbstractTranslation
     /**
      * Class symbols for classes that need a reference to the outer class.
      */
-    Set<ClassSymbol> getHasOuters() {
+    Map<ClassSymbol, ClassSymbol> getHasOuters() {
         return toJava.getHasOuters();
     }
 
@@ -2858,8 +2858,8 @@ public abstract class JavafxAbstractTranslation
             ClassSymbol clazz = tree.getClassBody() != null ?
                 tree.getClassBody().sym :
                 idSym;
-            if (getHasOuters().contains(clazz)) {
-                JCExpression receiver = getReceiverOrThis();
+            if (getHasOuters().containsKey(clazz)) {
+                JCExpression receiver = resolveThis(getHasOuters().get(clazz), false);
                 translated = translated.prepend(receiver);
             }
             return translated;

@@ -1059,11 +1059,11 @@ public abstract class JavafxTranslationSupport {
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.
         //
         protected JCExpression getReceiver() {
-            return getReceiverInternal(enclosingClassDecl.sym, true);
+            return resolveThis(enclosingClassDecl.sym, true);
         }
 
         protected JCExpression getReceiverOrThis() {
-            return getReceiverInternal(enclosingClassDecl.sym, false);
+            return resolveThis(enclosingClassDecl.sym, false);
         }
 
         protected JCExpression getReceiver(Symbol sym) {
@@ -1073,7 +1073,7 @@ public abstract class JavafxTranslationSupport {
                     Call(makeType(sym.owner), scriptLevelAccessMethod(sym.owner)) :
                     Call(scriptLevelAccessMethod(sym.owner));
             }
-            return getReceiverInternal(sym.owner, true);
+            return resolveThis(sym.owner, true);
         }
 
         protected JCExpression getReceiverOrThis(Symbol sym) {
@@ -1083,16 +1083,16 @@ public abstract class JavafxTranslationSupport {
                     Call(makeType(sym.owner), scriptLevelAccessMethod(sym.owner)) :
                     Call(scriptLevelAccessMethod(sym.owner));
             }
-            return getReceiverInternal(sym.owner, false);
+            return resolveThis(sym.owner, false);
         }
         
-        private JCExpression getReceiverInternal(Symbol sym, boolean nullForThis) {
+        protected JCExpression resolveThis(Symbol sym, boolean nullForThis) {
             return (isMixinClass() && !isScript) ?
                 id(defs.receiverName) :
-                resolveThis(sym, nullForThis);
+                resolveThisInternal(sym, nullForThis);
         }
-
-        protected JCExpression resolveThis(Symbol owner, boolean nullForThis) {
+        //where
+        private JCExpression resolveThisInternal(Symbol owner, boolean nullForThis) {
             JCExpression _this = owner.kind == Kinds.TYP ?
                 resolveThisInternal(owner, enclosingClassDecl.sym, false) :
                 id(names._this);
