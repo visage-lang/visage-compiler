@@ -828,7 +828,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         }
 
         protected StatementsResult doit() {
-            JCExpression cond = translateExpr(tree.cond, syms.booleanType);
+            JCExpression cond = translateToExpression(tree.cond, syms.booleanType);
 
             JCStatement body = translateToStatement(tree.body, syms.voidType);
 
