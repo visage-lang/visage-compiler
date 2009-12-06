@@ -1198,7 +1198,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
                         // Prepare to accumulate body of if.
                         beginBlock();
-
+                        // Lock cycles.
+                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
                         /*
                          * if "foo" is the variable name, then we generate
                          *
@@ -1216,8 +1217,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 Offset(varSym), get$call));
 
                         // Is it invalid?
-                        JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
+                        JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
 
+                        // Release cycle lock.
+                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
+                        
                         // if (invalid) { set$var(init/bound expression); }
                         addStmt(OptIf(condition, endBlock(), initIf));
                     } else {  
@@ -1621,6 +1625,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Prepare to accumulate body of if.
                             beginBlock();
 
+                            // Lock cycles.
+                            addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
+                            
                             /*
                              * if "foo" is the variable name, then we generate
                              *
@@ -1638,8 +1645,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     Offset(varSym),
                                     get$call));
 
+                            // Release cycle lock.
+                            addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
+                            
                             // Is it invalid?
-                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
+                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
 
                             // if (invalid) { set$var(init/bound expression); }
                             addStmt(OptIf(condition, 
@@ -1649,10 +1659,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         } else if (varInfo.hasBoundDefinition()) {
                             // Prepare to accumulate body of if.
                             beginBlock();
-                            
                             // Set to new value. Bogus assert, it seems an local var can be bound have no init.
                             // assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
 
+                            // Lock cycles.
+                            addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
+                            
                             // set$var(init/bound expression)
                             addStmts(varInfo.boundPreface());
                             JCExpression initValue = varInfo.boundInit();
@@ -1704,8 +1716,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 }
                             }
                           
+                            // Release cycle lock.
+                            addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
+                            
                             // Is it bound and invalid?
-                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID, defs.varFlagIS_BOUND_INVALID);
+                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
                             
                             // if (bound and invalid) { set$var(init/bound expression); }
                             addStmt(OptIf(condition, 

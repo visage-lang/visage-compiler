@@ -409,8 +409,10 @@ public class JavafxDefs {
     final Name varFlagDEFAULT_APPLIED;
     final Name varFlagIS_INITIALIZED;
     final Name varFlagAWAIT_VARINIT;
+    final Name varFlagCYCLE;
     final Name varFlagVALIDITY_FLAGS;
     final Name varFlagIS_BOUND_INVALID;
+    final Name varFlagIS_BOUND_INVALID_CYCLE;
     final Name varFlagIS_BOUND_DEFAULT_APPLIED;
     final Name varFlagDEFAULT_APPLIED_VARINIT;
     final Name varFlagINIT_NORMAL;
@@ -618,8 +620,11 @@ public class JavafxDefs {
         varFlagDEFAULT_APPLIED = names.fromString("VFLGS$DEFAULT_APPLIED");
         varFlagIS_INITIALIZED = names.fromString("VFLGS$IS_INITIALIZED");
         varFlagAWAIT_VARINIT = names.fromString("VFLGS$AWAIT_VARINIT");
+        varFlagCYCLE = names.fromString("VFLGS$CYCLE");
+        
         varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
         varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
+        varFlagIS_BOUND_INVALID_CYCLE = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE");
         varFlagIS_BOUND_DEFAULT_APPLIED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED");
         varFlagDEFAULT_APPLIED_VARINIT = names.fromString("VFLGS$DEFAULT_APPLIED_VARINIT");
         varFlagINIT_NORMAL = names.fromString("VFLGS$INIT_NORMAL");
