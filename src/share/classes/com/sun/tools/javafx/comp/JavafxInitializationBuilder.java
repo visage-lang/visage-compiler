@@ -2269,6 +2269,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Add to var map if an anon class.
                 // Exclude the bogus $internal$ fields of FXBase/FXObject
                 if (varMap != null &&
+                        !ai.isBareSynth() &&
                         !ai.getSymbol().name.endsWith(defs.internalSuffixName) &&
                         !ai.getSymbol().name.endsWith(defs.outerAccessor_FXObjectFieldName)) {
                     varMap.addVar(ai.getSymbol());
