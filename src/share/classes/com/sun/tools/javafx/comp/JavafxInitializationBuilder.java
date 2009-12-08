@@ -410,7 +410,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter
     // to handle the instantiation of the classes that access outer members
     private ClassSymbol outerTypeSymbol(Symbol csym) {
-        if (csym != null && toJava.getHasOuters().contains(csym)) {
+        if (csym != null && toJava.getHasOuters().containsKey(csym)) {
             Symbol typeOwner = csym.owner;
             while (typeOwner != null && typeOwner.kind != Kinds.TYP) {
                 typeOwner = typeOwner.owner;
@@ -3547,7 +3547,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         public void makeOuterAccessorInterfaceMembers() {
             ClassSymbol cSym = getCurrentClassSymbol();
             
-            if (cSym != null && toJava.getHasOuters().contains(cSym)) {
+            if (cSym != null && toJava.getHasOuters().containsKey(cSym)) {
                 Symbol typeOwner = cSym.owner;
                 
                 while (typeOwner != null && typeOwner.kind != Kinds.TYP) {

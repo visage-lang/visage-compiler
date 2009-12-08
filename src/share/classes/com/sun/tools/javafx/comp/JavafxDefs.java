@@ -110,6 +110,7 @@ public class JavafxDefs {
     public static final String functions_PackageString = "com.sun.javafx.functions";
     public static final String sequence_PackageString = "com.sun.javafx.runtime.sequence";
     public static final String fxLang_PackageString = "javafx.lang";
+    public static final String fxAnimation_PackageString = "javafx.animation";
 
     /**
      * Class name strings
@@ -147,6 +148,8 @@ public class JavafxDefs {
     private static final String cString = javaLang_PackageString + ".String";
     // in javafx.lang package
     private static final String cDuration = fxLang_PackageString + ".Duration";
+    // in javafx.animation package
+    public static final String cKeyValueTargetType = fxAnimation_PackageString + ".KeyValueTarget.Type";
 
     /**
      * Misc strings
@@ -362,6 +365,17 @@ public class JavafxDefs {
     final Name emptySequence_FieldName;
 
     final Name partResultVarNum_BoundForHelper;
+    
+    // fields of the enum javafx.animation.KeyValueTarget.Type
+    final Name BYTE_KeyValueTargetTypeFieldName;
+    final Name SHORT_KeyValueTargetTypeFieldName;
+    final Name INTEGER_KeyValueTargetTypeFieldName;
+    final Name LONG_KeyValueTargetTypeFieldName;
+    final Name FLOAT_KeyValueTargetTypeFieldName;
+    final Name DOUBLE_KeyValueTargetTypeFieldName;
+    final Name BOOLEAN_KeyValueTargetTypeFieldName;
+    final Name SEQUENCE_KeyValueTargetTypeFieldName;
+    final Name OBJECT_KeyValueTargetTypeFieldName;
 
     /**
      * Argument Names
@@ -607,6 +621,18 @@ public class JavafxDefs {
         obj_ArgName = names.fromString("object$");
         value_ArgName = names.fromString("value$");
         varNum_ArgName = names.fromString("varNum$");
+
+        // KeyValueTarget.Type field names
+        BYTE_KeyValueTargetTypeFieldName = names.fromString("BYTE");
+        SHORT_KeyValueTargetTypeFieldName = names.fromString("SHORT");
+        INTEGER_KeyValueTargetTypeFieldName = names.fromString("INTEGER");
+        LONG_KeyValueTargetTypeFieldName = names.fromString("LONG");
+        FLOAT_KeyValueTargetTypeFieldName = names.fromString("FLOAT");
+        DOUBLE_KeyValueTargetTypeFieldName = names.fromString("DOUBLE");
+        BOOLEAN_KeyValueTargetTypeFieldName = names.fromString("BOOLEAN");
+        SEQUENCE_KeyValueTargetTypeFieldName = names.fromString("SEQUENCE");
+        OBJECT_KeyValueTargetTypeFieldName = names.fromString("OBJECT");
+
 
         varFlagActionTest = names.fromString("varTestBits$");
         varFlagActionChange = names.fromString("varChangeBits$");

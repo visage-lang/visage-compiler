@@ -45,13 +45,13 @@ public class PointerTest extends JavaFXTestCase {
     public void testPointerMake() {
         Counter counter = new Counter();
         // make a Pointer for varNum 0
-        assertNotNull(Pointer.make(counter, 0, Integer.TYPE));
+        assertNotNull(Pointer.make(Type.INTEGER, counter, 0));
     }
 
     public void testPointerAccess() {
         Counter counter = new Counter();
         // make a Pointer for varNum 0
-        Pointer ptr = Pointer.make(counter, 0, Integer.TYPE);
+        Pointer ptr = Pointer.make(Type.INTEGER, counter, 0);
         // check the type of the pointer
         assertEquals(Type.INTEGER, ptr.getType());
 
@@ -242,16 +242,16 @@ public class PointerTest extends JavaFXTestCase {
     public void testPointerTypes() {
         AllTypeVarsHolder fxObj = new AllTypeVarsHolder();
 
-        Pointer bytePtr = Pointer.make(fxObj, fxObj.VOFF$byteVar, Byte.TYPE);
-        Pointer shortPtr = Pointer.make(fxObj, fxObj.VOFF$shortVar, Short.TYPE);
-        Pointer intPtr = Pointer.make(fxObj, fxObj.VOFF$intVar, Integer.TYPE);
-        Pointer longPtr = Pointer.make(fxObj, fxObj.VOFF$longVar, Long.TYPE);
-        Pointer floatPtr = Pointer.make(fxObj, fxObj.VOFF$floatVar, Float.TYPE);
-        Pointer doublePtr = Pointer.make(fxObj, fxObj.VOFF$doubleVar, Double.TYPE);
-        Pointer charPtr = Pointer.make(fxObj, fxObj.VOFF$charVar, Character.TYPE);
-        Pointer booleanPtr = Pointer.make(fxObj, fxObj.VOFF$booleanVar, Boolean.TYPE);
-        Pointer sequencePtr = Pointer.make(fxObj, fxObj.VOFF$sequenceVar, Sequence.class);
-        Pointer stringPtr = Pointer.make(fxObj, fxObj.VOFF$stringVar, String.class);
+        Pointer bytePtr = Pointer.make(Type.BYTE, fxObj, fxObj.VOFF$byteVar);
+        Pointer shortPtr = Pointer.make(Type.SHORT, fxObj, fxObj.VOFF$shortVar);
+        Pointer intPtr = Pointer.make(Type.INTEGER, fxObj, fxObj.VOFF$intVar);
+        Pointer longPtr = Pointer.make(Type.LONG, fxObj, fxObj.VOFF$longVar);
+        Pointer floatPtr = Pointer.make(Type.FLOAT, fxObj, fxObj.VOFF$floatVar);
+        Pointer doublePtr = Pointer.make(Type.DOUBLE, fxObj, fxObj.VOFF$doubleVar);
+        Pointer charPtr = Pointer.make(Type.INTEGER, fxObj, fxObj.VOFF$charVar);
+        Pointer booleanPtr = Pointer.make(Type.BOOLEAN, fxObj, fxObj.VOFF$booleanVar);
+        Pointer sequencePtr = Pointer.make(Type.SEQUENCE, fxObj, fxObj.VOFF$sequenceVar);
+        Pointer stringPtr = Pointer.make(Type.OBJECT, fxObj, fxObj.VOFF$stringVar);
 
         bytePtr.set(Byte.valueOf((byte)1));
         shortPtr.set(Short.valueOf((short)2));

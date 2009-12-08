@@ -22,11 +22,11 @@
  */
 package com.sun.javafx.runtime;
 
+import com.sun.javafx.runtime.refq.RefQ;
+import com.sun.javafx.runtime.refq.WeakRef;
 import com.sun.javafx.runtime.util.Linkable;
 import com.sun.javafx.runtime.util.Linkables;
 import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 
 /*
  * Simple dependents manager implementation. This is straightforward
@@ -153,7 +153,7 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
     }
 }
 
-final class Dependent extends WeakReference<FXObject> implements Linkable<Dependent> {
+final class Dependent extends WeakRef<FXObject> implements Linkable<Dependent> {
     // Are we in the middle of iterating listeners for notification?
     static volatile boolean inIteration;
 
@@ -173,7 +173,7 @@ final class Dependent extends WeakReference<FXObject> implements Linkable<Depend
             }
         }
     }
-    private static final ReferenceQueue<FXObject> refQ = new ReferenceQueue<FXObject>();
+    private static final RefQ<FXObject> refQ = new RefQ<FXObject>();
     int varNum;
     private Dependent next;
     private Linkable<Dependent> prev;

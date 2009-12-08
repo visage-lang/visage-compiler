@@ -140,7 +140,9 @@ public class JavafxLocalToClass {
             // Don't process parameters
 
             // The body of the function begins a new chunk
+            pushOwner(tree.definition.sym, false);
             blockWithin(tree.getBodyExpression());
+            popOwner();
         }
 
         @Override

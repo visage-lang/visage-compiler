@@ -877,7 +877,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * }
          */
         private JCStatement makeInvalidateSelector() {
-            JCVariableDecl oldSize = TmpVar(syms.intType, getSize());
+            JCVariableDecl oldSize = TmpVar(syms.intType, Get(sizeSym));
             JCVariableDecl newSize = TmpVar(syms.intType, getSize());
 
             return

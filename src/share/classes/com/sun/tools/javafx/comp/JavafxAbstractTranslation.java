@@ -161,7 +161,7 @@ public abstract class JavafxAbstractTranslation
     /**
      * Class symbols for classes that need a reference to the outer class.
      */
-    Set<ClassSymbol> getHasOuters() {
+    Map<ClassSymbol, ClassSymbol> getHasOuters() {
         return toJava.getHasOuters();
     }
 
@@ -1493,10 +1493,10 @@ public abstract class JavafxAbstractTranslation
                 }
                 if (magicPointerMakeFunction) {
                     // Pointer.make has just two arguments (inst, varNum) -- we need to
-                    // add an extra argument - so that the Pointer.make(FXObject, int, Class) is called.
+                    // add an extra argument - so that the Pointer.make(Type, FXObject, int) is called.
                     JFXVarRef varRef = (JFXVarRef)args.head;
-                    JCExpression varType = makeClassLiteral(varRef.getVarSymbol().type);
-                    targs.append(varType);
+                    JCExpression varType = makeKeyValueTargetType(varRef.getVarSymbol().type);
+                    targs.prepend(varType);
                 }
             }
             return targs.toList();
@@ -2858,8 +2858,8 @@ public abstract class JavafxAbstractTranslation
             ClassSymbol clazz = tree.getClassBody() != null ?
                 tree.getClassBody().sym :
                 idSym;
-            if (getHasOuters().contains(clazz)) {
-                JCExpression receiver = getReceiverOrThis();
+            if (getHasOuters().containsKey(clazz)) {
+                JCExpression receiver = resolveThis(getHasOuters().get(clazz), false);
                 translated = translated.prepend(receiver);
             }
             return translated;

@@ -22,9 +22,9 @@
  */
 package com.sun.javafx.runtime;
 
+import com.sun.javafx.runtime.refq.RefQ;
+import com.sun.javafx.runtime.refq.WeakRef;
 import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 
 
 /**
@@ -155,8 +155,8 @@ interface BinderLinkable {
     void setNextBinder(Dep next);
 };
 
-class WeakBinderRef extends WeakReference<FXObject> {
-    private static ReferenceQueue<FXObject> refQ = new ReferenceQueue<FXObject>();
+class WeakBinderRef extends WeakRef<FXObject> {
+    private static RefQ<FXObject> refQ = new RefQ<FXObject>();
     /** Chain of Dep instances whose binderRef point back here. */
     Dep bindees;
     /** Increment this to disable checkForCleanups.
