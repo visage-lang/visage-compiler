@@ -12,4 +12,4 @@ public class jfxc3774 extends jfxc3774A {
 } 
 
 var fred : Integer[]; 
-var jjobj = jfxc3774{ labeled: bind fred }; 
+var jjobj = jfxc3774{ labeled: bind fred };

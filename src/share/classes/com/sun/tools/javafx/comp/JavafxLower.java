@@ -256,11 +256,19 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private JFXVar makeVar(DiagnosticPosition diagPos, String name, JFXExpression init, Type type) {
-        return makeVar(diagPos, name, JavafxBindStatus.UNBOUND, init, type);
+        return makeVar(diagPos, 0L, name, JavafxBindStatus.UNBOUND, init, type);
+    }
+    
+    private JFXVar makeVar(DiagnosticPosition diagPos, long flags, String name, JFXExpression init, Type type) {
+        return makeVar(diagPos, flags, name, JavafxBindStatus.UNBOUND, init, type);
     }
 
     private JFXVar makeVar(DiagnosticPosition diagPos, String name, JavafxBindStatus bindStatus, JFXExpression init, Type type) {
-        VarSymbol vsym = new VarSymbol(0L, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
+        return makeVar(diagPos, 0L, name, bindStatus, init, type);
+    }
+
+    private JFXVar makeVar(DiagnosticPosition diagPos, long flags, String name, JavafxBindStatus bindStatus, JFXExpression init, Type type) {
+        VarSymbol vsym = new VarSymbol(flags, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
         return makeVar(diagPos, vsym, bindStatus, init);
     }
 
@@ -1048,8 +1056,11 @@ public class JavafxLower implements JavafxVisitor {
 
                 if (true) { // enable bound object literal initializer scoping to object literal level.
                     // Shread the expression outside the class, so that the context is correct
+                    // The variable should be marked as script private as it shouldn't
+                    // be accessible from outside.
                     JFXVar shred = makeVar(
                             part.pos(),
+                            JavafxFlags.SCRIPT_PRIVATE,
                             part.name + "$ol",
                             part.getBindStatus(),
                             lowerExpr(part.getExpression(), part.sym.type),
