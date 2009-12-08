@@ -697,6 +697,34 @@ class JavafxAnalyzeClass {
             return hasOverrideVar() && overrideVar().hasInitializer();
         }
 
+        // true if this variable is initialized with a "safe" expression -
+        // so that we don't need a try..catch error handler wrapper in it's
+        // getter method.
+        @Override
+        public boolean hasSafeInitializer() {
+             return hasOverrideVar() && overrideVar().hasSafeInitializer();
+        }
+
+        // Return true if the var has a VarInit
+        @Override
+        public boolean hasVarInit() {
+             return hasOverrideVar() && overrideVar().hasVarInit();
+        }
+
+        // is this initialzed with a bound function result var?
+        @Override
+        public boolean isInitWithBoundFuncResult() {
+             return hasOverrideVar() && overrideVar().isInitWithBoundFuncResult();
+        }
+
+        // Is this variable is initialized by another synthetic variable
+        // of Pointer type and that var stores result from a bound function call?
+        // If so, return the symbol of the synthetic variable.
+        @Override
+        public Symbol boundFuncResultInitSym() {
+            return hasOverrideVar() ? overrideVar().boundFuncResultInitSym() : super.boundFuncResultInitSym();
+        }
+
         // Returns null or the code for var initialization.
         @Override
         public JCStatement getDefaultInitStatement() {
@@ -746,7 +774,14 @@ class JavafxAnalyzeClass {
         // Variable symbols on which this variable depends
         @Override
         public List<VarSymbol> boundBindees() {
-            return hasOverrideVar() ? overrideVar().boundBindees() : super.boundBindees();
+            ListBuffer<VarSymbol> bindees = ListBuffer.lb();
+            bindees.appendList(super.boundBindees());
+            
+            if (hasOverrideVar()) {
+                bindees.appendList(overrideVar().boundBindees());
+            }
+
+            return bindees.toList();
         }
 
         // Bound variable symbols on which this variable is used.
@@ -874,22 +909,18 @@ class JavafxAnalyzeClass {
 
         // Assign var enumeration and binders.
         for (VarInfo ai : classVarInfos) {
-           if (ai.needsCloning() && !ai.isOverride()) {
-               ai.setEnumeration(classVarCount++);
-           }
+            if (ai.needsCloning() && !ai.isOverride()) {
+                ai.setEnumeration(classVarCount++);
+            }
            
-           if (ai instanceof TranslatedVarInfoBase) {
-              addBinders((TranslatedVarInfoBase)ai);
-           }
+            addBinders(ai);
         }
         for (VarInfo ai : scriptVarInfos) {
            if (ai.needsCloning() && !ai.isOverride()) {
                ai.setEnumeration(scriptVarCount++);
            }
            
-           if (ai instanceof TranslatedVarInfoBase) {
-              addBinders((TranslatedVarInfoBase)ai);
-           }
+           addBinders(ai);
         }
 
         if (initBuilder.options.get("dumpvarinfo") != null) {
@@ -926,24 +957,24 @@ class JavafxAnalyzeClass {
         referenceSet.add(varInfo);
     }
     
-    private void addBinders(TranslatedVarInfoBase tai) {
+    private void addBinders(VarInfo ai) {
         // Add any bindees to binders.
-        for (VarSymbol bindeeSym : tai.boundBindees()) {
+        for (VarSymbol bindeeSym : ai.boundBindees()) {
             // Find the varInfo
             VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(bindeeSym));
             
             if (bindee != null) {
-                bindee.bindersOrNull.add((VarInfo)tai);
+                bindee.bindersOrNull.add((VarInfo)ai);
             }
         }
             
         // Add any bind select pairs to update map.
-        for (DependentPair pair : tai.boundBoundSelects()) {
-            addInterClassBinder(tai, pair.instanceSym, (VarSymbol)pair.referencedSym);
+        for (DependentPair pair : ai.boundBoundSelects()) {
+            addInterClassBinder(ai, pair.instanceSym, (VarSymbol)pair.referencedSym);
         }
         
-        // If the tai has invalidators.
-        for (BindeeInvalidator invalidator: tai.boundInvalidators()) {
+        // If the ai has invalidators.
+        for (BindeeInvalidator invalidator: ai.boundInvalidators()) {
             // Find the varInfo
             VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(invalidator.bindee));
             
