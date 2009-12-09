@@ -2271,6 +2271,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 if (varMap != null &&
                         !ai.isBareSynth() &&
                         !ai.getSymbol().name.endsWith(defs.internalNameMarker) &&
+                        !ai.getSymbol().name.endsWith(defs.outerAccessor_FXObjectFieldName) &&
                         !ai.getSymbol().name.endsWith(defs.internalSuffixName)) {
                     varMap.addVar(ai.getSymbol());
                 }
