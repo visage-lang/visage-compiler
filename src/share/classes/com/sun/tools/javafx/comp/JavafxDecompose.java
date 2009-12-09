@@ -45,6 +45,8 @@ import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Decompose bind expressions into easily translated expressions
@@ -58,7 +60,8 @@ public class JavafxDecompose implements JavafxVisitor {
     private JFXTree result;
     private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
     private ListBuffer<JFXTree> lbVar;
-    private int varCount = 0;
+    private Set<String> synthNames;
+    private int anonClassCount = 0;
     private Symbol varOwner = null;
     private Symbol currentVarSymbol;
     private Symbol currentClass = null;
@@ -99,7 +102,9 @@ public class JavafxDecompose implements JavafxVisitor {
     public void decompose(JavafxEnv<JavafxAttrContext> attrEnv) {
         bindStatus = JavafxBindStatus.UNBOUND;
         lbVar = null;
+        synthNames = new HashSet<String>();
         attrEnv.toplevel = decompose(attrEnv.toplevel);
+        synthNames = null;
         lbVar = null;
     }
 
@@ -243,9 +248,24 @@ public class JavafxDecompose implements JavafxVisitor {
         }
         return lb.toList();
     }
-
+    
     private Name tempName(String label) {
-        return names.fromString("$" + label + "$" + varCount++);
+        String name = currentVarSymbol != null ? currentVarSymbol.toString() : "";
+        name += "$" + label + "$";
+        if (synthNames.contains(name)) {
+            for (int i = 0; true; i++) {
+                String numbered = name + i;
+                if (!synthNames.contains(numbered)) {
+                    name = numbered;
+                    break;
+                }
+            }
+        }
+        
+        // name += defs.internalNameMarker;
+        synthNames.add(name);
+        
+        return names.fromString(name);
     }
 
     private Name tempBoundResultName(Name name) {
@@ -271,7 +291,7 @@ public class JavafxDecompose implements JavafxVisitor {
     }
     
     Name syntheticClassName(Name superclass) {
-        return names.fromString(superclass.toString() + "$anonD" + ++varCount);
+        return names.fromString(superclass.toString() + "$anonD" + ++anonClassCount);
     }
 
     ClassSymbol syntheticScriptClass(Symbol sym) {

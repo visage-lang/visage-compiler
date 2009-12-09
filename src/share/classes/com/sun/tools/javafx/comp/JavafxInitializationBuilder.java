@@ -204,7 +204,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         List<ClassSymbol> superClasses = analysis.getSuperClasses();
         List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
         List<ClassSymbol> allMixinClasses = analysis.getAllMixins();
-
+        
         boolean isMixinClass = cDecl.isMixinClass();
         boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = analysis.isAnonClass();
@@ -2270,8 +2270,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Exclude the bogus $internal$ fields of FXBase/FXObject
                 if (varMap != null &&
                         !ai.isBareSynth() &&
-                        !ai.getSymbol().name.endsWith(defs.internalSuffixName) &&
-                        !ai.getSymbol().name.endsWith(defs.outerAccessor_FXObjectFieldName)) {
+                        !ai.getSymbol().name.endsWith(defs.internalNameMarker) &&
+                        !ai.getSymbol().name.endsWith(defs.internalSuffixName)) {
                     varMap.addVar(ai.getSymbol());
                 }
             }

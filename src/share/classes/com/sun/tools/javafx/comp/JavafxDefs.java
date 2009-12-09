@@ -154,6 +154,7 @@ public class JavafxDefs {
     /**
      * Misc strings
      */
+    public static final String internalString = "\u03A7"; // (Chi = X)
     public static final String boundFunctionDollarSuffix = "$$bound$";
     public static final String boundFunctionResult = "$$bound$result$";
     public static final String boundFunctionObjectParamPrefix = "$$boundInstance$";
@@ -468,6 +469,7 @@ public class JavafxDefs {
     final Name scriptClassSuffixName;
     final Name varOldValue_LocalVarName;
     final Name internalSuffixName;
+    final Name internalNameMarker;
 
     final Name init_MethodSymbolName;
     final Name postinit_MethodSymbolName;
@@ -589,6 +591,7 @@ public class JavafxDefs {
         pos_ArgName = names.fromString("pos$");
         phase_ArgName = names.fromString("phase$");
         internalSuffixName = names.fromString("$internal$");
+        internalNameMarker = names.fromString(internalString);
         boundFunctionResultName = names.fromString(boundFunctionResult);
         get_AttributeMethodPrefixName = names.fromString(get_AttributeMethodPrefix);
         get_FXObjectMethodName = get_AttributeMethodPrefixName;
