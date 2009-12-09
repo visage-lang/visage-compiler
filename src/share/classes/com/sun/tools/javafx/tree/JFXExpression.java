@@ -23,17 +23,26 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.*;
 
 import com.sun.tools.mjavac.code.Type;
 
-public abstract class JFXExpression extends JFXTree implements ExpressionTree {
+public abstract class JFXExpression extends JFXTree implements ExpressionTree, JFXBoundMarkable {
     
-    /** Initialize tree with given tag.
+    private JavafxBindStatus bindStatus;
+
+    /** Initialize tree.
      */
     protected JFXExpression() {
+        this.bindStatus = JavafxBindStatus.UNBOUND;
     }
-    
+
+    protected JFXExpression(JavafxBindStatus bindStatus) {
+        this.bindStatus = bindStatus == null ? JavafxBindStatus.UNBOUND : bindStatus;
+    }
+
+
     @Override
     public JFXExpression setType(Type type) {
         super.setType(type);
@@ -44,5 +53,27 @@ public abstract class JFXExpression extends JFXTree implements ExpressionTree {
     public JFXExpression setPos(int pos) {
         super.setPos(pos);
         return this;
+    }
+
+    public void markBound(JavafxBindStatus bindStatus) {
+        if (!this.bindStatus.isBound()) {
+            this.bindStatus = bindStatus;
+        }
+    }
+
+    public JavafxBindStatus getBindStatus() {
+        return bindStatus;
+    }
+
+    public boolean isBound() {
+        return bindStatus.isBound();
+    }
+
+    public boolean isUnidiBind() {
+        return bindStatus.isUnidiBind();
+    }
+
+    public boolean isBidiBind() {
+        return bindStatus.isBidiBind();
     }
 }

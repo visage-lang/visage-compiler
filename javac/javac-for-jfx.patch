@@ -1,6 +1,6 @@
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/code/Symtab.java
---- a/src/share/classes/com/sun/tools/javac/code/Symtab.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/code/Symtab.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/code/Symtab.java b/src/share/classes/com/sun/tools/javac/code/Symtab.java
+--- a/src/share/classes/com/sun/tools/javac/code/Symtab.java
++++ b/src/share/classes/com/sun/tools/javac/code/Symtab.java
 @@ -55,8 +55,10 @@ public class Symtab {
      /** Get the symbol table instance. */
      public static Symtab instance(Context context) {
@@ -69,9 +69,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/code/Symtab.java
  
          // string concatenation
          enterBinop("+", stringType, objectType, stringType, string_add);
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Attr.java
---- a/src/share/classes/com/sun/tools/javac/comp/Attr.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/Attr.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Attr.java b/src/share/classes/com/sun/tools/javac/comp/Attr.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Attr.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Attr.java
 @@ -68,18 +68,18 @@ public class Attr extends JCTree.Visitor
      protected static final Context.Key<Attr> attrKey =
          new Context.Key<Attr>();
@@ -231,9 +231,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Attr.java
          return types.capture(type);
      }
  }
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/AttrContext.java
---- a/src/share/classes/com/sun/tools/javac/comp/AttrContext.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/AttrContext.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/AttrContext.java b/src/share/classes/com/sun/tools/javac/comp/AttrContext.java
+--- a/src/share/classes/com/sun/tools/javac/comp/AttrContext.java
++++ b/src/share/classes/com/sun/tools/javac/comp/AttrContext.java
 @@ -40,23 +40,23 @@ public class AttrContext {
  
      /** The scope of local symbols.
@@ -286,9 +286,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/AttrContext.java
          return dup(scope);
      }
  
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Check.java
---- a/src/share/classes/com/sun/tools/javac/comp/Check.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/Check.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Check.java b/src/share/classes/com/sun/tools/javac/comp/Check.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Check.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Check.java
 @@ -56,13 +56,13 @@ public class Check {
      protected static final Context.Key<Check> checkKey =
          new Context.Key<Check>();
@@ -457,9 +457,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Check.java
          Map<Symbol,Symbol> callMap = new HashMap<Symbol, Symbol>();
  
          // enter each constructor this-call into the map
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/ConstFold.java
---- a/src/share/classes/com/sun/tools/javac/comp/ConstFold.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/ConstFold.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/ConstFold.java b/src/share/classes/com/sun/tools/javac/comp/ConstFold.java
+--- a/src/share/classes/com/sun/tools/javac/comp/ConstFold.java
++++ b/src/share/classes/com/sun/tools/javac/comp/ConstFold.java
 @@ -42,7 +42,7 @@ import static com.sun.tools.javac.jvm.By
   *  This code and its internal interfaces are subject to change or
   *  deletion without notice.</b>
@@ -487,9 +487,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/ConstFold.java
           // WAS if (etype.baseType() == ttype.baseType())
           if (etype.tsym.type == ttype.tsym.type)
               return etype;
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Enter.java
---- a/src/share/classes/com/sun/tools/javac/comp/Enter.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/Enter.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Enter.java b/src/share/classes/com/sun/tools/javac/comp/Enter.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Enter.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Enter.java
 @@ -95,11 +95,11 @@ public class Enter extends JCTree.Visito
  
      Log log;
@@ -569,9 +569,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Enter.java
                                                          Env<AttrContext> env) {
              return env.toplevel.sourcefile.isNameCompatible(c.name.toString(),
                                                              JavaFileObject.Kind.SOURCE);
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Flow.java
---- a/src/share/classes/com/sun/tools/javac/comp/Flow.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/Flow.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Flow.java b/src/share/classes/com/sun/tools/javac/comp/Flow.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Flow.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Flow.java
 @@ -295,7 +295,7 @@ public class Flow extends TreeScanner {
  
      /** Complain that pending exceptions are not caught.
@@ -581,9 +581,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Flow.java
          for (PendingExit exit = pendingExits.next();
               exit != null;
               exit = pendingExits.next()) {
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Infer.java
---- a/src/share/classes/com/sun/tools/javac/comp/Infer.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/Infer.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Infer.java b/src/share/classes/com/sun/tools/javac/comp/Infer.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Infer.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Infer.java
 @@ -67,7 +67,7 @@ public class Infer {
      public static class NoInstanceException extends RuntimeException {
          private static final long serialVersionUID = 0;
@@ -593,9 +593,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Infer.java
  
          JCDiagnostic diagnostic;
  
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
---- a/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java b/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
+--- a/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
++++ b/src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
 @@ -65,7 +65,7 @@ public class MemberEnter extends JCTree.
      private final Enter enter;
      private final Log log;
@@ -650,9 +650,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/MemberEnter.java
                                     final Env<AttrContext> localEnv,
                                     final MethodSymbol m) {
          annotate.later(new Annotate.Annotator() {
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Resolve.java
---- a/src/share/classes/com/sun/tools/javac/comp/Resolve.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/comp/Resolve.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/comp/Resolve.java b/src/share/classes/com/sun/tools/javac/comp/Resolve.java
+--- a/src/share/classes/com/sun/tools/javac/comp/Resolve.java
++++ b/src/share/classes/com/sun/tools/javac/comp/Resolve.java
 @@ -52,8 +52,8 @@ public class Resolve {
          new Context.Key<Resolve>();
  
@@ -775,9 +775,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/comp/Resolve.java
                      List<Type> argtypes, List<Type> typeargtypes) {
              AmbiguityError pair = this;
              while (true) {
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
---- a/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java b/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
 @@ -68,7 +68,7 @@ public class ClassReader extends ClassFi
      protected static final Context.Key<ClassReader> classReaderKey =
          new Context.Key<ClassReader>();
@@ -852,7 +852,7 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
          return (Name) (readPool(i));
      }
  
-@@ -502,8 +502,8 @@ public class ClassReader extends ClassFi
+@@ -502,14 +502,14 @@ public class ClassReader extends ClassFi
      /** The unread portion of the currently read type is
       *  signature[sigp..siglimit-1].
       */
@@ -863,6 +863,13 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
      int siglimit;
      boolean sigEnterPhase = false;
  
+     /** Convert signature to type, where signature is a name.
+      */
+-    Type sigToType(Name sig) {
++    protected Type sigToType(Name sig) {
+         return sig == null
+             ? null
+             : sigToType(sig.table.names, sig.index, sig.len);
 @@ -620,11 +620,11 @@ public class ClassReader extends ClassFi
          }
      }
@@ -1133,9 +1140,21 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/ClassReader.java
          if ((flags & ACC_BRIDGE) != 0) {
              flags &= ~ACC_BRIDGE;
              flags |= BRIDGE;
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/Code.java
---- a/src/share/classes/com/sun/tools/javac/jvm/Code.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/jvm/Code.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/ClassWriter.java b/src/share/classes/com/sun/tools/javac/jvm/ClassWriter.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/ClassWriter.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/ClassWriter.java
+@@ -414,7 +414,7 @@ public class ClassWriter extends ClassFi
+ 
+     /** Return signature of given type
+      */
+-    Name typeSig(Type type) {
++    public Name typeSig(Type type) {
+         assert sigbuf.length == 0;
+         //- System.out.println(" ? " + type);
+         assembleSig(type);
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/Code.java b/src/share/classes/com/sun/tools/javac/jvm/Code.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/Code.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/Code.java
 @@ -132,7 +132,7 @@ public class Code {
  
      /** The current machine state (registers and stack).
@@ -1180,9 +1199,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/Code.java
  
          /** The numbers of registers containing locked monitors. */
          int[] locks;
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/Gen.java
---- a/src/share/classes/com/sun/tools/javac/jvm/Gen.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/jvm/Gen.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/Gen.java b/src/share/classes/com/sun/tools/javac/jvm/Gen.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/Gen.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/Gen.java
 @@ -56,7 +56,7 @@ public class Gen extends JCTree.Visitor 
      protected static final Context.Key<Gen> genKey =
          new Context.Key<Gen>();
@@ -1255,9 +1274,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/Gen.java
  
          /** A chain for all unresolved jumps that exit the current environment.
           */
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/Items.java
---- a/src/share/classes/com/sun/tools/javac/jvm/Items.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/jvm/Items.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/jvm/Items.java b/src/share/classes/com/sun/tools/javac/jvm/Items.java
+--- a/src/share/classes/com/sun/tools/javac/jvm/Items.java
++++ b/src/share/classes/com/sun/tools/javac/jvm/Items.java
 @@ -185,7 +185,7 @@ public class Items {
  
      /** The base class of all items, which implements default behavior.
@@ -1366,9 +1385,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/jvm/Items.java
              Chain trueChain = null;
              Chain falseChain = jumpFalse();
              if (!isFalse()) {
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/resources/compiler.properties
---- a/src/share/classes/com/sun/tools/javac/resources/compiler.properties	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/resources/compiler.properties	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/resources/compiler.properties b/src/share/classes/com/sun/tools/javac/resources/compiler.properties
+--- a/src/share/classes/com/sun/tools/javac/resources/compiler.properties
++++ b/src/share/classes/com/sun/tools/javac/resources/compiler.properties
 @@ -614,6 +614,15 @@ compiler.misc.resume.abort=\
  compiler.misc.resume.abort=\
      R)esume, A)bort>
@@ -1385,9 +1404,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/resources/compiler.pr
  #####
  
  ##
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/tree/Pretty.java
---- a/src/share/classes/com/sun/tools/javac/tree/Pretty.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/tree/Pretty.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/tree/Pretty.java b/src/share/classes/com/sun/tools/javac/tree/Pretty.java
+--- a/src/share/classes/com/sun/tools/javac/tree/Pretty.java
++++ b/src/share/classes/com/sun/tools/javac/tree/Pretty.java
 @@ -56,7 +56,7 @@ public class Pretty extends JCTree.Visit
       *  the output even though that detail would not be valid java
       *  soruce.
@@ -1440,9 +1459,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/tree/Pretty.java
  
      /** Visitor method: print expression tree.
       *  @param prec  The current precedence level.
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
---- a/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java b/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
+--- a/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
++++ b/src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
 @@ -57,9 +57,9 @@ public class TreeInfo {
  
      /** The names of all operators.
@@ -1455,9 +1474,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/tree/TreeInfo.java
          context.put(treeInfoKey, this);
  
          Name.Table names = Name.Table.instance(context);
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
---- a/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java b/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
+--- a/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
++++ b/src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
 @@ -67,12 +67,12 @@ public class TreeMaker implements JCTree
      public JCCompilationUnit toplevel;
  
@@ -1483,9 +1502,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/tree/TreeMaker.java
          this.pos = Position.FIRSTPOS;
          this.toplevel = toplevel;
          this.names = names;
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java
---- a/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java b/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java
+--- a/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java
++++ b/src/share/classes/com/sun/tools/javac/tree/TreeTranslator.java
 @@ -46,7 +46,10 @@ public class TreeTranslator extends JCTr
  
      /** Visitor result field: a tree
@@ -1498,9 +1517,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/tree/TreeTranslator.j
  
      /** Visitor method: Translate a single node.
       */
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/util/Log.java
---- a/src/share/classes/com/sun/tools/javac/util/Log.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/util/Log.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/util/Log.java b/src/share/classes/com/sun/tools/javac/util/Log.java
+--- a/src/share/classes/com/sun/tools/javac/util/Log.java
++++ b/src/share/classes/com/sun/tools/javac/util/Log.java
 @@ -203,6 +203,10 @@ public class Log {
       */
      private char[] buf = null;
@@ -1588,9 +1607,9 @@ diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/util/Log.java
                      return 0;
                  if (buf[bp] == '\t')
                      column = (column / TabInc * TabInc) + TabInc;
-diff -r 9a66ca7c79fa src/share/classes/com/sun/tools/javac/util/Paths.java
---- a/src/share/classes/com/sun/tools/javac/util/Paths.java	Sat Dec 01 00:00:00 2007 +0000
-+++ b/src/share/classes/com/sun/tools/javac/util/Paths.java	Wed Sep 23 14:21:22 2009 +0100
+diff --git a/src/share/classes/com/sun/tools/javac/util/Paths.java b/src/share/classes/com/sun/tools/javac/util/Paths.java
+--- a/src/share/classes/com/sun/tools/javac/util/Paths.java
++++ b/src/share/classes/com/sun/tools/javac/util/Paths.java
 @@ -89,7 +89,7 @@ public class Paths {
  
      private static boolean NON_BATCH_MODE = System.getProperty("nonBatchMode") != null;// TODO: Use -XD compiler switch for this.

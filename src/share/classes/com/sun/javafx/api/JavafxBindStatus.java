@@ -28,34 +28,27 @@ package com.sun.javafx.api;
  * 
  * @author Robert Field
  */
-public final class JavafxBindStatus {
+public enum JavafxBindStatus {
     
-    // sole instances
-    public static final JavafxBindStatus UNBOUND          = new JavafxBindStatus("unbound",                   false, false, false);
-    public static final JavafxBindStatus UNIDIBIND        = new JavafxBindStatus("unidirectional bind",       true,  false, false);
-    public static final JavafxBindStatus BIDIBIND         = new JavafxBindStatus("bidirectional bind",        false, true,  false);
-    public static final JavafxBindStatus LAZY_UNIDIBIND   = new JavafxBindStatus("lazy unidirectional bind",  true,  false, true);
-    public static final JavafxBindStatus LAZY_BIDIBIND    = new JavafxBindStatus("lazy bidirectional bind",   false, true,  true);
-    public static final JavafxBindStatus LAZY_UNBOUND     = new JavafxBindStatus("lazy unbound",              false, false, true);
+    UNBOUND   ("unbound",                   false, false),
+    UNIDIBIND ("unidirectional bind",       true,  false),
+    BIDIBIND  ("bidirectional bind",        false, true);
     
     private final String description;
     private final boolean isBound;
     private final boolean isUnidiBind;
     private final boolean isBidiBind;
-    private final boolean isLazy;
     
     public String description()  { return description; }
     public boolean isBound()     { return isBound; }
     public boolean isUnidiBind() { return isUnidiBind; }
     public boolean isBidiBind()  { return isBidiBind; }
-    public boolean isLazy()      { return isLazy; }
 
     /** Creates a new instance of JavafxBindStatus */
-    private JavafxBindStatus(String description, boolean isUnidiBind, boolean isBidiBind, final boolean isLazy) {
+    private JavafxBindStatus(String description, boolean isUnidiBind, boolean isBidiBind) {
         this.description = description;
         this.isUnidiBind = isUnidiBind;
         this.isBidiBind = isBidiBind;
         this.isBound = isUnidiBind || isBidiBind;
-        this.isLazy = isLazy;
     }
 }

@@ -23,20 +23,23 @@
 
 package com.sun.tools.javafx.tree;
 
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.javafx.api.JavafxBindStatus;
+
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Name;
 
 /**
- * Wrapper for loose triggers
+ * The override of an instance variable
  *
  * @author Robert Field
  */
-public class JFXOverrideClassVar extends JFXVarBase {
+public class JFXOverrideClassVar extends JFXAbstractVar {
 
-    JFXIdent ident;
-
-    public JFXOverrideClassVar(Name name,
+    private final JFXIdent expr;
+    
+    protected JFXOverrideClassVar(
+            Name name,
+            JFXType type,
             JFXModifiers mods,
             JFXIdent expr,
             JFXExpression init,
@@ -44,8 +47,8 @@ public class JFXOverrideClassVar extends JFXVarBase {
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
             VarSymbol sym) {
-        super(name, null, mods, init, bindStat, onReplace, onInvalidate, sym);
-        this.ident = expr;
+        super(name, type, mods, init, bindStat, onReplace, onInvalidate, sym);
+        this.expr = expr;
     }
     
     public void accept(JavafxVisitor v) {
@@ -56,13 +59,13 @@ public class JFXOverrideClassVar extends JFXVarBase {
     public JavafxTag getFXTag() {
         return JavafxTag.OVERRIDE_ATTRIBUTE_DEF;
     }
-    
-    public JFXIdent getId() {
-        return ident;
-    }
 
+    public JFXIdent getId() {
+        return expr;
+    }
+    
     @Override
-    boolean isOverride() {
+    public boolean isOverride() {
         return true;
     }
 }

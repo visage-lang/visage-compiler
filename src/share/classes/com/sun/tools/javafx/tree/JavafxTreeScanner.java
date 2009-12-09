@@ -171,9 +171,6 @@ public class JavafxTreeScanner implements JavafxVisitor {
     public void visitErroneous(JFXErroneous tree) {
     }
 
-    // Begin JavaFX trees
-    
-    //@Override
     public void visitClassDeclaration(JFXClassDeclaration tree) {
         scan(tree.mods);
         for (Tree member : tree.getMembers()) {
@@ -181,7 +178,6 @@ public class JavafxTreeScanner implements JavafxVisitor {
         }
     }
     
-    //@Override
     public void visitFunctionValue(JFXFunctionValue tree) {
         for (JFXVar param : tree.getParams()) {
             scan(param);
@@ -189,70 +185,60 @@ public class JavafxTreeScanner implements JavafxVisitor {
         scan(tree.getBodyExpression());
     }
 
-    //@Override
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
         scan(tree.getModifiers());
         scan(tree.getJFXReturnType());
         visitFunctionValue(tree.operation);
     }
 
-    //@Override
-    public void visitInitDefinition(JFXInitDefinition that) {
-        scan((JFXBlock)that.getBody());
+    public void visitInitDefinition(JFXInitDefinition tree) {
+        scan((JFXBlock)tree.getBody());
     }
 
-    public void visitPostInitDefinition(JFXPostInitDefinition that) {
-        scan((JFXBlock)that.getBody());
+    public void visitPostInitDefinition(JFXPostInitDefinition tree) {
+        scan((JFXBlock)tree.getBody());
     }
 
-    //@Override
-    public void visitSequenceEmpty(JFXSequenceEmpty that) {
+    public void visitSequenceEmpty(JFXSequenceEmpty tree) {
     }
     
-    //@Override
-    public void visitSequenceRange(JFXSequenceRange that) {
-        scan( that.getLower() );
-        scan( that.getUpper() );
-        scan( that.getStepOrNull() );
+    public void visitSequenceRange(JFXSequenceRange tree) {
+        scan( tree.getLower() );
+        scan( tree.getUpper() );
+        scan( tree.getStepOrNull() );
     }
     
-    //@Override
-    public void visitSequenceExplicit(JFXSequenceExplicit that) {
-        scan( that.getItems() );
+    public void visitSequenceExplicit(JFXSequenceExplicit tree) {
+        scan( tree.getItems() );
     }
 
-    //@Override
-    public void visitSequenceIndexed(JFXSequenceIndexed that) {
-        scan(that.getSequence());
-        scan(that.getIndex());
+    public void visitSequenceIndexed(JFXSequenceIndexed tree) {
+        scan(tree.getSequence());
+        scan(tree.getIndex());
     }
     
-    public void visitSequenceSlice(JFXSequenceSlice that) {
-        scan(that.getSequence());
-        scan(that.getFirstIndex());
-        scan(that.getLastIndex());
+    public void visitSequenceSlice(JFXSequenceSlice tree) {
+        scan(tree.getSequence());
+        scan(tree.getFirstIndex());
+        scan(tree.getLastIndex());
     }
     
-    //@Override
-    public void visitSequenceInsert(JFXSequenceInsert that) {
-        scan(that.getSequence());
-        scan(that.getElement());
+    public void visitSequenceInsert(JFXSequenceInsert tree) {
+        scan(tree.getSequence());
+        scan(tree.getElement());
     }
     
-    //@Override
-    public void visitSequenceDelete(JFXSequenceDelete that) {
-        scan(that.getSequence());
-        scan(that.getElement());
+    public void visitSequenceDelete(JFXSequenceDelete tree) {
+        scan(tree.getSequence());
+        scan(tree.getElement());
     }
 
-    //@Override
-    public void visitInvalidate(JFXInvalidate that) {
-        scan(that.getVariable());
+    public void visitInvalidate(JFXInvalidate tree) {
+        scan(tree.getVariable());
     }
 
-    //@Override
-    public void visitStringExpression(JFXStringExpression that) {
-        List<JFXExpression> parts = that.getParts();
+    public void visitStringExpression(JFXStringExpression tree) {
+        List<JFXExpression> parts = tree.getParts();
         parts = parts.tail;
         while (parts.nonEmpty()) {
             parts = parts.tail;
@@ -262,7 +248,6 @@ public class JavafxTreeScanner implements JavafxVisitor {
         }
     }
     
-    //@Override
     public void visitInstanciate(JFXInstanciate tree) {
        scan(tree.getIdentifier());
        scan(tree.getArgs());
@@ -271,56 +256,51 @@ public class JavafxTreeScanner implements JavafxVisitor {
        scan(tree.getClassBody());
     }
     
-    //@Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
         scan(tree.getExpression());
     }  
     
-    //@Override
-    public void visitTypeAny(JFXTypeAny that) {
+    public void visitTypeAny(JFXTypeAny tree) {
     }
     
-    //@Override
-    public void visitTypeClass(JFXTypeClass that) {
+    public void visitTypeClass(JFXTypeClass tree) {
     }
     
-    //@Override
-    public void visitTypeFunctional(JFXTypeFunctional that) {
-        for (JFXTree param : (List<JFXType>)that.getParameters()) {
+    public void visitTypeFunctional(JFXTypeFunctional tree) {
+        for (JFXTree param : (List<JFXType>)tree.getParameters()) {
             scan(param);
         }
-        scan((JFXType)that.getReturnType());
+        scan((JFXType)tree.getReturnType());
     }
     
-    //@Override
-    public void visitTypeArray(JFXTypeArray that) {
-        scan((JFXType)that.getElementType());
+    public void visitTypeArray(JFXTypeArray tree) {
+        scan((JFXType)tree.getElementType());
     }
 
-    //@Override
-    public void visitTypeUnknown(JFXTypeUnknown that) {
+    public void visitTypeUnknown(JFXTypeUnknown tree) {
     }
     
-    //@Override
-    public void visitVarScriptInit(JFXVarScriptInit tree) {
+    public void visitVarInit(JFXVarInit tree) {
     }
 
-    //@Override
+    public void visitVarRef(JFXVarRef tree) {
+    }
+
     public void visitVar(JFXVar tree) {
         scan(tree.getJFXType());
         scan(tree.mods);
-        scan(tree.init);
+        scan(tree.getInitializer());
         scan(tree.getOnReplace());
+        scan(tree.getOnInvalidate());
     }
 
-    //@Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         scan(tree.getId());
         scan(tree.getInitializer());
         scan(tree.getOnReplace());
+        scan(tree.getOnInvalidate());
     }
 
-    //@Override
     public void visitOnReplace(JFXOnReplace tree) {
         scan(tree.getFirstIndex());
         scan(tree.getLastIndex());
@@ -330,52 +310,48 @@ public class JavafxTreeScanner implements JavafxVisitor {
     }
     
     
-    //@Override
-    public void visitForExpression(JFXForExpression that) {
-        for (ForExpressionInClauseTree cl : that.getInClauses()) {
+    public void visitForExpression(JFXForExpression tree) {
+        for (ForExpressionInClauseTree cl : tree.getInClauses()) {
             JFXForExpressionInClause clause = (JFXForExpressionInClause)cl;
             scan(clause);
         }
-        scan(that.getBodyExpression());
+        scan(tree.getBodyExpression());
     }
     
-    //@Override
-    public void visitForExpressionInClause(JFXForExpressionInClause that) {
-        scan(that.getVar());
-        scan(that.getSequenceExpression());
-        scan(that.getWhereExpression());
+    public void visitForExpressionInClause(JFXForExpressionInClause tree) {
+        scan(tree.getVar());
+        scan(tree.getSequenceExpression());
+        scan(tree.getWhereExpression());
     }
     
-    //@Override
-    public void visitBlockExpression(JFXBlock that) {
-        scan(that.stats);
-        scan(that.value);
+    public void visitBlockExpression(JFXBlock tree) {
+        scan(tree.stats);
+        scan(tree.value);
     }
     
-    //@Override
-    public void visitIndexof(JFXIndexof that) {
-    }
-
-    public void visitTree(JFXTree that) {
-        assert false : "Should not be here!!!";
+    public void visitIndexof(JFXIndexof tree) {
     }
 
     public void visitTimeLiteral(JFXTimeLiteral tree) {
     }
 
-    public void visitInterpolateValue(JFXInterpolateValue that) {
-        scan(that.attribute);
-        scan(that.value);
-        if  (that.interpolation != null) {
-            scan(that.interpolation);
+    public void visitInterpolateValue(JFXInterpolateValue tree) {
+        scan(tree.attribute);
+        scan(tree.value);
+        if  (tree.interpolation != null) {
+            scan(tree.interpolation);
         }
     }
     
-    public void visitKeyFrameLiteral(JFXKeyFrameLiteral that) {
-        scan(that.start);
-        for (JFXExpression value: that.values)
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral tree) {
+        scan(tree.start);
+        for (JFXExpression value: tree.values)
             scan(value);
-        if (that.trigger != null)
-            scan(that.trigger);
+        if (tree.trigger != null)
+            scan(tree.trigger);
+    }
+
+    public void visitTree(JFXTree tree) {
+        assert false : "Should not be here!!!";
     }
 }

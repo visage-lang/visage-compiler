@@ -17,8 +17,8 @@ var v4 = bind --v;
 
 // assignment operators are not allowed in bind context
 
-var v1 = bind v += 2;
-var v2 = bind v -= 2;
-var v3 = bind v *= 2;
-var v4 = bind v /= 2;
+var v5 = bind v += 2;
+var v6 = bind v -= 2;
+var v7 = bind v *= 2;
+var v8 = bind v /= 2;
 

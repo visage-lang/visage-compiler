@@ -38,7 +38,6 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
 
 import javax.tools.JavaFileObject;
@@ -602,7 +601,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
 
         Scope enclScope = JavafxEnter.enterScope(env);
-        JavafxVarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
+        VarSymbol v = new VarSymbol(0, tree.name, null, enclScope.owner);
         attr.varSymToTree.put(v, tree);
         tree.sym = v;
         SymbolCompleter completer = new SymbolCompleter();
@@ -612,8 +611,11 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             v.completer = completer;
 
         v.flags_field = chk.checkFlags(tree.pos(), tree.mods.flags, v, tree);
-        if (tree.init != null) {
+        if (tree.getInitializer() != null) {
             v.flags_field |= HASINIT;
+        }
+        if (tree.isBound()) {
+            v.flags_field |= JavafxFlags.VARUSE_BOUND_INIT;
         }
 
         if (chk.checkUnique(tree.pos(), v, env)) {
@@ -693,7 +695,14 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
     }
 
-/*********************************************************************
+//    @Override
+//    public void visitClassDeclaration(JFXClassDeclaration that) {
+//        for (JFXExpression superClass : that.getSupertypes()) {
+//            attr.attribType(superClass, env);
+//        }
+//    }
+
+/* ********************************************************************
  * Type completion
  *********************************************************************/
 
@@ -785,7 +794,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
                 if ((sym.flags() & JavafxFlags.MIXIN) != 0)
                     c.flags_field |= JavafxFlags.MIXIN;
 
-                tree.setDifferentiatedExtendingImplementing(extending.toList(), implementing.toList(), mixing.toList());
+                tree.setDifferentiatedExtendingImplementingMixing(extending.toList(), implementing.toList(), mixing.toList());
             }
             
             if (supertype == null) {

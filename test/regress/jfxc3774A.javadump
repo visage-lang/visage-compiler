@@ -1,0 +1,222 @@
+import java.lang.*;
+import com.sun.javafx.runtime.annotation.*;
+import com.sun.javafx.runtime.sequence.*;
+import com.sun.javafx.runtime.*;
+import com.sun.javafx.functions.*;
+
+
+public class jfxc3774A extends FXBase implements FXObject {
+    public static int VCNT$ = -1;
+    
+    public static int VCNT$() {
+        if (VCNT$ == -1) {
+            final int $count = VCNT$ = FXBase.VCNT$() + 2;
+            VOFF$jfxc3774A$$save$0 = $count + -2;
+            VOFF$children = $count + -1;
+        }
+        return VCNT$;
+    }
+    
+    public int count$() {
+        return VCNT$();
+    }
+    public static int VOFF$jfxc3774A$$save$0;
+    public static int VOFF$children;
+    public byte VFLG$jfxc3774A$$save$0;
+    public byte VFLG$children;
+    
+    
+    private Sequence<? extends Integer> $jfxc3774A$$save$0 = TypeInfo.Integer.emptySequence;
+    
+    
+    protected Sequence<? extends Integer> $children = TypeInfo.Integer.emptySequence;
+    
+    
+    public Sequence<? extends Integer> get$jfxc3774A$$save$0() {
+        if ($jfxc3774A$$save$0 == TypeInfo.Integer.emptySequence && (VFLG$jfxc3774A$$save$0 & VFLGS$IS_BOUND) == VFLGS$IS_BOUND) {
+            size$jfxc3774A$$save$0();
+            $jfxc3774A$$save$0 = new SequenceRef(TypeInfo.Integer, this, jfxc3774A.VOFF$jfxc3774A$$save$0);
+        } else if ((VFLG$jfxc3774A$$save$0 & VFLGS$IS_BOUND_DEFAULT_APPLIED) == 0) {
+            applyDefaults$(jfxc3774A.VOFF$jfxc3774A$$save$0);
+        }
+        return $jfxc3774A$$save$0;
+    }
+    
+    
+    public int elem$jfxc3774A$$save$0(final int pos$) {
+        return $jfxc3774A$$save$0.get(pos$);
+    }
+    
+    
+    public int size$jfxc3774A$$save$0() {
+        return $jfxc3774A$$save$0.size();
+    }
+    
+    
+    public Sequence<? extends Integer> be$jfxc3774A$$save$0(final Sequence<? extends Integer> varNewValue$) {
+        $jfxc3774A$$save$0 = varNewValue$;
+        return $jfxc3774A$$save$0;
+    }
+    
+    
+    public void invalidate$jfxc3774A$$save$0(final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+        notifyDependents$(jfxc3774A.VOFF$jfxc3774A$$save$0, startPos$, endPos$, newLength$, phase$);
+        if (phase$ == VFLGS$NEEDS_TRIGGER) {
+            onReplace$jfxc3774A$$save$0(startPos$, endPos$, newLength$);
+        }
+    }
+    
+    
+    public void onReplace$jfxc3774A$$save$0(final int startPos$, final int endPos$, final int newLength$) {
+    }
+    
+    
+    public Sequence<? extends Integer> get$children() {
+        if ($children == TypeInfo.Integer.emptySequence && (VFLG$children & VFLGS$IS_BOUND) == VFLGS$IS_BOUND) {
+            size$children();
+            $children = new SequenceRef(TypeInfo.Integer, this, jfxc3774A.VOFF$children);
+        } else if ((VFLG$children & VFLGS$IS_BOUND_DEFAULT_APPLIED) == 0) {
+            applyDefaults$(jfxc3774A.VOFF$children);
+        }
+        return $children;
+    }
+    
+    
+    public int elem$children(final int pos$) {
+        return $children.get(pos$);
+    }
+    
+    
+    public int size$children() {
+        return $children.size();
+    }
+    
+    
+    public Sequence<? extends Integer> be$children(final Sequence<? extends Integer> varNewValue$) {
+        $children = varNewValue$;
+        return $children;
+    }
+    
+    
+    public void invalidate$children(final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+        notifyDependents$(jfxc3774A.VOFF$children, startPos$, endPos$, newLength$, phase$);
+        if (phase$ == VFLGS$NEEDS_TRIGGER) {
+            onReplace$children(startPos$, endPos$, newLength$);
+        }
+    }
+    
+    
+    public void onReplace$children(final int a, final int endPos$, final int newNodes$length) {
+        final int b = endPos$ - 1;
+        final Sequence<? extends Integer> oldNodes = $jfxc3774A$$save$0;
+        $jfxc3774A$$save$0 = Sequences.set($jfxc3774A$$save$0, get$children());
+        $jfxc3774A$$save$0.incrementSharing();
+        final Sequence<? extends Integer> newNodes = Sequences.getNewElements($jfxc3774A$$save$0, a, newNodes$length);
+        javafx.lang.Builtins.println(String.format("newNodes = %s", newNodes));
+    }
+    
+    public void applyDefaults$(final int varNum$) {
+        if (varTestBits$(varNum$, VFLGS$DEFAULT_APPLIED_VARINIT, 0)) {
+            switch (varNum$ - VCNT$) {
+            case -1: 
+                {
+                    VFLG$children |= (byte)VFLGS$DEFAULT_APPLIED;
+                    invalidate$children(0, 0, 0, VFLGS$IS_INVALID);
+                    VFLG$children |= (byte)VFLGS$IS_INVALID;
+                    invalidate$children(0, 0, 0, VFLGS$NEEDS_TRIGGER);
+                    VFLG$children |= (byte)VFLGS$NEEDS_TRIGGER;
+                }
+                return;
+            
+            default: 
+            
+            }
+            super.applyDefaults$(varNum$);
+        }
+    }
+    
+    public Object get$(final int varNum$) {
+        switch (varNum$ - VCNT$) {
+        case -1: 
+            return get$children();
+        
+        }
+        return super.get$(varNum$);
+    }
+    
+    public Object elem$(final int varNum$, final int pos$) {
+        switch (varNum$ - VCNT$) {
+        case -1: 
+            return elem$children(pos$);
+        
+        }
+        return super.elem$(varNum$, pos$);
+    }
+    
+    public int size$(final int varNum$) {
+        switch (varNum$ - VCNT$) {
+        case -1: 
+            return size$children();
+        
+        }
+        return super.size$(varNum$);
+    }
+    
+    public void set$(final int varNum$, final Object object$) {
+        switch (varNum$ - VCNT$) {
+        case -1: 
+            Sequences.set(this, jfxc3774A.VOFF$children, (Sequence<? extends Integer>)object$);
+            return;
+        
+        }
+        super.set$(varNum$, object$);
+    }
+    
+    public void be$(final int varNum$, final Object object$) {
+        switch (varNum$ - VCNT$) {
+        case -1: 
+            be$children((Sequence<? extends Integer>)object$);
+            return;
+        
+        }
+        super.be$(varNum$, object$);
+    }
+    
+    public void invalidate$(final int varNum$, final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+        switch (varNum$ - VCNT$) {
+        case -1: 
+            invalidate$children(startPos$, endPos$, newLength$, phase$);
+            return;
+        
+        }
+        super.invalidate$(varNum$, startPos$, endPos$, newLength$, phase$);
+    }
+    
+    public int getFlags$(final int varNum$) {
+        switch (varNum$ - VCNT$) {
+        case -1: 
+            return VFLG$children;
+        
+        }
+        return super.getFlags$(varNum$);
+    }
+    
+    public void setFlags$(final int varNum$, final int varNewValue$) {
+        switch (varNum$ - VCNT$) {
+        case -1: 
+            VFLG$children = (byte)varNewValue$;
+            return;
+        
+        }
+        super.setFlags$(varNum$, varNewValue$);
+    }
+    
+    public jfxc3774A() {
+        this(false);
+        initialize$();
+    }
+    
+    public jfxc3774A(final boolean dummy) {
+        super(dummy);
+    }
+}

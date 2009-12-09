@@ -32,6 +32,7 @@ import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Scope;
+import com.sun.tools.mjavac.tree.JCTree;
 
 /**
  * A class declaration
@@ -49,10 +50,11 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
     
     public JFXFunctionDefinition runMethod;
     public Scope runBodyScope;
-    public boolean isScriptClass = false;
+    
+    public boolean isScriptClass;
 
     public boolean hasBeenTranslated = false; // prevent multiple translations
-    
+
     protected JFXClassDeclaration()
     {
         this.mods       = null;
@@ -71,6 +73,11 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         this.supertypes = supertypes;
         this.defs = declarations;
         this.sym = sym;
+        this.isScriptClass = false;
+    }
+
+    public boolean isScriptClass() {
+        return isScriptClass;
     }
 
     public java.util.List<ExpressionTree> getSupertypeList() {
@@ -109,7 +116,7 @@ public class JFXClassDeclaration extends JFXExpression implements ClassDeclarati
         return mixing;
     }
 
-    public void setDifferentiatedExtendingImplementing(List<JFXExpression> extending,
+    public void setDifferentiatedExtendingImplementingMixing(List<JFXExpression> extending,
                                                        List<JFXExpression> implementing,
                                                        List<JFXExpression> mixing) {
         this.extending    = extending;

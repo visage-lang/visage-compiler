@@ -7,14 +7,10 @@
 import javafx.fxunit.FXTestCase;
 
 mixin class Mixin1 { public var bar : String = "M1" }
-/* Uncomment this when JFXC-3095 is fixed */
-//mixin class Mixin2 extends Mixin1 { override public var bar : String }
-mixin class Mixin2 extends Mixin1 { override public var bar }
+mixin class Mixin2 extends Mixin1 { override public var bar : String }
 
 
-/* Uncomment this when JFXC-3095 is fixed */
-//class Mixee1 extends Mixin1 { override public var bar : String }
-class Mixee1 extends Mixin1 { override public var bar }
+class Mixee1 extends Mixin1 { override public var bar : String }
 class Mixee2 extends Mixin2 {}
 
 public class MxResInitConf01 extends FXTestCase {

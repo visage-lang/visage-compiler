@@ -57,6 +57,7 @@ public class JavafxClassSymbol extends ClassSymbol {
         return supertypes;
     }
 
+    //TODO: this is probably garbage
     public boolean isSubClass(Symbol base, Types types) {
         // Trivial case.
         if (this == base)

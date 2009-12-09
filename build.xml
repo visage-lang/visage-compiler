@@ -108,6 +108,15 @@
     <target name="-do-help">
       <echo> 
     Main developer targets:
+      name="dev-..."                                           description="temp targets to assist in move to compiled bind"
+            dev-test:    run tests that are not on the exclude list (ie, don't hang, and don't contain 'lazy')
+            dev-no-hang: run tests that are not on the hang list
+            dev-pass:    run tests that are expected to pass.  
+            dev-fail:    run tests that are currently failing - see lists in project.properties
+            dev-check:   find unexpected passes and unexpected failures in a previous dev-* test run.  EG
+                            ant dev-test dev-check
+            dev-xxx:     run tests named in file -Dxxx=filename; default filename is ./xxx.
+
       name="help"
       name="jar"                                               description="Build compiler .jar files"
       name="binaries"   depends="jar,javafxdoc,launcher"       description="Build compiler and compiler runtime binaries"
@@ -221,7 +230,7 @@
     <target name="hudson-dev" depends="-hudson-init, all, findbugs, plot-data, coverage-report, hudson-post-build"
             description="Build and test all project artifacts for each developer push"/>
     
-    <target name="hudson-all" depends="-hudson-init, -init-coverage, all, findbugs, plot-data, coverage-report, hudson-post-build"
+    <target name="hudson-all" depends="-hudson-init, -init-coverage, all, findbugs, plot-data, performance-run, coverage-report, hudson-post-build"
             description="Build and test with coverage all project artifacts for nightly build"/>
 
     <target name="all-with-coverage" depends="-init-coverage, all, findbugs, plot-data, coverage-report"
@@ -308,6 +317,14 @@
             <arg value="tf"/>
             <arg value="${dist.jar}"/>
         </exec>
+        <taskdef name="bytecode-verify" classname="com.sun.javafx.tools.bytecodeverifier.VerifierTask">
+            <classpath>
+                 <pathelement location="${ant.jar}"/>
+                 <pathelement location="${build.buildtools.dir}/"/>
+                 <path refid="asm.class.path"/>
+            </classpath>
+        </taskdef>
+        <bytecode-verify path="${dist.jar}" verbose="false"/>
 <!--
         <jar compress="${jar.compress}" destfile="${dist.jar}" manifest="${manifest.file}">
             <fileset dir="${build.classes.dir}"/>
@@ -325,9 +342,6 @@
                 <exclude name="com/sun/tools/javafx/**"/>
                 <exclude name="com/sun/javafx/api/**"/>
                 <exclude name="com/sun/javafx/runtime/main/**"/>
-                <patternset id="fxtracker.sources">
-                    <exclude name="**/FxTracker*" unless = "fxtracker.enable"/>
-                </patternset>
             </fileset>
         </jar>
         <zip compress="${jar.compress}" destfile="${dist.javafxrt-main.jar}" >
@@ -423,18 +437,7 @@
     <target name="generate-templates" depends="-pre-compile">
         <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
             <arg value="${build.generated.dir}" />
-            <arg value="com/sun/javafx/runtime/location/XxxTemplate.stg" />
-            <arg value="com/sun/javafx/runtime/location" />
-            <arg line="XxxConstant XxxLocation XxxVariable SequenceVariable" />
-           <classpath>
-                <pathelement location="${build.buildtools.dir}"/>
-                <path refid="antlr.class.path" />
-                <pathelement location="${src.classes.dir}" />
-            </classpath>
-        </java>
-        <java classname="com.sun.javafx.tools.stringtemplate.ExpandXxxTemplate">
-            <arg value="${build.generated.dir}" />
-            <arg value="com/sun/javafx/runtime/location/XxxTemplate.stg" />
+            <arg value="com/sun/javafx/runtime/XxxTemplate.stg" />
             <arg value="com/sun/javafx/runtime/sequence" />
             <arg line="AbstractSequence Sequences XxxArraySequence" />
            <classpath>
@@ -496,6 +499,7 @@
         <!-- compiles the fx files in the compiler workspace. These are the runtime
              files shipped with the compiler (not related to the JavaFX Runtime
              project). -->
+
         <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask">
             <classpath>
                 <pathelement location="${ant.jar}"/>
@@ -512,6 +516,15 @@
                  classpath="${build.classes.dir}:${javac.test.classpath}"
                  compilerclasspath="${build.classes.dir}:${javac.classpath}">
         </javafxc>
+
+        <taskdef name="bytecode-verify" classname="com.sun.javafx.tools.bytecodeverifier.VerifierTask">
+            <classpath>
+                 <pathelement location="${ant.jar}"/>
+                 <pathelement location="${build.buildtools.dir}/"/>
+                 <path refid="asm.class.path"/>
+            </classpath>
+        </taskdef>
+        <bytecode-verify path="${build.classes.dir}" verbose="false"/>
     </target>
 
     <target depends="init,javafxdoc" name="-javadoc-build">
@@ -595,6 +608,7 @@
         <javac srcdir="${src.buildtools.dir}" destdir="${build.buildtools.dir}" classpath="${import.ant.jar}">
             <classpath>
                 <path refid="ant.class.path" />
+                <path refid="asm.class.path" />
                 <path refid="antlr.class.path" />
             </classpath>
         </javac>
@@ -681,11 +695,9 @@
         </copy>
         <!-- create an index.html redirector to JavaFXReference.html-->
         <echo file="dist/doc/reference/index.html" append="false">
-           &lt;HTML&gt;
-                &lt;HEAD&gt;
-                    &lt;META  HTTP-EQUIV="REFRESH" content="0; url=JavaFXReference.html"&gt;
-                &lt;/HEAD&gt;
-            &lt;/HTML&gt;
+            &lt;HTML&gt;&lt;HEAD&gt;
+                &lt;META HTTP-EQUIV="REFRESH" content="0; url=JavaFXReference.html"&gt;
+            &lt;/HEAD&gt;&lt;/HTML&gt;
         </echo>
     </target>
 
@@ -708,11 +720,24 @@
         </exec>
     </target>
 
+    <!-- we want to compile the benchmarks up front but run it
+         later during the nightly build.
+    -->
+    <target name="performance-compile">
+         <ant antfile="build.xml" dir="performance" target="compile" inheritall="false"/>
+    </target>
+    <target name="performance-clean">
+        <ant antfile="build.xml" dir="performance" target="clean" inheritall="false"/>
+    </target>
+     <target name="performance-run" depends="binaries">
+        <ant antfile="build.xml" dir="performance" target="run" inheritall="false"/>
+    </target>
+
     <target name="staticsizes-clean">
         <delete dir="${build.staticsizes.dir}" />
     </target>
 
-    <target name="plot-data" depends="staticsizes, ldclassreport"/>
+    <target name="plot-data" depends="staticsizes, ldclassreport, performance-compile"/>
     
     <target name="staticsizes" depends="jar, staticsizes-clean">
         <mkdir dir="${build.staticsizes.dir}"/>
@@ -749,13 +774,13 @@
          a multi-version bug database. -->
     <target name="hudson-post-build" depends="init, bundle" if="export.dir">
         <property environment="env"/>
-        <mkdir dir="${export.dir}/findbugs"/>
+        <mkdir dir="${export.dir}/ROOT/findbugs"/>
         <exec executable="sh" failonerror="true">
             <arg value="${import.findbugs.home}/bin/setBugDatabaseInfo"/>
             <arg value="-name"/>
             <arg value="${env.JOB_NAME}"/>
             <arg value="${build.dir}/findbugs.xml"/>
-            <redirector output="${export.dir}/findbugs/${env.JOB_NAME}.xml"/>
+            <redirector output="${export.dir}/ROOT/findbugs/${env.JOB_NAME}.xml"/>
         </exec>
         <delete dir="${export.dir}/ROOT/current-build" />
         <copy todir="${export.dir}/ROOT/current-build">
@@ -1165,6 +1190,11 @@
                 =========================
             -->
     <target depends="init,compile" if="have.tests" name="-pre-compile-test">
+        <!-- Not sure why but if we don't rm -rf the build/test dir, it takes more than a minute longer to run the tests.
+           As if the compiler has to do extra work if the .class file already exists.  Note, I don't use ${build.test.dir}
+           here to avoid doing a disaterous rm -rf if something goes wrong.
+        -->
+        <delete dir="${build.dir}/test"/>
         <mkdir dir="${build.test.classes.dir}"/>
     </target>
 <!--
@@ -1244,6 +1274,66 @@
     </target>
 
 
+    <!-- temp code to test the dev repo, excluding the tests in the exclude list in project.properties -->
+    <target name="dev-test"  depends="-init-dev-test,binaries,-do-test" description="Build binaries and run tests not on the exclude list"/>
+    <target name="dev-no-hang"  depends="-init-dev-no-hang,binaries,-do-test" description="Build binaries and run tests that do not hang"/>
+    <target name="dev-pass"  depends="-init-dev-pass,binaries,-do-test" description="Build binaries and run tests that should pass"/>
+    <target name="dev-fail"  depends="-init-dev-fail,binaries,-do-test" description="Build binaries and run tests that currently fail"/>
+    <target name="dev-xxx"   depends="-init-dev-xxx,binaries,-do-test" description="Build binaries and run tests named in file 'xxx'"/>
+
+    <target name="dev-find-passes" depends="-init-dev-fail" description="Report tests that passed instead of failed in a dev-fail run">
+      <echo message="${test.fx.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
+      <exec dir="." executable="sh">
+        <arg line="./dev-find-passes.sh ${build.test.dir}/dev-expected-fails ${log}"/>
+      </exec>
+    </target>
+
+    <target name="dev-check" description="Analyze dev-* test results for unexpected passes and failures">
+      <exec dir="." executable="sh">
+        <arg line="./dev-check.sh"/>
+      </exec>
+    </target>
+
+    <target name="-init-dev-pass" depends="-pre-compile-test">
+      <property name="testFile" value="**/*Test.java"/>
+      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list} ${test.fx.dev.fail.list}"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-pass" file="${build.test.dir}/dev-target" />
+    </target>
+
+    <target name="-init-dev-test" depends="-pre-compile-test">
+      <property name="testFile" value="**/*Test.java"/>
+      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.exclude.list}"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-test" file="${build.test.dir}/dev-target" />
+    </target>
+
+    <target name="-init-dev-no-hang" depends="-pre-compile-test">
+      <property name="testFile" value="**/*Test.java"/>
+      <property name="test-sys-prop.test.fx.exclude.list" value="${test.fx.dev.hang.list}"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-no-hang" file="${build.test.dir}/dev-target" />
+    </target>
+
+    <target name="-init-dev-fail" depends="-pre-compile-test">
+      <property name="testFile" value="**/FXCompilerTest.java"/>
+      <property name="test-sys-prop.test.fx.list" value="${test.fx.dev.fail.list}"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-fail" file="${build.test.dir}/dev-target" />
+    </target>
+
+    <target name="-init-dev-xxx" depends="-pre-compile-test">
+      <property name="testFile" value="**/FXCompilerTest.java"/>
+      <copy file="${xxx}" tofile="${build.test.dir}/dev-xxx"/>
+      <replaceregexp file="${build.test.dir}/dev-xxx"
+                         flags="gs"
+                         match="\.fx."
+                         replace=".fx "/>
+      <loadfile property="test-sys-prop.test.fx.list" srcFile="${build.test.dir}/dev-xxx"/>
+      <mkdir dir="${build.test.results.dir}"/>
+      <echo message="dev-xxx" file="${build.test.dir}/dev-target" />
+    </target>
+
     <target depends="init,compile-test,-pre-test-run" if="have.tests" name="-do-test-run">
         <property name="test-sys-prop.test.fx.roots" value="${test.fx.roots}"/>
         <condition property="testFile" value="**/*Test.java">
@@ -1282,7 +1372,14 @@
         </junit>
     </target>
 
-    <target depends="init" if="have.tests" name="test-report"/>
+    <target depends="init" if="have.tests" name="test-report">
+       <junitreport  todir="build/test">
+          <fileset dir="build/test/results"/>
+          <report format="noframes" todir="build/test/reports"/>
+       </junitreport>
+      <echo message="${test.fx.dev.fail.list}" file="${build.test.dir}/dev-expected-fails" />
+    </target>
+
     <target depends="init" if="netbeans.home+have.tests" name="-test-browse"/>
     <target depends="init" if="have.tests" name="-pre-test-run-single">
         <mkdir dir="${build.test.results.dir}"/>

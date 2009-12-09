@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ import java.util.logging.Logger;
 /**
  * 
  * @author ksrini
+ * @author A. Sundararajan (removed csv stuff for now)
  * 
  * Readme:
  * Here are the steps needed to run the fxtracker.
@@ -68,22 +70,16 @@ import java.util.logging.Logger;
  *  % java -DFxTracker.vmoptions="-Xmx512m, -Xss128, -Xfoobar=XX" FxTrackerRunner options
  * 
  * Files:
- *  a. jfx/src/share/classes/com/sun/java/runtime/locations/FxTracker.java
- *     Lives in the locations package and starts tracking, dumps the profile.csv
- *   
- *  b. jfx/openjfx-compiler/buildtools/fxtracker/src/FxBtraceTracker.java
+ *  a. jfx/openjfx-compiler/buildtools/fxtracker/src/FxBtraceTracker.java
  *     Btrace script and test runner, the btrace script injects the ctors into
  *     the locations and fxbase/fxobject to track the creation of the objects.    
  * 
- *  c. jfx/openjfx-compiler/buildtools/fxtracker/src/FxTrackerRunner.java
+ *  b. jfx/openjfx-compiler/buildtools/fxtracker/src/FxTrackerRunner.java
  *     This is simply a runner script takes care of compile the script, 
- *     running btrace on the application, killing the application, and finally
- *     convert the csv file to html for easier reading.
+ *     running btrace on the application, killing the application.
  *  
- *  d. Output files in build directory:
+ *  c. Output files in build directory:
  *     FxBtraceTracker.class.btrace : btrace output
- *     profile.csv                  : profiler output in csv format
- *     profile.html                 : representation of the above in html
  */
 public class FxTrackerRunner {
     static final Logger logger = Logger.getLogger(FxTrackerRunner.class.getName());
@@ -109,9 +105,6 @@ public class FxTrackerRunner {
     static final String BTRACE_COMPILER = "com.sun.btrace.compiler.Compiler";
     static final String BTRACE_AGENT_OPT = "-javaagent:" + BTRACE_HOME +
                 "/build/btrace-agent.jar=unsafe=true,script=";
-    static final String PROFILE_CSV = BUILD_DIR + "/profile.csv";
-    static final String PROFILE_HTML = BUILD_DIR + "/profile.html";
-    
     
     static String JAVA_HOME = null;
     static String TOOLS_JAR = null;
@@ -121,15 +114,12 @@ public class FxTrackerRunner {
    
     static final String SDK_DIR = "sdk";
     static final String JPSMARKER="JPSMARKER=";
-
-    static final String PSTOOLS = System.getProperty("pstools.dir","c:/devtools/pstools");
-    static final File PSKILL = new File(PSTOOLS, "pskill.exe");
     
     // Command line arguments
     static String appClasspath = null;
     static String mainClass = null;
-    static int interval = Integer.getInteger("interval", 5*1000).intValue();
-    static int duration = Integer.getInteger("duration", 2*60*1000).intValue();
+    static int interval = 5*1000;
+    static int duration = 2*60*1000;
     
     static final String msg[] = { "--jar path_to_your_jar",
                                   "(optional) --main entry-point",
@@ -138,8 +128,8 @@ public class FxTrackerRunner {
 
     public static void main(String... args) {
         init(args);
-        doRun();
-        System.exit(0);
+            doRun();
+            System.exit(0);
     }
     
     static void init(String[] args) {
@@ -285,38 +275,22 @@ public class FxTrackerRunner {
         cmdsList.add(TOOLS_JAR + File.pathSeparator + appClasspath);
         cmdsList.add(mainClass);
         startTestApplication(cmdsList);
-        CsvToHtml.csvToHtml(PROFILE_CSV, PROFILE_HTML);
     }
    
     static void killTestApplication() {
         List<String> cmdsList = new ArrayList<String>();
         String appId = getAppPid(FXTRACKER_NAME);
-        if (appId == null) return;
         cmdsList.clear();
 
         if (isWindows) {
             cmdsList.add("taskkill");
             cmdsList.add("-PID");
-            cmdsList.add(appId);
-            doExec(cmdsList);
-            appId = getAppPid(FXTRACKER_NAME);
-            if ( appId != null && PSKILL.canExecute()) {
-                if (debug) {
-                    System.out.println("killing stray process " + appId);
-                }
-                cmdsList.clear();
-                cmdsList.add(PSKILL.getAbsolutePath());
-                cmdsList.add("-t");
-                cmdsList.add(appId);
-                doExec(cmdsList);
-            }
         } else {
             cmdsList.add("kill");
             cmdsList.add("-15");
-            cmdsList.add(appId);
-            doExec(cmdsList);
         }
-
+        cmdsList.add(appId);
+        doExec(cmdsList);
     }
 
     static List<String> doExec(String... cmds) {
@@ -336,7 +310,7 @@ public class FxTrackerRunner {
                 return fld[0];
             }
         }
-        return null;
+        throw new RuntimeException("Error: could not find the JPSMARKER");
     }
     
     static List<String> doExec(List<String> cmds) {
@@ -425,18 +399,12 @@ public class FxTrackerRunner {
             if (debug) {
                 System.out.println("---output---");
             }
-            
-            try {
-                while (in != null) {
+            while (in != null) {
 //                if (debug) {
 //                    System.out.println(in + " ");
 //                }
 //                System.out.println("");
-                    in = rdr.readLine();
-                }
-            } catch (IOException ioe) {
-//                ioe.printStackTrace();
-                return;
+                in = rdr.readLine();
             }
             p.waitFor();
             return;

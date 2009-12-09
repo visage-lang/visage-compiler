@@ -175,7 +175,7 @@ FUNCTIONS of class ReflectionTest02.TestClass
   Boolean fbFunc8() min_args=2; var_args: false
   Float fbFunc9() min_args=1; var_args: false
   Void finalize() min_args=0; var_args: false
-  class com.sun.javafx.runtime.location.IntLocation func0$$bound$int() min_args=1; var_args: false
+  class com.sun.javafx.runtime.Pointer func0$$bound$int() min_args=2; var_args: false
   class java.lang.Class getClass() min_args=0; var_args: false
   Integer hashCode() min_args=0; var_args: false
   Void notify() min_args=0; var_args: false

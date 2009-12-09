@@ -1,6 +1,10 @@
 /**
  * Regression test JFXC-1048 : Uninitialized variable in object literal in bound context
  *
+ * This test original contained an assignment within a bind, that is now disallowed.  
+ * The unmodified test is now should-fail/jfxc3654a.fx
+ * This test has the assign moved to the initializer.
+ *
  * @test
  * @run
  */
@@ -18,10 +22,9 @@ class Inner {
 
 var it = bind
   Outer {
-    var firstInner : Inner;
+    var firstInner = Inner {name: "yo"};
     content:
-      [firstInner = 
-        Inner {name: "yo"},
+      [firstInner,
        Inner {name: "two" thing: firstInner}
       ]
   };

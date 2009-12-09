@@ -54,6 +54,8 @@ public class FXCompilerTest extends TestSuite {
     //   "test/regress/jfxc1043.fx test/regress/jfxc1053.fx"
     private static final String TEST_FX_LIST = "test.fx.list";
 
+    // And a list of tests to skip
+    private static final String TEST_FX_EXCLUDE_LIST = "test.fx.exclude.list";
 
     /**
      * Creates a test suite for this directory's .fx source files.  This
@@ -69,7 +71,10 @@ public class FXCompilerTest extends TestSuite {
 
 
         String testList = System.getProperty(TEST_FX_LIST);
-
+        String excludeList = System.getProperty(TEST_FX_EXCLUDE_LIST);
+        if (excludeList == null) {
+            excludeList = "";
+        }
         if (testList == null || testList.length() == 0) {
             // Run the tests under the test roots dir, selected by the TEST_FX_INCLUDES patterns
             String testRootsString = System.getProperty(TEST_FX_ROOTS);
@@ -79,13 +84,17 @@ public class FXCompilerTest extends TestSuite {
             String testRoots[] = testRootsString.split(" ");
             for (String root : testRoots) {
                 File dir = new File(root);
-                findTests(dir, tests, orphans);
+                findTests(dir, tests, orphans, excludeList);
             }
         } else {
             // TEST_FX_LIST contains a blank speparated list of test file names.
             String strArray[] = testList.split(" ");
             for (String ss : strArray) {
-                handleOneTest(new File(ss), tests, orphans);
+                if (excludeList.indexOf(ss) == -1) {
+                    handleOneTest(new File(ss), tests, orphans);
+                } else { 
+                    System.out.println("Excluding " + ss);
+                }
             }
         }
         // Collections.sort(tests);
@@ -100,16 +109,22 @@ public class FXCompilerTest extends TestSuite {
             addTest(t);
     }
 
-    private static void findTests(File dir, List<Test> tests, Set<String> orphanFiles) throws Exception {
+    private static void findTests(File dir, List<Test> tests, Set<String> orphanFiles, String excludeList) throws Exception {
         String pattern = System.getProperty(TEST_FX_INCLUDES);
         DirectoryScanner ds = new DirectoryScanner();
         ds.setIncludes(new String[]{(pattern == null ? "**/*.fx" : pattern)});
         ds.setBasedir(dir);
         ds.scan();
         for (String s : ds.getIncludedFiles()) {
-            File f = new File(dir, s);
-            assert !f.isDirectory() : "ERROR: Expected file, found directory " + f;
-            handleOneTest(f, tests, orphanFiles);
+            String namex = dir + "/" + s;
+            namex = namex.replace('\\', '/');
+            if (excludeList.indexOf(namex) == -1) {
+                File f = new File(dir, s);
+                assert !f.isDirectory() : "ERROR: Expected file, found directory " + f;
+                handleOneTest(f, tests, orphanFiles);
+            } else {
+                System.out.println("Excluding " + namex);
+            }
         }
     }
 
@@ -119,7 +134,6 @@ public class FXCompilerTest extends TestSuite {
         boolean isTest = false, isNotTest = false, isFxUnit = false,
             shouldRun = false, compileFailure = false, runFailure = false, checkCompilerMsg = false,
             noCompare = false, ignoreStdError = false;
-
         Scanner scanner = null;
         List<String> auxFiles = new ArrayList<String>();
         List<String> separateFiles = new ArrayList<String>();

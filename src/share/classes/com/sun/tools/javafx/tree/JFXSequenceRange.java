@@ -36,6 +36,8 @@ public class JFXSequenceRange extends JFXAbstractSequenceCreator implements Sequ
     private final JFXExpression stepOrNull;
     private final boolean exclusive;
 
+    public JFXVar boundSizeVar;
+
     public JFXSequenceRange(JFXExpression lower, JFXExpression upper, JFXExpression stepOrNull, boolean exclusive) {
         this.lower = lower;
         this.upper = upper;
