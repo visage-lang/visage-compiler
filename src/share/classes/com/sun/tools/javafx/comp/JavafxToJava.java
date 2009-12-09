@@ -638,8 +638,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
                 if (yield() == ToExpression) {
                     // make into block expression
-                    assert (targetType != syms.voidType) : "void block expressions should be handled below";
-
                     //TODO: this may be unneeded, or even wrong
                     JFXExpression rawValue = (value.getFXTag() == JavafxTag.RETURN)?
                          ((JFXReturn) value).getExpression()
@@ -1035,7 +1033,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     @Override
     public void visitAssign(final JFXAssign tree) {
-        if (types.isSequence(tree.type)) {
+        if (types.isSequence(tree.lhs.type)) {
             if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_SLICE) {
                 result = new SequenceSliceActionTranslator((JFXSequenceSlice) tree.lhs, defs.Sequences_replaceSlice, tree.type, tree.rhs).doit();
             } else {
