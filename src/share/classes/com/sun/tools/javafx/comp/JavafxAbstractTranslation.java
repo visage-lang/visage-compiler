@@ -1850,7 +1850,7 @@ public abstract class JavafxAbstractTranslation
                         If(EQnull(id(newSelector)),
                             Int(0),
                             Offset(id(newSelector), tree.sym));
-                    addSwitchDependence(id(oldSelector), id(newSelector), newOffset, oldOffset);
+                    addSwitchDependence(id(oldSelector), id(newSelector), oldOffset, newOffset);
                 } else {
                     JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(tree.sym));
                     addPreface(offsetVar);
