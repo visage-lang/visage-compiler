@@ -232,25 +232,27 @@ public class Timeline {
      *
      */
     public var time: Duration = 0ms on replace old {
-        if (old != time) {
-            validate();
-            if (time < 0s) {
-                time = 0s;
-            } else if (timelineDur >= 0 and time > Duration.valueOf(timelineDur)) {
-                time = Duration.valueOf(timelineDur);
-            } else {
-                doInterpolate(time.toMillis() as Number);
-            }
+        if (running and not timeTriggerDisabled and old != time) {
+            jumpTo(time.toMillis() as Number, paused);
         }
     }
+    var timeTriggerDisabled = false;
 
-    // inner Timeline's engine should ALWAYS use this function
-    // instead of direct assignment to {@code time}
-    // to avoid inconsistancy
+    /** Inner Timeline's engine should ALWAYS use this function
+    *   instead of direct assignment to {@code time} or {@code curPos}
+    *   to avoid inconsistancy
+    */
     function movePlayhead(pos: Number) {
-        if (pos != curPos) {
+        if (pos != curPos or pos != (time.toMillis() as Number)) {
             curPos = pos;
+
+            timeTriggerDisabled = true;
             time = Duration.valueOf(curPos);
+            timeTriggerDisabled = false;
+
+            if (running) {
+                doInterpolate(curPos);
+            }
         }
     }
 
@@ -315,9 +317,14 @@ public class Timeline {
      * currently running.
      * <p>
      * This value is initially {@code false}.
-     * It will become {@code true} after {@code start()} has been called,
-     * and then becomes {@code false} again after the animation ends
-     * naturally, or after an explicit call to {@code stop()}.
+     * It becomes {@code true} after {@link #play()} or {@link #playFromStart()}
+     * has been called, and then becomes {@code false} again after the animation
+     * ends naturally, or after an explicit call to {@code stop()}.
+     * <p>
+     * If {@code running} is {@code true}, any change to {@link #time} will
+     * result to immediate update of all target variables accordingly.
+     * Otherwise, if {@code running} is {@code false}, changes made to
+     * {@link #time} will not affect target variables.
      * <p>
      * Note that {@code running} will remain {@code true} even when
      * {@code paused==true}.
@@ -465,6 +472,7 @@ public class Timeline {
      * @profile common
      */
     public function play() {
+        pauseRequested = false;
         if(rate != 0.0) {
             // timeline not yet started, so just start it
             if(clip == null or not clip.isRunning()) {
@@ -477,6 +485,7 @@ public class Timeline {
 
 
     function start() {
+        starting = true;
         stopping = false;
         validate();
         if (time == 0.0ms) {
@@ -509,10 +518,10 @@ public class Timeline {
      *  @profile common
      */
     public function playFromStart() {
+        pauseRequested = false;
         if(rate != 0.0) {
             rate = Math.abs(rate);
-            getTotalDur();
-            movePlayhead(0);
+            jumpTo(0, true);
             play();
         }
     }
@@ -555,6 +564,19 @@ public class Timeline {
         }
     }
 
+    // the following two vars are used for delayed invokation of pause() if
+    // pause() is called right after play() but the clip has not started yet
+
+    // is true just after play() is called and till begin() is called at adapter
+    var starting = false on replace wasStarting {
+        if (wasStarting and not starting and pauseRequested) {
+            pauseRequested = false;
+            pause();
+        };
+    }
+    // is true if pause() is called during starting==true
+    var pauseRequested = false;
+
     var stopping = false;
     /**
      * Stops the animation and resets the play head to its initial position.
@@ -570,6 +592,7 @@ public class Timeline {
      */
     public function stop(): Void {
         stopping = true;
+        pauseRequested = false;
         if(clip != null) {
             clip.stop();
         }
@@ -594,7 +617,11 @@ public class Timeline {
      *  @profile common
      */
     public function pause() {
-        clip.pause();
+        if (starting) {
+            pauseRequested = true;
+        } else {
+            clip.pause();
+        }
     }
 
     /**
@@ -604,6 +631,7 @@ public class Timeline {
      *
      */
     function resume() {
+        pauseRequested = false;
         if(clip != null) {
             clip.resume();
         }
@@ -687,6 +715,8 @@ public class Timeline {
                             frame: zeroFrame
                         }
                         pairlist.add(kfp);
+                    } else {
+                        insert keyValue into initialKeyValues;
                     }
                     targets.put(keyValue.target, pairlist);
                 }
@@ -710,6 +740,33 @@ public class Timeline {
     // tracks any changes of currentRate, either sign or magnitude
     var rateChanged: Boolean;
 
+
+    function jumpTo(millis: Number, skipKeyFrames: Boolean): Boolean {
+        validate();
+
+        var dur = Math.max(timelineDur, 1);
+
+        // external time change is limited to the current cycle's bounds
+        var timeInMillis = Math.min(dur, Math.max(millis, 0));
+
+        // update the base values
+        baseTick = lastTick;
+        var adjustedMillis = if (forward != isReverse) timeInMillis else dur - timeInMillis;
+        if(timelineDur < 0 or repeatCount < 0) {
+            baseElapsed = adjustedMillis;
+        } else {
+            var curCycle = Math.min(repeatCount - 1, lastElapsed / dur) as Integer;
+            baseElapsed = curCycle * dur + adjustedMillis;
+        }
+        if (skipKeyFrames) {
+            // skip keyframes, just move
+            movePlayhead(timeInMillis);
+        } else if (not visitFrames(curPos, timeInMillis, true, true)) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * This routine process all the cases except when timeline
      * is running backward indefinitely. This special case is
@@ -725,28 +782,6 @@ public class Timeline {
             baseTick = lastTick;
             baseElapsed = lastElapsed;
             rateChanged = false;
-        }
-
-        var timeInMillis = time.toMillis() as Number;
-
-        // if position has been modified externally, reposition the playhead
-        if(curPos != timeInMillis) {
-            // external time change is limited to the current cycle's bounds
-            timeInMillis = Math.min(timelineDur, Math.max(timeInMillis, 0));
-
-            // update the base values
-            baseTick = lastTick;
-            var adjustedMillis = if (forward != isReverse) timeInMillis else dur - timeInMillis;
-            if(totalDur < 0) {
-                baseElapsed = adjustedMillis;
-            } else {
-                var curCycle = Math.min(repeatCount - 1, lastElapsed / dur) as Integer;
-                baseElapsed = curCycle * dur + adjustedMillis;
-            }
-            // catch up frames between the current and new positions
-            if (not visitFrames(curPos, timeInMillis, true, true)) {
-                return;
-            }
         }
 
         // isReverse rewinds elapsed time
@@ -1008,8 +1043,11 @@ public class Timeline {
     function createAdapter():TimingTarget {
         TimingTargetAdapter {
             override function begin() : Void {
+                if (not pauseRequested) {
+                    paused = false;
+                }
+                starting = false;
                 running = true;
-                paused = false;
                 isReverse = false;
                 stopping = false;
                 cycleIndex = 0;
@@ -1064,6 +1102,7 @@ public class Timeline {
                 }
 
             override function end() : Void {
+                starting = false;
                 running = false;
                 paused = false;
                 currentRate = 0.0;
