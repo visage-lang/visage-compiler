@@ -4,7 +4,11 @@ Test i0: default init...
 3. Replace Number old = 0.0; new = 0.0
 4. Replace String old = ; new = 
 5. Replace test_object old = ; new = 
-default init: triggers fired: 5: [ foo, ifoo, dfoo, sfoo, tobject ]
+6. Replace Boolean[] old = ; new = 
+7. Replace Integer [] old = ; new = 
+8. Replace Number[] old = ; new = 
+9. Replace String[] old = ; new = 
+default init: triggers fired: 10: [ foo, ifoo, dfoo, sfoo, tobject, seqbfoo, seqifoo, seqnfoo, seqsfoo, seqTOfoo ]
 
 Test i1: defaults re-init...
 1. Replace Boolean old = false; new = false
@@ -12,7 +16,11 @@ Test i1: defaults re-init...
 3. Replace Number old = 0.0; new = 0.0
 4. Replace String old = ; new = 
 5. Replace test_object old = ; new = 
-default re-init: triggers fired: 5: [ foo, ifoo, dfoo, sfoo, tobject ]
+6. Replace Boolean[] old = ; new = 
+7. Replace Integer [] old = ; new = 
+8. Replace Number[] old = ; new = 
+9. Replace String[] old = ; new = 
+default re-init: triggers fired: 10: [ foo, ifoo, dfoo, sfoo, tobject, seqbfoo, seqifoo, seqnfoo, seqsfoo, seqTOfoo ]
 i1 After Create
 1. i1.foo = false
 2. i1.ifoo = 0
@@ -67,8 +75,8 @@ i3 After Create
 9. i3.seqsfoo = Mary had a little lamb.
 10. i3.seqTOfoo =  Peter Michael Jan
 ========= results ================
-Tests:      30
+Tests:      40
 Passed:     0
 Failed:     0
-GoldenFile: 30 output comparisons
+GoldenFile: 40 output comparisons
 ==================================

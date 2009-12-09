@@ -40,7 +40,7 @@ import com.sun.tools.javafx.comp.JavafxDefs;
  */
 public class JavafxSymtab extends Symtab {
 
-    private static final String anno = JavafxDefs.annotationPackageNameString;
+    private static final String anno = JavafxDefs.annotation_PackageString;
     public static final String privateAnnotationClassNameString = anno + ".Private";
     public static final String protectedAnnotationClassNameString = anno + ".Protected";
     public static final String packageAnnotationClassNameString = anno + ".Package";
@@ -48,6 +48,7 @@ public class JavafxSymtab extends Symtab {
     public static final String scriptPrivateAnnotationClassNameString = anno + ".ScriptPrivate";
     public static final String publicInitAnnotationClassNameString = anno + ".PublicInitable";
     public static final String publicReadAnnotationClassNameString = anno + ".PublicReadable";
+    public static final String signatureAnnotationClassNameString = anno + ".JavafxSignature";
     public static final String defAnnotationClassNameString = anno + ".Def";
     public static final String staticAnnotationClassNameString = anno + ".Static";
     public static final String inheritedAnnotationClassNameString = anno + ".Inherited";
@@ -74,6 +75,8 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_VoidType;
     public final Type javafx_java_lang_VoidType;
     public final Type javafx_SequenceType;
+    public final Type javafx_SequenceRefType;
+    public final Type javafx_SequenceProxyType;
     public final Type javafx_ArraySequenceType;
     public final Type javafx_EmptySequenceType;
     public final Type javafx_SequenceTypeErasure;
@@ -88,16 +91,18 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_KeyFrameType;
     public final Type javafx_KeyValueTargetType;
     public final Type javafx_PointerType;
-    public final Type javafx_LocationType;
-    public final Type javafx_AbstractVariableType;
+    public final Type javafx_FXConstantType;
+    public final Type javafx_BoundForHelperType;
+    public final Type javafx_FXForPartInterfaceType;
+    public final Type javafx_NonLocalReturnExceptionType;
 
-    public final Type javafx_privateAnnotationType;
     public final Type javafx_protectedAnnotationType;
     public final Type javafx_packageAnnotationType;
     public final Type javafx_publicAnnotationType;
     public final Type javafx_scriptPrivateAnnotationType;
     public final Type javafx_publicInitAnnotationType;
     public final Type javafx_publicReadAnnotationType;
+    public final Type javafx_signatureAnnotationType;
     public final Type javafx_defAnnotationType;
     public final Type javafx_staticAnnotationType;
     public final Type javafx_inheritedAnnotationType;
@@ -184,7 +189,9 @@ public class JavafxSymtab extends Symtab {
         unreachableType.tsym = new TypeSymbol(0, names.fromString("<unreachable>"), Type.noType, rootPackage);
         javafx_java_lang_VoidType = types.boxedClass(voidType).type;
         javafx_SequenceType = enterClass(JavafxDefs.cSequence);
-        javafx_ArraySequenceType = enterClass(JavafxDefs.arraySequence);
+        javafx_SequenceRefType = enterClass(JavafxDefs.cSequenceRef);
+        javafx_SequenceProxyType = enterClass(JavafxDefs.cSequenceProxy);
+        javafx_ArraySequenceType = enterClass(JavafxDefs.cArraySequence);
         javafx_SequencesType = enterClass(JavafxDefs.cSequences);
         javafx_EmptySequenceType = fxtypes.sequenceType(botType);
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
@@ -193,15 +200,17 @@ public class JavafxSymtab extends Symtab {
         javafx_KeyFrameType = enterClass("javafx.animation.KeyFrame");
         javafx_KeyValueTargetType = enterClass("javafx.animation.KeyValueTarget");
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
-        javafx_LocationType = enterClass(JavafxDefs.locationPackageNameString + ".Location");
-        javafx_AbstractVariableType = enterClass(JavafxDefs.locationPackageNameString + ".AbstractVariable");
-        javafx_privateAnnotationType = enterClass(privateAnnotationClassNameString);
+        javafx_FXConstantType = enterClass("com.sun.javafx.runtime.FXConstant");
+        javafx_BoundForHelperType = enterClass(JavafxDefs.cBoundForHelperNaive);
+        javafx_FXForPartInterfaceType = enterClass(JavafxDefs.cBoundForPartI);
+        javafx_NonLocalReturnExceptionType = enterClass(JavafxDefs.cNonLocalReturnException);
         javafx_protectedAnnotationType = enterClass(protectedAnnotationClassNameString);
         javafx_packageAnnotationType = enterClass(packageAnnotationClassNameString);
         javafx_publicAnnotationType = enterClass(publicAnnotationClassNameString);
         javafx_scriptPrivateAnnotationType = enterClass(scriptPrivateAnnotationClassNameString);
         javafx_publicInitAnnotationType = enterClass(publicInitAnnotationClassNameString);
         javafx_publicReadAnnotationType = enterClass(publicReadAnnotationClassNameString);
+        javafx_signatureAnnotationType = enterClass(signatureAnnotationClassNameString);
         javafx_defAnnotationType = enterClass(defAnnotationClassNameString);
         javafx_staticAnnotationType = enterClass(staticAnnotationClassNameString);
         javafx_inheritedAnnotationType = enterClass(inheritedAnnotationClassNameString);
@@ -222,11 +231,11 @@ public class JavafxSymtab extends Symtab {
         stringTypeName = names.fromString("String");
         voidTypeName = names.fromString("Void");
 
-        runMethodName = names.fromString(JavafxDefs.internalRunFunctionNameString);
+        runMethodName = names.fromString(JavafxDefs.internalRunFunctionString);
 
-        javafx_FXObjectType = enterClass(JavafxDefs.fxObjectString);
-        javafx_FXMixinType = enterClass(JavafxDefs.fxMixinString);
-        javafx_FXBaseType = enterClass(JavafxDefs.fxBaseString);
+        javafx_FXObjectType = enterClass(JavafxDefs.cFXObject);
+        javafx_FXMixinType = enterClass(JavafxDefs.cFXMixin);
+        javafx_FXBaseType = enterClass(JavafxDefs.cFXBase);
         
         enterOperators();
     }
@@ -308,5 +317,11 @@ public class JavafxSymtab extends Symtab {
             typarams.append(boxedTypeOrType(l.head));
         }
         return makeFunctionType(typarams.toList(), mtype);
+    }
+
+    /** Make public. */
+    @Override
+    public Type enterClass(String name) {
+        return super.enterClass(name);
     }
 }

@@ -1,0 +1,12 @@
+/**
+ * Regression test JFXC-3586 : Compiled bind: bound sequence: for-expression
+ *
+ * Object induction var. Primitive element value. No update.
+ *
+ * @test
+ * @run
+ */
+
+var seq = ["frog", "it", "vapor"];
+def bf = bind for (x in seq) { x.length() };
+println(bf);

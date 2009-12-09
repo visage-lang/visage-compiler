@@ -41,5 +41,5 @@ package com.sun.javafx.api.tree;
  */
 public interface WhileLoopTree extends ExpressionTree {
     ExpressionTree getCondition();
-    ExpressionTree getStatement();
+    ExpressionTree getBody();
 }

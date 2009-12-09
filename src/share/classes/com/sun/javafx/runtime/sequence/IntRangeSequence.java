@@ -44,7 +44,7 @@ class IntRangeSequence extends AbstractSequence<Integer> implements Sequence<Int
             throw new IllegalArgumentException("Range step of zero");
         this.start = start;
         this.step = step;
-        this.size = Sequences.calculateSize(start, bound, step, exclusive);
+        this.size = Sequences.calculateIntRangeSize(start, bound, step, exclusive);
     }
 
     public IntRangeSequence(int start, int bound, int step) {

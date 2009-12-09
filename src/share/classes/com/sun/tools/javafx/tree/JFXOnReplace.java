@@ -39,22 +39,22 @@ public class JFXOnReplace extends JFXTree implements OnReplaceTree {
     private final JFXBlock body;
     private int endKind;
     private Kind triggerKind;
-
     private JFXVar lastIndex;
     private JFXVar newElements;
+    private JFXVar saveVar;
 
     
     public JFXOnReplace(Kind triggerKind) {
-        this(null, null, null, 0, null, null, triggerKind);
+        this(null, null, null, 0, null, null, null, triggerKind);
     }
 
     public JFXOnReplace( JFXVar oldValue, JFXBlock body, Kind triggerKind) {
-        this(oldValue, null, null, 0, null, body, triggerKind);
+        this(oldValue, null, null, 0, null, null, body, triggerKind);
     }
     
     
     public JFXOnReplace(JFXVar oldValue, JFXVar firstIndex, JFXVar lastIndex,
-            int endKind, JFXVar newElements, JFXBlock body, Kind triggerKind) {
+            int endKind, JFXVar newElements, JFXVar saveVar, JFXBlock body, Kind triggerKind) {
         this.oldValue = oldValue;
         this.firstIndex = firstIndex;
         this.lastIndex = lastIndex;
@@ -62,6 +62,7 @@ public class JFXOnReplace extends JFXTree implements OnReplaceTree {
         this.newElements = newElements;
         this.body = body;
         this.triggerKind = triggerKind;
+        this.saveVar = saveVar;
     }
     
     public void accept(JavafxVisitor v) {
@@ -90,6 +91,10 @@ public class JFXOnReplace extends JFXTree implements OnReplaceTree {
 
     public JFXVar getNewElements () {
         return newElements;
+    }
+
+    public JFXVar getSaveVar () {
+        return saveVar;
     }
 
     public JavaFXKind getJavaFXKind() {

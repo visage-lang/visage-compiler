@@ -9,7 +9,7 @@
 
 var sw = false;
 var tail = true;
-function here(str : String, val : Boolean) : Boolean { println("  {str}"); val}
+function here(str : String, val : Boolean) : Boolean { val}
 
 def ba = bind sw and here("[and]", tail);
 def bo = bind sw or here("[or]", tail);

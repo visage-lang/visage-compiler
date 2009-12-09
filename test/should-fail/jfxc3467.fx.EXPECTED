@@ -1,7 +1,0 @@
-test/should-fail/jfxc3467.fx:8: The argument to the function hasAnInitializer must be a reference to an instance 'var'.
-println(hasAnInitializer(x)); //error x should be an instance var
-        ^
-test/should-fail/jfxc3467.fx:12: The argument to the function hasAnInitializer must be a reference to an instance 'var'.
-   println(hasAnInitializer(x)); //error x should be an instance var
-           ^
-2 errors

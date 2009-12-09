@@ -10,7 +10,6 @@ public class Script {
 
     private static Map<String, Class<?>> testMap = new HashMap<String, Class<?>>();
     static {
-        testMap.put("SE", SequenceExerciser.class);
         try {
             testMap.put("JE", Class.forName("com.sun.javafx.runtime.sequences.JPEGEncoder"));
         } catch (Exception ex) {

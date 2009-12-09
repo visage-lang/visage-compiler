@@ -61,6 +61,10 @@ public class JFXFunctionDefinition extends JFXExpression implements FunctionDefi
         this.operation = new JFXFunctionValue(rettype, funParams, bodyExpression);
     }
 
+    public boolean isStatic() {
+        return sym.isStatic();
+    }
+
     public JFXBlock getBodyExpression() {
         return operation.getBodyExpression();
     }

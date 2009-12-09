@@ -35,22 +35,22 @@ public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence
 
     T[] array;
 
-    public ObjectArraySequence(int initialSize, TypeInfo<T, ?> ti) {
+    public ObjectArraySequence(int initialSize, TypeInfo<T> ti) {
         super(ti);
         this.array =  Util.<T>newObjectArray(initialSize);
         gapStart = 0;
         gapEnd = initialSize;
     }
 
-    public ObjectArraySequence(TypeInfo<T, ?> ti) {
+    public ObjectArraySequence(TypeInfo<T> ti) {
         this(DEFAULT_SIZE, ti);
     }
 
-    public ObjectArraySequence(TypeInfo<T, ?> ti, T... values) {
+    public ObjectArraySequence(TypeInfo<T> ti, T... values) {
         this(ti, values, false);
     }
 
-    public ObjectArraySequence(TypeInfo<T, ?> ti, T[] values, boolean handoff) {
+    public ObjectArraySequence(TypeInfo<T> ti, T[] values, boolean handoff) {
         super(ti);
         if (handoff) {
             this.array = values;
@@ -63,7 +63,7 @@ public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence
         checkForNulls();
     }
 
-    public ObjectArraySequence(TypeInfo<T, ?> ti, T[] values, int startPos, int size) {
+    public ObjectArraySequence(TypeInfo<T> ti, T[] values, int startPos, int size) {
         super(ti);
         this.array =  Util.<T>newObjectArray(size);
         System.arraycopy(values, startPos, array, 0, size);
@@ -72,14 +72,14 @@ public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence
     }
     
     @SuppressWarnings("unchecked")
-    public ObjectArraySequence(TypeInfo<T, ?> ti, List<? extends T> values) {
+    public ObjectArraySequence(TypeInfo<T> ti, List<? extends T> values) {
         super(ti);
         this.array = (T[]) values.toArray();
         gapStart = gapEnd = array.length;
         checkForNulls();
     }
 
-    /*public ObjectArraySequence(TypeInfo<T, ?> ti, Sequence<? extends T>... sequences) {
+    /*public ObjectArraySequence(TypeInfo<T> ti, Sequence<? extends T>... sequences) {
         super(ti);
         int size = 0;
         for (Sequence<? extends T> seq : sequences)
@@ -94,7 +94,7 @@ public class ObjectArraySequence<T> extends ArraySequence<T> implements Sequence
         gapStart = gapEnd = size;
     }*/
 
-    public ObjectArraySequence(TypeInfo<T, ?> ti, Sequence<? extends T> seq) {
+    public ObjectArraySequence(TypeInfo<T> ti, Sequence<? extends T> seq) {
         super(ti);
         int size = seq.size();
         this.array = Util.<T>newObjectArray(size);

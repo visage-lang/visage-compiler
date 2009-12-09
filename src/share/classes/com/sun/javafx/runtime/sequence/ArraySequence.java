@@ -75,7 +75,7 @@ public abstract class ArraySequence<T> extends AbstractSequence<T> {
      */
     private int sharing;
 
-    protected ArraySequence(TypeInfo<T, ?> ti) {
+    protected ArraySequence(TypeInfo<T> ti) {
         super(ti);
     }
 

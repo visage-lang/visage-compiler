@@ -41,8 +41,6 @@ import javax.lang.model.element.ElementVisitor;
 import com.sun.tools.javafx.code.*;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
-import java.util.HashSet;
-import java.util.Set;
 
 /** Helper class for name resolution, used mostly by the attribution phase.
  *
@@ -65,6 +63,7 @@ public class JavafxResolve {
     JavafxAttr attr;
     JavafxTreeInfo treeinfo;
     JavafxTypes types;
+    JavafxDefs defs;
     public final boolean boxingEnabled; // = source.allowBoxing();
     public final boolean varargsEnabled; // = source.allowVarargs();
     private final boolean debugResolve;
@@ -105,6 +104,7 @@ public class JavafxResolve {
         Options options = Options.instance(context);
         debugResolve = options.get("debugresolve") != null;
         attr = JavafxAttr.instance(context);
+        defs = JavafxDefs.instance(context);
     }
 
     /** error symbols, which are returned when resolution fails
@@ -303,7 +303,7 @@ public class JavafxResolve {
                      // In JLS 2e 6.6.2.1, the subclass restriction applies
                      // only to instance fields and methods -- types are excluded
                      // regardless of whether they are declared 'static' or not.
-                     ((sym.flags() & STATIC) != 0 || sym.kind == TYP || types.isSuperType(site, c))))
+                     ((sym.flags() & STATIC) != 0 || sym.kind == TYP || types.isSubtype(c.type, site))))
                 c = c.owner.enclClass();
             return c != null;
         }
@@ -606,9 +606,6 @@ public class JavafxResolve {
                     if ((e.sym.flags_field & SYNTHETIC) != 0)
                         continue;
                     if ((e.sym.kind & (MTH|VAR)) != 0) {
-                        if (innerAccess || !attr.inSameEnclosingScope(e.sym, env)) {
-                            e.sym.flags_field |= JavafxFlags.VARUSE_INNER_ACCESS;
-                        }
                         if (checkArgs) {
                             return checkArgs(e.sym, mtype);
                         }
@@ -1240,9 +1237,11 @@ public class JavafxResolve {
         Symbol bestSoFar = expected.tag == METHOD ? methodNotFound : typeNotFound;
         Symbol sym;
          if ((kind & (VAR|MTH)) != 0) {
-            sym = findVar(env, name, kind, expected, false, false);
+            sym = findVar(env, name, kind, expected, false, env.info.varArgs = false);
             if (sym.kind >= WRONG_MTHS)
-                sym = findVar(env, name, kind, expected, true, false);
+                sym = findVar(env, name, kind, expected, true, env.info.varArgs = false);
+            if (sym.kind >= WRONG_MTHS)
+                sym = findVar(env, name, kind, expected, true, env.info.varArgs = true);
             if (sym.exists()) return sym;
             else if (sym.kind < bestSoFar.kind) bestSoFar = sym;
         }
@@ -1591,12 +1590,12 @@ public class JavafxResolve {
      */
     Symbol resolveUnaryOperator(DiagnosticPosition pos, JavafxTag optag, JavafxEnv<JavafxAttrContext> env, Type arg) {
         // check for Duration unary minus
-        if (types.isSameType(arg, ((JavafxSymtab)syms).javafx_DurationType)) {
+        if (types.isSameType(arg, syms.javafx_DurationType)) {
             Symbol res = null;
             switch (optag) {
             case NEG:
                 res = resolveMethod(pos,  env,
-                                    names.fromString("negate"),
+                                    defs.negate_DurationMethodName,
                                     arg, List.<Type>nil());
                 break;
             }
@@ -1620,57 +1619,57 @@ public class JavafxResolve {
                                  Type left,
                                  Type right) {
         // Duration operator overloading
-        if (types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType) ||
-            types.isSameType(right, ((JavafxSymtab)syms).javafx_DurationType)) {
+        if (types.isSameType(left, syms.javafx_DurationType) ||
+            types.isSameType(right, syms.javafx_DurationType)) {
             Type dur = left;
             Symbol res = null;
             switch (optag) {
             case PLUS:
                 res = resolveMethod(pos,  env,
-                                     names.fromString("add"),
+                                     defs.add_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case MINUS:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("sub"),
+                                     defs.sub_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case MUL:
-                if (!types.isSameType(left, ((JavafxSymtab)syms).javafx_DurationType)) {
+                if (!types.isSameType(left, syms.javafx_DurationType)) {
                     left = right;
                     right = dur;
                     dur = left;
                 }
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("mul"),
+                                     defs.mul_DurationMethodName,
                                      dur,
                                      List.of(right));
                 break;
             case DIV:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("div"),
+                                     defs.div_DurationMethodName,
                                      dur, List.of(right));
                 break;
 
             //fix me...inline or move to static helper?
             case LT:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("lt"),
+                                     defs.lt_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case LE:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("le"),
+                                     defs.le_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case GT:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("gt"),
+                                     defs.gt_DurationMethodName,
                                      dur, List.of(right));
                 break;
             case GE:
                 res =  resolveMethod(pos,  env,
-                                     names.fromString("ge"),
+                                     defs.ge_DurationMethodName,
                                      dur, List.of(right));
                 break;
             }
@@ -1983,7 +1982,7 @@ public class JavafxResolve {
                         kindname = JCDiagnostic.fragment(MsgSym.KINDNAME_CONSTRUCTOR);
                         idname = site.tsym.name.toString();
                     }
-                    args = "(" + Type.toString(argtypes) + ")";
+                    args = "(" + types.toJavaFXString(argtypes) + ")";
                     if (typeargtypes != null && typeargtypes.nonEmpty())
                         typeargs = "<" + Type.toString(typeargtypes) + ">";
                 }
@@ -2008,7 +2007,7 @@ public class JavafxResolve {
                     else
                         log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE_LOCATION,
                                   kindname, idname, args, typeargs,
-                                  typeKindName(site), site);
+                                  typeKindName(site), types.toJavaFXString(site));
                 } else {
                     log.error(pos, MsgSym.MESSAGE_CANNOT_RESOLVE, kindname, idname, args, typeargs);
                 }

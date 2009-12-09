@@ -24,21 +24,23 @@
 import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import com.sun.javafx.runtime.location.*;
+import java.lang.ref.*;
+import com.sun.javafx.runtime.FXObject;
 
 /**
- * This is plagiarized from the btrace samples, and essentially does the following:
- *    a> injects the tracking code using the OnMethod annotation
- *    b> acts as a bridge between mbean and FxTracker to view the
- *       Fx tracking counters from jvisualvm or jconsole.
- * 
- * @author ksrini
+ * This BTrace script tries to measure aggregate stat like total
+ * FXObject count, total dependent count, total notification count etc.
+ * This script measures histogram of FXObjects as well.
+ *
+ * @author A. Sundararajan
  */
 @BTrace public class FxBtraceTracker { 
+   private static Class dependentClass;
+   private static Class weakBinderRefClass;
+
    // @Property exposes this field as MBean attribute
    @Property
-   private static Map<String, AtomicInteger> histo = newHashMap();
+   private static Map<String, Integer> histo = newHashMap();
    
    /*
     * its unfortunate that the btrace/mbean does not refresh the
@@ -46,120 +48,89 @@ import com.sun.javafx.runtime.location.*;
     * mbean individually.
     */
     @Property
-    private static long bindingExpressionCount = 0;
-    @Property
-    private static long changeListenerCount = 0;
-    @Property
-    private static long triggerCount = 0;
-    @Property
-    private static long viewLocationCount = 0;
-    @Property
-    private static long weakLocationCount = 0;
-    @Property
-    private static long weakMeHolderCount = 0;
-    @Property
-    private static long totalChildrenCount = 0;
-    @Property
-    private static long locationMapSize = 0;
-    @Property
-    private static long iteratorCount = 0;
-    @Property
-    private static long listenerCount = 0;
-    @Property
     private static long fxObjectCount = 0;
     @Property
-    private static long sdlNullReferentCount = 0;
+    private static long fxWeakRefsCount = 0;
+    @Property
+    private static long fxDependentCount = 0;
+    @Property
+    private static long fxNotifyDependentsCount = 0;
 
-
-    // insert new ctors and update tracking data for AbstractLocation
-    @OnMethod(
-	clazz="com.sun.javafx.runtime.location.AbstractLocation",
-        method="<init>"
-    ) 
-    public static void onnewObject(@Self Object obj) {
-        FxTracker.track(obj);
-        bindingExpressionCount = FxTracker.getBindingExpressionCount();
-        changeListenerCount =  FxTracker.getChangeListenerCount();
-        triggerCount = FxTracker.getTriggerCount();
-        viewLocationCount = FxTracker.getViewLocationCount();
-        weakLocationCount = FxTracker.getWeakLocationCount();
-        totalChildrenCount = FxTracker.getTotalChildrenCount();
-        locationMapSize = FxTracker.getLocationMapSize();
-        iteratorCount = FxTracker.getIteratorCount();
-        listenerCount = FxTracker.getListenerCount();
-        fxObjectCount = FxTracker.getFxObjectCount();
-        sdlNullReferentCount = FxTracker.getSdlNullReferentCount();
-        String cn = name(classOf(obj));
-        AtomicInteger ai = get(histo, cn);
-        if (ai == null) {
-            ai = newAtomicInteger(1);
-            put(histo, cn, ai);
-        } else {
-            incrementAndGet(ai);
-        }     
-    }
-
-    // insert new ctors and update tracking data for FXBase
     @OnMethod(
 	clazz="com.sun.javafx.runtime.FXBase",
         method="<init>"
     ) 
-    public static void onnewObject(@Self Object obj, boolean dummy) {
-        FxTracker.track(obj);
-        bindingExpressionCount = FxTracker.getBindingExpressionCount();
-        changeListenerCount =  FxTracker.getChangeListenerCount();
-        triggerCount = FxTracker.getTriggerCount();
-        viewLocationCount = FxTracker.getViewLocationCount();
-        weakLocationCount = FxTracker.getWeakLocationCount();
-        totalChildrenCount = FxTracker.getTotalChildrenCount();
-        locationMapSize = FxTracker.getLocationMapSize();
-        iteratorCount = FxTracker.getIteratorCount();
-        listenerCount = FxTracker.getListenerCount();
-        fxObjectCount = FxTracker.getFxObjectCount();
-        sdlNullReferentCount = FxTracker.getSdlNullReferentCount();
+    public static void onNewFXObject(@Self Object obj, boolean dummy) {
+        fxObjectCount++;
         String cn = name(classOf(obj));
-        AtomicInteger ai = get(histo, cn);
-        if (ai == null) {
-            ai = newAtomicInteger(1);
-            put(histo, cn, ai);
+        Integer i = get(histo, cn);
+        if (i == null) {
+            i = box(1);
         } else {
-            incrementAndGet(ai);
-        }     
+            i = box(unbox(i) + 1);
+        } 
+        put(histo, cn, i);
     }
 
-    // insert new ctors and update tracking data for StaticDependentLocation
     @OnMethod(
-	clazz="com.sun.javafx.runtime.location.StaticDependentLocation",
+        clazz="com.sun.javafx.runtime.WeakBinderRef",
         method="<init>"
     )
-    public static void onnewObject(@Self Object obj, com.sun.javafx.runtime.location.Location r) {
-        FxTracker.track(obj);
-        bindingExpressionCount = FxTracker.getBindingExpressionCount();
-        changeListenerCount =  FxTracker.getChangeListenerCount();
-        triggerCount = FxTracker.getTriggerCount();
-        viewLocationCount = FxTracker.getViewLocationCount();
-        weakLocationCount = FxTracker.getWeakLocationCount();
-        totalChildrenCount = FxTracker.getTotalChildrenCount();
-        locationMapSize = FxTracker.getLocationMapSize();
-        iteratorCount = FxTracker.getIteratorCount();
-        listenerCount = FxTracker.getListenerCount();
-        fxObjectCount = FxTracker.getFxObjectCount();
-        sdlNullReferentCount = FxTracker.getSdlNullReferentCount();
-        String cn = name(classOf(obj));
-        AtomicInteger ai = get(histo, cn);
-        if (ai == null) {
-            ai = newAtomicInteger(1);
-            put(histo, cn, ai);
-        } else {
-            incrementAndGet(ai);
+    public static void onNewWeakBinderRef(@Self Object obj, FXObject referred) {
+        weakBinderRefClass = probeClass();
+        fxWeakRefsCount++;
+    }
+
+    @OnMethod(
+        clazz="com.sun.javafx.runtime.Dependent",
+        method="<init>"
+    )
+    public static void onNewDependent(@Self Object obj, FXObject referred) {
+        dependentClass = probeClass();
+        fxWeakRefsCount++;
+    }
+
+    @OnMethod(
+        clazz="java.lang.ref.Reference",
+        method="clear"
+    )
+    public static void onReferenceClear(@Self Object obj) {
+        if ((dependentClass != null && isInstance(dependentClass, obj)) ||
+            (weakBinderRefClass != null && isInstance(weakBinderRefClass, obj))) {
+            fxWeakRefsCount--;
         }
+    }
+
+    @OnMethod(
+	clazz="com.sun.javafx.runtime.FXBase",
+        method="addDependent$"
+    ) 
+    public static void onAddDependent(FXObject obj, int varNum, FXObject dep) {
+        fxDependentCount++;
+    }
+
+    @OnMethod(
+	clazz="com.sun.javafx.runtime.FXBase",
+        method="removeDependent$"
+    ) 
+    public static void onRemoveDependent(FXObject obj, int varNum, FXObject dep) {
+        fxDependentCount--;
+    }
+
+    @OnMethod(
+	clazz="com.sun.javafx.runtime.FXBase",
+        method="notifyDependents$"
+    ) 
+    public static void onNotifyDependents(FXObject obj, int varNum) {
+        fxNotifyDependentsCount++;
     }
 
     @OnTimer(4000) 
     public static void print() {
         if (size(histo) != 0) {
-            printNumberMap("Component Histogram", histo);
+            println("========================");
+            printNumberMap("FXBase Histogram", histo);
+            println("========================");
         }
-    }    
+    }
 }
-

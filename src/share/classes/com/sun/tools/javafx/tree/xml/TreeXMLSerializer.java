@@ -101,7 +101,7 @@ import com.sun.tools.javafx.tree.JFXSequenceSlice;
 import com.sun.tools.javafx.tree.JFXStringExpression;
 import com.sun.tools.javafx.tree.JFXTree;
 import com.sun.tools.javafx.tree.JFXVar;
-import com.sun.tools.javafx.tree.JFXVarScriptInit;
+import com.sun.tools.javafx.tree.JFXVarInit;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -390,7 +390,7 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
 
     
     public Void visitVariable(VariableTree vt, Void v) {
-        JFXVar jfxVar = (vt instanceof JFXVar) ? (JFXVar) vt : ((JFXVarScriptInit) vt).getVar();
+        JFXVar jfxVar = (vt instanceof JFXVar) ? (JFXVar) vt : ((JFXVarInit) vt).getVar();
         JFXModifiers mods = jfxVar.getModifiers();
         String tagName = VAR;
         if (mods != null) {
@@ -423,7 +423,7 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
     public Void visitWhileLoop(WhileLoopTree wl, Void v) {
         startElement(WHILE, wl);
         emitTree(TEST, wl.getCondition());
-        emitTree(STATEMENT, wl.getStatement());
+        emitTree(STATEMENT, wl.getBody());
         endElement(WHILE);
         return null;
     }

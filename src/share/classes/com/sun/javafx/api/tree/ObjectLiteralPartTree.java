@@ -45,5 +45,4 @@ public interface ObjectLiteralPartTree extends ExpressionTree {
     boolean isBound();
     boolean isUnidiBind();
     boolean isBidiBind();
-    boolean isLazy();
 }

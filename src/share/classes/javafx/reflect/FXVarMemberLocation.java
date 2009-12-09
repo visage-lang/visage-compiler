@@ -23,8 +23,6 @@
 
 package javafx.reflect;
 
-import com.sun.javafx.runtime.location.*;
-
 /** 
  * A reference to a specific attribute in a specific object. 
  *

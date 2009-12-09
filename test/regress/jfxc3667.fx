@@ -1,0 +1,21 @@
+/**
+ * JFXC-3667 : compiled-bind: compiler crashes with Scene.fx
+ *
+ * @test
+ */
+
+class A {
+  var f;
+}
+
+class B {
+     function f():Boolean {
+        var x;
+        if (true) {
+            var y = bind x; //added this line to force inflation
+            x = A { f:function(obj:Object) {} };
+            return true;
+        }
+        false;
+    }
+}

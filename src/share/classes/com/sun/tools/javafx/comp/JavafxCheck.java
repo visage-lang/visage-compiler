@@ -58,7 +58,6 @@ import com.sun.tools.javafx.util.MsgSym;
 import com.sun.javafx.api.JavafxBindStatus;
 
 import static com.sun.tools.javafx.code.JavafxFlags.*;
-import static com.sun.tools.javafx.code.JavafxVarSymbol.*;
 
 /** Type checking helper class for the attribution phase.
  *
@@ -385,17 +384,6 @@ public class JavafxCheck {
  * Type Checking
  **************************************************************************/
 
-    private Type deLocationize(Type external) {
-	if (external.tag == CLASS) {
-            Name flatname = ((ClassSymbol) external.tsym).flatname;
-            Type deloc = defs.delocationize(flatname);
-            if (deloc != null) {
-                throw new AssertionError("At this point we should not have Location(s). This is most likely JavafxReader problem. It should convert all the Location types to the \"real\" types.");
-            }
-        }
-        return external;
-    }
-    
     /** Check that a given type is assignable to a given proto-type.
      *  If it is, return the type, otherwise return errType.
      *  @param pos        Position to be used for error reporting.
@@ -406,9 +394,7 @@ public class JavafxCheck {
         return checkType(pos, foundRaw, reqRaw, pSequenceness, true);
     }
 
-    Type checkType(DiagnosticPosition pos, Type foundRaw, Type reqRaw, Sequenceness pSequenceness, boolean giveWarnings) {
-        Type req = deLocationize(reqRaw);
-        Type found = deLocationize(foundRaw);
+    Type checkType(DiagnosticPosition pos, Type found, Type req, Sequenceness pSequenceness, boolean giveWarnings) {
         Type realFound = found;
         if (req.tag == ERROR)
             return req;
@@ -723,7 +709,7 @@ public class JavafxCheck {
         if (base instanceof JFXIdent) {
             long flags = sym.flags();
             boolean isDef = (flags & JavafxFlags.IS_DEF) != 0L;
-            boolean isBindInit = (flags & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L;
+            boolean isBindInit = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0L;
             boolean targetFinal = isDef && !isBindInit;
             return !targetFinal;
         }
