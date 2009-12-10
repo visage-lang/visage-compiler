@@ -469,16 +469,16 @@ public abstract class JavafxTranslationSupport {
 
     boolean needsDefaultValue(TypeMorphInfo tmi) {
         return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ||
-               tmi.getRealType() == syms.javafx_StringType ||
-               tmi.getRealType() == syms.javafx_DurationType;
+               types.isSameType(tmi.getRealType(), syms.javafx_StringType) ||
+               types.isSameType(tmi.getRealType(), syms.javafx_DurationType);
     }
 
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
         return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ?
                 accessEmptySequence(diagPos, tmi.getElementType()) :
-            tmi.getRealType() == syms.javafx_StringType ?
+            types.isSameType(tmi.getRealType(), syms.javafx_StringType) ?
                 make.Literal("") :
-            tmi.getRealType() == syms.javafx_DurationType ?
+            types.isSameType(tmi.getRealType(), syms.javafx_DurationType) ?
                 makeQualifiedTree(diagPos, JavafxDefs.zero_DurationFieldName) :
                 makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
     }

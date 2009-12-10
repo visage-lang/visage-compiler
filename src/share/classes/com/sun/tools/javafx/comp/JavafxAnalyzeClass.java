@@ -1563,7 +1563,7 @@ class JavafxAnalyzeClass {
             // otherwise in doesn't conflict.
             if (oldVarInfo != null &&
                 (!oldVarInfo.getSymbol().name.equals(var.name) ||
-                 !types.erasure(oldVarInfo.getSymbol().type).equals(types.erasure(var.type)))) {
+                 !types.isSameType(oldVarInfo.getSymbol().type, var.type))) {
                 oldVarInfo = null;
             }
 

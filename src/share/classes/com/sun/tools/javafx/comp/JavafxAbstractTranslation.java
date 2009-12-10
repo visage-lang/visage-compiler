@@ -2176,7 +2176,7 @@ public abstract class JavafxAbstractTranslation
          */
         private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
             TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-            if (tmi.isSequence() || tmi.getRealType() == syms.javafx_StringType) {
+            if (tmi.isSequence() || types.isSameType(tmi.getRealType(), syms.javafx_StringType)) {
                 return Call(defs.Checks_isNull, arg);
             } else {
                 return EQnull(arg);
