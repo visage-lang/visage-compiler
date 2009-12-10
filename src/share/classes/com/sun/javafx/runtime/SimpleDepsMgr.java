@@ -27,6 +27,9 @@ import com.sun.javafx.runtime.refq.WeakRef;
 import com.sun.javafx.runtime.util.Linkable;
 import com.sun.javafx.runtime.util.Linkables;
 import java.lang.ref.Reference;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /*
  * Simple dependents manager implementation. This is straightforward
@@ -36,7 +39,7 @@ import java.lang.ref.Reference;
  *
  * @author A. Sundararajan
  */
-class SimpleDependentsManager extends DependentsManager implements Linkable<Dependent> {
+class SimpleDepsMgr extends DependentsManager implements Linkable<Dependent> {
     // list of all dependents
     private Dependent dependencies;
 
@@ -151,8 +154,21 @@ class SimpleDependentsManager extends DependentsManager implements Linkable<Depe
         }
         return count;
     }
-}
 
+    @Override
+    public List<FXObject> getDependents(FXObject obj) {
+        List<FXObject> res = new ArrayList<FXObject>();
+        for (Dependent dep = dependencies; dep != null;) {
+            // ignore dead listeners
+            FXObject binder = dep.get();
+            if (binder != null) {
+                res.add(binder);
+            }
+            dep = dep.getNext();
+        }
+        return res;
+    }
+}
 final class Dependent extends WeakRef<FXObject> implements Linkable<Dependent> {
     // Are we in the middle of iterating listeners for notification?
     static volatile boolean inIteration;
