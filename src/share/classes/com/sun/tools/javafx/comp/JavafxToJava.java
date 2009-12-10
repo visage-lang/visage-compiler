@@ -1082,6 +1082,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         try {
             if (tree.isScriptClass()) {
                 setLiteralInitClassMap(new LiteralInitClassMap());
+                reorderClassMembers(tree);
             }
 
             result = new ClassDeclarationTranslator(tree).doit();
@@ -1089,6 +1090,40 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         } finally {
             setCurrentClass(prevClass);
         }
+    }
+
+    /**
+     * We need to re-order script class nested declaration so that supertypes
+     * appears first in the script class members list - this is required for
+     * JavafxInitializationBuilder to function properly.
+     */
+    private void reorderClassMembers(JFXClassDeclaration scriptClass) {
+        List<JFXClassDeclaration> classDeclarations = List.nil();
+        List<JFXTree> otherMembers = List.nil();
+        for (JFXTree t : scriptClass.getMembers()) {
+            if (t.getFXTag() == JavafxTag.CLASS_DEF) {
+                classDeclarations = classDeclarations.append((JFXClassDeclaration)t);
+            }
+            else {
+                otherMembers = otherMembers.append(t);
+            }
+        }
+        List<JFXClassDeclaration> orderedClassDeclarations = List.nil();
+        
+        for (JFXClassDeclaration cdecl1 : classDeclarations) {
+            boolean prepend = false;
+            for (JFXClassDeclaration cdecl2 : orderedClassDeclarations) {
+                if (types.isSubtype(cdecl2.type, cdecl1.type) &&
+                        !types.isSameType(cdecl2.type, cdecl1.type)) {
+                    prepend = true;
+                }
+            }
+            orderedClassDeclarations = prepend ?
+                orderedClassDeclarations.prepend(cdecl1) :
+                orderedClassDeclarations.append(cdecl1);
+        }
+
+        scriptClass.setMembers(List.convert(JFXTree.class, orderedClassDeclarations).appendList(otherMembers));
     }
 
     @Override
