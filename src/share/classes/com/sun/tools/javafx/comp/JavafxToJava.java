@@ -1108,22 +1108,25 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 otherMembers = otherMembers.append(t);
             }
         }
-        List<JFXClassDeclaration> orderedClassDeclarations = List.nil();
-        
-        for (JFXClassDeclaration cdecl1 : classDeclarations) {
-            boolean prepend = false;
-            for (JFXClassDeclaration cdecl2 : orderedClassDeclarations) {
-                if (types.isSubtype(cdecl2.type, cdecl1.type) &&
-                        !types.isSameType(cdecl2.type, cdecl1.type)) {
-                    prepend = true;
-                }
-            }
-            orderedClassDeclarations = prepend ?
-                orderedClassDeclarations.prepend(cdecl1) :
-                orderedClassDeclarations.append(cdecl1);
+        scriptClass.setMembers(List.convert(JFXTree.class, reorderClassMembers(classDeclarations)).appendList(otherMembers));
+    }
+    //where
+    private List<JFXClassDeclaration> reorderClassMembers(List<JFXClassDeclaration> decls) {
+        return (decls.isEmpty() || decls.tail.isEmpty()) ?
+            decls :
+            insertOrdered(decls.head, reorderClassMembers(decls.tail));
+    }
+    //where
+    private List<JFXClassDeclaration> insertOrdered(JFXClassDeclaration cdecl, List<JFXClassDeclaration> decls) {
+        if (decls.isEmpty()) {
+            return List.of(cdecl);
         }
-
-        scriptClass.setMembers(List.convert(JFXTree.class, orderedClassDeclarations).appendList(otherMembers));
+        else if (types.isSubtype(decls.head.type, cdecl.type)) {
+            return decls.prepend(cdecl);
+        }
+        else {
+            return insertOrdered(cdecl, decls.tail).prepend(decls.head);
+        }
     }
 
     @Override
