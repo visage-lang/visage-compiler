@@ -23,6 +23,8 @@
 
 package com.sun.javafx.runtime;
 
+import java.util.List;
+
 /**
  * Manages dependents of a particular FXObject. Each FXOBject has an instance of
  * dependents manager to which it delegates add/remove/notify/listener-count method
@@ -45,6 +47,7 @@ public abstract class DependentsManager {
     public abstract void notifyDependents(FXObject bindee, final int varNum, final int phase);
     public abstract void notifyDependents(FXObject bindee, final int varNum, int startPos, int endPos, int newLength, final int phase);
     public abstract int getListenerCount(FXObject bindee);
+    public abstract List<FXObject> getDependents(FXObject bindee);
 
     /**
      * Returns the dependents manager of a given FXObject. If needed, this method
@@ -60,7 +63,7 @@ public abstract class DependentsManager {
     public static DependentsManager get(FXObject obj) {
         DependentsManager depMgr = obj.getDependentsManager$internal$();
         if (depMgr == null) {
-            depMgr = new MinimalWeakRefsDependentsManager();
+            depMgr = new MinWeakRefsDepsMgr();
             obj.setDependentsManager$internal$(depMgr);
         }
         return depMgr;

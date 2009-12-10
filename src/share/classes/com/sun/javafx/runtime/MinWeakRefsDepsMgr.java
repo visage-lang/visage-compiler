@@ -25,6 +25,9 @@ package com.sun.javafx.runtime;
 import com.sun.javafx.runtime.refq.RefQ;
 import com.sun.javafx.runtime.refq.WeakRef;
 import java.lang.ref.Reference;
+import java.util.ArrayList;
+import java.util.List;
+
 
 
 /**
@@ -34,7 +37,7 @@ import java.lang.ref.Reference;
  * @author Per Bother
  * @author A. Sundararajan (integrated with DependentsManager interface)
  */
-class MinimalWeakRefsDependentsManager extends DependentsManager implements BinderLinkable {
+class MinWeakRefsDepsMgr extends DependentsManager implements BinderLinkable {
     private WeakBinderRef thisRef;
     Dep dependencies;
 
@@ -149,8 +152,22 @@ class MinimalWeakRefsDependentsManager extends DependentsManager implements Bind
         }
         return count;
     }
-}
 
+    public List<FXObject> getDependents(FXObject bindee) {
+        List<FXObject> res = new ArrayList<FXObject>();
+        for (Dep dep = dependencies; dep != null;) {
+            WeakBinderRef binderRef = dep.binderRef;
+            if (binderRef != null) {
+                if (binderRef.get() != null) {
+                    res.add(binderRef.get());
+                }
+            }
+            dep = dep.nextInBinders;
+        }
+        return res;
+    }
+
+}
 interface BinderLinkable {
     void setNextBinder(Dep next);
 };
@@ -211,8 +228,8 @@ class Dep implements BinderLinkable {
 
     static Dep newDependency(FXObject binder) {
         Dep dep = new Dep();
-        MinimalWeakRefsDependentsManager binderDepMgr =
-                (MinimalWeakRefsDependentsManager) DependentsManager.get(binder);
+        MinWeakRefsDepsMgr binderDepMgr =
+                (MinWeakRefsDepsMgr) DependentsManager.get(binder);
         WeakBinderRef binderRef = binderDepMgr.getThisRef(binder);
         dep.binderRef = binderRef;
         // Link into bindee chain of binderRef
@@ -224,8 +241,8 @@ class Dep implements BinderLinkable {
 
     void linkToBindee(FXObject bindee, int bindeeVarNum) {
         this.bindeeVarNum = bindeeVarNum;
-        MinimalWeakRefsDependentsManager depMgr =
-                (MinimalWeakRefsDependentsManager) DependentsManager.get(bindee);
+        MinWeakRefsDepsMgr depMgr =
+                (MinWeakRefsDepsMgr) DependentsManager.get(bindee);
         // Link into binder chain of bindee
         Dep firstBinder = depMgr.dependencies;
         nextInBinders = firstBinder;
