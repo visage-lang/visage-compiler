@@ -1919,10 +1919,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             break;
                         }
                     }
-                    
+
+                    // Add on-invalidate trigger if any
+
+                    // phase$ == VFLGS$NEEDS_TRIGGER
+                    JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
+
+                    if (varInfo.onInvalidate() != null) {
+                        addStmt(OptIf(ifTriggerPhase,
+                                varInfo.onInvalidateAsInline()));
+                    }
+
                     // Wrap up main block.
                     JCBlock mainBlock = endBlock();
-                    
+
                     // Necessary to call mixin parent in else in case the var is a bare synth.
                     JCBlock mixinBlock = null;
                     if (mixin) {
@@ -1939,18 +1949,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Begin the get$ block.
                         beginBlock();
 
-                        // Add on-invalidate trigger if any
-                        if (varInfo.onInvalidate() != null) {
-                            addStmt(varInfo.onInvalidateAsInline());
-                        }
-                        
                         // Call the get$var to force evaluation.
                         if (varInfo.onReplace() != null)
-                        addStmt(Stmt(Getter(proxyVarSym)));
-                            
-                        // phase$ == VFLGS$NEEDS_TRIGGER
-                        JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
-                       
+                            addStmt(Stmt(Getter(proxyVarSym)));
+
+                        if (varInfo.onInvalidate() != null &&
+                                !varInfo.hasBoundDefinition() &&
+                                !varInfo.hasBiDiBoundDefinition() &&
+                                !varInfo.isSequence())
+                            addStmt(FlagChangeStmt(proxyVarSym,
+                                    id(defs.varFlagNEEDS_TRIGGER),
+                                    null));
+
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
                         addStmt(OptIf(ifTriggerPhase,
                                 endBlock()));

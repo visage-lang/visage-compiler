@@ -10,10 +10,10 @@ A2
 B2
 C2
 Replacing bound initial scalar value
-C3
+A3
+B3
 C3
 Replacing bound no initial scalar value
-C4
 Replacing initial scalar value - mixins
 A1M
 B1M
@@ -26,10 +26,10 @@ A2M
 B2M
 C2M
 Replacing bound initial scalar value - mixins
-C3M
+A3M
+B3M
 C3M
 Replacing bound no initial scalar value - mixins
-C4M
 Replacing initial sequence value
 A1Seq
 B1Seq
