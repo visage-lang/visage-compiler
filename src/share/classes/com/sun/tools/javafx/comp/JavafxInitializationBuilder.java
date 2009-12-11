@@ -3331,7 +3331,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             //    public Foo(boolean dummy) {
             //        super(dummy);
             //    }
-            if (analysis.getFXSuperClassSym() != null) {
+            if (analysis.getFXSuperClassSym() != null || isScript()) {
                 Symbol outerSuper = outerTypeSymbol(types.supertype(getCurrentClassDecl().type).tsym);
                 if (outerSuper == null) {
                     stmts.append(CallStmt(names._super, id(dummyParamName)));
