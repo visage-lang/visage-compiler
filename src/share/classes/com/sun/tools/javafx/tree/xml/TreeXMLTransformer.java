@@ -25,6 +25,7 @@ package com.sun.tools.javafx.tree.xml;
 
 import com.sun.javafx.api.tree.ExpressionTree;
 import com.sun.javafx.api.tree.UnitTree;
+import com.sun.tools.javafx.tree.JFXScript;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Options;
 import java.io.ByteArrayOutputStream;
@@ -81,22 +82,22 @@ public class TreeXMLTransformer {
 
     public static void afterParse(Context context, UnitTree cu) {
         TreeXMLTransformer transformer = context.get(treeXMLTransformerKey);
-        if (transformer != null && transformer.phase == PARSE) {
-            transformer.transformWithCare(context, cu);
+        if (transformer != null && transformer.phase == PARSE && (cu instanceof JFXScript)) {
+            transformer.transformWithCare(context, (JFXScript)cu);
         }
     }
 
     public static void afterEnter(Context context, UnitTree cu, TypeElement clazz) {
         TreeXMLTransformer transformer = context.get(treeXMLTransformerKey);
-        if (transformer != null && transformer.phase == ENTER) {
-            transformer.transformWithCare(context, cu);
+        if (transformer != null && transformer.phase == ENTER && (cu instanceof JFXScript)) {
+            transformer.transformWithCare(context, (JFXScript)cu);
         }
     }
 
     public static void afterAnalyze(Context context, UnitTree cu, TypeElement clazz) {
         TreeXMLTransformer transformer = context.get(treeXMLTransformerKey);
-        if (transformer != null && transformer.phase == ANALYZE) {
-            transformer.transformWithCare(context, cu);
+        if (transformer != null && transformer.phase == ANALYZE && (cu instanceof JFXScript)) {
+            transformer.transformWithCare(context, (JFXScript)cu);
         }
     }
     
@@ -246,9 +247,9 @@ public class TreeXMLTransformer {
         }
     }
 
-    private void transformWithCare(Context context, UnitTree cu) {
+    private void transformWithCare(Context context, JFXScript script) {
         try {
-            transform(context, cu);
+            transform(context, script);
         } catch (Exception exp) {
             System.err.println(exp.getMessage());
             if (printStackOnError) {
@@ -258,8 +259,8 @@ public class TreeXMLTransformer {
     }
 
     // transform given compilation unit using XSL
-    private void transform(Context context, UnitTree cu) {
-        URI uri = cu.getSourceFile().toUri();
+    private void transform(Context context, JFXScript script) {
+        URI uri = script.getSourceFile().toUri();
         if (seenCompUnitAlready.containsKey(uri)) {
             return;
         }
@@ -270,7 +271,7 @@ public class TreeXMLTransformer {
 
         try {
             // convert AST-to-XML
-            convertAST2XML(context, cu, handler);
+            convertAST2XML(context, script, handler);
 
             // collect the transformed XML output into buffer
             bos.flush();
@@ -278,7 +279,7 @@ public class TreeXMLTransformer {
             bos.close();
 
             // make package directory as needed and get source file name
-            String outFile = getOutputFileName(cu);
+            String outFile = getOutputFileName(script);
             writeOutput(buf, outFile);
         } catch (Exception exp) {
             throw wrapException(exp);
@@ -327,11 +328,11 @@ public class TreeXMLTransformer {
     }
 
     // converts AST into XML (SAX) events
-    private void convertAST2XML(Context context, UnitTree cu, ContentHandler handler) {
+    private void convertAST2XML(Context context, JFXScript script, ContentHandler handler) {
         try {
             TreeXMLSerializer visitor = new TreeXMLSerializer(handler);
-            Compiler.enter(context, cu, visitor);
-            visitor.start(cu);
+            Compiler.enter(context, script, visitor);
+            visitor.start(script);
         } finally {
             Compiler.leave();
         }

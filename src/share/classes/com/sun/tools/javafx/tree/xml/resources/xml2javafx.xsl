@@ -825,6 +825,7 @@
    
    <xsl:template match="fx:override-var">
         <xsl:text>override var </xsl:text>
+        <xsl:value-of select="./fx:name"/>
         <xsl:apply-templates select="fx:expr/*"/>
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="fx:on-replace"/>
