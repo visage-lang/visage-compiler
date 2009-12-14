@@ -155,10 +155,10 @@ public class JavafxDefs {
      * Misc strings
      */
     public static final String internalString = "\u03A7"; // (Chi = X)
-    public static final String boundFunctionDollarSuffix = "$$bound$";
-    public static final String boundFunctionResult = "$$bound$result$";
-    public static final String boundFunctionObjectParamPrefix = "$$boundInstance$";
-    public static final String boundFunctionVarNumParamPrefix = "$$boundVarNum$";
+    public static final String boundFunctionDollarSuffix = "$bFunc$";
+    public static final String boundFunctionResult = "$bFuncRes$";
+    public static final String boundFunctionObjectParamPrefix = "$bInst$";
+    public static final String boundFunctionVarNumParamPrefix = "$bVarNum$";
     public static final String implFunctionSuffix = "$impl";
     public static final String internalRunFunctionString = Entry.entryMethodName();
     public static final String varGetMapString = "GETMAP$";
