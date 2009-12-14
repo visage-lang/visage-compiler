@@ -1146,6 +1146,13 @@ public class SequencesBase {
         return newValue;
     }
 
+    public static <T> ArraySequence<? extends T> copy(Sequence<? extends T> oldValue) {
+        ArraySequence<T> arr =  ((TypeInfo<T>) oldValue.getElementType()).emptySequence.makeNew(0);
+        arr.add(oldValue);
+        arr.incrementSharing();
+        return arr;
+    }
+
     public static <T> Sequence<? extends T> insert(Sequence<? extends T> oldValue, T newValue) {
         if (newValue == null)
             return oldValue;
