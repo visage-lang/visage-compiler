@@ -1440,7 +1440,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
 
                     // Call super.
-                    if (override) {
+                    if (override || varInfo instanceof SuperClassVarInfo) {
                         callSuper();
                     } else if (mixin) {
                         // Mixin.invalidate$var(this, phase$);
@@ -1887,7 +1887,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                     boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
 
-                    if (varInfo.isOverride()) {
+                    if (varInfo.isOverride() || varInfo instanceof SuperClassVarInfo) {
                         // Call super first.
                         callSuper();
                     } else if (mixin) {
@@ -2218,7 +2218,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 } else {
                     // If a super has binders we need to emit an overriding invalidate$.
                     if (ai.boundBinders().size() != 0) {
-                        makeInvalidateAccessorMethod(ai, true);
+                        if (ai.generateSequenceAccessors())
+                            makeSeqInvalidateAccessorMethod(ai, true);
+                        else
+                            makeInvalidateAccessorMethod(ai, true);
                     }
                 }
                 
