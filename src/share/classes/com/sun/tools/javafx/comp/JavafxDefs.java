@@ -202,7 +202,6 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_convertNumberSequence;
     final RuntimeMethod Sequences_convertNumberToCharSequence;
     final RuntimeMethod Sequences_convertObjectToSequence;
-    final RuntimeMethod Sequences_copy;
     final RuntimeMethod Sequences_deleteIndexed;
     final RuntimeMethod Sequences_deleteSlice;
     final RuntimeMethod Sequences_deleteValue;
@@ -688,7 +687,6 @@ public class JavafxDefs {
         Sequences_convertCharToNumberSequence = new RuntimeMethod(names, cSequences, "convertCharToNumberSequence");
         Sequences_convertNumberToCharSequence = new RuntimeMethod(names, cSequences, "convertNumberToCharSequence");
         Sequences_convertObjectToSequence = new RuntimeMethod(names, cSequences, "convertObjectToSequence");
-        Sequences_copy = new RuntimeMethod(names, cSequences, "copy");
         Sequences_forceNonNull = new RuntimeMethod(names, cSequences, "forceNonNull");
         Sequences_fromArray = new RuntimeMethod(names, cSequences, "fromArray");
         Sequences_sizeOfNewElements = new RuntimeMethod(names, cSequences, "sizeOfNewElements");

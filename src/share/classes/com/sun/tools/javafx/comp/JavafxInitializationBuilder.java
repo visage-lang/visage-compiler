@@ -1552,34 +1552,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(Var(syms.intType, lastIndex.name,
                                     MINUS(endPosArg(), Int(1))));
                         }
-
-                        // The idea of the following is to implement:
-                        //   var x : T[] = ... on replace oldV[i..j] = newV { something };
-                        // as if it were:
-                        //   var x$save$ : T[];
-                        //   var x : T[] = ... on replace [i..j] = newV {
-                        //     def oldV = Sequences.copy(x$save$);
-                        //     x$save$[i..j] = newV;
-                        //     something
-                        //   };
-
                         VarSymbol savedVarSym = onReplace.getSaveVar() != null ? onReplace.getSaveVar().sym : null;
                         if (savedVarSym != null) {
-                            // FIXME  Some performance tweaking makes sense:
-                            // - If the oldValue is only used for indexing or sizeof, then we
-                            // can extra the value of the "gap" of the saved-dalue ArraySequence,
-                            // as in the 1.2 compiler.
-                            // - The getNewElements call should be combined with the replaceSlice.
-                            addStmt(Var(type, onReplace.getOldValue().getName(),
-                                    Call(defs.Sequences_copy,
-                                        Get(savedVarSym))));
-                            addStmt(SetStmt(savedVarSym,
-                                    Call(defs.Sequences_replaceSlice,
+                            addStmt(Var(type, onReplace.getOldValue().getName(), Get(savedVarSym)));
+                            addStmt(SetStmt(savedVarSym, 
+                                    Call(defs.Sequences_set,
                                         Get(savedVarSym),
-                                        Call(defs.Sequences_getNewElements, Getter(varSym), id(firstIndexName), id(newLengthName)),
-                                        id(firstIndexName),
-                                        endPosArg()
+                                        Getter(varSym)
                                     )));
+                            addStmt(CallStmt(Get(savedVarSym), defs.incrementSharing_SequenceMethodName));
                         }
                         if (newElements != null
                                 && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
