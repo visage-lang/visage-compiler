@@ -548,10 +548,19 @@ public class JavafxLower implements JavafxVisitor {
             result = lowerUnreachableIfExpression(tree);
         }
         else {
+            boolean thenPartSeq = types.isSequence(tree.truepart.type);
+            boolean elsePartSeq = tree.falsepart != null ?
+                types.isSequence(tree.falsepart.type) :
+                thenPartSeq;
+            boolean nonSeqExpected = thenPartSeq != elsePartSeq &&
+                    !types.isSequence(pt);
             JFXExpression cond = lowerExpr(tree.cond, syms.booleanType);
-            JFXExpression truePart = lowerExpr(tree.truepart, tree.type);
-            JFXExpression falsePart = lowerExpr(tree.falsepart, tree.type);
-            result = m.Conditional(cond, truePart, falsePart).setType(tree.type);
+            JFXExpression truePart = lowerExpr(tree.truepart,
+                    !nonSeqExpected || thenPartSeq ? tree.type : types.elementTypeOrType(tree.type));
+            JFXExpression falsePart = lowerExpr(tree.falsepart,
+                    !nonSeqExpected || elsePartSeq ? tree.type : types.elementTypeOrType(tree.type));
+            result = m.Conditional(cond, truePart, falsePart);
+            result.setType(nonSeqExpected ? syms.objectType : tree.type);
         }
     }
 
