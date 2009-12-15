@@ -713,7 +713,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
                 args.append(instance(tToCheck));
-                args.append(Offset(copyOfTranslatedToCheck(translateToCheck(selector)), refSym));
+                args.append(Offset(copyOfTranslatedToCheck(tToCheck), refSym));
             }
             JCExpression tRHS = buildRHS(rhsTranslated);
             if (tRHS != null) {
