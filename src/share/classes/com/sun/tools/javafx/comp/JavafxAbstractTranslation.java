@@ -1970,23 +1970,38 @@ public abstract class JavafxAbstractTranslation
 
         JCExpression sequencesOp(RuntimeMethod meth, JCExpression tToCheck) {
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-            if (refSym.owner.kind != Kinds.TYP) {
-                // Local variable sequence -- make a block expression, roughly:
+            if (! typeMorpher.useAccessors(refSym)) {
+                // In this case make a block expression - roughly:
                 // { Foo tmp = rhs;
-                //   lhs = sequenceAction(lhs, rhs);
+                //   lhs = sequenceAction(lhs, tmp);
                 //   tmp;
                 // }
-                args.append(id(refSym.name));
-                JCVariableDecl tv = TmpVar(types.boxedTypeOrType(rhsType()), buildRHS(rhsTranslated));
-                args.append(id(tv));
+                args.append(Getter(tToCheck, refSym));
+                JCVariableDecl tv;
+                // The special case for JCLiteral is to avoid a bug in Gen - it
+                // optimizes away initializing a variable that is constant,
+                // but somehow gets confused when later trying to load the variable.
+                // Probably something to do with BlockExpressions confusing it.
+                if (rhsTranslated instanceof JCLiteral || targetType == syms.voidType) {
+                    tv = null;
+                    args.append(rhsTranslated);
+                }
+                else {
+                    tv = TmpVar(rhsType(), buildRHS(rhsTranslated));
+                    args.append(id(tv));
+                }
                 JCExpression tIndex = translateIndex();
                 if (tIndex != null) {
                     args.append(tIndex);
                 }
-                JCExpression res = Call(meth, args);
+                JCExpression assign = Setter(tToCheck, refSym, Call(meth, args));
+                if (targetType == syms.voidType)
+                    return assign;
+                if (rhsTranslated instanceof JCLiteral)
+                    return BlockExpression(Stmt(assign), translateExpr(rhs, rhsType()));
                 return BlockExpression(
                         tv,
-                        Stmt(m().Assign(id(refSym.name), res)),
+                        Stmt(assign),
                         id(tv));
             } else {
                 // Instance variable sequence -- roughly:
@@ -2592,11 +2607,11 @@ public abstract class JavafxAbstractTranslation
             JCExpression transInit = translateInstanceVariableInit(init, vsym);
             JCExpression tc = instanceName == null ? null : id(instanceName);
             JCStatement def;
-            if (types.isSequence(vsym.type)) {
+            if (!typeMorpher.useAccessors(vsym)) {
+                def = SetStmt(tc, vsym, transInit);
+            } else if (types.isSequence(vsym.type)) {
                 def = CallStmt(defs.Sequences_set, tc,
                         Offset(id(instanceName), vsym), transInit);
-            } else if (!typeMorpher.varMorphInfo(vsym).useAccessors()) {
-                def = SetStmt(tc, vsym, transInit);
             } else {
                 def = CallStmt(tc, attributeBeName(vsym), transInit);
             }

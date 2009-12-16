@@ -1302,7 +1302,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         } else {
                             addStmt(varInfo.boundElementGetter());
                         }
-                    } else {
+                    } else if (varInfo.useAccessors()) {
                         // Construct and add: return $var.get(pos$);
                         addStmt(Return(Call(Get(proxyVarSym), defs.get_SequenceMethodName, posArg())));
                     }
@@ -1373,7 +1373,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         } else {
                             addStmt(varInfo.boundSizeGetter());
                         }
-                    } else {  
+                    } else if (varInfo.useAccessors()) {
                         // Construct and add: return $var.size();
                         addStmt(Return(Call(Get(proxyVarSym), defs.size_SequenceMethodName)));
                     }
@@ -2106,7 +2106,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public void makeAnAttributeAccessorMethods(VarInfo ai, boolean needsBody) {
             setDiagPos(ai.pos());
-            
+
             if (!ai.useAccessors()) {
                 if (ai.useGetters() && !ai.isOverride()) {
                     makeGetterAccessorMethod(ai, needsBody);
@@ -2953,7 +2953,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    if (!varInfo.isOverride()) {
+                    if (varInfo.useAccessors() && !varInfo.isOverride()) {
                         if (varInfo.generateSequenceAccessors()) {
                             // return elem$var(pos$)
                             addStmt(Return(Call(attributeGetElementName(varSym), posArg())));
@@ -2973,7 +2973,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                  attrInfos, varCount) {
                 @Override
                 public void statements() {
-                    if (!varInfo.isOverride()) {
+                    if (varInfo.useAccessors() && !varInfo.isOverride()) {
                         if (varInfo.generateSequenceAccessors()) {
                             // return size$var()
                             addStmt(Return(Call(attributeSizeName(varSym))));
@@ -2998,7 +2998,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    if (!varInfo.isDef() && !varInfo.isOverride() && !varInfo.isBareSynth()) {
+                    if (varInfo.useAccessors() && !varInfo.isDef() && !varInfo.isOverride() && !varInfo.isBareSynth()) {
                          // (type)object$
                         JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
                         if (varInfo.generateSequenceAccessors()) {
