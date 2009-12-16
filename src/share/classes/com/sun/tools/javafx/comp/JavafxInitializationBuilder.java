@@ -1829,15 +1829,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                     // $var = value
                     addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
-    
-                    // setValid(VFLGS$IS_INVALID);
-                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagIS_INVALID, null));
 
                     // invalidate$(VFLGS$NEEDS_TRIGGER)
                     addStmt(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
 
                     // setValid(VFLGS$NEEDS_TRIGGER); and set as initialized;
-                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagNEEDS_TRIGGER, null));
+                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
     
                     // onReplace$(varOldValue$, varNewValue$)
                     addStmt(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
@@ -1895,7 +1892,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     //!isValidValue$(VOFF$var)
                     JCVariableDecl wasValidVar = Var(syms.booleanType,
                             defs.wasInvalid_LocalVarName,
-                            FlagTest(proxyVarSym, phaseArg(), null));
+                            FlagTest(proxyVarSym, id(defs.varFlagVALIDITY_FLAGS), SHIFTR(phaseArg(), Int(1))));
                     addStmt(wasValidVar);
                      
                     if (hasInvalidators) {

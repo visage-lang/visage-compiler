@@ -1345,6 +1345,12 @@ public abstract class JavafxTranslationSupport {
         JCExpression BITNOT(JCExpression v1) {
             return m().Binary(JCTree.BITXOR, v1, Int(-1));
         }
+        JCExpression SHIFTL(JCExpression v1, JCExpression v2) {
+            return m().Binary(JCTree.SL, v1, v2);
+        }
+        JCExpression SHIFTR(JCExpression v1, JCExpression v2) {
+            return m().Binary(JCTree.SR, v1, v2);
+        }
 
         /**
          * Compare against null
