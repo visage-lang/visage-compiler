@@ -234,10 +234,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 }
             }
 
-            // If the function has a sequence arg or if this is a Function.invoke
-            // we avoid conditional reevaluation. (i.e., force re-evaluation always)
-            conditionallyReevaluate = !hasSequenceArg && !useInvoke &&
-                    !(selectorSym != null && types.isJFXClass(selectorSym.owner));
+            // If the function has a sequence arg or if this is a Function.invoke or
+            // if this is a Java call, we avoid conditional reevaluation. (i.e., force
+            // re-evaluation always)
+            boolean isJavaCall = (msym != null) && !types.isJFXClass(msym.owner);
+            conditionallyReevaluate = ! (hasSequenceArg  || useInvoke || isJavaCall);
 
             // If the receiver changes, then we have to call the function again
             // If selector is local var, then it is going to be final, and thus won't change (and doesn't have a getter)
@@ -309,7 +310,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCExpression full = super.fullExpression(mungedToCheckTranslated);
                 if (condition != null) {
                     // Always call function if the default has not been applied yet
-                    full = TypeCast(targetSymbol.type, Type.noType,
+                    full = TypeCast(targetType, Type.noType,
                               If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
                                   full,
                                   Get(targetSymbol)));
