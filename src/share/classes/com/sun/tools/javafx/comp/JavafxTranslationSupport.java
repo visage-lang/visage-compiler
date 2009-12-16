@@ -1690,8 +1690,9 @@ public abstract class JavafxTranslationSupport {
         }
         public JCExpression Getter(JCExpression selector, Symbol sym) {
             assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            
-            if (typeMorpher.varMorphInfo(sym).useGetters()) {
+            if (sym.owner.kind != Kinds.TYP) {
+                return id(sym.name);
+            } else if (typeMorpher.useGetters(sym)) {
                 return Call(selector, attributeGetterName(sym));
             } else {
                 return Get(selector, sym);
@@ -1703,9 +1704,9 @@ public abstract class JavafxTranslationSupport {
         }
         public JCExpression Setter(JCExpression selector, Symbol sym, JCExpression value) {
             assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
-            
-            if (typeMorpher.varMorphInfo(sym).useAccessors()) {
+            if (sym.owner.kind != Kinds.TYP) {
+                return m().Assign(id(sym.name), value);
+            } else if (typeMorpher.useAccessors(sym)) {
                 return Call(selector, attributeSetterName(sym), value);
             } else {
                 return Set(selector, sym, value);

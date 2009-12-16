@@ -175,6 +175,11 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
     
     @Override
+    public void visitVarRef(JFXVarRef tree) {
+        mark(tree.getVarSymbol(), VARUSE_NEED_ACCESSOR);
+    }
+
+    @Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         scanVar(tree);
     }

@@ -549,17 +549,17 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 final boolean isLocal = !vmi.isMemberVariable();
                 assert !isLocal || instanceName == null;
                 JCExpression res;
-                if (vmi.isMemberVariable() && vmi.isSequence()) {
-                    JCExpression tc = 
-                            instanceName == null ? getReceiverOrThis(vsym) : id(instanceName);
-                    res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
-                } else if (vmi.useAccessors()) {
-                    JCExpression tc = instanceName == null ? null : id(instanceName);
-                    res = Call(tc, attributeBeName(vsym), nonNullInit);
-                } else if (vmi.isFXMemberVariable()) {
-                    res = Setter(vsym, nonNullInit);
+                if (vmi.useAccessors()) {
+                    if (vmi.isMemberVariable() && vmi.isSequence()) {
+                        JCExpression tc =
+                                instanceName == null ? getReceiverOrThis(vsym) : id(instanceName);
+                        res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
+                    } else {
+                        JCExpression tc = instanceName == null ? null : id(instanceName);
+                        res = Call(tc, attributeBeName(vsym), nonNullInit);
+                    }
                 } else {
-                    res = m().Assign(id(vsym), nonNullInit);
+                    res = Setter(vsym, nonNullInit);
                 }
                 return toResult(res, vmi.getRealType());
             }
@@ -705,10 +705,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         @Override
         JCExpression sequencesOp(RuntimeMethod meth, JCExpression tToCheck) {
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-            if (refSym.owner.kind != Kinds.TYP) {
-                // Local variable sequence -- roughly:
+            boolean useAccessor = typeMorpher.useAccessors(refSym);
+            if (! useAccessor) {
+                // Non-accessor-using variable sequence -- roughly:
                 // lhs = sequenceAction(lhs, rhs);
-                args.append(id(refSym.name));
+                args.append(Getter(tToCheck, refSym));
             } else {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
@@ -728,9 +729,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 }
             }
             JCExpression res = Call(meth, args);
-            if (refSym.owner.kind != Kinds.TYP) {
-                // It is a local variable sequence, assign the result
-                res = m().Assign(id(refSym.name), res);
+            if (! useAccessor) {
+                res = Setter(tToCheck, refSym, res);
             }
             return res;
         }

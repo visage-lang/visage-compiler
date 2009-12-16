@@ -38,7 +38,7 @@ var b = {
 }
 
 // test case from jfxc-1345, should also print a "not implemented error"
-var mySeq :String [] = {
+var mySeq :String [] = ["r", {
     var arr: String [];
     try{
         arr=for(v:String in ["s"]){v}
@@ -47,7 +47,7 @@ var mySeq :String [] = {
         e.printStackTrace();
     }
     arr;
-};
+}, "t"];
 
 var makeItALocation = bind b;
 
