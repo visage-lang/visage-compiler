@@ -1891,6 +1891,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Handle invalidators if present.
                     List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
                     boolean hasInvalidators = !invalidatees.isEmpty();
+
+                    //!isValidValue$(VOFF$var)
+                    JCVariableDecl wasValidVar = Var(syms.booleanType,
+                            defs.wasInvalid_LocalVarName,
+                            FlagTest(proxyVarSym, phaseArg(), null));
+                    addStmt(wasValidVar);
                      
                     if (hasInvalidators) {
                         // Insert invalidators.
@@ -1939,15 +1945,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }
 
-                    // Add on-invalidate trigger if any
-
                     // phase$ == VFLGS$NEEDS_TRIGGER
                     JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
-
-                    if (varInfo.onInvalidate() != null) {
-                        addStmt(OptIf(ifTriggerPhase,
-                                varInfo.onInvalidateAsInline()));
-                    }
 
                     // Wrap up main block.
                     JCBlock mainBlock = endBlock();
@@ -1961,24 +1960,22 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
 
                     // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
-                    addStmt(If(FlagTest(proxyVarSym, phaseArg(), null),
+                    addStmt(If(id(wasValidVar),
                             mainBlock, mixinBlock));
 
                     if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
                         // Begin the get$ block.
                         beginBlock();
 
+                        // Add on-invalidate trigger if any
+                        if (varInfo.onInvalidate() != null) {
+                            addStmt(OptIf(OR(id(wasValidVar), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, null)),
+                                varInfo.onInvalidateAsInline()));
+                        }
+
                         // Call the get$var to force evaluation.
                         if (varInfo.onReplace() != null)
                             addStmt(Stmt(Getter(proxyVarSym)));
-
-                        if (varInfo.onInvalidate() != null &&
-                                !varInfo.hasBoundDefinition() &&
-                                !varInfo.hasBiDiBoundDefinition() &&
-                                !varInfo.isSequence())
-                            addStmt(FlagChangeStmt(proxyVarSym,
-                                    id(defs.varFlagNEEDS_TRIGGER),
-                                    null));
 
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
                         addStmt(OptIf(ifTriggerPhase,

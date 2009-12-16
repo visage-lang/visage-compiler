@@ -469,6 +469,7 @@ public class JavafxDefs {
     final Name typeParameterName;
     final Name scriptClassSuffixName;
     final Name varOldValue_LocalVarName;
+    final Name wasInvalid_LocalVarName;
     final Name internalSuffixName;
     final Name internalNameMarker;
 
@@ -616,6 +617,7 @@ public class JavafxDefs {
         size_FXObjectMethodName = names.fromString(size_AttributeMethodPrefix);
         count_FXObjectMethodName = names.fromString("count$");
         varOldValue_LocalVarName = names.fromString("varOldValue$");
+        wasInvalid_LocalVarName = names.fromString("wasInvalid$");
         varNewValue_ArgName = names.fromString("varNewValue$");
         scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
