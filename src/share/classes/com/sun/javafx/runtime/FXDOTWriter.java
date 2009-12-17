@@ -728,10 +728,10 @@ public class FXDOTWriter {
     
     // This method adds a new edge to the graph.
     public void addEdge(Object head, Object tail) {
-        addEdge(head, 0, tail, 0, null);
+        addEdge(head, -1, tail, -1, null);
     }
     public void addEdge(Object head, Object tail, String propertyString) {
-        addEdge(head, 0, tail, 0, propertyString);
+        addEdge(head, -1, tail, -1, propertyString);
     }
     public void addEdge(Object head, int headFieldId, Object tail, int tailFieldId) {
         addEdge(head, headFieldId, tail, tailFieldId, null);
