@@ -49,6 +49,7 @@ public class JavafxSymtab extends Symtab {
     public static final String scriptPrivateAnnotationClassNameString = anno + ".ScriptPrivate";
     public static final String publicInitAnnotationClassNameString = anno + ".PublicInitable";
     public static final String publicReadAnnotationClassNameString = anno + ".PublicReadable";
+    public static final String bindeesAnnotationClassNameString = anno + ".JavafxBindees";
     public static final String signatureAnnotationClassNameString = anno + ".JavafxSignature";
     public static final String defAnnotationClassNameString = anno + ".Def";
     public static final String staticAnnotationClassNameString = anno + ".Static";

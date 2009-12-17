@@ -23,17 +23,18 @@
 
 package com.sun.javafx.runtime.annotation;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
+import static java.lang.annotation.RetentionPolicy.*;
 import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * PublicReadable
+ * Bindees
+ *
+ * @author Jim Laskey
  */
 @Retention(RUNTIME)
 @Documented
 @Target({METHOD, FIELD, TYPE})
-public @interface PublicReadable {
+public @interface JavafxBindees {
+    public String value();
 }

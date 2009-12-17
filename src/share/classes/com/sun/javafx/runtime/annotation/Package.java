@@ -28,7 +28,7 @@ import static java.lang.annotation.RetentionPolicy.*;
 import static java.lang.annotation.ElementType.*;
 
 /**
- * Public
+ * Package
  *
  * @author Brian Goetz
  */
