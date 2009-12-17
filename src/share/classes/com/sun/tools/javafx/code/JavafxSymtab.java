@@ -25,7 +25,6 @@ package com.sun.tools.javafx.code;
 
 import com.sun.tools.mjavac.code.Symtab;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.code.Types;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Type.*;
 import static com.sun.tools.mjavac.jvm.ByteCodes.*;
@@ -131,7 +130,7 @@ public class JavafxSymtab extends Symtab {
      */
     public final Type unreachableType;
 
-    private Types types;
+    private JavafxTypes types;
 
     public static final String functionClassPrefix =
             "com.sun.javafx.functions.Function";
@@ -155,13 +154,14 @@ public class JavafxSymtab extends Symtab {
 
         // FIXME It would be better to make 'names' in super-class be protected.
         Name.Table names = Name.Table.instance(context);
-        types = Types.instance(context);
-        JavafxTypes fxtypes = JavafxTypes.instance(context);
+        types = JavafxTypes.instance(context);
         Options options = Options.instance(context);
         String numberChoice = options.get("Number");
 
         // Make the array length var symbol a JavaFX var symbol
         JavafxVarSymbol fxLengthVar = new JavafxVarSymbol(
+            types,
+            names,
             Flags.PUBLIC | Flags.FINAL ,
             names.length,
             intType,
@@ -204,7 +204,7 @@ public class JavafxSymtab extends Symtab {
         javafx_SequenceProxyType = enterClass(JavafxDefs.cSequenceProxy);
         javafx_ArraySequenceType = enterClass(JavafxDefs.cArraySequence);
         javafx_SequencesType = enterClass(JavafxDefs.cSequences);
-        javafx_EmptySequenceType = fxtypes.sequenceType(botType);
+        javafx_EmptySequenceType = types.sequenceType(botType);
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
         javafx_ShortArray = new ArrayType(shortType, arrayClass);
         javafx_KeyValueType = enterClass("javafx.animation.KeyValue");

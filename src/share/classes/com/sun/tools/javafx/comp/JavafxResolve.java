@@ -667,7 +667,7 @@ public class JavafxResolve {
         if (name == names.fromString("__DIR__") || name == names.fromString("__FILE__") 
 			|| name == names.fromString("__PROFILE__")) {
             Type type = syms.stringType;
-            return new JavafxVarSymbol(Flags.PUBLIC, name, type, env.enclClass.sym);
+            return new JavafxVarSymbol(types, names,Flags.PUBLIC, name, type, env.enclClass.sym);
         }
         
         if (bestSoFar.kind == VAR && bestSoFar.owner.type != origin.type)

@@ -54,10 +54,6 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
     protected final JavafxTypes types;
     private final Name.Table names;
 
-    // assigned lazily on the first usage. This is symbol of
-    // Pointer.make(Object) method.
-    private MethodSymbol pointerMakeMethodSym;
-
     protected static final Context.Key<JavafxBoundFiller> boundFuncFill =
             new Context.Key<JavafxBoundFiller>();
 
@@ -117,7 +113,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         // $index$
         Name indexParamName = names.fromString("$index$"); //FIXME-move to defs.
         Name indexName = JavafxTranslationSupport.indexVarName(clause.getVar().getName(), names);
-        JavafxVarSymbol indexParamSym = new JavafxVarSymbol(Flags.FINAL | Flags.PARAMETER, indexParamName, syms.intType, owner);
+        JavafxVarSymbol indexParamSym = new JavafxVarSymbol(types, names,Flags.FINAL | Flags.PARAMETER, indexParamName, syms.intType, owner);
 
         // Create the index var
         // var $indexof$x = $index$
@@ -228,7 +224,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
                         returnExprIsVar ? fxmake.Ident((JFXVar) returnExpr) : returnExpr,
                         JavafxBindStatus.UNIDIBIND, null, null);
                 returnVar.type = tree.sym.type.getReturnType();
-                returnVar.sym = new JavafxVarSymbol(0L, defs.boundFunctionResultName, returnVar.type, tree.sym);
+                returnVar.sym = new JavafxVarSymbol(types, names,0L, defs.boundFunctionResultName, returnVar.type, tree.sym);
                 returnVar.markBound(JavafxBindStatus.UNIDIBIND);
                 stmts.append(returnVar);
 

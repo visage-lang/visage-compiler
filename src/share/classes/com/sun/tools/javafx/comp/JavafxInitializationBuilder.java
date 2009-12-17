@@ -538,7 +538,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Create a var symbol.
         //
         public JavafxVarSymbol makeVarSymbol(long flags, Type type, Name varName) {
-            return new JavafxVarSymbol(flags, varName, type, getCurrentOwner());
+            return new JavafxVarSymbol(types, names, flags, varName, type, getCurrentOwner());
         }
         
         //
@@ -3456,7 +3456,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             resetDiagPos();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            JavafxVarSymbol vs = new JavafxVarSymbol(Flags.PUBLIC, defs.outerAccessor_FXObjectFieldName, outerTypeSym.type, getCurrentClassSymbol());
+            JavafxVarSymbol vs = new JavafxVarSymbol(types, names,Flags.PUBLIC, defs.outerAccessor_FXObjectFieldName, outerTypeSym.type, getCurrentClassSymbol());
             stmts.append(Return(id(vs)));
             MethodSymbol methSym = makeMethodSymbol(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<Type>nil());
             addDefinition(Method(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<JCVariableDecl>nil(), stmts.toList(), methSym));

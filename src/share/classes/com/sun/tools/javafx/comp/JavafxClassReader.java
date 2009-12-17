@@ -41,6 +41,7 @@ import static com.sun.tools.mjavac.code.TypeTags.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
 
@@ -69,6 +70,7 @@ public class JavafxClassReader extends ClassReader {
          new Context.Key<ClassReader>();
 
     private final JavafxDefs defs;
+    protected final JavafxTypes fxTypes;
 
     /** The raw class-reader, shared by the back-end. */
     public ClassReader jreader;
@@ -108,6 +110,7 @@ public class JavafxClassReader extends ClassReader {
     protected JavafxClassReader(Context context, boolean definitive) {
         super(context, definitive);
         defs = JavafxDefs.instance(context);
+        fxTypes = JavafxTypes.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
         ctx = context;
         messages = Messages.instance(context);
@@ -600,7 +603,7 @@ public class JavafxClassReader extends ClassReader {
                         continue;
                     Type otype = memsym.type;
                     Type type = translateType(otype);
-                    JavafxVarSymbol v = new JavafxVarSymbol(flags, name, type, csym);
+                    JavafxVarSymbol v = new JavafxVarSymbol(fxTypes, names, flags, name, type, csym);
                     csym.members_field.enter(v);
                     priorNames.add(name);
                 }

@@ -34,6 +34,7 @@ import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxDefs;
 import static com.sun.tools.mjavac.code.Flags.*;
@@ -68,7 +69,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** The current name table. */
     protected Name.Table names;
 
-    protected Types types;
+    protected JavafxTypes types;
 
     /** The current symbol table. */
     protected JavafxSymtab syms;
@@ -81,12 +82,12 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         this.toplevel = null;
         this.names = Name.Table.instance(context);
         this.syms = (JavafxSymtab)JavafxSymtab.instance(context);
-        this.types = Types.instance(context);
+        this.types = JavafxTypes.instance(context);
     }
 
     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
      */
-    protected JavafxTreeMaker(JFXScript toplevel, Name.Table names, Types types, JavafxSymtab syms) {
+    protected JavafxTreeMaker(JFXScript toplevel, Name.Table names, JavafxTypes types, JavafxSymtab syms) {
         this.pos = Position.FIRSTPOS;
         this.toplevel = toplevel;
         this.names = names;
@@ -327,13 +328,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** Create a tree representing `this', given its type.
      */
     public JFXExpression This(Type t) {
-        return Ident(new JavafxVarSymbol(FINAL, names._this, t, t.tsym));
+        return Ident(new JavafxVarSymbol(types, names, FINAL, names._this, t, t.tsym));
     }
 
     /** Create a tree representing `super', given its type and owner.
      */
     public JFXIdent Super(Type t, TypeSymbol owner) {
-        return Ident(new JavafxVarSymbol(FINAL, names._super, t, owner));
+        return Ident(new JavafxVarSymbol(types, names, FINAL, names._super, t, owner));
     }
 
     /**

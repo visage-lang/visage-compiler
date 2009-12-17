@@ -215,10 +215,10 @@ public class JavafxPreTranslationSupport {
                 null, null);
         var.type = type;
         var.sym = new JavafxVarSymbol(
+                types,
+                names,
                 flags,
-                name,
-                type,
-                owner);
+                name, type, owner);
         return var;
     }
     

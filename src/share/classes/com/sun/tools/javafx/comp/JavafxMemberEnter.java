@@ -38,6 +38,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
 
@@ -61,9 +62,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     protected static final Context.Key<JavafxMemberEnter> javafxMemberEnterKey =
         new Context.Key<JavafxMemberEnter>();
     
-// JavaFX change
-    protected
-    final static boolean checkClash = true;
+    protected final static boolean checkClash = true;
 
     private final Name.Table names;
     private final JavafxEnter enter;
@@ -75,7 +74,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final ClassReader reader;
     private final JavafxTodo todo;
     private final JavafxAnnotate annotate;
-    private final Types types;
+    private final JavafxTypes types;
     private final Target target;
 
     public static JavafxMemberEnter instance(Context context) {
@@ -98,7 +97,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         reader = JavafxClassReader.instance(context);
         todo = JavafxTodo.instance(context);
         annotate = JavafxAnnotate.instance(context);
-        types = Types.instance(context);
+        types = JavafxTypes.instance(context);
         target = Target.instance(context);
     }
 
@@ -602,7 +601,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
 
         Scope enclScope = JavafxEnter.enterScope(env);
-        JavafxVarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
+        JavafxVarSymbol v = new JavafxVarSymbol(types, names,0, tree.name, null, enclScope.owner);
         attr.varSymToTree.put(v, tree);
         tree.sym = v;
         SymbolCompleter completer = new SymbolCompleter();
@@ -865,12 +864,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // current scope.
             if ((c.flags_field & INTERFACE) == 0) {
                 JavafxVarSymbol thisSym =
-                    new JavafxVarSymbol(FINAL | HASINIT, names._this, c.type, c);
+                    new JavafxVarSymbol(types, names,FINAL | HASINIT, names._this, c.type, c);
                 thisSym.pos = Position.FIRSTPOS;
                 localEnv.info.scope.enter(thisSym);
                 if (ct.supertype_field.tag == CLASS && supertype != null) {
                     JavafxVarSymbol superSym =
-                        new JavafxVarSymbol(FINAL | HASINIT, names._super,
+                        new JavafxVarSymbol(types, names,FINAL | HASINIT, names._super,
                                       supertype, c);
                     superSym.pos = Position.FIRSTPOS;
                     localEnv.info.scope.enter(superSym);

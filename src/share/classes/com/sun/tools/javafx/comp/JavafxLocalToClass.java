@@ -73,6 +73,7 @@ public class JavafxLocalToClass {
     private final JavafxPreTranslationSupport preTrans;
     private final JavafxTreeMaker fxmake;
     private final JavafxDefs defs;
+    private final Name.Table names;
     private final JavafxTypes types;
     private final JavafxSymtab syms;
     private final JavafxResolve rs;
@@ -100,6 +101,7 @@ public class JavafxLocalToClass {
         preTrans = JavafxPreTranslationSupport.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
         defs = JavafxDefs.instance(context);
+        names = Name.Table.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         rs = JavafxResolve.instance(context);
@@ -522,7 +524,7 @@ public class JavafxLocalToClass {
             JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(vc.returnType);
             JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
             param.setType(syms.javafx_NonLocalReturnExceptionType);
-            param.sym = new JavafxVarSymbol(0L, param.name, param.type, owner);
+            param.sym = new JavafxVarSymbol(types, names, 0L, param.name, param.type, owner);
             JFXExpression retValue = null;
             if (vc.returnType != null) {
                 JFXIdent nlParam = fxmake.Ident(param);

@@ -37,7 +37,7 @@ public class JavafxVarSymbol extends VarSymbol {
 
     /** Construct a variable symbol, given its flags, name, type and owner.
      */
-    public JavafxVarSymbol(long flags, Name name, Type type, Symbol owner) {
+    public JavafxVarSymbol(JavafxTypes types, Name.Table names,long flags, Name name, Type type, Symbol owner) {
         super(flags, name, type, owner);
     }
 }
