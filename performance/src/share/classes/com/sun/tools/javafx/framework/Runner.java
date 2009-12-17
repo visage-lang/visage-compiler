@@ -68,7 +68,6 @@ public class Runner {
             }
         }
 
-
         boolean mustExit = false;
         for (String x : args) {
             appArgs.add(x);
@@ -109,16 +108,17 @@ public class Runner {
         cmdsList.add("-iter");
         cmdsList.add(Integer.toString(ITERATIONS));
         float timeToSleep = 0.0f;
-
+        String pvalue = "0.0f", mvalue = "0.0f";
         if (runExecution) {
-            String value = analyzePerformance(cmdsList);
-            timeToSleep = Math.round(Float.parseFloat(value)) * ITERATIONS;
+            pvalue = analyzePerformance(cmdsList);
+            timeToSleep = Math.round(Float.parseFloat(pvalue)) * ITERATIONS;
         }
         if (runFootPrint) {
             duration += (timeToSleep == 0.0f) ? 2 * 60 * 1000 : timeToSleep;
             cmdsList.add("-pause");
-            analyzeFootPrint(cmdsList);
+            mvalue = analyzeFootPrint(cmdsList);
         }
+        Utils.toCsvFile(pvalue, mvalue);
     }
     
     static String analyzePerformance(List<String> cmds) {
@@ -138,13 +138,14 @@ public class Runner {
        return null;
     }
 
-    static public void printClasses(Process testProc) {
+    static public String printClasses(Process testProc) {
         FileOutputStream jmpos = null;
         PrintStream jps = null;
         String[] appIds = TestProcess.getAppPids();
         if (appIds == null) {
             throw new RuntimeException("Error: no appids found for target");
         }
+        String yvalue = null;
         try {
             jmpos = new FileOutputStream(
                     File.createTempFile(
@@ -158,7 +159,7 @@ public class Runner {
                 if (x.startsWith("Total")) {
                     String[] flds = x.split("\\s");
                     float msize = Float.parseFloat(flds[flds.length - 1]);
-                    String yvalue = Float.toString(msize / 1024 / 1024);
+                    yvalue = Float.toString(msize / 1024 / 1024);
                     System.out.println(TestProcess.APP_NAME + " Footprint: " +
                             yvalue + " MBytes");
                     File outFile = new File(TestProcess.APP_WORKDIR,
@@ -184,9 +185,10 @@ public class Runner {
                 testProc.destroy();
             }
         }
+        return yvalue;
     }
     
-    static void analyzeFootPrint(List<String> cmds) {
+    static String analyzeFootPrint(List<String> cmds) {
         if (TestProcess.debug) {
             System.out.println("----Test-Execution args----");
             for (String x : cmds) {
@@ -199,8 +201,7 @@ public class Runner {
             pb.redirectErrorStream(true);
             final Process p = pb.start();
             Thread.sleep(duration);
-            printClasses(p);
-            return;
+            return printClasses(p);
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new RuntimeException(ex.getMessage());

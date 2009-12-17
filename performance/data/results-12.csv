@@ -1,0 +1,8 @@
+App Name Perf.  Footprint
+mathcalc 255.30132 8.713623
+mathcalcb 614.429 8.764687
+bsort 1011.1214 8.639717
+linkedListLocalMax 1009.6576 8.672653
+linkedListMax 1005.88904 8.654518
+linkedListBound 1000.67664 8.668579
+linkedListOnReplace 1029.7183 8.660263
