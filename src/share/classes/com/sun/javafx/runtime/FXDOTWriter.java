@@ -59,7 +59,7 @@
  *     dot.close();
  *     
  * There is also a quick an dirty form to do the same.  Note to get dependency
- * edges you need to build with -XDannobindees .
+ * edges you need to build with -XDannobindees
  * 
  * Ex.
  *     FXDOTWriter.graph("sample.dot", a, b, c);
