@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="fxtracker" default="all" basedir=".">
-    <property name="builddir" location="${basedir}/../../build/buildtools/fxtracker"/>
+    <property name="builddir" location="${basedir}/../../build/buildtools/fxbtrace"/>
     <property name="javafx.home" location="${basedir}/../../../artifacts/sdk"/>
     <property name="srcdir"   location="${basedir}/src"/>
+    <property name="btrace_scriptsdir"   location="${basedir}/btrace_scripts"/>
+    <property name="btrace.script" location="${btrace_scriptsdir}/FxBtraceTracker"/>
     <property name="target.jar" location="${basedir}/../../../samples/SmokeParticles/dist/SmokeParticles.jar"/>
 
     <target name="clean">
@@ -19,20 +21,25 @@
     </target>
     
     <target name="compile" depends="init">
-        <javac srcdir="${srcdir}"
-            destdir="${builddir}"
-            excludes="**/FxBtraceTracker.java"
-        />
+        <javac srcdir="${srcdir}" destdir="${builddir}"/>
+        <javac srcdir="${btrace_scriptsdir}" destdir="${builddir}">
+            <classpath>
+              <pathelement location="${btrace.home}/build/btrace-client.jar"/>
+              <pathelement location="${javafx.home}/lib/shared/javafxrt.jar"/>
+            </classpath>
+        </javac>
     </target>
     
     <target name="all" depends="compile">
-        <java classname="FxTrackerRunner" fork="true" classpath="${builddir}" 
+        <java classname="FXBTraceRunner" fork="true" classpath="${builddir}" 
               failonerror="true" dir="${builddir}" >
             <sysproperty key="build.dir"    value="${builddir}"/>
             <sysproperty key="javafx.home"  value="${javafx.home}"/>
             <sysproperty key="btrace.home"  value="${btrace.home}"/>
             <sysproperty key="base.dir"     value="${basedir}"/>
-            <sysproperty key="FxTracker.vmoptions" value="${FxTracker.vmoptions}"/>
+            <sysproperty key="FXBTraceRunner.vmoptions" value="${FXBTraceRunner.vmoptions}"/>
+            <arg value="--script"/>
+            <arg value="${btrace.script}"/>
             <arg value="--jar"/>
             <arg value="${target.jar}"/>
         </java>

@@ -43,20 +43,17 @@ import java.util.logging.Logger;
  * @author A. Sundararajan (removed csv stuff for now)
  * 
  * Readme:
- * Here are the steps needed to run the fxtracker.
- * 1. Make sure you have the forest and built it with ant -Dfxtracker.enable=true
- *    alternately you can simply compile the openjfx-compiler  with
- *    -Dfxtracker.enable=true, and copy the javafxrt.jar into the forest's
- *    artifacts/sdk/lib/shared/javafxrt.jar
- * 2. Download the btrace binary bundle from https://btrace.dev.java.net/
+ * Here are the steps needed to run the fxbtrace.
+ *
+ * 1. Download the btrace binary bundle from https://btrace.dev.java.net/
  * 2. Extract it to BTRACE_HOME
- * 3. Run this class using % java options FxTrackerRunner options
+ * 3. Run this class using % java options FXBTraceRunner options
  * In order to the following environment variables or properties must be set,
  * this is to facilitate testing of arbitrary SDK and test specimens.
  *   a. BUILD_DIR   or build.dir     : clean location for the build files
  *   b. JAVAFX_HOME or javafx.home : location of javafx sdk
  *   c. BTRACE_HOME or btrace.home : location of btrace distro
- *   d. BASE_DIR    or base.dir    : location of the fxtracker directory
+ *   d. BASE_DIR    or base.dir    : location of the fxbtrace directory
  * 
  * Options:
  *   Must set --jar pointer to a jar with a main-class
@@ -67,22 +64,21 @@ import java.util.logging.Logger;
  * 
  * Notes:
  *  VM parameters to the test specimen may be passed as follows:
- *  % java -DFxTracker.vmoptions="-Xmx512m, -Xss128, -Xfoobar=XX" FxTrackerRunner options
+ *  % java -DFXBTraceRunner.vmoptions="-Xmx512m, -Xss128, -Xfoobar=XX" FXBTraceRunner options
  * 
  * Files:
- *  a. jfx/openjfx-compiler/buildtools/fxtracker/src/FxBtraceTracker.java
- *     Btrace script and test runner, the btrace script injects the ctors into
- *     the locations and fxbase/fxobject to track the creation of the objects.    
+ *  a. jfx/openjfx-compiler/buildtools/fxbtrace/btrace_scripts/*.java
+ *     Various btrace script files that can be used to trace FX apps.
  * 
- *  b. jfx/openjfx-compiler/buildtools/fxtracker/src/FxTrackerRunner.java
+ *  b. jfx/openjfx-compiler/buildtools/fxbtrace/src/FXBTraceRunner.java
  *     This is simply a runner script takes care of compile the script, 
  *     running btrace on the application, killing the application.
  *  
  *  c. Output files in build directory:
- *     FxBtraceTracker.class.btrace : btrace output
+ *     <btrace-script-class>.class.btrace : btrace output
  */
-public class FxTrackerRunner {
-    static final Logger logger = Logger.getLogger(FxTrackerRunner.class.getName());
+public class FXBTraceRunner {
+    static final Logger logger = Logger.getLogger(FXBTraceRunner.class.getName());
     static final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
     static boolean debug = true;
     
@@ -95,13 +91,10 @@ public class FxTrackerRunner {
             System.getenv("BTRACE_HOME"));
     static final String BASE_DIR    = System.getProperty("base.dir", 
             System.getenv("BASE_DIR"));
-    
-    static final String FXTRACKER_NAME = "FxTracker";
+   
+    static final String FXBTRACERUNNER_NAME = "FXTrackerRunner"; 
     static final String BTRACE_CLIENT_JAR = BTRACE_HOME + "/build/btrace-client.jar";
     static final String JAVAFXRT_JAR = JAVAFX_HOME + "/lib/shared/javafxrt.jar";
-    static final String FXBTRACE_SCRIPT_NAME = "FxBtraceTracker";
-    static final String BTRACE_SCRIPT = BASE_DIR +
-            "/src/" + FXBTRACE_SCRIPT_NAME + ".java";
     static final String BTRACE_COMPILER = "com.sun.btrace.compiler.Compiler";
     static final String BTRACE_AGENT_OPT = "-javaagent:" + BTRACE_HOME +
                 "/build/btrace-agent.jar=unsafe=true,script=";
@@ -114,14 +107,16 @@ public class FxTrackerRunner {
    
     static final String SDK_DIR = "sdk";
     static final String JPSMARKER="JPSMARKER=";
-    
+ 
     // Command line arguments
+    static String btraceScript = null;
     static String appClasspath = null;
     static String mainClass = null;
     static int interval = 5*1000;
     static int duration = 2*60*1000;
     
-    static final String msg[] = { "--jar path_to_your_jar",
+    static final String msg[] = { "--script your_btrace_script",
+                                  "--jar path_to_your_jar",
                                   "(optional) --main entry-point",
                                   "(optional) --interval " + interval + " (in msecs)",
                                   "(optional) --duration " + duration + " (in msecs)"};
@@ -165,7 +160,9 @@ public class FxTrackerRunner {
         }        
         if (args != null && args.length > 0) {
             for (int n = 0 ; n < args.length ; n++) {
-                if (args[n].equals("--jar")) {
+                if (args[n].equals("--script")) {
+                    btraceScript = args[++n];
+                } else if (args[n].equals("--jar")) {
                     appClasspath = args[++n];
                 } else if (args[n].equals("--main")) {
                     mainClass = args[++n];                 
@@ -175,6 +172,10 @@ public class FxTrackerRunner {
                     duration = Integer.parseInt(args[++n]);
                 }
             }
+        }
+        if (btraceScript == null) {
+            logger.severe("--script your_btrace_script must be specified");
+            usage(true);
         }
         if (appClasspath == null) {
             logger.severe("--jar classpath_of_your_app must be specified");
@@ -243,27 +244,26 @@ public class FxTrackerRunner {
         cmdsList.add("-unsafe");
         cmdsList.add("-classpath");
         cmdsList.add(JAVAFXRT_JAR);
-        cmdsList.add(BTRACE_SCRIPT);
+        cmdsList.add(btraceScript + ".java");
         doExec(cmdsList);
         
         // The btrace compiler does not return the exit codes properly, and the
         // btrace launcher will continue if the script file is non-existent, so
         // we test for the existence of the resultant class file for success.
         
-        File clsFile = new File(BUILD_DIR, FXBTRACE_SCRIPT_NAME + ".class");
+        File clsFile = new File(BUILD_DIR, btraceScript + ".class");
         if (!clsFile.exists()) {
-            throw new RuntimeException(FXBTRACE_SCRIPT_NAME + ".class not found");
+            throw new RuntimeException(btraceScript + ".class not found");
         }
         
 
-        // run the fxtracker script and application
+        // run the fxbtrace script and application
         cmdsList.clear();
         cmdsList.add(JAVAFX_EXE);
-        cmdsList.add("-D" + JPSMARKER + FXTRACKER_NAME);
-        cmdsList.add("-D" + FXTRACKER_NAME + ".interval=" + interval);
-        String vmProps = System.getProperty(FXTRACKER_NAME + ".vmoptions");
+        cmdsList.add("-D" + FXBTRACERUNNER_NAME + ".interval=" + interval);
+        String vmProps = System.getProperty(FXBTRACERUNNER_NAME + ".vmoptions");
         // ant could pass the property itself if undefined, ignore it.
-        if (vmProps != null && !vmProps.contains(FXTRACKER_NAME + ".vmoptions")) {
+        if (vmProps != null && !vmProps.contains(FXBTRACERUNNER_NAME + ".vmoptions")) {
             String vmOpts[] = vmProps.split(",\\s");
             for (String x : vmOpts) {
                 cmdsList.add(x);
@@ -279,7 +279,7 @@ public class FxTrackerRunner {
    
     static void killTestApplication() {
         List<String> cmdsList = new ArrayList<String>();
-        String appId = getAppPid(FXTRACKER_NAME);
+        String appId = getAppPid(FXBTRACERUNNER_NAME);
         cmdsList.clear();
 
         if (isWindows) {
