@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.code;
 
+import com.sun.tools.javafx.comp.JavafxDefs;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -35,9 +36,47 @@ import com.sun.tools.mjavac.util.Name;
  */
 public class JavafxVarSymbol extends VarSymbol {
 
+    private int typeKind = -1;
+    private Type elementType = null;
+
     /** Construct a variable symbol, given its flags, name, type and owner.
      */
-    public JavafxVarSymbol(JavafxTypes types, Name.Table names,long flags, Name name, Type type, Symbol owner) {
+    public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
         super(flags, name, type, owner);
+        if (type != null) {
+            setType(type, types);
+        }
+    }
+
+    public Type setType(Type type, JavafxTypes types) {
+        this.type = type;
+        typeKind = types.typeKind(type);
+        switch (typeKind) {
+            case JavafxDefs.TYPE_KIND_SEQUENCE:
+                elementType = types.elementType(type);
+                break;
+            case JavafxDefs.TYPE_KIND_OBJECT:
+                elementType = type;
+                break;
+            default:
+                elementType = null;
+                break;
+        }
+        return type;
+    }
+
+    protected boolean isSequence() {
+        assert typeKind < 0 : "Variable symbol type not initialized";
+        return typeKind == JavafxDefs.TYPE_KIND_SEQUENCE;
+    }
+
+    public Type getElementType() {
+        assert typeKind < 0 : "Variable symbol type not initialized";
+        return elementType;
+    }
+
+    public int getTypeKind() {
+        assert typeKind < 0 : "Variable symbol type not initialized";
+        return typeKind;
     }
 }
