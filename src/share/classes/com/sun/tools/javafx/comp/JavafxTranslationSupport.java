@@ -467,10 +467,10 @@ public abstract class JavafxTranslationSupport {
         return makeType(diagPos, returnType);
     }
 
-    boolean needsDefaultValue(TypeMorphInfo tmi) {
-        return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ||
-               types.isSameType(tmi.getRealType(), syms.javafx_StringType) ||
-               types.isSameType(tmi.getRealType(), syms.javafx_DurationType);
+    boolean isValueType(Type type) {
+        return types.isSequence(type) ||
+               types.isSameType(type, syms.javafx_StringType) ||
+               types.isSameType(type, syms.javafx_DurationType);
     }
 
     JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {

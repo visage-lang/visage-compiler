@@ -78,7 +78,7 @@ public final class FXConstant extends Object implements FXObject {
 
     public Object be$value(final Object varNewValue$) {
         final Object varOldValue$ = $value;
-        if (!Util.isEqual(varOldValue$, varNewValue$) || varTestBits$(FXConstant.VOFF$value, VFLGS$DEFAULT_APPLIED, 0)) {
+        if (varOldValue$ != varNewValue$ || varTestBits$(FXConstant.VOFF$value, VFLGS$DEFAULT_APPLIED, 0)) {
             varChangeBits$(FXConstant.VOFF$value, 0, VFLGS$DEFAULT_APPLIED);
             invalidate$value(VFLGS$IS_INVALID);
             $value = varNewValue$;

@@ -628,7 +628,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct the value field
                     JCExpression init = useSimpleInit(ai)              ? getSimpleInit(ai) :
-                                        needsDefaultValue(ai.getVMI()) ? makeDefaultValue(diagPos, ai.getVMI()) :
+                                        isValueType(ai.getRealType()) ? makeDefaultValue(diagPos, ai.getVMI()) :
                                                                          null;
                     addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym), init));
                 }
@@ -1818,50 +1818,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // T varOldValue$ = $var;
                     addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
     
-                    // Prepare to accumulate then statements.
-                    beginBlock();
-    
-                    // setValid(VFLGS$IS_INVALID);
-                    addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED));
-
-                    // invalidate$(VFLGS$IS_INVALID)
-                    addStmt(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
-    
-                    // $var = value
-                    addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
-
-                    // invalidate$(VFLGS$NEEDS_TRIGGER)
-                    addStmt(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
-
-                    // setValid(VFLGS$NEEDS_TRIGGER); and set as initialized;
-                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
-    
-                    // onReplace$(varOldValue$, varNewValue$)
-                    addStmt(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
-    
                     // varOldValue$ != varNewValue$
-                    // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
-                    JCExpression testExpr = type.isPrimitive() ?
-                        NE(id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName))
-                      : NOT(Call(defs.Util_isEqual, id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
-                    testExpr = OR(testExpr, FlagTest(proxyVarSym, defs.varFlagDEFAULT_APPLIED, null));
+                    // or !varOldValue$.equals(varNewValue$) test for Object value types
+                    JCExpression valueChangedTest = isValueType(type) ?
+                        NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)))
+                      : NE(id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName));
                     
-                    // End of then block.
-                    JCBlock thenBlock = endBlock();
-    
-                    // Prepare to accumulate else statements.
-                    beginBlock();
-    
-                    // setValid(VFLGS$VALIDITY_FLAGS);
-                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED));
-                    
-                    // End of else block.
-                    JCBlock elseBlock = endBlock();
-    
-                    // if (varOldValue$ != varNewValue$) { handle change }
-                    addStmt(OptIf(testExpr, 
-                            thenBlock,
-                            elseBlock));
+                    // if (varOldValue$ != varNewValue$ || Default-Not_applied) {
+                    //   /*handle change*/
+                    //   Set DEFAULT_APPLIED;
+                    //   invalidate$(VFLGS$IS_INVALID)
+                    //   $var = value
+                    //   invalidate$(VFLGS$NEEDS_TRIGGER)
+                    //   ValidityFlags = 0; // set as initialized;
+                    //   onReplace$(varOldValue$, varNewValue$)
+                    // } else {
+                    //   /*reset validity flags*/
+                    //   ValidityFlags = 0;
+                    //   Set DEFAULT_APPLIED;
+                    // }
+                    addStmt(
+                        OptIf (OR(valueChangedTest, FlagTest(proxyVarSym, defs.varFlagDEFAULT_APPLIED, null)),
+                            Block(
+                                FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED),
+                                CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)),
+                                SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)),
+                                CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)),
+                                FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null),
+                                CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName))
+                            ),
+                        /*else*/
+                            Block(
+                                FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED)
+                            )));
    
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
@@ -3099,6 +3088,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addParam(syms.intType, defs.varNewValue_ArgName);
                 }
                 
+                @Override
                 public void statements() {
                     if (varInfo.needsCloning()) {
                         addStmt(Stmt(m().Assign(VarFlags(varSym), flagCast(id(defs.varNewValue_ArgName)))));

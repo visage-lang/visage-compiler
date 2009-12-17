@@ -224,7 +224,6 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_getAsFromNewElements[];
     final RuntimeMethod Sequences_toArray[];
 
-    final RuntimeMethod Util_isEqual; //TODO: replace uses with Checks_equals
     final RuntimeMethod Util_objectTo[];
 
     final RuntimeMethod Checks_equals;
@@ -719,13 +718,12 @@ public class JavafxDefs {
             Sequences_toArray[kind] = new RuntimeMethod(names, cSequences, "to" + typePrefixes[kind] + "Array");
         }
 
-        Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
         Util_objectTo = new RuntimeMethod[TYPE_KIND_COUNT];
         for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
             Util_objectTo[kind] = new RuntimeMethod(names, cUtil, "objectTo" + typePrefixes[kind]);
         }
 
-        Checks_equals = new RuntimeMethod(names, cChecks, "equals"); //TODO: looks like dup
+        Checks_equals = new RuntimeMethod(names, cChecks, "equals"); 
         Checks_isNull = new RuntimeMethod(names, cChecks, "isNull");
 
         Math_min = new RuntimeMethod(names, cMath, "min");
