@@ -115,19 +115,13 @@ public class JavafxTypeMorpher {
             this.elementType =
                     symType.isPrimitive() ?
                         null :
-                        isSequence() ?
+                        types.isSequence(realType) ?
                             types.elementType(symType) :
                             realType;
         }
 
-        protected boolean isSequence() {
-            return types.isSequence(realType);
-        }
-
         public Type getRealType() { return realType; }
-        public Type getRealBoxedType() { return types.boxedTypeOrType(realType); }
-        public Type getRealFXType() { return (realType.isPrimitive() && typeKind==TYPE_KIND_OBJECT)? types.boxedTypeOrType(realType) : realType; }
-
+ 
         public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
         public Type getElementType() { return elementType; }
 

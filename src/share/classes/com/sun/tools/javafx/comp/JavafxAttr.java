@@ -939,8 +939,7 @@ public class JavafxAttr implements JavafxVisitor {
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
             if (declType == syms.javafx_UnspecifiedType && v.type == null) {
-                result = tree.type = types.normalize(initType);
-                v.setType(tree.type, types);
+                result = tree.type = v.type = types.normalize(initType);
             }
             //chk.validateAnnotations(tree.mods.annotations, v);
             if (types.isArray(v.type) &&

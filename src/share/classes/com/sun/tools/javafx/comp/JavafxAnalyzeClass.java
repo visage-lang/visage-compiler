@@ -307,7 +307,7 @@ class JavafxAnalyzeClass {
 
         // Predicate to test for sequence.
         public boolean isSequence() {
-            return vmi.getTypeKind() == JavafxDefs.TYPE_KIND_SEQUENCE;
+            return sym.isSequence();
         }
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }

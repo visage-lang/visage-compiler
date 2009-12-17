@@ -630,7 +630,7 @@ public abstract class JavafxAbstractTranslation
 
     static class OnReplaceInfo {
         public OnReplaceInfo outer;
-        VarMorphInfo vmi;
+        JavafxVarSymbol vsym;
         public JFXOnReplace onReplace;
         Symbol newElementsSym;
         Type arraySequenceType;
@@ -2186,8 +2186,7 @@ public abstract class JavafxAbstractTranslation
          * Check if a non-primitive has the default value for its type.
          */
         private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
-            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-            if (tmi.isSequence() || types.isSameType(tmi.getRealType(), syms.javafx_StringType)) {
+            if (types.isSequence(argType) || types.isSameType(argType, syms.javafx_StringType)) {
                 return Call(defs.Checks_isNull, arg);
             } else {
                 return EQnull(arg);
@@ -3044,9 +3043,8 @@ public abstract class JavafxAbstractTranslation
                         && (var.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {
                     JFXOnReplace onReplace = info.onReplace;
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                    Symbol sym = info.vmi.getSymbol();
-                    args.append(getReceiverOrThis((JavafxVarSymbol) sym));
-                    args.append(Offset(sym));
+                    args.append(getReceiverOrThis(info.vsym));
+                    args.append(Offset(info.vsym));
                     args.append(id(paramStartPosName(onReplace)));
                     args.append(id(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);

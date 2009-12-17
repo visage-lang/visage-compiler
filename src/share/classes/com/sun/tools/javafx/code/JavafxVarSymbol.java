@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.code;
 
 import com.sun.tools.javafx.comp.JavafxDefs;
+import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
@@ -38,45 +39,59 @@ public class JavafxVarSymbol extends VarSymbol {
 
     private int typeKind = -1;
     private Type elementType = null;
+    private final boolean isMember;
+    private final boolean isFXMember;
+
+    private Type lastSeenType;
+    private final JavafxTypes types;
 
     /** Construct a variable symbol, given its flags, name, type and owner.
      */
     public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
         super(flags, name, type, owner);
-        if (type != null) {
-            setType(type, types);
+        this.types = types;
+        this.isMember = owner.kind == Kinds.TYP && name != names._class;
+        this.isFXMember = isMember && types.isJFXClass(owner);
+    }
+
+    public void syncType() {
+        if (lastSeenType != type) {
+            typeKind = types.typeKind(type);
+            switch (typeKind) {
+                case JavafxDefs.TYPE_KIND_SEQUENCE:
+                    elementType = types.elementType(type);
+                    break;
+                case JavafxDefs.TYPE_KIND_OBJECT:
+                    elementType = type;
+                    break;
+                default:
+                    elementType = null;
+                    break;
+            }
+            lastSeenType = type;
         }
     }
 
-    public Type setType(Type type, JavafxTypes types) {
-        this.type = type;
-        typeKind = types.typeKind(type);
-        switch (typeKind) {
-            case JavafxDefs.TYPE_KIND_SEQUENCE:
-                elementType = types.elementType(type);
-                break;
-            case JavafxDefs.TYPE_KIND_OBJECT:
-                elementType = type;
-                break;
-            default:
-                elementType = null;
-                break;
-        }
-        return type;
+    public boolean isMember() {
+            return isMember;
     }
 
-    protected boolean isSequence() {
-        assert typeKind < 0 : "Variable symbol type not initialized";
+    public  boolean isFXMember() {
+            return isFXMember;
+    }
+
+    public boolean isSequence() {
+        syncType();
         return typeKind == JavafxDefs.TYPE_KIND_SEQUENCE;
     }
 
     public Type getElementType() {
-        assert typeKind < 0 : "Variable symbol type not initialized";
+        syncType();
         return elementType;
     }
 
     public int getTypeKind() {
-        assert typeKind < 0 : "Variable symbol type not initialized";
+        syncType();
         return typeKind;
     }
 }

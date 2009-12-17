@@ -234,13 +234,13 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     /**
      * Make a version of the on-replace to be used in inline in a setter.
      */
-    private JCStatement translateTriggerAsInline(VarMorphInfo vmi, JFXOnReplace onReplace) {
+    private JCStatement translateTriggerAsInline(JavafxVarSymbol vsym, JFXOnReplace onReplace) {
         if (onReplace == null) return null;
-        boolean isSequence = vmi.isSequence();
+        boolean isSequence = vsym.isSequence();
         if (isSequence) {
             OnReplaceInfo info = new OnReplaceInfo();
             info.onReplace = onReplace;
-            info.vmi = vmi;
+            info.vsym = vsym;
             info.outer = onReplaceInfo;
             if (onReplace.getNewElements() != null)
                 info.newElementsSym = onReplace.getNewElements().sym;
@@ -315,9 +315,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
                                     bindResult,
                                     attrDef.getOnReplace(),
-                                    translateTriggerAsInline(vmi, attrDef.getOnReplace()),
+                                    translateTriggerAsInline(attrDef.sym, attrDef.getOnReplace()),
                                     attrDef.getOnInvalidate(),
-                                    translateTriggerAsInline(vmi, attrDef.getOnInvalidate()));
+                                    translateTriggerAsInline(attrDef.sym, attrDef.getOnInvalidate()));
                             attrInfo.append(ai);
                             break;
                         }
@@ -337,9 +337,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
                                     bindResult,
                                     override.getOnReplace(),
-                                    translateTriggerAsInline(vmi, override.getOnReplace()),
+                                    translateTriggerAsInline(override.sym, override.getOnReplace()),
                                     override.getOnInvalidate(),
-                                    translateTriggerAsInline(vmi, override.getOnInvalidate()));
+                                    translateTriggerAsInline(override.sym, override.getOnInvalidate()));
                             overrideInfo.append(ai);
                             break;
                         }
@@ -534,7 +534,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         return new ExpressionTranslator(diagPos) {
             protected ExpressionResult doit() {
-                Symbol vsym = vmi.getSymbol();
+                JavafxVarSymbol vsym = (JavafxVarSymbol) vmi.getSymbol();
                 assert ((vsym.flags() & Flags.PARAMETER) == 0L) : "Parameters are not initialized";
                 setSubstitution(init, vsym);
                 final JCExpression nonNullInit = translateNonBoundInit(diagPos, init, vmi);
@@ -542,7 +542,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 assert !isLocal || instanceName == null;
                 JCExpression res;
                 if (vmi.useAccessors()) {
-                    if (vmi.isMemberVariable() && vmi.isSequence()) {
+                    if (vmi.isMemberVariable() && vsym.isSequence()) {
                         JCExpression tc =
                                 instanceName == null ? getReceiverOrThis(vsym) : id(instanceName);
                         res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);
@@ -553,7 +553,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 } else {
                     res = Setter(vsym, nonNullInit);
                 }
-                return toResult(res, vmi.getRealType());
+                return toResult(res, vsym.type);
             }
         }.doit();
     }
