@@ -145,10 +145,6 @@ public abstract class JavafxAbstractTranslation
         return toJava;
     }
 
-    protected JavafxTranslateDependent translateDependent() {
-        return toJava.translateDependent();
-    }
-
     /********** Utility routines **********/
 
     /**

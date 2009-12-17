@@ -64,7 +64,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     private final JavafxInitializationBuilder initBuilder;
     private final JavafxTranslateBind translateBind;
     private final JavafxTranslateInvBind translateInvBind;
-    private final JavafxTranslateDependent translateDependent;
 
     /*
      * Buffers holding definitions waiting to be prepended to the current list of definitions.
@@ -111,7 +110,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         this.initBuilder = JavafxInitializationBuilder.instance(context);
         this.translateBind = JavafxTranslateBind.instance(context);
         this.translateInvBind = JavafxTranslateInvBind.instance(context);
-        this.translateDependent = JavafxTranslateDependent.instance(context);
         this.depGraphWriter = DependencyGraphWriter.instance(context);
     }
 
@@ -193,11 +191,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     @Override
     protected JavafxToJava toJava() {
         return this;
-    }
-
-    @Override
-    protected JavafxTranslateDependent translateDependent() {
-        return translateDependent;
     }
 
     /**
