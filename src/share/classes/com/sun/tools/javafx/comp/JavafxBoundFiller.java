@@ -26,12 +26,12 @@ package com.sun.tools.javafx.comp;
 import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
@@ -117,7 +117,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         // $index$
         Name indexParamName = names.fromString("$index$"); //FIXME-move to defs.
         Name indexName = JavafxTranslationSupport.indexVarName(clause.getVar().getName(), names);
-        VarSymbol indexParamSym = new VarSymbol(Flags.FINAL | Flags.PARAMETER, indexParamName, syms.intType, owner);
+        JavafxVarSymbol indexParamSym = new JavafxVarSymbol(Flags.FINAL | Flags.PARAMETER, indexParamName, syms.intType, owner);
 
         // Create the index var
         // var $indexof$x = $index$
@@ -132,7 +132,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      * Create the induction var in the body
      *  var x
      */
-    private JFXVar createInductionVar(JFXForExpressionInClause clause, VarSymbol boundIndexVarSym, Symbol owner) {
+    private JFXVar createInductionVar(JFXForExpressionInClause clause, JavafxVarSymbol boundIndexVarSym, Symbol owner) {
         JFXVar param = clause.getVar();
         JFXVar inductionVar =  preTrans.LocalVar(param.type, param.name, null, owner);
         clause.inductionVarSym = inductionVar.sym = param.sym;
@@ -228,7 +228,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
                         returnExprIsVar ? fxmake.Ident((JFXVar) returnExpr) : returnExpr,
                         JavafxBindStatus.UNIDIBIND, null, null);
                 returnVar.type = tree.sym.type.getReturnType();
-                returnVar.sym = new VarSymbol(0L, defs.boundFunctionResultName, returnVar.type, tree.sym);
+                returnVar.sym = new JavafxVarSymbol(0L, defs.boundFunctionResultName, returnVar.type, tree.sym);
                 returnVar.markBound(JavafxBindStatus.UNIDIBIND);
                 stmts.append(returnVar);
 

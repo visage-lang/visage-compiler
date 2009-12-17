@@ -27,6 +27,7 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxTranslationSupport.NotYetImplementedException;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Flags;
@@ -34,7 +35,6 @@ import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
@@ -169,7 +169,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
     private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
-        VarSymbol sym = new VarSymbol(flags, vName, types.normalize(type), varOwner);
+        JavafxVarSymbol sym = new JavafxVarSymbol(flags, vName, types.normalize(type), varOwner);
         varOwner.members().enter(sym);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
         JFXType fxType = preTrans.makeTypeTree(sym.type);
@@ -515,7 +515,7 @@ public class JavafxDecompose implements JavafxVisitor {
                tree.sym.kind != Kinds.MTH) {
             // This is some outer instance variable access
             if (bindStatus.isBound()) {
-                Symbol outerThisSym = new VarSymbol(0L, names._this, selectSym.type, selectSym);
+                Symbol outerThisSym = new JavafxVarSymbol(0L, names._this, selectSym.type, selectSym);
                 JFXIdent outerThis = fxmake.Ident(outerThisSym);
                 selected = shred(outerThis);
             } else {
@@ -565,7 +565,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 // and shred "this" part so that local classes generated for local
                 // binds will have proper dependency.
                 JFXIdent thisExpr = fxmake.Ident(names._this);
-                thisExpr.sym = new VarSymbol(0L, names._this, tree.sym.owner.type, tree.sym.owner.type.tsym);
+                thisExpr.sym = new JavafxVarSymbol(0L, names._this, tree.sym.owner.type, tree.sym.owner.type.tsym);
                 thisExpr.type = thisExpr.sym.type;
                 setSelectResult(tree, shred(thisExpr), tree.sym);
                 return;
@@ -994,7 +994,7 @@ public class JavafxDecompose implements JavafxVisitor {
                     JFXBlock body = func.getBodyExpression();
                     JFXIdent thisIdent = fxmake.Ident(names._this);
                     thisIdent.type = ctype;
-                    thisIdent.sym = new VarSymbol(Flags.FINAL | Flags.HASINIT, names._this, ctype, cdecl.sym);
+                    thisIdent.sym = new JavafxVarSymbol(Flags.FINAL | Flags.HASINIT, names._this, ctype, cdecl.sym);
                     body.value = thisIdent;
                     body.type = ctype;
 

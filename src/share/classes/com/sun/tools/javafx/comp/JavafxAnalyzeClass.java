@@ -30,7 +30,6 @@ import com.sun.tools.mjavac.code.Scope.Entry;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.*;
 import com.sun.tools.mjavac.tree.JCTree;
@@ -44,10 +43,12 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import static com.sun.tools.mjavac.code.Flags.*;
 
 import java.util.HashMap;
@@ -109,10 +110,10 @@ class JavafxAnalyzeClass {
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     
     // Map of all bind selects used to construct the class update$ method.
-    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
 
     // Map of all bind selects used to construct the script update$ method.
-    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
     private final Map<String, FuncInfo> needDispatchMethods = new HashMap<String, FuncInfo>();
@@ -160,7 +161,7 @@ class JavafxAnalyzeClass {
         private final DiagnosticPosition diagPos;
 
         // Var symbol (unique to symbol.)
-        protected final VarSymbol sym;
+        protected final JavafxVarSymbol sym;
 
         // Translated type information.
         protected final VarMorphInfo vmi;
@@ -183,7 +184,7 @@ class JavafxAnalyzeClass {
         // True if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
         private boolean needsMixinInterface;
 
-        private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
+        private VarInfo(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
             this.diagPos = diagPos;
             this.name = name;
@@ -196,7 +197,7 @@ class JavafxAnalyzeClass {
         }
 
         // Return the var symbol.
-        public VarSymbol getSymbol() { return sym; }
+        public JavafxVarSymbol getSymbol() { return sym; }
 
         // Return the var position.
         public DiagnosticPosition pos() { return diagPos; }
@@ -281,7 +282,7 @@ class JavafxAnalyzeClass {
         public boolean hasOverrideVar() { return overrideVar() != null; }
 
         // Convenience method to return the current symbol to be used for qualified name.
-        public VarSymbol proxyVarSym() { return hasProxyVar() ? proxyVar().sym : sym; }
+        public JavafxVarSymbol proxyVarSym() { return hasProxyVar() ? proxyVar().sym : sym; }
         
         // Predicate for static var test.
         public boolean isStatic() { return (getFlags() & Flags.STATIC) != 0; }
@@ -343,7 +344,7 @@ class JavafxAnalyzeClass {
         public List<JCStatement> boundInvSetterPreface() { return List.<JCStatement>nil(); }
 
         // Empty or variable symbols on which this variable depends
-        public List<VarSymbol> boundBindees() { return List.<VarSymbol>nil(); }
+        public List<JavafxVarSymbol> boundBindees() { return List.<JavafxVarSymbol>nil(); }
         
         // Bound variable symbols on which this variable is used.
         public HashSet<VarInfo> boundBinders() { return bindersOrNull; }
@@ -403,7 +404,7 @@ class JavafxAnalyzeClass {
                     }
                 }
                 if (!boundBindees().isEmpty()) {
-                    for (VarSymbol bindeeSym : boundBindees()) {
+                    for (JavafxVarSymbol bindeeSym : boundBindees()) {
                         System.err.println("        bindee=" + bindeeSym);
                     }
                 }
@@ -463,7 +464,7 @@ class JavafxAnalyzeClass {
         // Result of bind translation
         private final ExpressionResult bindOrNull;
 
-        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
+        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
                 JCStatement initStmt, ExpressionResult bindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
@@ -507,7 +508,7 @@ class JavafxAnalyzeClass {
 
         // Variable symbols on which this variable depends
         @Override
-        public List<VarSymbol> boundBindees() { return bindOrNull==null? List.<VarSymbol>nil() : bindOrNull.bindees(); }
+        public List<JavafxVarSymbol> boundBindees() { return bindOrNull==null? List.<JavafxVarSymbol>nil() : bindOrNull.bindees(); }
 
         // Empty or bound select pairs.
         @Override
@@ -659,7 +660,7 @@ class JavafxAnalyzeClass {
     // declared in the same compile unit or read in from a .class file.
     //
     static class SuperClassVarInfo extends VarInfo {
-        SuperClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
+        SuperClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
         }
 
@@ -679,7 +680,7 @@ class JavafxAnalyzeClass {
         // Override from mixee.
         private VarInfo overrideVar;
         
-        MixinClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
+        MixinClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
             this.accessors = ListBuffer.lb();
             this.overrideVar = null;
@@ -773,8 +774,8 @@ class JavafxAnalyzeClass {
 
         // Variable symbols on which this variable depends
         @Override
-        public List<VarSymbol> boundBindees() {
-            ListBuffer<VarSymbol> bindees = ListBuffer.lb();
+        public List<JavafxVarSymbol> boundBindees() {
+            ListBuffer<JavafxVarSymbol> bindees = ListBuffer.lb();
             bindees.appendList(super.boundBindees());
             
             if (hasOverrideVar()) {
@@ -928,19 +929,19 @@ class JavafxAnalyzeClass {
         }
     }
     
-    private void addInterClassBinder(VarInfo varInfo, VarSymbol instanceSymbol, VarSymbol referenceSymbol) {
-        VarSymbol varSymbol = (VarSymbol)varInfo.getSymbol();
+    private void addInterClassBinder(VarInfo varInfo, JavafxVarSymbol instanceSymbol, JavafxVarSymbol referenceSymbol) {
+        JavafxVarSymbol varSymbol = (JavafxVarSymbol)varInfo.getSymbol();
         
         // Get the correct update map.
-        HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
+        HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap =
             varInfo.isStatic() ? scriptUpdateMap : classUpdateMap;
         
         // Get instance level map.
-        HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
+        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
         
         // Add new entry if not found.
         if (instanceMap == null) {
-            instanceMap = new HashMap<VarSymbol, HashSet<VarInfo>>();
+            instanceMap = new HashMap<JavafxVarSymbol, HashSet<VarInfo>>();
             updateMap.put(instanceSymbol, instanceMap);
         }
         
@@ -959,7 +960,7 @@ class JavafxAnalyzeClass {
     
     private void addBinders(VarInfo ai) {
         // Add any bindees to binders.
-        for (VarSymbol bindeeSym : ai.boundBindees()) {
+        for (JavafxVarSymbol bindeeSym : ai.boundBindees()) {
             // Find the varInfo
             VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(bindeeSym));
             
@@ -970,7 +971,7 @@ class JavafxAnalyzeClass {
             
         // Add any bind select pairs to update map.
         for (DependentPair pair : ai.boundBoundSelects()) {
-            addInterClassBinder(ai, pair.instanceSym, (VarSymbol)pair.referencedSym);
+            addInterClassBinder(ai, pair.instanceSym, (JavafxVarSymbol)pair.referencedSym);
         }
         
         // If the ai has invalidators.
@@ -1158,14 +1159,14 @@ class JavafxAnalyzeClass {
     //
     // Returns the map used to construct the class update$ method.
     //
-    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
+    public final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
         return classUpdateMap;
     }
     
     //
     // Returns the map used to construct the script update$ method.
     //
-    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
+    public final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
         return scriptUpdateMap;
     }
 
@@ -1372,9 +1373,9 @@ class JavafxAnalyzeClass {
 
                 // Scan attribute members.
                 for (Symbol varMem : reversed) {
-                    if (varMem instanceof VarSymbol) {
+                    if (varMem instanceof JavafxVarSymbol) {
                         // Attribute member.
-                        VarSymbol var = (VarSymbol)varMem;
+                        JavafxVarSymbol var = (JavafxVarSymbol)varMem;
                         
                         // Filter out methods generated by the compiler.
                         if (isRootClass(cSym) || !filterVars(var)) {
@@ -1455,7 +1456,7 @@ class JavafxAnalyzeClass {
     // Predicate method indicates if the var should be include in processing.
     // Should filter out unrelated methods generated by the compiler.
     //
-    private boolean filterVars(VarSymbol var) {
+    private boolean filterVars(JavafxVarSymbol var) {
         Name name = var.name;
         String nameString = name.toString();
         
@@ -1551,7 +1552,7 @@ class JavafxAnalyzeClass {
     // This method determines if the var needs to be handled in the current class.
     // This method is only called for inherited attributes.
     //
-    private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean needsCloning, HashMap<Name, MixinClassVarInfo> mixinVarMap) {
+    private void processAttribute(JavafxVarSymbol var, ClassSymbol cSym, boolean needsCloning, HashMap<Name, MixinClassVarInfo> mixinVarMap) {
         boolean isStatic = (var.flags() & Flags.STATIC) != 0;
 
         // If the var is in a class and not a static (ie., an instance attribute.)

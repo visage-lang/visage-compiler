@@ -45,6 +45,7 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitClassMap;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitVarMap;
@@ -57,7 +58,6 @@ import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.tree.TreeTranslator;
 import java.util.Map;
-import java.util.Set;
 import javax.lang.model.type.TypeKind;
 import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
 
@@ -311,10 +311,10 @@ public abstract class JavafxAbstractTranslation
 
     public static class DependentPair {
 
-        public final VarSymbol instanceSym;
+        public final JavafxVarSymbol instanceSym;
         public final Symbol referencedSym;
 
-        DependentPair(VarSymbol instanceSym, Symbol referencedSym) {
+        DependentPair(JavafxVarSymbol instanceSym, Symbol referencedSym) {
             this.instanceSym = instanceSym;
             this.referencedSym = referencedSym;
         }
@@ -328,13 +328,13 @@ public abstract class JavafxAbstractTranslation
     public static class BindeeInvalidator {
 
         // Variable symbols on which the current variable depends
-        public final VarSymbol bindee;
+        public final JavafxVarSymbol bindee;
 
         // Invalidation code to be placed in bindee.
         // Optional.  If null, use default invalidation of the current variable.
         public final JCStatement invalidator;
 
-        BindeeInvalidator(VarSymbol bindee, JCStatement invalidator) {
+        BindeeInvalidator(JavafxVarSymbol bindee, JCStatement invalidator) {
             this.bindee = bindee;
             this.invalidator = invalidator;
         }
@@ -361,14 +361,14 @@ public abstract class JavafxAbstractTranslation
 
     public static class ExpressionResult extends AbstractStatementsResult {
         private final JCExpression value;
-        private final List<VarSymbol> bindees;
+        private final List<JavafxVarSymbol> bindees;
         private final List<BindeeInvalidator> invalidators;
         private final List<DependentPair> interClass;
         private final List<JCStatement> setterPreface;
         private final Type resultType;
 
         ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, 
-                List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
+                List<JavafxVarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
                 List<JCStatement> setterPreface, Type resultType) {
             super(diagPos, stmts);
             this.value = value;
@@ -390,7 +390,7 @@ public abstract class JavafxAbstractTranslation
             return invalidators;
         }
 
-        public List<VarSymbol> bindees() {
+        public List<JavafxVarSymbol> bindees() {
             return bindees;
         }
         public List<DependentPair> interClass() {
@@ -427,12 +427,12 @@ public abstract class JavafxAbstractTranslation
     public static class BoundSequenceResult extends ExpressionResult {
         private final JCStatement getElement;
         private final JCStatement getSize;
-        BoundSequenceResult(List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {
+        BoundSequenceResult(List<JavafxVarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {
             this(null, null, bindees, invalidators, interClass, getElement, getSize, null);
         }
         BoundSequenceResult(
                 List<JCStatement> stmts, JCExpression value,
-                List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
+                List<JavafxVarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
                 JCStatement getElement, JCStatement getSize, Type resultType) {
             super(getElement.pos(), stmts, value, bindees, invalidators, interClass, null, resultType);
             this.getElement = getElement;
@@ -782,7 +782,7 @@ public abstract class JavafxAbstractTranslation
 
         private final ListBuffer<JCStatement> stmts = ListBuffer.lb();
         private final ListBuffer<BindeeInvalidator> invalidators = ListBuffer.lb();
-        private final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
+        private final ListBuffer<JavafxVarSymbol> bindees = ListBuffer.lb();
         private final ListBuffer<DependentPair> interClass = ListBuffer.lb();
         private final ListBuffer<JCStatement> setterPreface = ListBuffer.lb();
 
@@ -842,24 +842,24 @@ public abstract class JavafxAbstractTranslation
             stmts.appendList(list);
         }
 
-        void addInvalidator(VarSymbol sym, JCStatement invStmt) {
+        void addInvalidator(JavafxVarSymbol sym, JCStatement invStmt) {
             BindeeInvalidator bi = new BindeeInvalidator(sym, invStmt);
             if (!invalidators.contains(bi)) {
                 invalidators.append(bi);
             }
         }
 
-        void addBindee(VarSymbol sym) {
+        void addBindee(JavafxVarSymbol sym) {
             if (types.isJFXClass(sym.owner)) {
                 bindees.append(sym);
             }
         }
 
-        void addBindees(List<VarSymbol> syms) {
+        void addBindees(List<JavafxVarSymbol> syms) {
             bindees.appendList(syms);
         }
 
-        void addInterClassBindee(VarSymbol instanceSym, Symbol referencedSym) {
+        void addInterClassBindee(JavafxVarSymbol instanceSym, Symbol referencedSym) {
             if (types.isJFXClass(instanceSym.owner) && types.isJFXClass(referencedSym.owner)) {
                 interClass.append(new DependentPair( instanceSym,  referencedSym));
             }
@@ -901,7 +901,7 @@ public abstract class JavafxAbstractTranslation
             return stmts.toList();
         }
 
-        List<VarSymbol> bindees() {
+        List<JavafxVarSymbol> bindees() {
             return bindees.toList();
         }
 
@@ -1039,7 +1039,7 @@ public abstract class JavafxAbstractTranslation
             JCExpression expr = varRef;
 
             if (sym instanceof VarSymbol) {
-                final VarSymbol vsym = (VarSymbol) sym;
+                final JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
                 VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
                 boolean isFXMemberVar = vmi.isFXMemberVariable();
 
@@ -1789,8 +1789,8 @@ public abstract class JavafxAbstractTranslation
         
         @Override
         protected ExpressionResult doit() {
-            if (sym instanceof VarSymbol) {
-                VarSymbol vsym = (VarSymbol) sym;
+            if (sym instanceof JavafxVarSymbol) {
+                JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
                 if (currentClass().sym.isSubClass(sym.owner, types)) {
                     // The var is in our class (or a superclass)
                     if ((receiverContext() == ReceiverContext.ScriptAsStatic) == sym.isStatic()) {
@@ -1811,9 +1811,9 @@ public abstract class JavafxAbstractTranslation
      */
     class BoundSelectTranslator extends SelectTranslator {
 
-        protected final VarSymbol selectResSym;
+        protected final JavafxVarSymbol selectResSym;
 
-        BoundSelectTranslator(JFXSelect tree, VarSymbol selectResSym) {
+        BoundSelectTranslator(JFXSelect tree, JavafxVarSymbol selectResSym) {
             super(tree);
             this.selectResSym = selectResSym;
         }
@@ -1826,8 +1826,8 @@ public abstract class JavafxAbstractTranslation
                 JFXIdent selector = (JFXIdent) selectorExpr;
                 Symbol selectorSym = selector.sym;
                 buildDependencies(selectorSym);
-                addBindee((VarSymbol) selectorSym);
-                addInterClassBindee((VarSymbol) selectorSym, refSym);
+                addBindee((JavafxVarSymbol) selectorSym);
+                addInterClassBindee((JavafxVarSymbol) selectorSym, refSym);
             }
             return (ExpressionResult) super.doit();
         }
@@ -2567,7 +2567,7 @@ public abstract class JavafxAbstractTranslation
         protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
 
         // Symbols corresponding to caseStats.
-        protected ListBuffer<VarSymbol> varSyms = ListBuffer.lb();
+        protected ListBuffer<JavafxVarSymbol> varSyms = ListBuffer.lb();
 
         NewInstanceTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
@@ -2597,13 +2597,13 @@ public abstract class JavafxAbstractTranslation
          */
         protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
-        protected JCExpression translateInstanceVariableInit(JFXExpression init, VarSymbol vsym) {
+        protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxVarSymbol vsym) {
             ExpressionResult eres = translateToExpressionResult(init, vsym.type);
             mergeResults(eres);
             return convertNullability(init.pos(), eres.expr(), init, vsym.type);
         }
 
-        void setInstanceVariable(Name instanceName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
+        void setInstanceVariable(Name instanceName, JavafxBindStatus bindStatus, JavafxVarSymbol vsym, JFXExpression init) {
             JCExpression transInit = translateInstanceVariableInit(init, vsym);
             JCExpression tc = instanceName == null ? null : id(instanceName);
             JCStatement def;
@@ -2659,7 +2659,7 @@ public abstract class JavafxAbstractTranslation
                 int[] tags = new int[count];
 
                 int index = 0;
-                for (VarSymbol varSym : varSyms) {
+                for (JavafxVarSymbol varSym : varSyms) {
                     tags[index++] = varMap.addVar(varSym);
                 }
 
@@ -2674,7 +2674,7 @@ public abstract class JavafxAbstractTranslation
                 JCExpression mapExpr = m().Indexed(id(mapVar), id(loopName));
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
-                VarSymbol varSym = varSyms.first();
+                JavafxVarSymbol varSym = varSyms.first();
                 JCExpression varOffsetExpr = Offset(id(receiverName), varSym);
                 JCVariableDecl offsetVar = TmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
@@ -2687,7 +2687,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
-            for (VarSymbol vsym : varSyms) {
+            for (JavafxVarSymbol vsym : varSyms) {
                 JCExpression flagsToSet = (vsym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 ?
                     id(defs.varFlagINIT_OBJ_LIT_DEFAULT) :
                     id(defs.varFlagINIT_OBJ_LIT);
@@ -2826,7 +2826,7 @@ public abstract class JavafxAbstractTranslation
                 diagPos = olpart.pos(); // overwrite diagPos (must restore)
                 JavafxBindStatus bindStatus = olpart.getBindStatus();
                 JFXExpression init = olpart.getExpression();
-                VarSymbol vsym = (VarSymbol) olpart.sym;
+                JavafxVarSymbol vsym = (JavafxVarSymbol) olpart.sym;
                 setInstanceVariable(instName, bindStatus, vsym, init);
             }
             if (tree.varDefinedByThis != null) {
@@ -3049,7 +3049,7 @@ public abstract class JavafxAbstractTranslation
                     JFXOnReplace onReplace = info.onReplace;
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
                     Symbol sym = info.vmi.getSymbol();
-                    args.append(getReceiverOrThis((VarSymbol) sym));
+                    args.append(getReceiverOrThis((JavafxVarSymbol) sym));
                     args.append(Offset(sym));
                     args.append(id(paramStartPosName(onReplace)));
                     args.append(id(paramNewElementsLengthName(onReplace)));
@@ -3650,12 +3650,12 @@ public abstract class JavafxAbstractTranslation
             return List.<JCExpression>nil();
         }
 
-        VarSymbol varSym(Name varName) {
-            return (VarSymbol) builtIn.tsym.members().lookup(varName).sym;
+        JavafxVarSymbol varSym(Name varName) {
+            return (JavafxVarSymbol) builtIn.tsym.members().lookup(varName).sym;
         }
 
         void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
-            VarSymbol vsym = varSym(varName);
+            JavafxVarSymbol vsym = varSym(varName);
             setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
         }
 
@@ -3667,7 +3667,7 @@ public abstract class JavafxAbstractTranslation
 
     class VarInitTranslator extends ExpressionTranslator {
         private final JFXVar var;
-        private final VarSymbol vsym;
+        private final JavafxVarSymbol vsym;
 
         VarInitTranslator(JFXVarInit tree) {
             super(tree.pos());

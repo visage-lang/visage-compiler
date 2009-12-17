@@ -35,6 +35,7 @@ import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
@@ -67,10 +68,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
     public static class LiteralInitVarMap {
         private int count = 1;
-        public Map<VarSymbol, Integer> varMap = new HashMap<VarSymbol, Integer>();
-        public ListBuffer<VarSymbol> varList = ListBuffer.lb();
+        public Map<JavafxVarSymbol, Integer> varMap = new HashMap<JavafxVarSymbol, Integer>();
+        public ListBuffer<JavafxVarSymbol> varList = ListBuffer.lb();
 
-        public int addVar(VarSymbol sym) {
+        public int addVar(JavafxVarSymbol sym) {
             Integer value = varMap.get(sym);
 
             if (value == null) {
@@ -533,15 +534,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Create a var symbol.
         //
-        public VarSymbol makeVarSymbol(long flags, Type type, Name varName) {
-            return new VarSymbol(flags, varName, type, getCurrentOwner());
+        public JavafxVarSymbol makeVarSymbol(long flags, Type type, Name varName) {
+            return new JavafxVarSymbol(flags, varName, type, getCurrentOwner());
         }
         
         //
         // This method creates a member field field.
         //
         private JCVariableDecl makeField(long flags, Type varType, Name name, JCExpression varInit) {
-            VarSymbol varSym = makeVarSymbol(flags, varType, name);
+            JavafxVarSymbol varSym = makeVarSymbol(flags, varType, name);
             return Var(flags, varType, name, varInit, varSym);
         }
 
@@ -559,7 +560,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private JCVariableDecl makeVariableField(VarInfo varInfo, JCModifiers mods, Type varType, Name name, JCExpression varInit) {
             setDiagPos(varInfo);
             // Get the var symbol.
-            VarSymbol varSym = varInfo.getSymbol();
+            JavafxVarSymbol varSym = varInfo.getSymbol();
             // Construct the variable itself.
             JCVariableDecl var = Var(mods, makeType(varType), name, varInit, varSym);
             // Update the statistics.
@@ -604,7 +605,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Set the current diagnostic position.
                     setDiagPos(ai);
                     // Grab the variable symbol.
-                    VarSymbol varSym = ai.getSymbol();
+                    JavafxVarSymbol varSym = ai.getSymbol();
                     // Static vars are public since they are accessed directly.
                     // Synthetic vars should be hidden (private) since they are internal only and
                     // they may be arbitrarily overridden in subclasses.
@@ -950,9 +951,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Current var info.
             protected VarInfo varInfo;
             // Symbol used on the method.
-            protected VarSymbol varSym;
+            protected JavafxVarSymbol varSym;
             // Symbol used when accessing the variable.
-            protected VarSymbol proxyVarSym;
+            protected JavafxVarSymbol proxyVarSym;
             // Is a sequence type.
             protected boolean isSequence;
             // Real type of the var.
@@ -992,9 +993,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Current attribute.
             protected VarInfo varInfo;
             // Symbol used on the method.
-            protected VarSymbol varSym;
+            protected JavafxVarSymbol varSym;
             // Symbol used when accessing the variable.
-            protected VarSymbol proxyVarSym;
+            protected JavafxVarSymbol proxyVarSym;
             // Is a sequence type.
             protected boolean isSequence;
             // Real type of the var.
@@ -1102,7 +1103,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JCStatement init = varInfo.getDefaultInitStatement();
             
             if (init == null || varInfo.hasBoundDefinition()) {
-                VarSymbol varSym = varInfo.getSymbol();
+                JavafxVarSymbol varSym = varInfo.getSymbol();
                 
                 // If we need to prime the on replace trigger.
                 if (varInfo.onReplaceAsInline() != null || varInfo.isOverride()) {
@@ -1563,7 +1564,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         //     something
                         //   };
 
-                        VarSymbol savedVarSym = onReplace.getSaveVar() != null ? onReplace.getSaveVar().sym : null;
+                        JavafxVarSymbol savedVarSym = onReplace.getSaveVar() != null ? onReplace.getSaveVar().sym : null;
                         if (savedVarSym != null) {
                             // FIXME  Some performance tweaking makes sense:
                             // - If the oldValue is only used for indexing or sizeof, then we
@@ -1922,7 +1923,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // Invalidate back to inverse.
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
-                        for (VarSymbol bindeeSym : varInfo.boundBindees()) {
+                        for (JavafxVarSymbol bindeeSym : varInfo.boundBindees()) {
                             if (depGraphWriter != null) {
                                 depGraphWriter.writeDependency(bindeeSym, varSym);
                             }
@@ -2378,7 +2379,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Clones a field declared in FXBase as an non-static field.  It also creates
         // FXObject accessor method.
         //
-        private void cloneFXBaseVar(VarSymbol var, HashSet<String> excludes) {
+        private void cloneFXBaseVar(JavafxVarSymbol var, HashSet<String> excludes) {
             // Var name as a string.
             String str = var.name.toString();
             // Var modifier flags.
@@ -2446,7 +2447,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             
             // Add arguments to both lists.
             for (VarSymbol argSym : method.getParameters()) {
-                Type argType = argSym.asType();
                 args.append(Param(argSym.asType(), argSym.name));
                 callArgs.append(id(argSym));
             }
@@ -2485,7 +2485,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             // Clone the vars in FXBase.
             for (e = fxBaseSym.members().elems; e != null && e.sym != null; e = e.sibling) {
                 if (e.sym instanceof VarSymbol) {
-                     cloneFXBaseVar((VarSymbol)e.sym, excludes);
+                     cloneFXBaseVar((JavafxVarSymbol)e.sym, excludes);
                 }
             }
 
@@ -2506,7 +2506,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method coordinates the generation of instance level varnum methods.
         //
         public void makeVarNumMethods() {
-            final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
+            final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap =
                 isScript() ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
             final List<VarInfo> varInfos = isScript() ? analysis.scriptVarInfos() : analysis.classVarInfos();
             final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
@@ -2668,7 +2668,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         setDiagPos(ai.pos());
                         // Only declared attributes with default expressions.
                         if (ai.needsCloning()) {
-                            VarSymbol proxyVarSym = ai.proxyVarSym();
+                            JavafxVarSymbol proxyVarSym = ai.proxyVarSym();
                             boolean isBound = ai.hasBoundDefinition();
                             boolean isReadonly = ai.isDef() || (isBound && !ai.hasBiDiBoundDefinition());
                             Name setBits = null;
@@ -2726,7 +2726,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method constructs the current class's update$ method.
         //
-        public void makeUpdateMethod(final List<VarInfo> varInfos, final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap, final boolean isSequenceVersion) {
+        public void makeUpdateMethod(final List<VarInfo> varInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap, final boolean isSequenceVersion) {
             MethodBuilder mb = new MethodBuilder(defs.update_FXObjectMethodName, syms.voidType) {
                 @Override
                 public void initialize() {
@@ -2754,7 +2754,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     for (VarInfo vi : varInfos) {
                         JCStatement ifReferenceStmt = null;
                         if (vi.isInitWithBoundFuncResult()) {
-                            VarSymbol varSym = vi.getSymbol();
+                            JavafxVarSymbol varSym = vi.getSymbol();
                             Symbol initSym = vi.boundFuncResultInitSym();
                             Name ptrVarName = attributeValueName(initSym);
                             beginBlock();
@@ -2809,7 +2809,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         for (VarSymbol mParam : params) {
                             Scope.Entry e = getCurrentClassSymbol().members().lookup(mParam.name);
                             if (e.sym.kind == Kinds.VAR) {
-                                VarSymbol param = (VarSymbol) e.sym;
+                                JavafxVarSymbol param = (JavafxVarSymbol) e.sym;
 
                                 beginBlock();
                                 // varNum$ == $$boundVarNum$foo
@@ -2830,13 +2830,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }
                     // Loop for instance symbol.
-                    for (VarSymbol instanceVar : updateMap.keySet()) {
-                        HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+                    for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
+                        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
                         beginBlock();
 
                         // Loop for reference symbol.
                         JCStatement ifReferenceStmt = null;
-                        for (VarSymbol referenceVar : instanceMap.keySet()) {
+                        for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
                             HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
                             beginBlock();
  
@@ -2881,7 +2881,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     buildIf(stmts.nonEmpty());
                 }
 
-                JCStatement invalidate(boolean isSequence, VarSymbol vsym) {
+                JCStatement invalidate(boolean isSequence, JavafxVarSymbol vsym) {
                     if (isSequence) {
                         if (isSequenceVersion) {
                             // Sequence: update$ is only used on select, so, for sequences, we can just pass through
@@ -3113,7 +3113,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             args.append(Call(makeType(cSym.type), defs.count_FXObjectFieldName));
 
             // For each var declared in order (to make the switch tags align to the vars.)
-            for (VarSymbol vSym : varMap.varList.toList()) {
+            for (JavafxVarSymbol vSym : varMap.varList.toList()) {
                 // ..., X.VOFF$x, ...
 
                 args.append(Select(makeType(cSym.type), attributeOffsetName(vSym)));
@@ -3416,7 +3416,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             resetDiagPos();
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            VarSymbol vs = new VarSymbol(Flags.PUBLIC, defs.outerAccessor_FXObjectFieldName, outerTypeSym.type, getCurrentClassSymbol());
+            JavafxVarSymbol vs = new JavafxVarSymbol(Flags.PUBLIC, defs.outerAccessor_FXObjectFieldName, outerTypeSym.type, getCurrentClassSymbol());
             stmts.append(Return(id(vs)));
             MethodSymbol methSym = makeMethodSymbol(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<Type>nil());
             addDefinition(Method(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<JCVariableDecl>nil(), stmts.toList(), methSym));

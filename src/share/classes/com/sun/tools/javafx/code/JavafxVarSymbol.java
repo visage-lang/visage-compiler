@@ -21,26 +21,23 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.tree;
+package com.sun.tools.javafx.code;
 
-import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.mjavac.code.Symbol;
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Name;
 
 /**
- * A special translation-support identifier which proxies for a sequence
+ * Class to hold and access variable information.
+ *
+ * @author Robert Field
  */
-public class JFXIdentSequenceProxy extends JFXIdent {
+public class JavafxVarSymbol extends VarSymbol {
 
-    private JavafxVarSymbol boundSizeSym;
-
-    protected JFXIdentSequenceProxy(Name name, Symbol sym, JavafxVarSymbol boundSizeSym) {
-        super(name, sym);
-        this.boundSizeSym = boundSizeSym;
-    }
-
-    public JavafxVarSymbol boundSizeSym() {
-        return boundSizeSym;
+    /** Construct a variable symbol, given its flags, name, type and owner.
+     */
+    public JavafxVarSymbol(long flags, Name name, Type type, Symbol owner) {
+        super(flags, name, type, owner);
     }
 }
-

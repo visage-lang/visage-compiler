@@ -33,6 +33,7 @@ import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.javafx.comp.JavafxDefs;
+import com.sun.tools.mjavac.code.Flags;
 
 /**
  *
@@ -157,6 +158,15 @@ public class JavafxSymtab extends Symtab {
         JavafxTypes fxtypes = JavafxTypes.instance(context);
         Options options = Options.instance(context);
         String numberChoice = options.get("Number");
+
+        // Make the array length var symbol a JavaFX var symbol
+        JavafxVarSymbol fxLengthVar = new JavafxVarSymbol(
+            Flags.PUBLIC | Flags.FINAL ,
+            names.length,
+            intType,
+            arrayClass);
+        arrayClass.members().remove(lengthVar);
+        arrayClass.members().enter(fxLengthVar);
 
         javafx_BooleanType = booleanType;
         javafx_CharacterType = charType;

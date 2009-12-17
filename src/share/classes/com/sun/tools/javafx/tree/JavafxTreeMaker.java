@@ -29,12 +29,12 @@ import com.sun.javafx.api.tree.TypeTree.Cardinality;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxDefs;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.Kinds.*;
@@ -241,7 +241,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return tree;
     }
 
-    public JFXIdentSequenceProxy IdentSequenceProxy(Name name, Symbol sym, VarSymbol boundSizeSym) {
+    public JFXIdentSequenceProxy IdentSequenceProxy(Name name, Symbol sym, JavafxVarSymbol boundSizeSym) {
         JFXIdentSequenceProxy tree = new JFXIdentSequenceProxy(name, sym, boundSizeSym);
         tree.pos = pos;
         return tree;
@@ -327,13 +327,13 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** Create a tree representing `this', given its type.
      */
     public JFXExpression This(Type t) {
-        return Ident(new VarSymbol(FINAL, names._this, t, t.tsym));
+        return Ident(new JavafxVarSymbol(FINAL, names._this, t, t.tsym));
     }
 
     /** Create a tree representing `super', given its type and owner.
      */
     public JFXIdent Super(Type t, TypeSymbol owner) {
-        return Ident(new VarSymbol(FINAL, names._super, t, owner));
+        return Ident(new JavafxVarSymbol(FINAL, names._super, t, owner));
     }
 
     /**

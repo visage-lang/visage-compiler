@@ -28,6 +28,7 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
@@ -424,11 +425,11 @@ public class JavafxLocalToClass {
 
         String classNamePrefix;
         if (owner instanceof MethodSymbol && (owner.flags() & JavafxFlags.BOUND) != 0L) {
-            classNamePrefix = defs.boundFunctionClassPrefix;
+            classNamePrefix = JavafxDefs.boundFunctionClassPrefix;
         } else if (owner instanceof MethodSymbol && owner.name == defs.boundForPartName) {
-            classNamePrefix = defs.boundForPartClassPrefix;
+            classNamePrefix = JavafxDefs.boundForPartClassPrefix;
         } else {
-            classNamePrefix = defs.localContextClassPrefix;
+            classNamePrefix = JavafxDefs.localContextClassPrefix;
         }
         final Name className = preTrans.syntheticName(classNamePrefix);
 
@@ -521,7 +522,7 @@ public class JavafxLocalToClass {
             JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(vc.returnType);
             JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
             param.setType(syms.javafx_NonLocalReturnExceptionType);
-            param.sym = new VarSymbol(0L, param.name, param.type, owner);
+            param.sym = new JavafxVarSymbol(0L, param.name, param.type, owner);
             JFXExpression retValue = null;
             if (vc.returnType != null) {
                 JFXIdent nlParam = fxmake.Ident(param);
@@ -607,7 +608,7 @@ public class JavafxLocalToClass {
             @Override
             public void visitIdent(JFXIdent tree) {
                 if (tree.sym instanceof VarSymbol) {
-                    VarSymbol vsym = (VarSymbol) tree.sym;
+                    JavafxVarSymbol vsym = (JavafxVarSymbol) tree.sym;
                     if (vsym.owner.kind != Kinds.TYP &&
                             (vsym.flags() & (JavafxFlags.VARUSE_ASSIGNED_TO | JavafxFlags.VARUSE_SELF_REFERENCE | JavafxFlags.VARUSE_FORWARD_REFERENCE)) != 0L) {
                         hasMutatedLocal = true;

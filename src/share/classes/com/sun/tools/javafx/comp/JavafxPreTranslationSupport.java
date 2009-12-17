@@ -29,6 +29,7 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
@@ -213,7 +214,7 @@ public class JavafxPreTranslationSupport {
                 bindStatus,
                 null, null);
         var.type = type;
-        var.sym = new VarSymbol(
+        var.sym = new JavafxVarSymbol(
                 flags,
                 name,
                 type,

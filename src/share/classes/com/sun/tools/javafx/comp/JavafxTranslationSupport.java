@@ -58,6 +58,7 @@ import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.tree.*;
@@ -912,15 +913,15 @@ public abstract class JavafxTranslationSupport {
         }
                 
         public boolean isMixinVar(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             return isMixinClass(varSym.owner) && !varSym.isStatic();
         }
         
         public boolean isLocalClassVar(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             return isLocalClass(varSym.owner);
         }
@@ -1053,7 +1054,7 @@ public abstract class JavafxTranslationSupport {
                 fieldName = defs.OBJECT_KeyValueTargetTypeFieldName;
             }
 
-            return Select(makeQualifiedTree(diagPos, defs.cKeyValueTargetType), fieldName);
+            return Select(makeQualifiedTree(diagPos, JavafxDefs.cKeyValueTargetType), fieldName);
         }
 
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.
@@ -1158,13 +1159,13 @@ public abstract class JavafxTranslationSupport {
             return m().TypeCast(makeType(syms.byteType, true), expr);
         }
 
-        private JCExpression FlagAction(VarSymbol varSym, Name action, Name clearBits, Name setBits, boolean isStmt) {
+        private JCExpression FlagAction(JavafxVarSymbol varSym, Name action, Name clearBits, Name setBits, boolean isStmt) {
             return FlagAction(varSym, action,
                         clearBits != null ? id(clearBits) : null,
                         setBits != null ? id(setBits) : null,
                         isStmt);
         }
-        private JCExpression FlagAction(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits, boolean isStmt) {
+        private JCExpression FlagAction(JavafxVarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits, boolean isStmt) {
             assert clearBits != null || setBits != null : "Need to specify which bits";
             
             boolean  clearBitsNull = clearBits == null;
@@ -1234,10 +1235,10 @@ public abstract class JavafxTranslationSupport {
         // These methods return an expression for testing a var flag.
         //
 
-        protected JCExpression FlagTest(VarSymbol varSym, Name clearBits, Name setBits) {
+        protected JCExpression FlagTest(JavafxVarSymbol varSym, Name clearBits, Name setBits) {
             return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits, false);
         }
-        protected JCExpression FlagTest(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
+        protected JCExpression FlagTest(JavafxVarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
             return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits, false);
         }
         protected JCExpression FlagTest(JCExpression offset, Name clearBits, Name setBits) {
@@ -1249,11 +1250,11 @@ public abstract class JavafxTranslationSupport {
         // These methods returns a statement for setting/clearing a var flag.
         //
 
-        protected JCStatement FlagChangeStmt(VarSymbol varSym, Name clearBits, Name setBits) {
+        protected JCStatement FlagChangeStmt(JavafxVarSymbol varSym, Name clearBits, Name setBits) {
             return Stmt(FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, true));
         }
 
-        protected JCStatement FlagChangeStmt(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
+        protected JCStatement FlagChangeStmt(JavafxVarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
             return Stmt(FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, true));
         }
 
@@ -1367,7 +1368,7 @@ public abstract class JavafxTranslationSupport {
          * Make a variable -- final by default
          */
 
-        protected JCVariableDecl Var(JCModifiers modifiers, JCExpression varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
+        protected JCVariableDecl Var(JCModifiers modifiers, JCExpression varType, Name varName, JCExpression initialValue, JavafxVarSymbol varSym) {
             JCVariableDecl varDecl = m().VarDef(
                                             modifiers,
                                             varName,
@@ -1377,7 +1378,7 @@ public abstract class JavafxTranslationSupport {
             return varDecl;
         }
 
-        protected JCVariableDecl Var(long flags, Type varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
+        protected JCVariableDecl Var(long flags, Type varType, Name varName, JCExpression initialValue, JavafxVarSymbol varSym) {
             return Var(m().Modifiers(flags), makeType(varType), varName, initialValue, varSym);
         }
 
@@ -1602,8 +1603,8 @@ public abstract class JavafxTranslationSupport {
          */
 
         public JCExpression Get(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(attributeGetMixinName(varSym));
@@ -1614,8 +1615,8 @@ public abstract class JavafxTranslationSupport {
             }
         }
         public JCExpression Get(JCExpression selector, Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(selector, attributeGetMixinName(varSym));
@@ -1625,8 +1626,8 @@ public abstract class JavafxTranslationSupport {
         }
 
         public JCExpression Offset(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(getReceiver(), attributeGetVOFFName(varSym));
@@ -1641,8 +1642,8 @@ public abstract class JavafxTranslationSupport {
             }
         }
         public JCExpression Offset(JCExpression selector, Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (selector != null && isMixinVar(varSym)) {
                 return Call(selector, attributeGetVOFFName(varSym));
@@ -1652,19 +1653,19 @@ public abstract class JavafxTranslationSupport {
         }
 
         public JCExpression VarFlags(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             return Select(getReceiver(varSym), attributeFlagsName(varSym));
         }
         public JCExpression VarFlags(JCExpression selector, Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             return Select(selector, attributeFlagsName(varSym));
         }
 
         public JCExpression Set(Symbol sym, JCExpression value) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(attributeSetMixinName(varSym), value);
@@ -1675,8 +1676,8 @@ public abstract class JavafxTranslationSupport {
             }
         }
         public JCExpression Set(JCExpression selector, Symbol sym, JCExpression value) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(selector, attributeSetMixinName(varSym), value);
@@ -1695,7 +1696,7 @@ public abstract class JavafxTranslationSupport {
             return Getter(getReceiver(), sym);
         }
         public JCExpression Getter(JCExpression selector, Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
             if (sym.owner.kind != Kinds.TYP) {
                 return id(sym.name);
             } else if (typeMorpher.useGetters(sym)) {
@@ -1709,7 +1710,7 @@ public abstract class JavafxTranslationSupport {
             return Setter(getReceiver(), sym, value);
         }
         public JCExpression Setter(JCExpression selector, Symbol sym, JCExpression value) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
             if (sym.owner.kind != Kinds.TYP) {
                 return m().Assign(id(sym.name), value);
             } else if (typeMorpher.useAccessors(sym)) {

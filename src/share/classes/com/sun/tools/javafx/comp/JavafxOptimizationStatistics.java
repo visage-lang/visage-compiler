@@ -24,10 +24,10 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.mjavac.code.Flags;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
 
 /**
@@ -89,7 +89,7 @@ public class JavafxOptimizationStatistics {
 
     }
 
-    public void recordClassVar(VarSymbol vsym) {
+    public void recordClassVar(JavafxVarSymbol vsym) {
         long flags = vsym.flags();
         boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
         boolean isScript = (flags & Flags.STATIC) != 0;
@@ -108,7 +108,7 @@ public class JavafxOptimizationStatistics {
         }
     }
 
-    public void recordLocalVar(VarSymbol vsym, boolean isBound, boolean isLocation) {
+    public void recordLocalVar(JavafxVarSymbol vsym, boolean isBound, boolean isLocation) {
         long flags = vsym.flags();
         boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
         if (isBound) {

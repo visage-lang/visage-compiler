@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
@@ -52,7 +53,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     private JavafxToJava toJava;
 
     // Symbol for the var whose bound expression we are translating.
-    private VarSymbol targetSymbol;
+    private JavafxVarSymbol targetSymbol;
 
     // The outermost bound expression
     private JFXExpression boundExpression;
@@ -88,9 +89,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * @param isBidiBind Is this a bi-directional bind?
      * @return
      */
-    ExpressionResult translateBoundExpression(JFXExpression expr, VarSymbol targetSymbol) {
+    ExpressionResult translateBoundExpression(JFXExpression expr, JavafxVarSymbol targetSymbol) {
         // Bind translation is re-entrant -- save and restore state
-        VarSymbol prevTargetSymbol = this.targetSymbol;
+        JavafxVarSymbol prevTargetSymbol = this.targetSymbol;
         JFXExpression prevBoundExpression = this.boundExpression;
 
         this.targetSymbol = targetSymbol;
@@ -146,10 +147,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         @Override
-        protected JCExpression translateInstanceVariableInit(JFXExpression init, VarSymbol vsym) {
+        protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxVarSymbol vsym) {
             if (init instanceof JFXIdent) {
                 Symbol isym = ((JFXIdent) init).sym;
-                addBindee((VarSymbol) isym);
+                addBindee((JavafxVarSymbol) isym);
 
                 if (condition != null) {
                     JCVariableDecl oldVar = TmpVar("old", vsym.type, Get(isym));
@@ -282,7 +283,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (conditionallyReevaluate && arg instanceof JFXIdent) {
                 // if no args have changed, don't call function, just return previous value
                 Symbol sym = ((JFXIdent) arg).sym;
-                addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
+                addBindee((JavafxVarSymbol) sym);   //TODO: isn't this redundant?
 
                 JCVariableDecl oldVar = TmpVar("old", formal, Get(sym));
                 JCVariableDecl newVar = TmpVar("new", formal, Getter(sym));
@@ -441,7 +442,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         private Name activeFlagBit = defs.varFlagDEFAULT_APPLIED;
-        VarSymbol flagSymbol = (VarSymbol)targetSymbol;
+        JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
 
         JCExpression isSequenceActive() {
             return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
@@ -471,7 +472,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         @Override
-        void addInvalidator(VarSymbol sym, JCStatement invStmt) {
+        void addInvalidator(JavafxVarSymbol sym, JCStatement invStmt) {
             super.addInvalidator(sym, invStmt);
             if (depGraphWriter != null) {
                 depGraphWriter.writeDependency(targetSymbol, sym);
@@ -521,14 +522,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     class BoundIdentSequenceFromNonTranslator extends BoundSequenceTranslator {
 
         // Symbol of the referenced
-        private final VarSymbol sym;
+        private final JavafxVarSymbol sym;
 
         // Size holder
-        private final VarSymbol sizeSym;
+        private final JavafxVarSymbol sizeSym;
 
         BoundIdentSequenceFromNonTranslator(JFXIdentSequenceProxy tree) {
             super(tree.pos());
-            this.sym = (VarSymbol) tree.sym;
+            this.sym = (JavafxVarSymbol) tree.sym;
             this.sizeSym = tree.boundSizeSym();
         }
 
@@ -635,7 +636,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     class BoundBlockSequenceTranslator extends BoundSequenceTranslator {
 
         // Symbol of the referenced
-        private final VarSymbol vsym;
+        private final JavafxVarSymbol vsym;
 
         // The VarInits aka the non-value part of the block
         private final List<JFXExpression> varInits;
@@ -643,7 +644,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         BoundBlockSequenceTranslator(JFXBlock tree) {
             super(tree.pos());
             JFXIdent id = (JFXIdent) (tree.value);
-            this.vsym = (VarSymbol) id.sym;
+            this.vsym = (JavafxVarSymbol) id.sym;
             this.varInits = tree.stats;
         }
 
@@ -691,14 +692,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     class BoundTypeCastSequenceTranslator extends BoundSequenceTranslator {
 
-        private final VarSymbol exprSym;
+        private final JavafxVarSymbol exprSym;
         private final Type elemType;
 
         BoundTypeCastSequenceTranslator(JFXTypeCast tree) {
             super(tree.pos());
             assert types.isSequence(tree.type);
             assert tree.getExpression() instanceof JFXIdent; // Decompose should shred
-            this.exprSym = (VarSymbol)((JFXIdent)tree.getExpression()).sym;
+            this.exprSym = (JavafxVarSymbol)((JFXIdent)tree.getExpression()).sym;
             assert types.isSequence(tree.getExpression().type);
             this.elemType = types.elementType(tree.type);
         }
@@ -760,9 +761,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private final SelectTranslator strans;
         private final Symbol refSym;
-        private final VarSymbol selfSym = (VarSymbol) targetSymbol;
-        private final VarSymbol selectorSym;
-        private final VarSymbol sizeSym;
+        private final JavafxVarSymbol selfSym = (JavafxVarSymbol) targetSymbol;
+        private final JavafxVarSymbol selectorSym;
+        private final JavafxVarSymbol sizeSym;
 
 
         BoundSelectSequenceTranslator(JFXSelect tree) {
@@ -774,7 +775,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             assert canChange();
             assert (selectorExpr instanceof JFXIdent);
             JFXIdent selector = (JFXIdent) selectorExpr;
-            this.selectorSym = (VarSymbol) selector.sym;
+            this.selectorSym = (JavafxVarSymbol) selector.sym;
         }
 
         /*** forward to SelectTranslator ***/
@@ -962,7 +963,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     private class BoundExplicitSequenceTranslator extends BoundSequenceTranslator {
         private final List<JFXVar> vars;
         private final Type elemType;
-        private final VarSymbol sizeSymbol;
+        private final JavafxVarSymbol sizeSymbol;
         private final int length;
         BoundExplicitSequenceTranslator(JFXSequenceExplicit tree) {
             super(tree.pos());
@@ -984,7 +985,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return types.isSequence(type(index));
         }
 
-        private VarSymbol vsym(int index) {
+        private JavafxVarSymbol vsym(int index) {
             return vars.get(index).sym;
         }
 
@@ -1539,7 +1540,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            VarSymbol helperSym = clause.boundHelper.sym;
+            JavafxVarSymbol helperSym = clause.boundHelper.sym;
             JCExpression createHelper;
             // Translate
             //   var y = bind for (x in xs) body(x, indexof x)
@@ -1671,7 +1672,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         CallStmt(Get(clause.boundHelper.sym),
                              defs.replaceParts_BoundForHelperMethodName,
                              startPosArg(), endPosArg(), newLengthArg(), phaseArg()));
-                addInvalidator((VarSymbol) bindee, inv);
+                addInvalidator((JavafxVarSymbol) bindee, inv);
             }
         }
     }
@@ -1690,10 +1691,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     private class BoundIfSequenceTranslator extends BoundSequenceTranslator {
 
-        private final VarSymbol condSym;
-        private final VarSymbol thenSym;
-        private final VarSymbol elseSym;
-        private final VarSymbol sizeSym;
+        private final JavafxVarSymbol condSym;
+        private final JavafxVarSymbol thenSym;
+        private final JavafxVarSymbol elseSym;
+        private final JavafxVarSymbol sizeSym;
 
         BoundIfSequenceTranslator(JFXIfExpression tree) {
             super(tree.pos());
@@ -1813,7 +1814,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * If this is trigger phase and we are the active arm, update the sequence size,
          * and just pass the invalidation through.
          */
-        private JCStatement makeInvalidateArm(VarSymbol armSym, boolean take) {
+        private JCStatement makeInvalidateArm(JavafxVarSymbol armSym, boolean take) {
             return
                 If(isSequenceActive(),
                     If(IsInvalidatePhase(),

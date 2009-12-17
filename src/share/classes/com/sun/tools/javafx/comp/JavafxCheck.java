@@ -57,6 +57,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.util.MsgSym;
 import com.sun.javafx.api.JavafxBindStatus;
 
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
 
 /** Type checking helper class for the attribution phase.
@@ -301,7 +302,7 @@ public class JavafxCheck {
      *	@param v	     The symbol.
      *	@param s	     The scope.
      */
-    void checkTransparentVar(DiagnosticPosition pos, VarSymbol v, Scope s) {
+    void checkTransparentVar(DiagnosticPosition pos, JavafxVarSymbol v, Scope s) {
 	if (s.next != null) {
 	    for (Scope.Entry e = s.next.lookup(v.name);
 		 e.scope != null && e.sym.owner == v.owner;
@@ -605,7 +606,7 @@ public class JavafxCheck {
      *  @param v      The blank final variable.
      *  @param env    The current environment.
      */
-    boolean isAssignableAsBlankFinal(VarSymbol v, JavafxEnv<JavafxAttrContext> env) {
+    boolean isAssignableAsBlankFinal(JavafxVarSymbol v, JavafxEnv<JavafxAttrContext> env) {
         Symbol owner = env.info.scope.owner;
            // owner refers to the innermost variable, method or
            // initializer block declaration at this point.
@@ -628,7 +629,7 @@ public class JavafxCheck {
      *                to the left of the `.', null otherwise.
      *  @param env    The current environment.
      */
-    void checkAssignable(DiagnosticPosition pos, VarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env, WriteKind writeKind) {
+    void checkAssignable(DiagnosticPosition pos, JavafxVarSymbol v, JFXTree base, Type site, JavafxEnv<JavafxAttrContext> env, WriteKind writeKind) {
         //TODO: for attributes they are always final -- this should really be checked in JavafxClassReader
         //TODO: rebutal, actual we should just use a different final
         if ((v.flags() & FINAL) != 0 && !types.isJFXClass(v.owner) &&
@@ -758,7 +759,7 @@ public class JavafxCheck {
                               types.toJavaFXString(initSym.type),
                               types.toJavaFXString(pt));
                 }
-                checkAssignable(init.pos(), (VarSymbol) initSym, base, site, env, WriteKind.INIT_BIND);
+                checkAssignable(init.pos(), (JavafxVarSymbol) initSym, base, site, env, WriteKind.INIT_BIND);
             } else {
                 log.error(init.pos(), MsgSym.MESSAGE_JAVAFX_EXPR_UNSUPPORTED_FOR_BIDI_BIND);
             }
@@ -1718,7 +1719,7 @@ public class JavafxCheck {
                     Scope s = mixinSym.members();
                     for (Scope.Entry e = s.elems; e != null; e = e.sibling) {
                         if (e.sym.kind == VAR) {
-                            checkVarOverride(mixin.pos(), (VarSymbol)e.sym, tree.sym, false);
+                            checkVarOverride(mixin.pos(), (JavafxVarSymbol)e.sym, tree.sym, false);
                         }
                     }
                }
@@ -1728,10 +1729,10 @@ public class JavafxCheck {
 
     /** Check that var/def does not override (unless it is hidden by being script private)
      */
-    void checkVarOverride(DiagnosticPosition diagPos, VarSymbol vsym) {
+    void checkVarOverride(DiagnosticPosition diagPos, JavafxVarSymbol vsym) {
         checkVarOverride(diagPos, vsym, (ClassSymbol)vsym.owner, true);
     }
-    void checkVarOverride(DiagnosticPosition diagPos, VarSymbol vsym, ClassSymbol origin, boolean overrides) {
+    void checkVarOverride(DiagnosticPosition diagPos, JavafxVarSymbol vsym, ClassSymbol origin, boolean overrides) {
         for (Type t : types.supertypes(origin)) {
             if (t.tag == CLASS) {
                 TypeSymbol c = t.tsym;

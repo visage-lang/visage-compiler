@@ -24,9 +24,7 @@
 package com.sun.tools.javafx.comp;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
@@ -40,6 +38,7 @@ import com.sun.tools.mjavac.util.ListBuffer;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
@@ -572,7 +571,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     private class VarTranslator extends ExpressionTranslator {
 
         final JFXVar tree;
-        final VarSymbol vsym;
+        final JavafxVarSymbol vsym;
         final VarMorphInfo vmi;
         final boolean hasForwardReference;
         final boolean isAssignedTo;

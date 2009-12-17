@@ -29,12 +29,12 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.JFXExpression;
 
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 
 import com.sun.tools.mjavac.code.TypeTags;
@@ -268,11 +268,11 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private JFXVar makeVar(DiagnosticPosition diagPos, long flags, String name, JavafxBindStatus bindStatus, JFXExpression init, Type type) {
-        VarSymbol vsym = new VarSymbol(flags, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
+        JavafxVarSymbol vsym = new JavafxVarSymbol(flags, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
         return makeVar(diagPos, vsym, bindStatus, init);
     }
 
-    private JFXVar makeVar(DiagnosticPosition diagPos, VarSymbol vSym, JavafxBindStatus bindStatus, JFXExpression init) {
+    private JFXVar makeVar(DiagnosticPosition diagPos, JavafxVarSymbol vSym, JavafxBindStatus bindStatus, JFXExpression init) {
         JFXModifiers mod = m.at(diagPos).Modifiers(vSym.flags());
         JFXType fxType = preTrans.makeTypeTree(vSym.type);
         JFXVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, bindStatus, null, null);
@@ -368,7 +368,7 @@ public class JavafxLower implements JavafxVisitor {
         //(IDENT)   x;
 
         if (selector != null) {
-            VarSymbol vsym = (VarSymbol)JavafxTreeInfo.symbol(lhs);
+            JavafxVarSymbol vsym = (JavafxVarSymbol)JavafxTreeInfo.symbol(lhs);
             varRef = m.at(tree.pos).Select(selector, vsym);
             ((JFXSelect)varRef).sym = vsym;
         }
@@ -793,7 +793,7 @@ public class JavafxLower implements JavafxVisitor {
         JFXExpression varRef = expr;
 
         if (selector != null) {
-            VarSymbol vsym = (VarSymbol)JavafxTreeInfo.symbol(expr);
+            JavafxVarSymbol vsym = (JavafxVarSymbol)JavafxTreeInfo.symbol(expr);
             varRef = m.at(tree.pos).Select(selector, vsym);
             ((JFXSelect)varRef).sym = vsym;
         }
@@ -1094,7 +1094,7 @@ public class JavafxLower implements JavafxVisitor {
                         part.getBindStatus(),
                         null,
                         null);
-                ocv.sym = (VarSymbol) part.sym;
+                ocv.sym = (JavafxVarSymbol) part.sym;
                 ocv.type = part.sym.type;
                 newOverrides.append(ocv);
             } else {

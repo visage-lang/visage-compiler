@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
@@ -81,7 +82,7 @@ public class JavafxTranslateDependent extends JavafxAbstractTranslation implemen
                 return full;
             } else {
                 // This is a "real" select, selector is a variable
-                VarSymbol selectorSym = (VarSymbol) checkSym;
+                JavafxVarSymbol selectorSym = (JavafxVarSymbol) checkSym;
                 addInterClassBindee(selectorSym, refSym);
                 JCVariableDecl resVar = TmpVar(fullType, full);
                 // If this is a synthetic selector, use it in addDependent

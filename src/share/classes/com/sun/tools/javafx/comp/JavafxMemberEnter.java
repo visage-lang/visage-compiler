@@ -38,6 +38,7 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
 
 import javax.tools.JavaFileObject;
@@ -601,7 +602,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
 
         Scope enclScope = JavafxEnter.enterScope(env);
-        VarSymbol v = new VarSymbol(0, tree.name, null, enclScope.owner);
+        JavafxVarSymbol v = new JavafxVarSymbol(0, tree.name, null, enclScope.owner);
         attr.varSymToTree.put(v, tree);
         tree.sym = v;
         SymbolCompleter completer = new SymbolCompleter();
@@ -863,13 +864,13 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // If this is a class, enter symbols for this and super into
             // current scope.
             if ((c.flags_field & INTERFACE) == 0) {
-                VarSymbol thisSym =
-                    new VarSymbol(FINAL | HASINIT, names._this, c.type, c);
+                JavafxVarSymbol thisSym =
+                    new JavafxVarSymbol(FINAL | HASINIT, names._this, c.type, c);
                 thisSym.pos = Position.FIRSTPOS;
                 localEnv.info.scope.enter(thisSym);
                 if (ct.supertype_field.tag == CLASS && supertype != null) {
-                    VarSymbol superSym =
-                        new VarSymbol(FINAL | HASINIT, names._super,
+                    JavafxVarSymbol superSym =
+                        new JavafxVarSymbol(FINAL | HASINIT, names._super,
                                       supertype, c);
                     superSym.pos = Position.FIRSTPOS;
                     localEnv.info.scope.enter(superSym);
