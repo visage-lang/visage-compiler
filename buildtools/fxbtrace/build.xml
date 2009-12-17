@@ -30,7 +30,7 @@
         </javac>
     </target>
     
-    <target name="all" depends="compile">
+    <target name="run" depends="compile">
         <java classname="FXBTraceRunner" fork="true" classpath="${builddir}" 
               failonerror="true" dir="${builddir}" >
             <sysproperty key="build.dir"    value="${builddir}"/>
@@ -44,4 +44,6 @@
             <arg value="${target.jar}"/>
         </java>
     </target>
+
+    <target name="all" depends="compile"/>
 </project>
