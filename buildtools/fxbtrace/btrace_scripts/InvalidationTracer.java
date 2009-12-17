@@ -25,7 +25,7 @@ import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 
 /**
- * Prints trace message at every invalidation call entry.
+ * Prints trace message at every invalidation call entry/return.
  * Also, increments a MBean property on every invalidation.
  *
  * @author A. Sundararajan
@@ -45,6 +45,20 @@ import static com.sun.btrace.BTraceUtils.*;
         String className = name(probeClass());
         String methodName = probeMethod();
         print("Entering ");
+        print(className);
+        print(".");
+        println(substr(methodName, strlen("invalidate$")));
+    }
+
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXBase",
+        method="/invalidate\\$.*/",
+        location=@Location(Kind.RETURN)
+    )
+    public static void onInvalidateReturn() {
+        String className = name(probeClass());
+        String methodName = probeMethod();
+        print("Leaving ");
         print(className);
         print(".");
         println(substr(methodName, strlen("invalidate$")));
