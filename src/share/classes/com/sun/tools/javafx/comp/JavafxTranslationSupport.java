@@ -966,6 +966,13 @@ public abstract class JavafxTranslationSupport {
         }
 
         /**
+         * Make an identifier of the given string
+         */
+        protected JCIdent id(String string) {
+            return m().Ident(names.fromString(string));
+        }
+
+        /**
          * Make a member select or an identifier depending on the selector
          */
         protected JCExpression Select(JCExpression selector, Name name) {

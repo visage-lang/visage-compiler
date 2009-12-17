@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -64,6 +65,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final JavafxClassReader reader;
     private final JavafxOptimizationStatistics optStat;
     private final DependencyGraphWriter depGraphWriter;
+    private final boolean annoBindees;
 
     public static class LiteralInitVarMap {
         private int count = 1;
@@ -122,6 +124,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
         depGraphWriter = DependencyGraphWriter.instance(context);
+        annoBindees =options.get("annobindees") != null;
     }
 
     /**
@@ -593,6 +596,32 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             return null;
         }
         
+        //
+        // Generate a string containing bindee information used in the bindees annotation.
+        //
+        private String makeAnnoBindeesString(VarInfo varInfo) {
+            String annoBindeesString = "";
+            
+            if (annoBindees) {
+                 Set<String> bindeesSet = new HashSet<String>();
+                 
+                 for (VarSymbol sym : varInfo.boundBindees()) {
+                    bindeesSet.add(attributeValueName(sym).toString());
+                 }
+                 
+                 for (DependentPair pair : varInfo.boundBoundSelects()) {
+                    bindeesSet.add(attributeValueName(pair.instanceSym) + "." + attributeValueName(pair.referencedSym));
+                 }
+                 
+                 for (String bindee : bindeesSet) {
+                    if (annoBindeesString != "") annoBindeesString += ",";
+                    annoBindeesString += bindee;
+                 }
+           }
+            
+            return annoBindeesString;
+        }
+        
 
         //
         // Build the location and value field for each attribute.
@@ -618,9 +647,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Apply annotations, if current class then add source annotations.
                     if (isCurrentClassSymbol(varSym.owner)) {
-                        List<JCAnnotation> annotations = List.<JCAnnotation>of(m().Annotation(
-                                makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
-                                List.<JCExpression>of(String(varSym.name.toString()))));
+                        List<JCAnnotation> annotations;
+                        JCAnnotation annoSource = m().Annotation(
+                                    makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
+                                    List.<JCExpression>of(String(varSym.name.toString())));
+                        String annoBindeesString = makeAnnoBindeesString(ai);
+                        
+                        if (!annoBindeesString.isEmpty()) {
+                            JCAnnotation annoBindees = m().Annotation(
+                                        makeIdentifier(diagPos, JavafxSymtab.bindeesAnnotationClassNameString),
+                                        List.<JCExpression>of(String(annoBindeesString)));
+                            annotations = List.<JCAnnotation>of(annoSource, annoBindees);
+                        } else {
+                            annotations = List.<JCAnnotation>of(annoSource);
+                        }
                         mods = addAccessAnnotationModifiers(diagPos, varSym.flags(), mods, annotations);
                     } else {
                         mods = addInheritedAnnotationModifiers(diagPos, varSym.flags(), mods);
