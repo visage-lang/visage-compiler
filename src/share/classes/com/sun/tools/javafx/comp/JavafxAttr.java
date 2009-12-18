@@ -3378,7 +3378,7 @@ public class JavafxAttr implements JavafxVisitor {
                 // its type changes under erasure.
                 if (allowGenerics &&
                     pkind == VAR &&
-                    v.owner.kind == TYP &&
+                    v.isMember() &&
                     (v.flags() & STATIC) == 0 &&
                     (site.tag == CLASS || site.tag == TYPEVAR)) {
                     Type s = types.asOuterSuper(site, v.owner);

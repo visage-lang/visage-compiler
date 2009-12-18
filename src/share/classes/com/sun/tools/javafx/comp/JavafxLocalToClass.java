@@ -611,7 +611,7 @@ public class JavafxLocalToClass {
             public void visitIdent(JFXIdent tree) {
                 if (tree.sym instanceof VarSymbol) {
                     JavafxVarSymbol vsym = (JavafxVarSymbol) tree.sym;
-                    if (vsym.owner.kind != Kinds.TYP &&
+                    if (!vsym.isMember() &&
                             (vsym.flags() & (JavafxFlags.VARUSE_ASSIGNED_TO | JavafxFlags.VARUSE_SELF_REFERENCE | JavafxFlags.VARUSE_FORWARD_REFERENCE)) != 0L) {
                         hasMutatedLocal = true;
                     }

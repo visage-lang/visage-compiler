@@ -571,7 +571,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      */
     public JavafxEnv<JavafxAttrContext> initEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> localEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
-        if (tree.sym.owner.kind == TYP) {
+        if (tree.sym.isMember()) {
             localEnv.info.scope = new Scope.DelegatedScope(env.info.scope);
             localEnv.info.scope.owner = tree.sym;
         }

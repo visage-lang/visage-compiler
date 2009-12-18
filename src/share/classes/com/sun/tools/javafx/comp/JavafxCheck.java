@@ -951,9 +951,10 @@ public class JavafxCheck {
         boolean isScriptLevel = (flags & STATIC) != 0;
         switch (sym.kind) {
             case VAR:
+                JavafxVarSymbol vsym = (JavafxVarSymbol)sym;
                 boolean isDef = ((flags & IS_DEF) != 0);
                 thing = isDef? "def" : "var";
-                if (sym.owner.kind != TYP) {
+                if (!vsym.isMember()) {
                     mask = JavafxLocalVarFlags;
                     msg = MsgSym.MESSAGE_JAVAFX_MOD_NOT_ALLOWED_ON_LOCAL;
                 } else if (isDef) {

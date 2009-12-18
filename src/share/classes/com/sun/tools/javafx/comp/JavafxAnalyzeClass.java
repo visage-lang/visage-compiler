@@ -1556,7 +1556,7 @@ class JavafxAnalyzeClass {
         boolean isStatic = (var.flags() & Flags.STATIC) != 0;
 
         // If the var is in a class and not a static (ie., an instance attribute.)
-        if (var.owner.kind == Kinds.TYP && !isStatic) {
+        if (var.isMember() && !isStatic) {
             // See if we've seen this var before.
             VarInfo oldVarInfo = visitedAttributes.get(initBuilder.attributeValueName(var));
 

@@ -577,7 +577,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             vsym = tree.getSymbol();
             vmi = typeMorpher.varMorphInfo(vsym);
             long flags = vsym.flags();
-            assert vsym.owner.kind != Kinds.TYP : "attributes are processed in the class and should never come here: " + tree.name;
+            assert !vsym.isMember() : "attributes are processed in the class and should never come here: " + tree.name;
             assert (flags & Flags.PARAMETER) == 0L : "we should not see parameters here" + tree.name;
             hasForwardReference = (flags & JavafxFlags.VARUSE_FORWARD_REFERENCE) != 0L;
             isAssignedTo = (flags & JavafxFlags.VARUSE_ASSIGNED_TO) != 0L;
