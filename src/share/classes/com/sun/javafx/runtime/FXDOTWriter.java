@@ -170,7 +170,12 @@
  * 
  * Controls the display of FX var flags.  By default displayFXFlags == true.
  * 
- * 
+ *
+ * public void displayStatics(boolean displayStatics)
+ *
+ * Controls whether static fields are displayed.  By default displayStatics == false.
+ *
+ *
  * public void displayLinks(boolean displayLinks);
  * 
  * Controls whether data links are displayed.  By default displayLinks == true.
@@ -231,6 +236,7 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.IdentityHashMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -239,6 +245,7 @@ import java.util.Set;
 
 import com.sun.javafx.runtime.annotation.JavafxBindees;
 import com.sun.javafx.runtime.FXObject;
+import com.sun.javafx.runtime.sequence.Sequence;
 
 public class FXDOTWriter {
     // Property settings for fonts.
@@ -275,7 +282,7 @@ public class FXDOTWriter {
     private int stringLimit = 32;
     
     // Map of visited objects.
-    private Map<Object, Node> visited = new HashMap<Object, Node>();
+    private Map<Object, Node> visited = new IdentityHashMap<Object, Node>();
     
     // Cache of field information.
     Map<Class, Field[]> fieldCache = new HashMap<Class, Field[]>();
@@ -321,6 +328,9 @@ public class FXDOTWriter {
     
     // True if FX Objects should be expanded.
     private boolean expandFXObjects = false;
+    
+    // True if static fields should be displayed.
+    private boolean displayStatics = false;
     
     // True if object links should be shown.
     private boolean displayLinks = true;
@@ -624,12 +634,18 @@ public class FXDOTWriter {
                     if (!expandFXObjects && object instanceof FXObject) {
                         // Display as FX Object (implementation details hidden)
                         addFXObjectDetail(object, clazz, node);
+                    } else if (!expandFXObjects && object instanceof Sequence) {
+                        // Display sequence as an array of enties.
+                        addSequenceDetail(object, clazz, node);
                     } else if (!expandCollections && object instanceof Collection) {
                         // Display collection as an array of enties.
                         addCollectionDetail(object, clazz, node);
                     } else if (!expandCollections && object instanceof Map) {
                         // Display map as an array of key->value.
                         addMapDetail(object, clazz, node);
+                    } else if (displayStatics && object instanceof Class) {
+                        // Display class static fields.
+                        addClassDetail(object, clazz, node);
                     } else {
                         // Display as a detailed java object.
                         addObjectDetail(object, clazz, node);
@@ -680,6 +696,11 @@ public class FXDOTWriter {
     // Control the display of FX var flags.
     public void displayFXFlags(boolean displayFXFlags) {
         this.displayFXFlags = displayFXFlags;
+    }
+    
+    // Control whether static fields should be shown.
+    public void displayStatics(boolean displayStatics) {
+        this.displayStatics = displayStatics;
     }
     
     // Control whether object links should be shown.
@@ -761,7 +782,7 @@ public class FXDOTWriter {
     
     // Return true if the object is a primitive type.
     private boolean isPrimitive(Object object) {
-        return object.getClass().isPrimitive() || object instanceof Number || object instanceof String;
+        return object.getClass().isPrimitive() || object instanceof Number || object instanceof Boolean || object instanceof String;
     }
     
     // Write the graph to the stream.
@@ -874,14 +895,19 @@ public class FXDOTWriter {
     
     // Add the header information about the object.
     private void addHeader(Object object, Class clazz, Node node) {
+        // Use object if displaying statics.
+        if (displayStatics && object instanceof Class) clazz = (Class)object;
         // Use canonical name as title.
-        String className = object.getClass().getCanonicalName();
+        String className = clazz.getCanonicalName();
         // Local classes don't have a canonical name.
-        if (className == null) className = object.getClass().toString();
+        if (className == null) className = clazz.toString();
         
-        // Flag FX objects.
         if (object instanceof FXObject) {
+            // Flag FX objects.
             className += "(FX)";
+        } else if (object instanceof Class) {
+            // Flag Class objects.
+            className += "(Class)";
         }
         
         // Start label for node.
@@ -919,12 +945,14 @@ public class FXDOTWriter {
     }
     
     // Return an array of all the fields in a given class.
-    private Field[] getfields(Class clazz) {
+    private Field[] getFields(Class clazz) {
         if (clazz == null) return new Field[0];
+        if (displayStatics && clazz == Class.class) return new Field[0];
+        
         Field[] fields = fieldCache.get(clazz);
         if (fields != null) return fields;
 
-        Field[] superFields = getfields(clazz.getSuperclass());
+        Field[] superFields = getFields(clazz.getSuperclass());
         Field[] classFields = clazz.getDeclaredFields();
         
         fields = new Field[superFields.length + classFields.length];
@@ -938,12 +966,44 @@ public class FXDOTWriter {
 
     // Add the detail information about the object.
     private void addObjectDetail(Object object, Class clazz, Node node) {
-        Field[] fields = getfields(clazz);
+        Field[] fields = getFields(clazz);
+
+        if (displayStatics && fields.length != 0) {
+            addEdge(node, -1, getNode(clazz), -1);
+        }
         
         for (int index = 0; index < fields.length && index < fieldLimit; index++) {
             Field field = fields[index];
             // Ignore static fields.
             if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
+            
+            // Add record row for field.
+            field.setAccessible(true);
+            String name = field.getName();
+            Object value = getValue(field, object);
+            Format format = new Format(value);
+            addNodeField(node, name, index, format.string);
+            
+            // If linking to another object then add edge.
+            if (displayLinks && !format.isSimple) {
+                addEdge(node, index, getNode(value), -1);
+            }
+        }
+        
+        // Indicate if object is too big to display.
+        if (fields.length >= fieldLimit) {
+            addContinuation(node);
+        }
+    }
+    
+    // Add the detail information about a class.
+    private void addClassDetail(Object object, Class clazz, Node node) {
+        Field[] fields = getFields((Class)object);
+        
+        for (int index = 0; index < fields.length && index < fieldLimit; index++) {
+            Field field = fields[index];
+            // Only look at static fields.
+            if ((field.getModifiers() & Modifier.STATIC) == 0) continue;
             
             // Add record row for field.
             field.setAccessible(true);
@@ -971,7 +1031,7 @@ public class FXDOTWriter {
         if (fxFields != null) return fxFields;
         
         // Get the fields from the FX class
-        Field[] fields = getfields(clazz);
+        Field[] fields = getFields(clazz);
         Map<String, Field> fieldMap = new HashMap<String, Field>();
         List<FXField> fxFieldList = new ArrayList<FXField>();
         
@@ -1094,6 +1154,16 @@ public class FXDOTWriter {
         if (fxFields.length >= fieldLimit) {
             addContinuation(node);
         }
+    }
+    
+    // Add the detail information about an FX sequence.
+    private void addSequenceDetail(Object object, Class clazz, Node node) {
+        // Convert sequence to array and display as array.
+        Sequence seq = (Sequence)object;
+        int size = Math.min(seq.size(), arrayLimit + 1);
+        Object[] array = new Object[size];
+        seq.toArray(0, size, array, 0);
+        addArrayDetail(array, node);
     }
     
     // Add the detail information about a collection.
