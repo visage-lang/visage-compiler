@@ -92,4 +92,19 @@ public class JavafxVarSymbol extends VarSymbol {
         syncType();
         return typeKind;
     }
+
+    public long instanceVarAccessFlags() {
+        return flags_field & JavafxFlags.JavafxAllInstanceVarFlags;
+    }
+
+    public boolean useAccessors() {
+        return isFXMember() &&
+                (instanceVarAccessFlags() != JavafxFlags.SCRIPT_PRIVATE ||
+                (flags_field & JavafxFlags.VARUSE_NEED_ACCESSOR) != 0 ||
+                (owner.flags_field & JavafxFlags.MIXIN) != 0);
+    }
+
+    public boolean useGetters() {
+        return useAccessors() || (flags_field & JavafxFlags.VARUSE_NON_LITERAL) != 0;
+    }
 }

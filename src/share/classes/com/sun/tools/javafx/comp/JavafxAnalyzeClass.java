@@ -204,10 +204,10 @@ class JavafxAnalyzeClass {
 
         // Return type information from type translation.
         public VarMorphInfo getVMI()  { return vmi; }
-        public Type getRealType()     { return vmi.getRealType(); }
-        public Type getElementType()  { return vmi.getElementType(); }
-        public boolean useAccessors() { return vmi.useAccessors(); }
-        public boolean useGetters()   { return vmi.useGetters(); }
+        public Type getRealType()     { return sym.type; }
+        public Type getElementType()  { return sym.getElementType(); }
+        public boolean useAccessors() { return sym.useAccessors(); }
+        public boolean useGetters()   { return sym.useGetters(); }
 
         // Return var name.
         public Name getName() { return name; }

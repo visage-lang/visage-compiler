@@ -1702,28 +1702,36 @@ public abstract class JavafxTranslationSupport {
         public JCExpression Getter(Symbol sym) {
             return Getter(getReceiver(), sym);
         }
+
         public JCExpression Getter(JCExpression selector, Symbol sym) {
-            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
-            if (sym.owner.kind != Kinds.TYP) {
-                return id(sym.name);
-            } else if (typeMorpher.useGetters(sym)) {
-                return Call(selector, attributeGetterName(sym));
+            JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
+            if (vsym.isMember()) {
+                if (vsym.useGetters()) {
+                    return Call(selector, attributeGetterName(vsym));
+                } else {
+                    return Get(selector, vsym);
+                }
             } else {
-                return Get(selector, sym);
+                // Local variable
+                return id(vsym.name);
             }
         }
         
         public JCExpression Setter(Symbol sym, JCExpression value) {
             return Setter(getReceiver(), sym, value);
         }
+
         public JCExpression Setter(JCExpression selector, Symbol sym, JCExpression value) {
-            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
-            if (sym.owner.kind != Kinds.TYP) {
-                return m().Assign(id(sym.name), value);
-            } else if (typeMorpher.useAccessors(sym)) {
-                return Call(selector, attributeSetterName(sym), value);
+            JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
+            if (vsym.isMember()) {
+                if (vsym.useAccessors()) {
+                    return Call(selector, attributeSetterName(sym), value);
+                } else {
+                    return Set(selector, sym, value);
+                }
             } else {
-                return Set(selector, sym, value);
+                // Local variable
+                return m().Assign(id(sym.name), value);
             }
         }
         

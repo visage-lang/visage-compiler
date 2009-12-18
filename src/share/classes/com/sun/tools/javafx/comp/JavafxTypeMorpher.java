@@ -53,27 +53,6 @@ public class JavafxTypeMorpher {
 
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
 
-    public boolean useAccessors(Symbol sym) {
-            // Don't use accessors for local variables.  (If they're bound or
-            // otherwise need accessors, they've been converted to class members.)
-            return isFXMemberVariable(sym) &&
-                    ((sym.flags_field & JavafxFlags.JavafxAllInstanceVarFlags) != JavafxFlags.SCRIPT_PRIVATE ||
-                    (sym.flags_field & JavafxFlags.VARUSE_NEED_ACCESSOR) != 0 ||
-                    (sym.owner.flags_field & JavafxFlags.MIXIN) != 0);
-    }
-
-    boolean isMemberVariable(Symbol sym) {
-            return sym.owner.kind == Kinds.TYP && sym.name != names._class;
-    }
-
-     boolean isFXMemberVariable(Symbol sym) {
-            return isMemberVariable(sym) && types.isJFXClass(sym.owner);
-    }
-
-    public boolean useGetters(Symbol sym) {
-        return useAccessors(sym) || (sym.flags_field & JavafxFlags.VARUSE_NON_LITERAL) != 0;
-    }
-
     public class VarMorphInfo extends TypeMorphInfo {
         private final Symbol sym;
 
@@ -85,17 +64,10 @@ public class JavafxTypeMorpher {
         Symbol getSymbol() {
             return sym;
         }
-
-        boolean useAccessors() {
-            return JavafxTypeMorpher.this.useAccessors(sym);
-        }
-
-        boolean useGetters() {
-            return JavafxTypeMorpher.this.useGetters(sym);
-        }
     }
 
     public class TypeMorphInfo {
+
         private final Type realType;
         private final int typeKind;
         private final Type elementType;
@@ -104,20 +76,25 @@ public class JavafxTypeMorpher {
             this.realType = symType;
             this.typeKind = types.typeKind(realType);
             this.elementType =
-                    symType.isPrimitive() ?
-                        null :
-                        types.isSequence(realType) ?
-                            types.elementType(symType) :
-                            realType;
+                    symType.isPrimitive() ? null : types.isSequence(realType) ? types.elementType(symType) : realType;
         }
 
-        public Type getRealType() { return realType; }
- 
-        public Object getDefaultValue() { return defaultValueByKind[typeKind]; }
-        public Type getElementType() { return elementType; }
-
-        public int getTypeKind() { return typeKind; }
+        public Type getRealType() {
+            return realType;
         }
+
+        public Object getDefaultValue() {
+            return defaultValueByKind[typeKind];
+        }
+
+        public Type getElementType() {
+            return elementType;
+        }
+
+        public int getTypeKind() {
+            return typeKind;
+        }
+    }
 
     VarMorphInfo varMorphInfo(Symbol sym) {
         VarMorphInfo vmi = vmiMap.get(sym);

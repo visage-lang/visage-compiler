@@ -541,7 +541,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 final boolean isLocal = !vsym.isMember();
                 assert !isLocal || instanceName == null;
                 JCExpression res;
-                if (vmi.useAccessors()) {
+                if (vsym.useAccessors()) {
                     if (vsym.isMember() && vsym.isSequence()) {
                         JCExpression tc =
                                 instanceName == null ? getReceiverOrThis(vsym) : id(instanceName);
@@ -697,16 +697,17 @@ public class JavafxToJava extends JavafxAbstractTranslation {
         @Override
         JCExpression sequencesOp(RuntimeMethod meth, JCExpression tToCheck) {
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-            boolean useAccessor = typeMorpher.useAccessors(refSym);
+            JavafxVarSymbol vsym = (JavafxVarSymbol) refSym;
+            boolean useAccessor = vsym.useAccessors();
             if (! useAccessor) {
                 // Non-accessor-using variable sequence -- roughly:
                 // lhs = sequenceAction(lhs, rhs);
-                args.append(Getter(tToCheck, refSym));
+                args.append(Getter(tToCheck, vsym));
             } else {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
                 args.append(instance(tToCheck));
-                args.append(Offset(copyOfTranslatedToCheck(tToCheck), refSym));
+                args.append(Offset(copyOfTranslatedToCheck(tToCheck), vsym));
             }
             JCExpression tRHS = buildRHS(rhsTranslated);
             if (tRHS != null) {
@@ -722,7 +723,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             }
             JCExpression res = Call(meth, args);
             if (! useAccessor) {
-                res = Setter(tToCheck, refSym, res);
+                res = Setter(tToCheck, vsym, res);
             }
             return res;
         }

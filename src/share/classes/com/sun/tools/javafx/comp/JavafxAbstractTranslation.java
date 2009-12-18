@@ -1912,7 +1912,9 @@ public abstract class JavafxAbstractTranslation
             this.selector = (ref instanceof JFXSelect) ? ((JFXSelect) ref).getExpression() : null;
             this.rhsTranslated = rhs==null? null : convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
             this.rhsTranslatedPreserved = rhs==null? null : preserveSideEffects(fullType, rhs, rhsTranslated);
-            this.useAccessors = refSym==null? false : typeMorpher.varMorphInfo(refSym).useAccessors();
+            this.useAccessors = (refSym!=null && refSym.kind==Kinds.VAR)?
+                  ((JavafxVarSymbol)refSym).useAccessors()
+                : false;
         }
 
         /**
@@ -1965,13 +1967,14 @@ public abstract class JavafxAbstractTranslation
 
         JCExpression sequencesOp(RuntimeMethod meth, JCExpression tToCheck) {
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-            if (! typeMorpher.useAccessors(refSym)) {
+            JavafxVarSymbol vsym = (JavafxVarSymbol) refSym;
+            if (! vsym.useAccessors()) {
                 // In this case make a block expression - roughly:
                 // { Foo tmp = rhs;
                 //   lhs = sequenceAction(lhs, tmp);
                 //   tmp;
                 // }
-                args.append(Getter(tToCheck, refSym));
+                args.append(Getter(tToCheck, vsym));
                 JCVariableDecl tv;
                 // The special case for JCLiteral is to avoid a bug in Gen - it
                 // optimizes away initializing a variable that is constant,
@@ -1989,7 +1992,7 @@ public abstract class JavafxAbstractTranslation
                 if (tIndex != null) {
                     args.append(tIndex);
                 }
-                JCExpression assign = Setter(tToCheck, refSym, Call(meth, args));
+                JCExpression assign = Setter(tToCheck, vsym, Call(meth, args));
                 if (targetType == syms.voidType)
                     return assign;
                 if (rhsTranslated instanceof JCLiteral)
@@ -2002,7 +2005,7 @@ public abstract class JavafxAbstractTranslation
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
                 args.append(instance(tToCheck));
-                args.append(Offset(copyOfTranslatedToCheck(translateToCheck(selector)), refSym));
+                args.append(Offset(copyOfTranslatedToCheck(tToCheck), vsym));
                 args.append(buildRHS(rhsTranslated));
                 JCExpression tIndex = translateIndex();
                 if (tIndex != null) {
@@ -2601,14 +2604,17 @@ public abstract class JavafxAbstractTranslation
             JCExpression transInit = translateInstanceVariableInit(init, vsym);
             JCExpression tc = instanceName == null ? null : id(instanceName);
             JCStatement def;
-            if (!typeMorpher.useAccessors(vsym)) {
-                def = SetStmt(tc, vsym, transInit);
-            } else if (types.isSequence(vsym.type)) {
-                def = CallStmt(defs.Sequences_set, tc,
-                        Offset(id(instanceName), vsym), transInit);
+            if (vsym.useAccessors()) {
+                if (vsym.isSequence()) {
+                    def = CallStmt(defs.Sequences_set, tc,
+                            Offset(id(instanceName), vsym), transInit);
+                } else {
+                    def = CallStmt(tc, attributeBeName(vsym), transInit);
+                }
             } else {
-                def = CallStmt(tc, attributeBeName(vsym), transInit);
+                def = SetStmt(tc, vsym, transInit);
             }
+
             varInits.append(def);
             varSyms.append(vsym);
         }
@@ -3674,8 +3680,7 @@ public abstract class JavafxAbstractTranslation
          * value is var value.
          */
         ExpressionResult doit() {
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            if (vmi.useAccessors() || !var.isLiteralInit()) {
+            if (vsym.useAccessors() || !var.isLiteralInit()) {
                 return toResult(
                         BlockExpression(
                             FlagChangeStmt(vsym, defs.varFlagAWAIT_VARINIT, null),
