@@ -33,10 +33,9 @@
  * of some of the problems.
  * 
  * FXDOTWriter is designed to analyze a set of Javafx/Java objects and generate a
- * dot format file.  From the the file can be passed to any number of tools for
- * further analysis.  The multi-platform tools are described at
- * http://graphviz.org/.  The most commonly used are the 'dot' command and the
- * 'Graphviz' application.
+ * dot format file.  The file can be passed to any number of tools for further
+ * analysis.  The multi-platform tools are described at http://graphviz.org/.  The
+ * most commonly used are the 'dot' command and the 'Graphviz' application.
  * 
  * The 'dot' command can be used to convert a dot format file into any number of
  * visual format files; jpg, png, pdf et cetera.
@@ -47,8 +46,8 @@
  * There are also other tools to convert dot format files to other representations
  * such gxl (using dot2gxl.)
  * 
- * Using FXDOTWriter is straight forward.  Simply construct an FXDOTWriter object,
- * add objects to observe, then close the object.
+ * Using FXDOTWriter is straight forward.  Simply construct an FXDOTWriter instance,
+ * add objects to observe, then close the instance.
  * 
  * Ex.
  * 
@@ -58,14 +57,14 @@
  *     dot.addNodes(a, b, c);
  *     dot.close();
  *     
- * There is also a quick an dirty form to do the same.  Note to get dependency
- * edges you need to build with -XDannobindees
+ * There is also a quick and dirty form to do the same.  Note: to get dependency
+ * edges you need to build the class file with -XDannobindees
  * 
  * Ex.
  *     FXDOTWriter.graph("sample.dot", a, b, c);
  *     
- * The remainder of the public interface allows more detailed control of the graph.
- * Details to follow.
+ * The other calls on the public interface allows more detailed control of the
+ * graph. Details below.
  * 
  * You also have the ability to control dot format properties.
  * 
@@ -84,8 +83,8 @@
  * 
  * public FXDOTWriter(String fileName);
  * 
- * The constructor creates a file stream for the dot output.  The filename is the
- * name of the file, and should use the .dot extension.
+ * The constructor creates a file stream for the dot output.  The filename string
+ * is the name of the file, and should have the .dot extension.
  * 
  * 
  * public void close();
@@ -103,7 +102,7 @@
  * 
  * public void addNodes(Object... objects);
  * 
- * Add a set of objects to the graph.  If the object argument is a string then the
+ * Add a set of objects to the graph.  If an object argument is a string then the
  * string is used as a property string for the remaining object arguments. 
  * 
  * 
@@ -184,6 +183,7 @@
  * 
  * 
  * public void displayIntraDependencies(boolean displayIntraDependencies);
+ *
  * Controls whether intra dependencies should be shown.  By default
  * displayIntraDependencies == true.  In order to display dependencies the fx class
  * needs to be built with -XDannobindees.
