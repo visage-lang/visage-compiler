@@ -25,13 +25,61 @@ import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 
 /**
- * Prints trace message at every JavaFX var getter/setter call entry/return.
- * Also, prints trace messages on internal setter (the "be$foo" methods).
+ * Prints trace message at every invalidation/get/set/on-replace
  *
  * @author A. Sundararajan
  */
-@BTrace public class GetterSetterTracer { 
+@BTrace public class VarTracer { 
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/invalidate\\$.+/"
+    )
+    public static void onInvalidateEnter(
+        @ProbeClassName String className, @ProbeMethodName String methodName) {
+        print("Entering invalidate ");
+        print(className);
+        print(".");
+        println(substr(methodName, strlen("invalidate$")));
+    }
 
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/invalidate\\$.+/",
+        location=@Location(Kind.RETURN)
+    )
+    public static void onInvalidateReturn(
+        @ProbeClassName String className, @ProbeMethodName String methodName) {
+        print("Leaving invalidate ");
+        print(className);
+        print(".");
+        println(substr(methodName, strlen("invalidate$")));
+    }
+    
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/onReplace\\$.+/"
+    )
+    public static void onReplaceEnter(
+        @ProbeClassName String className, @ProbeMethodName String methodName) {
+        print("Entering on replace ");
+        print(className);
+        print(".");
+        println(substr(methodName, strlen("onReplace$")));
+    }
+
+    @OnMethod(
+        clazz="+com.sun.javafx.runtime.FXObject",
+        method="/onReplace\\$.+/",
+        location=@Location(Kind.RETURN)
+    )
+    public static void onOnReplaceReturn(
+        @ProbeClassName String className, @ProbeMethodName String methodName) {
+        print("Leaving on replace ");
+        print(className);
+        print(".");
+        println(substr(methodName, strlen("onReplace$")));
+    }
+    
     // "get$foo" are called to do (external) var set
     @OnMethod(
         clazz="+com.sun.javafx.runtime.FXObject",

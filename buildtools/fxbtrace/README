@@ -23,3 +23,23 @@ For example,
 This produces the trace output file as
 
  ../../build/buildtools/fxbtrace/InvalidationTracer.class.btrace
+
+BTrace scripts available:
+
+* InvalidationTracer.java
+
+prints message on every invalidate$foo entry/return.
+
+* GetterSetterTracer.java
+
+prints message on every get$foo/set$foo/be$foo entry/return.
+
+* OnReplaceTracer.java
+
+prints message on every on-replace block entry/return.
+
+* VarTracer.java
+
+prints message on every invalidate/get/set/be/on-replace! (heavy
+- except lots of noice!!)
+
