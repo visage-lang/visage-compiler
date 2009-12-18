@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +45,7 @@ import java.util.logging.Logger;
  *
  * @author ksrini
  */
+
 public class Utils {
     static final Logger logger = Logger.getLogger(Utils.class.getName());
     private static String buildId = null;
@@ -57,7 +57,7 @@ public class Utils {
     private static final String LAST_BLD   = "lastSuccessfulBuild";
     static final String CSV_FORMAT_STRING = "%s %s %s\n";
     static final String RESULTS_CSV = "results.csv";
-    
+
     static String getChangesUrl() {
         return HUDSON_URL + "job/" + HUDSON_JOB + "/changes";
     }
@@ -186,16 +186,33 @@ public class Utils {
         }
     }
 
-    static Map<String, ResultData> readCsvFromLastBuild(String filename) {
+    static Map<String, ResultData> readCurrentResultsCsv() {
+        return readCsv(RESULTS_CSV);
+    }
+
+    static Map<String, ResultData> readResults12Csv() {
+       return readCsv("results-12.csv");
+    }
+
+    static Map<String, ResultData> readResults13Csv() {
+          return readCsv("results-13.csv");
+    }
+
+    static Map<String, ResultData> readGoalsCsv() {
+            return readCsv("goals.csv");
+    }
+    static Map<String, ResultData> readLastBuildCsv() {
         URL lastBuildUrl = null;
+        InputStream conns = null;
         try {
-            lastBuildUrl = new URL(getArtifactsUrl(true) + "/" +
-                    ((filename == null) ? RESULTS_CSV : filename));
-            System.out.println("lb="+lastBuildUrl);
-            HttpURLConnection conn = (HttpURLConnection) lastBuildUrl.openConnection();
-            return readCsv(conn.getInputStream());
+            lastBuildUrl = new URL(getArtifactsUrl(true) + "/" + RESULTS_CSV);
+            logger.info("last-build="+lastBuildUrl);
+            conns = lastBuildUrl.openStream();
+            return readCsv(conns);
         } catch (Exception ex) {
-            logger.info(ex.toString());
+            logger.warning(ex.toString());
+        } finally {
+            close(conns);
         }
         return null;
     }
@@ -206,7 +223,7 @@ public class Utils {
             frdr = new FileReader(infile);
             return readCsv(frdr);
         } catch (IOException ioe) {
-            logger.severe(ioe.toString());
+            logger.warning(ioe.toString());
         } finally {
             close(frdr);
         }

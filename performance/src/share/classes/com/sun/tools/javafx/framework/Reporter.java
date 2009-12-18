@@ -43,11 +43,11 @@ public class Reporter {
     final Map<String, ResultData> last;
 
     public Reporter() {
-        result12 = Utils.readCsv("results-12.csv");
-        result13 = Utils.readCsv("results-13.csv");
-        goals = Utils.readCsv("goals.csv");
-        result = Utils.readCsv(Utils.RESULTS_CSV);
-        last = Utils.readCsvFromLastBuild(Utils.RESULTS_CSV);
+        result12 = Utils.readResults12Csv();
+        result13 = Utils.readResults13Csv();
+        goals    = Utils.readGoalsCsv();
+        result   = Utils.readCurrentResultsCsv();
+        last     = Utils.readLastBuildCsv();
     }
 
     void startTable(PrintStream ps, String header) {
@@ -63,8 +63,8 @@ public class Reporter {
         ps.println("     <TD><P><B>Goal</B></P></TD>");
         ps.println("     <TD><P><B>Last</B></P></TD>");
         ps.println("     <TD><P><B>Current</B></P></TD>");
-        ps.println("     <TD><P><B>%change to goal</B></P></TD>");
-        ps.println("     <TD><P><B>%change to last</B></P></TD>");
+        ps.println("     <TD><P><B>%change this build to goal</B></P></TD>");
+        ps.println("     <TD><P><B>%change this build to last build</B></P></TD>");
         ps.println("  </TR>");
     }
 
@@ -137,7 +137,7 @@ public class Reporter {
             fos = new FileOutputStream("timing-result.html");
             ps = new PrintStream(fos);
             openHtml(ps);
-            startTable(ps, "Timing");
+            startTable(ps, "Timing in milliseconds");
             Set<String> kset = new TreeSet<String>(result.keySet());
             for (String x : kset) {
                 printValues(ps, x,
@@ -166,7 +166,7 @@ public class Reporter {
             fos = new FileOutputStream("footprint-result.html");
             ps = new PrintStream(fos);
             openHtml(ps);
-            startTable(ps, "Footprint");
+            startTable(ps, "Footprint in MBytes");
             Set<String> kset = new TreeSet<String>(result.keySet());
             for (String x : kset) {
                 printValues(ps, x,
