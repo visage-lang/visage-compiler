@@ -1,0 +1,25 @@
+This directory contains support for using BTrace with JavaFX applications.
+
+Steps to use:
+
+1) hg clone https://kenai.com/hg/btrace~hg 
+
+2) define environmental var BTRACE_HOME to directory where btrace repo 
+was cloned.
+
+3) compile all FX BTrace scripts using ant makefile in this dir using
+
+  ant  -Dbtrace.home=$BTRACE_HOME
+
+The above compiles all btrace scripts under btrace_scripts to the destination 
+directory ../../build/buildtools/fxbtrace/
+
+4) ./bin/fxbtrace <compiled-btrace-script.class> <your-fx-main-class> <args>
+
+For example,
+
+ ./bin/fxbtrace ../../build/buildtools/fxbtrace/InvalidationTracer.class FXMain
+
+This produces the trace output file as
+
+ ../../build/buildtools/fxbtrace/InvalidationTracer.class.btrace

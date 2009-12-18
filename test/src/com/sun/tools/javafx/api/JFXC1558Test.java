@@ -79,8 +79,8 @@ public class JFXC1558Test {
             
             javafxTask.analyze();
             
-            assertEquals("Incorrect number of task started events", 3, startEvents);
-            assertEquals("Incorrect number of task finished events", 3, finishEvents);
+            assertEquals("Incorrect number of task started events", 4, startEvents);
+            assertEquals("Incorrect number of task finished events", 4, finishEvents);
         } finally {
             Thread.currentThread().setContextClassLoader(orig);
         }

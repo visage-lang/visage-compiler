@@ -2,12 +2,12 @@
  * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
- * This code is free software; you can redistribute it and/or modify it
+ * This code is free software; you can redistribute instOf and/onReplace modify instOf
  * under the terms of the GNU General Public License version 2 only, as
  * published by the Free Software Foundation.
  *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * This code is distributed in the hope that instOf will block useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY onReplace
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * version 2 for more details (a copy is included in the LICENSE file that
  * accompanied this code).
@@ -17,71 +17,14 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
- * CA 95054 USA or visit www.sun.com if you need additional information or
+ * CA 95054 USA onReplace visit www.sun.com if you need additional information onReplace
  * have any questions.
  */
 
 package com.sun.tools.javafx.tree.xml;
 
-import com.sun.javafx.api.tree.AssignmentTree;
-import com.sun.javafx.api.tree.BinaryTree;
-import com.sun.javafx.api.tree.BlockExpressionTree;
-import com.sun.javafx.api.tree.BreakTree;
-import com.sun.javafx.api.tree.CatchTree;
-import com.sun.javafx.api.tree.ClassDeclarationTree;
-import com.sun.javafx.api.tree.CompoundAssignmentTree;
-import com.sun.javafx.api.tree.ConditionalExpressionTree;
-import com.sun.javafx.api.tree.ContinueTree;
-import com.sun.javafx.api.tree.EmptyStatementTree;
-import com.sun.javafx.api.tree.ErroneousTree;
-import com.sun.javafx.api.tree.ExpressionTree;
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.ForExpressionTree;
-import com.sun.javafx.api.tree.FunctionDefinitionTree;
-import com.sun.javafx.api.tree.FunctionInvocationTree;
-import com.sun.javafx.api.tree.FunctionValueTree;
-import com.sun.javafx.api.tree.IdentifierTree;
-import com.sun.javafx.api.tree.ImportTree;
-import com.sun.javafx.api.tree.IndexofTree;
-import com.sun.javafx.api.tree.InitDefinitionTree;
-import com.sun.javafx.api.tree.InstanceOfTree;
-import com.sun.javafx.api.tree.InstantiateTree;
-import com.sun.javafx.api.tree.InterpolateValueTree;
-import com.sun.javafx.api.tree.JavaFXTreeVisitor;
-import com.sun.javafx.api.tree.KeyFrameLiteralTree;
-import com.sun.javafx.api.tree.LiteralTree;
-import com.sun.javafx.api.tree.MemberSelectTree;
-import com.sun.javafx.api.tree.ModifiersTree;
-import com.sun.javafx.api.tree.ObjectLiteralPartTree;
-import com.sun.javafx.api.tree.OnReplaceTree;
-import com.sun.javafx.api.tree.ParenthesizedTree;
-import com.sun.javafx.api.tree.ReturnTree;
-import com.sun.javafx.api.tree.SequenceDeleteTree;
-import com.sun.javafx.api.tree.SequenceEmptyTree;
-import com.sun.javafx.api.tree.SequenceExplicitTree;
-import com.sun.javafx.api.tree.SequenceIndexedTree;
-import com.sun.javafx.api.tree.SequenceInsertTree;
-import com.sun.javafx.api.tree.SequenceRangeTree;
-import com.sun.javafx.api.tree.SequenceSliceTree;
-import com.sun.javafx.api.tree.StringExpressionTree;
-import com.sun.javafx.api.tree.ThrowTree;
-import com.sun.javafx.api.tree.TimeLiteralTree;
-import com.sun.javafx.api.tree.Tree;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import com.sun.javafx.api.tree.TriggerTree;
-import com.sun.javafx.api.tree.TryTree;
-import com.sun.javafx.api.tree.TypeAnyTree;
-import com.sun.javafx.api.tree.TypeArrayTree;
-import com.sun.javafx.api.tree.TypeCastTree;
-import com.sun.javafx.api.tree.TypeClassTree;
-import com.sun.javafx.api.tree.TypeFunctionalTree;
 import com.sun.javafx.api.tree.TypeTree;
-import com.sun.javafx.api.tree.TypeUnknownTree;
-import com.sun.javafx.api.tree.UnaryTree;
-import com.sun.javafx.api.tree.UnitTree;
-import com.sun.javafx.api.tree.VariableInvalidateTree;
-import com.sun.javafx.api.tree.VariableTree;
-import com.sun.javafx.api.tree.WhileLoopTree;
 import com.sun.javafx.runtime.Entry;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
@@ -89,19 +32,66 @@ import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.tree.JFXAssign;
+import com.sun.tools.javafx.tree.JFXAssignOp;
+import com.sun.tools.javafx.tree.JFXBinary;
+import com.sun.tools.javafx.tree.JFXBlock;
+import com.sun.tools.javafx.tree.JFXBreak;
+import com.sun.tools.javafx.tree.JFXCatch;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.JFXContinue;
+import com.sun.tools.javafx.tree.JFXErroneous;
+import com.sun.tools.javafx.tree.JFXExpression;
+import com.sun.tools.javafx.tree.JFXForExpression;
+import com.sun.tools.javafx.tree.JFXForExpressionInClause;
 import com.sun.tools.javafx.tree.JFXObjectLiteralPart;
 import com.sun.tools.javafx.tree.JFXFunctionDefinition;
+import com.sun.tools.javafx.tree.JFXFunctionInvocation;
+import com.sun.tools.javafx.tree.JFXFunctionValue;
 import com.sun.tools.javafx.tree.JFXIdent;
+import com.sun.tools.javafx.tree.JFXIfExpression;
+import com.sun.tools.javafx.tree.JFXImport;
+import com.sun.tools.javafx.tree.JFXIndexof;
+import com.sun.tools.javafx.tree.JFXInitDefinition;
+import com.sun.tools.javafx.tree.JFXInstanceOf;
+import com.sun.tools.javafx.tree.JFXInstanciate;
+import com.sun.tools.javafx.tree.JFXInterpolateValue;
+import com.sun.tools.javafx.tree.JFXInvalidate;
+import com.sun.tools.javafx.tree.JFXKeyFrameLiteral;
+import com.sun.tools.javafx.tree.JFXLiteral;
 import com.sun.tools.javafx.tree.JFXModifiers;
 import com.sun.tools.javafx.tree.JFXOnReplace;
+import com.sun.tools.javafx.tree.JFXOverrideClassVar;
+import com.sun.tools.javafx.tree.JFXParens;
+import com.sun.tools.javafx.tree.JFXPostInitDefinition;
+import com.sun.tools.javafx.tree.JFXReturn;
 import com.sun.tools.javafx.tree.JFXScript;
 import com.sun.tools.javafx.tree.JFXSelect;
+import com.sun.tools.javafx.tree.JFXSequenceDelete;
+import com.sun.tools.javafx.tree.JFXSequenceEmpty;
+import com.sun.tools.javafx.tree.JFXSequenceExplicit;
+import com.sun.tools.javafx.tree.JFXSequenceIndexed;
+import com.sun.tools.javafx.tree.JFXSequenceInsert;
+import com.sun.tools.javafx.tree.JFXSequenceRange;
 import com.sun.tools.javafx.tree.JFXSequenceSlice;
+import com.sun.tools.javafx.tree.JFXSkip;
 import com.sun.tools.javafx.tree.JFXStringExpression;
+import com.sun.tools.javafx.tree.JFXThrow;
+import com.sun.tools.javafx.tree.JFXTimeLiteral;
 import com.sun.tools.javafx.tree.JFXTree;
+import com.sun.tools.javafx.tree.JFXTry;
+import com.sun.tools.javafx.tree.JFXTypeAny;
+import com.sun.tools.javafx.tree.JFXTypeArray;
+import com.sun.tools.javafx.tree.JFXTypeCast;
+import com.sun.tools.javafx.tree.JFXTypeClass;
+import com.sun.tools.javafx.tree.JFXTypeFunctional;
+import com.sun.tools.javafx.tree.JFXTypeUnknown;
+import com.sun.tools.javafx.tree.JFXUnary;
 import com.sun.tools.javafx.tree.JFXVar;
-import com.sun.tools.javafx.tree.JFXVarScriptInit;
+import com.sun.tools.javafx.tree.JFXVarInit;
+import com.sun.tools.javafx.tree.JFXVarRef;
+import com.sun.tools.javafx.tree.JFXWhileLoop;
+import com.sun.tools.javafx.tree.JavafxVisitor;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -119,207 +109,14 @@ import static com.sun.tools.javafx.tree.xml.Constants.*;
 
 /**
  * This visitor that outputs SAX parser events for various Tree nodes of AST. 
- * This visitor can be used to generate XML representation of the AST.
+ * This visitor can block used to generate XML representation of the AST.
  *
  * @author A. Sundararajan
  */
-final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
-    
-    public Void visitMethodInvocation(FunctionInvocationTree invoke, Void v) {
-        startElement(INVOKE, invoke);
-        emitTree(METHOD, invoke.getMethodSelect());
-        emitTreeList(ARGUMENTS, invoke.getArguments());
-        endElement(INVOKE);
-        return null;
-    }
+final class TreeXMLSerializer implements JavafxVisitor {
+    // order of the methods as in JavafxVisitor
 
-    
-    public Void visitAssignment(AssignmentTree at, Void v) {
-        startElement(ASSIGNMENT, at);
-        emitTree(LEFT, at.getVariable());
-        emitTree(RIGHT, at.getExpression());
-        endElement(ASSIGNMENT);
-        return null;
-    }
-
-    
-    public Void visitCompoundAssignment(CompoundAssignmentTree cat, Void v) {
-        final String tagName = enumToName(cat.getJavaFXKind());
-        startElement(tagName, cat);
-        emitTree(LEFT, cat.getVariable());
-        emitTree(RIGHT, cat.getExpression());
-        endElement(tagName);
-        return null;
-    }
-
-    
-    public Void visitBinary(BinaryTree bt, Void v) {
-        final String tagName = enumToName(bt.getJavaFXKind());
-        startElement(tagName, bt);
-        emitTree(LEFT, bt.getLeftOperand());
-        emitTree(RIGHT, bt.getRightOperand());
-        endElement(tagName);
-        return null;
-    }
-
-    
-    public Void visitBreak(BreakTree bt, Void v) {
-        startElement(BREAK, bt);
-        Name label = bt.getLabel();
-        if (label != null) {
-            emitElement(LABEL, label.toString());
-        }
-        endElement(BREAK);
-        return null;
-    }
-
-    
-    public Void visitCatch(CatchTree ct, Void v) {
-        startElement(CATCH, ct);
-        emitTree(ct.getParameter());
-        emitTree(ct.getBlock());
-        endElement(CATCH);
-        return null;
-    }
-
-    
-    public Void visitConditionalExpression(ConditionalExpressionTree cet, Void v) {
-        startElement(IF, cet);
-        emitTree(TEST, cet.getCondition());
-        emitTree(THEN, cet.getTrueExpression());
-        emitTree(ELSE, cet.getFalseExpression());
-        endElement(IF);
-        return null;
-    }
-    
-    
-    public Void visitContinue(ContinueTree ct, Void v) {
-        startElement(CONTINUE, ct);
-        Name label = ct.getLabel();
-        if (label != null) {
-            emitElement(LABEL, label.toString());
-        }
-        endElement(CONTINUE);
-        return null;
-    }
-
-    
-    public Void visitErroneous(ErroneousTree et, Void v) {
-        startElement(ERROR, et);
-        emitTreeList(et.getErrorTrees());
-        endElement(ERROR);
-        return null;
-    }
-
-    
-    public Void visitIdentifier(IdentifierTree ident, Void v) {
-        startElement(IDENTIFIER, ident, ((JFXIdent) ident).sym);
-        Name name = ident.getName();
-        if (name != null) {
-            emitData(name.toString());
-        }
-        endElement(IDENTIFIER);
-        return null;
-    }
-
-    
-    public Void visitImport(ImportTree imp, Void v) {
-        startElement(IMPORT, imp);
-        emitTree(imp.getQualifiedIdentifier());
-        endElement(IMPORT);
-        return null;
-    }
-
-    
-    public Void visitLiteral(LiteralTree lt, Void v) {
-        String tagName;
-        JavaFXKind kind = lt.getJavaFXKind();
-        switch (kind) {
-            case INT_LITERAL:
-                tagName = INT_LITERAL;
-                break;
-            case LONG_LITERAL:
-                tagName = LONG_LITERAL;
-                break;
-            case FLOAT_LITERAL:
-                tagName = FLOAT_LITERAL;
-                break;
-            case DOUBLE_LITERAL:
-                tagName = DOUBLE_LITERAL;
-                break;
-            case BOOLEAN_LITERAL:
-                tagName = Boolean.TRUE.equals(lt.getValue()) ? TRUE : FALSE;
-                break;
-            case STRING_LITERAL:
-                tagName = STRING_LITERAL;
-                break;
-            case NULL_LITERAL:
-                tagName = NULL;
-                break;
-            default:
-                throw new IllegalArgumentException("unknown literal kind : " + kind);
-        }
-        startElement(tagName, lt);
-        Object value = lt.getValue();
-        if (value != null && !(value instanceof Boolean)) {
-            emitData(value.toString());
-        }
-        endElement(tagName);
-        return null;
-    }
-
-    
-    public Void visitModifiers(ModifiersTree mt, Void v) {
-        emitModifiers((JFXModifiers)mt);
-        return null;
-    }
-
-    
-    public Void visitParenthesized(ParenthesizedTree pt, Void v) {
-        startElement(PARENTHESIS, pt);
-        emitTree(pt.getExpression());
-        endElement(PARENTHESIS);
-        return null;
-    }
-
-    
-    public Void visitReturn(ReturnTree rt, Void v) {
-        startElement(RETURN, rt);
-        emitTree(rt.getExpression());
-        endElement(RETURN);
-        return null;
-    }
-    
-    
-    public Void visitMemberSelect(MemberSelectTree mst, Void v) {
-        startElement(SELECT, mst, ((JFXSelect) mst).sym);
-        emitTree(EXPRESSION, mst.getExpression());
-        Name name = mst.getIdentifier();
-        if (name != null) {
-            emitElement(MEMBER, name.toString());
-        }
-        endElement(SELECT);
-        return null;
-    }
-
-    
-    public Void visitEmptyStatement(EmptyStatementTree e, Void v) {
-        startElement(EMPTY, e);
-        endElement(EMPTY);
-        return null;
-    }
-
-    
-    public Void visitThrow(ThrowTree tt, Void v) {
-        startElement(THROW, tt);
-        emitTree(tt.getExpression());
-        endElement(THROW);
-        return null;
-    }
-
-    
-    public Void visitCompilationUnit(UnitTree tree, Void v) {
-        JFXScript script = (JFXScript) tree;
+    public void visitScript(JFXScript script) {
         endPositions = script.endPositions;
         startElement(JAVAFX_SCRIPT, script);
         JavaFileObject file = script.getSourceFile();
@@ -347,100 +144,204 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         emitAllSymbols();
         emitAllTypes();
         endElement(JAVAFX_SCRIPT);
-        return null;
     }
 
-    
-    public Void visitTry(TryTree tt, Void v) {
+    public void visitImport(JFXImport imp) {
+        startElement(IMPORT, imp);
+        emitTree(imp.getQualifiedIdentifier());
+        endElement(IMPORT);
+    }
+
+    public void visitSkip(JFXSkip skip) {
+        startElement(EMPTY, skip);
+        endElement(EMPTY);
+    }
+
+    public void visitWhileLoop(JFXWhileLoop whileLoop) {
+        startElement(WHILE, whileLoop);
+        emitTree(TEST, whileLoop.getCondition());
+        emitTree(STATEMENT, whileLoop.getBody());
+        endElement(WHILE);
+    }
+
+    public void visitTry(JFXTry tt) {
         startElement(TRY, tt);
         emitTree(tt.getBlock());
-        emitTreeList(CATCHES, tt.getCatches());
+        emitTreeList(CATCHES, tt.catchers);
         emitTree(FINALLY, tt.getFinallyBlock());
         endElement(TRY);
-        return null;
     }
 
+    public void visitCatch(JFXCatch ct) {
+        startElement(CATCH, ct);
+        emitTree(ct.getParameter());
+        emitTree(ct.getBlock());
+        endElement(CATCH);
+    }
+
+    public void visitIfExpression(JFXIfExpression ifExpr) {
+        startElement(IF, ifExpr);
+        emitTree(TEST, ifExpr.getCondition());
+        emitTree(THEN, ifExpr.getTrueExpression());
+        emitTree(ELSE, ifExpr.getFalseExpression());
+        endElement(IF);
+    }
+
+    public void visitBreak(JFXBreak bt) {
+        startElement(BREAK, bt);
+        Name label = bt.getLabel();
+        if (label != null) {
+            emitElement(LABEL, label.toString());
+        }
+        endElement(BREAK);
+    }
+
+    public void visitContinue(JFXContinue ct) {
+        startElement(CONTINUE, ct);
+        Name label = ct.getLabel();
+        if (label != null) {
+            emitElement(LABEL, label.toString());
+        }
+        endElement(CONTINUE);
+    }
+
+    public void visitReturn(JFXReturn rt) {
+        startElement(RETURN, rt);
+        emitTree(rt.getExpression());
+        endElement(RETURN);
+    }
     
-    public Void visitTypeCast(TypeCastTree tct, Void v) {
-        startElement(CAST, tct);
-        emitTree(TYPE, tct.getType());
-        emitTree(EXPRESSION, tct.getExpression());
+    public void visitThrow(JFXThrow tt) {
+        startElement(THROW, tt);
+        emitTree(tt.getExpression());
+        endElement(THROW);
+    }
+
+    public void visitFunctionInvocation(JFXFunctionInvocation invoke) {
+        startElement(INVOKE, invoke);
+        emitTree(METHOD, invoke.getMethodSelect());
+        emitTreeList(ARGUMENTS, invoke.getArguments());
+        endElement(INVOKE);
+    }
+
+    public void visitParens(JFXParens parens) {
+        startElement(PARENTHESIS, parens);
+        emitTree(parens.getExpression());
+        endElement(PARENTHESIS);
+    }
+    
+    public void visitAssign(JFXAssign assign) {
+        startElement(ASSIGNMENT, assign);
+        emitTree(LEFT, assign.getVariable());
+        emitTree(RIGHT, assign.getExpression());
+        endElement(ASSIGNMENT);
+    }
+    
+    public void visitAssignop(JFXAssignOp assignOp) {
+        final String tagName = enumToName(assignOp.getJavaFXKind());
+        startElement(tagName, assignOp);
+        emitTree(LEFT, assignOp.getVariable());
+        emitTree(RIGHT, assignOp.getExpression());
+        endElement(tagName);
+    }
+
+    public void visitUnary(JFXUnary unary) {
+        JavaFXKind kind = unary.getJavaFXKind();
+        final String tagName = (kind == null) ? SIZEOF : enumToName(unary.getJavaFXKind());
+        startElement(tagName, unary);
+        emitTree(unary.getExpression());
+        endElement(tagName);
+    }
+    
+    public void visitBinary(JFXBinary binary) {
+        final String tagName = enumToName(binary.getJavaFXKind());
+        startElement(tagName, binary);
+        emitTree(LEFT, binary.getLeftOperand());
+        emitTree(RIGHT, binary.getRightOperand());
+        endElement(tagName);
+    }
+
+    public void visitTypeCast(JFXTypeCast typeCast) {
+        startElement(CAST, typeCast);
+        emitTree(TYPE, typeCast.getType());
+        emitTree(EXPRESSION, typeCast.getExpression());
         endElement(CAST);
-        return null;
     }
 
-    
-    public Void visitInstanceOf(InstanceOfTree it, Void v) {
-        startElement(INSTANCEOF, it);
-        emitTree(TYPE, it.getType());
-        emitTree(EXPRESSION, it.getExpression());
+    public void visitInstanceOf(JFXInstanceOf instOf) {
+        startElement(INSTANCEOF, instOf);
+        emitTree(TYPE, instOf.getType());
+        emitTree(EXPRESSION, instOf.getExpression());
         endElement(INSTANCEOF);
-        return null;
     }
 
-    
-    public Void visitUnary(UnaryTree ut, Void v) {
-        JavaFXKind kind = ut.getJavaFXKind();
-        final String tagName = (kind == null) ? SIZEOF : enumToName(ut.getJavaFXKind());
-        startElement(tagName, ut);
-        emitTree(ut.getExpression());
-        endElement(tagName);
-        return null;
-    }
-
-    
-    public Void visitVariable(VariableTree vt, Void v) {
-        JFXVar jfxVar = (vt instanceof JFXVar) ? (JFXVar) vt : ((JFXVarScriptInit) vt).getVar();
-        JFXModifiers mods = jfxVar.getModifiers();
-        String tagName = VAR;
-        if (mods != null) {
-            // ignore static variables inside "run" method
-            if (insideJavafxEntryMethod && (mods.flags & Flags.STATIC) != 0) {
-                return null;
-            }
-            if ((mods.flags & JavafxFlags.IS_DEF) != 0) {
-                tagName = DEF;
-            }
-        }
-        startElement(tagName, vt, jfxVar.sym);
-        Name name = vt.getName();
+    public void visitSelect(JFXSelect select) {
+        startElement(SELECT, select, select.sym);
+        emitTree(EXPRESSION, select.getExpression());
+        Name name = select.getIdentifier();
         if (name != null) {
-            emitElement(NAME, name.toString());
+            emitElement(MEMBER, name.toString());
         }
-        emitModifiers(mods);
-        emitTree(TYPE, vt.getJFXType());
-        emitElement(BIND_STATUS, bindStatusToString(vt.getBindStatus()));
-        emitTree(INITIAL_VALUE, vt.getInitializer());
-        OnReplaceTree onReplace = vt.getOnReplaceTree();
-        emitTree(onReplace);
-        OnReplaceTree onInvalidate = vt.getOnInvalidateTree();
-        emitTree(onInvalidate);
+        endElement(SELECT);
+    }
+    
+    public void visitIdent(JFXIdent ident) {
+        startElement(IDENTIFIER, ident, ident.sym);
+        Name name = ident.getName();
+        if (name != null) {
+            emitData(name.toString());
+        }
+        endElement(IDENTIFIER);
+    }
+
+    public void visitLiteral(JFXLiteral literal) {
+        String tagName;
+        JavaFXKind kind = literal.getJavaFXKind();
+        switch (kind) {
+            case INT_LITERAL:
+                tagName = INT_LITERAL;
+                break;
+            case LONG_LITERAL:
+                tagName = LONG_LITERAL;
+                break;
+            case FLOAT_LITERAL:
+                tagName = FLOAT_LITERAL;
+                break;
+            case DOUBLE_LITERAL:
+                tagName = DOUBLE_LITERAL;
+                break;
+            case BOOLEAN_LITERAL:
+                tagName = Boolean.TRUE.equals(literal.getValue()) ? TRUE : FALSE;
+                break;
+            case STRING_LITERAL:
+                tagName = STRING_LITERAL;
+                break;
+            case NULL_LITERAL:
+                tagName = NULL;
+                break;
+            default:
+                throw new IllegalArgumentException("unknown literal kind : " + kind);
+        }
+        startElement(tagName, literal);
+        Object value = literal.getValue();
+        if (value != null && !(value instanceof Boolean)) {
+            emitData(value.toString());
+        }
         endElement(tagName);
-        return null;
     }
 
-    
-    public Void visitWhileLoop(WhileLoopTree wl, Void v) {
-        startElement(WHILE, wl);
-        emitTree(TEST, wl.getCondition());
-        emitTree(STATEMENT, wl.getStatement());
-        endElement(WHILE);
-        return null;
+    public void visitModifiers(JFXModifiers modifiers) {
+        emitModifiers((JFXModifiers)modifiers);
     }
 
-    
-    public Void visitBlockExpression(BlockExpressionTree be, Void v) {
-        startElement(BLOCK_EXPRESSION, be);
-        emitTreeList(STATEMENTS, be.getStatements());
-        // emitTree(VALUE, be.getValue());
-        endElement(BLOCK_EXPRESSION);
-        return null;
+    public void visitErroneous(JFXErroneous error) {
+        startElement(ERROR, error);
+        emitTreeList(error.getErrorTrees());
+        endElement(ERROR);
     }
 
-    
-    public Void visitClassDeclaration(ClassDeclarationTree tree, Void v) {
-        JFXClassDeclaration jfxCt = (JFXClassDeclaration) tree;
-        List<JFXTree> members = jfxCt.getMembers();
+    public void visitClassDeclaration(JFXClassDeclaration classDecl) {
+        List<JFXTree> members = classDecl.getMembers();
         List<JFXTree> staticMembers = new ArrayList<JFXTree>();
         List<JFXTree> instanceMembers = new ArrayList<JFXTree>();
         for (JFXTree m : members) {
@@ -472,267 +373,75 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         // no instance member => this is a module class generated
         // to hold file level variables and functions.
         if (instanceMembers.isEmpty()) {
-            emitTreeList(jfxCt.getMembers());
+            emitTreeList(classDecl.getMembers());
         } else {
             // emit static members that appear before the class in source order
-            int classPos = jfxCt.pos;
-            for (JCTree item : staticMembers) {
+            int classPos = classDecl.pos;
+            for (JFXTree item : staticMembers) {
                 if (item.pos <= classPos) {
-                    emitTree((Tree)item);
+                    emitTree(item);
                 }
             }
-            startElement(CLASS, jfxCt, jfxCt.sym);
-            Name name = jfxCt.getSimpleName();
+            startElement(CLASS, classDecl, classDecl.sym);
+            Name name = classDecl.getSimpleName();
             if (name != null) {
                 emitElement(NAME, name.toString());
             }
-            emitModifiers(jfxCt.getModifiers());
-            emitTreeList(EXTENDS, jfxCt.getSupertypeList());
+            emitModifiers(classDecl.getModifiers());
+            emitTreeList(EXTENDS, classDecl.getSupertypes());
             emitTreeList(MEMBERS, instanceMembers);
             endElement(CLASS);
             // emit static members that appear after the class in source order
-            for (JCTree item : staticMembers) {
+            for (JFXTree item : staticMembers) {
                 if (item.pos > classPos) {
-                    emitTree((Tree)item);
+                    emitTree(item);
                 }
             }
         }
-        return null;
     }
 
-    
-    public Void visitForExpression(ForExpressionTree fe, Void v) {
-        startElement(FOR, fe);
-        emitTreeList(IN, fe.getInClauses());
-        emitTree(BODY, fe.getBodyExpression());
-        endElement(FOR);
-        return null;
-    }
-
-    
-    public Void visitForExpressionInClause(ForExpressionInClauseTree feic, Void v) {
-        startElement(LIST_ITEM, feic);
-        emitTree(feic.getVariable());
-        emitTree(SEQUENCE, feic.getSequenceExpression());
-        emitTree(WHERE, feic.getWhereExpression());
-        endElement(LIST_ITEM);
-        return null;
-    }
-
-    
-    public Void visitInitDefinition(InitDefinitionTree id, Void v) {
-        startElement(INIT, id);
-        emitTree(id.getBody());
-        endElement(INIT);
-        return null;
-    }
-
-    
-    public Void visitInterpolateValue(InterpolateValueTree ivt, Void v) {
-        startElement(INTERPOLATE_VALUE, ivt);
-        emitTree(ATTRIBUTE, ivt.getAttribute());
-        emitTree(VALUE, ivt.getValue());
-        emitTree(INTERPOLATION, ivt.getInterpolation());
-        endElement(INTERPOLATE_VALUE);
-        return null;
-    }
-
-    
-    public Void visitIndexof(IndexofTree it, Void v) {
-        startElement(INDEXOF, it);
-        emitTree(it.getForVarIdentifier());
-        endElement(INDEXOF);
-        return null;
-    }
-
-    
-    public Void visitInstantiate(InstantiateTree tree, Void v) {
-        List<ExpressionTree> args = tree.getArguments();
-        final String tagName = ((args == null) || args.isEmpty())? OBJECT_LITERAL : NEW;
-        startElement(tagName, tree);
-        emitTree(CLASS, tree.getIdentifier());
-        emitTreeList(ARGUMENTS, tree.getArguments());
-        startElement(DEFINITIONS);
-        emitTreeList(tree.getLocalVariables());
-        emitTreeList(tree.getLiteralParts());
-        ClassDeclarationTree clazz = tree.getClassBody();
-        if (clazz != null) {
-            emitTreeList(clazz.getClassMembers());
-        }
-        endElement(DEFINITIONS);
-        endElement(tagName);
-        return null;
-    }
-
-    
-    public Void visitKeyFrameLiteral(KeyFrameLiteralTree kfl, Void v) {
-        startElement(KEYFRAME_LITERAL, kfl);
-        emitTree(START_DURATION, kfl.getStartDuration());
-        emitTreeList(INTERPOLATION_VALUES, kfl.getInterpolationValues());
-        emitTree(TRIGGER, kfl.getTrigger());
-        endElement(KEYFRAME_LITERAL);
-        return null;
-    }
-
-    
-    public Void visitObjectLiteralPart(ObjectLiteralPartTree olp, Void v) {
-        startElement(OBJECT_LITERAL_INIT, olp, ((JFXObjectLiteralPart) olp).sym);
-        Name name = olp.getName();
-        if (name != null) {
-            emitElement(NAME, name.toString());
-        }
-        emitElement(BIND_STATUS, bindStatusToString(olp.getBindStatus()));
-        emitTree(EXPRESSION, olp.getExpression());
-        endElement(OBJECT_LITERAL_INIT);
-        return null;
-    }
-
-    
-    public Void visitOnReplace(OnReplaceTree or, Void v) {
-        final String tagName =
-            (((JFXOnReplace)or).getTriggerKind() == JFXOnReplace.Kind.ONINVALIDATE)?
-            ON_INVALIDATE : ON_REPLACE;
-        startElement(tagName, or);
-        emitTree(FIRST_INDEX, or.getFirstIndex());
-        emitTree(LAST_INDEX, or.getLastIndex());
-        emitTree(NEW_ELEMENTS, or.getNewElements());
-        emitTree(OLD_VALUE, or.getOldValue());
-        if (or.getEndKind() == JFXSequenceSlice.END_EXCLUSIVE) {
-            emitElement(SLICE_END_KIND, EXCLUSIVE);
-        }
-        emitTree(or.getBody());
-        endElement(tagName);
-        return null;
-    }
-
-    
-    public Void visitFunctionDefinition(FunctionDefinitionTree tree, Void v) {
-        JFXFunctionDefinition ot = (JFXFunctionDefinition) tree;
-        if (ot.equals(javafxEntryMethod)) {
+    public void visitFunctionDefinition(JFXFunctionDefinition funcDef) {
+        if (funcDef.equals(javafxEntryMethod)) {
             // handled specially, return from here
-            return null;
+            return;
         } else {
-            startElement(FUNCTION, ot, ot.sym);
-            Name name = ot.getName();
+            startElement(FUNCTION, funcDef, funcDef.sym);
+            Name name = funcDef.getName();
             if (name != null) {
                 emitElement(NAME, name.toString());
             }
-            emitModifiers(ot.getModifiers());
-            emitTree(RETURN_TYPE, ot.getJFXReturnType());
-            emitTreeList(PARAMETERS, ot.getParams());
-            emitTree(ot.getBodyExpression());
+            emitModifiers(funcDef.getModifiers());
+            emitTree(RETURN_TYPE, funcDef.getJFXReturnType());
+            emitTreeList(PARAMETERS, funcDef.getParams());
+            emitTree(funcDef.getBodyExpression());
             endElement(FUNCTION);
         }
-        return null;
-    }
-    
-    
-    public Void visitFunctionValue(FunctionValueTree fv, Void v) {
-        startElement(ANON_FUNCTION, fv);
-        emitTree(RETURN_TYPE, fv.getType());
-        emitTreeList(PARAMETERS, fv.getParameters());
-        emitTree(fv.getBodyExpression());
-        endElement(ANON_FUNCTION);
-        return null;
     }
 
-    
-    public Void visitPostInitDefinition(InitDefinitionTree pid, Void v) {
-        startElement(POSTINIT, pid);
-        emitTree(pid.getBody());
+    public void visitInitDefinition(JFXInitDefinition initDef) {
+        startElement(INIT, initDef);
+        emitTree(initDef.getBody());
+        endElement(INIT);
+    }
+
+    public void visitPostInitDefinition(JFXPostInitDefinition postInitDef) {
+        startElement(POSTINIT, postInitDef);
+        emitTree(postInitDef.getBody());
         endElement(POSTINIT);
-        return null;
     }
 
-    
-    public Void visitSequenceDelete(SequenceDeleteTree sd, Void v) {
-        startElement(SEQUENCE_DELETE, sd);
-        emitTree(SEQUENCE, sd.getSequence());
-        emitTree(ELEMENT, sd.getElement());
-        endElement(SEQUENCE_DELETE);
-        return null;
-    }
-
-    
-    public Void visitSequenceEmpty(SequenceEmptyTree se, Void v) {
-        startElement(SEQUENCE_EMPTY, se);
-        endElement(SEQUENCE_EMPTY);
-        return null;
-    }
-
-    
-    public Void visitSequenceExplicit(SequenceExplicitTree se, Void v) {
-        startElement(SEQUENCE_EXPLICIT, se);
-        emitTreeList(ITEMS, se.getItemList());
-        endElement(SEQUENCE_EXPLICIT);
-        return null;
-    }
-
-    
-    public Void visitSequenceIndexed(SequenceIndexedTree si, Void v) {
-        startElement(SEQUENCE_INDEXED, si);
-        emitTree(SEQUENCE, si.getSequence());
-        emitTree(INDEX, si.getIndex());
-        endElement(SEQUENCE_INDEXED);
-        return null;
-    }
-
-    
-    public Void visitSequenceSlice(SequenceSliceTree ss, Void v) {
-        startElement(SEQUENCE_SLICE, ss);
-        emitTree(SEQUENCE, ss.getSequence());
-        emitTree(FIRST, ss.getFirstIndex());
-        emitTree(LAST, ss.getLastIndex());
-        if (ss.getEndKind() == ss.END_EXCLUSIVE) {
-            emitElement(SLICE_END_KIND, EXCLUSIVE);
-        }
-        endElement(SEQUENCE_SLICE);
-        return null;
-    }
-
-    
-    public Void visitSequenceInsert(SequenceInsertTree si, Void v) {
-        startElement(SEQUENCE_INSERT, si);
-        emitTree(SEQUENCE, si.getSequence());
-        emitTree(ELEMENT, si.getElement());
-        endElement(SEQUENCE_INSERT);
-        return null;
-    }
-
-    
-    public Void visitSequenceRange(SequenceRangeTree sr, Void v) {
-        startElement(SEQUENCE_RANGE, sr);
-        emitTree(LOWER, sr.getLower());
-        emitTree(UPPER, sr.getUpper());
-        emitTree(STEP, sr.getStepOrNull());
-        emitElement(EXCLUSIVE, Boolean.toString(sr.isExclusive()));
-        endElement(SEQUENCE_RANGE);
-        return null;
-    }
-
-
-    public Void visitVariableInvalidate(VariableInvalidateTree it, Void v) {
-        startElement(INVALIDATE, it);
-        startElement(VAR);
-        emitTree(it.getVariable());
-        endElement(VAR);
-        endElement(INVALIDATE);
-        return null;
-    }
-
-    
-    public Void visitStringExpression(StringExpressionTree se, Void v) {
-        startElement(STRING_EXPRESSION, se);
-        String translationKey = ((JFXStringExpression) se).translationKey;
+    public void visitStringExpression(JFXStringExpression strExpr) {
+        startElement(STRING_EXPRESSION, strExpr);
+        String translationKey = strExpr.translationKey;
         if (translationKey != null) {
             emitElement(STR_TRANS_KEY, translationKey);
         }
-        List<ExpressionTree> parts = se.getPartList();
+        List<JFXExpression> parts = strExpr.getParts();
         int i;
         for (i = 0; i < parts.size() - 1; i += 3) {
             emitTree(PART, parts.get(i));
             startElement(PART);
-            ExpressionTree format = parts.get(i + 1);
+            JFXExpression format = parts.get(i + 1);
             if (format != null) {
                 emitTree(FORMAT, format);
             }
@@ -741,77 +450,262 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         }
         emitTree(PART, parts.get(i));
         endElement(STRING_EXPRESSION);
-        return null;
-    }
-    
-    
-    public Void visitTimeLiteral(TimeLiteralTree tt, Void v) {
-        startElement(TIME_LITERAL, tt);
-        emitData(tt.getValue().toString());
-        endElement(TIME_LITERAL);
-        return null;
     }
 
-    
-    public Void visitTrigger(TriggerTree tt, Void v) {
-        startElement(OVERRIDE_VAR, tt);
-        emitTree(EXPRESSION, tt.getExpressionTree());
-        emitTree(tt.getOnReplaceTree());
-        endElement(OVERRIDE_VAR);
-        return null;
+    public void visitInstanciate(JFXInstanciate instanciate) {
+        List<JFXExpression> args = instanciate.getArgs();
+        final String tagName = ((args == null) || args.isEmpty())? OBJECT_LITERAL : NEW;
+        startElement(tagName, instanciate);
+        emitTree(CLASS, instanciate.getIdentifier());
+        emitTreeList(ARGUMENTS, instanciate.getArgs());
+        startElement(DEFINITIONS);
+        emitTreeList(instanciate.getLocalvars());
+        emitTreeList(instanciate.getParts());
+        JFXClassDeclaration clazz = instanciate.getClassBody();
+        if (clazz != null) {
+            emitTreeList(clazz.getMembers());
+        }
+        endElement(DEFINITIONS);
+        endElement(tagName);
     }
 
-    
-    public Void visitTypeAny(TypeAnyTree at, Void v) {
-        startElement(TYPE_ANY, at);
-        TypeTree.Cardinality cardinality = ((TypeTree) at).getCardinality();
+    public void visitObjectLiteralPart(JFXObjectLiteralPart objLitPart) {
+        startElement(OBJECT_LITERAL_INIT, objLitPart, objLitPart.sym);
+        Name name = objLitPart.getName();
+        if (name != null) {
+            emitElement(NAME, name.toString());
+        }
+        emitElement(BIND_STATUS, bindStatusToString(objLitPart.getBindStatus()));
+        emitTree(EXPRESSION, objLitPart.getExpression());
+        endElement(OBJECT_LITERAL_INIT);
+    }
+
+    public void visitTypeAny(JFXTypeAny typeAny) {
+        startElement(TYPE_ANY, typeAny);
+        TypeTree.Cardinality cardinality = typeAny.getCardinality();
         emitElement(CARDINALITY, cardinalityToString(cardinality));
         endElement(TYPE_ANY);
-        return null;
     }
 
-    
-    public Void visitTypeClass(TypeClassTree tc, Void v) {
-        startElement(TYPE_CLASS, tc, getSymbolField(tc));
-        emitTree(CLASS, tc.getClassName());
-        TypeTree.Cardinality cardinality = ((TypeTree) tc).getCardinality();
+    public void visitTypeClass(JFXTypeClass typeClass) {
+        startElement(TYPE_CLASS, typeClass, getSymbolField(typeClass));
+        JFXExpression name = typeClass.getClassName();
+        if (name instanceof JFXIdent) {
+            String mappedName = primTypeNames.get(name.toString());
+            if (mappedName != null) {
+                startElement(CLASS);
+                    startElement(IDENTIFIER);
+                        emitData(mappedName);
+                    endElement(IDENTIFIER);
+                endElement(CLASS);
+            } else {
+                emitTree(CLASS, name);
+            }
+        } else {
+            emitTree(CLASS, typeClass.getClassName());
+        }
+        TypeTree.Cardinality cardinality = typeClass.getCardinality();
         emitElement(CARDINALITY, cardinalityToString(cardinality));
         endElement(TYPE_CLASS);
-        return null;
     }
 
-    
-    public Void visitTypeFunctional(TypeFunctionalTree tf, Void v) {
-        startElement(TYPE_FUNCTIONAL, tf);
-        emitTreeList(PARAMETERS, tf.getParameters());
-        emitTree(RETURN_TYPE, (com.sun.tools.javafx.tree.JFXType) tf.getReturnType());
-        TypeTree.Cardinality cardinality = ((TypeTree) tf).getCardinality();
+    public void visitTypeFunctional(JFXTypeFunctional typeFunc) {
+        startElement(TYPE_FUNCTIONAL, typeFunc);
+        emitTreeList(PARAMETERS, typeFunc.getParams());
+        emitTree(RETURN_TYPE, typeFunc.restype);
+        TypeTree.Cardinality cardinality = typeFunc.getCardinality();
         emitElement(CARDINALITY, cardinalityToString(cardinality));
         endElement(TYPE_FUNCTIONAL);
-        return null;
     }
 
-    
-    public Void visitTypeArray(TypeArrayTree tat, Void v) {
-        startElement(TYPE_ARRAY, tat);
-        emitTree(tat.getElementType());
+    public void visitTypeArray(JFXTypeArray typeArray) {
+        startElement(TYPE_ARRAY, typeArray);
+        emitTree(typeArray.getElementType());
         endElement(TYPE_ARRAY);
-        return null;
     }
 
-    
-    public Void visitTypeUnknown(TypeUnknownTree tu, Void v) {
-        startElement(TYPE_UNKNOWN, tu);
+    public void visitTypeUnknown(JFXTypeUnknown typeUnknown) {
+        startElement(TYPE_UNKNOWN, typeUnknown);
         endElement(TYPE_UNKNOWN);
-        return null;
     }
 
-    
-    public Void visitMissingExpression(ExpressionTree expr, Void v) {
-        startElement(MISSING_EXPRESSION, expr);
-        emitTree(expr);
-        endElement(MISSING_EXPRESSION);
-        return null;
+    public void visitVar(JFXVar var) {
+        JFXModifiers mods = var.getModifiers();
+        String tagName = VAR;
+        if (mods != null) {
+            // ignore static variables inside "run" method
+            if (insideJavafxEntryMethod && (mods.flags & Flags.STATIC) != 0) {
+                return;
+            }
+            if ((mods.flags & JavafxFlags.IS_DEF) != 0) {
+                tagName = DEF;
+            }
+        }
+        startElement(tagName, var, var.sym);
+        Name name = var.getName();
+        if (name != null) {
+            emitElement(NAME, name.toString());
+        }
+        emitModifiers(mods);
+        emitTree(TYPE, var.getJFXType());
+        emitElement(BIND_STATUS, bindStatusToString(var.getBindStatus()));
+        emitTree(INITIAL_VALUE, var.getInitializer());
+        JFXOnReplace onReplace = var.getOnReplace();
+        emitTree(onReplace);
+        JFXOnReplace onInvalidate = var.getOnInvalidate();
+        emitTree(onInvalidate);
+        endElement(tagName);
+    }
+
+    public void visitVarInit(JFXVarInit tree) {
+        // ignore - not from source introduced later
+    }
+
+    public void visitVarRef(JFXVarRef tree) {
+        // ignore - not in source introduced in lower
+    }
+
+    public void visitOnReplace(JFXOnReplace onReplace) {
+        final String tagName =
+            (onReplace.getTriggerKind() == JFXOnReplace.Kind.ONINVALIDATE)?
+            ON_INVALIDATE : ON_REPLACE;
+        startElement(tagName, onReplace);
+        emitTree(FIRST_INDEX, onReplace.getFirstIndex());
+        emitTree(LAST_INDEX, onReplace.getLastIndex());
+        emitTree(NEW_ELEMENTS, onReplace.getNewElements());
+        emitTree(OLD_VALUE, onReplace.getOldValue());
+        if (onReplace.getEndKind() == JFXSequenceSlice.END_EXCLUSIVE) {
+            emitElement(SLICE_END_KIND, EXCLUSIVE);
+        }
+        emitTree(onReplace.getBody());
+        endElement(tagName);
+    }
+
+    public void visitBlockExpression(JFXBlock block) {
+        startElement(BLOCK_EXPRESSION, block);
+        emitTreeList(STATEMENTS, block.getStmts());
+        emitTree(VALUE, block.getValue());
+        endElement(BLOCK_EXPRESSION);
+    }
+
+    public void visitFunctionValue(JFXFunctionValue funcValue) {
+        startElement(ANON_FUNCTION, funcValue);
+        emitTree(RETURN_TYPE, funcValue.getType());
+        emitTreeList(PARAMETERS, funcValue.getParams());
+        emitTree(funcValue.getBodyExpression());
+        endElement(ANON_FUNCTION);
+    }
+
+    public void visitSequenceEmpty(JFXSequenceEmpty seqEmpty) {
+        startElement(SEQUENCE_EMPTY, seqEmpty);
+        endElement(SEQUENCE_EMPTY);
+    }
+
+    public void visitSequenceRange(JFXSequenceRange seqRange) {
+        startElement(SEQUENCE_RANGE, seqRange);
+        emitTree(LOWER, seqRange.getLower());
+        emitTree(UPPER, seqRange.getUpper());
+        emitTree(STEP, seqRange.getStepOrNull());
+        emitElement(EXCLUSIVE, Boolean.toString(seqRange.isExclusive()));
+        endElement(SEQUENCE_RANGE);
+    }
+
+    public void visitSequenceExplicit(JFXSequenceExplicit seqExplicit) {
+        startElement(SEQUENCE_EXPLICIT, seqExplicit);
+        emitTreeList(ITEMS, seqExplicit.getItems());
+        endElement(SEQUENCE_EXPLICIT);
+    }
+
+    public void visitSequenceIndexed(JFXSequenceIndexed seqIndexed) {
+        startElement(SEQUENCE_INDEXED, seqIndexed);
+        emitTree(SEQUENCE, seqIndexed.getSequence());
+        emitTree(INDEX, seqIndexed.getIndex());
+        endElement(SEQUENCE_INDEXED);
+    }
+
+    public void visitSequenceSlice(JFXSequenceSlice seqSlice) {
+        startElement(SEQUENCE_SLICE, seqSlice);
+        emitTree(SEQUENCE, seqSlice.getSequence());
+        emitTree(FIRST, seqSlice.getFirstIndex());
+        emitTree(LAST, seqSlice.getLastIndex());
+        if (seqSlice.getEndKind() == seqSlice.END_EXCLUSIVE) {
+            emitElement(SLICE_END_KIND, EXCLUSIVE);
+        }
+        endElement(SEQUENCE_SLICE);
+    }
+
+    public void visitSequenceInsert(JFXSequenceInsert seqInsert) {
+        startElement(SEQUENCE_INSERT, seqInsert);
+        emitTree(SEQUENCE, seqInsert.getSequence());
+        emitTree(ELEMENT, seqInsert.getElement());
+        endElement(SEQUENCE_INSERT);
+    }
+
+    public void visitSequenceDelete(JFXSequenceDelete seqDelete) {
+        startElement(SEQUENCE_DELETE, seqDelete);
+        emitTree(SEQUENCE, seqDelete.getSequence());
+        emitTree(ELEMENT, seqDelete.getElement());
+        endElement(SEQUENCE_DELETE);
+    }
+
+    public void visitInvalidate(JFXInvalidate invalidate) {
+        startElement(INVALIDATE, invalidate);
+        startElement(VAR);
+        emitTree(invalidate.getVariable());
+        endElement(VAR);
+        endElement(INVALIDATE);
+    }
+
+    public void visitForExpression(JFXForExpression forExpr) {
+        startElement(FOR, forExpr);
+        emitTreeList(IN, forExpr.getForExpressionInClauses());
+        emitTree(BODY, forExpr.getBodyExpression());
+        endElement(FOR);
+    }
+
+    public void visitForExpressionInClause(JFXForExpressionInClause inClause) {
+        startElement(LIST_ITEM, inClause);
+        emitTree(inClause.getVariable());
+        emitTree(SEQUENCE, inClause.getSequenceExpression());
+        emitTree(WHERE, inClause.getWhereExpression());
+        endElement(LIST_ITEM);
+    }
+
+    public void visitIndexof(JFXIndexof indexOf) {
+        startElement(INDEXOF, indexOf);
+        emitTree(indexOf.getForVarIdentifier());
+        endElement(INDEXOF);
+    }
+
+    public void visitTimeLiteral(JFXTimeLiteral timeLiteral) {
+        startElement(TIME_LITERAL, timeLiteral);
+        emitData(timeLiteral.getValue().toString());
+        endElement(TIME_LITERAL);
+    }
+
+    public void visitOverrideClassVar(JFXOverrideClassVar overrideVar) {
+        startElement(OVERRIDE_VAR, overrideVar);
+        emitElement(NAME, overrideVar.getName().toString());
+        emitTree(EXPRESSION, overrideVar.getInitializer());
+        emitTree(overrideVar.getOnReplace());
+        emitTree(overrideVar.getOnInvalidate());
+        endElement(OVERRIDE_VAR);
+    }
+
+    public void visitInterpolateValue(JFXInterpolateValue interpolateValue) {
+        startElement(INTERPOLATE_VALUE, interpolateValue);
+        emitTree(ATTRIBUTE, interpolateValue.getAttribute());
+        emitTree(VALUE, interpolateValue.getValue());
+        emitTree(INTERPOLATION, interpolateValue.getInterpolation());
+        endElement(INTERPOLATE_VALUE);
+    }
+
+    public void visitKeyFrameLiteral(JFXKeyFrameLiteral keyFrame) {
+        startElement(KEYFRAME_LITERAL, keyFrame);
+        emitTree(START_DURATION, keyFrame.getStartDuration());
+        emitTreeList(INTERPOLATION_VALUES, keyFrame.getInterpolationValues());
+        emitTree(TRIGGER, keyFrame.getTrigger());
+        endElement(KEYFRAME_LITERAL);
     }
 
     // package private stuff below this point
@@ -822,11 +716,11 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         this.javafxEntryMethodName = Entry.entryMethodName();
     }
 
-    // start outputting SAX events based on given compilation unit tree
-    void start(UnitTree ut) {
+    // start outputting SAX events based on given compilation unit instanciate
+    void start(JFXTree ut) {
         try {
             handler.startDocument();
-            ut.accept(this, null);
+            ut.accept(this);
             handler.endDocument();
         } catch (Exception exp) {
             throw wrapException(exp);
@@ -843,27 +737,40 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
 
     //-- Internals only below this point
 
+    private static Map<String, String> primTypeNames;
+    static {
+        primTypeNames = new HashMap<String, String>();
+        primTypeNames.put("boolean", "Boolean");
+        primTypeNames.put("char", "Character");
+        primTypeNames.put("byte", "Byte");
+        primTypeNames.put("short", "Short");
+        primTypeNames.put("int", "Integer");
+        primTypeNames.put("long", "Long");
+        primTypeNames.put("float", "Float");
+        primTypeNames.put("double", "Double");
+    }
+
     private Map<JCTree, String> docComments;
 
     /*
      * Symbols and types are networks (and not trees). We handle cycles by
-     * generating id and idrefs (as is common in XML representations). Note
+     * generating initDef and idrefs (as is common in XML representations). Note
      * that the symbols and types are emitted only if XML representation is
-     * created after "enter" or "analyze" phase. If XML document is created
-     * just after "parse" phase, we emit only the tree nodes.
+     * created after "enter" onReplace "analyze" phase. If XML document is created
+     * just after "parse" phase, we emit only the instanciate nodes.
      */
-    // next symbol id to be used -- symbol id is just a common
+    // next symbol initDef to block used -- symbol initDef is just a common
     // prefix concatenated with a number
     private int nextSymbol = 1;
 
-    // Symbol to symbol id map
+    // Symbol to symbol initDef map
     private Map<Symbol, String> symbolToId = new HashMap<Symbol, String>();
     private Map<String, Symbol> idToSymbol = new HashMap<String, Symbol>();
 
-    // next type id to be used --  type id is just a common
+    // next type initDef to block used --  type initDef is just a common
     // prefix concatenated with a number
     private int nextType = 1;
-    // Type to type id map
+    // Type to type initDef map
     private Map<Type, String> typeToId = new HashMap<Type, String>();
     private Map<String, Type> idToType = new HashMap<String, Type>();
 
@@ -879,7 +786,7 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
     private boolean insideJavafxEntryMethod;
     private String sourceFileName;
 
-    private Symbol getSymbolField(Tree jcTree) {
+    private Symbol getSymbolField(JFXTree jcTree) {
         try {
             // Only few JCTree subclasses have "sym" field.
             // So, we need to use reflection to access the same.
@@ -891,7 +798,7 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         }
     }
 
-    // put Symbol into symbol map and return id
+    // put Symbol into symbol map and return initDef
     private String putSymbol(Symbol sym) {
         if (symbolToId.containsKey(sym)) {
             return symbolToId.get(sym);
@@ -911,7 +818,7 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         return id;
     }
 
-    // put Type into type map and return id
+    // put Type into type map and return initDef
     private String putType(Type type) {
         if (typeToId.containsKey(type)) {
             return typeToId.get(type);
@@ -982,36 +889,35 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         endElement(TYPES);
     }
 
-    private void startElement(String name, Tree t) {
-        startElement(name, t, null);
+    private void startElement(String name, JFXTree tree) {
+        startElement(name, tree, null);
     }
 
-    private void startElement(String name, Tree t, Symbol sym) {
-        JCTree jcTree = (JCTree) t;
+    private void startElement(String name, JFXTree tree, Symbol sym) {
         attrs.clear();
         if (sym != null) {
             String ref = putSymbol(sym);
             attrs.addAttribute(NULL_NS_URI, SYMREF, SYMREF, ATTR_IDREF, ref);
         }
 
-        Type type = jcTree.type;
+        Type type = tree.type;
         if (type != null) {
             String ref = putType(type);
             attrs.addAttribute(NULL_NS_URI, TYPEREF, TYPEREF, ATTR_IDREF, ref);
         }
 
-        if (jcTree.pos != Position.NOPOS) {
-            attrs.addAttribute(NULL_NS_URI, POSITION, POSITION, ATTR_CDATA, Integer.toString(jcTree.pos));
+        if (tree.pos != Position.NOPOS) {
+            attrs.addAttribute(NULL_NS_URI, POSITION, POSITION, ATTR_CDATA, Integer.toString(tree.pos));
         }
         if (endPositions != null) {
-            int endPos = jcTree.getEndPosition(endPositions);
+            int endPos = tree.getEndPosition(endPositions);
             if (endPos != Position.NOPOS) {
                 attrs.addAttribute(NULL_NS_URI, END_POSITION, END_POSITION, ATTR_CDATA, Integer.toString(endPos));
             }
         }
         startElement(name, attrs);
-        if (docComments != null && docComments.containsKey(t)) {
-            emitElement(DOC_COMMENT, docComments.get(t));
+        if (docComments != null && docComments.containsKey(tree)) {
+            emitElement(DOC_COMMENT, docComments.get(tree));
         }
     }
 
@@ -1106,38 +1012,38 @@ final class TreeXMLSerializer implements JavaFXTreeVisitor<Void, Void> {
         endElement(LIST_ITEM);
     }
 
-    private void emitTree(Tree t) {
+    private void emitTree(JFXTree t) {
         if (t != null) {
-            t.accept(this, null);
+            t.accept(this);
         }
     }
 
-    private void emitTree(String name, Tree t) {
+    private void emitTree(String name, JFXTree t) {
         if (t != null) {
             if (name != null) {
                 startElement(name);
             }
-            t.accept(this, null);
+            t.accept(this);
             if (name != null) {
                 endElement(name);
             }
         }
     }
 
-    private void emitTreeList(List<? extends Tree> list) {
+    private void emitTreeList(List<? extends JFXTree> list) {
         emitTreeList(null, null, list);
     }
 
-    private void emitTreeList(String name, List<? extends Tree> list) {
+    private void emitTreeList(String name, List<? extends JFXTree> list) {
         emitTreeList(name, null, list);
     }
 
-    private void emitTreeList(String name, String itemName, List<? extends Tree> list) {
+    private void emitTreeList(String name, String itemName, List<? extends JFXTree> list) {
         if (list != null && !list.isEmpty()) {
             if (name != null) {
                 startElement(name);
             }
-            for (Tree item : list) {
+            for (JFXTree item : list) {
                 emitTree(itemName, item);
             }
             if (name != null) {

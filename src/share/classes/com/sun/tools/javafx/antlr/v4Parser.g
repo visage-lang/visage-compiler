@@ -1532,22 +1532,15 @@ variableDeclaration [ JFXModifiers mods, int pos ]
 					$value = F.at($pos).OverrideClassVar
 						(
                                                         $name.value,
+                                                        $typeReference.rtype,
                                                         $mods,
-							part,
+                                                        part,
 							bValue,
 							bStatus,
 							onReplaceValue,
                                                         onInvalidateValue
 						);
-						
-					// Need to check that the override did not specify at type as
-					// the type comes from whatever you are overriding
-					//
-					if	(!($typeReference.rtype instanceof JFXTypeUnknown)) {
-					
-						log.error($typeReference.rtype, MsgSym.MESSAGE_JAVAFX_TYPED_OVERRIDE);
-					}
-			
+
 	    		} else {
 			    
 			    	$value = F.at($pos).Var
@@ -2946,7 +2939,6 @@ boundExpression
 
 @init 
 { 
-	boolean isLazy      	= false; 	// Signals presence of LAZY
 	boolean isBidirectional	= false; 	// Signals presence of INVERSE
 
 	// Used to accumulate a list of anything that we manage to build up in the parse
@@ -2963,9 +2955,8 @@ boundExpression
 	  
       ( LAZY
 			{
-				// Update status
-				//
-				isLazy = true;
+				// Ignore
+				//TODO: warning
 			}
 	  )?
 	  
@@ -2996,7 +2987,7 @@ boundExpression
 				
 				// Update the status
 				//
-				$status	= isLazy? isBidirectional? LAZY_BIDIBIND : LAZY_UNIDIBIND :  isBidirectional? BIDIBIND : UNIDIBIND;
+				$status	= isBidirectional? BIDIBIND : UNIDIBIND;
 			}
 	
 	| e2=expression

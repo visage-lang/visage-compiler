@@ -13,6 +13,8 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 public class ExpandXxxTemplate {
 
     private static final String[] keys = { "Int", "Double", "Float", "Short", "Char", "Long", "Boolean", "Byte" };
+    private static final String[] boxed = { "Integer", "Double", "Float", "Short", "Character", "Long", "Boolean", "Byte" };
+    private static final String[] prims = { "int", "double", "float", "short", "char", "long", "boolean", "byte" };
 
     /**
      * Usage: ExpandXxxTemplate dest-root relative-source-path template-name...
@@ -37,6 +39,8 @@ public class ExpandXxxTemplate {
                 StringTemplate st = loader.getInstanceOf(sourcePath + File.separator + templateName);
                 st.setGroup(stg);
                 st.setAttribute("PREFIX", keys);
+                st.setAttribute("BOXED", boxed);
+                st.setAttribute("PRIM", prims);
                 //st.setAttribute("NUMERIC", !k.equals("Boolean") && !k.equals("Char"));
                 st.setAttribute("TEMPLATE_NAME", templateName);
                 st.setAttribute("TEMPLATE_FROM",

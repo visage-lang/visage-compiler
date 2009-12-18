@@ -22,12 +22,14 @@
  */
 
 package com.sun.tools.javafx.code;
+import com.sun.tools.javafx.comp.JavafxDefs;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.code.Type.*;
 import java.util.HashMap;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Symbol.*;
+import com.sun.tools.mjavac.jvm.ClassWriter;
 import static com.sun.tools.mjavac.code.Kinds.*;
 import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
@@ -39,6 +41,7 @@ import java.util.Set;
  */
 public class JavafxTypes extends Types {
     JavafxSymtab syms;
+    ClassWriter writer;
 
     private HashMap<ClassSymbol, JFXClassDeclaration> fxClasses;
 
@@ -65,13 +68,34 @@ public class JavafxTypes extends Types {
     protected JavafxTypes(Context context) {
         super(context);
         syms = (JavafxSymtab) JavafxSymtab.instance(context);
+        writer = ClassWriter.instance(context);
     }
 
-   public boolean isSequence(Type type) {
-       return type != Type.noType && type != null
-                && type.tag != TypeTags.ERROR 
-                && type.tag != TypeTags.METHOD && type.tag != TypeTags.FORALL
-                && erasure(type) == syms.javafx_SequenceTypeErasure;
+    public boolean isSequence(Type type) {
+        return type != Type.noType && type != null
+            && type.tag != TypeTags.ERROR
+            && type.tag != TypeTags.METHOD && type.tag != TypeTags.FORALL
+            && erasure(type) == syms.javafx_SequenceTypeErasure;
+    }
+
+    public boolean isSyntheticIsInitializedFunction(Symbol sym) {
+        return  sym != null && sym.kind == Kinds.MTH &&
+                (sym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
+    }
+
+    public boolean isSyntheticPointerFunction(Symbol sym) {
+        return  sym != null && sym.kind == Kinds.MTH &&
+                (sym.flags_field & JavafxFlags.FUNC_POINTER_MAKE) != 0;
+    }
+
+    public boolean isArrayOrSequenceType(Type type) {
+        return isArray(type) || isSequence(type);
+    }
+
+    public Type arrayOrSequenceElementType(Type type) {
+        return isArray(type) ?
+            elemtype(type) :
+            elementType(type);
     }
 
     public Type sequenceType(Type elemType) {
@@ -81,19 +105,40 @@ public class JavafxTypes extends Types {
         elemType = boxedTypeOrType(elemType);
         if (withExtends)
             elemType = new WildcardType(elemType, BoundKind.EXTENDS, syms.boundClass);
-        Type seqtype = syms.javafx_SequenceType;
-        List<Type> actuals = List.of(elemType);
-        Type clazzOuter = seqtype.getEnclosingType();
-        return new ClassType(clazzOuter, actuals, seqtype.tsym);
+        return applySimpleGenericType(syms.javafx_SequenceType, elemType);
     }
 
-     public Type arraySequenceType(Type elemType) {
-        if (elemType.isPrimitive())
-            elemType = boxedClass(elemType).type;
-        Type seqtype = syms.javafx_ArraySequenceType;
-        List<Type> actuals = List.of(elemType);
-        Type clazzOuter = seqtype.getEnclosingType();
-        return new ClassType(clazzOuter, actuals, seqtype.tsym);
+    public Type applySimpleGenericType(Type base, Type... parameter) {
+        List<Type> actuals = List.from(parameter);
+        Type clazzOuter = base.getEnclosingType();
+        return new ClassType(clazzOuter, actuals, base.tsym);
+    }
+
+    public int typeKind(Type type) {
+        TypeSymbol tsym = type.tsym;
+
+        if (tsym == syms.booleanType.tsym) return JavafxDefs.TYPE_KIND_BOOLEAN;
+        if (tsym == syms.charType.tsym) return JavafxDefs.TYPE_KIND_CHAR;
+        if (tsym == syms.byteType.tsym) return JavafxDefs.TYPE_KIND_BYTE;
+        if (tsym == syms.shortType.tsym) return JavafxDefs.TYPE_KIND_SHORT;
+        if (tsym == syms.intType.tsym) return JavafxDefs.TYPE_KIND_INT;
+        if (tsym == syms.longType.tsym) return JavafxDefs.TYPE_KIND_LONG;
+        if (tsym == syms.floatType.tsym) return JavafxDefs.TYPE_KIND_FLOAT;
+        if (tsym == syms.doubleType.tsym) return JavafxDefs.TYPE_KIND_DOUBLE;
+        if (isSequence(type)) {
+            return JavafxDefs.TYPE_KIND_SEQUENCE;
+        } else {
+            return JavafxDefs.TYPE_KIND_OBJECT;
+        }
+    }
+
+    public Type arraySequenceType(Type elemType) {
+        if (elemType.isPrimitive()) {
+            String tname = JavafxDefs.getTypePrefix(typeKind(elemType));
+            return syms.enterClass(JavafxDefs.sequence_PackageString + "." + tname + "ArraySequence");
+        }
+        Type seqtype = syms.enterClass("com.sun.javafx.runtime.sequence.ObjectArraySequence");
+        return applySimpleGenericType(seqtype, elemType);
     }
 
     public Type boxedElementType(Type seqType) {
@@ -224,16 +269,7 @@ public class JavafxTypes extends Types {
 
     @Override
     public Type asSuper(Type t, Symbol sym) {
-        if (isMixin(sym) && t.tsym instanceof JavafxClassSymbol) {
-            JavafxClassSymbol tsym = (JavafxClassSymbol) t.tsym;
-            List<Type> supers = tsym.getSuperTypes();
-            for (List<Type> l = supers; l.nonEmpty(); l = l.tail) {
-                Type x = asSuper(l.head, sym);
-                if (x != null)
-                    return x;
-            }
-        }
-        return asSuper.visit(t, sym);
+         return asSuper.visit(t, sym);
     }
     // where
     private SimpleVisitor<Type,Symbol> asSuper = new SimpleVisitor<Type,Symbol>() {
@@ -253,8 +289,8 @@ public class JavafxTypes extends Types {
                     if (x != null)
                         return x;
                 }
-            }
-            return null;
+             }
+             return null;
         }
 
         @Override
@@ -643,7 +679,18 @@ public class JavafxTypes extends Types {
             }
 
             public Type visitType(Type t, Boolean preserveWildcards) {
-                return t;
+                if (t == syms.botType) {
+                    return syms.objectType;
+                }
+                else if (isSameType(t, syms.javafx_EmptySequenceType)) {
+                    return sequenceType(syms.objectType);
+                }
+                else if (t == syms.unreachableType) {
+                    return syms.objectType;
+                }
+                else {
+                    return t;
+                }
             }
 
             public List<Type> visit(List<Type> ts, Boolean preserveWildcards) {
@@ -655,5 +702,9 @@ public class JavafxTypes extends Types {
             }
         }
         return new TypeNormalizer().visit(t, false);
+    }
+
+    public String toSignature(Type t) {
+        return writer.typeSig(t).toString();
     }
 }

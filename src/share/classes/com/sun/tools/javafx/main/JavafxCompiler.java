@@ -49,6 +49,10 @@ import static com.sun.tools.mjavac.util.ListBuffer.lb;
 import com.sun.tools.javafx.antlr.JavafxSyntacticAnalysis;
 import com.sun.tools.javafx.tree.xml.TreeXMLTransformer;
 import com.sun.tools.javafx.util.PlatformPlugin;
+import com.sun.tools.mjavac.comp.AttrContext;
+import com.sun.tools.mjavac.comp.Env;
+import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
+import java.util.LinkedHashSet;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -220,11 +224,27 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected Name.Table names;
 
+    /** The bind analyzer.
+     */
+    protected JavafxBoundContextAnalysis bindAnalyzer;
+
+    /** Fill in the synthetic definitions needed in a bound function.
+     */
+    protected JavafxBoundFiller boundFill;
+
+    /** The local var bind converter.
+     */
+    protected JavafxLocalToClass localToClass;
+
+    /** The type conversion inserter.
+     */
+    protected JavafxLower convertTypes;
+
     /** The attributor.
      */
     protected JavafxAttr attr;
 
-    /** The attributor.
+    /** The checker.
      */
     protected JavafxCheck chk;
 
@@ -260,9 +280,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     protected JavafxTaskListener taskListener;
 
-    protected JavafxSyntacticAnalysis syntacticAnalysis;
-    protected JavafxVarUsageAnalysis varUsageAnalysis;
-    protected JavafxToJava jfxToJava;
+    protected final JavafxSyntacticAnalysis syntacticAnalysis;
+    protected final JavafxDecompose decomposeBindExpressions;
+    protected final JavafxVarUsageAnalysis varUsageAnalysis;
+    protected final JavafxToJava jfxToJava;
 
     /**
      * Flag set if any implicit source files read.
@@ -291,6 +312,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         fileManager = context.get(JavaFileManager.class);
 
         syntacticAnalysis = JavafxSyntacticAnalysis.instance(context);
+        decomposeBindExpressions = JavafxDecompose.instance(context);
         varUsageAnalysis = JavafxVarUsageAnalysis.instance(context);
         jfxToJava = JavafxToJava.instance(context);
         prepForBackEnd = JavafxPrepForBackEnd.instance(context);
@@ -308,6 +330,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         }
         source = Source.instance(context);
         attr = JavafxAttr.instance(context);
+        bindAnalyzer = JavafxBoundContextAnalysis.instance(context);
+        boundFill = JavafxBoundFiller.instance(context);
+        localToClass = JavafxLocalToClass.instance(context);
+        convertTypes = JavafxLower.instance(context);
         chk = JavafxCheck.instance(context);
         annotate = JavafxAnnotate.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
@@ -392,12 +418,12 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
     /**
      * The policy for the order in which to perform the compilation
      */
-    protected CompilePolicy compilePolicy;
+    CompilePolicy compilePolicy;
 
     /**
      * The policy for what to do with implicitly read source files
      */
-    protected ImplicitSourcePolicy implicitSourcePolicy;
+    ImplicitSourcePolicy implicitSourcePolicy;
 
     /**
      * Report activity related to compilePolicy
@@ -493,7 +519,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         tree.sourcefile = filename;
 
-        printJavafxSource(tree, content);
+        printJavafxSource("dumpfx", tree, content);
 
         if (content != null && taskListener != null) {
             JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.PARSE, tree);
@@ -556,8 +582,8 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     /** Emit pretty=printed fx source corresponding to an input file.
      */
-    void printJavafxSource(JFXScript cu, CharSequence content) {
-        String dump = options.get("dumpfx");
+    void printJavafxSource(String opt, JFXScript cu, CharSequence content) {
+        String dump = options.get(opt);
         BufferedWriter out = null;
         if (dump != null) {
             try {
@@ -711,16 +737,55 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         return stopIfError(results);
     }
 
-    protected void jfxToJava(JavafxEnv<JavafxAttrContext> env, ListBuffer<JavafxEnv<JavafxAttrContext>> results) {
+    private List<JavafxEnv<JavafxAttrContext>> translatedClasses = List.nil();
+
+    protected void jfxToJava(final JavafxEnv<JavafxAttrContext> env, ListBuffer<JavafxEnv<JavafxAttrContext>> results) {
         try {
             if (errorCount() > 0)
                 return;
 
-            if (relax || deferredSugar.contains(env)) {
+            if (relax || translatedClasses.contains(env)) {
                 results.append(env);
                 return;
             }
+            translatedClasses = translatedClasses.append(env);
+            /**
+             * Ensure that superclasses of C are translated before C itself.
+             */
+            class ScanNested extends JavafxTreeScanner {
+                Set<JavafxEnv<JavafxAttrContext>> dependencies = new LinkedHashSet<JavafxEnv<JavafxAttrContext>>();
+                @Override
+                public void visitClassDeclaration(JFXClassDeclaration node) {
+                    Type st = types.supertype(node.sym.type);
+                    if (st.tag == TypeTags.CLASS) {
+                        ClassSymbol c = st.tsym.outermostClass();
+                        JavafxEnv<JavafxAttrContext> stEnv = enter.getEnv(c);
+                        if (stEnv != null && env != stEnv) {
+                            if (dependencies.add(stEnv))
+                                scan(stEnv.tree);
+                        }
+                    }
+                    for (Type l : types.interfaces(node.sym.type)) {
 
+                        if (l.tag == TypeTags.CLASS) {
+                            ClassSymbol c = l.tsym.outermostClass();
+                            JavafxEnv<JavafxAttrContext> lEnv = enter.getEnv(c);
+                            if (lEnv != null && env != lEnv) {
+                                if (dependencies.add(lEnv))
+                                    scan(lEnv.tree);
+                            }
+                        }
+                    }
+                    super.visitClassDeclaration(node);
+                }
+            }
+            ScanNested scanner = new ScanNested();
+            scanner.scan(env.tree);
+            for (JavafxEnv<JavafxAttrContext> dep: scanner.dependencies) {
+                jfxToJava(dep);
+                translatedClasses = translatedClasses.append(dep);
+            }
+            
             if (verboseCompilePolicy)
                 Log.printLines(log.noticeWriter, "[flow " + env.enclClass.sym + "]");
             JavaFileObject prev = log.useSource(
@@ -766,16 +831,16 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                 break;
 
             case CHECK_ONLY:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(bindAnalysis(todo))))))), results);
                 break;
 
             case SIMPLE:
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(bindAnalysis(todo))))))), results);
                 break;
 
             case BY_FILE: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
-                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(attribute(todo)))).values())
+                for (List<JavafxEnv<JavafxAttrContext>> list : groupByFile(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(bindAnalysis(todo))))))).values())
                     envbuff.appendList(prepForBackEnd(list));
                 backEnd(envbuff.toList(), results);
                 break;
@@ -783,10 +848,10 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
             case BY_TODO: {
                 ListBuffer<JavafxEnv<JavafxAttrContext>> envbuff = ListBuffer.lb();
                 while (todo.nonEmpty()) {
-                    envbuff.append(attribute(todo.next()));
+                    envbuff.append(attribute(bindAnalysis(todo.next())));
                 }
 
-                backEnd(prepForBackEnd(jfxToJava(varAnalysis(stopIfError(envbuff)))), results);
+                backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(stopIfError(envbuff)))))), results);
                 break;
             }
             default:
@@ -893,14 +958,59 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      * Check for errors -- called by JavafxTaskImpl.
      */
     public void errorCheck() throws IOException {
-        backEnd(prepForBackEnd(jfxToJava(varAnalysis(attribute(todo)))), null);
+        backEnd(prepForBackEnd(jfxToJava(varAnalysis(decomposeBinds(lower(attribute(bindAnalysis(todo))))))), null);
     }
 
     /**
      * Attribute the existing JavafxTodo list.  Called by JavafxTaskImpl.
      */
     public List<JavafxEnv<JavafxAttrContext>> attribute() {
-        return attribute(todo);
+        return attribute(bindAnalysis(todo));
+    }
+
+    /**
+     * Analyze binds in trees and convert local contexts to classes (as needed), such as found on the "todo" list.
+     * Bound context analysis of the entries in the list does not stop if any errors occur.
+     * @returns a list of environments for classes.
+     */
+    public ListBuffer<JavafxEnv<JavafxAttrContext>> bindAnalysis(ListBuffer<JavafxEnv<JavafxAttrContext>> envs) {
+        ListBuffer<JavafxEnv<JavafxAttrContext>> results = lb();
+        while (envs.nonEmpty())
+            results.append(bindAnalysis(envs.next()));
+        return results;
+    }
+
+    /**
+     * Analyze binds in a tree and convert local contexts to classes (as needed).
+     * @returns the bind marked tree
+     */
+    public JavafxEnv<JavafxAttrContext> bindAnalysis(JavafxEnv<JavafxAttrContext> env) {
+        if (verboseCompilePolicy)
+            Log.printLines(log.noticeWriter, "[preAttribution " + env.enclClass.sym + "]");
+
+        if (taskListener != null) {
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+            taskListener.started(e);
+        }
+
+        JavaFileObject prev = log.useSource(
+                                  env.enclClass.sym.sourcefile != null ?
+                                  env.enclClass.sym.sourcefile :
+                                  env.toplevel.sourcefile);
+        try {
+            bindAnalyzer.analyzeBindContexts(env);
+            printJavafxSource("dumpbind", env.toplevel, null);
+        }
+        finally {
+            log.useSource(prev);
+        }
+
+        if (taskListener != null) {
+            JavafxTaskEvent e = new JavafxTaskEvent(TaskEvent.Kind.ANALYZE, env.toplevel, env.enclClass.sym);
+            taskListener.finished(e);
+        }
+
+        return env;
     }
 
     /**
@@ -939,6 +1049,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
         try {
             attr.attribClass(env.tree.pos(), env.tree instanceof JFXClassDeclaration ? (JFXClassDeclaration)env.tree : null,
                 env.enclClass.sym);
+            printJavafxSource("dumpattr", env.toplevel, null);
         }
         finally {
             log.useSource(prev);
@@ -951,6 +1062,42 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
         TreeXMLTransformer.afterAnalyze(context, env.toplevel, env.enclClass.sym);
         return env;
+    }
+
+    public List<JavafxEnv<JavafxAttrContext>> decomposeBinds(List<JavafxEnv<JavafxAttrContext>> envs) {
+        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+            decomposeBinds(l.head);
+        }
+        return envs;
+    }
+
+    protected void decomposeBinds(JavafxEnv<JavafxAttrContext> env) {
+        try {
+            // Lower has smashed our analysis
+            bindAnalyzer.analyzeBindContexts(env);
+
+            if (verboseCompilePolicy)
+                Log.printLines(log.noticeWriter, "[decompose " + env.enclClass.sym + "]");
+
+            boundFill.fill(env);
+            printJavafxSource("dumpfill", env.toplevel, null);
+
+            // JavafxLocalToClass needs var analysis info
+            varUsageAnalysis.analyzeVarUse(env);
+
+            localToClass.inflateAsNeeded(env);
+            printJavafxSource("dumpinflate", env.toplevel, null);
+            
+            decomposeBindExpressions.decompose(env);
+            printJavafxSource("dumpdecompose", env.toplevel, null);
+
+        } catch (RuntimeException ex) {
+            if (env.where != null) {
+                log.note(env.where, MsgSym.MESSAGE_JAVAFX_INTERNAL_ERROR,
+                        JavafxCompiler.fullVersion());
+            }
+            throw ex;
+        }
     }
 
     /**
@@ -970,7 +1117,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
      */
     public JavafxEnv<JavafxAttrContext> varAnalysis(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
-            log.printLines(log.noticeWriter, "[type-morph " + env.enclClass.sym + "]");
+            Log.printLines(log.noticeWriter, "[type-morph " + env.enclClass.sym + "]");
 
         JavaFileObject prev = log.useSource(
                                   env.enclClass.sym.sourcefile != null ?
@@ -978,6 +1125,40 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
                                   env.toplevel.sourcefile);
         try {
             varUsageAnalysis.analyzeVarUse(env);
+        }
+        finally {
+            log.useSource(prev);
+        }
+
+        return env;
+    }
+
+    /**
+     * Normalize tree before translation
+     * @returns the list of attributed parse trees
+     */
+    public List<JavafxEnv<JavafxAttrContext>> lower(List<JavafxEnv<JavafxAttrContext>> envs) {
+        for (List<JavafxEnv<JavafxAttrContext>> l = envs; l.nonEmpty(); l = l.tail) {
+            lower(l.head);
+        }
+        return envs;
+    }
+
+    /**
+     * Normalize tree before translation
+     * @returns the attributed parse tree
+     */
+    public JavafxEnv<JavafxAttrContext> lower(JavafxEnv<JavafxAttrContext> env) {
+        if (verboseCompilePolicy)
+            Log.printLines(log.noticeWriter, "[lower " + env.enclClass.sym + "]");
+
+        JavaFileObject prev = log.useSource(
+                                  env.enclClass.sym.sourcefile != null ?
+                                  env.enclClass.sym.sourcefile :
+                                  env.toplevel.sourcefile);
+        try {
+            convertTypes.lower(env);
+            printJavafxSource("dumplower", env.toplevel, null);
         }
         finally {
             log.useSource(prev);
@@ -995,7 +1176,7 @@ public class JavafxCompiler implements ClassReader.SourceCompleter {
 
     public JavafxEnv<JavafxAttrContext> prepForBackEnd(JavafxEnv<JavafxAttrContext> env) {
         if (verboseCompilePolicy)
-            log.printLines(log.noticeWriter, "[prep-for-back-end " + env.enclClass.sym + "]");
+            Log.printLines(log.noticeWriter, "[prep-for-back-end " + env.enclClass.sym + "]");
         printJavaSource(env);
         printOptimizationStatistics(env);
 

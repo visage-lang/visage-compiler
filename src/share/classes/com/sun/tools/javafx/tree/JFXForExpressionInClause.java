@@ -23,18 +23,30 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
+
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * for (name in seqExpr where whereExpr) bodyExpr
  */
-public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree {
+public class JFXForExpressionInClause extends JFXTree implements ForExpressionInClauseTree, JFXBoundMarkable {
 
     public final JFXVar var;
-    public final JFXExpression seqExpr;
-    public final JFXExpression whereExpr;
+    public JFXExpression seqExpr;
+    public JFXExpression whereExpr;
+    public Name label;
+
     private boolean indexUsed;
+    private JavafxBindStatus bindStatus = JavafxBindStatus.UNBOUND;
+
+    public JFXVar boundHelper;
+    public JavafxVarSymbol indexVarSym;
+    public JavafxVarSymbol inductionVarSym;
+    public JavafxVarSymbol boundResultVarSym;
 
     protected JFXForExpressionInClause() {
         this.var        = null;
@@ -90,5 +102,21 @@ public class JFXForExpressionInClause extends JFXTree implements ForExpressionIn
 
     public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
         return v.visitForExpressionInClause(this, d);
+    }
+
+    public void markBound(JavafxBindStatus bindStatus) {
+        this.bindStatus = bindStatus;
+    }
+
+    public boolean isBound() {
+        return bindStatus.isBound();
+    }
+
+    public boolean isUnidiBind() {
+        return bindStatus.isUnidiBind();
+    }
+
+    public boolean isBidiBind() {
+        return bindStatus.isBidiBind();
     }
 }

@@ -28,7 +28,7 @@ Inherited SuperClasses of TypeInference3 => [class ReflectionTest.TypeInference,
  Return Type of method clone inferred as class java.lang.Object
  Return Type of method equals inferred as Boolean
  Return Type of method finalize inferred as Void
- Return Type of method func0$$bound$int inferred as class com.sun.javafx.runtime.location.IntLocation
+ Return Type of method func0$bFunc$int inferred as class com.sun.javafx.runtime.location.IntLocation
  Return Type of method func1 inferred as class java.lang.String
  Return Type of method func2 inferred as class java.lang.String
  Return Type of method func3 inferred as Integer[]

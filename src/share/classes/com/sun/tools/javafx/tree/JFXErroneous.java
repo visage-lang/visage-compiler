@@ -46,6 +46,7 @@ public class JFXErroneous extends JFXExpression implements ErroneousTree {
         return JavaFXKind.ERRONEOUS;
     }
 
+    @Override
     public List<? extends JFXTree> getErrorTrees() {
         return errs;
     }

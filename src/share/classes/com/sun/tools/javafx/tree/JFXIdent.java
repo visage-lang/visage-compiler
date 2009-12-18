@@ -36,7 +36,7 @@ import com.sun.tools.mjavac.util.Name;
  */
 public class JFXIdent extends JFXExpression implements IdentifierTree {
 
-    public Name name;
+    private Name name;
     public Symbol sym;
 
     protected JFXIdent() {
@@ -58,7 +58,7 @@ public class JFXIdent extends JFXExpression implements IdentifierTree {
     }
 
     public Name getName() {
-        return name;
+        return sym != null ? sym.name : name;
     }
 
     //@Override

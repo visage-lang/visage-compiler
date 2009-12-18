@@ -23,7 +23,6 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.SequenceLocation;
 import com.sun.javafx.runtime.sequence.Sequence;
 
 /**
@@ -53,70 +52,11 @@ public class Util {
         return (Sequence<T>[]) new Sequence[size];
     }
 
-    @SuppressWarnings("unchecked")
-    public static<T> SequenceLocation<T>[] newSequenceLocationArray(int size) {
-        return (SequenceLocation<T>[]) new SequenceLocation[size];
-    }
-
     public static int powerOfTwo(int current, int desired) {
         int capacity = current == 0 ? 1 : current;
         while (capacity < desired)
             capacity <<= 1;
         return capacity;
-    }
-
-    /**
-     * Return the default value for a type.
-     * @param clazz the class to use to determine default value Class<T>
-     * @return the default value
-     */
-    @SuppressWarnings("unchecked")
-    public static<T> T defaultValue(Class clazz) {
-        if (clazz == Integer.class)
-            return (T) Integer.valueOf(0);
-        else if (clazz == Double.class)
-            return (T) Double.valueOf(0.0);
-        else if (clazz == Boolean.class)
-            return (T) Boolean.FALSE;
-        else if (clazz == String.class)
-            return (T) "";
-        try {
-            if (clazz == Class.forName("javafx.lang.Duration"))
-                return (T) Duration.make(0);
-        } catch (Exception ex) {
-            // ignore
-        }
-        return null;
-    }
-
-//    @SuppressWarnings("unchecked")
-//    public static<T> T[] newArray(Class<?> clazz, int size) {
-//        return (T[]) Array.newInstance(clazz, size);
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    public static<T> T[] replaceSlice(T[] array, int startPos, int endPos, T[] newElements) {
-//        int insertedCount = newElements.length;
-//        int deletedCount = endPos - startPos + 1;
-//        int netAdded = insertedCount - deletedCount;
-//        if (netAdded == 0) {
-//            System.arraycopy(newElements, 0, array, startPos, insertedCount);
-//            return array;
-//        }
-//        else {
-//            T[] temp = (T[]) newArray(array.getClass().getComponentType(), array.length + netAdded);
-//            System.arraycopy(array, 0, temp, 0, startPos);
-//            System.arraycopy(newElements, 0, temp, startPos, insertedCount);
-//            System.arraycopy(array, endPos + 1, temp, startPos + insertedCount, array.length - (endPos + 1));
-//            return temp;
-//        }
-//    }
-
-    public static<T> boolean isEqual(T oldValue, T newValue) {
-        if (oldValue == null) {
-            return newValue == null;
-        } else
-            return oldValue.equals(newValue);
     }
 
     /** 
@@ -126,7 +66,7 @@ public class Util {
      * occur, which is ok because it isn't legal in jfx to cast a non numeric
      * to a numeric.
      */
-    static public char objectToCharacter(Object p1) {
+    static public char objectToChar(Object p1) {
         if (p1 == null) {
             return 0;
         }

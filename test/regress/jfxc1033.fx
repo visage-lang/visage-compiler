@@ -5,36 +5,34 @@
  * @run
  */
 
-import java.lang.System; 
-
 class Owner {
-  var name : String on replace { System.out.println("Update name: {name}") }
-  init { System.out.println("Creating Owner name: {name}") }
+  var name : String on replace { println("    Update name: {name}") }
+  init { println("  Creating Owner name: {name}") }
   override function toString() : String {"Owner name: {name}"}
 }
 
 class Money {
-  var dollars : Number on replace { System.out.println("Update dollars: {dollars}") }
-  init { System.out.println("Creating Money dollars: {dollars}") }
+  var dollars : Number on replace { println("    Update dollars: {dollars}") }
+  init { println("  Creating Money dollars: {dollars}") }
   override function toString() : String {"Money dollars: {dollars}"}
 }
 
 class Combs {
-  var count : Integer on replace { System.out.println("Update count: {count}") }
-  init { System.out.println("Creating Combs count: {count}") }
+  var count : Integer on replace { println("    Update count: {count}") }
+  init { println("  Creating Combs count: {count}") }
   override function toString() : String {"Combs count: {count}"}
 }
 
 class Purse {
-  var owner : Owner on replace { System.out.println("Update owner = {owner}") }
-  var money : Money on replace { System.out.println("Update money = {money}") }
-  var combs : Combs on replace { System.out.println("Update combs = {combs}") }
-  init { System.out.println("Creating Purse") }
+  var owner : Owner on replace { println("  Update owner = {owner}") }
+  var money : Money on replace { println("  Update money = {money}") }
+  var combs : Combs on replace { println("  Update combs = {combs}") }
+  init { println("Creating Purse") }
   override function toString() : String {"Purse {owner} {money} {combs}"}
 }
 
 
-System.out.println("--- Creating Q ---");
+println("--- Creating Q ---");
 
 var QdaName = "Donna";
 var QdaCash = 562.82;
@@ -44,17 +42,16 @@ var pQ = bind Purse {
 	owner: Owner { name: QdaName }
 	money: Money { dollars: QdaCash }
 	combs: Combs { count: QdaCount }
-}
-System.out.println("{pQ}");
+} on replace { println("Update pQ = {pQ}") };
 
-System.out.println("--- Changing QdaName ---");
+println("--- Changing QdaName ---");
 QdaName = "Barb";
-System.out.println("--- Changing QdaCash ---");
+println("--- Changing QdaCash ---");
 QdaCash = 14.27;
-System.out.println("--- Changing QdaCount ---");
+println("--- Changing QdaCount ---");
 QdaCount = 3;
 
-System.out.println("--- Creating R ---");
+println("--- Creating R ---");
 
 var RdaName = "Donna";
 var RdaCash = 562.82;
@@ -64,16 +61,16 @@ var pR = bind Purse {
 	owner: Owner { name: bind RdaName }
 	money: Money { dollars: RdaCash }
 	combs: Combs { count: RdaCount }
-}
+} on replace { println("Update pR = {pR}") };
 
-System.out.println("--- Changing RdaName ---");
+println("--- Changing RdaName ---");
 RdaName = "Barb";
-System.out.println("--- Changing RdaCash ---");
+println("--- Changing RdaCash ---");
 RdaCash = 14.27;
-System.out.println("--- Changing RdaCount ---");
+println("--- Changing RdaCount ---");
 RdaCount = 3;
 
-System.out.println("--- Creating S ---");
+println("--- Creating S ---");
 
 var SdaName = "Donna";
 var SdaCash = 562.82;
@@ -83,16 +80,16 @@ var pS = bind Purse {
 	owner: Owner { name: SdaName }
 	money: Money { dollars: bind SdaCash }
 	combs: Combs { count: SdaCount }
-}
+} on replace { println("Update pS = {pS}") };
 
-System.out.println("--- Changing SdaName ---");
+println("--- Changing SdaName ---");
 SdaName = "Barb";
-System.out.println("--- Changing SdaCash ---");
+println("--- Changing SdaCash ---");
 SdaCash = 14.27;
-System.out.println("--- Changing SdaCount ---");
+println("--- Changing SdaCount ---");
 SdaCount = 3;
 
-System.out.println("--- Creating T ---");
+println("--- Creating T ---");
 
 var TdaName = "Donna";
 var TdaCash = 562.82;
@@ -102,16 +99,16 @@ var pT = bind Purse {
 	owner: Owner { name: TdaName }
 	money: Money { dollars: TdaCash }
 	combs: Combs { count: bind TdaCount }
-}
+} on replace { println("Update pT = {pT}") };
 
-System.out.println("--- Changing TdaName ---");
+println("--- Changing TdaName ---");
 TdaName = "Barb";
-System.out.println("--- Changing TdaCash ---");
+println("--- Changing TdaCash ---");
 TdaCash = 14.27;
-System.out.println("--- Changing TdaCount ---");
+println("--- Changing TdaCount ---");
 TdaCount = 3;
 
-System.out.println("--- Creating U ---");
+println("--- Creating U ---");
 
 var UdaName = "Donna";
 var UdaCash = 562.82;
@@ -121,16 +118,16 @@ var pU = bind Purse {
 	owner: bind Owner { name: UdaName }
 	money: Money { dollars: UdaCash }
 	combs: Combs { count: UdaCount }
-}
+} on replace { println("Update pU = {pU}") };
 
-System.out.println("--- Changing UdaName ---");
+println("--- Changing UdaName ---");
 UdaName = "Barb";
-System.out.println("--- Changing UdaCash ---");
+println("--- Changing UdaCash ---");
 UdaCash = 14.27;
-System.out.println("--- Changing UdaCount ---");
+println("--- Changing UdaCount ---");
 UdaCount = 3;
 
-System.out.println("--- Creating V ---");
+println("--- Creating V ---");
 
 var VdaName = "Donna";
 var VdaCash = 562.82;
@@ -140,16 +137,16 @@ var pV = bind Purse {
 	owner: Owner { name: VdaName }
 	money: bind Money { dollars: VdaCash }
 	combs: Combs { count: VdaCount }
-}
+} on replace { println("Update pV = {pV}") };
 
-System.out.println("--- Changing VdaName ---");
+println("--- Changing VdaName ---");
 VdaName = "Barb";
-System.out.println("--- Changing VdaCash ---");
+println("--- Changing VdaCash ---");
 VdaCash = 14.27;
-System.out.println("--- Changing VdaCount ---");
+println("--- Changing VdaCount ---");
 VdaCount = 3;
 
-System.out.println("--- Creating W ---");
+println("--- Creating W ---");
 
 var WdaName = "Donna";
 var WdaCash = 562.82;
@@ -159,16 +156,16 @@ var pW = bind Purse {
 	owner: Owner { name: WdaName }
 	money: Money { dollars: WdaCash }
 	combs: bind Combs { count: WdaCount }
-}
+} on replace { println("Update pW = {pW}") };
 
-System.out.println("--- Changing WdaName ---");
+println("--- Changing WdaName ---");
 WdaName = "Barb";
-System.out.println("--- Changing WdaCash ---");
+println("--- Changing WdaCash ---");
 WdaCash = 14.27;
-System.out.println("--- Changing WdaCount ---");
+println("--- Changing WdaCount ---");
 WdaCount = 3;
 
-System.out.println("--- Creating X ---");
+println("--- Creating X ---");
 
 var XdaName = "Donna";
 var XdaCash = 562.82;
@@ -178,16 +175,16 @@ var pX = bind Purse {
 	owner: bind Owner { name: bind XdaName }
 	money: Money { dollars: XdaCash }
 	combs: Combs { count: XdaCount }
-}
+} on replace { println("Update pX = {pX}") };
 
-System.out.println("--- Changing XdaName ---");
+println("--- Changing XdaName ---");
 XdaName = "Barb";
-System.out.println("--- Changing XdaCash ---");
+println("--- Changing XdaCash ---");
 XdaCash = 14.27;
-System.out.println("--- Changing XdaCount ---");
+println("--- Changing XdaCount ---");
 XdaCount = 3;
 
-System.out.println("--- Creating Y ---");
+println("--- Creating Y ---");
 
 var YdaName = "Donna";
 var YdaCash = 562.82;
@@ -197,16 +194,16 @@ var pY = bind Purse {
 	owner: Owner { name: YdaName }
 	money: bind Money { dollars: bind YdaCash }
 	combs: Combs { count: YdaCount }
-}
+} on replace { println("Update pY = {pY}") };
 
-System.out.println("--- Changing YdaName ---");
+println("--- Changing YdaName ---");
 YdaName = "Barb";
-System.out.println("--- Changing YdaCash ---");
+println("--- Changing YdaCash ---");
 YdaCash = 14.27;
-System.out.println("--- Changing YdaCount ---");
+println("--- Changing YdaCount ---");
 YdaCount = 3;
 
-System.out.println("--- Creating Z ---");
+println("--- Creating Z ---");
 
 var ZdaName = "Donna";
 var ZdaCash = 562.82;
@@ -216,13 +213,13 @@ var pZ = bind Purse {
 	owner: bind Owner { name: bind ZdaName }
 	money: bind Money { dollars: bind ZdaCash }
 	combs: bind Combs { count: bind ZdaCount }
-}
+} on replace { println("Update pZ = {pZ}") };
 
-System.out.println("--- Changing ZdaName ---");
+println("--- Changing ZdaName ---");
 ZdaName = "Barb";
-System.out.println("--- Changing ZdaCash ---");
+println("--- Changing ZdaCash ---");
 ZdaCash = 14.27;
-System.out.println("--- Changing ZdaCount ---");
+println("--- Changing ZdaCount ---");
 ZdaCount = 3;
 
 

@@ -42,14 +42,14 @@ var target: Integer on replace {
 }
 
 var t : Timeline = Timeline {
-    repeatCount: 20
+    repeatCount: 5
     keyFrames: [
     KeyFrame {
         time: 100ms
         canSkip: false
         action: function() {				
             ea++;                
-            Thread.sleep(500);
+            Thread.sleep(310);
         }
     },		
         KeyFrame {
@@ -86,8 +86,8 @@ function check(): Void {
         //System.out.println("2nd keyFrame: {eb}");
         //System.out.println("3rd keyFrame: {ec}");
 
-        if(ea < 20 or eb < 20 or ec < 20) {
-            throw new AssertionError("test failed: shouldn't be skipped");
+        if(ea < 5 or eb < 5 or ec < 5) {
+            throw new AssertionError("test failed: shouldn't be skipped {ea}, {eb}, {ec}");
         }
     }
 }

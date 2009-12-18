@@ -24,23 +24,29 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.tools.mjavac.code.*;
+import com.sun.tools.mjavac.code.Scope.Entry;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.mjavac.code.Type.*;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
-import com.sun.tools.mjavac.tree.TreeMaker;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
-import static com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation.*;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * Build the representation(s) of a JavaFX class.  Includes class initialization, attribute and function proxies.
@@ -59,34 +65,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     private final JavafxToJava toJava;
     private final JavafxClassReader reader;
     private final JavafxOptimizationStatistics optStat;
-
-    private static final int VFLAG_IS_INITIALIZED = 0;
-    private static final int VFLAG_DEFAULTS_APPLIED = 1;
-    private static final int VFLAG_BITS_PER_VAR = 2;
-    private static final String initHelperClassName = "com.sun.javafx.runtime.InitHelper";
-
-    private Name outerAccessorFieldName;
-    private Name makeInitMap;
-
-    private Name varNumName;
-    private Name varLocalNumName;
-    private Name varWordName;
-    private Name varBitName;
-    private Name varChangedName;
-    private Name varOldValueName;
-    private Name varNewValueName;
-
-    final Type initHelperType;
-    final Type abstractVariableType;
-    final Type locationDependencyType;
-    final Type locationType;
+    private final DependencyGraphWriter depGraphWriter;
+    private final boolean annoBindees;
 
     public static class LiteralInitVarMap {
         private int count = 1;
-        public Map<VarSymbol, Integer> varMap = new HashMap<VarSymbol, Integer>();
-        public ListBuffer<VarSymbol> varList = ListBuffer.lb();
+        public Map<JavafxVarSymbol, Integer> varMap = new HashMap<JavafxVarSymbol, Integer>();
+        public ListBuffer<JavafxVarSymbol> varList = ListBuffer.lb();
 
-        public int addVar(VarSymbol sym) {
+        public int addVar(JavafxVarSymbol sym) {
             Integer value = varMap.get(sym);
 
             if (value == null) {
@@ -137,38 +124,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         toJava = JavafxToJava.instance(context);
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
-
-        outerAccessorFieldName = names.fromString("accessOuterField$");
-        makeInitMap = names.fromString("makeInitMap$");
-
-        varNumName = names.fromString("varNum$");
-        varLocalNumName = names.fromString("varLocalNum$");
-        varWordName = names.fromString("varWord$");
-        varBitName = names.fromString("varBit$");
-        varChangedName = names.fromString("varChanged$");
-        varOldValueName =  names.fromString("varOldValue$");
-        varNewValueName =  names.fromString("varNewValue$");
-
-        {
-            Name name = names.fromString(initHelperClassName);
-            ClassSymbol sym = reader.enterClass(name);
-            initHelperType = sym.type;
-        }
-        {
-            Name name = names.fromString(locationPackageNameString + ".AbstractVariable");
-            ClassSymbol sym = reader.enterClass(name);
-            abstractVariableType = types.erasure( sym.type );
-        }
-        {
-            Name name = names.fromString(locationPackageNameString + ".LocationDependency");
-            ClassSymbol sym = reader.enterClass(name);
-            locationDependencyType = types.erasure( sym.type );
-        }
-        {
-            Name name = names.fromString(locationPackageNameString + ".Location");
-            ClassSymbol sym = reader.enterClass(name);
-            locationType = types.erasure( sym.type );
-        }
+        depGraphWriter = DependencyGraphWriter.instance(context);
+        annoBindees =options.get("annobindees") != null;
     }
 
     /**
@@ -209,7 +166,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             this.allMixins = allMixins;
         }
     }
-
+    
     /**
      * Analyze the class.
      *
@@ -223,29 +180,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
    JavafxClassModel createJFXClassModel(JFXClassDeclaration cDecl,
            List<TranslatedVarInfo> translatedAttrInfo,
            List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
-           LiteralInitClassMap initClassMap) {
+           List<TranslatedFuncInfo> translatedFuncInfo,
+           LiteralInitClassMap initClassMap,
+           ListBuffer<JCStatement> translatedInitBlocks, ListBuffer<JCStatement> translatedPostInitBlocks) {
 
         DiagnosticPosition diagPos = cDecl.pos();
         Type superType = types.superType(cDecl);
-        ClassSymbol outerTypeSym = outerTypeSymbol(cDecl); // null unless inner class with outer reference
+        ClassSymbol outerTypeSym = outerTypeSymbol(cDecl.sym); // null unless inner class with outer reference
+        boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
+        boolean isRunnable = toJava.getAttrEnv().toplevel.isRunnable;
 
-        JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(diagPos,
-                cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo,
-                names, types, reader, typeMorpher);
-        JavaCodeMaker javaCodeMaker = new JavaCodeMaker(analysis);
-        List<VarInfo> instanceAttributeInfos = analysis.instanceAttributeInfos();
-        List<VarInfo> staticAttributeInfos = analysis.staticAttributeInfos();
+        JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(this, diagPos,
+                cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo, translatedFuncInfo,
+                names, types, defs, syms, reader, typeMorpher);
+                
+        List<VarInfo> classVarInfos = analysis.classVarInfos();
+        List<VarInfo> scriptVarInfos = analysis.scriptVarInfos();
+        List<FuncInfo> classFuncInfos = analysis.classFuncInfos();
+        List<FuncInfo> scriptFuncInfos = analysis.scriptFuncInfos();
+        
+        boolean hasStatics = !scriptVarInfos.isEmpty() || !scriptFuncInfos.isEmpty();
+        
+        int classVarCount = analysis.getClassVarCount();
+        int scriptVarCount = analysis.getScriptVarCount();
         List<MethodSymbol> needDispatch = analysis.needDispatch();
         ClassSymbol fxSuperClassSym = analysis.getFXSuperClassSym();
         List<ClassSymbol> superClasses = analysis.getSuperClasses();
         List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
         List<ClassSymbol> allMixinClasses = analysis.getAllMixins();
-
+        
         boolean isMixinClass = cDecl.isMixinClass();
-        boolean isScriptClass = cDecl.isScriptClass;
+        boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = analysis.isAnonClass();
         boolean hasFxSuper = fxSuperClassSym != null;
-
         // Have to populate the var map for anon classes.
         // TODO: figure away to avoid this if not used (needs global knowledge.)
         LiteralInitVarMap varMap = isAnonClass ? initClassMap.getVarMap(analysis.getCurrentClassSymbol()) : null;
@@ -253,58 +220,125 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
 
+        JavaCodeMaker javaCodeMaker = new JavaCodeMaker(analysis, cDefinitions);
+        
         if (!isMixinClass) {
-            cDefinitions.appendList(javaCodeMaker.makeAttributeNumbers(varMap));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(instanceAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeIsInitialized());
-            cDefinitions.appendList(javaCodeMaker.makeApplyDefaultsMethod());
-            cDefinitions.appendList(javaCodeMaker.makeGetLocation());
+            javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount, varMap);
+            javaCodeMaker.makeAttributeFlags(classVarInfos);
+            javaCodeMaker.makeAttributeFields(classVarInfos);
+            javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
+            javaCodeMaker.makeVarNumMethods();
 
-            if (isScriptClass) {
-                cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
-            }
-
-            JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(analysis.getCurrentClassSymbol(), varMap) : null;
-
-            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, initMap));
-            cDefinitions.append    (makeInitializeMethod(diagPos));
-
-            if (!hasFxSuper) {
-                // Has a non-JavaFX super, so we can't use FXBase, add the complete$ and initialize$ methods
- //               cDefinitions.append(makeInitializeMethod(diagPos));
-                cDefinitions.append(makeCompleteMethod(diagPos));
-            }
+            JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
             if (outerTypeSym == null) {
-                cDefinitions.append(makeJavaEntryConstructor(diagPos));
+                javaCodeMaker.makeJavaEntryConstructor();
             } else {
-                cDefinitions.append(makeOuterAccessorField(diagPos, cDecl, outerTypeSym));
-                cDefinitions.append(makeOuterAccessorMethod(diagPos, cDecl, outerTypeSym));
+                javaCodeMaker.makeOuterAccessorField(outerTypeSym);
+                javaCodeMaker.makeOuterAccessorMethod(outerTypeSym);
             }
 
-            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
-            cDefinitions.appendList(makeFunctionProxyMethods(cDecl, needDispatch));
-            cDefinitions.append(makeFXEntryConstructor(diagPos, outerTypeSym, hasFxSuper));
-        } else {
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(instanceAttributeInfos));
-            iDefinitions.appendList(javaCodeMaker.makeMemberVariableAccessorInterfaceMethods());
+            javaCodeMaker.makeFunctionProxyMethods(needDispatch);
+            javaCodeMaker.makeFXEntryConstructor(classVarInfos, outerTypeSym);
+            javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
+            javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
+            javaCodeMaker.gatherFunctions(classFuncInfos);
 
             if (isScriptClass) {
-                cDefinitions.appendList(javaCodeMaker.makeInitClassMaps(initClassMap));
+                javaCodeMaker.makeInitClassMaps(initClassMap);
+
+                if  (hasStatics) {
+                    ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
+                     
+                    // script-level into class X
+                    javaCodeMaker.makeAttributeFields(scriptVarInfos);
+                    javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
+                    javaCodeMaker.gatherFunctions(scriptFuncInfos);
+    
+                    // script-level into class X.X$Script
+                    javaCodeMaker.setContext(true, sDefinitions);
+                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeAttributeFlags(scriptVarInfos);
+                    javaCodeMaker.makeVarNumMethods();
+                    javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, isRunnable);
+                    javaCodeMaker.setContext(false, cDefinitions);
+    
+                    // script-level into class X
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false, isRunnable);
+                    javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, true, isLibrary ? scriptVarInfos : null, initMap);
+                    javaCodeMaker.makeScript(sDefinitions.toList());
+                }
+            } else {
+                javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, null, initMap);
             }
 
-            // Static(script) vars are exposed in class
-            cDefinitions.appendList(javaCodeMaker.makeAttributeFields(staticAttributeInfos));
-            cDefinitions.appendList(javaCodeMaker.makeAttributeAccessorMethods(staticAttributeInfos));
-            cDefinitions.append    (makeInitStaticAttributesBlock(cDecl, translatedAttrInfo, null));
+            if (!hasFxSuper) {
+                // Has a non-JavaFX super, so we can't use FXBase, therefore we need
+                // to clone the necessary vars and methods.
+                // This code must be after all methods have been added to cDefinitions,
 
-            cDefinitions.appendList(javaCodeMaker.makeMixinApplyDefaultsMethods(instanceAttributeInfos));
-            iDefinitions.appendList(makeFunctionInterfaceMethods(cDecl));
-            iDefinitions.appendList(makeOuterAccessorInterfaceMembers(cDecl));
-            cDefinitions.appendList(makeAddTriggersMethod(diagPos, cDecl, fxSuperClassSym, immediateMixinClasses, translatedAttrInfo, translatedOverrideAttrInfo));
+                // A set of methods to exclude from cloning.
+                HashSet<String> excludes = new HashSet<String>();
+
+                // Exclude any methods generated by the init builder.
+                for (JCTree member : cDefinitions) {
+                    if (member.getTag() == JCTree.METHODDEF) {
+                        JCMethodDecl jcmeth = (JCMethodDecl)member;
+                        excludes.add(jcMethodDeclStr(jcmeth));
+                     }
+                }
+
+                // Clone what is needed from FXBase/FXObject.
+                javaCodeMaker.cloneFXBase(excludes);
+            }
+
+        } else {
+            // Mixin class
+            javaCodeMaker.makeAttributeFields(classVarInfos);
+            javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
+            javaCodeMaker.makeVarNumMethods();
+
+            if (isScriptClass) {
+                javaCodeMaker.makeInitClassMaps(initClassMap);
+
+                if  (hasStatics) {
+                    ListBuffer<JCTree> sDefinitions = ListBuffer.lb();
+                     
+                    // script-level into class X
+                    javaCodeMaker.makeAttributeFields(scriptVarInfos);
+                    javaCodeMaker.setContext(true, cDefinitions);
+                    javaCodeMaker.makeAttributeAccessorMethods(scriptVarInfos);
+                    javaCodeMaker.setContext(false, cDefinitions);
+                    javaCodeMaker.gatherFunctions(scriptFuncInfos);
+    
+                    // script-level into class X.X$Script
+                    javaCodeMaker.setContext(true, sDefinitions);
+                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeAttributeFlags(scriptVarInfos);
+                    javaCodeMaker.makeVarNumMethods();
+                    javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, false);
+                    javaCodeMaker.setContext(false, cDefinitions);
+    
+                    // script-level into class X
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false, false);
+                    javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, true, isLibrary ? scriptVarInfos : null, null);
+                    javaCodeMaker.makeScript(sDefinitions.toList());
+                }
+            } else {
+                javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, false, null, null);
+            }
+
+            javaCodeMaker.makeInitMethod(defs.userInit_FXObjectMethodName, translatedInitBlocks, immediateMixinClasses);
+            javaCodeMaker.makeInitMethod(defs.postInit_FXObjectMethodName, translatedPostInitBlocks, immediateMixinClasses);
+            javaCodeMaker.gatherFunctions(classFuncInfos);
+            
+            javaCodeMaker.setContext(false, iDefinitions);
+            javaCodeMaker.makeMemberVariableAccessorInterfaceMethods(classVarInfos);
+            javaCodeMaker.makeFunctionInterfaceMethods();
+            javaCodeMaker.makeOuterAccessorInterfaceMembers();
+            javaCodeMaker.setContext(false, cDefinitions);
         }
 
         Name interfaceName = isMixinClass ? interfaceName(cDecl) : null;
@@ -322,102 +356,41 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 allMixinClasses);
     }
 
-
-    private List<JCTree> makeFunctionInterfaceMethods(JFXClassDeclaration cDecl) {
-        ListBuffer<JCTree> methods = ListBuffer.lb();
-        for (JFXTree def : cDecl.getMembers()) {
-            if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
-                JFXFunctionDefinition func = (JFXFunctionDefinition) def;
-                MethodSymbol sym = func.sym;
-                if ((sym.flags() & (Flags.SYNTHETIC | Flags.STATIC | Flags.PRIVATE)) == 0) {
-                    appendMethodClones(methods, cDecl, sym, false);
-                }
-            }
+    //
+    // Build a string that can be compared against MethodSymbol.toString()
+    //
+    private static String jcMethodDeclStr(JCMethodDecl meth) {
+        String str = meth.name.toString() + "(";
+        boolean needsComma = false;
+        for (JCVariableDecl varDecl : meth.getParameters()) {
+            if (needsComma) str += ",";
+            str += varDecl.vartype.toString();
+            needsComma = true;
         }
-        return methods.toList();
+        str += ")";
+        return str;
     }
-
-    /** add proxies which redirect to the static implementation for every concrete method
-     *
-     * @param cDecl
-     * @param needDispatch
-     * @return
-     */
-    private List<JCTree> makeFunctionProxyMethods(JFXClassDeclaration cDecl, List<MethodSymbol> needDispatch) {
-        ListBuffer<JCTree> methods = ListBuffer.lb();
-        for (MethodSymbol sym : needDispatch) {
-            if ((sym.flags() & Flags.PRIVATE) == 0) {
-                appendMethodClones(methods, cDecl, sym, true);
-            }
-        }
-        return methods.toList();
-    }
-
-   /**
-     * Make a method from a MethodSymbol and an optional method body.
-     * Make a bound version if "isBound" is set.
-     */
-    private void appendMethodClones(ListBuffer<JCTree> methods, JFXClassDeclaration cDecl, MethodSymbol sym, boolean withDispatch) {
-        //TODO: static test is broken
-        boolean isBound = (sym.flags() & JavafxFlags.BOUND) != 0;
-        JCBlock mthBody = withDispatch ? makeDispatchBody(cDecl, sym, isBound, (sym.flags() & Flags.STATIC) != 0) : null;
-        DiagnosticPosition diagPos = cDecl;
-        // build the parameter list
-        ListBuffer<JCVariableDecl> params = ListBuffer.lb();
-        for (VarSymbol vsym : sym.getParameters()) {
-            Type vtype = vsym.asType();
-            if (isBound) {
-                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                vtype = vmi.getLocationType();
-            }
-            params.append(make.VarDef(
-                    make.Modifiers(0L),
-                    vsym.name,
-                    makeTypeTree(diagPos, vtype),
-                    null // no initial value
-                     // no initial value
-                    ));
-        }
-
-        // make the method
-        JCModifiers mods = make.Modifiers(Flags.PUBLIC | (mthBody==null? Flags.ABSTRACT : 0L));
-        if (sym.owner == cDecl.sym)
-            mods = addAccessAnnotationModifiers(diagPos, sym.flags(), mods);
-        else
-            mods = addInheritedAnnotationModifiers(diagPos, sym.flags(), mods);
-        methods.append(make.at(diagPos).MethodDef(
-                        mods,
-                        functionName(sym, false, isBound),
-                        makeReturnTypeTree(diagPos, sym, isBound),
-                        List.<JCTypeParameter>nil(),
-                        params.toList(),
-                        List.<JCExpression>nil(),
-                        mthBody,
-                        null));
-        if (withDispatch) {
-            optStat.recordProxyMethod();
-        }
-    }
-
 
     private List<JCExpression> makeImplementingInterfaces(DiagnosticPosition diagPos,
             JFXClassDeclaration cDecl,
             List<ClassSymbol> baseInterfaces) {
         ListBuffer<JCExpression> implementing = ListBuffer.lb();
-
+            
         if (cDecl.isMixinClass()) {
-            implementing.append(makeIdentifier(diagPos, fxMixinString));
+            implementing.append(makeIdentifier(diagPos, cFXObject));
+            implementing.append(makeIdentifier(diagPos, cFXMixin));
         } else {
-            implementing.append(makeIdentifier(diagPos, fxObjectString));
+            implementing.append(makeIdentifier(diagPos, cFXObject));
         }
 
         for (JFXExpression intf : cDecl.getImplementing()) {
-            implementing.append(makeTypeTree(diagPos, intf.type, false));
+            implementing.append(makeType(diagPos, intf.type, false));
         }
 
         for (ClassSymbol baseClass : baseInterfaces) {
-            implementing.append(makeTypeTree(diagPos, baseClass.type, true));
+            implementing.append(makeType(diagPos, baseClass.type, true));
         }
+
         return implementing.toList();
     }
 
@@ -431,345 +404,28 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     baseClass.type.tsym.packge() != syms.unnamedPackage) {    // Work around javac bug. the visitImport of Attr
                 // is casting to JCFieldAcces, but if you have imported an
                 // JCIdent only a ClassCastException is thrown.
-                additionalImports.append(makeTypeTree( diagPos,baseClass.type, false));
-                additionalImports.append(makeTypeTree( diagPos,baseClass.type, true));
+                additionalImports.append(makeType( diagPos,baseClass.type, false));
+                additionalImports.append(makeType( diagPos,baseClass.type, true));
             }
         }
         return additionalImports.toList();
     }
 
-    /**
-     * Make a constructor to be called by Java code.
-     * Simply pass up to super, unless this is the last JavaFX class, in which case add object initialization
-     * @param diagPos
-     * @param superIsFX true if there is a super class (in the generated code) and it is a JavaFX class
-     * @return the constructor
-     */
-    private JCMethodDecl makeJavaEntryConstructor(DiagnosticPosition diagPos) {
-        make.at(diagPos);
-
-        //    public Foo() {
-        //        this(false);
-        //        initialize$();
-        //    }
-        return makeConstructor(diagPos, List.<JCVariableDecl>nil(), List.of(
-                callStatement(diagPos, names._this, make.Literal(TypeTags.BOOLEAN, 0)),
-                callStatement(diagPos, defs.initializeName)));
-    }
-
-    /**
-     * Make a constructor to be called by JavaFX code.
-     * @param diagPos
-     * @param superIsFX true if there is a super class (in the generated code) and it is a JavaFX class
-     * @return the constructor
-     */
-    private JCMethodDecl makeFXEntryConstructor(DiagnosticPosition diagPos, ClassSymbol outerTypeSym, boolean superIsFX) {
-        make.at(diagPos);
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        Name dummyParamName = names.fromString("dummy");
-
-        // call the FX version of the constructor in the superclass
-        //    public Foo(boolean dummy) {
-        //        super(dummy);
-        //    }
-        if (superIsFX) {
-            stmts.append(callStatement(diagPos,
-                names._super,
-                List.<JCExpression>of(make.Ident(dummyParamName))));
-        }
-
-        // Construct the parameters
-        ListBuffer<JCVariableDecl> params = ListBuffer.lb();
-        if (outerTypeSym != null) {
-               // add a parameter and a statement to constructor for the outer instance reference
-                params.append( makeParam(diagPos, outerAccessorFieldName, make.Ident(outerTypeSym)) );
-                JCFieldAccess cSelect = make.Select(make.Ident(names._this), outerAccessorFieldName);
-                JCAssign assignStat = make.Assign(cSelect, make.Ident(outerAccessorFieldName));
-                stmts.append(make.Exec(assignStat));
-        }
-        params.append( makeParam(diagPos, dummyParamName, syms.booleanType) );
-
-        return makeConstructor(diagPos, params.toList(), stmts.toList());
-    }
-
-   private JCMethodDecl makeConstructor(DiagnosticPosition diagPos, List<JCVariableDecl> params, List<JCStatement> cStats) {
-       return make.MethodDef(make.Modifiers(Flags.PUBLIC),
-               names.init,
-               make.TypeIdent(TypeTags.VOID),
-               List.<JCTypeParameter>nil(),
-               params,
-               List.<JCExpression>nil(),
-               make.Block(0L, cStats),
-               null);
-
-   }
-
-    // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter to handle the instantiation of the classes that access outer members
-    private ClassSymbol outerTypeSymbol(JFXClassDeclaration cdecl) {
-        if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
-            Symbol typeOwner = cdecl.sym.owner;
+    // Add the methods and field for accessing the outer members. Also add a constructor with an extra parameter
+    // to handle the instantiation of the classes that access outer members
+    private ClassSymbol outerTypeSymbol(Symbol csym) {
+        if (csym != null && toJava.getHasOuters().containsKey(csym)) {
+            Symbol typeOwner = csym.owner;
             while (typeOwner != null && typeOwner.kind != Kinds.TYP) {
                 typeOwner = typeOwner.owner;
             }
 
             if (typeOwner != null) {
                 // Only return an interface class if it's a mixin.
-                return !isMixinClass((ClassSymbol)typeOwner) ? (ClassSymbol)typeOwner.type.tsym :
-                        reader.jreader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
+                return (ClassSymbol)typeOwner.type.tsym;
             }
         }
         return null;
-   }
-
-    // Make the field for accessing the outer members
-    private JCTree makeOuterAccessorField(DiagnosticPosition diagPos, JFXClassDeclaration cdecl, ClassSymbol outerTypeSym) {
-        // Create the field to store the outer instance reference
-        return make.at(diagPos).VarDef(make.at(diagPos).Modifiers(Flags.PUBLIC), outerAccessorFieldName, make.Ident(outerTypeSym), null);
-    }
-
-    // Make the method for accessing the outer members
-    private JCTree makeOuterAccessorMethod(DiagnosticPosition diagPos, JFXClassDeclaration cdecl, ClassSymbol outerTypeSym) {
-        make.at(diagPos);
-        VarSymbol vs = new VarSymbol(Flags.PUBLIC, outerAccessorFieldName, outerTypeSym.type, cdecl.sym);
-        JCIdent retIdent = make.Ident(vs);
-        JCStatement retRet = make.Return(retIdent);
-        List<JCStatement> mStats = List.of(retRet);
-        return make.MethodDef(make.Modifiers(Flags.PUBLIC), defs.outerAccessorName, make.Ident(outerTypeSym), List.<JCTypeParameter>nil(), List.<JCVariableDecl>nil(),
-                List.<JCExpression>nil(), make.Block(0L, mStats), null);
-    }
-
-    // methods for accessing the outer members.
-    private List<JCTree> makeOuterAccessorInterfaceMembers(JFXClassDeclaration cdecl) {
-        ListBuffer<JCTree> members = ListBuffer.lb();
-        if (cdecl.sym != null && toJava.hasOuters.contains(cdecl.sym)) {
-            Symbol typeOwner = cdecl.sym.owner;
-            while (typeOwner != null && typeOwner.kind != Kinds.TYP) {
-                typeOwner = typeOwner.owner;
-            }
-
-            if (typeOwner != null) {
-                ClassSymbol returnSym = typeMorpher.reader.enterClass(names.fromString(typeOwner.type.toString() + mixinSuffix));
-                JCMethodDecl accessorMethod = make.MethodDef(
-                        make.Modifiers(Flags.PUBLIC),
-                        defs.outerAccessorName,
-                        make.Ident(returnSym),
-                        List.<JCTypeParameter>nil(),
-                        List.<JCVariableDecl>nil(),
-                        List.<JCExpression>nil(), null, null);
-                members.append(accessorMethod);
-                optStat.recordProxyMethod();
-            }
-        }
-        return members.toList();
-    }
-
-    private JCStatement makeSuperCall(DiagnosticPosition diagPos, ClassSymbol cSym, Name methodName, boolean fromMixin) {
-        if ((cSym.flags() & JavafxFlags.MIXIN) != 0) {
-            // call to a mixin super, use local static reference
-            Name rcvr = fromMixin? defs.receiverName : names._this;
-            return callStatement(diagPos,
-                    makeTypeTree(diagPos, cSym.type, false),
-                    methodName, make.at(diagPos).Ident(rcvr));
-        } else {
-            // call to a non-mixin super, use "super"
-            return callStatement(diagPos, make.at(diagPos).Ident(names._super), methodName);
-        }
-    }
-
-    /**
-     * Generated only when there is a Java super class
-     * @param diagPos
-     * @return
-     */
-    private JCMethodDecl makeInitializeMethod(DiagnosticPosition diagPos) {
-        make.at(diagPos);
-
-        // Add calls to do the Java-style initialization
-        //     public void initialize$() {
-        //         addTriggers$();
-        //         applyDefaults$();
-        //         complete$();
-        //     }
-        return makeInitMethod(diagPos, defs.initializeName, syms.voidType, List.of(
-                callStatement(diagPos, defs.addTriggersName),
-                callStatement(diagPos, defs.applyDefaultsPrefixName),
-                callStatement(diagPos, defs.completeName)));
-    }
-
-    /**
-     * Generated only when there is a Java super class
-     * @param diagPos
-     * @return
-     */
-    private JCMethodDecl makeCompleteMethod(DiagnosticPosition diagPos) {
-        // Add calls to do the JavaFX-style initialization completeion
-        //     public void complete$() {
-        //         postInit$();
-        //         postInit$();
-        //     }
-        return makeInitMethod(diagPos, defs.completeName, syms.voidType, List.of(
-                callStatement(diagPos, defs.userInitName),
-                callStatement(diagPos, defs.postInitName)));
-    }
-
-    private JCMethodDecl makeInitMethod(DiagnosticPosition diagPos, Name name, Type retType, List<JCStatement> stmts) {
-        make.at(diagPos);
-        JCBlock initializeBlock = make.Block(0L, stmts);
-        return make.MethodDef(
-                make.Modifiers(Flags.PUBLIC),
-                name,
-                makeTypeTree(diagPos, retType),
-                List.<JCTypeParameter>nil(),
-                List.<JCVariableDecl>nil(),
-                List.<JCExpression>nil(),
-                initializeBlock,
-                null);
-    }
-
-    /**
-     * Construct the static block for setting defaults
-     * */
-    private JCBlock makeInitStaticAttributesBlock(JFXClassDeclaration cDecl,
-            List<TranslatedVarInfo> translatedAttrInfo,
-            JCStatement initMap) {
-        // Add the initialization of this class' attributesa
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-        // Initialize the var map for anon class.
-        if (initMap != null) {
-            stmts.append(initMap);
-        }
-
-        boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
-        for (TranslatedVarInfo tai : translatedAttrInfo) {
-            assert tai.jfxVar() != null;
-            assert tai.jfxVar().getFXTag() == JavafxTag.VAR_DEF;
-            assert tai.jfxVar().pos != Position.NOPOS;
-            if (tai.isStatic()) {
-                DiagnosticPosition diagPos = tai.pos();
-                // don't put variable initialization in the static initializer if this is a simple-form
-                // script (where variable initialization is done in the run method).
-                if (tai.isDirectOwner() && isLibrary) {
-                    if (tai.getDefaultInitStatement() != null) {
-                        stmts.append(tai.getDefaultInitStatement());
-                    }
-                    if (tai.representation().possiblyLocation()) {  //TODO: this goes away
-                        // If the static variable is represented with a Location, initialize it
-                        Name locName = attributeLocationName(tai.getSymbol());
-                        JCStatement initvar = callStatement(diagPos, make.at(diagPos).Ident(locName), defs.locationInitializeName);
-                        JCExpression nullCheck = make.at(diagPos).Binary(JCTree.NE, make.at(diagPos).Ident(locName), makeNull(diagPos));
-                        stmts.append(make.at(diagPos).If(nullCheck, initvar, null));
-                    }
-                }
-                JCStatement onReplace = tai.onReplaceAsListenerInstanciation();
-                if (onReplace != null) {
-                    stmts.append(onReplace);
-                }
-                JCStatement onInvalidate = tai.onInvalidateAsListenerInstanciation();
-                if (onInvalidate != null) {
-                    stmts.append(onInvalidate);
-                }
-            }
-        }
-        return make.at(cDecl.pos()).Block(Flags.STATIC, stmts.toList());
-    }
-
-    /**
-     * Construct the addTriggers method
-     * */
-    private List<JCTree> makeAddTriggersMethod(DiagnosticPosition diagPos,
-                                               JFXClassDeclaration cDecl,
-                                               ClassSymbol superClassSym,
-                                               List<ClassSymbol> immediateMixinClasses,
-                                               List<TranslatedVarInfo> translatedAttrInfo,
-                                               List<TranslatedOverrideClassVarInfo> translatedTriggerInfo) {
-        ListBuffer<JCTree> methods = ListBuffer.lb();
-        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-        boolean isMixinClass = cDecl.isMixinClass();
-
-        // Capture the number of statements prior to adding relevant triggers.
-        int emptySize = stmts.size();
-
-        // Supers will be called when inserted into real classes.
-        if (!isMixinClass) {
-            // call the super addTriggers
-            if (superClassSym != null) {
-                stmts.append(makeSuperCall(diagPos, superClassSym, defs.addTriggersName, isMixinClass));
-            }
-
-            // Super still classified as empty.
-            emptySize = stmts.size();
-
-            // JFXC-2822 - Triggers need to work from mixins.
-            for (ClassSymbol cSym : immediateMixinClasses) {
-                stmts.append(makeSuperCall(diagPos, cSym, defs.addTriggersName, isMixinClass));
-            }
-        }
-
-        // add change listeners for triggers on instance var definitions
-        for (TranslatedVarInfo info : translatedAttrInfo) {
-            if (!info.isStatic()) {
-                JCStatement onReplace = info.onReplaceAsListenerInstanciation();
-                // We only need to add a trigger we can't inline it.
-                if (onReplace != null && info.onReplaceAsInline() == null) {
-                    stmts.append(onReplace);
-                }
-                JCStatement onInvalidate = info.onInvalidateAsListenerInstanciation();
-                // On invalidate trigggers shouldn't be inlined
-                if (onInvalidate != null) {
-                    stmts.append(onInvalidate);
-                }
-            }
-        }
-
-        // add change listeners for on replace on overridden vars
-        for (TranslatedOverrideClassVarInfo info : translatedTriggerInfo) {
-            if (!info.isStatic()) {
-                JCStatement onReplace = info.onReplaceAsListenerInstanciation();
-                // We only need to add a trigger we can't inline it.
-                if (onReplace != null && info.onReplaceAsInline() == null) {
-                    stmts.append(onReplace);
-                }
-                JCStatement onInvalidate = info.onInvalidateAsListenerInstanciation();
-                // On invalidate trigggers shouldn't be inlined
-                if (onInvalidate != null) {
-                    stmts.append(onInvalidate);
-                }
-            }
-        }
-
-        // Only generate method if necessary.
-        if (stmts.size() != emptySize || isMixinClass || superClassSym == null) {
-            methods.append(make.at(diagPos).MethodDef(
-                    make.Modifiers(isMixinClass? Flags.PUBLIC | Flags.STATIC : Flags.PUBLIC),
-                    defs.addTriggersName,
-                    makeTypeTree( null,syms.voidType),
-                    List.<JCTypeParameter>nil(),
-                    isMixinClass? List.<JCVariableDecl>of( makeReceiverParam(cDecl) ) : List.<JCVariableDecl>nil(),
-                    List.<JCExpression>nil(),
-                    make.Block(0L, stmts.toList()),
-                    null));
-        }
-
-        return methods.toList();
-    }
-
-    /**
-     * Make a method body which redirects to the actual implementation in a static method of the defining class.
-     */
-    private JCBlock makeDispatchBody(JFXClassDeclaration cDecl, MethodSymbol mth, boolean isBound, boolean isStatic) {
-        ListBuffer<JCExpression> args = ListBuffer.lb();
-        if (!isStatic) {
-            // Add the this argument, so the static implementation method is invoked
-            args.append(make.TypeCast(make.Ident(interfaceName(cDecl)), make.Ident(names._this)));
-        }
-        for (VarSymbol var : mth.params) {
-            args.append(make.Ident(var.name));
-        }
-        JCExpression receiver = mth.owner == cDecl.sym ? null : makeTypeTree(cDecl.pos(), mth.owner.type, false);
-        JCExpression expr = callExpression(cDecl.pos(), receiver, functionName(mth, !isStatic, isBound), args);
-        JCStatement statement = (mth.getReturnType() == syms.voidType) ? make.Exec(expr) : make.Return(expr);
-        return make.at(cDecl.pos()).Block(0L, List.<JCStatement>of(statement));
     }
 
     protected String getSyntheticPrefix() {
@@ -781,1291 +437,2707 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     // This class is used to simplify the construction of java code in the
     // initialization builder.
     //
-    class JavaCodeMaker {
+    class JavaCodeMaker extends JavaTreeBuilder {
         // The current class analysis/
         private final JavafxAnalyzeClass analysis;
-        // The current position used to construct the JCTree.
-        private DiagnosticPosition currentPos;
+        private ListBuffer<JCTree> definitions;
+        private Name scriptName;
+        private ClassSymbol scriptClassSymbol;
+        private ClassType scriptClassType;
+        private final boolean isBoundFuncClass;
 
-        JavaCodeMaker(JavafxAnalyzeClass analysis) {
+        JavaCodeMaker(JavafxAnalyzeClass analysis, ListBuffer<JCTree> definitions) {
+            super(analysis.getCurrentClassPos(), analysis.getCurrentClassDecl(), false);
             this.analysis = analysis;
-            currentPos = analysis.getCurrentClassPos();
+            this.definitions = definitions;
+            this.scriptName = analysis.getCurrentClassDecl().getName().append(defs.scriptClassSuffixName);
+            this.scriptClassSymbol = makeClassSymbol(Flags.STATIC | Flags.PUBLIC, this.scriptName, getCurrentClassSymbol());
+            this.scriptClassType = (ClassType)this.scriptClassSymbol.type;
+            this.isBoundFuncClass = (getCurrentOwner().flags() & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
+        }
+        
+        //
+        // Method for changing the current definition list.
+        //
+        public void setContext(boolean isScript, ListBuffer<JCTree> definitions) {
+            setIsScript(isScript);
+            this.definitions = definitions;
+        }
+        
+        //
+        // This method returns the current owner symbol.
+        //
+        ClassSymbol getCurrentOwner() {
+            return isScript() ? scriptClassSymbol : analysis.getCurrentClassSymbol();
+        }
+        
+        //
+        // Methods for adding a new definitions.
+        //
+        private void addDefinition(JCTree member) {
+            if (member != null) {
+                definitions.append(member);
+            }
+        }
+        private void addDefinitions(List<JCTree> members) {
+            if (members != null) {
+                definitions.appendList(members);
+            }
         }
 
         //
         // Methods for managing the current diagnostic position.
         //
-        private void setCurrentPos(DiagnosticPosition diagPos) { currentPos = diagPos; }
-        private void setCurrentPos(VarInfo ai) { setCurrentPos(ai.pos()); }
-        private void resetCurrentPos() { currentPos = analysis.getCurrentClassPos(); }
+        private void setDiagPos(VarInfo ai) { setDiagPos(ai.pos()); }
+        private void resetDiagPos() { setDiagPos(analysis.getCurrentClassPos()); }
 
         //
-        // This method simplifies the declaration of new java code nodes.
+        // Returns the current class symbol.
         //
-        private TreeMaker m() { return make.at(currentPos); }
+        public ClassSymbol getCurrentClassSymbol() {
+            return analysis.getCurrentClassSymbol();
+        }
 
         //
-        // Methods to generate simple constants.
+        // Argument ids
         //
-        private JCExpression makeInt(int value)         { return m().Literal(TypeTags.INT, value); }
-        private JCExpression makeBoolean(boolean value) { return m().Literal(TypeTags.BOOLEAN, value ? 1 : 0); }
-        private JCExpression makeNull()                 { return m().Literal(TypeTags.BOT, null); }
+        JCIdent varNumArg() {
+            return makeMethodArg(defs.varNum_ArgName, syms.intType);
+        }
+
+        JCIdent updateInstanceArg() {
+            return makeMethodArg(defs.updateInstance_ArgName, syms.javafx_FXObjectType);
+        }
+
+        JCIdent objArg() {
+            return makeMethodArg(defs.obj_ArgName, syms.objectType);
+        }
 
         //
-        // This method simplifies Ident declaration.
+        // Returns true if the sym is the current class symbol.
         //
-        private JCExpression Id(Name name) { return m().Ident(name); }
+        public boolean isCurrentClassSymbol(Symbol sym) {
+            return analysis.isCurrentClassSymbol(sym);
+        }
+        
+        //
+        // Return raw flags for current class.
+        //
+        public long rawFlags() {
+            return (isMixinClass() && !isScript()) ? (Flags.STATIC | Flags.PUBLIC) : Flags.PUBLIC;
+        }
+        
+        //
+        // Create a method symbol.
+        //
+        public MethodSymbol makeMethodSymbol(long flags, Type returnType, Name methodName, List<Type> argTypes) {
+            return makeMethodSymbol(flags, returnType, methodName, getCurrentOwner(), argTypes);
+        }
 
         //
-        // This method makes a type tree using the current diagnosic position.
+        // Create a var symbol.
         //
-        private JCExpression makeType(Type t)                   { return makeTypeTree(currentPos, t); }
-        private JCExpression makeType(Type t, boolean makeIntf) { return makeTypeTree(currentPos, t, makeIntf); }
+        public JavafxVarSymbol makeVarSymbol(long flags, Type type, Name varName) {
+            return new JavafxVarSymbol(types, names, flags, varName, type, getCurrentOwner());
+        }
+        
+        //
+        // This method creates a member field field.
+        //
+        private JCVariableDecl makeField(long flags, Type varType, Name name, JCExpression varInit) {
+            JavafxVarSymbol varSym = makeVarSymbol(flags, varType, name);
+            return Var(flags, varType, name, varInit, varSym);
+        }
 
+        //
         //
         // This method generates a simple java integer field then adds to the buffer.
         //
-        private JCVariableDecl addSimpleIntVariable(long modifiers, Name name, int value) {
-            // Construct the variable itself.
-            return makeVariable(modifiers, syms.intType, name, makeInt(value));
+        private JCVariableDecl addSimpleIntVariable(long flags, Name name, int value) {
+            return makeField(flags, syms.intType, name, Int(value));
         }
 
         //
         // This method generates a java field for a varInfo.
         //
         private JCVariableDecl makeVariableField(VarInfo varInfo, JCModifiers mods, Type varType, Name name, JCExpression varInit) {
-            setCurrentPos(varInfo);
-            // Define the type.
-            JCExpression type = makeType(varType);
+            setDiagPos(varInfo);
+            // Get the var symbol.
+            JavafxVarSymbol varSym = varInfo.getSymbol();
             // Construct the variable itself.
-            JCVariableDecl var = m().VarDef(mods, name, type, varInit);
-             // Update the statistics.
-            optStat.recordClassVar(varInfo.getSymbol(), varInfo.representation());
-            optStat.recordConcreteField();
-
-            return var;
-        }
-
-        //
-        // This method generates a simple variable.
-        //
-        private JCVariableDecl makeVariable(long modifiers, Type varType, String name, JCExpression varInit) {
-            return makeVariable(modifiers, varType, names.fromString(name), varInit);
-        }
-        private JCVariableDecl makeVariable(long modifiers, Type varType, Name name, JCExpression varInit) {
-            // JCVariableDecl the modifiers.
-            JCModifiers mods = m().Modifiers(modifiers);
-            // Define the type.
-            JCExpression type = makeType(varType);
-            // Construct the variable itself.
-            JCVariableDecl var = m().VarDef(mods, name, type, varInit);
+            JCVariableDecl var = Var(mods, makeType(varType), name, varInit, varSym);
             // Update the statistics.
+            optStat.recordClassVar(varSym);
             optStat.recordConcreteField();
 
             return var;
         }
+        
+        //
+        // Determine if a var can be initialized simply.
+        //
+        public boolean useSimpleInit(VarInfo varInfo) {
+            if (!varInfo.useAccessors() && varInfo instanceof TranslatedVarInfo) {
+                JFXVar var = ((TranslatedVarInfo)varInfo).jfxVar();
+                return var.isLiteralInit();
+            }
+            
+            return false;
+        }
+        
+        //
+        // Generate a simple init expression for the var.
+        //
+        public JCExpression getSimpleInit(VarInfo varInfo) {
+            if (useSimpleInit(varInfo)) {
+                JFXVar var = ((TranslatedVarInfo)varInfo).jfxVar();
+                return toJava.translateToExpression(var.getInitializer(), varInfo.getRealType());
+            }
+            
+            return null;
+        }
+        
+        //
+        // Generate a string containing bindee information used in the bindees annotation.
+        //
+        private String makeAnnoBindeesString(VarInfo varInfo) {
+            String annoBindeesString = "";
+            
+            if (annoBindees) {
+                 Set<String> bindeesSet = new HashSet<String>();
+                 
+                 for (VarSymbol sym : varInfo.boundBindees()) {
+                    bindeesSet.add(attributeValueName(sym).toString());
+                 }
+                 
+                 for (DependentPair pair : varInfo.boundBoundSelects()) {
+                    bindeesSet.add(attributeValueName(pair.instanceSym) + "." + attributeValueName(pair.referencedSym));
+                 }
+                 
+                 for (String bindee : bindeesSet) {
+                    if (annoBindeesString != "") annoBindeesString += ",";
+                    annoBindeesString += bindee;
+                 }
+           }
+            
+            return annoBindeesString;
+        }
+        
 
         //
         // Build the location and value field for each attribute.
         //
-        public List<JCTree> makeAttributeFields(List<? extends VarInfo> attrInfos) {
-            // Buffer for new vars.
-            ListBuffer<JCTree> vars = ListBuffer.lb();
-
+        public void makeAttributeFields(List<? extends VarInfo> attrInfos) {
             for (VarInfo ai : attrInfos) {
                 // Only process attributes declared in this class (includes mixins.)
-                if (ai.needsDeclaration()) {
+                if (ai.needsCloning() && !ai.isOverride()) {
                     // Set the current diagnostic position.
-                    setCurrentPos(ai);
+                    setDiagPos(ai);
                     // Grab the variable symbol.
-                    VarSymbol varSym = ai.getSymbol();
-                    // The fields need to be available to reflection.
-                    // TODO deal with defs.
-                    JCModifiers mods = m().Modifiers(Flags.PUBLIC | (ai.getFlags() & Flags.STATIC));
+                    JavafxVarSymbol varSym = ai.getSymbol();
+                    // Static vars are public since they are accessed directly.
+                    // Synthetic vars should be hidden (private) since they are internal only and
+                    // they may be arbitrarily overridden in subclasses.
+                    // Others are protected since they should only be accessed via accessors, but may be
+                    // overridden by subclasses.
+                    long flags = ai.isStatic()     ? (Flags.STATIC | Flags.PUBLIC) :
+                                 ai.isBareSynth()  ? Flags.PRIVATE :
+                                 ai.useAccessors() ? Flags.PROTECTED :
+                                                     Flags.PUBLIC;
+                    JCModifiers mods = m().Modifiers(flags);
 
                     // Apply annotations, if current class then add source annotations.
-                    if (varSym.owner == analysis.getCurrentClassSymbol()) {
-                        List<JCAnnotation> annotations = List.<JCAnnotation>of(make.Annotation(
-                                makeIdentifier(currentPos, JavafxSymtab.sourceNameAnnotationClassNameString),
-                                List.<JCExpression>of(m().Literal(varSym.name.toString()))));
-                        mods = addAccessAnnotationModifiers(currentPos, varSym.flags(), mods, annotations);
+                    if (isCurrentClassSymbol(varSym.owner)) {
+                        List<JCAnnotation> annotations;
+                        JCAnnotation annoSource = m().Annotation(
+                                    makeIdentifier(diagPos, JavafxSymtab.sourceNameAnnotationClassNameString),
+                                    List.<JCExpression>of(String(varSym.name.toString())));
+                        String annoBindeesString = makeAnnoBindeesString(ai);
+                        
+                        if (!annoBindeesString.isEmpty()) {
+                            JCAnnotation annoBindees = m().Annotation(
+                                        makeIdentifier(diagPos, JavafxSymtab.bindeesAnnotationClassNameString),
+                                        List.<JCExpression>of(String(annoBindeesString)));
+                            annotations = List.<JCAnnotation>of(annoSource, annoBindees);
+                        } else {
+                            annotations = List.<JCAnnotation>of(annoSource);
+                        }
+                        mods = addAccessAnnotationModifiers(diagPos, varSym.flags(), mods, annotations);
                     } else {
-                        mods = addInheritedAnnotationModifiers(currentPos, varSym.flags(), mods);
+                        mods = addInheritedAnnotationModifiers(diagPos, varSym.flags(), mods);
                     }
 
-                    // Construct the value field unless it will always be a Location
-                    if (ai.representation() != AlwaysLocation) {
-                        vars.append(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym),
-                                makeDefaultValue(currentPos, ai.getVMI())));
-                    }
-
-                    // If a Location might be needed, build the field
-                    if (ai.representation() != NeverLocation) {
-                        // TODO - switch over to using NULL.
-                        JCExpression initialValue = ai.representation()==AlwaysLocation ? makeLocationWithDefault(ai.getVMI(), currentPos) : null;
-                        // Construct the location field.
-                        vars.append(makeVariableField(ai, mods, ai.getVariableType(), attributeLocationName(varSym), initialValue));
-                    }
+                    // Construct the value field
+                    JCExpression init = useSimpleInit(ai)              ? getSimpleInit(ai) :
+                                        isValueType(ai.getRealType()) ? makeDefaultValue(diagPos, ai.getVMI()) :
+                                                                         null;
+                    addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym), init));
                 }
             }
-
-            return vars.toList();
         }
-
+      
         //
         // This method constructs modifiers for getters/setters and proxies.
         //
         private JCModifiers proxyModifiers(VarInfo ai, boolean isAbstract) {
-            // Copy flags from VarInfo.
-            long flags = ai.getFlags();
+            // Copy old flags from VarInfo.
+            long oldFlags = ai.getFlags();
+            
+            // Determine new flags.
+            long newFlags = (oldFlags & Flags.STATIC) | Flags.PUBLIC;
+            if (isAbstract) {
+                newFlags|= Flags.ABSTRACT;
+            } else if (isMixinClass()) {
+                newFlags|= Flags.STATIC;
+            }
 
             // Set up basic flags.
-            JCModifiers mods = make.Modifiers((flags & Flags.STATIC) | (isAbstract ? (Flags.PUBLIC | Flags.ABSTRACT) : Flags.PUBLIC));
+            JCModifiers mods = m().Modifiers(newFlags);
 
             // If var is in current class.
-            if (ai.getSymbol().owner == analysis.getCurrentClassSymbol()) {
+            if (isCurrentClassSymbol(ai.getSymbol().owner)) {
                 // Use local access modifiers.
-                mods = addAccessAnnotationModifiers(ai.pos(), flags, mods);
+                mods = addAccessAnnotationModifiers(ai.pos(), oldFlags, mods);
             } else {
                 // Use inherited modifiers.
-                mods = addInheritedAnnotationModifiers(ai.pos(), flags, mods);
+                mods = addInheritedAnnotationModifiers(ai.pos(), oldFlags, mods);
             }
 
             return mods;
         }
 
+        //
+        // Return a receiver$, scriptLevelAccess$() or null depending on the context.
+        //
+        private JCExpression getReceiver(VarInfo varInfo) {
+            return getReceiver(varInfo.getSymbol());
+        }
+        private JCExpression getReceiverOrThis(VarInfo varInfo) {
+            return getReceiverOrThis(varInfo.getSymbol());
+        }
+        
+        //
+        // This method gathers all the translated functions in funcInfos.
+        //
+        public void gatherFunctions(List<FuncInfo> funcInfos) {
+            for (FuncInfo func : funcInfos) {
+                if (func instanceof TranslatedFuncInfo) {
+                    addDefinitions(((TranslatedFuncInfo)func).jcFunction());
+                }
+            }
+        }
+        
+        //
+        // This class is designed to reduce the repetitiveness of constructing methods.
+        //
+        public class MethodBuilder {
+            // Name of method to generate.
+            protected Name methodName;
+            // Method return type.
+            protected Type returnType;
+            // True if the return type is void.
+            protected boolean isVoidReturnType;
+            // True if we're to stop the build.
+            protected boolean stopBuild = false;
+            // True if needs a receiver arg.
+            protected boolean needsReceiver = isMixinClass() && !isScript();
+
+            // True if body is required.
+            protected boolean needsBody = true;
+            // Cached method symbol.
+            MethodSymbol methodSymbol = null;
+            
+            // Grab the super class.
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            // Grab the mixin classes.
+            public List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
+            
+            // Stack of nested statements.
+            protected Stack<ListBuffer<JCStatement>> stmtsStack = new Stack<ListBuffer<JCStatement>>();
+            // Current set of statements.
+            protected ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            
+            void buildIf(boolean condition) {
+                stopBuild = !condition;
+            }
+            
+            // List of parameter types.
+            ListBuffer<Type> paramTypes = ListBuffer.lb();
+            // List of parameter names.
+            ListBuffer<Name> paramNames = ListBuffer.lb();
+            
+            MethodBuilder(Name methodName, Type returnType) {
+                this.methodName = methodName;
+                this.returnType = returnType;
+                this.isVoidReturnType = returnType == syms.voidType;
+            }
+            
+            // This method saves the current list of statements and starts a new one.
+            public void beginBlock() {
+                stmtsStack.push(stmts);
+                stmts = ListBuffer.lb();
+            }
+            
+            // This method restores the previous list of statements and returns the current
+            // list of statements in a block.
+            public JCBlock endBlock() {
+                return Block(endBlockAsList());
+            }
+            
+            // This method restores the previous list of statements and returns the current
+            // list of statements.
+            public List<JCStatement> endBlockAsList() {
+                assert !stmtsStack.empty() : "MethodBuilder: mismatched blocks";
+                List<JCStatement> result = stmts.toList();
+                stmts = stmtsStack.pop();
+                return result;
+            }
+            
+            // This method restores the previous list of statements and returns the current
+            // list buffer of statements.
+            public ListBuffer<JCStatement> endBlockAsBuffer() {
+                assert !stmtsStack.empty() : "MethodBuilder: mismatched blocks";
+                ListBuffer<JCStatement> result = stmts;
+                stmts = stmtsStack.pop();
+                return result;
+            }
+            
+            // This method adds a new statement to the current lists of statements.
+            public void addStmt(JCStatement stmt) {
+                if (stmt != null) {
+                    stmts.append(stmt);
+                }
+            }
+            
+            // This method adds several statements to the current lists of statements.
+            public void addStmts(List<JCStatement> list) {
+                stmts.appendList(list);
+            }
+            public void addStmts(ListBuffer<JCStatement> list) {
+                stmts.appendList(list.toList());
+            }
+            
+            // This method adds a new parameter type and name to the current method.
+            public void addParam(Type type, Name name) {
+                paramTypes.append(type);
+                paramNames.append(name);
+            }
+
+            // This method adds a new parameter type and name to the current method.
+            public void addParam(JCIdent arg) {
+                addParam(arg.type, arg.name);
+            }
+
+            // This method returns all the parameters for the current method as a
+            // list of JCVariableDecl.
+            protected List<JCVariableDecl> paramList() {
+                Iterator<Type> typeIter = paramTypes.iterator();
+                Iterator<Name> nameIter = paramNames.iterator();
+                ListBuffer<JCVariableDecl> params = ListBuffer.lb();
+                
+                if (needsReceiver) {
+                    params.append(ReceiverParam(getCurrentClassDecl()));
+                }
+     
+                while (typeIter.hasNext() && nameIter.hasNext()) {
+                    params.append(Param(typeIter.next(), nameIter.next()));
+                }
+                
+                return params.toList();
+            }
+            
+            // This method returns all the parameters for the current method as a
+            // list of JCExpression.
+            protected List<JCExpression> argList() {
+                ListBuffer<JCExpression> args = ListBuffer.lb();
+                
+                for (Name name : paramNames) {
+                    args.append(id(name));
+                }
+                
+                return args.toList();
+            }
+            
+            // This method generates a method symbol for the current method.
+            protected MethodSymbol methodSymbol() {
+                if (methodSymbol == null) {
+                    ListBuffer<Type> argtypes = ListBuffer.lb();
+                    long flags = rawFlags();
+                    
+                    if (needsReceiver) {
+                        argtypes.append(getCurrentOwner().type);
+                    }
+                    
+                    for (Type type : paramTypes) {
+                        argtypes.append(type);
+                    }
+                    
+                    methodSymbol = makeMethodSymbol(rawFlags(), returnType, methodName, argtypes.toList());
+                }
+                
+                return methodSymbol;
+            }
+
+            // This method generates a call to the mixin symbol.
+            public void callMixin(ClassSymbol mixin) {
+                List<JCExpression> mixinArgs =  List.<JCExpression>of(getReceiverOrThis()).appendList(argList());
+                JCExpression selector = makeType(mixin.type, false);
+ 
+                if (isVoidReturnType) {
+                    addStmt(CallStmt(selector, methodName, mixinArgs));
+                } else {
+                    addStmt(Return(Call(selector, methodName, mixinArgs)));
+                }
+            }
+
+            // This method generates all the calls for immediate mixins.
+            public void callMixins() {
+                for (ClassSymbol mixin : immediateMixinClasses) {
+                    callMixin(mixin);
+                }
+            }
+            
+            // This method generates the call for the super class.
+            public void callSuper() {
+                if (superClassSym != null && !isMixinClass()) {
+                    List<JCExpression> superArgs = argList();
+                    
+                    if (isVoidReturnType) {
+                        addStmt(CallStmt(id(names._super), methodName, superArgs));
+                    } else {
+                        addStmt(Return(Call(id(names._super), methodName, superArgs)));
+                    }
+                 }
+            }
+            
+            // Return the method flags.
+            public JCModifiers flags() {
+                return m().Modifiers(rawFlags());
+            }
+            
+            // Driver method to construct the current method.
+            public void build() {
+                // Initialize for method.
+                initialize();
+                
+                // Generate the code.
+                if (needsBody && !stopBuild) generate();
+                
+                // Produce no method if generate indicates stopBuild.
+                if (!stopBuild) {
+                    // Record method.
+                    optStat.recordProxyMethod();
+    
+                    // Construct method.
+                    addDefinition(Method(flags(),
+                                             returnType,
+                                             methodName,
+                                             paramList(),
+                                             needsBody ? stmts.toList() : null,
+                                             methodSymbol()));
+                }
+            }
+
+            // This method generates the statements for the method.
+            public void generate() {
+                // Reset diagnostic position to current class.
+                resetDiagPos();
+                
+                // Reset diagnostic position to current class.
+                resetDiagPos();
+                // Emit method body.
+                body();
+                
+                // Reset diagnostic position to current class.
+                resetDiagPos();
+            }
+
+            
+            // This method contains any code to initialize the builder.
+            public void initialize() {
+            }
+            
+            // This method generates the body of the method.
+            public void body() {
+                statements();
+            }
+            
+            // This method generates specialized code for the body.
+            public void statements() {
+            }            
+        }
+        
+        //
+        // This class is designed to generate a method whose body is a static
+        // utility.
+        //
+        public class StaticMethodBuilder extends MethodBuilder {
+            StaticMethodBuilder(Name methodName, Type returnType) {
+                super(methodName, returnType);
+            }
+            
+            // Return the method flags.
+            @Override
+            public JCModifiers flags() {
+                return m().Modifiers(Flags.STATIC | Flags.PUBLIC);
+            }
+        }
+      
+        //
+        // This class is designed to generate a method whose body is a var
+        // accessor.
+        //
+        public class VarAccessorMethodBuilder extends MethodBuilder {
+            // Current var info.
+            protected VarInfo varInfo;
+            // Symbol used on the method.
+            protected JavafxVarSymbol varSym;
+            // Symbol used when accessing the variable.
+            protected JavafxVarSymbol proxyVarSym;
+            // Is a sequence type.
+            protected boolean isSequence;
+            // Real type of the var.
+            protected Type type;
+            // Element type of the var.
+            protected Type elementType;
+
+            
+            VarAccessorMethodBuilder(Name methodName, Type returnType, VarInfo varInfo, boolean needsBody) {
+                super(methodName, returnType);
+                this.varInfo = varInfo;
+                this.needsBody = needsBody;
+                this.varSym = varInfo.getSymbol();
+                this.proxyVarSym = varInfo.proxyVarSym();
+                this.isSequence = varInfo.isSequence();
+                this.type = varInfo.getRealType();
+                this.elementType = isSequence ? varInfo.getElementType() : null;
+                this.needsReceiver = isMixinClass() && needsBody && !varInfo.isStatic();
+            }
+            
+            // Return the method flags.
+            @Override
+            public JCModifiers flags() {
+                return proxyModifiers(varInfo, !needsBody);
+            }
+        }
+        
+        //
+        // This class is designed to generate a method whose body is switched
+        // on var offsets.
+        //
+        public class VarCaseMethodBuilder extends MethodBuilder {
+            // List of attributes to scan.
+            protected List<VarInfo> attrInfos;
+            // Total count of attributes.
+            protected int varCount;
+            // Current attribute.
+            protected VarInfo varInfo;
+            // Symbol used on the method.
+            protected JavafxVarSymbol varSym;
+            // Symbol used when accessing the variable.
+            protected JavafxVarSymbol proxyVarSym;
+            // Is a sequence type.
+            protected boolean isSequence;
+            // Real type of the var.
+            protected Type type;
+            // Element type of the var.
+            protected Type elementType;
+
+            VarCaseMethodBuilder(Name methodName, Type returnType, List<VarInfo> attrInfos, int varCount) {
+                super(methodName, returnType);
+                this.attrInfos = attrInfos;
+                this.varCount = varCount;
+                addParam(varNumArg());
+            }
+            
+            // Specialized body the handles a case per var.
+            @Override
+            public void body() {
+                // Prepare to accumulate cases.
+                ListBuffer<JCCase> cases = ListBuffer.lb();
+                // Prepare to accumulate ifs.
+                JCStatement ifStmt = null;
+                
+                // Iterate thru each var.
+                for (VarInfo varInfo : attrInfos) {
+                    // Set to the var position.
+                    setDiagPos(varInfo.pos());
+                    
+                    // Constrain the var.
+                    if (varInfo.needsCloning() && !varInfo.isBareSynth()) {
+                        // Construct the case.
+                        beginBlock();
+                        
+                        // Generate statements.
+                        this.varInfo = varInfo;
+                        this.varSym = varInfo.getSymbol();
+                        this.proxyVarSym = varInfo.proxyVarSym();
+                        this.isSequence = varInfo.isSequence();
+                        this.type = varInfo.getRealType();
+                        this.elementType = isSequence ? varInfo.getElementType() : null;
+                        statements();
+                        
+                        if (!stmts.isEmpty()) {
+                            if (!isMixinClass() && varInfo.getEnumeration() != -1) {
+                                // case tag number
+                                JCExpression tag = Int(varInfo.getEnumeration() - varCount);
+        
+                                // Add the case, something like:
+                                // case i: statement;
+                                cases.append(m().Case(tag, endBlockAsList()));
+                            } else {
+                                // Test to see if it's the correct var.
+                                ifStmt = OptIf(EQ(Offset(varInfo.getSymbol()), varNumArg()), endBlock(), ifStmt);
+                            }
+                        } else {
+                            endBlock();
+                        }
+                    }
+                }
+                
+                // Reset diagnostic position to current class.
+                resetDiagPos();
+        
+                // Add ifs if present.
+                addStmt(ifStmt);
+                    
+                // Add statement if there were some cases.
+                if (cases.nonEmpty()) { 
+                    // Add if as default case.
+                    if (ifStmt != null) {
+                        cases.append(m().Case(null, List.<JCStatement>of(ifStmt)));
+                    }
+                
+                    // varNum - VCNT$
+                    JCExpression tagExpr = MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
+                    // Construct and add: switch(varNum - VCNT$) { ... }
+                    addStmt(m().Switch(tagExpr, cases.toList()));
+                } else {
+                    // No switch just rest.
+                    addStmt(ifStmt);
+                }
+                
+                if (stmts.nonEmpty()) {
+                    // Call the super version.
+                    callSuper();
+                } else {
+                    // Control build.
+                    buildIf(false);
+                }
+            }
+        }
+        
+        //
+        // This method returns true if there is a default statement for a given var.
+        //
+        public boolean hasDefaultInitStatement(VarInfo varInfo) {
+            return varInfo.getDefaultInitStatement() != null ||
+                   (varInfo.onReplaceAsInline() != null && (varInfo.hasBoundDefinition() || !varInfo.isOverride()));
+        }
+        
+
+        //
+        // This method returns the default statement for a given var.
+        //
+        public JCStatement getDefaultInitStatement(VarInfo varInfo) {
+            JCStatement init = varInfo.getDefaultInitStatement();
+            
+            if (init == null || varInfo.hasBoundDefinition()) {
+                JavafxVarSymbol varSym = varInfo.getSymbol();
+                
+                // If we need to prime the on replace trigger.
+                if (varInfo.onReplaceAsInline() != null || varInfo.isOverride()) {
+                    if (varInfo.hasBoundDefinition()) {
+                        JCStatement poke;
+                        if (varInfo.generateSequenceAccessors()) {
+                            poke = CallStmt(attributeSizeName(varSym));
+                        } else {
+                            poke = Stmt(Getter(varSym));
+                        }
+                        if (init != null) {
+                            init = Block(init, poke);
+                        } else {
+                            init = poke;
+                        }
+                    } else if(!varInfo.isOverride()) {
+                        if (!varInfo.generateSequenceAccessors()) {
+                            init = Block(FlagChangeStmt(varSym, null, defs.varFlagDEFAULT_APPLIED),
+                                         CallStmt(attributeOnReplaceName(varSym), Get(varSym), Get(varSym))
+                                        );
+                        } else {
+                            init = Block(FlagChangeStmt(varSym, null, defs.varFlagDEFAULT_APPLIED),
+                                         CallStmt(attributeInvalidateName(varSym),
+                                                  Int(0), Int(0), Int(0), id(defs.varFlagIS_INVALID)),
+                                         FlagChangeStmt(varSym, null, defs.varFlagIS_INVALID),
+                                         CallStmt(attributeInvalidateName(varSym),
+                                              Int(0), Int(0), Int(0), id(defs.varFlagNEEDS_TRIGGER)),
+                                         FlagChangeStmt(varSym, null, defs.varFlagNEEDS_TRIGGER)
+                                         );
+                        }
+                    }
+                }
+                if (init == null && varInfo.isSequence()) {
+                    if (!varInfo.hasBoundDefinition()) {
+                        init = CallStmt(defs.Sequences_replaceSlice, getReceiverOrThis(), Offset(varSym), Get(varSym), Int(0), Int(0));
+                    }
+                }
+            }
+
+            return init;
+        }
+        
+        //
+        // Determine if this override needs an invalidate method
+        // Must be in sync with makeInvalidateAccessorMethod
+        //
+        private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
+            if (varInfo.isMixinVar() ||
+                    varInfo.onReplace() != null ||
+                    varInfo.onInvalidate() != null) {
+                // based on makeInvalidateAccessorMethod
+                return true;
+            } else if (varInfo.hasBoundDefinition()) {
+                return false;
+            } else {
+                if (varInfo instanceof TranslatedVarInfoBase) {
+                    return ((TranslatedVarInfoBase) varInfo).boundBinders().size() != 0;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //
+        // Sequence var accessors.
+        //
+        
+        //
+        // This method constructs the getter method for a sequence attribute.
+        //
+        private void makeSeqGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    JCStatement initIf = null;
+                    if (!varInfo.isStatic()) {
+                        // Prepare to accumulate body of if.
+                        beginBlock();
+
+                        // applyDefaults$(VOFF$var)
+                        addStmt(CallStmt(defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
+
+                        // Is it uninitialized (and not bound)
+                        JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
+
+                        // if (uninitialized) { applyDefaults$(VOFF$var); }
+                        initIf = OptIf(initCondition, endBlock(), null);
+                    }
+
+                    if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                        // Prepare to accumulate body of if.
+                        beginBlock();
+                        // Lock cycles.
+                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
+                        /*
+                         * if "foo" is the variable name, then we generate
+                         *
+                         *     be$(varNum, $$boundInstance$foo.get($$boundVarNum$foo));
+                         *
+                         * With be$(int, Object), we need not worry about type conversion.
+                         */
+                        JCExpression get$call = Call(
+                                id(boundFunctionObjectParamName(varSym.name)),
+                                defs.get_FXObjectMethodName,
+                                id(boundFunctionVarNumParamName(varSym.name)));
+
+                        addStmt(CallStmt(
+                                defs.be_AttributeMethodPrefixName,
+                                Offset(varSym), get$call));
+
+                        // Is it invalid?
+                        JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
+
+                        // Release cycle lock.
+                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
+                        
+                        // if (invalid) { set$var(init/bound expression); }
+                        addStmt(OptIf(condition, endBlock(), initIf));
+                    } else {  
+                        // Begin if block.
+                        beginBlock();
+
+                        // Be sure the sequence is initialized before returning the SequenceRef -- call the size accessor to initialize
+                        addStmt(CallStmt(attributeSizeName(varSym)));
+                        
+                        // seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq);
+                        JCExpression receiver = getReceiverOrThis(proxyVarSym);
+
+                        List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, elementType), receiver, Offset(varSym));
+                        JCExpression newExpr = m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceRefType)), args, null);
+                        addStmt(SetStmt(proxyVarSym, newExpr));
+                        
+                        // If (seq$ == null && isBound) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
+                        addStmt(OptIf(AND(EQ(Get(proxyVarSym), makeDefaultValue(diagPos, varInfo.getVMI())), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
+                                endBlock(), initIf));
+                    }
+                    
+                    // Construct and add: return $var;
+                    addStmt(Return(Get(proxyVarSym)));
+                }
+            };
+
+            vamb.build();
+        }
+        
+        //
+        // This method constructs the get element method for a sequence attribute.
+        //
+        private void makeSeqGetElementAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetElementName(varInfo.getSymbol()),
+                                                                         varInfo.getElementType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(posArg());
+                }
+                
+                @Override
+                public void statements() {
+                    if (varInfo.hasBoundDefinition()) {
+                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                            JCExpression apply = Call(
+                                    id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.getElement_FXObjectMethodName,
+                                    id(boundFunctionVarNumParamName(varSym.name)),
+                                    posArg());
+                            addStmt(Return(castFromObject(apply, varInfo.getElementType())));
+                        } else if (varInfo.isInitWithBoundFuncResult()) {
+                            /**
+                             * If this var "foo" is initialized with bound function result var, then
+                             * we want to get element from the Pointer. We translate as:
+                             *
+                             *    public static int get$foo(final int pos$) {
+                             *        final Pointer ifx$0tmp = get$$$bound$result$foo();
+                             *        if (ifx$0tmp != null)
+                             *            return (Integer)ifx$0tmp.get(pos$);
+                             *        else
+                             *            return 0;
+                             *    }
+                             */
+                            JCVariableDecl tmpPtrVar = TmpVar("tmp", syms.javafx_PointerType, Getter(varInfo.boundFuncResultInitSym()));
+                            addStmt(tmpPtrVar);
+
+                            JCExpression ptrNonNullCond = NEnull(id(tmpPtrVar));
+                            JCExpression apply = Call(
+                                    id(tmpPtrVar),
+                                    defs.get_PointerMethodName,
+                                    posArg());
+                            addStmt(OptIf(ptrNonNullCond, 
+                                        Return(castFromObject(apply, varInfo.getElementType())),
+                                        Return(makeDefaultValue(varInfo.pos(), typeMorpher.typeMorphInfo(varInfo.getElementType())))
+                                      )
+                                   );
+                        } else {
+                            addStmt(varInfo.boundElementGetter());
+                        }
+                    } else if (varInfo.useAccessors()) {
+                        // Construct and add: return $var.get(pos$);
+                        addStmt(Return(Call(Get(proxyVarSym), defs.get_SequenceMethodName, posArg())));
+                    }
+                }
+            };
+
+            vamb.build();
+        }
+
+        
+        //
+        // This method constructs the getter method for a sequence attribute.
+        //
+        private void makeSeqGetSizeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSizeName(varInfo.getSymbol()),
+                                                                         syms.intType,
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    if (varInfo.hasBoundDefinition()) {
+                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                            JCExpression apply = Call(
+                                    id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.size_FXObjectMethodName,
+                                    id(boundFunctionVarNumParamName(varSym.name)));
+                            addStmt(Return(apply));
+                        } else if (varInfo.isInitWithBoundFuncResult()) {
+                            /**
+                             * If this var "foo" is initialized with bound function result var, then
+                             * we want to get sequence size from the Pointer. We translate as:
+                             *
+                             *    public static int size$foo() {
+                             *        Pointer oldPtr = $$$bound$result$$foo;
+                             *        Pointer newPtr = get$$$bound$result$$foo();
+                             *        Pointer.switchDependence(oldPtr, newPtr, receiver);
+                             *
+                             *        if (newPtr != null) {
+                             *            <make-it-valid>
+                             *            return (Integer)ifx$0tmp.size();
+                             *        } else {
+                             *            return -1000;
+                             *        }
+                             *    }
+                             */
+                            Name ptrVarName = attributeValueName(varInfo.boundFuncResultInitSym());
+                            // declare a temp variable of type Pointer to store old value of Pointer field
+                            JCVariableDecl oldPtrVar = TmpVar("old", syms.javafx_PointerType, id(ptrVarName));
+                            addStmt(oldPtrVar);
+
+                            JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, Getter(varInfo.boundFuncResultInitSym()));
+                            addStmt(newPtrVar);
+
+                            // Add the receiver of the current Var symbol as dependency to the Pointer, so that
+                            // we will get notification whenever the result of the bound function evaluation changes.
+                            JCExpression receiver = getReceiverOrThis(varSym);
+                            addStmt(CallStmt(defs.Pointer_switchDependence,id(oldPtrVar), id(newPtrVar), receiver));
+
+                            // setValid(VFLGS$VALIDITY_FLAGS);
+                            JCStatement setValid = FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED);
+                            JCExpression apply = Call(
+                                    Getter(varInfo.boundFuncResultInitSym()),
+                                    defs.size_PointerMethodName);
+                            addStmt(OptIf(NEnull(id(newPtrVar)),
+                                        Block(setValid, Return(apply)),
+                                        Return(Int(JavafxDefs.UNDEFINED_MARKER_INT))
+                                      )
+                                   );
+                        } else {
+                            addStmt(varInfo.boundSizeGetter());
+                        }
+                    } else if (varInfo.useAccessors()) {
+                        // Construct and add: return $var.size();
+                        addStmt(Return(Call(Get(proxyVarSym), defs.size_SequenceMethodName)));
+                    }
+                }
+            };
+
+            vamb.build();
+        }
+
+        //
+        // This method constructs the be method for a sequence attribute.
+        //
+        private void makeSeqBeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeBeName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(type, defs.varNewValue_ArgName);
+                }
+                
+                @Override
+                public void statements() {
+                        // $var = value
+                        addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
+
+                        // return $var;
+                        addStmt(Return(Get(proxyVarSym)));
+                    }
+            };
+
+            vamb.build();
+        }
+
+        //
+        // This method constructs the invalidate method for a sequence attribute.
+        //
+        private void makeSeqInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
+                                                                         syms.voidType,
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(startPosArg());
+                    addParam(endPosArg());
+                    addParam(newLengthArg());
+                    addParam(phaseArg());
+                }
+
+                @Override
+                public void statements() {
+                    // Handle invalidators if present.
+                    List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
+                    boolean hasInvalidators = !invalidatees.isEmpty();
+
+                    if (hasInvalidators) {
+                        // Insert invalidators.
+                        for (BindeeInvalidator invalidator : invalidatees) {
+                            addStmt(invalidator.invalidator);
+                        }
+                    }
+
+                    boolean override = varInfo.isOverride();
+                    boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
+
+                    // Call super.
+                    if (override || varInfo instanceof SuperClassVarInfo) {
+                        callSuper();
+                    } else if (mixin) {
+                        // Mixin.invalidate$var(this, phase$);
+                        callMixin((ClassSymbol)varSym.owner);
+                        override = true;
+                    }
+
+                    for (VarInfo otherVar : varInfo.boundBinders()) {
+                        if (depGraphWriter != null) {
+                            depGraphWriter.writeDependency(otherVar.sym, varSym);
+                        }
+
+                        // invalidate$var(phase$);
+                        if (!otherVar.generateSequenceAccessors()) {
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
+                        } else {
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()),
+                                             startPosArg(),
+                                             endPosArg(),
+                                             newLengthArg(),
+                                             phaseArg()));
+                        }
+                    }
+
+                    if (!override) {
+                        // notifyDependents(VOFF$var, phase$);
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym),
+                                startPosArg(), endPosArg(), newLengthArg(),
+                                phaseArg()));
+                    }
+
+                    if (!override || varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
+                        // Begin the get$ block.
+                        beginBlock();
+
+                        // Add on-invalidate trigger if any
+                        if (varInfo.onInvalidate() != null) {
+                            addStmt(varInfo.onInvalidateAsInline());
+                        }
+
+                        // Call the onReplace$var to force evaluation.
+                        if (!override) {
+                            addStmt(CallStmt(attributeOnReplaceName(proxyVarSym),
+                                                                startPosArg(),
+                                                                endPosArg(),
+                                                                newLengthArg()));
+                        }
+
+                        // phase$ == VFLGS$NEEDS_TRIGGER
+                        JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
+
+                        // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
+                        addStmt(OptIf(ifTriggerPhase,
+                                endBlock()));
+                    }
+                }
+            };
+
+            vamb.build();
+        }
+
+        //
+        // This method constructs the onreplace$ method for a sequence attribute.
+        //
+        private void makeSeqOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
+                                                                         syms.voidType,
+                                                                         varInfo, needsBody) {
+                Name oldValueName;
+                Name newValueName;
+                Name firstIndexName;
+                Name lastIndexName;
+                Name newElementsName;
+                Name newLengthName;
+
+                @Override
+                public void initialize() {
+                    JFXOnReplace onReplace = varInfo.onReplace();
+                    
+                    newValueName = defs.varNewValue_ArgName;
+                    firstIndexName = paramStartPosName(onReplace);
+                    lastIndexName = paramEndPosName(onReplace);
+                    newLengthName = paramNewElementsLengthName(onReplace);
+
+                    addParam(syms.intType, firstIndexName);
+                    addParam(syms.intType, lastIndexName);
+                    addParam(syms.intType, newLengthName);
+                }
+                
+                @Override
+                public void statements() {
+                    // Call super first.
+                    if (varInfo.isOverride()) {
+                        callSuper();
+                    }
+
+                    // Mixin onreplace$
+                    if (!isMixinClass() && varInfo instanceof MixinClassVarInfo) {
+                        callMixin((ClassSymbol)varSym.owner);
+                    }
+
+                    // Fetch the on replace statement or null.
+                    JFXOnReplace onReplace = varInfo.onReplace();
+
+                    if (onReplace != null) {
+                        JFXVar lastIndex = varInfo.onReplace().getLastIndex();
+                        JFXVar newElements = varInfo.onReplace().getNewElements();
+                        if (lastIndex != null && varInfo.onReplace().getEndKind() == JFXSequenceSlice.END_INCLUSIVE) {
+                            addStmt(Var(syms.intType, lastIndex.name,
+                                    MINUS(endPosArg(), Int(1))));
+                        }
+
+                        // The idea of the following is to implement:
+                        //   var x : T[] = ... on replace oldV[i..j] = newV { something };
+                        // as if it were:
+                        //   var x$save$ : T[];
+                        //   var x : T[] = ... on replace [i..j] = newV {
+                        //     def oldV = Sequences.copy(x$save$);
+                        //     x$save$[i..j] = newV;
+                        //     something
+                        //   };
+
+                        JavafxVarSymbol savedVarSym = onReplace.getSaveVar() != null ? onReplace.getSaveVar().sym : null;
+                        if (savedVarSym != null) {
+                            // FIXME  Some performance tweaking makes sense:
+                            // - If the oldValue is only used for indexing or sizeof, then we
+                            // can extra the value of the "gap" of the saved-dalue ArraySequence,
+                            // as in the 1.2 compiler.
+                            // - The getNewElements call should be combined with the replaceSlice.
+                            addStmt(Var(type, onReplace.getOldValue().getName(),
+                                    Call(defs.Sequences_copy,
+                                        Get(savedVarSym))));
+                            addStmt(SetStmt(savedVarSym,
+                                    Call(defs.Sequences_replaceSlice,
+                                        Get(savedVarSym),
+                                        Call(defs.Sequences_getNewElements, Getter(varSym), id(firstIndexName), id(newLengthName)),
+                                        id(firstIndexName),
+                                        endPosArg()
+                                    )));
+                        }
+                        if (newElements != null
+                                && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
+                                   JCExpression seq = savedVarSym != null ? Get(savedVarSym) : Getter(varSym);
+                                   JCExpression init = Call(defs.Sequences_getNewElements, seq, id(firstIndexName), id(newLengthName));
+                            addStmt(Var(newElements.type, newElements.name, init));
+                        }
+                    }
+                    
+                    // Need to capture init state if has trigger.
+                    if (onReplace != null) {
+                        // Insert the trigger.
+                        addStmt(varInfo.onReplaceAsInline());
+                    }
+                }
+            };
+
+            vamb.build();
+        }
+
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //
+        // Normal var accessors.
+        //
+        
+        //
         // This method constructs the getter method for the specified attribute.
         //
-        //     type get$var() {
-        //         return loc$var != null ? loc$var.getAsType() : $var;
-        //     }
-        //
-        private JCTree makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            setCurrentPos(varInfo);
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Real type for var.
-            Type type = varInfo.getRealType();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
+        private void makeGetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetterName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    if (varInfo.isBareSynth()) {
+                        // return bound-expression
+                        addStmts(varInfo.boundPreface());
+                        if (varInfo.hasSafeInitializer()) {
+                            addStmt(Return(varInfo.boundInit()));
+                        } else {
+                            JCStatement returnDefault = Return(makeDefaultValue(diagPos, varInfo.getVMI()));
+                            addStmt(TryWithErrorHandler(Return(varInfo.boundInit()), returnDefault));
+                        }
+                    } else {
+                        JCStatement initIf = null;
+                        if (!varInfo.isStatic()) {
+                            // Prepare to accumulate body of if.
+                            beginBlock();
+    
+                                // applyDefaults$(VOFF$var)
+                            addStmt(CallStmt(defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
+    
+                            // Is it uninitialized (and not bound)
+                            JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
+    
+                            // if (uninitialized) { applyDefaults$(VOFF$var); }
+                            initIf = OptIf(initCondition,
+                                    endBlock());
+                        }
 
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
+                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                            // Prepare to accumulate body of if.
+                            beginBlock();
 
-                // Symbol used when accessing the variable.
-                VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                int typeKind = varInfo.getVMI().getTypeKind();
+                            // Lock cycles.
+                            addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
+                            
+                            /*
+                             * if "foo" is the variable name, then we generate
+                             *
+                             *     be$(varNum, $$boundInstance$foo.get($$boundVarNum$foo));
+                             *
+                             * With be$(int, Object), we need not worry about type conversion.
+                             */
+                            JCExpression get$call = Call(
+                                    id(boundFunctionObjectParamName(varSym.name)),
+                                    defs.get_FXObjectMethodName,
+                                    id(boundFunctionVarNumParamName(varSym.name)));
 
-                // $var
-                JCExpression valueExp = Id(attributeValueName(proxyVarSym));
+                            addStmt(CallStmt(
+                                    defs.be_AttributeMethodPrefixName,
+                                    Offset(varSym),
+                                    get$call));
 
-                if (varInfo.getterInit() != null) {
-                    // This is a Slacker Bind -- has_not_been_set_test? bound_expression_in_line : $var
-                    valueExp = m().Conditional(makeIsInitializedTest(varInfo, false), varInfo.getterInit(), valueExp);
-                }
+                            // Release cycle lock.
+                            addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
+                            
+                            // Is it invalid?
+                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
 
-                switch (varInfo.representation()) {
-                    case SlackerLocation: {
-                        // Construct and add: return loc$var != null ? loc$var.getAsType() : $var;
+                            // if (invalid) { set$var(init/bound expression); }
+                            addStmt(OptIf(condition, 
+                                    endBlock(),
+                                    initIf));
 
-                        // Get the location accessor method name.
-                        Name getMethodName = defs.locationGetMethodName[typeKind];
+                        } else if (varInfo.hasBoundDefinition()) {
+                            // Prepare to accumulate body of if.
+                            beginBlock();
+                            // Set to new value. Bogus assert, it seems an local var can be bound have no init.
+                            // assert varInfo.boundInit() != null : "Oops! No boundInit.  varInfo = " + varInfo + ", preface = " + varInfo.boundPreface();
 
-                        // loc$var
-                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                        // loc$var.getAsType
-                        JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
-                        // loc$var.getAsType()
-                        JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
-                        // loc$var != null
-                        JCExpression condition = m().Binary(JCTree.NE, locationExp, makeNull());
-                        // loc$var != null ? loc$var.getAsType() : $var
-                        stmts.append(m().If(condition, m().Return(getCall), m().Return(valueExp)));
-                        break;
-                    }
-                    case AlwaysLocation: {
-                        // Get the location accessor method name.
-                        Name getMethodName = defs.locationGetMethodName[typeKind];
+                            // Lock cycles.
+                            addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
+                            
+                            // set$var(init/bound expression)
+                            addStmts(varInfo.boundPreface());
+                            JCExpression initValue = varInfo.boundInit();
+                            if (initValue == null) {
+                                initValue = makeDefaultValue(diagPos, varInfo.getVMI());
+                            }
+                            if (varInfo.isInitWithBoundFuncResult()) {
+                                /**
+                                 * For a field named "foo" that is initialized from the bound function
+                                 * result Pointer, we generate the following:
+                                 *
+                                 * Pointer oldPtr = $$$bound$result$$foo;
+                                 * Pointer newPtr = get$$$bound$result$$foo();
+                                 * Pointer.switchDependence(oldPtr, newPtr, receiver);
+                                 *
+                                 * if (newPtr != null) {
+                                 *      be$foo((ExpectedType)newPtr.get());
+                                 * } else {
+                                 *      be$foo(<default-value>);
+                                 * }
+                                 */
+                                Name ptrVarName = attributeValueName(varInfo.boundFuncResultInitSym());
+                                // declare a temp variable of type Pointer to store old value of Pointer field
+                                JCVariableDecl oldPtrVar = TmpVar("old", syms.javafx_PointerType, id(ptrVarName));
+                                addStmt(oldPtrVar);
 
-                        // loc$var
-                        JCExpression locationExp = Id(attributeLocationName(proxyVarSym));
-                        // loc$var.getAsType
-                        JCFieldAccess getSelect = m().Select(locationExp, getMethodName);
-                        // loc$var.getAsType()
-                        JCExpression getCall = m().Apply(null, getSelect, List.<JCExpression>nil());
+                                JCVariableDecl newPtrVar = TmpVar("new", syms.javafx_PointerType, initValue);
+                                addStmt(newPtrVar);
 
-                        stmts.append(m().Return(getCall));
-                        break;
-                    }
-                    case NeverLocation: {
+                                // Add the receiver of the current Var symbol as dependency to the Pointer, so that
+                                // we will get notification whenever the result of the bound function evaluation changes.
+                                JCExpression receiver = getReceiverOrThis(varSym);
+                                addStmt(CallStmt(defs.Pointer_switchDependence, id(oldPtrVar), id(newPtrVar), receiver));
+
+                                // We have a Pointer - we need to call Pointer.get() and cast the result.
+                                initValue = castFromObject(Call(id(newPtrVar), defs.get_PointerMethodName), varSym.type);
+                                JCStatement beStmt = CallStmt(attributeBeName(varSym), initValue);
+
+                                JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
+                                        makeDefaultValue(diagPos, varInfo.getVMI()));
+                                addStmt(OptIf(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
+                            } else {
+                                if (varInfo.hasSafeInitializer()) {
+                                    addStmt(CallStmt(attributeBeName(varSym), initValue));
+                                } else {
+                                    JCExpression defaultValue = makeDefaultValue(diagPos, varInfo.getVMI());
+                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym), defaultValue);
+                                    addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
+                                }
+                            }
+                          
+                            // Release cycle lock.
+                            addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
+                            
+                            // Is it bound and invalid?
+                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
+                            
+                            // if (bound and invalid) { set$var(init/bound expression); }
+                            addStmt(OptIf(condition, 
+                                    endBlock(),
+                                    initIf));
+                        } else {
+                            addStmt(initIf);
+                        }
+    
                         // Construct and add: return $var;
-                        stmts.append(m().Return(valueExp));
-                        break;
+                        addStmt(Return(Get(proxyVarSym)));
                     }
                 }
-            }
+            };
 
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             type,
-                                             attributeGetterName(varSym),
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
-        }
-
-        //
-        // This method returns a statement to set the correct bit in the VFLG$.
-        //
-        JCStatement makeSetVFLG$(VarInfo varInfo, int whichFlag) {
-            // Script vars don't need flags.
-            if (!varInfo.isStatic()) {
-                // Get the var enumeration.
-                int enumeration = varInfo.getEnumeration() + whichFlag * analysis.getVarCount();
-                // Which VFLGS$ word.
-                int word = enumeration >> 5;
-                // Which VFLGS$ bit.
-                int bit = 1 << (enumeration & 31);
-
-                // VFLGS$word
-                JCExpression bitsIdent = Id(attributeBitsName(word));
-                // VFLGS$word |= bit;
-                return m().Exec(m().Assignop(JCTree.BITOR_ASG, bitsIdent, makeInt(bit)));
-            }
-
-            return null;
-        }
-
-        //
-        // This method returns the set statements used to set using value (not Location)
-        //
-        private ListBuffer<JCStatement> makeValueSetterStatements(VarInfo varInfo) {
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-            // Symbol used when accessing the variable.
-            VarSymbol proxyVarSym = varInfo.proxyVarSym();
-
-            // $var
-            Name varName = attributeValueName(proxyVarSym);
-
-            // Var real type.
-            Type type = varInfo.getVMI().getRealType();
-
-            // Fetch the on replace statement or null.
-            JCStatement onReplace = varInfo.onReplaceAsInline();
-
-            // Need to capture init state if has trigger.
-            if (onReplace != null) {
-                // T varOldValue$ = $var;
-                stmts.append(makeVariable(Flags.FINAL, type, varOldValueName, Id(varName)));
-
-                // varOldValue$ != varNewValue$
-                // or !varOldValue$.isEquals(varNewValue$) test for Objects and Sequences
-                JCExpression testExpr = type.isPrimitive() ?
-                    m().Binary(JCTree.NE, Id(varOldValueName), Id(varNewValueName))
-                  : m().Unary(JCTree.NOT, runtime(currentPos,
-                        defs.Util_isEqual,
-                        List.of(Id(varOldValueName), Id(varNewValueName))));
-
-                // If we need to test init.
-                if (!varInfo.isStatic()) {
-                    // varOldValue$ != varNewValue$ || ((varBits$0 & bit) == 0)
-                    testExpr = m().Binary(JCTree.OR, testExpr, makeIsInitializedTest(varInfo, false));
-                }
-
-                // Set boolean to indicate if this variable has been changed
-                stmts.append(makeVariable(Flags.FINAL, syms.booleanType, varChangedName, testExpr));
-
-                // $var = value
-                stmts.append(m().Exec(m().Assign(Id(varName), Id(varNewValueName))));
-
-                JCStatement setInit = makeSetVFLG$(varInfo, VFLAG_IS_INITIALIZED);
-                if (setInit != null) {
-                    // VFLGS$0 |= ###;   // Set VFLG$ bit.
-                    stmts.append(setInit);
-                }
-
-                // Prepare to accumulate trigger statements.
-                ListBuffer<JCStatement> trigStmts = ListBuffer.lb();
-
-                JFXVar oldVar = varInfo.onReplace().getOldValue();
-                JFXVar newVar = varInfo.onReplace().getNewElements();
-
-                 // Check to see if the on replace has an old value.
-                if (oldVar != null) {
-                    // T oldValue = $var
-                    trigStmts.append(makeVariable(Flags.FINAL, type, oldVar.getName(), Id(varOldValueName)));
-                }
-
-                 // Check to see if the on replace has a new value.
-                if (newVar != null) {
-                    // T newValue = value
-                    trigStmts.append(makeVariable(Flags.FINAL, type, newVar.getName(), Id(varNewValueName)));
-                }
-
-                // Need a receiver under some circumstances.
-                if (!varInfo.isStatic()) {
-                    // T receiver$ = this.
-                    trigStmts.append(makeVariable(Flags.FINAL, analysis.getCurrentClassSymbol().type, defs.receiverName, Id(names._this)));
-                }
-
-                // Insert the trigger.
-                trigStmts.append(onReplace);
-
-                // if (varOldValue$ != varNewValue$) { ... trigger  code ... }
-                stmts.append(m().If(Id(varChangedName), m().Block(0L, trigStmts.toList()), null));
-            } else {
-                // $var = value
-                JCExpression assign = m().Assign(Id(varName), Id(varNewValueName));
-
-                JCStatement setInit = makeSetVFLG$(varInfo, VFLAG_IS_INITIALIZED);
-                if (setInit != null) {
-                    // $var = value;
-                    // VFLGS$0 |= ###;   // Set VFLG$ bit.
-                    stmts.append(m().Exec(assign));
-                    stmts.append(setInit);
-                    // fall through
-                } else {
-                    // return $var = value;
-                    stmts.append(m().Return(assign));
-                    return stmts;
-                }
-            }
-
-            // return $var;
-            stmts.append(m().Return(Id(varName)));
-
-            return stmts;
-        }
-
-        //
-        // This method returns the set statements used in the setter method -- for a Location set case.
-        //
-        private ListBuffer<JCStatement> makeLocationSetterStatements(VarInfo varInfo) {
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-            // Symbol used when accessing the variable.
-            VarSymbol proxyVarSym = varInfo.proxyVarSym();
-            // loc$var
-            Name varLocName = attributeLocationName(proxyVarSym);
-
-            // Get the location accessor method name.
-            int typeKind = varInfo.getVMI().getTypeKind();
-            Name setMethodName = defs.locationSetMethodName[typeKind];
-
-            // $varNewValue = loc$var.setAsType($varNewValue)
-            JCExpression setCall = callExpression(currentPos, Id(varLocName), setMethodName, Id(varNewValueName));
-
-            JCStatement setInit = makeSetVFLG$(varInfo, VFLAG_IS_INITIALIZED);
-            if (setInit != null) {
-                // $varNewValue = loc$var.setAsType($varNewValue)
-                // VFLGS$0 |= ###;   // Set VFLG$ bit.
-                // return $varNewValue
-                stmts.append(m().Exec(m().Assign(Id(varNewValueName), setCall)));
-                stmts.append(setInit);
-                stmts.append(m().Return(Id(varNewValueName)));
-            } else {
-                // return loc$var.setAsType($varNewValue)
-                stmts.append(m().Return(setCall));
-            }
-            return stmts;
-        }
-
-        //
-        // This method returns the actual set statements used in the setter method.
-        //
-        private ListBuffer<JCStatement> makeSetterStatements(VarInfo varInfo) {
-            switch (varInfo.representation()) {
-                case NeverLocation:
-                    return makeValueSetterStatements(varInfo);
-                case AlwaysLocation:
-                    return makeLocationSetterStatements(varInfo);
-                case SlackerLocation: {
-                    // Symbol used when accessing the variable.
-                    VarSymbol proxyVarSym = varInfo.proxyVarSym();
-                    // loc$var
-                    Name varLocName = attributeLocationName(proxyVarSym);
-
-                    JCExpression locRef = Id(varLocName);
-                    if (varInfo.isSlackerBind()) {
-                        // Come in here on a slacker bind that has not been overridden, just to throw a
-                        // BindingExpression inflate location so this works, making the code below:
-                        // if ((defaultsApplied? loc$x() : loc$x) != null) ...
-                        JCExpression callLoc = callExpression(currentPos, null, attributeGetLocationName(proxyVarSym));
-                        locRef = m().Conditional(makeFlagTest(varInfo, VFLAG_DEFAULTS_APPLIED, true), callLoc, locRef);
-                    }
-                    // loc$var != null
-                    JCExpression condition = m().Binary(JCTree.NE, locRef, makeNull());
-
-                    // if (loc$var != null) { location-code } else { value-code }
-                    JCStatement stmt = m().If(condition,
-                            m().Block(0L, makeLocationSetterStatements(varInfo).toList()),
-                            m().Block(0L, makeValueSetterStatements(varInfo).toList()));
-                    return ListBuffer.<JCStatement>lb().append(stmt);
-                }
-            }
-            throw new RuntimeException("Should not reach here");
+            vamb.build();
         }
 
         //
         // This method constructs the setter method for the specified attribute.
         //
-        //     type set$var(type value) {
-        //         return loc$var != null ? loc$var.setAsType(value) : $var = value;
-        //     }
-        //
-        private JCTree makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            setCurrentPos(varInfo);
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            // Real type for var.
-            Type type = varInfo.getRealType();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
+        private void makeSetterAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetterName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(type, defs.varNewValue_ArgName);
+                    buildIf(!varInfo.isDef() && !varInfo.isBareSynth());
+                }
 
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = makeSetterStatements(varInfo);
-            }
+                @Override
+                public void statements() {
+                    // Restrict setting.
+                    addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
 
-            // Set up value arg.
-            JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.PARAMETER),
-                                                          varNewValueName,
-                                                          makeType(type),
-                                                          null);
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             type,
-                                             attributeSetterName(varSym),
-                                             List.<JCVariableDecl>of(arg),
-                                             stmts);
-            optStat.recordProxyMethod();
+                    addStmt(FlagChangeStmt(varSym, null, defs.varFlagIS_INITIALIZED));
 
-            return method;
+                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
+                        // Begin bidi block.
+                        beginBlock();
+                        // Preface to setter.
+                        addStmts(varInfo.boundInvSetterPreface());
+                        // Test to see if bound.
+                        JCExpression ifBoundTest = FlagTest(varSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND);
+                        // if (!isBound$(VOFF$var)) { set$other(inv bound expression); }
+                        addStmt(OptIf(ifBoundTest,
+                                endBlock()));
+                    }
+                    
+                    // be$var(value)
+                    addStmt(CallStmt(attributeBeName(varSym), id(defs.varNewValue_ArgName)));
+                    // return $var;
+                    addStmt(Return(Get(proxyVarSym)));
+                }
+            };
+
+            vamb.build();
         }
 
         //
-        // This method returns a .setDefault() call (if appropriate)
+        // This method constructs the be method for the specified attribute.
         //
-        private JCStatement makeSetDefaultStatement(VarInfo varInfo) {
-            // Symbol used when accessing the variable.
-            VarSymbol proxyVarSym = varInfo.proxyVarSym();
-
-            // loc$var.setDefault()
-            JCStatement setDefaultCall = callStatement(currentPos, Id(attributeLocationName(proxyVarSym)), defs.setDefaultMethodName);
-
-            // set$var($var)
-            JCStatement setSelfCall = callStatement(currentPos, null, attributeSetterName(proxyVarSym), List.<JCExpression>of(Id(attributeValueName(proxyVarSym))));
-
-            switch (varInfo.representation()) {
-                case SlackerLocation: {
-                    // loc$var != null
-                    JCExpression condition = m().Binary(JCTree.NE, Id(attributeLocationName(proxyVarSym)), makeNull());
-
-                    // if (loc$var != null) loc$var.setDefault()
-                    return m().If(condition, setDefaultCall, setSelfCall);
+        private void makeBeAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeBeName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(type, defs.varNewValue_ArgName);
+                    buildIf(!varInfo.isBareSynth());
                 }
-                case AlwaysLocation: {
-                    // loc$var.setDefault()
-                    return setDefaultCall;
+                
+                @Override
+                public void statements() {
+                    // T varOldValue$ = $var;
+                    addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
+    
+                    // varOldValue$ != varNewValue$
+                    // or !varOldValue$.equals(varNewValue$) test for Object value types
+                    JCExpression valueChangedTest = isValueType(type) ?
+                        NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)))
+                      : NE(id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName));
+                    
+                    // if (varOldValue$ != varNewValue$ || Default-Not_applied) {
+                    //   /*handle change*/
+                    //   Set DEFAULT_APPLIED;
+                    //   invalidate$(VFLGS$IS_INVALID)
+                    //   $var = value
+                    //   invalidate$(VFLGS$NEEDS_TRIGGER)
+                    //   ValidityFlags = 0; // set as initialized;
+                    //   onReplace$(varOldValue$, varNewValue$)
+                    // } else {
+                    //   /*reset validity flags*/
+                    //   ValidityFlags = 0;
+                    //   Set DEFAULT_APPLIED;
+                    // }
+                    addStmt(
+                        OptIf (OR(valueChangedTest, FlagTest(proxyVarSym, defs.varFlagDEFAULT_APPLIED, null)),
+                            Block(
+                                FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED),
+                                CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)),
+                                SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)),
+                                CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)),
+                                FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null),
+                                CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName))
+                            ),
+                        /*else*/
+                            Block(
+                                FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED)
+                            )));
+   
+                    // return $var;
+                    addStmt(Return(Get(proxyVarSym)));
                 }
-                case NeverLocation: {
-                    // Not a location
-                    return setSelfCall;
-                }
-            }
-            return null;
+            };
+
+            vamb.build();
         }
 
         //
-        // This method constructs the get location method for the specified attribute.
+        // This method constructs the invalidate method for the specified attribute.
         //
-        //     Location loc$var() {
-        //         return loc$var;
-        //     }
-        //
-        // Or:
-        //     Location loc$var() {
-        //         if (loc$var != null) return loc$var;
-        //         loc$var = XXXVariable.makeWithDefault($var));
-        //         // trigger
-        //         return loc$var;
-        //     }
-        //
-        private JCTree makeGetLocationAccessorMethod(VarInfo varInfo, boolean needsBody, boolean override) {
-            setCurrentPos(varInfo);
-            // Symbol used on the method.
-            VarSymbol varSym = varInfo.getSymbol();
-            VarMorphInfo vmi = varInfo.getVMI();
-            // Assume no body.
-            ListBuffer<JCStatement> stmts = null;
+        private void makeInvalidateAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeInvalidateName(varInfo.getSymbol()),
+                                                                         syms.voidType,
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(phaseArg());
+                }
+                                                                         
+                @Override
+                public void statements() {
+                    // Handle invalidators if present.
+                    List<BindeeInvalidator> invalidatees = varInfo.boundInvalidatees();
+                    boolean hasInvalidators = !invalidatees.isEmpty();
 
-            if (needsBody) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-                // $var
-                Name valueName = attributeValueName(varSym);
-                // loc$var
-                Name locationName = attributeLocationName(varSym);
+                    //!isValidValue$(VOFF$var)
+                    JCVariableDecl wasValidVar = Var(syms.booleanType,
+                            defs.wasInvalid_LocalVarName,
+                            FlagTest(proxyVarSym, id(defs.varFlagVALIDITY_FLAGS), SHIFTR(phaseArg(), Int(1))));
+                    addStmt(wasValidVar);
+                     
+                    if (hasInvalidators) {
+                        // Insert invalidators.
+                        for (BindeeInvalidator invalidator : invalidatees) {
+                            addStmt(invalidator.invalidator);
+                        }
+                        
+                        return;
+                    }
+                    
+                    // Prepare to accumulate if statements.
+                    beginBlock();
+    
+                    boolean mixin = !isMixinClass() && varInfo instanceof MixinClassVarInfo;
 
-                switch (varInfo.representation()) {
-                    case SlackerLocation: {
-                         // loc$var != null
-                        JCExpression nullCheck = m().Binary(JCTree.NE, Id(locationName), makeNull());
-                        // if (loc$var != null) return loc$var
-                        stmts.append(m().If(nullCheck, m().Return(Id(locationName)), null));
+                    if (varInfo.isOverride() || varInfo instanceof SuperClassVarInfo) {
+                        // Call super first.
+                        callSuper();
+                    } else if (mixin) {
+                        callMixin((ClassSymbol)varSym.owner);
+                    } else {
+                        // Set phase flag.
+                        addStmt(FlagChangeStmt(proxyVarSym, null, phaseArg()));
+                        // notifyDependents(VOFF$var, phase$);
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
+                    }
 
-                        // if an override var.
-                        if (override) {
-                            // super.loc$var();
-                            stmts.append(callStatement(currentPos,
-                                                       Id(names._super),
-                                                       attributeGetLocationName(varSym),
-                                                       List.<JCExpression>nil()));
-                        } else {
-                            JCStatement build;
-                            JCExpression locWithValue = makeLocationWithDefault(vmi, varInfo.pos(), Id(valueName));
-                            JCExpression locNoValue = makeLocationWithDefault(vmi, varInfo.pos());
-                            if (varInfo.isSlackerBind()) {
-                                // Slacker bind, may have to dynamically bind the created Location
-                                // if (var_initialized)
-                                //    loc$var = XXXVariable.make($var);
-                                // else {
-                                //    loc$var = XXXVariable.make();
-                                //    if (beyond applyDefaults for var)
-                                //        loc$var.bind(...);
-                                // }
-                                JFXVar attrDef = ((TranslatedVarInfo)varInfo).jfxVar();
-                                JCStatement binding = toJava.translateDefinitionalAssignmentToSet(
-                                        attrDef.pos(),
-                                        attrDef.getInitializer(),
-                                        attrDef.getBindStatus(),
-                                        attrDef.sym,
-                                        null);
-                                JCStatement setUp = m().If(makeFlagTest(varInfo, VFLAG_DEFAULTS_APPLIED, true), binding, null);
-                                build = m().Block(0L, List.<JCStatement>of(m().Exec(m().Assign(Id(locationName), locNoValue)), setUp));
-                                if (!varInfo.isStatic()) {
-                                    build = m().If(makeIsInitializedTest(varInfo, true), m().Exec(m().Assign(Id(locationName), locWithValue)), build);
-                                }
-                            } else {
-                                // loc$var = var_initialized? XXXVariable.make($var) :  XXXVariable.make()
-                                JCExpression initExpr = varInfo.isStatic() ? locWithValue
-                                    : m().Conditional(
-                                        makeIsInitializedTest(varInfo, true),
-                                        locWithValue,
-                                        locNoValue);
-                                build = m().Exec(m().Assign(Id(locationName), initExpr));
+                    for (VarInfo otherVar : varInfo.boundBinders()) {
+                        // invalidate$var(phase$);
+                        if (!otherVar.generateSequenceAccessors()) {
+                            if (depGraphWriter != null) {
+                                depGraphWriter.writeDependency(otherVar.sym, varSym);
                             }
-                            stmts.append(build);
+                            addStmt(CallStmt(attributeInvalidateName(otherVar.getSymbol()), phaseArg()));
                         }
-
-                        // $var = null;
-                        if (!vmi.getRealType().isPrimitive()) {
-                            stmts.append(m().Exec(m().Assign(Id(valueName), makeNull())));
-                        }
-
-                        // See if we need to add a trigger.
-                        JCStatement onReplace = varInfo.onReplaceAsListenerInstanciation();
-                        if (onReplace != null) {
-                            stmts.append(onReplace);
-                        }
-                        JCStatement onInvalidate = varInfo.onInvalidateAsListenerInstanciation();
-                        if (onInvalidate != null) {
-                            stmts.append(onInvalidate);
-                        }
-
-                        // Construct and add: return loc$var.
-                        stmts.append(m().Return(Id(locationName)));
-                        break;
                     }
-                    case AlwaysLocation: {
-                        // Construct and add: return loc$var)
-                        stmts.append(m().Return(Id(locationName)));
-                        break;
+                    
+                    // Invalidate back to inverse.
+                    if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
+                        for (JavafxVarSymbol bindeeSym : varInfo.boundBindees()) {
+                            if (depGraphWriter != null) {
+                                depGraphWriter.writeDependency(bindeeSym, varSym);
+                            }
+                            addStmt(CallStmt(attributeInvalidateName(bindeeSym), phaseArg()));
+                            break;
+                        }
                     }
-                    case NeverLocation: {
-                        // new ConstantLocation<T>($var)
-                        JCExpression locationExpr = makeUnboundLocation(currentPos, vmi, Id(valueName));
-                        // Construct and add: return new ConstantLocation<T>($var);
-                        stmts.append(m().Return(locationExpr));
-                        break;
+
+                    // phase$ == VFLGS$NEEDS_TRIGGER
+                    JCExpression ifTriggerPhase = EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
+
+                    // Wrap up main block.
+                    JCBlock mainBlock = endBlock();
+
+                    // Necessary to call mixin parent in else in case the var is a bare synth.
+                    JCBlock mixinBlock = null;
+                    if (mixin) {
+                        beginBlock();
+                        callMixin((ClassSymbol)varSym.owner);
+                        mixinBlock = endBlock();
+                    }
+
+                    // if (!isValidValue$(VOFF$var)) { ... invalidate  code ... }
+                    addStmt(If(id(wasValidVar),
+                            mainBlock, mixinBlock));
+
+                    if (varInfo.onReplace() != null || varInfo.onInvalidate() != null) {
+                        // Begin the get$ block.
+                        beginBlock();
+
+                        // Add on-invalidate trigger if any
+                        if (varInfo.onInvalidate() != null) {
+                            addStmt(OptIf(OR(id(wasValidVar), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, null)),
+                                varInfo.onInvalidateAsInline()));
+                        }
+
+                        // Call the get$var to force evaluation.
+                        if (varInfo.onReplace() != null)
+                            addStmt(Stmt(Getter(proxyVarSym)));
+
+                        // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
+                        addStmt(OptIf(ifTriggerPhase,
+                                endBlock()));
                     }
                 }
-            }
+            };
 
-            // Construct method.
-            JCMethodDecl method = makeMethod(proxyModifiers(varInfo, !needsBody),
-                                             varInfo.getVariableType(),
-                                             attributeGetLocationName(varSym),
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            optStat.recordProxyMethod();
-
-            return method;
+            vamb.build();
         }
 
         //
-        // This method constructs the getter/setter/location accessor methods for each attribute.
+        // This method constructs the onreplace$ method for the specified attribute.
         //
-        public List<JCTree> makeAttributeAccessorMethods(List<VarInfo> attrInfos) {
-            ListBuffer<JCTree> accessors = ListBuffer.lb();
+        private void makeOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
+                                                                         syms.voidType,
+                                                                         varInfo, needsBody) {
+                Name oldValueName;
+                Name newValueName;
 
+                @Override
+                public void initialize() {
+                    JFXOnReplace onReplace = varInfo.onReplace();
+                    
+                    oldValueName = paramOldValueName(onReplace);
+                    newValueName = paramNewValueName(onReplace);
+                    
+                    addParam(type, oldValueName);
+                    addParam(type, newValueName);
+                    
+                    buildIf(!varInfo.isBareSynth());
+                }
+                
+                @Override
+                public void statements() {
+                    // Call super first.
+                    if (varInfo.isOverride()) {
+                        callSuper();
+                    }
+
+                    // Mixin onreplace$
+                    if (!isMixinClass() && varInfo instanceof MixinClassVarInfo) {
+                        callMixin((ClassSymbol)varSym.owner);
+                    }
+
+                    // Fetch the on replace statement or null.
+                    JCStatement onReplace = varInfo.onReplaceAsInline();
+    
+                    // Need to capture init state if has trigger.
+                    if (onReplace != null) {
+                        // Insert the trigger.
+                        addStmt(onReplace);
+                    }
+                }
+            };
+
+            vamb.build();
+        }
+
+        //-----------------------------------------------------------------------------------------------------------------------------
+        //
+        // Mixin var accessors.
+        //
+        
+        //
+        // This method constructs a getMixin$ method.
+        //
+        private void makeGetMixinAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetMixinName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    // Construct and add: return $var;
+                    addStmt(Return(id(attributeValueName(proxyVarSym))));
+                }
+            };
+             
+            vamb.build();
+        }
+
+        //
+        // This method constructs a getVOFF$ method.
+        //
+        private void makeGetVOFFAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeGetVOFFName(varInfo.getSymbol()),
+                                                                         syms.intType,
+                                                                         varInfo, needsBody) {
+                @Override
+                public void statements() {
+                    addStmt(Return(id(attributeOffsetName(proxyVarSym))));
+                }
+            };
+             
+            vamb.build();
+        }
+        
+        //
+        // This method constructs a setMixin$ method.
+        //
+        private void makeSetMixinAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeSetMixinName(varInfo.getSymbol()),
+                                                                         varInfo.getRealType(),
+                                                                         varInfo, needsBody) {
+                @Override
+                public void initialize() {
+                    addParam(type, defs.varNewValue_ArgName);
+                }
+                
+                @Override
+                public void statements() {
+                    // Construct and add: return $var;
+                    addStmt(Return(m().Assign(id(attributeValueName(proxyVarSym)), id(defs.varNewValue_ArgName))));
+                }
+            };
+             
+            vamb.build();
+        }
+        
+        //-----------------------------------------------------------------------------------------------------------------------------
+        
+        //
+        // This method constructs the accessor methods for an attribute.
+        //
+        public void makeAnAttributeAccessorMethods(VarInfo ai, boolean needsBody) {
+            setDiagPos(ai.pos());
+
+            if (!ai.useAccessors()) {
+                if (ai.useGetters() && !ai.isOverride()) {
+                    makeGetterAccessorMethod(ai, needsBody);
+                }
+            } else {
+                if (!(ai instanceof MixinClassVarInfo)) {
+                    if (ai.generateSequenceAccessors()) {
+                        if (ai.isHiddenBareSynth()) {
+                            // on replace savedVar
+                        } else if (!ai.isOverride()) {
+                            makeSeqGetterAccessorMethod(ai, needsBody);
+                            makeSeqGetElementAccessorMethod(ai, needsBody);
+                            makeSeqGetSizeAccessorMethod(ai, needsBody);
+                            makeSeqBeAccessorMethod(ai, needsBody);
+                            makeSeqInvalidateAccessorMethod(ai, needsBody);
+                            makeSeqOnReplaceAccessorMethod(ai, needsBody);
+                        } else if (needsBody) {
+                            if (ai.hasInitializer()) {
+                                // We only need to worry about computational methods
+                                // The getter and be are generic.
+                                makeSeqGetElementAccessorMethod(ai, needsBody);
+                                makeSeqGetSizeAccessorMethod(ai, needsBody);
+                            }
+                            if (needOverrideInvalidateAccessorMethod(ai)) {
+                                makeSeqInvalidateAccessorMethod(ai, needsBody);
+                                }
+                            if (ai.onReplace() != null || ai.isMixinVar()) {
+                                makeSeqOnReplaceAccessorMethod(ai, needsBody);
+                            }
+                        }
+                   } else {
+                        if (!ai.isOverride()) {
+                            makeGetterAccessorMethod(ai, needsBody);
+                            makeSetterAccessorMethod(ai, needsBody);
+                            makeBeAccessorMethod(ai, needsBody);
+                            makeInvalidateAccessorMethod(ai, needsBody);
+                            makeOnReplaceAccessorMethod(ai, needsBody);
+                        } else if (needsBody) {
+                            if (ai.hasInitializer()) {
+                                // Bound or not, we need getter & setter on override since we
+                                // may be switching between bound and non-bound or visa versa
+                                makeGetterAccessorMethod(ai, needsBody);
+                                makeSetterAccessorMethod(ai, needsBody);
+                            }
+                            if (needOverrideInvalidateAccessorMethod(ai)) {
+                                makeInvalidateAccessorMethod(ai, needsBody);
+                            }
+                            if (ai.onReplace() != null || ai.isMixinVar()) {
+                                makeOnReplaceAccessorMethod(ai, needsBody);
+                            }
+                        }
+                    }                    
+               } else {
+                    // Mixins.
+                    if (ai.needsCloning() && !ai.isHiddenBareSynth()) {
+                        MixinClassVarInfo mixinVar = (MixinClassVarInfo)ai;
+                        Name varName = attributeValueName(ai.getSymbol());
+                        int varNameLength = varName.length();
+                        
+                        // Gather all the cloneable accessors into a map.
+                        HashMap<Name, MethodSymbol> funcMap = new HashMap<Name, MethodSymbol>();
+                        for (FuncInfo func : mixinVar.getAccessors()) {
+                            MethodSymbol methSym = func.getSymbol();
+                            Name methName = methSym.name;
+                            Name key = methName.subName(0, methName.length() - varNameLength + 1);
+                            funcMap.put(key, methSym);
+                        }
+                        
+                        // Initializers overrides mixin initializer.
+                        if (ai.hasInitializer() || ai.hasBoundDefinition()) {
+                            if (ai.generateSequenceAccessors()) {
+                                makeSeqGetElementAccessorMethod(ai, needsBody);
+                                funcMap.remove(defs.getElement_FXObjectMethodName);
+                                
+                                makeSeqGetSizeAccessorMethod(ai, needsBody);
+                                funcMap.remove(defs.size_FXObjectMethodName);
+                            } else {
+                                makeGetterAccessorMethod(ai, needsBody);
+                                funcMap.remove(defs.get_AttributeMethodPrefixName);
+                                
+                                makeSetterAccessorMethod(ai, needsBody);
+                                funcMap.remove(defs.set_AttributeMethodPrefixName);
+                            }
+                        }
+                        
+                        // Must handle binders and such.
+                        if (ai.generateSequenceAccessors()) {
+                            makeSeqInvalidateAccessorMethod(ai, needsBody);
+                        } else {
+                            makeInvalidateAccessorMethod(ai, needsBody);
+                        }
+                        funcMap.remove(defs.invalidate_FXObjectMethodName);
+                    
+                        // Must handle overriding on replace.
+                        if (ai.generateSequenceAccessors()) {
+                            makeSeqOnReplaceAccessorMethod(ai, needsBody);
+                        } else {
+                            makeOnReplaceAccessorMethod(ai, needsBody);
+                        }
+                        funcMap.remove(defs.onReplaceAttributeMethodPrefixName);
+                        
+                        // Emit any accessors left over.
+                        for (MethodSymbol methSym : funcMap.values()) {
+                            appendMethodClones(methSym, needsBody);
+                        }
+                    }
+                }
+            }
+        }
+        
+        //
+        // This method constructs mixin interfaces for the specified var.
+        //
+        public void makeAttributeMixinInterfaces(VarInfo ai, boolean needsBody) {
+            makeGetMixinAccessorMethod(ai, needsBody);
+            makeGetVOFFAccessorMethod(ai, needsBody);
+            makeSetMixinAccessorMethod(ai, needsBody);
+        }
+        
+        //
+        // This method constructs the accessor methods for each attribute.
+        //
+        public void makeAttributeAccessorMethods(List<VarInfo> attrInfos) {
             for (VarInfo ai : attrInfos) {
                 // Only create accessors for declared and proxied vars.
-                if (ai.needsDeclaration()) {
-                    setCurrentPos(ai.pos());
-
-                    if (ai.useAccessors()) {
-                        accessors.append(makeGetterAccessorMethod(ai, true));
-                        accessors.append(makeSetterAccessorMethod(ai, true));
+                if (ai.needsCloning()) {
+                    makeAnAttributeAccessorMethods(ai, true);
+                } else {
+                    // If a super has binders we need to emit an overriding invalidate$.
+                    if (ai.boundBinders().size() != 0) {
+                        if (ai.generateSequenceAccessors())
+                            makeSeqInvalidateAccessorMethod(ai, true);
+                        else
+                            makeInvalidateAccessorMethod(ai, true);
                     }
-                    accessors.append(makeGetLocationAccessorMethod(ai, true, false));
+                }
+                
+                if (ai.needsMixinInterface()) {
+                    makeAttributeMixinInterfaces(ai, true);
                 }
             }
-
-            return accessors.toList();
         }
 
         //
-        // This method constructs the abstract interfaces for the getters and setters in
+        // This method constructs the abstract interfaces for the accessors in
         // a mixin class.
         //
-        public List<JCTree> makeMemberVariableAccessorInterfaceMethods() {
-            // Buffer for new decls.
-            ListBuffer<JCTree> accessors = ListBuffer.lb();
-            // TranslatedVarInfo for the current class.
-            List<TranslatedVarInfo> translatedAttrInfo = analysis.getTranslatedAttrInfo();
-
+        public void makeMemberVariableAccessorInterfaceMethods(List<VarInfo> attrInfos) {
             // Only for vars within the class.
-            for (VarInfo ai : translatedAttrInfo) {
-                if (!ai.isStatic()) {
-                    setCurrentPos(ai.pos());
-
-                    if (ai.useAccessors()) {
-                        accessors.append(makeGetterAccessorMethod(ai, false));
-                        accessors.append(makeSetterAccessorMethod(ai, false));
+            for (VarInfo ai : attrInfos) {
+                if (ai.needsCloning()) {
+                    makeAnAttributeAccessorMethods(ai, false);
+                    
+                    if (isMixinClass()) {
+                        makeAttributeMixinInterfaces(ai, false);
                     }
-                    accessors.append(makeGetLocationAccessorMethod(ai, false, false));
                 }
             }
-            return accessors.toList();
         }
 
         //
-        // This method generates an enumeration for each of the instance attributes
+        // This method generates an enumeration for each of the class's instance attributes.
         // of the class.
         //
-        public List<JCTree> makeAttributeNumbers(LiteralInitVarMap varMap) {
-            // Buffer for new members.
-            ListBuffer<JCTree> members = ListBuffer.lb();
+        public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount, LiteralInitVarMap varMap) {
             // Reset diagnostic position to current class.
-            resetCurrentPos();
-            // Get the list of instance attributes.
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
+            resetDiagPos();
 
             // Construct a static count variable (VCNT$), -1 indicates count has not been initialized.
-            members.append(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.varCountName, -1));
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.count_FXObjectFieldName, -1));
 
             // Construct a static count accessor method (VCNT$)
-            members.append(makeVCNT$());
+            makeVCNT$(attrInfos, varCount);
 
             // Construct a virtual count accessor method (count$)
-            members.append(makecount$());
+            makecount$();
 
             // Accumulate variable numbering.
             for (VarInfo ai : attrInfos) {
                 // Only variables actually declared.
-                if (ai.needsDeclaration()) {
+                if (ai.needsCloning() && !ai.isOverride()) {
                     // Set diagnostic position for attribute.
-                    setCurrentPos(ai.pos());
+                    setDiagPos(ai.pos());
 
                     // Construct offset var.
                     Name name = attributeOffsetName(ai.getSymbol());
                     // Construct and add: public static int VOFF$name = n;
-                    members.append(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, name, ai.getEnumeration()));
+                    
+                    addDefinition(makeField(Flags.STATIC | Flags.PUBLIC, syms.intType, name, null));
                 }
 
                 // Add to var map if an anon class.
-                if (varMap != null) varMap.addVar(ai.getSymbol());
-            }
-
-            // private int VFLGS$0 = 0; private int VFLGS$1 = 0; ...
-            {
-                // Number of variables in current class times the bit count.
-                int count = analysis.getVarCount() * VFLAG_BITS_PER_VAR;
-
-                // Number of words needed to manage initialization bitmaps.
-                int words = (count + 31) >> 5;
-
-                // Allocate bit map words.
-                for (int word = 0; word < words; word++) {
-                    // Construct and add: private int VFLGS$0 = 0;
-                    members.append(addSimpleIntVariable(0, attributeBitsName(word), 0));
+                // Exclude the bogus $internal$ fields of FXBase/FXObject
+                if (varMap != null &&
+                        !ai.isBareSynth() &&
+                        !ai.getSymbol().name.endsWith(defs.internalNameMarker) &&
+                        !ai.getSymbol().name.endsWith(defs.outerAccessor_FXObjectFieldName) &&
+                        !ai.getSymbol().name.endsWith(defs.internalSuffixName)) {
+                    varMap.addVar(ai.getSymbol());
                 }
             }
+        }
 
-            return members.toList();
+        //
+        // This method generates a flags field for each of the class's instance attributes.
+        //
+        public void makeAttributeFlags(List<VarInfo> attrInfos) {
+            // Accumulate variable numbering.
+            for (VarInfo ai : attrInfos) {
+                // Only variables actually declared.
+                if (ai.needsCloning() && !ai.isOverride()) {
+                    // Set diagnostic position for attribute.
+                    setDiagPos(ai.pos());
+
+                    // Construct flags var.
+                    Name name = attributeFlagsName(ai.getSymbol());
+                    // Construct and add: public static int VFLGS$name = n;
+                    
+                    addDefinition(makeField(rawFlags(), syms.byteType, name, null));
+                }
+            }
         }
 
         //
         // The method constructs the VCNT$ method for the current class.
         //
-        public JCTree makeVCNT$() {
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Reset diagnostic position to current class.
-            resetCurrentPos();
-            // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-            // Get the list of instance attributes.
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
-
-            // Prepare to accumulate statements in the if.
-            ListBuffer<JCStatement> ifStmts = ListBuffer.lb();
-
-            // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
-            JCExpression setVCNT$Expr;
-
-            // If has a javafx superclass.
-            if (superClassSym == null) {
-                // n
-                setVCNT$Expr = makeInt(count);
-            } else {
-                // super.VCNT$
-                JCExpression selectExpr = m().Select(makeType(superClassSym.type), defs.varCountName);
-                // super.VCNT$()
-                JCExpression applyExpr = m().Apply(null, selectExpr, List.<JCExpression>nil());
-                // super.VCNT$() + n
-                setVCNT$Expr = m().Binary(JCTree.PLUS, applyExpr, makeInt(count));
-            }
-
-            // VCNT$ = super.VCNT$() + n;
-            ifStmts.append(m().Exec(m().Assign(Id(defs.varCountName), setVCNT$Expr)));
-
-            for (VarInfo ai : attrInfos) {
-                // Only variables actually declared.
-                if (ai.needsDeclaration()) {
-                    // Set diagnostic position for attribute.
-                    setCurrentPos(ai.pos());
-                    // Offset var name.
-                    Name name = attributeOffsetName(ai.getSymbol());
-                    // VCNT$ - n + i;
-                    JCExpression setVOFF$Expr = m().Binary(JCTree.PLUS, Id(defs.varCountName), makeInt(ai.getEnumeration() - count));
-                    // VOFF$var = VCNT$ - n + i;
-                    ifStmts.append(m().Exec(m().Assign(Id(name), setVOFF$Expr)));
+        public void makeVCNT$(final List<VarInfo> attrInfos, final int varCount) {
+            StaticMethodBuilder smb = new StaticMethodBuilder(defs.count_FXObjectFieldName, syms.intType) {
+                @Override
+                public void statements() {
+                    // Start if block.
+                    beginBlock();
+        
+                    // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
+                    JCExpression setVCNT$Expr = superClassSym == null ?  Int(varCount) :
+                                                                         PLUS(
+                                                                                    Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
+                                                                                    Int(varCount));
+                    Name countName = names.fromString("$count");
+                    // final int $count = VCNT$ = super.VCNT$() + n;
+                    addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.count_FXObjectFieldName), setVCNT$Expr)));
+        
+                    for (VarInfo ai : attrInfos) {
+                        // Only variables actually declared.
+                        if (ai.needsCloning() && !ai.isOverride()) {
+                            // Set diagnostic position for attribute.
+                            setDiagPos(ai.pos());
+                            // Offset var name.
+                            Name name = attributeOffsetName(ai.getSymbol());
+                            // VCNT$ - n + i;
+                            JCExpression setVOFF$Expr = PLUS(id(countName), Int(ai.getEnumeration() - varCount));
+                            // VOFF$var = VCNT$ - n + i;
+                            addStmt(Stmt(m().Assign(id(name), setVOFF$Expr)));
+                        }
+                    }
+        
+                    // VCNT$ == -1
+                    JCExpression condition = EQ(id(defs.count_FXObjectFieldName), Int(-1));
+                    // if (VCNT$ == -1) { ...
+                    addStmt(OptIf(condition,
+                            endBlock()));
+                    // return VCNT$;
+                    addStmt(Return(id(defs.count_FXObjectFieldName)));
                 }
-            }
-
-            // VCNT$ == -1
-            JCExpression condition = m().Binary(JCTree.EQ, Id(defs.varCountName), makeInt(-1));
-            // if (VCNT$ == -1) { ...
-            stmts.append(m().If(condition, m().Block(0, ifStmts.toList()), null));
-            // return VCNT$;
-            stmts.append(m().Return(Id(defs.varCountName)));
-
-            // Construct method.
-            JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
-                                             syms.intType,
-                                             defs.varCountName,
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            return method;
+            };
+            
+            smb.build();
         }
 
         //
         // The method constructs the count$ method for the current class.
         //
-        public JCTree makecount$() {
-            // Prepare to accumulate statements.
+        public void makecount$() {
+            MethodBuilder smb = new MethodBuilder(defs.count_FXObjectMethodName, syms.intType) {
+                @Override
+                public void statements() {
+                    // Construct and add: return VCNT$();
+                    addStmt(Return(Call(defs.count_FXObjectFieldName)));
+                }
+            };
+            
+            smb.build();
+        }
+        
+        //
+        // Clones a field declared in FXBase as an non-static field.  It also creates
+        // FXObject accessor method.
+        //
+        private void cloneFXBaseVar(JavafxVarSymbol var, HashSet<String> excludes) {
+            // Var name as a string.
+            String str = var.name.toString();
+            // Var modifier flags.
+            long flags = var.flags();
+            
+            // If it's an excluded name or a static then skip it.
+            if (excludes.contains(str) ||
+                (flags & (Flags.SYNTHETIC | Flags.STATIC)) != 0) {
+                return;
+            }
+            
+            // Var FX type.
+            Type type = var.asType();
+            
+            // Clone the var.
+            addDefinition(Var(flags, type, names.fromString(str), null, var));
+            
+            // Construct the getter.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Reset diagnostic position to current class.
-            resetCurrentPos();
+            Name name = names.fromString("get" + str);
+            stmts.append(Return(id(var)));
+            // public int getVar { return Var; }
+            MethodSymbol getMethSym = makeMethodSymbol(flags, type, name, List.<Type>nil());
+            JCMethodDecl getMeth = Method(flags, type, name, List.<JCVariableDecl>nil(), stmts.toList(), getMethSym);
+            // Add to definitions.
+            addDefinition(getMeth);
+            // Add to the exclusion set.
+            excludes.add(jcMethodDeclStr(getMeth));
 
-            // VCNT$()
-            JCExpression countExpr = m().Apply(null, Id(defs.varCountName), List.<JCExpression>nil());
-            // Construct and add: return VCNT$();
-            stmts.append(m().Return(countExpr));
-
-            // Construct method.
-            JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                             syms.intType,
-                                             defs.attributeCountMethodName,
-                                             List.<JCVariableDecl>nil(),
-                                             stmts);
-            return method;
+            // Construct the setter.
+            stmts = ListBuffer.lb();
+            name = names.fromString("set" + str);
+            Name argName = names.fromString("value");
+            JCVariableDecl arg = Param(type, argName);
+            stmts.append(m().Exec(m().Assign(id(var), id(argName))));
+            // public void setVar(final int value) { Var = value; }
+            MethodSymbol setMethSym = makeMethodSymbol(flags, syms.voidType, name, List.<Type>of(type));
+            JCMethodDecl setMeth = Method(flags, syms.voidType, name, List.<JCVariableDecl>of(arg), stmts.toList(), setMethSym);
+            // Add to definitions.
+            addDefinition(setMeth);
+            // Add to the exclusion set.
+            excludes.add(jcMethodDeclStr(setMeth));
         }
 
         //
-        // This methods generates the isInitialized$ method for this class.
+        // Clones a method declared as an FXObject interface to call the static 
+        // equivalent in FXBase. 
         //
-        public List<JCTree> makeIsInitialized() {
-            // Buffer for new methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
+        private void cloneFXBaseMethod(MethodSymbol method, HashSet<String> excludes) {
+            // Method modifier flags.
+            long flags = method.flags();
+            
+            // If it's an excluded name or a static then skip it.
+            if (excludes.contains(method.toString()) ||
+                (flags & (Flags.SYNTHETIC | Flags.STATIC)) != 0) {
+                return;
+            }
 
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
+            // List of arguments to new method.
+            ListBuffer<JCVariableDecl> args = ListBuffer.lb();
+            // List of arguments to call supporting FXBase method.
+            ListBuffer<JCExpression> callArgs = ListBuffer.lb();
+            // Add this to to the call.
+            callArgs.append(id(names._this));
+            
+            // Add arguments to both lists.
+            for (VarSymbol argSym : method.getParameters()) {
+                args.append(Param(argSym.asType(), argSym.name));
+                callArgs.append(id(argSym));
+            }
 
-            // Prepare to accumulate statements.
+            // Buffer for statements.
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            // Method return type.
+            Type returnType = method.getReturnType();
+            // Basic call to supporting FXBase method.
+            JCExpression fxBaseCall = Call(makeType(syms.javafx_FXBaseType), method.name, callArgs);
+           
+            // Exec or return based on return type.
+            if (returnType == syms.voidType) {
+                stmts.append(Stmt(fxBaseCall));
+            } else {
+                stmts.append(Return(fxBaseCall));
+            }
+    
+            //  public type meth$(t0 arg0, ...) { return FXBase.meth$(this, arg0, ...); }
+            addDefinition(Method(Flags.PUBLIC, returnType, method.name, args.toList(), stmts.toList(), method));
+        }
+
+        //
+        // This method clones the contents of FXBase and FXObject when inheriting
+        // from a java class.
+        //
+        public void cloneFXBase(HashSet<String> excludes) {
             // Reset diagnostic position to current class.
-            resetCurrentPos();
-            // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+            resetDiagPos();
 
-            // Only bother if there are vars.
-            if (0 < count) {
-                // VCNT$ - n
-                JCExpression localVarNumExp = m().Binary(JCTree.MINUS, Id(defs.varCountName), makeInt(count));
-                // varNum - (VCNT$ - n)
-                localVarNumExp = m().Binary(JCTree.MINUS, Id(varNumName), localVarNumExp);
-                // Construct and add: final int varlocalNum = varNum - (VCNT$ - n);
-                stmts.append(makeVariable(Flags.FINAL, syms.intType, varLocalNumName, localVarNumExp));
+            // Retrieve FXBase and FXObject.
+            ClassSymbol fxBaseSym = (ClassSymbol)syms.javafx_FXBaseType.tsym;
+            ClassSymbol fxObjectSym = (ClassSymbol)syms.javafx_FXObjectType.tsym;
+            Entry e;
 
-                // Check to see if we need to pass to the super class.
-                if (superClassSym != null) {
-                    // super
-                    JCExpression selector = Id(names._super);
-                    // (varNum)
-                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
-                    // super.isInitialized$(varNum);
-                    JCExpression callExp = callExpression(currentPos, selector, defs.isInitializedPrefixName, args);
-                    // return super.isInitialized$(varNum)
-                    JCStatement returnStmt = m().Return(callExp);
-                    // varlocalNum < 0
-                    JCExpression condition = m().Binary(JCTree.LT, Id(varLocalNumName), makeInt(0));
-                    // Construct and add: if (varlocalNum < 0) return super.isInitialized$(varNum);
-                    stmts.append(m().If(condition, returnStmt, null));
+            // Clone the vars in FXBase.
+            for (e = fxBaseSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+                if (e.sym instanceof VarSymbol) {
+                     cloneFXBaseVar((JavafxVarSymbol)e.sym, excludes);
                 }
-
-                // varLocalNum & 31
-                JCExpression varBitExp = m().Binary(JCTree.BITAND, Id(varLocalNumName), makeInt(31));
-                // Construct and add: int varBit = varLocalNum & 31;
-                stmts.append(makeVariable(Flags.FINAL, syms.intType, varBitName, varBitExp));
-
-                // Number of words needed to manage initialization bitmaps.
-                int words = (count + 31) >> 5;
-
-                // Get the correct initialize bits word.
-                JCExpression varWordExp = Id(attributeBitsName(words - 1));
-
-                for (int i = words - 1; 0 < i; i--) {
-                    // varlocalNum < (i*32)
-                    JCExpression condition = m().Binary(JCTree.LT, Id(varLocalNumName), makeInt(i * 32));
-                    // varlocalNum < (i*32) ? VFLGS$(i-1) : VFLGS$(i)
-                    varWordExp = m().Conditional(condition, Id(attributeBitsName(i-1)), varWordExp);
-                }
-
-                // Construct and add: int varWord = ...varlocalNum < (i*32) ? VFLGS$(i) : VFLGS$(i+1)...
-                stmts.append(makeVariable(Flags.FINAL, syms.intType, varWordName, varWordExp));
-
-                // 1 << varBit
-                JCExpression bitShiftExpr = m().Binary(JCTree.SL, makeInt(1), Id(varBitName));
-                // (varWord & (1 << varBit))
-                JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(varWordName), bitShiftExpr);
-                 // (varWord & (1 << varBit)) != 0
-                JCExpression resultExpr = m().Binary(JCTree.NE, maskExpr, makeInt(0));
-                // Construct and add: return (varWord & (1 << varBit)) != 0;
-                stmts.append(m().Return(resultExpr));
-            } else if (superClassSym == null) {
-                // Construct and add: return true;
-                stmts.append(m().Return(makeBoolean(true)));
             }
 
-            if (stmts.nonEmpty()) {
-                // varNum ARG
-                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
-                                                              varNumName,
-                                                              makeType(syms.intType),
-                                                              null);
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 syms.booleanType,
-                                                 defs.isInitializedPrefixName,
-                                                 List.<JCVariableDecl>of(arg),
-                                                 stmts);
-                // Add to the methods list.
-                methods.append(method);
+            // Clone the interfaces in FXObject.
+            for (e = fxObjectSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+                if (e.sym instanceof MethodSymbol) {
+                     cloneFXBaseMethod((MethodSymbol)e.sym, excludes);
+                }
             }
-
-            return methods.toList();
         }
-
-
+        
+        //-----------------------------------------------------------------------------------------------------------------------------
         //
-        // This method constructs the statements needed to apply defaults to a given var.
+        // VarNum method generation.
         //
-        private JCStatement makeApplyDefaultsStatement(VarInfo ai, boolean isMixinClass) {
-            if (ai.isInlinedBind()) {
-                // Inlined bind, don't set in applyDefaults$
-                return null;
+        
+        //
+        // This method coordinates the generation of instance level varnum methods.
+        //
+        public void makeVarNumMethods() {
+            final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap =
+                isScript() ? analysis.getScriptUpdateMap() : analysis.getClassUpdateMap();
+            final List<VarInfo> varInfos = isScript() ? analysis.scriptVarInfos() : analysis.classVarInfos();
+            final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
+            
+            makeApplyDefaultsMethod(varInfos, varCount);
+            makeInitVarBitsMethod(varInfos);
+            
+            makeUpdateMethod(varInfos, updateMap, false);
+            makeUpdateMethod(varInfos, updateMap, true);
+            
+            if ((isScript() || !isMixinClass()) && varCount > 0) {
+                makeGetMethod(varInfos, varCount);
+                makeGetElementMethod(varInfos, varCount);
+                makeSizeMethod(varInfos, varCount);
+                makeSetMethod(varInfos, varCount);
+                makeBeMethod(varInfos, varCount);
+                makeInvalidateMethod(varInfos, varCount);
+                makeGetFlagsMethod(varInfos, varCount);
+                makeSetFlagsMethod(varInfos, varCount);
             }
-
-            // Assume the worst.
-            JCStatement stmt = null;
-            // Get init statement.
-            JCStatement init = ai.getDefaultInitStatement();
-
-            if (init != null) {
-                // a default exists, either on the direct attribute or on an override
-                stmt = init;
-            } else if (!isMixinClass) {
-                if (ai.isMixinVar()) {
-                    // Fetch the attribute symbol.
-                    VarSymbol varSym = ai.getSymbol();
-                    // Construct the name of the method.
-                    Name methodName = attributeApplyDefaultsName(varSym);
-                    // Include defaults for mixins into real classes.
-                    stmt = makeSuperCall((ClassSymbol)varSym.owner, methodName, List.<JCExpression>of(Id(names._this)));
-               } else if (ai instanceof TranslatedVarInfo) {
-                    //TODO: see SequenceVariable.setDefault() and JFXC-885
-                    // setDefault() isn't really done for sequences
-                    if (!ai.isSequence()) {
-                        // Make .setDefault() if Location (without clearing initialize bit) to fire trigger.
-                        JCStatement setter = makeSetDefaultStatement(ai);
-                        if (setter != null) {
-                            stmt = setter;
-                        }
-                    }
-                }
-            }
-
-            return stmt;
-        }
-
-        //
-        // This method constructs an applyDefaults method for each attribute in a mixin.
-        //
-        private List<JCTree> makeMixinApplyDefaultsMethods(List<? extends VarInfo> attrInfos) {
-            // Prepare to accumulate methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
-
-            for (VarInfo ai : attrInfos) {
-                // True if the the user specified a default.
-                boolean hasDefault = ai.getDefaultInitStatement() != null;
-
-                // If the var is defined in the current class or it has a (override) default.
-                if (ai.needsCloning() || hasDefault) {
-                    // Set diagnostic position for attribute.
-                    setCurrentPos(ai.pos());
-                    // Fetch the attribute symbol.
-                    VarSymbol varSym = ai.getSymbol();
-
-                    // Don't override someone elses default.
-                    if (analysis.getCurrentClassSymbol() != varSym.owner && !hasDefault) {
-                        continue;
-                    }
-
-                    // Prepare to accumulate statements.
-                    ListBuffer<JCStatement> stmts = ListBuffer.lb();
-
-                    // Get body of applyDefaults$.
-                    JCStatement deflt = makeApplyDefaultsStatement(ai, true);
-                    if (deflt != null) {
-                        stmts.append(deflt);
-                    }
-
-                    // Mixins need a receiver arg.
-                    List<JCVariableDecl> args = List.<JCVariableDecl>of(makeReceiverParam(analysis.getCurrentClassDecl()));
-
-                    // Construct method.
-                    JCMethodDecl method = makeMethod(Flags.PUBLIC | Flags.STATIC,
-                                                     syms.voidType,
-                                                     attributeApplyDefaultsName(varSym),
-                                                     args,
-                                                     stmts);
-                    methods.append(method);
-                }
-            }
-            return methods.toList();
         }
 
         //
         // This method constructs the current class's applyDefaults$ method.
         //
-        public List<JCTree> makeApplyDefaultsMethod() {
-            // Buffer for new methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
-
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
-
-            // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-            // Mixin vars always have applyDefaults.
-            boolean isMixinClass = analysis.isMixinClass();
-
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Reset diagnostic position to current class.
-            resetCurrentPos();
-
-            // Prepare to accumulate cases.
-            ListBuffer<JCCase> cases = ListBuffer.lb();
-             // Prepare to accumulate overrides.
-            ListBuffer<JCStatement> overrides = ListBuffer.lb();
-
-            // Gather the instance attributes.
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
-            for (VarInfo ai : attrInfos) {
-                // Only declared attributes with default expressions.
-                if (ai.needsDeclaration()) {
-                    // Prepare to accumulate case statements.
-                    ListBuffer<JCStatement> caseStmts = ListBuffer.lb();
-
-                    // Get body of applyDefaults$.
-                    JCStatement deflt = makeApplyDefaultsStatement(ai, isMixinClass);
-
-                    // Something to set when we have a default.
-                    if (deflt != null) {
-                        // Only test init bits for non-defs.
-                        if (!ai.isDef()) {
-                            // Find the vars enumeration.
-                            int enumeration = ai.getEnumeration();
-
-                            // Don't generate for overrides
-                            if (enumeration >= 0) {
-                                // Set only if not already initialized
-                                // if ((VFLGS$(word) & (1 << bit)) == 0) { applyDefaults$var(); }
-                                deflt = m().If(makeIsInitializedTest(ai, false), deflt, null);
-                            }
-                        }
+        public void makeApplyDefaultsMethod(final List<VarInfo> attrInfos, final int count) {
+            MethodBuilder vcmb = new MethodBuilder(defs.applyDefaults_FXObjectMethodName, syms.voidType) {
+                @Override
+                public void initialize() {
+                    addParam(varNumArg());
+                }
+                
+                @Override
+                public void statements() {
+                    // Start outer if block.
+                    beginBlock();
+                    
+                    // Prepare to accumulate cases.
+                    ListBuffer<JCCase> cases = ListBuffer.lb();
+                    // Prepare to accumulate ifs.
+                    JCStatement ifStmt = null;
+                    
+                    // Iterate thru each var.
+                    for (VarInfo varInfo : attrInfos) {
+                        // Set to the var position.
+                        setDiagPos(varInfo.pos());
                         
-                        // If this is a slacker bind, only set-up the bind if it is already a Location
-                        if (ai.isSlackerBind()) {
-                            // loc$var
-                            Name locationName = attributeLocationName(ai.getSymbol());
+                        // Constrain the var.
+                        if (varInfo.needsCloning() &&
+                            !varInfo.isBareSynth() &&
+                            !useSimpleInit(varInfo) &&
+                             (!varInfo.isOverride() || varInfo.hasInitializer() || varInfo instanceof MixinClassVarInfo)) {
+                            // Construct the case.
+                            beginBlock();
 
-                            // loc$var != null
-                            JCExpression nullCheck = m().Binary(JCTree.NE, Id(locationName), makeNull());
+                            // Set initialized flag if need be.
+                            if (!varInfo.useAccessors()) {
+                                if (varInfo.hasInitializer()) {
+                                    addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED));
+                                } else {
+                                    addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagDEFAULT_APPLIED));
+                                }
+                            } else if (varInfo.hasInitializer()) {
+                                addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagIS_INITIALIZED));
+                            }
 
-                            // if (loc$var != null) ... applyDefaults$var(); ...
-                            deflt = m().If(nullCheck, deflt, null);
-
-                            // mark that applyDefaults have been set
-                            caseStmts.append(this.makeSetVFLG$(ai, VFLAG_DEFAULTS_APPLIED));
+                            // Variable with self-reference needs to have its VARINIT flag set eagerly
+                            if (varInfo.hasSelfReference()) {
+                                addStmt(FlagChangeStmt(varInfo.proxyVarSym(), null, defs.varFlagDEFAULT_APPLIED_VARINIT));
+                            }
+                            
+                            if (varInfo instanceof MixinClassVarInfo && !varInfo.hasInitializer()) {
+                                // Call the appropriate mixin owner.
+                                callMixin((ClassSymbol)varInfo.getSymbol().owner);
+                            } else {
+                                // Get body of applyDefaults$.
+                                addStmt(getDefaultInitStatement(varInfo));
+                            }
+                            
+                            if (!stmts.isEmpty()) {
+                                // return
+                                addStmt(Return(null));
+                                
+                                if (!isMixinClass() && varInfo.getEnumeration() != -1) {
+                                    // case tag number
+                                    JCExpression tag = Int(varInfo.getEnumeration() - count);
+            
+                                    // Add the case, something like:
+                                    // case i: statement;
+                                    cases.append(m().Case(tag, endBlockAsList()));
+                                } else {
+                                    // Test to see if it's the correct var.
+                                    ifStmt = OptIf(EQ(Offset(varInfo.getSymbol()), varNumArg()), endBlock(), ifStmt);
+                                }
+                            } else {
+                                endBlock();
+                            }
+                            
                         }
-
-                        // applyDefaults$var(); 
-                        caseStmts.append(deflt);
                     }
                     
-                    // Build the case
-                    {
+                    // Reset diagnostic position to current class.
+                    resetDiagPos();
+            
+                    // Set up for supers block.
+                    beginBlock();
+                
+                    // Add ifs if present.
+                    addStmt(ifStmt);
+                        
+                    // Add statement if there were some cases.
+                    if (cases.nonEmpty()) {
+                        // Add the block as 
+                        cases.append(m().Case(null, endBlockAsList()));
+                    
+                        // varNum - VCNT$
+                        JCExpression tagExpr = MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
+                        // Construct and add: switch(varNum - VCNT$) { ... }
+                        addStmt(m().Switch(tagExpr, cases.toList()));
+                    } else {
+                        // No switch just rest.
+                        addStmts(endBlockAsList());
+                    }
+                    
+                    if (stmts.nonEmpty()) {
+                        // Call the super version.
+                        callSuper();
+                    }
+                    
+                    // Control build.
+                    buildIf(stmts.nonEmpty());
+
+                    // if (!default_applied && !varinit)
+                    JCExpression ifExpr = FlagTest(varNumArg(), defs.varFlagDEFAULT_APPLIED_VARINIT, null);
+                    // if (!default_applied && !varinit) { body }
+                    addStmt(OptIf(ifExpr, endBlock()));
+                }
+            };
+            
+            vcmb.build();
+            
+        }
+        
+        //
+        // This method sets the initial var flags.
+        //
+        private void makeInitVarBitsMethod(final List<VarInfo> attrInfos) {
+            MethodBuilder mb = new MethodBuilder(defs.initVarBits_FXObjectMethodName, syms.voidType) {
+                @Override
+                public void statements() {
+                    // Begin collecting statements.
+                    beginBlock();
+                    
+                    // Emit mixins vars next (inheritence order.)
+                    callMixins();
+                    
+                    // Set var flags when necessary. 
+                    for (VarInfo ai : attrInfos) {
+                        setDiagPos(ai.pos());
+                        // Only declared attributes with default expressions.
+                        if (ai.needsCloning()) {
+                            JavafxVarSymbol proxyVarSym = ai.proxyVarSym();
+                            boolean isBound = ai.hasBoundDefinition();
+                            boolean isReadonly = ai.isDef() || (isBound && !ai.hasBiDiBoundDefinition());
+                            Name setBits = null;
+
+                            if (useSimpleInit(ai)) {
+                                if (isReadonly) {
+                                    setBits = defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY;
+                                } else {
+                                    setBits = defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED;
+                                }
+                            } else if (ai.hasVarInit()) {
+                                if (isReadonly && isBound) {
+                                    setBits = defs.varFlagINIT_BOUND_READONLY_VARINIT;
+                                } else if (isReadonly) {
+                                    setBits = defs.varFlagINIT_READONLY_VARINIT;
+                                } else if (isBound) {
+                                    setBits = defs.varFlagINIT_BOUND_VARINIT;
+                                } else {
+                                    setBits = defs.varFlagINIT_VARINIT;
+                                }
+                            } else {
+                                if (isReadonly && isBound) {
+                                    setBits = defs.varFlagINIT_BOUND_READONLY;
+                                } else if (isReadonly) {
+                                    setBits = defs.varFlagINIT_READONLY;
+                                } else if (isBound) {
+                                    setBits = defs.varFlagINIT_BOUND;
+                                }
+                            }
+                           
+                            if (setBits != null) {
+                                addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagALL_FLAGS, setBits));
+                            } else if (ai.isOverride() && hasDefaultInitStatement(ai)) {
+                                addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagALL_FLAGS, null));
+                            }
+                        }
+                    }
+                    
+                    ListBuffer<JCStatement> initFlags = endBlockAsBuffer();
+                    
+                    // Emit super vars first
+                    callSuper();
+                    
+                    // Mixins and current class next.
+                    addStmts(initFlags);
+                    
+                    // Emit method only if there was anything beyond the super call.
+                    buildIf(!initFlags.isEmpty());
+                }
+            };
+            
+            mb.build();
+        }
+    
+        //
+        // This method constructs the current class's update$ method.
+        //
+        public void makeUpdateMethod(final List<VarInfo> varInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap, final boolean isSequenceVersion) {
+            MethodBuilder mb = new MethodBuilder(defs.update_FXObjectMethodName, syms.voidType) {
+                @Override
+                public void initialize() {
+                    addParam(updateInstanceArg());
+                    addParam(varNumArg());
+                    if (isSequenceVersion) {
+                        addParam(startPosArg());
+                        addParam(endPosArg());
+                        addParam(newLengthArg());
+                    }
+                    addParam(phaseArg());
+                }
+            
+                @Override
+                public void statements() {
+                    /*
+                     * If the current class has bound function call expressions in bind call sites,
+                     * then we would have introduced Pointer synthetic instance vars to store
+                     * bound call result. We need to check if the update$ call is from the Pointer
+                     * value change. If so, invalidate appropriate bound function result cache var.
+                     * Note that the bound function call may not yet have been called - only after
+                     * first call, the Pointer synthetic var has non-null value. So we need to check
+                     * check null Pointer value.
+                     */
+                    for (VarInfo vi : varInfos) {
+                        JCStatement ifReferenceStmt = null;
+                        if (vi.isInitWithBoundFuncResult()) {
+                            JavafxVarSymbol varSym = vi.getSymbol();
+                            Symbol initSym = vi.boundFuncResultInitSym();
+                            Name ptrVarName = attributeValueName(initSym);
+                            beginBlock();
+
+                            /**
+                             * For each "foo" field that stores result of a bound function call expression,
+                             * we generate pointer dependency update check as follows:
+                             *
+                             *    if ($$$bound$result$foo != null &&
+                             *        (varNum$ == $$$bound$result$foo.getVarNum() &&
+                             *        instance$ == $$$bound$result$foo.getFXObject())) {
+                             *        invalidate$foo(phase$);
+                             *    }
+                             */
+                            // ptrVar != null
+                            JCExpression ptrNonNullCond = NEnull(id(ptrVarName));
+                            // varNum$ == ptrVar.getVarNum()
+                            JCExpression varNumCond = EQ(varNumArg(), Call(id(ptrVarName), defs.getVarNum_PointerMethodName));
+                            // instance$ == ptrVar.getFXObject()
+                            JCExpression objCond = EQ(updateInstanceArg(), Call(id(ptrVarName), defs.getFXObject_PointerMethodName));
+                            // && of above two conditions
+                            JCExpression ifReferenceCond = AND(ptrNonNullCond , AND(varNumCond, objCond));
+                            // invalidate the synthetic instance field for this param
+
+                            addStmt(invalidate(types.isSequence(varSym.type), varSym));
+
+                            ifReferenceStmt = OptIf(ifReferenceCond,
+                                    endBlock(),
+                                    ifReferenceStmt);
+                            addStmt(ifReferenceStmt);
+                        }
+                    }
+                    /*
+                     * For bound functions, we generate a local class. If the current
+                     * class is such a class, we need to invalidate the synthetic
+                     * bound function param instance fields from the input FXObject
+                     * and varNum pairs.
+                     */
+                    if (isBoundFuncClass) {
+                        MethodSymbol msym = (MethodSymbol) getCurrentClassSymbol().owner;
+                        List<VarSymbol> params = msym.params();
+
+                        /*
+                         * For each bound function param "foo", we generate
+                         *
+                         *     if (varNum$ == $$boundVarNum$foo && instance$ == $$boundInstance$foo) {
+                         *          invalidate$local_klass2$foo(phase$);
+                         *          // or sequence version of invalidate..
+                         *     }
+                         */
+                        JCStatement ifReferenceStmt = null;
+                        for (VarSymbol mParam : params) {
+                            Scope.Entry e = getCurrentClassSymbol().members().lookup(mParam.name);
+                            if (e.sym.kind == Kinds.VAR) {
+                                JavafxVarSymbol param = (JavafxVarSymbol) e.sym;
+
+                                beginBlock();
+                                // varNum$ == $$boundVarNum$foo
+                                JCExpression varNumCond = EQ(varNumArg(), id(boundFunctionVarNumParamName(param.name)));
+                                // instance$ == $$boundInstance$foo
+                                JCExpression objCond = EQ(updateInstanceArg(), id(boundFunctionObjectParamName(param.name)));
+                                // && of above two conditions
+                                JCExpression ifReferenceCond = AND(varNumCond, objCond);
+                                // invalidate the synthetic instance field for this param
+
+                                addStmt(invalidate(types.isSequence(param.type), param));
+
+                                ifReferenceStmt = OptIf(ifReferenceCond,
+                                        endBlock(),
+                                        ifReferenceStmt);
+                                addStmt(ifReferenceStmt);
+                            }
+                        }
+                    }
+                    // Loop for instance symbol.
+                    for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
+                        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+                        beginBlock();
+
+                        // Loop for reference symbol.
+                        JCStatement ifReferenceStmt = null;
+                        for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
+                            HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
+                            beginBlock();
+ 
+                            // Loop for local vars.
+                            for (VarInfo varInfo : referenceSet) {
+                                if (depGraphWriter != null) {
+                                    if (varInfo.generateSequenceAccessors()) {
+                                        if (isSequenceVersion) {
+                                            depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
+                                        } // else do not output dependency
+                                    } else {
+                                        if (! isSequenceVersion) {
+                                            depGraphWriter.writeInterObjectDependency(instanceVar, referenceVar);
+                                        }
+                                    }
+                                }
+                                addStmt(invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym()));
+                            }
+
+                            // Reference the class with the instance, if it is script-level append the suffix
+                            JCExpression offsetExpr = Offset(referenceVar);
+                            if (isMixinVar(referenceVar)) {
+                                offsetExpr = If(EQnull(id(attributeValueName(instanceVar))), Int(0), Offset(id(attributeValueName(instanceVar)), referenceVar));
+                            }
+                            ifReferenceStmt = OptIf(EQ(varNumArg(), offsetExpr), 
+                                    endBlock(),
+                                    ifReferenceStmt);
+                        }
+                        addStmt(ifReferenceStmt);
+                        
+                        JCExpression ifInstanceCond = EQ(updateInstanceArg(), Get(instanceVar));
+                        addStmt(OptIf(ifInstanceCond,
+                                endBlock()));
+                    }
+                    
+                    if (stmts.nonEmpty()) {
+                        callSuper();
+                    }
+                    
+                    callMixins();
+                    
+                    buildIf(stmts.nonEmpty());
+                }
+
+                JCStatement invalidate(boolean isSequence, JavafxVarSymbol vsym) {
+                    if (isSequence) {
+                        if (isSequenceVersion) {
+                            // Sequence: update$ is only used on select, so, for sequences, we can just pass through
+                            return CallStmt(attributeInvalidateName(vsym),
+                                    startPosArg(),
+                                    endPosArg(),
+                                    newLengthArg(),
+                                    phaseArg());
+                        } else {
+                            return Throw(syms.runtimeExceptionType, "Not expecting a non-sequence to be sending update$ to a sequence");
+                        }
+                    } else {
+                        // Non-sequence
+                        return CallStmt(attributeInvalidateName(vsym), phaseArg());
+                    }
+                }
+            };
+            
+            mb.build();
+         }
+        
+        //
+        // This method constructs the current class's get$ method.
+        //
+        public void makeGetMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.get_FXObjectMethodName, syms.objectType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void statements() {
+                    if (!varInfo.isOverride()) {
+                        // get$var()
+                        JCExpression getterExp = Getter(varSym);
+                        // return get$var()
+                        addStmt(Return(getterExp));
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
+        
+        //
+        // This method constructs the current class's elem$(varnum, pos) method.
+        //
+        public void makeGetElementMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getElement_FXObjectMethodName, syms.objectType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(posArg());
+                }
+                
+                @Override
+                public void statements() {
+                    if (varInfo.useAccessors() && !varInfo.isOverride()) {
+                        if (varInfo.generateSequenceAccessors()) {
+                            // return elem$var(pos$)
+                            addStmt(Return(Call(attributeGetElementName(varSym), posArg())));
+                        }
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
+         
+        //
+        // This method constructs the current class's size$(varnum) method.
+        //
+        public void makeSizeMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.size_FXObjectMethodName, syms.intType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void statements() {
+                    if (varInfo.useAccessors() && !varInfo.isOverride()) {
+                        if (varInfo.generateSequenceAccessors()) {
+                            // return size$var()
+                            addStmt(Return(Call(attributeSizeName(varSym))));
+                        }
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
+       
+        //
+        // This method constructs the current class's set$ method.
+        //
+        public void makeSetMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.set_AttributeMethodPrefixName, syms.voidType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(objArg());
+                 }
+                
+                @Override
+                public void statements() {
+                    if (varInfo.useAccessors() && !varInfo.isDef() && !varInfo.isOverride() && !varInfo.isBareSynth()) {
+                         // (type)object$
+                        JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
+                        if (varInfo.generateSequenceAccessors()) {
+                            addStmt(CallStmt(defs.Sequences_set, id(names._this), Offset(varSym), objCast));
+                        } else {
+                            // set$var((type)object$)
+                            addStmt(SetterStmt(varSym, objCast));
+                        }
+                        
                         // return
-                        JCStatement returnExpr = m().Return(null);
-                        caseStmts.append(returnExpr);
-
-                        // case tag number
-                        JCExpression tag = makeInt(ai.getEnumeration() - count);
-
-                        // Add the case, something like:
-                        // case i: applyDefaults$var(); return;
-                        cases.append(m().Case(tag, caseStmts.toList()));
-                    }
-                } else {
-                    // Get init statement.
-                    JCStatement init = ai.getDefaultInitStatement();
-
-                    if (init != null) {
-                        // isInitialized$(varNum)
-                        JCExpression isInitializedExpr = m().Apply(null, Id(defs.isInitializedPrefixName), List.<JCExpression>of(Id(varNumName)));
-                        // !super.isInitialized$(varNum)
-                        JCExpression isNotInitializedExpr = m().Unary(JCTree.NOT, isInitializedExpr);
-                        // varNum == VOFF$var
-                        JCExpression isRightVarExpr = m().Binary(JCTree.EQ, Id(varNumName), Id(attributeOffsetName(ai.getSymbol())));
-                        // if (!super.isInitialized$(varNum)) init
-                        JCStatement secondIfStmt = m().If(isNotInitializedExpr, init, null);
-                        // { if (!super.isInitialized$(VOFF$var)) init; return; }
-                        JCBlock block = m().Block(0, List.<JCStatement>of(secondIfStmt, m().Return(null)));
-                        // if (varNum == VOFF$var) { if (!super.isInitialized$(VOFF$var)) init; return; }
-                        overrides.append(m().If(isRightVarExpr, block, null));
+                        addStmt(Return(null));
                     }
                 }
-            }
-
-            // Reset diagnostic position to current class.
-            resetCurrentPos();
-
-            // Has some defaults.
-            boolean hasDefaults = cases.nonEmpty() || overrides.nonEmpty();
-
-            if (!isMixinClass && hasDefaults) {
-                // Compensate with a local receiver.
-                stmts.append(makeReceiverLocal(analysis.getCurrentClassDecl()));
-            }
-
-            // If there were some location vars.
-            if (cases.nonEmpty()) {
-                // varNum - VCNT$
-                JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varCountName));
-                // Construct and add: switch(varNum - VCNT$) { ... }
-                stmts.append(m().Switch(tagExpr, cases.toList()));
-            }
-
-            // Add overrides.
-            stmts.appendList(overrides);
-
-            // generate method if it is worthwhile or we have to.
-            if (hasDefaults || superClassSym == null) {
-                // If there is a super class.
-                if (superClassSym != null) {
-                    // super
-                    JCExpression selector = Id(names._super);
-                    // (varNum)
-                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
-                    // Construct and add: return super.applyDefaults$(varNum);
-                    stmts.append(m().Exec(callExpression(currentPos, selector, defs.applyDefaultsPrefixName, args)));
-                }
-
-                // varNum ARG
-                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
-                                                              varNumName,
-                                                              makeType(syms.intType),
-                                                              null);
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 syms.voidType,
-                                                 defs.applyDefaultsPrefixName,
-                                                 List.<JCVariableDecl>of(arg),
-                                                 stmts);
-                // Add to the methods list.
-                methods.append(method);
-            }
-
-            // Provide a default applyDefaults method for java based classes.
-            if (superClassSym == null) {
-                // Prepare to accumulate statements.
-                stmts = ListBuffer.lb();
-
-                // Construct and add: FXBase.applyDefaults$(this);
-                stmts.append(m().Exec(callExpression(currentPos,
-                    makeType(syms.javafx_FXBaseType),
-                    defs.applyDefaultsPrefixName,
-                    List.<JCExpression>of(Id(names._this)))));
-
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 syms.voidType,
-                                                 defs.applyDefaultsPrefixName,
-                                                 List.<JCVariableDecl>nil(),
-                                                 stmts);
-                // Add to the methods list.
-                methods.append(method);
-            }
-
-
-            return methods.toList();
+            };
+            
+            vcmb.build();
         }
-
-        private JCExpression makeIsInitializedTest(VarInfo ai, boolean testIsSet) {
-            return makeFlagTest(ai, VFLAG_IS_INITIALIZED, testIsSet);
-        }
-
-        private JCExpression makeFlagTest(VarInfo ai, int whichFlag, boolean testIsSet) {
-            // Find the vars enumeration.
-            int enumeration = ai.getEnumeration() + whichFlag * analysis.getVarCount();
-            // Which VFLGS$(word) to use.
-            int word = enumeration >> 5;
-            // Which bit to use.
-            int bit = enumeration & 31;
-
-            // (varWord & (1 << varBit))
-            JCExpression maskExpr = m().Binary(JCTree.BITAND, Id(attributeBitsName(word)), makeInt(1 << bit));
-            // (varWord & (1 << varBit)) == 0
-            return m().Binary(testIsSet ? JCTree.NE : JCTree.EQ, maskExpr, makeInt(0));
-        }
-
+       
         //
-        // This method generates the loc$ method for this class.
+        // This method constructs the current class's be$ method.
         //
-        public List<JCTree> makeGetLocation() {
-            // Buffer for new methods.
-            ListBuffer<JCTree> methods = ListBuffer.lb();
-
-            // Prepare to accumulate statements.
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            // Reset diagnostic position to current class.
-            resetCurrentPos();
-            // Number of variables in current class.
-            int count = analysis.getVarCount();
-
-            // Prepare to accumulate cases.
-            ListBuffer<JCCase> cases = ListBuffer.lb();
-
-            // Gather this class' instance attributes.
-            List<VarInfo> attrInfos = analysis.instanceAttributeInfos();
-            for (VarInfo ai : attrInfos) {
-                // Only process attributes declared in this class (includes mixins.)
-                if (ai.needsDeclaration()) {
-                    // Set the current diagnostic position.
-                    setCurrentPos(ai);
-                    // Grab the variable symbol.
-                    VarSymbol varSym = ai.getSymbol();
-
-                    // getDependency$var()
-                    JCExpression callExp = callExpression(currentPos, null, attributeGetLocationName(varSym));
-                    // (Location)getDependency$var()
-                    JCExpression castExpr = m().TypeCast(makeType(locationType), callExp);
-                    // return (Location)getDependency$var()
-                    JCStatement returnStmt = m().Return(castExpr);
-                    // i: return (Location)getDependency$var();
-                    cases.append(m().Case(makeInt(ai.getEnumeration() - count), List.<JCStatement>of(returnStmt)));
+        public void makeBeMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.be_AttributeMethodPrefixName, syms.voidType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(objArg());
                 }
-            }
-
-            // Reset diagnostic position to current class.
-            resetCurrentPos();
-            // Grab the super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-
-            // Only bother if there are location vars or no super class.
-            if (cases.nonEmpty() || superClassSym == null) {
-                // If there were some location vars.
-                if (cases.nonEmpty()) {
-                    // varNum - VCNT$
-                    JCExpression tagExpr = m().Binary(JCTree.MINUS, Id(varNumName), Id(defs.varCountName));
-                    // Construct and add: switch(varNum - VCNT$) { ... }
-                    stmts.append(m().Switch(tagExpr, cases.toList()));
+                @Override
+                public void statements() {
+                    if (varInfo.useAccessors() && !varInfo.isOverride() && !varInfo.isBareSynth()) {
+                        // (type)object$
+                        JCExpression objCast = typeCast(varInfo.getRealType(), syms.objectType, objArg());
+                        // be$var((type)object$)
+                        addStmt(CallStmt(attributeBeName(varSym), objCast));
+                        
+                        // return
+                        addStmt(Return(null));
+                    }
                 }
+            };
 
-                // If there is a super class.
-                if (superClassSym != null) {
-                    // super
-                    JCExpression selector = Id(names._super);
-                    // (varNum)
-                    List<JCExpression> args = List.<JCExpression>of(Id(varNumName));
-                    // super.getDependency$(varNum);
-                    JCExpression callExp = callExpression(currentPos, selector, defs.getLocationPrefixName, args);
-                    // Construct and add: return super.getDependency$(varNum);
-                    stmts.append(m().Return(callExp));
-                } else {
-                    // Construct and add: return null;
-                    stmts.append(m().Return(makeNull()));
+            vcmb.build();
+        }
+         
+        //
+        // This method constructs the current class's invalidate$(varnum, ...) method.
+        //
+        public void makeInvalidateMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.invalidate_FXObjectMethodName, syms.voidType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(startPosArg());
+                    addParam(endPosArg());
+                    addParam(newLengthArg());
+                    addParam(phaseArg());
                 }
-
-                // varNum ARG
-                JCVariableDecl arg = m().VarDef(m().Modifiers(Flags.FINAL | Flags.PARAMETER),
-                                                              varNumName,
-                                                              makeType(syms.intType),
-                                                              null);
-                // Construct method.
-                JCMethodDecl method = makeMethod(Flags.PUBLIC,
-                                                 locationType,
-                                                 defs.getLocationPrefixName,
-                                                 List.<JCVariableDecl>of(arg),
-                                                 stmts);
-                // Add to the methods list.
-                methods.append(method);
-            }
-
-            return methods.toList();
+                
+                @Override
+                public void statements() {
+                    // FIXME - do the right thing.
+                    if (varInfo.useAccessors() && !varInfo.isOverride()) {
+                        if (varInfo.generateSequenceAccessors()) {
+                            addStmt(CallStmt(attributeInvalidateName(varSym),
+                                    startPosArg(), endPosArg(), newLengthArg(), phaseArg()));
+                        } else {
+                            addStmt(CallStmt(attributeInvalidateName(varSym), phaseArg()));
+                        }
+                        
+                        addStmt(Return(null));
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
+        
+        //
+        // This method constructs the current class's getFlags$(varnum, ...) method.
+        //
+        public void makeGetFlagsMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getFlags_FXObjectMethodName, syms.intType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void statements() {
+                    if (varInfo.needsCloning()) {
+                        addStmt(Return(VarFlags(varSym)));
+                    }
+                }
+            };
+            
+            vcmb.build();
+        }
+        
+        //
+        // This method constructs the current class's setFlags$(varnum, ...) method.
+        //
+        public void makeSetFlagsMethod(List<VarInfo> attrInfos, int varCount) {
+            VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.setFlags_FXObjectMethodName, syms.voidType,
+                                                                 attrInfos, varCount) {
+                @Override
+                public void initialize() {
+                    addParam(syms.intType, defs.varNewValue_ArgName);
+                }
+                
+                @Override
+                public void statements() {
+                    if (varInfo.needsCloning()) {
+                        addStmt(Stmt(m().Assign(VarFlags(varSym), flagCast(id(defs.varNewValue_ArgName)))));
+                        addStmt(Return(null));
+                    }
+                }
+            };
+            
+            vcmb.build();
         }
 
         //
@@ -2073,65 +3145,63 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         public JCExpression makeInitVarMapExpression(ClassSymbol cSym, LiteralInitVarMap varMap) {
             // Reset diagnostic position to current class.
-            resetCurrentPos();
+            resetDiagPos();
 
              // Build up the argument list for the call.
             ListBuffer<JCExpression> args = ListBuffer.lb();
             // X.VCNT$()
-            args.append(m().Apply(null, m().Select(makeType(cSym.type), defs.varCountName), List.<JCExpression>nil()));
+            args.append(Call(makeType(cSym.type), defs.count_FXObjectFieldName));
 
             // For each var declared in order (to make the switch tags align to the vars.)
-            for (VarSymbol vSym : varMap.varList.toList()) {
+            for (JavafxVarSymbol vSym : varMap.varList.toList()) {
                 // ..., X.VOFF$x, ...
 
-                args.append(m().Select(makeType(cSym.type), attributeOffsetName(vSym)));
+                args.append(Select(makeType(cSym.type), attributeOffsetName(vSym)));
             }
 
-            // FXBase.makeInitMap$
-            JCExpression methExpr = m().Select(makeType(syms.javafx_FXBaseType), makeInitMap);
             // FXBase.makeInitMap$(X.VCNT$(), X.VOFF$a, ...)
-            return m().Apply(null, methExpr, args.toList());
+            return Call(defs.FXBase_makeInitMap, args);
         }
 
         //
         // This method constructs a single var map declaration.
         //
-        public JCVariableDecl makeInitVarMapDecl(ClassSymbol cSym, LiteralInitVarMap varMap) {
+        private JCVariableDecl makeInitVarMapDecl(ClassSymbol cSym, LiteralInitVarMap varMap) {
             // Reset diagnostic position to current class.
-            resetCurrentPos();
+            resetDiagPos();
             // Fetch name of map.
             Name mapName = varMapName(cSym);
             // static short[] Map$X;
-            return makeVariable(Flags.STATIC, syms.javafx_ShortArray, mapName, null);
+            return makeField(Flags.STATIC, syms.javafx_ShortArray, mapName, null);
         }
 
         //
         // This method constructs a single var map initial value.
         //
-        public JCStatement makeInitVarMapInit(ClassSymbol cSym, LiteralInitVarMap varMap) {
+        public JCStatement makeInitVarMapInit(LiteralInitVarMap varMap) {
+            // Get current class symbol.
+            ClassSymbol cSym = getCurrentClassSymbol();
             // Reset diagnostic position to current class.
-            resetCurrentPos();
+            resetDiagPos();
             // Fetch name of map.
             Name mapName = varMapName(cSym);
             // Map$X = FXBase.makeInitMap$(X.VCNT$(), X.VOFF$a, ...);
-            return m().Exec(m().Assign(Id(mapName), makeInitVarMapExpression(cSym, varMap)));
+            return Stmt(m().Assign(id(mapName), makeInitVarMapExpression(cSym, varMap)));
         }
 
         //
         // This method constructs declarations for var maps used by literal initializers.
         //
-        public List<JCTree> makeInitClassMaps(LiteralInitClassMap initClassMap) {
-            // Buffer for new vars and methods.
-            ListBuffer<JCTree> members = ListBuffer.lb();
+        public void makeInitClassMaps(LiteralInitClassMap initClassMap) {
             // Reset diagnostic position to current class.
-            resetCurrentPos();
+            resetDiagPos();
 
             // For each class initialized in the current class.
             for (ClassSymbol cSym : initClassMap.classMap.keySet()) {
                 // Get the var map for the referencing class.
                 LiteralInitVarMap varMap = initClassMap.classMap.get(cSym);
-                // Add to var to list.
-                members.append(makeInitVarMapDecl(cSym, varMap));
+                // Add to var.
+                addDefinition(makeInitVarMapDecl(cSym, varMap));
 
                 // Fetch name of map.
                 Name mapName = varMapName(cSym);
@@ -2140,39 +3210,55 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 if (analysis.isAnonClass(cSym)) {
                     // Construct and add: return MAP$X;
-                    stmts.append(m().Return(Id(mapName)));
+                    stmts.append(Return(id(mapName)));
                 } else {
                     // MAP$X == null
-                    JCExpression condition = m().Binary(JCTree.EQ, Id(mapName), makeNull());
+                    JCExpression condition = EQnull(id(mapName));
                     // MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)
-                    JCExpression assignExpr = m().Assign(Id(mapName), makeInitVarMapExpression(cSym, varMap));
+                    JCExpression assignExpr = m().Assign(id(mapName), makeInitVarMapExpression(cSym, varMap));
                     // Construct and add: return MAP$X == null ? (MAP$X = FXBase.makeInitMap$(X.VCNT$, X.VOFF$a, ...)) : MAP$X;
-                    stmts.append(m().Return(m().Conditional(condition, assignExpr, Id(mapName))));
+                    stmts.append(
+                        Return(
+                            If (condition,
+                                assignExpr,
+                                id(mapName))));
                 }
+                
+                // Construct the method symbol.
+                MethodSymbol methSym = makeMethodSymbol(Flags.PUBLIC | Flags.STATIC,
+                                                        syms.javafx_ShortArray,
+                                                        varGetMapName(cSym),
+                                                        List.<Type>nil());
 
                 // Construct lazy accessor method.
-                JCMethodDecl method = makeMethod(Flags.PRIVATE | Flags.STATIC,
+                JCMethodDecl method = Method(Flags.PUBLIC | Flags.STATIC,
                                                  syms.javafx_ShortArray,
                                                  varGetMapName(cSym),
                                                  List.<JCVariableDecl>nil(),
-                                                 stmts);
-                // Add method to list.
-                members.append(method);
+                                                 stmts.toList(), 
+                                                 methSym);
+                                                 
+                // Add method.
+                addDefinition(method);
             }
-
-            return members.toList();
         }
 
 
         //
         // This method constructs a super call with appropriate arguments.
         //
-        private JCStatement makeSuperCall(ClassSymbol cSym, Name name) {
-            return makeSuperCall(cSym, name, List.<JCExpression>nil());
+        private JCStatement makeSuperCall(ClassSymbol cSym, Name name, JCExpression... args) {
+            ListBuffer<JCExpression> buffer = ListBuffer.lb();
+            
+            for (JCExpression arg : args) {
+                buffer.append(arg);
+            }
+            
+            return makeSuperCall(cSym, name, buffer.toList());
         }
         private JCStatement makeSuperCall(ClassSymbol cSym, Name name, List<JCExpression> args) {
             // If this is from a mixin class then we need to use receiver$ otherwise this.
-            boolean fromMixinClass = analysis.isMixinClass();
+            boolean fromMixinClass = isMixinClass();
             // If this is to a mixin class then we need to use receiver$ otherwise this.
             boolean toMixinClass = JavafxAnalyzeClass.isMixinClass(cSym);
             // If this class doesn't have a javafx super then punt to FXBase.
@@ -2182,7 +3268,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if (toMixinClass || toFXBase) {
                 // Determine the receiver name.
                 Name receiver = fromMixinClass ? defs.receiverName : names._this;
-                args.prepend(Id(receiver));
+                args.prepend(id(receiver));
             }
 
             // Determine the selector.
@@ -2192,104 +3278,400 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             } else if (toFXBase) {
                 selector = makeType(syms.javafx_FXBaseType, false);
             } else {
-                selector = Id(names._super);
+                selector = id(names._super);
             }
 
             // Construct the call.
-
-            JCStatement call = callStatement(currentPos, selector, name, args);
-
-            return call;
+            return CallStmt(selector, name, args);
         }
 
         //
-        // This method adds the cascading calls to the super classes and mixins.  The topdown flag indicates
-        // whether the calls should be made in top down order or bottom up order.  The analysis is used to
-        // determine whether the method is static (mixin) or an instance (normal.)  The analysis also
-        // indicates whether the inheritance goes back to the FXBase class or whether it inherits from a
-        // java class.
+        // Construct the static block for setting defaults
         //
-        private ListBuffer<JCStatement> addSuperCalls(Name name, ListBuffer<JCStatement> stmts, boolean topdown) {
-            // Get the current class's super class.
-            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
-            // Get the immediate mixin classes.
-            List<ClassSymbol> immediateMixinClasses = analysis.getImmediateMixins();
-            // Construct a list to hold the super calls in the correct order.
-            ListBuffer<JCStatement> superCalls = ListBuffer.lb();
-
-            // Order calls appropriately.
-            if (topdown) {
-                // Call the super.
-                if (superClassSym != null) {
-                    superCalls.append(makeSuperCall(superClassSym, name));
-                } else {
-                    // TODO - call FXBase.name();
-                }
-
-                // Call the immediate mixins.
-                for (ClassSymbol cSym : immediateMixinClasses) {
-                    superCalls.append(makeSuperCall(cSym, name));
-                }
-
-                stmts = superCalls.appendList(stmts);
-            } else {
-                // Call the super.
-                if (superClassSym != null) {
-                    superCalls.prepend(makeSuperCall(superClassSym, name));
-                } else {
-                    // TODO - call FXBase.name();
-                }
-
-                // Call the immediate mixins.
-                for (ClassSymbol cSym : immediateMixinClasses) {
-                    superCalls.prepend(makeSuperCall(cSym, name));
-                }
-
-                stmts = stmts.appendList(superCalls);
+        public void makeInitStaticAttributesBlock(ClassSymbol sym, boolean isScriptLevel, List<VarInfo> attrInfo, JCStatement initMap) {
+            // Buffer for init statements.
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+    
+            // Initialize the var map for anon class.
+            if (initMap != null) {
+                stmts.append(initMap);
             }
 
-
-            return stmts;
+            if (isScriptLevel) {
+                stmts.append(CallStmt(null, scriptLevelAccessMethod(sym)));
+            }
+            
+            if (attrInfo != null) {
+                stmts.append(CallStmt(Call(null, scriptLevelAccessMethod(sym)), defs.applyDefaults_FXObjectMethodName));
+            }
+             
+            addDefinition(m().Block(Flags.STATIC, stmts.toList()));
         }
 
         //
-        // This method is a convenience routine to simplify making runtime methods.
-        //
-        private JCMethodDecl makeMethod(JCModifiers modifiers, Type type, Name name,
-                                        List<JCVariableDecl> args, ListBuffer<JCStatement> stmts) {
-
-            JCBlock body = stmts != null ? m().Block(0L, stmts.toList()) : null;
-
-            // Construct the method.
-            JCMethodDecl method = m().MethodDef(
-                modifiers,                                     // Modifiers
-                name,                                          // Name
-                makeType(type),                                // Return type
-                List.<JCTypeParameter>nil(),                   // Argument types
-                args,                                          // Argument variables
-                List.<JCExpression>nil(),                      // Throws
-                body,                                          // Body
-                null);                                         // Default
-
-            return method;
+        // This method generates the code for a userInit or postInit method.
+        public void makeInitMethod(Name methName, ListBuffer<JCStatement> translatedInitBlocks, List<ClassSymbol> immediateMixinClasses) {
+            ClassSymbol superClassSym = analysis.getFXSuperClassSym();
+           
+            // Only create method if necessary (rely on FXBase.)
+            if (translatedInitBlocks.nonEmpty() || immediateMixinClasses.nonEmpty() || isMixinClass()) {
+                List<JCVariableDecl> receiverVarDeclList;
+                MethodSymbol methSym;
+                ListBuffer<JCStatement> stmts = ListBuffer.lb();
+    
+                // Mixin super calls will be handled when inserted into real classes.
+                if (!isMixinClass()) {
+                    receiverVarDeclList = List.<JCVariableDecl>nil();
+    
+                    if (superClassSym != null) {
+                        stmts.append(CallStmt(id(names._super), methName));
+                    }
+    
+                    for (ClassSymbol mixinClassSym : immediateMixinClasses) {
+                        JCExpression selector = makeType(mixinClassSym.type, false);
+                        stmts.append(CallStmt(selector, methName,  m().TypeCast(makeType(mixinClassSym), id(names._this))));
+                    }
+                    
+                    methSym = makeMethodSymbol(rawFlags(), syms.voidType, methName, List.<Type>nil());
+                } else {
+                    receiverVarDeclList = List.<JCVariableDecl>of(ReceiverParam(getCurrentClassDecl()));
+                    methSym = makeMethodSymbol(rawFlags(), syms.voidType, methName, List.<Type>of(getCurrentClassSymbol().type));
+                }
+    
+                stmts.appendList(translatedInitBlocks);
+                addDefinition(Method(rawFlags(),
+                                         syms.voidType,
+                                         methName,
+                                         receiverVarDeclList,
+                                         stmts.toList(),
+                                         methSym));
+            }
         }
-        private JCMethodDecl makeMethod(long modifiers, Type type, Name name,
-                                        List<JCVariableDecl> args, ListBuffer<JCStatement> stmts) {
 
-            JCBlock body = stmts != null ? m().Block(0L, stmts.toList()) : null;
+        private void makeConstructor(List<JCVariableDecl> params, List<Type> types, List<JCStatement> cStats) {
+            resetDiagPos();
+            addDefinition(Method(Flags.PUBLIC,
+                          syms.voidType,
+                          names.init,
+                          params,
+                          cStats,
+                          makeMethodSymbol(Flags.PUBLIC, syms.voidType, names.init, types)));
+    
+        }
+        
+        //
+        // Make a constructor to be called by Java code.
+        // Simply pass up to super, unless this is the last JavaFX class, in which case add object initialization
+        //
+        public void makeJavaEntryConstructor() {
+            //    public Foo() {
+            //        this(false);
+            //        initialize$();
+            //    }
+            makeConstructor(List.<JCVariableDecl>nil(), List.<Type>nil(),
+                Stmts(
+                    CallStmt(names._this, Boolean(false)),
+                    CallStmt(defs.initialize_FXObjectMethodName)
+                )
+            );
+        }
 
-            // Construct the method.
-            JCMethodDecl method = m().MethodDef(
-                make.Modifiers(modifiers),                     // Modifiers
-                name,                                          // Name
-                makeType(type),                                // Return type
-                List.<JCTypeParameter>nil(),                   // Argument types
-                args,                                          // Argument variables
-                List.<JCExpression>nil(),                      // Throws
-                body,                                          // Body
-                null);                                         // Default
+        //
+        // Make a constructor to be called by JavaFX code.
+        //
+        public void makeFXEntryConstructor(List<VarInfo> varInfos, ClassSymbol outerTypeSym) {
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+            Name dummyParamName = names.fromString("dummy");
+    
+            // call the FX version of the constructor in the superclass
+            //    public Foo(boolean dummy) {
+            //        super(dummy);
+            //    }
+            if (analysis.getFXSuperClassSym() != null || isScript()) {
+                Symbol outerSuper = outerTypeSymbol(types.supertype(getCurrentClassDecl().type).tsym);
+                if (outerSuper == null) {
+                    stmts.append(CallStmt(names._super, id(dummyParamName)));
+                }
+                else {
+                    stmts.append(CallStmt(names._super, resolveThis(outerSuper, false), id(dummyParamName)));
+                }
+            } else {
+                stmts.append(CallStmt(defs.initFXBase_MethodName));
+            }
+    
+            // Construct the parameters
+            ListBuffer<JCVariableDecl> params = ListBuffer.lb();
+            ListBuffer<Type> types = ListBuffer.lb();
+            if (outerTypeSym != null) {
+                // add a parameter and a statement to constructor for the outer instance reference
+                params.append(Param(outerTypeSym.type, defs.outerAccessor_FXObjectFieldName) );
+                types.append(outerTypeSym.type);
+                JCExpression cSelect = Select(id(names._this), defs.outerAccessor_FXObjectFieldName);
+                stmts.append(Stmt(m().Assign(cSelect, id(defs.outerAccessor_FXObjectFieldName))));
+            }
+            params.append(Param(syms.booleanType, dummyParamName));
+            types.append(syms.booleanType);
 
-            return method;
+            if (isBoundFuncClass) {
+                /*
+                 * For each bound function param (FXObject+varNum pair), at the
+                 * end of object creation register "this" as a dependent by
+                 * calling addDependent$ method:
+                 *
+                 *     boundFuncObjParam1.addDependent$(boundFunctionVarNumParam1, this);
+                 *     boundFuncObjParam2.addDependent$(boundFunctionVarNumParam2, this);
+                 *     ....
+                 */
+                for (VarInfo vi : varInfos) {
+                    if ((vi.getFlags() & Flags.PARAMETER) != 0L) {
+                        // call FXObject.addDependent$(int varNum, FXObject dep)
+                        Symbol varSym = vi.getSymbol();
+                        stmts.append(CallStmt(
+                                id(boundFunctionObjectParamName(varSym.name)),
+                                defs.FXBase_addDependent.methodName,
+                                id(boundFunctionVarNumParamName(varSym.name)),
+                                id(names._this)));
+                    }
+                }
+            }
+
+    
+            makeConstructor(params.toList(), types.toList(), stmts.toList());
+        }
+    
+
+        //
+        // Make the field for accessing the outer members
+        //
+        public void makeOuterAccessorField(ClassSymbol outerTypeSym) {
+            resetDiagPos();
+            // Create the field to store the outer instance reference
+            addDefinition(makeField(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_FXObjectFieldName, null));
+        }
+    
+        //
+        // Make the method for accessing the outer members
+        //
+        public void makeOuterAccessorMethod(ClassSymbol outerTypeSym) {
+            resetDiagPos();
+            ListBuffer<JCStatement> stmts = ListBuffer.lb();
+
+            JavafxVarSymbol vs = new JavafxVarSymbol(types, names,Flags.PUBLIC, defs.outerAccessor_FXObjectFieldName, outerTypeSym.type, getCurrentClassSymbol());
+            stmts.append(Return(id(vs)));
+            MethodSymbol methSym = makeMethodSymbol(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<Type>nil());
+            addDefinition(Method(Flags.PUBLIC, outerTypeSym.type, defs.outerAccessor_MethodName, List.<JCVariableDecl>nil(), stmts.toList(), methSym));
+        }
+        
+        // 
+        // Test to see if a name is a var accessor function.
+        //
+        private boolean isVarAccessor(Name name) {
+            return name.startsWith(defs.get_AttributeMethodPrefixName) ||
+                   name.startsWith(defs.set_AttributeMethodPrefixName) ||
+                   name.startsWith(defs.be_AttributeMethodPrefixName) ||
+                   name.startsWith(defs.invalidate_FXObjectMethodName) ||
+                   name.startsWith(defs.onReplaceAttributeMethodPrefixName) ||
+                   name.startsWith(defs.getElement_FXObjectMethodName) ||
+                   name.startsWith(defs.size_FXObjectMethodName) ||
+                   name.startsWith(defs.applyDefaults_FXObjectMethodName) ||
+                   name.startsWith(defs.initVarBits_FXObjectMethodName) ||
+                   name.startsWith(defs.getFlags_FXObjectMethodName) ||
+                   name.startsWith(defs.setFlags_FXObjectMethodName);
+        }
+        
+        //
+        // Make a method from a MethodSymbol and an optional method body.
+        // Make a bound version if "isBound" is set.
+        //
+        private void appendMethodClones(final MethodSymbol methSym, final boolean needsBody) {
+            final boolean isBound = (methSym.flags() & JavafxFlags.BOUND) != 0;
+            final boolean isStatic = methSym.isStatic();
+            final Name functionName = functionName(methSym, false, isBound);
+            
+            resetDiagPos();
+            List<VarSymbol> parameters = methSym.getParameters();
+            ListBuffer<JCStatement> stmts = null;
+            ListBuffer<JCVariableDecl> params = ListBuffer.lb();
+            ListBuffer<JCExpression> args = ListBuffer.lb();
+            ListBuffer<Type> argTypes = ListBuffer.lb();
+            
+            boolean isProxy = isStatic &&
+                              !parameters.isEmpty() &&
+                              parameters.get(0).type == methSym.owner.type &&
+                              isVarAccessor(methSym.name);
+            
+            if (!isStatic || isProxy) {
+                args.append(id(names._this));
+            }
+            
+            boolean skipFirst = isProxy;
+            for (VarSymbol vsym : parameters) {
+                if (!skipFirst) {
+                   args.append(id(vsym.name));
+                   params.append(Param(vsym.type, vsym.name));
+                   argTypes.append(vsym.type);
+                }
+                
+                skipFirst = false;
+            }
+
+            if (needsBody) {
+                stmts = ListBuffer.lb();
+                
+                Name callName = functionName(methSym, !isStatic, isBound);
+                JCExpression receiver = makeType(methSym.owner.type, false);
+                
+                if (methSym.getReturnType() == syms.voidType) {
+                    stmts.append(CallStmt(receiver, callName, args));
+                } else {
+                    stmts.append(Return(Call(receiver, callName, args)));
+                }
+            }
+            
+            long flags = needsBody ? Flags.PUBLIC : (Flags.PUBLIC | Flags.ABSTRACT);
+            JCModifiers mods = m().Modifiers(flags);
+            
+            if (isCurrentClassSymbol(methSym.owner))
+                mods = addAccessAnnotationModifiers(diagPos, methSym.flags(), mods);
+            else
+                mods = addInheritedAnnotationModifiers(diagPos, methSym.flags(), mods);
+                
+            Type returnType = isBound? syms.javafx_PointerType : methSym.getReturnType();
+            
+            addDefinition(Method(
+                          mods,
+                          returnType,
+                          functionName,
+                          params.toList(),
+                          needsBody ? stmts.toList() : null,
+                          makeMethodSymbol(mods.flags, returnType, functionName, methSym.owner, argTypes.toList())));
+                          
+            if (needsBody) {
+                optStat.recordProxyMethod();
+            }
+        }
+    
+    
+        //
+        // Add proxies which redirect to the static implementation for every concrete method
+        //
+        public void makeFunctionProxyMethods(List<MethodSymbol> needDispatch) {
+            for (MethodSymbol sym : needDispatch) {
+                appendMethodClones(sym, true);
+            }
+        }
+
+        //
+        // Add interface declarations for declared methods.
+        //
+        public void makeFunctionInterfaceMethods() {
+            for (JFXTree def : getCurrentClassDecl().getMembers()) {
+                if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
+                    JFXFunctionDefinition func = (JFXFunctionDefinition) def;
+                    MethodSymbol sym = func.sym;
+                    
+                    if ((sym.flags() & (Flags.SYNTHETIC | Flags.STATIC | Flags.PRIVATE)) == 0) {
+                        appendMethodClones(sym, false);
+                    }
+                }
+            }
+        }
+
+        //
+        // This method constructs a script class.
+        //
+        public void makeScript(List<JCTree> definitions) {
+            long flags = Flags.PUBLIC | Flags.STATIC;
+            JCModifiers classMods = m().Modifiers(flags);
+            classMods = addAccessAnnotationModifiers(diagPos, flags, classMods);
+            JCClassDecl script = m().ClassDef(
+                    classMods,
+                    scriptName,
+                    List.<JCTypeParameter>nil(),
+                    makeType(syms.javafx_FXBaseType),
+                    List.of(makeType(syms.javafx_FXObjectType)),
+                    definitions);
+            script.sym = scriptClassSymbol;
+        
+            membersToSymbol(script);
+
+            addDefinition(script);
+        }
+                
+        //
+        // Methods for accessing the outer members.
+        //
+        public void makeOuterAccessorInterfaceMembers() {
+            ClassSymbol cSym = getCurrentClassSymbol();
+            
+            if (cSym != null && toJava.getHasOuters().containsKey(cSym)) {
+                Symbol typeOwner = cSym.owner;
+                
+                while (typeOwner != null && typeOwner.kind != Kinds.TYP) {
+                    typeOwner = typeOwner.owner;
+                }
+    
+                if (typeOwner != null) {
+                    ClassSymbol returnSym = reader.enterClass(names.fromString(typeOwner.type.toString() + mixinClassSuffix));
+                    JCMethodDecl accessorMethod = Method(
+                            Flags.PUBLIC,
+                            returnSym.type,
+                            defs.outerAccessor_MethodName,
+                            List.<JCVariableDecl>nil(),
+                            null,
+                            makeMethodSymbol(Flags.PUBLIC, returnSym.type, defs.outerAccessor_MethodName, List.<Type>nil()));
+                    addDefinition(accessorMethod);
+                    optStat.recordProxyMethod();
+                }
+            }
+        }
+
+        //
+        // Add definitions to class to access the script-level sole instance.
+        //
+        public void makeScriptLevelAccess(ClassSymbol sym, boolean scriptLevel, boolean isRunnable) {
+            if (!scriptLevel) {
+                // sole instance field
+                addDefinition(makeField(Flags.PRIVATE | Flags.STATIC, scriptClassType, defs.scriptLevelAccess_FXObjectFieldName, null));
+            }
+            
+            List<JCStatement> stmts;
+            long flags = Flags.PUBLIC;
+            
+            if (scriptLevel) {
+                stmts = 
+                    Stmts(
+                        Return(id(names._this))
+                    );
+            } else {
+                // method is static.
+                flags |= Flags.STATIC;
+                
+                // sole instance lazy creation method
+                //
+                // if (scriptLevelAccess == null) {
+                //    scriptLevelAccess = new Foo$Script(false);
+                //    scriptLevelAccess.initialize$();
+                // }
+                // return scriptLevelAccess;
+                JCStatement assignNew = Stmt( m().Assign(
+                        id(defs.scriptLevelAccess_FXObjectFieldName),
+                        m().NewClass(null, null, id(scriptName), List.<JCExpression>of(Boolean(false)), null)) );
+    
+                stmts =
+                    Stmts(
+                        OptIf(EQnull(id(defs.scriptLevelAccess_FXObjectFieldName)),
+                            Block(
+                                assignNew,
+                                CallStmt(id(defs.scriptLevelAccess_FXObjectFieldName), defs.initialize_FXObjectMethodName)
+                            )
+                        ),
+                        Return (id(defs.scriptLevelAccess_FXObjectFieldName))
+                    );
+            }
+            
+            MethodSymbol methSym = makeMethodSymbol(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<Type>nil());
+            addDefinition(Method(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<JCVariableDecl>nil(), stmts, methSym));
         }
     }
 }

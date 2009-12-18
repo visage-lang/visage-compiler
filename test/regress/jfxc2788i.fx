@@ -12,7 +12,7 @@ var b = 10;
 var c = 100;
 var d = 1000;
 var sw = true;
-function eval(x : Integer) : Integer { println("eval: {x}"); x}
+function eval(x : Integer) : Integer { x }
 
 def bi = bind if (sw) eval(a+b) else eval(c+d);
 println(bi);

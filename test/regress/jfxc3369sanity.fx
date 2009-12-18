@@ -15,7 +15,7 @@ println("x is {x}");
 var y = bind if (x) "hello" else "world" on replace oldy {
    println("y changed from {oldy} to {y}");
 };
-
+y;
 var z = bind lazy if (x) "hello" else "world" on replace oldz {
    println("z changed from {oldz} to {z}");
 };

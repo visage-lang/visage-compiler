@@ -19,7 +19,6 @@ import java.lang.Throwable;
 import javax.swing.Timer;
 import java.awt.event.*;
 import java.util.concurrent.TimeUnit;
-import com.sun.javafx.runtime.PointerFactory;
 
 var pass = false;
 function makePass() {

@@ -204,8 +204,8 @@ public class Timeline {
      * @profile common
      * @defaultvalue 0ms
      */
-    public-read var totalDuration:Duration = bind
-        if (repeatCount == Timeline.INDEFINITE) 
+    public-read var totalDuration:Duration = bind 
+        if (repeatCount == Timeline.INDEFINITE)
             then DURATION_INDEFINITE
             else repeatCount * cycleDuration;
 

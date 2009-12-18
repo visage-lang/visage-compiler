@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.javafx.runtime.location.*;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.javafx.runtime.sequence.Sequences;
 import junit.framework.Assert;
@@ -121,100 +120,6 @@ public abstract class JavaFXTestCase extends TestCase {
 
     protected <T> void assertEquals(Sequence<? extends T> sequence, Sequence<? extends T> values) {
       assertEquals((Object) sequence, (Object) values);
-    }
-
-    protected <T> void assertEquals(SequenceLocation<? extends T> sequence, T... values) {
-        assertEquals(sequence.getAsSequence(), values);
-    }
-
-    protected <T> void assertEquals(SequenceLocation<T> sequence, T value) {
-        assertEquals(1, sequence.getAsSequence().size());
-        assertEquals(value, sequence.getAsSequence().get(0));
-    }
-
-    protected void assertEquals(HistorySequenceListener hl, String... values) {
-        assertEquals(values.length, hl.get().size());
-        for (int i=0; i<values.length; i++)
-            Assert.assertEquals(values[i], hl.get().get(i));
-    }
-
-    protected void assertEquals(HistorySequenceListener hl, String value) {
-        assertEquals(hl, new String[] { value });
-    }
-
-    protected void assertEqualsAndClear(HistorySequenceListener hl, String value) {
-        assertEquals(hl, new String[] { value });
-        hl.clear();
-    }
-
-    protected void assertEqualsAndClear(HistorySequenceListener hl, String... values) {
-        assertEquals(hl, values);
-        hl.clear();
-    }
-
-    protected void assertEquals(HistoryReplaceListener hl, String... values) {
-        try {
-            assertEquals(values.length, hl.get().size());
-            for (int i=0; i<values.length; i++)
-                Assert.assertEquals(values[i], hl.get().get(i));
-        }
-        catch (AssertionError e) {
-            System.err.println("HistoryListener value was: " + hl.get());
-            throw e;
-        }
-    }
-
-    protected void assertEquals(HistoryReplaceListener hl, String value) {
-        assertEquals(hl, new String[] { value });
-    }
-
-    protected void assertEqualsAndClear(HistoryReplaceListener hl, String value) {
-        assertEquals(hl, new String[] { value });
-        hl.clear();
-    }
-
-    protected void assertEqualsAndClear(HistoryReplaceListener hl, String... values) {
-        assertEquals(hl, values);
-        hl.clear();
-    }
-
-    protected void assertEquals(int value, IntLocation loc) {
-        assertTrue(loc.isValid());
-        assertEquals(value, loc.getAsInt());
-    }
-
-    protected void assertEqualsLazy(int value, IntLocation loc) {
-        assertFalse(loc.isValid());
-        assertEquals(value, loc.getAsInt());
-        assertTrue(loc.isValid());
-    }
-
-    protected void assertEquals(double value, DoubleLocation loc) {
-        assertTrue(loc.isValid());
-        assertEquals(value, loc.getAsDouble());
-    }
-
-    protected void assertEqualsLazy(double value, DoubleLocation loc) {
-        assertFalse(loc.isValid());
-        assertEquals(value, loc.getAsDouble());
-        assertTrue(loc.isValid());
-    }
-
-    protected<T> void assertEquals(T value, ObjectLocation<T> loc) {
-        assertTrue(loc.isValid());
-        assertEquals(value, loc.get());
-    }
-
-    protected<T> void assertEqualsLazy(T value, ObjectLocation<T> loc) {
-        assertFalse(loc.isValid());
-        assertEquals(value, loc.get());
-        assertTrue(loc.isValid());
-    }
-
-    protected<T> void assertEqualsLazy(SequenceLocation<T> loc, T... values) {
-        assertFalse(loc.isValid());
-        assertEquals(loc.getAsSequence(), values);
-        assertTrue(loc.isValid());
     }
 
     protected<T> void assertEquals(Collection<T> collection, T... values) {

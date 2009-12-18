@@ -23,14 +23,16 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Scope.Entry;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.Type.*;
+import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.JCExpression;
 import com.sun.tools.mjavac.tree.JCTree.JCStatement;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
@@ -40,15 +42,18 @@ import com.sun.tools.mjavac.util.Name;
 
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
+import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarRepresentation;
+import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
+import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import static com.sun.tools.mjavac.code.Flags.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,6 +64,8 @@ import java.util.Set;
  * @author Jim Laskey
  */
 class JavafxAnalyzeClass {
+    // Invoking translator.
+    private final JavafxInitializationBuilder initBuilder;
 
     // Position in the current javafx class source.
     private final DiagnosticPosition diagPos;
@@ -82,19 +89,37 @@ class JavafxAnalyzeClass {
     private ListBuffer<ClassSymbol> allMixins = ListBuffer.lb();
 
     // Number of vars in the current class (includes mixins.)
-    private int varCount;
+    private int classVarCount;
 
-    // Resulting list of relevant attributes.
-    private final ListBuffer<VarInfo> attributeInfos = ListBuffer.lb();
+    // Number of vars in the current class (includes mixins.)
+    private int scriptVarCount;
+    
+    // Resulting list of class vars.
+    private final ListBuffer<VarInfo> classVarInfos = ListBuffer.lb();
+
+    // Resulting list of script vars.
+    private final ListBuffer<VarInfo> scriptVarInfos = ListBuffer.lb();
+
+    // Resulting list of class vars.
+    private final ListBuffer<FuncInfo> classFuncInfos = ListBuffer.lb();
+
+    // Resulting list of script vars.
+    private final ListBuffer<FuncInfo> scriptFuncInfos = ListBuffer.lb();
 
     // List of all attributes.  Used to track overridden and mixin attributes.
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
+    
+    // Map of all bind selects used to construct the class update$ method.
+    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
+
+    // Map of all bind selects used to construct the script update$ method.
+    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
-    private final Map<String, MethodSymbol> needDispatchMethods = new HashMap<String, MethodSymbol>();
+    private final Map<String, FuncInfo> needDispatchMethods = new HashMap<String, FuncInfo>();
 
     // List of all methods.  Used to track whether a mixin method should be included.
-    private final Map<String, MethodSymbol> visitedMethods = new HashMap<String, MethodSymbol>();
+    private final Map<String, FuncInfo> visitedMethods = new HashMap<String, FuncInfo>();
 
     // List of classes encountered.  Used to prevent duplication.
     private final Set<Symbol> addedBaseClasses = new HashSet<Symbol>();
@@ -105,17 +130,27 @@ class JavafxAnalyzeClass {
     // List of overriding vars (attributes) found in the current javafx class (supplied by JavafxInitializationBuilder.)
     private final List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo;
 
+    // List of functions (methods) found in the current javafx class (supplied by JavafxInitializationBuilder.)
+    private final List<TranslatedFuncInfo> translatedFuncInfo;
+
     // Global names table (supplied by JavafxInitializationBuilder.)
     private final Name.Table names;
 
     // Global types table (supplied by JavafxInitializationBuilder.)
     private final JavafxTypes types;
 
+    // Global defs table (supplied by JavafxInitializationBuilder.)
+    private final JavafxDefs defs;
+
+    // Global syms table (supplied by JavafxInitializationBuilder.)
+    private final JavafxSymtab syms;
+     
     // Class reader used to fetch superclass .class files (supplied by JavafxInitializationBuilder.)
     private final JavafxClassReader reader;
 
     // Javafx to Java type translator (supplied by JavafxInitializationBuilder.)
     private final JavafxTypeMorpher typeMorpher;
+    
 
     //
     // This class supers all classes used to hold var information. Consumed by
@@ -126,37 +161,43 @@ class JavafxAnalyzeClass {
         private final DiagnosticPosition diagPos;
 
         // Var symbol (unique to symbol.)
-        private final VarSymbol sym;
+        protected final JavafxVarSymbol sym;
 
         // Translated type information.
-        private final VarMorphInfo vmi;
+        protected final VarMorphInfo vmi;
 
         // Name of the var (is it the same as sym.name?)
         private final Name name;
 
         // Null or code for initializing the var.
-        private final JCStatement initStmt;
-
-        // Predicate whether the initialize is overshadowed by a subclass.
-        private boolean initOverridden;
+        protected final JCStatement initStmt;
 
         // The class local enumeration value for this var.
         private int enumeration;
 
+        // Inversion of boundBindees.
+        private HashSet<VarInfo> bindersOrNull;
+        
+        // Inversion of invalidators.
+        private ListBuffer<BindeeInvalidator> boundInvalidatees;
+        
+        // True if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
+        private boolean needsMixinInterface;
 
-        private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
+        private VarInfo(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, VarMorphInfo vmi,
                 JCStatement initStmt) {
             this.diagPos = diagPos;
             this.name = name;
             this.sym = attrSym;
             this.vmi = vmi;
             this.initStmt = initStmt;
-            this.initOverridden = false;
             this.enumeration = -1;
+            this.bindersOrNull = new LinkedHashSet<VarInfo>();
+            this.boundInvalidatees = ListBuffer.lb();
         }
 
         // Return the var symbol.
-        public VarSymbol getSymbol() { return sym; }
+        public JavafxVarSymbol getSymbol() { return sym; }
 
         // Return the var position.
         public DiagnosticPosition pos() { return diagPos; }
@@ -164,11 +205,9 @@ class JavafxAnalyzeClass {
         // Return type information from type translation.
         public VarMorphInfo getVMI()  { return vmi; }
         public Type getRealType()     { return vmi.getRealType(); }
-        public Type getVariableType() { return vmi.getVariableType(); }
-        public Type getLocationType() { return vmi.getLocationType(); }
         public Type getElementType()  { return vmi.getElementType(); }
-        public VarRepresentation representation() { return vmi.representation(); }
         public boolean useAccessors() { return vmi.useAccessors(); }
+        public boolean useGetters()   { return vmi.useGetters(); }
 
         // Return var name.
         public Name getName() { return name; }
@@ -179,25 +218,86 @@ class JavafxAnalyzeClass {
         // Return modifier flags from the symbol.
         public long getFlags() { return sym.flags(); }
 
+        // Return true if the var is a bare bones synthesize var (bind temp.)
+        public boolean isBareSynth() {
+            return (getFlags() & JavafxFlags.VARMARK_BARE_SYNTH) != 0;
+        }
+        
+        public boolean isHiddenBareSynth() {
+            long flags = JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
+            return (getFlags() & flags) == flags;
+        }
+        
+        // Returns true if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
+        public boolean needsMixinInterface() {
+            return needsMixinInterface;
+        }
+        
+        // Indicate if the var needs a mixin interface.
+        public void setNeedsMixinInterface(boolean needs) {
+            needsMixinInterface = needs;
+        }
+        
+        // Return true if the var/override has an initializing expression
+        public boolean hasInitializer() { return false; }
+
+        // true if this variable is initialized with a "safe" expression -
+        // so that we don't need a try..catch error handler wrapper in it's
+        // getter method.
+        public boolean hasSafeInitializer() { return false; }
+
+        // Return true if the var has a VarInit
+        public boolean hasVarInit() { return false; }
+
+        // is this initialzed with a bound function result var?
+        public boolean isInitWithBoundFuncResult() { return false; }
+
+        // Is this variable is initialized by another synthetic variable
+        // of Pointer type and that var stores result from a bound function call?
+        // If so, return the symbol of the synthetic variable.
+        public Symbol boundFuncResultInitSym() { return null; }
+
+        // Return true if the var has a bound definition.
+        public boolean hasBoundDefinition() { return false; }
+        
+        // Return true if the var has a bidirectional bind.
+        public boolean hasBiDiBoundDefinition() { return false; }
+        
+        // Return true if the var is an inline bind.
+        public boolean isInlinedBind() { return hasBoundDefinition(); }
+
         // Generally means that the var needs to be included in the current method.
         public boolean needsCloning() { return false; }
+        
+        // Return true if the var is an override.
+        public boolean isOverride() { return false; }
 
         // A proxy var serves several roles, but generally means that the proxy's
         // qualified name should be used in place of the current var's qualified name.
         public VarInfo proxyVar() { return null; }
         public boolean hasProxyVar() { return proxyVar() != null; }
 
-        // Convenience method to return the current symbol to be used for qualified name.
-        public VarSymbol proxyVarSym() { return hasProxyVar() ? proxyVar().sym : sym; }
+        // An override is non-null when a mixin var is overridden in the mixee.
+        public VarInfo overrideVar() { return null; }
+        public boolean hasOverrideVar() { return overrideVar() != null; }
 
+        // Convenience method to return the current symbol to be used for qualified name.
+        public JavafxVarSymbol proxyVarSym() { return hasProxyVar() ? proxyVar().sym : sym; }
+        
         // Predicate for static var test.
         public boolean isStatic() { return (getFlags() & Flags.STATIC) != 0; }
 
         // Predicate for private var test.
         public boolean isPrivateAccess() { return (getFlags() & Flags.PRIVATE) != 0L; }
+        
+        // Predicate for script private var test.
+        public boolean isScriptPrivate() { return (getFlags() & JavafxFlags.SCRIPT_PRIVATE) != 0L; }
 
         // Predicate for def (constant) var.
         public boolean isDef() { return (getFlags() & JavafxFlags.IS_DEF) != 0; }
+
+        // Predicate for self-reference in init.
+        public boolean hasSelfReference() { return (getFlags() & JavafxFlags.VARUSE_SELF_REFERENCE) != 0; }
 
         // Predicate whether the var came from a mixin.
         public boolean isMixinVar() { return isMixinClass(sym.owner); }
@@ -207,36 +307,14 @@ class JavafxAnalyzeClass {
 
         // Predicate to test for sequence.
         public boolean isSequence() {
-            return vmi.getTypeKind() == JavafxVarSymbol.TYPE_KIND_SEQUENCE;
+            return sym.isSequence();
         }
-
-        public boolean hasBoundDefinition() {
-            return (getFlags() & JavafxFlags.VARUSE_BOUND_DEFINITION) != 0L;
-        }
-
-        public boolean isInlinedBind() {
-            return hasBoundDefinition() && representation() == VarRepresentation.NeverLocation;
-        }
-
-        public boolean isSlackerBind() {
-            return hasBoundDefinition() && representation() == VarRepresentation.SlackerLocation;
-        }
-
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
-
-        // Indicate that the initialization code is supplied by another var.
-        public void setIsInitOverridden(boolean initOverridden) { this.initOverridden = initOverridden; }
-
-        // Predicate for testing if the initialization code is supplied by another var.
-        public boolean isInitOverridden() { return initOverridden; }
 
         // Class local enumeration accessors.
         public int  getEnumeration()                { return enumeration; }
         public void setEnumeration(int enumeration) { this.enumeration = enumeration; }
-
-        // Null or java code for the var's bound value for retrieval from getter.
-        public JCExpression getterInit() { return null; }
 
         // null or javafx tree for the var's 'on replace'.
         public JFXOnReplace onReplace() { return null; }
@@ -250,35 +328,113 @@ class JavafxAnalyzeClass {
         // null or javafx tree for the var's 'on invalidate'.
         public JFXOnReplace onInvalidate() { return null; }
 
-        // null or Java tree for var's on-invalidate for use in change listeber.
-        public JCStatement onInvalidateAsListenerInstanciation() { return null; }
+        // null or Java tree for var's on-invalidate for use in var$invalidate method.
+        public JCStatement onInvalidateAsInline() { return null; }
 
-        // Return true if the var needs to be declared in the current class.
-        public boolean needsDeclaration() { return needsCloning() && !hasProxyVar(); }
+        // Is there a getter expression of bound variable
+        public boolean hasBoundInit() { return false; }
 
-        // Return true if the var needs to be instance declared in the current class.
-        public boolean needsInstanceDeclaration() { return needsDeclaration() && !isStatic(); }
+        // Null or Java code for getter expression of bound variable
+        public JCExpression boundInit() { return null; }
 
-        // Return true if the var needs to be static declared in the current class.
-        public boolean needsStaticDeclaration() { return needsDeclaration() && isStatic(); }
+        // Empty or Java preface code for getter of bound variable
+        public List<JCStatement> boundPreface() { return List.<JCStatement>nil(); }
+
+        // Empty or Java preface code for setting of bound with inverse variable
+        public List<JCStatement> boundInvSetterPreface() { return List.<JCStatement>nil(); }
+
+        // Empty or variable symbols on which this variable depends
+        public List<JavafxVarSymbol> boundBindees() { return List.<JavafxVarSymbol>nil(); }
+        
+        // Bound variable symbols on which this variable is used.
+        public HashSet<VarInfo> boundBinders() { return bindersOrNull; }
+        
+        // Bound sequences that need to be invalidated when invalidated.
+        public List<BindeeInvalidator> boundInvalidatees() { return boundInvalidatees.toList(); }
+
+        // Empty or bound select pairs.
+        public List<DependentPair> boundBoundSelects() { return List.<DependentPair>nil(); }
+
+        // Predicate for generating sequence style accessors -- if bound, must be virtual
+        public boolean generateSequenceAccessors() { return isSequence() &&
+                                    (hasBoundDefinition() == isBoundVirtualSequence()); }
+
+        // Predicate for bound sequence represented as virtual sequence
+        public boolean isBoundVirtualSequence() { return false; }
+
+        // Null or Java code for getting the element of a bound sequence
+        public JCStatement boundElementGetter() { return null; }
+
+        // Null or Java code for getting the size of a bound sequence
+        public JCStatement boundSizeGetter() { return null; }
+        
+        // Null or Java code for invalidation of a bound sequence
+        public List<BindeeInvalidator> boundInvalidators() { return List.<BindeeInvalidator>nil(); }        
 
         @Override
         public String toString() { return getNameString(); }
 
         // Useful diagnostic tool.
         public void printInfo() {
-            System.out.println("    " + getSymbol() +
-                               ", type=" + getRealType() +
+            printInfo(true);
+        }
+        public void printInfo(boolean detail) {
+            System.err.println("    " + getEnumeration() + ". " +
+                               getSymbol() +
+                               ", type=" + vmi.getRealType() +
                                ", owner=" + getSymbol().owner +
-                               ", static=" + isStatic() +
-                               ", enum=" + getEnumeration() +
-                               ", isPrivateAccess=" + isPrivateAccess() +
-                               ", needsCloning=" + needsCloning() +
-                               ", isDef=" + isDef() +
-                               ", getDefaultInitStatement=" + (getDefaultInitStatement() != null) +
-                               ", isInitOverridden=" + initOverridden +
-                               ", proxy=" + ((proxyVar() == null) ? "" : proxyVar().getSymbol().owner) +
-                               ", class=" + getClass().getName());
+                               (isStatic() ? ", static" : "") +
+                               (isPrivateAccess() ? ", private" : "") +
+                               (isScriptPrivate() ? ", script private" : "") +
+                               (useAccessors() ? ", useAccessors" : "") +
+                               (needsCloning() ? ", clone" : "") +
+                               (isDef() ? ", isDef" : "") +
+                               (!boundBindees().isEmpty() ? ", intra binds" : "") + 
+                               (!boundBoundSelects().isEmpty() ? ", inter binds" : "") + 
+                               (bindersOrNull != null ?  ", binders" : "") + 
+                               (!boundInvalidatees.isEmpty() ?  ", invalidators" : "") + 
+                               (getDefaultInitStatement() != null ? ", init" : "") +
+                               (isBareSynth() ? ", bare" : "") +
+                               (needsMixinInterface() ? ", needsMixinInterface" : "") +
+                               ", class=" + getClass().getSimpleName());
+            if (detail) {
+                if (!boundBoundSelects().isEmpty()) {
+                    for (DependentPair pair : boundBoundSelects()) {
+                        System.err.println("        select=" + pair.instanceSym + " " + pair.referencedSym);
+                    }
+                }
+                if (!boundBindees().isEmpty()) {
+                    for (JavafxVarSymbol bindeeSym : boundBindees()) {
+                        System.err.println("        bindee=" + bindeeSym);
+                    }
+                }
+                if (hasProxyVar()) {
+                    System.err.print("        proxy=");
+                    proxyVar().printInfo(false);
+                }
+                
+                if (hasOverrideVar()) {
+                    System.err.print("        override=");
+                    overrideVar().printInfo(false);
+                }
+                
+                if (boundElementGetter() != null) {
+                    System.err.print("        element getter=");
+                    System.err.println(boundElementGetter());
+                }
+                
+                if (boundSizeGetter() != null) {
+                    System.err.print("        size getter=");
+                    System.err.println(boundSizeGetter());
+                }
+                
+                if (boundInvalidators().size() != 0) {
+                    System.err.println("        invalidators=");
+                    for (BindeeInvalidator bi : boundInvalidators()) {
+                        System.err.println("          " + bi.bindee + " " + bi.invalidator);
+                    }
+                }
+            }
         }
     }
 
@@ -287,39 +443,92 @@ class JavafxAnalyzeClass {
     //
     static abstract class TranslatedVarInfoBase extends VarInfo {
 
-        // Null or java code for the var's bound value for retrieval from getter.
-        private final JCExpression getterInit;
-
         // Null or javafx code for the var's on replace.
         private final JFXOnReplace onReplace;
+
+        // Null or javafx code for the var's on invalidate.
+        private final JFXOnReplace onInvalidate;
+
+        // The bind status for the var/override
+        private final JavafxBindStatus bindStatus;
+
+        // The does this var have an initializing expression
+        private final boolean hasInitializer;
 
         // Null or java code for the var's on replace inlined in setter.
         private final JCStatement onReplaceAsInline;
 
-        // Null or java code for the var's on replace in a change listener.
-        private final JCStatement onReplaceAsListenerInstanciation;
+        // Null or java code for the var's on invalidate inlined in var$invalidate method.
+        private final JCStatement onInvalidateAsInline;
 
-        // Null or javafx code for the var's on replace.
-        private final JFXOnReplace onInvalidate;
+        // Result of bind translation
+        private final ExpressionResult bindOrNull;
 
-        // Null or java code for the var's on replace in a change listener.
-        private final JCStatement onInvalidateAsListenerInstanciation;
-
-        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
-                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation,
-                JFXOnReplace onInvalidate, JCStatement onInvalidateAsListenerInstanciation) {
+        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
+                JCStatement initStmt, ExpressionResult bindOrNull,
+                JFXOnReplace onReplace, JCStatement onReplaceAsInline,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
             super(diagPos, name, attrSym, vmi, initStmt);
-            this.getterInit = getterInit;
+            this.hasInitializer = hasInitializer;
+            this.bindStatus = bindStatus;
+            this.bindOrNull = bindOrNull;
             this.onReplace = onReplace;
             this.onReplaceAsInline = onReplaceAsInline;
-            this.onReplaceAsListenerInstanciation = onReplaceAsListenerInstanciation;
             this.onInvalidate = onInvalidate;
-            this.onInvalidateAsListenerInstanciation = onInvalidateAsListenerInstanciation;
+            this.onInvalidateAsInline = onInvalidateAsInline;
         }
 
-        // Null or java code for the var's bound value for retrieval from getter.
+        // Return true if the var/override has an initializing expression
         @Override
-        public JCExpression getterInit() { return getterInit; }
+        public boolean hasInitializer() { return hasInitializer; }
+
+        // Return true if the var has a bound definition.
+        @Override
+        public boolean hasBoundDefinition() { return bindStatus.isBound(); }
+
+        // Return true if the var has a bidirectional bind.
+        @Override
+        public boolean hasBiDiBoundDefinition() { return bindStatus.isBidiBind(); }
+
+        // Is there a getter expression of bound variable
+        @Override
+        public boolean hasBoundInit() { return bindOrNull==null? false : bindOrNull.hasExpr(); }
+
+        // Null or Java code for getter expression of bound variable
+        @Override
+        public JCExpression boundInit() { return bindOrNull==null? null : bindOrNull.expr(); }
+
+        // Null or Java preface code for getter of bound variable
+        @Override
+        public List<JCStatement> boundPreface() { return bindOrNull==null? List.<JCStatement>nil() : bindOrNull.statements(); }
+
+        // Empty or Java preface code for setting of bound with inverse variable
+        @Override
+        public List<JCStatement> boundInvSetterPreface() { return bindOrNull==null? List.<JCStatement>nil() : bindOrNull.setterPreface(); }
+
+        // Variable symbols on which this variable depends
+        @Override
+        public List<JavafxVarSymbol> boundBindees() { return bindOrNull==null? List.<JavafxVarSymbol>nil() : bindOrNull.bindees(); }
+
+        // Empty or bound select pairs.
+        @Override
+        public List<DependentPair> boundBoundSelects() { return bindOrNull == null? List.<DependentPair>nil() : bindOrNull.interClass(); }
+
+        // Return true if this is a bound sequence represented as virtual sequence
+        @Override
+        public boolean isBoundVirtualSequence() { return bindOrNull==null? false : bindOrNull.isBoundVirtualSequence(); }
+
+        // Null or Java code for getting the element of a bound sequence
+        @Override
+        public JCStatement boundElementGetter() { return !generateSequenceAccessors() || bindOrNull == null ? null : bindOrNull.getElementMethodBody(); }
+
+        // Null or Java code for getting the size of a bound sequence
+        @Override
+        public JCStatement boundSizeGetter() { return !generateSequenceAccessors() || bindOrNull == null ? null : bindOrNull.getSizeMethodBody(); }
+        
+        // Null or Java code for invalidation of a bound sequence
+        @Override
+        public List<BindeeInvalidator> boundInvalidators() { return bindOrNull == null ? List.<BindeeInvalidator>nil() : bindOrNull.invalidators(); }
 
         // Possible javafx code for the var's 'on replace'.
         @Override
@@ -329,17 +538,13 @@ class JavafxAnalyzeClass {
         @Override
         public JCStatement onReplaceAsInline() { return onReplaceAsInline; }
 
-        // Possible java code for the var's 'on replace' in a change listener.
-        @Override
-        public JCStatement onReplaceAsListenerInstanciation() { return onReplaceAsListenerInstanciation; }
-
         // Possible javafx code for the var's 'on invalidate'.
         @Override
         public JFXOnReplace onInvalidate() { return onInvalidate; }
 
-        // Possible java code for the var's 'on invalidate' in a change listener.
+        // Possible java code for the var's 'on invalidate' in var$invalidate method.
         @Override
-        public JCStatement onInvalidateAsListenerInstanciation() { return onInvalidateAsListenerInstanciation; }
+        public JCStatement onInvalidateAsInline() { return onInvalidateAsInline; }
 
         // This var is in the current javafx class so it has to be cloned into the java class.
         @Override
@@ -356,17 +561,50 @@ class JavafxAnalyzeClass {
     static class TranslatedVarInfo extends TranslatedVarInfoBase {
         // Tree for the javafx var.
         private final JFXVar var;
+        private final Symbol boundFuncResultInitSym;
 
         TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
-                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsInline, JCStatement onReplaceAsListenerInstanciation,
-                JFXOnReplace onInvalidate, JCStatement onInvalidateAsListenerInstanciation) {
-            super(var.pos(), var.sym.name, var.sym, vmi, initStmt, getterInit, onReplace, onReplaceAsInline, onReplaceAsListenerInstanciation,
-                    onInvalidate, onInvalidateAsListenerInstanciation);
+                JCStatement initStmt, Symbol boundFuncResultInitSym,
+                ExpressionResult bindOrNull, 
+                JFXOnReplace onReplace, JCStatement onReplaceAsInline,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
+            super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi,
+                  initStmt, bindOrNull,
+                  onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.var = var;
+            this.boundFuncResultInitSym = boundFuncResultInitSym;
         }
 
         // Returns the tree for the javafx var.
         public JFXVar jfxVar() { return var; }
+
+        @Override
+        public boolean hasSafeInitializer() {
+            // For now, we check if initializer expression is a literal or ident
+            // or a select. Revisit this for more opportunities for optimization.
+            if (hasInitializer()) {
+                JavafxTag tag = var.getInitializer().getFXTag();
+                return tag == JavafxTag.LITERAL ||
+                       tag == JavafxTag.IDENT ||
+                       tag == JavafxTag.SELECT;
+            } else {
+                return false;
+            }
+        }
+        
+        // Return true if the var has a VarInit
+        @Override
+        public boolean hasVarInit() { return var.getVarInit() != null; }
+
+        @Override
+        public boolean isInitWithBoundFuncResult() {
+            return boundFuncResultInitSym != null;
+        }
+
+        @Override
+        public Symbol boundFuncResultInitSym() {
+            return boundFuncResultInitSym;
+        }
     }
 
     //
@@ -375,14 +613,24 @@ class JavafxAnalyzeClass {
     static class TranslatedOverrideClassVarInfo extends TranslatedVarInfoBase {
         // Reference to the var information the override overshadows.
         private VarInfo proxyVar;
+        private final Symbol boundFuncResultInitSym;
+
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
-                 VarMorphInfo vmi,
-                JCStatement initStmt, JCExpression getterInit, JFXOnReplace onReplace, JCStatement onReplaceAsListenerInstanciation,
-                JFXOnReplace onInvalidate, JCStatement onInvalidateAsListenerInstanciation) {
-            super(override.pos(), override.sym.name, override.sym, vmi, initStmt, getterInit, onReplace, null, onReplaceAsListenerInstanciation,
-                    onInvalidate, onInvalidateAsListenerInstanciation);
+                VarMorphInfo vmi,
+                JCStatement initStmt, Symbol boundFuncResultInitSym,
+                ExpressionResult bindOrNull,
+                JFXOnReplace onReplace, JCStatement onReplaceAsInline,
+                JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
+            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer() != null, vmi,
+                    initStmt, bindOrNull,
+                  onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
+            this.boundFuncResultInitSym = boundFuncResultInitSym;
         }
+        
+        // Return true if the var is an override.
+        @Override
+        public boolean isOverride() { return true; }
 
         // Returns the var information the override overshadows.
         @Override
@@ -390,6 +638,21 @@ class JavafxAnalyzeClass {
 
         // Setter for the proxy var information.
         public void setProxyVar(VarInfo proxyVar) { this.proxyVar = proxyVar; }
+        
+        // Returns true is this var overrides a mixin.
+        public boolean overridesMixin() {
+            return proxyVar != null && proxyVar instanceof MixinClassVarInfo;
+        }
+
+        @Override
+        public boolean isInitWithBoundFuncResult() {
+            return boundFuncResultInitSym != null;
+        }
+
+        @Override
+        public Symbol boundFuncResultInitSym() {
+            return boundFuncResultInitSym;
+        }
     }
 
     //
@@ -397,7 +660,7 @@ class JavafxAnalyzeClass {
     // declared in the same compile unit or read in from a .class file.
     //
     static class SuperClassVarInfo extends VarInfo {
-        SuperClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
+        SuperClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
         }
 
@@ -411,28 +674,226 @@ class JavafxAnalyzeClass {
     // declared in the same compile unit or read in from a .class file.
     //
     static class MixinClassVarInfo extends VarInfo {
-        MixinClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
+        // Accessors for mixin var.
+        ListBuffer<FuncInfo> accessors;
+        
+        // Override from mixee.
+        private VarInfo overrideVar;
+        
+        MixinClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var, VarMorphInfo vmi) {
             super(diagPos, var.name, var, vmi, null);
+            this.accessors = ListBuffer.lb();
+            this.overrideVar = null;
+        }
+
+        // Returns true if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
+        @Override
+        public boolean needsMixinInterface() {
+            return true;
+        }
+
+        // Return true if the var/override has an initializing expression
+        @Override
+        public boolean hasInitializer() {
+            return hasOverrideVar() && overrideVar().hasInitializer();
+        }
+
+        // true if this variable is initialized with a "safe" expression -
+        // so that we don't need a try..catch error handler wrapper in it's
+        // getter method.
+        @Override
+        public boolean hasSafeInitializer() {
+             return hasOverrideVar() && overrideVar().hasSafeInitializer();
+        }
+
+        // Return true if the var has a VarInit
+        @Override
+        public boolean hasVarInit() {
+             return hasOverrideVar() && overrideVar().hasVarInit();
+        }
+
+        // is this initialzed with a bound function result var?
+        @Override
+        public boolean isInitWithBoundFuncResult() {
+             return hasOverrideVar() && overrideVar().isInitWithBoundFuncResult();
+        }
+
+        // Is this variable is initialized by another synthetic variable
+        // of Pointer type and that var stores result from a bound function call?
+        // If so, return the symbol of the synthetic variable.
+        @Override
+        public Symbol boundFuncResultInitSym() {
+            return hasOverrideVar() ? overrideVar().boundFuncResultInitSym() : super.boundFuncResultInitSym();
+        }
+
+        // Returns null or the code for var initialization.
+        @Override
+        public JCStatement getDefaultInitStatement() {
+            if (hasOverrideVar() && overrideVar().initStmt != null) {
+                return overrideVar().initStmt;
+            }
+            
+            return initStmt;
+        }
+
+        // Return true if the var has a bound definition.
+        @Override
+        public boolean hasBoundDefinition() {
+            return hasOverrideVar() && overrideVar().hasBoundDefinition();
+        }
+
+        // Return true if the var has a bidirectional bind.
+        @Override
+        public boolean hasBiDiBoundDefinition()  {
+            return hasOverrideVar() && overrideVar().hasBiDiBoundDefinition();
+        }
+        
+        // Is there a getter expression of bound variable
+        @Override
+        public boolean hasBoundInit() {
+            return hasOverrideVar() ? overrideVar().hasBoundInit() : super.hasBoundInit();
+        }
+
+        // Null or Java code for getter expression of bound variable
+        @Override
+        public JCExpression boundInit() {
+            return hasOverrideVar() ? overrideVar().boundInit() : super.boundInit();
+        }
+
+        // Empty or Java preface code for getter of bound variable
+        @Override
+        public List<JCStatement> boundPreface() {
+            return hasOverrideVar() ? overrideVar().boundPreface() : super.boundPreface();
+        }
+
+        // Empty or Java preface code for setting of bound with inverse variable
+        @Override
+        public List<JCStatement> boundInvSetterPreface() {
+            return hasOverrideVar() ? overrideVar().boundInvSetterPreface() : super.boundInvSetterPreface();
+        }
+
+        // Variable symbols on which this variable depends
+        @Override
+        public List<JavafxVarSymbol> boundBindees() {
+            ListBuffer<JavafxVarSymbol> bindees = ListBuffer.lb();
+            bindees.appendList(super.boundBindees());
+            
+            if (hasOverrideVar()) {
+                bindees.appendList(overrideVar().boundBindees());
+            }
+
+            return bindees.toList();
+        }
+
+        // Bound variable symbols on which this variable is used.
+        @Override
+        public HashSet<VarInfo> boundBinders() {
+            return hasOverrideVar() ? overrideVar().boundBinders() : super.boundBinders();
+        }
+
+        // Bound sequences that need to be invalidated when invalidated.
+        @Override
+        public List<BindeeInvalidator> boundInvalidatees() {
+            return hasOverrideVar() ? overrideVar().boundInvalidatees() : super.boundInvalidatees();
+        }
+
+        // Empty or bound select pairs.
+        @Override
+        public List<DependentPair> boundBoundSelects() {
+            return hasOverrideVar() ? overrideVar().boundBoundSelects() : super.boundBoundSelects();
+        }
+
+        // Return true if this is a bound sequence represented as virtual sequence
+        @Override
+        public boolean isBoundVirtualSequence() {
+            return hasOverrideVar() ? overrideVar().isBoundVirtualSequence() : super.isBoundVirtualSequence();
+        }
+
+        // Null or Java code for getting the element of a bound sequence
+        @Override
+        public JCStatement boundElementGetter() {
+            return hasOverrideVar() ? overrideVar().boundElementGetter() : super.boundElementGetter();
+        }
+
+        // Null or Java code for getting the size of a bound sequence
+        @Override
+        public JCStatement boundSizeGetter() {
+            return hasOverrideVar() ? overrideVar().boundSizeGetter() : super.boundSizeGetter();
+        }
+        
+        // Null or Java code for invalidation of a bound sequence
+        @Override
+        public List<BindeeInvalidator> boundInvalidators() {
+            return hasOverrideVar() ? overrideVar().boundInvalidators() : super.boundInvalidators();
+        }
+
+        // Possible javafx code for the var's 'on replace'.
+        @Override
+        public JFXOnReplace onReplace() {
+            return hasOverrideVar() ? overrideVar().onReplace() : super.onReplace();
+        }
+
+        // Possible java code for the var's 'on replace' in setter.
+        @Override
+        public JCStatement onReplaceAsInline() {
+            return hasOverrideVar() ? overrideVar().onReplaceAsInline() : super.onReplaceAsInline();
+        }
+
+        // Possible javafx code for the var's 'on invalidate'.
+        @Override
+        public JFXOnReplace onInvalidate() {
+            return hasOverrideVar() ? overrideVar().onInvalidate() : super.onInvalidate();
+        }
+
+        // Possible java code for the var's 'on invalidate' in var$invalidate method.
+        @Override
+        public JCStatement onInvalidateAsInline() {
+            return hasOverrideVar() ? overrideVar().onInvalidateAsInline() : super.onInvalidateAsInline();
         }
 
         // Mixin vars are always cloned.
         @Override
         public boolean needsCloning() { return true; }
+        
+        // Fetch the override.
+        @Override
+        public VarInfo overrideVar() { return overrideVar; }
+        
+        // Fetch the override.
+        public void setOverride(VarInfo override) { overrideVar = override; }
+        
+        // Add an accessor function.
+        public void addAccessor(FuncInfo accessor) {
+            accessors.append(accessor);
+        }
+        
+        // Add an accessor function.
+        public List<FuncInfo> getAccessors() {
+            return accessors.toList();
+        }
     }
 
     //
     // Set up the analysis.
     //
-    JavafxAnalyzeClass(DiagnosticPosition diagPos,
+    JavafxAnalyzeClass(
+            JavafxInitializationBuilder initBuilder,
+            DiagnosticPosition diagPos,
             ClassSymbol currentClassSym,
             List<TranslatedVarInfo> translatedAttrInfo,
             List<TranslatedOverrideClassVarInfo> translatedOverrideAttrInfo,
+            List<TranslatedFuncInfo> translatedFuncInfo,
             Name.Table names,
             JavafxTypes types,
+            JavafxDefs defs,
+            JavafxSymtab syms,
             JavafxClassReader reader,
             JavafxTypeMorpher typeMorpher) {
+        this.initBuilder = initBuilder;
         this.names = names;
         this.types = types;
+        this.defs = defs;
+        this.syms = syms;
         this.reader = reader;
         this.typeMorpher = typeMorpher;
         this.diagPos = diagPos;
@@ -440,22 +901,167 @@ class JavafxAnalyzeClass {
         this.currentClassSym = currentClassSym;
         this.translatedAttrInfo = translatedAttrInfo;
         this.translatedOverrideAttrInfo = translatedOverrideAttrInfo;
-        this.varCount = 0;
-
+        this.translatedFuncInfo = translatedFuncInfo;
+        this.classVarCount = 0;
+        this.scriptVarCount = 0;
+        
         // Start by analyzing the current class.
         analyzeCurrentClass();
 
-        // Assign var enumeration.
-        for (VarInfo ai : attributeInfos) {
-            // Only variables actually declared.
-            if (ai.needsDeclaration()) {
-                // Assign the vars enumeration.
-                ai.setEnumeration(varCount++);
+        // Assign var enumeration and binders.
+        for (VarInfo ai : classVarInfos) {
+            if (ai.needsCloning() && !ai.isOverride()) {
+                ai.setEnumeration(classVarCount++);
             }
+           
+            addBinders(ai);
+        }
+        for (VarInfo ai : scriptVarInfos) {
+           if (ai.needsCloning() && !ai.isOverride()) {
+               ai.setEnumeration(scriptVarCount++);
+           }
+           
+           addBinders(ai);
         }
 
-        // Useful debugging tool.
-        // printAnalysis(false);
+        if (initBuilder.options.get("dumpvarinfo") != null) {
+            printAnalysis(false);
+        }
+    }
+    
+    private void addInterClassBinder(VarInfo varInfo, JavafxVarSymbol instanceSymbol, JavafxVarSymbol referenceSymbol) {
+        JavafxVarSymbol varSymbol = (JavafxVarSymbol)varInfo.getSymbol();
+        
+        // Get the correct update map.
+        HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap =
+            varInfo.isStatic() ? scriptUpdateMap : classUpdateMap;
+        
+        // Get instance level map.
+        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
+        
+        // Add new entry if not found.
+        if (instanceMap == null) {
+            instanceMap = new HashMap<JavafxVarSymbol, HashSet<VarInfo>>();
+            updateMap.put(instanceSymbol, instanceMap);
+        }
+        
+        // Get reference level map.
+        HashSet<VarInfo> referenceSet = instanceMap.get(referenceSymbol);
+        
+        // Add new entry if not found.
+        if (referenceSet == null) {
+            referenceSet = new HashSet<VarInfo>();
+            instanceMap.put(referenceSymbol, referenceSet);
+        }
+        
+        // Add symbol to set.
+        referenceSet.add(varInfo);
+    }
+    
+    private void addBinders(VarInfo ai) {
+        // Add any bindees to binders.
+        for (JavafxVarSymbol bindeeSym : ai.boundBindees()) {
+            // Find the varInfo
+            VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(bindeeSym));
+            
+            if (bindee != null) {
+                bindee.bindersOrNull.add((VarInfo)ai);
+            }
+        }
+            
+        // Add any bind select pairs to update map.
+        for (DependentPair pair : ai.boundBoundSelects()) {
+            addInterClassBinder(ai, pair.instanceSym, (JavafxVarSymbol)pair.referencedSym);
+        }
+        
+        // If the ai has invalidators.
+        for (BindeeInvalidator invalidator: ai.boundInvalidators()) {
+            // Find the varInfo
+            VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(invalidator.bindee));
+            
+            if (bindee != null && invalidator.invalidator != null) {
+               bindee.boundInvalidatees.append(invalidator);
+            }
+        }
+    }
+    
+    //
+    // This class supers all classes used to hold function information. Consumed by
+    // JavafxInitializationBuilder.
+    //
+    static abstract class FuncInfo {
+        // Position of the function declaration or current javafx class if read from superclass.
+        private final DiagnosticPosition diagPos;
+
+        // Function symbol (unique to symbol.)
+        private final MethodSymbol funcSym;
+        
+        FuncInfo(DiagnosticPosition diagPos, MethodSymbol funcSym) {
+            this.diagPos = diagPos;
+            this.funcSym = funcSym;
+        }
+
+        // Return the function position.
+        public DiagnosticPosition pos() { return diagPos; }
+
+        // Return the function symbol.
+        public MethodSymbol getSymbol() { return funcSym; }
+
+        // Return modifier flags from the symbol.
+        public long getFlags() { return funcSym.flags(); }
+
+        // Predicate for static func test.
+        public boolean isStatic() { return (getFlags() & Flags.STATIC) != 0; }
+        
+        // Useful diagnostic tool.
+        public void printInfo() {
+            System.err.println("    " + getSymbol() +
+                               (isStatic() ? ", static" : ""));
+        }
+    }
+    
+    //
+    // This class is used for basic functions declared in the current javafx class.
+    //
+    static class TranslatedFuncInfo extends FuncInfo {
+        // Javafx definition of the function.
+        private final JFXFunctionDefinition jfxFuncDef;
+        
+        // Java translation of the function.
+        private final List<JCTree> jcFuncDef;
+        
+        TranslatedFuncInfo(JFXFunctionDefinition jfxFuncDef, List<JCTree> jcFuncDef) {
+            super(jfxFuncDef, jfxFuncDef.sym);
+            this.jfxFuncDef = jfxFuncDef;
+            this.jcFuncDef = jcFuncDef;
+        }
+
+        // Return the javafx definition of the function.
+        public JFXFunctionDefinition jfxFunction() { return jfxFuncDef; }
+
+        // Return the java translation of the function.
+        public List<JCTree> jcFunction() { return jcFuncDef; }
+
+    }
+    
+    //
+    // This class represents a function that is declared in a superclass. 
+    // This function may be declared in the same compile unit or read in from a .class file.
+    //
+    static class SuperClassFuncInfo extends FuncInfo {
+        SuperClassFuncInfo(MethodSymbol funcSym) {
+            super(null, funcSym);
+        }
+    }
+    
+    //
+    // This class represents a function that is declared in a mixin superclass.  This function may be
+    // This function may be declared in the same compile unit or read in from a .class file.
+    //
+    static class MixinFuncInfo extends FuncInfo {
+        MixinFuncInfo(MethodSymbol funcSym) {
+            super(null, funcSym);
+        }
     }
 
     //
@@ -469,19 +1075,39 @@ class JavafxAnalyzeClass {
     public JFXClassDeclaration getCurrentClassDecl() { return currentClassDecl; }
 
     //
-    // Returns true if the current class is a script.
-    //
-    public boolean isScriptClass() { return currentClassDecl.isScriptClass; }
-
-    //
     // Returns the current class symbol.
     //
     public ClassSymbol getCurrentClassSymbol() { return currentClassSym; }
 
     //
+    // Returns true if specified symbol is the current class symbol.
+    //
+    public boolean isCurrentClassSymbol(Symbol sym) { return sym == currentClassSym; }
+
+    //
+    // Returns true if specified class is the FXBase class.
+    //
+    public boolean isFXBase(Symbol sym) { return sym == syms.javafx_FXBaseType.tsym; }
+
+    //
+    // Returns true if specified class is the FXObject class.
+    //
+    public boolean isFXObject(Symbol sym) { return sym == syms.javafx_FXObjectType.tsym; }
+
+    //
+    // Returns true if specified class is either the FXBase or the FXObject class.
+    //
+    public boolean isRootClass(Symbol sym) { return isFXBase(sym) || isFXObject(sym); }
+
+    //
     // Returns the var count for the current class.
     //
-    public int getVarCount() { return varCount; }
+    public int getClassVarCount() { return classVarCount; }
+
+    //
+    // Returns the var count for the current script.
+    //
+    public int getScriptVarCount() { return scriptVarCount; }
 
     //
     // Returns the translatedAttrInfo for the current class.
@@ -496,26 +1122,52 @@ class JavafxAnalyzeClass {
     }
 
     //
-    // Returns the resulting list of instance attribute vars.
+    // Returns the translatedFuncInfo for the current class.
     //
-    public List<VarInfo> instanceAttributeInfos() {
-        return attributeInfos.toList();
+    public List<TranslatedFuncInfo> getTranslatedFuncVarInfo() {
+        return translatedFuncInfo;
     }
 
     //
-    // Returns the resulting list of static attribute vars.
+    // Returns the resulting list of class vars.
     //
-    public List<VarInfo> staticAttributeInfos() {
-        ListBuffer<VarInfo> ais = ListBuffer.lb();
+    public List<VarInfo> classVarInfos() {
+        return classVarInfos.toList();
+    }
 
-        // Select just the static vars from the current javafx class.
-        for (VarInfo ai : translatedAttrInfo) {
-            if (ai.isStatic()) {
-                ais.append( ai );
-            }
-        }
+    //
+    // Returns the resulting list of script vars.
+    //
+    public List<VarInfo> scriptVarInfos() {
+        return scriptVarInfos.toList();
+    }
 
-        return ais.toList();
+    //
+    // Returns the resulting list of class funcs.
+    //
+    public List<FuncInfo> classFuncInfos() {
+        return classFuncInfos.toList();
+    }
+
+    //
+    // Returns the resulting list of script func.
+    //
+    public List<FuncInfo> scriptFuncInfos() {
+        return scriptFuncInfos.toList();
+    }
+    
+    //
+    // Returns the map used to construct the class update$ method.
+    //
+    public final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
+        return classUpdateMap;
+    }
+    
+    //
+    // Returns the map used to construct the script update$ method.
+    //
+    public final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
+        return scriptUpdateMap;
     }
 
     //
@@ -523,9 +1175,12 @@ class JavafxAnalyzeClass {
     //
     public List<MethodSymbol> needDispatch() {
         ListBuffer<MethodSymbol> meths = ListBuffer.lb();
-
-        for (MethodSymbol mSym : needDispatchMethods.values()) {
-            meths.append( mSym );
+        
+        // Never add dispatch methods to mixins.
+        if (!isMixinClass()) {
+            for (FuncInfo fi : needDispatchMethods.values()) {
+                meths.append(fi.getSymbol());
+            }
         }
 
         return meths.toList();
@@ -585,6 +1240,30 @@ class JavafxAnalyzeClass {
     // Returns resulting list of all mixin classes in top down order.
     //
     public List<ClassSymbol> getAllMixins() { return allMixins.toList(); }
+    
+    //
+    // Add a var to the proper vars list.
+    //
+    public void addVarToList(VarInfo varInfo) {
+        if (varInfo.isStatic()) {
+            scriptVarInfos.append(varInfo);
+        } else {
+            classVarInfos.append(varInfo);
+        }
+    }
+    
+    //
+    // Check to see if a mixin has an override.
+    //
+    public void checkMixinOverride(MixinClassVarInfo varInfo) {
+        for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
+            if (tai.getSymbol() == varInfo.getSymbol()) {
+                varInfo.setOverride(tai);
+                tai.setProxyVar(varInfo);
+                break;
+            }
+        }
+    }
 
     //
     // This method analyzes the current javafx class.
@@ -605,43 +1284,13 @@ class JavafxAnalyzeClass {
 
         // Track the current vars to the instance attribute results.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            // Only look at instance vars.
-            if (!tai.isStatic()) {
-                // Track the var for overrides and mixin duplication.
-                visitedAttributes.put(tai.getName(), tai);
-            }
-        }
-
-        // Track the override vars to the instance attribute results.
-        for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
-            // Only look at instance vars.
-            if (!tai.isStatic()) {
-                // Find the overridden var.
-                VarInfo oldVarInfo = visitedAttributes.get(tai.getName());
-
-                // Test because it's possible to find the override before the mixin.
-                if (oldVarInfo != null) {
-                    // Proxy to the overridden var.
-                    tai.setProxyVar(oldVarInfo);
-
-                    // If the override has an init then ignore the overridden var's init.
-                    if (tai.getDefaultInitStatement() != null) {
-                        oldVarInfo.setIsInitOverridden(true);
-                    }
-                }
-
-                // Track the var for overrides and mixin duplication.
-                visitedAttributes.put(tai.getName(), tai);
-            }
+            // Track the var for overrides and mixin duplication.
+            visitedAttributes.put(initBuilder.attributeValueName(tai.getSymbol()), tai);
         }
 
         // Map the current methods so they are filtered out of the results.
-        for (JFXTree def : currentClassDecl.getMembers()) {
-            // Only the method members.
-            if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
-                MethodSymbol method = ((JFXFunctionDefinition) def).sym;
-                visitedMethods.put(methodSignature(method), method);
-            }
+        for (TranslatedFuncInfo func : translatedFuncInfo) {
+            visitedMethods.put(methodSignature(func.getSymbol()), func);
         }
 
         // Lastly, insert any mixin vars and methods from the interfaces.
@@ -651,38 +1300,59 @@ class JavafxAnalyzeClass {
             analyzeClass(supertype.type.tsym, true, true);
         }
 
-        // Add the current vars to the instance attribute results.
+        // Track the override vars to the instance attribute results.
+        for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
+            // Find the overridden var.
+            VarInfo oldVarInfo = visitedAttributes.get(initBuilder.attributeValueName(tai.getSymbol()));
+
+            // Test because it's possible to find the override before the var.
+            if (oldVarInfo != null && !(oldVarInfo instanceof MixinClassVarInfo)) {
+                // Proxy to the overridden var.
+                tai.setProxyVar(oldVarInfo);
+                tai.setNeedsMixinInterface(tai.needsMixinInterface() || oldVarInfo.needsMixinInterface());
+                oldVarInfo.setNeedsMixinInterface(false);
+            }
+            
+            // Track the var for overrides and mixin duplication.
+            visitedAttributes.put(initBuilder.attributeValueName(tai.getSymbol()), tai);
+        }
+
+        // Add the current vars to the var results.
         // JFXC-3043 - This needs to be done after mixins.
         for (TranslatedVarInfo tai : translatedAttrInfo) {
-            // Only look at instance vars.
-            if (!tai.isStatic()) {
-                // Add the var to the instance var results.
-                attributeInfos.append(tai);
+            addVarToList(tai);
+        }
+
+        // Add the override vars to the var results.
+        // JFXC-3043 - This needs to be done after mixins.
+        for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
+            if (!tai.overridesMixin()) {
+                addVarToList(tai);
             }
         }
 
-        // Add the override vars to the instance attribute results.
+        // Add the functions to the function results.
         // JFXC-3043 - This needs to be done after mixins.
-        for (TranslatedOverrideClassVarInfo tai : translatedOverrideAttrInfo) {
-            // Only look at instance vars.
-            if (!tai.isStatic()) {
-                // Add the var to the instance var results.
-                attributeInfos.append(tai);
+        for (TranslatedFuncInfo tfi : translatedFuncInfo) {
+            if (tfi.isStatic()) {
+                scriptFuncInfos.append(tfi);
+            } else {
+                classFuncInfos.append(tfi);
             }
         }
     }
-
+    
     private void analyzeClass(Symbol sym, boolean isImmediateSuper, boolean needsCloning) {
         // Ignore pure java interfaces, classes we've visited before and non-javafx classes.
         if (!isInterface(sym) && !addedBaseClasses.contains(sym) && types.isJFXClass(sym)) {
             // Get the current class symbol and add it to the visited map.
-            ClassSymbol cSym = (ClassSymbol) sym;
+            ClassSymbol cSym = (ClassSymbol)sym;
             addedBaseClasses.add(cSym);
 
             // Only continue cloning up the hierarchy if this is a mixin class.
             boolean isMixinClass = isMixinClass(cSym);
             needsCloning = needsCloning && isMixinClass;
-
+            
             // Process up the super class chain first.
             Type superType = cSym.getSuperclass();
             if (isValidClass(superType)) {
@@ -690,67 +1360,52 @@ class JavafxAnalyzeClass {
                 // anything in the super chain.
                 analyzeClass(superType.tsym, false, false);
             }
+            // Class loaded from .class file.
+            if (cSym.members() != null) {
+                // Scope information is held in reverse order of declaration.
+                ListBuffer<Symbol> reversed = ListBuffer.lb();
+                for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
+                    reversed.prepend(e.sym);
+                }
+                
+                // Track mixin var accessors.
+                HashMap<Name, MixinClassVarInfo> mixinVarMap = new HashMap<Name, MixinClassVarInfo>();
 
-            // Get the class decl.  This will be null if read from a .class file.
-            JFXClassDeclaration cDecl = types.getFxClass(cSym);
-
-            // Scan for var and method members in the class.
-            if (cDecl == null) {
-                // Class loaded from .class file.
-                if (cSym.members() != null) {
-                    // Scope information is held in reverse order of declaration.
-                    ListBuffer<Symbol> reversed = ListBuffer.lb();
-                    for (Entry e = cSym.members().elems; e != null && e.sym != null; e = e.sibling) {
-                        reversed.prepend(e.sym);
-                    }
-
-                    // Scan attribute/method members.
-                    for (Symbol mem : reversed) {
-                        if (mem.kind == Kinds.MTH) {
-                            // Method member.
-                            MethodSymbol meth = (MethodSymbol) mem;
-
-                            // Workaround for JFXC-3040 - Compile failure building
-                            // runtime/javafx-ui-controls/javafx/scene/control/Button.fx
-                            if (!needsCloning) continue;
-
-                            // Filter out methods generated by the javac compiler.
-                            if (filterMethods(meth)) {
-                                processMethod(meth, needsCloning);
-                            }
-                        } else if (mem instanceof VarSymbol) {
-                            // Attribute member.
-                            VarSymbol var = (VarSymbol)mem;
-                            processAttribute(var, cSym, needsCloning);
+                // Scan attribute members.
+                for (Symbol varMem : reversed) {
+                    if (varMem instanceof JavafxVarSymbol) {
+                        // Attribute member.
+                        JavafxVarSymbol var = (JavafxVarSymbol)varMem;
+                        
+                        // Filter out methods generated by the compiler.
+                        if (isRootClass(cSym) || !filterVars(var)) {
+                            processAttribute(var, cSym, needsCloning, mixinVarMap);
                         }
                     }
                 }
 
-                // Lastly, insert any mixin vars and methods from the interfaces.
-                for (Type supertype : cSym.getInterfaces()) {
-                    ClassSymbol iSym = (ClassSymbol) supertype.tsym;
-                    analyzeClass(iSym, isImmediateSuper && isMixinClass, needsCloning);
-                }
-            } else {
-                // Class is in current compile unit.
-
                 // Scan attribute/method members.
-                for (JFXTree def : cDecl.getMembers()) {
-                    if (def.getFXTag() == JavafxTag.VAR_DEF) {
-                        // Attribute member.
-                        VarSymbol var = (VarSymbol)((JFXVar)def).sym;
-                        processAttribute(var, cDecl.sym, needsCloning);
-                    } else if (def.getFXTag() == JavafxTag.FUNCTION_DEF) {
+                for (Symbol methMem : reversed) {
+                    if (methMem.kind == Kinds.MTH) {
                         // Method member.
-                        MethodSymbol meth = (MethodSymbol)((JFXFunctionDefinition)def).sym;
-                        processMethod(meth, needsCloning);
+                        MethodSymbol meth = (MethodSymbol)methMem;
+
+                        // Workaround for JFXC-3040 - Compile failure building
+                        // runtime/javafx-ui-controls/javafx/scene/control/Button.fx
+                        if (!needsCloning) continue;
+
+                        // Filter out methods generated by the compiler.
+                        if (isRootClass(cSym) || !filterMethods(meth)) {
+                            processMethod(meth, needsCloning, cSym, mixinVarMap);
+                        }
                     }
                 }
-
-                // Lastly, insert any mixin vars and methods from the interfaces.
-                for (JFXExpression supertype : cDecl.getSupertypes()) {
-                    analyzeClass(supertype.type.tsym, isImmediateSuper && isMixinClass, needsCloning);
-                }
+            }
+            
+            // Now analyze interfaces.
+            for (Type supertype : cSym.getInterfaces()) {
+                ClassSymbol iSym = (ClassSymbol) supertype.tsym;
+                analyzeClass(iSym, isImmediateSuper && isMixinClass, needsCloning);
             }
 
             // Record the superclass in top down order.
@@ -760,11 +1415,56 @@ class JavafxAnalyzeClass {
 
     //
     // Predicate method indicates if the method should be include in processing.
-    // Should filter out unrelated methods generated by the javac compiler.
+    // Should filter out unrelated methods generated by the compiler.
     //
     private boolean filterMethods(MethodSymbol meth) {
         Name name = meth.name;
-        return name != names.init;
+        
+        // if this is a main method in an FX class then it is synthetic, ignore it
+        if (name == defs.main_MethodName) {
+            if (meth.type instanceof MethodType) {
+                MethodType mt = (MethodType)meth.type;
+                List<Type> paramTypes = mt.getParameterTypes();
+                if (paramTypes.size() == 1 && paramTypes.head instanceof ArrayType) {
+                    Type elemType = ((ArrayType) paramTypes.head).getComponentType();
+                    if (elemType.tsym.name == syms.stringType.tsym.name) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return name == names.init || name == names.clinit ||
+               name == defs.internalRunFunctionName || 
+               name == defs.applyDefaults_FXObjectMethodName ||
+               name == defs.count_FXObjectMethodName ||
+               name == defs.get_FXObjectMethodName ||
+               name == defs.set_FXObjectMethodName ||
+               name == defs.invalidate_FXObjectMethodName ||
+               name == defs.notifyDependents_FXObjectMethodName ||
+               name == defs.getElement_FXObjectMethodName ||
+               name == defs.size_FXObjectMethodName ||
+               name == defs.update_FXObjectMethodName ||
+               name == defs.complete_FXObjectMethodName ||
+               name == defs.initialize_FXObjectMethodName ||
+               name == defs.userInit_FXObjectMethodName ||
+               name == defs.postInit_FXObjectMethodName ||
+               name == defs.initVarBits_FXObjectMethodName;
+    }
+
+    //
+    // Predicate method indicates if the var should be include in processing.
+    // Should filter out unrelated methods generated by the compiler.
+    //
+    private boolean filterVars(JavafxVarSymbol var) {
+        Name name = var.name;
+        String nameString = name.toString();
+        
+        return nameString.startsWith(JavafxDefs.varMap_FXObjectFieldPrefix) ||
+               nameString.startsWith(JavafxDefs.count_FXObjectFieldString) ||
+               nameString.startsWith(JavafxDefs.offset_AttributeFieldPrefix) ||
+               nameString.startsWith(JavafxDefs.flags_AttributeFieldPrefix) ||
+               nameString.startsWith(JavafxDefs.varFlags_FXObjectFieldPrefix);
     }
 
     //
@@ -790,33 +1490,57 @@ class JavafxAnalyzeClass {
             superClasses.append(cSym);
         }
     }
+    
+    //
+    // This method strips the var name out of an accessor method.
+    //
+    private Name getAccessorVarName(Name name) {
+        for (Name prefix : defs.accessorPrefixes) {
+            if (name.startsWith(prefix)) {
+                return name.subName(prefix.length() - 1, name.length());
+            }
+        }
 
+        return null;
+    }
 
     //
     // This method determines if a method should be added to the list of methods
-    // needing $impl dispatch.  This method is only called for inherited methods.
+    // needing dispatch.  This method is only called for inherited methods.
     //
-    private void processMethod(MethodSymbol newMethod, boolean needsCloning) {
-        long flags = newMethod.flags();
-
+    private void processMethod(MethodSymbol sym, boolean needsCloning, ClassSymbol cSym, HashMap<Name, MixinClassVarInfo> mixinVarMap) {
+        long flags = sym.flags();
+        
         // Only look at real instance methods.
-        if ((flags & (Flags.SYNTHETIC | Flags.ABSTRACT | Flags.STATIC)) == 0) {
+        if ((flags & (Flags.ABSTRACT | Flags.SYNTHETIC)) == 0) {
             // Generate a name/signature string for uniqueness.
-            String nameSig = methodSignature(newMethod);
+            String nameSig = methodSignature(sym);
             // Look to see if we've seen a method like this before.
-            MethodSymbol oldMethod = visitedMethods.get(nameSig);
+            FuncInfo oldMethod = visitedMethods.get(nameSig);
             // See if the current method is a mixin.
-            boolean newIsMixin = isMixinClass(newMethod.owner);
+            boolean newIsMixin = isMixinClass(sym.owner);
             // See if the previous methods is a mixin.
-            boolean oldIsMixin = oldMethod != null && isMixinClass(oldMethod.owner);
+            boolean oldIsMixin = oldMethod != null && isMixinClass(oldMethod.getSymbol().owner);
+            // Create new info.
+            FuncInfo newMethod = newIsMixin ? new MixinFuncInfo(sym) :  new SuperClassFuncInfo(sym);
 
             // Are we are still cloning this far up the hierarchy?
-            if (needsCloning) {
+            if (needsCloning && (sym.flags() & Flags.PRIVATE) == 0) {
                 // If the method didn't occur before or is a real method overshadowing a prior mixin.
-                if (oldMethod == null || (oldIsMixin && !newIsMixin)) {
-                    // Add to the methods needing $impl dispatch.
-                    needDispatchMethods.put(nameSig, newMethod);
-                }
+                if ((oldMethod == null || (oldIsMixin && !newIsMixin)) && sym.owner == cSym) {
+                      
+                      Name varName = getAccessorVarName(sym.name);
+                      if (varName != null) {
+                          // Associate the accessor with the var.
+                          MixinClassVarInfo varInfo = mixinVarMap.get(varName);
+                          if (varInfo != null) {
+                              varInfo.addAccessor(newMethod);
+                          }
+                      } else {
+                          // Add to the methods needing $impl dispatch.
+                          needDispatchMethods.put(nameSig, newMethod);
+                      }
+                  }
             }
 
             // Map the fact we've seen this name/signature.
@@ -828,20 +1552,19 @@ class JavafxAnalyzeClass {
     // This method determines if the var needs to be handled in the current class.
     // This method is only called for inherited attributes.
     //
-    private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean needsCloning) {
+    private void processAttribute(JavafxVarSymbol var, ClassSymbol cSym, boolean needsCloning, HashMap<Name, MixinClassVarInfo> mixinVarMap) {
         boolean isStatic = (var.flags() & Flags.STATIC) != 0;
 
         // If the var is in a class and not a static (ie., an instance attribute.)
         if (var.owner.kind == Kinds.TYP && !isStatic) {
-            // See if we've seen this class before.
-            Name attrName = var.name;
-            VarInfo oldVarInfo = visitedAttributes.get(attrName);
+            // See if we've seen this var before.
+            VarInfo oldVarInfo = visitedAttributes.get(initBuilder.attributeValueName(var));
 
             // If we've seen this class before, it must be the same symbol and type,
             // otherwise in doesn't conflict.
             if (oldVarInfo != null &&
-                (oldVarInfo.getSymbol() != var ||
-                 oldVarInfo.getSymbol().type != var.type)) {
+                (!oldVarInfo.getSymbol().name.equals(var.name) ||
+                 !types.isSameType(oldVarInfo.getSymbol().type, var.type))) {
                 oldVarInfo = null;
             }
 
@@ -849,28 +1572,35 @@ class JavafxAnalyzeClass {
             boolean newIsMixin = isMixinClass(var.owner);
             if (newIsMixin && needsCloning) {
                 // Only process the mixin var if we've not seen it before.
-                if (oldVarInfo == null) {
+                if ((oldVarInfo == null || oldVarInfo instanceof TranslatedOverrideClassVarInfo) && (var.flags() & Flags.PRIVATE) == 0) {
                     // Construct a new mixin VarInfo.
                     MixinClassVarInfo newVarInfo = new MixinClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
-                    // Add the new mixin VarInfo to the result list.
-                    attributeInfos.append(newVarInfo);
+                    // Check for overriding var.
+                    checkMixinOverride(newVarInfo);
+                    
+                    // Add var to map.
+                    Name varName = initBuilder.attributeValueName(var);
+                    mixinVarMap.put(varName, newVarInfo);
+                    
+                    // Don't add mixin vars to mixin classes.
+                    if (!isMixinClass()) {
+                        // Add the new mixin VarInfo to the result list.
+                        addVarToList(newVarInfo);
+                    }
+                    
                     // Map the fact we've seen this var.
-                    visitedAttributes.put(attrName, newVarInfo);
+                    visitedAttributes.put(initBuilder.attributeValueName(var), newVarInfo);
+                } else if (oldVarInfo != null) {
+                    // Still needs the interface.
+                    oldVarInfo.setNeedsMixinInterface(true);
                 }
             } else {
                 // Construct a new superclass VarInfo.
                 SuperClassVarInfo newVarInfo = new SuperClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
-
-                // If encountered before.
-                if (oldVarInfo != null) {
-                    // Indicate the init is overridden.
-                    oldVarInfo.setIsInitOverridden(true);
-                }
-
                 // Add the new superclass VarInfo to the result list.
-                attributeInfos.append(newVarInfo);
+                classVarInfos.append(newVarInfo);
                 // Map the fact we've seen this var.
-                visitedAttributes.put(attrName, newVarInfo);
+                visitedAttributes.put(initBuilder.attributeValueName(var), newVarInfo);
             }
         }
     }
@@ -898,32 +1628,38 @@ class JavafxAnalyzeClass {
     // JavafxInitializationBuilder.
     //
     private void printAnalysis(boolean before) {
-        System.out.println("Analyzed : " + currentClassSym);
+        System.err.println("Analyzed : " + currentClassSym);
 
         if (before) {
-            System.out.println("  translatedAttrInfo");
+            System.err.println("  translatedAttrInfo");
             for (TranslatedVarInfo ai : translatedAttrInfo) ai.printInfo();
-            System.out.println("  translatedOverrideAttrInfo");
+            System.err.println("  translatedOverrideAttrInfo");
             for (TranslatedOverrideClassVarInfo ai : translatedOverrideAttrInfo) ai.printInfo();
         }
 
-        System.out.println("  superClass");
-        System.out.println("    " + superClassSym);
-        System.out.println("  superClasses");
-        for (ClassSymbol cs : superClasses) System.out.println("    " + cs);
-        System.out.println("  immediate mixins");
-        for (ClassSymbol cs : immediateMixins) System.out.println("    " + cs);
-         System.out.println("  all mixins");
-        for (ClassSymbol cs : allMixins) System.out.println("    " + cs);
+        System.err.println("  superClass");
+        System.err.println("    " + superClassSym);
+        System.err.println("  superClasses");
+        for (ClassSymbol cs : superClasses) System.err.println("    " + cs);
+        System.err.println("  immediate mixins");
+        for (ClassSymbol cs : immediateMixins) System.err.println("    " + cs);
+         System.err.println("  all mixins");
+        for (ClassSymbol cs : allMixins) System.err.println("    " + cs);
 
-        System.out.println("  attributeInfos");
-        for (VarInfo ai : attributeInfos) ai.printInfo();
-        System.out.println("  needDispatchMethods");
+        System.err.println("  classVarInfos");
+        for (VarInfo ai : classVarInfos) ai.printInfo();
+        System.err.println("  scriptVarInfos");
+        for (VarInfo ai : scriptVarInfos) ai.printInfo();
+        System.err.println("  classFuncInfos");
+        for (FuncInfo fi : classFuncInfos) fi.printInfo();
+        System.err.println("  scriptFuncInfos");
+        for (FuncInfo fi : scriptFuncInfos) fi.printInfo();
+        System.err.println("  needDispatchMethods");
         for (MethodSymbol m : needDispatch()) {
-            System.out.println("    " + m + ", owner=" + m.owner);
+            System.err.println("    " + m + ", owner=" + m.owner);
         }
-        System.out.println();
-        System.out.println();
+        System.err.println();
+        System.err.println();
     }
 
 }

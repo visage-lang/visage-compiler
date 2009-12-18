@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="performance" default="run" basedir=".">
+    <property name="jfxdir" location="${basedir}/../.."/>
+    <property name="builddir" location="${basedir}/../build/performance"/>
+    <property name="javafx.home" location="${basedir}/../dist"/>
+    <property name="srcdir"   location="${basedir}/src"/>
+    <property name="bm.srcdir" location="${basedir}/benchmarks"/>
+    <property name="bm.builddir" location="${builddir}/benchmarks"/>
+    <property name="bm.outdir" location="${builddir}/output"/>
+    <property name="ant.jar" location="${jfxdir}/import/ant-1.7.1/apache-ant-1.7.1/lib/ant.jar"/>
+    <property name="javafxc.jar" location="${javafx.home}/lib/shared/javafxc.jar"/>
+    <property name="javac.source" value="1.5"/>
+    <property name="javac.target" value="1.5"/>
+
+    <target name="clean">
+        <delete dir="${builddir}"/>
+    </target>
+  
+    <target name="init" depends="clean">
+        <tstamp/>
+        <echo message="###################################"/>
+        <echo message="java.home   : ${java.home}"/>
+         <exec executable="${java.home}/bin/java">
+            <arg line="-version"/>
+        </exec>
+        <echo message="javafx.home : ${javafx.home}"/>
+        <exec executable="${javafx.home}/bin/javafx">
+            <arg line="-version"/>
+        </exec>
+        <echo message="javafxc.jar : ${javafxc.jar}"/>
+        <echo message="###################################"/>
+        <mkdir dir="${builddir}"/>
+        <mkdir dir="${bm.builddir}"/>
+        <mkdir dir="${bm.outdir}"/>
+        <taskdef name="javafxc"
+            classname="com.sun.tools.javafx.ant.JavaFxAntTask">
+            <classpath>
+                <pathelement location="${ant.jar}"/>
+                <pathelement location="${javafxc.jar}"/>
+            </classpath>
+        </taskdef>
+    </target>
+    
+    <target name="compile" depends="init">
+        <javac srcdir="${srcdir}"
+               destdir="${builddir}"
+               debug="true"
+        />
+        <javafxc destdir="${bm.builddir}"
+                 includes="**/*.fx" source="${javac.source}" sourcepath=""
+                 srcdir="${bm.srcdir}" target="${javac.target}"
+                 compilerclasspath="${javafxc.jar}"
+                 failonerror="true">
+        </javafxc>
+    </target>
+
+    <macrodef name="run-benchmark">
+        <attribute name="benchmark" default="NOT_SET"/>
+        <attribute name="heapsize" default="-Xmx512m"/>
+        <sequential>
+            <java classname="com.sun.tools.javafx.framework.Runner" fork="true"
+              classpath="${builddir}" failonerror="true" dir="${builddir}" >
+                <sysproperty key="app.name"         value="@{benchmark}"/>
+                <sysproperty key="app.classpath"    value="${bm.builddir}"/>
+                <sysproperty key="app.workdir"      value="${bm.outdir}"/>
+                <sysproperty key="javafx.home"      value="${javafx.home}"/>
+                <sysproperty key="base.dir"         value="${basedir}"/>
+                <sysproperty key="debug"            value="false"/>
+                <sysproperty key="Runner.vmoptions" value="@{heapsize}"/>
+            </java>
+        </sequential>
+    </macrodef>
+
+    <target name="reporter" depends="compile">
+        <copy todir="${bm.outdir}">
+            <fileset dir="${basedir}/data">
+                <include name="*.csv"/>
+            </fileset>
+        </copy>
+        <java fork="true" classpath="${builddir}" failonerror="true"
+            dir="${bm.outdir}" classname="com.sun.tools.javafx.framework.Reporter">
+        </java>
+    </target>
+    
+    <target name="run-benchmarks" depends="compile">
+       <run-benchmark benchmark="mathcalc"/>
+       <run-benchmark benchmark="mathcalcb"/>
+       <run-benchmark benchmark="bsort"/>
+       <!-- commented out for JFXC-3693
+       <run-benchmark benchmark="visibleNode"/>
+       -->
+       <run-benchmark benchmark="linkedListLocalMax"/>
+       <run-benchmark benchmark="linkedListMax"/>
+       <run-benchmark benchmark="linkedListBound"/>
+       <run-benchmark benchmark="linkedListOnReplace"/>
+    </target>
+
+    <target name="run" depends="run-benchmarks, reporter"/>
+</project>

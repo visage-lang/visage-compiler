@@ -8,9 +8,7 @@ import javafx.fxunit.FXTestCase;
 
 mixin class Mixin { public var bar : String = "M" }
 class Super { public var bar : String = "S" }
-/* Uncomment when JFXC-3095 and JFXC-3072 is fixed */
-//class Mixee extends Super, Mixin { override public var bar : String }
-class Mixee extends Super, Mixin {}
+class Mixee extends Super, Mixin { override public var bar : String }
 
 public class MxResInitConf02 extends FXTestCase {
     /*

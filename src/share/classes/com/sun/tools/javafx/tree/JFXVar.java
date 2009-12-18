@@ -24,11 +24,10 @@
 package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
-
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
-import com.sun.tools.mjavac.util.Name;
 import com.sun.javafx.api.JavafxBindStatus;
+
+import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.mjavac.util.Name;
 
 /**
  * Variable declaration.
@@ -36,10 +35,12 @@ import com.sun.javafx.api.JavafxBindStatus;
  * @author Robert Field
  * @author Zhiqun Chen
  */
-public class JFXVar extends JFXVarBase {
+public class JFXVar extends JFXAbstractVar implements VariableTree {
+    
+    private JFXVarInit varInit;
 
     protected JFXVar() {
-        super(null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     protected JFXVar(Name name,
@@ -49,24 +50,34 @@ public class JFXVar extends JFXVarBase {
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
-            VarSymbol sym) {
-        super( name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
+            JavafxVarSymbol sym) {
+        super(name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
     }
 
-    public void accept(JavafxVisitor v) {
-        v.visitVar(this);
+    /**
+     * @return the varInit
+     */
+    public JFXVarInit getVarInit() {
+        return varInit;
     }
 
-    public void setJFXType(JFXType type) {
-        typeExpr = type;
+    /**
+     * @param varInit the varInit to set
+     */
+    public void setVarInit(JFXVarInit varInit) {
+        this.varInit = varInit;
+    }
+
+    @Override
+    public JavafxTag getFXTag() {
+        return JavafxTag.VAR_DEF;
     }
     
     public boolean isOverride() {
         return false;
     }
 
-    @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.VAR_DEF;
+    public void accept(JavafxVisitor v) {
+        v.visitVar(this);
     }
 }

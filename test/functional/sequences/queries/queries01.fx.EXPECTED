@@ -14,6 +14,7 @@ CHECK: contents of seq4 with 99 inserted: 101100999899
 -test5-
 [ 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110 ]
 [ REPLACEMENTS:, , seq_2: replace 01234 at 0
+, seq_2p: replaced [ ][0..-1] by [ ]
 , insert 1011009998 or  into 1011009998, , 05101520253035404550, seq_2p: replaced [ ][0..-1] by [ 1 ]
 , seq_2p: replaced [ 1 ][1..0] by [ 2 ]
 , seq_2p: replaced [ 1, 2 ][2..1] by [ 4 ]
@@ -31,8 +32,8 @@ CHECK: contents of seq4 with 99 inserted: 101100999899
 , replacement(75) is larger than existing(20)
 , insert 99 or 1011009998 into 101100999899, 100101102103104105106107108109110, 10010110288104105106107108109110, 1001011028810410510610710810911077, 1001011028810410510610710811077, 1001011028810410510710811077, 1001011028810510710877 ]
 ========= results ================
-Tests:      45
+Tests:      46
 Passed:     15
 Failed:     0
-GoldenFile: 30 output comparisons
+GoldenFile: 31 output comparisons
 ==================================

@@ -35,6 +35,8 @@ public class JFXReturn extends JFXExpression implements ReturnTree {
     public JFXExpression expr;
     public Type returnType = null;
 
+    public boolean nonLocalReturn = false;
+
     protected JFXReturn(JFXExpression expr) {
         this.expr = expr;
     }

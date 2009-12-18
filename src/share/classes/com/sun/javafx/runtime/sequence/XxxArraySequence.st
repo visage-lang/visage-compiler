@@ -22,7 +22,6 @@
  */
 
 package com.sun.javafx.runtime.sequence;
-import com.sun.javafx.runtime.location.*; // FIXME???
 
 import com.sun.javafx.runtime.TypeInfo;
 
@@ -31,7 +30,7 @@ $TEMPLATE_FROM$
 public class $T.ArraySequence$ extends ArraySequence<$T.boxed$> {
     $T.prim$[] array;
 
-    public $T.ArraySequence$(int initialSize, TypeInfo<$T.boxed$, ?> ti) {
+    public $T.ArraySequence$(int initialSize, TypeInfo<$T.boxed$> ti) {
         super(ti);
         this.array = new $T.prim$[initialSize];
         gapStart = 0;
@@ -46,11 +45,11 @@ public class $T.ArraySequence$ extends ArraySequence<$T.boxed$> {
         this(DEFAULT_SIZE, $T.TypeInfo$);
     }
 
-    public $T.ArraySequence$(TypeInfo<$T.boxed$, ?> ti, $T.prim$... values) {
+    public $T.ArraySequence$(TypeInfo<$T.boxed$> ti, $T.prim$... values) {
         this(ti, values, false);
     }
 
-    public $T.ArraySequence$(TypeInfo<$T.boxed$, ?> ti, $T.prim$[] values, boolean handoff) {
+    public $T.ArraySequence$(TypeInfo<$T.boxed$> ti, $T.prim$[] values, boolean handoff) {
         super(ti);
         if (handoff) {
             this.array = values;

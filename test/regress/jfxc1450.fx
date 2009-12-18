@@ -11,12 +11,19 @@ class DragNode {
     println("Creating new DragNode");
   }
 }
+ 
+class DragInfo {
+  var x : Integer;
+  function setX(v : Integer) : Void {
+    x = v
+  }
+}
 
 var dragNode = bind DragNode {
-  var dragX : Integer;
+  var drag = new DragInfo;
   onMouseDragged:
     function(newX : Integer):Void {
-      dragX = newX;
+      drag.setX(newX);
     }
 }
 

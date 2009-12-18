@@ -76,7 +76,6 @@ import sun.misc.FpUtils;
 import sun.misc.DoubleConsts;
 import sun.misc.FormattedFloatingDecimal;
 
-import com.sun.javafx.runtime.location.LongVariable;
 
 /**
  * An interpreter for printf-style format strings.  This class provides support
@@ -2950,9 +2949,12 @@ public final class FXFormatter implements Closeable, Flushable {
                     Class argClass = arg.getClass();
                     if (argClass.isAssignableFrom(clazz)) {
                         try {
-                            Field instantField = getField(argClass, "loc$instant");
-                            LongVariable instant = (LongVariable) instantField.get(arg);
-                            long time = instant.getAsLong();
+                            // FIXME: yet to be implemented for compiled binds
+                            // For now, assuming variable name pattern $foo for
+                            // source name "foo".
+                            Field instantField = getField(argClass, "$instant");
+                            instantField.setAccessible(true);
+                            long time = instantField.getLong(arg);
                             Field tzField = getField(argClass, "$javafx$date$DateTime$tz");
                             TimeZone tz = (TimeZone) tzField.get(arg);
                             if (tz == null) {

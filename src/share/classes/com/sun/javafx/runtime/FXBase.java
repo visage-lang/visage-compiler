@@ -23,7 +23,78 @@
 
 package com.sun.javafx.runtime;
 
-import com.sun.javafx.runtime.location.*;
+import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.javafx.runtime.sequence.Sequences;
+
+//
+
+// CODING/NAMING RESTRICTIONS - In a perfect world, all FX classes would inherit
+// from FXBase.  However, this is not the case.  It's also possible to inherit
+// from pure java classes. To accommodate this requirement, FXBase and FXObject
+// are under some strict coding conventions.
+//
+// When an FX class inherits from a java class, then all instance fields from
+// FXBase are cloned into the FX class, and accessor functions constructed for
+// them.  Therefore;
+//
+//   - All non-static fields defined in FXBase should have a '$' in the name.
+//     That '$' must not be the first character, to avoid conflict with user
+//     vars.
+//   - All non-static fields must have accessor methods defined in FXBase.
+//     The names of the accessors must be in the form 'get' + fieldName and
+//     'set' + varName.
+//   - The accessor method declarations should be added to FXObject, so that
+//     java inheriting classes can define their own interface implementations.
+//
+//  Ex.
+//
+//    In FXBase we define;
+//
+//       MyClass myField$;
+//
+//       public MyClass getmyField$() {
+//           return myField$;
+//       }
+//
+//       public void setmyField$(final MyClass value) {
+//           myField$ = value;
+//       }
+//
+//     In FXObject we declare;
+//
+//       public MyClass getmyField$();
+//       public void setmyField$(final MyClass value);
+//
+// When an FX class inherits from a java class, all non-static methods are
+// cloned into the FX class, with bodies that call the FXBase static version of
+// method, inserting 'this' as the first argument.  Therefore;
+//
+//   - All functionality in FXBase should be defined in static methods,
+//     manipulating an FXObject.  The declaration of the method should have an
+//     an FXObject first argument.  '$' naming conventions apply.
+//   - A non-static method should be defined to relay 'this' and remaining
+//     arguments thru to the static methods.
+//   - The declaration of the non-static method should be added to FXObject.
+//
+//  Ex.
+//
+//    In FXBase we define;
+//
+//       public int addIt$(int n) {
+//           return addIt$(this, n);
+//       }
+//
+//       public static int addIt$(FXObject obj, int n) {
+//           return obj.count$() + n;
+//       }
+//
+//     In FXObject we declare;
+//
+//       public int addIt$(int n);
+//
+// All supplementary initialization for FXBase objects should be added to
+// the static version of initFXBase$.
+//
 
 /**
  * Base class for most FX classes.  The exception being classes that inherit from Java classes.
@@ -31,58 +102,242 @@ import com.sun.javafx.runtime.location.*;
  * @author Jim Laskey
  * @author Robert Field
  */
-public class FXBase implements FXObject {
+ public class FXBase implements FXObject {
+    /**
+     * Initialize for FXBase.
+     */
+    public void initFXBase$() {
+        initFXBase$(this);
+    }
+    public static void initFXBase$(FXObject obj) {
+        // Make sure the var offsets are set.
+        obj.count$();
+        // Initialize the var flags.
+        obj.initVarBits$();
+    }
+
     // First class count.
     public static final int VCNT$ = 0;
+    public int count$() { return VCNT$(); }
+
+    public int getFlags$(final int varNum) {
+        return getFlags$(this, varNum);
+    }
+    public static int getFlags$(FXObject obj, final int varNum) {
+        return 0;
+    }
+    
+    public void setFlags$(final int varNum, final int value) {
+        setFlags$(this, varNum, value);
+    }
+    public static void setFlags$(FXObject obj, final int varNum, final int value) {
+    }
+    
+    public boolean varTestBits$(final int varNum, int maskBits, int testBits) {
+        return varTestBits$(this, varNum, maskBits, testBits);
+    }
+    public static boolean varTestBits$(FXObject obj, final int varNum, int maskBits, int testBits) {
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        return (obj.getFlags$(varNum) & maskBits) == testBits;
+    }
+
+    public boolean varChangeBits$(final int varNum, int clearBits, int setBits) {
+        return varChangeBits$(this, varNum, clearBits, setBits);
+    }
+    public static boolean varChangeBits$(FXObject obj, final int varNum, int clearBits, int setBits) {
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        int flags = obj.getFlags$(varNum);
+        obj.setFlags$(varNum, ((flags & ~clearBits) | setBits));
+        int bits = clearBits | setBits;
+        return (flags & bits) == bits;
+    }
+
+    public void restrictSet$(final int varNum) {
+        restrictSet$(this, varNum);
+    }
+    public static void restrictSet$(FXObject obj, final int varNum) {
+        if (varTestBits$(obj, varNum, VFLGS$IS_READONLY, VFLGS$IS_READONLY)) {
+            if (varTestBits$(obj, varNum, VFLGS$IS_BOUND, VFLGS$IS_BOUND)) {
+                throw new AssignToBoundException("Cannot assign to bound variable");
+            } else {
+                throw new AssignToDefException("Cannot assign to a variable defined with 'def'");
+            }
+        }
+    }
+
+    // dependents management
+    public DependentsManager DependentsManager$internal$;
+    public DependentsManager getDependentsManager$internal$() {
+        return DependentsManager$internal$;
+    }
+    public void setDependentsManager$internal$(final DependentsManager depMgr) {
+        DependentsManager$internal$ = depMgr;
+    }
+    public void addDependent$(final int varNum, FXObject dep) {
+        addDependent$(this, varNum, dep);
+    }
+    public static void addDependent$(FXObject obj, final int varNum, FXObject dep) {
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        DependentsManager.get(obj).addDependent(obj, varNum, dep);
+    }
+    public void removeDependent$(final int varNum, FXObject dep) {
+        removeDependent$(this, varNum, dep);
+    }
+    public static void removeDependent$(FXObject obj, final int varNum, FXObject dep) {
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        DependentsManager.get(obj).removeDependent(obj, varNum, dep);
+    }
+    public void switchDependence$(FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+        switchDependence$(this, oldBindee, oldNum, newBindee, newNum);
+    }
+    public static void switchDependence$(FXObject obj, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+        if (oldBindee != newBindee) {
+            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
+        }
+    }
+    public void switchBiDiDependence$(final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+        switchBiDiDependence$(this, varNum, oldBindee, oldNum, newBindee, newNum);
+    }
+    public static void switchBiDiDependence$(FXObject obj, final int varNum, FXObject oldBindee, final int oldNum, FXObject newBindee, final int newNum) {
+        if (oldBindee != newBindee) {
+            if (oldBindee != null) {
+                DependentsManager.get(oldBindee).switchDependence(oldBindee, obj, varNum, null, 0);
+            }
+            DependentsManager.get(obj).switchDependence(obj, oldBindee, oldNum, newBindee, newNum);
+            if (newBindee != null) {
+                DependentsManager.get(newBindee).switchDependence(newBindee, null, 0, obj, varNum);
+            }
+        }
+    }
+    public void notifyDependents$(final int varNum, final int phase) {
+        notifyDependents$(this, varNum, phase);
+    }
+    public static void notifyDependents$(FXObject obj, final int varNum, final int phase) {
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        //System.err.println("notifyDependents$: " + obj + "[" + varNum + "] " + phase);
+        DependentsManager.get(obj).notifyDependents(obj, varNum, phase);
+    }
+    public void notifyDependents$(int varNum, int startPos, int endPos, int newLength, int phase) {
+        notifyDependents$(this, varNum, startPos, endPos, newLength, phase);
+    }
+    public static void notifyDependents$(FXObject obj, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+        assert varNum > -1 && varNum < obj.count$() : "invalid varNum: " + varNum;
+        //System.err.println("notifyDependents$: " + obj + "[" + varNum + "] " + phase);
+        DependentsManager.get(obj).notifyDependents(obj, varNum, startPos, endPos, newLength, phase);
+    }
+    public void update$(FXObject src, final int varNum, final int phase) {
+        update$(this, src, varNum, phase);
+    }
+    public static void update$(FXObject obj, FXObject src, final int varNum, final int phase) {
+        //System.err.println("update$: " + obj + " " + src + "[" + varNum + "] " + phase);
+    }
+    public void update$(FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+        update$(this, src, varNum, startPos, endPos, newLength, phase);
+    }
+    public static void update$(FXObject obj, FXObject src, final int varNum, int startPos, int endPos, int newLength, final int phase) {
+        //System.err.println("update$: " + obj + " " + src + "[" + varNum + "] " + phase);
+    }
+    public int getListenerCount$() {
+        return DependentsManager.get(this).getListenerCount(this);
+    }
+    public static int getListenerCount$(FXObject src) {
+        return DependentsManager.get(src).getListenerCount(src);
+    }
+
+    public Object get$(int varNum) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public static Object get$(FXObject obj, int varNum) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public void set$(int varNum, Object value) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public static void set$(FXObject obj, int varNum, Object value) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public Class getType$(int varNum) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public static Class getType$(FXObject obj, int varNum) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public void be$(int varNum, Object value) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public static void be$(FXObject obj, int varNum, Object value) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public void invalidate$(int varNum, int startPos, int endPos, int newLength, int phase) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
+    public static void invalidate$(FXObject obj, int varNum, int startPos, int endPos, int newLength, int phase) {
+        throw new IllegalArgumentException("no such variable: " + varNum);
+    }
 
     /**
      * Constructor called from Java or from object literal with no instance variable initializers
      */
-    public FXBase() {}
+    public FXBase() {
+      this(false);
+      initialize$();
+    }
 
     /**
      * Constructor called for a (non-empty) JavaFX object literal.
      * @param dummy Marker only. Ignored.
      */
-    public FXBase(boolean dummy) {}
+    public FXBase(boolean dummy) {
+        initFXBase$();
+    }
 
     public void initialize$() {
-        addTriggers$();
         applyDefaults$();
         complete$();
+    }
+    public static void initialize$(FXObject obj) {
+        obj.applyDefaults$();
+        obj.complete$();
     }
 
     public void complete$() {
         userInit$();
         postInit$();
     }
+    public static void complete$(FXObject obj) {
+        obj.userInit$();
+        obj.postInit$();
+    }
 
-    public void applyDefaults$(final int varNum) {}
+    public void initVarBits$() { initVarBits$(this); }
+    public static void initVarBits$(FXObject obj) {}
+
+    public void applyDefaults$(final int varNum) {
+        applyDefaults$(this, varNum);
+    }
+    public static void applyDefaults$(FXObject obj, final int varNum) {
+    }
 
     public void applyDefaults$() {
         int cnt = count$();
-        for (int inx = 0; inx < cnt; inx += 1) { 
+        for (int inx = 0; inx < cnt; inx += 1) {
             applyDefaults$(inx);
         }
     }
-
-    public static void applyDefaults$(FXObject rcvr) {
-        int cnt = rcvr.count$();
+    public static void applyDefaults$(FXObject obj) {
+        int cnt = obj.count$();
         for (int inx = 0; inx < cnt; inx += 1) {
-            rcvr.applyDefaults$(inx);
+            obj.applyDefaults$(inx);
         }
     }
-    
+
     public static int VCNT$() { return VCNT$; }
 
-    public void addTriggers$  () {}
-    public void userInit$     () {}
-    public void postInit$     () {}
+    public        void userInit$()             {}
+    public static void userInit$(FXObject obj) {}
+    public        void postInit$()             {}
+    public static void postInit$(FXObject obj) {}
 
-    public int      count$()                         { return VCNT$(); }
-    public boolean  isInitialized$(final int varNum) { return true; }
-    public Location loc$(final int varNum)           { return null; }
-    
     //
     // makeInitMap$ constructs a field mapping table used in the switch portion
     // of a object literal initialization.  Each entry in the table represents
@@ -95,5 +350,91 @@ public class FXBase implements FXObject {
             map[offsets[i]] = (short)(i + 1);
         }
         return map;
+    }
+
+    public int size$(int varNum) {
+        return ((Sequence<?>) get$(varNum)).size();
+    }
+    public static int size$(FXObject obj, int varNum) {
+        return ((Sequence<?>) obj.get$(varNum)).size();
+    }
+
+    public Object elem$(int varNum, int position) {
+        return ((Sequence<?>) get$(varNum)).get(position);
+    }
+    public static Object elem$(FXObject obj, int varNum, int position) {
+        return ((Sequence<?>) obj.get$(varNum)).get(position);
+    }
+
+    public boolean getAsBoolean$(int varNum, int position) {
+        return getAsBoolean$(this, varNum, position);
+    }
+    public static boolean getAsBoolean$(FXObject obj, int varNum, int position) {
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToBoolean(obj.elem$(varNum, position)) :
+            false;
+    }
+
+    public char getAsChar$(int varNum, int position) {
+        return getAsChar$(this, varNum, position);
+    }
+    public static char getAsChar$(FXObject obj, int varNum, int position) {
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToChar(obj.elem$(varNum, position)) :
+            '\0';
+    }
+
+    public byte getAsByte$(int varNum, int position) {
+        return getAsByte$(this, varNum, position);
+    }
+    public static byte getAsByte$(FXObject obj, int varNum, int position) {
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToByte(obj.elem$(varNum, position)) :
+            0;
+    }
+
+    public short getAsShort$(int varNum, int position) {
+        return getAsShort$(this, varNum, position);
+    }
+    public static short getAsShort$(FXObject obj, int varNum, int position) {
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToShort(obj.elem$(varNum, position)) :
+            0;
+    }
+
+    public int getAsInt$(int varNum, int position) {
+        return getAsInt$(this, varNum, position);
+    }
+    public static int getAsInt$(FXObject obj, int varNum, int position) {
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToInt(obj.elem$(varNum, position)) :
+            0;
+    }
+
+    public long getAsLong$(int varNum, int position) {
+        return getAsLong$(this, varNum, position);
+    }
+    public static long getAsLong$(FXObject obj, int varNum, int position) {
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToLong(obj.elem$(varNum, position)) :
+            0L;
+    }
+
+    public float getAsFloat$(int varNum, int position) {
+        return getAsFloat$(this, varNum, position);
+    }
+    public static float getAsFloat$(FXObject obj, int varNum, int position) {
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToFloat(obj.elem$(varNum, position)) :
+            0f;
+    }
+
+    public double getAsDouble$(int varNum, int position) {
+        return getAsDouble$(this, varNum, position);
+    }
+    public static double getAsDouble$(FXObject obj, int varNum, int position) {
+        return Sequences.withinBounds(obj, varNum, position) ?
+            Util.objectToDouble(obj.elem$(varNum, position)) :
+            0.0;
     }
 }

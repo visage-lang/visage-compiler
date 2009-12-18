@@ -188,11 +188,17 @@ public class JavafxTreeInfo {
     /** Return flags as a string, separated by " ".
      */
     public static String flagNames(long flags) {
+        return flagNames(flags, false);
+    }
+
+    /** Return flags as a string, separated by " ".
+     */
+    public static String flagNames(long flags, boolean pretty) {
         StringBuffer fsb = new StringBuffer(Flags.toString(flags));
         if ((flags & JavafxFlags.PACKAGE_ACCESS) != 0) {
             fsb.append("package ");
         }
-        if ((flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
+        if (!pretty && (flags & JavafxFlags.SCRIPT_PRIVATE) != 0) {
             fsb.append("script only (default) ");
         }
         if ((flags & JavafxFlags.PUBLIC_READ) != 0) {
@@ -360,6 +366,17 @@ public class JavafxTreeInfo {
             return null;
         }
     }
+    
+    public static void setSymbol(JFXTree tree, Symbol sym) {
+	tree = skipParens(tree);
+	switch (tree.getFXTag()) {
+	case IDENT:
+	    ((JFXIdent) tree).sym = sym; break;
+	case SELECT:
+	    ((JFXSelect) tree).sym = sym; break;
+	}
+    }
+
     /** If this tree is an identifier or a field, return its symbol,
      *  otherwise return null.
      */
@@ -374,6 +391,8 @@ public class JavafxTreeInfo {
             return symbol(((JFXSequenceIndexed) tree).getSequence());
         case SEQUENCE_SLICE:
             return symbol(((JFXSequenceSlice) tree).getSequence());
+        case VAR_REF:
+            return ((JFXVarRef)tree).getVarSymbol();
 	default:
 	    return null;
 	}
@@ -402,7 +421,7 @@ public class JavafxTreeInfo {
         tree = skipParens(tree);
         switch (tree.getFXTag()) {
         case IDENT:
-            return ((JFXIdent) tree).name;
+            return ((JFXIdent) tree).getName();
         case SELECT:
             Name sname = fullName(((JFXSelect) tree).selected);
             return sname == null ? null : sname.append('.', name(tree));
@@ -417,7 +436,7 @@ public class JavafxTreeInfo {
     public static Name name(JFXTree tree) {
         switch (tree.getFXTag()) {
         case IDENT:
-            return ((JFXIdent) tree).name;
+            return ((JFXIdent) tree).getName();
         case SELECT:
             return ((JFXSelect) tree).name;
         default:
@@ -436,11 +455,13 @@ public class JavafxTreeInfo {
         case VAR_DEF:
             return ((JFXVar) node).sym;
         case VAR_SCRIPT_INIT:
-            return ((JFXVarScriptInit) node).getSymbol();
+            return ((JFXVarInit) node).getSymbol();
         case CLASS_DEF:
             return ((JFXClassDeclaration) node).sym;
         case FUNCTION_DEF:
             return ((JFXFunctionDefinition) node).sym;
+        case FUNCTIONEXPRESSION:
+            return symbolFor(((JFXFunctionValue) node).definition);
         case OBJECT_LITERAL_PART:
             return ((JFXObjectLiteralPart) node).sym;
         case TYPECLASS:

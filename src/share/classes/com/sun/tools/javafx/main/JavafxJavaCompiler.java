@@ -23,6 +23,9 @@
 
 package com.sun.tools.javafx.main;
 
+import com.sun.source.tree.Tree.Kind;
+import com.sun.source.util.TaskEvent;
+import com.sun.tools.javafx.tree.BlockExprJCBlockExpression;
 import com.sun.tools.mjavac.comp.AttrContext;
 import com.sun.tools.mjavac.comp.Env;
 import com.sun.tools.mjavac.main.*;
@@ -30,7 +33,17 @@ import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
 import com.sun.tools.mjavac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.javafx.util.JavafxBackendLog;
+import com.sun.tools.mjavac.parser.Parser;
+import com.sun.tools.mjavac.parser.Scanner;
+import com.sun.tools.mjavac.parser.Token;
+import com.sun.tools.mjavac.tree.JCTree;
+import com.sun.tools.mjavac.tree.JCTree.JCBlock;
+import com.sun.tools.mjavac.tree.JCTree.JCExpression;
+import com.sun.tools.mjavac.tree.JCTree.JCExpressionStatement;
+import com.sun.tools.mjavac.tree.JCTree.JCStatement;
+import static com.sun.tools.mjavac.parser.Token.*;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import javax.annotation.processing.Processor;
 import javax.tools.JavaFileObject;
 
@@ -102,6 +115,116 @@ public class JavafxJavaCompiler extends JavaCompiler {
 
     @Override
     public List<JCCompilationUnit> parseFiles(List<JavaFileObject> fileObjects) throws IOException {
-        return modules;
+        if (modules != null) {
+            return modules;
+        } else {
+            return super.parseFiles(fileObjects);
+        }
     }
+
+    @Override
+    protected JCCompilationUnit parse(JavaFileObject filename, CharSequence content) {
+        // The following code is cut-pasted (ugly!) from super class and edited to
+        // override parser. The parser change here is to support block expressions.
+        long msec = System.currentTimeMillis();
+        JCCompilationUnit tree = make.TopLevel(List.<JCTree.JCAnnotation>nil(),
+                                      null, List.<JCTree>nil());
+        if (content != null) {
+            if (verbose) {
+                printVerbose("parsing.started", filename);
+            }
+            if (taskListener != null) {
+                TaskEvent e = new TaskEvent(TaskEvent.Kind.PARSE, filename);
+                taskListener.started(e);
+            }
+            int initialErrorCount = log.nerrors;
+            final Scanner scanner = getScannerFactory().newScanner(content);
+            // This was: Parser parser = parserFactory.newParser(scanner, keepComments(), genEndPos);
+            Parser parser = new Parser(parserFactory, scanner, keepComments()) {
+
+                @Override
+                public JCExpression expression() {
+                    Token next = scanner.token();
+                    if (next == LBRACE) {
+                        return parseBlockExpression();
+                    } else {
+                        scanner.token(next);
+                        return super.expression();
+                    }
+                }
+
+                @Override
+                protected JCExpression term3() {
+                    Token next = scanner.token();
+                    if (next == LBRACE) {
+                        return parseBlockExpression();
+                    } else {
+                        scanner.token(next);
+                        return super.term3();
+                    }
+                }
+
+                @Override
+                protected JCExpression checkExprStat(JCExpression t) {
+                    // Block expressions can have last expressions that are not valid
+                    // Java expressions! So, don't check for validity.
+                    return t;
+                }
+
+                private JCExpression parseBlockExpression() {
+                    JCBlock blk = block();
+                    List<JCStatement> stats = blk.getStatements();
+                    JCExpression value = null;
+                    JCStatement lastStat = stats.last();
+                    ListBuffer<JCStatement> newStats = new ListBuffer<JCStatement>();
+                    final int count = stats.size();
+                    int index = 1;
+                    for (JCStatement s : stats) {
+                        // Is this the last statement?
+                        if (index == count) {
+                            lastStat = s;
+                            break;
+                        }
+                        newStats.append(s);
+                        index++;
+                    }
+                    if (lastStat != null && lastStat.getKind() == Kind.EXPRESSION_STATEMENT) {
+                        stats = newStats.toList();
+                        value = ((JCExpressionStatement)lastStat).getExpression();
+                    }
+                    JCExpression expr = new BlockExprJCBlockExpression(0L, stats, value);
+                    expr.pos = blk.pos;
+                    return expr;
+                }
+            };
+            tree = parser.compilationUnit();
+            // HACK: Need to set parseErrors flag in superclass which is private!
+            // Use reflection hack to set right value of parseErrors flag.
+            setParseErrors(log.nerrors > initialErrorCount);
+            if (lineDebugInfo) {
+                tree.lineMap = scanner.getLineMap();
+            }
+            if (verbose) {
+                printVerbose("parsing.done", Long.toString(System.currentTimeMillis() - msec));
+            }
+        }
+
+        tree.sourcefile = filename;
+
+        if (content != null && taskListener != null) {
+            TaskEvent e = new TaskEvent(TaskEvent.Kind.PARSE, tree);
+            taskListener.finished(e);
+        }
+
+        return tree;
+    } // where
+        private void setParseErrors(boolean newValue) {
+            try {
+                Field parseErrorsField = JavaCompiler.class.getDeclaredField("parseErrors");
+                parseErrorsField.setAccessible(true);
+                boolean oldValue = parseErrorsField.getBoolean(this);
+                parseErrorsField.setBoolean(this, oldValue |= newValue);
+            } catch (Exception ignored) {
+            }
+       }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,40 +23,75 @@
 
 package com.sun.tools.javafx.code;
 
+import com.sun.tools.javafx.comp.JavafxDefs;
+import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Name;
 
 /**
- * Marker wrapper on class: this is a JavaFX var
- * 
- * @author llitchev
+ * Class to hold and access variable information.
+ *
+ * @author Robert Field
  */
 public class JavafxVarSymbol extends VarSymbol {
-    public static final int TYPE_KIND_OBJECT = 0;
-    public static final int TYPE_KIND_BOOLEAN = 1;
-    public static final int TYPE_KIND_CHAR = 2;
-    public static final int TYPE_KIND_BYTE = 3;
-    public static final int TYPE_KIND_SHORT = 4;
-    public static final int TYPE_KIND_INT = 5;
-    public static final int TYPE_KIND_LONG = 6;
-    public static final int TYPE_KIND_FLOAT = 7;
-    public static final int TYPE_KIND_DOUBLE = 8;
-    public static final int TYPE_KIND_SEQUENCE = 9;
-    public static final int TYPE_KIND_COUNT = 10;
-    
-    static final String[] typePrefixes = new String[] { "Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence" };
-    public static String getTypePrefix(int index) { return typePrefixes[index]; }
-    
-    static final String[] accessorSuffixes = new String[] { "", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence" };
-    public static String getAccessorSuffix(int index) { return accessorSuffixes[index]; }
 
-    /** Creates a new instance of JavafxVarSymbol */
-    public JavafxVarSymbol(long flags,
-            Name name,
-            Type type,
-            Symbol owner) {
+    private int typeKind = -1;
+    private Type elementType = null;
+    private final boolean isMember;
+    private final boolean isFXMember;
+
+    private Type lastSeenType;
+    private final JavafxTypes types;
+
+    /** Construct a variable symbol, given its flags, name, type and owner.
+     */
+    public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
         super(flags, name, type, owner);
+        this.types = types;
+        this.isMember = owner.kind == Kinds.TYP && name != names._class;
+        this.isFXMember = isMember && types.isJFXClass(owner);
+    }
+
+    public void syncType() {
+        if (lastSeenType != type) {
+            typeKind = types.typeKind(type);
+            switch (typeKind) {
+                case JavafxDefs.TYPE_KIND_SEQUENCE:
+                    elementType = types.elementType(type);
+                    break;
+                case JavafxDefs.TYPE_KIND_OBJECT:
+                    elementType = type;
+                    break;
+                default:
+                    elementType = null;
+                    break;
+            }
+            lastSeenType = type;
+        }
+    }
+
+    public boolean isMember() {
+            return isMember;
+    }
+
+    public  boolean isFXMember() {
+            return isFXMember;
+    }
+
+    public boolean isSequence() {
+        syncType();
+        return typeKind == JavafxDefs.TYPE_KIND_SEQUENCE;
+    }
+
+    public Type getElementType() {
+        syncType();
+        return elementType;
+    }
+
+    public int getTypeKind() {
+        syncType();
+        return typeKind;
     }
 }

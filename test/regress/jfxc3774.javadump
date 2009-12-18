@@ -1,0 +1,781 @@
+import java.lang.*;
+import com.sun.javafx.runtime.annotation.*;
+import com.sun.javafx.runtime.sequence.*;
+import com.sun.javafx.runtime.*;
+import com.sun.javafx.functions.*;
+
+
+public class jfxc3774 extends jfxc3774A implements FXObject {
+    public static int VCNT$ = -1;
+    
+    public static int VCNT$() {
+        if (VCNT$ == -1) {
+            final int $count = VCNT$ = jfxc3774A.VCNT$() + 3;
+            VOFF$jfxc3774$$save$3 = $count + -3;
+            VOFF$nodes = $count + -2;
+            VOFF$jfxc3774$labeled = $count + -1;
+        }
+        return VCNT$;
+    }
+    
+    public int count$() {
+        return VCNT$();
+    }
+    public static int VOFF$jfxc3774$$save$3;
+    public static int VOFF$nodes;
+    public static int VOFF$jfxc3774$labeled;
+    public byte VFLG$jfxc3774$$save$3;
+    public byte VFLG$nodes;
+    public byte VFLG$jfxc3774$labeled;
+    
+    
+    private Sequence<? extends Integer> $jfxc3774$$save$3 = TypeInfo.Integer.emptySequence;
+    
+    
+    protected Sequence<? extends Integer> $nodes = TypeInfo.Integer.emptySequence;
+    
+    
+    protected Sequence<? extends Integer> $jfxc3774$labeled = TypeInfo.Integer.emptySequence;
+    
+    
+    public Sequence<? extends Integer> get$jfxc3774$$save$3() {
+        if ($jfxc3774$$save$3 == TypeInfo.Integer.emptySequence && (VFLG$jfxc3774$$save$3 & VFLGS$IS_BOUND) == VFLGS$IS_BOUND) {
+            size$jfxc3774$$save$3();
+            $jfxc3774$$save$3 = new SequenceRef(TypeInfo.Integer, this, jfxc3774.VOFF$jfxc3774$$save$3);
+        } else if ((VFLG$jfxc3774$$save$3 & VFLGS$IS_BOUND_DEFAULT_APPLIED) == 0) {
+            applyDefaults$(jfxc3774.VOFF$jfxc3774$$save$3);
+        }
+        return $jfxc3774$$save$3;
+    }
+    
+    
+    public int elem$jfxc3774$$save$3(final int pos$) {
+        return $jfxc3774$$save$3.get(pos$);
+    }
+    
+    
+    public int size$jfxc3774$$save$3() {
+        return $jfxc3774$$save$3.size();
+    }
+    
+    
+    public Sequence<? extends Integer> be$jfxc3774$$save$3(final Sequence<? extends Integer> varNewValue$) {
+        $jfxc3774$$save$3 = varNewValue$;
+        return $jfxc3774$$save$3;
+    }
+    
+    
+    public void invalidate$jfxc3774$$save$3(final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+        notifyDependents$(jfxc3774.VOFF$jfxc3774$$save$3, startPos$, endPos$, newLength$, phase$);
+        if (phase$ == VFLGS$NEEDS_TRIGGER) {
+            onReplace$jfxc3774$$save$3(startPos$, endPos$, newLength$);
+        }
+    }
+    
+    
+    public void onReplace$jfxc3774$$save$3(final int startPos$, final int endPos$, final int newLength$) {
+    }
+    
+    
+    public Sequence<? extends Integer> get$nodes() {
+        if ($nodes == TypeInfo.Integer.emptySequence && (VFLG$nodes & VFLGS$IS_BOUND) == VFLGS$IS_BOUND) {
+            size$nodes();
+            $nodes = new SequenceRef(TypeInfo.Integer, this, jfxc3774.VOFF$nodes);
+        } else if ((VFLG$nodes & VFLGS$IS_BOUND_DEFAULT_APPLIED) == 0) {
+            applyDefaults$(jfxc3774.VOFF$nodes);
+        }
+        return $nodes;
+    }
+    
+    
+    public int elem$nodes(final int pos$) {
+        return $nodes.get(pos$);
+    }
+    
+    
+    public int size$nodes() {
+        return $nodes.size();
+    }
+    
+    
+    public Sequence<? extends Integer> be$nodes(final Sequence<? extends Integer> varNewValue$) {
+        $nodes = varNewValue$;
+        return $nodes;
+    }
+    
+    
+    public void invalidate$nodes(final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+        invalidate$jfxc3774$labeled(startPos$, endPos$, newLength$, phase$);
+        notifyDependents$(jfxc3774.VOFF$nodes, startPos$, endPos$, newLength$, phase$);
+        if (phase$ == VFLGS$NEEDS_TRIGGER) {
+            onReplace$nodes(startPos$, endPos$, newLength$);
+        }
+    }
+    
+    
+    public void onReplace$nodes(final int a, final int endPos$, final int newNodes$length) {
+        final int b = endPos$ - 1;
+        final Sequence<? extends Integer> oldNodes = $jfxc3774$$save$3;
+        $jfxc3774$$save$3 = Sequences.set($jfxc3774$$save$3, get$nodes());
+        $jfxc3774$$save$3.incrementSharing();
+        final Sequence<? extends Integer> newNodes = Sequences.getNewElements($jfxc3774$$save$3, a, newNodes$length);
+        javafx.lang.Builtins.println(String.format("newNodes = %s", newNodes));
+    }
+    
+    
+    public Sequence<? extends Integer> get$jfxc3774$labeled() {
+        if ($jfxc3774$labeled == TypeInfo.Integer.emptySequence && (VFLG$jfxc3774$labeled & VFLGS$IS_BOUND) == VFLGS$IS_BOUND) {
+            size$jfxc3774$labeled();
+            $jfxc3774$labeled = new SequenceRef(TypeInfo.Integer, this, jfxc3774.VOFF$jfxc3774$labeled);
+        } else if ((VFLG$jfxc3774$labeled & VFLGS$IS_BOUND_DEFAULT_APPLIED) == 0) {
+            applyDefaults$(jfxc3774.VOFF$jfxc3774$labeled);
+        }
+        return $jfxc3774$labeled;
+    }
+    
+    
+    public int elem$jfxc3774$labeled(final int pos$) {
+        return elem$nodes(pos$);
+    }
+    
+    
+    public int size$jfxc3774$labeled() {
+        return size$nodes();
+    }
+    
+    
+    public Sequence<? extends Integer> be$jfxc3774$labeled(final Sequence<? extends Integer> varNewValue$) {
+        $jfxc3774$labeled = varNewValue$;
+        return $jfxc3774$labeled;
+    }
+    
+    
+    public void invalidate$jfxc3774$labeled(final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+        notifyDependents$(jfxc3774.VOFF$jfxc3774$labeled, startPos$, endPos$, newLength$, phase$);
+        if (phase$ == VFLGS$NEEDS_TRIGGER) {
+            onReplace$jfxc3774$labeled(startPos$, endPos$, newLength$);
+        }
+    }
+    
+    
+    public void onReplace$jfxc3774$labeled(final int startPos$, final int endPos$, final int newLength$) {
+    }
+    
+    public void applyDefaults$(final int varNum$) {
+        if (varTestBits$(varNum$, VFLGS$DEFAULT_APPLIED_VARINIT, 0)) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                {
+                    VFLG$nodes |= (byte)VFLGS$DEFAULT_APPLIED;
+                    invalidate$nodes(0, 0, 0, VFLGS$IS_INVALID);
+                    VFLG$nodes |= (byte)VFLGS$IS_INVALID;
+                    invalidate$nodes(0, 0, 0, VFLGS$NEEDS_TRIGGER);
+                    VFLG$nodes |= (byte)VFLGS$NEEDS_TRIGGER;
+                }
+                return;
+            
+            case -1: 
+                VFLG$jfxc3774$labeled |= (byte)VFLGS$IS_INITIALIZED;
+                return;
+            
+            default: 
+            
+            }
+            super.applyDefaults$(varNum$);
+        }
+    }
+    
+    public void initVarBits$() {
+        super.initVarBits$();
+        VFLG$jfxc3774$labeled = (byte)VFLGS$INIT_BOUND_READONLY;
+    }
+    
+    public Object get$(final int varNum$) {
+        switch (varNum$ - VCNT$) {
+        case -2: 
+            return get$nodes();
+        
+        case -1: 
+            return get$jfxc3774$labeled();
+        
+        }
+        return super.get$(varNum$);
+    }
+    
+    public Object elem$(final int varNum$, final int pos$) {
+        switch (varNum$ - VCNT$) {
+        case -2: 
+            return elem$nodes(pos$);
+        
+        case -1: 
+            return elem$jfxc3774$labeled(pos$);
+        
+        }
+        return super.elem$(varNum$, pos$);
+    }
+    
+    public int size$(final int varNum$) {
+        switch (varNum$ - VCNT$) {
+        case -2: 
+            return size$nodes();
+        
+        case -1: 
+            return size$jfxc3774$labeled();
+        
+        }
+        return super.size$(varNum$);
+    }
+    
+    public void set$(final int varNum$, final Object object$) {
+        switch (varNum$ - VCNT$) {
+        case -2: 
+            Sequences.set(this, jfxc3774.VOFF$nodes, (Sequence<? extends Integer>)object$);
+            return;
+        
+        case -1: 
+            Sequences.set(this, jfxc3774.VOFF$jfxc3774$labeled, (Sequence<? extends Integer>)object$);
+            return;
+        
+        }
+        super.set$(varNum$, object$);
+    }
+    
+    public void be$(final int varNum$, final Object object$) {
+        switch (varNum$ - VCNT$) {
+        case -2: 
+            be$nodes((Sequence<? extends Integer>)object$);
+            return;
+        
+        case -1: 
+            be$jfxc3774$labeled((Sequence<? extends Integer>)object$);
+            return;
+        
+        }
+        super.be$(varNum$, object$);
+    }
+    
+    public void invalidate$(final int varNum$, final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+        switch (varNum$ - VCNT$) {
+        case -2: 
+            invalidate$nodes(startPos$, endPos$, newLength$, phase$);
+            return;
+        
+        case -1: 
+            invalidate$jfxc3774$labeled(startPos$, endPos$, newLength$, phase$);
+            return;
+        
+        }
+        super.invalidate$(varNum$, startPos$, endPos$, newLength$, phase$);
+    }
+    
+    public int getFlags$(final int varNum$) {
+        switch (varNum$ - VCNT$) {
+        case -2: 
+            return VFLG$nodes;
+        
+        case -1: 
+            return VFLG$jfxc3774$labeled;
+        
+        }
+        return super.getFlags$(varNum$);
+    }
+    
+    public void setFlags$(final int varNum$, final int varNewValue$) {
+        switch (varNum$ - VCNT$) {
+        case -2: 
+            VFLG$nodes = (byte)varNewValue$;
+            return;
+        
+        case -1: 
+            VFLG$jfxc3774$labeled = (byte)varNewValue$;
+            return;
+        
+        }
+        super.setFlags$(varNum$, varNewValue$);
+    }
+    
+    public jfxc3774() {
+        this(false);
+        initialize$();
+    }
+    
+    public jfxc3774(final boolean dummy) {
+        super(dummy);
+    }
+    static short[] MAP$jfxc3774$ObjLit$1;
+    
+    public static short[] GETMAP$jfxc3774$ObjLit$1() {
+        return MAP$jfxc3774$ObjLit$1;
+    }
+    
+    
+    
+    public static Sequence<? extends Integer> $fred = TypeInfo.Integer.emptySequence;
+    
+    
+    
+    public static jfxc3774 $jjobj;
+    
+    
+    
+    public static Sequence<? extends Integer> get$fred() {
+        if ($fred == TypeInfo.Integer.emptySequence && (access$scriptLevel$jfxc3774$().VFLG$fred & VFLGS$IS_BOUND) == VFLGS$IS_BOUND) {
+            size$fred();
+            $fred = new SequenceRef(TypeInfo.Integer, access$scriptLevel$jfxc3774$(), jfxc3774.jfxc3774$Script.VOFF$fred);
+        }
+        return $fred;
+    }
+    
+    
+    
+    public static int elem$fred(final int pos$) {
+        return $fred.get(pos$);
+    }
+    
+    
+    
+    public static int size$fred() {
+        return $fred.size();
+    }
+    
+    
+    
+    public static Sequence<? extends Integer> be$fred(final Sequence<? extends Integer> varNewValue$) {
+        $fred = varNewValue$;
+        return $fred;
+    }
+    
+    
+    
+    public static void invalidate$fred(final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+        access$scriptLevel$jfxc3774$().notifyDependents$(jfxc3774.jfxc3774$Script.VOFF$fred, startPos$, endPos$, newLength$, phase$);
+        if (phase$ == VFLGS$NEEDS_TRIGGER) {
+            onReplace$fred(startPos$, endPos$, newLength$);
+        }
+    }
+    
+    
+    
+    public static void onReplace$fred(final int startPos$, final int endPos$, final int newLength$) {
+    }
+    
+    
+    
+    public static jfxc3774 get$jjobj() {
+        return $jjobj;
+    }
+    private static jfxc3774.jfxc3774$Script $scriptLevel$;
+    
+    public static jfxc3774.jfxc3774$Script access$scriptLevel$jfxc3774$() {
+        if ($scriptLevel$ == null) {
+            $scriptLevel$ = new jfxc3774$Script(false);
+            $scriptLevel$.initialize$();
+        }
+        return $scriptLevel$;
+    }
+    static {
+        access$scriptLevel$jfxc3774$();
+        access$scriptLevel$jfxc3774$().applyDefaults$();
+    }
+    
+    
+    
+    public static class jfxc3774$Script extends FXBase implements FXObject {
+        public static int VCNT$ = -1;
+        
+        public static int VCNT$() {
+            if (VCNT$ == -1) {
+                final int $count = VCNT$ = jfxc3774A.VCNT$() + 2;
+                VOFF$fred = $count + -2;
+                VOFF$jjobj = $count + -1;
+            }
+            return VCNT$;
+        }
+        
+        public int count$() {
+            return VCNT$();
+        }
+        public static int VOFF$fred;
+        public static int VOFF$jjobj;
+        public byte VFLG$fred;
+        public byte VFLG$jjobj;
+        
+        public void applyDefaults$(final int varNum$) {
+            if (varTestBits$(varNum$, VFLGS$DEFAULT_APPLIED_VARINIT, 0)) {
+                switch (varNum$ - VCNT$) {
+                case -2: 
+                    Sequences.replaceSlice(this, jfxc3774.jfxc3774$Script.VOFF$fred, $fred, 0, 0);
+                    return;
+                
+                case -1: 
+                    access$scriptLevel$jfxc3774$().VFLG$jjobj |= (byte)VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED;
+                    $jjobj = {
+                        
+                        
+                        /*synthetic*/ final class jfxc3774$ObjLit$1 extends jfxc3774 implements FXObject {
+                            public static int VCNT$ = -1;
+                            
+                            public static int VCNT$() {
+                                if (VCNT$ == -1) {
+                                    final int $count = VCNT$ = jfxc3774.VCNT$() + 2;
+                                    VOFF$jfxc3774$ObjLit$1$$$1 = $count + -2;
+                                    VOFF$jfxc3774$ObjLit$1$$size$2 = $count + -1;
+                                }
+                                return VCNT$;
+                            }
+                            
+                            public int count$() {
+                                return VCNT$();
+                            }
+                            public static int VOFF$jfxc3774$ObjLit$1$$$1;
+                            public static int VOFF$jfxc3774$ObjLit$1$$size$2;
+                            public byte VFLG$jfxc3774$ObjLit$1$$$1;
+                            public byte VFLG$jfxc3774$ObjLit$1$$size$2;
+                            
+                            
+                            protected jfxc3774.jfxc3774$Script $jfxc3774$ObjLit$1$$$1;
+                            
+                            
+                            private int $jfxc3774$ObjLit$1$$size$2;
+                            
+                            
+                            public jfxc3774.jfxc3774$Script get$jfxc3774$ObjLit$1$$$1() {
+                                if ((VFLG$jfxc3774$ObjLit$1$$$1 & VFLGS$IS_BOUND_INVALID_CYCLE) == VFLGS$IS_BOUND_INVALID) {
+                                    VFLG$jfxc3774$ObjLit$1$$$1 |= (byte)VFLGS$CYCLE;
+                                    try {
+                                        be$jfxc3774$ObjLit$1$$$1(jfxc3774.access$scriptLevel$jfxc3774$());
+                                    } catch (final RuntimeException ifx$0tmp) {
+                                        ErrorHandler.bindException(ifx$0tmp);
+                                        be$jfxc3774$ObjLit$1$$$1(null);
+                                    }
+                                    VFLG$jfxc3774$ObjLit$1$$$1 &= (byte)(VFLGS$CYCLE ^ -1);
+                                } else if ((VFLG$jfxc3774$ObjLit$1$$$1 & VFLGS$IS_BOUND_DEFAULT_APPLIED) == 0) {
+                                    applyDefaults$(jfxc3774$ObjLit$1.VOFF$jfxc3774$ObjLit$1$$$1);
+                                }
+                                return $jfxc3774$ObjLit$1$$$1;
+                            }
+                            
+                            
+                            public jfxc3774.jfxc3774$Script set$jfxc3774$ObjLit$1$$$1(final jfxc3774.jfxc3774$Script varNewValue$) {
+                                restrictSet$(jfxc3774$ObjLit$1.VOFF$jfxc3774$ObjLit$1$$$1);
+                                VFLG$jfxc3774$ObjLit$1$$$1 |= (byte)VFLGS$IS_INITIALIZED;
+                                be$jfxc3774$ObjLit$1$$$1(varNewValue$);
+                                return $jfxc3774$ObjLit$1$$$1;
+                            }
+                            
+                            
+                            public jfxc3774.jfxc3774$Script be$jfxc3774$ObjLit$1$$$1(final jfxc3774.jfxc3774$Script varNewValue$) {
+                                final jfxc3774.jfxc3774$Script varOldValue$ = $jfxc3774$ObjLit$1$$$1;
+                                if (!Util.isEqual(varOldValue$, varNewValue$) || (VFLG$jfxc3774$ObjLit$1$$$1 & VFLGS$DEFAULT_APPLIED) == 0) {
+                                    VFLG$jfxc3774$ObjLit$1$$$1 |= (byte)VFLGS$DEFAULT_APPLIED;
+                                    invalidate$jfxc3774$ObjLit$1$$$1(VFLGS$IS_INVALID);
+                                    $jfxc3774$ObjLit$1$$$1 = varNewValue$;
+                                    VFLG$jfxc3774$ObjLit$1$$$1 &= (byte)(VFLGS$IS_INVALID ^ -1);
+                                    invalidate$jfxc3774$ObjLit$1$$$1(VFLGS$NEEDS_TRIGGER);
+                                    VFLG$jfxc3774$ObjLit$1$$$1 &= (byte)(VFLGS$NEEDS_TRIGGER ^ -1);
+                                    onReplace$jfxc3774$ObjLit$1$$$1(varOldValue$, varNewValue$);
+                                } else {
+                                    VFLG$jfxc3774$ObjLit$1$$$1 = (byte)(VFLG$jfxc3774$ObjLit$1$$$1 & (VFLGS$VALIDITY_FLAGS ^ -1) | VFLGS$DEFAULT_APPLIED);
+                                }
+                                return $jfxc3774$ObjLit$1$$$1;
+                            }
+                            
+                            
+                            public void invalidate$jfxc3774$ObjLit$1$$$1(final int phase$) {
+                                if ((VFLG$jfxc3774$ObjLit$1$$$1 & phase$) == 0) {
+                                    VFLG$jfxc3774$ObjLit$1$$$1 |= (byte)phase$;
+                                    if (phase$ == VFLGS$IS_INVALID) {
+                                        if ($jfxc3774$ObjLit$1$$$1 != null) FXBase.removeDependent$($jfxc3774$ObjLit$1$$$1, jfxc3774.jfxc3774$Script.VOFF$fred, this);
+                                        invalidate$jfxc3774$labeled(0, -1000, -1000, VFLGS$IS_INVALID);
+                                    } else {
+                                        final int bfx$0tmp = jfxc3774.size$fred();
+                                        get$jfxc3774$ObjLit$1$$$1();
+                                        final int bfx$1tmp = jfxc3774.size$fred();
+                                        if ($jfxc3774$ObjLit$1$$$1 != null) FXBase.addDependent$($jfxc3774$ObjLit$1$$$1, jfxc3774.jfxc3774$Script.VOFF$fred, this);
+                                        invalidate$jfxc3774$labeled(0, bfx$0tmp, bfx$1tmp, phase$);
+                                    }
+                                }
+                            }
+                            
+                            
+                            public void onReplace$jfxc3774$ObjLit$1$$$1(final jfxc3774.jfxc3774$Script varOldValue$, final jfxc3774.jfxc3774$Script varNewValue$) {
+                            }
+                            
+                            
+                            public int get$jfxc3774$ObjLit$1$$size$2() {
+                                return 0;
+                            }
+                            
+                            
+                            public void invalidate$jfxc3774$ObjLit$1$$size$2(final int phase$) {
+                                if ((VFLG$jfxc3774$ObjLit$1$$size$2 & phase$) == 0) {
+                                    VFLG$jfxc3774$ObjLit$1$$size$2 |= (byte)phase$;
+                                    notifyDependents$(jfxc3774$ObjLit$1.VOFF$jfxc3774$ObjLit$1$$size$2, phase$);
+                                }
+                            }
+                            
+                            
+                            public int elem$jfxc3774$labeled(final int pos$) {
+                                {
+                                    size$jfxc3774$labeled();
+                                    return jfxc3774.elem$fred(pos$);
+                                }
+                            }
+                            
+                            
+                            public int size$jfxc3774$labeled() {
+                                {
+                                    if ((VFLG$jfxc3774$labeled & VFLGS$DEFAULT_APPLIED) == 0) {
+                                        VFLG$jfxc3774$labeled |= (byte)VFLGS$DEFAULT_APPLIED;
+                                        VFLG$jfxc3774$ObjLit$1$$$1 &= (byte)(VFLGS$NEEDS_TRIGGER ^ -1);
+                                        invalidate$jfxc3774$ObjLit$1$$$1(VFLGS$NEEDS_TRIGGER);
+                                    }
+                                    return jfxc3774.size$fred();
+                                }
+                            }
+                            
+                            public void applyDefaults$(final int varNum$) {
+                                if (varTestBits$(varNum$, VFLGS$DEFAULT_APPLIED_VARINIT, 0)) {
+                                    switch (varNum$ - VCNT$) {
+                                    case -2: 
+                                        VFLG$jfxc3774$ObjLit$1$$$1 |= (byte)VFLGS$IS_INITIALIZED;
+                                        return;
+                                    
+                                    default: 
+                                        if (jfxc3774.VOFF$jfxc3774$labeled == varNum$) {
+                                            VFLG$jfxc3774$labeled |= (byte)VFLGS$IS_INITIALIZED;
+                                            size$jfxc3774$labeled();
+                                            return;
+                                        }
+                                    
+                                    }
+                                    super.applyDefaults$(varNum$);
+                                }
+                            }
+                            
+                            public void initVarBits$() {
+                                super.initVarBits$();
+                                VFLG$jfxc3774$ObjLit$1$$$1 = (byte)VFLGS$INIT_BOUND_READONLY;
+                                VFLG$jfxc3774$ObjLit$1$$size$2 = (byte)VFLGS$INIT_BOUND_READONLY;
+                                VFLG$jfxc3774$labeled = (byte)VFLGS$INIT_BOUND_READONLY;
+                            }
+                            
+                            public void update$(final FXObject instance$, final int varNum$, final int phase$) {
+                                if (instance$ == $jfxc3774$ObjLit$1$$$1) {
+                                    if (varNum$ == jfxc3774.jfxc3774$Script.VOFF$fred) {
+                                        throw new RuntimeException("Not expecting a non-sequence to be sending update$ to a sequence");
+                                    }
+                                }
+                                super.update$(instance$, varNum$, phase$);
+                            }
+                            
+                            public void update$(final FXObject instance$, final int varNum$, final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+                                if (instance$ == $jfxc3774$ObjLit$1$$$1) {
+                                    if (varNum$ == jfxc3774.jfxc3774$Script.VOFF$fred) {
+                                        invalidate$jfxc3774$labeled(startPos$, endPos$, newLength$, phase$);
+                                    }
+                                }
+                                super.update$(instance$, varNum$, startPos$, endPos$, newLength$, phase$);
+                            }
+                            
+                            public Object get$(final int varNum$) {
+                                switch (varNum$ - VCNT$) {
+                                case -2: 
+                                    return get$jfxc3774$ObjLit$1$$$1();
+                                
+                                }
+                                return super.get$(varNum$);
+                            }
+                            
+                            public void set$(final int varNum$, final Object object$) {
+                                switch (varNum$ - VCNT$) {
+                                case -2: 
+                                    set$jfxc3774$ObjLit$1$$$1((jfxc3774.jfxc3774$Script)object$);
+                                    return;
+                                
+                                }
+                                super.set$(varNum$, object$);
+                            }
+                            
+                            public void be$(final int varNum$, final Object object$) {
+                                switch (varNum$ - VCNT$) {
+                                case -2: 
+                                    be$jfxc3774$ObjLit$1$$$1((jfxc3774.jfxc3774$Script)object$);
+                                    return;
+                                
+                                }
+                                super.be$(varNum$, object$);
+                            }
+                            
+                            public void invalidate$(final int varNum$, final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+                                switch (varNum$ - VCNT$) {
+                                case -2: 
+                                    invalidate$jfxc3774$ObjLit$1$$$1(phase$);
+                                    return;
+                                
+                                }
+                                super.invalidate$(varNum$, startPos$, endPos$, newLength$, phase$);
+                            }
+                            
+                            public int getFlags$(final int varNum$) {
+                                if (jfxc3774.VOFF$jfxc3774$labeled == varNum$) {
+                                    return VFLG$jfxc3774$labeled;
+                                }
+                                switch (varNum$ - VCNT$) {
+                                case -2: 
+                                    return VFLG$jfxc3774$ObjLit$1$$$1;
+                                
+                                default: 
+                                    if (jfxc3774.VOFF$jfxc3774$labeled == varNum$) {
+                                        return VFLG$jfxc3774$labeled;
+                                    }
+                                
+                                }
+                                return super.getFlags$(varNum$);
+                            }
+                            
+                            public void setFlags$(final int varNum$, final int varNewValue$) {
+                                if (jfxc3774.VOFF$jfxc3774$labeled == varNum$) {
+                                    VFLG$jfxc3774$labeled = (byte)varNewValue$;
+                                    return;
+                                }
+                                switch (varNum$ - VCNT$) {
+                                case -2: 
+                                    VFLG$jfxc3774$ObjLit$1$$$1 = (byte)varNewValue$;
+                                    return;
+                                
+                                default: 
+                                    if (jfxc3774.VOFF$jfxc3774$labeled == varNum$) {
+                                        VFLG$jfxc3774$labeled = (byte)varNewValue$;
+                                        return;
+                                    }
+                                
+                                }
+                                super.setFlags$(varNum$, varNewValue$);
+                            }
+                            
+                            public jfxc3774$ObjLit$1() {
+                                this(false);
+                                initialize$();
+                            }
+                            
+                            public jfxc3774$ObjLit$1(final boolean dummy) {
+                                super(dummy);
+                            }
+                            static {
+                                MAP$jfxc3774$ObjLit$1 = FXBase.makeInitMap$(jfxc3774$ObjLit$1.VCNT$(), jfxc3774$ObjLit$1.VOFF$children, jfxc3774$ObjLit$1.VOFF$nodes, jfxc3774$ObjLit$1.VOFF$jfxc3774$labeled, jfxc3774$ObjLit$1.VOFF$jfxc3774$ObjLit$1$$$1);
+                            }
+                        }
+                        final jfxc3774$ObjLit$1 jfx$0objlit = new jfxc3774$ObjLit$1(true);
+                        jfx$0objlit.applyDefaults$();
+                        jfx$0objlit.complete$();
+                        jfx$0objlit;
+                    };
+                    return;
+                
+                default: 
+                
+                }
+                super.applyDefaults$(varNum$);
+            }
+        }
+        
+        public Object get$(final int varNum$) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                return get$fred();
+            
+            case -1: 
+                return get$jjobj();
+            
+            }
+            return super.get$(varNum$);
+        }
+        
+        public Object elem$(final int varNum$, final int pos$) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                return elem$fred(pos$);
+            
+            }
+            return super.elem$(varNum$, pos$);
+        }
+        
+        public int size$(final int varNum$) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                return size$fred();
+            
+            }
+            return super.size$(varNum$);
+        }
+        
+        public void set$(final int varNum$, final Object object$) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                Sequences.set(this, jfxc3774.jfxc3774$Script.VOFF$fred, (Sequence<? extends Integer>)object$);
+                return;
+            
+            case -1: 
+                $jjobj = (jfxc3774)object$;
+                return;
+            
+            }
+            super.set$(varNum$, object$);
+        }
+        
+        public void be$(final int varNum$, final Object object$) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                be$fred((Sequence<? extends Integer>)object$);
+                return;
+            
+            }
+            super.be$(varNum$, object$);
+        }
+        
+        public void invalidate$(final int varNum$, final int startPos$, final int endPos$, final int newLength$, final int phase$) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                invalidate$fred(startPos$, endPos$, newLength$, phase$);
+                return;
+            
+            }
+            super.invalidate$(varNum$, startPos$, endPos$, newLength$, phase$);
+        }
+        
+        public int getFlags$(final int varNum$) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                return access$scriptLevel$jfxc3774$().VFLG$fred;
+            
+            case -1: 
+                return access$scriptLevel$jfxc3774$().VFLG$jjobj;
+            
+            }
+            return super.getFlags$(varNum$);
+        }
+        
+        public void setFlags$(final int varNum$, final int varNewValue$) {
+            switch (varNum$ - VCNT$) {
+            case -2: 
+                access$scriptLevel$jfxc3774$().VFLG$fred = (byte)varNewValue$;
+                return;
+            
+            case -1: 
+                access$scriptLevel$jfxc3774$().VFLG$jjobj = (byte)varNewValue$;
+                return;
+            
+            }
+            super.setFlags$(varNum$, varNewValue$);
+        }
+        
+        public jfxc3774$Script(final boolean dummy) {
+            super(dummy);
+        }
+        
+        public jfxc3774.jfxc3774$Script access$scriptLevel$jfxc3774$() {
+            return this;
+        }
+    }
+}
