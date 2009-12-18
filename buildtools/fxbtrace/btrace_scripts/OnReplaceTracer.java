@@ -25,40 +25,33 @@ import com.sun.btrace.annotations.*;
 import static com.sun.btrace.BTraceUtils.*;
 
 /**
- * Prints trace message at every invalidation call entry/return.
- * Also, increments a MBean property on every invalidation.
+ * Prints trace message at every on replace call entry/return.
  *
  * @author A. Sundararajan
  */
-@BTrace public class InvalidationTracer { 
-    // expose number of invalidations (monotonically increasing)
-    // as a MBean property
-    @Property
-    public static long invalidations;
-
+@BTrace public class OnReplaceTracer { 
     @OnMethod(
         clazz="+com.sun.javafx.runtime.FXObject",
-        method="/invalidate\\$.+/"
+        method="/onReplace\\$.+/"
     )
-    public static void onInvalidateEnter(
+    public static void onReplaceEnter(
         @ProbeClassName String className, @ProbeMethodName String methodName) {
-        invalidations++;
-        print("Entering invalidate ");
+        print("Entering on replace ");
         print(className);
         print(".");
-        println(substr(methodName, strlen("invalidate$")));
+        println(substr(methodName, strlen("onReplace$")));
     }
 
     @OnMethod(
         clazz="+com.sun.javafx.runtime.FXObject",
-        method="/invalidate\\$.+/",
+        method="/onReplace\\$.+/",
         location=@Location(Kind.RETURN)
     )
-    public static void onInvalidateReturn(
+    public static void onOnReplaceReturn(
         @ProbeClassName String className, @ProbeMethodName String methodName) {
-        print("Leaving invalidate ");
+        print("Leaving on replace ");
         print(className);
         print(".");
-        println(substr(methodName, strlen("invalidate$")));
+        println(substr(methodName, strlen("onReplace$")));
     }
 }
