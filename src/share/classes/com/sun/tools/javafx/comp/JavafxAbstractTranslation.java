@@ -1036,8 +1036,7 @@ public abstract class JavafxAbstractTranslation
 
             if (sym instanceof VarSymbol) {
                 final JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
-                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                boolean isFXMemberVar = vmi.isFXMemberVariable();
+                boolean isFXMemberVar = vsym.isFXMember();
 
                 if (isFXMemberVar) {
                     // this is a reference to a JavaFX class variable, use getter
@@ -2045,7 +2044,7 @@ public abstract class JavafxAbstractTranslation
             } else {
                 if (useAccessors) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
-                } else if (typeMorpher.varMorphInfo(refSym).isFXMemberVariable()) {
+                } else if (refSym instanceof VarSymbol && ((JavafxVarSymbol)refSym).isFXMember()) {
                     JCExpression lhsTranslated = selector != null ?
                         Select(tToCheck, attributeValueName(refSym)) :
                         id(attributeValueName(refSym));

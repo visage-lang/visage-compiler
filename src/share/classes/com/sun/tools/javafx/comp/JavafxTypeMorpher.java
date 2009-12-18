@@ -93,15 +93,6 @@ public class JavafxTypeMorpher {
         boolean useGetters() {
             return JavafxTypeMorpher.this.useGetters(sym);
         }
-
-        boolean isMemberVariable() {
-            return JavafxTypeMorpher.this.isMemberVariable(sym);
-        }
-
-        boolean isFXMemberVariable() {
-            return JavafxTypeMorpher.this.isFXMemberVariable(sym);
-        }
-
     }
 
     public class TypeMorphInfo {

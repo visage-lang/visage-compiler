@@ -538,11 +538,11 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 assert ((vsym.flags() & Flags.PARAMETER) == 0L) : "Parameters are not initialized";
                 setSubstitution(init, vsym);
                 final JCExpression nonNullInit = translateNonBoundInit(diagPos, init, vmi);
-                final boolean isLocal = !vmi.isMemberVariable();
+                final boolean isLocal = !vsym.isMember();
                 assert !isLocal || instanceName == null;
                 JCExpression res;
                 if (vmi.useAccessors()) {
-                    if (vmi.isMemberVariable() && vsym.isSequence()) {
+                    if (vsym.isMember() && vsym.isSequence()) {
                         JCExpression tc =
                                 instanceName == null ? getReceiverOrThis(vsym) : id(instanceName);
                         res = Call(defs.Sequences_set, tc, Offset(vsym), nonNullInit);

@@ -39,8 +39,7 @@ public class JavafxVarSymbol extends VarSymbol {
 
     private int typeKind = -1;
     private Type elementType = null;
-    private final boolean isMember;
-    private final boolean isFXMember;
+    private final boolean isDotClass;
 
     private Type lastSeenType;
     private final JavafxTypes types;
@@ -50,11 +49,10 @@ public class JavafxVarSymbol extends VarSymbol {
     public JavafxVarSymbol(JavafxTypes types, Name.Table names, long flags, Name name, Type type, Symbol owner) {
         super(flags, name, type, owner);
         this.types = types;
-        this.isMember = owner.kind == Kinds.TYP && name != names._class;
-        this.isFXMember = isMember && types.isJFXClass(owner);
+        this.isDotClass = name == names._class;
     }
 
-    public void syncType() {
+    private void syncType() {
         if (lastSeenType != type) {
             typeKind = types.typeKind(type);
             switch (typeKind) {
@@ -73,11 +71,11 @@ public class JavafxVarSymbol extends VarSymbol {
     }
 
     public boolean isMember() {
-            return isMember;
+            return owner.kind == Kinds.TYP && !isDotClass;
     }
 
-    public  boolean isFXMember() {
-            return isFXMember;
+    public boolean isFXMember() {
+        return isMember() && types.isJFXClass(owner);
     }
 
     public boolean isSequence() {
