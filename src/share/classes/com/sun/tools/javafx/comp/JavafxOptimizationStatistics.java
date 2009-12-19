@@ -90,9 +90,8 @@ public class JavafxOptimizationStatistics {
     }
 
     public void recordClassVar(JavafxVarSymbol vsym) {
-        long flags = vsym.flags();
-        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
-        boolean isScript = (flags & Flags.STATIC) != 0;
+        boolean isDef = vsym.isDef();
+        boolean isScript = vsym.isStatic();
         if (isScript) {
             if (isDef) {
                 ++scriptDefCount;
@@ -109,8 +108,7 @@ public class JavafxOptimizationStatistics {
     }
 
     public void recordLocalVar(JavafxVarSymbol vsym, boolean isBound, boolean isLocation) {
-        long flags = vsym.flags();
-        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
+        boolean isDef = vsym.isDef();
         if (isBound) {
             if (isDef) {
                 ++localBoundDefCount;

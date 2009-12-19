@@ -1236,7 +1236,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         initIf = OptIf(initCondition, endBlock(), null);
                     }
 
-                    if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                    if (isBoundFuncClass && varInfo.isParameter()) {
                         // Prepare to accumulate body of if.
                         beginBlock();
                         // Lock cycles.
@@ -1307,7 +1307,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     if (varInfo.hasBoundDefinition()) {
-                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                        if (isBoundFuncClass && varInfo.isParameter()) {
                             JCExpression apply = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
                                     defs.getElement_FXObjectMethodName,
@@ -1364,7 +1364,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     if (varInfo.hasBoundDefinition()) {
-                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                        if (isBoundFuncClass && varInfo.isParameter()) {
                             JCExpression apply = Call(
                                     id(boundFunctionObjectParamName(varSym.name)),
                                     defs.size_FXObjectMethodName,
@@ -1681,7 +1681,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     endBlock());
                         }
 
-                        if (isBoundFuncClass && ((varInfo.getFlags() & Flags.PARAMETER) != 0L)) {
+                        if (isBoundFuncClass && varInfo.isParameter()) {
                             // Prepare to accumulate body of if.
                             beginBlock();
 
@@ -3426,7 +3426,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                  *     ....
                  */
                 for (VarInfo vi : varInfos) {
-                    if ((vi.getFlags() & Flags.PARAMETER) != 0L) {
+                    if (vi.isParameter()) {
                         // call FXObject.addDependent$(int varNum, FXObject dep)
                         Symbol varSym = vi.getSymbol();
                         stmts.append(CallStmt(

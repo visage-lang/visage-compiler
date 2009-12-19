@@ -275,19 +275,19 @@ class JavafxAnalyzeClass {
         public JavafxVarSymbol proxyVarSym() { return hasProxyVar() ? proxyVar().sym : sym; }
         
         // Predicate for static var test.
-        public boolean isStatic() { return (getFlags() & Flags.STATIC) != 0; }
+        public boolean isStatic() { return sym.isStatic(); }
 
         // Predicate for private var test.
         public boolean isPrivateAccess() { return (getFlags() & Flags.PRIVATE) != 0L; }
         
-        // Predicate for script private var test.
-        public boolean isScriptPrivate() { return (getFlags() & JavafxFlags.SCRIPT_PRIVATE) != 0L; }
-
         // Predicate for def (constant) var.
-        public boolean isDef() { return (getFlags() & JavafxFlags.IS_DEF) != 0; }
+        public boolean isDef() { return sym.isDef(); }
+
+        // Predicate for parameter var.
+        public boolean isParameter() { return sym.isParameter(); }
 
         // Predicate for self-reference in init.
-        public boolean hasSelfReference() { return (getFlags() & JavafxFlags.VARUSE_SELF_REFERENCE) != 0; }
+        public boolean hasSelfReference() { return sym.hasSelfReference(); }
 
         // Predicate whether the var came from a mixin.
         public boolean isMixinVar() { return isMixinClass(sym.owner); }
@@ -375,7 +375,6 @@ class JavafxAnalyzeClass {
                                ", owner=" + getSymbol().owner +
                                (isStatic() ? ", static" : "") +
                                (isPrivateAccess() ? ", private" : "") +
-                               (isScriptPrivate() ? ", script private" : "") +
                                (useAccessors() ? ", useAccessors" : "") +
                                (needsCloning() ? ", clone" : "") +
                                (isDef() ? ", isDef" : "") +

@@ -149,19 +149,19 @@ public abstract class JavafxTranslationSupport {
     }
 
     boolean isImmutable(Symbol sym, Name name) {
+        if (sym.kind != Kinds.VAR) {
+            return true;
+        }
+        JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
         Symbol owner = sym.owner;
-        boolean isLocal = owner.kind != Kinds.TYP;
-        boolean isKnown = isLocal || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
-        long flags = sym.flags();
-        boolean isWritable = (flags & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS)) != 0L;
-        boolean isAssignedTo = (flags & JavafxFlags.VARUSE_ASSIGNED_TO) != 0;
-        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
-        boolean isDefinedBound = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0;
+        boolean isKnown = vsym.isLocal() || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
+        boolean isAssignedTo = vsym.isAssignedTo();
+        boolean isDefinedBound = vsym.isDefinedBound();
         return
                     name == names._this ||
                     name == names._super ||
-                    isKnown && isDef && !isDefinedBound || // unbound def
-                    isKnown && !isWritable && !isAssignedTo && !isDefinedBound; // never reassigned
+                    isKnown && vsym.isDef() && !isDefinedBound || // unbound def
+                    isKnown && !vsym.isWritableOutsideScript() && !isAssignedTo && !isDefinedBound; // never reassigned
      }
 
     boolean isImmutable(JFXIdent tree) {
@@ -679,14 +679,11 @@ public abstract class JavafxTranslationSupport {
         if (!types.isJFXClass(owner)) {
             return sym.name;
         }
+        JavafxVarSymbol vsym = (JavafxVarSymbol) sym; //TODO: make parameter a JavafxVarSymbol
         String sname = sym.name.toString();
         // JFXC-2837 - Mixins: script-private vars no longer hidden -- var with same name as
         // var in subclass, but with different type fails
-        long flags = sym.flags();
-        boolean isStatic = (flags & STATIC) != 0;
-        boolean privateAccess = (flags & JavafxFlags.JavafxInstanceVarFlags &
-                                         ~(JavafxFlags.SCRIPT_PRIVATE | Flags.PRIVATE)) == 0L;
-        if (!isStatic && privateAccess && types.isJFXClass(owner)) {
+        if (!vsym.isStatic() && vsym.hasScriptOnlyAccess()) {
             // mangle name to hide it
             sname = owner.toString().replace('.', '$') + '$' + sname;
         }

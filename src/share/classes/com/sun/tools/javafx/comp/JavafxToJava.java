@@ -530,7 +530,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         return new ExpressionTranslator(diagPos) {
             protected ExpressionResult doit() {
-                assert ((vsym.flags() & Flags.PARAMETER) == 0L) : "Parameters are not initialized";
+                assert !vsym.isParameter() : "Parameters are not initialized";
                 setSubstitution(init, vsym);
                 final JCExpression nonNullInit = translateNonBoundInit(diagPos, init, vsym);
                 final boolean isLocal = !vsym.isMember();
@@ -559,9 +559,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     private class VarTranslator extends ExpressionTranslator {
 
         final JFXVar tree;
-        final JavafxVarSymbol vsym;
-        final boolean hasForwardReference;
-        final boolean isAssignedTo;
+        final JavafxVarSymbol vsym;        
         final long modFlags;
 
         VarTranslator(JFXVar tree) {
@@ -569,18 +567,15 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             this.tree = tree;
             JFXModifiers mods = tree.getModifiers();
             vsym = tree.getSymbol();
-            long flags = vsym.flags();
             assert !vsym.isMember() : "attributes are processed in the class and should never come here: " + tree.name;
-            assert (flags & Flags.PARAMETER) == 0L : "we should not see parameters here" + tree.name;
-            hasForwardReference = (flags & JavafxFlags.VARUSE_FORWARD_REFERENCE) != 0L;
-            isAssignedTo = (flags & JavafxFlags.VARUSE_ASSIGNED_TO) != 0L;
-            modFlags = (mods.flags & ~Flags.FINAL) | ((hasForwardReference || isAssignedTo) ? 0L : Flags.FINAL);
+            assert !vsym.isParameter() : "we should not see parameters here" + tree.name;
+            modFlags = (mods.flags & ~Flags.FINAL) | (vsym.isMutatedWithinScript() ? 0L : Flags.FINAL);
         }
 
         protected AbstractStatementsResult doit() {
             optStat.recordLocalVar(vsym, tree.getBindStatus().isBound(), false);
 
-            if (hasForwardReference) {
+            if (vsym.hasForwardReference()) {
                 // create a blank variable declaration and move the declaration to the beginning of the block
                 JCExpression init = makeDefaultValue(diagPos, vsym);
                 prependToStatements.prepend(Var(modFlags, tree.type, tree.name, init));

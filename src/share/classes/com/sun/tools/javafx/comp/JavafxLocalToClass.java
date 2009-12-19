@@ -611,8 +611,7 @@ public class JavafxLocalToClass {
             public void visitIdent(JFXIdent tree) {
                 if (tree.sym instanceof VarSymbol) {
                     JavafxVarSymbol vsym = (JavafxVarSymbol) tree.sym;
-                    if (!vsym.isMember() &&
-                            (vsym.flags() & (JavafxFlags.VARUSE_ASSIGNED_TO | JavafxFlags.VARUSE_SELF_REFERENCE | JavafxFlags.VARUSE_FORWARD_REFERENCE)) != 0L) {
+                    if (vsym.isMutatedLocal()) {
                         hasMutatedLocal = true;
                     }
                 }
@@ -624,7 +623,7 @@ public class JavafxLocalToClass {
     }
 
     private boolean hasSelfReference(JFXVar checkedVar) {
-        return (checkedVar.sym.flags() & JavafxFlags.VARUSE_SELF_REFERENCE) != 0L;
+        return checkedVar.sym.hasSelfReference();
     }
 
     private void pushOwner(Symbol newOwner, boolean newIsStatic) {
