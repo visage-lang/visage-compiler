@@ -109,6 +109,7 @@
         <run-benchmark benchmark="bind_member_select01"/>
         <run-benchmark benchmark="bindif"/>
         <run-benchmark benchmark="bindforlocal"/>
+        <run-benchmark benchmark="bindforglobal"/>
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>
