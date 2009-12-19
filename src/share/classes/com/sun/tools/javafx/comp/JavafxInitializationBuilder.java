@@ -654,7 +654,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     List.<JCExpression>of(String(varSym.name.toString())));
                         String annoBindeesString = makeAnnoBindeesString(ai);
                         
-                        if (!annoBindeesString.isEmpty()) {
+                        if (annoBindeesString.length() != 0) {
                             JCAnnotation annoBindees = m().Annotation(
                                         makeIdentifier(diagPos, JavafxSymtab.bindeesAnnotationClassNameString),
                                         List.<JCExpression>of(String(annoBindeesString)));
