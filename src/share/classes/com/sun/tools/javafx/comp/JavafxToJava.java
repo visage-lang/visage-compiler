@@ -43,7 +43,6 @@ import com.sun.tools.javafx.comp.JavafxAbstractTranslation.Translator;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
 
@@ -302,7 +301,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         case VAR_DEF: {
                             JFXVar attrDef = (JFXVar) def;
                             setContext(attrDef.isStatic());
-                            VarMorphInfo vmi = typeMorpher.varMorphInfo(attrDef.sym);
                             JFXExpression initializer = attrDef.getInitializer();
                             boolean initWithBoundFuncResult = 
                                 (initializer instanceof JFXIdent) &&
@@ -310,7 +308,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             ExpressionResult bindResult = translateBind(attrDef);
                             TranslatedVarInfo ai = new TranslatedVarInfo(
                                     attrDef,
-                                    vmi,
                                     translateVarInit(attrDef, bindResult),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
                                     bindResult,
@@ -324,7 +321,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         case OVERRIDE_ATTRIBUTE_DEF: {
                             JFXOverrideClassVar override = (JFXOverrideClassVar) def;
                             setContext(override.isStatic());
-                            VarMorphInfo vmi = typeMorpher.varMorphInfo(override.sym);
                             JFXExpression initializer = override.getInitializer();
                             boolean initWithBoundFuncResult =
                                 (initializer instanceof JFXIdent) &&
@@ -332,7 +328,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                             ExpressionResult bindResult = translateBind(override);
                             TranslatedOverrideClassVarInfo ai = new TranslatedOverrideClassVarInfo(
                                     override,
-                                    vmi,
                                     translateVarInit(override, bindResult),
                                     initWithBoundFuncResult? ((JFXIdent)initializer).sym : null,
                                     bindResult,
@@ -500,7 +495,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             return Stmt(translateDefinitionalAssignmentToSetExpression(
                     var.pos(),
                     var.getInitializer(),
-                    typeMorpher.varMorphInfo(var.sym),
+                    var.sym,
                     instanceName
                  ).expr());
         }
@@ -514,16 +509,15 @@ public class JavafxToJava extends JavafxAbstractTranslation {
     }
 
     private JCExpression translateNonBoundInit(DiagnosticPosition diagPos,
-            JFXExpression init, VarMorphInfo vmi) {
-        JavafxVarSymbol vsym = (JavafxVarSymbol) vmi.getSymbol();
-        Type resultType = vsym.type;
-
+                                JFXExpression init,
+                                JavafxVarSymbol vsym) {
         // normal init -- unbound
         if (init == null) {
             // no initializing expression determine a default value from the type
             return makeDefaultValue(diagPos, vsym);
         } else {
             // do a vanilla translation of the expression
+            Type resultType = vsym.type;
             JCExpression trans = translateToExpression(init, resultType);
             return convertNullability(diagPos, trans, init, resultType);
         }
@@ -531,15 +525,14 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     private ExpressionResult translateDefinitionalAssignmentToSetExpression(DiagnosticPosition diagPos,
             final JFXExpression init,
-            final VarMorphInfo vmi,
+            final JavafxVarSymbol vsym,
             final Name instanceName) {
 
         return new ExpressionTranslator(diagPos) {
             protected ExpressionResult doit() {
-                JavafxVarSymbol vsym = (JavafxVarSymbol) vmi.getSymbol();
                 assert ((vsym.flags() & Flags.PARAMETER) == 0L) : "Parameters are not initialized";
                 setSubstitution(init, vsym);
-                final JCExpression nonNullInit = translateNonBoundInit(diagPos, init, vmi);
+                final JCExpression nonNullInit = translateNonBoundInit(diagPos, init, vsym);
                 final boolean isLocal = !vsym.isMember();
                 assert !isLocal || instanceName == null;
                 JCExpression res;
@@ -567,7 +560,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
         final JFXVar tree;
         final JavafxVarSymbol vsym;
-        final VarMorphInfo vmi;
         final boolean hasForwardReference;
         final boolean isAssignedTo;
         final long modFlags;
@@ -577,7 +569,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             this.tree = tree;
             JFXModifiers mods = tree.getModifiers();
             vsym = tree.getSymbol();
-            vmi = typeMorpher.varMorphInfo(vsym);
             long flags = vsym.flags();
             assert !vsym.isMember() : "attributes are processed in the class and should never come here: " + tree.name;
             assert (flags & Flags.PARAMETER) == 0L : "we should not see parameters here" + tree.name;
@@ -593,10 +584,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 // create a blank variable declaration and move the declaration to the beginning of the block
                 JCExpression init = makeDefaultValue(diagPos, vsym);
                 prependToStatements.prepend(Var(modFlags, tree.type, tree.name, init));
-                return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vmi, null);
+                return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vsym, null);
             } else {
                 // Translate in-place
-                JCExpression init = translateNonBoundInit(diagPos, tree.getInitializer(), typeMorpher.varMorphInfo(vsym));
+                JCExpression init = translateNonBoundInit(diagPos, tree.getInitializer(), vsym);
                 JCStatement var = Var(modFlags, tree.type, tree.name, init);
                 return new StatementsResult(var);
             }

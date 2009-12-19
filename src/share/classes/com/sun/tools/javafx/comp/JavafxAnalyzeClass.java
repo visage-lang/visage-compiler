@@ -45,7 +45,6 @@ import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
@@ -148,9 +147,6 @@ class JavafxAnalyzeClass {
     // Class reader used to fetch superclass .class files (supplied by JavafxInitializationBuilder.)
     private final JavafxClassReader reader;
 
-    // Javafx to Java type translator (supplied by JavafxInitializationBuilder.)
-    private final JavafxTypeMorpher typeMorpher;
-    
 
     //
     // This class supers all classes used to hold var information. Consumed by
@@ -162,9 +158,6 @@ class JavafxAnalyzeClass {
 
         // Var symbol (unique to symbol.)
         protected final JavafxVarSymbol sym;
-
-        // Translated type information.
-        protected final VarMorphInfo vmi;
 
         // Name of the var (is it the same as sym.name?)
         private final Name name;
@@ -184,12 +177,10 @@ class JavafxAnalyzeClass {
         // True if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
         private boolean needsMixinInterface;
 
-        private VarInfo(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, VarMorphInfo vmi,
-                JCStatement initStmt) {
+        private VarInfo(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JCStatement initStmt) {
             this.diagPos = diagPos;
             this.name = name;
             this.sym = attrSym;
-            this.vmi = vmi;
             this.initStmt = initStmt;
             this.enumeration = -1;
             this.bindersOrNull = new LinkedHashSet<VarInfo>();
@@ -203,7 +194,6 @@ class JavafxAnalyzeClass {
         public DiagnosticPosition pos() { return diagPos; }
 
         // Return type information from type translation.
-        public VarMorphInfo getVMI()  { return vmi; }
         public Type getRealType()     { return sym.type; }
         public Type getElementType()  { return sym.getElementType(); }
         public boolean useAccessors() { return sym.useAccessors(); }
@@ -381,7 +371,7 @@ class JavafxAnalyzeClass {
         public void printInfo(boolean detail) {
             System.err.println("    " + getEnumeration() + ". " +
                                getSymbol() +
-                               ", type=" + vmi.getRealType() +
+                               ", type=" + getSymbol().type +
                                ", owner=" + getSymbol().owner +
                                (isStatic() ? ", static" : "") +
                                (isPrivateAccess() ? ", private" : "") +
@@ -464,11 +454,11 @@ class JavafxAnalyzeClass {
         // Result of bind translation
         private final ExpressionResult bindOrNull;
 
-        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
+        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, 
                 JCStatement initStmt, ExpressionResult bindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
-            super(diagPos, name, attrSym, vmi, initStmt);
+            super(diagPos, name, attrSym, initStmt);
             this.hasInitializer = hasInitializer;
             this.bindStatus = bindStatus;
             this.bindOrNull = bindOrNull;
@@ -563,12 +553,12 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
         private final Symbol boundFuncResultInitSym;
 
-        TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
+        TranslatedVarInfo(JFXVar var, 
                 JCStatement initStmt, Symbol boundFuncResultInitSym,
                 ExpressionResult bindOrNull, 
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
-            super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi,
+            super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null,
                   initStmt, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.var = var;
@@ -617,12 +607,11 @@ class JavafxAnalyzeClass {
 
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
-                VarMorphInfo vmi,
                 JCStatement initStmt, Symbol boundFuncResultInitSym,
                 ExpressionResult bindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
-            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer() != null, vmi,
+            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer() != null, 
                     initStmt, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.boundFuncResultInitSym = boundFuncResultInitSym;
@@ -660,8 +649,8 @@ class JavafxAnalyzeClass {
     // declared in the same compile unit or read in from a .class file.
     //
     static class SuperClassVarInfo extends VarInfo {
-        SuperClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var, VarMorphInfo vmi) {
-            super(diagPos, var.name, var, vmi, null);
+        SuperClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var) {
+            super(diagPos, var.name, var, null);
         }
 
         // Superclass vars are never cloned.
@@ -680,8 +669,8 @@ class JavafxAnalyzeClass {
         // Override from mixee.
         private VarInfo overrideVar;
         
-        MixinClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var, VarMorphInfo vmi) {
-            super(diagPos, var.name, var, vmi, null);
+        MixinClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var) {
+            super(diagPos, var.name, var, null);
             this.accessors = ListBuffer.lb();
             this.overrideVar = null;
         }
@@ -887,15 +876,13 @@ class JavafxAnalyzeClass {
             JavafxTypes types,
             JavafxDefs defs,
             JavafxSymtab syms,
-            JavafxClassReader reader,
-            JavafxTypeMorpher typeMorpher) {
+            JavafxClassReader reader) {
         this.initBuilder = initBuilder;
         this.names = names;
         this.types = types;
         this.defs = defs;
         this.syms = syms;
         this.reader = reader;
-        this.typeMorpher = typeMorpher;
         this.diagPos = diagPos;
         this.currentClassDecl = types.getFxClass(currentClassSym);
         this.currentClassSym = currentClassSym;
@@ -1574,7 +1561,7 @@ class JavafxAnalyzeClass {
                 // Only process the mixin var if we've not seen it before.
                 if ((oldVarInfo == null || oldVarInfo instanceof TranslatedOverrideClassVarInfo) && (var.flags() & Flags.PRIVATE) == 0) {
                     // Construct a new mixin VarInfo.
-                    MixinClassVarInfo newVarInfo = new MixinClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
+                    MixinClassVarInfo newVarInfo = new MixinClassVarInfo(diagPos, var);
                     // Check for overriding var.
                     checkMixinOverride(newVarInfo);
                     
@@ -1596,7 +1583,7 @@ class JavafxAnalyzeClass {
                 }
             } else {
                 // Construct a new superclass VarInfo.
-                SuperClassVarInfo newVarInfo = new SuperClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
+                SuperClassVarInfo newVarInfo = new SuperClassVarInfo(diagPos, var);
                 // Add the new superclass VarInfo to the result list.
                 classVarInfos.append(newVarInfo);
                 // Map the fact we've seen this var.

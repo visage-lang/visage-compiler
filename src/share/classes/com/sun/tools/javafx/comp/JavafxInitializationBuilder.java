@@ -192,7 +192,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(this, diagPos,
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo, translatedFuncInfo,
-                names, types, defs, syms, reader, typeMorpher);
+                names, types, defs, syms, reader);
                 
         List<VarInfo> classVarInfos = analysis.classVarInfos();
         List<VarInfo> scriptVarInfos = analysis.scriptVarInfos();

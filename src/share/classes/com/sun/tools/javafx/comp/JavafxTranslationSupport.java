@@ -84,7 +84,6 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxResolve rs;
     protected final JavafxSymtab syms;
     protected final JavafxTypes types;
-    protected final JavafxTypeMorpher typeMorpher;
     protected final Options options;
 
     /*
@@ -99,7 +98,6 @@ public abstract class JavafxTranslationSupport {
         names = Name.Table.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
-        typeMorpher = JavafxTypeMorpher.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
         options = Options.instance(context);
