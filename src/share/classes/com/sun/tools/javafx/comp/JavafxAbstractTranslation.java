@@ -45,12 +45,11 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitClassMap;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitVarMap;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.jvm.Target;
@@ -711,8 +710,8 @@ public abstract class JavafxAbstractTranslation
                 if (elemType.isPrimitive()) {
                     primitive = true;
                     addTypeInfoArg = false;
-                    int kind = types.typeKind(elemType);
-                    localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxDefs.getTypePrefix(kind) + "ArraySequence"; //TODO: put in defs
+                    JavafxTypeRepresentation typeRep = types.typeRep(elemType);
+                    localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxDefs.getTypePrefix(typeRep.ordinal()) + "ArraySequence"; //TODO: put in defs
                 }
                 else
                     localSeqBuilder = JavafxDefs.cObjectArraySequence;
@@ -2179,8 +2178,8 @@ public abstract class JavafxAbstractTranslation
          * Check if a primitive has the default value for its type.
          */
         private JCExpression makePrimitiveNullCheck(Type argType, JCExpression arg) {
-            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-            JCExpression defaultValue = makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
+            JavafxTypeRepresentation typeRep = types.typeRep(argType);
+            JCExpression defaultValue = makeLit(diagPos, argType, typeRep.defaultValue());
             return EQ(arg, defaultValue);
         }
 
@@ -2392,7 +2391,7 @@ public abstract class JavafxAbstractTranslation
                 Type elemType = types.elemtype(targettedType);
                 if (sourceIsSequence) {
                     if (elemType.isPrimitive()) {
-                        return Call(defs.Sequences_toArray[types.typeKind(elemType)], translated);
+                        return Call(defs.Sequences_toArray[types.typeRep(elemType).ordinal()], translated);
                     }
                     ListBuffer<JCStatement> stats = ListBuffer.lb();
                     JCVariableDecl tmpVar = TmpVar(sourceType, translated);
@@ -3040,7 +3039,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         JCExpression translateSequenceIndexed() {
-            int typeKind = types.typeKind(resultType);
+            JavafxTypeRepresentation typeRep = types.typeRep(resultType);
             if (seq instanceof JFXIdent) {
                 JFXIdent var = (JFXIdent) seq;
                 OnReplaceInfo info = findOnReplaceInfo(var.sym);
@@ -3054,7 +3053,7 @@ public abstract class JavafxAbstractTranslation
                     args.append(id(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);
                     List<JCExpression> typeArgs;
-                    if (typeKind == JavafxDefs.TYPE_KIND_OBJECT) {
+                    if (typeRep.isObject()) {
                         /*
                          * We are calling SequencesBase.getFromNewElements() which
                          * accepts type argument for the returned sequence element type.
@@ -3068,10 +3067,10 @@ public abstract class JavafxAbstractTranslation
                     } else {
                         typeArgs = List.<JCExpression>nil();
                     }
-                    return Call(defs.Sequences_getAsFromNewElements[typeKind], typeArgs, args.toList());
+                    return Call(defs.Sequences_getAsFromNewElements[typeRep.ordinal()], typeArgs, args.toList());
                 }
             }
-            Name getMethodName = defs.typedGet_SequenceMethodName[typeKind];
+            Name getMethodName = defs.typedGet_SequenceMethodName[typeRep.ordinal()];
             return Call(tSeq, getMethodName, tIndex);
         }
 

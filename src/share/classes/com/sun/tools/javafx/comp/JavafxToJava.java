@@ -515,13 +515,15 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
     private JCExpression translateNonBoundInit(DiagnosticPosition diagPos,
             JFXExpression init, VarMorphInfo vmi) {
+        JavafxVarSymbol vsym = (JavafxVarSymbol) vmi.getSymbol();
+        Type resultType = vsym.type;
+
         // normal init -- unbound
         if (init == null) {
             // no initializing expression determine a default value from the type
-            return makeDefaultValue(diagPos, vmi);
+            return makeDefaultValue(diagPos, vsym);
         } else {
             // do a vanilla translation of the expression
-            Type resultType = vmi.getSymbol().type;
             JCExpression trans = translateToExpression(init, resultType);
             return convertNullability(diagPos, trans, init, resultType);
         }
@@ -589,7 +591,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
             if (hasForwardReference) {
                 // create a blank variable declaration and move the declaration to the beginning of the block
-                JCExpression init = JavafxToJava.this.makeDefaultValue(diagPos, vmi);
+                JCExpression init = makeDefaultValue(diagPos, vsym);
                 prependToStatements.prepend(Var(modFlags, tree.type, tree.name, init));
                 return translateDefinitionalAssignmentToSetExpression(diagPos, tree.getInitializer(), vmi, null);
             } else {

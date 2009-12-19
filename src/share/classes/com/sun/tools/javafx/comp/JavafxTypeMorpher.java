@@ -30,12 +30,7 @@ import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
-import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.mjavac.util.*;
-
-import com.sun.tools.javafx.code.JavafxSymtab;
-import com.sun.tools.javafx.code.JavafxTypes;
-import static com.sun.tools.javafx.comp.JavafxDefs.*;
 
 
 /**
@@ -46,53 +41,21 @@ public class JavafxTypeMorpher {
     protected static final Context.Key<JavafxTypeMorpher> typeMorpherKey =
             new Context.Key<JavafxTypeMorpher>();
 
-    private final Name.Table names;
-    private final JavafxTypes types;
-
-    private final Object[] defaultValueByKind;
-
     private Map<Symbol, VarMorphInfo> vmiMap = new HashMap<Symbol, VarMorphInfo>();
 
-    public class VarMorphInfo extends TypeMorphInfo {
+    public class VarMorphInfo {
         private final Symbol sym;
 
         VarMorphInfo(Symbol sym) {
-            super((sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type);
             this.sym = sym;
         }
 
         Symbol getSymbol() {
             return sym;
         }
-    }
-
-    public class TypeMorphInfo {
-
-        private final Type realType;
-        private final int typeKind;
-        private final Type elementType;
-
-        TypeMorphInfo(Type symType) {
-            this.realType = symType;
-            this.typeKind = types.typeKind(realType);
-            this.elementType =
-                    symType.isPrimitive() ? null : types.isSequence(realType) ? types.elementType(symType) : realType;
-        }
 
         public Type getRealType() {
-            return realType;
-        }
-
-        public Object getDefaultValue() {
-            return defaultValueByKind[typeKind];
-        }
-
-        public Type getElementType() {
-            return elementType;
-        }
-
-        public int getTypeKind() {
-            return typeKind;
+            return (sym.kind == Kinds.MTH)? ((MethodType)sym.type).getReturnType() : sym.type;
         }
     }
 
@@ -105,10 +68,6 @@ public class JavafxTypeMorpher {
         return vmi;
     }
 
-    TypeMorphInfo typeMorphInfo(Type type) {
-        return new TypeMorphInfo(type);
-    }
-
     public static JavafxTypeMorpher instance(Context context) {
         JavafxTypeMorpher instance = context.get(typeMorpherKey);
         if (instance == null)
@@ -118,21 +77,6 @@ public class JavafxTypeMorpher {
 
     protected JavafxTypeMorpher(Context context) {
         context.put(typeMorpherKey, this);
-
-        types = JavafxTypes.instance(context);
-        names = Name.Table.instance(context);
-
-        defaultValueByKind = new Object[TYPE_KIND_COUNT];
-        defaultValueByKind[TYPE_KIND_OBJECT] = null;
-        defaultValueByKind[TYPE_KIND_BOOLEAN] = 0;
-        defaultValueByKind[TYPE_KIND_CHAR] = 0;
-        defaultValueByKind[TYPE_KIND_BYTE] = 0;
-        defaultValueByKind[TYPE_KIND_SHORT] = 0;
-        defaultValueByKind[TYPE_KIND_INT] = 0;
-        defaultValueByKind[TYPE_KIND_LONG] = 0L;
-        defaultValueByKind[TYPE_KIND_FLOAT] = (float)0.0;
-        defaultValueByKind[TYPE_KIND_DOUBLE] = 0.0;
-        defaultValueByKind[TYPE_KIND_SEQUENCE] = null; // Empty sequence done programatically
     }
 
 }

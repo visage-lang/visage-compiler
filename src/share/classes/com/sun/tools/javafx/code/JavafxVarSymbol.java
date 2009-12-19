@@ -23,7 +23,6 @@
 
 package com.sun.tools.javafx.code;
 
-import com.sun.tools.javafx.comp.JavafxDefs;
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
@@ -37,7 +36,7 @@ import com.sun.tools.mjavac.util.Name;
  */
 public class JavafxVarSymbol extends VarSymbol {
 
-    private int typeKind = -1;
+    private JavafxTypeRepresentation typeRepresentation;
     private Type elementType = null;
     private final boolean isDotClass;
 
@@ -54,12 +53,12 @@ public class JavafxVarSymbol extends VarSymbol {
 
     private void syncType() {
         if (lastSeenType != type) {
-            typeKind = types.typeKind(type);
-            switch (typeKind) {
-                case JavafxDefs.TYPE_KIND_SEQUENCE:
+            typeRepresentation = types.typeRep(type);
+            switch (typeRepresentation) {
+                case TYPE_REPRESENTATION_SEQUENCE:
                     elementType = types.elementType(type);
                     break;
-                case JavafxDefs.TYPE_KIND_OBJECT:
+                case TYPE_REPRESENTATION_OBJECT:
                     elementType = type;
                     break;
                 default:
@@ -80,7 +79,7 @@ public class JavafxVarSymbol extends VarSymbol {
 
     public boolean isSequence() {
         syncType();
-        return typeKind == JavafxDefs.TYPE_KIND_SEQUENCE;
+        return typeRepresentation.isSequence();
     }
 
     public Type getElementType() {
@@ -88,9 +87,9 @@ public class JavafxVarSymbol extends VarSymbol {
         return elementType;
     }
 
-    public int getTypeKind() {
+    public JavafxTypeRepresentation getTypeRepresentation() {
         syncType();
-        return typeKind;
+        return typeRepresentation;
     }
 
     public long instanceVarAccessFlags() {

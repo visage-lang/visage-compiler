@@ -669,7 +669,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct the value field
                     JCExpression init = useSimpleInit(ai)              ? getSimpleInit(ai) :
-                                        isValueType(ai.getRealType()) ? makeDefaultValue(diagPos, ai.getVMI()) :
+                                        isValueType(ai.getRealType()) ? defaultValue(ai) :
                                                                          null;
                     addDefinition(makeVariableField(ai, mods, ai.getRealType(), attributeValueName(varSym), init));
                 }
@@ -1280,7 +1280,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(SetStmt(proxyVarSym, newExpr));
                         
                         // If (seq$ == null && isBound) { seq$ = new SequenceRef(<<typeinfo T>>, this, VOFF$seq); }
-                        addStmt(OptIf(AND(EQ(Get(proxyVarSym), makeDefaultValue(diagPos, varInfo.getVMI())), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
+                        addStmt(OptIf(AND(EQ(Get(proxyVarSym), defaultValue(varInfo)), FlagTest(proxyVarSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND)),
                                 endBlock(), initIf));
                     }
                     
@@ -1337,7 +1337,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     posArg());
                             addStmt(OptIf(ptrNonNullCond, 
                                         Return(castFromObject(apply, varInfo.getElementType())),
-                                        Return(makeDefaultValue(varInfo.pos(), typeMorpher.typeMorphInfo(varInfo.getElementType())))
+                                        Return(makeDefaultValue(varInfo.pos(), varInfo.getElementType()))
                                       )
                                    );
                         } else {
@@ -1661,7 +1661,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (varInfo.hasSafeInitializer()) {
                             addStmt(Return(varInfo.boundInit()));
                         } else {
-                            JCStatement returnDefault = Return(makeDefaultValue(diagPos, varInfo.getVMI()));
+                            JCStatement returnDefault = Return(defaultValue(varInfo));
                             addStmt(TryWithErrorHandler(Return(varInfo.boundInit()), returnDefault));
                         }
                     } else {
@@ -1729,7 +1729,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmts(varInfo.boundPreface());
                             JCExpression initValue = varInfo.boundInit();
                             if (initValue == null) {
-                                initValue = makeDefaultValue(diagPos, varInfo.getVMI());
+                                initValue = defaultValue(varInfo);
                             }
                             if (varInfo.isInitWithBoundFuncResult()) {
                                 /**
@@ -1764,13 +1764,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 JCStatement beStmt = CallStmt(attributeBeName(varSym), initValue);
 
                                 JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym),
-                                        makeDefaultValue(diagPos, varInfo.getVMI()));
+                                        defaultValue(varInfo));
                                 addStmt(OptIf(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
                             } else {
                                 if (varInfo.hasSafeInitializer()) {
                                     addStmt(CallStmt(attributeBeName(varSym), initValue));
                                 } else {
-                                    JCExpression defaultValue = makeDefaultValue(diagPos, varInfo.getVMI());
+                                    JCExpression defaultValue = defaultValue(varInfo);
                                     JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym), defaultValue);
                                     addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
                                 }
@@ -3243,6 +3243,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
         }
 
+        private JCExpression defaultValue(VarInfo varInfo) {
+            return makeDefaultValue(varInfo.pos(), varInfo.getSymbol());
+        }
 
         //
         // This method constructs a super call with appropriate arguments.

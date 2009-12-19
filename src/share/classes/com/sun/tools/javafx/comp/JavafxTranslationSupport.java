@@ -57,10 +57,10 @@ import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.tree.JCTree.JCBlock;
 import com.sun.tools.mjavac.tree.JCTree.JCCatch;
@@ -474,14 +474,27 @@ public abstract class JavafxTranslationSupport {
                types.isSameType(type, syms.javafx_DurationType);
     }
 
-    JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
-        return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ?
-                accessEmptySequence(diagPos, tmi.getElementType()) :
-            types.isSameType(tmi.getRealType(), syms.javafx_StringType) ?
-                make.Literal("") :
-            types.isSameType(tmi.getRealType(), syms.javafx_DurationType) ?
-                makeQualifiedTree(diagPos, JavafxDefs.zero_DurationFieldName) :
-                makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
+    JCExpression makeDefaultValue(DiagnosticPosition diagPos, Type type) {
+        return makeDefaultValue(diagPos, types.typeRep(type), type);
+    }
+
+    JCExpression makeDefaultValue(DiagnosticPosition diagPos, JavafxVarSymbol vsym) {
+        return makeDefaultValue(diagPos, vsym.getTypeRepresentation(), vsym.type);
+    }
+
+    JCExpression makeDefaultValue(DiagnosticPosition diagPos, JavafxTypeRepresentation typeRep, Type type) {
+        if (typeRep.isSequence()) {
+            return accessEmptySequence(diagPos, types.elementType(type));
+        } else if (typeRep.isObject()) {
+            if (types.isSameType(type, syms.javafx_StringType)) {
+                return make.Literal("");
+            }
+            if (types.isSameType(type, syms.javafx_DurationType)) {
+                return makeQualifiedTree(diagPos, JavafxDefs.zero_DurationFieldName);
+            }
+            // fall through
+        }
+        return makeLit(diagPos, type, typeRep.defaultValue());
     }
 
     /** Make an attributed tree representing a literal. This will be
@@ -1869,14 +1882,14 @@ public abstract class JavafxTranslationSupport {
         }
 
         JCExpression typeCast(final Type targetType, final Type inType, final JCExpression expr) {
-            if (types.typeKind(inType) == TYPE_KIND_OBJECT) {
+            if (types.typeRep(inType).isObject()) {
                 // We can't just cast the Object to Float (for example)
                 // because if the Object is not Float, we will get a ClassCastException at runtime.
                 // And we can't just call java.lang.Number.floatValue() because java.lang.Number
                 // doesn't exist on mobile, at least not as of Jan 2009.
-                int targetKind = types.typeKind(targetType);
-                if (targetKind != TYPE_KIND_OBJECT && targetKind != TYPE_KIND_SEQUENCE) {
-                    return Call(defs.Util_objectTo[targetKind], expr);
+                JavafxTypeRepresentation targetKind = types.typeRep(targetType);
+                if (targetKind.isPrimitive()) {
+                    return Call(defs.Util_objectTo[targetKind.ordinal()], expr);
                 }
             }
 
@@ -1906,7 +1919,7 @@ public abstract class JavafxTranslationSupport {
 
         /* Default value per type */
         JCExpression DefaultValue(Type type) {
-            return JavafxTranslationSupport.this.makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(type));
+            return JavafxTranslationSupport.this.makeDefaultValue(diagPos, type);
         }
         
         /*

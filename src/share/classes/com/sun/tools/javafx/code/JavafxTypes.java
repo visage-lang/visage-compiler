@@ -22,7 +22,9 @@
  */
 
 package com.sun.tools.javafx.code;
+
 import com.sun.tools.javafx.comp.JavafxDefs;
+import static com.sun.tools.javafx.code.JavafxTypeRepresentation.*;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.code.Type.*;
@@ -35,6 +37,7 @@ import static com.sun.tools.mjavac.code.Flags.*;
 import static com.sun.tools.mjavac.code.TypeTags.*;
 import java.util.HashSet;
 import java.util.Set;
+
 /**
  *
  * @author bothner
@@ -114,27 +117,27 @@ public class JavafxTypes extends Types {
         return new ClassType(clazzOuter, actuals, base.tsym);
     }
 
-    public int typeKind(Type type) {
+    public JavafxTypeRepresentation typeRep(Type type) {
         TypeSymbol tsym = type.tsym;
 
-        if (tsym == syms.booleanType.tsym) return JavafxDefs.TYPE_KIND_BOOLEAN;
-        if (tsym == syms.charType.tsym) return JavafxDefs.TYPE_KIND_CHAR;
-        if (tsym == syms.byteType.tsym) return JavafxDefs.TYPE_KIND_BYTE;
-        if (tsym == syms.shortType.tsym) return JavafxDefs.TYPE_KIND_SHORT;
-        if (tsym == syms.intType.tsym) return JavafxDefs.TYPE_KIND_INT;
-        if (tsym == syms.longType.tsym) return JavafxDefs.TYPE_KIND_LONG;
-        if (tsym == syms.floatType.tsym) return JavafxDefs.TYPE_KIND_FLOAT;
-        if (tsym == syms.doubleType.tsym) return JavafxDefs.TYPE_KIND_DOUBLE;
+        if (tsym == syms.booleanType.tsym) return TYPE_REPRESENTATION_BOOLEAN;
+        if (tsym == syms.charType.tsym) return TYPE_REPRESENTATION_CHAR;
+        if (tsym == syms.byteType.tsym) return TYPE_REPRESENTATION_BYTE;
+        if (tsym == syms.shortType.tsym) return TYPE_REPRESENTATION_SHORT;
+        if (tsym == syms.intType.tsym) return TYPE_REPRESENTATION_INT;
+        if (tsym == syms.longType.tsym) return TYPE_REPRESENTATION_LONG;
+        if (tsym == syms.floatType.tsym) return TYPE_REPRESENTATION_FLOAT;
+        if (tsym == syms.doubleType.tsym) return TYPE_REPRESENTATION_DOUBLE;
         if (isSequence(type)) {
-            return JavafxDefs.TYPE_KIND_SEQUENCE;
+            return TYPE_REPRESENTATION_SEQUENCE;
         } else {
-            return JavafxDefs.TYPE_KIND_OBJECT;
+            return TYPE_REPRESENTATION_OBJECT;
         }
     }
 
     public Type arraySequenceType(Type elemType) {
         if (elemType.isPrimitive()) {
-            String tname = JavafxDefs.getTypePrefix(typeKind(elemType));
+            String tname = typeRep(elemType).prefix();
             return syms.enterClass(JavafxDefs.sequence_PackageString + "." + tname + "ArraySequence");
         }
         Type seqtype = syms.enterClass("com.sun.javafx.runtime.sequence.ObjectArraySequence");

@@ -23,10 +23,10 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.runtime.Entry;
-import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.mjavac.code.Symbol;
 import java.util.regex.Pattern;
 
@@ -479,21 +479,6 @@ public class JavafxDefs {
 
     final Name boundForPartName;
 
-    /**
-     * Type Kinds
-     */
-    public static final int TYPE_KIND_OBJECT = 0;
-    public static final int TYPE_KIND_BOOLEAN = 1;
-    public static final int TYPE_KIND_CHAR = 2;
-    public static final int TYPE_KIND_BYTE = 3;
-    public static final int TYPE_KIND_SHORT = 4;
-    public static final int TYPE_KIND_INT = 5;
-    public static final int TYPE_KIND_LONG = 6;
-    public static final int TYPE_KIND_FLOAT = 7;
-    public static final int TYPE_KIND_DOUBLE = 8;
-    public static final int TYPE_KIND_SEQUENCE = 9;
-    public static final int TYPE_KIND_COUNT = 10;
-
     static final String[] typePrefixes = new String[]{"Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence"};
     static final String[] accessorSuffixes = new String[]{"", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence"};
  
@@ -507,7 +492,6 @@ public class JavafxDefs {
      */
 
     public static final Context.Key<JavafxDefs> jfxDefsKey = new Context.Key<JavafxDefs>();
-    private final Type[] realTypeByKind;
 
     public static JavafxDefs instance(Context context) {
         JavafxDefs instance = context.get(jfxDefsKey);
@@ -711,15 +695,16 @@ public class JavafxDefs {
         Sequences_calculateIntRangeSize = new RuntimeMethod(names, cSequences, "calculateIntRangeSize");
         Sequences_calculateFloatRangeSize = new RuntimeMethod(names, cSequences, "calculateFloatRangeSize");
 
-        Sequences_getAsFromNewElements = new RuntimeMethod[TYPE_KIND_COUNT];
-        Sequences_toArray = new RuntimeMethod[TYPE_KIND_COUNT];
-        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+        int typeRepCnt = JavafxTypeRepresentation.values().length;
+        Sequences_getAsFromNewElements = new RuntimeMethod[typeRepCnt];
+        Sequences_toArray = new RuntimeMethod[typeRepCnt];
+        for (int kind = 0; kind < typeRepCnt; kind++) {
             Sequences_getAsFromNewElements[kind] = new RuntimeMethod(names, cSequences, "get" + accessorSuffixes[kind] + "FromNewElements");
             Sequences_toArray[kind] = new RuntimeMethod(names, cSequences, "to" + typePrefixes[kind] + "Array");
         }
 
-        Util_objectTo = new RuntimeMethod[TYPE_KIND_COUNT];
-        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+        Util_objectTo = new RuntimeMethod[typeRepCnt];
+        for (int kind = 0; kind < typeRepCnt; kind++) {
             Util_objectTo[kind] = new RuntimeMethod(names, cUtil, "objectTo" + typePrefixes[kind]);
         }
 
@@ -762,24 +747,12 @@ public class JavafxDefs {
              };
      
         // Initialize per Kind names and types
-        typedGet_SequenceMethodName = new Name[TYPE_KIND_COUNT];
-        typedSet_SequenceMethodName = new Name[TYPE_KIND_COUNT];
-        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+        typedGet_SequenceMethodName = new Name[typeRepCnt];
+        typedSet_SequenceMethodName = new Name[typeRepCnt];
+        for (int kind = 0; kind < typeRepCnt; kind++) {
             typedGet_SequenceMethodName[kind] = names.fromString("get" + accessorSuffixes[kind]);
             typedSet_SequenceMethodName[kind] = names.fromString("set" + accessorSuffixes[kind]);
         }
-
-        realTypeByKind = new Type[TYPE_KIND_COUNT];
-        realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
-        realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
-        realTypeByKind[TYPE_KIND_CHAR] = syms.charType;
-        realTypeByKind[TYPE_KIND_BYTE] = syms.byteType;
-        realTypeByKind[TYPE_KIND_SHORT] = syms.shortType;
-        realTypeByKind[TYPE_KIND_INT] = syms.intType;
-        realTypeByKind[TYPE_KIND_LONG] = syms.longType;
-        realTypeByKind[TYPE_KIND_FLOAT] = syms.floatType;
-        realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
-        realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
     }
 
     public static String getTypePrefix(int index) {
