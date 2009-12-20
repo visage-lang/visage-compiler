@@ -110,6 +110,7 @@
         <run-benchmark benchmark="bindif"/>
         <run-benchmark benchmark="bindforlocal"/>
         <run-benchmark benchmark="bindforglobal"/>
+        <run-benchmark benchmark="boundblocks"/>
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>

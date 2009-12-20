@@ -44,6 +44,7 @@ public class Runner {
     static final String msg[] = { " none "};
     static boolean runExecution = true;
     static boolean runFootPrint = true;
+    private static final int JMAP_RETRY = 3; // see 6498448
 
     public static void main(String... args) {
         init(args);
@@ -116,7 +117,16 @@ public class Runner {
         if (runFootPrint) {
             duration += (timeToSleep == 0.0f) ? 2 * 60 * 1000 : timeToSleep;
             cmdsList.add("-pause");
-            mvalue = analyzeFootPrint(cmdsList);
+            boolean success = false;
+            for (int retry = 0 ; retry < JMAP_RETRY && !success ; retry++) {
+                if (retry > 0) {
+                    Utils.logger.info("Retrying operation " +
+                            retry + "/" + JMAP_RETRY);
+                }
+                mvalue = analyzeFootPrint(cmdsList);
+                success = (mvalue != null);
+            }
+
         }
         Utils.toCsvFile(pvalue, mvalue);
     }
@@ -139,6 +149,7 @@ public class Runner {
     }
 
     static public String printClasses(Process testProc) {
+        List<String> jmapOutput = null;
         FileOutputStream jmpos = null;
         PrintStream jps = null;
         String[] appIds = TestProcess.getAppPids();
@@ -152,23 +163,28 @@ public class Runner {
                     "jmap-" + TestProcess.APP_NAME, ".txt",
                     new File(TestProcess.APP_WORKDIR)));
             jps = new PrintStream(jmpos);
-            List<String> jmapOutput = TestProcess.doExec(
-                    TestProcess.JMAP_EXE, "-histo:live", appIds[0]);
-            for (String x : jmapOutput) {
-                jps.println(x);
-                if (x.startsWith("Total")) {
-                    String[] flds = x.split("\\s");
-                    float msize = Float.parseFloat(flds[flds.length - 1]);
-                    yvalue = Float.toString(msize / 1024 / 1024);
-                    System.out.println(TestProcess.APP_NAME + " Footprint: " +
-                            yvalue + " MBytes");
-                    File outFile = new File(TestProcess.APP_WORKDIR,
-                            TestProcess.APP_NAME + "-dfp.txt");
-                    Utils.toPlotFile(outFile, yvalue);
+            jmapOutput = TestProcess.doExec(TestProcess.JMAP_EXE,
+                    "-histo:live", appIds[0]);
+     
+            float msize = 0;
+            if (jmapOutput != null) {
+                for (String x : jmapOutput) {
+                    jps.println(x);
+                    if (x.startsWith("Total")) {
+                        String[] flds = x.split("\\s");
+                        msize = Float.parseFloat(flds[flds.length - 1]);
+                    }
                 }
             }
+            yvalue = Float.toString(msize / 1024 / 1024);
+            System.out.println(TestProcess.APP_NAME + " Footprint: " +
+                    yvalue + " MBytes");
+            File outFile = new File(TestProcess.APP_WORKDIR,
+                    TestProcess.APP_NAME + "-dfp.txt");
+            Utils.toPlotFile(outFile, yvalue);
         } catch (IOException ex) {
             TestProcess.logger.severe(ex.getMessage());
+            return null;
         } finally {
             try {
                 if (jps != null) {
@@ -185,7 +201,12 @@ public class Runner {
                 testProc.destroy();
             }
         }
-        return yvalue;
+        /*
+         * An intermittent permission denied can occur due to bug 6498448,
+         * so we return a null so that the caller can retry the operation
+         * if it so wishes.
+         */
+        return (jmapOutput == null ) ? null : yvalue;
     }
     
     static String analyzeFootPrint(List<String> cmds) {
