@@ -70,6 +70,7 @@ public class JavafxFlags {
     public static final long VARUSE_TMP_IN_INIT_EXPR   = FIRST_VARUSE_FLAG << 8;  // temp flag, set while inside var's initializing expression
     public static final long VARUSE_NEED_ACCESSOR      = FIRST_VARUSE_FLAG << 9;  // create accessor methods for this var
     public static final long VARUSE_NON_LITERAL        = FIRST_VARUSE_FLAG << 10; // non-accessor still needs getter
+    public static final long VARUSE_BIND_ACCESS        = FIRST_VARUSE_FLAG << 11; // Accessed in bind.
     // This last shift + the last for modifiers + the last on marks must be <= 22 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags

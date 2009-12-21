@@ -108,6 +108,7 @@ public class JavafxVarSymbol extends VarSymbol {
         return isFXMember() &&
                 (!hasScriptOnlyAccess() ||
                 (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
+                ((flags_field & JavafxFlags.VARUSE_BIND_ACCESS) != 0 && (flags_field & JavafxFlags.VARUSE_ASSIGNED_TO) != 0) ||
                 (owner.flags_field & MIXIN) != 0);
     }
 

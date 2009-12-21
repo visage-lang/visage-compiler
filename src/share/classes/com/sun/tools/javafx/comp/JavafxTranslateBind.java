@@ -406,7 +406,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
-            return Call(rcvr, attributeSizeName(sym));
+            if (((JavafxVarSymbol) sym).useAccessors())
+                return Call(rcvr, attributeSizeName(sym));
+            else
+                return Call(defs.Sequences_size, Getter(rcvr, sym));
         }
 
         JCExpression CallGetElement(Symbol sym, JCExpression pos) {
@@ -414,7 +417,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
-            return Call(rcvr, attributeGetElementName(sym), pos);
+            if (((JavafxVarSymbol) sym).useAccessors())
+                return Call(rcvr, attributeGetElementName(sym), pos);
+            else
+                return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, posArg());
         }
 
         JCExpression Undefined() {
@@ -808,7 +814,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         JCStatement makeSizeBody() {
             JCExpression tToCheck = translateToCheck(getToCheck());
-
+            JCStatement callSize = buildBody(tToCheck, CallSize(tToCheck, refSym), syms.intType);
+            if (! selectorSym.useAccessors())
+                return callSize;
             return
                 Block(
                     If (isSequenceDormant(),
@@ -818,7 +826,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
                         )
                     ),
-                    buildBody(tToCheck, CallSize(tToCheck, refSym), syms.intType)
+                    callSize
                 );
         }
 
