@@ -10,6 +10,7 @@ function run() {
   println(seq[1..2] = "boat");
   println(seq);
   println(seq[0..0] = ["little", "tiny"]);
+  println(seq);
   println(seq = ["no"]);
   println(seq);
 }

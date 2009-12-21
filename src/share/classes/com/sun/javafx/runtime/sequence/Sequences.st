@@ -105,7 +105,7 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         }
     }
 
-    public static Sequence<? extends $Tboxed$> replaceSlice(FXObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
+    public static void replaceSlice(FXObject instance, int varNum, $Tprim$ newValue, int startPos, int endPos/*exclusive*/) {
         boolean wasUninitialized =
                 instance.varTestBits\$(varNum, FXObject.VFLGS\$DEFAULT_APPLIED, 0);
         instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
@@ -123,10 +123,6 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
             Sequence<? extends $Tboxed$> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
             instance.be\$(varNum, arr);
             instance.invalidate\$(varNum, startPos, endPos, 1, FXObject.VFLGS\$NEEDS_TRIGGER);
-            return arr;
-        }
-        else {
-            return oldValue;
         }
     }
 
