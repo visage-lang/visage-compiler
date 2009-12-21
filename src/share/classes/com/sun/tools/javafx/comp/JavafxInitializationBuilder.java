@@ -1815,7 +1815,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     // Restrict setting.
+                    beginBlock();
                     addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
+                    JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, defs.varFlagIS_READONLY);
+                    // if (isReadonly$(VOFF$var)) { restrictSet$(VOFF$var); }
+                    addStmt(OptIf(ifReadonlyTest,
+                            endBlock()));
 
                     addStmt(FlagChangeStmt(varSym, null, defs.varFlagIS_INITIALIZED));
 
@@ -1826,7 +1831,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmts(varInfo.boundInvSetterPreface());
                         // Test to see if bound.
                         JCExpression ifBoundTest = FlagTest(varSym, defs.varFlagIS_BOUND, defs.varFlagIS_BOUND);
-                        // if (!isBound$(VOFF$var)) { set$other(inv bound expression); }
+                        // if (isBound$(VOFF$var)) { set$other(inv bound expression); }
                         addStmt(OptIf(ifBoundTest,
                                 endBlock()));
                     }
