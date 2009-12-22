@@ -964,6 +964,81 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     /**
+     * Bound reverse operator sequence Translator
+     */
+    private class BoundReverseSequenceTranslator extends BoundSequenceTranslator {
+
+        private final JavafxVarSymbol selfSym = (JavafxVarSymbol) targetSymbol;
+        private final JavafxVarSymbol argSym;
+
+        BoundReverseSequenceTranslator(JFXUnary tree) {
+            super(tree.pos());
+            JFXIdent arg = (JFXIdent) tree.arg;
+            this.argSym = (JavafxVarSymbol) arg.sym;
+        }
+
+        /**
+         * Size accessor -- pass through
+         */
+        JCStatement makeSizeBody() {
+            return
+                Return (CallSize(argSym));
+        }
+
+        /**
+         * Get sequence element
+         * Element is underlying element at size - 1 - index
+         */
+        JCStatement makeGetElementBody() {
+            return
+                Return ( CallGetElement(argSym, MINUS( MINUS(CallSize(argSym), Int(1)), posArg()) ) );
+        }
+
+        /**
+         * Pass-through the invalidation reversing the start and end
+         *
+         * Compute the old size:
+         *    oldSize = newSize - (newLen - (end - start));
+         * 
+         * reversedStart = oldSize - 1 - (end - 1) = oldSize - end
+         * reversedEnd = oldSize - 1 + 1 - start = oldSize - start
+         */
+        private JCStatement makeInvalidateArg() {
+            JCVariableDecl oldSize = TmpVar(syms.intType,
+                        MINUS(
+                            CallSize(argSym),
+                            MINUS(
+                                newLengthArg(),
+                                MINUS(
+                                    endPosArg(),
+                                    startPosArg()
+                                )
+                            )
+                        ));
+
+            return
+                If (IsInvalidatePhase(),
+                    Block(
+                        CallSeqInvalidateUndefined(selfSym)
+                    ),
+                /*Else (Trigger phase)*/
+                    Block(
+                        oldSize,
+                        CallSeqInvalidate(selfSym,
+                                    MINUS(id(oldSize), endPosArg()),
+                                    MINUS(id(oldSize), startPosArg()),
+                                    newLengthArg()
+                        )
+                    )
+                );
+        }
+
+        void setupInvalidators() {
+                addInvalidator(argSym, makeInvalidateArg());
+        }
+    }
+
+    /**
      * Bound explicit sequence Translator ["hi", [2..k], x]
      *
      *
@@ -1975,8 +2050,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitUnary(JFXUnary tree) {
-        checkForSequenceVersionUnimplemented(tree);
-        super.visitUnary(tree);
+        if (tree == boundExpression && isTargettedToSequence()) {
+            // We want to translate to a bound sequence
+            assert tree.getFXTag() == JavafxTag.REVERSE : "should be reverse operator";
+            result = new BoundReverseSequenceTranslator(tree).doit();
+        } else {
+            super.visitUnary(tree);
+        }
     }
 
 
