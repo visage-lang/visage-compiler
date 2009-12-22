@@ -45,6 +45,7 @@ public interface FXObject {
     public static final int VFLGS$IS_INITIALIZED = 32;
     public static final int VFLGS$AWAIT_VARINIT = 64;
     public static final int VFLGS$CYCLE = 128;
+    public static final int VFLGS$IS_EAGER = 256;
 
     public static final int VFLGS$VALIDITY_FLAGS = VFLGS$IS_INVALID | VFLGS$NEEDS_TRIGGER;
     public static final int VFLGS$IS_BOUND_INVALID = VFLGS$IS_BOUND | VFLGS$IS_INVALID;
