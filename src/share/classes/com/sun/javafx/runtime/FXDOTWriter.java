@@ -893,14 +893,20 @@ public class FXDOTWriter {
         return node.object.getClass().isArray() ? arrayLimit : fieldLimit;
     }
     
+    // Return a displayable name for the specified class.
+    private String getClassName(Class clazz) {
+        String name = clazz.getCanonicalName();
+        if (name == null) name = clazz.getName();
+        if (name == null) name = clazz.getSimpleName();
+        return name;
+    }
+    
     // Add the header information about the object.
     private void addHeader(Object object, Class clazz, Node node) {
         // Use object if displaying statics.
         if (displayStatics && object instanceof Class) clazz = (Class)object;
-        // Use canonical name as title.
-        String className = clazz.getCanonicalName();
-        // Local classes don't have a canonical name.
-        if (className == null) className = clazz.toString();
+        // Use name as title.
+        String className = getClassName(clazz);
         
         if (object instanceof FXObject) {
             // Flag FX objects.
@@ -1035,6 +1041,18 @@ public class FXDOTWriter {
         Map<String, Field> fieldMap = new HashMap<String, Field>();
         List<FXField> fxFieldList = new ArrayList<FXField>();
         
+        // If script add static fields from enclosing class.
+        if (getClassName(clazz).endsWith("$Script")) {
+            Class enclosing = clazz.getEnclosingClass();
+            if (enclosing != null) {
+                for (Field field : getFields(enclosing)) {
+                    if ((field.getModifiers() & Modifier.STATIC) != 0) {
+                        fieldMap.put(field.getName(), field);
+                    }
+                }
+            }
+        }
+        
         // For each of the FX object fields.
         for (Field field : fields) {
             // Get it's manged name.
@@ -1047,7 +1065,7 @@ public class FXDOTWriter {
                 // Extract the var name from the VOFF$ name.
                 String varName = name.substring(FXField.voffPrefix.length() - 1);
                 // Determine the class prefix for the var.
-                String className = field.getDeclaringClass().getCanonicalName().replaceAll("\\.", "\\$");
+                String className = getClassName(field.getDeclaringClass()).replaceAll("\\.", "\\$");
                 // Strip down to the user declared name.
                 String bareName = varName.startsWith(className, 1) ? varName.substring(className.length() + 2) :
                                                                      varName.substring(1);
