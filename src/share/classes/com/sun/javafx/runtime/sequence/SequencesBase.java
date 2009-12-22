@@ -332,7 +332,7 @@ public class SequencesBase {
 
     public static int calculateIntRangeSize(int lower, int upper, int step, boolean exclusive) {
         if (step == 0) {
-            return 0; // for bound sequences -- non-bound caught at caller
+            throw new IllegalArgumentException("Range step of zero");
         }
         if (Math.abs((long) lower - (long) upper) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range sequence too big");
@@ -354,7 +354,7 @@ public class SequencesBase {
 
     public static int calculateFloatRangeSize(float lower, float upper, float step, boolean exclusive) {
         if (step == 0.0f) {
-            return 0; // for bound sequences -- non-bound caught at caller
+            throw new IllegalArgumentException("Range step of zero");
         }
         if (upper == lower) {
             return exclusive ? 0 : 1;
