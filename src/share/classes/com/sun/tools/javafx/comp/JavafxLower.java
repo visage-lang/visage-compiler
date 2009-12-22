@@ -1067,18 +1067,29 @@ public class JavafxLower implements JavafxVisitor {
                     // Shread the expression outside the class, so that the context is correct
                     // The variable should be marked as script private as it shouldn't
                     // be accessible from outside.
-                    JFXVar shred = makeVar(
+
+                    JFXExpression partExpr = part.getExpression();
+                    Symbol initSym = JavafxTreeInfo.symbol(partExpr);
+                    // FIXME: revisit this - more opportunities to optimze here.
+                    // Check if we can avoid more local class wrapping around object
+                    // literal class.
+                    if (partExpr.getFXTag() == JavafxTag.LITERAL ||
+                        (initSym != null && initSym.isStatic())) {
+                        initExpr = partExpr;
+                    } else {
+                        JFXVar shred = makeVar(
                             part.pos(),
                             JavafxFlags.SCRIPT_PRIVATE,
                             part.name + "$ol",
                             part.getBindStatus(),
-                            lowerExpr(part.getExpression(), part.sym.type),
+                            lowerExpr(partExpr, part.sym.type),
                             part.sym.type);
-                    JFXIdent sid = m.Ident(shred.name);
-                    sid.sym = shred.sym;
-                    sid.type = part.sym.type;
-                    locals.append(shred);
-                    initExpr = sid;
+                        JFXIdent sid = m.Ident(shred.name);
+                        sid.sym = shred.sym;
+                        sid.type = part.sym.type;
+                        locals.append(shred);
+                        initExpr = sid;
+                    }
                 } else {
                     initExpr = part.getExpression(); // lowered with class
                 }
