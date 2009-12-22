@@ -1171,7 +1171,7 @@ public abstract class JavafxTranslationSupport {
         }
         
         protected JCExpression flagCast(JCExpression expr) {
-            return m().TypeCast(makeType(syms.byteType, true), expr);
+            return m().TypeCast(makeType(syms.shortType, true), expr);
         }
 
         private JCExpression FlagAction(JavafxVarSymbol varSym, Name action, Name clearBits, Name setBits, boolean isStmt) {

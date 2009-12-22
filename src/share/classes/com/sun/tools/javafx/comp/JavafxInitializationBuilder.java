@@ -1817,9 +1817,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Restrict setting.
                     beginBlock();
                     addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
-                    JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, defs.varFlagIS_READONLY);
+                    JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, null);
                     // if (isReadonly$(VOFF$var)) { restrictSet$(VOFF$var); }
-                    addStmt(OptIf(ifReadonlyTest,
+                    addStmt(OptIf(NOT(ifReadonlyTest),
                             endBlock()));
 
                     addStmt(FlagChangeStmt(varSym, null, defs.varFlagIS_INITIALIZED));
@@ -2352,9 +2352,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct flags var.
                     Name name = attributeFlagsName(ai.getSymbol());
-                    // Construct and add: public static int VFLGS$name = n;
-                    
-                    addDefinition(makeField(rawFlags(), syms.byteType, name, null));
+                    // Construct and add: public static short VFLGS$name = n;
+                    addDefinition(makeField(rawFlags(), syms.shortType, name, null));
                 }
             }
         }
