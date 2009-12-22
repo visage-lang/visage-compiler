@@ -1,6 +1,6 @@
 
-class bindfor extends cbm {
-    var max:Number = 10000000;
+class bindforlocal extends cbm {
+    var max:Number = 100000;
     var min:Number = 0;
     override public function test() {
         var values = bind for (i in [min..max]) {
@@ -23,7 +23,7 @@ class bindfor extends cbm {
  * define a run method to call runtests passing args and instance of this class
  */
 public function run(args:String[]) {
-    var t = new bindfor();
+    var t = new bindforlocal();
     cbm.runtest(args,t);
 }
 

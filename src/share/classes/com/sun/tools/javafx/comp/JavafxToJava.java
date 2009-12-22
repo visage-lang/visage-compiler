@@ -687,6 +687,12 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
             JavafxVarSymbol vsym = (JavafxVarSymbol) refSym;
             boolean useAccessor = vsym.useAccessors();
+            JCExpression tRHS = buildRHS(rhsTranslated);
+            JCVariableDecl newResult = null;
+            if (targetType != syms.voidType) {
+                newResult = TmpVar(rhsType(), tRHS);
+                tRHS = id(newResult);
+            }
             if (! useAccessor) {
                 // Non-accessor-using variable sequence -- roughly:
                 // lhs = sequenceAction(lhs, rhs);
@@ -697,7 +703,6 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                 args.append(instance(tToCheck));
                 args.append(Offset(copyOfTranslatedToCheck(tToCheck), vsym));
             }
-            JCExpression tRHS = buildRHS(rhsTranslated);
             if (tRHS != null) {
                 args.append(tRHS);
             }
@@ -712,6 +717,9 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             JCExpression res = Call(meth, args);
             if (! useAccessor) {
                 res = Setter(tToCheck, vsym, res);
+            }
+            if (newResult != null) {
+                res = BlockExpression(newResult, Stmt(res), id(newResult));
             }
             return res;
         }
