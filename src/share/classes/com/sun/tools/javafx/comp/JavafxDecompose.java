@@ -465,7 +465,9 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitUnary(JFXUnary tree) {
-        JFXExpression arg = decomposeComponent(tree.arg);
+        JFXExpression arg = tree.getFXTag() == JavafxTag.REVERSE?
+            shredUnlessIdent(tree.arg) :
+            decomposeComponent(tree.arg);
         JavafxTag tag = tree.getFXTag();
         JFXUnary res = fxmake.at(tree.pos).Unary(tag, arg);
         res.operator = tree.operator;
