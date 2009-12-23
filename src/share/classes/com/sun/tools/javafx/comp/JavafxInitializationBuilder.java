@@ -2006,8 +2006,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
 
                         // Call the get$var to force evaluation.
-                        if (varInfo.onReplace() != null)
-                            addStmt(Stmt(Getter(proxyVarSym)));
+                        if (varInfo.onReplace() != null) {
+                            addStmt(OptIf(NOT(FlagTest(proxyVarSym, defs.varFlagIS_EAGER, null)),
+                                          Block(Stmt(Getter(proxyVarSym)))));
+                        }
 
                         // if (phase$ == VFLGS$NEEDS_TRIGGER) { get$var(); }
                         addStmt(OptIf(ifTriggerPhase,
@@ -2370,9 +2372,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
                     // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
                     JCExpression setVCNT$Expr = superClassSym == null ?  Int(varCount) :
-                                                                         PLUS(
-                                                                                    Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
-                                                                                    Int(varCount));
+                                                                         PLUS(Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
+                                                                              Int(varCount));
                     Name countName = names.fromString("$count");
                     // final int $count = VCNT$ = super.VCNT$() + n;
                     addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.count_FXObjectFieldName), setVCNT$Expr)));
@@ -2695,6 +2696,23 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
+        // This method simplifies the bitor-ing of several flags.
+        //
+        private JCExpression bitOrFlags(JCExpression initial, Name... flags) {
+            JCExpression expr = initial;
+            
+            for (Name flag : flags) {
+                if (expr == null) {
+                    expr = id(flag);
+                } else {
+                    expr = BITOR(expr, id(flag));
+                }
+            }
+            
+            return expr;
+        }
+        
+        //
         // This method sets the initial var flags.
         //
         private void makeInitVarBitsMethod(final List<VarInfo> attrInfos) {
@@ -2715,38 +2733,40 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             JavafxVarSymbol proxyVarSym = ai.proxyVarSym();
                             boolean isBound = ai.hasBoundDefinition();
                             boolean isReadonly = ai.isDef() || (isBound && !ai.hasBiDiBoundDefinition());
-                            Name setBits = null;
+                            boolean isEager = ai.onReplace() != null;
+                            JCExpression setBits = null;
+                            JCExpression clearBits = id(defs.varFlagALL_FLAGS);
 
                             if (useSimpleInit(ai)) {
-                                if (isReadonly) {
-                                    setBits = defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY;
-                                } else {
-                                    setBits = defs.varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED;
-                                }
-                            } else if (ai.hasVarInit()) {
-                                if (isReadonly && isBound) {
-                                    setBits = defs.varFlagINIT_BOUND_READONLY_VARINIT;
-                                } else if (isReadonly) {
-                                    setBits = defs.varFlagINIT_READONLY_VARINIT;
-                                } else if (isBound) {
-                                    setBits = defs.varFlagINIT_BOUND_VARINIT;
-                                } else {
-                                    setBits = defs.varFlagINIT_VARINIT;
-                                }
+                                setBits = bitOrFlags(setBits, defs.varFlagDEFAULT_APPLIED, defs.varFlagIS_INITIALIZED);
                             } else {
-                                if (isReadonly && isBound) {
-                                    setBits = defs.varFlagINIT_BOUND_READONLY;
-                                } else if (isReadonly) {
-                                    setBits = defs.varFlagINIT_READONLY;
-                                } else if (isBound) {
-                                    setBits = defs.varFlagINIT_BOUND;
+                                if (isBound) {
+                                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagIS_INVALID, defs.varFlagNEEDS_TRIGGER);
+                                }
+                                
+                                if (ai.hasVarInit()) {
+                                    setBits = bitOrFlags(setBits, defs.varFlagAWAIT_VARINIT);
+                                }
+                            }
+                            
+                            if (isReadonly) {
+                                setBits = bitOrFlags(setBits, defs.varFlagIS_READONLY);
+                            }
+                            
+                            if (isEager) {
+                                setBits = bitOrFlags(setBits, defs.varFlagIS_EAGER);
+                            }
+                           
+                            if (ai.isOverride() || ai instanceof MixinClassVarInfo) {
+                                if (isBound || ai.hasInitializer()) {
+                                    clearBits = BITAND(id(defs.varFlagALL_FLAGS), BITNOT(id(defs.varFlagIS_EAGER)));
+                                } else {
+                                    clearBits = null;
                                 }
                             }
                            
-                            if (setBits != null) {
-                                addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagALL_FLAGS, setBits));
-                            } else if (ai.isOverride() && hasDefaultInitStatement(ai)) {
-                                addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagALL_FLAGS, null));
+                            if (clearBits != null || setBits != null) {
+                                addStmt(FlagChangeStmt(proxyVarSym, clearBits, setBits));
                             }
                         }
                     }

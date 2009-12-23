@@ -432,16 +432,10 @@ public class JavafxDefs {
     final Name varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT;
     final Name varFlagIS_BOUND_DEFAULT_APPLIED;
     final Name varFlagDEFAULT_APPLIED_VARINIT;
-    final Name varFlagINIT_NORMAL;
+    
     final Name varFlagINIT_OBJ_LIT;
     final Name varFlagINIT_OBJ_LIT_DEFAULT;
-    final Name varFlagINIT_READONLY;
-    final Name varFlagINIT_BOUND;
     final Name varFlagINIT_BOUND_READONLY;
-    final Name varFlagINIT_VARINIT;
-    final Name varFlagINIT_READONLY_VARINIT;
-    final Name varFlagINIT_BOUND_VARINIT;
-    final Name varFlagINIT_BOUND_READONLY_VARINIT;
     final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED;
     final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY;
     final Name varFlagALL_FLAGS;
@@ -646,16 +640,9 @@ public class JavafxDefs {
         varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE_AWAIT_VARINIT");
         varFlagIS_BOUND_DEFAULT_APPLIED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED");
         varFlagDEFAULT_APPLIED_VARINIT = names.fromString("VFLGS$DEFAULT_APPLIED_VARINIT");
-        varFlagINIT_NORMAL = names.fromString("VFLGS$INIT_NORMAL");
         varFlagINIT_OBJ_LIT = names.fromString("VFLGS$INIT_OBJ_LIT");
         varFlagINIT_OBJ_LIT_DEFAULT = names.fromString("VFLGS$INIT_OBJ_LIT_DEFAULT");
-        varFlagINIT_READONLY = names.fromString("VFLGS$INIT_READONLY");
-        varFlagINIT_BOUND = names.fromString("VFLGS$INIT_BOUND");
         varFlagINIT_BOUND_READONLY = names.fromString("VFLGS$INIT_BOUND_READONLY");
-        varFlagINIT_VARINIT = names.fromString("VFLGS$INIT_VARINIT");
-        varFlagINIT_READONLY_VARINIT = names.fromString("VFLGS$INIT_READONLY_VARINIT");
-        varFlagINIT_BOUND_VARINIT = names.fromString("VFLGS$INIT_BOUND_VARINIT");
-        varFlagINIT_BOUND_READONLY_VARINIT = names.fromString("VFLGS$INIT_BOUND_READONLY_VARINIT");
         varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED = names.fromString("VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED");
         varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY = names.fromString("VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY");
         varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
