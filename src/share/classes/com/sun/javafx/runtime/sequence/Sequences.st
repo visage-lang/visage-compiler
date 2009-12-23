@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.*;
 
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.NumericTypeInfo;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
@@ -109,6 +110,9 @@ $PREFIX,BOXED,PRIM:{T,Tboxed,Tprim|
         boolean wasUninitialized =
                 instance.varTestBits\$(varNum, FXObject.VFLGS\$DEFAULT_APPLIED, 0);
         instance.varChangeBits\$(varNum, 0, FXObject.VFLGS\$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+        if (instance.varTestBits\$(varNum, FXObject.VFLGS\$INIT_BOUND_READONLY, FXObject.VFLGS\$INIT_BOUND_READONLY)) {
+            throw new AssignToBoundException("Cannot mutate bound sequence");
+        }
         Sequence<? extends $Tboxed$> oldValue = (Sequence<? extends $Tboxed$>) instance.get\$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;

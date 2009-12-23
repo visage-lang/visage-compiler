@@ -111,12 +111,22 @@
         <run-benchmark benchmark="bindforlocal"/>
         <run-benchmark benchmark="bindforglobal"/>
         <run-benchmark benchmark="boundblocks"/>
+        <run-benchmark benchmark="boundObjectInstantiation"/>
+        <run-benchmark benchmark="boundMethodLocal"/>
+        <run-benchmark benchmark="boundMethodGlobal"/>
+        <run-benchmark benchmark="unary_ops"/>
+        <run-benchmark benchmark="unary_ops_local"/>
+        <run-benchmark benchmark="binary_ops"/>
+        <run-benchmark benchmark="binary_ops_local"/>
+        <run-benchmark benchmark="logical_ops"/>
+        <run-benchmark benchmark="logical_ops_local"/>
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>
 
     <!-- used for test one off tests -->
     <target name="ktest" depends="compile">
+        <echo message="Running ${test.one}..standby...."/>
         <run-benchmark benchmark="${test.one}"/>
     </target>
 </project>

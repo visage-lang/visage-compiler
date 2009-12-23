@@ -126,7 +126,6 @@ public class Runner {
                 mvalue = analyzeFootPrint(cmdsList);
                 success = (mvalue != null);
             }
-
         }
         Utils.toCsvFile(pvalue, mvalue);
     }
@@ -221,6 +220,7 @@ public class Runner {
         try {
             pb.redirectErrorStream(true);
             final Process p = pb.start();
+            Utils.logger.info("sleeping for " + duration + " mSeconds");
             Thread.sleep(duration);
             return printClasses(p);
         } catch (Exception ex) {

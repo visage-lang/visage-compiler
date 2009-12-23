@@ -732,11 +732,12 @@ public class JavafxLower implements JavafxVisitor {
     public void visitUnary(JFXUnary tree) {
         if (tree.getFXTag().isIncDec()) {
             result = visitNumericUnary(tree);
-        }
-        else {
-            JFXExpression arg = tree.getFXTag().isIncDec() ?
-                lowerExpr(tree.getExpression(), tree.getOperator().type.getParameterTypes().head) :
-                lower(tree.getExpression());
+        } else {
+            JFXExpression arg = tree.getFXTag() == JavafxTag.REVERSE ?
+                lowerExpr(tree.getExpression(), tree.type) :
+                tree.getOperator() != null ?
+                    lowerExpr(tree.getExpression(), tree.getOperator().type.getParameterTypes().head) :
+                    lower(tree.getExpression());
             JFXUnary res = m.at(tree.pos).Unary(tree.getFXTag(), arg);
             res.operator = tree.operator;
             res.type = tree.type;

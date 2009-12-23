@@ -1493,7 +1493,13 @@ public abstract class JavafxTranslationSupport {
         }
 
         JCBlock Block(List<JCStatement> stmts) {
-            return m().Block(0L, stmts);
+            ListBuffer<JCStatement> nonNull = ListBuffer.lb();
+            for (JCStatement stmt : stmts) {
+                if (stmt != null) {
+                    nonNull.append(stmt);
+                }
+            }
+            return m().Block(0L, nonNull.toList());
         }
 
         JCBlock Block(ListBuffer<JCStatement> stmts) {

@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.tree.SequenceSliceTree;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
@@ -420,7 +421,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (((JavafxVarSymbol) sym).useAccessors())
                 return Call(rcvr, attributeGetElementName(sym), pos);
             else
-                return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, posArg());
+                return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, pos);
         }
 
         JCExpression Undefined() {
@@ -964,6 +965,81 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     /**
+     * Bound reverse operator sequence Translator
+     */
+    private class BoundReverseSequenceTranslator extends BoundSequenceTranslator {
+
+        private final JavafxVarSymbol selfSym = (JavafxVarSymbol) targetSymbol;
+        private final JavafxVarSymbol argSym;
+
+        BoundReverseSequenceTranslator(JFXUnary tree) {
+            super(tree.pos());
+            JFXIdent arg = (JFXIdent) tree.arg;
+            this.argSym = (JavafxVarSymbol) arg.sym;
+        }
+
+        /**
+         * Size accessor -- pass through
+         */
+        JCStatement makeSizeBody() {
+            return
+                Return (CallSize(argSym));
+        }
+
+        /**
+         * Get sequence element
+         * Element is underlying element at size - 1 - index
+         */
+        JCStatement makeGetElementBody() {
+            return
+                Return ( CallGetElement(argSym, MINUS( MINUS(CallSize(argSym), Int(1)), posArg()) ) );
+        }
+
+        /**
+         * Pass-through the invalidation reversing the start and end
+         *
+         * Compute the old size:
+         *    oldSize = newSize - (newLen - (end - start));
+         * 
+         * reversedStart = oldSize - 1 - (end - 1) = oldSize - end
+         * reversedEnd = oldSize - 1 + 1 - start = oldSize - start
+         */
+        private JCStatement makeInvalidateArg() {
+            JCVariableDecl oldSize = TmpVar(syms.intType,
+                        MINUS(
+                            CallSize(argSym),
+                            MINUS(
+                                newLengthArg(),
+                                MINUS(
+                                    endPosArg(),
+                                    startPosArg()
+                                )
+                            )
+                        ));
+
+            return
+                If (IsInvalidatePhase(),
+                    Block(
+                        CallSeqInvalidateUndefined(selfSym)
+                    ),
+                /*Else (Trigger phase)*/
+                    Block(
+                        oldSize,
+                        CallSeqInvalidate(selfSym,
+                                    MINUS(id(oldSize), endPosArg()),
+                                    MINUS(id(oldSize), startPosArg()),
+                                    newLengthArg()
+                        )
+                    )
+                );
+        }
+
+        void setupInvalidators() {
+                addInvalidator(argSym, makeInvalidateArg());
+        }
+    }
+
+    /**
      * Bound explicit sequence Translator ["hi", [2..k], x]
      *
      *
@@ -1188,8 +1264,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     /**
      * Bound range sequence Translator [10..100 step 10]
-     *
-     *
      */
     private class BoundRangeSequenceTranslator extends BoundSequenceTranslator {
         private final JFXVar varLower;
@@ -1536,6 +1610,189 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             addInvalidator(varSize.sym, makeInvalidateSize());
         }
     }
+
+    /**
+     * Bound slice sequence Translator seq[3..5]
+     */
+    private class BoundSliceSequenceTranslator extends BoundSequenceTranslator {
+        private final JavafxVarSymbol seqSym;
+        private final JavafxVarSymbol lowerSym;
+        private final JavafxVarSymbol upperSym;
+        private final boolean isExclusive;
+        private final Type elemType;
+
+        BoundSliceSequenceTranslator(JFXSequenceSlice tree) {
+            super(tree.pos());
+            this.seqSym = (JavafxVarSymbol) (((JFXIdent) tree.getSequence()).sym);
+            this.lowerSym = (JavafxVarSymbol) (((JFXIdent) tree.getFirstIndex()).sym);
+            this.upperSym = tree.getLastIndex() == null?
+                null :
+                (JavafxVarSymbol) (((JFXIdent) tree.getLastIndex()).sym);
+            this.isExclusive = tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE;
+            this.elemType = types.elementType(tree.type);
+        }
+
+        private JCExpression seq() {
+            return Get(seqSym);
+        }
+        private JCExpression lower() {
+            return Get(lowerSym);
+        }
+        private JCExpression upper() {
+            return Get(upperSym);
+        }
+
+        private JCStatement setLower(JCExpression value) {
+            return SetStmt(lowerSym, value);
+        }
+        private JCStatement setUpper(JCExpression value) {
+            return SetStmt(upperSym, value);
+        }
+
+        private JCExpression CallSeqSize() {
+            return CallSize(seqSym);
+        }
+        private JCExpression CallSeqGetElement(JCExpression pos) {
+            return CallGetElement(seqSym, pos);
+        }
+
+        private JCExpression CallLower() {
+            return Getter(lowerSym);
+        }
+        private JCExpression CallUpper() {
+            return Getter(upperSym);
+        }
+
+        /**
+         * if (lower < 0) lower = 0;
+         * if (lower > underlyingSize) lower = underlyingSize;
+         * if (upper < lower) upper = lower;
+         * if (upper > underlyingSize) upper = underlyingSize;
+         * return upper - lower;
+         */
+        JCStatement makeSizeBody() {
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vLow = MutableTmpVar("low", syms.intType, CallLower());
+            // standardize on exclusive upper
+            JCVariableDecl vUp = MutableTmpVar("up", syms.intType,
+                    upperSym==null?
+                        isExclusive?
+                            MINUS(id(vSeqSize), Int(1)) :
+                            id(vSeqSize) :
+                        isExclusive?
+                            CallUpper() :
+                            PLUS(CallUpper(), Int(1)));
+
+            return
+                Block(
+                    vSeqSize,
+                    vLow,
+                    vUp,
+                    If (LT(id(vLow), Int(0)),
+                        Assign(vLow, Int(0))
+                    ),
+                    If (GT(id(vLow), id(vSeqSize)),
+                        Assign(vLow, id(vSeqSize))
+                    ),
+                    If (LE(id(vUp), id(vLow)),
+                        Assign(vUp, id(vLow))
+                    ),
+                    If (GT(id(vUp), id(vSeqSize)),
+                        Assign(vUp, id(vSeqSize))
+                    ),
+                    Return (MINUS(id(vUp), id(vLow)))
+                );
+        }
+
+        /**
+         * if (lower < 0) lower = 0;
+         * if (pos < 0 || pos >= (upper - lower)) return default-value;
+         * return seq[pos + lower];
+         */
+        JCStatement makeGetElementBody() {
+            JCVariableDecl vLow = MutableTmpVar("low", syms.intType, CallLower());
+            // standardize on exclusive upper
+            JCVariableDecl vUp = MutableTmpVar("up", syms.intType, 
+                    upperSym==null?
+                        isExclusive?
+                            MINUS(CallSeqSize(), Int(1)) :
+                            CallSeqSize() :
+                        isExclusive?
+                            CallUpper() :
+                            PLUS(CallUpper(), Int(1)));
+
+            return
+                Block(
+                    vLow,
+                    vUp,
+                    If (LT(id(vLow), Int(0)),
+                        Assign(vLow, Int(0))
+                    ),
+                    If (OR(LT(posArg(), Int(0)), GE(posArg(), MINUS(id(vUp), id(vLow)))),
+                        Return (DefaultValue(elemType))
+                    ),
+                    Return (CallSeqGetElement(PLUS(posArg(), id(vLow))))
+                );
+        }
+
+        /**
+         */
+        private JCStatement makeInvalidateLower() {
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vOldLower = MutableTmpVar("oldLower", syms.intType, lower());
+            JCVariableDecl vNewLower = MutableTmpVar("newLower", syms.intType, CallLower());
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType, upper());
+
+            return
+                If (IsInvalidatePhase(),
+                    Block(
+                        CallSeqInvalidate()
+                    ),
+                /*Else (Trigger phase)*/
+                    Block(
+                        vSeqSize,
+                        vOldLower,
+                        vNewLower,
+                        vUpper,
+                        If (LT(id(vNewLower), Int(0)),
+                            Assign(vNewLower, Int(0))
+                        ),
+                        //setLower(id(vNewLower)),
+                        isExclusive? // standardize on exclusive upper
+                            null :
+                            Assign(vUpper, PLUS(id(vUpper), Int(1))),
+                        If (GT(id(vUpper), id(vSeqSize)),
+                            Assign(vUpper, id(vSeqSize))
+                        ),
+                        If (GT(id(vNewLower), id(vUpper)),
+                            Assign(vNewLower, id(vUpper))
+                        ),
+                        If (GT(id(vOldLower), id(vUpper)),
+                            Assign(vOldLower, id(vUpper))
+                        ),
+                        If (GT(id(vNewLower), id(vOldLower)),
+                            Block(
+                                // lose elements from the front
+                                CallSeqInvalidate(Int(0), MINUS(id(vNewLower), id(vOldLower)), Int(0))
+                            ),
+                        /*else*/ If (GT(id(vNewLower), id(vOldLower)),
+                            Block(
+                                // Gain elements in the front
+                                CallSeqInvalidate(Int(0), Int(0), MINUS(id(vOldLower), id(vNewLower)))
+                            )
+                        )
+                      )
+                    )
+                );
+        }
+
+        /**
+         * Set invalidators for the synthetic support variables
+         */
+        void setupInvalidators() {
+//            addInvalidator(lowerSym, makeInvalidateLower());
+        }
+    }
     
     private class BoundForExpressionTranslator extends BoundSequenceTranslator {
         JFXForExpression forExpr;
@@ -1856,19 +2113,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * Override those that need special bind handling
      */
 
-    JCExpression TODO(JFXTree tree) {
-        return TODO("BIND functionality: " + tree.getClass().getSimpleName());
-    }
-
     private boolean isTargettedToSequence() {
         return types.isSequence(targetSymbol.type);
-    }
-
-    private void checkForSequenceVersionUnimplemented(JFXExpression tree) {
-        if (tree == boundExpression && isTargettedToSequence()) {
-            // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
-        }
     }
 
     public void visitBlockExpression(JFXBlock tree) {
@@ -1960,7 +2206,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
-        TODO(tree);
+        result = new BoundSliceSequenceTranslator(tree).doit();
     }
 
     @Override
@@ -1975,8 +2221,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitUnary(JFXUnary tree) {
-        checkForSequenceVersionUnimplemented(tree);
-        super.visitUnary(tree);
+        if (tree == boundExpression && isTargettedToSequence()) {
+            // We want to translate to a bound sequence
+            assert tree.getFXTag() == JavafxTag.REVERSE : "should be reverse operator";
+            result = new BoundReverseSequenceTranslator(tree).doit();
+        } else {
+            super.visitUnary(tree);
+        }
     }
 
 
