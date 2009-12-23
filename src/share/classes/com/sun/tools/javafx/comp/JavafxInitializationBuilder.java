@@ -1258,7 +1258,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 Offset(varSym), get$call));
 
                         // Is it invalid?
-                        JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
+                        JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
 
                         // Release cycle lock.
                         addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
@@ -1709,7 +1709,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
                             
                             // Is it invalid?
-                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
+                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
 
                             // if (invalid) { set$var(init/bound expression); }
                             addStmt(OptIf(condition, 
@@ -1780,7 +1780,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagCYCLE, null));
                             
                             // Is it bound and invalid?
-                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE, defs.varFlagIS_BOUND_INVALID);
+                            JCExpression condition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT, defs.varFlagIS_BOUND_INVALID);
                             
                             // if (bound and invalid) { set$var(init/bound expression); }
                             addStmt(OptIf(condition, 
