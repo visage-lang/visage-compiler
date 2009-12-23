@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.*;
 
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.FXObject;
@@ -1000,6 +1001,9 @@ public class SequencesBase {
         boolean wasUninitialized =
                 instance.varTestBits$(varNum, FXObject.VFLGS$DEFAULT_APPLIED, 0);
         instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
+            throw new AssignToBoundException("Cannot mutate bound sequence");
+        }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
@@ -1100,6 +1104,9 @@ public class SequencesBase {
         boolean wasUninitialized = 
                 instance.varTestBits$(varNum, FXObject.VFLGS$DEFAULT_APPLIED, 0);
         instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
+            throw new AssignToBoundException("Cannot mutate bound sequence");
+        }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
@@ -1241,6 +1248,9 @@ public class SequencesBase {
     }
 
     public static <T> void deleteValue(FXObject instance, int varNum, T value) {
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
+            throw new AssignToBoundException("Cannot mutate bound sequence");
+        }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
@@ -1251,7 +1261,7 @@ public class SequencesBase {
         // It's tempting to just do:
         //   Sequence<? extends T> arr = deleteValue(oldValue, value);
         //   instance.be$(varNum, arr);
-        // However, in hat case triggers won't run properly.
+        // However, in that case triggers won't run properly.
         int hi = -1;
         for (int i = oldValue.size();  ; ) {
             boolean matches = --i < 0 ? false : oldValue.get(i).equals(value);
