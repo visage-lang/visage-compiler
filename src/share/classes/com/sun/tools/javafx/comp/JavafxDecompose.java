@@ -920,9 +920,9 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitSequenceSlice(JFXSequenceSlice tree) {
-        JFXExpression sequence = decomposeComponent(tree.getSequence());
-        JFXExpression firstIndex = decomposeComponent(tree.getFirstIndex());
-        JFXExpression lastIndex = decomposeComponent(tree.getLastIndex());
+        JFXExpression sequence = shred(tree.getSequence());
+        JFXExpression firstIndex = shred(tree.getFirstIndex());
+        JFXExpression lastIndex = shred(tree.getLastIndex());
         result = fxmake.at(tree.pos).SequenceSlice(sequence, firstIndex, lastIndex, tree.getEndKind());
     }
 
