@@ -1677,9 +1677,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         JCStatement makeSizeBody() {
             JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
-            JCVariableDecl vLow = MutableTmpVar("low", syms.intType, CallLower());
+            JCVariableDecl vLower = MutableTmpVar("lower", syms.intType, CallLower());
             // standardize on exclusive upper
-            JCVariableDecl vUp = MutableTmpVar("up", syms.intType,
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType,
                     upperSym==null?
                         isExclusive?
                             MINUS(id(vSeqSize), Int(1)) :
@@ -1687,21 +1687,21 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         isExclusive?
                             CallUpper() :
                             PLUS(CallUpper(), Int(1)));
-            JCVariableDecl vSize = TmpVar("up", syms.intType, MINUS(id(vUp), id(vLow)));
+            JCVariableDecl vSize = TmpVar("size", syms.intType, MINUS(id(vUpper), id(vLower)));
 
             return
                 Block(
                     vSeqSize,
-                    vLow,
-                    vUp,
-                    If (GT(id(vLow), id(vSeqSize)),
-                        Assign(vLow, id(vSeqSize))
+                    vLower,
+                    vUpper,
+                    If (GT(id(vLower), id(vSeqSize)),
+                        Assign(vLower, id(vSeqSize))
                     ),
-                    If (LE(id(vUp), id(vLow)),
-                        Assign(vUp, id(vLow))
+                    If (LT(id(vUpper), id(vLower)),
+                        Assign(vUpper, id(vLower))
                     ),
-                    If (GT(id(vUp), id(vSeqSize)),
-                        Assign(vUp, id(vSeqSize))
+                    If (GT(id(vUpper), id(vSeqSize)),
+                        Assign(vUpper, id(vSeqSize))
                     ),
                     vSize,
                     If (isSequenceDormant(),
@@ -1724,9 +1724,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * return seq[pos + lower];
          */
         JCStatement makeGetElementBody() {
-            JCVariableDecl vLow = TmpVar("low", syms.intType, CallLower());
+            JCVariableDecl vLower = TmpVar("lower", syms.intType, CallLower());
             // standardize on exclusive upper
-            JCVariableDecl vUp = TmpVar("up", syms.intType, 
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType,
                     upperSym==null?
                         isExclusive?
                             MINUS(CallSeqSize(), Int(1)) :
@@ -1742,16 +1742,20 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             Stmt(CallSize(targetSymbol))
                         )
                     ),
-                    vLow,
-                    vUp,
-                    If (OR(LT(posArg(), Int(0)), GE(posArg(), MINUS(id(vUp), id(vLow)))),
+                    vLower,
+                    vUpper,
+                    If (LT(id(vUpper), id(vLower)),
+                        Assign(vUpper, id(vLower))
+                    ),
+                    If (OR(LT(posArg(), Int(0)), GE(posArg(), MINUS(id(vUpper), id(vLower)))),
                         Return (DefaultValue(elemType))
                     ),
-                    Return (CallSeqGetElement(PLUS(posArg(), id(vLow))))
+                    Return (CallSeqGetElement(PLUS(posArg(), id(vLower))))
                 );
         }
 
         /**
+         * Invalidator for lower
          */
         private JCStatement makeInvalidateLower() {
             JCVariableDecl vOldLower = MutableTmpVar("oldLower", syms.intType, lower());
@@ -1814,11 +1818,87 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 );
         }
 
+
+        /**
+         * Invalidator for upper
+         *
+         * Adjust uppers (old and new) between lower and the underlying sequence size.
+         * If upper is greater, elements added at end:
+         *   invalidate(oldSize, oldSize, delta)
+         * If upper is lesser, elements removed from end
+         *   invalidate(newSize, oldSize, 0)
+         */
+        private JCStatement makeInvalidateUpper() {
+            JCVariableDecl vOldUpper = MutableTmpVar("oldUpper", syms.intType,
+                    isExclusive?
+                            upper() :
+                            PLUS(upper(), Int(1)));
+            JCVariableDecl vNewUpper = MutableTmpVar("newUpper", syms.intType,
+                    isExclusive?
+                            CallUpper() :
+                            PLUS(CallUpper(), Int(1)));
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vLower = MutableTmpVar("lower", syms.intType, lower());
+            JCVariableDecl vOldSize = TmpVar("oldSize", syms.intType, MINUS(id(vOldUpper), id(vLower)));
+
+            return
+                If (id(defs.wasInvalid_LocalVarName),
+                    Block(
+                        FlagChangeStmt(upperSym, null, phaseArg()),
+                        If (isSequenceActive(),
+                            Block(
+                                If (IsInvalidatePhase(),
+                                    Block(
+                                        CallSeqInvalidate()
+                                    ),
+                                /*Else (Trigger phase)*/
+                                    Block(
+                                        vOldUpper,
+                                        vNewUpper,
+                                        vSeqSize,
+                                        vLower,
+                                        If (GT(id(vLower), id(vSeqSize)),
+                                            Assign(vLower, id(vSeqSize))
+                                        ),
+                                        If (GT(id(vOldUpper), id(vSeqSize)),
+                                            Assign(vOldUpper, id(vSeqSize))
+                                        ),
+                                        If (GT(id(vNewUpper), id(vSeqSize)),
+                                            Assign(vNewUpper, id(vSeqSize))
+                                        ),
+                                        If (LT(id(vOldUpper), id(vLower)),
+                                            Assign(vOldUpper, id(vLower))
+                                        ),
+                                        If (LT(id(vNewUpper), id(vLower)),
+                                            Assign(vNewUpper, id(vLower))
+                                        ),
+                                        vOldSize,
+                                        If (GT(id(vNewUpper), id(vOldUpper)),
+                                            Block(
+                                                // Gain elements at the end
+                                                CallSeqInvalidate(id(vOldSize), id(vOldSize), MINUS(id(vNewUpper), id(vOldUpper)))
+                                            ),
+                                        /*else*/ If (LT(id(vNewUpper), id(vOldUpper)),
+                                            Block(
+                                                // Lose elements in the end
+                                                CallSeqInvalidate(MINUS(id(vNewUpper), id(vLower)), id(vOldSize), Int(0))
+                                            )
+                                        ))
+                                   )
+                                )
+                            )
+                        )
+                    )
+                );
+        }
+
         /**
          * Set invalidators for the synthetic support variables
          */
         void setupInvalidators() {
             addInvalidator(lowerSym, makeInvalidateLower());
+            if (upperSym!=null)
+                addInvalidator(upperSym, makeInvalidateUpper());
         }
     }
     

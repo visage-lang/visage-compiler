@@ -1,2 +1,3 @@
-vv15: seqy[0..<aa]
+vv1: seqy[0..<aa]
+vv2: seqy[yy | yy < aa]
 All Done
