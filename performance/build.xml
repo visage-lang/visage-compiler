@@ -120,6 +120,11 @@
         <run-benchmark benchmark="binary_ops_local"/>
         <run-benchmark benchmark="logical_ops"/>
         <run-benchmark benchmark="logical_ops_local"/>
+        <run-benchmark benchmark="bindBlockExprGlobal"/>
+        <run-benchmark benchmark="bindBlockExprLocal"/>
+        <run-benchmark benchmark="boundSequenceRange"/>
+        <run-benchmark benchmark="boundSequenceRangeSum"/>
+        <run-benchmark benchmark="boundSequenceRangeSum_nobind"/>
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>

@@ -57,6 +57,10 @@ public class Utils {
     private static final String LAST_BLD   = "lastSuccessfulBuild";
     static final String CSV_FORMAT_STRING = "%s %s %s\n";
     static final String RESULTS_CSV = "results.csv";
+    private static final String HG_REPO =
+            "http://kenai.com/hg/openjfx-compiler~marina-mixins/file/tip/";
+    private static final String BENCHMARKS_SRC =
+            "performance/benchmarks/src/";
 
     static String getChangesUrl() {
         return HUDSON_URL + "job/" + HUDSON_JOB + "/changes";
@@ -249,5 +253,9 @@ public class Utils {
             close(br);
         }
         return out;
+    }
+
+    static String getBenchmarkSourceLink(String benchmark) {
+        return HG_REPO + BENCHMARKS_SRC + benchmark + ".fx";
     }
 }

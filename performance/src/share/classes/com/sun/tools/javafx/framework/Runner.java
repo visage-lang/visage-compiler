@@ -54,7 +54,6 @@ public class Runner {
     
     static void init(String[] args) {
         String rtype = System.getProperty(RUNNER_NAME + ".runtype");
-
         if (rtype != null) {
             runExecution = false;
             runFootPrint = false;
@@ -220,7 +219,9 @@ public class Runner {
         try {
             pb.redirectErrorStream(true);
             final Process p = pb.start();
-            Utils.logger.info("sleeping for " + duration + " mSeconds");
+            if (TestProcess.debug) {
+                System.out.println("sleeping for " + duration + " mSeconds");
+            }
             Thread.sleep(duration);
             return printClasses(p);
         } catch (Exception ex) {

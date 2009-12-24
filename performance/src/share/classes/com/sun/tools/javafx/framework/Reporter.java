@@ -108,7 +108,10 @@ public class Reporter {
             return (performance) ? rd.getPerformance() : rd.getHeapsize();
         }
     }
-
+    private String getNameAsHref(String name) {
+        return "<a href=" + Utils.getBenchmarkSourceLink(name) +
+                ">" + name + "</a>";
+    }
     private String percentChange(boolean performance,
             Map<String, ResultData> in1, Map<String, ResultData> in2, String key) {
         float f1 = 0;
@@ -169,7 +172,7 @@ public class Reporter {
             startTable(ps, "Footprint in MBytes");
             Set<String> kset = new TreeSet<String>(result.keySet());
             for (String x : kset) {
-                printValues(ps, x,
+                printValues(ps, getNameAsHref(x),
                         getHeapsizeValue(result12, x),
                         getHeapsizeValue(result13, x),
                         getHeapsizeValue(goals, x),
