@@ -426,6 +426,7 @@ public class JavafxDefs {
     final Name varFlagAWAIT_VARINIT;
     final Name varFlagCYCLE;
     final Name varFlagIS_EAGER;
+    final Name varFlagSEQUENCE_LIVE;
     final Name varFlagVALIDITY_FLAGS;
     final Name varFlagIS_BOUND_INVALID;
     final Name varFlagIS_BOUND_INVALID_CYCLE;
@@ -633,7 +634,8 @@ public class JavafxDefs {
         varFlagAWAIT_VARINIT = names.fromString("VFLGS$AWAIT_VARINIT");
         varFlagCYCLE = names.fromString("VFLGS$CYCLE");
         varFlagIS_EAGER = names.fromString("VFLGS$IS_EAGER");
-        
+        varFlagSEQUENCE_LIVE = names.fromString("VFLGS$SEQUENCE_LIVE");
+
         varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
         varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
         varFlagIS_BOUND_INVALID_CYCLE = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE");

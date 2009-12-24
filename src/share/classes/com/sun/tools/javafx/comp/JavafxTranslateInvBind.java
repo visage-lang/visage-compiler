@@ -116,7 +116,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         // ---- Stolen from BoundSequenceTranslator ----
         //TODO: unify
 
-        private Name activeFlagBit = defs.varFlagDEFAULT_APPLIED;
+        private Name activeFlagBit = defs.varFlagSEQUENCE_LIVE;
         JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
 
         JCExpression isSequenceActive() {

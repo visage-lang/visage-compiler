@@ -448,7 +448,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return CallStmt(attributeInvalidateName(sym), begin, end, newLen, phase);
         }
 
-        private Name activeFlagBit = defs.varFlagDEFAULT_APPLIED;
+        private Name activeFlagBit = defs.varFlagSEQUENCE_LIVE;
         JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
 
         JCExpression isSequenceActive() {
@@ -1668,7 +1668,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * if (lower > underlyingSize) lower = underlyingSize;
          * if (upper < lower) upper = lower;
          * if (upper > underlyingSize) upper = underlyingSize;
-         * return upper - lower;
+         * int size = upper - lower;
+         * if (sequence-inactive) {
+         *   set-active;
+         *   invalidate
+         * }
+         * return size
          */
         JCStatement makeSizeBody() {
             JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
@@ -1682,15 +1687,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         isExclusive?
                             CallUpper() :
                             PLUS(CallUpper(), Int(1)));
+            JCVariableDecl vSize = TmpVar("up", syms.intType, MINUS(id(vUp), id(vLow)));
 
             return
                 Block(
                     vSeqSize,
                     vLow,
                     vUp,
-                    If (LT(id(vLow), Int(0)),
-                        Assign(vLow, Int(0))
-                    ),
                     If (GT(id(vLow), id(vSeqSize)),
                         Assign(vLow, id(vSeqSize))
                     ),
@@ -1700,19 +1703,30 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If (GT(id(vUp), id(vSeqSize)),
                         Assign(vUp, id(vSeqSize))
                     ),
-                    Return (MINUS(id(vUp), id(vLow)))
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidate(),
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                        )
+                    ),
+                    Return (id(vSize))
                 );
         }
 
         /**
+         * if (sequence-is-dormant) {
+         *   call size -- to initialize it
+         * }
          * if (lower < 0) lower = 0;
          * if (pos < 0 || pos >= (upper - lower)) return default-value;
          * return seq[pos + lower];
          */
         JCStatement makeGetElementBody() {
-            JCVariableDecl vLow = MutableTmpVar("low", syms.intType, CallLower());
+            JCVariableDecl vLow = TmpVar("low", syms.intType, CallLower());
             // standardize on exclusive upper
-            JCVariableDecl vUp = MutableTmpVar("up", syms.intType, 
+            JCVariableDecl vUp = TmpVar("up", syms.intType, 
                     upperSym==null?
                         isExclusive?
                             MINUS(CallSeqSize(), Int(1)) :
@@ -1723,11 +1737,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             return
                 Block(
+                    If (isSequenceDormant(),
+                        Block(
+                            Stmt(CallSize(targetSymbol))
+                        )
+                    ),
                     vLow,
                     vUp,
-                    If (LT(id(vLow), Int(0)),
-                        Assign(vLow, Int(0))
-                    ),
                     If (OR(LT(posArg(), Int(0)), GE(posArg(), MINUS(id(vUp), id(vLow)))),
                         Return (DefaultValue(elemType))
                     ),
@@ -1738,50 +1754,62 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         /**
          */
         private JCStatement makeInvalidateLower() {
-            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
             JCVariableDecl vOldLower = MutableTmpVar("oldLower", syms.intType, lower());
             JCVariableDecl vNewLower = MutableTmpVar("newLower", syms.intType, CallLower());
-            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType, upper());
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType,
+                    upperSym==null?
+                        isExclusive?
+                            MINUS(id(vSeqSize), Int(1)) :
+                            id(vSeqSize) :
+                        isExclusive?
+                            CallUpper() :
+                            PLUS(CallUpper(), Int(1)));
 
             return
-                If (IsInvalidatePhase(),
+                If (id(defs.wasInvalid_LocalVarName),
                     Block(
-                        CallSeqInvalidate()
-                    ),
-                /*Else (Trigger phase)*/
-                    Block(
-                        vSeqSize,
-                        vOldLower,
-                        vNewLower,
-                        vUpper,
-                        If (LT(id(vNewLower), Int(0)),
-                            Assign(vNewLower, Int(0))
-                        ),
-                        //setLower(id(vNewLower)),
-                        isExclusive? // standardize on exclusive upper
-                            null :
-                            Assign(vUpper, PLUS(id(vUpper), Int(1))),
-                        If (GT(id(vUpper), id(vSeqSize)),
-                            Assign(vUpper, id(vSeqSize))
-                        ),
-                        If (GT(id(vNewLower), id(vUpper)),
-                            Assign(vNewLower, id(vUpper))
-                        ),
-                        If (GT(id(vOldLower), id(vUpper)),
-                            Assign(vOldLower, id(vUpper))
-                        ),
-                        If (GT(id(vNewLower), id(vOldLower)),
+                        FlagChangeStmt(lowerSym, null, phaseArg()),
+                        If (isSequenceActive(),
                             Block(
-                                // lose elements from the front
-                                CallSeqInvalidate(Int(0), MINUS(id(vNewLower), id(vOldLower)), Int(0))
-                            ),
-                        /*else*/ If (GT(id(vNewLower), id(vOldLower)),
-                            Block(
-                                // Gain elements in the front
-                                CallSeqInvalidate(Int(0), Int(0), MINUS(id(vOldLower), id(vNewLower)))
+                                If (IsInvalidatePhase(),
+                                    Block(
+                                        CallSeqInvalidate()
+                                    ),
+                                /*Else (Trigger phase)*/
+                                    Block(
+                                        vOldLower,
+                                        vNewLower,
+                                        vSeqSize,
+                                        vUpper,
+                                        If (LT(id(vNewLower), Int(0)),
+                                            Assign(vNewLower, Int(0))
+                                        ),
+                                        setLower(id(vNewLower)),
+                                        If (GT(id(vUpper), id(vSeqSize)),
+                                            Assign(vUpper, id(vSeqSize))
+                                        ),
+                                        If (GT(id(vNewLower), id(vUpper)),
+                                            Assign(vNewLower, id(vUpper))
+                                        ),
+                                        If (GT(id(vOldLower), id(vUpper)),
+                                            Assign(vOldLower, id(vUpper))
+                                        ),
+                                        If (GT(id(vNewLower), id(vOldLower)),
+                                            Block(
+                                                // lose elements from the front
+                                                CallSeqInvalidate(Int(0), MINUS(id(vNewLower), id(vOldLower)), Int(0))
+                                            ),
+                                        /*else*/ If (LT(id(vNewLower), id(vOldLower)),
+                                            Block(
+                                                // Gain elements in the front
+                                                CallSeqInvalidate(Int(0), Int(0), MINUS(id(vOldLower), id(vNewLower)))
+                                            )
+                                        ))
+                                   )
+                                )
                             )
                         )
-                      )
                     )
                 );
         }
@@ -1790,7 +1818,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * Set invalidators for the synthetic support variables
          */
         void setupInvalidators() {
-//            addInvalidator(lowerSym, makeInvalidateLower());
+            addInvalidator(lowerSym, makeInvalidateLower());
         }
     }
     
