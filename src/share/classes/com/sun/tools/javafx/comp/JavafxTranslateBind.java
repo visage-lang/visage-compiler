@@ -1893,12 +1893,139 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         /**
+         * Invalidator for the underlying sequence
+         *
+         * Adjust uppers (old and new) between lower and the underlying sequence size.
+         * If upper is greater, elements added at end:
+         *   invalidate(oldSize, oldSize, delta)
+         * If upper is lesser, elements removed from end
+         *   invalidate(newSize, oldSize, 0)
+         */
+        private JCStatement makeInvalidateUnderlying() {
+            // startPosArg(), endPosArg(), newLengthArg()
+            JCVariableDecl vDelta = TmpVar("delta", syms.intType, MINUS(newLengthArg(), MINUS(endPosArg(), startPosArg())));
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vLower = MutableTmpVar("lower", syms.intType, lower());
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType,
+                    upperSym==null?
+                        isExclusive?
+                            MINUS(id(vSeqSize), Int(1)) :
+                            id(vSeqSize) :
+                        isExclusive?
+                            upper() :
+                            PLUS(upper(), Int(1)));
+            JCVariableDecl vOldSeqSize = TmpVar("oldSeqSize", syms.intType, MINUS(id(vSeqSize), id(vDelta)));
+            JCVariableDecl vOldUpper = MutableTmpVar("adjOldUpper", syms.intType, id(vUpper));
+            JCVariableDecl vNewUpper = MutableTmpVar("adjNewUpper", syms.intType, id(vUpper));
+            JCVariableDecl vOldLower = MutableTmpVar("adjOldLower", syms.intType, id(vLower));
+            JCVariableDecl vNewLower = MutableTmpVar("adjNewLower", syms.intType, id(vLower));
+            JCVariableDecl vBegin = MutableTmpVar("begin", syms.intType, id(vLower));
+            JCVariableDecl vEnd = MutableTmpVar("end", syms.intType, id(vUpper));
+            JCVariableDecl vOldBegin = MutableTmpVar("beginOld", syms.intType, id(vBegin));
+            JCVariableDecl vOldEnd = MutableTmpVar("endOld", syms.intType, id(vEnd));
+            JCVariableDecl vNewBegin = MutableTmpVar("beginNew", syms.intType, id(vBegin));
+            JCVariableDecl vNewEnd = MutableTmpVar("endNew", syms.intType, id(vEnd));
+
+            return
+                        If (isSequenceActive(),
+                            Block(
+                                If (IsInvalidatePhase(),
+                                    Block(
+                                        CallSeqInvalidate()
+                                    ),
+                                /*Else (Trigger phase)*/
+                                    Block(
+                                        vDelta,
+                                        vSeqSize,
+                                        vLower,
+                                        vUpper,
+                                        vOldSeqSize,
+                                        vOldLower,
+                                        vOldUpper,
+                                        If(LT(id(vOldSeqSize), id(vOldUpper)),
+                                            Assign(vOldUpper, id(vOldSeqSize))
+                                        ),
+                                        If(LT(id(vOldUpper), id(vOldLower)),
+                                            Assign(vOldLower, id(vOldUpper))
+                                        ),
+
+                                        // Change is before or in slice
+                                        If (LT(startPosArg(), id(vUpper)),
+                                            Block(
+                                                // If change is entirely before slice
+                                                If (LE(endPosArg(), id(vLower)),
+                                                    Block(
+                                                        If (NE(id(vDelta), Int(0)),
+                                                            Block(
+                                                                vNewUpper,
+                                                                vNewLower,
+                                                                If(LT(id(vSeqSize), id(vNewUpper)),
+                                                                    Assign(vNewUpper, id(vSeqSize))
+                                                                ),
+                                                                If(LT(id(vNewUpper), id(vNewLower)),
+                                                                    Assign(vNewLower, id(vNewUpper))
+                                                                ),
+                                                                CallSeqInvalidate(
+                                                                    Int(0),
+                                                                    MINUS(id(vOldUpper), id(vOldLower)),
+                                                                    MINUS(id(vNewUpper), id(vNewLower))
+                                                                )
+                                                            )
+                                                        )
+                                                    ),
+                                                /*else -- change is within slice */
+                                                    Block(
+                                                        vBegin,
+                                                        vEnd,
+                                                        // Starts at the greater of the change start and the slice lower
+                                                        If(GT(startPosArg(), id(vBegin)),
+                                                            Assign(vBegin, startPosArg())
+                                                        ),
+                                                        // If the change does not shift elements, limit to end position
+                                                        If(AND(EQ(id(vDelta), Int(0)), LT(endPosArg(), id(vEnd))),
+                                                            Assign(vEnd, endPosArg())
+                                                        ),
+                                                        // Now constrain to be within old/new underlying sequence length
+                                                        vOldEnd,
+                                                        vNewEnd,
+                                                        If(LT(id(vOldSeqSize), id(vOldEnd)),
+                                                            Assign(vOldEnd, id(vOldSeqSize))
+                                                        ),
+                                                        If(LT(id(vSeqSize), id(vNewEnd)),
+                                                            Assign(vNewEnd, id(vSeqSize))
+                                                        ),
+                                                        vOldBegin,
+                                                        vNewBegin,
+                                                        If(LT(id(vOldEnd), id(vOldBegin)),
+                                                            Assign(vOldBegin, id(vOldEnd))
+                                                        ),
+                                                        If(LT(id(vNewEnd), id(vNewBegin)),
+                                                            Assign(vNewBegin, id(vNewEnd))
+                                                        ),
+                                                        // Invalidate
+                                                        CallSeqInvalidate(
+                                                            MINUS(id(vOldBegin), id(vOldLower)),
+                                                            MINUS(id(vOldEnd),   id(vOldLower)),
+                                                            MINUS(id(vNewEnd),   id(vNewBegin))
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                   )
+                                )
+                            )
+                        );
+        }
+
+        /**
          * Set invalidators for the synthetic support variables
          */
         void setupInvalidators() {
             addInvalidator(lowerSym, makeInvalidateLower());
             if (upperSym!=null)
                 addInvalidator(upperSym, makeInvalidateUpper());
+            addInvalidator(seqSym, makeInvalidateUnderlying());
         }
     }
     
