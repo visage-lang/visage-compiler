@@ -143,7 +143,7 @@ public class Reporter {
             startTable(ps, "Timing in milliseconds");
             Set<String> kset = new TreeSet<String>(result.keySet());
             for (String x : kset) {
-                printValues(ps, x,
+                printValues(ps, getNameAsHref(x),
                         getPerformanceValue(result12, x),
                         getPerformanceValue(result13, x),
                         getPerformanceValue(goals, x),
