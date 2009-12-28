@@ -62,7 +62,7 @@ public final class FXConstant extends Object implements FXObject {
 
 
     public Object get$value() {
-        if (varTestBits$(FXConstant.VOFF$value, VFLGS$IS_BOUND_DEFAULT_APPLIED, 0)) {
+        if (varTestBits$(FXConstant.VOFF$value, VFLGS$IS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED, 0)) {
             applyDefaults$(FXConstant.VOFF$value);
         }
         return $value;
