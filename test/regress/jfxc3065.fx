@@ -17,8 +17,8 @@ class B {
 } 
 
 class C extends A { 
-    public var testLocal:Object on replace { println("D.testLocal changed to {test}"); } 
     override var test = bind testLocal on replace { println("D.test changed to {test}"); } 
+    public var testLocal:Object on replace { println("D.testLocal changed to {test}"); } 
 } 
 
 var c = C{ testLocal: "Hello" }; 

@@ -433,6 +433,7 @@ public class JavafxDefs {
     final Name varFlagIS_BOUND_INVALID_CYCLE;
     final Name varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT;
     final Name varFlagIS_BOUND_DEFAULT_APPLIED;
+    final Name varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED;
     final Name varFlagDEFAULT_APPLIED_VARINIT;
     
     final Name varFlagINIT_OBJ_LIT;
@@ -642,6 +643,7 @@ public class JavafxDefs {
         varFlagIS_BOUND_INVALID_CYCLE = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE");
         varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE_AWAIT_VARINIT");
         varFlagIS_BOUND_DEFAULT_APPLIED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED");
+        varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED");
         varFlagDEFAULT_APPLIED_VARINIT = names.fromString("VFLGS$DEFAULT_APPLIED_VARINIT");
         varFlagINIT_OBJ_LIT = names.fromString("VFLGS$INIT_OBJ_LIT");
         varFlagINIT_OBJ_LIT_DEFAULT = names.fromString("VFLGS$INIT_OBJ_LIT_DEFAULT");

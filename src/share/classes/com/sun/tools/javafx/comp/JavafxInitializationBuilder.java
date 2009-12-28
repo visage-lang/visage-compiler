@@ -1230,7 +1230,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         addStmt(CallStmt(defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
 
                         // Is it uninitialized (and not bound)
-                        JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
+                        JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED, null);
 
                         // if (uninitialized) { applyDefaults$(VOFF$var); }
                         initIf = OptIf(initCondition, endBlock(), null);
@@ -1674,7 +1674,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(CallStmt(defs.applyDefaults_FXObjectMethodName, Offset(varSym)));
     
                             // Is it uninitialized (and not bound)
-                            JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED, null);
+                            JCExpression initCondition = FlagTest(proxyVarSym, defs.varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED, null);
     
                             // if (uninitialized) { applyDefaults$(VOFF$var); }
                             initIf = OptIf(initCondition,
