@@ -503,9 +503,11 @@ public class JavafxDecompose implements JavafxVisitor {
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
         Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);
+        boolean isDef = (tree.sym.flags() & JavafxFlags.IS_DEF) != 0;
+        boolean isBound = (tree.sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0;
         if (tree.sym.isStatic() &&
                 tree.sym.kind == Kinds.VAR &&
-                (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
+                (!isDef || (isDef && isBound)) &&
                 types.isJFXClass(tree.sym.owner) &&
                 !currentClass.isSubClass(tree.sym.owner, types) &&
                 bindStatus.isBound() &&
@@ -549,8 +551,10 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitIdent(JFXIdent tree) {
+        boolean isDef = (tree.sym.flags() & JavafxFlags.IS_DEF) != 0;
+        boolean isBound = (tree.sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0;
         if (tree.sym.kind == Kinds.VAR &&
-                (tree.sym.flags() & JavafxFlags.IS_DEF) == 0L &&
+                (!isDef || (isDef && isBound)) &&
                 types.isJFXClass(tree.sym.owner) &&
                 !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName)) &&
                 bindStatus.isBound()) {
