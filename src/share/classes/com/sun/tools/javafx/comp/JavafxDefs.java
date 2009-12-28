@@ -211,6 +211,7 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_fromArray;
     final RuntimeMethod Sequences_getSingleValue;
     final RuntimeMethod Sequences_getNewElements;
+    final RuntimeMethod Sequences_incrementSharing;
     final RuntimeMethod Sequences_insert;
     final RuntimeMethod Sequences_insertBefore;
     final RuntimeMethod Sequences_range;
@@ -679,6 +680,7 @@ public class JavafxDefs {
         Sequences_replaceSlice = new RuntimeMethod(names, cSequences, "replaceSlice");
         Sequences_reverse = new RuntimeMethod(names, cSequences, "reverse");
         Sequences_set = new RuntimeMethod(names, cSequences, "set");
+        Sequences_incrementSharing = new RuntimeMethod(names, cSequences, "incrementSharing");
         Sequences_insert = new RuntimeMethod(names, cSequences, "insert");
         Sequences_insertBefore = new RuntimeMethod(names, cSequences, "insertBefore");
         Sequences_deleteIndexed = new RuntimeMethod(names, cSequences, "deleteIndexed");

@@ -546,7 +546,10 @@ public class JavafxToJava extends JavafxAbstractTranslation {
                         res = Call(tc, attributeBeName(vsym), nonNullInit);
                     }
                 } else {
-                    res = Setter(vsym, nonNullInit);
+                    res = nonNullInit;
+                    if (vsym.isSequence())
+                        res = Call(defs.Sequences_incrementSharing, res);
+                    res = Setter(vsym, res);
                 }
                 return toResult(res, vsym.type);
             }
@@ -583,6 +586,8 @@ public class JavafxToJava extends JavafxAbstractTranslation {
             } else {
                 // Translate in-place
                 JCExpression init = translateNonBoundInit(diagPos, tree.getInitializer(), vsym);
+                if (vsym.isSequence())
+                    init = Call(defs.Sequences_incrementSharing, init);
                 JCStatement var = Var(modFlags, tree.type, tree.name, init);
                 return new StatementsResult(var);
             }

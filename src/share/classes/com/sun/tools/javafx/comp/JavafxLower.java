@@ -285,7 +285,7 @@ public class JavafxLower implements JavafxVisitor {
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED &&
                 types.isSequence(((JFXSequenceIndexed)tree.lhs).getSequence().type) &&
                 (types.isSequence(tree.rhs.type) || types.isSameType(tree.rhs.type, syms.objectType))) {
-            result = lowerSequenceIndexedAssign(tree.pos(), (JFXSequenceIndexed)tree.lhs, tree.rhs, tree.type);
+            result = lowerSequenceIndexedAssign(tree.pos(), (JFXSequenceIndexed)tree.lhs, tree.rhs);
         }
         else {
             JFXExpression lhs = lower(tree.lhs);
@@ -294,22 +294,14 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    JFXExpression lowerSequenceIndexedAssign(DiagnosticPosition pos, JFXSequenceIndexed indexed, JFXExpression val, Type resType) {
-
+    JFXExpression lowerSequenceIndexedAssign(DiagnosticPosition pos, JFXSequenceIndexed indexed, JFXExpression val) {
+        Type resType = indexed.getSequence().type;
         JFXVar indexVar = makeVar(pos, "pos", indexed.getIndex(), indexed.getIndex().type);
         JFXIdent indexRef = m.at(pos).Ident(indexVar);
-        indexRef.sym = indexVar.sym;
-        indexRef.type = indexVar.type;
-
-        JFXVar seqVar = makeVar(pos, "seq", indexed.getSequence(), indexed.getSequence().type);
-        JFXIdent seqRef = m.at(pos).Ident(seqVar);
-        seqRef.sym = seqVar.sym;
-        seqRef.type = seqVar.type;
-        
-        JFXExpression insertStmt = m.at(pos).SequenceInsert(seqRef, val, indexRef, true).setType(syms.voidType);
-        JFXExpression indexedExpr = m.at(pos).SequenceIndexed(seqRef, indexRef).setType(types.elementType(indexed.getSequence().type));
-        JFXExpression deleteStmt = m.at(pos).SequenceDelete(indexedExpr).setType(syms.voidType);
-        return lower(m.at(pos).Block(0L, List.of(indexVar, seqVar, insertStmt, deleteStmt), indexedExpr).setType(resType));
+        JFXExpression lhs = m.SequenceSlice(indexed.getSequence(), indexRef, indexRef, JFXSequenceSlice.END_INCLUSIVE);
+        lhs.setType(resType);
+        JFXExpression assign = m.Assign(lhs, val).setType(resType);
+        return lower(m.Block(0L, List.<JFXExpression>of(indexVar), assign).setType(resType));
     }
 
     public void visitAssignop(JFXAssignOp tree) {

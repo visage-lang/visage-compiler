@@ -1130,6 +1130,7 @@ public class SequencesBase {
             // Can't have any copies of a SequenceRef
             return replaceSlice(oldValue, newValue, 0, oldValue.size());
         }
+        newValue.incrementSharing();
         return newValue;
     }
 
