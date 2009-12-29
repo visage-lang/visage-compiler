@@ -1816,16 +1816,26 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 @Override
                 public void statements() {
-                    // Restrict setting.
-                    beginBlock();
-                    addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
-                    JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, null);
-                    // if (isReadonly$(VOFF$var)) { restrictSet$(VOFF$var); }
-                    addStmt(OptIf(NOT(ifReadonlyTest),
-                            endBlock()));
+                    boolean isLeaf = isAnonClass() || varInfo.isStatic();
+                
+                    if (isLeaf && varInfo.isReadOnly()) {
+                        addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
+                        addStmt(Return(defaultValue(varInfo)));
+                        return;
+                    }
+
+                    if (!isLeaf) {
+                        // Restrict setting.
+                        beginBlock();
+                        addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
+                        JCExpression ifReadonlyTest = FlagTest(varSym, defs.varFlagIS_READONLY, null);
+                        // if (isReadonly$(VOFF$var)) { restrictSet$(VOFF$var); }
+                        addStmt(OptIf(NOT(ifReadonlyTest),
+                                endBlock()));
+                    }
 
                     addStmt(FlagChangeStmt(varSym, null, defs.varFlagIS_INITIALIZED));
-
+                    
                     if (varInfo.hasBoundDefinition() && varInfo.hasBiDiBoundDefinition()) {
                         // Begin bidi block.
                         beginBlock();
@@ -2739,7 +2749,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (ai.needsCloning()) {
                             JavafxVarSymbol proxyVarSym = ai.proxyVarSym();
                             boolean isBound = ai.hasBoundDefinition();
-                            boolean isReadonly = ai.isDef() || (isBound && !ai.hasBiDiBoundDefinition());
+                            boolean isReadonly = ai.isReadOnly();
                             boolean isEager = ai.onReplace() != null;
                             JCExpression setBits = null;
                             JCExpression clearBits = id(defs.varFlagALL_FLAGS);

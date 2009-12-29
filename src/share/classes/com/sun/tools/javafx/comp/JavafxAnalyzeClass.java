@@ -213,9 +213,15 @@ class JavafxAnalyzeClass {
             return (getFlags() & JavafxFlags.VARMARK_BARE_SYNTH) != 0;
         }
         
+        // Returns true if the var is a private bare synth.
         public boolean isHiddenBareSynth() {
             long flags = JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
             return (getFlags() & flags) == flags;
+        }
+        
+        // Returns true if the var is read only.
+        public boolean isReadOnly() {
+            return isDef() || (hasBoundDefinition() && !hasBiDiBoundDefinition());
         }
         
         // Returns true if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
@@ -1201,6 +1207,16 @@ class JavafxAnalyzeClass {
     }
     public static boolean isMixinClass(Symbol cSym) {
         return (cSym.flags() & JavafxFlags.MIXIN) != 0;
+    }
+
+    //
+    // Returns true if the class (or current class) is FINAL.
+    //
+    public boolean isFinal() {
+        return isFinal(currentClassSym);
+    }
+    public static boolean isFinal(Symbol cSym) {
+        return (cSym.flags() & Flags.FINAL) != 0;
     }
 
     //
