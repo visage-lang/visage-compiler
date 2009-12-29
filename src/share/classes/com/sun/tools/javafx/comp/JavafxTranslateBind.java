@@ -463,14 +463,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return FlagChangeStmt(flagSymbol, null, activeFlagBit);
         }
 
-        JCExpression IsInvalidatePhase() {
-            return EQ(phaseArg(), id(defs.varFlagIS_INVALID));
-        }
-
-        JCExpression IsTriggerPhase() {
-            return EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
-        }
-
         JCStatement Assign(JCExpression vid, JCExpression value) {
             return Stmt(m().Assign(vid, value));
         }
@@ -2368,7 +2360,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
-        result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
+        result = new BoundFunctionCallTranslator(tree).doit();
     }
 
     @Override

@@ -1018,6 +1018,14 @@ public abstract class JavafxTranslationSupport {
             return makeMethodArg(defs.phase_ArgName, syms.intType);
         }
 
+        JCExpression IsInvalidatePhase() {
+            return EQ(phaseArg(), id(defs.varFlagIS_INVALID));
+        }
+
+        JCExpression IsTriggerPhase() {
+            return EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
+        }
+
         /**
          * Convert type to JCExpression
          */

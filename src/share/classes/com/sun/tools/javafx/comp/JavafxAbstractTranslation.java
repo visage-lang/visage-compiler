@@ -789,6 +789,7 @@ public abstract class JavafxAbstractTranslation
             addPreface(res.statements());
             addBindees(res.bindees());
             addInterClassBindees(res.interClass());
+            addInvalidators(res.invalidators());
             return res.expr();
         }
 
@@ -838,7 +839,15 @@ public abstract class JavafxAbstractTranslation
         }
 
         void addInvalidator(JavafxVarSymbol sym, JCStatement invStmt) {
-            BindeeInvalidator bi = new BindeeInvalidator(sym, invStmt);
+            addInvalidator(new BindeeInvalidator(sym, invStmt));
+        }
+
+        void addInvalidators(List<BindeeInvalidator> bis) {
+            for (BindeeInvalidator bi : bis)
+                addInvalidator(bi);
+        }
+
+        void addInvalidator(BindeeInvalidator bi) {
             if (!invalidators.contains(bi)) {
                 invalidators.append(bi);
             }
