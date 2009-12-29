@@ -109,6 +109,8 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         if (sym instanceof VarSymbol) {
             if (bindStatus.isBound()) {
                 mark(sym, VARUSE_BIND_ACCESS);
+                // Accessors are necessary to send notification.
+                mark(sym, VARUSE_NEED_ACCESSOR);
                 if (bindStatus.isBidiBind())
                     mark(sym, VARUSE_ASSIGNED_TO);
             } else {
