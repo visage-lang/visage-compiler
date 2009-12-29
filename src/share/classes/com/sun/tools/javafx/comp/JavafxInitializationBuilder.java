@@ -211,7 +211,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         
         boolean isMixinClass = cDecl.isMixinClass();
         boolean isScriptClass = cDecl.isScriptClass();
-        boolean isAnonClass = analysis.isAnonClass();
+        boolean isAnonClass = isAnonClass(analysis.getCurrentClassSymbol());
         boolean hasFxSuper = fxSuperClassSym != null;
         // Have to populate the var map for anon classes.
         // TODO: figure away to avoid this if not used (needs global knowledge.)
@@ -1547,9 +1547,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the onreplace$ method for a sequence attribute.
         //
         private void makeSeqOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            if (! varInfo.sym.useTrigger())
-                return;
-
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, needsBody) {
@@ -1572,6 +1569,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addParam(syms.intType, firstIndexName);
                     addParam(syms.intType, lastIndexName);
                     addParam(syms.intType, newLengthName);
+                    
+                    buildIf(varSym.useTrigger());
                 }
                 
                 @Override
@@ -1887,15 +1886,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     //   Set DEFAULT_APPLIED;
                     // }
 
-                    boolean onReplaceCallNeeded = varSym.useTrigger();
                     ListBuffer<JCStatement> body = ListBuffer.<JCStatement>lb();
                     body.append(FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED));
                     body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
                     body.append(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
                     body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
                     body.append(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
-                    if (onReplaceCallNeeded)
+                    
+                    if (varSym.useTrigger()) {
                         body.append(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
+                    }
+                        
                     addStmt(
                         OptIf (OR(valueChangedTest, FlagTest(proxyVarSym, defs.varFlagDEFAULT_APPLIED, null)),
                             Block(body),
@@ -2031,10 +2032,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the onreplace$ method for the specified attribute.
         //
         private void makeOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
-            if (! varInfo.sym.useTrigger()) {
-                return;
-            }
-
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, needsBody) {
@@ -2051,7 +2048,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addParam(type, oldValueName);
                     addParam(type, newValueName);
                     
-                    buildIf(!varInfo.isBareSynth());
+                    buildIf(varSym.useTrigger() && !varInfo.isBareSynth());
                 }
                 
                 @Override
@@ -2775,7 +2772,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 }
                             }
                            
-                            if (clearBits != null || setBits != null) {
+                            if (setBits != null || (clearBits != null && !isJCIdentName(clearBits, defs.varFlagALL_FLAGS))) {
                                 addStmt(FlagChangeStmt(proxyVarSym, clearBits, setBits));
                             }
                         }
@@ -3242,7 +3239,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 // Prepare to accumulate statements.
                 ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-                if (analysis.isAnonClass(cSym)) {
+                if (isAnonClass(cSym)) {
                     // Construct and add: return MAP$X;
                     stmts.append(Return(id(mapName)));
                 } else {

@@ -307,6 +307,15 @@ public abstract class JavafxTranslationSupport {
         return (sym.flags_field & JavafxFlags.MIXIN) != 0;
     }
     
+    protected boolean isAnonClass(ClassSymbol sym) {
+        final long flags = (Flags.SYNTHETIC | Flags.FINAL);
+        return (sym.flags_field & flags) == flags;
+    }
+    
+    protected boolean isLocalClass(ClassSymbol sym) {
+        return sym.owner.kind == Kinds.MTH;
+    }
+    
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, String str) {
         assert str.indexOf('<') < 0 : "attempt to parse a type with 'Identifier'.  Use TypeTree";
         JCExpression tree = null;
@@ -905,33 +914,41 @@ public abstract class JavafxTranslationSupport {
         // Returns true if the class (or current class) is a mixin.
         //
         public boolean isMixinClass() {
-            return isMixinClass(enclosingClassDecl.sym);
+            return JavafxTranslationSupport.this.isMixinClass((ClassSymbol)enclosingClassDecl.sym);
         }
 
-        public boolean isMixinClass(Symbol sym) {
-            return (sym.flags() & JavafxFlags.MIXIN) != 0;
+        public boolean isMixinClass(ClassSymbol sym) {
+            return JavafxTranslationSupport.this.isMixinClass(sym);
         }
         
-        public boolean isLocalClass(Symbol sym) {
-            return sym.owner.kind == Kinds.MTH;
-         }
+        public boolean isAnonClass() {
+            return JavafxTranslationSupport.this.isAnonClass((ClassSymbol)enclosingClassDecl.sym);
+        }
         
+        public boolean isAnonClass(ClassSymbol sym) {
+            return JavafxTranslationSupport.this.isAnonClass(sym);
+        }
+
         public boolean isLocalClass() {
-            return isLocalClass(enclosingClassDecl.sym);
+            return JavafxTranslationSupport.this.isLocalClass((ClassSymbol)enclosingClassDecl.sym);
         }
                 
+        public boolean isLocalClass(ClassSymbol sym) {
+            return JavafxTranslationSupport.this.isLocalClass(sym);
+        }
+        
         public boolean isMixinVar(Symbol sym) {
             assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
-            return isMixinClass(varSym.owner) && !varSym.isStatic();
+            return isMixinClass((ClassSymbol)varSym.owner) && !varSym.isStatic();
         }
         
         public boolean isLocalClassVar(Symbol sym) {
             assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
-            return isLocalClass(varSym.owner);
+            return isLocalClass((ClassSymbol)varSym.owner);
         }
         
         public boolean setIsScript(boolean newState) {
@@ -1174,7 +1191,7 @@ public abstract class JavafxTranslationSupport {
         // Private support methods for testing/setting/clearing a var flag.
         //
         
-        private boolean isJCIdentName(JCExpression ident, Name name) {
+        protected boolean isJCIdentName(JCExpression ident, Name name) {
             return ident instanceof JCIdent && ((JCIdent)ident).getName() == name;
         }
         

@@ -1211,17 +1211,6 @@ class JavafxAnalyzeClass {
     }
 
     //
-    // Returns true if the class is anon (synthetic.)
-    //
-    public boolean isAnonClass() {
-        return isAnonClass(currentClassSym);
-    }
-    public boolean isAnonClass(Symbol cSym) {
-        final long flags = (Flags.SYNTHETIC | Flags.FINAL);
-        return (cSym.flags() & flags) == flags;
-    }
-
-    //
     // Returns null or the superclass symbol if it is a javafx class.
     //
     public ClassSymbol getFXSuperClassSym() { return superClassSym; }

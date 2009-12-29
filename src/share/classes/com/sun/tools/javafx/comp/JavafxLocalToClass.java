@@ -436,6 +436,7 @@ public class JavafxLocalToClass {
         final Name className = preTrans.syntheticName(classNamePrefix);
 
         final JavafxClassSymbol classSymbol = preTrans.makeClassSymbol(className, owner);
+        classSymbol.flags_field |= Flags.FINAL;
 
         final MethodType funcType = new MethodType(
                 List.<Type>nil(),    // arg types
@@ -492,7 +493,7 @@ public class JavafxLocalToClass {
         doit.type = funcType;
 
         final JFXClassDeclaration cdecl = fxmake.ClassDeclaration(
-                fxmake.Modifiers(Flags.SYNTHETIC),
+                fxmake.Modifiers(Flags.FINAL | Flags.SYNTHETIC),
                 className,
                 List.<JFXExpression>nil(),
                 vc.varsAsMembers().append(doit));

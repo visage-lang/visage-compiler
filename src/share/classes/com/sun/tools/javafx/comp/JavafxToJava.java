@@ -446,7 +446,7 @@ public class JavafxToJava extends JavafxAbstractTranslation {
 
             JCModifiers classMods = make.at(diagPos).Modifiers(flags);
             classMods = addAccessAnnotationModifiers(diagPos, tree.mods.flags, classMods);
-
+            
             // make the Java class corresponding to this FX class, and return it
             JCClassDecl res = m().ClassDef(
                     classMods,
