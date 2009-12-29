@@ -64,13 +64,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     private class ClearOldMarks extends JavafxTreeScanner {
 
         private long ALL_MARKED_VARUSE =
-                VARUSE_ASSIGNED_TO |
                 VARUSE_TMP_IN_INIT_EXPR |
                 VARUSE_DEFINITION_SEEN |
                 VARUSE_FORWARD_REFERENCE |
                 VARUSE_SELF_REFERENCE |
-                VARUSE_OPT_TRIGGER |
-                VARUSE_HAS_TRIGGER |
                 VARUSE_OBJ_LIT_INIT;
 
         private void clearMark(Symbol sym) {

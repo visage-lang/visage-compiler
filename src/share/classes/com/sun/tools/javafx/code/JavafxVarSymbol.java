@@ -116,6 +116,11 @@ public class JavafxVarSymbol extends VarSymbol {
         return useAccessors() || (flags_field & VARUSE_NON_LITERAL) != 0;
     }
 
+    /** Either has a trigger or a sub-class may have a trigger. */
+    public boolean useTrigger() {
+        return ! hasScriptOnlyAccess() || (flags_field & VARUSE_HAS_TRIGGER) != 0;
+    }
+
     // Predicate for def (constant) var.
     public boolean isDef() {
         return (flags_field & IS_DEF) != 0;

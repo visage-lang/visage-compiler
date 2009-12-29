@@ -1523,7 +1523,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
 
                         // Call the onReplace$var to force evaluation.
-                        if (!override) {
+                        if (!override && varInfo.sym.useTrigger()) {
                             addStmt(CallStmt(attributeOnReplaceName(proxyVarSym),
                                                                 startPosArg(),
                                                                 endPosArg(),
@@ -1547,6 +1547,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the onreplace$ method for a sequence attribute.
         //
         private void makeSeqOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            if (! varInfo.sym.useTrigger())
+                return;
+
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, needsBody) {
@@ -1883,16 +1886,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     //   ValidityFlags = 0;
                     //   Set DEFAULT_APPLIED;
                     // }
+
+                    boolean onReplaceCallNeeded = varSym.useTrigger();
+                    ListBuffer<JCStatement> body = ListBuffer.<JCStatement>lb();
+                    body.append(FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED));
+                    body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
+                    body.append(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
+                    body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
+                    body.append(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
+                    if (onReplaceCallNeeded)
+                        body.append(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
                     addStmt(
                         OptIf (OR(valueChangedTest, FlagTest(proxyVarSym, defs.varFlagDEFAULT_APPLIED, null)),
-                            Block(
-                                FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED),
-                                CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)),
-                                SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)),
-                                CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)),
-                                FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null),
-                                CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName))
-                            ),
+                            Block(body),
                         /*else*/
                             Block(
                                 FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED)
@@ -2025,6 +2031,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method constructs the onreplace$ method for the specified attribute.
         //
         private void makeOnReplaceAccessorMethod(VarInfo varInfo, boolean needsBody) {
+            if (! varInfo.sym.useTrigger()) {
+                return;
+            }
+
             VarAccessorMethodBuilder vamb = new VarAccessorMethodBuilder(attributeOnReplaceName(varInfo.getSymbol()),
                                                                          syms.voidType,
                                                                          varInfo, needsBody) {
@@ -2034,7 +2044,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void initialize() {
                     JFXOnReplace onReplace = varInfo.onReplace();
-                    
+
                     oldValueName = paramOldValueName(onReplace);
                     newValueName = paramNewValueName(onReplace);
                     
