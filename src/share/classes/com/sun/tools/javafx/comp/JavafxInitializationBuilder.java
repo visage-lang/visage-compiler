@@ -1658,14 +1658,12 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     if (varInfo.isBareSynth()) {
-                        // return bound-expression
-                        addStmts(varInfo.boundPreface());
-                        if (varInfo.hasSafeInitializer()) {
-                            addStmt(Return(varInfo.boundInit()));
-                        } else {
-                            JCStatement returnDefault = Return(defaultValue(varInfo));
-                            addStmt(TryWithErrorHandler(Return(varInfo.boundInit()), returnDefault));
-                        }
+                        // for a bare-synthethic, just return bound-expression
+                        addStmt(
+                            TryWithErrorHandler(varInfo.hasSafeInitializer(),
+                                varInfo.boundPreface(),
+                                Return(varInfo.boundInit()),
+                                Return(defaultValue(varInfo))));
                     } else {
                         JCStatement initIf = null;
                         if (!varInfo.isStatic() && !(isAnonClass() && varInfo.hasBoundDefinition())) {
@@ -1727,13 +1725,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Lock cycles.
                             addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagCYCLE));
                             
-                            // set$var(init/bound expression)
-                            addStmts(varInfo.boundPreface());
+                            // set$var(init/bound expression)   
                             JCExpression initValue = varInfo.boundInit();
                             if (initValue == null) {
                                 initValue = defaultValue(varInfo);
                             }
                             if (varInfo.isInitWithBoundFuncResult()) {
+                                addStmts(varInfo.boundPreface());
                                 /**
                                  * For a field named "foo" that is initialized from the bound function
                                  * result Pointer, we generate the following:
@@ -1769,13 +1767,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                         defaultValue(varInfo));
                                 addStmt(OptIf(NEnull(id(newPtrVar)), beStmt, beDefaultStmt));
                             } else {
-                                if (varInfo.hasSafeInitializer()) {
-                                    addStmt(CallStmt(attributeBeName(varSym), initValue));
-                                } else {
-                                    JCExpression defaultValue = defaultValue(varInfo);
-                                    JCStatement beDefaultStmt = CallStmt(attributeBeName(varSym), defaultValue);
-                                    addStmt(TryWithErrorHandler(CallStmt(attributeBeName(varSym), initValue), beDefaultStmt));
-                                }
+                                addStmt(
+                                    TryWithErrorHandler(varInfo.hasSafeInitializer(),
+                                        varInfo.boundPreface(),
+                                        CallStmt(attributeBeName(varSym), initValue),
+                                        CallStmt(attributeBeName(varSym), defaultValue(varInfo))));
                             }
                           
                             // Release cycle lock.
@@ -1795,6 +1791,34 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Construct and add: return $var;
                         addStmt(Return(Get(proxyVarSym)));
                     }
+                }
+
+                // generates try {preface, action} catch(RuntimeException re) { ErrorHandler.bindException(re); <onCatchStat> }
+                JCStatement TryWithErrorHandler(boolean isSafe, List<JCStatement> preface, JCStatement action, JCStatement onCatchStat) {
+                    if (isSafe) {
+                        // No exceptions can be thrown, just in-line it
+                        return
+                            Block(
+                                preface,
+                                action
+                            );
+                    }
+
+                    JCVariableDecl tmpVar = TmpVar(syms.runtimeExceptionType, null);
+                    JCStatement callErrorHandler = CallStmt(defs.ErrorHandler_bindException, id(tmpVar));
+
+                    return
+                        Try(
+                            Block(
+                                preface,
+                                action
+                            ),
+                        m().Catch(tmpVar,
+                            Block(
+                                callErrorHandler,
+                                onCatchStat
+                            )
+                        ));
                 }
             };
 

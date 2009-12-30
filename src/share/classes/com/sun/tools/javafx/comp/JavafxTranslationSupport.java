@@ -34,7 +34,6 @@ import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.*;
 import com.sun.tools.mjavac.code.TypeTags;
-import static com.sun.tools.mjavac.code.Flags.STATIC;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.JCAnnotation;
 import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
@@ -1600,26 +1599,6 @@ public abstract class JavafxTranslationSupport {
         }
         JCStatement Try(JCBlock body, JCCatch cat) {
             return Try(body, cat, null);
-        }
-
-        // generates catch(RuntimeException re) { ErrorHandler.bindException(re); <onCatchStat> }
-        JCCatch ErrorHandler(JCStatement onCatchStat) {
-            JCVariableDecl tmpVar = TmpVar(syms.runtimeExceptionType, null);
-            JCStatement callErrorHandler = CallStmt(defs.ErrorHandler_bindException, id(tmpVar));
-            JCBlock blk = (onCatchStat != null)? Block(callErrorHandler, onCatchStat) : Block(callErrorHandler);
-            return m().Catch(tmpVar, blk);
-        }
-
-        JCStatement TryWithErrorHandler(JCBlock body, JCStatement onCatchStat) {
-            return Try(body, ErrorHandler(onCatchStat));
-        }
-
-        JCStatement TryWithErrorHandler(JCStatement tryStat, JCStatement onCatchStat) {
-            return TryWithErrorHandler(Block(tryStat), onCatchStat);
-        }
-
-        JCStatement TryWithErrorHandler(JCStatement tryStat) {
-            return TryWithErrorHandler(tryStat, null);
         }
 
         /**

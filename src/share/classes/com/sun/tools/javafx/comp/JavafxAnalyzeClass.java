@@ -589,13 +589,55 @@ class JavafxAnalyzeClass {
 
         @Override
         public boolean hasSafeInitializer() {
-            // For now, we check if initializer expression is a literal or ident
-            // or a select. Revisit this for more opportunities for optimization.
+            // If unexaminable code can be executed (function/method call or init block) or
+            // a division can happen then it is not exception safe.
             if (hasInitializer()) {
-                JavafxTag tag = var.getInitializer().getFXTag();
-                return tag == JavafxTag.LITERAL ||
-                       tag == JavafxTag.IDENT ||
-                       tag == JavafxTag.SELECT;
+                class ExceptionThrowingScanner extends JavafxTreeScanner {
+
+                    boolean safe = true;
+
+                    private void markCanThrowException() {
+                        safe = false;
+                    }
+
+                    @Override
+                    public void visitBinary(JFXBinary tree) {
+                        switch (tree.getFXTag()) {
+                            case DIV:
+                            case MOD:
+                                markCanThrowException();
+                                break;
+                            default:
+                                super.visitBinary(tree);
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void visitAssignop(JFXAssignOp tree) {
+                        switch (tree.getFXTag()) {
+                            case DIV_ASG:
+                                markCanThrowException();
+                                break;
+                            default:
+                                super.visitAssignop(tree);
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void visitInstanciate(JFXInstanciate tree) {
+                        markCanThrowException();
+                    }
+
+                    @Override
+                    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                        markCanThrowException();
+                    }
+                }
+                ExceptionThrowingScanner scanner = new ExceptionThrowingScanner();
+                scanner.scan(var.getInitializer());
+                return scanner.safe;
             } else {
                 return false;
             }
@@ -1437,6 +1479,11 @@ class JavafxAnalyzeClass {
                     }
                 }
             }
+        }
+
+        // ignore GETMAPxxx methods
+        if (name.toString().startsWith(defs.varGetMapString)) {
+            return true;
         }
         
         return name == names.init || name == names.clinit ||

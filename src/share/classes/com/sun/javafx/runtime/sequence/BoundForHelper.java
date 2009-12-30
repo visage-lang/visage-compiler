@@ -25,9 +25,16 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.FXBase;
 import com.sun.javafx.runtime.FXObject;
 
+/**
+ *
+ * @param <T> Result element type
+ * @param <PT> Induction type
+ */
 public abstract class BoundForHelper<T, PT> extends FXBase {
 
-    /** The bfElem class in the design document implements this interface. */
+    /** 
+     * The bfElem class in the design document implements this interface.
+     */
     public static interface FXForPart<PT> extends FXObject {
         /**
          * Get the indexof variable
