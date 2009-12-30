@@ -265,6 +265,12 @@ public class JavafxLocalToClass {
             }
 
             @Override
+            public void visitWhileLoop(JFXWhileLoop tree) {
+                needed |= needsToBeInflatedToClass(tree.getBody()) && referencesMutatedLocal(tree);
+                super.visitWhileLoop(tree);
+            }
+
+            @Override
             public void visitFunctionValue(JFXFunctionValue tree) {
                 // Funtion value may reference (non-final) locals
                 needed |= referencesMutatedLocal(tree);
