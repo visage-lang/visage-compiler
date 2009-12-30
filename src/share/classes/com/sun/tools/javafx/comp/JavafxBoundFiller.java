@@ -24,6 +24,7 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
@@ -160,6 +161,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
         JFXVar param = clause.getVar();
         Name resName = resultVarName(param.name);
         JFXVar resultVar =  preTrans.BoundLocalVar(valtype, resName, value, owner);
+        resultVar.sym.flags_field |= JavafxFlags.VARUSE_BIND_ACCESS;
         clause.boundResultVarSym = resultVar.sym;
         return resultVar;
     }
@@ -229,6 +231,7 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
                         JavafxBindStatus.UNIDIBIND, null, null);
                 returnVar.type = tree.sym.type.getReturnType();
                 returnVar.sym = new JavafxVarSymbol(types, names,0L, defs.boundFunctionResultName, returnVar.type, tree.sym);
+                returnVar.sym.flags_field |= JavafxFlags.VARUSE_BIND_ACCESS;
                 returnVar.markBound(JavafxBindStatus.UNIDIBIND);
                 stmts.append(returnVar);
 

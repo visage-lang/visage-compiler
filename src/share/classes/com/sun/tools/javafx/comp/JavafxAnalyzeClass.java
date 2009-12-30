@@ -166,25 +166,22 @@ class JavafxAnalyzeClass {
         protected final JCStatement initStmt;
 
         // The class local enumeration value for this var.
-        private int enumeration;
+        private int enumeration = -1;
 
         // Inversion of boundBindees.
-        private HashSet<VarInfo> bindersOrNull;
+        private HashSet<VarInfo> binders = new LinkedHashSet<VarInfo>();
         
         // Inversion of invalidators.
-        private ListBuffer<BindeeInvalidator> boundInvalidatees;
+        private ListBuffer<BindeeInvalidator> boundInvalidatees = ListBuffer.lb();;
         
         // True if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
-        private boolean needsMixinInterface;
+        private boolean needsMixinInterface = false;
 
         private VarInfo(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JCStatement initStmt) {
             this.diagPos = diagPos;
             this.name = name;
             this.sym = attrSym;
             this.initStmt = initStmt;
-            this.enumeration = -1;
-            this.bindersOrNull = new LinkedHashSet<VarInfo>();
-            this.boundInvalidatees = ListBuffer.lb();
         }
 
         // Return the var symbol.
@@ -343,7 +340,7 @@ class JavafxAnalyzeClass {
         public List<JavafxVarSymbol> boundBindees() { return List.<JavafxVarSymbol>nil(); }
         
         // Bound variable symbols on which this variable is used.
-        public HashSet<VarInfo> boundBinders() { return bindersOrNull; }
+        public HashSet<VarInfo> boundBinders() { return binders; }
         
         // Bound sequences that need to be invalidated when invalidated.
         public List<BindeeInvalidator> boundInvalidatees() { return boundInvalidatees.toList(); }
@@ -365,7 +362,18 @@ class JavafxAnalyzeClass {
         public JCStatement boundSizeGetter() { return null; }
         
         // Null or Java code for invalidation of a bound sequence
-        public List<BindeeInvalidator> boundInvalidators() { return List.<BindeeInvalidator>nil(); }        
+        public List<BindeeInvalidator> boundInvalidators() { return List.<BindeeInvalidator>nil(); }
+        
+        // Return true if the var has dependents.
+        public boolean hasDependents() {
+            return (getFlags() & JavafxFlags.VARUSE_BIND_ACCESS) != 0 || !boundBinders().isEmpty();
+        }
+        
+        // Return true if the var is dependent.
+        public boolean isDependent() {
+            return (getFlags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 || hasBiDiBoundDefinition() ||
+                   !boundBindees().isEmpty() || !boundBoundSelects().isEmpty();
+        }
 
         @Override
         public String toString() { return getNameString(); }
@@ -386,7 +394,7 @@ class JavafxAnalyzeClass {
                                (isDef() ? ", isDef" : "") +
                                (!boundBindees().isEmpty() ? ", intra binds" : "") + 
                                (!boundBoundSelects().isEmpty() ? ", inter binds" : "") + 
-                               (bindersOrNull != null ?  ", binders" : "") + 
+                               (binders != null ?  ", binders" : "") + 
                                (!boundInvalidatees.isEmpty() ?  ", invalidators" : "") + 
                                (getDefaultInitStatement() != null ? ", init" : "") +
                                (isBareSynth() ? ", bare" : "") +
@@ -1013,7 +1021,7 @@ class JavafxAnalyzeClass {
             VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(bindeeSym));
             
             if (bindee != null) {
-                bindee.bindersOrNull.add((VarInfo)ai);
+                bindee.binders.add((VarInfo)ai);
             }
         }
             

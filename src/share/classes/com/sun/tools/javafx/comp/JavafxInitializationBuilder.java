@@ -1206,6 +1206,38 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 }
             }
         }
+        
+        //
+        // Determine if this var needs an invalidate method
+        // Must be in sync with makeInvalidateAccessorMethod
+        //
+        private boolean needInvalidateAccessorMethod(VarInfo varInfo) {
+            return (varInfo.isOverride() && needOverrideInvalidateAccessorMethod(varInfo)) ||
+                    varInfo.generateSequenceAccessors() ||
+                    !isLeaf(varInfo) ||
+                        varInfo.hasDependents() || varInfo.isDependent() ||
+                        !varInfo.boundInvalidatees().isEmpty() ||
+                        varInfo.isMixinVar() ||
+                        varInfo.onReplace() != null ||
+                        varInfo.onInvalidate() != null;
+        }
+        
+        //
+        // Determine if this var needs an on replace method.
+        //
+        private boolean needOnReplaceAccessorMethod(VarInfo varInfo) {
+            return varInfo.getSymbol().useTrigger() &&
+                  (!isLeaf(varInfo) ||
+                        varInfo.isMixinVar() ||
+                        varInfo.onReplace() != null);
+        }
+        
+        //
+        // Returns true if the var can not be overridden.
+        //
+        private boolean isLeaf(VarInfo varInfo) {
+            return isAnonClass() || varInfo.isStatic();
+        }
 
         //-----------------------------------------------------------------------------------------------------------------------------
         //
@@ -1840,7 +1872,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                 @Override
                 public void statements() {
-                    boolean isLeaf = isAnonClass() || varInfo.isStatic();
+                    boolean isLeaf = isLeaf(varInfo);
                 
                     if (isLeaf && varInfo.isReadOnly()) {
                         addStmt(CallStmt(getReceiver(varSym), defs.varFlagRestrictSet, Offset(varSym)));
@@ -1897,48 +1929,63 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    // T varOldValue$ = $var;
-                    addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
-                    // short varFlags$ = VFLG$var;
-                    addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
-                    // Set DEFAULT_APPLIED;
-                    addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED));
+                    boolean needsInvalidate = needInvalidateAccessorMethod(varInfo);
+                    boolean needsOnReplace = needOnReplaceAccessorMethod(varInfo);
+                
+                    if (needsInvalidate || needsOnReplace) {
+                        // T varOldValue$ = $var;
+                        addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
+                        // short varFlags$ = VFLG$var;
+                        addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
+                        // Set DEFAULT_APPLIED;
+                        addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED));
     
-                    // varOldValue$ != varNewValue$
-                    // or !varOldValue$.equals(varNewValue$) test for Object value types
-                    JCExpression valueChangedTest = isValueType(type) ?
-                        NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)))
-                      : NE(id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName));
-                    // Default-Not_applied
-                    JCExpression defaultAppliedTest = FlagTest(defs.varFlags_LocalVarName, defs.varFlagDEFAULT_APPLIED, null);
-                    
-                    // if (varOldValue$ != varNewValue$ || Default-Not_applied) {
-                    //   /*handle change*/
-                    //   invalidate$(VFLGS$IS_INVALID)
-                    //   $var = value
-                    //   invalidate$(VFLGS$NEEDS_TRIGGER)
-                    //   ValidityFlags = 0; // set as initialized;
-                    //   onReplace$(varOldValue$, varNewValue$)
-                    // } else {
-                    //   /*reset validity flags*/
-                    //   ValidityFlags = 0;
-                    //   Set DEFAULT_APPLIED;
-                    // }
-
-                    ListBuffer<JCStatement> body = ListBuffer.<JCStatement>lb();
-                    body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
-                    body.append(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
-                    body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
-                     
-                    if (varSym.useTrigger()) {
-                        body.append(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
-                    }
+                        // varOldValue$ != varNewValue$
+                        // or !varOldValue$.equals(varNewValue$) test for Object value types
+                        JCExpression valueChangedTest = isValueType(type) ?
+                            NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)))
+                          : NE(id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName));
+                        // Default-Not_applied
+                        JCExpression defaultAppliedTest = FlagTest(defs.varFlags_LocalVarName, defs.varFlagDEFAULT_APPLIED, null);
                         
-                    addStmt(
-                        OptIf (OR(valueChangedTest, defaultAppliedTest),
-                            Block(body), null));
+                        // if (varOldValue$ != varNewValue$ || Default-Not_applied) {
+                        //   /*handle change*/
+                        //   invalidate$(VFLGS$IS_INVALID)
+                        //   $var = value
+                        //   invalidate$(VFLGS$NEEDS_TRIGGER)
+                        //   ValidityFlags = 0; // set as initialized;
+                        //   onReplace$(varOldValue$, varNewValue$)
+                        // } else {
+                        //   /*reset validity flags*/
+                        //   ValidityFlags = 0;
+                        //   Set DEFAULT_APPLIED;
+                        // }
+    
+                        ListBuffer<JCStatement> body = ListBuffer.<JCStatement>lb();
+                        
+                        if (needsInvalidate) {
+                            body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
+                        }
+                        
+                        body.append(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
+                        
+                        if (needsInvalidate) {
+                            body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
+                        }
+                         
+                        if (needsOnReplace) {
+                            body.append(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
+                        }
+                            
+                        addStmt(
+                            OptIf (OR(valueChangedTest, defaultAppliedTest),
+                                Block(body), null));
+                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
+                    } else {
+                        addStmt(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
+                        addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED));
+                    }
    
-                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
                 }
@@ -1993,8 +2040,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     } else {
                         // Set phase flag.
                         addStmt(FlagChangeStmt(proxyVarSym, null, phaseArg()));
-                        // notifyDependents(VOFF$var, phase$);
-                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
+                        
+                        if (!isLeaf(varInfo) || varInfo.hasDependents()) {
+                            // notifyDependents(VOFF$var, phase$);
+                            addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
+                        }
                     }
 
                     for (VarInfo otherVar : varInfo.boundBinders()) {
@@ -2082,7 +2132,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     addParam(type, oldValueName);
                     addParam(type, newValueName);
                     
-                    buildIf(varSym.useTrigger() && !varInfo.isBareSynth());
+                    buildIf(needOnReplaceAccessorMethod(varInfo) && !varInfo.isBareSynth());
                 }
                 
                 @Override
@@ -2214,7 +2264,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             makeGetterAccessorMethod(ai, needsBody);
                             makeSetterAccessorMethod(ai, needsBody);
                             makeBeAccessorMethod(ai, needsBody);
-                            makeInvalidateAccessorMethod(ai, needsBody);
+                            if (needInvalidateAccessorMethod(ai)) {
+                                makeInvalidateAccessorMethod(ai, needsBody);
+                            }
                             makeOnReplaceAccessorMethod(ai, needsBody);
                         } else if (needsBody) {
                             if (ai.hasInitializer()) {
@@ -3148,8 +3200,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 
                 @Override
                 public void statements() {
-                    // FIXME - do the right thing.
-                    if (varInfo.useAccessors() && !varInfo.isOverride()) {
+                    if (varInfo.useAccessors() && !varInfo.isOverride() && needInvalidateAccessorMethod(varInfo)) {
                         if (varInfo.generateSequenceAccessors()) {
                             addStmt(CallStmt(attributeInvalidateName(varSym),
                                     startPosArg(), endPosArg(), newLengthArg(), phaseArg()));

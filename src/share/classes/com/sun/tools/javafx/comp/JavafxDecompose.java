@@ -284,7 +284,7 @@ public class JavafxDecompose implements JavafxVisitor {
                  * variable is derived from the given varName.
                  */
                 ptrVar = makeVar(initExpr.pos(), tmpBoundResName, initExpr, JavafxBindStatus.UNIDIBIND, syms.javafx_PointerType);
-                ptrVar.sym.flags_field |= Flags.SYNTHETIC;
+                ptrVar.sym.flags_field |= Flags.SYNTHETIC | JavafxFlags.VARUSE_BIND_ACCESS;
             }
         }
         return ptrVar;
