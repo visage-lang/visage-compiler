@@ -1668,7 +1668,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     } else {
                         JCStatement initIf = null;
-                        if (!varInfo.isStatic()) {
+                        if (!varInfo.isStatic() && !(isAnonClass() && varInfo.hasBoundDefinition())) {
                             // Prepare to accumulate body of if.
                             beginBlock();
     
@@ -1875,16 +1875,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 public void statements() {
                     // T varOldValue$ = $var;
                     addStmt(Var(Flags.FINAL, type, defs.varOldValue_LocalVarName, Get(proxyVarSym)));
+                    // short varFlags$ = VFLG$var;
+                    addStmt(Var(Flags.FINAL, syms.intType, defs.varFlags_LocalVarName, GetFlags(proxyVarSym)));
+                    // Set DEFAULT_APPLIED;
+                    addStmt(FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED));
     
                     // varOldValue$ != varNewValue$
                     // or !varOldValue$.equals(varNewValue$) test for Object value types
                     JCExpression valueChangedTest = isValueType(type) ?
                         NOT(Call(defs.Checks_equals, id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)))
                       : NE(id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName));
+                    // Default-Not_applied
+                    JCExpression defaultAppliedTest = FlagTest(defs.varFlags_LocalVarName, defs.varFlagDEFAULT_APPLIED, null);
                     
                     // if (varOldValue$ != varNewValue$ || Default-Not_applied) {
                     //   /*handle change*/
-                    //   Set DEFAULT_APPLIED;
                     //   invalidate$(VFLGS$IS_INVALID)
                     //   $var = value
                     //   invalidate$(VFLGS$NEEDS_TRIGGER)
@@ -1897,24 +1902,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // }
 
                     ListBuffer<JCStatement> body = ListBuffer.<JCStatement>lb();
-                    body.append(FlagChangeStmt(proxyVarSym, null, defs.varFlagDEFAULT_APPLIED));
                     body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagIS_INVALID)));
                     body.append(SetStmt(proxyVarSym, id(defs.varNewValue_ArgName)));
                     body.append(CallStmt(attributeInvalidateName(varSym), id(defs.varFlagNEEDS_TRIGGER)));
-                    body.append(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
-                    
+                     
                     if (varSym.useTrigger()) {
                         body.append(CallStmt(attributeOnReplaceName(varSym), id(defs.varOldValue_LocalVarName), id(defs.varNewValue_ArgName)));
                     }
                         
                     addStmt(
-                        OptIf (OR(valueChangedTest, FlagTest(proxyVarSym, defs.varFlagDEFAULT_APPLIED, null)),
-                            Block(body),
-                        /*else*/
-                            Block(
-                                FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, defs.varFlagDEFAULT_APPLIED)
-                            )));
+                        OptIf (OR(valueChangedTest, defaultAppliedTest),
+                            Block(body), null));
    
+                    addStmt(FlagChangeStmt(proxyVarSym, defs.varFlagVALIDITY_FLAGS, null));
                     // return $var;
                     addStmt(Return(Get(proxyVarSym)));
                 }

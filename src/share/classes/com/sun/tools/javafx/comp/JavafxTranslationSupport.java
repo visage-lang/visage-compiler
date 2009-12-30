@@ -1186,13 +1186,21 @@ public abstract class JavafxTranslationSupport {
                 return superExpr;
             }
         }
-
+        
         //
         // Private support methods for testing/setting/clearing a var flag.
         //
         
         protected boolean isJCIdentName(JCExpression ident, Name name) {
             return ident instanceof JCIdent && ((JCIdent)ident).getName() == name;
+        }
+        
+        protected JCExpression GetFlags(JavafxVarSymbol varSym) {
+            if (isMixinClass()) {
+                return Call(getReceiver(varSym), defs.getFlags_FXObjectMethodName, Offset(varSym));
+            } else {
+                return VarFlags(varSym);
+            }
         }
         
         protected JCExpression flagCast(JCExpression expr) {
@@ -1213,57 +1221,55 @@ public abstract class JavafxTranslationSupport {
             if (clearBitsNull) clearBits = Int(0);
             if (setBitsNull) setBits = Int(0);
             
-            if (!isMixinClass()) {
-                if (action == defs.varFlagActionTest) {
-                    return EQ(BITAND(VarFlags(varSym), clearBits), setBits);
-                } else /* if (action == defs.varFlagActionChange) */ {
-                    JCExpression assignExpr;
+            if (action == defs.varFlagActionTest) {
+                return EQ(BITAND(GetFlags(varSym), clearBits), setBits);
+            } else if (isMixinClass()) {
+                return Call(getReceiver(varSym), action, Offset(varSym), clearBits, setBits);
+            } else /* if (action == defs.varFlagActionChange) */ {
+                JCExpression assignExpr;
 
-                    if (isStmt) {
-                        if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
-                            assignExpr = m().Assign(VarFlags(varSym), flagCast(setBits));
-                        } else if (clearBitsNull) {
-                            assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(setBits));
-                        } else if (setBitsNull) {
-                            assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(clearBits)));
-                        } else {
-                            assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(clearBits)), setBits)));
-                        }
-                        
-                        return assignExpr;
+                if (isStmt) {
+                    if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
+                        assignExpr = m().Assign(VarFlags(varSym), flagCast(setBits));
+                    } else if (clearBitsNull) {
+                        assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(setBits));
+                    } else if (setBitsNull) {
+                        assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(clearBits)));
                     } else {
-                        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-                        JCVariableDecl bitsVar;
-                    
-                        if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
-                            bitsVar = TmpVar(syms.intType, setBits);
-                            assignExpr = m().Assign(VarFlags(varSym), flagCast(id(bitsVar.name)));
-                        } else if (clearBitsNull) {
-                            bitsVar = TmpVar(syms.intType, setBits);
-                            assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(id(bitsVar.name)));
-                        } else if (setBitsNull) {
-                            bitsVar = TmpVar(syms.intType, clearBits);
-                            assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(id(bitsVar.name))));
-                        } else {
-                            JCVariableDecl clearBitsVar = TmpVar(syms.intType, clearBits);
-                            JCVariableDecl setBitsVar = TmpVar(syms.intType, setBits);
-                            stmts.append(clearBitsVar);
-                            stmts.append(setBitsVar);
-                            bitsVar = TmpVar(syms.intType, BITOR(id(clearBitsVar.name), id(setBitsVar.name)));
-                            assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(id(clearBitsVar.name))), id(bitsVar.name))));
-                        }
-                        
-                        stmts.append(bitsVar);
-                        JCVariableDecl testVar = TmpVar(syms.booleanType, EQ(BITAND(VarFlags(varSym), id(bitsVar.name)), id(bitsVar.name)));
-                        stmts.append(testVar);
-                        stmts.append(Stmt(assignExpr));
-                        
-                        return BlockExpression(stmts, id(testVar.name));
+                        assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(clearBits)), setBits)));
                     }
+                    
+                    return assignExpr;
+                } else {
+                    ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                    JCVariableDecl bitsVar;
+                
+                    if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
+                        bitsVar = TmpVar(syms.intType, setBits);
+                        assignExpr = m().Assign(VarFlags(varSym), flagCast(id(bitsVar.name)));
+                    } else if (clearBitsNull) {
+                        bitsVar = TmpVar(syms.intType, setBits);
+                        assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(id(bitsVar.name)));
+                    } else if (setBitsNull) {
+                        bitsVar = TmpVar(syms.intType, clearBits);
+                        assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(id(bitsVar.name))));
+                    } else {
+                        JCVariableDecl clearBitsVar = TmpVar(syms.intType, clearBits);
+                        JCVariableDecl setBitsVar = TmpVar(syms.intType, setBits);
+                        stmts.append(clearBitsVar);
+                        stmts.append(setBitsVar);
+                        bitsVar = TmpVar(syms.intType, BITOR(id(clearBitsVar.name), id(setBitsVar.name)));
+                        assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(id(clearBitsVar.name))), id(bitsVar.name))));
+                    }
+                    
+                    stmts.append(bitsVar);
+                    JCVariableDecl testVar = TmpVar(syms.booleanType, EQ(BITAND(VarFlags(varSym), id(bitsVar.name)), id(bitsVar.name)));
+                    stmts.append(testVar);
+                    stmts.append(Stmt(assignExpr));
+                    
+                    return BlockExpression(stmts, id(testVar.name));
                 }
             }
-            
-            return Call(getReceiver(varSym), action, Offset(varSym), clearBits, setBits);
         }
         private JCExpression FlagAction(JCExpression offset, Name action, Name clearBits, Name setBits, boolean isStmt) {
             return Call(action, offset,
@@ -1275,6 +1281,9 @@ public abstract class JavafxTranslationSupport {
         // These methods return an expression for testing a var flag.
         //
 
+        protected JCExpression FlagTest(Name flagsVar, Name clearBits, Name setBits) {
+            return EQ(BITAND(id(flagsVar), clearBits == null ? Int(0) : id(clearBits)), setBits == null ? Int(0) : id(setBits));
+        }
         protected JCExpression FlagTest(JavafxVarSymbol varSym, Name clearBits, Name setBits) {
             return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits, false);
         }
