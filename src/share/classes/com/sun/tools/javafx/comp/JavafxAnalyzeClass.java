@@ -1475,6 +1475,11 @@ class JavafxAnalyzeClass {
                 }
             }
         }
+
+        // ignore GETMAPxxx methods
+        if (name.toString().startsWith(defs.varGetMapString)) {
+            return true;
+        }
         
         return name == names.init || name == names.clinit ||
                name == defs.internalRunFunctionName || 
