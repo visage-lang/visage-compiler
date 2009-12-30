@@ -33,6 +33,7 @@ import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
 import com.sun.tools.mjavac.code.Type;
+import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
@@ -141,15 +142,18 @@ public class JavafxBoundFiller extends JavafxTreeScanner {
      */
     private JFXVar createResultVar(JFXForExpressionInClause clause, JFXExpression value, Symbol owner) {
         Type valtype = value.type;
-        if (! types.isSequence(valtype)) {
-            value = fxmake.ExplicitSequence(List.of(value));
-            valtype = types.sequenceType(valtype);
+        // For now, at least, if there is a where clause, we need to be
+        // able to return ull, so box the type
+        if (! types.isSequence(valtype) && clause.whereExpr != null) {
+            valtype = types.boxedTypeOrType(valtype);
             value.type = valtype;
         }
         if (clause.whereExpr != null) {
-            JFXExpression empty = fxmake.EmptySequence();
-            empty.type = valtype;
-            value = fxmake.Conditional(clause.whereExpr, value, empty);
+            JFXExpression nada = types.isSequence(valtype)?
+                fxmake.EmptySequence() :
+                fxmake.Literal(TypeTags.BOT, null);
+            nada.type = valtype;
+            value = fxmake.Conditional(clause.whereExpr, value, nada);
             value.type = valtype;
             clause.whereExpr = null;
         }

@@ -956,7 +956,13 @@ public class JavafxDecompose implements JavafxVisitor {
 
             // Create the BoundForHelper variable:
             Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
-            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type), inductionType);
+            Type bodyType = tree.bodyExpr.type;
+            Type helperType = types.applySimpleGenericType(
+                    types.isSequence(bodyType)?
+                        syms.javafx_BoundForHelperType :
+                        syms.javafx_BoundForHelperSingletonType,
+                    types.boxedElementType(tree.type),
+                    inductionType);
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
             init.type = helperType;
             Name helperName = preTrans.makeUniqueVarNameIn(names.fromString("helper$"+currentVarSymbol.name), varOwner);
