@@ -71,6 +71,7 @@ public class JavafxFlags {
     public static final long VARUSE_NEED_ACCESSOR      = FIRST_VARUSE_FLAG << 9;  // create accessor methods for this var
     public static final long VARUSE_NON_LITERAL        = FIRST_VARUSE_FLAG << 10; // non-accessor still needs getter
     public static final long VARUSE_BIND_ACCESS        = FIRST_VARUSE_FLAG << 11; // Accessed in bind.
+    public static final long VARUSE_VARREF             = FIRST_VARUSE_FLAG << 12; // Used in VarRef
     // This last shift + the last for modifiers + the last on marks must be <= 22 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags
@@ -85,6 +86,7 @@ public class JavafxFlags {
     public static final long FX_CLASS                = FIRST_FX_CLASS_FLAG << 1;  // JavaFX class
     public static final long CLASS_HAS_INIT_BLOCK    = FIRST_FX_CLASS_FLAG << 2;  // there is an init block on the class
     public static final long FX_BOUND_FUNCTION_CLASS = FIRST_FX_CLASS_FLAG << 3;  // This is a local class that implements bound functions
+    public static final long ANON_NEEDS_GETMAP       = FIRST_FX_CLASS_FLAG << 4;  // This is a local class that needs a GETMAP
 
     public static final long JavafxAccessFlags = PUBLIC | PROTECTED | PRIVATE | SCRIPT_PRIVATE;
     public static final long JavafxExplicitAccessFlags = PUBLIC | PROTECTED | PRIVATE | PACKAGE_ACCESS;

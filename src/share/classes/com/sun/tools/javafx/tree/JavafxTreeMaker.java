@@ -33,6 +33,7 @@ import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
+import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
@@ -683,6 +684,11 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
            while (id instanceof JFXSelect) id = ((JFXSelect)id).getExpression();
            Name cname = objectLiteralClassName(((JFXIdent)id).getName());
            long innerClassFlags = Flags.SYNTHETIC | Flags.FINAL; // to enable, change to Flags.FINAL
+           
+           if (partsBuffer.size() > 1) {
+                innerClassFlags |= JavafxFlags.ANON_NEEDS_GETMAP;
+           }
+           
            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
        }
 

@@ -212,10 +212,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isMixinClass = cDecl.isMixinClass();
         boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = isAnonClass(analysis.getCurrentClassSymbol());
+        boolean needsGetMap = isAnonClass && (cDecl.sym.flags() & JavafxFlags.ANON_NEEDS_GETMAP) != 0;
         boolean hasFxSuper = fxSuperClassSym != null;
         // Have to populate the var map for anon classes.
-        // TODO: figure away to avoid this if not used (needs global knowledge.)
-        LiteralInitVarMap varMap = isAnonClass ? initClassMap.getVarMap(analysis.getCurrentClassSymbol()) : null;
+        LiteralInitVarMap varMap = needsGetMap ? initClassMap.getVarMap(analysis.getCurrentClassSymbol()) : null;
 
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
@@ -229,7 +229,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
             javaCodeMaker.makeVarNumMethods();
 
-            JCStatement initMap = isAnonClass ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
+            JCStatement initMap = needsGetMap ? javaCodeMaker.makeInitVarMapInit(varMap) : null;
 
             if (outerTypeSym == null) {
                 javaCodeMaker.makeJavaEntryConstructor();
@@ -1236,7 +1236,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // Returns true if the var can not be overridden.
         //
         private boolean isLeaf(VarInfo varInfo) {
-            return isAnonClass() || varInfo.isStatic();
+            JavafxVarSymbol varSym = (JavafxVarSymbol)varInfo.getSymbol();
+            long flags = varSym.flags();
+            return isAnonClass() ||
+                   varInfo.isStatic() ||
+                   (varSym.hasScriptOnlyAccess() && (flags & JavafxFlags.OVERRIDE) == 0);
         }
 
         //-----------------------------------------------------------------------------------------------------------------------------
@@ -1657,7 +1661,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                     )));
                         }
                         if (newElements != null
-                                && (newElements.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
+                                && (newElements.sym.flags() & JavafxFlags.VARUSE_OPT_TRIGGER) == 0) {
                                    JCExpression seq = savedVarSym != null ? Get(savedVarSym) : Getter(varSym);
                                    JCExpression init = Call(defs.Sequences_getNewElements, seq, id(firstIndexName), id(newLengthName));
                             addStmt(Var(newElements.type, newElements.name, init));

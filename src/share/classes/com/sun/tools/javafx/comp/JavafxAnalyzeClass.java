@@ -366,12 +366,12 @@ class JavafxAnalyzeClass {
         
         // Return true if the var has dependents.
         public boolean hasDependents() {
-            return (getFlags() & JavafxFlags.VARUSE_BIND_ACCESS) != 0 || !boundBinders().isEmpty();
+            return (getFlags() & (JavafxFlags.VARUSE_BIND_ACCESS | JavafxFlags.VARUSE_VARREF)) != 0 || !boundBinders().isEmpty();
         }
         
         // Return true if the var is dependent.
         public boolean isDependent() {
-            return (getFlags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 || hasBiDiBoundDefinition() ||
+            return (getFlags() & (JavafxFlags.VARUSE_BOUND_INIT | JavafxFlags.VARUSE_VARREF)) != 0 || hasBiDiBoundDefinition() ||
                    !boundBindees().isEmpty() || !boundBoundSelects().isEmpty();
         }
 
@@ -414,7 +414,8 @@ class JavafxAnalyzeClass {
                                    (((flags & JavafxFlags.VARUSE_TMP_IN_INIT_EXPR) != 0)  ? ", VARUSE_TMP_IN_INIT_EXPR" : "") +
                                    (((flags & JavafxFlags.VARUSE_NEED_ACCESSOR) != 0)     ? ", VARUSE_NEED_ACCESSOR" : "") +
                                    (((flags & JavafxFlags.VARUSE_NON_LITERAL) != 0)       ? ", VARUSE_NON_LITERAL" : "") +
-                                   (((flags & JavafxFlags.VARUSE_BIND_ACCESS) != 0)       ? ", VARUSE_BIND_ACCESS" : ""));
+                                   (((flags & JavafxFlags.VARUSE_BIND_ACCESS) != 0)       ? ", VARUSE_BIND_ACCESS" : "") +
+                                   (((flags & JavafxFlags.VARUSE_VARREF) != 0)            ? ", VARUSE_VARREF" : ""));
                 if (!boundBoundSelects().isEmpty()) {
                     for (DependentPair pair : boundBoundSelects()) {
                         System.err.println("        select=" + pair.instanceSym + " " + pair.referencedSym);
