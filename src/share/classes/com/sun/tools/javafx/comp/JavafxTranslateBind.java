@@ -1102,6 +1102,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
+            JCVariableDecl vSize = TmpVar("size", syms.intType, cummulativeSize(length));
+
             // Initialize the singleton synthetic item vars (during IS_VALID phase)
             // Bound sequences don't have a value
             ListBuffer<JCStatement> varInits = ListBuffer.lb();
@@ -1116,9 +1118,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     If(isSequenceDormant(),
                         Block(
                             varInits,
+                            vSize,
                             setSequenceActive(),
                             CallSeqInvalidate(),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), cummulativeSize(length), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER)),
+                            Return(id(vSize))
                         )
                     ),
                     Return(cummulativeSize(length))
