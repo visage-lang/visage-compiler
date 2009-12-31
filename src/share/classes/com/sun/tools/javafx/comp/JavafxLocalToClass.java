@@ -528,7 +528,7 @@ public class JavafxLocalToClass {
         if (vc.returnFound) {
             // We have a non-local return -- wrap it in try-catch
 
-            if (vc.returnType != null && value != null && value.getFXTag() != JavafxTag.RETURN) {
+            if (vc.returnType != null) {
                 // make sure that try block has return as last statment
                 value = fxmake.Return(value);
                 value.type = syms.unreachableType;
