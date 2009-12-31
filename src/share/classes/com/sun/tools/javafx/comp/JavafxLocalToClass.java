@@ -527,6 +527,12 @@ public class JavafxLocalToClass {
 
         if (vc.returnFound) {
             // We have a non-local return -- wrap it in try-catch
+
+            if (vc.returnType != null && value != null && value.getFXTag() != JavafxTag.RETURN) {
+                // make sure that try block has return as last statment
+                value = fxmake.Return(value);
+                value.type = syms.unreachableType;
+            }
             JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(vc.returnType);
             JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
             param.setType(syms.javafx_NonLocalReturnExceptionType);
