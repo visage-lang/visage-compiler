@@ -899,15 +899,11 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXSequenceExplicit res = fxmake.at(tree.pos).ExplicitSequence(items);
         res.type = tree.type;
         if (bindStatus.isBound()) {
-            // Generate bare synth vars for the items
             ListBuffer<JFXVar> vb = ListBuffer.lb();
             for (JFXExpression item : tree.getItems()) {
                 vb.append(shredVar("item", decompose(item), item.type));
             }
             res.boundItemsVars = vb.toList();
-
-            // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
         }
         result = res;
     }

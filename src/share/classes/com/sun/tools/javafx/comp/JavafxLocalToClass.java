@@ -265,6 +265,12 @@ public class JavafxLocalToClass {
             }
 
             @Override
+            public void visitWhileLoop(JFXWhileLoop tree) {
+                needed |= needsToBeInflatedToClass(tree.getBody()) && referencesMutatedLocal(tree);
+                super.visitWhileLoop(tree);
+            }
+
+            @Override
             public void visitFunctionValue(JFXFunctionValue tree) {
                 // Funtion value may reference (non-final) locals
                 needed |= referencesMutatedLocal(tree);
@@ -522,6 +528,12 @@ public class JavafxLocalToClass {
 
         if (vc.returnFound) {
             // We have a non-local return -- wrap it in try-catch
+
+            if (vc.returnType != null) {
+                // make sure that try block has return as last statment
+                value = fxmake.Return(value);
+                value.type = syms.unreachableType;
+            }
             JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(vc.returnType);
             JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
             param.setType(syms.javafx_NonLocalReturnExceptionType);

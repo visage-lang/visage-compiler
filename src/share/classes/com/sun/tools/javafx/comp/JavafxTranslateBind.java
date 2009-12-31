@@ -1039,14 +1039,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     private class BoundExplicitSequenceTranslator extends BoundSequenceTranslator {
         private final List<JFXVar> vars;
         private final Type elemType;
-        private final JavafxVarSymbol sizeSymbol;
         private final int length;
         BoundExplicitSequenceTranslator(JFXSequenceExplicit tree) {
             super(tree.pos());
             this.vars = tree.boundItemsVars;
             this.length = vars.length();
             this.elemType = types.elementType(tree.type);
-            this.sizeSymbol = tree.boundSizeVar.sym;
         }
 
         private boolean isNullable(int index) {
@@ -1095,16 +1093,40 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return sum;
         }
 
-        private JCExpression CallGetElement(int index, JCExpression pos) {
+        private JCExpression GetElement(int index, JCExpression pos) {
             if (isSequence(index)) {
                 return Call(attributeGetElementName(vsym(index)), pos);
             } else {
-                return CallGetter(index);
+                return Get(vsym(index));
             }
         }
 
         JCStatement makeSizeBody() {
-            return Return(Getter(sizeSymbol));
+            JCVariableDecl vSize = TmpVar("size", syms.intType, cummulativeSize(length));
+
+            // Initialize the singleton synthetic item vars (during IS_VALID phase)
+            // Bound sequences don't have a value
+            ListBuffer<JCStatement> varInits = ListBuffer.lb();
+            for (int i = 0; i < length; ++i) {
+                if (!isSequence(i)) {
+                    varInits.append(SetStmt(vsym(i), CallGetter(i)));
+                }
+            }
+
+            return
+                Block(
+                    If(isSequenceDormant(),
+                        Block(
+                            varInits,
+                            vSize,
+                            setSequenceActive(),
+                            CallSeqInvalidate(),
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER)),
+                            Return(id(vSize))
+                        )
+                    ),
+                    Return(cummulativeSize(length))
+                );
         }
 
         /**
@@ -1134,15 +1156,27 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vNext = MutableTmpVar("next", syms.intType, Int(0));
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            stmts.append(If(LT(posArg(), Int(0)), Return(DefaultValue(elemType))));
-            stmts.append(vStart);
-            stmts.append(vNext);
+            stmts.appendList(Stmts(
+                    If(LT(posArg(), Int(0)),
+                        Return(DefaultValue(elemType))
+                    ),
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    vStart,
+                    vNext
+                ));
             for (int index = 0; index < length; ++index) {
-                stmts.append(Assign(vNext, PLUS(id(vNext), computeSize(index))));
-                stmts.append(If(LT(posArg(), id(vNext)), Return(CallGetElement(index, MINUS(posArg(), id(vStart))))));
-                stmts.append(Assign(vStart, id(vNext)));
+                stmts.appendList(Stmts(
+                        Assign(vNext, PLUS(id(vNext), computeSize(index))),
+                        If(LT(posArg(), id(vNext)),
+                            Return(GetElement(index, MINUS(posArg(), id(vStart))))
+                        ),
+                        Assign(vStart, id(vNext))
+                    ));
             }
-            stmts.append(Return(DefaultValue(elemType)));
+            stmts.append(
+                    Return(DefaultValue(elemType)));
             return Block(stmts);
         }
 
@@ -1153,32 +1187,28 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             if (isSequence(index)) {
                 return 
-                    If(isSequenceActive(),
-                        Block(
-                            vStart,
-                            If(IsTriggerPhase(),
-                                // Update the size by the difference
-                                // size = size + newLen - (end - begin)
-                                SetStmt(sizeSymbol,
-                                    PLUS(
-                                        Get(sizeSymbol),
-                                        MINUS(
-                                            newLengthArg(),
-                                            MINUS(endPosArg(), startPosArg())
+                        If (isSequenceActive(),
+                            Block(
+                                If (IsInvalidatePhase(),
+                                    Block(
+                                        CallSeqInvalidate()
+                                    ),
+                                /*Else (Trigger phase)*/
+                                    Block(
+                                        vStart,
+                                        CallSeqInvalidate(
+                                            PLUS(id(vStart), startPosArg()),
+                                            If (EQ(endPosArg(), Undefined()),
+                                                Undefined(),
+                                                PLUS(id(vStart), endPosArg())
+                                            ),
+                                            newLengthArg()
                                         )
                                     )
                                 )
-                            ),
-                            CallSeqInvalidate(
-                                PLUS(id(vStart), startPosArg()),
-                                If (EQ(endPosArg(), Undefined()),
-                                    Undefined(),
-                                    PLUS(id(vStart), endPosArg())
-                                ),
-                                newLengthArg()
                             )
-                        )
-                    );
+                        );
+
             } else {
                 //TODO: this is eager even for fixed length
                 JCVariableDecl vOldLen = TmpVar("oldLen", syms.intType, computeSize(index));
@@ -1186,61 +1216,33 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCVariableDecl vNewLen = TmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
 
                 return 
-                    If(AND(isSequenceActive(), FlagTest(vsym(index), phaseArg(), null)),
+                    If (id(defs.wasInvalid_LocalVarName),
                         Block(
-                            vStart,
-                            vOldLen,
                             FlagChangeStmt(vsym(index), null, phaseArg()),
-                            If(IsInvalidatePhase(),
+                            If (isSequenceActive(),
                                 Block(
-                                    CallSeqInvalidate(
-                                        id(vStart),
-                                        PLUS(id(vStart), id(vOldLen)),
-                                        Undefined()
-                                    )
-                                ),
-                            /*Else (Trigger phase)*/
-                                Block(
-                                    // Update the size by the difference
-                                    vValue,
-                                    vNewLen,
-                                    SetStmt(sizeSymbol, PLUS(Get(sizeSymbol), MINUS(id(vNewLen), id(vOldLen)))),
-                                    SetStmt(vsym(index), id(vValue)),
-                                    CallSeqInvalidate(
-                                        id(vStart),
-                                        PLUS(id(vStart), id(vOldLen)),
-                                        id(vNewLen)
+                                    If (IsInvalidatePhase(),
+                                        Block(
+                                            CallSeqInvalidate()
+                                        ),
+                                    /*Else (Trigger phase)*/
+                                        Block(
+                                            vOldLen,
+                                            vStart,
+                                            vValue,
+                                            vNewLen,
+                                            CallSeqInvalidate(
+                                                id(vStart),
+                                                PLUS(id(vStart), id(vOldLen)),
+                                                id(vNewLen)
+                                            )
+                                        )
                                     )
                                 )
                             )
                         )
                     );
             }
-        }
-
-        /**
-         * Invalidate (and computation) for synthetic size var.
-         */
-        private JCStatement makeInvalidateSize() {
-            // Initialize the singleton synthetic item vars (during IS_VALID phase)
-            // Bound sequences don't have a value
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            for (int i = 0; i < length; ++i) {
-                if (!isSequence(i)) {
-                    stmts.append(SetStmt(vsym(i), CallGetter(i)));
-                }
-            }
-            JCStatement varInits = Block(stmts);
-
-            return
-                Block(
-                    If(IsTriggerPhase(),
-                        setSequenceActive(),
-                        varInits
-                    ),
-                    SetStmt(sizeSymbol, cummulativeSize(length)),
-                    CallSeqInvalidate(Int(0), Int(0), Get(sizeSymbol))
-                );
         }
 
         /**
@@ -1250,8 +1252,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             for (int index = 0; index < length; ++index) {
                 addInvalidator(vsym(index), makeItemInvalidate(index));
             }
-            addInvalidator(sizeSymbol, makeInvalidateSize());
-        }
+         }
     }
 
     /**

@@ -36,7 +36,6 @@ public class JFXSequenceExplicit extends JFXAbstractSequenceCreator implements S
     private final List<JFXExpression> items;
 
     public List<JFXVar> boundItemsVars;
-    public JFXVar boundSizeVar;
 
     public JFXSequenceExplicit(List<JFXExpression> items) {
         this.items = items;
