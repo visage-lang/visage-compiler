@@ -1258,7 +1258,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 @Override
                 public void statements() {
                     JCStatement initIf = null;
-                    if (!varInfo.isStatic()) {
+                    if (!varInfo.isStatic() && !(isAnonClass() && varInfo.hasBoundDefinition())) {
                         // Prepare to accumulate body of if.
                         beginBlock();
 
