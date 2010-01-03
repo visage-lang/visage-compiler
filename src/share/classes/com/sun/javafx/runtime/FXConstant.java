@@ -173,7 +173,7 @@ public final class FXConstant extends Object implements FXObject {
         return FXBase.getType$(this, varNum$);
     }
 
-    public void initVarBits$() {
+    public void initVars$() {
     }
 
     public FXConstant() {

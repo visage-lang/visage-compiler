@@ -519,9 +519,7 @@ public class JavafxDecompose implements JavafxVisitor {
                tree.sym.kind != Kinds.MTH) {
             // This is some outer instance variable access
             if (bindStatus.isBound()) {
-                Symbol outerThisSym = new JavafxVarSymbol(types, names,0L, names._this, selectSym.type, selectSym);
-                JFXIdent outerThis = fxmake.Ident(outerThisSym);
-                selected = shred(outerThis);
+                selected = shred(fxmake.This(selectSym.type));
             } else {
                 selected = decompose(tree.selected);
             }
@@ -570,10 +568,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 // instance field from outer class. We transform "foo" as "this.foo"
                 // and shred "this" part so that local classes generated for local
                 // binds will have proper dependency.
-                JFXIdent thisExpr = fxmake.Ident(names._this);
-                thisExpr.sym = new JavafxVarSymbol(types, names,0L, names._this, tree.sym.owner.type, tree.sym.owner.type.tsym);
-                thisExpr.type = thisExpr.sym.type;
-                setSelectResult(tree, shred(thisExpr), tree.sym);
+                setSelectResult(tree, shred(fxmake.This(tree.sym.owner.type)), tree.sym);
                 return;
             }
         }
@@ -1000,10 +995,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 if ((func.sym.flags() & JavafxFlags.FUNC_SYNTH_LOCAL_DOIT) != 0L) {
                     // Change the value to be "this"
                     JFXBlock body = func.getBodyExpression();
-                    JFXIdent thisIdent = fxmake.Ident(names._this);
-                    thisIdent.type = ctype;
-                    thisIdent.sym = new JavafxVarSymbol(types, names,Flags.FINAL | Flags.HASINIT, names._this, ctype, cdecl.sym);
-                    body.value = thisIdent;
+                    body.value = fxmake.This(ctype);
                     body.type = ctype;
 
                     // Adjust function to return class type

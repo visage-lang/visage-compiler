@@ -2654,7 +2654,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
             
             makeApplyDefaultsMethod(varInfos, varCount);
-            makeInitVarBitsMethod(varInfos);
+            makeInitVarsMethod(varInfos);
             
             makeUpdateMethod(varInfos, updateMap, false);
             makeUpdateMethod(varInfos, updateMap, true);
@@ -2810,10 +2810,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This method sets the initial var flags.
+        // This method sets up the initial var state.
         //
-        private void makeInitVarBitsMethod(final List<VarInfo> attrInfos) {
-            MethodBuilder mb = new MethodBuilder(defs.initVarBits_FXObjectMethodName, syms.voidType) {
+        private void makeInitVarsMethod(final List<VarInfo> attrInfos) {
+            MethodBuilder mb = new MethodBuilder(defs.initVars_FXObjectMethodName, syms.voidType) {
                 @Override
                 public void statements() {
                     // Begin collecting statements.
@@ -3597,7 +3597,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                    name.startsWith(defs.getElement_FXObjectMethodName) ||
                    name.startsWith(defs.size_FXObjectMethodName) ||
                    name.startsWith(defs.applyDefaults_FXObjectMethodName) ||
-                   name.startsWith(defs.initVarBits_FXObjectMethodName) ||
+                   name.startsWith(defs.initVars_FXObjectMethodName) ||
                    name.startsWith(defs.getFlags_FXObjectMethodName) ||
                    name.startsWith(defs.setFlags_FXObjectMethodName);
         }

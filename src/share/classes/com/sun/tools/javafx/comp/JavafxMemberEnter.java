@@ -863,14 +863,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // If this is a class, enter symbols for this and super into
             // current scope.
             if ((c.flags_field & INTERFACE) == 0) {
-                JavafxVarSymbol thisSym =
-                    new JavafxVarSymbol(types, names,FINAL | HASINIT, names._this, c.type, c);
+                JavafxVarSymbol thisSym = fxmake.ThisSymbol(c.type);
                 thisSym.pos = Position.FIRSTPOS;
                 localEnv.info.scope.enter(thisSym);
+                
                 if (ct.supertype_field.tag == CLASS && supertype != null) {
-                    JavafxVarSymbol superSym =
-                        new JavafxVarSymbol(types, names,FINAL | HASINIT, names._super,
-                                      supertype, c);
+                    JavafxVarSymbol superSym = fxmake.SuperSymbol(supertype, c);
                     superSym.pos = Position.FIRSTPOS;
                     localEnv.info.scope.enter(superSym);
                 }

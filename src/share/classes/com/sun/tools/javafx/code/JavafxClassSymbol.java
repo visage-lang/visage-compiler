@@ -40,6 +40,8 @@ import com.sun.tools.mjavac.util.Name;
 public class JavafxClassSymbol extends ClassSymbol {
     public ClassSymbol jsymbol;
     private List<Type> supertypes = List.<Type>nil();
+    public JavafxVarSymbol thisSymbol;
+    public JavafxVarSymbol superSymbol;
     
     /** Creates a new instance of JavafxClassSymbol */
     public JavafxClassSymbol(long flags, Name name, Symbol owner) {

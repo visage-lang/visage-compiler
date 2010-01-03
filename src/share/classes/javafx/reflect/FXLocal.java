@@ -457,7 +457,7 @@ public class FXLocal {
             "be$",
             "get$",
             "elem$",
-            "initVarBits$",
+            "initVars$",
             "invalidate$",
             "onReplace$",
             "set$",

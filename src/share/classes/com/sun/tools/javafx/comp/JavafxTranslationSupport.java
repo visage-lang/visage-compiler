@@ -624,8 +624,8 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, saved_AttributeFieldPrefix);
     }
 
-    Name attributeInitVarBitsName(Symbol sym) {
-        return prefixedAttributeName(sym, initVarBits_AttributeMethodPrefix);
+    Name attributeInitVarsName(Symbol sym) {
+        return prefixedAttributeName(sym, initVars_AttributeMethodPrefix);
     }
  
     Name attributeApplyDefaultsName(Symbol sym) {
