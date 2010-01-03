@@ -2153,14 +2153,40 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     );
         }
 
+        /**
+         * Create the elem$ body
+         * For primitives, handle null (out-of-range)
+         * by returning default value.
+         */
         JCStatement makeGetElementBody() {
-            return 
-                Block(
+            JCStatement initAssure =
                     If(EQnull(Get(clause.boundHelper.sym)),
                         Stmt(CallSize(targetSymbol))
-                    ),
-                    Return(Call(Get(clause.boundHelper.sym), defs.get_SequenceMethodName, posArg()))
-                );
+                    );
+            Type elemType = types.elementType(forExpr.type);
+            JCExpression elemFromHelper =
+                    Call(Get(clause.boundHelper.sym), defs.get_SequenceMethodName, posArg());
+            JCVariableDecl vValue = TmpVar("val", types.boxedTypeOrType(elemType), elemFromHelper);
+
+            if (elemType.isPrimitive()) {
+                return
+                    Block(
+                        initAssure,
+                        vValue,
+                        Return(
+                            If(EQnull(id(vValue)),
+                                DefaultValue(elemType),
+                                id(vValue)
+                            )
+                        )
+                    );
+            } else {
+                return
+                    Block(
+                        initAssure,
+                        Return(elemFromHelper)
+                    );
+            }
         }
        
         void setupInvalidators() {

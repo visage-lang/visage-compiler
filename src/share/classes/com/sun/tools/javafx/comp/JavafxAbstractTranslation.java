@@ -1063,11 +1063,15 @@ public abstract class JavafxAbstractTranslation
                         default:
                             throw new AssertionError();
                     }
-                    expr = Getter(instance, vsym);
+                    expr = makeAccess(instance, vsym);
                 }
             }
 
             return expr;
+        }
+
+        JCExpression makeAccess(JCExpression instance, JavafxVarSymbol vsym) {
+            return Getter(instance, vsym);
         }
 
     }
@@ -1293,6 +1297,51 @@ public abstract class JavafxAbstractTranslation
                 JCExpression translated = Select(tToCheck, name);
                 return convertVariableReference(translated, refSym);
             }
+        }
+    }
+
+    class SelectElementTranslator extends NullCheckTranslator {
+
+        private final JFXSelect tree;
+        private final Name name;
+        private final JCExpression tIndex;
+
+        private SelectElementTranslator(JFXSelect tree, JCExpression tIndex) {
+            super(tree.pos(), tree.sym, types.elementType(tree.type));
+            this.tree = tree;
+            this.name = tree.getIdentifier();
+            this.tIndex = tIndex;
+        }
+
+        @Override
+        JFXExpression getToCheck() {
+            return tree.getExpression();
+        }
+
+        @Override
+        JCExpression fullExpression(JCExpression tToCheck) {
+            JCExpression translated = Select(tToCheck, name);
+            return convertVariableReference(translated, refSym);
+        }
+
+        @Override
+        JCExpression makeAccess(JCExpression instance, JavafxVarSymbol vsym) {
+            return Call(instance, attributeGetElementName(vsym), tIndex);
+        }
+    }
+
+    class IdentElementTranslator extends IdentTranslator {
+
+        private final JCExpression tIndex;
+
+        IdentElementTranslator(JFXIdent tree, JCExpression tIndex) {
+            super(tree);
+            this.tIndex = tIndex;
+        }
+
+        @Override
+        JCExpression makeAccess(JCExpression instance, JavafxVarSymbol vsym) {
+            return Call(instance, attributeGetElementName(vsym), tIndex);
         }
     }
 
@@ -3028,6 +3077,7 @@ public abstract class JavafxAbstractTranslation
 
         private final JFXExpression seq;
         private final JCExpression tSeq;
+        private final boolean isTSeqDirect;
         private final JCExpression tIndex;
         private final Type resultType;
 
@@ -3035,6 +3085,7 @@ public abstract class JavafxAbstractTranslation
             super(diagPos);
             this.seq = seq;
             this.tSeq = tSeq;
+            this.isTSeqDirect = false;
             this.tIndex = tIndex;
             this.resultType = resultType;
         }
@@ -3042,12 +3093,23 @@ public abstract class JavafxAbstractTranslation
         SequenceIndexedTranslator(JFXSequenceIndexed tree) {
             super(tree.pos());
             this.seq = tree.getSequence();
-            this.tSeq = translateExpr(seq, null);  //FIXME
+            this.tSeq = translateExpr(seq, null);  
+            this.isTSeqDirect = true;
             this.tIndex = translateExpr(tree.getIndex(), syms.intType);
             this.resultType = tree.type;
         }
 
-        JCExpression translateSequenceIndexed() {
+        protected ExpressionResult doit() {
+            return toResult(
+                        doitExpr(),
+                        resultType);
+        }
+
+        protected JCExpression doitExpr() {
+            if (seq.type.tag == TypeTags.ARRAY) {
+                // It is a native array, just index into it
+                return m().Indexed(tSeq, tIndex);
+            }
             JavafxTypeRepresentation typeRep = types.typeRep(resultType);
             if (seq instanceof JFXIdent) {
                 JFXIdent var = (JFXIdent) seq;
@@ -3067,7 +3129,7 @@ public abstract class JavafxAbstractTranslation
                          * We are calling SequencesBase.getFromNewElements() which
                          * accepts type argument for the returned sequence element type.
                          * If we don't pass correct type argument, we will get Object type.
-                         * For example, for Sequence<? extends String> we want to pass "String" 
+                         * For example, for Sequence<? extends String> we want to pass "String"
                          * as type arg, so that the return type is "String" and not "Object".
                          */
                         ListBuffer<JCExpression> typeArgsBuf = ListBuffer.lb();
@@ -3079,22 +3141,25 @@ public abstract class JavafxAbstractTranslation
                     return Call(defs.Sequences_getAsFromNewElements[typeRep.ordinal()], typeArgs, args.toList());
                 }
             }
+            if (isTSeqDirect) {
+                JavafxVarSymbol vsym = varSymbol(seq);
+                if (vsym != null
+                        && vsym.useAccessors()
+                        && types.isSameType(vsym.getElementType(), resultType)) {
+                    // Using elem$ is critical to non-boxing behavior of bound sequences
+                    // Use elem$seq(pos) form
+                    switch (seq.getFXTag()) {
+                        case SELECT:
+                            return mergeResults((ExpressionResult) new SelectElementTranslator((JFXSelect)seq, tIndex).doit() );
+                        case IDENT:
+                            return mergeResults( new IdentElementTranslator((JFXIdent)seq, tIndex).doit() );
+                    }
+                }
+            }
+
+            // Use seq.get(pos) form
             Name getMethodName = defs.typedGet_SequenceMethodName[typeRep.ordinal()];
             return Call(tSeq, getMethodName, tIndex);
-        }
-
-        protected ExpressionResult doit() {
-            return toResult(
-                    doitExpr(),
-                    resultType);
-        }
-
-        protected JCExpression doitExpr() {
-            if (seq.type.tag == TypeTags.ARRAY) {
-                return m().Indexed(tSeq, tIndex);
-            } else {
-                return translateSequenceIndexed();
-            }
         }
     }
 

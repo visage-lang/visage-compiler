@@ -124,10 +124,33 @@ public abstract class JavafxTranslationSupport {
             case SELECT:
                 return ((JFXSelect) tree).sym;
             case TYPECAST:
+                //TODO: This is suspicious -- expressionSymbol should return
+                // a symbol which fully represents the expression.  This is lossy.
                 return expressionSymbol(((JFXTypeCast)tree).getExpression());
             default:
                 return null;
         }
+    }
+
+    protected JavafxVarSymbol varSymbol(JFXExpression tree) {
+        if (tree == null) {
+            return null;
+        }
+        Symbol sym;
+        switch (tree.getFXTag()) {
+            case IDENT:
+                sym = ((JFXIdent) tree).sym;
+                break;
+            case SELECT:
+                sym = ((JFXSelect) tree).sym;
+                break;
+            default:
+                return null;
+        }
+        if (sym instanceof JavafxVarSymbol)
+            return (JavafxVarSymbol) sym;
+        else
+            return null;
     }
 
     protected boolean isValueFromJava(final JFXExpression expr) {
