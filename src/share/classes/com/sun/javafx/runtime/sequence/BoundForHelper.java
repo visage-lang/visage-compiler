@@ -108,6 +108,9 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
     public T get(int index) {
         initializeIfNeeded();
 
+        if (index < 0)
+            return null;
+        
         // FIXME - should use binary search if not in cache.
         int i, cumPrev;
         if (index >= cacheIndex) {

@@ -3149,10 +3149,17 @@ public abstract class JavafxAbstractTranslation
                     // Using elem$ is critical to non-boxing behavior of bound sequences
                     // Use elem$seq(pos) form
                     switch (seq.getFXTag()) {
-                        case SELECT:
-                            return mergeResults((ExpressionResult) new SelectElementTranslator((JFXSelect)seq, tIndex).doit() );
+                        case SELECT: {
+                            Yield prevYield = yieldKind;
+                            yieldKind = ToExpression;  // Force expression result so that the merge works
+                            try {
+                                return mergeResults((ExpressionResult) new SelectElementTranslator((JFXSelect) seq, tIndex).doit());
+                            } finally {
+                                yieldKind = prevYield;
+                            }
+                        }
                         case IDENT:
-                            return mergeResults( new IdentElementTranslator((JFXIdent)seq, tIndex).doit() );
+                            return mergeResults(new IdentElementTranslator((JFXIdent) seq, tIndex).doit());
                     }
                 }
             }

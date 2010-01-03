@@ -2168,7 +2168,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     Call(Get(clause.boundHelper.sym), defs.get_SequenceMethodName, posArg());
             JCVariableDecl vValue = TmpVar("val", types.boxedTypeOrType(elemType), elemFromHelper);
 
-            if (elemType.isPrimitive()) {
+            if (elemType.isPrimitive() || isValueType(elemType)) {
                 return
                     Block(
                         initAssure,
