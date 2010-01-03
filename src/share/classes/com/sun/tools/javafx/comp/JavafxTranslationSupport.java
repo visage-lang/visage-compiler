@@ -1644,6 +1644,8 @@ public abstract class JavafxTranslationSupport {
                 return Call(attributeGetMixinName(varSym));
             } else if (varSym.isStatic()) {
                 return id(attributeValueName(varSym));
+            } else if (varSym.name == names._this) {
+                return getReceiver(varSym);
             } else {
                 return Select(getReceiver(varSym), attributeValueName(varSym));
             }

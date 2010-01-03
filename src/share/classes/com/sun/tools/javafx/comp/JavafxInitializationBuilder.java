@@ -2654,7 +2654,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
             
             makeApplyDefaultsMethod(varInfos, varCount);
-            makeInitVarsMethod(varInfos);
+            makeInitVarsMethod(varInfos, updateMap);
             
             makeUpdateMethod(varInfos, updateMap, false);
             makeUpdateMethod(varInfos, updateMap, true);
@@ -2812,7 +2812,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // This method sets up the initial var state.
         //
-        private void makeInitVarsMethod(final List<VarInfo> attrInfos) {
+        private void makeInitVarsMethod(final List<VarInfo> attrInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
             MethodBuilder mb = new MethodBuilder(defs.initVars_FXObjectMethodName, syms.voidType) {
                 @Override
                 public void statements() {
@@ -2868,6 +2868,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }
                     
+                    // Add "this" dependencies.
+                    for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
+                        if (instanceVar.name == names._this) {
+                            HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+                        
+                            for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
+                                HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
+                                addStmt(CallStmt(defs.FXBase_addDependent, Get(instanceVar), Offset(id(attributeValueName(instanceVar)), referenceVar), id(names._this)));
+                            }
+                        }
+                    }
+            
                     ListBuffer<JCStatement> initFlags = endBlockAsBuffer();
                     
                     // Emit super vars first
