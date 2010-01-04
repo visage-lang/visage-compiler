@@ -95,6 +95,6 @@ public abstract class SimpleInterpolator extends Interpolator {
      * @profile common
      */
     public function interpolate(startValue:Integer, endValue:Integer, fraction:Number):Integer {
-        return (startValue + (endValue-startValue)*curve(fraction) + 0.5).intValue();
+        return (startValue + (endValue-startValue)*curve(fraction) + 0.5) as Integer;
     }
 }

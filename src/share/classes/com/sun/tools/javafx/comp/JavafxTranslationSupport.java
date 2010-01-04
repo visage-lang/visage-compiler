@@ -1945,12 +1945,8 @@ public abstract class JavafxTranslationSupport {
                 return translatedExpr;
             } else {
                 Type castType = clazztype;
-                if (!exprtype.isPrimitive()) {
+                if (exprtype != Type.noType && !exprtype.isPrimitive()) {
                     castType = types.boxedTypeOrType(castType);
-                }
-                if (castType.isPrimitive() && exprtype.isPrimitive()) {
-                    JCTree clazz = makeType(exprtype, true);
-                    translatedExpr = m().TypeCast(clazz, translatedExpr);
                 }
                 JCTree clazz = makeType(castType, true);
                 return m().TypeCast(clazz, translatedExpr);
