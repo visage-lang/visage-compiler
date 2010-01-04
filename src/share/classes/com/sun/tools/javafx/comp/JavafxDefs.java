@@ -47,7 +47,7 @@ public class JavafxDefs {
     public static final String get_AttributeMethodPrefix = "get$";
     public static final String getMixin_AttributeMethodPrefix = "getMixin$";
     public static final String getVOFF_AttributeMethodPrefix = "getVOFF$";
-    public static final String initVarBits_AttributeMethodPrefix = "initVarBits$";
+    public static final String initVars_AttributeMethodPrefix = "initVars$";
     public static final String invalidate_AttributeMethodPrefix = "invalidate$";
     public static final String getFlags_AttributeMethodPrefix = "getFlags$";
     public static final String setFlags_AttributeMethodPrefix = "setFlags$";
@@ -278,7 +278,7 @@ public class JavafxDefs {
     final Name initialize_FXObjectMethodName;
     final Name userInit_FXObjectMethodName;
     final Name postInit_FXObjectMethodName;
-    final Name initVarBits_FXObjectMethodName;
+    final Name initVars_FXObjectMethodName;
 
     /**
      * Duration method Names
@@ -348,7 +348,7 @@ public class JavafxDefs {
     final Name applyDefaults_AttributeMethodPrefixName;
     final Name getMixin_AttributeMethodPrefixName;
     final Name getVOFF_AttributeMethodPrefixName;
-    final Name initVarBitsAttributeMethodPrefixName;
+    final Name initVarsAttributeMethodPrefixName;
     final Name onReplaceAttributeMethodPrefixName;
     final Name setMixin_AttributeMethodPrefixName;
 
@@ -592,8 +592,8 @@ public class JavafxDefs {
         getMixin_AttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);
         getVOFF_AttributeMethodPrefixName = names.fromString(getVOFF_AttributeMethodPrefix);
         setMixin_AttributeMethodPrefixName = names.fromString(setMixin_AttributeMethodPrefix);
-        initVarBitsAttributeMethodPrefixName = names.fromString(initVarBits_AttributeMethodPrefix);
-        initVarBits_FXObjectMethodName = initVarBitsAttributeMethodPrefixName;
+        initVarsAttributeMethodPrefixName = names.fromString(initVars_AttributeMethodPrefix);
+        initVars_FXObjectMethodName = initVarsAttributeMethodPrefixName;
         applyDefaults_FXObjectMethodName = names.fromString(applyDefaults_AttributeMethodPrefix);
         applyDefaults_AttributeMethodPrefixName = names.fromString(applyDefaults_AttributeMethodPrefix);
         update_FXObjectMethodName = names.fromString("update$");

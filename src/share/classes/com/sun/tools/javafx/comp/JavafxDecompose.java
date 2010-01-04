@@ -499,6 +499,17 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXTree clazz = decompose(tree.clazz);
         result = fxmake.at(tree.pos).TypeTest(expr, clazz);
     }
+    
+    private JFXExpression shredThisConditionally(Type selecttype, Type symType) {
+        JFXIdent _this = fxmake.This(selecttype);
+
+        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
+            (_this.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
+            return shred(_this);
+        } else {
+            return _this;
+        }
+    }
 
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
@@ -519,13 +530,13 @@ public class JavafxDecompose implements JavafxVisitor {
                tree.sym.kind != Kinds.MTH) {
             // This is some outer instance variable access
             if (bindStatus.isBound()) {
-                Symbol outerThisSym = new JavafxVarSymbol(types, names,0L, names._this, selectSym.type, selectSym);
-                JFXIdent outerThis = fxmake.Ident(outerThisSym);
-                selected = shred(outerThis);
+                selected = shredThisConditionally(selectSym.type, tree.type);
             } else {
                 selected = decompose(tree.selected);
             }
-        } else if ( tree.sym.isStatic() ||
+        } else if (selectSym != null && selectSym.name == names._this) {
+            selected = shredThisConditionally(selectSym.type, tree.type);
+        } else if (tree.sym.isStatic() ||
                 (selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
                 !types.isJFXClass(tree.sym.owner)) {
             // Referenced is static, or qualified super access
@@ -570,10 +581,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 // instance field from outer class. We transform "foo" as "this.foo"
                 // and shred "this" part so that local classes generated for local
                 // binds will have proper dependency.
-                JFXIdent thisExpr = fxmake.Ident(names._this);
-                thisExpr.sym = new JavafxVarSymbol(types, names,0L, names._this, tree.sym.owner.type, tree.sym.owner.type.tsym);
-                thisExpr.type = thisExpr.sym.type;
-                setSelectResult(tree, shred(thisExpr), tree.sym);
+                setSelectResult(tree, shredThisConditionally(tree.sym.owner.type, tree.type), tree.sym);
                 return;
             }
         }
@@ -1000,10 +1008,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 if ((func.sym.flags() & JavafxFlags.FUNC_SYNTH_LOCAL_DOIT) != 0L) {
                     // Change the value to be "this"
                     JFXBlock body = func.getBodyExpression();
-                    JFXIdent thisIdent = fxmake.Ident(names._this);
-                    thisIdent.type = ctype;
-                    thisIdent.sym = new JavafxVarSymbol(types, names,Flags.FINAL | Flags.HASINIT, names._this, ctype, cdecl.sym);
-                    body.value = thisIdent;
+                    body.value = fxmake.This(ctype);
                     body.type = ctype;
 
                     // Adjust function to return class type

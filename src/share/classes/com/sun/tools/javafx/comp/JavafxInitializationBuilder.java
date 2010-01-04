@@ -2654,7 +2654,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             final int varCount = isScript() ? analysis.getScriptVarCount() : analysis.getClassVarCount();
             
             makeApplyDefaultsMethod(varInfos, varCount);
-            makeInitVarBitsMethod(varInfos);
+            makeInitVarsMethod(varInfos, updateMap);
             
             makeUpdateMethod(varInfos, updateMap, false);
             makeUpdateMethod(varInfos, updateMap, true);
@@ -2810,10 +2810,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
-        // This method sets the initial var flags.
+        // This method sets up the initial var state.
         //
-        private void makeInitVarBitsMethod(final List<VarInfo> attrInfos) {
-            MethodBuilder mb = new MethodBuilder(defs.initVarBits_FXObjectMethodName, syms.voidType) {
+        private void makeInitVarsMethod(final List<VarInfo> attrInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
+            MethodBuilder mb = new MethodBuilder(defs.initVars_FXObjectMethodName, syms.voidType) {
                 @Override
                 public void statements() {
                     // Begin collecting statements.
@@ -2868,6 +2868,18 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                     }
                     
+                    // Add "this" dependencies.
+                    for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
+                        if (instanceVar.name == names._this) {
+                            HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+                        
+                            for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
+                                HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
+                                addStmt(CallStmt(defs.FXBase_addDependent, Get(instanceVar), Offset(Get(instanceVar), referenceVar), id(names._this)));
+                            }
+                        }
+                    }
+            
                     ListBuffer<JCStatement> initFlags = endBlockAsBuffer();
                     
                     // Emit super vars first
@@ -3020,7 +3032,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Reference the class with the instance, if it is script-level append the suffix
                             JCExpression offsetExpr = Offset(referenceVar);
                             if (isMixinVar(referenceVar)) {
-                                offsetExpr = If(EQnull(id(attributeValueName(instanceVar))), Int(0), Offset(id(attributeValueName(instanceVar)), referenceVar));
+                                offsetExpr = If(EQnull(Get(instanceVar)), Int(0), Offset(Get(instanceVar), referenceVar));
                             }
                             ifReferenceStmt = OptIf(EQ(varNumArg(), offsetExpr), 
                                     endBlock(),
@@ -3597,7 +3609,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                    name.startsWith(defs.getElement_FXObjectMethodName) ||
                    name.startsWith(defs.size_FXObjectMethodName) ||
                    name.startsWith(defs.applyDefaults_FXObjectMethodName) ||
-                   name.startsWith(defs.initVarBits_FXObjectMethodName) ||
+                   name.startsWith(defs.initVars_FXObjectMethodName) ||
                    name.startsWith(defs.getFlags_FXObjectMethodName) ||
                    name.startsWith(defs.setFlags_FXObjectMethodName);
         }

@@ -96,7 +96,7 @@ public interface FXObject {
     public void     invalidate$(int varNum, int startPos, int endPos, int newLength, int phase);
 
     public void     initialize$   ();
-    public void     initVarBits$  ();
+    public void     initVars$     ();
     public void     applyDefaults$();
     public void     applyDefaults$(final int varNum);
     public void     userInit$     ();

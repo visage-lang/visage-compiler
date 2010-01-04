@@ -33,6 +33,7 @@ import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
@@ -328,14 +329,49 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Create a tree representing `this', given its type.
      */
-    public JFXExpression This(Type t) {
-        return Ident(new JavafxVarSymbol(types, names, FINAL, names._this, t, t.tsym));
+    public JavafxVarSymbol ThisSymbol(Type t) {
+        Symbol owner = t.tsym;
+        JavafxVarSymbol varSym = null;
+        
+        if (owner instanceof JavafxClassSymbol) {
+            varSym = ((JavafxClassSymbol)owner).thisSymbol;
+        }
+        
+        if (varSym == null) {
+            varSym = new JavafxVarSymbol(types, names, FINAL | HASINIT, names._this, t, owner);
+            
+            if (owner instanceof JavafxClassSymbol) {
+                ((JavafxClassSymbol)owner).thisSymbol = varSym;
+            }
+        }
+        
+        return varSym;
+    }
+    public JFXIdent This(Type t) {
+        return Ident(ThisSymbol(t));
     }
 
     /** Create a tree representing `super', given its type and owner.
      */
+    public JavafxVarSymbol SuperSymbol(Type t, TypeSymbol owner) {
+        JavafxVarSymbol varSym = null;
+        
+        if (owner instanceof JavafxClassSymbol) {
+            varSym = ((JavafxClassSymbol)owner).superSymbol;
+        }
+        
+        if (varSym == null) {
+            varSym = new JavafxVarSymbol(types, names, FINAL | HASINIT, names._super, t, owner);
+            
+            if (owner instanceof JavafxClassSymbol) {
+                ((JavafxClassSymbol)owner).superSymbol = varSym;
+            }
+        }
+        
+        return varSym;
+    }
     public JFXIdent Super(Type t, TypeSymbol owner) {
-        return Ident(new JavafxVarSymbol(types, names, FINAL, names._super, t, owner));
+        return Ident(SuperSymbol(t, owner));
     }
 
     /**

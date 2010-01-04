@@ -647,8 +647,8 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, saved_AttributeFieldPrefix);
     }
 
-    Name attributeInitVarBitsName(Symbol sym) {
-        return prefixedAttributeName(sym, initVarBits_AttributeMethodPrefix);
+    Name attributeInitVarsName(Symbol sym) {
+        return prefixedAttributeName(sym, initVars_AttributeMethodPrefix);
     }
  
     Name attributeApplyDefaultsName(Symbol sym) {
@@ -1667,6 +1667,9 @@ public abstract class JavafxTranslationSupport {
                 return Call(attributeGetMixinName(varSym));
             } else if (varSym.isStatic()) {
                 return id(attributeValueName(varSym));
+            } else if (varSym.name == names._this) {
+                JCExpression receiver = getReceiver(varSym);
+                return receiver == null ? id(names._this) : receiver;
             } else {
                 return Select(getReceiver(varSym), attributeValueName(varSym));
             }
