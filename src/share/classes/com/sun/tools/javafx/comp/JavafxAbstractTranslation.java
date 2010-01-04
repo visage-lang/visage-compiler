@@ -1353,6 +1353,7 @@ public abstract class JavafxAbstractTranslation
         protected final boolean thisCall;
         protected final boolean superCall;
         protected final MethodSymbol msym;
+        protected final Symbol funcSym;
         protected final Symbol selectorSym;
         protected final boolean renameToThis;
         protected final boolean renameToSuper;
@@ -1381,6 +1382,7 @@ public abstract class JavafxAbstractTranslation
             JFXSelect fieldAccess = meth.getFXTag() == JavafxTag.SELECT ? (JFXSelect) meth : null;
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
             msym = (refSym instanceof MethodSymbol) ? (MethodSymbol) refSym : null;
+            funcSym = expressionSymbol(tree.meth); //either MethodSymbol or VarSymbol
             Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
             thisCall = selectorIdName == names._this;
             superCall = selectorIdName == names._super;
@@ -1418,13 +1420,19 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         JCExpression translateToCheck(JFXExpression expr) {
+            JCExpression newExpr = null;
             if (renameToSuper || superCall) {
-                return resolveSuper(msym.owner);
+                newExpr = resolveSuper(funcSym.owner);
             } else if (renameToThis || thisCall) {
-                return id(names._this);
+                newExpr = getReceiver(funcSym);
             } else if (superToStatic) {
-                return staticReference(msym);
-            } else {
+                newExpr = staticReference(funcSym);
+            }
+            if (newExpr != null) {
+                return !useInvoke ? newExpr :
+                    Select(newExpr, attributeValueName(funcSym));
+            }
+            else {
                 return super.translateToCheck(expr);
             }
         }
