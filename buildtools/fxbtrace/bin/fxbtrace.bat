@@ -9,7 +9,7 @@ goto end
 
 :noBTraceHome
   echo Please set BTRACE_HOME before running this script
-:end
+  goto end
 
 :noJavafxHome
   echo Please set JAVAFX_HOME before running this script
