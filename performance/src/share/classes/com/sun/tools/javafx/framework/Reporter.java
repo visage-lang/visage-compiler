@@ -99,11 +99,11 @@ public class Reporter {
     private String getValue(boolean performance, Map<String,
             ResultData> in, String key) {
         if (in == null) {
-            return "0.0";
+            return ResultData.DEFAULT_VALUE;
         }
         ResultData rd = in.get(key);
         if (rd == null || ((performance) ? rd.getPerformance() : rd.getHeapsize()) == null) {
-            return "0.0";
+            return ResultData.DEFAULT_VALUE;
         } else {
             return (performance) ? rd.getPerformance() : rd.getHeapsize();
         }
@@ -130,7 +130,7 @@ public class Reporter {
                     : Float.parseFloat((performance ? rd.getPerformance() : rd.getHeapsize())));
         }
         float change = (f1 - f2) / f1 * 100;
-        return Float.toString(change);
+        return String.format("%10.2f", change);
     }
 
     private void printTimingReport() {

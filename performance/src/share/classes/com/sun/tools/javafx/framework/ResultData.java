@@ -28,9 +28,10 @@ package com.sun.tools.javafx.framework;
  * @author ksrini
  */
 public class ResultData {
-    String name = null;
-    String performance = null;
-    String heapsize = null;
+    static final String DEFAULT_VALUE = "0.0";
+    private String name = null;
+    private String performance = DEFAULT_VALUE;
+    private String heapsize = DEFAULT_VALUE;
 
     public ResultData(String name, String performance, String heapsize) {
         this.name = name;
@@ -49,15 +50,17 @@ public class ResultData {
     }
 
     public String getPerformance() {
-        return performance;
+        float value = Float.parseFloat(performance);
+        return String.format("%10.2f", value);
     }
     
     public String getHeapsize() {
-        return heapsize;
+        float value = Float.parseFloat(heapsize);
+        return String.format("%10.2f", value);
     }
 
     @Override
     public String toString() {
-        return String.format(Utils.CSV_FORMAT_STRING, name, performance, heapsize);
+        return String.format(Utils.CSV_FORMAT_STRING, name, getPerformance(), getHeapsize());
     }
 }

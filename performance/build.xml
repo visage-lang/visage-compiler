@@ -122,11 +122,15 @@
         <run-benchmark benchmark="logical_ops_local"/>
         <run-benchmark benchmark="bindBlockExprGlobal"/>
         <run-benchmark benchmark="bindBlockExprLocal"/>
-        <!-- disabled for now.
+        <!--
         <run-benchmark benchmark="boundSequenceRange"/>
+        -->
         <run-benchmark benchmark="boundSequenceRangeSum"/>
         <run-benchmark benchmark="boundSequenceRangeSum_nobind"/>
-        -->
+    </target>
+    <target name="krun-benchmarks" depends="compile">
+        <run-benchmark benchmark="boundSequenceRangeSum"/>
+        <run-benchmark benchmark="boundSequenceRangeSum_nobind"/>
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>

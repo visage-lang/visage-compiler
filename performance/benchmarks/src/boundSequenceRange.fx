@@ -3,24 +3,24 @@
  */
 
 class  boundSequenceRange extends cbm {
-  var checksum = 1.25002965E11;
+  var checksum = 1.25009126E9;
   var N = 0;
   var negateN = bind N;
-  var seq:Integer[] = [1 ..10000000];
+  var seq:Integer[] = [1 ..1000000];
   function sumseq(ss:Integer[]):Integer { var ttl=0; for(n in ss) ttl += ss[n]; ttl; }
 
   override public function test():Number {
      var cnt=0;
      var total:Number=0;
-	  for ( a in [0..500000 step 2] ) {
+	  for ( a in [0..50000 step 2] ) {
             var bs = bind seq[a..];
 			total += bs[a]; //access only 1 element
             cnt++;
-		total;
-	}
+            total;
+      }
 	debugOutln("");
 	debugOutln("total: {total}  checksum: {checksum}");
-    if( total != checksum )println("ERROR: total {total} did not match checksums {checksum}");
+    if( total != checksum )println("ERROR: total {total} did not match checksum {checksum}");
     debugOutln("count: {cnt}");
 	total;
 	}
