@@ -347,7 +347,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         
         return varSym;
     }
-    public JFXExpression This(Type t) {
+    public JFXIdent This(Type t) {
         return Ident(ThisSymbol(t));
     }
 

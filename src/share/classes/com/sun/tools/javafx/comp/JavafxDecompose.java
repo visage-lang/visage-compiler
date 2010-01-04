@@ -499,6 +499,17 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXTree clazz = decompose(tree.clazz);
         result = fxmake.at(tree.pos).TypeTest(expr, clazz);
     }
+    
+    private JFXExpression shredThisConditionally(Type selecttype, Type symType) {
+        JFXIdent _this = fxmake.This(selecttype);
+
+        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
+            (_this.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
+            return shred(_this);
+        } else {
+            return _this;
+        }
+    }
 
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
@@ -519,11 +530,13 @@ public class JavafxDecompose implements JavafxVisitor {
                tree.sym.kind != Kinds.MTH) {
             // This is some outer instance variable access
             if (bindStatus.isBound()) {
-                selected = shred(fxmake.This(selectSym.type));
+                selected = shredThisConditionally(selectSym.type, tree.type);
             } else {
                 selected = decompose(tree.selected);
             }
-        } else if ( tree.sym.isStatic() ||
+        } else if (selectSym != null && selectSym.name == names._this) {
+            selected = shredThisConditionally(selectSym.type, tree.type);
+        } else if (tree.sym.isStatic() ||
                 (selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
                 !types.isJFXClass(tree.sym.owner)) {
             // Referenced is static, or qualified super access
@@ -568,7 +581,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 // instance field from outer class. We transform "foo" as "this.foo"
                 // and shred "this" part so that local classes generated for local
                 // binds will have proper dependency.
-                setSelectResult(tree, shred(fxmake.This(tree.sym.owner.type)), tree.sym);
+                setSelectResult(tree, shredThisConditionally(tree.sym.owner.type, tree.type), tree.sym);
                 return;
             }
         }

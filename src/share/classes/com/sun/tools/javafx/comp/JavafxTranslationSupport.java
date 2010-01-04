@@ -1645,7 +1645,8 @@ public abstract class JavafxTranslationSupport {
             } else if (varSym.isStatic()) {
                 return id(attributeValueName(varSym));
             } else if (varSym.name == names._this) {
-                return getReceiver(varSym);
+                JCExpression receiver = getReceiver(varSym);
+                return receiver == null ? id(names._this) : receiver;
             } else {
                 return Select(getReceiver(varSym), attributeValueName(varSym));
             }

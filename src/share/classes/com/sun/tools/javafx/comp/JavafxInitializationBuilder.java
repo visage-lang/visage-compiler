@@ -2875,7 +2875,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         
                             for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
                                 HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
-                                addStmt(CallStmt(defs.FXBase_addDependent, Get(instanceVar), Offset(id(attributeValueName(instanceVar)), referenceVar), id(names._this)));
+                                addStmt(CallStmt(defs.FXBase_addDependent, Get(instanceVar), Offset(Get(instanceVar), referenceVar), id(names._this)));
                             }
                         }
                     }
@@ -3032,7 +3032,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             // Reference the class with the instance, if it is script-level append the suffix
                             JCExpression offsetExpr = Offset(referenceVar);
                             if (isMixinVar(referenceVar)) {
-                                offsetExpr = If(EQnull(id(attributeValueName(instanceVar))), Int(0), Offset(id(attributeValueName(instanceVar)), referenceVar));
+                                offsetExpr = If(EQnull(Get(instanceVar)), Int(0), Offset(Get(instanceVar), referenceVar));
                             }
                             ifReferenceStmt = OptIf(EQ(varNumArg(), offsetExpr), 
                                     endBlock(),
