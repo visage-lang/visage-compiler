@@ -1,4 +1,5 @@
 This directory contains support for using BTrace with JavaFX applications.
+To use BTrace, you need to use JDK 6. BTrace does *not* work with JDK 5.
 
 Steps to use:
 
@@ -7,16 +8,23 @@ Steps to use:
 2) define environmental var BTRACE_HOME to directory where btrace repo 
 was cloned.
 
-3) compile all FX BTrace scripts using ant makefile in this dir using
+3) build btrace tool using the following commands: 
+
+    cd $BTRACE_HOME/make
+    ant
+
+4) compile all FX BTrace scripts using ant makefile in this dir using
 
   ant  -Dbtrace.home=$BTRACE_HOME
 
 The above compiles all btrace scripts under btrace_scripts to the destination 
 directory ../../build/buildtools/fxbtrace/
 
-Or you can use "./bin/fxbtracec" to compile a specific BTrace script file.
+Or you can use "./bin/fxbtracec" to compile a specific BTrace script file like:
 
-4) ./bin/fxbtrace <compiled-btrace-script.class> <your-fx-main-class> <args>
+    ./bin/fxbtracec btrace_scripts/InvalidationTracer.java
+
+5) ./bin/fxbtrace <compiled-btrace-script.class> <your-fx-main-class> <args>
 
 For example,
 
@@ -25,6 +33,9 @@ For example,
 This produces the trace output file as
 
  ../../build/buildtools/fxbtrace/InvalidationTracer.class.btrace
+
+The .btrace file is produced whereever the .class of the BTrace script is 
+located. 
 
 BTrace scripts available:
 
