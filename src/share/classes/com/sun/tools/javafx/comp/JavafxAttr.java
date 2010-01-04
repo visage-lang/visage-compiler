@@ -829,7 +829,6 @@ public class JavafxAttr implements JavafxVisitor {
         else {
             hasLhsType = true;
         }
-        Type capturedType = capture(owntype);
 
         Symbol lhsSym = JavafxTreeInfo.symbol(tree.lhs);
         if (lhsSym == null) {
@@ -839,6 +838,10 @@ public class JavafxAttr implements JavafxVisitor {
 
         if (hasLhsType) {
             attribExpr(tree.rhs, dupEnv, owntype);
+            if (types.isSequence(tree.rhs.type) &&
+                tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
+                owntype = types.sequenceType(types.elementTypeOrType(owntype));
+            }
         }
         else {
             if (tree.lhs.getFXTag() == JavafxTag.SELECT) {
@@ -853,7 +856,7 @@ public class JavafxAttr implements JavafxVisitor {
             attribTree(tree.lhs, dupEnv, VAR, owntype);
             lhsSym.type = owntype;
         }
-        result = check(tree, capturedType, VAL, pkind, pt, pSequenceness);
+        result = check(tree, capture(owntype), VAL, pkind, pt, pSequenceness);
 
         if (tree.rhs != null && tree.lhs.getFXTag() == JavafxTag.IDENT) {
             JFXVar lhsVar = varSymToTree.get(lhsSym);
