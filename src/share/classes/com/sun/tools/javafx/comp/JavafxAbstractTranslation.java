@@ -1291,7 +1291,10 @@ public abstract class JavafxAbstractTranslation
         JCExpression fullExpression(JCExpression tToCheck) {
             if (isFunctionReference) {
                 MethodType mtype = (MethodType) refSym.type;
-                JCExpression translated = Select(tToCheck, name);
+                JCExpression tc = staticReference?
+                    tToCheck :
+                    addTempVar(tree.selected.type, tToCheck);
+                JCExpression translated = Select(tc, name);
                 return new FunctionValueTranslator(translated, null, diagPos, mtype, fullType).doitExpr();
             } else {
                 JCExpression translated = Select(tToCheck, name);
