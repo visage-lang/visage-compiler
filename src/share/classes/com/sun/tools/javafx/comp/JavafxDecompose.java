@@ -487,6 +487,17 @@ public class JavafxDecompose implements JavafxVisitor {
         }
     }
 
+    private JFXExpression shredScriptAccessConditionally(Symbol sym, Type symType) {
+        JFXIdent _access = fxmake.ScriptAccess(sym);
+
+        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
+            (_access.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
+            return shred(_access);
+        } else {
+            return _access;
+        }
+    }
+
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
         Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);
@@ -500,7 +511,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 bindStatus.isBound() &&
                 tree.name != names._class) {
             //referenced is static script var - if in bind context need shredding
-            selected = shred(fxmake.ScriptAccess(tree.sym.owner));
+            selected = shredScriptAccessConditionally(tree.sym.owner, tree.type);
         } else if (!tree.sym.isStatic() && selectSym != null && selectSym.kind == Kinds.TYP &&
                tree.sym.kind != Kinds.MTH) {
             // This is some outer instance variable access
@@ -547,7 +558,7 @@ public class JavafxDecompose implements JavafxVisitor {
             if (tree.sym.isStatic()) {
                 if (!inScriptLevel) {
                     //referenced is static script var - if in bind context need shredding
-                    JFXExpression script = shred(fxmake.ScriptAccess(tree.sym.owner));
+                    JFXExpression script = shredScriptAccessConditionally(tree.sym.owner, tree.type);
                     setSelectResult(tree, script, tree.sym);
                     return;
                 }

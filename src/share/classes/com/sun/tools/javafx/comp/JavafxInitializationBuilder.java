@@ -2869,7 +2869,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // Add "this" dependencies.
                     for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
-                        if (instanceVar.name == names._this) {
+                        if (instanceVar.isSpecial()) {
                             HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
                         
                             for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {

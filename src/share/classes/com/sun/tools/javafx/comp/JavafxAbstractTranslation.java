@@ -1883,14 +1883,18 @@ public abstract class JavafxAbstractTranslation
             JFXExpression selectorExpr = tree.getExpression();
             if (selectorExpr instanceof JFXIdent) {
                 JFXIdent selector = (JFXIdent) selectorExpr;
-                Symbol selectorSym = selector.sym;
-                if (selectorSym.name == names._this) {
-                    addInterClassBindee((JavafxVarSymbol) selectorSym, refSym);
-                } else if (canChange()) {
-                    // cases that need a null check are the same as cases that have changing dependencies
-                    buildDependencies(selectorSym);
-                    addBindee((JavafxVarSymbol) selectorSym);
-                    addInterClassBindee((JavafxVarSymbol) selectorSym, refSym);
+                
+                if (selector.sym instanceof JavafxVarSymbol) {
+                    JavafxVarSymbol selectorSym = (JavafxVarSymbol)selector.sym;
+                    
+                    if (selectorSym.isSpecial()) {
+                        addInterClassBindee(selectorSym, refSym);
+                    } else if (canChange()) {
+                        // cases that need a null check are the same as cases that have changing dependencies
+                        buildDependencies(selectorSym);
+                        addBindee(selectorSym);
+                        addInterClassBindee(selectorSym, refSym);
+                    }
                 }
             }
             return (ExpressionResult) super.doit();
