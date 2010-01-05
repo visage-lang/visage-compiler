@@ -43,6 +43,7 @@ import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
+import com.sun.tools.javafx.tree.JavafxTreeMaker;
 import com.sun.tools.javafx.util.MsgSym;
 
 import com.sun.tools.javafx.main.JavafxCompiler;
@@ -71,6 +72,7 @@ public class JavafxClassReader extends ClassReader {
 
     private final JavafxDefs defs;
     protected final JavafxTypes fxTypes;
+    protected final JavafxTreeMaker fxmake;
 
     /** The raw class-reader, shared by the back-end. */
     public ClassReader jreader;
@@ -111,6 +113,7 @@ public class JavafxClassReader extends ClassReader {
         super(context, definitive);
         defs = JavafxDefs.instance(context);
         fxTypes = JavafxTypes.instance(context);
+        fxmake = JavafxTreeMaker.instance(context);
         functionClassPrefixName = names.fromString(JavafxSymtab.functionClassPrefix);
         ctx = context;
         messages = Messages.instance(context);
@@ -562,6 +565,8 @@ public class JavafxClassReader extends ClassReader {
             }
             boolean isFXClass = (csym.flags_field & JavafxFlags.FX_CLASS) != 0;
             boolean isMixinClass = (csym.flags_field & JavafxFlags.MIXIN) != 0;
+            
+            JavafxVarSymbol scriptAccessSymbol = isFXClass ? fxmake.ScriptAccessSymbol(csym) : null;
 
             Set<Name> priorNames = new HashSet<Name>();
             handleSyms:
@@ -603,7 +608,12 @@ public class JavafxClassReader extends ClassReader {
                         continue;
                     Type otype = memsym.type;
                     Type type = translateType(otype);
-                    JavafxVarSymbol v = new JavafxVarSymbol(fxTypes, names, flags, name, type, csym);
+                    JavafxVarSymbol v;
+                    if (scriptAccessSymbol != null && name == scriptAccessSymbol.name) {
+                        v = scriptAccessSymbol;
+                    } else {
+                        v = new JavafxVarSymbol(fxTypes, names, flags, name, type, csym);
+                    }
                     csym.members_field.enter(v);
                     priorNames.add(name);
                 }

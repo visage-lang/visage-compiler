@@ -458,15 +458,14 @@ public class JavafxDefs {
      * Misc Names
      */
 
+    public final Name scriptClassSuffixName;
     final Name mixinClassSuffixName;
     final Name lengthSuffixName;
     final Name deprecatedInterfaceSuffixName;
-    final Name scriptLevelAccess_FXObjectMethodPrefixName;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
     final Name receiverName;
     final Name typeParameterName;
-    final Name scriptClassSuffixName;
     final Name varOldValue_LocalVarName;
     final Name varFlags_LocalVarName;
     final Name wasInvalid_LocalVarName;
@@ -554,7 +553,6 @@ public class JavafxDefs {
         offset_AttributeFieldPrefixName = names.fromString(offset_AttributeFieldPrefix);
         flags_AttributeFieldPrefixName = names.fromString(flags_AttributeFieldPrefix);
         count_FXObjectFieldName = names.fromString(count_FXObjectFieldString);
-        scriptClassSuffixName = names.fromString(scriptClassSuffix);
         typeParameterName = names.fromString("T");
         init_MethodSymbolName = names.fromString("$init$def$name");
         postinit_MethodSymbolName = names.fromString("$postinit$def$name");
@@ -604,14 +602,14 @@ public class JavafxDefs {
         varFlags_LocalVarName = names.fromString("varFlags$");
         wasInvalid_LocalVarName = names.fromString("wasInvalid$");
         varNewValue_ArgName = names.fromString("varNewValue$");
-        scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
-        scriptLevelAccess_FXObjectMethodPrefixName = names.fromString("access$scriptLevel$");
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
         updateInstance_ArgName = names.fromString("instance$");
         obj_ArgName = names.fromString("object$");
         value_ArgName = names.fromString("value$");
         varNum_ArgName = names.fromString("varNum$");
+        scriptClassSuffixName = names.fromString(scriptClassSuffix);
+        scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
 
         // KeyValueTarget.Type field names
         BYTE_KeyValueTargetTypeFieldName = names.fromString("BYTE");
@@ -759,9 +757,9 @@ public class JavafxDefs {
         return typePrefixes[index];
     }
 
-    public Name scriptLevelAccessMethod(Name.Table names, Symbol clazz) {
+    public Name scriptLevelAccessField(Name.Table names, Symbol clazz) {
         StringBuilder buf = new StringBuilder();
-        buf.append(scriptLevelAccess_FXObjectMethodPrefixName);
+        buf.append(scriptLevelAccess_FXObjectFieldName);
         buf.append(clazz.getQualifiedName().toString().replace('.', '$'));
         buf.append('$');
         return names.fromString(buf);

@@ -30,6 +30,7 @@ import com.sun.javafx.api.tree.Tree.JavaFXKind;
 import com.sun.tools.mjavac.code.*;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
+import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 
@@ -71,10 +72,14 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
     /** The current name table. */
     protected Name.Table names;
 
+    /** The current type table. */
     protected JavafxTypes types;
 
     /** The current symbol table. */
     protected JavafxSymtab syms;
+
+    /** The current defs table. */
+    protected JavafxDefs defs;
 
     /** Create a tree maker with null toplevel and NOPOS as initial position.
      */
@@ -85,6 +90,7 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         this.names = Name.Table.instance(context);
         this.syms = (JavafxSymtab)JavafxSymtab.instance(context);
         this.types = JavafxTypes.instance(context);
+        this.defs = JavafxDefs.instance(context);
     }
 
     /** Create a tree maker with a given toplevel and FIRSTPOS as initial position.
@@ -327,25 +333,34 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
         return ids.toList();
     }
 
+    /** Create a tree representing the script class of a given enclosing class.
+     */
+    public JavafxClassSymbol ScriptSymbol(Symbol sym) {
+        JavafxClassSymbol owner = (JavafxClassSymbol)sym;
+        
+        if (owner.scriptSymbol == null) {
+            Name scriptName = owner.name.append(defs.scriptClassSuffixName);
+            owner.scriptSymbol = new JavafxClassSymbol(Flags.STATIC | Flags.PUBLIC, scriptName, owner);
+            owner.scriptSymbol.type = new ClassType(Type.noType, List.<Type>nil(), owner.scriptSymbol);
+        }
+        
+        return owner.scriptSymbol;
+    }
+    public JFXIdent Script(Symbol sym) {
+        return Ident(ScriptSymbol(sym));
+    }
+
     /** Create a tree representing `this', given its type.
      */
     public JavafxVarSymbol ThisSymbol(Type t) {
-        Symbol owner = t.tsym;
-        JavafxVarSymbol varSym = null;
-        
-        if (owner instanceof JavafxClassSymbol) {
-            varSym = ((JavafxClassSymbol)owner).thisSymbol;
+        JavafxClassSymbol owner = (JavafxClassSymbol)t.tsym;
+
+        if (owner.thisSymbol == null) {
+            long flags = FINAL | HASINIT | JavafxFlags.VARUSE_SPECIAL;
+            owner.thisSymbol = new JavafxVarSymbol(types, names, flags, names._this, t, owner);
         }
         
-        if (varSym == null) {
-            varSym = new JavafxVarSymbol(types, names, FINAL | HASINIT, names._this, t, owner);
-            
-            if (owner instanceof JavafxClassSymbol) {
-                ((JavafxClassSymbol)owner).thisSymbol = varSym;
-            }
-        }
-        
-        return varSym;
+        return owner.thisSymbol;
     }
     public JFXIdent This(Type t) {
         return Ident(ThisSymbol(t));
@@ -353,27 +368,38 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
 
     /** Create a tree representing `super', given its type and owner.
      */
-    public JavafxVarSymbol SuperSymbol(Type t, TypeSymbol owner) {
-        JavafxVarSymbol varSym = null;
-        
-        if (owner instanceof JavafxClassSymbol) {
-            varSym = ((JavafxClassSymbol)owner).superSymbol;
+    public JavafxVarSymbol SuperSymbol(Type t, TypeSymbol sym) {
+        JavafxClassSymbol owner = (JavafxClassSymbol)sym;
+
+        if (owner.superSymbol == null) {
+            long flags = FINAL | HASINIT | JavafxFlags.VARUSE_SPECIAL;
+            owner.superSymbol = new JavafxVarSymbol(types, names, flags, names._super, t, owner);
         }
         
-        if (varSym == null) {
-            varSym = new JavafxVarSymbol(types, names, FINAL | HASINIT, names._super, t, owner);
-            
-            if (owner instanceof JavafxClassSymbol) {
-                ((JavafxClassSymbol)owner).superSymbol = varSym;
-            }
-        }
-        
-        return varSym;
+        return owner.superSymbol;
     }
     public JFXIdent Super(Type t, TypeSymbol owner) {
         return Ident(SuperSymbol(t, owner));
     }
 
+    /** Create a tree representing the script instance of the enclosing class.
+     */
+    public JavafxVarSymbol ScriptAccessSymbol(Symbol sym) {
+        JavafxClassSymbol owner = (JavafxClassSymbol)sym;
+
+        if (owner.scriptAccessSymbol == null) {
+            Name scriptLevelAccessName = defs.scriptLevelAccessField(names, sym);
+            JavafxClassSymbol script = ScriptSymbol(sym);
+            long flags = FINAL | STATIC | PUBLIC | HASINIT | JavafxFlags.VARUSE_SPECIAL;
+            owner.scriptAccessSymbol = new JavafxVarSymbol(types, names, flags, scriptLevelAccessName, script.type, owner);
+        }
+        
+        return owner.scriptAccessSymbol;
+    }
+    public JFXIdent ScriptAccess(Symbol sym) {
+        return Ident(ScriptAccessSymbol(sym));
+    }
+    
     /**
      * Create a method invocation from a method tree and a list of
      * argument trees.

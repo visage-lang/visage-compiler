@@ -182,6 +182,7 @@ public abstract class JavafxTranslationSupport {
         return
                     name == names._this ||
                     name == names._super ||
+                    name == fxmake.ScriptAccessSymbol(owner).name ||
                     isKnown && vsym.isDef() && !isDefinedBound || // unbound def
                     isKnown && !vsym.isWritableOutsideScript() && !isAssignedTo && !isDefinedBound; // never reassigned
      }
@@ -701,10 +702,6 @@ public abstract class JavafxTranslationSupport {
             return newElements.sym.name.append(defs.lengthSuffixName);
     }
 
-    Name scriptLevelAccessMethod(Symbol clazz) {
-        return defs.scriptLevelAccessMethod(names, clazz);
-    }
-
     private Name prefixedAttributeName(Symbol sym, String prefix) {
         Symbol owner = sym.owner;
         if (!types.isJFXClass(owner)) {
@@ -1131,20 +1128,14 @@ public abstract class JavafxTranslationSupport {
 
         protected JCExpression getReceiver(Symbol sym) {
             if (sym.isStatic()) {
-                Symbol enclClassSym = enclosingClassDecl.sym;
-                return enclClassSym != sym.owner?
-                    Call(makeType(sym.owner), scriptLevelAccessMethod(sym.owner)) :
-                    Call(scriptLevelAccessMethod(sym.owner));
+                return Select(makeType(sym.owner.type, false), fxmake.ScriptAccessSymbol(sym.owner).name);
             }
             return resolveThis(sym.owner, true);
         }
 
         protected JCExpression getReceiverOrThis(Symbol sym) {
             if (sym.isStatic()) {
-                Symbol enclClassSym = enclosingClassDecl.sym;
-                return enclClassSym != sym.owner?
-                    Call(makeType(sym.owner), scriptLevelAccessMethod(sym.owner)) :
-                    Call(scriptLevelAccessMethod(sym.owner));
+                return Select(makeType(sym.owner.type, false), fxmake.ScriptAccessSymbol(sym.owner).name);
             }
             return resolveThis(sym.owner, false);
         }
@@ -1245,7 +1236,7 @@ public abstract class JavafxTranslationSupport {
             
             if (action == defs.varFlagActionTest) {
                 return EQ(BITAND(GetFlags(varSym), clearBits), setBits);
-            } else if (isMixinClass()) {
+            } else if (isMixinClass() && !varSym.isStatic()) {
                 return Call(getReceiver(varSym), action, Offset(varSym), clearBits, setBits);
             } else /* if (action == defs.varFlagActionChange) */ {
                 JCExpression assignExpr;
@@ -1663,13 +1654,13 @@ public abstract class JavafxTranslationSupport {
             assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
             JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
-            if (isMixinVar(varSym)) {
+            if (varSym.isSpecial()) {
+                JCExpression receiver = getReceiver(varSym);
+                return receiver == null ? id(varSym.name) : receiver;
+            } else if (isMixinVar(varSym)) {
                 return Call(attributeGetMixinName(varSym));
             } else if (varSym.isStatic()) {
                 return id(attributeValueName(varSym));
-            } else if (varSym.name == names._this) {
-                JCExpression receiver = getReceiver(varSym);
-                return receiver == null ? id(names._this) : receiver;
             } else {
                 return Select(getReceiver(varSym), attributeValueName(varSym));
             }
@@ -1695,7 +1686,7 @@ public abstract class JavafxTranslationSupport {
                 JCExpression klass = makeType(varSym.owner.type, false);
                 
                 if (varSym.isStatic()) {
-                    klass = Select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
+                    klass = Select(klass, fxmake.ScriptSymbol(varSym.owner).name);
                 }
                 
                 return Select(klass, attributeOffsetName(varSym));
@@ -1758,7 +1749,9 @@ public abstract class JavafxTranslationSupport {
 
         public JCExpression Getter(JCExpression selector, Symbol sym) {
             JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
-            if (vsym.isMember()) {
+            if (vsym.isSpecial()) {
+                return Get(vsym);
+            } else if (vsym.isMember()) {
                 if (vsym.useGetters()) {
                     return Call(selector, attributeGetterName(vsym));
                 } else {
@@ -1776,7 +1769,9 @@ public abstract class JavafxTranslationSupport {
 
         public JCExpression Setter(JCExpression selector, Symbol sym, JCExpression value) {
             JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
-            if (vsym.isMember()) {
+            if (vsym.isSpecial()) {
+                return Set(selector, sym, value);
+            } else if (vsym.isMember()) {
                 if (vsym.useAccessors()) {
                     return Call(selector, attributeSetterName(sym), value);
                 } else {

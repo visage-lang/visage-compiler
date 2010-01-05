@@ -104,8 +104,12 @@ public class JavafxVarSymbol extends VarSymbol {
         return access == SCRIPT_PRIVATE || access == PRIVATE;
     }
 
+    public boolean isSpecial() {
+        return (flags_field & JavafxFlags.VARUSE_SPECIAL) != 0;
+    }
+
     public boolean useAccessors() {
-        return isFXMember() &&
+        return isFXMember() && !isSpecial() &&
                 (!hasScriptOnlyAccess() ||
                 (flags_field & VARUSE_NEED_ACCESSOR) != 0 ||
                 ((flags_field & JavafxFlags.VARUSE_BIND_ACCESS) != 0 && (flags_field & JavafxFlags.VARUSE_ASSIGNED_TO) != 0) ||
@@ -113,7 +117,7 @@ public class JavafxVarSymbol extends VarSymbol {
     }
 
     public boolean useGetters() {
-        return useAccessors() || (flags_field & VARUSE_NON_LITERAL) != 0;
+        return !isSpecial() && (useAccessors() || (flags_field & VARUSE_NON_LITERAL) != 0);
     }
 
     /** Either has a trigger or a sub-class may have a trigger. */
