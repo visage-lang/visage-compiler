@@ -230,7 +230,7 @@
     <target name="hudson-dev" depends="-hudson-init, all, findbugs, plot-data, coverage-report, hudson-post-build"
             description="Build and test all project artifacts for each developer push"/>
     
-    <target name="hudson-all" depends="-hudson-init, -init-coverage, all, findbugs, plot-data, performance-run, coverage-report, hudson-post-build"
+    <target name="hudson-all" depends="-hudson-init, -init-coverage, all, findbugs, plot-data, coverage-report, hudson-post-build"
             description="Build and test with coverage all project artifacts for nightly build"/>
 
     <target name="all-with-coverage" depends="-init-coverage, all, findbugs, plot-data, coverage-report"
