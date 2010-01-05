@@ -125,7 +125,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         reader = (JavafxClassReader) JavafxClassReader.instance(context);
         optStat = JavafxOptimizationStatistics.instance(context);
         depGraphWriter = DependencyGraphWriter.instance(context);
-        annoBindees =options.get("annobindees") != null;
+        annoBindees = options.get("annobindees") != null;
     }
 
     /**
@@ -188,7 +188,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         Type superType = types.superType(cDecl);
         ClassSymbol outerTypeSym = outerTypeSymbol(cDecl.sym); // null unless inner class with outer reference
         boolean isLibrary = toJava.getAttrEnv().toplevel.isLibrary;
-        boolean isRunnable = toJava.getAttrEnv().toplevel.isRunnable;
 
         JavafxAnalyzeClass analysis = new JavafxAnalyzeClass(this, diagPos,
                 cDecl.sym, translatedAttrInfo, translatedOverrideAttrInfo, translatedFuncInfo,
@@ -261,11 +260,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
                     javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
-                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, isRunnable);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true);
                     javaCodeMaker.setContext(false, cDefinitions);
     
                     // script-level into class X
-                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false, isRunnable);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false);
                     javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, true, isLibrary ? scriptVarInfos : null, initMap);
                     javaCodeMaker.makeScript(sDefinitions.toList());
                 }
@@ -318,11 +317,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
                     javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
-                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true, false);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, true);
                     javaCodeMaker.setContext(false, cDefinitions);
     
                     // script-level into class X
-                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false, false);
+                    javaCodeMaker.makeScriptLevelAccess(cDecl.sym, false);
                     javaCodeMaker.makeInitStaticAttributesBlock(cDecl.sym, true, isLibrary ? scriptVarInfos : null, null);
                     javaCodeMaker.makeScript(sDefinitions.toList());
                 }
@@ -443,16 +442,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private ListBuffer<JCTree> definitions;
         private Name scriptName;
         private ClassSymbol scriptClassSymbol;
-        private ClassType scriptClassType;
         private final boolean isBoundFuncClass;
 
         JavaCodeMaker(JavafxAnalyzeClass analysis, ListBuffer<JCTree> definitions) {
             super(analysis.getCurrentClassPos(), analysis.getCurrentClassDecl(), false);
             this.analysis = analysis;
             this.definitions = definitions;
-            this.scriptName = analysis.getCurrentClassDecl().getName().append(defs.scriptClassSuffixName);
-            this.scriptClassSymbol = makeClassSymbol(Flags.STATIC | Flags.PUBLIC, this.scriptName, getCurrentClassSymbol());
-            this.scriptClassType = (ClassType)this.scriptClassSymbol.type;
+            this.scriptClassSymbol = fxmake.ScriptSymbol(getCurrentClassSymbol());
+            this.scriptName = this.scriptClassSymbol.name;
             this.isBoundFuncClass = (getCurrentOwner().flags() & JavafxFlags.FX_BOUND_FUNCTION_CLASS) != 0L;
         }
         
@@ -2451,8 +2448,10 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct flags var.
                     Name name = attributeFlagsName(ai.getSymbol());
+                    // Determine flags.
+                    long flags = isScript() || isMixinClass() ? (Flags.STATIC | Flags.PUBLIC) : Flags.PUBLIC;
                     // Construct and add: public static short VFLGS$name = n;
-                    addDefinition(makeField(rawFlags(), syms.shortType, name, null));
+                    addDefinition(makeField(flags, syms.shortType, name, null));
                 }
             }
         }
@@ -3432,12 +3431,16 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                 stmts.append(initMap);
             }
 
+            Symbol scriptLevelAccessSym = fxmake.ScriptAccessSymbol(sym);
+            
             if (isScriptLevel) {
-                stmts.append(CallStmt(null, scriptLevelAccessMethod(sym)));
+                stmts.append(Stmt(m().Assign(id(scriptLevelAccessSym),
+                                             m().NewClass(null, null, id(scriptName), List.<JCExpression>of(Boolean(false)), null))));
+                stmts.append(CallStmt(id(scriptLevelAccessSym), defs.initialize_FXObjectMethodName));
             }
             
             if (attrInfo != null) {
-                stmts.append(CallStmt(Call(null, scriptLevelAccessMethod(sym)), defs.applyDefaults_FXObjectMethodName));
+                stmts.append(CallStmt(id(scriptLevelAccessSym), defs.applyDefaults_FXObjectMethodName));
             }
              
             addDefinition(m().Block(Flags.STATIC, stmts.toList()));
@@ -3764,49 +3767,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // Add definitions to class to access the script-level sole instance.
         //
-        public void makeScriptLevelAccess(ClassSymbol sym, boolean scriptLevel, boolean isRunnable) {
+        public void makeScriptLevelAccess(ClassSymbol sym, boolean scriptLevel) {
             if (!scriptLevel) {
-                // sole instance field
-                addDefinition(makeField(Flags.PRIVATE | Flags.STATIC, scriptClassType, defs.scriptLevelAccess_FXObjectFieldName, null));
+                Symbol scriptLevelAccessSym = fxmake.ScriptAccessSymbol(sym);
+                addDefinition(makeField(scriptLevelAccessSym.flags_field & ~Flags.FINAL, scriptLevelAccessSym.type, scriptLevelAccessSym.name, null));
             }
-            
-            List<JCStatement> stmts;
-            long flags = Flags.PUBLIC;
-            
-            if (scriptLevel) {
-                stmts = 
-                    Stmts(
-                        Return(id(names._this))
-                    );
-            } else {
-                // method is static.
-                flags |= Flags.STATIC;
-                
-                // sole instance lazy creation method
-                //
-                // if (scriptLevelAccess == null) {
-                //    scriptLevelAccess = new Foo$Script(false);
-                //    scriptLevelAccess.initialize$();
-                // }
-                // return scriptLevelAccess;
-                JCStatement assignNew = Stmt( m().Assign(
-                        id(defs.scriptLevelAccess_FXObjectFieldName),
-                        m().NewClass(null, null, id(scriptName), List.<JCExpression>of(Boolean(false)), null)) );
-    
-                stmts =
-                    Stmts(
-                        OptIf(EQnull(id(defs.scriptLevelAccess_FXObjectFieldName)),
-                            Block(
-                                assignNew,
-                                CallStmt(id(defs.scriptLevelAccess_FXObjectFieldName), defs.initialize_FXObjectMethodName)
-                            )
-                        ),
-                        Return (id(defs.scriptLevelAccess_FXObjectFieldName))
-                    );
-            }
-            
-            MethodSymbol methSym = makeMethodSymbol(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<Type>nil());
-            addDefinition(Method(flags, scriptClassType, scriptLevelAccessMethod(sym), List.<JCVariableDecl>nil(), stmts, methSym));
         }
     }
 }

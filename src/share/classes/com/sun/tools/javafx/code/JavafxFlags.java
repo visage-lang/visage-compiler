@@ -72,6 +72,7 @@ public class JavafxFlags {
     public static final long VARUSE_NON_LITERAL        = FIRST_VARUSE_FLAG << 10; // non-accessor still needs getter
     public static final long VARUSE_BIND_ACCESS        = FIRST_VARUSE_FLAG << 11; // Accessed in bind.
     public static final long VARUSE_VARREF             = FIRST_VARUSE_FLAG << 12; // Used in VarRef
+    public static final long VARUSE_SPECIAL            = FIRST_VARUSE_FLAG << 13; // Ignore in varuse analysis.
     // This last shift + the last for modifiers + the last on marks must be <= 22 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags
