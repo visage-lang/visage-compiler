@@ -81,9 +81,9 @@ public class JavafxTypes extends Types {
             && erasure(type) == syms.javafx_SequenceTypeErasure;
     }
 
-    public boolean isSyntheticIsInitializedFunction(Symbol sym) {
+    public boolean isSyntheticBuiltinsFunction(Symbol sym) {
         return  sym != null && sym.kind == Kinds.MTH &&
-                (sym.flags_field & JavafxFlags.FUNC_IS_INITIALIZED) != 0;
+                (sym.flags_field & JavafxFlags.FUNC_IS_BUILTINS_SYNTH) != 0;
     }
 
     public boolean isSyntheticPointerFunction(Symbol sym) {

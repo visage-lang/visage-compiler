@@ -88,4 +88,18 @@ public class Builtins {
                 FXObject.VFLGS$IS_INITIALIZED | FXObject.VFLGS$IS_BOUND,
                 0);
     }
+
+    /**
+     * Test if an instance variable is bound.
+     *
+     * @param instance instance to be tested
+     * @param offset offset of variable to be tested
+     * @return true if the variable is bound
+     */
+    @com.sun.javafx.runtime.annotation.JavafxSignature("(Ljava/lang/Object;)Z")
+    public static boolean isReadOnly(FXObject instance, int offset) {
+        return instance.varTestBits$(offset,
+                FXObject.VFLGS$IS_READONLY,
+                FXObject.VFLGS$IS_READONLY);
+    }
 }

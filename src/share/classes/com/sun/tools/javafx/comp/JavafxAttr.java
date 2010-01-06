@@ -2389,8 +2389,9 @@ public class JavafxAttr implements JavafxVisitor {
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
                 (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym ||
                  msym.owner.type.tsym == syms.javafx_FXRuntimeType.tsym) &&
-                methName == defs.isInitialized_MethodName) {
-            msym.flags_field |= JavafxFlags.FUNC_IS_INITIALIZED;
+                (methName == defs.isInitialized_MethodName ||
+                methName == defs.isReadOnly_MethodName)) {
+            msym.flags_field |= JavafxFlags.FUNC_IS_BUILTINS_SYNTH;
             for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
                 JFXExpression arg = l.head;
                 Symbol asym = JavafxTreeInfo.symbol(arg);

@@ -478,15 +478,15 @@ public class JavafxLower implements JavafxVisitor {
         
         List<JFXExpression> args = List.nil();
         boolean pointer_Make = types.isSyntheticPointerFunction(sym);
-        boolean builtins_isInitialized = types.isSyntheticIsInitializedFunction(sym);
-        if (pointer_Make || builtins_isInitialized) {
+        boolean builtins_Func = types.isSyntheticBuiltinsFunction(sym);
+        if (pointer_Make || builtins_Func) {
                 JFXExpression varExpr = lower(tree.args.head);
                 ListBuffer<JFXExpression> syntheticArgs = ListBuffer.lb();
                 syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.INST).setType(syms.javafx_FXObjectType));
                 syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
                 
-                Symbol msym = builtins_isInitialized ?
-                    preTrans.makeSyntheticIsInitialized() :
+                Symbol msym = builtins_Func ?
+                    preTrans.makeSyntheticBuiltinsMethod(sym.name) :
                     preTrans.makeSyntheticPointerMake();
                 JavafxTreeInfo.setSymbol(meth, msym);
                 meth.type = msym.type;

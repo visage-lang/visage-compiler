@@ -333,6 +333,7 @@ public class JavafxDefs {
     final Name lambda_MethodName;
 
     final Name isInitialized_MethodName;
+    final Name isReadOnly_MethodName;
     final Name initFXBase_MethodName;
     final Name start_ThreadMethodName;
     final Name outerAccessor_MethodName;
@@ -550,6 +551,7 @@ public class JavafxDefs {
         emptySequence_FieldName = names.fromString("emptySequence");
         partResultVarNum_BoundForHelper = names.fromString("partResultVarNum");
         isInitialized_MethodName = names.fromString("isInitialized");
+        isReadOnly_MethodName = names.fromString("isReadOnly");
         offset_AttributeFieldPrefixName = names.fromString(offset_AttributeFieldPrefix);
         flags_AttributeFieldPrefixName = names.fromString(flags_AttributeFieldPrefix);
         count_FXObjectFieldName = names.fromString(count_FXObjectFieldString);

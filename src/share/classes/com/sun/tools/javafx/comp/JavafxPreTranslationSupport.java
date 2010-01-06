@@ -243,10 +243,10 @@ public class JavafxPreTranslationSupport {
         new NestedClassTypeLifter().scan(cdecl);
     }
 
-    Symbol makeSyntheticIsInitialized() {
+    Symbol makeSyntheticBuiltinsMethod(Name name) {
         return new MethodSymbol(
-                Flags.PUBLIC | Flags.STATIC | JavafxFlags.FUNC_IS_INITIALIZED,
-                defs.isInitialized_MethodName,
+                Flags.PUBLIC | Flags.STATIC | JavafxFlags.FUNC_IS_BUILTINS_SYNTH,
+                name,
                 new Type.MethodType(
                     List.of(syms.javafx_FXObjectType, syms.intType),
                     syms.booleanType,
