@@ -1157,6 +1157,11 @@ class JavafxAnalyzeClass {
     public boolean isRootClass(Symbol sym) { return isFXBase(sym) || isFXObject(sym); }
 
     //
+    // Returns true if the current class inherits directly from FXBase.
+    //
+    public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym);}
+
+    //
     // Returns the var count for the current class.
     //
     public int getClassVarCount() { return classVarCount; }

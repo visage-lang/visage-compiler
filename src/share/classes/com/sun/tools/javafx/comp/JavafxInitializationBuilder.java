@@ -1077,8 +1077,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (!stmts.isEmpty()) {
                             if (!isMixinClass() && varInfo.getEnumeration() != -1) {
                                 // case tag number
-                                JCExpression tag = Int(varInfo.getEnumeration() - varCount);
-        
+                                JCExpression tag = Int(analysis.isFirstTier() ? varInfo.getEnumeration() :
+                                                                               (varInfo.getEnumeration() - varCount));
                                 // Add the case, something like:
                                 // case i: statement;
                                 cases.append(m().Case(tag, endBlockAsList()));
@@ -1106,7 +1106,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                 
                     // varNum - VCNT$
-                    JCExpression tagExpr = MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
+                    JCExpression tagExpr = analysis.isFirstTier() ? varNumArg() : MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
                     // Construct and add: switch(varNum - VCNT$) { ... }
                     addStmt(m().Switch(tagExpr, cases.toList()));
                 } else {
@@ -2382,13 +2382,14 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             resetDiagPos();
 
             // Construct a static count variable (VCNT$), -1 indicates count has not been initialized.
-            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.count_FXObjectFieldName, -1));
+            int initCount = analysis.isFirstTier() ? varCount : -1;
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.count_FXObjectFieldName, initCount));
 
             // Construct a static count accessor method (VCNT$)
             makeVCNT$(attrInfos, varCount);
 
             // Construct a virtual count accessor method (count$)
-            makecount$();
+            makecount$(varCount);
 
             // Accumulate variable numbering.
             for (VarInfo ai : attrInfos) {
@@ -2399,9 +2400,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct offset var.
                     Name name = attributeOffsetName(ai.getSymbol());
+                    JCExpression init = analysis.isFirstTier() ? Int(ai.getEnumeration()) : null;
+                    long flags = analysis.isFirstTier() && isLeaf(ai) ? (Flags.FINAL | Flags.STATIC | Flags.PUBLIC) :
+                                                                        (Flags.STATIC | Flags.PUBLIC);
                     // Construct and add: public static int VOFF$name = n;
-                    
-                    addDefinition(makeField(Flags.STATIC | Flags.PUBLIC, syms.intType, name, null));
+                    addDefinition(makeField(flags, syms.intType, name, init));
                 }
 
                 // Add to var map if an anon class.
@@ -2447,35 +2450,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Start if block.
                     beginBlock();
         
-                    // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
-                    JCExpression setVCNT$Expr = superClassSym == null ?  Int(varCount) :
-                                                                         PLUS(Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
-                                                                              Int(varCount));
-                    Name countName = names.fromString("$count");
-                    // final int $count = VCNT$ = super.VCNT$() + n;
-                    addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.count_FXObjectFieldName), setVCNT$Expr)));
-        
-                    for (VarInfo ai : attrInfos) {
-                        // Only variables actually declared.
-                        if (ai.needsCloning() && !ai.isOverride()) {
-                            // Set diagnostic position for attribute.
-                            setDiagPos(ai.pos());
-                            // Offset var name.
-                            Name name = attributeOffsetName(ai.getSymbol());
-                            // VCNT$ - n + i;
-                            JCExpression setVOFF$Expr = PLUS(id(countName), Int(ai.getEnumeration() - varCount));
-                            // VOFF$var = VCNT$ - n + i;
-                            addStmt(Stmt(m().Assign(id(name), setVOFF$Expr)));
+                    if (analysis.isFirstTier()) {
+                        addStmt(Return(Int(varCount)));
+                    } else {
+                        // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
+                        JCExpression setVCNT$Expr = superClassSym == null ?  Int(varCount) :
+                                                                             PLUS(Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
+                                                                                  Int(varCount));
+                        Name countName = names.fromString("$count");
+                        // final int $count = VCNT$ = super.VCNT$() + n;
+                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.count_FXObjectFieldName), setVCNT$Expr)));
+            
+                        for (VarInfo ai : attrInfos) {
+                            // Only variables actually declared.
+                            if (ai.needsCloning() && !ai.isOverride()) {
+                                // Set diagnostic position for attribute.
+                                setDiagPos(ai.pos());
+                                // Offset var name.
+                                Name name = attributeOffsetName(ai.getSymbol());
+                                // VCNT$ - n + i;
+                                JCExpression setVOFF$Expr = PLUS(id(countName), Int(ai.getEnumeration() - varCount));
+                                // VOFF$var = VCNT$ - n + i;
+                                addStmt(Stmt(m().Assign(id(name), setVOFF$Expr)));
+                            }
                         }
-                    }
         
-                    // VCNT$ == -1
-                    JCExpression condition = EQ(id(defs.count_FXObjectFieldName), Int(-1));
-                    // if (VCNT$ == -1) { ...
-                    addStmt(OptIf(condition,
-                            endBlock()));
-                    // return VCNT$;
-                    addStmt(Return(id(defs.count_FXObjectFieldName)));
+                        // VCNT$ == -1
+                        JCExpression condition = EQ(id(defs.count_FXObjectFieldName), Int(-1));
+                        // if (VCNT$ == -1) { ...
+                        addStmt(OptIf(condition,
+                                endBlock()));
+                        // return VCNT$;
+                        addStmt(Return(id(defs.count_FXObjectFieldName)));
+                    }
                 }
             };
             
@@ -2485,12 +2492,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // The method constructs the count$ method for the current class.
         //
-        public void makecount$() {
+        public void makecount$(final int varCount) {
             MethodBuilder smb = new MethodBuilder(defs.count_FXObjectMethodName, syms.intType) {
                 @Override
                 public void statements() {
-                    // Construct and add: return VCNT$();
-                    addStmt(Return(Call(defs.count_FXObjectFieldName)));
+                    if (analysis.isFirstTier()) {
+                        // Construct and add: return n;
+                        addStmt(Return(Int(varCount)));
+                    } else {
+                        // Construct and add: return VCNT$();
+                        addStmt(Return(Call(defs.count_FXObjectFieldName)));
+                    }
                 }
             };
             
@@ -2714,7 +2726,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 
                                 if (!isMixinClass() && varInfo.getEnumeration() != -1) {
                                     // case tag number
-                                    JCExpression tag = Int(varInfo.getEnumeration() - count);
+                                    JCExpression tag = Int(analysis.isFirstTier() ? varInfo.getEnumeration() :
+                                                                                    (varInfo.getEnumeration() - count));
             
                                     // Add the case, something like:
                                     // case i: statement;
@@ -2745,7 +2758,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         cases.append(m().Case(null, endBlockAsList()));
                     
                         // varNum - VCNT$
-                        JCExpression tagExpr = MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
+                        JCExpression tagExpr = analysis.isFirstTier() ? varNumArg() : MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
                         // Construct and add: switch(varNum - VCNT$) { ... }
                         addStmt(m().Switch(tagExpr, cases.toList()));
                     } else {
@@ -2790,6 +2803,38 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
+        // Return the initialize settings of a vars flags.
+        //
+        private JCExpression initialVarBits(VarInfo ai) {
+            boolean isBound = ai.hasBoundDefinition();
+            boolean isReadonly = ai.isReadOnly();
+            boolean isEager = ai.onReplace() != null;
+            JCExpression setBits = null;
+  
+            if (useSimpleInit(ai)) {
+                setBits = bitOrFlags(setBits, defs.varFlagDEFAULT_APPLIED, defs.varFlagIS_INITIALIZED);
+            } else {
+                if (isBound) {
+                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagIS_INVALID, defs.varFlagNEEDS_TRIGGER);
+                }
+                
+                if (ai.hasVarInit()) {
+                    setBits = bitOrFlags(setBits, defs.varFlagAWAIT_VARINIT);
+                }
+            }
+            
+            if (isReadonly) {
+                setBits = bitOrFlags(setBits, defs.varFlagIS_READONLY);
+            }
+            
+            if (isEager) {
+                setBits = bitOrFlags(setBits, defs.varFlagIS_EAGER);
+            }
+            
+            return setBits;
+        }
+
+        //
         // This method sets up the initial var state.
         //
         private void makeInitVarsMethod(final List<VarInfo> attrInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
@@ -2809,31 +2854,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (ai.needsCloning()) {
                             JavafxVarSymbol proxyVarSym = ai.proxyVarSym();
                             boolean isBound = ai.hasBoundDefinition();
-                            boolean isReadonly = ai.isReadOnly();
-                            boolean isEager = ai.onReplace() != null;
-                            JCExpression setBits = null;
+                            JCExpression setBits = initialVarBits(ai);
                             JCExpression clearBits = id(defs.varFlagALL_FLAGS);
 
-                            if (useSimpleInit(ai)) {
-                                setBits = bitOrFlags(setBits, defs.varFlagDEFAULT_APPLIED, defs.varFlagIS_INITIALIZED);
-                            } else {
-                                if (isBound) {
-                                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagIS_INVALID, defs.varFlagNEEDS_TRIGGER);
-                                }
-                                
-                                if (ai.hasVarInit()) {
-                                    setBits = bitOrFlags(setBits, defs.varFlagAWAIT_VARINIT);
-                                }
-                            }
-                            
-                            if (isReadonly) {
-                                setBits = bitOrFlags(setBits, defs.varFlagIS_READONLY);
-                            }
-                            
-                            if (isEager) {
-                                setBits = bitOrFlags(setBits, defs.varFlagIS_EAGER);
-                            }
-                           
                             if (ai.isOverride() || ai instanceof MixinClassVarInfo) {
                                 if (isBound || ai.hasInitializer()) {
                                     clearBits = BITAND(id(defs.varFlagALL_FLAGS), BITNOT(id(defs.varFlagIS_EAGER)));
