@@ -121,14 +121,15 @@
         <run-benchmark benchmark="bindBlockExprLocal"/>
         <run-benchmark benchmark="boundSequenceRangeSum"/>
         <run-benchmark benchmark="boundSequenceRangeSum_nobind"/>
+        <run-benchmark benchmark="boundTypeCast"/>
+        <run-benchmark benchmark="boundTypeCast_a"/>
         <!-- ignored tests
         <run-benchmark benchmark="boundSequenceRange"/>
         <run-benchmark benchmark="visibleNode"/> // JFXC-3693
         -->
     </target>
     <target name="krun-benchmarks" depends="compile">
-        <run-benchmark benchmark="boundTypeCast"/>
-        <run-benchmark benchmark="boundTypeCast_a"/>
+
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>
