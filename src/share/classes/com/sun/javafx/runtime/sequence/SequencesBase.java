@@ -25,6 +25,7 @@ package com.sun.javafx.runtime.sequence;
 
 import java.util.*;
 
+import com.sun.javafx.runtime.AssignToBoundException;
 import com.sun.javafx.runtime.TypeInfo;
 import com.sun.javafx.runtime.Util;
 import com.sun.javafx.runtime.FXObject;
@@ -332,7 +333,7 @@ public class SequencesBase {
 
     public static int calculateIntRangeSize(int lower, int upper, int step, boolean exclusive) {
         if (step == 0) {
-            return 0; // for bound sequences -- non-bound caught at caller
+            throw new IllegalArgumentException("Range step of zero");
         }
         if (Math.abs((long) lower - (long) upper) + ((long) (exclusive ? 0 : 1)) > Integer.MAX_VALUE)
             throw new IllegalArgumentException("Range sequence too big");
@@ -354,7 +355,7 @@ public class SequencesBase {
 
     public static int calculateFloatRangeSize(float lower, float upper, float step, boolean exclusive) {
         if (step == 0.0f) {
-            return 0; // for bound sequences -- non-bound caught at caller
+            throw new IllegalArgumentException("Range step of zero");
         }
         if (upper == lower) {
             return exclusive ? 0 : 1;
@@ -996,10 +997,13 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
+    public static <T> void replaceSlice(FXObject instance, int varNum, T newValue, int startPos, int endPos/*exclusive*/) {
         boolean wasUninitialized =
                 instance.varTestBits$(varNum, FXObject.VFLGS$DEFAULT_APPLIED, 0);
         instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
+            throw new AssignToBoundException("Cannot mutate bound sequence");
+        }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
@@ -1015,10 +1019,7 @@ public class SequencesBase {
             Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValue, startPos, endPos, true);
             instance.be$(varNum, arr);
             instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
-            return arr;
         }
-        else
-            return oldValue;
     }
 
     public static <T> Sequence<? extends T> replaceSlice(Sequence<? extends T> oldValue, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
@@ -1099,10 +1100,13 @@ public class SequencesBase {
         return arr;
     }
 
-    public static <T> Sequence<? extends T> replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
+    public static <T> void replaceSlice(FXObject instance, int varNum, Sequence<? extends T> newValues, int startPos, int endPos/*exclusive*/) {
         boolean wasUninitialized = 
                 instance.varTestBits$(varNum, FXObject.VFLGS$DEFAULT_APPLIED, 0);
         instance.varChangeBits$(varNum, 0, FXObject.VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED);
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
+            throw new AssignToBoundException("Cannot mutate bound sequence");
+        }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
@@ -1118,10 +1122,7 @@ public class SequencesBase {
             Sequence<? extends T> arr = replaceSliceInternal(oldValue, newValues, startPos, endPos, true);
             instance.be$(varNum, arr);
             instance.invalidate$(varNum, startPos, endPos, newLength,  FXObject.VFLGS$NEEDS_TRIGGER);
-            return arr;
         }
-        else
-            return oldValue;
     }
 
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, Sequence<? extends T> newValue) {
@@ -1129,12 +1130,13 @@ public class SequencesBase {
             // Can't have any copies of a SequenceRef
             return replaceSlice(oldValue, newValue, 0, oldValue.size());
         }
+        newValue.incrementSharing();
         return newValue;
     }
 
-    public static <T> Sequence<? extends T> set(FXObject instance, int varNum, Sequence<? extends T> newValue) {
+    public static <T> void set(FXObject instance, int varNum, Sequence<? extends T> newValue) {
         //TODO: should give slice invalidations, as if below, but should actually set to the new sequence
-        return replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum));
+        replaceSlice(instance, varNum, newValue, 0, instance.size$(varNum));
     }
 
     public static <T> Sequence<? extends T> set(Sequence<? extends T> oldValue, T newValue, int index) {
@@ -1240,6 +1242,9 @@ public class SequencesBase {
     }
 
     public static <T> void deleteValue(FXObject instance, int varNum, T value) {
+        if (instance.varTestBits$(varNum, FXObject.VFLGS$INIT_BOUND_READONLY, FXObject.VFLGS$INIT_BOUND_READONLY)) {
+            throw new AssignToBoundException("Cannot mutate bound sequence");
+        }
         Sequence<? extends T> oldValue = (Sequence<? extends T>) instance.get$(varNum);
         while (oldValue instanceof SequenceProxy) {
             SequenceProxy sp = (SequenceProxy) oldValue;
@@ -1250,7 +1255,7 @@ public class SequencesBase {
         // It's tempting to just do:
         //   Sequence<? extends T> arr = deleteValue(oldValue, value);
         //   instance.be$(varNum, arr);
-        // However, in hat case triggers won't run properly.
+        // However, in that case triggers won't run properly.
         int hi = -1;
         for (int i = oldValue.size();  ; ) {
             boolean matches = --i < 0 ? false : oldValue.get(i).equals(value);

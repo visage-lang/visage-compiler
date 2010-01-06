@@ -25,9 +25,16 @@ package com.sun.javafx.runtime.sequence;
 import com.sun.javafx.runtime.FXBase;
 import com.sun.javafx.runtime.FXObject;
 
+/**
+ *
+ * @param <T> Result element type
+ * @param <PT> Induction type
+ */
 public abstract class BoundForHelper<T, PT> extends FXBase {
 
-    /** The bfElem class in the design document implements this interface. */
+    /** 
+     * The bfElem class in the design document implements this interface.
+     */
     public static interface FXForPart<PT> extends FXObject {
         /**
          * Get the indexof variable
@@ -101,6 +108,9 @@ public abstract class BoundForHelper<T, PT> extends FXBase {
     public T get(int index) {
         initializeIfNeeded();
 
+        if (index < 0)
+            return null;
+        
         // FIXME - should use binary search if not in cache.
         int i, cumPrev;
         if (index >= cacheIndex) {

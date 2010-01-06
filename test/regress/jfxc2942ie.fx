@@ -97,13 +97,13 @@ function checkS(upd : Integer[]) : Void {
 var a = 15;
 var b = 20;
 var c = 2;
-def r1 = bind m(pwr1, [n(pwr1, a) .. n(pwr1, b)]);
-def r2 = bind [n(pwr2, a) .. n(pwr2, b)];
-def r3 = bind m(pwr3, [a .. b]);
+def r1 = bind m(pwr1, [n(pwr1, a) .. n(pwr1, b)]) on replace{};
+def r2 = bind [n(pwr2, a) .. n(pwr2, b)] on replace{};
+def r3 = bind m(pwr3, [a .. b]) on replace{};
 def r4 = bind [a .. b];
-def s1 = bind m(pws1, [n(pws1, a) .. n(pws1, b) step n(pws1, c)]);
-def s2 = bind [n(pws2, a) .. n(pws2, b) step n(pws2, c)];
-def s3 = bind m(pws3, [a .. b step c]);
+def s1 = bind m(pws1, [n(pws1, a) .. n(pws1, b) step n(pws1, c)]) on replace{};
+def s2 = bind [n(pws2, a) .. n(pws2, b) step n(pws2, c)] on replace{};
+def s3 = bind m(pws3, [a .. b step c]) on replace{};
 def s4 = bind [a .. b step c];
 
 checkR([a, b], true);

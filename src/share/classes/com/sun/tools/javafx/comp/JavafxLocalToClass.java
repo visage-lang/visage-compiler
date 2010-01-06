@@ -28,6 +28,7 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.tree.JFXExpression;
 import com.sun.tools.mjavac.code.Flags;
@@ -72,6 +73,7 @@ public class JavafxLocalToClass {
     private final JavafxPreTranslationSupport preTrans;
     private final JavafxTreeMaker fxmake;
     private final JavafxDefs defs;
+    private final Name.Table names;
     private final JavafxTypes types;
     private final JavafxSymtab syms;
     private final JavafxResolve rs;
@@ -99,6 +101,7 @@ public class JavafxLocalToClass {
         preTrans = JavafxPreTranslationSupport.instance(context);
         fxmake = JavafxTreeMaker.instance(context);
         defs = JavafxDefs.instance(context);
+        names = Name.Table.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
         rs = JavafxResolve.instance(context);
@@ -259,6 +262,12 @@ public class JavafxLocalToClass {
             public void visitForExpression(JFXForExpression tree) {
                 needed |= needsToBeInflatedToClass(tree.getBodyExpression()) && referencesMutatedLocal(tree);
                 super.visitForExpression(tree);
+            }
+
+            @Override
+            public void visitWhileLoop(JFXWhileLoop tree) {
+                needed |= needsToBeInflatedToClass(tree.getBody()) && referencesMutatedLocal(tree);
+                super.visitWhileLoop(tree);
             }
 
             @Override
@@ -424,15 +433,16 @@ public class JavafxLocalToClass {
 
         String classNamePrefix;
         if (owner instanceof MethodSymbol && (owner.flags() & JavafxFlags.BOUND) != 0L) {
-            classNamePrefix = defs.boundFunctionClassPrefix;
+            classNamePrefix = JavafxDefs.boundFunctionClassPrefix;
         } else if (owner instanceof MethodSymbol && owner.name == defs.boundForPartName) {
-            classNamePrefix = defs.boundForPartClassPrefix;
+            classNamePrefix = JavafxDefs.boundForPartClassPrefix;
         } else {
-            classNamePrefix = defs.localContextClassPrefix;
+            classNamePrefix = JavafxDefs.localContextClassPrefix;
         }
         final Name className = preTrans.syntheticName(classNamePrefix);
 
         final JavafxClassSymbol classSymbol = preTrans.makeClassSymbol(className, owner);
+        classSymbol.flags_field |= Flags.FINAL;
 
         final MethodType funcType = new MethodType(
                 List.<Type>nil(),    // arg types
@@ -489,7 +499,7 @@ public class JavafxLocalToClass {
         doit.type = funcType;
 
         final JFXClassDeclaration cdecl = fxmake.ClassDeclaration(
-                fxmake.Modifiers(Flags.SYNTHETIC),
+                fxmake.Modifiers(Flags.FINAL | Flags.SYNTHETIC),
                 className,
                 List.<JFXExpression>nil(),
                 vc.varsAsMembers().append(doit));
@@ -518,10 +528,16 @@ public class JavafxLocalToClass {
 
         if (vc.returnFound) {
             // We have a non-local return -- wrap it in try-catch
+
+            if (vc.returnType != null) {
+                // make sure that try block has return as last statment
+                value = fxmake.Return(value);
+                value.type = syms.unreachableType;
+            }
             JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(vc.returnType);
             JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
             param.setType(syms.javafx_NonLocalReturnExceptionType);
-            param.sym = new VarSymbol(0L, param.name, param.type, owner);
+            param.sym = new JavafxVarSymbol(types, names, 0L, param.name, param.type, owner);
             JFXExpression retValue = null;
             if (vc.returnType != null) {
                 JFXIdent nlParam = fxmake.Ident(param);
@@ -607,9 +623,8 @@ public class JavafxLocalToClass {
             @Override
             public void visitIdent(JFXIdent tree) {
                 if (tree.sym instanceof VarSymbol) {
-                    VarSymbol vsym = (VarSymbol) tree.sym;
-                    if (vsym.owner.kind != Kinds.TYP &&
-                            (vsym.flags() & (JavafxFlags.VARUSE_ASSIGNED_TO | JavafxFlags.VARUSE_SELF_REFERENCE | JavafxFlags.VARUSE_FORWARD_REFERENCE)) != 0L) {
+                    JavafxVarSymbol vsym = (JavafxVarSymbol) tree.sym;
+                    if (vsym.isMutatedLocal()) {
                         hasMutatedLocal = true;
                     }
                 }
@@ -621,7 +636,7 @@ public class JavafxLocalToClass {
     }
 
     private boolean hasSelfReference(JFXVar checkedVar) {
-        return (checkedVar.sym.flags() & JavafxFlags.VARUSE_SELF_REFERENCE) != 0L;
+        return checkedVar.sym.hasSelfReference();
     }
 
     private void pushOwner(Symbol newOwner, boolean newIsStatic) {

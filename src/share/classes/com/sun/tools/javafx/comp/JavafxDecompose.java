@@ -27,6 +27,7 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxTranslationSupport.NotYetImplementedException;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Flags;
@@ -34,7 +35,6 @@ import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.ClassType;
 import com.sun.tools.mjavac.code.Type.MethodType;
@@ -169,7 +169,7 @@ public class JavafxDecompose implements JavafxVisitor {
 
     private JFXVar makeVar(DiagnosticPosition diagPos, Name vName, JFXExpression pose, JavafxBindStatus bindStatus, Type type) {
         long flags = JavafxFlags.SCRIPT_PRIVATE | (inScriptLevel ? Flags.STATIC | JavafxFlags.SCRIPT_LEVEL_SYNTH_STATIC : 0L);
-        VarSymbol sym = new VarSymbol(flags, vName, types.normalize(type), varOwner);
+        JavafxVarSymbol sym = new JavafxVarSymbol(types, names, flags, vName, types.normalize(type), varOwner);
         varOwner.members().enter(sym);
         JFXModifiers mod = fxmake.at(diagPos).Modifiers(flags);
         JFXType fxType = preTrans.makeTypeTree(sym.type);
@@ -284,36 +284,12 @@ public class JavafxDecompose implements JavafxVisitor {
                  * variable is derived from the given varName.
                  */
                 ptrVar = makeVar(initExpr.pos(), tmpBoundResName, initExpr, JavafxBindStatus.UNIDIBIND, syms.javafx_PointerType);
-                ptrVar.sym.flags_field |= Flags.SYNTHETIC;
+                ptrVar.sym.flags_field |= Flags.SYNTHETIC | JavafxFlags.VARUSE_BIND_ACCESS;
             }
         }
         return ptrVar;
     }
     
-    Name syntheticClassName(Name superclass) {
-        return names.fromString(superclass.toString() + "$anonD" + ++anonClassCount);
-    }
-
-    ClassSymbol syntheticScriptClass(Symbol sym) {
-        ClassSymbol cs = new ClassSymbol(0L, sym.name.append(defs.scriptClassSuffixName), sym);
-        cs.type = new ClassType(Type.noType, List.<Type>nil(), cs);
-        return cs;
-    }
-
-    MethodSymbol syntheticScriptMethod(Symbol staticsHolder, Symbol scriptClazz) {
-        MethodSymbol msym = new MethodSymbol(Flags.STATIC, defs.scriptLevelAccessMethod(names, staticsHolder), Type.noType, scriptClazz.owner);
-        msym.type = new MethodType(List.<Type>nil(), scriptClazz.type, List.<Type>nil(), syms.methodClass);
-        return msym;
-    }
-
-    JFXExpression syntheticScriptMethodCall(Symbol sym) {
-        Symbol cs = syntheticScriptClass(sym);
-        Symbol msym = syntheticScriptMethod(sym, cs);
-        JFXExpression  meth = fxmake.Apply(null, fxmake.Ident(msym), null);
-        meth.type = cs.type;
-        return meth;
-    }
-
     private <T extends JFXTree> List<T> decomposeContainer(List<T> trees) {
         if (trees == null)
             return null;
@@ -465,7 +441,9 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitUnary(JFXUnary tree) {
-        JFXExpression arg = decomposeComponent(tree.arg);
+        JFXExpression arg = tree.getFXTag() == JavafxTag.REVERSE?
+            shredUnlessIdent(tree.arg) :
+            decomposeComponent(tree.arg);
         JavafxTag tag = tree.getFXTag();
         JFXUnary res = fxmake.at(tree.pos).Unary(tag, arg);
         res.operator = tree.operator;
@@ -497,31 +475,54 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXTree clazz = decompose(tree.clazz);
         result = fxmake.at(tree.pos).TypeTest(expr, clazz);
     }
+    
+    private JFXExpression shredThisConditionally(Type selecttype, Type symType) {
+        JFXIdent _this = fxmake.This(selecttype);
+
+        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
+            (_this.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
+            return shred(_this);
+        } else {
+            return _this;
+        }
+    }
+
+    private JFXExpression shredScriptAccessConditionally(Symbol sym, Type symType) {
+        JFXIdent _access = fxmake.ScriptAccess(sym);
+
+        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
+            (_access.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
+            return shred(_access);
+        } else {
+            return _access;
+        }
+    }
 
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
         Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);
+        boolean isDef = (tree.sym.flags() & JavafxFlags.IS_DEF) != 0;
+        boolean isBound = (tree.sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0;
         if (tree.sym.isStatic() &&
                 tree.sym.kind == Kinds.VAR &&
-                (tree.sym.flags() & JavafxFlags.IS_DEF) == 0 &&
+                (!isDef || (isDef && isBound)) &&
                 types.isJFXClass(tree.sym.owner) &&
                 !currentClass.isSubClass(tree.sym.owner, types) &&
                 bindStatus.isBound() &&
                 tree.name != names._class) {
             //referenced is static script var - if in bind context need shredding
-            JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
-            selected = unconditionalShred(meth, null);
+            selected = shredScriptAccessConditionally(tree.sym.owner, tree.type);
         } else if (!tree.sym.isStatic() && selectSym != null && selectSym.kind == Kinds.TYP &&
                tree.sym.kind != Kinds.MTH) {
             // This is some outer instance variable access
             if (bindStatus.isBound()) {
-                Symbol outerThisSym = new VarSymbol(0L, names._this, selectSym.type, selectSym);
-                JFXIdent outerThis = fxmake.Ident(outerThisSym);
-                selected = shred(outerThis);
+                selected = shredThisConditionally(selectSym.type, tree.type);
             } else {
                 selected = decompose(tree.selected);
             }
-        } else if ( tree.sym.isStatic() ||
+        } else if (selectSym != null && selectSym.name == names._this) {
+            selected = shredThisConditionally(selectSym.type, tree.type);
+        } else if (tree.sym.isStatic() ||
                 (selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
                 !types.isJFXClass(tree.sym.owner)) {
             // Referenced is static, or qualified super access
@@ -547,27 +548,25 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitIdent(JFXIdent tree) {
+        boolean isDef = (tree.sym.flags() & JavafxFlags.IS_DEF) != 0;
+        boolean isBound = (tree.sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0;
         if (tree.sym.kind == Kinds.VAR &&
-                (tree.sym.flags() & JavafxFlags.IS_DEF) == 0L &&
+                (!isDef || (isDef && isBound)) &&
                 types.isJFXClass(tree.sym.owner) &&
-                !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectMethodPrefixName)) &&
+                !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectFieldName)) &&
                 bindStatus.isBound()) {
             if (tree.sym.isStatic()) {
                 if (!inScriptLevel) {
                     //referenced is static script var - if in bind context need shredding
-                    JFXExpression meth = syntheticScriptMethodCall(tree.sym.owner);
-                    meth = unconditionalShred(meth, null);
-                    setSelectResult(tree, meth, tree.sym);
+                    JFXExpression script = shredScriptAccessConditionally(tree.sym.owner, tree.type);
+                    setSelectResult(tree, script, tree.sym);
                     return;
                 }
             } else if (tree.sym.name != names._this && tree.sym.name != names._super && !currentClass.isSubClass(tree.sym.owner, types)) {
                 // instance field from outer class. We transform "foo" as "this.foo"
                 // and shred "this" part so that local classes generated for local
                 // binds will have proper dependency.
-                JFXIdent thisExpr = fxmake.Ident(names._this);
-                thisExpr.sym = new VarSymbol(0L, names._this, tree.sym.owner.type, tree.sym.owner.type.tsym);
-                thisExpr.type = thisExpr.sym.type;
-                setSelectResult(tree, shred(thisExpr), tree.sym);
+                setSelectResult(tree, shredThisConditionally(tree.sym.owner.type, tree.type), tree.sym);
                 return;
             }
         }
@@ -893,15 +892,11 @@ public class JavafxDecompose implements JavafxVisitor {
         JFXSequenceExplicit res = fxmake.at(tree.pos).ExplicitSequence(items);
         res.type = tree.type;
         if (bindStatus.isBound()) {
-            // Generate bare synth vars for the items
             ListBuffer<JFXVar> vb = ListBuffer.lb();
             for (JFXExpression item : tree.getItems()) {
                 vb.append(shredVar("item", decompose(item), item.type));
             }
             res.boundItemsVars = vb.toList();
-
-            // now add a size temp var
-            res.boundSizeVar = makeSizeVar(tree.pos(), JavafxDefs.UNDEFINED_MARKER_INT);
         }
         result = res;
     }
@@ -918,9 +913,9 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitSequenceSlice(JFXSequenceSlice tree) {
-        JFXExpression sequence = decomposeComponent(tree.getSequence());
-        JFXExpression firstIndex = decomposeComponent(tree.getFirstIndex());
-        JFXExpression lastIndex = decomposeComponent(tree.getLastIndex());
+        JFXExpression sequence = shred(tree.getSequence());
+        JFXExpression firstIndex = shred(tree.getFirstIndex());
+        JFXExpression lastIndex = shred(tree.getLastIndex());
         result = fxmake.at(tree.pos).SequenceSlice(sequence, firstIndex, lastIndex, tree.getEndKind());
     }
 
@@ -950,7 +945,13 @@ public class JavafxDecompose implements JavafxVisitor {
 
             // Create the BoundForHelper variable:
             Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
-            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(tree.type), inductionType);
+            Type bodyType = tree.bodyExpr.type;
+            Type helperType = types.applySimpleGenericType(
+                    types.isSequence(bodyType)?
+                        syms.javafx_BoundForHelperType :
+                        syms.javafx_BoundForHelperSingletonType,
+                    types.boxedElementType(tree.type),
+                    inductionType);
             JFXExpression init = fxmake.Literal(TypeTags.BOT, null); 
             init.type = helperType;
             Name helperName = preTrans.makeUniqueVarNameIn(names.fromString("helper$"+currentVarSymbol.name), varOwner);
@@ -992,10 +993,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 if ((func.sym.flags() & JavafxFlags.FUNC_SYNTH_LOCAL_DOIT) != 0L) {
                     // Change the value to be "this"
                     JFXBlock body = func.getBodyExpression();
-                    JFXIdent thisIdent = fxmake.Ident(names._this);
-                    thisIdent.type = ctype;
-                    thisIdent.sym = new VarSymbol(Flags.FINAL | Flags.HASINIT, names._this, ctype, cdecl.sym);
-                    body.value = thisIdent;
+                    body.value = fxmake.This(ctype);
                     body.type = ctype;
 
                     // Adjust function to return class type

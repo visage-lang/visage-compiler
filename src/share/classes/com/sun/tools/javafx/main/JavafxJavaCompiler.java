@@ -150,7 +150,18 @@ public class JavafxJavaCompiler extends JavaCompiler {
                     } else {
                         scanner.token(next);
                         return super.expression();
-                     }
+                    }
+                }
+
+                @Override
+                protected JCExpression term3() {
+                    Token next = scanner.token();
+                    if (next == LBRACE) {
+                        return parseBlockExpression();
+                    } else {
+                        scanner.token(next);
+                        return super.term3();
+                    }
                 }
 
                 @Override

@@ -542,10 +542,10 @@ public class JavafxResolve {
      *                   identifier is searched.
      *  @param name      The identifier's name.
      */
-    public VarSymbol resolveInternalField(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
+    public JavafxVarSymbol resolveInternalField(DiagnosticPosition pos, JavafxEnv<JavafxAttrContext> env,
                                           Type site, Name name) {
         Symbol sym = findField(env, site, name, site.tsym);
-        if (sym.kind == VAR) return (VarSymbol)sym;
+        if (sym.kind == VAR) return (JavafxVarSymbol)sym;
         else throw new FatalError(
                  JCDiagnostic.fragment(MsgSym.MESSAGE_FATAL_ERR_CANNOT_LOCATE_FIELD,
                                 name));
@@ -667,7 +667,7 @@ public class JavafxResolve {
         if (name == names.fromString("__DIR__") || name == names.fromString("__FILE__") 
 			|| name == names.fromString("__PROFILE__")) {
             Type type = syms.stringType;
-            return new VarSymbol(Flags.PUBLIC, name, type, env.enclClass.sym);
+            return new JavafxVarSymbol(types, names,Flags.PUBLIC, name, type, env.enclClass.sym);
         }
         
         if (bestSoFar.kind == VAR && bestSoFar.owner.type != origin.type)

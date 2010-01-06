@@ -25,7 +25,6 @@ package com.sun.tools.javafx.code;
 
 import com.sun.tools.mjavac.code.Symtab;
 import com.sun.tools.mjavac.code.Type;
-import com.sun.tools.mjavac.code.Types;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Type.*;
 import static com.sun.tools.mjavac.jvm.ByteCodes.*;
@@ -33,6 +32,7 @@ import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.code.Symbol.TypeSymbol;
 import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.javafx.comp.JavafxDefs;
+import com.sun.tools.mjavac.code.Flags;
 
 /**
  *
@@ -48,6 +48,7 @@ public class JavafxSymtab extends Symtab {
     public static final String scriptPrivateAnnotationClassNameString = anno + ".ScriptPrivate";
     public static final String publicInitAnnotationClassNameString = anno + ".PublicInitable";
     public static final String publicReadAnnotationClassNameString = anno + ".PublicReadable";
+    public static final String bindeesAnnotationClassNameString = anno + ".JavafxBindees";
     public static final String signatureAnnotationClassNameString = anno + ".JavafxSignature";
     public static final String defAnnotationClassNameString = anno + ".Def";
     public static final String staticAnnotationClassNameString = anno + ".Static";
@@ -93,6 +94,7 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_PointerType;
     public final Type javafx_FXConstantType;
     public final Type javafx_BoundForHelperType;
+    public final Type javafx_BoundForHelperSingletonType;
     public final Type javafx_FXForPartInterfaceType;
     public final Type javafx_NonLocalReturnExceptionType;
 
@@ -129,7 +131,7 @@ public class JavafxSymtab extends Symtab {
      */
     public final Type unreachableType;
 
-    private Types types;
+    private JavafxTypes types;
 
     public static final String functionClassPrefix =
             "com.sun.javafx.functions.Function";
@@ -153,10 +155,20 @@ public class JavafxSymtab extends Symtab {
 
         // FIXME It would be better to make 'names' in super-class be protected.
         Name.Table names = Name.Table.instance(context);
-        types = Types.instance(context);
-        JavafxTypes fxtypes = JavafxTypes.instance(context);
+        types = JavafxTypes.instance(context);
         Options options = Options.instance(context);
         String numberChoice = options.get("Number");
+
+        // Make the array length var symbol a JavaFX var symbol
+        JavafxVarSymbol fxLengthVar = new JavafxVarSymbol(
+            types,
+            names,
+            Flags.PUBLIC | Flags.FINAL ,
+            names.length,
+            intType,
+            arrayClass);
+        arrayClass.members().remove(lengthVar);
+        arrayClass.members().enter(fxLengthVar);
 
         javafx_BooleanType = booleanType;
         javafx_CharacterType = charType;
@@ -193,7 +205,7 @@ public class JavafxSymtab extends Symtab {
         javafx_SequenceProxyType = enterClass(JavafxDefs.cSequenceProxy);
         javafx_ArraySequenceType = enterClass(JavafxDefs.cArraySequence);
         javafx_SequencesType = enterClass(JavafxDefs.cSequences);
-        javafx_EmptySequenceType = fxtypes.sequenceType(botType);
+        javafx_EmptySequenceType = types.sequenceType(botType);
         javafx_SequenceTypeErasure = types.erasure(javafx_SequenceType);
         javafx_ShortArray = new ArrayType(shortType, arrayClass);
         javafx_KeyValueType = enterClass("javafx.animation.KeyValue");
@@ -202,6 +214,7 @@ public class JavafxSymtab extends Symtab {
         javafx_PointerType = enterClass("com.sun.javafx.runtime.Pointer");
         javafx_FXConstantType = enterClass("com.sun.javafx.runtime.FXConstant");
         javafx_BoundForHelperType = enterClass(JavafxDefs.cBoundForHelperNaive);
+        javafx_BoundForHelperSingletonType = enterClass(JavafxDefs.cBoundForHelperNaiveSingle);
         javafx_FXForPartInterfaceType = enterClass(JavafxDefs.cBoundForPartI);
         javafx_NonLocalReturnExceptionType = enterClass(JavafxDefs.cNonLocalReturnException);
         javafx_protectedAnnotationType = enterClass(protectedAnnotationClassNameString);

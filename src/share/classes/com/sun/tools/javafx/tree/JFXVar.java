@@ -26,8 +26,7 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.JavafxBindStatus;
 
-import com.sun.tools.javafx.code.JavafxFlags;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.mjavac.util.Name;
 
 /**
@@ -51,7 +50,7 @@ public class JFXVar extends JFXAbstractVar implements VariableTree {
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
-            VarSymbol sym) {
+            JavafxVarSymbol sym) {
         super(name, jfxtype, mods, init, bindStat, onReplace, onInvalidate, sym);
     }
 

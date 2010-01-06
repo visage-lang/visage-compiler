@@ -38,6 +38,8 @@ import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.util.MsgSym;
 
 import javax.tools.JavaFileObject;
@@ -60,9 +62,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     protected static final Context.Key<JavafxMemberEnter> javafxMemberEnterKey =
         new Context.Key<JavafxMemberEnter>();
     
-// JavaFX change
-    protected
-    final static boolean checkClash = true;
+    protected final static boolean checkClash = true;
 
     private final Name.Table names;
     private final JavafxEnter enter;
@@ -74,7 +74,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
     private final ClassReader reader;
     private final JavafxTodo todo;
     private final JavafxAnnotate annotate;
-    private final Types types;
+    private final JavafxTypes types;
     private final Target target;
 
     public static JavafxMemberEnter instance(Context context) {
@@ -97,7 +97,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         reader = JavafxClassReader.instance(context);
         todo = JavafxTodo.instance(context);
         annotate = JavafxAnnotate.instance(context);
-        types = Types.instance(context);
+        types = JavafxTypes.instance(context);
         target = Target.instance(context);
     }
 
@@ -571,7 +571,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
      */
     public JavafxEnv<JavafxAttrContext> initEnv(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
         JavafxEnv<JavafxAttrContext> localEnv = env.dupto(new JavafxAttrContextEnv(tree, env.info.dup()));
-        if (tree.sym.owner.kind == TYP) {
+        if (tree.sym.isMember()) {
             localEnv.info.scope = new Scope.DelegatedScope(env.info.scope);
             localEnv.info.scope.owner = tree.sym;
         }
@@ -601,7 +601,7 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
         }
 
         Scope enclScope = JavafxEnter.enterScope(env);
-        VarSymbol v = new VarSymbol(0, tree.name, null, enclScope.owner);
+        JavafxVarSymbol v = new JavafxVarSymbol(types, names,0, tree.name, null, enclScope.owner);
         attr.varSymToTree.put(v, tree);
         tree.sym = v;
         SymbolCompleter completer = new SymbolCompleter();
@@ -863,14 +863,12 @@ public class JavafxMemberEnter extends JavafxTreeScanner implements JavafxVisito
             // If this is a class, enter symbols for this and super into
             // current scope.
             if ((c.flags_field & INTERFACE) == 0) {
-                VarSymbol thisSym =
-                    new VarSymbol(FINAL | HASINIT, names._this, c.type, c);
+                JavafxVarSymbol thisSym = fxmake.ThisSymbol(c.type);
                 thisSym.pos = Position.FIRSTPOS;
                 localEnv.info.scope.enter(thisSym);
+                
                 if (ct.supertype_field.tag == CLASS && supertype != null) {
-                    VarSymbol superSym =
-                        new VarSymbol(FINAL | HASINIT, names._super,
-                                      supertype, c);
+                    JavafxVarSymbol superSym = fxmake.SuperSymbol(supertype, c);
                     superSym.pos = Position.FIRSTPOS;
                     localEnv.info.scope.enter(superSym);
                 }
