@@ -54,7 +54,7 @@ public final class FXConstant extends Object implements FXObject {
     public int count$() {
         return VCNT$();
     }
-    public static byte VFLG$value;
+    public static int VFLG$value;
     public static int VOFF$value;
 
 
@@ -303,7 +303,7 @@ public final class FXConstant extends Object implements FXObject {
 
     public void setFlags$(final int arg0, final int arg1) {
         if (arg0 == VOFF$value) {
-            VFLG$value = (byte)arg1;
+            VFLG$value = arg1;
             return;
         }
         FXBase.setFlags$(this, arg0, arg1);
