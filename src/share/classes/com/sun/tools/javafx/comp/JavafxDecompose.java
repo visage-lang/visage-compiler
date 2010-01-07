@@ -500,19 +500,8 @@ public class JavafxDecompose implements JavafxVisitor {
 
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
-        Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);
-        boolean isDef = (tree.sym.flags() & JavafxFlags.IS_DEF) != 0;
-        boolean isBound = (tree.sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0;
-        if (tree.sym.isStatic() &&
-                tree.sym.kind == Kinds.VAR &&
-                (!isDef || (isDef && isBound)) &&
-                types.isJFXClass(tree.sym.owner) &&
-                !currentClass.isSubClass(tree.sym.owner, types) &&
-                bindStatus.isBound() &&
-                tree.name != names._class) {
-            //referenced is static script var - if in bind context need shredding
-            selected = shredScriptAccessConditionally(tree.sym.owner, tree.type);
-        } else if (!tree.sym.isStatic() && selectSym != null && selectSym.kind == Kinds.TYP &&
+        Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);        
+        if (selectSym != null && selectSym.kind == Kinds.TYP &&
                tree.sym.kind != Kinds.MTH) {
             // This is some outer instance variable access
             if (bindStatus.isBound()) {
@@ -522,8 +511,7 @@ public class JavafxDecompose implements JavafxVisitor {
             }
         } else if (selectSym != null && selectSym.name == names._this) {
             selected = shredThisConditionally(selectSym.type, tree.type);
-        } else if (tree.sym.isStatic() ||
-                (selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
+        } else if ((selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
                 !types.isJFXClass(tree.sym.owner)) {
             // Referenced is static, or qualified super access
             // then selected is a class reference
@@ -558,6 +546,7 @@ public class JavafxDecompose implements JavafxVisitor {
             if (tree.sym.isStatic()) {
                 if (!inScriptLevel) {
                     //referenced is static script var - if in bind context need shredding
+                    //TODO: this looks seriously wrong and evil
                     JFXExpression script = shredScriptAccessConditionally(tree.sym.owner, tree.type);
                     setSelectResult(tree, script, tree.sym);
                     return;
