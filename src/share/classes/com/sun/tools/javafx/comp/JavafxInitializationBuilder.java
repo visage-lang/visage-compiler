@@ -35,6 +35,7 @@ import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
@@ -2654,6 +2655,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if ((isScript() || !isMixinClass()) && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
                 makeGetElementMethod(varInfos, varCount);
+                makeGetAsMethods(varInfos, varCount);
                 makeSizeMethod(varInfos, varCount);
                 makeSetMethod(varInfos, varCount);
                 makeBeMethod(varInfos, varCount);
@@ -3124,7 +3126,83 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             vcmb.build();
         }
          
+         //
+        // This method constructs the current class's getAsXXX$ methods.
         //
+        public void makeGetAsMethods(List<VarInfo> attrInfos, final int varCount) {
+            int typeRepCnt = JavafxTypeRepresentation.values().length;
+            ListBuffer<VarInfo>[] seqVars = new ListBuffer[typeRepCnt];
+            boolean hasSequences = false;
+            
+            // Iterate thru each var.
+            for (VarInfo varInfo : attrInfos) {
+                // Constrain the var.
+                if (varInfo.needsCloning() &&
+                    !varInfo.isOverride() &&
+                    !varInfo.isBareSynth() &&
+                    varInfo.useAccessors() &&
+                    varInfo.generateSequenceAccessors()) {
+                    // Element type of sequence.
+                    Type elemType = varInfo.getElementType();
+                    // Type representation of sequence element type.
+                    JavafxTypeRepresentation typeRep = types.typeRep(elemType);
+                    
+                    // Only care about primitive types.
+                    if (typeRep.isPrimitive()) {
+                        //  Ordinal is used as index.
+                        int ordinal = typeRep.ordinal();
+                        
+                        // If this type of sequence has not been encountered before.
+                        if (seqVars[ordinal] == null) {
+                            // Init the list buffer for this type.
+                            seqVars[ordinal] = ListBuffer.lb();
+                            // Worth the effort to iterate thru the list later.
+                            hasSequences = true;
+                        }
+                        
+                        // Add var to list to include in method generation.
+                        seqVars[ordinal].append(varInfo);
+                    }
+                }
+            }
+            
+            // Worth the effort.
+            if (hasSequences) {
+                // For each element type.
+                for (JavafxTypeRepresentation typeRep : JavafxTypeRepresentation.values()) {
+                    //  Ordinal is used as index.
+                    int ordinal = typeRep.ordinal();
+                    
+                    // Only include method if a sequence of that type exists.
+                    if (seqVars[ordinal] != null) {
+                        // All vars of that element type.
+                        List<VarInfo> seqVarInfos = seqVars[ordinal].toList();
+                        // Use the first as a sample to get the type.
+                        final Type elemType = seqVarInfos.get(0).getElementType();
+                        
+                        // Can use case method with a subset of vars.
+                        VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getAs_FXObjectMethodName[ordinal], elemType,
+                                                                             seqVarInfos, varCount) {
+                            @Override
+                            public void initialize() {
+                                addParam(posArg());
+                            }
+                            
+                            @Override
+                            public void statements() {
+                                // The vars have already been filtered.
+                                addStmt(Return(Call(attributeGetElementName(varSym), posArg())));
+                            }
+                        };
+                        
+                        // Build the method.
+                        vcmb.build();
+                    }
+                }
+            }
+        }
+         
+       //
         // This method constructs the current class's size$(varnum) method.
         //
         public void makeSizeMethod(List<VarInfo> attrInfos, int varCount) {

@@ -278,6 +278,7 @@ public class JavafxDefs {
     final Name userInit_FXObjectMethodName;
     final Name postInit_FXObjectMethodName;
     final Name initVars_FXObjectMethodName;
+    Name getAs_FXObjectMethodName[];
 
     /**
      * Duration method Names
@@ -696,9 +697,11 @@ public class JavafxDefs {
         int typeRepCnt = JavafxTypeRepresentation.values().length;
         Sequences_getAsFromNewElements = new RuntimeMethod[typeRepCnt];
         Sequences_toArray = new RuntimeMethod[typeRepCnt];
+        getAs_FXObjectMethodName = new Name[typeRepCnt];
         for (int kind = 0; kind < typeRepCnt; kind++) {
             Sequences_getAsFromNewElements[kind] = new RuntimeMethod(names, cSequences, "get" + accessorSuffixes[kind] + "FromNewElements");
             Sequences_toArray[kind] = new RuntimeMethod(names, cSequences, "to" + typePrefixes[kind] + "Array");
+            getAs_FXObjectMethodName[kind] = names.fromString("get" + accessorSuffixes[kind] + "$");
         }
 
         Util_objectTo = new RuntimeMethod[typeRepCnt];
