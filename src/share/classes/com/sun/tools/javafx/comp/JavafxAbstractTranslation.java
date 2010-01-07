@@ -935,6 +935,14 @@ public abstract class JavafxAbstractTranslation
             }
         }
         
+        JCExpression reference(Symbol sym) {
+            if (sym.isStatic()) {
+                return Select(staticReference(sym), sym.name);
+            } else {
+                return id(sym);
+            }
+        }
+
         JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
             if (expr instanceof JFXIdent) {
                 JFXIdent varId = (JFXIdent) expr;
@@ -1081,7 +1089,7 @@ public abstract class JavafxAbstractTranslation
         protected final Symbol refSym;             //
         protected final Type fullType;             // Type, before conversion, of expression
         protected final Type resultType;           // Type of final generated expression
-        protected final boolean staticReference;   // Is this a static reference
+        protected boolean staticReference;   // Is this a static reference
 
         NullCheckTranslator(DiagnosticPosition diagPos, Symbol sym, Type fullType) {
             super(diagPos);
@@ -1816,10 +1824,9 @@ public abstract class JavafxAbstractTranslation
             // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
             // and possible outer access methods
             JCExpression convert;
-            boolean isStatic = sym.isStatic();
-            if (isStatic) {
+            if (sym.isStatic()) {
                 // make class-based direct static reference:   Foo.x
-                convert = Select(staticReference(sym),tree.getName());
+                convert = reference(sym);
             } else {
                 if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                         sym.owner.kind == Kinds.TYP) {
@@ -2133,7 +2140,7 @@ public abstract class JavafxAbstractTranslation
                     //TODO: possibly should use, or be unified with convertVariableReference
                     JCExpression lhsTranslated = selector != null ?
                         Select(tToCheck, refSym.name) :
-                        id(refSym.name);
+                        reference(refSym);
                     JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
                     return res;
                 }

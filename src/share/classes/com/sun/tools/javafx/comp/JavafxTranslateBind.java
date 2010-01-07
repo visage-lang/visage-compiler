@@ -402,8 +402,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return new BoundSequenceResult(bindees(), invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
         }
 
+        protected JCExpression getReceiverForCallHack(Symbol sym) {
+            if (sym.isStatic()) {
+                return makeType(sym.owner.type, false);
+            }
+            return getReceiver(sym);
+        }
+
         JCExpression CallSize(Symbol sym) {
-            return CallSize(getReceiver(), sym);
+            return CallSize(getReceiverForCallHack(sym), sym);
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
@@ -414,7 +421,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CallGetElement(Symbol sym, JCExpression pos) {
-            return CallGetElement(getReceiver(), sym, pos);
+            return CallGetElement(getReceiverForCallHack(sym), sym, pos);
         }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
