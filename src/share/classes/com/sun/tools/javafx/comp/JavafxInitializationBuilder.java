@@ -212,10 +212,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isMixinClass = cDecl.isMixinClass();
         boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = isAnonClass(analysis.getCurrentClassSymbol());
-        boolean needsGetMap = isAnonClass && (cDecl.sym.flags() & JavafxFlags.ANON_NEEDS_GETMAP) != 0;
+        boolean needsGetMap = isAnonClass && cDecl.getObjInitSyms() != null;
         boolean hasFxSuper = fxSuperClassSym != null;
+        
         // Have to populate the var map for anon classes.
-        LiteralInitVarMap varMap = needsGetMap ? initClassMap.getVarMap(analysis.getCurrentClassSymbol()) : null;
+        LiteralInitVarMap varMap = null;
+        if (needsGetMap) {
+            varMap = initClassMap.getVarMap(analysis.getCurrentClassSymbol());
+            populateAnonInitVarMap(cDecl, varMap);
+        }
 
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
@@ -223,7 +228,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         JavaCodeMaker javaCodeMaker = new JavaCodeMaker(analysis, cDefinitions);
         
         if (!isMixinClass) {
-            javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount, varMap);
+            javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount);
             javaCodeMaker.makeAttributeFlags(classVarInfos);
             javaCodeMaker.makeAttributeFields(classVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
@@ -257,7 +262,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
-                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
                     javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
@@ -314,7 +319,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
-                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
                     javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
@@ -426,6 +431,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
         }
         return null;
+    }
+
+    // Add the vars referenced in the object literal init.
+    private void populateAnonInitVarMap(JFXClassDeclaration cDecl, LiteralInitVarMap varMap) {
+        List<JavafxVarSymbol> objInitSyms = cDecl.getObjInitSyms();
+        
+        for (JavafxVarSymbol varSym : objInitSyms) {
+            varMap.addVar(varSym);
+        }
     }
 
     protected String getSyntheticPrefix() {
@@ -2378,7 +2392,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method generates an enumeration for each of the class's instance attributes.
         // of the class.
         //
-        public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount, LiteralInitVarMap varMap) {
+        public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount) {
             // Reset diagnostic position to current class.
             resetDiagPos();
 
@@ -2406,16 +2420,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                                                         (Flags.STATIC | Flags.PUBLIC);
                     // Construct and add: public static int VOFF$name = n;
                     addDefinition(makeField(flags, syms.intType, name, init));
-                }
-
-                // Add to var map if an anon class.
-                // Exclude the bogus $internal$ fields of FXBase/FXObject
-                if (varMap != null &&
-                        !ai.isBareSynth() &&
-                        !ai.getSymbol().name.endsWith(defs.internalNameMarker) &&
-                        !ai.getSymbol().name.endsWith(defs.outerAccessor_FXObjectFieldName) &&
-                        !ai.getSymbol().name.endsWith(defs.internalSuffixName)) {
-                    varMap.addVar(ai.getSymbol());
                 }
             }
         }

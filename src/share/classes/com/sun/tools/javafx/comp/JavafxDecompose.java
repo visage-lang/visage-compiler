@@ -665,6 +665,19 @@ public class JavafxDecompose implements JavafxVisitor {
        res.sym = tree.sym;
        res.constructor = tree.constructor;
        res.varDefinedByThis = tree.varDefinedByThis;
+
+       long anonTestFlags = Flags.SYNTHETIC | Flags.FINAL;
+       if (dcdel != null && (dcdel.sym.flags_field & anonTestFlags) == anonTestFlags) {
+           ListBuffer<JavafxVarSymbol> objInitSyms = ListBuffer.lb();
+           for (JFXObjectLiteralPart olp : dparts) {
+              objInitSyms.append((JavafxVarSymbol)olp.sym);
+           }
+           
+           if (objInitSyms.size() > 1) {
+              dcdel.setObjInitSyms(objInitSyms.toList());
+           }
+       }
+
        result = res;
    }
 
