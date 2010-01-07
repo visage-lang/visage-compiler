@@ -13,7 +13,6 @@
     <property name="javac.target" value="1.5"/>
     <property name="debug" value="false"/>
     <property name="default.heap" value="-Xmx512m"/>
-
     <condition property="suffix.exe" value=".exe">
         <os family="windows"/>
     </condition>
@@ -21,6 +20,11 @@
     <condition property="suffix.exe" value="">
         <os family="unix"/>
     </condition>
+
+    <path id="jfree.classpath">
+        <pathelement location="${jfree.libpath}/jfreechart-1.0.13.jar"/>
+        <pathelement location="${jfree.libpath}/jcommon-1.0.16.jar"/>
+    </path>
 
     <target name="clean">
         <delete dir="${builddir}"/>
@@ -38,6 +42,7 @@
             <arg line="-version"/>
         </exec>
         <echo message="javafxc.jar : ${javafxc.jar}"/>
+        <echo message="jfree.libpath: ${jfree.libpath}"/>
         <echo message="###################################"/>
         <mkdir dir="${builddir}"/>
         <mkdir dir="${bm.builddir}"/>
@@ -50,12 +55,18 @@
             </classpath>
         </taskdef>
     </target>
-    
-    <target name="compile" depends="init">
+
+    <target name="compile" depends="compile-benchmarks, compile-framework"/>
+
+    <target name="compile-framework" depends="init" if="jfree.libpath">
         <javac srcdir="${srcdir}"
                destdir="${builddir}"
-               debug="true"
-        />
+               classpathref="jfree.classpath"
+               debug="true">
+        </javac>
+    </target>
+    
+    <target name="compile-benchmarks" depends="init">
         <javafxc destdir="${bm.builddir}"
                  includes="**/*.fx" source="${javac.source}" sourcepath=""
                  srcdir="${bm.srcdir}" target="${javac.target}"
@@ -88,11 +99,12 @@
             </fileset>
         </copy>
         <java fork="true" classpath="${builddir}" failonerror="true"
-            dir="${bm.outdir}" classname="com.sun.tools.javafx.framework.Reporter">
+            dir="${bm.outdir}" classname="com.sun.tools.javafx.framework.Reporter"
+            classpathref="jfree.classpath">
         </java>
     </target>
     
-    <target name="run-benchmarks" depends="compile">
+    <target name="run-benchmarks" depends="compile" if="jfree.libpath">
         <run-benchmark benchmark="mathcalc"/>
         <run-benchmark benchmark="mathcalcb"/>
         <run-benchmark benchmark="bsort"/>
@@ -128,8 +140,8 @@
         <run-benchmark benchmark="visibleNode"/> // JFXC-3693
         -->
     </target>
-    <target name="krun-benchmarks" depends="compile">
-
+    <target name="krun-benchmarks" depends="compile" if="jfree.libpath">
+        <run-benchmark benchmark="bindforglobal"/>
     </target>
 
     <target name="run" depends="run-benchmarks, reporter"/>

@@ -23,12 +23,17 @@
 
 package com.sun.tools.javafx.framework;
 
-import java.io.FileOutputStream;
+import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 /**
  *
@@ -42,52 +47,15 @@ public class Reporter {
     final Map<String, ResultData> result;
     final Map<String, ResultData> last;
 
+    static final String TIMING_RESULT_FILE_NAME = "timing-result.html";
+    static final String FOOTPRINT_RESULT_FILE_NAME = "footprint-result.html";
+
     public Reporter() {
         result12 = Utils.readResults12Csv();
         result13 = Utils.readResults13Csv();
         goals    = Utils.readGoalsCsv();
         result   = Utils.readCurrentResultsCsv();
         last     = Utils.readLastBuildCsv();
-    }
-
-    void startTable(PrintStream ps, String header) {
-        //ps.println("<CENTER>");
-        ps.println("  <TABLE BORDER=1 CELLPADDING=4 CELLSPACING=0>");
-        ps.println("  <TR VALIGN=\"TOP\">");
-        ps.println("     <TH COLSPAN=8><P><B>" + header + "</P></B></TH>");
-        ps.println("   </TR>");
-        ps.println("   <TR>");
-        ps.println("     <TH><P><B>Benchmark</B></P></TH>");
-        ps.println("     <TD><P><B>JavaFX 1.2.1</B></P></TD>");
-        ps.println("     <TD><P><B>JavaFX 1.3</B></P></TD>");
-        ps.println("     <TD><P><B>Goal</B></P></TD>");
-        ps.println("     <TD><P><B>Last</B></P></TD>");
-        ps.println("     <TD><P><B>Current</B></P></TD>");
-        ps.println("     <TD><P><B>%change this build to goal</B></P></TD>");
-        ps.println("     <TD><P><B>%change this build to last build</B></P></TD>");
-        ps.println("  </TR>");
-    }
-
-    void endTable(PrintStream ps) {
-        ps.println("</TABLE>");
-        ps.println("<P><P>");
-    }
-
-    void printValues(PrintStream ps, String... args) {
-        ps.println("<TR>");
-        for (String x : args) {
-            ps.println("<TD><P>" + x + "</TD></P>");
-        }
-        ps.println("</TR>");     
-    }
-
-    void openHtml(PrintStream ps) {
-        ps.println("<HTML>");
-        ps.println("<BODY LANG=\"en-US\" DIR=\"LTR\">");
-    }
-
-    void closeHtml(PrintStream ps) {
-        ps.println("</BODY></HTML>");
     }
 
     private String getPerformanceValue(Map<String, ResultData> in, String key) {
@@ -108,11 +76,12 @@ public class Reporter {
             return (performance) ? rd.getPerformance() : rd.getHeapsize();
         }
     }
-    private String getNameAsHref(String name) {
+    private String nameAsHref(String name) {
         return "<a href=" + Utils.getBenchmarkSourceLink(name) +
                 ">" + name + "</a>";
     }
-    private String percentChange(boolean performance,
+
+    private Float percentChange(boolean performance,
             Map<String, ResultData> in1, Map<String, ResultData> in2, String key) {
         float f1 = 0;
         float f2 = 0;
@@ -130,64 +99,151 @@ public class Reporter {
                     : Float.parseFloat((performance ? rd.getPerformance() : rd.getHeapsize())));
         }
         float change = (f1 - f2) / f1 * 100;
-        return String.format("%10.2f", change);
+        return Float.parseFloat(String.format("%10.2f", change));
+    }
+
+    private String generateImage(String refName, String name, Number changeFactor) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(changeFactor, 0, 0);
+        JFreeChart chart = ChartFactory.createBarChart("", "", "%change", dataset, PlotOrientation.HORIZONTAL, false, false, false);
+        try {
+            Color bgcolor = null;
+            double value = changeFactor.doubleValue();
+            if (value == Double.POSITIVE_INFINITY || value == Double.NEGATIVE_INFINITY) {
+                bgcolor = Color.YELLOW;
+            } else if ( value > 5) {
+                bgcolor = Color.GREEN;
+            } else if ( value >= 0 && value <= 5) {
+                bgcolor = Color.BLUE;
+            } else {
+                bgcolor = Color.RED;
+            }
+            chart.setBackgroundPaint(bgcolor);
+            String fname = name + "-plot.png";
+            File dirFile = new File("images");
+            if (!dirFile.exists()) {
+                dirFile.mkdirs();
+            }
+            File ofile = new File(dirFile, fname);
+            ChartUtilities.saveChartAsPNG(ofile, chart, 300, 100);
+            StringBuilder sb = new StringBuilder();
+            sb.append("<a href=\"" + refName + "\" target=\"_blank\">");
+            sb.append("<img src=\"" + dirFile.getName() + "/" + fname +
+                    "\" width=\"150\" height=\"50\" border=\"0\" alt=\"\"/>");
+            sb.append("</a>");
+            return sb.toString();
+        } catch (IOException ioe) {
+            Utils.logger.severe(ioe.getMessage());
+        }
+        return null;
+    }
+
+    String detailsTable(String header) {
+        StringBuilder sb = new StringBuilder();
+        //ps.println("<CENTER>");
+        sb.append("  <TABLE BORDER=1 CELLPADDING=4 CELLSPACING=0>");
+        sb.append("  <TR VALIGN=\"TOP\">");
+        sb.append("     <TH COLSPAN=8><P><B>" + header + "</P></B></TH>");
+        sb.append("   </TR>");
+        sb.append("   <TR>");
+        sb.append("     <TH><P><B>Benchmark</B></P></TH>");
+        sb.append("     <TD><P><B>JavaFX 1.2.1</B></P></TD>");
+        sb.append("     <TD><P><B>JavaFX 1.3</B></P></TD>");
+        sb.append("     <TD><P><B>Goal</B></P></TD>");
+        sb.append("     <TD><P><B>Last</B></P></TD>");
+        sb.append("     <TD><P><B>Current</B></P></TD>");
+        sb.append("     <TD><P><B>%change this build to goal</B></P></TD>");
+        sb.append("     <TD><P><B>%change this build to last build</B></P></TD>");
+        sb.append("  </TR>");
+        return sb.toString();
+    }
+
+    String dashboardTable(String header) {
+        StringBuilder sb = new StringBuilder();
+         //ps.println("<CENTER>");
+        sb.append("  <TABLE BORDER=1 CELLPADDING=4 CELLSPACING=0>");
+        sb.append("  <TR VALIGN=\"TOP\">");
+        sb.append("     <TH COLSPAN=3><P><B>" + header + "</P></B></TH>");
+        sb.append("   </TR>");
+        sb.append("   <TR>");
+        sb.append("     <TH><P><B>Benchmark</B></P></TH>");
+        sb.append("     <TD><P><B>Current build vs. Goal</B></P></TD>");
+        sb.append("     <TD><P><B>Current build vs. Last</B></P></TD>");
+        sb.append("  </TR>");
+        return sb.toString();
     }
 
     private void printTimingReport() {
-        FileOutputStream fos = null;
-        PrintStream ps = null;
+        HtmlWriter timingReport = null;
+        HtmlWriter dashboardTimingReport = null;
         try {
-            fos = new FileOutputStream("timing-result.html");
-            ps = new PrintStream(fos);
-            openHtml(ps);
-            startTable(ps, "Timing in milliseconds");
+            timingReport = new HtmlWriter(TIMING_RESULT_FILE_NAME, 
+                    detailsTable("Timing in milliseconds"));
+            dashboardTimingReport = new HtmlWriter("timing-dashboard.html",
+                    dashboardTable("Timing"));
             Set<String> kset = new TreeSet<String>(result.keySet());
             for (String x : kset) {
-                printValues(ps, getNameAsHref(x),
+                Float currentToGoal = percentChange(true, goals, result, x);
+                Float currentToLast = percentChange(true, last, result, x);
+                // print to details table
+                timingReport.writeToHtml(nameAsHref(x),
                         getPerformanceValue(result12, x),
                         getPerformanceValue(result13, x),
                         getPerformanceValue(goals, x),
                         getPerformanceValue(last, x),
                         getPerformanceValue(result, x),
-                        percentChange(true, goals, result, x),
-                        percentChange(true, last, result, x));
+                        currentToGoal.toString(),
+                        currentToLast.toString());
+
+                // generate images and print to dashboard
+                dashboardTimingReport.writeToHtml(nameAsHref(x),
+                        generateImage(TIMING_RESULT_FILE_NAME,
+                            x + "-timing-goal", currentToGoal),
+                        generateImage(TIMING_RESULT_FILE_NAME,
+                            x + "-timing-last", currentToLast));
             }
-            endTable(ps);
-            closeHtml(ps);
         } catch (IOException ioe) {
             Utils.logger.severe(ioe.toString());
         } finally {
-            Utils.close(ps);
-            Utils.close(fos);
+            Utils.close(dashboardTimingReport);
+            Utils.close(timingReport);
         }
     }
-  
+
     private void printHeapReport() {
-        FileOutputStream fos = null;
-        PrintStream ps = null;
+        HtmlWriter footprintReport = null;
+        HtmlWriter dashboardFootprintReport = null;
         try {
-            fos = new FileOutputStream("footprint-result.html");
-            ps = new PrintStream(fos);
-            openHtml(ps);
-            startTable(ps, "Footprint in MBytes");
+            footprintReport = new HtmlWriter(FOOTPRINT_RESULT_FILE_NAME,
+                    detailsTable("Footprint in MBytes"));
+            dashboardFootprintReport = new HtmlWriter("footprint-dashboard.html",
+                    dashboardTable("Footprint"));
+
             Set<String> kset = new TreeSet<String>(result.keySet());
             for (String x : kset) {
-                printValues(ps, getNameAsHref(x),
+                Float currentToGoal = percentChange(false, goals, result, x);
+                Float currentToLast = percentChange(false, last, result, x);
+                footprintReport.writeToHtml(nameAsHref(x),
                         getHeapsizeValue(result12, x),
                         getHeapsizeValue(result13, x),
                         getHeapsizeValue(goals, x),
                         getHeapsizeValue(last, x),
                         getHeapsizeValue(result, x),
-                        percentChange(false, goals, result, x),
-                        percentChange(false, last, result, x));
+                        currentToGoal.toString(),
+                        currentToLast.toString());
+
+                // generate images and print to dashboard
+                dashboardFootprintReport.writeToHtml(nameAsHref(x),
+                        generateImage(FOOTPRINT_RESULT_FILE_NAME,
+                        x + "-footprint-goal", currentToGoal),
+                        generateImage(FOOTPRINT_RESULT_FILE_NAME,
+                        x + "-footprint-last", currentToLast));
             }
-            endTable(ps);
-            closeHtml(ps);
         } catch (IOException ioe) {
             Utils.logger.severe(ioe.toString());
         } finally {
-            Utils.close(ps);
-            Utils.close(fos);
+            Utils.close(footprintReport);
+            Utils.close(dashboardFootprintReport);
         }
     }
 
@@ -195,7 +251,7 @@ public class Reporter {
         printTimingReport();
         printHeapReport();
     }
-
+    
     public static void main(String... args) {
         Reporter r = new Reporter();
         r.printToHtml();
