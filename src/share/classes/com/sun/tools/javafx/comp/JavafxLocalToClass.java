@@ -83,6 +83,7 @@ public class JavafxLocalToClass {
     private boolean isStatic;
     private Stack<Symbol> prevOwners = new Stack();
     private Stack<Boolean> prevIsStatics = new Stack();
+    private Stack<Type> prevReturnTypes = new Stack<Type>();
 
     protected static final Context.Key<JavafxLocalToClass> localToClass =
             new Context.Key<JavafxLocalToClass>();
@@ -144,7 +145,11 @@ public class JavafxLocalToClass {
 
             // The body of the function begins a new chunk
             pushOwner(tree.definition.sym, false);
+            Type returnType = (tree.definition.type == null)?
+                null : tree.definition.type.getReturnType();
+            pushFunctionReturnType(returnType);
             blockWithin(tree.getBodyExpression());
+            popFunctionReturnType();
             popOwner();
         }
 
@@ -446,7 +451,7 @@ public class JavafxLocalToClass {
 
         final MethodType funcType = new MethodType(
                 List.<Type>nil(),    // arg types
-                block.type,          // return type
+                types.normalize(block.type),  // return type
                 List.<Type>nil(),    // Throws type
                 syms.methodClass);   // TypeSymbol
         final MethodSymbol funcSym = new MethodSymbol(JavafxFlags.FUNC_SYNTH_LOCAL_DOIT, funcName, funcType, classSymbol);
@@ -464,7 +469,7 @@ public class JavafxLocalToClass {
                 tree.nonLocalReturn = true;
                 returnFound = true;
                 if (tree.getExpression() != null)
-                    returnType = tree.getExpression().type;
+                    returnType = topFunctionReturnType();
                 scan(tree.expr);
             }
 
@@ -649,6 +654,18 @@ public class JavafxLocalToClass {
     private void popOwner() {
        owner = prevOwners.pop();
        isStatic = prevIsStatics.pop();
+    }
+
+    private void pushFunctionReturnType(Type returnType) {
+        prevReturnTypes.push(returnType);
+    }
+
+    private void popFunctionReturnType() {
+        prevReturnTypes.pop();
+    }
+
+    private Type topFunctionReturnType() {
+        return prevReturnTypes.peek();
     }
 }
 
