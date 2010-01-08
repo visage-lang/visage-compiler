@@ -25,6 +25,7 @@ package com.sun.tools.javafx.tree;
 
 import com.sun.javafx.api.JavafxBindStatus;
 
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Name;
 
@@ -46,7 +47,7 @@ public class JFXOverrideClassVar extends JFXAbstractVar {
             JavafxBindStatus bindStat,
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
-            VarSymbol sym) {
+            JavafxVarSymbol sym) {
         super(name, type, mods, init, bindStat, onReplace, onInvalidate, sym);
         this.expr = expr;
     }

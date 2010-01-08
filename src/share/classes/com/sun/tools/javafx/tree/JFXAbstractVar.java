@@ -27,8 +27,8 @@ import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.OnReplaceTree;
 
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.mjavac.util.Name;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 
 /**
  *
@@ -41,7 +41,7 @@ public abstract class JFXAbstractVar extends JFXExpression implements VariableTr
     private final JFXExpression init;
     private final JFXOnReplace[] triggers;
     
-    public VarSymbol sym;
+    public JavafxVarSymbol sym;
 
     protected JFXAbstractVar(
             Name name,
@@ -51,7 +51,7 @@ public abstract class JFXAbstractVar extends JFXExpression implements VariableTr
             JavafxBindStatus bindStatus,
             JFXOnReplace onReplace,
             JFXOnReplace onInvalidate,
-            VarSymbol sym) {
+            JavafxVarSymbol sym) {
         super(bindStatus);
         this.name = name;
         this.jfxtype = jfxtype;
@@ -97,7 +97,7 @@ public abstract class JFXAbstractVar extends JFXExpression implements VariableTr
         return triggers[triggerKind.ordinal()];
     }
 
-    public VarSymbol getSymbol() {
+    public JavafxVarSymbol getSymbol() {
         return sym;
     }
 

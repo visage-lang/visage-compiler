@@ -54,6 +54,7 @@ public final class FXConstant extends Object implements FXObject {
     public int count$() {
         return VCNT$();
     }
+    public static int VFLG$value;
     public static int VOFF$value;
 
 
@@ -61,7 +62,7 @@ public final class FXConstant extends Object implements FXObject {
 
 
     public Object get$value() {
-        if (varTestBits$(FXConstant.VOFF$value, VFLGS$IS_BOUND_DEFAULT_APPLIED, 0)) {
+        if (varTestBits$(FXConstant.VOFF$value, VFLGS$IS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED, 0)) {
             applyDefaults$(FXConstant.VOFF$value);
         }
         return $value;
@@ -69,7 +70,7 @@ public final class FXConstant extends Object implements FXObject {
 
 
     public Object set$value(final Object varNewValue$) {
-        restrictSet$(FXConstant.VOFF$value);
+        if (varTestBits$(FXConstant.VOFF$value, VFLGS$IS_READONLY, VFLGS$IS_READONLY)) restrictSet$(FXConstant.VOFF$value);
         varChangeBits$(FXConstant.VOFF$value, 0, VFLGS$IS_INITIALIZED);
         be$value(varNewValue$);
         return $value;
@@ -78,7 +79,7 @@ public final class FXConstant extends Object implements FXObject {
 
     public Object be$value(final Object varNewValue$) {
         final Object varOldValue$ = $value;
-        if (!Util.isEqual(varOldValue$, varNewValue$) || varTestBits$(FXConstant.VOFF$value, VFLGS$DEFAULT_APPLIED, 0)) {
+        if (varOldValue$ != varNewValue$ || varTestBits$(FXConstant.VOFF$value, VFLGS$DEFAULT_APPLIED, 0)) {
             varChangeBits$(FXConstant.VOFF$value, 0, VFLGS$DEFAULT_APPLIED);
             invalidate$value(VFLGS$IS_INVALID);
             $value = varNewValue$;
@@ -172,7 +173,7 @@ public final class FXConstant extends Object implements FXObject {
         return FXBase.getType$(this, varNum$);
     }
 
-    public void initVarBits$() {
+    public void initVars$() {
     }
 
     public FXConstant() {
@@ -296,10 +297,15 @@ public final class FXConstant extends Object implements FXObject {
     }
 
     public int getFlags$(final int arg0) {
+        if (arg0 == VOFF$value) return VFLG$value;
         return FXBase.getFlags$(this, arg0);
     }
 
     public void setFlags$(final int arg0, final int arg1) {
+        if (arg0 == VOFF$value) {
+            VFLG$value = arg1;
+            return;
+        }
         FXBase.setFlags$(this, arg0, arg1);
     }
 

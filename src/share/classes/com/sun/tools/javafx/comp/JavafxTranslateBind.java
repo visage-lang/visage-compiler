@@ -23,6 +23,8 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.tree.SequenceSliceTree;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
@@ -52,7 +54,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     private JavafxToJava toJava;
 
     // Symbol for the var whose bound expression we are translating.
-    private VarSymbol targetSymbol;
+    private JavafxVarSymbol targetSymbol;
 
     // The outermost bound expression
     private JFXExpression boundExpression;
@@ -88,9 +90,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * @param isBidiBind Is this a bi-directional bind?
      * @return
      */
-    ExpressionResult translateBoundExpression(JFXExpression expr, VarSymbol targetSymbol) {
+    ExpressionResult translateBoundExpression(JFXExpression expr, JavafxVarSymbol targetSymbol) {
         // Bind translation is re-entrant -- save and restore state
-        VarSymbol prevTargetSymbol = this.targetSymbol;
+        JavafxVarSymbol prevTargetSymbol = this.targetSymbol;
         JFXExpression prevBoundExpression = this.boundExpression;
 
         this.targetSymbol = targetSymbol;
@@ -146,10 +148,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         @Override
-        protected JCExpression translateInstanceVariableInit(JFXExpression init, VarSymbol vsym) {
+        protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxVarSymbol vsym) {
             if (init instanceof JFXIdent) {
                 Symbol isym = ((JFXIdent) init).sym;
-                addBindee((VarSymbol) isym);
+                addBindee((JavafxVarSymbol) isym);
 
                 if (condition != null) {
                     JCVariableDecl oldVar = TmpVar("old", vsym.type, Get(isym));
@@ -234,10 +236,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 }
             }
 
-            // If the function has a sequence arg or if this is a Function.invoke
-            // we avoid conditional reevaluation. (i.e., force re-evaluation always)
-            conditionallyReevaluate = !hasSequenceArg && !useInvoke &&
-                    !(selectorSym != null && types.isJFXClass(selectorSym.owner));
+            // If the function has a sequence arg or if this is a Function.invoke or
+            // if this is a Java call, we avoid conditional reevaluation. (i.e., force
+            // re-evaluation always)
+            boolean isJavaCall = (msym != null) && !types.isJFXClass(msym.owner);
+            conditionallyReevaluate = ! (hasSequenceArg  || useInvoke || isJavaCall);
 
             // If the receiver changes, then we have to call the function again
             // If selector is local var, then it is going to be final, and thus won't change (and doesn't have a getter)
@@ -281,7 +284,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             if (conditionallyReevaluate && arg instanceof JFXIdent) {
                 // if no args have changed, don't call function, just return previous value
                 Symbol sym = ((JFXIdent) arg).sym;
-                addBindee((VarSymbol) sym);   //TODO: isn't this redundant?
+                addBindee((JavafxVarSymbol) sym);   //TODO: isn't this redundant?
 
                 JCVariableDecl oldVar = TmpVar("old", formal, Get(sym));
                 JCVariableDecl newVar = TmpVar("new", formal, Getter(sym));
@@ -309,7 +312,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCExpression full = super.fullExpression(mungedToCheckTranslated);
                 if (condition != null) {
                     // Always call function if the default has not been applied yet
-                    full = TypeCast(targetSymbol.type, Type.noType,
+                    full = TypeCast(targetType, Type.noType,
                               If (OR(condition, FlagTest(targetSymbol, defs.varFlagDEFAULT_APPLIED, null)),
                                   full,
                                   Get(targetSymbol)));
@@ -399,20 +402,33 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return new BoundSequenceResult(bindees(), invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
         }
 
+        protected JCExpression getReceiverForCallHack(Symbol sym) {
+            if (sym.isStatic()) {
+                return makeType(sym.owner.type, false);
+            }
+            return getReceiver(sym);
+        }
+
         JCExpression CallSize(Symbol sym) {
-            return CallSize(getReceiver(), sym);
+            return CallSize(getReceiverForCallHack(sym), sym);
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
-            return Call(rcvr, attributeSizeName(sym));
+            if (((JavafxVarSymbol) sym).useAccessors())
+                return Call(rcvr, attributeSizeName(sym));
+            else
+                return Call(defs.Sequences_size, Getter(rcvr, sym));
         }
 
         JCExpression CallGetElement(Symbol sym, JCExpression pos) {
-            return CallGetElement(getReceiver(), sym, pos);
+            return CallGetElement(getReceiverForCallHack(sym), sym, pos);
         }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
-            return Call(rcvr, attributeGetElementName(sym), pos);
+            if (((JavafxVarSymbol) sym).useAccessors())
+                return Call(rcvr, attributeGetElementName(sym), pos);
+            else
+                return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, pos);
         }
 
         JCExpression Undefined() {
@@ -439,8 +455,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return CallStmt(attributeInvalidateName(sym), begin, end, newLen, phase);
         }
 
-        private Name activeFlagBit = defs.varFlagDEFAULT_APPLIED;
-        VarSymbol flagSymbol = (VarSymbol)targetSymbol;
+        private Name activeFlagBit = defs.varFlagSEQUENCE_LIVE;
+        JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
 
         JCExpression isSequenceActive() {
             return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
@@ -454,14 +470,6 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return FlagChangeStmt(flagSymbol, null, activeFlagBit);
         }
 
-        JCExpression IsInvalidatePhase() {
-            return EQ(phaseArg(), id(defs.varFlagIS_INVALID));
-        }
-
-        JCExpression IsTriggerPhase() {
-            return EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
-        }
-
         JCStatement Assign(JCExpression vid, JCExpression value) {
             return Stmt(m().Assign(vid, value));
         }
@@ -470,7 +478,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         @Override
-        void addInvalidator(VarSymbol sym, JCStatement invStmt) {
+        void addInvalidator(JavafxVarSymbol sym, JCStatement invStmt) {
             super.addInvalidator(sym, invStmt);
             if (depGraphWriter != null) {
                 depGraphWriter.writeDependency(targetSymbol, sym);
@@ -520,14 +528,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     class BoundIdentSequenceFromNonTranslator extends BoundSequenceTranslator {
 
         // Symbol of the referenced
-        private final VarSymbol sym;
+        private final JavafxVarSymbol sym;
 
         // Size holder
-        private final VarSymbol sizeSym;
+        private final JavafxVarSymbol sizeSym;
 
         BoundIdentSequenceFromNonTranslator(JFXIdentSequenceProxy tree) {
             super(tree.pos());
-            this.sym = (VarSymbol) tree.sym;
+            this.sym = (JavafxVarSymbol) tree.sym;
             this.sizeSym = tree.boundSizeSym();
         }
 
@@ -634,7 +642,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     class BoundBlockSequenceTranslator extends BoundSequenceTranslator {
 
         // Symbol of the referenced
-        private final VarSymbol vsym;
+        private final JavafxVarSymbol vsym;
 
         // The VarInits aka the non-value part of the block
         private final List<JFXExpression> varInits;
@@ -642,7 +650,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         BoundBlockSequenceTranslator(JFXBlock tree) {
             super(tree.pos());
             JFXIdent id = (JFXIdent) (tree.value);
-            this.vsym = (VarSymbol) id.sym;
+            this.vsym = (JavafxVarSymbol) id.sym;
             this.varInits = tree.stats;
         }
 
@@ -690,14 +698,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     class BoundTypeCastSequenceTranslator extends BoundSequenceTranslator {
 
-        private final VarSymbol exprSym;
+        private final JavafxVarSymbol exprSym;
         private final Type elemType;
 
         BoundTypeCastSequenceTranslator(JFXTypeCast tree) {
             super(tree.pos());
             assert types.isSequence(tree.type);
             assert tree.getExpression() instanceof JFXIdent; // Decompose should shred
-            this.exprSym = (VarSymbol)((JFXIdent)tree.getExpression()).sym;
+            this.exprSym = (JavafxVarSymbol)((JFXIdent)tree.getExpression()).sym;
             assert types.isSequence(tree.getExpression().type);
             this.elemType = types.elementType(tree.type);
         }
@@ -759,9 +767,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
         private final SelectTranslator strans;
         private final Symbol refSym;
-        private final VarSymbol selfSym = (VarSymbol) targetSymbol;
-        private final VarSymbol selectorSym;
-        private final VarSymbol sizeSym;
+        private final JavafxVarSymbol selfSym = (JavafxVarSymbol) targetSymbol;
+        private final JavafxVarSymbol selectorSym;
+        private final JavafxVarSymbol sizeSym;
 
 
         BoundSelectSequenceTranslator(JFXSelect tree) {
@@ -773,7 +781,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             assert canChange();
             assert (selectorExpr instanceof JFXIdent);
             JFXIdent selector = (JFXIdent) selectorExpr;
-            this.selectorSym = (VarSymbol) selector.sym;
+            this.selectorSym = (JavafxVarSymbol) selector.sym;
         }
 
         /*** forward to SelectTranslator ***/
@@ -806,7 +814,9 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         JCStatement makeSizeBody() {
             JCExpression tToCheck = translateToCheck(getToCheck());
-
+            JCStatement callSize = buildBody(tToCheck, CallSize(tToCheck, refSym), syms.intType);
+            if (! selectorSym.useAccessors())
+                return callSize;
             return
                 Block(
                     If (isSequenceDormant(),
@@ -816,7 +826,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                             CallStmt(attributeInvalidateName(selectorSym), id(defs.varFlagNEEDS_TRIGGER))
                         )
                     ),
-                    buildBody(tToCheck, CallSize(tToCheck, refSym), syms.intType)
+                    callSize
                 );
         }
 
@@ -954,6 +964,81 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     }
 
     /**
+     * Bound reverse operator sequence Translator
+     */
+    private class BoundReverseSequenceTranslator extends BoundSequenceTranslator {
+
+        private final JavafxVarSymbol selfSym = (JavafxVarSymbol) targetSymbol;
+        private final JavafxVarSymbol argSym;
+
+        BoundReverseSequenceTranslator(JFXUnary tree) {
+            super(tree.pos());
+            JFXIdent arg = (JFXIdent) tree.arg;
+            this.argSym = (JavafxVarSymbol) arg.sym;
+        }
+
+        /**
+         * Size accessor -- pass through
+         */
+        JCStatement makeSizeBody() {
+            return
+                Return (CallSize(argSym));
+        }
+
+        /**
+         * Get sequence element
+         * Element is underlying element at size - 1 - index
+         */
+        JCStatement makeGetElementBody() {
+            return
+                Return ( CallGetElement(argSym, MINUS( MINUS(CallSize(argSym), Int(1)), posArg()) ) );
+        }
+
+        /**
+         * Pass-through the invalidation reversing the start and end
+         *
+         * Compute the old size:
+         *    oldSize = newSize - (newLen - (end - start));
+         * 
+         * reversedStart = oldSize - 1 - (end - 1) = oldSize - end
+         * reversedEnd = oldSize - 1 + 1 - start = oldSize - start
+         */
+        private JCStatement makeInvalidateArg() {
+            JCVariableDecl oldSize = TmpVar(syms.intType,
+                        MINUS(
+                            CallSize(argSym),
+                            MINUS(
+                                newLengthArg(),
+                                MINUS(
+                                    endPosArg(),
+                                    startPosArg()
+                                )
+                            )
+                        ));
+
+            return
+                If (IsInvalidatePhase(),
+                    Block(
+                        CallSeqInvalidateUndefined(selfSym)
+                    ),
+                /*Else (Trigger phase)*/
+                    Block(
+                        oldSize,
+                        CallSeqInvalidate(selfSym,
+                                    MINUS(id(oldSize), endPosArg()),
+                                    MINUS(id(oldSize), startPosArg()),
+                                    newLengthArg()
+                        )
+                    )
+                );
+        }
+
+        void setupInvalidators() {
+                addInvalidator(argSym, makeInvalidateArg());
+        }
+    }
+
+    /**
      * Bound explicit sequence Translator ["hi", [2..k], x]
      *
      *
@@ -961,14 +1046,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
     private class BoundExplicitSequenceTranslator extends BoundSequenceTranslator {
         private final List<JFXVar> vars;
         private final Type elemType;
-        private final VarSymbol sizeSymbol;
         private final int length;
         BoundExplicitSequenceTranslator(JFXSequenceExplicit tree) {
             super(tree.pos());
             this.vars = tree.boundItemsVars;
             this.length = vars.length();
             this.elemType = types.elementType(tree.type);
-            this.sizeSymbol = tree.boundSizeVar.sym;
         }
 
         private boolean isNullable(int index) {
@@ -983,7 +1066,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return types.isSequence(type(index));
         }
 
-        private VarSymbol vsym(int index) {
+        private JavafxVarSymbol vsym(int index) {
             return vars.get(index).sym;
         }
 
@@ -1017,16 +1100,40 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return sum;
         }
 
-        private JCExpression CallGetElement(int index, JCExpression pos) {
+        private JCExpression GetElement(int index, JCExpression pos) {
             if (isSequence(index)) {
                 return Call(attributeGetElementName(vsym(index)), pos);
             } else {
-                return CallGetter(index);
+                return Get(vsym(index));
             }
         }
 
         JCStatement makeSizeBody() {
-            return Return(Getter(sizeSymbol));
+            JCVariableDecl vSize = TmpVar("size", syms.intType, cummulativeSize(length));
+
+            // Initialize the singleton synthetic item vars (during IS_VALID phase)
+            // Bound sequences don't have a value
+            ListBuffer<JCStatement> varInits = ListBuffer.lb();
+            for (int i = 0; i < length; ++i) {
+                if (!isSequence(i)) {
+                    varInits.append(SetStmt(vsym(i), CallGetter(i)));
+                }
+            }
+
+            return
+                Block(
+                    If(isSequenceDormant(),
+                        Block(
+                            varInits,
+                            vSize,
+                            setSequenceActive(),
+                            CallSeqInvalidate(),
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER)),
+                            Return(id(vSize))
+                        )
+                    ),
+                    Return(cummulativeSize(length))
+                );
         }
 
         /**
@@ -1056,15 +1163,27 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             JCVariableDecl vNext = MutableTmpVar("next", syms.intType, Int(0));
             ListBuffer<JCStatement> stmts = ListBuffer.lb();
 
-            stmts.append(If(LT(posArg(), Int(0)), Return(DefaultValue(elemType))));
-            stmts.append(vStart);
-            stmts.append(vNext);
+            stmts.appendList(Stmts(
+                    If(LT(posArg(), Int(0)),
+                        Return(DefaultValue(elemType))
+                    ),
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    vStart,
+                    vNext
+                ));
             for (int index = 0; index < length; ++index) {
-                stmts.append(Assign(vNext, PLUS(id(vNext), computeSize(index))));
-                stmts.append(If(LT(posArg(), id(vNext)), Return(CallGetElement(index, MINUS(posArg(), id(vStart))))));
-                stmts.append(Assign(vStart, id(vNext)));
+                stmts.appendList(Stmts(
+                        Assign(vNext, PLUS(id(vNext), computeSize(index))),
+                        If(LT(posArg(), id(vNext)),
+                            Return(GetElement(index, MINUS(posArg(), id(vStart))))
+                        ),
+                        Assign(vStart, id(vNext))
+                    ));
             }
-            stmts.append(Return(DefaultValue(elemType)));
+            stmts.append(
+                    Return(DefaultValue(elemType)));
             return Block(stmts);
         }
 
@@ -1075,32 +1194,28 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
             if (isSequence(index)) {
                 return 
-                    If(isSequenceActive(),
-                        Block(
-                            vStart,
-                            If(IsTriggerPhase(),
-                                // Update the size by the difference
-                                // size = size + newLen - (end - begin)
-                                SetStmt(sizeSymbol,
-                                    PLUS(
-                                        Get(sizeSymbol),
-                                        MINUS(
-                                            newLengthArg(),
-                                            MINUS(endPosArg(), startPosArg())
+                        If (isSequenceActive(),
+                            Block(
+                                If (IsInvalidatePhase(),
+                                    Block(
+                                        CallSeqInvalidate()
+                                    ),
+                                /*Else (Trigger phase)*/
+                                    Block(
+                                        vStart,
+                                        CallSeqInvalidate(
+                                            PLUS(id(vStart), startPosArg()),
+                                            If (EQ(endPosArg(), Undefined()),
+                                                Undefined(),
+                                                PLUS(id(vStart), endPosArg())
+                                            ),
+                                            newLengthArg()
                                         )
                                     )
                                 )
-                            ),
-                            CallSeqInvalidate(
-                                PLUS(id(vStart), startPosArg()),
-                                If (EQ(endPosArg(), Undefined()),
-                                    Undefined(),
-                                    PLUS(id(vStart), endPosArg())
-                                ),
-                                newLengthArg()
                             )
-                        )
-                    );
+                        );
+
             } else {
                 //TODO: this is eager even for fixed length
                 JCVariableDecl vOldLen = TmpVar("oldLen", syms.intType, computeSize(index));
@@ -1108,61 +1223,33 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                 JCVariableDecl vNewLen = TmpVar("newLen", syms.intType, computeSize(index, id(vValue)));
 
                 return 
-                    If(AND(isSequenceActive(), FlagTest(vsym(index), phaseArg(), null)),
+                    If (id(defs.wasInvalid_LocalVarName),
                         Block(
-                            vStart,
-                            vOldLen,
                             FlagChangeStmt(vsym(index), null, phaseArg()),
-                            If(IsInvalidatePhase(),
+                            If (isSequenceActive(),
                                 Block(
-                                    CallSeqInvalidate(
-                                        id(vStart),
-                                        PLUS(id(vStart), id(vOldLen)),
-                                        Undefined()
-                                    )
-                                ),
-                            /*Else (Trigger phase)*/
-                                Block(
-                                    // Update the size by the difference
-                                    vValue,
-                                    vNewLen,
-                                    SetStmt(sizeSymbol, PLUS(Get(sizeSymbol), MINUS(id(vNewLen), id(vOldLen)))),
-                                    SetStmt(vsym(index), id(vValue)),
-                                    CallSeqInvalidate(
-                                        id(vStart),
-                                        PLUS(id(vStart), id(vOldLen)),
-                                        id(vNewLen)
+                                    If (IsInvalidatePhase(),
+                                        Block(
+                                            CallSeqInvalidate()
+                                        ),
+                                    /*Else (Trigger phase)*/
+                                        Block(
+                                            vOldLen,
+                                            vStart,
+                                            vValue,
+                                            vNewLen,
+                                            CallSeqInvalidate(
+                                                id(vStart),
+                                                PLUS(id(vStart), id(vOldLen)),
+                                                id(vNewLen)
+                                            )
+                                        )
                                     )
                                 )
                             )
                         )
                     );
             }
-        }
-
-        /**
-         * Invalidate (and computation) for synthetic size var.
-         */
-        private JCStatement makeInvalidateSize() {
-            // Initialize the singleton synthetic item vars (during IS_VALID phase)
-            // Bound sequences don't have a value
-            ListBuffer<JCStatement> stmts = ListBuffer.lb();
-            for (int i = 0; i < length; ++i) {
-                if (!isSequence(i)) {
-                    stmts.append(SetStmt(vsym(i), CallGetter(i)));
-                }
-            }
-            JCStatement varInits = Block(stmts);
-
-            return
-                Block(
-                    If(IsTriggerPhase(),
-                        setSequenceActive(),
-                        varInits
-                    ),
-                    SetStmt(sizeSymbol, cummulativeSize(length)),
-                    CallSeqInvalidate(Int(0), Int(0), Get(sizeSymbol))
-                );
         }
 
         /**
@@ -1172,14 +1259,11 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             for (int index = 0; index < length; ++index) {
                 addInvalidator(vsym(index), makeItemInvalidate(index));
             }
-            addInvalidator(sizeSymbol, makeInvalidateSize());
-        }
+         }
     }
 
     /**
      * Bound range sequence Translator [10..100 step 10]
-     *
-     *
      */
     private class BoundRangeSequenceTranslator extends BoundSequenceTranslator {
         private final JFXVar varLower;
@@ -1526,6 +1610,424 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             addInvalidator(varSize.sym, makeInvalidateSize());
         }
     }
+
+    /**
+     * Bound slice sequence Translator seq[3..5]
+     */
+    private class BoundSliceSequenceTranslator extends BoundSequenceTranslator {
+        private final JavafxVarSymbol seqSym;
+        private final JavafxVarSymbol lowerSym;
+        private final JavafxVarSymbol upperSym;
+        private final boolean isExclusive;
+        private final Type elemType;
+
+        BoundSliceSequenceTranslator(JFXSequenceSlice tree) {
+            super(tree.pos());
+            this.seqSym = (JavafxVarSymbol) (((JFXIdent) tree.getSequence()).sym);
+            this.lowerSym = (JavafxVarSymbol) (((JFXIdent) tree.getFirstIndex()).sym);
+            this.upperSym = tree.getLastIndex() == null?
+                null :
+                (JavafxVarSymbol) (((JFXIdent) tree.getLastIndex()).sym);
+            this.isExclusive = tree.getEndKind() == SequenceSliceTree.END_EXCLUSIVE;
+            this.elemType = types.elementType(tree.type);
+        }
+
+        private JCExpression seq() {
+            return Get(seqSym);
+        }
+        private JCExpression lower() {
+            return Get(lowerSym);
+        }
+        private JCExpression upper() {
+            return Get(upperSym);
+        }
+
+        private JCStatement setLower(JCExpression value) {
+            return SetStmt(lowerSym, value);
+        }
+        private JCStatement setUpper(JCExpression value) {
+            return SetStmt(upperSym, value);
+        }
+
+        private JCExpression CallSeqSize() {
+            return CallSize(seqSym);
+        }
+        private JCExpression CallSeqGetElement(JCExpression pos) {
+            return CallGetElement(seqSym, pos);
+        }
+
+        private JCExpression CallLower() {
+            return Getter(lowerSym);
+        }
+        private JCExpression CallUpper() {
+            return Getter(upperSym);
+        }
+
+        /**
+         * if (lower < 0) lower = 0;
+         * if (lower > underlyingSize) lower = underlyingSize;
+         * if (upper < lower) upper = lower;
+         * if (upper > underlyingSize) upper = underlyingSize;
+         * int size = upper - lower;
+         * if (sequence-inactive) {
+         *   set-active;
+         *   invalidate
+         * }
+         * return size
+         */
+        JCStatement makeSizeBody() {
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vLower = MutableTmpVar("lower", syms.intType, CallLower());
+            // standardize on exclusive upper
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType,
+                    upperSym==null?
+                        isExclusive?
+                            MINUS(id(vSeqSize), Int(1)) :
+                            id(vSeqSize) :
+                        isExclusive?
+                            CallUpper() :
+                            PLUS(CallUpper(), Int(1)));
+            JCVariableDecl vSize = TmpVar("size", syms.intType, MINUS(id(vUpper), id(vLower)));
+
+            return
+                Block(
+                    vSeqSize,
+                    vLower,
+                    vUpper,
+                    If (GT(id(vLower), id(vSeqSize)),
+                        Assign(vLower, id(vSeqSize))
+                    ),
+                    If (LT(id(vUpper), id(vLower)),
+                        Assign(vUpper, id(vLower))
+                    ),
+                    If (GT(id(vUpper), id(vSeqSize)),
+                        Assign(vUpper, id(vSeqSize))
+                    ),
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidate(),
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                        )
+                    ),
+                    Return (id(vSize))
+                );
+        }
+
+        /**
+         * if (sequence-is-dormant) {
+         *   call size -- to initialize it
+         * }
+         * if (lower < 0) lower = 0;
+         * if (pos < 0 || pos >= (upper - lower)) return default-value;
+         * return seq[pos + lower];
+         */
+        JCStatement makeGetElementBody() {
+            JCVariableDecl vLower = TmpVar("lower", syms.intType, CallLower());
+            // standardize on exclusive upper
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType,
+                    upperSym==null?
+                        isExclusive?
+                            MINUS(CallSeqSize(), Int(1)) :
+                            CallSeqSize() :
+                        isExclusive?
+                            CallUpper() :
+                            PLUS(CallUpper(), Int(1)));
+
+            return
+                Block(
+                    If (isSequenceDormant(),
+                        Block(
+                            Stmt(CallSize(targetSymbol))
+                        )
+                    ),
+                    vLower,
+                    vUpper,
+                    If (LT(id(vUpper), id(vLower)),
+                        Assign(vUpper, id(vLower))
+                    ),
+                    If (OR(LT(posArg(), Int(0)), GE(posArg(), MINUS(id(vUpper), id(vLower)))),
+                        Return (DefaultValue(elemType))
+                    ),
+                    Return (CallSeqGetElement(PLUS(posArg(), id(vLower))))
+                );
+        }
+
+        /**
+         * Invalidator for lower
+         */
+        private JCStatement makeInvalidateLower() {
+            JCVariableDecl vOldLower = MutableTmpVar("oldLower", syms.intType, lower());
+            JCVariableDecl vNewLower = MutableTmpVar("newLower", syms.intType, CallLower());
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType,
+                    upperSym==null?
+                        isExclusive?
+                            MINUS(id(vSeqSize), Int(1)) :
+                            id(vSeqSize) :
+                        isExclusive?
+                            CallUpper() :
+                            PLUS(CallUpper(), Int(1)));
+
+            return
+                If (id(defs.wasInvalid_LocalVarName),
+                    Block(
+                        FlagChangeStmt(lowerSym, null, phaseArg()),
+                        If (isSequenceActive(),
+                            Block(
+                                If (IsInvalidatePhase(),
+                                    Block(
+                                        CallSeqInvalidate()
+                                    ),
+                                /*Else (Trigger phase)*/
+                                    Block(
+                                        vOldLower,
+                                        vNewLower,
+                                        vSeqSize,
+                                        vUpper,
+                                        If (LT(id(vNewLower), Int(0)),
+                                            Assign(vNewLower, Int(0))
+                                        ),
+                                        setLower(id(vNewLower)),
+                                        If (GT(id(vUpper), id(vSeqSize)),
+                                            Assign(vUpper, id(vSeqSize))
+                                        ),
+                                        If (GT(id(vNewLower), id(vUpper)),
+                                            Assign(vNewLower, id(vUpper))
+                                        ),
+                                        If (GT(id(vOldLower), id(vUpper)),
+                                            Assign(vOldLower, id(vUpper))
+                                        ),
+                                        If (GT(id(vNewLower), id(vOldLower)),
+                                            Block(
+                                                // lose elements from the front
+                                                CallSeqInvalidate(Int(0), MINUS(id(vNewLower), id(vOldLower)), Int(0))
+                                            ),
+                                        /*else*/ If (LT(id(vNewLower), id(vOldLower)),
+                                            Block(
+                                                // Gain elements in the front
+                                                CallSeqInvalidate(Int(0), Int(0), MINUS(id(vOldLower), id(vNewLower)))
+                                            )
+                                        ))
+                                   )
+                                )
+                            )
+                        )
+                    )
+                );
+        }
+
+
+        /**
+         * Invalidator for upper
+         *
+         * Adjust uppers (old and new) between lower and the underlying sequence size.
+         * If upper is greater, elements added at end:
+         *   invalidate(oldSize, oldSize, delta)
+         * If upper is lesser, elements removed from end
+         *   invalidate(newSize, oldSize, 0)
+         */
+        private JCStatement makeInvalidateUpper() {
+            JCVariableDecl vOldUpper = MutableTmpVar("oldUpper", syms.intType,
+                    isExclusive?
+                            upper() :
+                            PLUS(upper(), Int(1)));
+            JCVariableDecl vNewUpper = MutableTmpVar("newUpper", syms.intType,
+                    isExclusive?
+                            CallUpper() :
+                            PLUS(CallUpper(), Int(1)));
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vLower = MutableTmpVar("lower", syms.intType, lower());
+            JCVariableDecl vOldSize = TmpVar("oldSize", syms.intType, MINUS(id(vOldUpper), id(vLower)));
+
+            return
+                If (id(defs.wasInvalid_LocalVarName),
+                    Block(
+                        FlagChangeStmt(upperSym, null, phaseArg()),
+                        If (isSequenceActive(),
+                            Block(
+                                If (IsInvalidatePhase(),
+                                    Block(
+                                        CallSeqInvalidate()
+                                    ),
+                                /*Else (Trigger phase)*/
+                                    Block(
+                                        vOldUpper,
+                                        vNewUpper,
+                                        vSeqSize,
+                                        vLower,
+                                        If (GT(id(vLower), id(vSeqSize)),
+                                            Assign(vLower, id(vSeqSize))
+                                        ),
+                                        If (GT(id(vOldUpper), id(vSeqSize)),
+                                            Assign(vOldUpper, id(vSeqSize))
+                                        ),
+                                        If (GT(id(vNewUpper), id(vSeqSize)),
+                                            Assign(vNewUpper, id(vSeqSize))
+                                        ),
+                                        If (LT(id(vOldUpper), id(vLower)),
+                                            Assign(vOldUpper, id(vLower))
+                                        ),
+                                        If (LT(id(vNewUpper), id(vLower)),
+                                            Assign(vNewUpper, id(vLower))
+                                        ),
+                                        vOldSize,
+                                        If (GT(id(vNewUpper), id(vOldUpper)),
+                                            Block(
+                                                // Gain elements at the end
+                                                CallSeqInvalidate(id(vOldSize), id(vOldSize), MINUS(id(vNewUpper), id(vOldUpper)))
+                                            ),
+                                        /*else*/ If (LT(id(vNewUpper), id(vOldUpper)),
+                                            Block(
+                                                // Lose elements in the end
+                                                CallSeqInvalidate(MINUS(id(vNewUpper), id(vLower)), id(vOldSize), Int(0))
+                                            )
+                                        ))
+                                   )
+                                )
+                            )
+                        )
+                    )
+                );
+        }
+
+        /**
+         * Invalidator for the underlying sequence
+         *
+         * Adjust uppers (old and new) between lower and the underlying sequence size.
+         * If upper is greater, elements added at end:
+         *   invalidate(oldSize, oldSize, delta)
+         * If upper is lesser, elements removed from end
+         *   invalidate(newSize, oldSize, 0)
+         */
+        private JCStatement makeInvalidateUnderlying() {
+            // startPosArg(), endPosArg(), newLengthArg()
+            JCVariableDecl vDelta = TmpVar("delta", syms.intType, MINUS(newLengthArg(), MINUS(endPosArg(), startPosArg())));
+            JCVariableDecl vSeqSize = TmpVar("seqSize", syms.intType, CallSeqSize());
+            JCVariableDecl vLower = MutableTmpVar("lower", syms.intType, lower());
+            JCVariableDecl vUpper = MutableTmpVar("upper", syms.intType,
+                    upperSym==null?
+                        isExclusive?
+                            MINUS(id(vSeqSize), Int(1)) :
+                            id(vSeqSize) :
+                        isExclusive?
+                            upper() :
+                            PLUS(upper(), Int(1)));
+            JCVariableDecl vOldSeqSize = TmpVar("oldSeqSize", syms.intType, MINUS(id(vSeqSize), id(vDelta)));
+            JCVariableDecl vOldUpper = MutableTmpVar("adjOldUpper", syms.intType, id(vUpper));
+            JCVariableDecl vNewUpper = MutableTmpVar("adjNewUpper", syms.intType, id(vUpper));
+            JCVariableDecl vOldLower = MutableTmpVar("adjOldLower", syms.intType, id(vLower));
+            JCVariableDecl vNewLower = MutableTmpVar("adjNewLower", syms.intType, id(vLower));
+            JCVariableDecl vBegin = MutableTmpVar("begin", syms.intType, id(vLower));
+            JCVariableDecl vEnd = MutableTmpVar("end", syms.intType, id(vUpper));
+            JCVariableDecl vOldBegin = MutableTmpVar("beginOld", syms.intType, id(vBegin));
+            JCVariableDecl vOldEnd = MutableTmpVar("endOld", syms.intType, id(vEnd));
+            JCVariableDecl vNewBegin = MutableTmpVar("beginNew", syms.intType, id(vBegin));
+            JCVariableDecl vNewEnd = MutableTmpVar("endNew", syms.intType, id(vEnd));
+
+            return
+                        If (isSequenceActive(),
+                            Block(
+                                If (IsInvalidatePhase(),
+                                    Block(
+                                        CallSeqInvalidate()
+                                    ),
+                                /*Else (Trigger phase)*/
+                                    Block(
+                                        vDelta,
+                                        vSeqSize,
+                                        vLower,
+                                        vUpper,
+                                        vOldSeqSize,
+                                        vOldLower,
+                                        vOldUpper,
+                                        If(LT(id(vOldSeqSize), id(vOldUpper)),
+                                            Assign(vOldUpper, id(vOldSeqSize))
+                                        ),
+                                        If(LT(id(vOldUpper), id(vOldLower)),
+                                            Assign(vOldLower, id(vOldUpper))
+                                        ),
+
+                                        // Change is before or in slice
+                                        If (LT(startPosArg(), id(vUpper)),
+                                            Block(
+                                                // If change is entirely before slice
+                                                If (LE(endPosArg(), id(vLower)),
+                                                    Block(
+                                                        If (NE(id(vDelta), Int(0)),
+                                                            Block(
+                                                                vNewUpper,
+                                                                vNewLower,
+                                                                If(LT(id(vSeqSize), id(vNewUpper)),
+                                                                    Assign(vNewUpper, id(vSeqSize))
+                                                                ),
+                                                                If(LT(id(vNewUpper), id(vNewLower)),
+                                                                    Assign(vNewLower, id(vNewUpper))
+                                                                ),
+                                                                CallSeqInvalidate(
+                                                                    Int(0),
+                                                                    MINUS(id(vOldUpper), id(vOldLower)),
+                                                                    MINUS(id(vNewUpper), id(vNewLower))
+                                                                )
+                                                            )
+                                                        )
+                                                    ),
+                                                /*else -- change is within slice */
+                                                    Block(
+                                                        vBegin,
+                                                        vEnd,
+                                                        // Starts at the greater of the change start and the slice lower
+                                                        If(GT(startPosArg(), id(vBegin)),
+                                                            Assign(vBegin, startPosArg())
+                                                        ),
+                                                        // If the change does not shift elements, limit to end position
+                                                        If(AND(EQ(id(vDelta), Int(0)), LT(endPosArg(), id(vEnd))),
+                                                            Assign(vEnd, endPosArg())
+                                                        ),
+                                                        // Now constrain to be within old/new underlying sequence length
+                                                        vOldEnd,
+                                                        vNewEnd,
+                                                        If(LT(id(vOldSeqSize), id(vOldEnd)),
+                                                            Assign(vOldEnd, id(vOldSeqSize))
+                                                        ),
+                                                        If(LT(id(vSeqSize), id(vNewEnd)),
+                                                            Assign(vNewEnd, id(vSeqSize))
+                                                        ),
+                                                        vOldBegin,
+                                                        vNewBegin,
+                                                        If(LT(id(vOldEnd), id(vOldBegin)),
+                                                            Assign(vOldBegin, id(vOldEnd))
+                                                        ),
+                                                        If(LT(id(vNewEnd), id(vNewBegin)),
+                                                            Assign(vNewBegin, id(vNewEnd))
+                                                        ),
+                                                        // Invalidate
+                                                        CallSeqInvalidate(
+                                                            MINUS(id(vOldBegin), id(vOldLower)),
+                                                            MINUS(id(vOldEnd),   id(vOldLower)),
+                                                            MINUS(id(vNewEnd),   id(vNewBegin))
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                   )
+                                )
+                            )
+                        );
+        }
+
+        /**
+         * Set invalidators for the synthetic support variables
+         */
+        void setupInvalidators() {
+            addInvalidator(lowerSym, makeInvalidateLower());
+            if (upperSym!=null)
+                addInvalidator(upperSym, makeInvalidateUpper());
+            addInvalidator(seqSym, makeInvalidateUnderlying());
+        }
+    }
     
     private class BoundForExpressionTranslator extends BoundSequenceTranslator {
         JFXForExpression forExpr;
@@ -1538,7 +2040,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCStatement makeSizeBody() {
-            VarSymbol helperSym = clause.boundHelper.sym;
+            JavafxVarSymbol helperSym = clause.boundHelper.sym;
             JCExpression createHelper;
             // Translate
             //   var y = bind for (x in xs) body(x, indexof x)
@@ -1555,9 +2057,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             //   }
 
             Type inductionType = types.boxedTypeOrType(clause.inductionVarSym.type);
+            Type bodyType = forExpr.bodyExpr.type;
 
             // Translate the part created in the FX AST
-            JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, forExpr.bodyExpr.type);
+            JCExpression makePart = toJava.translateToExpression(forExpr.bodyExpr, bodyType);
             BlockExprJCBlockExpression jcb = (BlockExprJCBlockExpression) makePart;
             
             // Add access methods
@@ -1572,7 +2075,12 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     .append(Stmt(m().Assign(Select(Get(helperSym), defs.partResultVarNum_BoundForHelper), Offset(clause.boundResultVarSym)))
             );
  
-            Type helperType = types.applySimpleGenericType(syms.javafx_BoundForHelperType, types.boxedElementType(forExpr.type), inductionType);
+            Type helperType = types.applySimpleGenericType(
+                    types.isSequence(bodyType)?
+                        syms.javafx_BoundForHelperType :
+                        syms.javafx_BoundForHelperSingletonType,
+                    types.boxedElementType(forExpr.type),
+                    inductionType);
             JCVariableDecl indexParam = Var(syms.intType, names.fromString("$index$"), null); // FIXME
             Type partType = types.applySimpleGenericType(syms.javafx_FXForPartInterfaceType, inductionType);
             JCMethodDecl makeDecl = Method(Flags.PUBLIC,
@@ -1652,14 +2160,40 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     );
         }
 
+        /**
+         * Create the elem$ body
+         * For primitives, handle null (out-of-range)
+         * by returning default value.
+         */
         JCStatement makeGetElementBody() {
-            return 
-                Block(
+            JCStatement initAssure =
                     If(EQnull(Get(clause.boundHelper.sym)),
                         Stmt(CallSize(targetSymbol))
-                    ),
-                    Return(Call(Get(clause.boundHelper.sym), defs.get_SequenceMethodName, posArg()))
-                );
+                    );
+            Type elemType = types.elementType(forExpr.type);
+            JCExpression elemFromHelper =
+                    Call(Get(clause.boundHelper.sym), defs.get_SequenceMethodName, posArg());
+            JCVariableDecl vValue = TmpVar("val", types.boxedTypeOrType(elemType), elemFromHelper);
+
+            if (elemType.isPrimitive() || isValueType(elemType)) {
+                return
+                    Block(
+                        initAssure,
+                        vValue,
+                        Return(
+                            If(EQnull(id(vValue)),
+                                DefaultValue(elemType),
+                                id(vValue)
+                            )
+                        )
+                    );
+            } else {
+                return
+                    Block(
+                        initAssure,
+                        Return(elemFromHelper)
+                    );
+            }
         }
        
         void setupInvalidators() {
@@ -1670,7 +2204,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         CallStmt(Get(clause.boundHelper.sym),
                              defs.replaceParts_BoundForHelperMethodName,
                              startPosArg(), endPosArg(), newLengthArg(), phaseArg()));
-                addInvalidator((VarSymbol) bindee, inv);
+                addInvalidator((JavafxVarSymbol) bindee, inv);
             }
         }
     }
@@ -1689,10 +2223,10 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     private class BoundIfSequenceTranslator extends BoundSequenceTranslator {
 
-        private final VarSymbol condSym;
-        private final VarSymbol thenSym;
-        private final VarSymbol elseSym;
-        private final VarSymbol sizeSym;
+        private final JavafxVarSymbol condSym;
+        private final JavafxVarSymbol thenSym;
+        private final JavafxVarSymbol elseSym;
+        private final JavafxVarSymbol sizeSym;
 
         BoundIfSequenceTranslator(JFXIfExpression tree) {
             super(tree.pos());
@@ -1812,7 +2346,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          * If this is trigger phase and we are the active arm, update the sequence size,
          * and just pass the invalidation through.
          */
-        private JCStatement makeInvalidateArm(VarSymbol armSym, boolean take) {
+        private JCStatement makeInvalidateArm(JavafxVarSymbol armSym, boolean take) {
             return
                 If(isSequenceActive(),
                     If(IsInvalidatePhase(),
@@ -1846,19 +2380,8 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      * Override those that need special bind handling
      */
 
-    JCExpression TODO(JFXTree tree) {
-        return TODO("BIND functionality: " + tree.getClass().getSimpleName());
-    }
-
     private boolean isTargettedToSequence() {
         return types.isSequence(targetSymbol.type);
-    }
-
-    private void checkForSequenceVersionUnimplemented(JFXExpression tree) {
-        if (tree == boundExpression && isTargettedToSequence()) {
-            // We want to translate to a bound sequence
-            TODO("bound sequence", tree);
-        }
     }
 
     public void visitBlockExpression(JFXBlock tree) {
@@ -1877,7 +2400,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitFunctionInvocation(final JFXFunctionInvocation tree) {
-        result = (ExpressionResult) (new BoundFunctionCallTranslator(tree)).doit();
+        result = new BoundFunctionCallTranslator(tree).doit();
     }
 
     @Override
@@ -1950,7 +2473,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitSequenceSlice(JFXSequenceSlice tree) {
-        TODO(tree);
+        result = new BoundSliceSequenceTranslator(tree).doit();
     }
 
     @Override
@@ -1965,8 +2488,13 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
 
     @Override
     public void visitUnary(JFXUnary tree) {
-        checkForSequenceVersionUnimplemented(tree);
-        super.visitUnary(tree);
+        if (tree == boundExpression && isTargettedToSequence()) {
+            // We want to translate to a bound sequence
+            assert tree.getFXTag() == JavafxTag.REVERSE : "should be reverse operator";
+            result = new BoundReverseSequenceTranslator(tree).doit();
+        } else {
+            super.visitUnary(tree);
+        }
     }
 
 

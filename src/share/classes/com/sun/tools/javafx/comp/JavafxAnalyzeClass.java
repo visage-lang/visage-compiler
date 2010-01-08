@@ -30,7 +30,6 @@ import com.sun.tools.mjavac.code.Scope.Entry;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.ClassSymbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.*;
 import com.sun.tools.mjavac.tree.JCTree;
@@ -44,10 +43,11 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 
+import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import static com.sun.tools.mjavac.code.Flags.*;
 
 import java.util.HashMap;
@@ -109,10 +109,10 @@ class JavafxAnalyzeClass {
     private final Map<Name, VarInfo> visitedAttributes = new HashMap<Name, VarInfo>();
     
     // Map of all bind selects used to construct the class update$ method.
-    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> classUpdateMap = new HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
 
     // Map of all bind selects used to construct the script update$ method.
-    private final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>>();
+    private final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> scriptUpdateMap = new HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>>();
 
     // Resulting list of relevant methods.  A map is used to so that only the last occurrence is kept.
     private final Map<String, FuncInfo> needDispatchMethods = new HashMap<String, FuncInfo>();
@@ -147,9 +147,6 @@ class JavafxAnalyzeClass {
     // Class reader used to fetch superclass .class files (supplied by JavafxInitializationBuilder.)
     private final JavafxClassReader reader;
 
-    // Javafx to Java type translator (supplied by JavafxInitializationBuilder.)
-    private final JavafxTypeMorpher typeMorpher;
-    
 
     //
     // This class supers all classes used to hold var information. Consumed by
@@ -160,10 +157,7 @@ class JavafxAnalyzeClass {
         private final DiagnosticPosition diagPos;
 
         // Var symbol (unique to symbol.)
-        protected final VarSymbol sym;
-
-        // Translated type information.
-        protected final VarMorphInfo vmi;
+        protected final JavafxVarSymbol sym;
 
         // Name of the var (is it the same as sym.name?)
         private final Name name;
@@ -172,41 +166,35 @@ class JavafxAnalyzeClass {
         protected final JCStatement initStmt;
 
         // The class local enumeration value for this var.
-        private int enumeration;
+        private int enumeration = -1;
 
         // Inversion of boundBindees.
-        private HashSet<VarInfo> bindersOrNull;
+        private HashSet<VarInfo> binders = new LinkedHashSet<VarInfo>();
         
         // Inversion of invalidators.
-        private ListBuffer<BindeeInvalidator> boundInvalidatees;
+        private ListBuffer<BindeeInvalidator> boundInvalidatees = ListBuffer.lb();;
         
         // True if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
-        private boolean needsMixinInterface;
+        private boolean needsMixinInterface = false;
 
-        private VarInfo(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, VarMorphInfo vmi,
-                JCStatement initStmt) {
+        private VarInfo(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JCStatement initStmt) {
             this.diagPos = diagPos;
             this.name = name;
             this.sym = attrSym;
-            this.vmi = vmi;
             this.initStmt = initStmt;
-            this.enumeration = -1;
-            this.bindersOrNull = new LinkedHashSet<VarInfo>();
-            this.boundInvalidatees = ListBuffer.lb();
         }
 
         // Return the var symbol.
-        public VarSymbol getSymbol() { return sym; }
+        public JavafxVarSymbol getSymbol() { return sym; }
 
         // Return the var position.
         public DiagnosticPosition pos() { return diagPos; }
 
         // Return type information from type translation.
-        public VarMorphInfo getVMI()  { return vmi; }
-        public Type getRealType()     { return vmi.getRealType(); }
-        public Type getElementType()  { return vmi.getElementType(); }
-        public boolean useAccessors() { return vmi.useAccessors(); }
-        public boolean useGetters()   { return vmi.useGetters(); }
+        public Type getRealType()     { return sym.type; }
+        public Type getElementType()  { return sym.getElementType(); }
+        public boolean useAccessors() { return sym.useAccessors(); }
+        public boolean useGetters()   { return sym.useGetters(); }
 
         // Return var name.
         public Name getName() { return name; }
@@ -222,9 +210,15 @@ class JavafxAnalyzeClass {
             return (getFlags() & JavafxFlags.VARMARK_BARE_SYNTH) != 0;
         }
         
+        // Returns true if the var is a private bare synth.
         public boolean isHiddenBareSynth() {
             long flags = JavafxFlags.VARMARK_BARE_SYNTH | Flags.PRIVATE;
             return (getFlags() & flags) == flags;
+        }
+        
+        // Returns true if the var is read only.
+        public boolean isReadOnly() {
+            return isDef() || (hasBoundDefinition() && !hasBiDiBoundDefinition());
         }
         
         // Returns true if the var needs to generate mixin interfaces (getMixin$, setMixin$ and getVOFF$)
@@ -281,22 +275,22 @@ class JavafxAnalyzeClass {
         public boolean hasOverrideVar() { return overrideVar() != null; }
 
         // Convenience method to return the current symbol to be used for qualified name.
-        public VarSymbol proxyVarSym() { return hasProxyVar() ? proxyVar().sym : sym; }
+        public JavafxVarSymbol proxyVarSym() { return hasProxyVar() ? proxyVar().sym : sym; }
         
         // Predicate for static var test.
-        public boolean isStatic() { return (getFlags() & Flags.STATIC) != 0; }
+        public boolean isStatic() { return sym.isStatic(); }
 
         // Predicate for private var test.
         public boolean isPrivateAccess() { return (getFlags() & Flags.PRIVATE) != 0L; }
         
-        // Predicate for script private var test.
-        public boolean isScriptPrivate() { return (getFlags() & JavafxFlags.SCRIPT_PRIVATE) != 0L; }
-
         // Predicate for def (constant) var.
-        public boolean isDef() { return (getFlags() & JavafxFlags.IS_DEF) != 0; }
+        public boolean isDef() { return sym.isDef(); }
+
+        // Predicate for parameter var.
+        public boolean isParameter() { return sym.isParameter(); }
 
         // Predicate for self-reference in init.
-        public boolean hasSelfReference() { return (getFlags() & JavafxFlags.VARUSE_SELF_REFERENCE) != 0; }
+        public boolean hasSelfReference() { return sym.hasSelfReference(); }
 
         // Predicate whether the var came from a mixin.
         public boolean isMixinVar() { return isMixinClass(sym.owner); }
@@ -306,7 +300,7 @@ class JavafxAnalyzeClass {
 
         // Predicate to test for sequence.
         public boolean isSequence() {
-            return vmi.getTypeKind() == JavafxDefs.TYPE_KIND_SEQUENCE;
+            return sym.isSequence();
         }
         // Returns null or the code for var initialization.
         public JCStatement getDefaultInitStatement() { return initStmt; }
@@ -343,10 +337,10 @@ class JavafxAnalyzeClass {
         public List<JCStatement> boundInvSetterPreface() { return List.<JCStatement>nil(); }
 
         // Empty or variable symbols on which this variable depends
-        public List<VarSymbol> boundBindees() { return List.<VarSymbol>nil(); }
+        public List<JavafxVarSymbol> boundBindees() { return List.<JavafxVarSymbol>nil(); }
         
         // Bound variable symbols on which this variable is used.
-        public HashSet<VarInfo> boundBinders() { return bindersOrNull; }
+        public HashSet<VarInfo> boundBinders() { return binders; }
         
         // Bound sequences that need to be invalidated when invalidated.
         public List<BindeeInvalidator> boundInvalidatees() { return boundInvalidatees.toList(); }
@@ -368,7 +362,18 @@ class JavafxAnalyzeClass {
         public JCStatement boundSizeGetter() { return null; }
         
         // Null or Java code for invalidation of a bound sequence
-        public List<BindeeInvalidator> boundInvalidators() { return List.<BindeeInvalidator>nil(); }        
+        public List<BindeeInvalidator> boundInvalidators() { return List.<BindeeInvalidator>nil(); }
+        
+        // Return true if the var has dependents.
+        public boolean hasDependents() {
+            return (getFlags() & (JavafxFlags.VARUSE_BIND_ACCESS | JavafxFlags.VARUSE_VARREF)) != 0 || !boundBinders().isEmpty();
+        }
+        
+        // Return true if the var is dependent.
+        public boolean isDependent() {
+            return (getFlags() & (JavafxFlags.VARUSE_BOUND_INIT | JavafxFlags.VARUSE_VARREF)) != 0 || hasBiDiBoundDefinition() ||
+                   !boundBindees().isEmpty() || !boundBoundSelects().isEmpty();
+        }
 
         @Override
         public String toString() { return getNameString(); }
@@ -380,30 +385,44 @@ class JavafxAnalyzeClass {
         public void printInfo(boolean detail) {
             System.err.println("    " + getEnumeration() + ". " +
                                getSymbol() +
-                               ", type=" + vmi.getRealType() +
+                               ", type=" + getSymbol().type +
                                ", owner=" + getSymbol().owner +
                                (isStatic() ? ", static" : "") +
                                (isPrivateAccess() ? ", private" : "") +
-                               (isScriptPrivate() ? ", script private" : "") +
                                (useAccessors() ? ", useAccessors" : "") +
                                (needsCloning() ? ", clone" : "") +
                                (isDef() ? ", isDef" : "") +
                                (!boundBindees().isEmpty() ? ", intra binds" : "") + 
                                (!boundBoundSelects().isEmpty() ? ", inter binds" : "") + 
-                               (bindersOrNull != null ?  ", binders" : "") + 
+                               (binders != null ?  ", binders" : "") + 
                                (!boundInvalidatees.isEmpty() ?  ", invalidators" : "") + 
                                (getDefaultInitStatement() != null ? ", init" : "") +
                                (isBareSynth() ? ", bare" : "") +
                                (needsMixinInterface() ? ", needsMixinInterface" : "") +
                                ", class=" + getClass().getSimpleName());
             if (detail) {
+                long flags = getFlags();
+                System.err.println("    " +
+                                   (((flags & JavafxFlags.VARUSE_HAS_TRIGGER) != 0)       ? ", VARUSE_HAS_TRIGGER" : "") +
+                                   (((flags & JavafxFlags.VARUSE_BOUND_INIT) != 0)        ? ", VARUSE_BOUND_INIT" : "") +
+                                   (((flags & JavafxFlags.VARUSE_ASSIGNED_TO) != 0)       ? ", VARUSE_ASSIGNED_TO" : "") +
+                                   (((flags & JavafxFlags.VARUSE_OBJ_LIT_INIT) != 0)      ? ", VARUSE_OBJ_LIT_INIT" : "") +
+                                   (((flags & JavafxFlags.VARUSE_FORWARD_REFERENCE) != 0) ? ", VARUSE_FORWARD_REFERENCE" : "") +
+                                   (((flags & JavafxFlags.VARUSE_SELF_REFERENCE) != 0)    ? ", VARUSE_SELF_REFERENCE" : "") +
+                                   (((flags & JavafxFlags.VARUSE_DEFINITION_SEEN) != 0)   ? ", VARUSE_DEFINITION_SEEN" : "") +
+                                   (((flags & JavafxFlags.VARUSE_OPT_TRIGGER) != 0)       ? ", VARUSE_OPT_TRIGGER" : "") +
+                                   (((flags & JavafxFlags.VARUSE_TMP_IN_INIT_EXPR) != 0)  ? ", VARUSE_TMP_IN_INIT_EXPR" : "") +
+                                   (((flags & JavafxFlags.VARUSE_NEED_ACCESSOR) != 0)     ? ", VARUSE_NEED_ACCESSOR" : "") +
+                                   (((flags & JavafxFlags.VARUSE_NON_LITERAL) != 0)       ? ", VARUSE_NON_LITERAL" : "") +
+                                   (((flags & JavafxFlags.VARUSE_BIND_ACCESS) != 0)       ? ", VARUSE_BIND_ACCESS" : "") +
+                                   (((flags & JavafxFlags.VARUSE_VARREF) != 0)            ? ", VARUSE_VARREF" : ""));
                 if (!boundBoundSelects().isEmpty()) {
                     for (DependentPair pair : boundBoundSelects()) {
                         System.err.println("        select=" + pair.instanceSym + " " + pair.referencedSym);
                     }
                 }
                 if (!boundBindees().isEmpty()) {
-                    for (VarSymbol bindeeSym : boundBindees()) {
+                    for (JavafxVarSymbol bindeeSym : boundBindees()) {
                         System.err.println("        bindee=" + bindeeSym);
                     }
                 }
@@ -463,11 +482,11 @@ class JavafxAnalyzeClass {
         // Result of bind translation
         private final ExpressionResult bindOrNull;
 
-        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, VarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, VarMorphInfo vmi,
+        TranslatedVarInfoBase(DiagnosticPosition diagPos, Name name, JavafxVarSymbol attrSym, JavafxBindStatus bindStatus, boolean hasInitializer, 
                 JCStatement initStmt, ExpressionResult bindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
-            super(diagPos, name, attrSym, vmi, initStmt);
+            super(diagPos, name, attrSym, initStmt);
             this.hasInitializer = hasInitializer;
             this.bindStatus = bindStatus;
             this.bindOrNull = bindOrNull;
@@ -507,7 +526,7 @@ class JavafxAnalyzeClass {
 
         // Variable symbols on which this variable depends
         @Override
-        public List<VarSymbol> boundBindees() { return bindOrNull==null? List.<VarSymbol>nil() : bindOrNull.bindees(); }
+        public List<JavafxVarSymbol> boundBindees() { return bindOrNull==null? List.<JavafxVarSymbol>nil() : bindOrNull.bindees(); }
 
         // Empty or bound select pairs.
         @Override
@@ -562,12 +581,12 @@ class JavafxAnalyzeClass {
         private final JFXVar var;
         private final Symbol boundFuncResultInitSym;
 
-        TranslatedVarInfo(JFXVar var, VarMorphInfo vmi,
+        TranslatedVarInfo(JFXVar var, 
                 JCStatement initStmt, Symbol boundFuncResultInitSym,
                 ExpressionResult bindOrNull, 
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
-            super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null, vmi,
+            super(var.pos(), var.sym.name, var.sym, var.getBindStatus(), var.getInitializer()!=null,
                   initStmt, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.var = var;
@@ -579,13 +598,55 @@ class JavafxAnalyzeClass {
 
         @Override
         public boolean hasSafeInitializer() {
-            // For now, we check if initializer expression is a literal or ident
-            // or a select. Revisit this for more opportunities for optimization.
+            // If unexaminable code can be executed (function/method call or init block) or
+            // a division can happen then it is not exception safe.
             if (hasInitializer()) {
-                JavafxTag tag = var.getInitializer().getFXTag();
-                return tag == JavafxTag.LITERAL ||
-                       tag == JavafxTag.IDENT ||
-                       tag == JavafxTag.SELECT;
+                class ExceptionThrowingScanner extends JavafxTreeScanner {
+
+                    boolean safe = true;
+
+                    private void markCanThrowException() {
+                        safe = false;
+                    }
+
+                    @Override
+                    public void visitBinary(JFXBinary tree) {
+                        switch (tree.getFXTag()) {
+                            case DIV:
+                            case MOD:
+                                markCanThrowException();
+                                break;
+                            default:
+                                super.visitBinary(tree);
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void visitAssignop(JFXAssignOp tree) {
+                        switch (tree.getFXTag()) {
+                            case DIV_ASG:
+                                markCanThrowException();
+                                break;
+                            default:
+                                super.visitAssignop(tree);
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void visitInstanciate(JFXInstanciate tree) {
+                        markCanThrowException();
+                    }
+
+                    @Override
+                    public void visitFunctionInvocation(JFXFunctionInvocation tree) {
+                        markCanThrowException();
+                    }
+                }
+                ExceptionThrowingScanner scanner = new ExceptionThrowingScanner();
+                scanner.scan(var.getInitializer());
+                return scanner.safe;
             } else {
                 return false;
             }
@@ -616,12 +677,11 @@ class JavafxAnalyzeClass {
 
 
         TranslatedOverrideClassVarInfo(JFXOverrideClassVar override,
-                VarMorphInfo vmi,
                 JCStatement initStmt, Symbol boundFuncResultInitSym,
                 ExpressionResult bindOrNull,
                 JFXOnReplace onReplace, JCStatement onReplaceAsInline,
                 JFXOnReplace onInvalidate, JCStatement onInvalidateAsInline) {
-            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer() != null, vmi,
+            super(override.pos(), override.sym.name, override.sym, override.getBindStatus(), override.getInitializer() != null, 
                     initStmt, bindOrNull,
                   onReplace, onReplaceAsInline, onInvalidate, onInvalidateAsInline);
             this.boundFuncResultInitSym = boundFuncResultInitSym;
@@ -659,8 +719,8 @@ class JavafxAnalyzeClass {
     // declared in the same compile unit or read in from a .class file.
     //
     static class SuperClassVarInfo extends VarInfo {
-        SuperClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
-            super(diagPos, var.name, var, vmi, null);
+        SuperClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var) {
+            super(diagPos, var.name, var, null);
         }
 
         // Superclass vars are never cloned.
@@ -679,8 +739,8 @@ class JavafxAnalyzeClass {
         // Override from mixee.
         private VarInfo overrideVar;
         
-        MixinClassVarInfo(DiagnosticPosition diagPos, VarSymbol var, VarMorphInfo vmi) {
-            super(diagPos, var.name, var, vmi, null);
+        MixinClassVarInfo(DiagnosticPosition diagPos, JavafxVarSymbol var) {
+            super(diagPos, var.name, var, null);
             this.accessors = ListBuffer.lb();
             this.overrideVar = null;
         }
@@ -773,8 +833,8 @@ class JavafxAnalyzeClass {
 
         // Variable symbols on which this variable depends
         @Override
-        public List<VarSymbol> boundBindees() {
-            ListBuffer<VarSymbol> bindees = ListBuffer.lb();
+        public List<JavafxVarSymbol> boundBindees() {
+            ListBuffer<JavafxVarSymbol> bindees = ListBuffer.lb();
             bindees.appendList(super.boundBindees());
             
             if (hasOverrideVar()) {
@@ -886,15 +946,13 @@ class JavafxAnalyzeClass {
             JavafxTypes types,
             JavafxDefs defs,
             JavafxSymtab syms,
-            JavafxClassReader reader,
-            JavafxTypeMorpher typeMorpher) {
+            JavafxClassReader reader) {
         this.initBuilder = initBuilder;
         this.names = names;
         this.types = types;
         this.defs = defs;
         this.syms = syms;
         this.reader = reader;
-        this.typeMorpher = typeMorpher;
         this.diagPos = diagPos;
         this.currentClassDecl = types.getFxClass(currentClassSym);
         this.currentClassSym = currentClassSym;
@@ -928,19 +986,19 @@ class JavafxAnalyzeClass {
         }
     }
     
-    private void addInterClassBinder(VarInfo varInfo, VarSymbol instanceSymbol, VarSymbol referenceSymbol) {
-        VarSymbol varSymbol = (VarSymbol)varInfo.getSymbol();
+    private void addInterClassBinder(VarInfo varInfo, JavafxVarSymbol instanceSymbol, JavafxVarSymbol referenceSymbol) {
+        JavafxVarSymbol varSymbol = (JavafxVarSymbol)varInfo.getSymbol();
         
         // Get the correct update map.
-        HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> updateMap =
+        HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap =
             varInfo.isStatic() ? scriptUpdateMap : classUpdateMap;
         
         // Get instance level map.
-        HashMap<VarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
+        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceSymbol);
         
         // Add new entry if not found.
         if (instanceMap == null) {
-            instanceMap = new HashMap<VarSymbol, HashSet<VarInfo>>();
+            instanceMap = new HashMap<JavafxVarSymbol, HashSet<VarInfo>>();
             updateMap.put(instanceSymbol, instanceMap);
         }
         
@@ -959,18 +1017,18 @@ class JavafxAnalyzeClass {
     
     private void addBinders(VarInfo ai) {
         // Add any bindees to binders.
-        for (VarSymbol bindeeSym : ai.boundBindees()) {
+        for (JavafxVarSymbol bindeeSym : ai.boundBindees()) {
             // Find the varInfo
             VarInfo bindee = visitedAttributes.get(initBuilder.attributeValueName(bindeeSym));
             
             if (bindee != null) {
-                bindee.bindersOrNull.add((VarInfo)ai);
+                bindee.binders.add((VarInfo)ai);
             }
         }
             
         // Add any bind select pairs to update map.
         for (DependentPair pair : ai.boundBoundSelects()) {
-            addInterClassBinder(ai, pair.instanceSym, (VarSymbol)pair.referencedSym);
+            addInterClassBinder(ai, pair.instanceSym, (JavafxVarSymbol)pair.referencedSym);
         }
         
         // If the ai has invalidators.
@@ -1099,6 +1157,11 @@ class JavafxAnalyzeClass {
     public boolean isRootClass(Symbol sym) { return isFXBase(sym) || isFXObject(sym); }
 
     //
+    // Returns true if the current class inherits directly from FXBase.
+    //
+    public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym);}
+
+    //
     // Returns the var count for the current class.
     //
     public int getClassVarCount() { return classVarCount; }
@@ -1158,14 +1221,14 @@ class JavafxAnalyzeClass {
     //
     // Returns the map used to construct the class update$ method.
     //
-    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
+    public final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> getClassUpdateMap() {
         return classUpdateMap;
     }
     
     //
     // Returns the map used to construct the script update$ method.
     //
-    public final HashMap<VarSymbol, HashMap<VarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
+    public final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> getScriptUpdateMap() {
         return scriptUpdateMap;
     }
 
@@ -1203,21 +1266,20 @@ class JavafxAnalyzeClass {
     }
 
     //
+    // Returns true if the class (or current class) is FINAL.
+    //
+    public boolean isFinal() {
+        return isFinal(currentClassSym);
+    }
+    public static boolean isFinal(Symbol cSym) {
+        return (cSym.flags() & Flags.FINAL) != 0;
+    }
+
+    //
     // Returns true if the class is a Interface.
     //
     public boolean isInterface(Symbol cSym) {
         return (cSym.flags() & Flags.INTERFACE) != 0;
-    }
-
-    //
-    // Returns true if the class is anon (synthetic.)
-    //
-    public boolean isAnonClass() {
-        return isAnonClass(currentClassSym);
-    }
-    public boolean isAnonClass(Symbol cSym) {
-        final long flags = (Flags.SYNTHETIC | Flags.FINAL);
-        return (cSym.flags() & flags) == flags;
     }
 
     //
@@ -1372,9 +1434,9 @@ class JavafxAnalyzeClass {
 
                 // Scan attribute members.
                 for (Symbol varMem : reversed) {
-                    if (varMem instanceof VarSymbol) {
+                    if (varMem instanceof JavafxVarSymbol) {
                         // Attribute member.
-                        VarSymbol var = (VarSymbol)varMem;
+                        JavafxVarSymbol var = (JavafxVarSymbol)varMem;
                         
                         // Filter out methods generated by the compiler.
                         if (isRootClass(cSym) || !filterVars(var)) {
@@ -1432,6 +1494,11 @@ class JavafxAnalyzeClass {
                 }
             }
         }
+
+        // ignore GETMAPxxx methods
+        if (name.toString().startsWith(defs.varGetMapString)) {
+            return true;
+        }
         
         return name == names.init || name == names.clinit ||
                name == defs.internalRunFunctionName || 
@@ -1448,14 +1515,14 @@ class JavafxAnalyzeClass {
                name == defs.initialize_FXObjectMethodName ||
                name == defs.userInit_FXObjectMethodName ||
                name == defs.postInit_FXObjectMethodName ||
-               name == defs.initVarBits_FXObjectMethodName;
+               name == defs.initVars_FXObjectMethodName;
     }
 
     //
     // Predicate method indicates if the var should be include in processing.
     // Should filter out unrelated methods generated by the compiler.
     //
-    private boolean filterVars(VarSymbol var) {
+    private boolean filterVars(JavafxVarSymbol var) {
         Name name = var.name;
         String nameString = name.toString();
         
@@ -1551,11 +1618,11 @@ class JavafxAnalyzeClass {
     // This method determines if the var needs to be handled in the current class.
     // This method is only called for inherited attributes.
     //
-    private void processAttribute(VarSymbol var, ClassSymbol cSym, boolean needsCloning, HashMap<Name, MixinClassVarInfo> mixinVarMap) {
+    private void processAttribute(JavafxVarSymbol var, ClassSymbol cSym, boolean needsCloning, HashMap<Name, MixinClassVarInfo> mixinVarMap) {
         boolean isStatic = (var.flags() & Flags.STATIC) != 0;
 
         // If the var is in a class and not a static (ie., an instance attribute.)
-        if (var.owner.kind == Kinds.TYP && !isStatic) {
+        if (var.isMember() && !isStatic) {
             // See if we've seen this var before.
             VarInfo oldVarInfo = visitedAttributes.get(initBuilder.attributeValueName(var));
 
@@ -1573,7 +1640,7 @@ class JavafxAnalyzeClass {
                 // Only process the mixin var if we've not seen it before.
                 if ((oldVarInfo == null || oldVarInfo instanceof TranslatedOverrideClassVarInfo) && (var.flags() & Flags.PRIVATE) == 0) {
                     // Construct a new mixin VarInfo.
-                    MixinClassVarInfo newVarInfo = new MixinClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
+                    MixinClassVarInfo newVarInfo = new MixinClassVarInfo(diagPos, var);
                     // Check for overriding var.
                     checkMixinOverride(newVarInfo);
                     
@@ -1595,7 +1662,7 @@ class JavafxAnalyzeClass {
                 }
             } else {
                 // Construct a new superclass VarInfo.
-                SuperClassVarInfo newVarInfo = new SuperClassVarInfo(diagPos, var, typeMorpher.varMorphInfo(var));
+                SuperClassVarInfo newVarInfo = new SuperClassVarInfo(diagPos, var);
                 // Add the new superclass VarInfo to the result list.
                 classVarInfos.append(newVarInfo);
                 // Map the fact we've seen this var.

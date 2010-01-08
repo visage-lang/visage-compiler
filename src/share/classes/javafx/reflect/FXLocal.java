@@ -452,12 +452,11 @@ public class FXLocal {
             "VCNT$"
         };
         static final String[] SYSTEM_METHOD_PREFIXES = {
-            "access$scriptLevel$",
             "applyDefaults$",
             "be$",
             "get$",
             "elem$",
-            "initVarBits$",
+            "initVars$",
             "invalidate$",
             "onReplace$",
             "set$",

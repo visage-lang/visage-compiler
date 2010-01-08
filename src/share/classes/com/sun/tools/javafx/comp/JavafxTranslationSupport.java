@@ -34,7 +34,6 @@ import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.*;
 import com.sun.tools.mjavac.code.TypeTags;
-import static com.sun.tools.mjavac.code.Flags.STATIC;
 import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.JCAnnotation;
 import com.sun.tools.mjavac.tree.JCTree.JCClassDecl;
@@ -57,9 +56,10 @@ import com.sun.tools.mjavac.util.Log;
 import com.sun.tools.mjavac.util.Position;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import static com.sun.tools.javafx.comp.JavafxDefs.*;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.tree.JCTree.JCBlock;
 import com.sun.tools.mjavac.tree.JCTree.JCCatch;
@@ -83,7 +83,6 @@ public abstract class JavafxTranslationSupport {
     protected final JavafxResolve rs;
     protected final JavafxSymtab syms;
     protected final JavafxTypes types;
-    protected final JavafxTypeMorpher typeMorpher;
     protected final Options options;
 
     /*
@@ -98,7 +97,6 @@ public abstract class JavafxTranslationSupport {
         names = Name.Table.instance(context);
         types = JavafxTypes.instance(context);
         syms = (JavafxSymtab)JavafxSymtab.instance(context);
-        typeMorpher = JavafxTypeMorpher.instance(context);
         rs = JavafxResolve.instance(context);
         defs = JavafxDefs.instance(context);
         options = Options.instance(context);
@@ -126,10 +124,33 @@ public abstract class JavafxTranslationSupport {
             case SELECT:
                 return ((JFXSelect) tree).sym;
             case TYPECAST:
+                //TODO: This is suspicious -- expressionSymbol should return
+                // a symbol which fully represents the expression.  This is lossy.
                 return expressionSymbol(((JFXTypeCast)tree).getExpression());
             default:
                 return null;
         }
+    }
+
+    protected JavafxVarSymbol varSymbol(JFXExpression tree) {
+        if (tree == null) {
+            return null;
+        }
+        Symbol sym;
+        switch (tree.getFXTag()) {
+            case IDENT:
+                sym = ((JFXIdent) tree).sym;
+                break;
+            case SELECT:
+                sym = ((JFXSelect) tree).sym;
+                break;
+            default:
+                return null;
+        }
+        if (sym instanceof JavafxVarSymbol)
+            return (JavafxVarSymbol) sym;
+        else
+            return null;
     }
 
     protected boolean isValueFromJava(final JFXExpression expr) {
@@ -150,19 +171,20 @@ public abstract class JavafxTranslationSupport {
     }
 
     boolean isImmutable(Symbol sym, Name name) {
+        if (sym.kind != Kinds.VAR) {
+            return true;
+        }
+        JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
         Symbol owner = sym.owner;
-        boolean isLocal = owner.kind != Kinds.TYP;
-        boolean isKnown = isLocal || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
-        long flags = sym.flags();
-        boolean isWritable = (flags & (Flags.PUBLIC | Flags.PROTECTED | JavafxFlags.PACKAGE_ACCESS)) != 0L;
-        boolean isAssignedTo = (flags & JavafxFlags.VARUSE_ASSIGNED_TO) != 0;
-        boolean isDef = (flags & JavafxFlags.IS_DEF) != 0;
-        boolean isDefinedBound = (flags & JavafxFlags.VARUSE_BOUND_INIT) != 0;
+        boolean isKnown = vsym.isLocal() || (owner instanceof ClassSymbol && types.getFxClass((ClassSymbol) owner) != null); //TODO: consider Java supers
+        boolean isAssignedTo = vsym.isAssignedTo();
+        boolean isDefinedBound = vsym.isDefinedBound();
         return
                     name == names._this ||
                     name == names._super ||
-                    isKnown && isDef && !isDefinedBound || // unbound def
-                    isKnown && !isWritable && !isAssignedTo && !isDefinedBound; // never reassigned
+                    name == fxmake.ScriptAccessSymbol(owner).name ||
+                    isKnown && vsym.isDef() && !isDefinedBound || // unbound def
+                    isKnown && !vsym.isWritableOutsideScript() && !isAssignedTo && !isDefinedBound; // never reassigned
      }
 
     boolean isImmutable(JFXIdent tree) {
@@ -306,6 +328,15 @@ public abstract class JavafxTranslationSupport {
 
     protected boolean isMixinClass(ClassSymbol sym) {
         return (sym.flags_field & JavafxFlags.MIXIN) != 0;
+    }
+    
+    protected boolean isAnonClass(ClassSymbol sym) {
+        final long flags = (Flags.SYNTHETIC | Flags.FINAL);
+        return (sym.flags_field & flags) == flags;
+    }
+    
+    protected boolean isLocalClass(ClassSymbol sym) {
+        return sym.owner.kind == Kinds.MTH;
     }
     
     protected JCExpression makeIdentifier(DiagnosticPosition diagPos, String str) {
@@ -467,20 +498,33 @@ public abstract class JavafxTranslationSupport {
         return makeType(diagPos, returnType);
     }
 
-    boolean needsDefaultValue(TypeMorphInfo tmi) {
-        return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ||
-               types.isSameType(tmi.getRealType(), syms.javafx_StringType) ||
-               types.isSameType(tmi.getRealType(), syms.javafx_DurationType);
+    boolean isValueType(Type type) {
+        return types.isSequence(type) ||
+               types.isSameType(type, syms.javafx_StringType) ||
+               types.isSameType(type, syms.javafx_DurationType);
     }
 
-    JCExpression makeDefaultValue(DiagnosticPosition diagPos, TypeMorphInfo tmi) {
-        return tmi.getTypeKind() == TYPE_KIND_SEQUENCE ?
-                accessEmptySequence(diagPos, tmi.getElementType()) :
-            types.isSameType(tmi.getRealType(), syms.javafx_StringType) ?
-                make.Literal("") :
-            types.isSameType(tmi.getRealType(), syms.javafx_DurationType) ?
-                makeQualifiedTree(diagPos, JavafxDefs.zero_DurationFieldName) :
-                makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
+    JCExpression makeDefaultValue(DiagnosticPosition diagPos, Type type) {
+        return makeDefaultValue(diagPos, types.typeRep(type), type);
+    }
+
+    JCExpression makeDefaultValue(DiagnosticPosition diagPos, JavafxVarSymbol vsym) {
+        return makeDefaultValue(diagPos, vsym.getTypeRepresentation(), vsym.type);
+    }
+
+    JCExpression makeDefaultValue(DiagnosticPosition diagPos, JavafxTypeRepresentation typeRep, Type type) {
+        if (typeRep.isSequence()) {
+            return accessEmptySequence(diagPos, types.elementType(type));
+        } else if (typeRep.isObject()) {
+            if (types.isSameType(type, syms.javafx_StringType)) {
+                return make.Literal("");
+            }
+            if (types.isSameType(type, syms.javafx_DurationType)) {
+                return makeQualifiedTree(diagPos, JavafxDefs.zero_DurationFieldName);
+            }
+            // fall through
+        }
+        return makeLit(diagPos, type, typeRep.defaultValue());
     }
 
     /** Make an attributed tree representing a literal. This will be
@@ -604,8 +648,8 @@ public abstract class JavafxTranslationSupport {
         return prefixedAttributeName(sym, saved_AttributeFieldPrefix);
     }
 
-    Name attributeInitVarBitsName(Symbol sym) {
-        return prefixedAttributeName(sym, initVarBits_AttributeMethodPrefix);
+    Name attributeInitVarsName(Symbol sym) {
+        return prefixedAttributeName(sym, initVars_AttributeMethodPrefix);
     }
  
     Name attributeApplyDefaultsName(Symbol sym) {
@@ -658,23 +702,16 @@ public abstract class JavafxTranslationSupport {
             return newElements.sym.name.append(defs.lengthSuffixName);
     }
 
-    Name scriptLevelAccessMethod(Symbol clazz) {
-        return defs.scriptLevelAccessMethod(names, clazz);
-    }
-
     private Name prefixedAttributeName(Symbol sym, String prefix) {
         Symbol owner = sym.owner;
         if (!types.isJFXClass(owner)) {
             return sym.name;
         }
+        JavafxVarSymbol vsym = (JavafxVarSymbol) sym; //TODO: make parameter a JavafxVarSymbol
         String sname = sym.name.toString();
         // JFXC-2837 - Mixins: script-private vars no longer hidden -- var with same name as
         // var in subclass, but with different type fails
-        long flags = sym.flags();
-        boolean isStatic = (flags & STATIC) != 0;
-        boolean privateAccess = (flags & JavafxFlags.JavafxInstanceVarFlags &
-                                         ~(JavafxFlags.SCRIPT_PRIVATE | Flags.PRIVATE)) == 0L;
-        if (!isStatic && privateAccess && types.isJFXClass(owner)) {
+        if (!vsym.isStatic() && vsym.hasScriptOnlyAccess()) {
             // mangle name to hide it
             sname = owner.toString().replace('.', '$') + '$' + sname;
         }
@@ -896,33 +933,41 @@ public abstract class JavafxTranslationSupport {
         // Returns true if the class (or current class) is a mixin.
         //
         public boolean isMixinClass() {
-            return isMixinClass(enclosingClassDecl.sym);
+            return JavafxTranslationSupport.this.isMixinClass((ClassSymbol)enclosingClassDecl.sym);
         }
 
-        public boolean isMixinClass(Symbol sym) {
-            return (sym.flags() & JavafxFlags.MIXIN) != 0;
+        public boolean isMixinClass(ClassSymbol sym) {
+            return JavafxTranslationSupport.this.isMixinClass(sym);
         }
         
-        public boolean isLocalClass(Symbol sym) {
-            return sym.owner.kind == Kinds.MTH;
-         }
+        public boolean isAnonClass() {
+            return JavafxTranslationSupport.this.isAnonClass((ClassSymbol)enclosingClassDecl.sym);
+        }
         
+        public boolean isAnonClass(ClassSymbol sym) {
+            return JavafxTranslationSupport.this.isAnonClass(sym);
+        }
+
         public boolean isLocalClass() {
-            return isLocalClass(enclosingClassDecl.sym);
+            return JavafxTranslationSupport.this.isLocalClass((ClassSymbol)enclosingClassDecl.sym);
         }
                 
+        public boolean isLocalClass(ClassSymbol sym) {
+            return JavafxTranslationSupport.this.isLocalClass(sym);
+        }
+        
         public boolean isMixinVar(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
-            return isMixinClass(varSym.owner) && !varSym.isStatic();
+            return isMixinClass((ClassSymbol)varSym.owner) && !varSym.isStatic();
         }
         
         public boolean isLocalClassVar(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
-            return isLocalClass(varSym.owner);
+            return isLocalClass((ClassSymbol)varSym.owner);
         }
         
         public boolean setIsScript(boolean newState) {
@@ -966,6 +1011,13 @@ public abstract class JavafxTranslationSupport {
         }
 
         /**
+         * Make an identifier of the given string
+         */
+        protected JCIdent id(String string) {
+            return m().Ident(names.fromString(string));
+        }
+
+        /**
          * Make a member select or an identifier depending on the selector
          */
         protected JCExpression Select(JCExpression selector, Name name) {
@@ -1000,6 +1052,14 @@ public abstract class JavafxTranslationSupport {
 
         JCIdent phaseArg() {
             return makeMethodArg(defs.phase_ArgName, syms.intType);
+        }
+
+        JCExpression IsInvalidatePhase() {
+            return EQ(phaseArg(), id(defs.varFlagIS_INVALID));
+        }
+
+        JCExpression IsTriggerPhase() {
+            return EQ(phaseArg(), id(defs.varFlagNEEDS_TRIGGER));
         }
 
         /**
@@ -1053,7 +1113,7 @@ public abstract class JavafxTranslationSupport {
                 fieldName = defs.OBJECT_KeyValueTargetTypeFieldName;
             }
 
-            return Select(makeQualifiedTree(diagPos, defs.cKeyValueTargetType), fieldName);
+            return Select(makeQualifiedTree(diagPos, JavafxDefs.cKeyValueTargetType), fieldName);
         }
 
         // Return a receiver$, scriptLevelAccess$() or null depending on the context.
@@ -1068,20 +1128,14 @@ public abstract class JavafxTranslationSupport {
 
         protected JCExpression getReceiver(Symbol sym) {
             if (sym.isStatic()) {
-                Symbol enclClassSym = enclosingClassDecl.sym;
-                return enclClassSym != sym.owner?
-                    Call(makeType(sym.owner), scriptLevelAccessMethod(sym.owner)) :
-                    Call(scriptLevelAccessMethod(sym.owner));
+                return Select(makeType(sym.owner.type, false), fxmake.ScriptAccessSymbol(sym.owner).name);
             }
             return resolveThis(sym.owner, true);
         }
 
         protected JCExpression getReceiverOrThis(Symbol sym) {
             if (sym.isStatic()) {
-                Symbol enclClassSym = enclosingClassDecl.sym;
-                return enclClassSym != sym.owner?
-                    Call(makeType(sym.owner), scriptLevelAccessMethod(sym.owner)) :
-                    Call(scriptLevelAccessMethod(sym.owner));
+                return Select(makeType(sym.owner.type, false), fxmake.ScriptAccessSymbol(sym.owner).name);
             }
             return resolveThis(sym.owner, false);
         }
@@ -1145,26 +1199,34 @@ public abstract class JavafxTranslationSupport {
                 return superExpr;
             }
         }
-
+        
         //
         // Private support methods for testing/setting/clearing a var flag.
         //
         
-        private boolean isJCIdentName(JCExpression ident, Name name) {
+        protected boolean isJCIdentName(JCExpression ident, Name name) {
             return ident instanceof JCIdent && ((JCIdent)ident).getName() == name;
         }
         
+        protected JCExpression GetFlags(JavafxVarSymbol varSym) {
+            if (isMixinClass()) {
+                return Call(getReceiver(varSym), defs.getFlags_FXObjectMethodName, Offset(varSym));
+            } else {
+                return VarFlags(varSym);
+            }
+        }
+        
         protected JCExpression flagCast(JCExpression expr) {
-            return m().TypeCast(makeType(syms.byteType, true), expr);
+            return m().TypeCast(makeType(syms.shortType, true), expr);
         }
 
-        private JCExpression FlagAction(VarSymbol varSym, Name action, Name clearBits, Name setBits, boolean isStmt) {
+        private JCExpression FlagAction(JavafxVarSymbol varSym, Name action, Name clearBits, Name setBits, boolean isStmt) {
             return FlagAction(varSym, action,
                         clearBits != null ? id(clearBits) : null,
                         setBits != null ? id(setBits) : null,
                         isStmt);
         }
-        private JCExpression FlagAction(VarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits, boolean isStmt) {
+        private JCExpression FlagAction(JavafxVarSymbol varSym, Name action, JCExpression clearBits, JCExpression setBits, boolean isStmt) {
             assert clearBits != null || setBits != null : "Need to specify which bits";
             
             boolean  clearBitsNull = clearBits == null;
@@ -1172,57 +1234,55 @@ public abstract class JavafxTranslationSupport {
             if (clearBitsNull) clearBits = Int(0);
             if (setBitsNull) setBits = Int(0);
             
-            if (!isMixinClass()) {
-                if (action == defs.varFlagActionTest) {
-                    return EQ(BITAND(VarFlags(varSym), clearBits), setBits);
-                } else /* if (action == defs.varFlagActionChange) */ {
-                    JCExpression assignExpr;
+            if (action == defs.varFlagActionTest) {
+                return EQ(BITAND(GetFlags(varSym), clearBits), setBits);
+            } else if (isMixinClass() && !varSym.isStatic()) {
+                return Call(getReceiver(varSym), action, Offset(varSym), clearBits, setBits);
+            } else /* if (action == defs.varFlagActionChange) */ {
+                JCExpression assignExpr;
 
-                    if (isStmt) {
-                        if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
-                            assignExpr = m().Assign(VarFlags(varSym), flagCast(setBits));
-                        } else if (clearBitsNull) {
-                            assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(setBits));
-                        } else if (setBitsNull) {
-                            assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(clearBits)));
-                        } else {
-                            assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(clearBits)), setBits)));
-                        }
-                        
-                        return assignExpr;
+                if (isStmt) {
+                    if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
+                        assignExpr = m().Assign(VarFlags(varSym), flagCast(setBits));
+                    } else if (clearBitsNull) {
+                        assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(setBits));
+                    } else if (setBitsNull) {
+                        assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(clearBits)));
                     } else {
-                        ListBuffer<JCStatement> stmts = ListBuffer.lb();
-                        JCVariableDecl bitsVar;
-                    
-                        if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
-                            bitsVar = TmpVar(syms.intType, setBits);
-                            assignExpr = m().Assign(VarFlags(varSym), flagCast(id(bitsVar.name)));
-                        } else if (clearBitsNull) {
-                            bitsVar = TmpVar(syms.intType, setBits);
-                            assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(id(bitsVar.name)));
-                        } else if (setBitsNull) {
-                            bitsVar = TmpVar(syms.intType, clearBits);
-                            assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(id(bitsVar.name))));
-                        } else {
-                            JCVariableDecl clearBitsVar = TmpVar(syms.intType, clearBits);
-                            JCVariableDecl setBitsVar = TmpVar(syms.intType, setBits);
-                            stmts.append(clearBitsVar);
-                            stmts.append(setBitsVar);
-                            bitsVar = TmpVar(syms.intType, BITOR(id(clearBitsVar.name), id(setBitsVar.name)));
-                            assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(id(clearBitsVar.name))), id(bitsVar.name))));
-                        }
-                        
-                        stmts.append(bitsVar);
-                        JCVariableDecl testVar = TmpVar(syms.booleanType, EQ(BITAND(VarFlags(varSym), id(bitsVar.name)), id(bitsVar.name)));
-                        stmts.append(testVar);
-                        stmts.append(Stmt(assignExpr));
-                        
-                        return BlockExpression(stmts, id(testVar.name));
+                        assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(clearBits)), setBits)));
                     }
+                    
+                    return assignExpr;
+                } else {
+                    ListBuffer<JCStatement> stmts = ListBuffer.lb();
+                    JCVariableDecl bitsVar;
+                
+                    if (isJCIdentName(clearBits, defs.varFlagALL_FLAGS)) {
+                        bitsVar = TmpVar(syms.intType, setBits);
+                        assignExpr = m().Assign(VarFlags(varSym), flagCast(id(bitsVar.name)));
+                    } else if (clearBitsNull) {
+                        bitsVar = TmpVar(syms.intType, setBits);
+                        assignExpr = m().Assignop(JCTree.BITOR_ASG, VarFlags(varSym), flagCast(id(bitsVar.name)));
+                    } else if (setBitsNull) {
+                        bitsVar = TmpVar(syms.intType, clearBits);
+                        assignExpr = m().Assignop(JCTree.BITAND_ASG, VarFlags(varSym), flagCast(BITNOT(id(bitsVar.name))));
+                    } else {
+                        JCVariableDecl clearBitsVar = TmpVar(syms.intType, clearBits);
+                        JCVariableDecl setBitsVar = TmpVar(syms.intType, setBits);
+                        stmts.append(clearBitsVar);
+                        stmts.append(setBitsVar);
+                        bitsVar = TmpVar(syms.intType, BITOR(id(clearBitsVar.name), id(setBitsVar.name)));
+                        assignExpr = m().Assign(VarFlags(varSym), flagCast(BITOR(BITAND(VarFlags(varSym), BITNOT(id(clearBitsVar.name))), id(bitsVar.name))));
+                    }
+                    
+                    stmts.append(bitsVar);
+                    JCVariableDecl testVar = TmpVar(syms.booleanType, EQ(BITAND(VarFlags(varSym), id(bitsVar.name)), id(bitsVar.name)));
+                    stmts.append(testVar);
+                    stmts.append(Stmt(assignExpr));
+                    
+                    return BlockExpression(stmts, id(testVar.name));
                 }
             }
-            
-            return Call(getReceiver(varSym), action, Offset(varSym), clearBits, setBits);
         }
         private JCExpression FlagAction(JCExpression offset, Name action, Name clearBits, Name setBits, boolean isStmt) {
             return Call(action, offset,
@@ -1234,10 +1294,13 @@ public abstract class JavafxTranslationSupport {
         // These methods return an expression for testing a var flag.
         //
 
-        protected JCExpression FlagTest(VarSymbol varSym, Name clearBits, Name setBits) {
+        protected JCExpression FlagTest(Name flagsVar, Name clearBits, Name setBits) {
+            return EQ(BITAND(id(flagsVar), clearBits == null ? Int(0) : id(clearBits)), setBits == null ? Int(0) : id(setBits));
+        }
+        protected JCExpression FlagTest(JavafxVarSymbol varSym, Name clearBits, Name setBits) {
             return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits, false);
         }
-        protected JCExpression FlagTest(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
+        protected JCExpression FlagTest(JavafxVarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
             return FlagAction(varSym, defs.varFlagActionTest, clearBits, setBits, false);
         }
         protected JCExpression FlagTest(JCExpression offset, Name clearBits, Name setBits) {
@@ -1249,11 +1312,11 @@ public abstract class JavafxTranslationSupport {
         // These methods returns a statement for setting/clearing a var flag.
         //
 
-        protected JCStatement FlagChangeStmt(VarSymbol varSym, Name clearBits, Name setBits) {
+        protected JCStatement FlagChangeStmt(JavafxVarSymbol varSym, Name clearBits, Name setBits) {
             return Stmt(FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, true));
         }
 
-        protected JCStatement FlagChangeStmt(VarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
+        protected JCStatement FlagChangeStmt(JavafxVarSymbol varSym, JCExpression clearBits, JCExpression setBits) {
             return Stmt(FlagAction(varSym, defs.varFlagActionChange, clearBits, setBits, true));
         }
 
@@ -1345,6 +1408,12 @@ public abstract class JavafxTranslationSupport {
         JCExpression BITNOT(JCExpression v1) {
             return m().Binary(JCTree.BITXOR, v1, Int(-1));
         }
+        JCExpression SHIFTL(JCExpression v1, JCExpression v2) {
+            return m().Binary(JCTree.SL, v1, v2);
+        }
+        JCExpression SHIFTR(JCExpression v1, JCExpression v2) {
+            return m().Binary(JCTree.SR, v1, v2);
+        }
 
         /**
          * Compare against null
@@ -1361,7 +1430,7 @@ public abstract class JavafxTranslationSupport {
          * Make a variable -- final by default
          */
 
-        protected JCVariableDecl Var(JCModifiers modifiers, JCExpression varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
+        protected JCVariableDecl Var(JCModifiers modifiers, JCExpression varType, Name varName, JCExpression initialValue, JavafxVarSymbol varSym) {
             JCVariableDecl varDecl = m().VarDef(
                                             modifiers,
                                             varName,
@@ -1371,7 +1440,7 @@ public abstract class JavafxTranslationSupport {
             return varDecl;
         }
 
-        protected JCVariableDecl Var(long flags, Type varType, Name varName, JCExpression initialValue, VarSymbol varSym) {
+        protected JCVariableDecl Var(long flags, Type varType, Name varName, JCExpression initialValue, JavafxVarSymbol varSym) {
             return Var(m().Modifiers(flags), makeType(varType), varName, initialValue, varSym);
         }
 
@@ -1471,7 +1540,13 @@ public abstract class JavafxTranslationSupport {
         }
 
         JCBlock Block(List<JCStatement> stmts) {
-            return m().Block(0L, stmts);
+            ListBuffer<JCStatement> nonNull = ListBuffer.lb();
+            for (JCStatement stmt : stmts) {
+                if (stmt != null) {
+                    nonNull.append(stmt);
+                }
+            }
+            return m().Block(0L, nonNull.toList());
         }
 
         JCBlock Block(ListBuffer<JCStatement> stmts) {
@@ -1540,26 +1615,6 @@ public abstract class JavafxTranslationSupport {
             return Try(body, cat, null);
         }
 
-        // generates catch(RuntimeException re) { ErrorHandler.bindException(re); <onCatchStat> }
-        JCCatch ErrorHandler(JCStatement onCatchStat) {
-            JCVariableDecl tmpVar = TmpVar(syms.runtimeExceptionType, null);
-            JCStatement callErrorHandler = CallStmt(defs.ErrorHandler_bindException, id(tmpVar));
-            JCBlock blk = (onCatchStat != null)? Block(callErrorHandler, onCatchStat) : Block(callErrorHandler);
-            return m().Catch(tmpVar, blk);
-        }
-
-        JCStatement TryWithErrorHandler(JCBlock body, JCStatement onCatchStat) {
-            return Try(body, ErrorHandler(onCatchStat));
-        }
-
-        JCStatement TryWithErrorHandler(JCStatement tryStat, JCStatement onCatchStat) {
-            return TryWithErrorHandler(Block(tryStat), onCatchStat);
-        }
-
-        JCStatement TryWithErrorHandler(JCStatement tryStat) {
-            return TryWithErrorHandler(tryStat, null);
-        }
-
         /**
          * Make methods
          */
@@ -1596,10 +1651,13 @@ public abstract class JavafxTranslationSupport {
          */
 
         public JCExpression Get(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
-            if (isMixinVar(varSym)) {
+            if (varSym.isSpecial()) {
+                JCExpression receiver = getReceiver(varSym);
+                return receiver == null ? id(varSym.name) : receiver;
+            } else if (isMixinVar(varSym)) {
                 return Call(attributeGetMixinName(varSym));
             } else if (varSym.isStatic()) {
                 return id(attributeValueName(varSym));
@@ -1608,8 +1666,8 @@ public abstract class JavafxTranslationSupport {
             }
         }
         public JCExpression Get(JCExpression selector, Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(selector, attributeGetMixinName(varSym));
@@ -1619,8 +1677,8 @@ public abstract class JavafxTranslationSupport {
         }
 
         public JCExpression Offset(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(getReceiver(), attributeGetVOFFName(varSym));
@@ -1628,15 +1686,15 @@ public abstract class JavafxTranslationSupport {
                 JCExpression klass = makeType(varSym.owner.type, false);
                 
                 if (varSym.isStatic()) {
-                    klass = Select(klass, TreeInfo.name(klass).append(defs.scriptClassSuffixName));
+                    klass = Select(klass, fxmake.ScriptSymbol(varSym.owner).name);
                 }
                 
                 return Select(klass, attributeOffsetName(varSym));
             }
         }
         public JCExpression Offset(JCExpression selector, Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (selector != null && isMixinVar(varSym)) {
                 return Call(selector, attributeGetVOFFName(varSym));
@@ -1646,19 +1704,19 @@ public abstract class JavafxTranslationSupport {
         }
 
         public JCExpression VarFlags(Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             return Select(getReceiver(varSym), attributeFlagsName(varSym));
         }
         public JCExpression VarFlags(JCExpression selector, Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             return Select(selector, attributeFlagsName(varSym));
         }
 
         public JCExpression Set(Symbol sym, JCExpression value) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(attributeSetMixinName(varSym), value);
@@ -1669,8 +1727,8 @@ public abstract class JavafxTranslationSupport {
             }
         }
         public JCExpression Set(JCExpression selector, Symbol sym, JCExpression value) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
+            assert sym instanceof JavafxVarSymbol : "Expect a var symbol, got " + sym;
+            JavafxVarSymbol varSym = (JavafxVarSymbol)sym;
             
             if (isMixinVar(varSym)) {
                 return Call(selector, attributeSetMixinName(varSym), value);
@@ -1688,27 +1746,40 @@ public abstract class JavafxTranslationSupport {
         public JCExpression Getter(Symbol sym) {
             return Getter(getReceiver(), sym);
         }
+
         public JCExpression Getter(JCExpression selector, Symbol sym) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            
-            if (typeMorpher.varMorphInfo(sym).useGetters()) {
-                return Call(selector, attributeGetterName(sym));
+            JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
+            if (vsym.isSpecial()) {
+                return Get(vsym);
+            } else if (vsym.isMember()) {
+                if (vsym.useGetters()) {
+                    return Call(selector, attributeGetterName(vsym));
+                } else {
+                    return Get(selector, vsym);
+                }
             } else {
-                return Get(selector, sym);
+                // Local variable
+                return id(vsym.name);
             }
         }
         
         public JCExpression Setter(Symbol sym, JCExpression value) {
             return Setter(getReceiver(), sym, value);
         }
+
         public JCExpression Setter(JCExpression selector, Symbol sym, JCExpression value) {
-            assert sym instanceof VarSymbol : "Expect a var symbol, got " + sym;
-            VarSymbol varSym = (VarSymbol)sym;
-            
-            if (typeMorpher.varMorphInfo(sym).useAccessors()) {
-                return Call(selector, attributeSetterName(sym), value);
-            } else {
+            JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
+            if (vsym.isSpecial()) {
                 return Set(selector, sym, value);
+            } else if (vsym.isMember()) {
+                if (vsym.useAccessors()) {
+                    return Call(selector, attributeSetterName(sym), value);
+                } else {
+                    return Set(selector, sym, value);
+                }
+            } else {
+                // Local variable
+                return m().Assign(id(sym.name), value);
             }
         }
         
@@ -1846,14 +1917,14 @@ public abstract class JavafxTranslationSupport {
         }
 
         JCExpression typeCast(final Type targetType, final Type inType, final JCExpression expr) {
-            if (types.typeKind(inType) == TYPE_KIND_OBJECT) {
+            if (types.typeRep(inType).isObject()) {
                 // We can't just cast the Object to Float (for example)
                 // because if the Object is not Float, we will get a ClassCastException at runtime.
                 // And we can't just call java.lang.Number.floatValue() because java.lang.Number
                 // doesn't exist on mobile, at least not as of Jan 2009.
-                int targetKind = types.typeKind(targetType);
-                if (targetKind != TYPE_KIND_OBJECT && targetKind != TYPE_KIND_SEQUENCE) {
-                    return Call(defs.Util_objectTo[targetKind], expr);
+                JavafxTypeRepresentation targetKind = types.typeRep(targetType);
+                if (targetKind.isPrimitive()) {
+                    return Call(defs.Util_objectTo[targetKind.ordinal()], expr);
                 }
             }
 
@@ -1869,12 +1940,8 @@ public abstract class JavafxTranslationSupport {
                 return translatedExpr;
             } else {
                 Type castType = clazztype;
-                if (!exprtype.isPrimitive()) {
+                if (exprtype != Type.noType && !exprtype.isPrimitive()) {
                     castType = types.boxedTypeOrType(castType);
-                }
-                if (castType.isPrimitive() && exprtype.isPrimitive()) {
-                    JCTree clazz = makeType(exprtype, true);
-                    translatedExpr = m().TypeCast(clazz, translatedExpr);
                 }
                 JCTree clazz = makeType(castType, true);
                 return m().TypeCast(clazz, translatedExpr);
@@ -1883,7 +1950,7 @@ public abstract class JavafxTranslationSupport {
 
         /* Default value per type */
         JCExpression DefaultValue(Type type) {
-            return JavafxTranslationSupport.this.makeDefaultValue(diagPos, typeMorpher.typeMorphInfo(type));
+            return JavafxTranslationSupport.this.makeDefaultValue(diagPos, type);
         }
         
         /*

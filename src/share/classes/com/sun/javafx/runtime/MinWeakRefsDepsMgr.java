@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2009, 2010 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -34,22 +34,18 @@ import java.util.List;
  * A DepenendentsManager implementation that minimizes number of WeakReference
  * objects created.
  *
- * @author Per Bother
+ * @author Per Bothner
  * @author A. Sundararajan (integrated with DependentsManager interface)
  */
-class MinWeakRefsDepsMgr extends DependentsManager implements BinderLinkable {
+class MinWeakRefsDepsMgr extends DependentsManager {
     private WeakBinderRef thisRef;
-    Dep dependencies;
+    DepChain dependencies;
 
     WeakBinderRef getThisRef(FXObject self) {
        if (thisRef == null) {
            thisRef = new WeakBinderRef(self);
        }
        return thisRef;
-    }
-
-    public void setNextBinder(Dep next) {
-        dependencies = next;
     }
 
     public void addDependent(FXObject bindee, final int varNum, FXObject binder) {
@@ -60,10 +56,13 @@ class MinWeakRefsDepsMgr extends DependentsManager implements BinderLinkable {
     }
 
     public void removeDependent(FXObject bindee, final int varNum, FXObject binder) {
-        for (Dep dep = dependencies; dep != null;) {
+        DepChain chain = DepChain.find(varNum, dependencies);
+        if (chain == null)
+            return;
+        for (Dep dep = chain.dependencies; dep != null;) {
             WeakBinderRef binderRef = dep.binderRef;
             if (binderRef != null) {
-                if (varNum == dep.bindeeVarNum && binder == binderRef.get()) {
+                if (binder == binderRef.get()) {
                     dep.binderRef = null;
                     if (! Dep.inIteration) {
                         dep.unlinkFromBindee();
@@ -80,21 +79,22 @@ class MinWeakRefsDepsMgr extends DependentsManager implements BinderLinkable {
         boolean oldInIteration = Dep.inIteration;
         try {
             Dep.inIteration = true;
-            for (Dep dep = dependencies; dep != null;) {
+            DepChain chain = DepChain.find(varNum, dependencies);
+            if (chain == null)
+                return;
+            for (Dep dep = chain.dependencies; dep != null;) {
                 Dep next = dep.nextInBinders;
                 WeakBinderRef binderRef = dep.binderRef;
                 if (binderRef != null) {
-                    if (varNum == dep.bindeeVarNum) {
-                        FXObject binder = binderRef.get();
-                        if (binder == null) {
-                            dep.binderRef = null;
-                            binderRef.cleanup();
-                        } else {
-                            try {
-                                binder.update$(bindee, varNum, phase);
-                            } catch (RuntimeException re) {
-                                ErrorHandler.bindException(re);
-                            }
+                    FXObject binder = binderRef.get();
+                    if (binder == null) {
+                        dep.binderRef = null;
+                        binderRef.cleanup();
+                    } else {
+                        try {
+                            binder.update$(bindee, varNum, phase);
+                        } catch (RuntimeException re) {
+                            ErrorHandler.bindException(re);
                         }
                     }
                 } else {
@@ -112,21 +112,22 @@ class MinWeakRefsDepsMgr extends DependentsManager implements BinderLinkable {
         boolean oldInIteration = Dep.inIteration;
         try {
             Dep.inIteration = true;
-            for (Dep dep = dependencies; dep != null;) {
+            DepChain chain = DepChain.find(varNum, dependencies);
+            if (chain == null)
+                return;
+            for (Dep dep = chain.dependencies; dep != null;) {
                 Dep next = dep.nextInBinders;
                 WeakBinderRef binderRef = dep.binderRef;
                 if (binderRef != null) {
-                    if (varNum == dep.bindeeVarNum) {
-                        FXObject binder = binderRef.get();
-                        if (binder == null) {
-                            dep.binderRef = null;
-                            binderRef.cleanup();
-                        } else {
-                            try {
-                                binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
-                            } catch (RuntimeException re) {
-                                ErrorHandler.bindException(re);
-                            }
+                    FXObject binder = binderRef.get();
+                    if (binder == null) {
+                        dep.binderRef = null;
+                        binderRef.cleanup();
+                    } else {
+                        try {
+                            binder.update$(bindee, varNum, startPos, endPos, newLength, phase);
+                        } catch (RuntimeException re) {
+                            ErrorHandler.bindException(re);
                         }
                     }
                 } else {
@@ -140,8 +141,14 @@ class MinWeakRefsDepsMgr extends DependentsManager implements BinderLinkable {
     }
 
     public int getListenerCount(FXObject bindee) {
+        return getListenerCount(dependencies);
+    }
+
+    private int getListenerCount(DepChain chain) {
+        if (chain == null)
+            return 0;
         int count = 0;
-        for (Dep dep = dependencies; dep != null;) {
+        for (Dep dep = chain.dependencies; dep != null;) {
             WeakBinderRef binderRef = dep.binderRef;
             if (binderRef != null) {
                 if (binderRef.get() != null) {
@@ -150,12 +157,19 @@ class MinWeakRefsDepsMgr extends DependentsManager implements BinderLinkable {
             }
             dep = dep.nextInBinders;
         }
-        return count;
+        return count + getListenerCount(chain.child0) + getListenerCount(chain.child1);
     }
 
     public List<FXObject> getDependents(FXObject bindee) {
         List<FXObject> res = new ArrayList<FXObject>();
-        for (Dep dep = dependencies; dep != null;) {
+        getDependents(dependencies, res);
+        return res;
+    }
+
+    void getDependents(DepChain chain, List<FXObject> res) {
+        if (chain == null)
+            return;
+        for (Dep dep = chain.dependencies; dep != null;) {
             WeakBinderRef binderRef = dep.binderRef;
             if (binderRef != null) {
                 if (binderRef.get() != null) {
@@ -164,7 +178,8 @@ class MinWeakRefsDepsMgr extends DependentsManager implements BinderLinkable {
             }
             dep = dep.nextInBinders;
         }
-        return res;
+        getDependents(chain.child0, res);
+        getDependents(chain.child1, res);
     }
 
 }
@@ -206,11 +221,179 @@ class WeakBinderRef extends WeakRef<FXObject> {
     }
 }
 
+/** Each DepChain is a linked list of Deps for a given bindeeVarNum.
+ * In addition, a DepCHain may have two child DepChains that are
+ * organized as a binary trie.
+ */
+class DepChain implements BinderLinkable {
+    int bindeeVarNum;
+
+    /** The lowest power of 2 such that {@code nextBit > bindeeVarNum}.
+     * If {@code child0 != null}, then {@code child0.nextBit > this.nextBit}.
+     * If {@code child1 != null}, then {@code child1.nextBit > this.nextBit}.
+     */
+    int nextBit;
+
+    /** The chain of dependencies for the given bindeeVarNum. */
+    Dep dependencies;
+
+    /** Children that have the same varNum prefix string.
+     * We view varNum as a bit-string in little-endian order.
+     * For all p such that p is child0 or a descendant of child0,
+     * we have that {@code (p.varNum & nextBit) == 0} and {@code p.varNum & (nextBit-1) == varNum}.
+     * Likewise, for all p such that p is child1 or a descendant of child1,
+     * we have that {@code (p.varNum & nextBit) != 0} and {@code p.varNum & (nextBit-1) == varNum}.
+     */
+    DepChain child0, child1;
+
+    Object /*union<DepChain,MinWeakRefsDepsMgr>*/ parent;
+    
+    public void setNextBinder(Dep next) {
+        dependencies = next;
+    }
+
+    /** Find the DepChain for the given varNum, or return null if not found. */
+    public static DepChain find(int varNum, DepChain cur) {
+        for (;;) {
+            if (cur == null)
+                return null;
+            int curVarNum = cur.bindeeVarNum;
+            if (varNum == curVarNum)
+                return cur;
+            int curBit = cur.nextBit;
+            int mask = curBit-1;
+            if ((varNum & mask) != (curVarNum & mask))
+                return null;
+            cur = (varNum & curBit) == 0 ? cur.child0 : cur.child1;
+        }
+    }
+
+    /** Find the DepChain for the given varNum, or create it if not found. */
+    public static DepChain findForce(int varNum, DepChain cur, Object parent) {
+        // If selector==-1 then cur == ((MinWeakRefsDepsMgr) parent).dependencies.
+        // If selector==0 then cur == ((DepChain) parent).child0.
+        // If selector==1 then cur == ((DepChain) parent).child1.
+        int selector = -1;
+        for (;;) {
+            if (cur == null)
+                break;
+            int curVarNum = cur.bindeeVarNum;
+            if (varNum == curVarNum)
+                return cur;
+            int curBit = cur.nextBit;
+            int mask = curBit-1;
+            if ((varNum & mask) != curVarNum) {
+                DepChain p = new DepChain();
+                int nextBit = 1;
+                while ((varNum & nextBit) == (curVarNum & nextBit) &&
+                        nextBit <= varNum)
+                    nextBit++;
+                p.bindeeVarNum = varNum & (nextBit-1);
+                p.nextBit = nextBit;
+                replace(parent, selector, p);
+                if ((curVarNum & nextBit) == 0) {
+                    p.child0 = cur;
+                    selector = 1;
+                } else {
+                    p.child1 = cur;
+                    selector = 0;
+                }
+                p.parent = parent;
+                cur.parent = p;
+                if (p.bindeeVarNum == varNum)
+                    return p;
+                parent = p;
+                break;
+            }
+            parent = cur;
+            if ((varNum & curBit) == 0) {
+                selector = 0;
+                cur = cur.child0;
+            }
+            else {
+                selector = 1;
+                cur = cur.child1;
+            }
+        }
+        cur = new DepChain();
+        cur.bindeeVarNum = varNum;
+        cur.parent = parent;
+        int nextBit = 1;
+        while (nextBit <= varNum)
+            nextBit <<= 1;
+        cur.nextBit = nextBit;
+        DepChain old = replace(parent, selector, cur);
+        if (old != null) {
+             if ((old.bindeeVarNum & nextBit) == 0)
+                 cur.child0 = old;
+             else
+                 cur.child1 = old;
+        }
+        return cur;
+    }
+
+    /** Replace parent.selector by dep, returning old value. */
+    private static DepChain replace(Object parent, int selector, DepChain dep) {
+        DepChain old;
+        if (selector == -1) {
+            MinWeakRefsDepsMgr pmgr = (MinWeakRefsDepsMgr) parent;
+            old = pmgr.dependencies;
+            pmgr.dependencies = dep;
+        }
+        else {
+            DepChain pchain = (DepChain) parent;
+            if (selector == 0) {
+                old = pchain.child0;
+                pchain.child0 = dep;
+            } else {
+                old = pchain.child1;
+                pchain.child1 = dep;
+            }
+        }
+        return old;
+    }
+
+    /** Replace this.parent by replacement. */
+    void replaceParent(DepChain replacement) {
+        if (parent instanceof MinWeakRefsDepsMgr)
+            ((MinWeakRefsDepsMgr) parent).dependencies = replacement;
+        else {
+            DepChain pchain = (DepChain) parent;
+            if (pchain.child0 == this)
+                pchain.child0 = replacement;
+            if (pchain.child1 == this)
+                pchain.child1 = replacement;
+        }
+    }
+
+    /* DEBUGGING:
+    static int counter;
+    int id = ++counter;
+    public String toString() { return "DepChain#"+id+"-vn:"+bindeeVarNum; }
+    public static String xtoString(DepChain d) {
+        if (d==null) return "null";
+        return "DepChain[#"+d.id+"-vn:"+d.bindeeVarNum+" nB:"+d.nextBit+" ch0: "+xtoString(d.child0)+" ch1: "+xtoString(d.child1)
+                +" p:"+d.parent+" d:"+xstr(d.dependencies)+"]";
+    }
+    public static String xstr(Dep d) {
+        if (d == null)
+            return "";
+        if (d.nextInBinders==null) return ""+d;
+        return ""+d+" "+xstr(d.nextInBinders);
+    }
+    */
+}
+
 class Dep implements BinderLinkable {
+    /* DEBUGGING
+    static int counter;
+    int id = ++counter;
+    public String toString() { return "Dep#"+id; }
+    */
+
     // See comment for the method Dep.unlinkFromBindee().
     static volatile boolean inIteration;
     WeakBinderRef binderRef;
-    int bindeeVarNum;
     Dep nextInBinders;
 
     public void setNextBinder(Dep next) {
@@ -240,17 +423,17 @@ class Dep implements BinderLinkable {
     }
 
     void linkToBindee(FXObject bindee, int bindeeVarNum) {
-        this.bindeeVarNum = bindeeVarNum;
         MinWeakRefsDepsMgr depMgr =
                 (MinWeakRefsDepsMgr) DependentsManager.get(bindee);
+        DepChain chain = DepChain.findForce(bindeeVarNum, depMgr.dependencies, depMgr);
         // Link into binder chain of bindee
-        Dep firstBinder = depMgr.dependencies;
+        Dep firstBinder = chain.dependencies;
         nextInBinders = firstBinder;
         if (firstBinder != null) {
             firstBinder.prevInBinders = this;
         }
-        prevInBinders = depMgr;
-        depMgr.dependencies = this;
+        prevInBinders = chain;
+        chain.dependencies = this;
     }
 
     /**
@@ -269,7 +452,18 @@ class Dep implements BinderLinkable {
     void unlinkFromBindee() {
         Dep next = nextInBinders;
         BinderLinkable prevBinder = prevInBinders;
-        prevBinder.setNextBinder(next);
+        if (prevBinder instanceof DepChain) {
+            DepChain chain = (DepChain) prevBinder;
+            chain.dependencies = next;
+            if (next == null) {
+                if (chain.child0 == null)
+                    chain.replaceParent(chain.child1);
+                else if (chain.child1 == null)
+                    chain.replaceParent(chain.child0);
+            }
+        }
+        else
+            prevBinder.setNextBinder(next);
         if (next != null) {
             next.prevInBinders = prevBinder;
         }

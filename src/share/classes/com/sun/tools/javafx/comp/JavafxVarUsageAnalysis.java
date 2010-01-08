@@ -28,6 +28,8 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Context;
 import static com.sun.tools.javafx.code.JavafxFlags.*;
+import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 
 /**
  *
@@ -38,7 +40,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             new Context.Key<JavafxVarUsageAnalysis>();
     
     private boolean inLHS;
-    private boolean inBindContext;
+    private JavafxBindStatus bindStatus;
     
     public static JavafxVarUsageAnalysis instance(Context context) {
         JavafxVarUsageAnalysis instance = context.get(varUsageKey);
@@ -51,7 +53,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
         context.put(varUsageKey, this);
         
         inLHS = false;
-        inBindContext = false;
+        bindStatus = JavafxBindStatus.UNBOUND;
     }
     
     public void analyzeVarUse(JavafxEnv<JavafxAttrContext> attrEnv) {
@@ -62,13 +64,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     private class ClearOldMarks extends JavafxTreeScanner {
 
         private long ALL_MARKED_VARUSE =
-                VARUSE_ASSIGNED_TO |
                 VARUSE_TMP_IN_INIT_EXPR |
                 VARUSE_DEFINITION_SEEN |
                 VARUSE_FORWARD_REFERENCE |
                 VARUSE_SELF_REFERENCE |
-                VARUSE_OPT_TRIGGER |
-                VARUSE_HAS_TRIGGER |
                 VARUSE_OBJ_LIT_INIT;
 
         private void clearMark(Symbol sym) {
@@ -107,9 +106,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     private void markVarAccess(Symbol sym) {
-        if (sym instanceof VarSymbol) {
-            if (inBindContext) {
+        if (sym instanceof VarSymbol && (sym.flags_field & VARUSE_SPECIAL) == 0L) {
+            if (bindStatus.isBound()) {
+                mark(sym, VARUSE_BIND_ACCESS);
+                // Accessors are necessary to send notification.
                 mark(sym, VARUSE_NEED_ACCESSOR);
+                if (bindStatus.isBidiBind())
+                    mark(sym, VARUSE_ASSIGNED_TO);
             } else {
                 if (inLHS) {
                     // note the assignment the assignment
@@ -132,7 +135,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     @Override
     public void visitScript(JFXScript tree) {
        inLHS = false;
-       inBindContext = false;
+       bindStatus = JavafxBindStatus.UNBOUND;
 
        super.visitScript(tree);
     }
@@ -142,10 +145,10 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
 
     private void scanVar(JFXAbstractVar tree) {
-        boolean wasInBindContext = inBindContext;
-        if (tree.isBound()) {
+        JavafxBindStatus wasBindStatus = bindStatus;
+        bindStatus = tree.getBindStatus();
+        if (bindStatus.isBound()) {
             mark(tree.sym, VARUSE_NEED_ACCESSOR);
-            inBindContext = true;
         }
         if (tree.getInitializer() != null) {
             tree.sym.flags_field |= VARUSE_TMP_IN_INIT_EXPR;
@@ -156,7 +159,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
             }
         }
         mark(tree.sym, VARUSE_DEFINITION_SEEN);
-        inBindContext = wasInBindContext;
+        bindStatus = wasBindStatus;
         if (tree.getOnReplace() != null) {
             mark(tree.sym, VARUSE_HAS_TRIGGER);
             mark(tree.sym, VARUSE_NEED_ACCESSOR);
@@ -175,8 +178,14 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     }
     
     @Override
+    public void visitVarRef(JFXVarRef tree) {
+        mark(tree.getVarSymbol(), VARUSE_NEED_ACCESSOR | VARUSE_VARREF);
+    }
+
+    @Override
     public void visitOverrideClassVar(JFXOverrideClassVar tree) {
         scanVar(tree);
+        mark(tree.sym, OVERRIDE);
     }
 
     @Override
@@ -192,13 +201,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitClassDeclaration(JFXClassDeclaration tree) {
        // these start over in a class definition
        boolean wasLHS = inLHS;
-       boolean wasInBindContext = inBindContext;
+       JavafxBindStatus wasBindStatus = bindStatus;
        inLHS = false;
-       inBindContext = false;
+       bindStatus = JavafxBindStatus.UNBOUND;
 
        super.visitClassDeclaration(tree);
 
-       inBindContext = wasInBindContext;
+       bindStatus = wasBindStatus;
        inLHS = wasLHS;
     }
 
@@ -206,17 +215,17 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitFunctionDefinition(JFXFunctionDefinition tree) {
        // these start over in a function definition
        boolean wasLHS = inLHS;
-       boolean wasInBindContext = inBindContext;
+       JavafxBindStatus wasBindStatus = bindStatus;
        inLHS = false;
 
-       inBindContext = tree.isBound();
-        // don't use super, since we don't want to cancel the inBindContext
-        for (JFXVar param : tree.getParams()) {
-            scan(param);
-        }
-        scan(tree.getBodyExpression());
+       bindStatus = tree.getBindStatus();
+       // don't use super, since we don't want to cancel the inBindContext
+       for (JFXVar param : tree.getParams()) {
+           scan(param);
+       }
+       scan(tree.getBodyExpression());
 
-       inBindContext = wasInBindContext;
+       bindStatus = wasBindStatus;
        inLHS = wasLHS;
     }
    
@@ -224,13 +233,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     public void visitFunctionValue(JFXFunctionValue tree) {
        // these start over in a function value
        boolean wasLHS = inLHS;
-       boolean wasInBindContext = inBindContext;
+       JavafxBindStatus wasBindStatus = bindStatus;
        inLHS = false;
-       inBindContext = false;
+       bindStatus = JavafxBindStatus.UNBOUND;
 
        super.visitFunctionValue(tree);
 
-       inBindContext = wasInBindContext;
+       bindStatus = wasBindStatus;
        inLHS = wasLHS;
     }
 
@@ -241,13 +250,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitObjectLiteralPart(JFXObjectLiteralPart tree) {
-        boolean wasInBindContext = inBindContext;
+        JavafxBindStatus wasBindStatus = bindStatus;
 
-        inBindContext |= tree.isBound();
+        bindStatus = tree.getBindStatus();
         mark(tree.sym, VARUSE_OBJ_LIT_INIT);
         scan(tree.getExpression());
 
-        inBindContext = wasInBindContext;
+        bindStatus = wasBindStatus;
     }
 
     @Override
@@ -301,7 +310,7 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
     @Override
     public void visitInitDefinition(JFXInitDefinition that) {
         assert !inLHS : "cannot have init blocks on LHS";
-        assert !inBindContext : "cannot have init blocks on bind";
+        assert !bindStatus.isBound() : "cannot have init blocks on bind";
 
         scan((JFXBlock)that.getBody());
 
@@ -310,13 +319,13 @@ public class JavafxVarUsageAnalysis extends JavafxTreeScanner {
 
     @Override
     public void visitInterpolateValue(final JFXInterpolateValue tree) {
-        boolean wasInBindContext = inBindContext;
-        inBindContext = true;
+        JavafxBindStatus wasBindStatus = bindStatus;
+        bindStatus = JavafxBindStatus.UNIDIBIND;
 
         mark(tree.sym, VARUSE_OBJ_LIT_INIT);
         super.visitInterpolateValue(tree);
 
-        inBindContext = wasInBindContext;
+        bindStatus = wasBindStatus;
     }
 
     @Override

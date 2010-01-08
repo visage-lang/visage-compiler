@@ -23,10 +23,10 @@
 package com.sun.tools.javafx.comp;
 
 import com.sun.javafx.runtime.Entry;
-import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.mjavac.code.Symbol;
 import java.util.regex.Pattern;
 
@@ -47,7 +47,7 @@ public class JavafxDefs {
     public static final String get_AttributeMethodPrefix = "get$";
     public static final String getMixin_AttributeMethodPrefix = "getMixin$";
     public static final String getVOFF_AttributeMethodPrefix = "getVOFF$";
-    public static final String initVarBits_AttributeMethodPrefix = "initVarBits$";
+    public static final String initVars_AttributeMethodPrefix = "initVars$";
     public static final String invalidate_AttributeMethodPrefix = "invalidate$";
     public static final String getFlags_AttributeMethodPrefix = "getFlags$";
     public static final String setFlags_AttributeMethodPrefix = "setFlags$";
@@ -125,6 +125,7 @@ public class JavafxDefs {
     public static final String cArraySequence = sequence_PackageString + ".ArraySequence";
     public static final String cBoundForHelper = sequence_PackageString + ".BoundForHelper";
     public static final String cBoundForHelperNaive = sequence_PackageString + ".BoundForHelperNaive";
+    public static final String cBoundForHelperNaiveSingle = sequence_PackageString + ".BoundForHelperNaiveSingle";
     public static final String cBoundForPartI = cBoundForHelper + "$FXForPart";
     public static final String cObjectArraySequence = sequence_PackageString + ".ObjectArraySequence";
 
@@ -211,6 +212,7 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_fromArray;
     final RuntimeMethod Sequences_getSingleValue;
     final RuntimeMethod Sequences_getNewElements;
+    final RuntimeMethod Sequences_incrementSharing;
     final RuntimeMethod Sequences_insert;
     final RuntimeMethod Sequences_insertBefore;
     final RuntimeMethod Sequences_range;
@@ -224,7 +226,6 @@ public class JavafxDefs {
     final RuntimeMethod Sequences_getAsFromNewElements[];
     final RuntimeMethod Sequences_toArray[];
 
-    final RuntimeMethod Util_isEqual; //TODO: replace uses with Checks_equals
     final RuntimeMethod Util_objectTo[];
 
     final RuntimeMethod Checks_equals;
@@ -277,7 +278,8 @@ public class JavafxDefs {
     final Name initialize_FXObjectMethodName;
     final Name userInit_FXObjectMethodName;
     final Name postInit_FXObjectMethodName;
-    final Name initVarBits_FXObjectMethodName;
+    final Name initVars_FXObjectMethodName;
+    Name getAs_FXObjectMethodName[];
 
     /**
      * Duration method Names
@@ -332,6 +334,7 @@ public class JavafxDefs {
     final Name lambda_MethodName;
 
     final Name isInitialized_MethodName;
+    final Name isReadOnly_MethodName;
     final Name initFXBase_MethodName;
     final Name start_ThreadMethodName;
     final Name outerAccessor_MethodName;
@@ -347,7 +350,7 @@ public class JavafxDefs {
     final Name applyDefaults_AttributeMethodPrefixName;
     final Name getMixin_AttributeMethodPrefixName;
     final Name getVOFF_AttributeMethodPrefixName;
-    final Name initVarBitsAttributeMethodPrefixName;
+    final Name initVarsAttributeMethodPrefixName;
     final Name onReplaceAttributeMethodPrefixName;
     final Name setMixin_AttributeMethodPrefixName;
 
@@ -426,21 +429,19 @@ public class JavafxDefs {
     final Name varFlagIS_INITIALIZED;
     final Name varFlagAWAIT_VARINIT;
     final Name varFlagCYCLE;
+    final Name varFlagIS_EAGER;
+    final Name varFlagSEQUENCE_LIVE;
     final Name varFlagVALIDITY_FLAGS;
     final Name varFlagIS_BOUND_INVALID;
     final Name varFlagIS_BOUND_INVALID_CYCLE;
+    final Name varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT;
     final Name varFlagIS_BOUND_DEFAULT_APPLIED;
+    final Name varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED;
     final Name varFlagDEFAULT_APPLIED_VARINIT;
-    final Name varFlagINIT_NORMAL;
+    
     final Name varFlagINIT_OBJ_LIT;
     final Name varFlagINIT_OBJ_LIT_DEFAULT;
-    final Name varFlagINIT_READONLY;
-    final Name varFlagINIT_BOUND;
     final Name varFlagINIT_BOUND_READONLY;
-    final Name varFlagINIT_VARINIT;
-    final Name varFlagINIT_READONLY_VARINIT;
-    final Name varFlagINIT_BOUND_VARINIT;
-    final Name varFlagINIT_BOUND_READONLY_VARINIT;
     final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED;
     final Name varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY;
     final Name varFlagALL_FLAGS;
@@ -459,16 +460,17 @@ public class JavafxDefs {
      * Misc Names
      */
 
+    public final Name scriptClassSuffixName;
     final Name mixinClassSuffixName;
     final Name lengthSuffixName;
     final Name deprecatedInterfaceSuffixName;
-    final Name scriptLevelAccess_FXObjectMethodPrefixName;
     final Name userRunFunctionName;
     final Name internalRunFunctionName;
     final Name receiverName;
     final Name typeParameterName;
-    final Name scriptClassSuffixName;
     final Name varOldValue_LocalVarName;
+    final Name varFlags_LocalVarName;
+    final Name wasInvalid_LocalVarName;
     final Name internalSuffixName;
     final Name internalNameMarker;
 
@@ -478,21 +480,6 @@ public class JavafxDefs {
     final Name varOFF$valueName;
 
     final Name boundForPartName;
-
-    /**
-     * Type Kinds
-     */
-    public static final int TYPE_KIND_OBJECT = 0;
-    public static final int TYPE_KIND_BOOLEAN = 1;
-    public static final int TYPE_KIND_CHAR = 2;
-    public static final int TYPE_KIND_BYTE = 3;
-    public static final int TYPE_KIND_SHORT = 4;
-    public static final int TYPE_KIND_INT = 5;
-    public static final int TYPE_KIND_LONG = 6;
-    public static final int TYPE_KIND_FLOAT = 7;
-    public static final int TYPE_KIND_DOUBLE = 8;
-    public static final int TYPE_KIND_SEQUENCE = 9;
-    public static final int TYPE_KIND_COUNT = 10;
 
     static final String[] typePrefixes = new String[]{"Object", "Boolean", "Char", "Byte", "Short", "Int", "Long", "Float", "Double", "Sequence"};
     static final String[] accessorSuffixes = new String[]{"", "AsBoolean", "AsChar", "AsByte", "AsShort", "AsInt", "AsLong", "AsFloat", "AsDouble", "AsSequence"};
@@ -507,7 +494,6 @@ public class JavafxDefs {
      */
 
     public static final Context.Key<JavafxDefs> jfxDefsKey = new Context.Key<JavafxDefs>();
-    private final Type[] realTypeByKind;
 
     public static JavafxDefs instance(Context context) {
         JavafxDefs instance = context.get(jfxDefsKey);
@@ -566,10 +552,10 @@ public class JavafxDefs {
         emptySequence_FieldName = names.fromString("emptySequence");
         partResultVarNum_BoundForHelper = names.fromString("partResultVarNum");
         isInitialized_MethodName = names.fromString("isInitialized");
+        isReadOnly_MethodName = names.fromString("isReadOnly");
         offset_AttributeFieldPrefixName = names.fromString(offset_AttributeFieldPrefix);
         flags_AttributeFieldPrefixName = names.fromString(flags_AttributeFieldPrefix);
         count_FXObjectFieldName = names.fromString(count_FXObjectFieldString);
-        scriptClassSuffixName = names.fromString(scriptClassSuffix);
         typeParameterName = names.fromString("T");
         init_MethodSymbolName = names.fromString("$init$def$name");
         postinit_MethodSymbolName = names.fromString("$postinit$def$name");
@@ -607,8 +593,8 @@ public class JavafxDefs {
         getMixin_AttributeMethodPrefixName = names.fromString(getMixin_AttributeMethodPrefix);
         getVOFF_AttributeMethodPrefixName = names.fromString(getVOFF_AttributeMethodPrefix);
         setMixin_AttributeMethodPrefixName = names.fromString(setMixin_AttributeMethodPrefix);
-        initVarBitsAttributeMethodPrefixName = names.fromString(initVarBits_AttributeMethodPrefix);
-        initVarBits_FXObjectMethodName = initVarBitsAttributeMethodPrefixName;
+        initVarsAttributeMethodPrefixName = names.fromString(initVars_AttributeMethodPrefix);
+        initVars_FXObjectMethodName = initVarsAttributeMethodPrefixName;
         applyDefaults_FXObjectMethodName = names.fromString(applyDefaults_AttributeMethodPrefix);
         applyDefaults_AttributeMethodPrefixName = names.fromString(applyDefaults_AttributeMethodPrefix);
         update_FXObjectMethodName = names.fromString("update$");
@@ -616,15 +602,17 @@ public class JavafxDefs {
         size_FXObjectMethodName = names.fromString(size_AttributeMethodPrefix);
         count_FXObjectMethodName = names.fromString("count$");
         varOldValue_LocalVarName = names.fromString("varOldValue$");
+        varFlags_LocalVarName = names.fromString("varFlags$");
+        wasInvalid_LocalVarName = names.fromString("wasInvalid$");
         varNewValue_ArgName = names.fromString("varNewValue$");
-        scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
         value_NonLocalReturnExceptionFieldName = names.fromString("value");
-        scriptLevelAccess_FXObjectMethodPrefixName = names.fromString("access$scriptLevel$");
         outerAccessor_FXObjectFieldName = names.fromString("accessOuterField$");
         updateInstance_ArgName = names.fromString("instance$");
         obj_ArgName = names.fromString("object$");
         value_ArgName = names.fromString("value$");
         varNum_ArgName = names.fromString("varNum$");
+        scriptClassSuffixName = names.fromString(scriptClassSuffix);
+        scriptLevelAccess_FXObjectFieldName = names.fromString("$scriptLevel$");
 
         // KeyValueTarget.Type field names
         BYTE_KeyValueTargetTypeFieldName = names.fromString("BYTE");
@@ -651,22 +639,19 @@ public class JavafxDefs {
         varFlagIS_INITIALIZED = names.fromString("VFLGS$IS_INITIALIZED");
         varFlagAWAIT_VARINIT = names.fromString("VFLGS$AWAIT_VARINIT");
         varFlagCYCLE = names.fromString("VFLGS$CYCLE");
-        
+        varFlagIS_EAGER = names.fromString("VFLGS$IS_EAGER");
+        varFlagSEQUENCE_LIVE = names.fromString("VFLGS$SEQUENCE_LIVE");
+
         varFlagVALIDITY_FLAGS = names.fromString("VFLGS$VALIDITY_FLAGS");
         varFlagIS_BOUND_INVALID = names.fromString("VFLGS$IS_BOUND_INVALID");
         varFlagIS_BOUND_INVALID_CYCLE = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE");
+        varFlagIS_BOUND_INVALID_CYCLE_AWAIT_VARINIT = names.fromString("VFLGS$IS_BOUND_INVALID_CYCLE_AWAIT_VARINIT");
         varFlagIS_BOUND_DEFAULT_APPLIED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED");
+        varFlagIS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED = names.fromString("VFLGS$IS_BOUND_DEFAULT_APPLIED_IS_INITIALIZED");
         varFlagDEFAULT_APPLIED_VARINIT = names.fromString("VFLGS$DEFAULT_APPLIED_VARINIT");
-        varFlagINIT_NORMAL = names.fromString("VFLGS$INIT_NORMAL");
         varFlagINIT_OBJ_LIT = names.fromString("VFLGS$INIT_OBJ_LIT");
         varFlagINIT_OBJ_LIT_DEFAULT = names.fromString("VFLGS$INIT_OBJ_LIT_DEFAULT");
-        varFlagINIT_READONLY = names.fromString("VFLGS$INIT_READONLY");
-        varFlagINIT_BOUND = names.fromString("VFLGS$INIT_BOUND");
         varFlagINIT_BOUND_READONLY = names.fromString("VFLGS$INIT_BOUND_READONLY");
-        varFlagINIT_VARINIT = names.fromString("VFLGS$INIT_VARINIT");
-        varFlagINIT_READONLY_VARINIT = names.fromString("VFLGS$INIT_READONLY_VARINIT");
-        varFlagINIT_BOUND_VARINIT = names.fromString("VFLGS$INIT_BOUND_VARINIT");
-        varFlagINIT_BOUND_READONLY_VARINIT = names.fromString("VFLGS$INIT_BOUND_READONLY_VARINIT");
         varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED = names.fromString("VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED");
         varFlagINIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY = names.fromString("VFLGS$INIT_DEFAULT_APPLIED_IS_INITIALIZED_READONLY");
         varFlagALL_FLAGS = names.fromString("VFLGS$ALL_FLAGS");
@@ -701,6 +686,7 @@ public class JavafxDefs {
         Sequences_replaceSlice = new RuntimeMethod(names, cSequences, "replaceSlice");
         Sequences_reverse = new RuntimeMethod(names, cSequences, "reverse");
         Sequences_set = new RuntimeMethod(names, cSequences, "set");
+        Sequences_incrementSharing = new RuntimeMethod(names, cSequences, "incrementSharing");
         Sequences_insert = new RuntimeMethod(names, cSequences, "insert");
         Sequences_insertBefore = new RuntimeMethod(names, cSequences, "insertBefore");
         Sequences_deleteIndexed = new RuntimeMethod(names, cSequences, "deleteIndexed");
@@ -710,20 +696,22 @@ public class JavafxDefs {
         Sequences_calculateIntRangeSize = new RuntimeMethod(names, cSequences, "calculateIntRangeSize");
         Sequences_calculateFloatRangeSize = new RuntimeMethod(names, cSequences, "calculateFloatRangeSize");
 
-        Sequences_getAsFromNewElements = new RuntimeMethod[TYPE_KIND_COUNT];
-        Sequences_toArray = new RuntimeMethod[TYPE_KIND_COUNT];
-        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+        int typeRepCnt = JavafxTypeRepresentation.values().length;
+        Sequences_getAsFromNewElements = new RuntimeMethod[typeRepCnt];
+        Sequences_toArray = new RuntimeMethod[typeRepCnt];
+        getAs_FXObjectMethodName = new Name[typeRepCnt];
+        for (int kind = 0; kind < typeRepCnt; kind++) {
             Sequences_getAsFromNewElements[kind] = new RuntimeMethod(names, cSequences, "get" + accessorSuffixes[kind] + "FromNewElements");
             Sequences_toArray[kind] = new RuntimeMethod(names, cSequences, "to" + typePrefixes[kind] + "Array");
+            getAs_FXObjectMethodName[kind] = names.fromString("get" + accessorSuffixes[kind] + "$");
         }
 
-        Util_isEqual = new RuntimeMethod(names, cUtil, "isEqual");
-        Util_objectTo = new RuntimeMethod[TYPE_KIND_COUNT];
-        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+        Util_objectTo = new RuntimeMethod[typeRepCnt];
+        for (int kind = 0; kind < typeRepCnt; kind++) {
             Util_objectTo[kind] = new RuntimeMethod(names, cUtil, "objectTo" + typePrefixes[kind]);
         }
 
-        Checks_equals = new RuntimeMethod(names, cChecks, "equals"); //TODO: looks like dup
+        Checks_equals = new RuntimeMethod(names, cChecks, "equals"); 
         Checks_isNull = new RuntimeMethod(names, cChecks, "isNull");
 
         Math_min = new RuntimeMethod(names, cMath, "min");
@@ -762,33 +750,21 @@ public class JavafxDefs {
              };
      
         // Initialize per Kind names and types
-        typedGet_SequenceMethodName = new Name[TYPE_KIND_COUNT];
-        typedSet_SequenceMethodName = new Name[TYPE_KIND_COUNT];
-        for (int kind = 0; kind < TYPE_KIND_COUNT; kind++) {
+        typedGet_SequenceMethodName = new Name[typeRepCnt];
+        typedSet_SequenceMethodName = new Name[typeRepCnt];
+        for (int kind = 0; kind < typeRepCnt; kind++) {
             typedGet_SequenceMethodName[kind] = names.fromString("get" + accessorSuffixes[kind]);
             typedSet_SequenceMethodName[kind] = names.fromString("set" + accessorSuffixes[kind]);
         }
-
-        realTypeByKind = new Type[TYPE_KIND_COUNT];
-        realTypeByKind[TYPE_KIND_OBJECT] = syms.objectType;
-        realTypeByKind[TYPE_KIND_BOOLEAN] = syms.booleanType;
-        realTypeByKind[TYPE_KIND_CHAR] = syms.charType;
-        realTypeByKind[TYPE_KIND_BYTE] = syms.byteType;
-        realTypeByKind[TYPE_KIND_SHORT] = syms.shortType;
-        realTypeByKind[TYPE_KIND_INT] = syms.intType;
-        realTypeByKind[TYPE_KIND_LONG] = syms.longType;
-        realTypeByKind[TYPE_KIND_FLOAT] = syms.floatType;
-        realTypeByKind[TYPE_KIND_DOUBLE] = syms.doubleType;
-        realTypeByKind[TYPE_KIND_SEQUENCE] = syms.javafx_SequenceType;
     }
 
     public static String getTypePrefix(int index) {
         return typePrefixes[index];
     }
 
-    public Name scriptLevelAccessMethod(Name.Table names, Symbol clazz) {
+    public Name scriptLevelAccessField(Name.Table names, Symbol clazz) {
         StringBuilder buf = new StringBuilder();
-        buf.append(scriptLevelAccess_FXObjectMethodPrefixName);
+        buf.append(scriptLevelAccess_FXObjectFieldName);
         buf.append(clazz.getQualifiedName().toString().replace('.', '$'));
         buf.append('$');
         return names.fromString(buf);

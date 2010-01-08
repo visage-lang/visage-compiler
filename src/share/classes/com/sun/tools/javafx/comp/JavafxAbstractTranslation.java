@@ -45,11 +45,11 @@ import com.sun.tools.mjavac.util.Name;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
+import com.sun.tools.javafx.code.JavafxTypeRepresentation;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitClassMap;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitVarMap;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.TypeMorphInfo;
-import com.sun.tools.javafx.comp.JavafxTypeMorpher.VarMorphInfo;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Type.MethodType;
 import com.sun.tools.mjavac.jvm.Target;
@@ -57,7 +57,6 @@ import com.sun.tools.mjavac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.mjavac.tree.TreeInfo;
 import com.sun.tools.mjavac.tree.TreeTranslator;
 import java.util.Map;
-import java.util.Set;
 import javax.lang.model.type.TypeKind;
 import static com.sun.tools.javafx.comp.JavafxAbstractTranslation.Yield.*;
 
@@ -143,10 +142,6 @@ public abstract class JavafxAbstractTranslation
 
     protected JavafxToJava toJava() {
         return toJava;
-    }
-
-    protected JavafxTranslateDependent translateDependent() {
-        return toJava.translateDependent();
     }
 
     /********** Utility routines **********/
@@ -311,10 +306,10 @@ public abstract class JavafxAbstractTranslation
 
     public static class DependentPair {
 
-        public final VarSymbol instanceSym;
+        public final JavafxVarSymbol instanceSym;
         public final Symbol referencedSym;
 
-        DependentPair(VarSymbol instanceSym, Symbol referencedSym) {
+        DependentPair(JavafxVarSymbol instanceSym, Symbol referencedSym) {
             this.instanceSym = instanceSym;
             this.referencedSym = referencedSym;
         }
@@ -328,13 +323,13 @@ public abstract class JavafxAbstractTranslation
     public static class BindeeInvalidator {
 
         // Variable symbols on which the current variable depends
-        public final VarSymbol bindee;
+        public final JavafxVarSymbol bindee;
 
         // Invalidation code to be placed in bindee.
         // Optional.  If null, use default invalidation of the current variable.
         public final JCStatement invalidator;
 
-        BindeeInvalidator(VarSymbol bindee, JCStatement invalidator) {
+        BindeeInvalidator(JavafxVarSymbol bindee, JCStatement invalidator) {
             this.bindee = bindee;
             this.invalidator = invalidator;
         }
@@ -361,14 +356,14 @@ public abstract class JavafxAbstractTranslation
 
     public static class ExpressionResult extends AbstractStatementsResult {
         private final JCExpression value;
-        private final List<VarSymbol> bindees;
+        private final List<JavafxVarSymbol> bindees;
         private final List<BindeeInvalidator> invalidators;
         private final List<DependentPair> interClass;
         private final List<JCStatement> setterPreface;
         private final Type resultType;
 
         ExpressionResult(DiagnosticPosition diagPos, List<JCStatement> stmts, JCExpression value, 
-                List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
+                List<JavafxVarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
                 List<JCStatement> setterPreface, Type resultType) {
             super(diagPos, stmts);
             this.value = value;
@@ -390,7 +385,7 @@ public abstract class JavafxAbstractTranslation
             return invalidators;
         }
 
-        public List<VarSymbol> bindees() {
+        public List<JavafxVarSymbol> bindees() {
             return bindees;
         }
         public List<DependentPair> interClass() {
@@ -427,12 +422,12 @@ public abstract class JavafxAbstractTranslation
     public static class BoundSequenceResult extends ExpressionResult {
         private final JCStatement getElement;
         private final JCStatement getSize;
-        BoundSequenceResult(List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {
+        BoundSequenceResult(List<JavafxVarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass, JCStatement getElement, JCStatement getSize) {
             this(null, null, bindees, invalidators, interClass, getElement, getSize, null);
         }
         BoundSequenceResult(
                 List<JCStatement> stmts, JCExpression value,
-                List<VarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
+                List<JavafxVarSymbol> bindees, List<BindeeInvalidator> invalidators, List<DependentPair> interClass,
                 JCStatement getElement, JCStatement getSize, Type resultType) {
             super(getElement.pos(), stmts, value, bindees, invalidators, interClass, null, resultType);
             this.getElement = getElement;
@@ -634,7 +629,7 @@ public abstract class JavafxAbstractTranslation
 
     static class OnReplaceInfo {
         public OnReplaceInfo outer;
-        VarMorphInfo vmi;
+        JavafxVarSymbol vsym;
         public JFXOnReplace onReplace;
         Symbol newElementsSym;
         Type arraySequenceType;
@@ -715,8 +710,8 @@ public abstract class JavafxAbstractTranslation
                 if (elemType.isPrimitive()) {
                     primitive = true;
                     addTypeInfoArg = false;
-                    int kind = types.typeKind(elemType);
-                    localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxDefs.getTypePrefix(kind) + "ArraySequence"; //TODO: put in defs
+                    JavafxTypeRepresentation typeRep = types.typeRep(elemType);
+                    localSeqBuilder = "com.sun.javafx.runtime.sequence." + JavafxDefs.getTypePrefix(typeRep.ordinal()) + "ArraySequence"; //TODO: put in defs
                 }
                 else
                     localSeqBuilder = JavafxDefs.cObjectArraySequence;
@@ -782,7 +777,7 @@ public abstract class JavafxAbstractTranslation
 
         private final ListBuffer<JCStatement> stmts = ListBuffer.lb();
         private final ListBuffer<BindeeInvalidator> invalidators = ListBuffer.lb();
-        private final ListBuffer<VarSymbol> bindees = ListBuffer.lb();
+        private final ListBuffer<JavafxVarSymbol> bindees = ListBuffer.lb();
         private final ListBuffer<DependentPair> interClass = ListBuffer.lb();
         private final ListBuffer<JCStatement> setterPreface = ListBuffer.lb();
 
@@ -794,6 +789,7 @@ public abstract class JavafxAbstractTranslation
             addPreface(res.statements());
             addBindees(res.bindees());
             addInterClassBindees(res.interClass());
+            addInvalidators(res.invalidators());
             return res.expr();
         }
 
@@ -842,24 +838,32 @@ public abstract class JavafxAbstractTranslation
             stmts.appendList(list);
         }
 
-        void addInvalidator(VarSymbol sym, JCStatement invStmt) {
-            BindeeInvalidator bi = new BindeeInvalidator(sym, invStmt);
+        void addInvalidator(JavafxVarSymbol sym, JCStatement invStmt) {
+            addInvalidator(new BindeeInvalidator(sym, invStmt));
+        }
+
+        void addInvalidators(List<BindeeInvalidator> bis) {
+            for (BindeeInvalidator bi : bis)
+                addInvalidator(bi);
+        }
+
+        void addInvalidator(BindeeInvalidator bi) {
             if (!invalidators.contains(bi)) {
                 invalidators.append(bi);
             }
         }
 
-        void addBindee(VarSymbol sym) {
+        void addBindee(JavafxVarSymbol sym) {
             if (types.isJFXClass(sym.owner)) {
                 bindees.append(sym);
             }
         }
 
-        void addBindees(List<VarSymbol> syms) {
+        void addBindees(List<JavafxVarSymbol> syms) {
             bindees.appendList(syms);
         }
 
-        void addInterClassBindee(VarSymbol instanceSym, Symbol referencedSym) {
+        void addInterClassBindee(JavafxVarSymbol instanceSym, Symbol referencedSym) {
             if (types.isJFXClass(instanceSym.owner) && types.isJFXClass(referencedSym.owner)) {
                 interClass.append(new DependentPair( instanceSym,  referencedSym));
             }
@@ -901,7 +905,7 @@ public abstract class JavafxAbstractTranslation
             return stmts.toList();
         }
 
-        List<VarSymbol> bindees() {
+        List<JavafxVarSymbol> bindees() {
             return bindees.toList();
         }
 
@@ -931,6 +935,14 @@ public abstract class JavafxAbstractTranslation
             }
         }
         
+        JCExpression reference(Symbol sym) {
+            if (sym.isStatic()) {
+                return Select(staticReference(sym), sym.name);
+            } else {
+                return id(sym);
+            }
+        }
+
         JCExpression translateSizeof(JFXExpression expr, JCExpression transExpr) {
             if (expr instanceof JFXIdent) {
                 JFXIdent varId = (JFXIdent) expr;
@@ -1039,9 +1051,8 @@ public abstract class JavafxAbstractTranslation
             JCExpression expr = varRef;
 
             if (sym instanceof VarSymbol) {
-                final VarSymbol vsym = (VarSymbol) sym;
-                VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-                boolean isFXMemberVar = vmi.isFXMemberVariable();
+                final JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
+                boolean isFXMemberVar = vsym.isFXMember();
 
                 if (isFXMemberVar) {
                     // this is a reference to a JavaFX class variable, use getter
@@ -1060,11 +1071,15 @@ public abstract class JavafxAbstractTranslation
                         default:
                             throw new AssertionError();
                     }
-                    expr = Getter(instance, vsym);
+                    expr = makeAccess(instance, vsym);
                 }
             }
 
             return expr;
+        }
+
+        JCExpression makeAccess(JCExpression instance, JavafxVarSymbol vsym) {
+            return Getter(instance, vsym);
         }
 
     }
@@ -1074,7 +1089,7 @@ public abstract class JavafxAbstractTranslation
         protected final Symbol refSym;             //
         protected final Type fullType;             // Type, before conversion, of expression
         protected final Type resultType;           // Type of final generated expression
-        protected final boolean staticReference;   // Is this a static reference
+        protected boolean staticReference;   // Is this a static reference
 
         NullCheckTranslator(DiagnosticPosition diagPos, Symbol sym, Type fullType) {
             super(diagPos);
@@ -1284,12 +1299,60 @@ public abstract class JavafxAbstractTranslation
         JCExpression fullExpression(JCExpression tToCheck) {
             if (isFunctionReference) {
                 MethodType mtype = (MethodType) refSym.type;
-                JCExpression translated = Select(tToCheck, name);
+                JCExpression tc = staticReference?
+                    tToCheck :
+                    addTempVar(tree.selected.type, tToCheck);
+                JCExpression translated = Select(tc, name);
                 return new FunctionValueTranslator(translated, null, diagPos, mtype, fullType).doitExpr();
             } else {
                 JCExpression translated = Select(tToCheck, name);
                 return convertVariableReference(translated, refSym);
             }
+        }
+    }
+
+    class SelectElementTranslator extends NullCheckTranslator {
+
+        private final JFXSelect tree;
+        private final Name name;
+        private final JCExpression tIndex;
+
+        private SelectElementTranslator(JFXSelect tree, JCExpression tIndex) {
+            super(tree.pos(), tree.sym, types.elementType(tree.type));
+            this.tree = tree;
+            this.name = tree.getIdentifier();
+            this.tIndex = tIndex;
+        }
+
+        @Override
+        JFXExpression getToCheck() {
+            return tree.getExpression();
+        }
+
+        @Override
+        JCExpression fullExpression(JCExpression tToCheck) {
+            JCExpression translated = Select(tToCheck, name);
+            return convertVariableReference(translated, refSym);
+        }
+
+        @Override
+        JCExpression makeAccess(JCExpression instance, JavafxVarSymbol vsym) {
+            return Call(instance, attributeGetElementName(vsym), tIndex);
+        }
+    }
+
+    class IdentElementTranslator extends IdentTranslator {
+
+        private final JCExpression tIndex;
+
+        IdentElementTranslator(JFXIdent tree, JCExpression tIndex) {
+            super(tree);
+            this.tIndex = tIndex;
+        }
+
+        @Override
+        JCExpression makeAccess(JCExpression instance, JavafxVarSymbol vsym) {
+            return Call(instance, attributeGetElementName(vsym), tIndex);
         }
     }
 
@@ -1301,6 +1364,7 @@ public abstract class JavafxAbstractTranslation
         protected final boolean thisCall;
         protected final boolean superCall;
         protected final MethodSymbol msym;
+        protected final Symbol funcSym;
         protected final Symbol selectorSym;
         protected final boolean renameToThis;
         protected final boolean renameToSuper;
@@ -1329,6 +1393,7 @@ public abstract class JavafxAbstractTranslation
             JFXSelect fieldAccess = meth.getFXTag() == JavafxTag.SELECT ? (JFXSelect) meth : null;
             selector = fieldAccess != null ? fieldAccess.getExpression() : null;
             msym = (refSym instanceof MethodSymbol) ? (MethodSymbol) refSym : null;
+            funcSym = expressionSymbol(tree.meth); //either MethodSymbol or VarSymbol
             Name selectorIdName = (selector != null && selector.getFXTag() == JavafxTag.IDENT) ? ((JFXIdent) selector).getName() : null;
             thisCall = selectorIdName == names._this;
             superCall = selectorIdName == names._super;
@@ -1366,13 +1431,19 @@ public abstract class JavafxAbstractTranslation
 
         @Override
         JCExpression translateToCheck(JFXExpression expr) {
+            JCExpression newExpr = null;
             if (renameToSuper || superCall) {
-                return resolveSuper(msym.owner);
+                newExpr = resolveSuper(funcSym.owner);
             } else if (renameToThis || thisCall) {
-                return id(names._this);
+                newExpr = getReceiver(funcSym);
             } else if (superToStatic) {
-                return staticReference(msym);
-            } else {
+                newExpr = staticReference(funcSym);
+            }
+            if (newExpr != null) {
+                return !useInvoke ? newExpr :
+                    Select(newExpr, attributeValueName(funcSym));
+            }
+            else {
                 return super.translateToCheck(expr);
             }
         }
@@ -1753,10 +1824,9 @@ public abstract class JavafxAbstractTranslation
             // if this is an instance reference to an attribute or function, it needs to go the the "receiver$" arg,
             // and possible outer access methods
             JCExpression convert;
-            boolean isStatic = sym.isStatic();
-            if (isStatic) {
+            if (sym.isStatic()) {
                 // make class-based direct static reference:   Foo.x
-                convert = Select(staticReference(sym),tree.getName());
+                convert = reference(sym);
             } else {
                 if ((kind == Kinds.VAR || kind == Kinds.MTH) &&
                         sym.owner.kind == Kinds.TYP) {
@@ -1789,8 +1859,8 @@ public abstract class JavafxAbstractTranslation
         
         @Override
         protected ExpressionResult doit() {
-            if (sym instanceof VarSymbol) {
-                VarSymbol vsym = (VarSymbol) sym;
+            if (sym instanceof JavafxVarSymbol) {
+                JavafxVarSymbol vsym = (JavafxVarSymbol) sym;
                 if (currentClass().sym.isSubClass(sym.owner, types)) {
                     // The var is in our class (or a superclass)
                     if ((receiverContext() == ReceiverContext.ScriptAsStatic) == sym.isStatic()) {
@@ -1811,9 +1881,9 @@ public abstract class JavafxAbstractTranslation
      */
     class BoundSelectTranslator extends SelectTranslator {
 
-        protected final VarSymbol selectResSym;
+        protected final JavafxVarSymbol selectResSym;
 
-        BoundSelectTranslator(JFXSelect tree, VarSymbol selectResSym) {
+        BoundSelectTranslator(JFXSelect tree, JavafxVarSymbol selectResSym) {
             super(tree);
             this.selectResSym = selectResSym;
         }
@@ -1821,13 +1891,21 @@ public abstract class JavafxAbstractTranslation
         @Override
         protected ExpressionResult doit() {
             JFXExpression selectorExpr = tree.getExpression();
-            if (canChange() && (selectorExpr instanceof JFXIdent)) {
-                // cases that need a null check are the same as cases that have changing dependencies
+            if (selectorExpr instanceof JFXIdent) {
                 JFXIdent selector = (JFXIdent) selectorExpr;
-                Symbol selectorSym = selector.sym;
-                buildDependencies(selectorSym);
-                addBindee((VarSymbol) selectorSym);
-                addInterClassBindee((VarSymbol) selectorSym, refSym);
+                
+                if (selector.sym instanceof JavafxVarSymbol) {
+                    JavafxVarSymbol selectorSym = (JavafxVarSymbol)selector.sym;
+                    
+                    if (selectorSym.isSpecial()) {
+                        addInterClassBindee(selectorSym, refSym);
+                    } else if (canChange()) {
+                        // cases that need a null check are the same as cases that have changing dependencies
+                        buildDependencies(selectorSym);
+                        addBindee(selectorSym);
+                        addInterClassBindee(selectorSym, refSym);
+                    }
+                }
             }
             return (ExpressionResult) super.doit();
         }
@@ -1917,7 +1995,9 @@ public abstract class JavafxAbstractTranslation
             this.selector = (ref instanceof JFXSelect) ? ((JFXSelect) ref).getExpression() : null;
             this.rhsTranslated = rhs==null? null : convertNullability(diagPos, translateExpr(rhs, rhsType()), rhs, rhsType());
             this.rhsTranslatedPreserved = rhs==null? null : preserveSideEffects(fullType, rhs, rhsTranslated);
-            this.useAccessors = refSym==null? false : typeMorpher.varMorphInfo(refSym).useAccessors();
+            this.useAccessors = (refSym!=null && refSym.kind==Kinds.VAR)?
+                  ((JavafxVarSymbol)refSym).useAccessors()
+                : false;
         }
 
         /**
@@ -1970,29 +2050,45 @@ public abstract class JavafxAbstractTranslation
 
         JCExpression sequencesOp(RuntimeMethod meth, JCExpression tToCheck) {
             ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-            if (refSym.owner.kind != Kinds.TYP) {
-                // Local variable sequence -- make a block expression, roughly:
+            JavafxVarSymbol vsym = (JavafxVarSymbol) refSym;
+            if (! vsym.useAccessors()) {
+                // In this case make a block expression - roughly:
                 // { Foo tmp = rhs;
-                //   lhs = sequenceAction(lhs, rhs);
+                //   lhs = sequenceAction(lhs, tmp);
                 //   tmp;
                 // }
-                args.append(id(refSym.name));
-                JCVariableDecl tv = TmpVar(types.boxedTypeOrType(rhsType()), buildRHS(rhsTranslated));
-                args.append(id(tv));
+                args.append(Getter(tToCheck, vsym));
+                JCVariableDecl tv;
+                // The special case for JCLiteral is to avoid a bug in Gen - it
+                // optimizes away initializing a variable that is constant,
+                // but somehow gets confused when later trying to load the variable.
+                // Probably something to do with BlockExpressions confusing it.
+                if (rhsTranslated instanceof JCLiteral || targetType == syms.voidType) {
+                    tv = null;
+                    args.append(rhsTranslated);
+                }
+                else {
+                    tv = TmpVar(rhsType(), buildRHS(rhsTranslated));
+                    args.append(id(tv));
+                }
                 JCExpression tIndex = translateIndex();
                 if (tIndex != null) {
                     args.append(tIndex);
                 }
-                JCExpression res = Call(meth, args);
+                JCExpression assign = Setter(tToCheck, vsym, Call(meth, args));
+                if (targetType == syms.voidType)
+                    return assign;
+                if (rhsTranslated instanceof JCLiteral)
+                    return BlockExpression(Stmt(assign), translateExpr(rhs, rhsType()));
                 return BlockExpression(
                         tv,
-                        Stmt(m().Assign(id(refSym.name), res)),
+                        Stmt(assign),
                         id(tv));
             } else {
                 // Instance variable sequence -- roughly:
                 // sequenceAction(instance, varNum, rhs);
                 args.append(instance(tToCheck));
-                args.append(Offset(copyOfTranslatedToCheck(translateToCheck(selector)), refSym));
+                args.append(Offset(copyOfTranslatedToCheck(tToCheck), vsym));
                 args.append(buildRHS(rhsTranslated));
                 JCExpression tIndex = translateIndex();
                 if (tIndex != null) {
@@ -2034,7 +2130,7 @@ public abstract class JavafxAbstractTranslation
             } else {
                 if (useAccessors) {
                     return postProcessExpression(buildSetter(tToCheck, buildRHS(rhsTranslatedPreserved)));
-                } else if (typeMorpher.varMorphInfo(refSym).isFXMemberVariable()) {
+                } else if (refSym instanceof VarSymbol && ((JavafxVarSymbol)refSym).isFXMember()) {
                     JCExpression lhsTranslated = selector != null ?
                         Select(tToCheck, attributeValueName(refSym)) :
                         id(attributeValueName(refSym));
@@ -2044,7 +2140,7 @@ public abstract class JavafxAbstractTranslation
                     //TODO: possibly should use, or be unified with convertVariableReference
                     JCExpression lhsTranslated = selector != null ?
                         Select(tToCheck, refSym.name) :
-                        id(refSym.name);
+                        reference(refSym);
                     JCExpression res =  defaultFullExpression(lhsTranslated, rhsTranslatedPreserved);
                     return res;
                 }
@@ -2166,8 +2262,8 @@ public abstract class JavafxAbstractTranslation
          * Check if a primitive has the default value for its type.
          */
         private JCExpression makePrimitiveNullCheck(Type argType, JCExpression arg) {
-            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-            JCExpression defaultValue = makeLit(diagPos, tmi.getRealType(), tmi.getDefaultValue());
+            JavafxTypeRepresentation typeRep = types.typeRep(argType);
+            JCExpression defaultValue = makeLit(diagPos, argType, typeRep.defaultValue());
             return EQ(arg, defaultValue);
         }
 
@@ -2175,8 +2271,7 @@ public abstract class JavafxAbstractTranslation
          * Check if a non-primitive has the default value for its type.
          */
         private JCExpression makeObjectNullCheck(Type argType, JCExpression arg) {
-            TypeMorphInfo tmi = typeMorpher.typeMorphInfo(argType);
-            if (tmi.isSequence() || types.isSameType(tmi.getRealType(), syms.javafx_StringType)) {
+            if (types.isSequence(argType) || types.isSameType(argType, syms.javafx_StringType)) {
                 return Call(defs.Checks_isNull, arg);
             } else {
                 return EQnull(arg);
@@ -2380,7 +2475,7 @@ public abstract class JavafxAbstractTranslation
                 Type elemType = types.elemtype(targettedType);
                 if (sourceIsSequence) {
                     if (elemType.isPrimitive()) {
-                        return Call(defs.Sequences_toArray[types.typeKind(elemType)], translated);
+                        return Call(defs.Sequences_toArray[types.typeRep(elemType).ordinal()], translated);
                     }
                     ListBuffer<JCStatement> stats = ListBuffer.lb();
                     JCVariableDecl tmpVar = TmpVar(sourceType, translated);
@@ -2552,7 +2647,7 @@ public abstract class JavafxAbstractTranslation
         protected ListBuffer<JCStatement> varInits = ListBuffer.lb();
 
         // Symbols corresponding to caseStats.
-        protected ListBuffer<VarSymbol> varSyms = ListBuffer.lb();
+        protected ListBuffer<JavafxVarSymbol> varSyms = ListBuffer.lb();
 
         NewInstanceTranslator(DiagnosticPosition diagPos) {
             super(diagPos);
@@ -2582,24 +2677,27 @@ public abstract class JavafxAbstractTranslation
          */
         protected abstract List<JCExpression> completeTranslatedConstructorArgs();
 
-        protected JCExpression translateInstanceVariableInit(JFXExpression init, VarSymbol vsym) {
+        protected JCExpression translateInstanceVariableInit(JFXExpression init, JavafxVarSymbol vsym) {
             ExpressionResult eres = translateToExpressionResult(init, vsym.type);
             mergeResults(eres);
             return convertNullability(init.pos(), eres.expr(), init, vsym.type);
         }
 
-        void setInstanceVariable(Name instanceName, JavafxBindStatus bindStatus, VarSymbol vsym, JFXExpression init) {
+        void setInstanceVariable(Name instanceName, JavafxBindStatus bindStatus, JavafxVarSymbol vsym, JFXExpression init) {
             JCExpression transInit = translateInstanceVariableInit(init, vsym);
             JCExpression tc = instanceName == null ? null : id(instanceName);
             JCStatement def;
-            if (types.isSequence(vsym.type)) {
-                def = CallStmt(defs.Sequences_set, tc,
-                        Offset(id(instanceName), vsym), transInit);
-            } else if (!typeMorpher.varMorphInfo(vsym).useAccessors()) {
-                def = SetStmt(tc, vsym, transInit);
+            if (vsym.useAccessors()) {
+                if (vsym.isSequence()) {
+                    def = CallStmt(defs.Sequences_set, tc,
+                            Offset(id(instanceName), vsym), transInit);
+                } else {
+                    def = CallStmt(tc, attributeBeName(vsym), transInit);
+                }
             } else {
-                def = CallStmt(tc, attributeBeName(vsym), transInit);
+                def = SetStmt(tc, vsym, transInit);
             }
+
             varInits.append(def);
             varSyms.append(vsym);
         }
@@ -2644,7 +2742,7 @@ public abstract class JavafxAbstractTranslation
                 int[] tags = new int[count];
 
                 int index = 0;
-                for (VarSymbol varSym : varSyms) {
+                for (JavafxVarSymbol varSym : varSyms) {
                     tags[index++] = varMap.addVar(varSym);
                 }
 
@@ -2659,7 +2757,7 @@ public abstract class JavafxAbstractTranslation
                 JCExpression mapExpr = m().Indexed(id(mapVar), id(loopName));
                 loopBody = m().Switch(mapExpr, cases.toList());
             } else {
-                VarSymbol varSym = varSyms.first();
+                JavafxVarSymbol varSym = varSyms.first();
                 JCExpression varOffsetExpr = Offset(id(receiverName), varSym);
                 JCVariableDecl offsetVar = TmpVar("off", syms.intType, varOffsetExpr);
                 addPreface(offsetVar);
@@ -2672,7 +2770,7 @@ public abstract class JavafxAbstractTranslation
         }
 
         void makeSetVarFlags(Name receiverName, Type contextType) {
-            for (VarSymbol vsym : varSyms) {
+            for (JavafxVarSymbol vsym : varSyms) {
                 JCExpression flagsToSet = (vsym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0 ?
                     id(defs.varFlagINIT_OBJ_LIT_DEFAULT) :
                     id(defs.varFlagINIT_OBJ_LIT);
@@ -2811,7 +2909,7 @@ public abstract class JavafxAbstractTranslation
                 diagPos = olpart.pos(); // overwrite diagPos (must restore)
                 JavafxBindStatus bindStatus = olpart.getBindStatus();
                 JFXExpression init = olpart.getExpression();
-                VarSymbol vsym = (VarSymbol) olpart.sym;
+                JavafxVarSymbol vsym = (JavafxVarSymbol) olpart.sym;
                 setInstanceVariable(instName, bindStatus, vsym, init);
             }
             if (tree.varDefinedByThis != null) {
@@ -3005,6 +3103,7 @@ public abstract class JavafxAbstractTranslation
 
         private final JFXExpression seq;
         private final JCExpression tSeq;
+        private final boolean isTSeqDirect;
         private final JCExpression tIndex;
         private final Type resultType;
 
@@ -3012,6 +3111,7 @@ public abstract class JavafxAbstractTranslation
             super(diagPos);
             this.seq = seq;
             this.tSeq = tSeq;
+            this.isTSeqDirect = false;
             this.tIndex = tIndex;
             this.resultType = resultType;
         }
@@ -3019,13 +3119,24 @@ public abstract class JavafxAbstractTranslation
         SequenceIndexedTranslator(JFXSequenceIndexed tree) {
             super(tree.pos());
             this.seq = tree.getSequence();
-            this.tSeq = translateExpr(seq, null);  //FIXME
+            this.tSeq = translateExpr(seq, null);  
+            this.isTSeqDirect = true;
             this.tIndex = translateExpr(tree.getIndex(), syms.intType);
             this.resultType = tree.type;
         }
 
-        JCExpression translateSequenceIndexed() {
-            int typeKind = types.typeKind(resultType);
+        protected ExpressionResult doit() {
+            return toResult(
+                        doitExpr(),
+                        resultType);
+        }
+
+        protected JCExpression doitExpr() {
+            if (seq.type.tag == TypeTags.ARRAY) {
+                // It is a native array, just index into it
+                return m().Indexed(tSeq, tIndex);
+            }
+            JavafxTypeRepresentation typeRep = types.typeRep(resultType);
             if (seq instanceof JFXIdent) {
                 JFXIdent var = (JFXIdent) seq;
                 OnReplaceInfo info = findOnReplaceInfo(var.sym);
@@ -3033,19 +3144,18 @@ public abstract class JavafxAbstractTranslation
                         && (var.sym.flags_field & JavafxFlags.VARUSE_OPT_TRIGGER) != 0) {
                     JFXOnReplace onReplace = info.onReplace;
                     ListBuffer<JCExpression> args = new ListBuffer<JCExpression>();
-                    Symbol sym = info.vmi.getSymbol();
-                    args.append(getReceiverOrThis((VarSymbol) sym));
-                    args.append(Offset(sym));
+                    args.append(getReceiverOrThis(info.vsym));
+                    args.append(Offset(info.vsym));
                     args.append(id(paramStartPosName(onReplace)));
                     args.append(id(paramNewElementsLengthName(onReplace)));
                     args.append(tIndex);
                     List<JCExpression> typeArgs;
-                    if (typeKind == JavafxDefs.TYPE_KIND_OBJECT) {
+                    if (typeRep.isObject()) {
                         /*
                          * We are calling SequencesBase.getFromNewElements() which
                          * accepts type argument for the returned sequence element type.
                          * If we don't pass correct type argument, we will get Object type.
-                         * For example, for Sequence<? extends String> we want to pass "String" 
+                         * For example, for Sequence<? extends String> we want to pass "String"
                          * as type arg, so that the return type is "String" and not "Object".
                          */
                         ListBuffer<JCExpression> typeArgsBuf = ListBuffer.lb();
@@ -3054,25 +3164,35 @@ public abstract class JavafxAbstractTranslation
                     } else {
                         typeArgs = List.<JCExpression>nil();
                     }
-                    return Call(defs.Sequences_getAsFromNewElements[typeKind], typeArgs, args.toList());
+                    return Call(defs.Sequences_getAsFromNewElements[typeRep.ordinal()], typeArgs, args.toList());
                 }
             }
-            Name getMethodName = defs.typedGet_SequenceMethodName[typeKind];
-            return Call(tSeq, getMethodName, tIndex);
-        }
-
-        protected ExpressionResult doit() {
-            return toResult(
-                    doitExpr(),
-                    resultType);
-        }
-
-        protected JCExpression doitExpr() {
-            if (seq.type.tag == TypeTags.ARRAY) {
-                return m().Indexed(tSeq, tIndex);
-            } else {
-                return translateSequenceIndexed();
+            if (isTSeqDirect) {
+                JavafxVarSymbol vsym = varSymbol(seq);
+                if (vsym != null
+                        && vsym.useAccessors()
+                        && types.isSameType(vsym.getElementType(), resultType)) {
+                    // Using elem$ is critical to non-boxing behavior of bound sequences
+                    // Use elem$seq(pos) form
+                    switch (seq.getFXTag()) {
+                        case SELECT: {
+                            Yield prevYield = yieldKind;
+                            yieldKind = ToExpression;  // Force expression result so that the merge works
+                            try {
+                                return mergeResults((ExpressionResult) new SelectElementTranslator((JFXSelect) seq, tIndex).doit());
+                            } finally {
+                                yieldKind = prevYield;
+                            }
+                        }
+                        case IDENT:
+                            return mergeResults(new IdentElementTranslator((JFXIdent) seq, tIndex).doit());
+                    }
+                }
             }
+
+            // Use seq.get(pos) form
+            Name getMethodName = defs.typedGet_SequenceMethodName[typeRep.ordinal()];
+            return Call(tSeq, getMethodName, tIndex);
         }
     }
 
@@ -3635,12 +3755,12 @@ public abstract class JavafxAbstractTranslation
             return List.<JCExpression>nil();
         }
 
-        VarSymbol varSym(Name varName) {
-            return (VarSymbol) builtIn.tsym.members().lookup(varName).sym;
+        JavafxVarSymbol varSym(Name varName) {
+            return (JavafxVarSymbol) builtIn.tsym.members().lookup(varName).sym;
         }
 
         void setInstanceVariable(Name instName, Name varName, JFXExpression init) {
-            VarSymbol vsym = varSym(varName);
+            JavafxVarSymbol vsym = varSym(varName);
             setInstanceVariable(instName, JavafxBindStatus.UNBOUND, vsym, init);
         }
 
@@ -3652,7 +3772,7 @@ public abstract class JavafxAbstractTranslation
 
     class VarInitTranslator extends ExpressionTranslator {
         private final JFXVar var;
-        private final VarSymbol vsym;
+        private final JavafxVarSymbol vsym;
 
         VarInitTranslator(JFXVarInit tree) {
             super(tree.pos());
@@ -3666,8 +3786,7 @@ public abstract class JavafxAbstractTranslation
          * value is var value.
          */
         ExpressionResult doit() {
-            VarMorphInfo vmi = typeMorpher.varMorphInfo(vsym);
-            if (vmi.useAccessors() || !var.isLiteralInit()) {
+            if (vsym.useAccessors() || !var.isLiteralInit()) {
                 return toResult(
                         BlockExpression(
                             FlagChangeStmt(vsym, defs.varFlagAWAIT_VARINIT, null),

@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
 import com.sun.tools.mjavac.code.Kinds;
@@ -47,7 +48,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
 
     // Symbol for the var whose bound expression we are translating.
-    private VarSymbol targetSymbol;
+    private JavafxVarSymbol targetSymbol;
 
     // The outermost bound expression
     private JFXExpression boundExpression;
@@ -68,7 +69,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
     }
 
     ExpressionResult translate(JFXExpression expr, Type type, Symbol symbol) {
-        this.targetSymbol = (VarSymbol) symbol;
+        this.targetSymbol = (JavafxVarSymbol) symbol;
         this.boundExpression = expr;
         
         return translateToExpressionResult(expr, type);
@@ -82,7 +83,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
         @Override
         protected BoundSequenceResult doit() {
-            addInterClassBindee((VarSymbol) selectorSym, refSym);
+            addInterClassBindee((JavafxVarSymbol) selectorSym, refSym);
             return new BoundSequenceResult(
                     List.of(init()),
                     null,
@@ -115,8 +116,8 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         // ---- Stolen from BoundSequenceTranslator ----
         //TODO: unify
 
-        private Name activeFlagBit = defs.varFlagDEFAULT_APPLIED;
-        VarSymbol flagSymbol = (VarSymbol)targetSymbol;
+        private Name activeFlagBit = defs.varFlagSEQUENCE_LIVE;
+        JavafxVarSymbol flagSymbol = (JavafxVarSymbol)targetSymbol;
 
         JCExpression isSequenceActive() {
             return FlagTest(flagSymbol, activeFlagBit, activeFlagBit);
@@ -192,11 +193,11 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
 
     private class BiBoundSequenceIdentTranslator extends ExpressionTranslator {
 
-        private final VarSymbol refSym;
+        private final JavafxVarSymbol refSym;
 
         BiBoundSequenceIdentTranslator(JFXIdent tree) {
             super(tree.pos());
-            this.refSym = (VarSymbol) tree.sym;
+            this.refSym = (JavafxVarSymbol) tree.sym;
         }
 
         @Override

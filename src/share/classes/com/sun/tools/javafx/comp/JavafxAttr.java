@@ -98,8 +98,8 @@ public class JavafxAttr implements JavafxVisitor {
      */
     private final Source source;
     
-    Map<VarSymbol, JFXVar> varSymToTree =
-            new HashMap<VarSymbol, JFXVar>();
+    Map<JavafxVarSymbol, JFXVar> varSymToTree =
+            new HashMap<JavafxVarSymbol, JFXVar>();
     Map<MethodSymbol, JFXFunctionDefinition> methodSymToTree =
             new HashMap<MethodSymbol, JFXFunctionDefinition>();
 
@@ -544,7 +544,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         // If symbol is a variable, ...
         if (sym.kind == VAR) {
-            VarSymbol v = (VarSymbol)sym;
+            JavafxVarSymbol v = (JavafxVarSymbol)sym;
 
             // ..., evaluate its initializer, if it has one, and check for
             // illegal forward reference.
@@ -644,7 +644,7 @@ public class JavafxAttr implements JavafxVisitor {
 
         // If that symbol is a variable, ...
         if (sym.kind == VAR) {
-            VarSymbol v = (VarSymbol)sym;
+            JavafxVarSymbol v = (JavafxVarSymbol)sym;
 
             // ..., evaluate its initializer, if it has one, and check for
             // illegal forward reference.
@@ -757,8 +757,8 @@ public class JavafxAttr implements JavafxVisitor {
                         ? List.of(types.erasure(site))
                         : List.<Type>nil();
                     t = new ClassType(t.getEnclosingType(), typeargs, t.tsym);
-                    return new VarSymbol(
-                        STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
+                    return new JavafxVarSymbol(
+                        types, names,STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
                 } else {
                     // We are seeing a plain identifier as selector.
                     sym = rs.findIdentInType(env, site, name, pkind);
@@ -796,8 +796,8 @@ public class JavafxAttr implements JavafxVisitor {
                     Type t = syms.classType;
                     Type arg = types.boxedTypeOrType(site);
                     t = new ClassType(t.getEnclosingType(), List.of(arg), t.tsym);
-                    return new VarSymbol(
-                        STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
+                    return new JavafxVarSymbol(
+                        types, names,STATIC | PUBLIC | FINAL, names._class, t, site.tsym);
                 } else {
                     log.error(pos, MsgSym.MESSAGE_CANNOT_DEREF, site);
                     return syms.errSymbol;
@@ -829,7 +829,6 @@ public class JavafxAttr implements JavafxVisitor {
         else {
             hasLhsType = true;
         }
-        Type capturedType = capture(owntype);
 
         Symbol lhsSym = JavafxTreeInfo.symbol(tree.lhs);
         if (lhsSym == null) {
@@ -839,6 +838,10 @@ public class JavafxAttr implements JavafxVisitor {
 
         if (hasLhsType) {
             attribExpr(tree.rhs, dupEnv, owntype);
+            if (types.isSequence(tree.rhs.type) &&
+                tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED) {
+                owntype = types.sequenceType(types.elementTypeOrType(owntype));
+            }
         }
         else {
             if (tree.lhs.getFXTag() == JavafxTag.SELECT) {
@@ -853,7 +856,7 @@ public class JavafxAttr implements JavafxVisitor {
             attribTree(tree.lhs, dupEnv, VAR, owntype);
             lhsSym.type = owntype;
         }
-        result = check(tree, capturedType, VAL, pkind, pt, pSequenceness);
+        result = check(tree, capture(owntype), VAL, pkind, pt, pSequenceness);
 
         if (tree.rhs != null && tree.lhs.getFXTag() == JavafxTag.IDENT) {
             JFXVar lhsVar = varSymToTree.get(lhsSym);
@@ -874,7 +877,7 @@ public class JavafxAttr implements JavafxVisitor {
     }
 
     public void finishVar(JFXVar tree, JavafxEnv<JavafxAttrContext> env) {
-        VarSymbol v = tree.sym;        
+        JavafxVarSymbol v = tree.sym;        
 
         // The info.lint field in the envs stored in enter.typeEnvs is deliberately uninitialized,
         // because the annotations were not available at the time the env was created. Therefore,
@@ -938,8 +941,9 @@ public class JavafxAttr implements JavafxVisitor {
                 initType = tree.type;
             else
                 initType = syms.objectType;  // nothing to go on, so we assume Object
-            if (declType == syms.javafx_UnspecifiedType && v.type == null)
+            if (declType == syms.javafx_UnspecifiedType && v.type == null) {
                 result = tree.type = v.type = types.normalize(initType);
+            }
             //chk.validateAnnotations(tree.mods.annotations, v);
             if (types.isArray(v.type) &&
                     (tree.isBound() ||
@@ -980,7 +984,7 @@ public class JavafxAttr implements JavafxVisitor {
         boolean isClassVar = env.info.scope.owner.kind == TYP;
         if (isClassVar && (flags & STATIC) == 0L) {
             // Check that instance variables don't override
-            chk.checkVarOverride(tree, (VarSymbol)sym);
+            chk.checkVarOverride(tree, (JavafxVarSymbol)sym);
         }
 
         //variable decl in bind context with no initializer are not allowed
@@ -1055,7 +1059,7 @@ public class JavafxAttr implements JavafxVisitor {
      * @param env
      */
     public void finishOverrideAttribute(JFXOverrideClassVar tree, JavafxEnv<JavafxAttrContext> env) {
-        VarSymbol v = tree.sym;
+        JavafxVarSymbol v = tree.sym;
         Type declType = tree.getId().type;
         result = tree.type = declType;
 
@@ -1175,7 +1179,7 @@ public class JavafxAttr implements JavafxVisitor {
         } else if (localEnv.outer.tree.getFXTag() != JavafxTag.CLASS_DEF) {
             log.error(tree.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_OVERRIDE_CLASS_VAR_FROM_FUNCTION, sym.name, sym.owner);
         } else {
-            VarSymbol v = (VarSymbol) sym;
+            JavafxVarSymbol v = (JavafxVarSymbol) sym;
             tree.sym = v;
             if (tree.isBound()) {
                 // If it is overridden with a bound, it is a bound init
@@ -1632,7 +1636,7 @@ public class JavafxAttr implements JavafxVisitor {
             partsScope.enter(memberSym);
 
             Type memberType = memberSym.type;
-            if (!(memberSym instanceof VarSymbol) ) {
+            if (!(memberSym instanceof JavafxVarSymbol) ) {
                 log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_INVALID_ASSIGNMENT);
                 memberType = Type.noType;
             }
@@ -1647,8 +1651,8 @@ public class JavafxAttr implements JavafxVisitor {
             if  (part.getExpression() != null) {
                 attribExpr(part.getExpression(), initEnv, memberType);
             }
-            if (memberSym instanceof VarSymbol) {
-                VarSymbol v = (VarSymbol) memberSym;
+            if (memberSym instanceof JavafxVarSymbol) {
+                JavafxVarSymbol v = (JavafxVarSymbol) memberSym;
                 if (v.isStatic()) {
                     log.error(localPt.pos(), MsgSym.MESSAGE_JAVAFX_CANNOT_INIT_STATIC_OBJECT_LITERAL, memberSym);
                 }
@@ -2372,7 +2376,7 @@ public class JavafxAttr implements JavafxVisitor {
                 Symbol asym = JavafxTreeInfo.symbol(arg);
                 if (asym == null || !(asym.type instanceof ErrorType)) {
                     if (asym == null ||
-                            !(asym instanceof VarSymbol) ||
+                            !(asym instanceof JavafxVarSymbol) ||
                             (arg.getFXTag() != JavafxTag.IDENT && arg.getFXTag() != JavafxTag.SELECT) ||
                             asym.owner == null ||
                             (asym.owner.kind != TYP && !asym.isLocal())) {
@@ -2385,14 +2389,15 @@ public class JavafxAttr implements JavafxVisitor {
         if (msym!=null && msym.owner!=null && msym.owner.type!=null &&
                 (msym.owner.type.tsym == syms.javafx_AutoImportRuntimeType.tsym ||
                  msym.owner.type.tsym == syms.javafx_FXRuntimeType.tsym) &&
-                methName == defs.isInitialized_MethodName) {
-            msym.flags_field |= JavafxFlags.FUNC_IS_INITIALIZED;
+                (methName == defs.isInitialized_MethodName ||
+                methName == defs.isReadOnly_MethodName)) {
+            msym.flags_field |= JavafxFlags.FUNC_IS_BUILTINS_SYNTH;
             for (List<JFXExpression> l = tree.args; l.nonEmpty(); l = l.tail, i++) {
                 JFXExpression arg = l.head;
                 Symbol asym = JavafxTreeInfo.symbol(arg);
                 if (asym == null || !(asym.type instanceof ErrorType)) {
                     if (asym == null ||
-                            !(asym instanceof VarSymbol) ||
+                            !(asym instanceof JavafxVarSymbol) ||
                             (arg.getFXTag() != JavafxTag.IDENT && arg.getFXTag() != JavafxTag.SELECT) ||
                             (asym.flags() & JavafxFlags.IS_DEF) != 0 ||
                             asym.owner == null ||
@@ -2417,7 +2422,7 @@ public class JavafxAttr implements JavafxVisitor {
                                 default:
                                     throw new AssertionError(); // see above, should not occur
                             }
-                            chk.checkAssignable(tree.pos(), (VarSymbol) asym, base, site, env, WriteKind.VAR_QUERY);
+                            chk.checkAssignable(tree.pos(), (JavafxVarSymbol) asym, base, site, env, WriteKind.VAR_QUERY);
                         }
                     }
                 }
@@ -3371,13 +3376,13 @@ public class JavafxAttr implements JavafxVisitor {
                 }
                 break;
             case VAR:
-                VarSymbol v = (VarSymbol)sym;
+                JavafxVarSymbol v = (JavafxVarSymbol)sym;
                 // Test (4): if symbol is an instance field of a raw type,
                 // which is being assigned to, issue an unchecked warning if
                 // its type changes under erasure.
                 if (allowGenerics &&
                     pkind == VAR &&
-                    v.owner.kind == TYP &&
+                    v.isMember() &&
                     (v.flags() & STATIC) == 0 &&
                     (site.tag == CLASS || site.tag == TYPEVAR)) {
                     Type s = types.asOuterSuper(site, v.owner);
@@ -3462,13 +3467,13 @@ public class JavafxAttr implements JavafxVisitor {
          */
         private void checkInit(JFXTree tree,
                                JavafxEnv<JavafxAttrContext> env,
-                               VarSymbol v) {
+                               JavafxVarSymbol v) {
             v.getConstValue(); // ensure initializer is evaluated
             checkEnumInitializer(tree, env, v);
         }
         private void checkForward(JFXTree tree,
                                JavafxEnv<JavafxAttrContext> env,
-                               VarSymbol v
+                               JavafxVarSymbol v
                                ) {
             // A forward reference is diagnosed if the declaration position
             // of the variable is greater than the current tree position
@@ -3482,7 +3487,7 @@ public class JavafxAttr implements JavafxVisitor {
                 log.warning(tree.pos(), MsgSym.MESSAGE_ILLEGAL_FORWARD_REF, Resolve.kindName(v.kind), v);
         }
         //where
-        private boolean isObjLiteralDef(VarSymbol v) {
+        private boolean isObjLiteralDef(JavafxVarSymbol v) {
             return (v.flags() & JavafxFlags.OBJ_LIT_INIT) != 0;         
         }
         //where
@@ -3530,7 +3535,7 @@ public class JavafxAttr implements JavafxVisitor {
          * @param v       The variable's symbol.
          * @see JLS 3rd Ed. (8.9 Enums)
          */
-        private void checkEnumInitializer(JFXTree tree, JavafxEnv<JavafxAttrContext> env, VarSymbol v) {
+        private void checkEnumInitializer(JFXTree tree, JavafxEnv<JavafxAttrContext> env, JavafxVarSymbol v) {
             // JLS 3rd Ed.:
             //
             // "It is a compile-time error to reference a static field
@@ -3563,7 +3568,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
         }
 
-        private boolean isNonStaticEnumField(VarSymbol v) {
+        private boolean isNonStaticEnumField(JavafxVarSymbol v) {
             return Flags.isEnum(v.owner) && Flags.isStatic(v) && !Flags.isConstant(v);
         }
 
@@ -3762,7 +3767,7 @@ public class JavafxAttr implements JavafxVisitor {
 //                if (l.head.getFXTag() == JavafxTag.VARDEF) sym = ((JCVariableDecl) l.head).sym;
 //                if (sym == null ||
 //                    sym.kind != VAR ||
-//                    ((VarSymbol) sym).getConstValue() == null)
+//                    ((JavafxVarSymbol) sym).getConstValue() == null)
 //                    log.error(l.head.pos(), "icls.cant.have.static.decl");
 //            }
         }
@@ -3835,7 +3840,7 @@ public class JavafxAttr implements JavafxVisitor {
             }
 
             // check that it is static final
-            VarSymbol svuid = (VarSymbol)e.sym;
+            JavafxVarSymbol svuid = (JavafxVarSymbol)e.sym;
             if ((svuid.flags() & (STATIC | FINAL)) !=
                 (STATIC | FINAL))
                 log.warning(JavafxTreeInfo.diagnosticPositionFor(svuid, tree), MsgSym.MESSAGE_IMPROPER_SVUID, c);

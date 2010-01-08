@@ -26,9 +26,9 @@ package com.sun.tools.javafx.tree;
 import com.sun.javafx.api.tree.*;
 import com.sun.javafx.api.tree.Tree.JavaFXKind;
 
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Name;
 import com.sun.javafx.api.JavafxBindStatus;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 
 /**
  * Initialization of a var inline in a local context.
@@ -57,7 +57,7 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
         var.setVarInit(this);
     }
 
-    public VarSymbol getSymbol() {
+    public JavafxVarSymbol getSymbol() {
         return var.getSymbol();
     }
 
@@ -96,10 +96,6 @@ public class JFXVarInit extends JFXExpression implements VariableTree {
 
     public JFXOnReplace getOnInvalidate() {
         return var.getOnInvalidate();
-    }
-
-    public JavafxBindStatus getBindStatus() {
-        return var.getBindStatus();
     }
 
     @Override

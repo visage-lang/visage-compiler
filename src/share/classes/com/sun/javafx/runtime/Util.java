@@ -59,36 +59,6 @@ public class Util {
         return capacity;
     }
 
-//    @SuppressWarnings("unchecked")
-//    public static<T> T[] newArray(Class<?> clazz, int size) {
-//        return (T[]) Array.newInstance(clazz, size);
-//    }
-//
-//    @SuppressWarnings("unchecked")
-//    public static<T> T[] replaceSlice(T[] array, int startPos, int endPos, T[] newElements) {
-//        int insertedCount = newElements.length;
-//        int deletedCount = endPos - startPos + 1;
-//        int netAdded = insertedCount - deletedCount;
-//        if (netAdded == 0) {
-//            System.arraycopy(newElements, 0, array, startPos, insertedCount);
-//            return array;
-//        }
-//        else {
-//            T[] temp = (T[]) newArray(array.getClass().getComponentType(), array.length + netAdded);
-//            System.arraycopy(array, 0, temp, 0, startPos);
-//            System.arraycopy(newElements, 0, temp, startPos, insertedCount);
-//            System.arraycopy(array, endPos + 1, temp, startPos + insertedCount, array.length - (endPos + 1));
-//            return temp;
-//        }
-//    }
-
-    public static<T> boolean isEqual(T oldValue, T newValue) {
-        if (oldValue == null) {
-            return newValue == null;
-        } else
-            return oldValue.equals(newValue);
-    }
-
     /** 
      * The following are used to in jfx casts of object to a primitive type,
      * eg:    function(pp) { pp as Float}

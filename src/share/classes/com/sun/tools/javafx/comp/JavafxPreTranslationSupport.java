@@ -29,6 +29,7 @@ import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypes;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.mjavac.code.Flags;
 import com.sun.tools.mjavac.code.Kinds;
@@ -213,11 +214,11 @@ public class JavafxPreTranslationSupport {
                 bindStatus,
                 null, null);
         var.type = type;
-        var.sym = new VarSymbol(
+        var.sym = new JavafxVarSymbol(
+                types,
+                names,
                 flags,
-                name,
-                type,
-                owner);
+                name, type, owner);
         return var;
     }
     
@@ -242,10 +243,10 @@ public class JavafxPreTranslationSupport {
         new NestedClassTypeLifter().scan(cdecl);
     }
 
-    Symbol makeSyntheticIsInitialized() {
+    Symbol makeSyntheticBuiltinsMethod(Name name) {
         return new MethodSymbol(
-                Flags.PUBLIC | Flags.STATIC | JavafxFlags.FUNC_IS_INITIALIZED,
-                defs.isInitialized_MethodName,
+                Flags.PUBLIC | Flags.STATIC | JavafxFlags.FUNC_IS_BUILTINS_SYNTH,
+                name,
                 new Type.MethodType(
                     List.of(syms.javafx_FXObjectType, syms.intType),
                     syms.booleanType,

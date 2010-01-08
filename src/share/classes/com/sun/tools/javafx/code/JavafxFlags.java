@@ -70,12 +70,14 @@ public class JavafxFlags {
     public static final long VARUSE_TMP_IN_INIT_EXPR   = FIRST_VARUSE_FLAG << 8;  // temp flag, set while inside var's initializing expression
     public static final long VARUSE_NEED_ACCESSOR      = FIRST_VARUSE_FLAG << 9;  // create accessor methods for this var
     public static final long VARUSE_NON_LITERAL        = FIRST_VARUSE_FLAG << 10; // non-accessor still needs getter
-    // This last shift + the last for modifiers + the last on marks must be <= 22 or we get overflow
+    public static final long VARUSE_BIND_ACCESS        = FIRST_VARUSE_FLAG << 11; // Accessed in bind.
+    public static final long VARUSE_VARREF             = FIRST_VARUSE_FLAG << 12; // Used in VarRef
+    public static final long VARUSE_SPECIAL            = FIRST_VARUSE_FLAG << 13; // Ignore in varuse analysis.
+    // This last shift + the last for modifiers + the last on marks must be <= 25 or we get overflow
 
     // Function flags -- reuse same bits as VARUSE* flags
     private static final long FIRST_FX_FUNC_FLAG    = LAST_FX_MOD_FLAG << 1;
-    public static final long FUNC_IS_INITIALIZED    = FIRST_FX_FUNC_FLAG << 0;  // This is the special isInitialized() function
-    public static final long FUNC_HAS_AN_INITIALIZER= FIRST_FX_FUNC_FLAG << 1;  // This is the special hasAnInitializer() function
+    public static final long FUNC_IS_BUILTINS_SYNTH    = FIRST_FX_FUNC_FLAG << 1;  // This is a synthetic builtin function (isInitialized or isBound)
     public static final long FUNC_POINTER_MAKE      = FIRST_FX_FUNC_FLAG << 2;  // This is the special Pointer.make() function
     public static final long FUNC_SYNTH_LOCAL_DOIT  = FIRST_FX_FUNC_FLAG << 3;  // Synthetic function holding a local context
     

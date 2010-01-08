@@ -14,10 +14,8 @@ mixin class Mixin1 {
     protected function foo2() : String { "foo2" }
     function foo3() : String { "foo3" }
 
-    function invokeFoos() : String {
-        /* Uncomment when JFXC-3117 is fixed */
-//        "{this.foo1()}{this.foo2()}{this.foo3()}"
-        "foo1foo2foo3"
+    function invokeFoos() : String {        
+        "{this.foo1()}{this.foo2()}{this.foo3()}"
     }
 }
 
@@ -28,9 +26,7 @@ class Mixee1 extends Mixin1 {}
  */
 class Mixee2 extends Mixin1 {
     function invokeFoos2() : String {
-        /* Uncomment when JFXC-3117 is fixed */
-//        "{this.foo1()}{this.foo2()}{this.foo3()}"
-        "foo1foo2foo3"
+        "{this.foo1()}{this.foo2()}{this.foo3()}"
     }
 }
 

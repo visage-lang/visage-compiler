@@ -113,7 +113,7 @@ import com.sun.javafx.runtime.sequence.Sequences;
         // Make sure the var offsets are set.
         obj.count$();
         // Initialize the var flags.
-        obj.initVarBits$();
+        obj.initVars$();
     }
 
     // First class count.
@@ -309,8 +309,8 @@ import com.sun.javafx.runtime.sequence.Sequences;
         obj.postInit$();
     }
 
-    public void initVarBits$() { initVarBits$(this); }
-    public static void initVarBits$(FXObject obj) {}
+    public void initVars$() { initVars$(this); }
+    public static void initVars$(FXObject obj) {}
 
     public void applyDefaults$(final int varNum) {
         applyDefaults$(this, varNum);

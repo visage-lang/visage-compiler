@@ -23,8 +23,8 @@
 
 package com.sun.tools.javafx.tree;
 
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.mjavac.code.Symbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.util.Name;
 
 /**
@@ -32,14 +32,14 @@ import com.sun.tools.mjavac.util.Name;
  */
 public class JFXIdentSequenceProxy extends JFXIdent {
 
-    private VarSymbol boundSizeSym;
+    private JavafxVarSymbol boundSizeSym;
 
-    protected JFXIdentSequenceProxy(Name name, Symbol sym, VarSymbol boundSizeSym) {
+    protected JFXIdentSequenceProxy(Name name, Symbol sym, JavafxVarSymbol boundSizeSym) {
         super(name, sym);
         this.boundSizeSym = boundSizeSym;
     }
 
-    public VarSymbol boundSizeSym() {
+    public JavafxVarSymbol boundSizeSym() {
         return boundSizeSym;
     }
 }

@@ -29,12 +29,12 @@ import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.JFXExpression;
 
 import com.sun.tools.mjavac.code.Kinds;
 import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.MethodSymbol;
-import com.sun.tools.mjavac.code.Symbol.VarSymbol;
 import com.sun.tools.mjavac.code.Type;
 
 import com.sun.tools.mjavac.code.TypeTags;
@@ -268,11 +268,11 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     private JFXVar makeVar(DiagnosticPosition diagPos, long flags, String name, JavafxBindStatus bindStatus, JFXExpression init, Type type) {
-        VarSymbol vsym = new VarSymbol(flags, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
+        JavafxVarSymbol vsym = new JavafxVarSymbol(types, names, flags, tempName(name), types.normalize(type), preTrans.makeDummyMethodSymbol(currentClass));
         return makeVar(diagPos, vsym, bindStatus, init);
     }
 
-    private JFXVar makeVar(DiagnosticPosition diagPos, VarSymbol vSym, JavafxBindStatus bindStatus, JFXExpression init) {
+    private JFXVar makeVar(DiagnosticPosition diagPos, JavafxVarSymbol vSym, JavafxBindStatus bindStatus, JFXExpression init) {
         JFXModifiers mod = m.at(diagPos).Modifiers(vSym.flags());
         JFXType fxType = preTrans.makeTypeTree(vSym.type);
         JFXVar v = m.at(diagPos).Var(vSym.name, fxType, mod, init, bindStatus, null, null);
@@ -285,7 +285,7 @@ public class JavafxLower implements JavafxVisitor {
         if (tree.lhs.getFXTag() == JavafxTag.SEQUENCE_INDEXED &&
                 types.isSequence(((JFXSequenceIndexed)tree.lhs).getSequence().type) &&
                 (types.isSequence(tree.rhs.type) || types.isSameType(tree.rhs.type, syms.objectType))) {
-            result = lowerSequenceIndexedAssign(tree.pos(), (JFXSequenceIndexed)tree.lhs, tree.rhs, tree.type);
+            result = lowerSequenceIndexedAssign(tree.pos(), (JFXSequenceIndexed)tree.lhs, tree.rhs);
         }
         else {
             JFXExpression lhs = lower(tree.lhs);
@@ -294,22 +294,14 @@ public class JavafxLower implements JavafxVisitor {
         }
     }
 
-    JFXExpression lowerSequenceIndexedAssign(DiagnosticPosition pos, JFXSequenceIndexed indexed, JFXExpression val, Type resType) {
-
+    JFXExpression lowerSequenceIndexedAssign(DiagnosticPosition pos, JFXSequenceIndexed indexed, JFXExpression val) {
+        Type resType = indexed.getSequence().type;
         JFXVar indexVar = makeVar(pos, "pos", indexed.getIndex(), indexed.getIndex().type);
         JFXIdent indexRef = m.at(pos).Ident(indexVar);
-        indexRef.sym = indexVar.sym;
-        indexRef.type = indexVar.type;
-
-        JFXVar seqVar = makeVar(pos, "seq", indexed.getSequence(), indexed.getSequence().type);
-        JFXIdent seqRef = m.at(pos).Ident(seqVar);
-        seqRef.sym = seqVar.sym;
-        seqRef.type = seqVar.type;
-        
-        JFXExpression insertStmt = m.at(pos).SequenceInsert(seqRef, val, indexRef, true).setType(syms.voidType);
-        JFXExpression indexedExpr = m.at(pos).SequenceIndexed(seqRef, indexRef).setType(types.elementType(indexed.getSequence().type));
-        JFXExpression deleteStmt = m.at(pos).SequenceDelete(indexedExpr).setType(syms.voidType);
-        return lower(m.at(pos).Block(0L, List.of(indexVar, seqVar, insertStmt, deleteStmt), indexedExpr).setType(resType));
+        JFXExpression lhs = m.SequenceSlice(indexed.getSequence(), indexRef, indexRef, JFXSequenceSlice.END_INCLUSIVE);
+        lhs.setType(resType);
+        JFXExpression assign = m.Assign(lhs, val).setType(resType);
+        return lower(m.Block(0L, List.<JFXExpression>of(indexVar), assign).setType(resType));
     }
 
     public void visitAssignop(JFXAssignOp tree) {
@@ -368,7 +360,7 @@ public class JavafxLower implements JavafxVisitor {
         //(IDENT)   x;
 
         if (selector != null) {
-            VarSymbol vsym = (VarSymbol)JavafxTreeInfo.symbol(lhs);
+            JavafxVarSymbol vsym = (JavafxVarSymbol)JavafxTreeInfo.symbol(lhs);
             varRef = m.at(tree.pos).Select(selector, vsym);
             ((JFXSelect)varRef).sym = vsym;
         }
@@ -486,15 +478,15 @@ public class JavafxLower implements JavafxVisitor {
         
         List<JFXExpression> args = List.nil();
         boolean pointer_Make = types.isSyntheticPointerFunction(sym);
-        boolean builtins_isInitialized = types.isSyntheticIsInitializedFunction(sym);
-        if (pointer_Make || builtins_isInitialized) {
+        boolean builtins_Func = types.isSyntheticBuiltinsFunction(sym);
+        if (pointer_Make || builtins_Func) {
                 JFXExpression varExpr = lower(tree.args.head);
                 ListBuffer<JFXExpression> syntheticArgs = ListBuffer.lb();
                 syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.INST).setType(syms.javafx_FXObjectType));
                 syntheticArgs.append(m.at(tree.pos).VarRef(varExpr, JFXVarRef.RefKind.VARNUM).setType(syms.intType));
                 
-                Symbol msym = builtins_isInitialized ?
-                    preTrans.makeSyntheticIsInitialized() :
+                Symbol msym = builtins_Func ?
+                    preTrans.makeSyntheticBuiltinsMethod(sym.name) :
                     preTrans.makeSyntheticPointerMake();
                 JavafxTreeInfo.setSymbol(meth, msym);
                 meth.type = msym.type;
@@ -548,10 +540,19 @@ public class JavafxLower implements JavafxVisitor {
             result = lowerUnreachableIfExpression(tree);
         }
         else {
+            boolean thenPartSeq = types.isSequence(tree.truepart.type);
+            boolean elsePartSeq = tree.falsepart != null ?
+                types.isSequence(tree.falsepart.type) :
+                thenPartSeq;
+            boolean nonSeqExpected = thenPartSeq != elsePartSeq &&
+                    !types.isSequence(pt);
             JFXExpression cond = lowerExpr(tree.cond, syms.booleanType);
-            JFXExpression truePart = lowerExpr(tree.truepart, tree.type);
-            JFXExpression falsePart = lowerExpr(tree.falsepart, tree.type);
-            result = m.Conditional(cond, truePart, falsePart).setType(tree.type);
+            JFXExpression truePart = lowerExpr(tree.truepart,
+                    !nonSeqExpected || thenPartSeq ? tree.type : types.elementTypeOrType(tree.type));
+            JFXExpression falsePart = lowerExpr(tree.falsepart,
+                    !nonSeqExpected || elsePartSeq ? tree.type : types.elementTypeOrType(tree.type));
+            result = m.Conditional(cond, truePart, falsePart);
+            result.setType(nonSeqExpected ? syms.objectType : tree.type);
         }
     }
 
@@ -723,11 +724,12 @@ public class JavafxLower implements JavafxVisitor {
     public void visitUnary(JFXUnary tree) {
         if (tree.getFXTag().isIncDec()) {
             result = visitNumericUnary(tree);
-        }
-        else {
-            JFXExpression arg = tree.getFXTag().isIncDec() ?
-                lowerExpr(tree.getExpression(), tree.getOperator().type.getParameterTypes().head) :
-                lower(tree.getExpression());
+        } else {
+            JFXExpression arg = tree.getFXTag() == JavafxTag.REVERSE ?
+                lowerExpr(tree.getExpression(), tree.type) :
+                tree.getOperator() != null ?
+                    lowerExpr(tree.getExpression(), tree.getOperator().type.getParameterTypes().head) :
+                    lower(tree.getExpression());
             JFXUnary res = m.at(tree.pos).Unary(tree.getFXTag(), arg);
             res.operator = tree.operator;
             res.type = tree.type;
@@ -784,7 +786,7 @@ public class JavafxLower implements JavafxVisitor {
         JFXExpression varRef = expr;
 
         if (selector != null) {
-            VarSymbol vsym = (VarSymbol)JavafxTreeInfo.symbol(expr);
+            JavafxVarSymbol vsym = (JavafxVarSymbol)JavafxTreeInfo.symbol(expr);
             varRef = m.at(tree.pos).Select(selector, vsym);
             ((JFXSelect)varRef).sym = vsym;
         }
@@ -1058,18 +1060,29 @@ public class JavafxLower implements JavafxVisitor {
                     // Shread the expression outside the class, so that the context is correct
                     // The variable should be marked as script private as it shouldn't
                     // be accessible from outside.
-                    JFXVar shred = makeVar(
+
+                    JFXExpression partExpr = part.getExpression();
+                    Symbol initSym = JavafxTreeInfo.symbol(partExpr);
+                    // FIXME: revisit this - more opportunities to optimze here.
+                    // Check if we can avoid more local class wrapping around object
+                    // literal class.
+                    if (partExpr.getFXTag() == JavafxTag.LITERAL ||
+                        (initSym != null && initSym.isStatic())) {
+                        initExpr = partExpr;
+                    } else {
+                        JFXVar shred = makeVar(
                             part.pos(),
                             JavafxFlags.SCRIPT_PRIVATE,
                             part.name + "$ol",
                             part.getBindStatus(),
-                            lowerExpr(part.getExpression(), part.sym.type),
+                            lowerExpr(partExpr, part.sym.type),
                             part.sym.type);
-                    JFXIdent sid = m.Ident(shred.name);
-                    sid.sym = shred.sym;
-                    sid.type = part.sym.type;
-                    locals.append(shred);
-                    initExpr = sid;
+                        JFXIdent sid = m.Ident(shred.name);
+                        sid.sym = shred.sym;
+                        sid.type = part.sym.type;
+                        locals.append(shred);
+                        initExpr = sid;
+                    }
                 } else {
                     initExpr = part.getExpression(); // lowered with class
                 }
@@ -1085,7 +1098,7 @@ public class JavafxLower implements JavafxVisitor {
                         part.getBindStatus(),
                         null,
                         null);
-                ocv.sym = (VarSymbol) part.sym;
+                ocv.sym = (JavafxVarSymbol) part.sym;
                 ocv.type = part.sym.type;
                 newOverrides.append(ocv);
             } else {
@@ -1160,10 +1173,18 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitSelect(JFXSelect tree) {
-        JFXExpression selected = lower(tree.selected);
-        JFXSelect res = (JFXSelect)m.Select(selected, tree.sym);
-        res.name = tree.name;
-        result = res.setType(tree.type);
+        if (tree.sym.isStatic() &&                
+                JavafxTreeInfo.symbolFor(tree.selected) != null &&
+                JavafxTreeInfo.symbolFor(tree.selected).kind == Kinds.TYP) {
+            result = m.at(tree.pos()).Ident(tree.sym);
+        }
+        else {
+            JFXExpression selected = lower(tree.selected);
+            JFXSelect res = (JFXSelect)m.Select(selected, tree.sym);
+            res.name = tree.name;
+            result = res;
+        }
+        result.setType(tree.type);
     }
 
     public void visitSkip(JFXSkip tree) {

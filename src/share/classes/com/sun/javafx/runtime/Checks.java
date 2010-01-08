@@ -57,7 +57,7 @@ public class Checks {
     }
 
     /**
-     * Do an equals() compare on Strings that is safe 
+     * Do an equals() compare on Strings that is safe
      * @param a
      * @param b
      * @return true if they are equal

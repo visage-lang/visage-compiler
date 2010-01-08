@@ -15,6 +15,7 @@ function run() {
   println(z.seq[1..2] = "boat");
   println(z.seq);
   println(z.seq[0..0] = ["little", "tiny"]);
+  println(z.seq);
   println(z.seq = ["no"]);
   println(z.seq);
 }
