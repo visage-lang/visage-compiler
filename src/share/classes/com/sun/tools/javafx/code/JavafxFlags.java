@@ -66,7 +66,7 @@ public class JavafxFlags {
     public static final long VARUSE_FORWARD_REFERENCE  = FIRST_VARUSE_FLAG << 4;  // used before referenced
     public static final long VARUSE_SELF_REFERENCE     = FIRST_VARUSE_FLAG << 5;  // the initializing expression references the var
     public static final long VARUSE_DEFINITION_SEEN    = FIRST_VARUSE_FLAG << 6;  // we have seen the definition of the var (for forward reference)
-    public static final long VARUSE_OPT_TRIGGER        = FIRST_VARUSE_FLAG << 7;  // please document
+    public static final long VARUSE_OPT_TRIGGER        = FIRST_VARUSE_FLAG << 7;  // for newElements in trigger: no usage except indexing or sizeof
     public static final long VARUSE_TMP_IN_INIT_EXPR   = FIRST_VARUSE_FLAG << 8;  // temp flag, set while inside var's initializing expression
     public static final long VARUSE_NEED_ACCESSOR      = FIRST_VARUSE_FLAG << 9;  // create accessor methods for this var
     public static final long VARUSE_NON_LITERAL        = FIRST_VARUSE_FLAG << 10; // non-accessor still needs getter
