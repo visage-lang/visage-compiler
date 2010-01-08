@@ -350,11 +350,33 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitBreak(JFXBreak tree) {
-        result = tree;
+        if (tree.nonLocalBreak) {
+            // A non-local break gets turned into an exception
+            JFXIdent nonLocalExceptionClass = fxmake.Ident(names.fromString(JavafxDefs.cNonLocalBreakException));
+            nonLocalExceptionClass.sym = syms.javafx_NonLocalBreakExceptionType.tsym;
+            nonLocalExceptionClass.type = syms.javafx_NonLocalBreakExceptionType;
+            JFXInstanciate expInst = fxmake.InstanciateNew(nonLocalExceptionClass, List.<JFXExpression>nil());
+            expInst.sym = (ClassSymbol)syms.javafx_NonLocalBreakExceptionType.tsym;
+            expInst.type = syms.javafx_NonLocalBreakExceptionType;
+            result = fxmake.Throw(expInst).setType(syms.unreachableType);
+        } else {
+            result = tree;
+        }
     }
 
     public void visitContinue(JFXContinue tree) {
-        result = tree;
+        if (tree.nonLocalContinue) {
+            // A non-local continue gets turned into an exception
+            JFXIdent nonLocalExceptionClass = fxmake.Ident(names.fromString(JavafxDefs.cNonLocalContinueException));
+            nonLocalExceptionClass.sym = syms.javafx_NonLocalContinueExceptionType.tsym;
+            nonLocalExceptionClass.type = syms.javafx_NonLocalContinueExceptionType;
+            JFXInstanciate expInst = fxmake.InstanciateNew(nonLocalExceptionClass, List.<JFXExpression>nil());
+            expInst.sym = (ClassSymbol)syms.javafx_NonLocalContinueExceptionType.tsym;
+            expInst.type = syms.javafx_NonLocalContinueExceptionType;
+            result = fxmake.Throw(expInst).setType(syms.unreachableType);
+        } else {
+            result = tree;
+        }
     }
 
     public void visitReturn(JFXReturn tree) {

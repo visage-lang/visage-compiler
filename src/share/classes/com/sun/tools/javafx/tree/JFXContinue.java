@@ -36,6 +36,8 @@ public class JFXContinue extends JFXExpression implements ContinueTree {
     public Name label;
     public JFXTree target;
 
+    public boolean nonLocalContinue = false;
+
     protected JFXContinue(Name label, JFXTree target) {
         this.label = label;
         this.target = target;

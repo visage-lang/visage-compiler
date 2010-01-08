@@ -136,6 +136,8 @@ public class JavafxDefs {
     public static final String cFXMixin = runtime_PackageString + ".FXMixin";
     public static final String cTypeInfo = runtime_PackageString + ".TypeInfo";
     public static final String cNonLocalReturnException = runtime_PackageString + ".NonLocalReturnException";
+    public static final String cNonLocalBreakException = runtime_PackageString + ".NonLocalBreakException";
+    public static final String cNonLocalContinueException = runtime_PackageString + ".NonLocalContinueException";
     // in runtime package
     private static final String cUtil = runtime_PackageString + ".Util";
     private static final String cChecks = runtime_PackageString + ".Checks";
