@@ -46,6 +46,7 @@ import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
 import com.sun.tools.javafx.code.FunctionType;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxTypeRepresentation;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxDefs.RuntimeMethod;
 import com.sun.tools.javafx.comp.JavafxInitializationBuilder.LiteralInitClassMap;
@@ -1857,6 +1858,14 @@ public abstract class JavafxAbstractTranslation
             super(tree);
         }
         
+        protected void addStaticInterClassBindee(JavafxVarSymbol vsym) {
+            if (vsym.isStatic() && !vsym.isSpecial()) {
+                JavafxClassSymbol classSym = (JavafxClassSymbol)vsym.owner;
+                JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                addInterClassBindee(scriptAccess, vsym);
+            }
+        }
+        
         @Override
         protected ExpressionResult doit() {
             if (sym instanceof JavafxVarSymbol) {
@@ -1865,12 +1874,12 @@ public abstract class JavafxAbstractTranslation
                     // The var is in our class (or a superclass)
                     if ((receiverContext() == ReceiverContext.ScriptAsStatic) == sym.isStatic()) {
                         addBindee(vsym);
+                    } else {
+                        addStaticInterClassBindee(vsym);
                     }
                 } else {
-                    // The reference is to a presumably outer class
-                    //TODO:
-                    }
-
+                    addStaticInterClassBindee(vsym);
+                }
             }
             return super.doit();
         }
@@ -1912,27 +1921,33 @@ public abstract class JavafxAbstractTranslation
 
         protected void buildDependencies(Symbol selectorSym) {
             if (types.isJFXClass(selectorSym.owner) && types.isJFXClass(tree.sym.owner)) {
-                Type selectorType = selectorSym.type;
-
-                JCVariableDecl oldSelector = TmpVar(selectorType, Get(selectorSym));
-                addPreface(oldSelector);
-                JCVariableDecl newSelector = TmpVar(selectorType, Getter(selectorSym));
-                addPreface(newSelector);
-
-                if (isMixinVar(tree.sym)) {
-                    JCExpression oldOffset =
-                        If(EQnull(id(oldSelector)),
-                            Int(0),
-                            Offset(id(oldSelector), tree.sym));
-                    JCExpression newOffset =
-                        If(EQnull(id(newSelector)),
-                            Int(0),
-                            Offset(id(newSelector), tree.sym));
-                    addSwitchDependence(id(oldSelector), id(newSelector), oldOffset, newOffset);
+                JavafxVarSymbol varSym = (JavafxVarSymbol)tree.sym;
+                
+                if (varSym.isStatic()) {
+                    // Since the receiver is constant ($scriptaccess$) then 'this' gets added to initVars$ (do once)
                 } else {
-                    JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(tree.sym));
-                    addPreface(offsetVar);
-                    addSwitchDependence(id(oldSelector), id(newSelector), id(offsetVar), id(offsetVar));
+                    Type selectorType = selectorSym.type;
+    
+                    JCVariableDecl oldSelector = TmpVar(selectorType, Get(selectorSym));
+                    addPreface(oldSelector);
+                    JCVariableDecl newSelector = TmpVar(selectorType, Getter(selectorSym));
+                    addPreface(newSelector);
+    
+                    if (isMixinVar(varSym)) {
+                        JCExpression oldOffset =
+                            If(EQnull(id(oldSelector)),
+                                Int(0),
+                                Offset(id(oldSelector), varSym));
+                        JCExpression newOffset =
+                            If(EQnull(id(newSelector)),
+                                Int(0),
+                                Offset(id(newSelector), varSym));
+                        addSwitchDependence(id(oldSelector), id(newSelector), oldOffset, newOffset);
+                    } else {
+                        JCVariableDecl offsetVar = TmpVar(syms.intType, Offset(varSym));
+                        addPreface(offsetVar);
+                        addSwitchDependence(id(oldSelector), id(newSelector), id(offsetVar), id(offsetVar));
+                    }
                 }
             }
         }

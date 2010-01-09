@@ -503,15 +503,33 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             this.sym = tree.sym;
             this.exprResult = exprResult;
         }
-
+        
         JCStatement makeSizeBody() {
-            return Return(CallSize(sym));
+            JCVariableDecl vSize = TmpVar("size", syms.intType, CallSize(sym));
+
+            return 
+                Block(
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidate(),
+                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                        )
+                    ),
+                    Return(id(vSize))
+                );
         }
 
         JCStatement makeGetElementBody() {
-            return Return(CallGetElement(sym, posArg()));
+            return
+                Block(
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return(CallGetElement(sym, posArg()))
+                );
         }
-
         /**
          * Simple bindee info from normal translation will do it
          */

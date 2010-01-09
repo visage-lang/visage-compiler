@@ -33,6 +33,7 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
 import com.sun.tools.javafx.code.JavafxTypeRepresentation;
@@ -1229,7 +1230,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     !isLeaf(varInfo) ||
                         varInfo.hasDependents() || varInfo.isDependent() ||
                         !varInfo.boundInvalidatees().isEmpty() ||
-                        varInfo.isMixinVar() ||
+                        varInfo.isMixinVar() || varInfo.isStatic() ||
                         varInfo.onReplace() != null ||
                         varInfo.onInvalidate() != null;
         }
@@ -2038,10 +2039,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         // Set phase flag.
                         addStmt(FlagChangeStmt(proxyVarSym, null, phaseArg()));
                         
-                        if (!isLeaf(varInfo) || varInfo.hasDependents()) {
-                            // notifyDependents(VOFF$var, phase$);
-                            addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
-                        }
+                        // notifyDependents(VOFF$var, phase$);
+                        addStmt(CallStmt(getReceiver(varInfo), defs.notifyDependents_FXObjectMethodName, Offset(proxyVarSym), phaseArg()));
                     }
 
                     for (VarInfo otherVar : varInfo.boundBinders()) {
@@ -2876,15 +2875,21 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
                         }
                     }
-                    
-                    // Add "this" dependencies.
+
+                    // Add "this" and "script access" dependencies.
                     for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
-                        if (instanceVar.isSpecial()) {
+                        if (instanceVar.isSpecial() || instanceVar.isStatic()) {
                             HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
                         
                             for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
-                                HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
-                                addStmt(CallStmt(defs.FXBase_addDependent, Get(instanceVar), Offset(Get(instanceVar), referenceVar), id(names._this)));
+                                if (referenceVar.isStatic() && !instanceVar.isSpecial()) {
+                                    JavafxClassSymbol classSym = (JavafxClassSymbol)referenceVar.owner;
+                                    JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                                    addStmt(CallStmt(defs.FXBase_addDependent, Get(scriptAccess), Offset(Get(scriptAccess), referenceVar), id(names._this)));
+                                } else {
+                                    JCExpression dependee = isScript() && instanceVar.owner == getCurrentClassSymbol() ? id(names._this) : Get(instanceVar);
+                                    addStmt(CallStmt(defs.FXBase_addDependent, dependee, Offset(Get(instanceVar), referenceVar), id(names._this)));
+                                }
                             }
                         }
                     }
@@ -3013,6 +3018,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     // Loop for instance symbol.
                     for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
+                        JavafxVarSymbol scriptAccess = null;
                         HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
                         beginBlock();
 
@@ -3038,6 +3044,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 addStmt(invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym()));
                             }
 
+                            if (referenceVar.isStatic() && !instanceVar.isSpecial()) {
+                                JavafxClassSymbol classSym = (JavafxClassSymbol)referenceVar.owner;
+                                scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                            }
+
                             // Reference the class with the instance, if it is script-level append the suffix
                             JCExpression offsetExpr = Offset(referenceVar);
                             if (isMixinVar(referenceVar)) {
@@ -3049,7 +3060,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                         addStmt(ifReferenceStmt);
                         
-                        JCExpression ifInstanceCond = EQ(updateInstanceArg(), Get(instanceVar));
+                        JCExpression ifInstanceCond = EQ(updateInstanceArg(), Get(scriptAccess != null ? scriptAccess : instanceVar));
                         addStmt(OptIf(ifInstanceCond,
                                 endBlock()));
                     }

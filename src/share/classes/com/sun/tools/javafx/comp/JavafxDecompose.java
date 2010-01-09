@@ -543,15 +543,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 types.isJFXClass(tree.sym.owner) &&
                 !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectFieldName)) &&
                 bindStatus.isBound()) {
-            if (tree.sym.isStatic()) {
-                if (!inScriptLevel) {
-                    //referenced is static script var - if in bind context need shredding
-                    //TODO: this looks seriously wrong and evil
-                    JFXExpression script = shredScriptAccessConditionally(tree.sym.owner, tree.type);
-                    setSelectResult(tree, script, tree.sym);
-                    return;
-                }
-            } else if (tree.sym.name != names._this && tree.sym.name != names._super && !currentClass.isSubClass(tree.sym.owner, types)) {
+            if (!tree.sym.isStatic() && tree.sym.name != names._this && tree.sym.name != names._super && !currentClass.isSubClass(tree.sym.owner, types)) {
                 // instance field from outer class. We transform "foo" as "this.foo"
                 // and shred "this" part so that local classes generated for local
                 // binds will have proper dependency.
