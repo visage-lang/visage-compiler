@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Sun Microsystems, Inc.  All Rights Reserved.
+ * Copyright 2010 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,47 +21,11 @@
  * have any questions.
  */
 
-package com.sun.tools.javafx.tree;
-
-import com.sun.javafx.api.tree.*;
-import com.sun.javafx.api.tree.Tree.JavaFXKind;
-import com.sun.tools.mjavac.util.Name;
+package com.sun.javafx.runtime;
 
 /**
- * A break from a loop or switch.
+ * For breaking from a local context that has been converted to a class
+ *
+ * @author Maurizio Cimadamore
  */
-public class JFXBreak extends JFXExpression implements BreakTree {
-
-    public Name label;
-    public JFXTree target;
-
-    public boolean nonLocalBreak = false;
-
-    protected JFXBreak(Name label, JFXTree target) {
-        this.label = label;
-        this.target = target;
-    }
-
-    @Override
-    public void accept(JavafxVisitor v) {
-        v.visitBreak(this);
-    }
-
-    public JavaFXKind getJavaFXKind() {
-        return JavaFXKind.BREAK;
-    }
-
-    public Name getLabel() {
-        return label;
-    }
-
-    //@Override
-    public <R, D> R accept(JavaFXTreeVisitor<R, D> v, D d) {
-        return v.visitBreak(this, d);
-    }
-
-    @Override
-    public JavafxTag getFXTag() {
-        return JavafxTag.BREAK;
-    }
-}
+public class NonLocalContinueException extends Throwable {}
