@@ -2899,18 +2899,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Add "this" and "script access" dependencies.
                     for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
-                        if (instanceVar.isSpecial() || instanceVar.isStatic()) {
-                            HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
-                        
-                            for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
-                                if (referenceVar.isStatic() && !instanceVar.isSpecial()) {
-                                    JavafxClassSymbol classSym = (JavafxClassSymbol)referenceVar.owner;
-                                    JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
-                                    addStmt(CallStmt(defs.FXBase_addDependent, Get(scriptAccess), Offset(Get(scriptAccess), referenceVar), id(names._this)));
-                                } else {
-                                    JCExpression dependee = isScript() && instanceVar.owner == getCurrentClassSymbol() ? id(names._this) : Get(instanceVar);
-                                    addStmt(CallStmt(defs.FXBase_addDependent, dependee, Offset(Get(instanceVar), referenceVar), id(names._this)));
-                                }
+                        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+
+                        for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
+                            if (instanceVar.isSpecial()) {
+                                // Dependent on var referenced via "this"
+                                addFixedDependent(instanceVar, referenceVar);
+                            } else if (referenceVar.isStatic()) {
+                                // Dependent on a script-level var, reference via the script-level var
+                                JavafxClassSymbol classSym = (JavafxClassSymbol) referenceVar.owner;
+                                JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                                addFixedDependent(scriptAccess, referenceVar);
                             }
                         }
                     }
@@ -2925,6 +2924,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // Emit method only if there was anything beyond the super call.
                     buildIf(!initFlags.isEmpty());
+                }
+
+                private void addFixedDependent(JavafxVarSymbol instanceVar, JavafxVarSymbol referenceVar) {
+                    addStmt(CallStmt(defs.FXBase_addDependent,
+                            Get(instanceVar),
+                            Offset(Get(instanceVar), referenceVar),
+                            id(names._this)));
                 }
             };
             

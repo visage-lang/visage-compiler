@@ -987,8 +987,6 @@ class JavafxAnalyzeClass {
     }
     
     private void addInterClassBinder(VarInfo varInfo, JavafxVarSymbol instanceSymbol, JavafxVarSymbol referenceSymbol) {
-        JavafxVarSymbol varSymbol = (JavafxVarSymbol)varInfo.getSymbol();
-        
         // Get the correct update map.
         HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap =
             varInfo.isStatic() ? scriptUpdateMap : classUpdateMap;
