@@ -493,14 +493,14 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     class BoundIdentSequenceTranslator extends BoundSequenceTranslator {
         // Symbol of the referenced
-        private final Symbol sym;
+        private final JavafxVarSymbol sym;
 
         // ExpressionResult for etracting bindee info
         private final ExpressionResult exprResult;
 
         BoundIdentSequenceTranslator(JFXIdent tree, ExpressionResult exprResult) {
             super(tree.pos());
-            this.sym = tree.sym;
+            this.sym = (JavafxVarSymbol) tree.sym;
             this.exprResult = exprResult;
         }
         
@@ -514,7 +514,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                         Block(
                             setSequenceActive(),
                             CallSeqInvalidate(),
-                            CallSeqInvalidate(flagSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
                         )
                     ),
                     Return(id(vSize))
@@ -530,11 +530,21 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
                     Return(CallGetElement(sym, posArg()))
                 );
         }
+
+        /**
+         * Invalidator for the underlying sequence
+         */
+        private JCStatement makeInvalidateSelf() {
+            return
+                setSequenceActive();
+        }
+
         /**
          * Simple bindee info from normal translation will do it
          */
         void setupInvalidators() {
             mergeResults(exprResult);
+            addInvalidator(targetSymbol, makeInvalidateSelf());
         }
     }
 

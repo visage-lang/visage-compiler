@@ -1206,7 +1206,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
             if (varInfo.isMixinVar() ||
                     varInfo.onReplace() != null ||
-                    varInfo.onInvalidate() != null) {
+                    varInfo.onInvalidate() != null ||
+                    !varInfo.boundInvalidatees().isEmpty()) {
                 // based on makeInvalidateAccessorMethod
                 return true;
             } else if (varInfo.hasBoundDefinition()) {
@@ -2039,7 +2040,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         for (BindeeInvalidator invalidator : invalidatees) {
                             addStmt(invalidator.invalidator);
                         }
-                        
+
+                        //TODO: not generating the rest of invalidation is only going to work if all things with invalidators are shredded
+                        //  note the assymetry with sequence invalidators, which are not all shredded
                         return;
                     }
                     
