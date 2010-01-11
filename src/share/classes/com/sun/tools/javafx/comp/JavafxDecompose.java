@@ -509,17 +509,6 @@ public class JavafxDecompose implements JavafxVisitor {
         }
     }
 
-    private JFXExpression shredScriptAccessConditionally(Symbol sym, Type symType) {
-        JFXIdent _access = fxmake.ScriptAccess(sym);
-
-        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
-            (_access.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
-            return shred(_access);
-        } else {
-            return _access;
-        }
-    }
-
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
         Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);        
