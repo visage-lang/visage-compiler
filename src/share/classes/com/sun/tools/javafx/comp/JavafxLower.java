@@ -217,10 +217,11 @@ public class JavafxLower implements JavafxVisitor {
             return tree;
         else {
             tree = makeNumericBoxConversionIfNeeded(tree, type);
-            return (!types.isSubtypeUnchecked(tree.type, type) ||
-                    types.isSameType(tree.type, syms.javafx_EmptySequenceType) ||
-                    (tree.type.isPrimitive() &&
-                    type.isPrimitive() && !types.isSameType(tree.type, type))) ?
+            return !types.isSameType(tree.type, type) &&
+                   (!types.isSubtypeUnchecked(tree.type, type) ||
+                   (tree.type.isPrimitive() && type.isPrimitive() ||
+                   (types.isSameType(tree.type, syms.javafx_EmptySequenceType) &&
+                   types.isSequence(type)))) ?
                 makeCast(tree, type) :
                 tree;
         }
