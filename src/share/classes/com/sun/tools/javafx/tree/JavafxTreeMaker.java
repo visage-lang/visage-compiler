@@ -747,10 +747,6 @@ public class JavafxTreeMaker implements JavafxTreeFactory {
            Name cname = objectLiteralClassName(((JFXIdent)id).getName());
            long innerClassFlags = Flags.SYNTHETIC | Flags.FINAL; // to enable, change to Flags.FINAL
            
-           if (partsBuffer.size() > 1) {
-                innerClassFlags |= JavafxFlags.ANON_NEEDS_GETMAP;
-           }
-           
            klass = this.ClassDeclaration(this.Modifiers(innerClassFlags), cname, List.<JFXExpression>of(ident), defsBuffer.toList());
        }
 

@@ -987,8 +987,6 @@ class JavafxAnalyzeClass {
     }
     
     private void addInterClassBinder(VarInfo varInfo, JavafxVarSymbol instanceSymbol, JavafxVarSymbol referenceSymbol) {
-        JavafxVarSymbol varSymbol = (JavafxVarSymbol)varInfo.getSymbol();
-        
         // Get the correct update map.
         HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap =
             varInfo.isStatic() ? scriptUpdateMap : classUpdateMap;
@@ -1155,6 +1153,11 @@ class JavafxAnalyzeClass {
     // Returns true if specified class is either the FXBase or the FXObject class.
     //
     public boolean isRootClass(Symbol sym) { return isFXBase(sym) || isFXObject(sym); }
+
+    //
+    // Returns true if the current class inherits directly from FXBase.
+    //
+    public boolean isFirstTier() { return superClassSym !=  null && isFXBase(superClassSym);}
 
     //
     // Returns the var count for the current class.

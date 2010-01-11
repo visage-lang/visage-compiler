@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.javafx.api.JavafxBindStatus;
 import com.sun.javafx.api.tree.ForExpressionInClauseTree;
 import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
@@ -38,6 +39,7 @@ import com.sun.tools.mjavac.code.Symbol;
 import com.sun.tools.mjavac.code.Symbol.*;
 import com.sun.tools.mjavac.code.Type;
 import com.sun.tools.mjavac.code.Type.MethodType;
+import com.sun.tools.mjavac.code.TypeTags;
 import com.sun.tools.mjavac.util.Context;
 import com.sun.tools.mjavac.util.List;
 import com.sun.tools.mjavac.util.ListBuffer;
@@ -83,6 +85,7 @@ public class JavafxLocalToClass {
     private boolean isStatic;
     private Stack<Symbol> prevOwners = new Stack();
     private Stack<Boolean> prevIsStatics = new Stack();
+    private Stack<Type> prevReturnTypes = new Stack<Type>();
 
     protected static final Context.Key<JavafxLocalToClass> localToClass =
             new Context.Key<JavafxLocalToClass>();
@@ -144,7 +147,11 @@ public class JavafxLocalToClass {
 
             // The body of the function begins a new chunk
             pushOwner(tree.definition.sym, false);
+            Type returnType = (tree.definition.type == null)?
+                null : tree.definition.type.getReturnType();
+            pushFunctionReturnType(returnType);
             blockWithin(tree.getBodyExpression());
+            popFunctionReturnType();
             popOwner();
         }
 
@@ -446,14 +453,16 @@ public class JavafxLocalToClass {
 
         final MethodType funcType = new MethodType(
                 List.<Type>nil(),    // arg types
-                block.type,          // return type
+                types.normalize(block.type),  // return type
                 List.<Type>nil(),    // Throws type
                 syms.methodClass);   // TypeSymbol
         final MethodSymbol funcSym = new MethodSymbol(JavafxFlags.FUNC_SYNTH_LOCAL_DOIT, funcName, funcType, classSymbol);
 
         class BlockVarAndClassConverter extends VarAndClassConverter {
-            boolean returnFound = false;
+            List<JavafxTag> nonLocalExprTags = List.nil();
+            List<JFXCatch> nonLocalCatchers = List.nil();
             Type returnType = null;
+
             BlockVarAndClassConverter() {
                 super(classSymbol);
             }
@@ -462,10 +471,50 @@ public class JavafxLocalToClass {
                 // This is a return in a local context inflated to class
                 // Handle it as a non-local return
                 tree.nonLocalReturn = true;
-                returnFound = true;
-                if (tree.getExpression() != null)
-                    returnType = tree.getExpression().type;
+                returnType = tree.getExpression() != null ?
+                    topFunctionReturnType() :
+                    syms.voidType;
+                if (!nonLocalExprTags.contains(tree.getFXTag())) {
+                    JFXVar param = makeExceptionParameter(syms.javafx_NonLocalReturnExceptionType);
+                    JFXReturn catchBody = fxmake.Return(null);
+                    if (returnType.tag != TypeTags.VOID) {
+                        JFXIdent nlParam = fxmake.Ident(param);
+                        nlParam.type = param.type;
+                        nlParam.sym = param.sym;
+                        JFXSelect nlValue = fxmake.Select(nlParam,
+                        defs.value_NonLocalReturnExceptionFieldName);
+                        nlValue.type = syms.objectType;
+                        nlValue.sym = rs.findIdentInType(env, syms.javafx_NonLocalReturnExceptionType, nlValue.name, Kinds.VAR);
+                        catchBody.expr = fxmake.TypeCast(preTrans.makeTypeTree(returnType), nlValue).setType(returnType);
+                    }
+                    nonLocalExprTags = nonLocalExprTags.append(tree.getFXTag());
+                    nonLocalCatchers = nonLocalCatchers.append(makeCatchExpression(param, catchBody, returnType));
+                }
                 scan(tree.expr);
+            }
+            @Override
+            public void visitBreak(JFXBreak tree) {
+                // This is a break in a local context inflated to class
+                // Handle it as a non-local break
+                tree.nonLocalBreak = true;
+                if (!nonLocalExprTags.contains(tree.getFXTag())) {
+                    JFXVar param = makeExceptionParameter(syms.javafx_NonLocalBreakExceptionType);
+                    JFXBreak catchBody = fxmake.Break(tree.label);
+                    nonLocalExprTags = nonLocalExprTags.append(tree.getFXTag());
+                    nonLocalCatchers = nonLocalCatchers.append(makeCatchExpression(param, catchBody, syms.unreachableType));
+                }
+            }
+            @Override
+            public void visitContinue(JFXContinue tree) {
+                // This is a continue in a local context inflated to class
+                // Handle it as a non-local continue
+                tree.nonLocalContinue = true;
+                if (!nonLocalExprTags.contains(tree.getFXTag())) {
+                    JFXVar param = makeExceptionParameter(syms.javafx_NonLocalContinueExceptionType);
+                    JFXContinue catchBody = fxmake.Continue(tree.label);
+                    nonLocalExprTags = nonLocalExprTags.append(tree.getFXTag());
+                    nonLocalCatchers = nonLocalCatchers.append(makeCatchExpression(param, catchBody, syms.unreachableType));
+                }
             }
 
             @Override
@@ -473,6 +522,20 @@ public class JavafxLocalToClass {
                 if ((tree.mods.flags & Flags.PARAMETER) == 0L) {
                     throw new AssertionError("all vars should have been processed in the block expression");
                 }
+            }
+
+            private JFXVar makeExceptionParameter(Type exceptionType) {
+                JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(exceptionType));
+                param.setType(exceptionType);
+                param.sym = new JavafxVarSymbol(types, names, 0L, param.name, param.type, owner);
+                return param;
+            }
+
+            private JFXCatch makeCatchExpression(JFXVar param, JFXExpression body, Type bodyType) {
+                return fxmake.Catch(param,
+                                (JFXBlock)fxmake.Block(0L,
+                                    List.<JFXExpression>nil(),
+                                    body).setType(bodyType));
             }
         }
         BlockVarAndClassConverter vc = new BlockVarAndClassConverter();
@@ -526,42 +589,41 @@ public class JavafxLocalToClass {
         List<JFXExpression> stats = List.<JFXExpression>of(cdecl);
         JFXExpression value = apply;
 
-        if (vc.returnFound) {
-            // We have a non-local return -- wrap it in try-catch
+        if (vc.nonLocalCatchers.size() > 0) {
 
-            if (vc.returnType != null) {
-                // make sure that try block has return as last statment
-                value = fxmake.Return(value);
-                value.type = syms.unreachableType;
-            }
-            JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(vc.returnType);
-            JFXVar param = fxmake.Param(preTrans.syntheticName("expt$"), preTrans.makeTypeTree(syms.javafx_NonLocalReturnExceptionType));
-            param.setType(syms.javafx_NonLocalReturnExceptionType);
-            param.sym = new JavafxVarSymbol(types, names, 0L, param.name, param.type, owner);
-            JFXExpression retValue = null;
-            if (vc.returnType != null) {
-                JFXIdent nlParam = fxmake.Ident(param);
-                nlParam.type = param.type;
-                nlParam.sym = param.sym;
-                JFXSelect nlValue = fxmake.Select(nlParam,
-                        defs.value_NonLocalReturnExceptionFieldName);
-                nlValue.type = syms.objectType;
-                nlValue.sym = rs.findIdentInType(env, syms.javafx_NonLocalReturnExceptionType, nlValue.name, Kinds.VAR);
-                retValue = fxmake.TypeCast(preTrans.makeTypeTree(vc.returnType), nlValue).setType(vc.returnType);
-            }
-            stats = List.nil();
-            value =
+            JFXBlock tryBody = (JFXBlock)fxmake.Block(0L, stats, value).setType(block.type);
+            
+            stats = List.<JFXExpression>of(
                 fxmake.Try(
                     tryBody,
-                    List.of(
-                        fxmake.Catch(param,
-                            (JFXBlock)fxmake.Block(0L,
-                                List.<JFXExpression>nil(),
-                                fxmake.Return(retValue)).setType(vc.returnType))
-                    ),
-                    null);
-        }
+                    vc.nonLocalCatchers,
+                    null));
 
+            if (block.type != syms.voidType) {
+                JavafxVarSymbol resVarSym = new JavafxVarSymbol(types, names, 0L, preTrans.syntheticName("res$"), block.type, doit.sym);
+                JFXVar resVar = fxmake.Var(resVarSym.name,
+                    preTrans.makeTypeTree(resVarSym.type),
+                    fxmake.Modifiers(resVarSym.flags_field),
+                    null,
+                    JavafxBindStatus.UNBOUND,
+                    null, null);
+                resVar.type = resVarSym.type;
+                resVar.sym = resVarSym;
+                JFXIdent resVarRef = fxmake.Ident(resVarSym);
+                resVarRef.sym = resVarSym;
+                resVarRef.type = resVar.type;
+                tryBody.value = fxmake.Assign(resVarRef, apply).setType(block.type);
+
+                value = (vc.returnType != null &&
+                        vc.returnType.tag != TypeTags.VOID) ?
+                    fxmake.Return(resVarRef).setType(syms.unreachableType) :
+                    resVarRef;
+                stats = stats.prepend(resVar);
+            }
+            else {
+                value = null;
+            }
+        }
 
         preTrans.liftTypes(cdecl, classSymbol.type, funcSym);
 
@@ -649,6 +711,18 @@ public class JavafxLocalToClass {
     private void popOwner() {
        owner = prevOwners.pop();
        isStatic = prevIsStatics.pop();
+    }
+
+    private void pushFunctionReturnType(Type returnType) {
+        prevReturnTypes.push(returnType);
+    }
+
+    private void popFunctionReturnType() {
+        prevReturnTypes.pop();
+    }
+
+    private Type topFunctionReturnType() {
+        return prevReturnTypes.peek();
     }
 }
 

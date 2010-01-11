@@ -350,11 +350,33 @@ public class JavafxDecompose implements JavafxVisitor {
     }
 
     public void visitBreak(JFXBreak tree) {
-        result = tree;
+        if (tree.nonLocalBreak) {
+            // A non-local break gets turned into an exception
+            JFXIdent nonLocalExceptionClass = fxmake.Ident(names.fromString(JavafxDefs.cNonLocalBreakException));
+            nonLocalExceptionClass.sym = syms.javafx_NonLocalBreakExceptionType.tsym;
+            nonLocalExceptionClass.type = syms.javafx_NonLocalBreakExceptionType;
+            JFXInstanciate expInst = fxmake.InstanciateNew(nonLocalExceptionClass, List.<JFXExpression>nil());
+            expInst.sym = (ClassSymbol)syms.javafx_NonLocalBreakExceptionType.tsym;
+            expInst.type = syms.javafx_NonLocalBreakExceptionType;
+            result = fxmake.Throw(expInst).setType(syms.unreachableType);
+        } else {
+            result = tree;
+        }
     }
 
     public void visitContinue(JFXContinue tree) {
-        result = tree;
+        if (tree.nonLocalContinue) {
+            // A non-local continue gets turned into an exception
+            JFXIdent nonLocalExceptionClass = fxmake.Ident(names.fromString(JavafxDefs.cNonLocalContinueException));
+            nonLocalExceptionClass.sym = syms.javafx_NonLocalContinueExceptionType.tsym;
+            nonLocalExceptionClass.type = syms.javafx_NonLocalContinueExceptionType;
+            JFXInstanciate expInst = fxmake.InstanciateNew(nonLocalExceptionClass, List.<JFXExpression>nil());
+            expInst.sym = (ClassSymbol)syms.javafx_NonLocalContinueExceptionType.tsym;
+            expInst.type = syms.javafx_NonLocalContinueExceptionType;
+            result = fxmake.Throw(expInst).setType(syms.unreachableType);
+        } else {
+            result = tree;
+        }
     }
 
     public void visitReturn(JFXReturn tree) {
@@ -487,32 +509,10 @@ public class JavafxDecompose implements JavafxVisitor {
         }
     }
 
-    private JFXExpression shredScriptAccessConditionally(Symbol sym, Type symType) {
-        JFXIdent _access = fxmake.ScriptAccess(sym);
-
-        if (types.isSequence(symType) || !bindStatus.isUnidiBind() ||
-            (_access.sym.owner.flags() & JavafxFlags.MIXIN) != 0) {
-            return shred(_access);
-        } else {
-            return _access;
-        }
-    }
-
     public void visitSelect(JFXSelect tree) {
         JFXExpression selected;
-        Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);
-        boolean isDef = (tree.sym.flags() & JavafxFlags.IS_DEF) != 0;
-        boolean isBound = (tree.sym.flags() & JavafxFlags.VARUSE_BOUND_INIT) != 0;
-        if (tree.sym.isStatic() &&
-                tree.sym.kind == Kinds.VAR &&
-                (!isDef || (isDef && isBound)) &&
-                types.isJFXClass(tree.sym.owner) &&
-                !currentClass.isSubClass(tree.sym.owner, types) &&
-                bindStatus.isBound() &&
-                tree.name != names._class) {
-            //referenced is static script var - if in bind context need shredding
-            selected = shredScriptAccessConditionally(tree.sym.owner, tree.type);
-        } else if (!tree.sym.isStatic() && selectSym != null && selectSym.kind == Kinds.TYP &&
+        Symbol selectSym = JavafxTreeInfo.symbolFor(tree.selected);        
+        if (selectSym != null && selectSym.kind == Kinds.TYP &&
                tree.sym.kind != Kinds.MTH) {
             // This is some outer instance variable access
             if (bindStatus.isBound()) {
@@ -522,9 +522,7 @@ public class JavafxDecompose implements JavafxVisitor {
             }
         } else if (selectSym != null && selectSym.name == names._this) {
             selected = shredThisConditionally(selectSym.type, tree.type);
-        } else if (tree.sym.isStatic() ||
-                (selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super)) ||
-                !types.isJFXClass(tree.sym.owner)) {
+        } else if ((selectSym != null && (selectSym.kind == Kinds.TYP || selectSym.name == names._super))) {
             // Referenced is static, or qualified super access
             // then selected is a class reference
             selected = decompose(tree.selected);
@@ -555,14 +553,7 @@ public class JavafxDecompose implements JavafxVisitor {
                 types.isJFXClass(tree.sym.owner) &&
                 !(tree.getName().startsWith(defs.scriptLevelAccess_FXObjectFieldName)) &&
                 bindStatus.isBound()) {
-            if (tree.sym.isStatic()) {
-                if (!inScriptLevel) {
-                    //referenced is static script var - if in bind context need shredding
-                    JFXExpression script = shredScriptAccessConditionally(tree.sym.owner, tree.type);
-                    setSelectResult(tree, script, tree.sym);
-                    return;
-                }
-            } else if (tree.sym.name != names._this && tree.sym.name != names._super && !currentClass.isSubClass(tree.sym.owner, types)) {
+            if (!tree.sym.isStatic() && tree.sym.name != names._this && tree.sym.name != names._super && !currentClass.isSubClass(tree.sym.owner, types)) {
                 // instance field from outer class. We transform "foo" as "this.foo"
                 // and shred "this" part so that local classes generated for local
                 // binds will have proper dependency.
@@ -665,6 +656,19 @@ public class JavafxDecompose implements JavafxVisitor {
        res.sym = tree.sym;
        res.constructor = tree.constructor;
        res.varDefinedByThis = tree.varDefinedByThis;
+
+       long anonTestFlags = Flags.SYNTHETIC | Flags.FINAL;
+       if (dcdel != null && (dcdel.sym.flags_field & anonTestFlags) == anonTestFlags) {
+           ListBuffer<JavafxVarSymbol> objInitSyms = ListBuffer.lb();
+           for (JFXObjectLiteralPart olp : dparts) {
+              objInitSyms.append((JavafxVarSymbol)olp.sym);
+           }
+           
+           if (objInitSyms.size() > 1) {
+              dcdel.setObjInitSyms(objInitSyms.toList());
+           }
+       }
+
        result = res;
    }
 

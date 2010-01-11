@@ -217,10 +217,11 @@ public class JavafxLower implements JavafxVisitor {
             return tree;
         else {
             tree = makeNumericBoxConversionIfNeeded(tree, type);
-            return (!types.isSubtypeUnchecked(tree.type, type) ||
-                    types.isSameType(tree.type, syms.javafx_EmptySequenceType) ||
-                    (tree.type.isPrimitive() &&
-                    type.isPrimitive() && !types.isSameType(tree.type, type))) ?
+            return !types.isSameType(tree.type, type) &&
+                   (!types.isSubtypeUnchecked(tree.type, type) ||
+                   (tree.type.isPrimitive() && type.isPrimitive() ||
+                   (types.isSameType(tree.type, syms.javafx_EmptySequenceType) &&
+                   types.isSequence(type)))) ?
                 makeCast(tree, type) :
                 tree;
         }
@@ -1170,10 +1171,18 @@ public class JavafxLower implements JavafxVisitor {
     }
 
     public void visitSelect(JFXSelect tree) {
-        JFXExpression selected = lower(tree.selected);
-        JFXSelect res = (JFXSelect)m.Select(selected, tree.sym);
-        res.name = tree.name;
-        result = res.setType(tree.type);
+        if (tree.sym.isStatic() &&                
+                JavafxTreeInfo.symbolFor(tree.selected) != null &&
+                JavafxTreeInfo.symbolFor(tree.selected).kind == Kinds.TYP) {
+            result = m.at(tree.pos()).Ident(tree.sym);
+        }
+        else {
+            JFXExpression selected = lower(tree.selected);
+            JFXSelect res = (JFXSelect)m.Select(selected, tree.sym);
+            res.name = tree.name;
+            result = res;
+        }
+        result.setType(tree.type);
     }
 
     public void visitSkip(JFXSkip tree) {

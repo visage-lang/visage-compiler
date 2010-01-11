@@ -33,8 +33,10 @@ import com.sun.tools.mjavac.tree.JCTree;
 import com.sun.tools.mjavac.tree.JCTree.*;
 import com.sun.tools.mjavac.util.*;
 import com.sun.tools.mjavac.util.JCDiagnostic.DiagnosticPosition;
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxFlags;
 import com.sun.tools.javafx.code.JavafxSymtab;
+import com.sun.tools.javafx.code.JavafxTypeRepresentation;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.comp.JavafxAnalyzeClass.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.*;
@@ -211,10 +213,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         boolean isMixinClass = cDecl.isMixinClass();
         boolean isScriptClass = cDecl.isScriptClass();
         boolean isAnonClass = isAnonClass(analysis.getCurrentClassSymbol());
-        boolean needsGetMap = isAnonClass && (cDecl.sym.flags() & JavafxFlags.ANON_NEEDS_GETMAP) != 0;
+        boolean needsGetMap = isAnonClass && cDecl.getObjInitSyms() != null;
         boolean hasFxSuper = fxSuperClassSym != null;
+        
         // Have to populate the var map for anon classes.
-        LiteralInitVarMap varMap = needsGetMap ? initClassMap.getVarMap(analysis.getCurrentClassSymbol()) : null;
+        LiteralInitVarMap varMap = null;
+        if (needsGetMap) {
+            varMap = initClassMap.getVarMap(analysis.getCurrentClassSymbol());
+            populateAnonInitVarMap(cDecl, varMap);
+        }
 
         ListBuffer<JCTree> cDefinitions = ListBuffer.lb();  // additional class members needed
         ListBuffer<JCTree> iDefinitions = ListBuffer.lb();
@@ -222,7 +229,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         JavaCodeMaker javaCodeMaker = new JavaCodeMaker(analysis, cDefinitions);
         
         if (!isMixinClass) {
-            javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount, varMap);
+            javaCodeMaker.makeAttributeNumbers(classVarInfos, classVarCount);
             javaCodeMaker.makeAttributeFlags(classVarInfos);
             javaCodeMaker.makeAttributeFields(classVarInfos);
             javaCodeMaker.makeAttributeAccessorMethods(classVarInfos);
@@ -256,7 +263,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
-                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
                     javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
@@ -313,7 +320,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
     
                     // script-level into class X.X$Script
                     javaCodeMaker.setContext(true, sDefinitions);
-                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount, null);
+                    javaCodeMaker.makeAttributeNumbers(scriptVarInfos, scriptVarCount);
                     javaCodeMaker.makeAttributeFlags(scriptVarInfos);
                     javaCodeMaker.makeVarNumMethods();
                     javaCodeMaker.makeFXEntryConstructor(scriptVarInfos, null);
@@ -425,6 +432,15 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             }
         }
         return null;
+    }
+
+    // Add the vars referenced in the object literal init.
+    private void populateAnonInitVarMap(JFXClassDeclaration cDecl, LiteralInitVarMap varMap) {
+        List<JavafxVarSymbol> objInitSyms = cDecl.getObjInitSyms();
+        
+        for (JavafxVarSymbol varSym : objInitSyms) {
+            varMap.addVar(varSym);
+        }
     }
 
     protected String getSyntheticPrefix() {
@@ -1077,8 +1093,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (!stmts.isEmpty()) {
                             if (!isMixinClass() && varInfo.getEnumeration() != -1) {
                                 // case tag number
-                                JCExpression tag = Int(varInfo.getEnumeration() - varCount);
-        
+                                JCExpression tag = Int(analysis.isFirstTier() ? varInfo.getEnumeration() :
+                                                                               (varInfo.getEnumeration() - varCount));
                                 // Add the case, something like:
                                 // case i: statement;
                                 cases.append(m().Case(tag, endBlockAsList()));
@@ -1106,7 +1122,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                 
                     // varNum - VCNT$
-                    JCExpression tagExpr = MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
+                    JCExpression tagExpr = analysis.isFirstTier() ? varNumArg() : MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
                     // Construct and add: switch(varNum - VCNT$) { ... }
                     addStmt(m().Switch(tagExpr, cases.toList()));
                 } else {
@@ -1190,7 +1206,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         private boolean needOverrideInvalidateAccessorMethod(VarInfo varInfo) {
             if (varInfo.isMixinVar() ||
                     varInfo.onReplace() != null ||
-                    varInfo.onInvalidate() != null) {
+                    varInfo.onInvalidate() != null ||
+                    !varInfo.boundInvalidatees().isEmpty()) {
                 // based on makeInvalidateAccessorMethod
                 return true;
             } else if (varInfo.hasBoundDefinition()) {
@@ -1215,6 +1232,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         varInfo.hasDependents() || varInfo.isDependent() ||
                         !varInfo.boundInvalidatees().isEmpty() ||
                         varInfo.isMixinVar() ||
+                        (varInfo.isStatic() && !varInfo.getSymbol().hasScriptOnlyAccess()) ||
                         varInfo.onReplace() != null ||
                         varInfo.onInvalidate() != null;
         }
@@ -1236,8 +1254,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             JavafxVarSymbol varSym = (JavafxVarSymbol)varInfo.getSymbol();
             long flags = varSym.flags();
             return isAnonClass() ||
-                   varInfo.isStatic() ||
-                   (varSym.hasScriptOnlyAccess() && (flags & JavafxFlags.OVERRIDE) == 0);
+                   varSym.isDef() ||
+                   varSym.hasScriptOnlyAccess() && (flags & JavafxFlags.OVERRIDE) == 0;
         }
 
         //-----------------------------------------------------------------------------------------------------------------------------
@@ -1628,7 +1646,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             addStmt(Var(syms.intType, lastIndex.name,
                                     MINUS(endPosArg(), Int(1))));
                         }
-
+                        JavafxVarSymbol savedVarSym = onReplace.getSaveVar() != null ? onReplace.getSaveVar().sym : null;
                         // The idea of the following is to implement:
                         //   var x : T[] = ... on replace oldV[i..j] = newV { something };
                         // as if it were:
@@ -1639,7 +1657,6 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         //     something
                         //   };
 
-                        JavafxVarSymbol savedVarSym = onReplace.getSaveVar() != null ? onReplace.getSaveVar().sym : null;
                         if (savedVarSym != null) {
                             // FIXME  Some performance tweaking makes sense:
                             // - If the oldValue is only used for indexing or sizeof, then we
@@ -2024,7 +2041,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         for (BindeeInvalidator invalidator : invalidatees) {
                             addStmt(invalidator.invalidator);
                         }
-                        
+
+                        //TODO: not generating the rest of invalidation is only going to work if all things with invalidators are shredded
+                        //  note the assymetry with sequence invalidators, which are not all shredded
                         return;
                     }
                     
@@ -2396,18 +2415,19 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         // This method generates an enumeration for each of the class's instance attributes.
         // of the class.
         //
-        public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount, LiteralInitVarMap varMap) {
+        public void makeAttributeNumbers(List<VarInfo> attrInfos, int varCount) {
             // Reset diagnostic position to current class.
             resetDiagPos();
 
             // Construct a static count variable (VCNT$), -1 indicates count has not been initialized.
-            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.count_FXObjectFieldName, -1));
+            int initCount = analysis.isFirstTier() ? varCount : -1;
+            addDefinition(addSimpleIntVariable(Flags.STATIC | Flags.PUBLIC, defs.count_FXObjectFieldName, initCount));
 
             // Construct a static count accessor method (VCNT$)
             makeVCNT$(attrInfos, varCount);
 
             // Construct a virtual count accessor method (count$)
-            makecount$();
+            makecount$(varCount);
 
             // Accumulate variable numbering.
             for (VarInfo ai : attrInfos) {
@@ -2418,19 +2438,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
 
                     // Construct offset var.
                     Name name = attributeOffsetName(ai.getSymbol());
+                    JCExpression init = analysis.isFirstTier() ? Int(ai.getEnumeration()) : null;
+                    long flags = analysis.isFirstTier() && isLeaf(ai) ? (Flags.FINAL | Flags.STATIC | Flags.PUBLIC) :
+                                                                        (Flags.STATIC | Flags.PUBLIC);
                     // Construct and add: public static int VOFF$name = n;
-                    
-                    addDefinition(makeField(Flags.STATIC | Flags.PUBLIC, syms.intType, name, null));
-                }
-
-                // Add to var map if an anon class.
-                // Exclude the bogus $internal$ fields of FXBase/FXObject
-                if (varMap != null &&
-                        !ai.isBareSynth() &&
-                        !ai.getSymbol().name.endsWith(defs.internalNameMarker) &&
-                        !ai.getSymbol().name.endsWith(defs.outerAccessor_FXObjectFieldName) &&
-                        !ai.getSymbol().name.endsWith(defs.internalSuffixName)) {
-                    varMap.addVar(ai.getSymbol());
+                    addDefinition(makeField(flags, syms.intType, name, init));
                 }
             }
         }
@@ -2466,35 +2478,39 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     // Start if block.
                     beginBlock();
         
-                    // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
-                    JCExpression setVCNT$Expr = superClassSym == null ?  Int(varCount) :
-                                                                         PLUS(Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
-                                                                              Int(varCount));
-                    Name countName = names.fromString("$count");
-                    // final int $count = VCNT$ = super.VCNT$() + n;
-                    addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.count_FXObjectFieldName), setVCNT$Expr)));
-        
-                    for (VarInfo ai : attrInfos) {
-                        // Only variables actually declared.
-                        if (ai.needsCloning() && !ai.isOverride()) {
-                            // Set diagnostic position for attribute.
-                            setDiagPos(ai.pos());
-                            // Offset var name.
-                            Name name = attributeOffsetName(ai.getSymbol());
-                            // VCNT$ - n + i;
-                            JCExpression setVOFF$Expr = PLUS(id(countName), Int(ai.getEnumeration() - varCount));
-                            // VOFF$var = VCNT$ - n + i;
-                            addStmt(Stmt(m().Assign(id(name), setVOFF$Expr)));
+                    if (analysis.isFirstTier()) {
+                        addStmt(Return(Int(varCount)));
+                    } else {
+                        // VCNT$ = super.VCNT$() + n  or VCNT$ = n;
+                        JCExpression setVCNT$Expr = superClassSym == null ?  Int(varCount) :
+                                                                             PLUS(Call(makeType(superClassSym.type), defs.count_FXObjectFieldName),
+                                                                                  Int(varCount));
+                        Name countName = names.fromString("$count");
+                        // final int $count = VCNT$ = super.VCNT$() + n;
+                        addStmt(makeField(Flags.FINAL, syms.intType, countName, m().Assign(id(defs.count_FXObjectFieldName), setVCNT$Expr)));
+            
+                        for (VarInfo ai : attrInfos) {
+                            // Only variables actually declared.
+                            if (ai.needsCloning() && !ai.isOverride()) {
+                                // Set diagnostic position for attribute.
+                                setDiagPos(ai.pos());
+                                // Offset var name.
+                                Name name = attributeOffsetName(ai.getSymbol());
+                                // VCNT$ - n + i;
+                                JCExpression setVOFF$Expr = PLUS(id(countName), Int(ai.getEnumeration() - varCount));
+                                // VOFF$var = VCNT$ - n + i;
+                                addStmt(Stmt(m().Assign(id(name), setVOFF$Expr)));
+                            }
                         }
-                    }
         
-                    // VCNT$ == -1
-                    JCExpression condition = EQ(id(defs.count_FXObjectFieldName), Int(-1));
-                    // if (VCNT$ == -1) { ...
-                    addStmt(OptIf(condition,
-                            endBlock()));
-                    // return VCNT$;
-                    addStmt(Return(id(defs.count_FXObjectFieldName)));
+                        // VCNT$ == -1
+                        JCExpression condition = EQ(id(defs.count_FXObjectFieldName), Int(-1));
+                        // if (VCNT$ == -1) { ...
+                        addStmt(OptIf(condition,
+                                endBlock()));
+                        // return VCNT$;
+                        addStmt(Return(id(defs.count_FXObjectFieldName)));
+                    }
                 }
             };
             
@@ -2504,12 +2520,17 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         //
         // The method constructs the count$ method for the current class.
         //
-        public void makecount$() {
+        public void makecount$(final int varCount) {
             MethodBuilder smb = new MethodBuilder(defs.count_FXObjectMethodName, syms.intType) {
                 @Override
                 public void statements() {
-                    // Construct and add: return VCNT$();
-                    addStmt(Return(Call(defs.count_FXObjectFieldName)));
+                    if (analysis.isFirstTier()) {
+                        // Construct and add: return n;
+                        addStmt(Return(Int(varCount)));
+                    } else {
+                        // Construct and add: return VCNT$();
+                        addStmt(Return(Call(defs.count_FXObjectFieldName)));
+                    }
                 }
             };
             
@@ -2661,6 +2682,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             if ((isScript() || !isMixinClass()) && varCount > 0) {
                 makeGetMethod(varInfos, varCount);
                 makeGetElementMethod(varInfos, varCount);
+                makeGetAsMethods(varInfos, varCount);
                 makeSizeMethod(varInfos, varCount);
                 makeSetMethod(varInfos, varCount);
                 makeBeMethod(varInfos, varCount);
@@ -2733,7 +2755,8 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 
                                 if (!isMixinClass() && varInfo.getEnumeration() != -1) {
                                     // case tag number
-                                    JCExpression tag = Int(varInfo.getEnumeration() - count);
+                                    JCExpression tag = Int(analysis.isFirstTier() ? varInfo.getEnumeration() :
+                                                                                    (varInfo.getEnumeration() - count));
             
                                     // Add the case, something like:
                                     // case i: statement;
@@ -2764,7 +2787,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         cases.append(m().Case(null, endBlockAsList()));
                     
                         // varNum - VCNT$
-                        JCExpression tagExpr = MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
+                        JCExpression tagExpr = analysis.isFirstTier() ? varNumArg() : MINUS(varNumArg(), id(defs.count_FXObjectFieldName));
                         // Construct and add: switch(varNum - VCNT$) { ... }
                         addStmt(m().Switch(tagExpr, cases.toList()));
                     } else {
@@ -2809,6 +2832,38 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
         }
         
         //
+        // Return the initialize settings of a vars flags.
+        //
+        private JCExpression initialVarBits(VarInfo ai) {
+            boolean isBound = ai.hasBoundDefinition();
+            boolean isReadonly = ai.isReadOnly();
+            boolean isEager = ai.onReplace() != null;
+            JCExpression setBits = null;
+  
+            if (useSimpleInit(ai)) {
+                setBits = bitOrFlags(setBits, defs.varFlagDEFAULT_APPLIED, defs.varFlagIS_INITIALIZED);
+            } else {
+                if (isBound) {
+                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagIS_INVALID, defs.varFlagNEEDS_TRIGGER);
+                }
+                
+                if (ai.hasVarInit()) {
+                    setBits = bitOrFlags(setBits, defs.varFlagAWAIT_VARINIT);
+                }
+            }
+            
+            if (isReadonly) {
+                setBits = bitOrFlags(setBits, defs.varFlagIS_READONLY);
+            }
+            
+            if (isEager) {
+                setBits = bitOrFlags(setBits, defs.varFlagIS_EAGER);
+            }
+            
+            return setBits;
+        }
+
+        //
         // This method sets up the initial var state.
         //
         private void makeInitVarsMethod(final List<VarInfo> attrInfos, final HashMap<JavafxVarSymbol, HashMap<JavafxVarSymbol, HashSet<VarInfo>>> updateMap) {
@@ -2828,31 +2883,9 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         if (ai.needsCloning()) {
                             JavafxVarSymbol proxyVarSym = ai.proxyVarSym();
                             boolean isBound = ai.hasBoundDefinition();
-                            boolean isReadonly = ai.isReadOnly();
-                            boolean isEager = ai.onReplace() != null;
-                            JCExpression setBits = null;
+                            JCExpression setBits = initialVarBits(ai);
                             JCExpression clearBits = id(defs.varFlagALL_FLAGS);
 
-                            if (useSimpleInit(ai)) {
-                                setBits = bitOrFlags(setBits, defs.varFlagDEFAULT_APPLIED, defs.varFlagIS_INITIALIZED);
-                            } else {
-                                if (isBound) {
-                                    setBits = bitOrFlags(setBits, defs.varFlagIS_BOUND, defs.varFlagIS_INVALID, defs.varFlagNEEDS_TRIGGER);
-                                }
-                                
-                                if (ai.hasVarInit()) {
-                                    setBits = bitOrFlags(setBits, defs.varFlagAWAIT_VARINIT);
-                                }
-                            }
-                            
-                            if (isReadonly) {
-                                setBits = bitOrFlags(setBits, defs.varFlagIS_READONLY);
-                            }
-                            
-                            if (isEager) {
-                                setBits = bitOrFlags(setBits, defs.varFlagIS_EAGER);
-                            }
-                           
                             if (ai.isOverride() || ai instanceof MixinClassVarInfo) {
                                 if (isBound || ai.hasInitializer()) {
                                     clearBits = BITAND(id(defs.varFlagALL_FLAGS), BITNOT(id(defs.varFlagIS_EAGER)));
@@ -2866,15 +2899,20 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                             }
                         }
                     }
-                    
-                    // Add "this" dependencies.
+
+                    // Add "this" and "script access" dependencies.
                     for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
-                        if (instanceVar.isSpecial()) {
-                            HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
-                        
-                            for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
-                                HashSet<VarInfo> referenceSet = instanceMap.get(referenceVar);
-                                addStmt(CallStmt(defs.FXBase_addDependent, Get(instanceVar), Offset(Get(instanceVar), referenceVar), id(names._this)));
+                        HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
+
+                        for (JavafxVarSymbol referenceVar : instanceMap.keySet()) {
+                            if (instanceVar.isSpecial()) {
+                                // Dependent on var referenced via "this"
+                                addFixedDependent(instanceVar, referenceVar);
+                            } else if (referenceVar.isStatic()) {
+                                // Dependent on a script-level var, reference via the script-level var
+                                JavafxClassSymbol classSym = (JavafxClassSymbol) referenceVar.owner;
+                                JavafxVarSymbol scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                                addFixedDependent(scriptAccess, referenceVar);
                             }
                         }
                     }
@@ -2889,6 +2927,13 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     
                     // Emit method only if there was anything beyond the super call.
                     buildIf(!initFlags.isEmpty());
+                }
+
+                private void addFixedDependent(JavafxVarSymbol instanceVar, JavafxVarSymbol referenceVar) {
+                    addStmt(CallStmt(defs.FXBase_addDependent,
+                            Get(instanceVar),
+                            Offset(Get(instanceVar), referenceVar),
+                            id(names._this)));
                 }
             };
             
@@ -3003,6 +3048,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                     }
                     // Loop for instance symbol.
                     for (JavafxVarSymbol instanceVar : updateMap.keySet()) {
+                        JavafxVarSymbol scriptAccess = null;
                         HashMap<JavafxVarSymbol, HashSet<VarInfo>> instanceMap = updateMap.get(instanceVar);
                         beginBlock();
 
@@ -3028,6 +3074,11 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                                 addStmt(invalidate(varInfo.generateSequenceAccessors(), varInfo.proxyVarSym()));
                             }
 
+                            if (referenceVar.isStatic() && !instanceVar.isSpecial()) {
+                                JavafxClassSymbol classSym = (JavafxClassSymbol)referenceVar.owner;
+                                scriptAccess = fxmake.ScriptAccessSymbol(classSym);
+                            }
+
                             // Reference the class with the instance, if it is script-level append the suffix
                             JCExpression offsetExpr = Offset(referenceVar);
                             if (isMixinVar(referenceVar)) {
@@ -3039,7 +3090,7 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
                         }
                         addStmt(ifReferenceStmt);
                         
-                        JCExpression ifInstanceCond = EQ(updateInstanceArg(), Get(instanceVar));
+                        JCExpression ifInstanceCond = EQ(updateInstanceArg(), Get(scriptAccess != null ? scriptAccess : instanceVar));
                         addStmt(OptIf(ifInstanceCond,
                                 endBlock()));
                     }
@@ -3120,7 +3171,83 @@ public class JavafxInitializationBuilder extends JavafxTranslationSupport {
             vcmb.build();
         }
          
+         //
+        // This method constructs the current class's getAsXXX$ methods.
         //
+        public void makeGetAsMethods(List<VarInfo> attrInfos, final int varCount) {
+            int typeRepCnt = JavafxTypeRepresentation.values().length;
+            ListBuffer<VarInfo>[] seqVars = new ListBuffer[typeRepCnt];
+            boolean hasSequences = false;
+            
+            // Iterate thru each var.
+            for (VarInfo varInfo : attrInfos) {
+                // Constrain the var.
+                if (varInfo.needsCloning() &&
+                    !varInfo.isOverride() &&
+                    !varInfo.isBareSynth() &&
+                    varInfo.useAccessors() &&
+                    varInfo.generateSequenceAccessors()) {
+                    // Element type of sequence.
+                    Type elemType = varInfo.getElementType();
+                    // Type representation of sequence element type.
+                    JavafxTypeRepresentation typeRep = types.typeRep(elemType);
+                    
+                    // Only care about primitive types.
+                    if (typeRep.isPrimitive()) {
+                        //  Ordinal is used as index.
+                        int ordinal = typeRep.ordinal();
+                        
+                        // If this type of sequence has not been encountered before.
+                        if (seqVars[ordinal] == null) {
+                            // Init the list buffer for this type.
+                            seqVars[ordinal] = ListBuffer.lb();
+                            // Worth the effort to iterate thru the list later.
+                            hasSequences = true;
+                        }
+                        
+                        // Add var to list to include in method generation.
+                        seqVars[ordinal].append(varInfo);
+                    }
+                }
+            }
+            
+            // Worth the effort.
+            if (hasSequences) {
+                // For each element type.
+                for (JavafxTypeRepresentation typeRep : JavafxTypeRepresentation.values()) {
+                    //  Ordinal is used as index.
+                    int ordinal = typeRep.ordinal();
+                    
+                    // Only include method if a sequence of that type exists.
+                    if (seqVars[ordinal] != null) {
+                        // All vars of that element type.
+                        List<VarInfo> seqVarInfos = seqVars[ordinal].toList();
+                        // Use the first as a sample to get the type.
+                        final Type elemType = seqVarInfos.get(0).getElementType();
+                        
+                        // Can use case method with a subset of vars.
+                        VarCaseMethodBuilder vcmb = new VarCaseMethodBuilder(defs.getAs_FXObjectMethodName[ordinal], elemType,
+                                                                             seqVarInfos, varCount) {
+                            @Override
+                            public void initialize() {
+                                addParam(posArg());
+                            }
+                            
+                            @Override
+                            public void statements() {
+                                // The vars have already been filtered.
+                                addStmt(Return(Call(attributeGetElementName(varSym), posArg())));
+                            }
+                        };
+                        
+                        // Build the method.
+                        vcmb.build();
+                    }
+                }
+            }
+        }
+         
+       //
         // This method constructs the current class's size$(varnum) method.
         //
         public void makeSizeMethod(List<VarInfo> attrInfos, int varCount) {

@@ -23,6 +23,7 @@
 
 package com.sun.tools.javafx.comp;
 
+import com.sun.tools.javafx.code.JavafxClassSymbol;
 import com.sun.tools.javafx.code.JavafxVarSymbol;
 import com.sun.tools.javafx.tree.*;
 import com.sun.tools.javafx.comp.JavafxAbstractTranslation.ExpressionResult;
@@ -131,16 +132,33 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
             return FlagChangeStmt(flagSymbol, null, activeFlagBit);
         }
 
-        JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
-            return Call(rcvr, attributeGetElementName(sym), pos);
+        protected JCExpression getReceiverForCallHack(Symbol sym) {
+            if (sym.isStatic()) {
+                return makeType(sym.owner.type, false);
+            }
+            return getReceiver(sym);
         }
 
         JCExpression CallSize(Symbol sym) {
-            return CallSize(getReceiver(), sym);
+            return CallSize(getReceiverForCallHack(sym), sym);
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
-            return Call(rcvr, attributeSizeName(sym));
+            if (((JavafxVarSymbol) sym).useAccessors())
+                return Call(rcvr, attributeSizeName(sym));
+            else
+                return Call(defs.Sequences_size, Getter(rcvr, sym));
+        }
+
+        JCExpression CallGetElement(Symbol sym, JCExpression pos) {
+            return CallGetElement(getReceiverForCallHack(sym), sym, pos);
+        }
+
+        JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
+            if (((JavafxVarSymbol) sym).useAccessors())
+                return Call(rcvr, attributeGetElementName(sym), pos);
+            else
+                return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, pos);
         }
 
         JCExpression Undefined() {
@@ -191,18 +209,18 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         }
     }
 
-    private class BiBoundSequenceIdentTranslator extends ExpressionTranslator {
+    private class BiBoundSequenceIdentTranslator extends BoundIdentTranslator {
 
         private final JavafxVarSymbol refSym;
 
         BiBoundSequenceIdentTranslator(JFXIdent tree) {
-            super(tree.pos());
+            super(tree);
             this.refSym = (JavafxVarSymbol) tree.sym;
         }
 
         @Override
-        BoundSequenceResult doit() {
-            addBindee(refSym);
+        protected BoundSequenceResult doit() {
+            super.doit();
             return new BoundSequenceResult(
                     List.of(init()),
                     null,
@@ -215,7 +233,7 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         }
 
         JCStatement init() {
-            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), getReceiverOrThis(), Offset(refSym));
+            List<JCExpression> args = List.<JCExpression>of(TypeInfo(diagPos, refSym.type), getReceiverOrThis(refSym), Offset(refSym));
             return
                 SetStmt(targetSymbol, 
                     m().NewClass(null, null, makeType(types.erasure(syms.javafx_SequenceProxyType)), args, null)
@@ -225,20 +243,33 @@ public class JavafxTranslateInvBind extends JavafxAbstractTranslation implements
         // ---- Stolen from BoundSequenceTranslator ----
         //TODO: unify
 
+        protected JCExpression getReceiverForCallHack(Symbol sym) {
+            if (sym.isStatic()) {
+                return makeType(sym.owner.type, false);
+            }
+            return getReceiver(sym);
+        }
+
         JCExpression CallSize(Symbol sym) {
-            return CallSize(getReceiver(), sym);
+            return CallSize(getReceiverForCallHack(sym), sym);
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
-            return Call(rcvr, attributeSizeName(sym));
+            if (((JavafxVarSymbol) sym).useAccessors())
+                return Call(rcvr, attributeSizeName(sym));
+            else
+                return Call(defs.Sequences_size, Getter(rcvr, sym));
         }
 
         JCExpression CallGetElement(Symbol sym, JCExpression pos) {
-            return CallGetElement(getReceiver(), sym, pos);
+            return CallGetElement(getReceiverForCallHack(sym), sym, pos);
         }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
-            return Call(rcvr, attributeGetElementName(sym), pos);
+            if (((JavafxVarSymbol) sym).useAccessors())
+                return Call(rcvr, attributeGetElementName(sym), pos);
+            else
+                return Call(Getter(rcvr, sym), defs.get_SequenceMethodName, pos);
         }
 
         /**

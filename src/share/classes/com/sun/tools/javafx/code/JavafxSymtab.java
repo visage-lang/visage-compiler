@@ -97,6 +97,8 @@ public class JavafxSymtab extends Symtab {
     public final Type javafx_BoundForHelperSingletonType;
     public final Type javafx_FXForPartInterfaceType;
     public final Type javafx_NonLocalReturnExceptionType;
+    public final Type javafx_NonLocalBreakExceptionType;
+    public final Type javafx_NonLocalContinueExceptionType;
 
     public final Type javafx_protectedAnnotationType;
     public final Type javafx_packageAnnotationType;
@@ -217,6 +219,8 @@ public class JavafxSymtab extends Symtab {
         javafx_BoundForHelperSingletonType = enterClass(JavafxDefs.cBoundForHelperNaiveSingle);
         javafx_FXForPartInterfaceType = enterClass(JavafxDefs.cBoundForPartI);
         javafx_NonLocalReturnExceptionType = enterClass(JavafxDefs.cNonLocalReturnException);
+        javafx_NonLocalBreakExceptionType = enterClass(JavafxDefs.cNonLocalBreakException);
+        javafx_NonLocalContinueExceptionType = enterClass(JavafxDefs.cNonLocalContinueException);
         javafx_protectedAnnotationType = enterClass(protectedAnnotationClassNameString);
         javafx_packageAnnotationType = enterClass(packageAnnotationClassNameString);
         javafx_publicAnnotationType = enterClass(publicAnnotationClassNameString);

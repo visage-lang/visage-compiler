@@ -402,8 +402,15 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
             return new BoundSequenceResult(bindees(), invalidators(), interClass(), makeGetElementBody(), makeSizeBody());
         }
 
+        protected JCExpression getReceiverForCallHack(Symbol sym) {
+            if (sym.isStatic()) {
+                return makeType(sym.owner.type, false);
+            }
+            return getReceiver(sym);
+        }
+
         JCExpression CallSize(Symbol sym) {
-            return CallSize(getReceiver(), sym);
+            return CallSize(getReceiverForCallHack(sym), sym);
         }
 
         JCExpression CallSize(JCExpression rcvr, Symbol sym) {
@@ -414,7 +421,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
         }
 
         JCExpression CallGetElement(Symbol sym, JCExpression pos) {
-            return CallGetElement(getReceiver(), sym, pos);
+            return CallGetElement(getReceiverForCallHack(sym), sym, pos);
         }
 
         JCExpression CallGetElement(JCExpression rcvr, Symbol sym, JCExpression pos) {
@@ -486,23 +493,50 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
      */
     class BoundIdentSequenceTranslator extends BoundSequenceTranslator {
         // Symbol of the referenced
-        private final Symbol sym;
+        private final JavafxVarSymbol sym;
 
         // ExpressionResult for etracting bindee info
         private final ExpressionResult exprResult;
 
         BoundIdentSequenceTranslator(JFXIdent tree, ExpressionResult exprResult) {
             super(tree.pos());
-            this.sym = tree.sym;
+            this.sym = (JavafxVarSymbol) tree.sym;
             this.exprResult = exprResult;
         }
-
+        
         JCStatement makeSizeBody() {
-            return Return(CallSize(sym));
+            JCVariableDecl vSize = TmpVar("size", syms.intType, CallSize(sym));
+
+            return 
+                Block(
+                    vSize,
+                    If (isSequenceDormant(),
+                        Block(
+                            setSequenceActive(),
+                            CallSeqInvalidate(),
+                            CallSeqInvalidate(targetSymbol, Int(0), Int(0), id(vSize), id(defs.varFlagNEEDS_TRIGGER))
+                        )
+                    ),
+                    Return(id(vSize))
+                );
         }
 
         JCStatement makeGetElementBody() {
-            return Return(CallGetElement(sym, posArg()));
+            return
+                Block(
+                    If (isSequenceDormant(),
+                        Stmt(CallSize(targetSymbol))
+                    ),
+                    Return(CallGetElement(sym, posArg()))
+                );
+        }
+
+        /**
+         * Invalidator for the underlying sequence
+         */
+        private JCStatement makeInvalidateSelf() {
+            return
+                setSequenceActive();
         }
 
         /**
@@ -510,6 +544,7 @@ public class JavafxTranslateBind extends JavafxAbstractTranslation implements Ja
          */
         void setupInvalidators() {
             mergeResults(exprResult);
+            addInvalidator(targetSymbol, makeInvalidateSelf());
         }
     }
 
