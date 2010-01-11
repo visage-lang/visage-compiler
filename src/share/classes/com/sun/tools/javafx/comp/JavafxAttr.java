@@ -460,7 +460,7 @@ public class JavafxAttr implements JavafxVisitor {
                 tree.clazz.pos(),
                 types.boxedTypeOrType(type));
         if (!result.isErroneous()) {
-            chk.checkCastable(tree.expr.pos(), exprtype, type);
+            chk.checkInstanceOf(tree.expr.pos(), exprtype, type);
             result = check(tree, syms.booleanType, VAL, pkind, pt, Sequenceness.DISALLOWED);
         }
     }

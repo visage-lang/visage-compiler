@@ -519,6 +519,14 @@ public class JavafxCheck {
 	}
     }
 
+    void checkInstanceOf(DiagnosticPosition pos, Type s, Type t) {
+        if (!types.isCastableNoConversion(s, t, Warner.noWarnings)) {
+                typeError(pos,
+                    JCDiagnostic.fragment(MsgSym.MESSAGE_INCONVERTIBLE_TYPES),
+                    s, t);
+            }
+    }
+
     /** Check that a given type can be cast to a given target type.
      *  Return the result of the cast.
      *  @param pos        Position to be used for error reporting.
