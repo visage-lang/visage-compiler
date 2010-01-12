@@ -664,9 +664,9 @@ public class XHTMLProcessingUtils {
         try {
             Object ret = scrEng.eval(script); 
             // FIXME: should we use javafx.reflect here?
-            Class fxStageClass = Class.forName("javafx.stage.Stage"); 
-            Class fxSceneClass = Class.forName("javafx.scene.Scene"); 
-            Class fxNodeClass = Class.forName("javafx.scene.Node"); 
+            Class<?> fxStageClass = Class.forName("javafx.stage.Stage"); 
+            Class<?> fxSceneClass = Class.forName("javafx.scene.Scene"); 
+            Class<?> fxNodeClass = Class.forName("javafx.scene.Node"); 
             Object scene = null;
             if (fxSceneClass.isInstance(ret)) { 
                 scene = ret; 
